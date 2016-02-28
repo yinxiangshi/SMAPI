@@ -32,7 +32,11 @@ namespace StardewModdingAPI
         public static Form StardewForm;
 
         public static Thread gameThread;
+        public static Thread updateThread;
         public static Thread consoleInputThread;
+
+        public static int frozenTime;
+        public static bool infHealth, infStamina, infMoney, freezeTime;
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -69,6 +73,10 @@ namespace StardewModdingAPI
             LogInfo("Initializing Console Input Thread...");
             consoleInputThread.Start();
 
+            updateThread = new Thread(UpdateThread);
+            LogInfo("Starting Update Thread...");
+            updateThread.Start();
+            Events.UpdateTick += Events_UpdateTick;
 
             LogInfo("Applying Final SDV Tweaks...");
             StardewInvoke(() =>
@@ -83,6 +91,8 @@ namespace StardewModdingAPI
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 
         public static void RunGame()
         {
@@ -105,6 +115,9 @@ namespace StardewModdingAPI
             {
                 LogError("Game failed to start: " + ex);
             }
+            ready = false;
+            if (updateThread != null && updateThread.ThreadState == ThreadState.Running)
+                updateThread.Abort();
             if (consoleInputThread != null && consoleInputThread.ThreadState == ThreadState.Running)
                 consoleInputThread.Abort();
             Log("Game Execution Finished");
@@ -144,6 +157,36 @@ namespace StardewModdingAPI
             while (true)
             {
                 Command.CallCommand(Console.ReadLine());
+            }
+        }
+
+        public static void UpdateThread()
+        {
+            Events.InvokeUpdateInitialized();
+            while (ready)
+            {
+                Events.InvokeUpdateTick();
+                Thread.Sleep(1000 / 60);
+            }
+        }
+
+        static void Events_UpdateTick()
+        {
+            if (infHealth)
+            {
+                Game1.player.health = Game1.player.maxHealth;
+            }
+            if (infStamina)
+            {
+                Game1.player.stamina = Game1.player.MaxStamina;
+            }
+            if (infMoney)
+            {
+                Game1.player.money = 999999;
+            }
+            if (freezeTime)
+            {
+                Game1.timeOfDay = frozenTime;
             }
         }
 
@@ -187,15 +230,22 @@ namespace StardewModdingAPI
             Command.RegisterCommand("stop", "Closes the game | stop").CommandFired += exit_CommandFired;
 
             Command.RegisterCommand("player_setname", "Sets the player's name | player_setname <object> <value>", new[] { "(player, pet, farm)<object> (String)<value> The target name" }).CommandFired += player_setName;
-            Command.RegisterCommand("player_setmoney", "Sets the player's money | player_setmoney <value>", new[] { "(Int32)<value> The target money" }).CommandFired += player_setMoney;
-            Command.RegisterCommand("player_setenergy", "Sets the player's energy | player_setenergy <value>", new[] { "(Int32)<value> The target energy" }).CommandFired += player_setEnergy;
-            Command.RegisterCommand("player_setmaxenergy", "Sets the player's max energy | player_setmaxenergy <value>", new[] { "(Int32)<value> The target max energy" }).CommandFired += player_setMaxEnergy;
+            Command.RegisterCommand("player_setmoney", "Sets the player's money | player_setmoney <value>|inf", new[] { "(Int32)<value> The target money" }).CommandFired += player_setMoney;
+            Command.RegisterCommand("player_setenergy", "Sets the player's energy | player_setenergy <value>|inf", new[] { "(Int32)<value> The target energy" }).CommandFired += player_setStamina;
+            Command.RegisterCommand("player_setmaxenergy", "Sets the player's max energy | player_setmaxenergy <value>", new[] { "(Int32)<value> The target max energy" }).CommandFired += player_setMaxStamina;
+            Command.RegisterCommand("player_sethealth", "Sets the player's health | player_sethealth <value>|inf", new[] { "(Int32)<value> The target health" }).CommandFired += player_setHealth;
+            Command.RegisterCommand("player_setmaxhealth", "Sets the player's max health | player_setmaxhealth <value>", new[] { "(Int32)<value> The target max health" }).CommandFired += player_setMaxHealth;
+            Command.RegisterCommand("player_setimmunity", "Sets the player's immunity | player_setimmunity <value>", new[] { "(Int32)<value> The target immunity" }).CommandFired += player_setImmunity;
 
             Command.RegisterCommand("player_setlevel", "Sets the player's specified skill to the specified value | player_setlevel <skill> <value>", new[] { "(luck, mining, combat, farming, fishing, foraging)<skill> (1-10)<value> The target level" }).CommandFired += player_setLevel;
-            Command.RegisterCommand("player_setspeed", "Sets the player's speed to the specified value?", new[] {"(Int32:5)<value> The target speed"}).CommandFired += player_setSpeed;
+            Command.RegisterCommand("player_setspeed", "Sets the player's speed to the specified value?", new[] {"(Int32)<value> The target speed [0 is normal]"}).CommandFired += player_setSpeed;
             Command.RegisterCommand("player_changecolour", "Sets the player's colour of the specified object | player_changecolor <object> <colour>", new[] { "(hair, eyes, pants)<object> (r,g,b)<colour>" }).CommandFired += player_changeColour;
             Command.RegisterCommand("player_changestyle", "Sets the player's style of the specified object | player_changecolor <object> <value>", new[] { "(hair, shirt, skin, acc, shoe, swim, gender)<object> (Int32)<value>" }).CommandFired += player_changeStyle;
 
+            Command.RegisterCommand("world_settime", "Sets the time to the specified value | world_settime <value>", new[] { "(Int32)<value> The target time [06:00 AM is 600]" }).CommandFired += world_setTime;
+            Command.RegisterCommand("world_freezetime", "Freezes or thaws time | world_freezetime <value>", new[] { "(0 - 1)<value> Whether or not to freeze time. 0 is thawed, 1 is frozen" }).CommandFired += world_freezeTime;
+            Command.RegisterCommand("world_setday", "Sets the day to the specified value | world_setday <value>", new[] { "(Int32)<value> The target day [1-28]" }).CommandFired += world_setDay;
+            Command.RegisterCommand("world_setseason", "Sets the season to the specified value | world_setseason <value>", new[] { "(winter, spring, summer, fall)<value> The target season" }).CommandFired += world_setSeason;
         }
 
         static void help_CommandFired(Command cmd)
@@ -266,12 +316,12 @@ namespace StardewModdingAPI
                 }
                 else
                 {
-                    LogError("<object> is invalid");
+                    LogObjectInvalid();
                 }
             }
             else
             {
-                LogError("<object> and <value> must be specified");
+                LogObjectValueNotSpecified();
             }
         }
 
@@ -279,45 +329,61 @@ namespace StardewModdingAPI
         {
             if (cmd.CalledArgs.Length > 0)
             {
-                int ou = 0;
-                if (Int32.TryParse(cmd.CalledArgs[0], out ou))
+                if (cmd.CalledArgs[0] == "inf")
                 {
-                    Game1.player.Money = ou;
-                    LogInfo("Set {0}'s money to {1}", Game1.player.Name, Game1.player.Money);
+                    infMoney = true;
                 }
                 else
                 {
-                    LogError("<value> must be a whole number (Int32)");
+                    infMoney = false;
+                    int ou = 0;
+                    if (Int32.TryParse(cmd.CalledArgs[0], out ou))
+                    {
+                        Game1.player.Money = ou;
+                        LogInfo("Set {0}'s money to {1}", Game1.player.Name, Game1.player.Money);
+                    }
+                    else
+                    {
+                        LogValueNotInt32();
+                    }
                 }
             }
             else
             {
-                LogError("<value> must be specified");
+                LogValueNotSpecified();
             }
         }
 
-        static void player_setEnergy(Command cmd)
+        static void player_setStamina(Command cmd)
         {
             if (cmd.CalledArgs.Length > 0)
             {
-                int ou = 0;
-                if (Int32.TryParse(cmd.CalledArgs[0], out ou))
+                if (cmd.CalledArgs[0] == "inf")
                 {
-                    Game1.player.Stamina = ou;
-                    LogInfo("Set {0}'s energy to {1}", Game1.player.Name, Game1.player.Stamina);
+                    infStamina = true;
                 }
                 else
                 {
-                    LogError("<value> must be a whole number (Int32)");
+                    infStamina = false;
+                    int ou = 0;
+                    if (Int32.TryParse(cmd.CalledArgs[0], out ou))
+                    {
+                        Game1.player.Stamina = ou;
+                        LogInfo("Set {0}'s stamina to {1}", Game1.player.Name, Game1.player.Stamina);
+                    }
+                    else
+                    {
+                        LogValueNotInt32();
+                    }
                 }
             }
             else
             {
-                LogError("<value> must be specified");
+                LogValueNotSpecified();
             }
         }
 
-        static void player_setMaxEnergy(Command cmd)
+        static void player_setMaxStamina(Command cmd)
         {
             if (cmd.CalledArgs.Length > 0)
             {
@@ -325,16 +391,16 @@ namespace StardewModdingAPI
                 if (Int32.TryParse(cmd.CalledArgs[0], out ou))
                 {
                     Game1.player.MaxStamina = ou;
-                    LogInfo("Set {0}'s max energy to {1}", Game1.player.Name, Game1.player.MaxStamina);
+                    LogInfo("Set {0}'s max stamina to {1}", Game1.player.Name, Game1.player.MaxStamina);
                 }
                 else
                 {
-                    LogError("<value> must be a whole number (Int32)");
+                    LogValueNotInt32();
                 }
             }
             else
             {
-                LogError("<value> must be specified");
+                LogValueNotSpecified();
             }
         }
 
@@ -373,7 +439,7 @@ namespace StardewModdingAPI
                     }
                     else
                     {
-                        LogError("<value> must be a whole number (Int32)");
+                        LogValueNotInt32();
                     }
                 }
                 else
@@ -393,20 +459,19 @@ namespace StardewModdingAPI
             {
                 if (cmd.CalledArgs[0].IsInt32())
                 {
-                    Game1.player.Speed = cmd.CalledArgs[0].AsInt32();
-                    LogInfo("Set {0}'s speed to {1}", Game1.player.Name, Game1.player.Speed);
+                    Game1.player.addedSpeed = cmd.CalledArgs[0].AsInt32();
+                    LogInfo("Set {0}'s added speed to {1}", Game1.player.Name, Game1.player.addedSpeed);
                 }
                 else
                 {
-                    LogError("<value> must be a whole number (Int32)");
+                    LogValueNotInt32();
                 }
             }
             else
             {
-                LogError("<value> must be specified");
+                LogValueNotSpecified();
             }
         }
-
 
         static void player_changeColour(Command cmd)
         {
@@ -440,7 +505,7 @@ namespace StardewModdingAPI
                 }
                 else
                 {
-                    LogError("<object> is invalid");
+                    LogObjectInvalid();
                 }
             }
             else
@@ -497,19 +562,189 @@ namespace StardewModdingAPI
                     }
                     else
                     {
-                        LogError("<value> is invalid");
+                        LogValueInvalid();
                     }
                 }
                 else
                 {
-                    LogError("<object> is invalid");
+                    LogObjectInvalid();
                 }
             }
             else
             {
-                LogError("<object> and <value> must be specified");
+                LogObjectValueNotSpecified();
             }
         }
+
+        static void world_freezeTime(Command cmd)
+        {
+            if (cmd.CalledArgs.Length > 0)
+            {
+                if (cmd.CalledArgs[0].IsInt32())
+                {
+                    if (cmd.CalledArgs[0].AsInt32() == 0 || cmd.CalledArgs[0].AsInt32() == 1)
+                    {
+                        freezeTime = cmd.CalledArgs[0].AsInt32() == 1;
+                        frozenTime = freezeTime ? Game1.timeOfDay : 0;
+                        LogInfo("Time is now " + (freezeTime ? "frozen" : "thawed"));
+                    }
+                    else
+                    {
+                        LogError("<value> should be 0 or 1");
+                    }
+                }
+                else
+                {
+                    LogValueNotInt32();
+                }
+            }
+            else
+            {
+                LogValueNotSpecified();
+            }
+        }
+
+        static void world_setTime(Command cmd)
+        {
+            if (cmd.CalledArgs.Length > 0)
+            {
+                if (cmd.CalledArgs[0].IsInt32())
+                {
+                    if (cmd.CalledArgs[0].AsInt32() <= 2600 && cmd.CalledArgs[0].AsInt32() >= 600)
+                    {
+                        Game1.timeOfDay = cmd.CalledArgs[0].AsInt32();
+                        frozenTime = freezeTime ? Game1.timeOfDay : 0;
+                        LogInfo("Time set to: " + Game1.timeOfDay);
+                    }
+                    else
+                    {
+                        LogError("<value> should be between 600 and 2600 (06:00 AM - 02:00 AM [NEXT DAY])");
+                    }
+                }
+                else
+                {
+                    LogValueNotInt32();
+                }
+            }
+            else
+            {
+                LogValueNotSpecified();
+            }
+        }
+
+        static void world_setDay(Command cmd)
+        {
+            if (cmd.CalledArgs.Length > 0)
+            {
+                if (cmd.CalledArgs[0].IsInt32())
+                {
+                    if (cmd.CalledArgs[0].AsInt32() <= 28 && cmd.CalledArgs[0].AsInt32() > 0)
+                    {
+                        Game1.dayOfMonth = cmd.CalledArgs[0].AsInt32();
+                    }
+                    else
+                    {
+                        LogError("<value> must be between 1 and 28");
+                    }
+                }
+                else
+                {
+                    LogValueNotInt32();
+                }
+            }
+            else
+            {
+                LogValueNotSpecified();
+            }
+        }
+
+        static void world_setSeason(Command cmd)
+        {
+            if (cmd.CalledArgs.Length > 0)
+            {
+                string obj = cmd.CalledArgs[0];
+                string[] objs = "winter,spring,summer,fall".Split(new []{','});
+                if (objs.Contains(obj))
+                {
+                    Game1.currentSeason = obj;
+                }
+                else
+                {
+                    LogValueInvalid();
+                }
+            }
+            else
+            {
+                LogValueNotSpecified();
+            }
+        }
+
+        static void player_setHealth(Command cmd)
+        {
+            if (cmd.CalledArgs.Length > 0)
+            {
+                if (cmd.CalledArgs[0] == "inf")
+                {
+                    infHealth = true;
+                }
+                else
+                {
+                    infHealth = false;
+                    if (cmd.CalledArgs[0].IsInt32())
+                    {
+                        Game1.player.health = cmd.CalledArgs[0].AsInt32();
+                    }
+                    else
+                    {
+                        LogValueNotInt32();
+                    }
+                }
+            }
+            else
+            {
+                LogValueNotSpecified();
+            }
+        }
+
+        static void player_setMaxHealth(Command cmd)
+        {
+            if (cmd.CalledArgs.Length > 0)
+            {
+                if (cmd.CalledArgs[0].IsInt32())
+                {
+                    Game1.player.maxHealth = cmd.CalledArgs[0].AsInt32();
+                }
+                else
+                {
+                    LogValueNotInt32();
+                }
+            }
+            else
+            {
+                LogValueNotSpecified();
+            }
+        }
+
+        static void player_setImmunity(Command cmd)
+        {
+            if (cmd.CalledArgs.Length > 0)
+            {
+                if (cmd.CalledArgs[0].IsInt32())
+                {
+                    Game1.player.immunity = cmd.CalledArgs[0].AsInt32();
+                }
+                else
+                {
+                    LogValueNotInt32();
+                }
+            }
+            else
+            {
+                LogValueNotSpecified();
+            }
+        }
+
+        static void blank_command(Command cmd) { }
 
         #endregion
 
@@ -545,6 +780,31 @@ namespace StardewModdingAPI
             Console.ForegroundColor = ConsoleColor.Red;
             Log(o.ToString(), format);
             Console.ForegroundColor = ConsoleColor.Gray;
+        }
+
+        public static void LogValueNotSpecified()
+        {
+            LogError("<value> must be specified");
+        }
+
+        public static void LogObjectValueNotSpecified()
+        {
+            LogError("<object> and <value> must be specified");
+        }
+
+        public static void LogValueInvalid()
+        {
+            LogError("<value> is invalid");
+        }
+
+        public static void LogObjectInvalid()
+        {
+            LogError("<object> is invalid");
+        }
+
+        public static void LogValueNotInt32()
+        {
+            LogError("<value> must be a whole number (Int32)");
         }
 
         #endregion
