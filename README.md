@@ -1,10 +1,9 @@
 # SMAPI
 A Modding API For Stardew Valley
 
-There is no documentation right now.
-You compile this if you're interested and throw it next to your StardewValley.exe and run it. It should open the game and a beautiful black box that look atrocious honestly. That's the modding api. You can make a project and reference that to add functionality. Below is my test mod class. Mods go in C:\Users\<USERNAME>\AppData\Roaming\StardewValley\Mods or something like that.
-
-It is currently 7AM EST and I have not slept in over 40 hours, so good night/morning/etc to anyone reading, I'll make this more proper some other time.
+You can create a mod by making a direct reference to the ModdingApi.exe
+From there, you need to inherit from StardewModdingAPI.Mod
+The first class that inherits from that class will be loaded into the game at runtime, and once the game fully initializes the method Entry() will be called once.
 
 TestMod.cs:
 
