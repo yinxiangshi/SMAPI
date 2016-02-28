@@ -8,7 +8,7 @@ It is currently 7AM EST and I have not slept in over 40 hours, so good night/mor
 
 TestMod.cs:
 
-public class TestMod : Mod
+    public class TestMod : Mod
     {
         public override string Name
         {
