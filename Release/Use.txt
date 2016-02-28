@@ -1,0 +1,1 @@
+Place this EXE next to StardewValley.exe and run it.
