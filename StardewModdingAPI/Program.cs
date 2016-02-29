@@ -27,6 +27,7 @@ namespace StardewModdingAPI
         public static string ExecutionPath { get; private set; }
         public static string DataPath = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley"));
         public static string ModPath = Path.Combine(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley")), "Mods");
+        public static string LogPath = Path.Combine(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley")), "ErrorLogs");
 
         public static SGame gamePtr;
         public static bool ready;
@@ -48,7 +49,9 @@ namespace StardewModdingAPI
         {
             Console.Title = "Stardew Modding API Console";
 
-            AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(CurrentDomain_AssemblyResolve);
+            Application.ThreadException += Application_ThreadException;
+            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
             if (File.Exists(ModPath))
                 File.Delete(ModPath);
@@ -96,6 +99,8 @@ namespace StardewModdingAPI
             LogColour(ConsoleColor.Cyan, "Type 'help' for help, or 'help <cmd>' for a command's usage");
             Events.InvokeGameLoaded();
         }
+
+
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -193,19 +198,16 @@ namespace StardewModdingAPI
             StardewForm.Invoke(a);
         }
 
-        public static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            string dllName = args.Name.Contains(',') ? args.Name.Substring(0, args.Name.IndexOf(',')) : args.Name.Replace(".dll", "");
+            Console.WriteLine("An exception has been caught");
+            File.WriteAllText(Program.LogPath + "\\MODDED_ErrorLog_" + Extensions.Random.Next(100000000, 999999999) + ".txt", e.ExceptionObject.ToString());
+        }
 
-            dllName = dllName.Replace(".", "_");
-
-            if (dllName.EndsWith("_resources")) return null;
-
-            System.Resources.ResourceManager rm = new System.Resources.ResourceManager(typeof(Program).Namespace + ".Properties.Resources", System.Reflection.Assembly.GetExecutingAssembly());
-
-            byte[] bytes = (byte[])rm.GetObject(dllName);
-
-            return System.Reflection.Assembly.Load(bytes);
+        static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
+        {
+            Console.WriteLine("A thread exception has been caught");
+            File.WriteAllText(Program.LogPath + "\\MODDED_ErrorLog_" + Extensions.Random.Next(100000000, 999999999) + ".txt", e.Exception.ToString());
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
