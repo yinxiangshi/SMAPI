@@ -16,7 +16,9 @@ using StardewValley;
 using StardewValley.Menus;
 using StardewValley.Minigames;
 using StardewValley.Network;
+using StardewValley.Tools;
 using Keys = Microsoft.Xna.Framework.Input.Keys;
+using Object = StardewValley.Object;
 
 namespace StardewModdingAPI
 {
@@ -236,10 +238,18 @@ namespace StardewModdingAPI
             Command.RegisterCommand("player_changecolour", "Sets the player's colour of the specified object | player_changecolor <object> <colour>", new[] { "(hair, eyes, pants)<object> (r,g,b)<colour>" }).CommandFired += player_changeColour;
             Command.RegisterCommand("player_changestyle", "Sets the player's style of the specified object | player_changecolor <object> <value>", new[] { "(hair, shirt, skin, acc, shoe, swim, gender)<object> (Int32)<value>" }).CommandFired += player_changeStyle;
 
+            Command.RegisterCommand("player_additem", "Gives the player an item | player_additem <item> <count>", new[] { "?<item> (Int32)<count>" }).CommandFired += player_addItem;
+            Command.RegisterCommand("player_addmelee", "Gives the player a melee item | player_addmelee <item>", new[] { "?<item>" }).CommandFired += player_addMelee;
+
+            Command.RegisterCommand("out_items", "Outputs a list of items | out_items", new[] { "" }).CommandFired += out_items;
+            Command.RegisterCommand("out_melee", "Outputs a list of melee weapons | out_melee", new[] { "" }).CommandFired += out_melee;
+
             Command.RegisterCommand("world_settime", "Sets the time to the specified value | world_settime <value>", new[] { "(Int32)<value> The target time [06:00 AM is 600]" }).CommandFired += world_setTime;
             Command.RegisterCommand("world_freezetime", "Freezes or thaws time | world_freezetime <value>", new[] { "(0 - 1)<value> Whether or not to freeze time. 0 is thawed, 1 is frozen" }).CommandFired += world_freezeTime;
             Command.RegisterCommand("world_setday", "Sets the day to the specified value | world_setday <value>", new[] { "(Int32)<value> The target day [1-28]" }).CommandFired += world_setDay;
             Command.RegisterCommand("world_setseason", "Sets the season to the specified value | world_setseason <value>", new[] { "(winter, spring, summer, fall)<value> The target season" }).CommandFired += world_setSeason;
+            Command.RegisterCommand("world_downminelevel", "Goes down one mine level? | world_downminelevel", new[] { "" }).CommandFired += world_downMineLevel;
+            Command.RegisterCommand("world_setminelevel", "Sets mine level? | world_setminelevel", new[] { "(Int32)<value> The target level" }).CommandFired += world_setMineLevel;
         }
 
         static void help_CommandFired(Command cmd)
@@ -726,6 +736,109 @@ namespace StardewModdingAPI
                 if (cmd.CalledArgs[0].IsInt32())
                 {
                     Game1.player.immunity = cmd.CalledArgs[0].AsInt32();
+                }
+                else
+                {
+                    LogValueNotInt32();
+                }
+            }
+            else
+            {
+                LogValueNotSpecified();
+            }
+        }
+
+        static void player_addItem(Command cmd)
+        {
+            if (cmd.CalledArgs.Length > 0)
+            {
+                if (cmd.CalledArgs[0].IsInt32())
+                {
+                    int count = 1;
+                    if (cmd.CalledArgs.Length > 1)
+                    {
+                        if (cmd.CalledArgs[1].IsInt32())
+                        {
+                            count = cmd.CalledArgs[1].AsInt32();
+                        }
+                        else
+                        {
+                            LogError("<count> is invalid");
+                            return;
+                        }
+                    }
+                    Game1.player.addItemByMenuIfNecessary((Item) new StardewValley.Object(cmd.CalledArgs[0].AsInt32(), count));
+                }
+                else
+                {
+                    LogError("<item> is invalid");
+                }
+            }
+            else
+            {
+                LogObjectValueNotSpecified();
+            }
+        }
+
+        static void player_addMelee(Command cmd)
+        {
+            if (cmd.CalledArgs.Length > 0)
+            {
+                if (cmd.CalledArgs[0].IsInt32())
+                {
+                    MeleeWeapon toAdd = new MeleeWeapon(cmd.CalledArgs[0].AsInt32());
+                    Game1.player.addItemByMenuIfNecessary(toAdd);
+                    LogInfo("Given {0} to {1}", toAdd.Name, Game1.player.Name);
+                }
+                else
+                {
+                    LogError("<item> is invalid");
+                }
+            }
+            else
+            {
+                LogObjectValueNotSpecified();
+            }
+        }
+
+        static void out_items(Command cmd)
+        {
+            for (int i = 0; i < 1000; i++)
+            {
+                try
+                {
+                    Item it = new StardewValley.Object(i, 1);
+                    Console.WriteLine(i + "| " + it.Name);
+                }
+                catch
+                {
+                    
+                }
+            }
+        }
+
+        static void out_melee(Command cmd)
+        {
+            Dictionary<int, string> d = Game1.content.Load<Dictionary<int, string>>("Data\\weapons");
+            Console.Write("DATA\\WEAPONS: ");
+            foreach (var v in d)
+            {
+                Console.WriteLine(v.Key + " | " + v.Value);
+            }
+        }
+
+        static void world_downMineLevel(Command cmd)
+        {
+            Game1.nextMineLevel();
+        }
+
+        static void world_setMineLevel(Command cmd)
+        {
+            if (cmd.CalledArgs.Length > 0)
+            {
+                if (cmd.CalledArgs[0].IsInt32())
+                {
+                    Game1.enterMine(true, cmd.CalledArgs[0].AsInt32(), "");
                 }
                 else
                 {

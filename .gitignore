@@ -1,4 +1,6 @@
 StardewModdingAPI/bin/
 StardewModdingAPI/obj/
+*.symlink
+*.lnk
 !*.exe
 !*.dll
