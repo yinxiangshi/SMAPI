@@ -12,40 +12,51 @@ It is recommended to subscribe to an event (from Events.cs) to be able to interf
 
     TestMod.cs:
     
-        public class TestMod : Mod
+        using System;
+        using System.Collections.Generic;
+        using System.Linq;
+        using System.Text;
+        using System.Threading.Tasks;
+        using Microsoft.Xna.Framework.Input;
+        using StardewModdingAPI;
+
+        namespace StardewTestMod
         {
-            public override string Name
+            public class TestMod : Mod
             {
-                get { return "Test Mod"; }
-            }
+                public override string Name
+                {
+                    get { return "Test Mod"; }
+                }
 
-            public override string Authour
-            {
-                get { return "Zoryn Aaron"; }
-            }
+                public override string Authour
+                {
+                    get { return "Zoryn Aaron"; }
+                }
 
-            public override string Version
-            {
-                get { return "0.0.1Test"; }
-            }
+                public override string Version
+                {
+                    get { return "0.0.1Test"; }
+                }
 
-            public override string Description
-            {
-                get { return "A Test Mod"; }
-            }
+                public override string Description
+                {
+                    get { return "A Test Mod"; }
+                }
 
-            public override void Entry()
-            {
-                Console.WriteLine("Test Mod Has Loaded");
-                Program.LogError("Test Mod can call to Program.cs in the API");
-                Program.LogColour(ConsoleColor.Magenta, "Test Mod is just a tiny DLL file in AppData/Roaming/StardewValley/Mods");
+                public override void Entry()
+                {
+                    Console.WriteLine("Test Mod Has Loaded");
+                    Program.LogError("Test Mod can call to Program.cs in the API");
+                    Program.LogColour(ConsoleColor.Magenta, "Test Mod is just a tiny DLL file in AppData/Roaming/StardewValley/Mods");
+                    
+                    //Subscribe to an event from the modding API
+                    Events.KeyPressed += Events_KeyPressed;
+                }
 
-                Events.GameLoaded += Events_GameLoaded;
-            }
-
-            void Events_GameLoaded()
-            {
-                
-                Program.LogInfo("[Game Loaded Event] I can do things directly to the game now that I am certain it is loaded thanks to events.");
+                void Events_KeyPressed(Keys key)
+                {
+                    Console.WriteLine("TestMod sees that the following key was pressed: " + key);
+                }
             }
         }
