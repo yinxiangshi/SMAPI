@@ -22,9 +22,9 @@ namespace StardewModdingAPI
             return new Color(Random.Next(0, 255), Random.Next(0, 255), Random.Next(0, 255));
         }
 
-        public static string ToSingular(this IEnumerable<Object> enumerable)
+        public static string ToSingular(this IEnumerable<Object> enumerable, string split = ", ")
         {
-            string result = string.Join(", ", enumerable);
+            string result = string.Join(split, enumerable);
             return result;
         }
 

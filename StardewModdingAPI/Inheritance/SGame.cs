@@ -1,17 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using StardewValley;
+using StardewValley.Minigames;
 
-namespace StardewModdingAPI
+namespace StardewModdingAPI.Inheritance
 {
     public class SGame : Game1
     {
+        public static FieldInfo[] StaticFields { get { return Thing(); } }
+
+        public static FieldInfo[] Thing()
+        {
+            return typeof(Game1).GetFields();
+        }
+
         public KeyboardState KStateNow { get; private set; }
         public KeyboardState KStatePrior { get; private set; }
 
