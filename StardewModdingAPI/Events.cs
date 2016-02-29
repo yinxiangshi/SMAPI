@@ -31,22 +31,50 @@ namespace StardewModdingAPI
 
         public static void InvokeInitialize()
         {
-            Initialize.Invoke();
+            try
+            {
+                Initialize.Invoke();
+            }
+            catch (Exception ex)
+            {
+                Program.LogError("An exception occured in XNA Initialize: " + ex.ToString());
+            }
         }
 
         public static void InvokeLoadContent()
         {
-            LoadContent.Invoke();
+            try
+            {
+                LoadContent.Invoke();
+            }
+            catch (Exception ex)
+            {
+                Program.LogError("An exception occured in XNA LoadContent: " + ex.ToString());
+            }
         }
 
         public static void InvokeUpdateTick()
         {
-            UpdateTick.Invoke();
+            try
+            {
+                UpdateTick.Invoke();
+            }
+            catch (Exception ex)
+            {
+                Program.LogError("An exception occured in XNA UpdateTick: " + ex.ToString());
+            }
         }
 
         public static void InvokeDrawTick()
         {
-            DrawTick.Invoke();
+            try
+            {
+                DrawTick.Invoke();
+            }
+            catch (Exception ex)
+            {
+                Program.LogError("An exception occured in XNA DrawTick: " + ex.ToString());
+            }
         }
 
         public static void InvokeKeyboardChanged(KeyboardState newState)

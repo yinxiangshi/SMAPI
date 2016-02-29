@@ -28,6 +28,8 @@ namespace StardewModdingAPI
         public static string DataPath = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley"));
         public static string ModPath = Path.Combine(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley")), "Mods");
         public static string LogPath = Path.Combine(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley")), "ErrorLogs");
+        public static string CurrentLog { get; private set; }
+        public static StreamWriter LogStream { get; private set; }
 
         public static SGame gamePtr;
         public static bool ready;
@@ -57,11 +59,23 @@ namespace StardewModdingAPI
                 File.Delete(ModPath);
             if (!Directory.Exists(ModPath))
                 Directory.CreateDirectory(ModPath);
-
+            
             ExecutionPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            Log(ExecutionPath);
+            CurrentLog = LogPath + "\\MODDED_ProgramLog_" + System.DateTime.Now.Ticks + ".txt";
+
+            Log(ExecutionPath, false);
+
+            LogStream = new StreamWriter(CurrentLog, false);
+
             LogInfo("Initializing SDV Assembly...");
-            StardewAssembly = Assembly.LoadFile(ExecutionPath + "\\Stardew Valley.exe");//AppDomain.CurrentDomain.GetAssemblies().First(x => x.GetName().Name.Equals("Stardew Valley"));
+            if (!File.Exists(ExecutionPath + "\\Stardew Valley.exe"))
+            {
+                LogError("Could not find: " + ExecutionPath + "\\Stardew Valley.exe");
+                LogError("The API will now terminate.");
+                Console.ReadKey();
+                Environment.Exit(-4);
+            }
+            StardewAssembly = Assembly.LoadFile(ExecutionPath + "\\Stardew Valley.exe");
             StardewProgramType = StardewAssembly.GetType("StardewValley.Program", true);
             StardewGameInfo = StardewProgramType.GetField("gamePtr");
 
@@ -98,6 +112,32 @@ namespace StardewModdingAPI
             LogInfo("Game Loaded");
             LogColour(ConsoleColor.Cyan, "Type 'help' for help, or 'help <cmd>' for a command's usage");
             Events.InvokeGameLoaded();
+
+            while (ready)
+            {
+                //Check if the game is still running 10 times a second
+                Thread.Sleep(1000 / 10);
+            }
+
+            if (consoleInputThread != null && consoleInputThread.ThreadState == ThreadState.Running)
+                consoleInputThread.Abort();
+
+            LogInfo("Game Execution Finished");
+            LogInfo("Shutting Down...");
+            int time = 0;
+            int step = 100;
+            int target = 2000;
+            while (true)
+            {
+                time += step;
+                Thread.Sleep(step);
+
+                Console.Write(".");
+
+                if (time >= target)
+                    break;
+            }
+            Environment.Exit(0);
         }
 
 
@@ -111,10 +151,12 @@ namespace StardewModdingAPI
             try
             {
                 gamePtr = new SGame();
+                LogInfo("Patching SDV Graphics Profile...");
                 Game1.graphics.GraphicsProfile = GraphicsProfile.HiDef;
                 LoadMods();
 
                 StardewForm = Control.FromHandle(Program.gamePtr.Window.Handle).FindForm();
+                StardewForm.Closing += StardewForm_Closing;
                 StardewGameInfo.SetValue(StardewProgramType, gamePtr);
 
                 ready = true;
@@ -125,12 +167,15 @@ namespace StardewModdingAPI
             {
                 LogError("Game failed to start: " + ex);
             }
+        }
+
+        static void StardewForm_Closing(object sender, CancelEventArgs e)
+        {
+            e.Cancel = true;
+            gamePtr.Exit();
+            gamePtr.Dispose();
+            StardewForm.Hide();
             ready = false;
-            if (consoleInputThread != null && consoleInputThread.ThreadState == ThreadState.Running)
-                consoleInputThread.Abort();
-            Log("Game Execution Finished");
-            Console.ReadKey();
-            Environment.Exit(0);
         }
 
         public static void LoadMods()
@@ -869,7 +914,22 @@ namespace StardewModdingAPI
 
         public static void Log(object o, params object[] format)
         {
-            Console.WriteLine("[{0}] {1}", System.DateTime.Now.ToLongTimeString(), String.Format(o.ToString(), format));
+            if (format.Length > 0)
+            {
+                if (format[0] is bool)
+                {
+                    if ((bool)format[0] == false)
+                    {
+                        //suppress logging to file
+                        Console.WriteLine("[{0}] {1}", System.DateTime.Now.ToLongTimeString(), String.Format(o.ToString(), format));
+                        return;
+                    }
+                }
+            }
+            string toLog = string.Format("[{0}] {1}", System.DateTime.Now.ToLongTimeString(), String.Format(o.ToString(), format));
+            Console.WriteLine(toLog);
+            LogStream.WriteLine(toLog);
+            LogStream.Flush();
         }
 
         public static void LogColour(ConsoleColor c, object o, params object[] format)
