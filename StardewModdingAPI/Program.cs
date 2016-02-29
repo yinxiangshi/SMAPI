@@ -24,6 +24,7 @@ namespace StardewModdingAPI
 {
     public class Program
     {
+        public static string ExecutionPath { get; private set; }
         public static string DataPath = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley"));
         public static string ModPath = Path.Combine(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley")), "Mods");
 
@@ -54,9 +55,10 @@ namespace StardewModdingAPI
             if (!Directory.Exists(ModPath))
                 Directory.CreateDirectory(ModPath);
 
-            Log(Assembly.GetExecutingAssembly().Location);
+            ExecutionPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            Log(ExecutionPath);
             LogInfo("Initializing SDV Assembly...");
-            StardewAssembly = AppDomain.CurrentDomain.GetAssemblies().First(x => x.GetName().Name.Equals("Stardew Valley"));
+            StardewAssembly = Assembly.LoadFile(ExecutionPath + "\\Stardew Valley.exe");//AppDomain.CurrentDomain.GetAssemblies().First(x => x.GetName().Name.Equals("Stardew Valley"));
             StardewProgramType = StardewAssembly.GetType("StardewValley.Program", true);
             StardewGameInfo = StardewProgramType.GetField("gamePtr");
 

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using StardewValley;
+using StardewValley.Menus;
 using StardewValley.Minigames;
 
 namespace StardewModdingAPI.Inheritance
