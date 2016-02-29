@@ -3,7 +3,8 @@ A Modding API For Stardew Valley
 
 You can create a mod by making a direct reference to the ModdingApi.exe
 From there, you need to inherit from StardewModdingAPI.Mod
-The first class that inherits from that class will be loaded into the game at runtime, and once the game fully initializes the method Entry() will be called once.
+The first class that inherits from that class will be loaded into the game at runtime, and once the game fully initializes the mod, the method Entry() will be called once.
+It is recommended to subscribe to an event (from Events.cs) to be able to interface with the game rather than directly make changes from the Entry() method
 
 TestMod.cs:
 

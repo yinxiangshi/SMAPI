@@ -13,6 +13,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using StardewValley;
 using StardewValley.Menus;
+using StardewValley.Minigames;
 using StardewValley.Network;
 using Keys = Microsoft.Xna.Framework.Input.Keys;
 
@@ -23,7 +24,7 @@ namespace StardewModdingAPI
         public static string DataPath = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley"));
         public static string ModPath = Path.Combine(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley")), "Mods");
 
-        public static Game1 gamePtr;
+        public static SGame gamePtr;
         public static bool ready;
 
         public static Assembly StardewAssembly;
@@ -32,7 +33,6 @@ namespace StardewModdingAPI
         public static Form StardewForm;
 
         public static Thread gameThread;
-        public static Thread updateThread;
         public static Thread consoleInputThread;
 
         public static int frozenTime;
@@ -73,9 +73,7 @@ namespace StardewModdingAPI
             LogInfo("Initializing Console Input Thread...");
             consoleInputThread.Start();
 
-            updateThread = new Thread(UpdateThread);
-            LogInfo("Starting Update Thread...");
-            updateThread.Start();
+            Events.KeyPressed += Events_KeyPressed;
             Events.UpdateTick += Events_UpdateTick;
 
             LogInfo("Applying Final SDV Tweaks...");
@@ -86,7 +84,7 @@ namespace StardewModdingAPI
             });
 
             LogInfo("Game Loaded");
-            LogColour(ConsoleColor.Cyan,  "Type 'help' for help, or 'help <cmd>' for a command's usage");
+            LogColour(ConsoleColor.Cyan, "Type 'help' for help, or 'help <cmd>' for a command's usage");
             Events.InvokeGameLoaded();
         }
 
@@ -98,14 +96,12 @@ namespace StardewModdingAPI
         {
             try
             {
-                gamePtr = new Game1();
+                gamePtr = new SGame();
                 Game1.graphics.GraphicsProfile = GraphicsProfile.HiDef;
                 LoadMods();
 
                 StardewForm = Control.FromHandle(Program.gamePtr.Window.Handle).FindForm();
                 StardewGameInfo.SetValue(StardewProgramType, gamePtr);
-
-                KeyboardInput.KeyDown += KeyboardInput_KeyDown;
 
                 ready = true;
 
@@ -116,8 +112,6 @@ namespace StardewModdingAPI
                 LogError("Game failed to start: " + ex);
             }
             ready = false;
-            if (updateThread != null && updateThread.ThreadState == ThreadState.Running)
-                updateThread.Abort();
             if (consoleInputThread != null && consoleInputThread.ThreadState == ThreadState.Running)
                 consoleInputThread.Abort();
             Log("Game Execution Finished");
@@ -160,14 +154,9 @@ namespace StardewModdingAPI
             }
         }
 
-        public static void UpdateThread()
+        static void Events_KeyPressed(Keys key)
         {
-            Events.InvokeUpdateInitialized();
-            while (ready)
-            {
-                Events.InvokeUpdateTick();
-                Thread.Sleep(1000 / 60);
-            }
+            
         }
 
         static void Events_UpdateTick()
@@ -187,19 +176,6 @@ namespace StardewModdingAPI
             if (freezeTime)
             {
                 Game1.timeOfDay = frozenTime;
-            }
-        }
-
-        static void KeyboardInput_KeyDown(object sender, StardewValley.KeyEventArgs e)
-        {
-            switch (e.KeyCode)
-            {
-                case Keys.B:
-                    Game1.player.hairstyleColor = Extensions.RandomColour();
-                    break;
-                case Keys.OemPlus:
-                    Game1.player.Money += 5000;
-                    break;
             }
         }
 
@@ -231,8 +207,8 @@ namespace StardewModdingAPI
 
             Command.RegisterCommand("player_setname", "Sets the player's name | player_setname <object> <value>", new[] { "(player, pet, farm)<object> (String)<value> The target name" }).CommandFired += player_setName;
             Command.RegisterCommand("player_setmoney", "Sets the player's money | player_setmoney <value>|inf", new[] { "(Int32)<value> The target money" }).CommandFired += player_setMoney;
-            Command.RegisterCommand("player_setenergy", "Sets the player's energy | player_setenergy <value>|inf", new[] { "(Int32)<value> The target energy" }).CommandFired += player_setStamina;
-            Command.RegisterCommand("player_setmaxenergy", "Sets the player's max energy | player_setmaxenergy <value>", new[] { "(Int32)<value> The target max energy" }).CommandFired += player_setMaxStamina;
+            Command.RegisterCommand("player_setstamina", "Sets the player's stamina | player_setstamina <value>|inf", new[] { "(Int32)<value> The target stamina" }).CommandFired += player_setStamina;
+            Command.RegisterCommand("player_setmaxstamina", "Sets the player's max stamina | player_setmaxstamina <value>", new[] { "(Int32)<value> The target max stamina" }).CommandFired += player_setMaxStamina;
             Command.RegisterCommand("player_sethealth", "Sets the player's health | player_sethealth <value>|inf", new[] { "(Int32)<value> The target health" }).CommandFired += player_setHealth;
             Command.RegisterCommand("player_setmaxhealth", "Sets the player's max health | player_setmaxhealth <value>", new[] { "(Int32)<value> The target max health" }).CommandFired += player_setMaxHealth;
             Command.RegisterCommand("player_setimmunity", "Sets the player's immunity | player_setimmunity <value>", new[] { "(Int32)<value> The target immunity" }).CommandFired += player_setImmunity;
