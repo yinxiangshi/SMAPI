@@ -60,3 +60,47 @@ It is recommended to subscribe to an event (from Events.cs) to be able to interf
                 }
             }
         }
+        
+        
+Break Fishing (WARNING: SOFTLOCKS YOUR GAME):
+
+    public override void Entry()
+        {
+            Events.UpdateTick += Events_UpdateTick;
+            Events.Initialize += Events_Initialize;
+        }
+    
+    private FieldInfo cmg;
+    private bool gotGame;
+    private SBobberBar sb;
+    void Events_Initialize()
+        {
+            cmg = SGame.StaticFields.First(x => x.Name == "activeClickableMenu");
+        }
+    
+    void Events_UpdateTick()
+        {
+            if (cmg != null && cmg.GetValue(null) != null)
+            {
+                if (cmg.GetValue(null).GetType() == typeof(BobberBar))
+                {
+                    if (!gotGame)
+                    {
+                        gotGame = true;
+                        BobberBar b = (BobberBar)cmg.GetValue(null);
+                        sb = SBobberBar.ConstructFromBaseClass(b);
+                    }
+                    else
+                    {
+                        sb.bobberPosition = Extensions.Random.Next(0, 750);
+                        sb.treasure = true;
+                        sb.distanceFromCatching = 0.5f;
+                    }
+                }
+                else
+                {
+                    gotGame = false;
+                    sb = null;
+                }
+            }
+        }
