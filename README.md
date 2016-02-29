@@ -1,5 +1,6 @@
 # SMAPI
 A Modding API For Stardew Valley
+See: https://github.com/Zoryn4163/SMAPI-Mods
 
 You can create a mod by making a direct reference to the ModdingApi.exe
 
