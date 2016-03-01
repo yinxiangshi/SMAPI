@@ -51,15 +51,15 @@ namespace StardewModdingAPI.Inheritance
             Program.Log("XNA Initialize");
             ModItems = new Dictionary<Int32, SObject>();
             PreviouslyPressedKeys = new Keys[0];
-            Events.InvokeInitialize();
             base.Initialize();
+            Events.InvokeInitialize();
         }
 
         protected override void LoadContent()
         {
             Program.Log("XNA LoadContent");
-            Events.InvokeLoadContent();
             base.LoadContent();
+            Events.InvokeLoadContent();
         }
 
         protected override void Update(GameTime gameTime)
@@ -97,16 +97,16 @@ namespace StardewModdingAPI.Inheritance
             if (CurrentLocation != null)
                 CurrentLocation.update(gameTime);
 
-            Events.InvokeUpdateTick();
             base.Update(gameTime);
+            Events.InvokeUpdateTick();
 
             PreviouslyPressedKeys = CurrentlyPressedKeys;
         }
 
         protected override void Draw(GameTime gameTime)
         {
-            Events.InvokeDrawTick();
             base.Draw(gameTime);
+            Events.InvokeDrawTick();
             spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp, (DepthStencilState)null, (RasterizerState)null);
             if (CurrentLocation != null)
                 CurrentLocation.draw(Game1.spriteBatch);
