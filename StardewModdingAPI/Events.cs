@@ -19,11 +19,14 @@ namespace StardewModdingAPI
         public static event BlankEventHandler UpdateTick = delegate { };
         public static event BlankEventHandler DrawTick = delegate { };
 
-        public delegate void StateChanged(KeyboardState newState);
-        public static event StateChanged KeyboardChanged = delegate { };
+        public delegate void KStateChanged(KeyboardState newState);
+        public static event KStateChanged KeyboardChanged = delegate { };
 
         public delegate void KeyStateChanged(Keys key);
         public static event KeyStateChanged KeyPressed = delegate { };
+
+        public delegate void MStateChanged(MouseState newState);
+        public static event MStateChanged MouseChanged = delegate { };
 
         public delegate void ClickableMenuChanged(IClickableMenu newMenu);
         public static event ClickableMenuChanged MenuChanged = delegate { };
@@ -33,6 +36,8 @@ namespace StardewModdingAPI
 
         public delegate void CurrentLocationsChanged(GameLocation newLocation);
         public static event CurrentLocationsChanged CurrentLocationChanged = delegate { };
+
+        public static event EventHandler Resize = delegate { };
 
         public static void InvokeGameLoaded()
         {
@@ -92,6 +97,11 @@ namespace StardewModdingAPI
             KeyboardChanged.Invoke(newState);
         }
 
+        public static void InvokeMouseChanged(MouseState newState)
+        {
+            MouseChanged.Invoke(newState);
+        }
+
         public static void InvokeKeyPressed(Keys key)
         {
             KeyPressed.Invoke(key);
@@ -110,6 +120,11 @@ namespace StardewModdingAPI
         public static void InvokeCurrentLocationChanged(GameLocation newLocation)
         {
             CurrentLocationChanged.Invoke(newLocation);
+        }
+
+        public static void InvokeResize(object sender, EventArgs e)
+        {
+            Resize.Invoke(sender, e);
         }
     }
 }

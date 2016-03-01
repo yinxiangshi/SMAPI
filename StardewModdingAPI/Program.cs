@@ -118,6 +118,7 @@ namespace StardewModdingAPI
             {
                                     gamePtr.IsMouseVisible = false;
                                     gamePtr.Window.Title = "Stardew Valley - Version " + Game1.version;
+                                    StardewForm.Resize += Events.InvokeResize;
             });
 
             LogInfo("Game Loaded");

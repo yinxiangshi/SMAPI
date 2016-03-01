@@ -34,6 +34,9 @@ namespace StardewModdingAPI.Inheritance
         public KeyboardState KStateNow { get; private set; }
         public KeyboardState KStatePrior { get; private set; }
 
+        public MouseState MStateNow { get; private set; }
+        public MouseState MStatePrior { get; private set; }
+
         public Keys[] CurrentlyPressedKeys { get; private set; }
         public Keys[] PreviouslyPressedKeys { get; private set; }
 
@@ -66,7 +69,8 @@ namespace StardewModdingAPI.Inheritance
         {
             KStateNow = Keyboard.GetState();
             CurrentlyPressedKeys = KStateNow.GetPressedKeys();
-
+            MStateNow = Mouse.GetState();
+            
             foreach (Keys k in FramePressedKeys)
                 Events.InvokeKeyPressed(k);
 
@@ -74,6 +78,12 @@ namespace StardewModdingAPI.Inheritance
             {
                 Events.InvokeKeyboardChanged(KStateNow);
                 KStatePrior = KStateNow;
+            }
+
+            if (MStateNow != MStatePrior)
+            {
+                Events.InvokeMouseChanged(MStateNow);
+                MStatePrior = MStateNow;
             }
 
             if (Game1.activeClickableMenu != null && Game1.activeClickableMenu != PreviousActiveMenu)
