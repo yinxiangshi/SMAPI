@@ -117,7 +117,9 @@ namespace StardewModdingAPI.Inheritance
         {
             base.Draw(gameTime);
             Events.InvokeDrawTick();
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, SamplerState.PointClamp, DepthStencilState.DepthRead, RasterizerState.CullNone);
+            /*
+            spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
+
             if (CurrentLocation != null)
                 CurrentLocation.draw(Game1.spriteBatch);
 
@@ -125,6 +127,7 @@ namespace StardewModdingAPI.Inheritance
                 spriteBatch.DrawString(Game1.dialogueFont, Game1.player.position.ToString(), new Vector2(0, 180), Color.Orange);
             
             spriteBatch.End();
+            */
         }
 
         public static Int32 RegisterModItem(SObject modItem)

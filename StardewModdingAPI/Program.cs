@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -9,6 +10,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.CSharp;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -28,8 +30,8 @@ namespace StardewModdingAPI
     {
         public static string ExecutionPath { get; private set; }
         public static string DataPath = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley"));
-        public static string ModPath = Path.Combine(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley")), "Mods");
-        public static string ModContentPath = Path.Combine(Path.Combine(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley")), "Mods"), "Content");
+        public static List<string> ModPaths = new List<string>();
+        public static List<string> ModContentPaths = new List<string>(); 
         public static string LogPath = Path.Combine(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley")), "ErrorLogs");
         public static string CurrentLog { get; private set; }
         public static StreamWriter LogStream { get; private set; }
@@ -57,14 +59,24 @@ namespace StardewModdingAPI
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-            if (File.Exists(ModPath))
-                File.Delete(ModPath);
-            if (!Directory.Exists(ModPath))
-                Directory.CreateDirectory(ModPath);
-            if (!Directory.Exists(ModContentPath))
-                Directory.CreateDirectory(ModContentPath);
-
             ExecutionPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            ModPaths.Add(Path.Combine(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley")), "Mods"));
+            ModPaths.Add(Path.Combine(ExecutionPath, "Mods"));
+            ModContentPaths.Add(Path.Combine(Path.Combine(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley")), "Mods"), "Content"));
+
+            foreach (string ModPath in ModPaths)
+            {
+                if (File.Exists(ModPath))
+                    File.Delete(ModPath);
+                if (!Directory.Exists(ModPath))
+                    Directory.CreateDirectory(ModPath);
+            }
+            foreach (string ModContentPath in ModContentPaths)
+            {
+                if (!Directory.Exists(ModContentPath))
+                    Directory.CreateDirectory(ModContentPath);
+            }
+
             CurrentLog = LogPath + "\\MODDED_ProgramLog_" + System.DateTime.Now.Ticks + ".txt";
 
             Log(ExecutionPath, false);
@@ -196,24 +208,30 @@ namespace StardewModdingAPI
         public static void LoadMods()
         {
             LogColour(ConsoleColor.Green, "LOADING MODS");
-            foreach (String s in Directory.GetFiles(ModPath, "*.dll"))
+            int loadedMods = 0;
+            foreach (string ModPath in ModPaths)
             {
-                LogColour(ConsoleColor.Green, "Found DLL: " + s);
-                Assembly mod = Assembly.LoadFile(s);
+                foreach (String s in Directory.GetFiles(ModPath, "*.dll"))
+                {
+                    LogColour(ConsoleColor.Green, "Found DLL: " + s);
+                    Assembly mod = Assembly.LoadFile(s);
 
-                if (mod.DefinedTypes.Count(x => x.BaseType == typeof (Mod)) > 0)
-                {
-                    LogColour(ConsoleColor.Green, "Loading Mod DLL...");
-                    TypeInfo tar = mod.DefinedTypes.First(x => x.BaseType == typeof(Mod));
-                    Mod m = (Mod)mod.CreateInstance(tar.ToString());
-                    Console.WriteLine("LOADED MOD: {0} by {1} - Version {2} | Description: {3}", m.Name, m.Authour, m.Version, m.Description);
-                    m.Entry();
-                }
-                else
-                {
-                    LogError("Invalid Mod DLL");
+                    if (mod.DefinedTypes.Count(x => x.BaseType == typeof (Mod)) > 0)
+                    {
+                        LogColour(ConsoleColor.Green, "Loading Mod DLL...");
+                        TypeInfo tar = mod.DefinedTypes.First(x => x.BaseType == typeof (Mod));
+                        Mod m = (Mod) mod.CreateInstance(tar.ToString());
+                        Console.WriteLine("LOADED MOD: {0} by {1} - Version {2} | Description: {3}", m.Name, m.Authour, m.Version, m.Description);
+                        loadedMods += 1;
+                        m.Entry();
+                    }
+                    else
+                    {
+                        LogError("Invalid Mod DLL");
+                    }
                 }
             }
+            LogColour(ConsoleColor.Green, "LOADED {0} MODS", loadedMods);
         }
 
         public static void ConsoleInputThread()
@@ -237,7 +255,7 @@ namespace StardewModdingAPI
             so.Name = "Mario Block";
             so.CategoryName = "SMAPI Test Mod";
             so.Description = "It's a block from Mario!\nLoaded in realtime by SMAPI.";
-            so.Texture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, new FileStream(ModContentPath + "\\Test.png", FileMode.Open));
+            so.Texture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, new FileStream(ModContentPaths[0] + "\\Test.png", FileMode.Open));
             so.IsPassable = true;
             so.IsPlaceable = true;
             LogColour(ConsoleColor.Cyan, "REGISTERED WITH ID OF: " + SGame.RegisterModItem(so));
@@ -247,7 +265,7 @@ namespace StardewModdingAPI
             so2.Name = "Mario Painting";
             so2.CategoryName = "SMAPI Test Mod";
             so2.Description = "It's a painting of a creature from Mario!\nLoaded in realtime by SMAPI.";
-            so2.Texture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, new FileStream(ModContentPath + "\\PaintingTest.png", FileMode.Open));
+            so2.Texture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, new FileStream(ModContentPaths[0] + "\\PaintingTest.png", FileMode.Open));
             so2.IsPassable = true;
             so2.IsPlaceable = true;
             LogColour(ConsoleColor.Cyan, "REGISTERED WITH ID OF: " + SGame.RegisterModItem(so2));
@@ -274,9 +292,12 @@ namespace StardewModdingAPI
 
         static void Events_CurrentLocationChanged(GameLocation newLocation)
         {
-            SGame.CurrentLocation = null;
-            System.Threading.Thread.Sleep(10);
+            //SGame.CurrentLocation = null;
+            //System.Threading.Thread.Sleep(10);
             SGame.CurrentLocation = SGame.ModLocations.First(x => x.name == newLocation.name);
+            //Game1.currentLocation = SGame.CurrentLocation;
+            //LogInfo(((SGameLocation) newLocation).name);
+            //LogInfo("LOC CHANGED: " + SGame.currentLocation.name);
         }
 
         public static void StardewInvoke(Action a)

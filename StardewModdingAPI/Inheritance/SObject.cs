@@ -55,11 +55,12 @@ namespace StardewModdingAPI.Inheritance
 
         public override void draw(SpriteBatch spriteBatch, int xNonTile, int yNonTile, float layerDepth, float alpha = 1)
         {
+            return;
             try
             {
                 if (Texture != null)
                 {
-                    int targSize = 64;
+                    int targSize = Game1.tileSize;
                     int midX = (int) ((xNonTile) + 32);
                     int midY = (int) ((yNonTile) + 32);
 
@@ -68,12 +69,14 @@ namespace StardewModdingAPI.Inheritance
 
                     Rectangle targ = new Rectangle(targX, targY, targSize, targSize);
                     spriteBatch.Draw(Texture, targ, null, new Color(255, 255, 255, 255f * alpha), 0, Vector2.Zero, SpriteEffects.None, layerDepth);
-                    spriteBatch.Draw(Program.DebugPixel, targ, null, Color.Red, 0, Vector2.Zero, SpriteEffects.None, layerDepth);
+                    //spriteBatch.Draw(Program.DebugPixel, targ, null, Color.Red, 0, Vector2.Zero, SpriteEffects.None, layerDepth);
+                    /*
                     spriteBatch.DrawString(Game1.dialogueFont, "TARG: " + targ, new Vector2(128, 0), Color.Red);
                     spriteBatch.DrawString(Game1.dialogueFont, ".", new Vector2(targX * 0.5f, targY), Color.Orange);
                     spriteBatch.DrawString(Game1.dialogueFont, ".", new Vector2(targX, targY), Color.Red);
                     spriteBatch.DrawString(Game1.dialogueFont, ".", new Vector2(targX * 1.5f, targY), Color.Yellow);
                     spriteBatch.DrawString(Game1.dialogueFont, ".", new Vector2(targX * 2f, targY), Color.Green);
+                    */
                 }
             }
             catch (Exception ex)

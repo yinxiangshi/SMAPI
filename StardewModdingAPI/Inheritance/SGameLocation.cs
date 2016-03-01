@@ -29,6 +29,11 @@ namespace StardewModdingAPI.Inheritance
             //s.Map = baseClass.Map;
             //s.objects = baseClass.objects;
             //s.temporarySprites = baseClass.temporarySprites;
+            s.map = baseClass.map;
+            s.objects = baseClass.objects;
+            s.name = baseClass.name;
+
+            /*
             s.actionObjectForQuestionDialogue = baseClass.actionObjectForQuestionDialogue;
             s.characters = baseClass.characters;
             s.critters = (List<Critter>)typeof(GameLocation).GetField("critters", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(baseClass);
@@ -67,6 +72,7 @@ namespace StardewModdingAPI.Inheritance
             s.waterColor = baseClass.waterColor;
             s.waterTileFlip = baseClass.waterTileFlip;
             s.waterTiles = baseClass.waterTiles;
+            */
             return s;
         }
 
