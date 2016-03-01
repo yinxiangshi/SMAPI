@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -38,5 +39,15 @@ namespace StardewModdingAPI
         {
             return Int32.Parse(s);
         }
+
+        public static int GetHash(this IEnumerable enumerable)
+        {
+            string s = string.Empty;
+            foreach (var v in enumerable)
+            {
+                s += v.GetHashCode();
+            }
+            return s.GetHashCode();
+        } 
     }
 }

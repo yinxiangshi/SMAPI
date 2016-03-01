@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using StardewValley;
 using StardewValley.Menus;
@@ -15,9 +19,14 @@ namespace StardewModdingAPI.Inheritance
 {
     public class SGame : Game1
     {
-        public static FieldInfo[] StaticFields { get { return Thing(); } }
+        public static List<SGameLocation> ModLocations = new List<SGameLocation>();
+        public static SGameLocation CurrentLocation { get; internal set; }
+        public static Dictionary<Int32, SObject> ModItems { get; private set; }
+        public const Int32 LowestModItemID = 1000;
 
-        public static FieldInfo[] Thing()
+        public static FieldInfo[] StaticFields { get { return GetStaticFields(); } }
+
+        public static FieldInfo[] GetStaticFields()
         {
             return typeof(Game1).GetFields();
         }
@@ -33,9 +42,15 @@ namespace StardewModdingAPI.Inheritance
             get { return CurrentlyPressedKeys.Where(x => !PreviouslyPressedKeys.Contains(x)).ToArray(); }
         }
 
+        public int PreviousGameLocations { get; private set; }
+        public GameLocation PreviousGameLocation { get; private set; }
+        public IClickableMenu PreviousActiveMenu { get; private set; }
+
         protected override void Initialize()
         {
             Program.Log("XNA Initialize");
+            ModItems = new Dictionary<Int32, SObject>();
+            PreviouslyPressedKeys = new Keys[0];
             Events.InvokeInitialize();
             base.Initialize();
         }
@@ -58,12 +73,33 @@ namespace StardewModdingAPI.Inheritance
             if (KStateNow != KStatePrior)
             {
                 Events.InvokeKeyboardChanged(KStateNow);
+                KStatePrior = KStateNow;
             }
+
+            if (Game1.activeClickableMenu != null && Game1.activeClickableMenu != PreviousActiveMenu)
+            {
+                Events.InvokeMenuChanged(Game1.activeClickableMenu);
+                PreviousActiveMenu = Game1.activeClickableMenu;
+            }
+
+            if (Game1.locations.GetHash() != PreviousGameLocations)
+            {
+                Events.InvokeLocationsChanged(Game1.locations);
+                PreviousGameLocations = Game1.locations.GetHash();
+            }
+
+            if (Game1.currentLocation != PreviousGameLocation)
+            {
+                Events.InvokeCurrentLocationChanged(Game1.currentLocation);
+                PreviousGameLocation = Game1.currentLocation;
+            }
+
+            if (CurrentLocation != null)
+                CurrentLocation.update(gameTime);
 
             Events.InvokeUpdateTick();
             base.Update(gameTime);
 
-            KStatePrior = KStateNow;
             PreviouslyPressedKeys = CurrentlyPressedKeys;
         }
 
@@ -71,6 +107,63 @@ namespace StardewModdingAPI.Inheritance
         {
             Events.InvokeDrawTick();
             base.Draw(gameTime);
+            spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp, (DepthStencilState)null, (RasterizerState)null);
+            if (CurrentLocation != null)
+                CurrentLocation.draw(Game1.spriteBatch);
+            spriteBatch.End();
+        }
+
+        public static Int32 RegisterModItem(SObject modItem)
+        {
+            if (modItem.HasBeenRegistered)
+            {
+                Program.LogError("The item {0} has already been registered with ID {1}", modItem.Name, modItem.RegisteredId);
+                return modItem.RegisteredId;
+            }
+            Int32 newId = LowestModItemID;
+            if (ModItems.Count > 0)
+                newId = Math.Max(LowestModItemID, ModItems.OrderBy(x => x.Key).First().Key + 1);
+            ModItems.Add(newId, modItem);
+            modItem.HasBeenRegistered = true;
+            modItem.RegisteredId = newId;
+            return newId;
+        }
+
+        public static SObject PullModItemFromDict(Int32 id, bool isIndex)
+        {
+            if (isIndex)
+            {
+                if (ModItems.ElementAtOrDefault(id).Value != null)
+                {
+                    return ModItems.ElementAt(id).Value.Clone();
+                }
+                else
+                {
+                    Program.LogError("ModItem Dictionary does not contain index: " + id);
+                    return null;
+                }
+            }
+            else
+            {
+                if (ModItems.ContainsKey(id))
+                {
+                    return ModItems[id].Clone();
+                }
+                else
+                {
+                    Program.LogError("ModItem Dictionary does not contain ID: " + id);
+                    return null;
+                }
+            }
+        }
+
+        public static SGameLocation GetLocationFromName(String name)
+        {
+            if (ModLocations.Any(x => x.name == name))
+            {
+                return ModLocations[ModLocations.IndexOf(ModLocations.First(x => x.name == name))];
+            }
+            return null;
         }
     }
 }

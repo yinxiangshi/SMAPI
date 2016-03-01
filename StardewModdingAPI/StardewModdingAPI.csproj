@@ -47,6 +47,7 @@
     <ApplicationIcon>icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.QualityTools.Testing.Fakes, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Include="Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
@@ -64,13 +65,21 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="xTile, Version=2.0.4.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>D:\#Network-Steam\SteamRepo\steamapps\common\Stardew Valley\xTile.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Command.cs" />
     <Compile Include="Events.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Inheritance\Menus\SBobberBar.cs" />
+    <Compile Include="Inheritance\Menus\SGameMenu.cs" />
+    <Compile Include="Inheritance\Menus\SInventoryPage.cs" />
     <Compile Include="Inheritance\Minigames\SMinigameBase.cs" />
+    <Compile Include="Inheritance\SGameLocation.cs" />
+    <Compile Include="Inheritance\SObject.cs" />
     <Compile Include="Mod.cs" />
     <Compile Include="ModItem.cs" />
     <Compile Include="Program.cs" />

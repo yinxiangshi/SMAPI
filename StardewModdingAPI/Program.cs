@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using StardewModdingAPI.Inheritance;
+using StardewModdingAPI.Inheritance.Menus;
 using StardewValley;
 using StardewValley.Menus;
 using StardewValley.Minigames;
@@ -27,6 +29,7 @@ namespace StardewModdingAPI
         public static string ExecutionPath { get; private set; }
         public static string DataPath = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley"));
         public static string ModPath = Path.Combine(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley")), "Mods");
+        public static string ModContentPath = Path.Combine(Path.Combine(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley")), "Mods"), "Content");
         public static string LogPath = Path.Combine(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley")), "ErrorLogs");
         public static string CurrentLog { get; private set; }
         public static StreamWriter LogStream { get; private set; }
@@ -59,7 +62,9 @@ namespace StardewModdingAPI
                 File.Delete(ModPath);
             if (!Directory.Exists(ModPath))
                 Directory.CreateDirectory(ModPath);
-            
+            if (!Directory.Exists(ModContentPath))
+                Directory.CreateDirectory(ModContentPath);
+
             ExecutionPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             CurrentLog = LogPath + "\\MODDED_ProgramLog_" + System.DateTime.Now.Ticks + ".txt";
 
@@ -75,9 +80,40 @@ namespace StardewModdingAPI
                 Console.ReadKey();
                 Environment.Exit(-4);
             }
+
             StardewAssembly = Assembly.LoadFile(ExecutionPath + "\\Stardew Valley.exe");
             StardewProgramType = StardewAssembly.GetType("StardewValley.Program", true);
             StardewGameInfo = StardewProgramType.GetField("gamePtr");
+
+            /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            //HOLY FUCKING SHIT IGNORE THIS I JUST WANTED TO OVERRIDE A NON VIRTUAL METHOD
+
+
+            /*int fieldOffset = 0;
+            foreach (FieldInfo sourceField in sourceFields)
+            {
+                FieldBuilder fieldBuilder
+                    = tb.DefineField(
+                        sourceField.Name,
+                        sourceField.FieldType,
+                        FieldAttributes.Public);
+                fieldBuilder.SetOffset(fieldOffset);
+                fieldOffset++;
+            }*/
+
+            //Type dynamicType = tb.CreateType();
+            //System.Object dynObj = Activator.CreateInstance(dynamicType);
+
+            
+
+            /*foreach (FieldInfo sourceField in sourceFields)
+            {
+                FieldInfo destField
+                    = dynObj.GetType().GetField(sourceField.Name);
+                destField.SetValue(dynObj, sourceField.GetValue(sourceObject));
+            }*/
+            /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
             LogInfo("Injecting New SDV Version...");
             Game1.version += "-Z_MODDED";
@@ -86,21 +122,25 @@ namespace StardewModdingAPI
             LogInfo("Starting SDV...");
             gameThread.Start();
 
-            SGame.Thing();
-
+            SGame.GetStaticFields();
+            
             while (!ready)
             {
-
+                
             }
 
             Log("SDV Loaded Into Memory");
 
             consoleInputThread = new Thread(ConsoleInputThread);
             LogInfo("Initializing Console Input Thread...");
-            consoleInputThread.Start();
+            RegisterCommands();
 
             Events.KeyPressed += Events_KeyPressed;
             Events.UpdateTick += Events_UpdateTick;
+            Events.LoadContent += Events_LoadContent;
+            //Events.MenuChanged += Events_MenuChanged;
+            Events.LocationsChanged += Events_LocationsChanged;
+            Events.CurrentLocationChanged += Events_CurrentLocationChanged;
 
             LogInfo("Applying Final SDV Tweaks...");
             StardewInvoke(() =>
@@ -110,8 +150,11 @@ namespace StardewModdingAPI
             });
 
             LogInfo("Game Loaded");
-            LogColour(ConsoleColor.Cyan, "Type 'help' for help, or 'help <cmd>' for a command's usage");
             Events.InvokeGameLoaded();
+
+            consoleInputThread.Start();
+            LogColour(ConsoleColor.Cyan, "Type 'help' for help, or 'help <cmd>' for a command's usage");
+
 
             while (ready)
             {
@@ -126,7 +169,7 @@ namespace StardewModdingAPI
             LogInfo("Shutting Down...");
             int time = 0;
             int step = 100;
-            int target = 2000;
+            int target = 1000;
             while (true)
             {
                 time += step;
@@ -140,7 +183,7 @@ namespace StardewModdingAPI
             Environment.Exit(0);
         }
 
-
+        
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -205,12 +248,33 @@ namespace StardewModdingAPI
         {
             string input = string.Empty;
 
-            RegisterCommands();
-
             while (true)
             {
                 Command.CallCommand(Console.ReadLine());
             }
+        }
+
+        static void Events_LoadContent()
+        {
+            LogColour(ConsoleColor.Magenta, "REGISTERING BASE CUSTOM ITEM");
+            SObject so = new SObject();
+            so.Name = "Mario Block";
+            so.CategoryName = "SMAPI Test Mod";
+            so.Description = "It's a block from Mario!\nLoaded in realtime by SMAPI.";
+            so.Texture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, new FileStream(ModContentPath + "\\Test.png", FileMode.Open));
+            so.IsPassable = true;
+            so.IsPlaceable = true;
+            LogColour(ConsoleColor.Cyan, "REGISTERED WITH ID OF: " + SGame.RegisterModItem(so));
+
+            LogColour(ConsoleColor.Magenta, "REGISTERING SECOND CUSTOM ITEM");
+            SObject so2 = new SObject();
+            so2.Name = "Mario Painting";
+            so2.CategoryName = "SMAPI Test Mod";
+            so2.Description = "It's a painting of a creature from Mario!\nLoaded in realtime by SMAPI.";
+            so2.Texture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, new FileStream(ModContentPath + "\\PaintingTest.png", FileMode.Open));
+            so2.IsPassable = true;
+            so2.IsPlaceable = true;
+            LogColour(ConsoleColor.Cyan, "REGISTERED WITH ID OF: " + SGame.RegisterModItem(so2));
         }
 
         static void Events_KeyPressed(Keys key)
@@ -236,6 +300,27 @@ namespace StardewModdingAPI
             {
                 Game1.timeOfDay = frozenTime;
             }
+        }
+
+        static void Events_MenuChanged(IClickableMenu newMenu)
+        {
+            LogInfo("NEW MENU: " + newMenu.GetType());
+            if (newMenu is GameMenu)
+            {
+                Game1.activeClickableMenu = SGameMenu.ConstructFromBaseClass(Game1.activeClickableMenu as GameMenu);
+            }
+        }
+
+        static void Events_LocationsChanged(List<GameLocation> newLocations)
+        {
+            SGame.ModLocations = SGameLocation.ConvertGameLocations(Game1.locations);
+        }
+
+        static void Events_CurrentLocationChanged(GameLocation newLocation)
+        {
+            SGame.CurrentLocation = null;
+            System.Threading.Thread.Sleep(10);
+            SGame.CurrentLocation = SGame.ModLocations.First(x => x.name == newLocation.name);
         }
 
         public static void StardewInvoke(Action a)
@@ -270,6 +355,7 @@ namespace StardewModdingAPI
             Command.RegisterCommand("show", "Shows the game form | show").CommandFired += show_CommandFired;
 
             Command.RegisterCommand("save", "Saves the game? Doesn't seem to work. | save").CommandFired += save_CommandFired;
+            Command.RegisterCommand("load", "Shows the load screen | load").CommandFired += load_CommandFired;
 
             Command.RegisterCommand("exit", "Closes the game | exit").CommandFired += exit_CommandFired;
             Command.RegisterCommand("stop", "Closes the game | stop").CommandFired += exit_CommandFired;
@@ -292,6 +378,7 @@ namespace StardewModdingAPI
 
             Command.RegisterCommand("out_items", "Outputs a list of items | out_items", new[] { "" }).CommandFired += out_items;
             Command.RegisterCommand("out_melee", "Outputs a list of melee weapons | out_melee", new[] { "" }).CommandFired += out_melee;
+            Command.RegisterCommand("newitem", "Outputs a list of melee weapons | out_melee", new[] { "" }).CommandFired += RegisterNewItem;
 
             Command.RegisterCommand("world_settime", "Sets the time to the specified value | world_settime <value>", new[] { "(Int32)<value> The target time [06:00 AM is 600]" }).CommandFired += world_setTime;
             Command.RegisterCommand("world_freezetime", "Freezes or thaws time | world_freezetime <value>", new[] { "(0 - 1)<value> Whether or not to freeze time. 0 is thawed, 1 is frozen" }).CommandFired += world_freezeTime;
@@ -338,6 +425,11 @@ namespace StardewModdingAPI
         static void save_CommandFired(Command cmd)
         {
             StardewValley.SaveGame.Save();
+        }
+
+        static void load_CommandFired(Command cmd)
+        {
+            Game1.activeClickableMenu = new StardewValley.Menus.LoadGameMenu();
         }
 
         static void exit_CommandFired(Command cmd)
@@ -857,7 +949,8 @@ namespace StardewModdingAPI
                 try
                 {
                     Item it = new StardewValley.Object(i, 1);
-                    Console.WriteLine(i + "| " + it.Name);
+                    if (it.Name != "Error Item")
+                        Console.WriteLine(i + "| " + it.Name);
                 }
                 catch
                 {
@@ -901,6 +994,11 @@ namespace StardewModdingAPI
         }
 
         static void blank_command(Command cmd) { }
+
+        static void RegisterNewItem(Command cmd)
+        {
+            Game1.player.addItemToInventory(SGame.PullModItemFromDict(0, true));
+        }
 
         #endregion
 
