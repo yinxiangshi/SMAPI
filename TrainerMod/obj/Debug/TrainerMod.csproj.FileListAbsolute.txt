@@ -1,0 +1,5 @@
+C:\TFSource\Master-Collection\StardewModdingAPI\TrainerMod\bin\Debug\TrainerMod.dll
+C:\TFSource\Master-Collection\StardewModdingAPI\TrainerMod\bin\Debug\TrainerMod.pdb
+C:\TFSource\Master-Collection\StardewModdingAPI\TrainerMod\obj\Debug\TrainerMod.csprojResolveAssemblyReference.cache
+C:\TFSource\Master-Collection\StardewModdingAPI\TrainerMod\obj\Debug\TrainerMod.dll
+C:\TFSource\Master-Collection\StardewModdingAPI\TrainerMod\obj\Debug\TrainerMod.pdb
