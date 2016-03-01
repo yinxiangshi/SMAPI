@@ -83,7 +83,7 @@ namespace StardewModdingAPI.Inheritance
         {
             foreach (var v in ModObjects)
             {
-                v.Value.draw(b, (int)v.Key.X, (int)v.Key.Y, -999999, 1);
+                v.Value.draw(b, (int)v.Key.X, (int)v.Key.Y, 0.999f, 1);
             }
         }
     }

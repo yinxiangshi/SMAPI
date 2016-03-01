@@ -26,11 +26,10 @@ C:\Users\zoryn\Desktop\SDV\StardewModdingAPI\StardewModdingAPI\obj\x86\Debug\Sta
 C:\TFSource\Master-Collection\StardewModdingAPI\StardewModdingAPI\bin\x86\Debug\StardewModdingAPI.exe.config
 C:\TFSource\Master-Collection\StardewModdingAPI\StardewModdingAPI\bin\x86\Debug\StardewModdingAPI.exe
 C:\TFSource\Master-Collection\StardewModdingAPI\StardewModdingAPI\bin\x86\Debug\StardewModdingAPI.pdb
+C:\TFSource\Master-Collection\StardewModdingAPI\StardewModdingAPI\bin\x86\Debug\Microsoft.QualityTools.Testing.Fakes.dll
 C:\TFSource\Master-Collection\StardewModdingAPI\StardewModdingAPI\bin\x86\Debug\Stardew Valley.exe
 C:\TFSource\Master-Collection\StardewModdingAPI\StardewModdingAPI\bin\x86\Debug\xTile.dll
 C:\TFSource\Master-Collection\StardewModdingAPI\StardewModdingAPI\bin\x86\Debug\Lidgren.Network.dll
 C:\TFSource\Master-Collection\StardewModdingAPI\StardewModdingAPI\bin\x86\Debug\Steamworks.NET.dll
 C:\TFSource\Master-Collection\StardewModdingAPI\StardewModdingAPI\obj\x86\Debug\StardewModdingAPI.exe
 C:\TFSource\Master-Collection\StardewModdingAPI\StardewModdingAPI\obj\x86\Debug\StardewModdingAPI.pdb
-C:\TFSource\Master-Collection\StardewModdingAPI\StardewModdingAPI\obj\x86\Debug\StardewModdingAPI.csprojResolveAssemblyReference.cache
-C:\TFSource\Master-Collection\StardewModdingAPI\StardewModdingAPI\bin\x86\Debug\Microsoft.QualityTools.Testing.Fakes.dll

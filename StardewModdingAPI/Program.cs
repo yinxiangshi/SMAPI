@@ -34,6 +34,8 @@ namespace StardewModdingAPI
         public static string CurrentLog { get; private set; }
         public static StreamWriter LogStream { get; private set; }
 
+        public static Texture2D DebugPixel { get; private set; }
+
         public static SGame gamePtr;
         public static bool ready;
 
@@ -256,6 +258,10 @@ namespace StardewModdingAPI
 
         static void Events_LoadContent()
         {
+            LogInfo("Initializing Debug Assets...");
+            DebugPixel = new Texture2D(Game1.graphics.GraphicsDevice, 1, 1);
+            DebugPixel.SetData(new Color[] { Color.White });
+
             LogColour(ConsoleColor.Magenta, "REGISTERING BASE CUSTOM ITEM");
             SObject so = new SObject();
             so.Name = "Mario Block";

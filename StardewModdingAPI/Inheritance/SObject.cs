@@ -48,16 +48,38 @@ namespace StardewModdingAPI.Inheritance
 
         public override void draw(SpriteBatch spriteBatch, int x, int y, float alpha = 1)
         {
+            
             if (Texture != null)
                 spriteBatch.Draw(Texture, new Vector2(x, y), new Color(255, 255, 255, 255f * alpha));
         }
 
         public override void draw(SpriteBatch spriteBatch, int xNonTile, int yNonTile, float layerDepth, float alpha = 1)
         {
-            if (Texture != null)
+            try
             {
-                spriteBatch.Draw(Texture, new Vector2(xNonTile, yNonTile), null, new Color(255, 255, 255, 255f * alpha), 0, Vector2.Zero, 1, SpriteEffects.None, layerDepth);
-                spriteBatch.DrawString(Game1.dialogueFont, "TARG: " + new Vector2(xNonTile, yNonTile), new Vector2(128, 0), Color.Red);
+                if (Texture != null)
+                {
+                    int targSize = 64;
+                    int midX = (int) ((xNonTile) + 32);
+                    int midY = (int) ((yNonTile) + 32);
+
+                    int targX = midX - targSize / 2;
+                    int targY = midY - targSize / 2;
+
+                    Rectangle targ = new Rectangle(targX, targY, targSize, targSize);
+                    spriteBatch.Draw(Texture, targ, null, new Color(255, 255, 255, 255f * alpha), 0, Vector2.Zero, SpriteEffects.None, layerDepth);
+                    spriteBatch.Draw(Program.DebugPixel, targ, null, Color.Red, 0, Vector2.Zero, SpriteEffects.None, layerDepth);
+                    spriteBatch.DrawString(Game1.dialogueFont, "TARG: " + targ, new Vector2(128, 0), Color.Red);
+                    spriteBatch.DrawString(Game1.dialogueFont, ".", new Vector2(targX * 0.5f, targY), Color.Orange);
+                    spriteBatch.DrawString(Game1.dialogueFont, ".", new Vector2(targX, targY), Color.Red);
+                    spriteBatch.DrawString(Game1.dialogueFont, ".", new Vector2(targX * 1.5f, targY), Color.Yellow);
+                    spriteBatch.DrawString(Game1.dialogueFont, ".", new Vector2(targX * 2f, targY), Color.Green);
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.LogError(ex.ToString());
+                Console.ReadKey();
             }
         }
 
@@ -170,10 +192,11 @@ namespace StardewModdingAPI.Inheritance
 
             if (s != null)
             {
-                Vector2 index1 = new Vector2((float)(x / Game1.tileSize), (float)(y / Game1.tileSize));
+                Vector2 index1 = new Vector2(x - (Game1.tileSize / 2), y - (Game1.tileSize / 2));
                 if (!s.ModObjects.ContainsKey(index1))
                 {
                     s.ModObjects.Add(index1, this);
+                    Game1.player.position = index1;
                     return true;
                 }
             }
