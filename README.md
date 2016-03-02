@@ -2,6 +2,14 @@
 A Modding API For Stardew Valley
 See: https://github.com/Zoryn4163/SMAPI-Mods
 
+NOTICE: THIS PROJECT IS STILL IN ALPHA
+Mod directories: %appdata%\StardewValley\Mods\ and .\Mods\ <- That means next to StardewModdingApi.exe in the Mods folder!
+To install a mod, put a DLL in one of those directories. If you are not on the latest version, do not post any errors, issues, etc.
+
+
+
+NOTICE: THIS PART AND ONWARD REQUIRE VISUAL STUDIOS AND KNOWLEDGE OF C# PROGRAMMING
+
 You can create a mod by making a direct reference to the ModdingApi.exe
 
 From there, you need to inherit from StardewModdingAPI.Mod
