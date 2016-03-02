@@ -48,13 +48,23 @@ namespace StardewModdingAPI.Inheritance
 
         public override void draw(SpriteBatch spriteBatch, int x, int y, float alpha = 1)
         {
-            
             if (Texture != null)
-                spriteBatch.Draw(Texture, new Vector2(x, y), new Color(255, 255, 255, 255f * alpha));
+                {
+                    int targSize = Game1.tileSize;
+                    int midX = (int) ((x) + 32);
+                    int midY = (int) ((y) + 32);
+
+                    int targX = midX - targSize / 2;
+                    int targY = midY - targSize / 2;
+
+                    Rectangle targ = new Rectangle(targX, targY, targSize, targSize);
+                    spriteBatch.Draw(Texture, targ, null, new Color(255, 255, 255, 255f * alpha), 0, Vector2.Zero, SpriteEffects.None, 0.999f);
+                }
         }
 
         public override void draw(SpriteBatch spriteBatch, int xNonTile, int yNonTile, float layerDepth, float alpha = 1)
         {
+            Program.LogInfo("DRAW ME2");
             return;
             try
             {
@@ -183,6 +193,11 @@ namespace StardewModdingAPI.Inheritance
 
         public override bool placementAction(GameLocation location, int x, int y, Farmer who = null)
         {
+            Vector2 key = new Vector2(x, y);
+            if (!location.objects.ContainsKey(key))
+                location.objects.Add(key, this);
+            return false;
+
             SGameLocation s = SGame.GetLocationFromName(location.name);
 
             if (s.GetHashCode() != SGame.CurrentLocation.GetHashCode())

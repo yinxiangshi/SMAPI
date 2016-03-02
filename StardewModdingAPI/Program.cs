@@ -49,7 +49,7 @@ namespace StardewModdingAPI
         public static Thread gameThread;
         public static Thread consoleInputThread;
 
-        public const string Version = "0.33 Alpha";
+        public const string Version = "0.34 Alpha";
         public const bool debug = false;
         public static bool disableLogging { get; private set; }
 
@@ -63,16 +63,16 @@ namespace StardewModdingAPI
             if (debug)
                 Console.Title += " - DEBUG IS NOT FALSE, AUTHOUR FORGOT TO INCREMENT VERSION VARS";
 
-            Application.ThreadException += Application_ThreadException;
-            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
-            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-
+            
+            
+            //TODO: Have an app.config and put the paths inside it so users can define locations to load mods from
             ExecutionPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             ModPaths.Add(Path.Combine(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley")), "Mods"));
             ModPaths.Add(Path.Combine(ExecutionPath, "Mods"));
             ModPaths.Add(Path.Combine(Path.Combine(ExecutionPath, "Mods"), "Content"));
             ModContentPaths.Add(Path.Combine(Path.Combine(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley")), "Mods"), "Content"));
 
+            //Checks that all defined modpaths exist as directories
             foreach (string ModPath in ModPaths)
             {
                 try
@@ -87,6 +87,7 @@ namespace StardewModdingAPI
                     LogError("Could not create a missing ModPath: " + ModPath + "\n\n" + ex);
                 }
             }
+            //Same for content
             foreach (string ModContentPath in ModContentPaths)
             {
                 try
@@ -99,7 +100,7 @@ namespace StardewModdingAPI
                     LogError("Could not create a missing ModContentPath: " + ModContentPath + "\n\n" + ex);
                 }
             }
-
+            //And then make sure we have an errorlog dir
             try
             {
                 if (!Directory.Exists(LogPath))
@@ -110,10 +111,12 @@ namespace StardewModdingAPI
                 LogError("Could not create the missing ErrorLogs path: " + LogPath + "\n\n" + ex);
             }
 
-            CurrentLog = LogPath + "\\MODDED_ProgramLog_" + System.DateTime.Now.Ticks + ".txt";
+            //Define the path to the current log file
+            CurrentLog = LogPath + "\\MODDED_ProgramLog_LATEST"/* + System.DateTime.Now.Ticks + */ + ".txt";
 
             Log(ExecutionPath, false);
 
+            //Create a writer to the log file
             try
             {
                 LogStream = new StreamWriter(CurrentLog, false);
@@ -124,48 +127,62 @@ namespace StardewModdingAPI
                 LogError("Could not initialize LogStream - Logging is disabled");
             }
 
+
             LogInfo("Initializing SDV Assembly...");
             if (!File.Exists(ExecutionPath + "\\Stardew Valley.exe"))
             {
+                //If the api isn't next to SDV.exe then terminate. Though it'll crash before we even get here w/o sdv.exe. Perplexing.
                 LogError("Could not find: " + ExecutionPath + "\\Stardew Valley.exe");
                 LogError("The API will now terminate.");
                 Console.ReadKey();
                 Environment.Exit(-4);
             }
 
-            StardewAssembly = Assembly.LoadFile(ExecutionPath + "\\Stardew Valley.exe");
+            //Load in that assembly. Also, ignore security :D
+            StardewAssembly = Assembly.UnsafeLoadFrom(ExecutionPath + "\\Stardew Valley.exe");
             StardewProgramType = StardewAssembly.GetType("StardewValley.Program", true);
             StardewGameInfo = StardewProgramType.GetField("gamePtr");
 
-
-
+            //Change the game's version
             LogInfo("Injecting New SDV Version...");
             Game1.version += "-Z_MODDED | SMAPI " + Version;
 
+            //Create the thread for the game to run in.
             gameThread = new Thread(RunGame);
             LogInfo("Starting SDV...");
             gameThread.Start();
 
+            //I forget.
             SGame.GetStaticFields();
             
             while (!ready)
             {
-                
+                //Wait for the game to load up
             }
 
+            //SDV is running
             Log("SDV Loaded Into Memory");
 
-            consoleInputThread = new Thread(ConsoleInputThread);
+            //Create definition to listen for input
             LogInfo("Initializing Console Input Thread...");
+            consoleInputThread = new Thread(ConsoleInputThread);
 
+            //The only command in the API (at least it should be, for now)
             Command.RegisterCommand("help", "Lists all commands | 'help <cmd>' returns command description").CommandFired += help_CommandFired;
+            //Command.RegisterCommand("crash", "crashes sdv").CommandFired += delegate { Game1.player.draw(null); };
 
+            //Subscribe to events
             Events.KeyPressed += Events_KeyPressed;
             Events.LoadContent += Events_LoadContent;
-            //Events.MenuChanged += Events_MenuChanged;
-            Events.LocationsChanged += Events_LocationsChanged;
-            Events.CurrentLocationChanged += Events_CurrentLocationChanged;
+            //Events.MenuChanged += Events_MenuChanged; //Idk right now
+            if (debug)
+            {
+                //Experimental
+                Events.LocationsChanged += Events_LocationsChanged;
+                Events.CurrentLocationChanged += Events_CurrentLocationChanged;
+            }
 
+            //Do tweaks using winforms invoke because I'm lazy
             LogInfo("Applying Final SDV Tweaks...");
             StardewInvoke(() =>
             {
@@ -174,11 +191,13 @@ namespace StardewModdingAPI
                                     StardewForm.Resize += Events.InvokeResize;
             });
 
+            //Game's in memory now, send the event
             LogInfo("Game Loaded");
             Events.InvokeGameLoaded();
 
-            consoleInputThread.Start();
             LogColour(ConsoleColor.Cyan, "Type 'help' for help, or 'help <cmd>' for a command's usage");
+            //Begin listening to input
+            consoleInputThread.Start();
 
 
             while (ready)
@@ -187,11 +206,14 @@ namespace StardewModdingAPI
                 Thread.Sleep(1000 / 10);
             }
 
+            //abort the thread, we're closing
             if (consoleInputThread != null && consoleInputThread.ThreadState == ThreadState.Running)
                 consoleInputThread.Abort();
 
             LogInfo("Game Execution Finished");
             LogInfo("Shutting Down...");
+            Thread.Sleep(100);
+            /*
             int time = 0;
             int step = 100;
             int target = 1000;
@@ -205,6 +227,7 @@ namespace StardewModdingAPI
                 if (time >= target)
                     break;
             }
+            */
             Environment.Exit(0);
         }
 
@@ -216,6 +239,12 @@ namespace StardewModdingAPI
 
         public static void RunGame()
         {
+            //Does this even do anything???
+            Application.ThreadException += Application_ThreadException;
+            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            //I've yet to see it called :|
+
             try
             {
                 gamePtr = new SGame();
@@ -340,7 +369,7 @@ namespace StardewModdingAPI
         {
             if (debug)
             {
-                SGame.ModLocations = SGameLocation.ConvertGameLocations(Game1.locations);
+                SGame.ModLocations = SGameLocation.ConstructFromBaseClasses(Game1.locations);
             }
         }
 
@@ -351,7 +380,7 @@ namespace StardewModdingAPI
             if (debug)
             {
                 Console.WriteLine(newLocation.name);
-                SGame.CurrentLocation = SGame.ModLocations.FirstOrDefault(x => x.name == newLocation.name);
+                SGame.CurrentLocation = SGame.LoadOrCreateSGameLocationFromName(newLocation.name);
             }
             //Game1.currentLocation = SGame.CurrentLocation;
             //LogInfo(((SGameLocation) newLocation).name);
@@ -446,6 +475,15 @@ namespace StardewModdingAPI
         public static void LogError(object o, params object[] format)
         {
             Console.ForegroundColor = ConsoleColor.Red;
+            Log(o.ToString(), format);
+            Console.ForegroundColor = ConsoleColor.Gray;
+        }
+
+        public static void LogDebug(object o, params object[] format)
+        {
+            if (!debug)
+                return;
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
             Log(o.ToString(), format);
             Console.ForegroundColor = ConsoleColor.Gray;
         }

@@ -49,6 +49,8 @@ namespace StardewModdingAPI.Inheritance
         public GameLocation PreviousGameLocation { get; private set; }
         public IClickableMenu PreviousActiveMenu { get; private set; }
 
+        public Farmer PreviousFarmer { get; private set; }
+
         protected override void Initialize()
         {
             Program.Log("XNA Initialize");
@@ -102,6 +104,12 @@ namespace StardewModdingAPI.Inheritance
             {
                 Events.InvokeCurrentLocationChanged(Game1.currentLocation);
                 PreviousGameLocation = Game1.currentLocation;
+            }
+
+            if (Game1.player != null && Game1.player != PreviousFarmer)
+            {
+                Events.InvokeFarmerChanged(Game1.player);
+                PreviousFarmer = Game1.player;
             }
 
             if (CurrentLocation != null)
@@ -183,6 +191,37 @@ namespace StardewModdingAPI.Inheritance
                 return ModLocations[ModLocations.IndexOf(ModLocations.First(x => x.name == name))];
             }
             return null;
+        }
+
+        public static SGameLocation LoadOrCreateSGameLocationFromName(String name)
+        {
+            if (GetLocationFromName(name) != null)
+                return GetLocationFromName(name);
+            else
+            {
+                GameLocation gl = Game1.locations.FirstOrDefault(x => x.name == name);
+                if (gl != null)
+                {
+                    Program.LogDebug("A custom location was created for the new name: " + name);
+                    SGameLocation s = SGameLocation.ConstructFromBaseClass(gl);
+                    ModLocations.Add(s);
+                    return s;
+                }
+                else
+                {
+                    if (Game1.currentLocation != null && Game1.currentLocation.name == name)
+                    {
+                        gl = Game1.currentLocation;
+                        Program.LogDebug("A custom location was created from the current location for the new name: " + name);
+                        SGameLocation s = SGameLocation.ConstructFromBaseClass(gl);
+                        ModLocations.Add(s);
+                        return s;
+                    }
+
+                    Program.LogDebug("A custom location could not be created for: " + name);
+                    return null;
+                }
+            }
         }
     }
 }

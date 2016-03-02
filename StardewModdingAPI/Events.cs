@@ -39,6 +39,9 @@ namespace StardewModdingAPI
 
         public static event EventHandler Resize = delegate { };
 
+        public delegate void FarmerChangedD(Farmer newFarmer);
+        public static event FarmerChangedD FarmerChanged = delegate { };
+
         public static void InvokeGameLoaded()
         {
             GameLoaded.Invoke();
@@ -125,6 +128,11 @@ namespace StardewModdingAPI
         public static void InvokeResize(object sender, EventArgs e)
         {
             Resize.Invoke(sender, e);
+        }
+
+        public static void InvokeFarmerChanged(Farmer newFarmer)
+        {
+            FarmerChanged.Invoke(newFarmer);
         }
     }
 }
