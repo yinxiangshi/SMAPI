@@ -9,6 +9,7 @@ using StardewModdingAPI.Inheritance;
 using StardewValley;
 using StardewValley.Tools;
 using Microsoft.Xna.Framework;
+using StardewValley.Objects;
 
 namespace TrainerMod
 {
@@ -91,9 +92,11 @@ namespace TrainerMod
 
             Command.RegisterCommand("player_additem", "Gives the player an item | player_additem <item> <count>", new[] { "?<item> (Int32)<count>" }).CommandFired += player_addItem;
             Command.RegisterCommand("player_addmelee", "Gives the player a melee item | player_addmelee <item>", new[] { "?<item>" }).CommandFired += player_addMelee;
+            Command.RegisterCommand("player_addring", "Gives the player a ring | player_addring <item>", new[] { "?<item>" }).CommandFired += player_addRing;
 
             Command.RegisterCommand("out_items", "Outputs a list of items | out_items", new[] { "" }).CommandFired += out_items;
             Command.RegisterCommand("out_melee", "Outputs a list of melee weapons | out_melee", new[] { "" }).CommandFired += out_melee;
+            Command.RegisterCommand("out_rings", "Outputs a list of rings | out_rings", new[] { "" }).CommandFired += out_rings;
             Command.RegisterCommand("newitem", "Outputs a list of melee weapons | out_melee", new[] { "" }).CommandFired += RegisterNewItem;
 
             Command.RegisterCommand("world_settime", "Sets the time to the specified value | world_settime <value>", new[] { "(Int32)<value> The target time [06:00 AM is 600]" }).CommandFired += world_setTime;
@@ -605,7 +608,9 @@ namespace TrainerMod
                             return;
                         }
                     }
-                    Game1.player.addItemByMenuIfNecessary((Item)new StardewValley.Object(cmd.CalledArgs[0].AsInt32(), count));
+                    Item i = (Item) new StardewValley.Object(cmd.CalledArgs[0].AsInt32(), count);
+                    
+                    Game1.player.addItemByMenuIfNecessary(i);
                 }
                 else
                 {
@@ -624,7 +629,30 @@ namespace TrainerMod
             {
                 if (cmd.CalledArgs[0].IsInt32())
                 {
+
                     MeleeWeapon toAdd = new MeleeWeapon(cmd.CalledArgs[0].AsInt32());
+                    Game1.player.addItemByMenuIfNecessary(toAdd);
+                    Program.LogInfo("Given {0} to {1}", toAdd.Name, Game1.player.Name);
+                }
+                else
+                {
+                    Program.LogError("<item> is invalid");
+                }
+            }
+            else
+            {
+                Program.LogObjectValueNotSpecified();
+            }
+        }
+
+        static void player_addRing(Command cmd)
+        {
+            if (cmd.CalledArgs.Length > 0)
+            {
+                if (cmd.CalledArgs[0].IsInt32())
+                {
+                    
+                    Ring toAdd = new Ring(cmd.CalledArgs[0].AsInt32());
                     Game1.player.addItemByMenuIfNecessary(toAdd);
                     Program.LogInfo("Given {0} to {1}", toAdd.Name, Game1.player.Name);
                 }
@@ -663,6 +691,23 @@ namespace TrainerMod
             foreach (var v in d)
             {
                 Console.WriteLine(v.Key + " | " + v.Value);
+            }
+        }
+
+        static void out_rings(Command cmd)
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                try
+                {
+                    Item it = new Ring(i);
+                    if (it.Name != "Error Item")
+                        Console.WriteLine(i + "| " + it.Name);
+                }
+                catch
+                {
+
+                }
             }
         }
 

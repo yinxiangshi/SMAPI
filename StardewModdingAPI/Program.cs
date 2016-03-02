@@ -49,7 +49,7 @@ namespace StardewModdingAPI
         public static Thread gameThread;
         public static Thread consoleInputThread;
 
-        public const string Version = "0.31 Alpha";
+        public const string Version = "0.3x Alpha";
         public const bool debug = false;
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -60,7 +60,7 @@ namespace StardewModdingAPI
 
             Console.Title += " - Version " + Version;
             if (debug)
-                Console.Title += " - DEBUG IS NOT FALSE, AUTHOUR FORGET TO INCREMENT VERSION VARS";
+                Console.Title += " - DEBUG IS NOT FALSE, AUTHOUR FORGOT TO INCREMENT VERSION VARS";
 
             Application.ThreadException += Application_ThreadException;
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
@@ -69,19 +69,44 @@ namespace StardewModdingAPI
             ExecutionPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             ModPaths.Add(Path.Combine(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley")), "Mods"));
             ModPaths.Add(Path.Combine(ExecutionPath, "Mods"));
+            ModPaths.Add(Path.Combine(Path.Combine(ExecutionPath, "Mods"), "Content"));
             ModContentPaths.Add(Path.Combine(Path.Combine(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley")), "Mods"), "Content"));
 
             foreach (string ModPath in ModPaths)
             {
-                if (File.Exists(ModPath))
-                    File.Delete(ModPath);
-                if (!Directory.Exists(ModPath))
-                    Directory.CreateDirectory(ModPath);
+                try
+                {
+                    if (File.Exists(ModPath))
+                        File.Delete(ModPath);
+                    if (!Directory.Exists(ModPath))
+                        Directory.CreateDirectory(ModPath);
+                }
+                catch (Exception ex)
+                {
+                    LogError("Could not create a missing ModPath: " + ModPath + "\n\n" + ex);
+                }
             }
             foreach (string ModContentPath in ModContentPaths)
             {
-                if (!Directory.Exists(ModContentPath))
-                    Directory.CreateDirectory(ModContentPath);
+                try
+                {
+                    if (!Directory.Exists(ModContentPath))
+                        Directory.CreateDirectory(ModContentPath);
+                }
+                catch (Exception ex)
+                {
+                    LogError("Could not create a missing ModContentPath: " + ModContentPath + "\n\n" + ex);
+                }
+            }
+
+            try
+            {
+                if (Directory.Exists(LogPath))
+                    Directory.CreateDirectory(LogPath);
+            }
+            catch (Exception ex)
+            {
+                LogError("Could not create the missing ErrorLogs path: " + LogPath + "\n\n" + ex);
             }
 
             CurrentLog = LogPath + "\\MODDED_ProgramLog_" + System.DateTime.Now.Ticks + ".txt";
@@ -106,7 +131,7 @@ namespace StardewModdingAPI
 
 
             LogInfo("Injecting New SDV Version...");
-            Game1.version += "-Z_MODDED";
+            Game1.version += "-Z_MODDED | SMAPI " + Version;
 
             gameThread = new Thread(RunGame);
             LogInfo("Starting SDV...");
@@ -221,20 +246,27 @@ namespace StardewModdingAPI
                 foreach (String s in Directory.GetFiles(ModPath, "*.dll"))
                 {
                     LogColour(ConsoleColor.Green, "Found DLL: " + s);
-                    Assembly mod = Assembly.LoadFile(s);
+                    try
+                    {
+                        Assembly mod = Assembly.UnsafeLoadFrom(s); //to combat internet-downloaded DLLs
 
-                    if (mod.DefinedTypes.Count(x => x.BaseType == typeof (Mod)) > 0)
-                    {
-                        LogColour(ConsoleColor.Green, "Loading Mod DLL...");
-                        TypeInfo tar = mod.DefinedTypes.First(x => x.BaseType == typeof (Mod));
-                        Mod m = (Mod) mod.CreateInstance(tar.ToString());
-                        Console.WriteLine("LOADED MOD: {0} by {1} - Version {2} | Description: {3}", m.Name, m.Authour, m.Version, m.Description);
-                        loadedMods += 1;
-                        m.Entry();
+                        if (mod.DefinedTypes.Count(x => x.BaseType == typeof (Mod)) > 0)
+                        {
+                            LogColour(ConsoleColor.Green, "Loading Mod DLL...");
+                            TypeInfo tar = mod.DefinedTypes.First(x => x.BaseType == typeof (Mod));
+                            Mod m = (Mod) mod.CreateInstance(tar.ToString());
+                            Console.WriteLine("LOADED MOD: {0} by {1} - Version {2} | Description: {3}", m.Name, m.Authour, m.Version, m.Description);
+                            loadedMods += 1;
+                            m.Entry();
+                        }
+                        else
+                        {
+                            LogError("Invalid Mod DLL");
+                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        LogError("Invalid Mod DLL");
+                        LogError("Failed to load mod '{0}'. Exception details:\n" + ex, s);
                     }
                 }
             }
