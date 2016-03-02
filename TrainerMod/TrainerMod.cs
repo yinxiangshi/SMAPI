@@ -90,7 +90,7 @@ namespace TrainerMod
             Command.RegisterCommand("player_changecolour", "Sets the player's colour of the specified object | player_changecolor <object> <colour>", new[] { "(hair, eyes, pants)<object> (r,g,b)<colour>" }).CommandFired += player_changeColour;
             Command.RegisterCommand("player_changestyle", "Sets the player's style of the specified object | player_changecolor <object> <value>", new[] { "(hair, shirt, skin, acc, shoe, swim, gender)<object> (Int32)<value>" }).CommandFired += player_changeStyle;
 
-            Command.RegisterCommand("player_additem", "Gives the player an item | player_additem <item> <count>", new[] { "?<item> (Int32)<count>" }).CommandFired += player_addItem;
+            Command.RegisterCommand("player_additem", "Gives the player an item | player_additem <item> [count] [quality]", new[] { "(Int32)<id> (Int32)[count] (Int32)[quality]" }).CommandFired += player_addItem;
             Command.RegisterCommand("player_addmelee", "Gives the player a melee item | player_addmelee <item>", new[] { "?<item>" }).CommandFired += player_addMelee;
             Command.RegisterCommand("player_addring", "Gives the player a ring | player_addring <item>", new[] { "?<item>" }).CommandFired += player_addRing;
 
@@ -596,6 +596,7 @@ namespace TrainerMod
                 if (cmd.CalledArgs[0].IsInt32())
                 {
                     int count = 1;
+                    int quality = 0;
                     if (cmd.CalledArgs.Length > 1)
                     {
                         if (cmd.CalledArgs[1].IsInt32())
@@ -604,13 +605,29 @@ namespace TrainerMod
                         }
                         else
                         {
-                            Program.LogError("<count> is invalid");
+                            Program.LogError("[count] is invalid");
                             return;
                         }
+
+                        if (cmd.CalledArgs.Length > 2)
+                        {
+                            if (cmd.CalledArgs[2].IsInt32())
+                            {
+                                quality = cmd.CalledArgs[2].AsInt32();
+                            }
+                            else
+                            {
+                                Program.LogError("[quality] is invalid");
+                                return;
+                            }
+
+                        }
                     }
-                    Item i = (Item) new StardewValley.Object(cmd.CalledArgs[0].AsInt32(), count);
-                    
-                    Game1.player.addItemByMenuIfNecessary(i);
+
+                    StardewValley.Object o = new StardewValley.Object(cmd.CalledArgs[0].AsInt32(), count);
+                    o.quality = quality;
+
+                    Game1.player.addItemByMenuIfNecessary((Item)o);
                 }
                 else
                 {
@@ -739,7 +756,9 @@ namespace TrainerMod
 
         static void RegisterNewItem(Command cmd)
         {
-            Game1.player.addItemToInventory(SGame.PullModItemFromDict(0, true));
+            SObject s = SGame.PullModItemFromDict(0, true);
+            s.Stack = 999;
+            Game1.player.addItemToInventory(s);
         }
     }
 }
