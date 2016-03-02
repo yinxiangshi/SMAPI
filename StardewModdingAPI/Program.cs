@@ -49,8 +49,9 @@ namespace StardewModdingAPI
         public static Thread gameThread;
         public static Thread consoleInputThread;
 
-        public const string Version = "0.32 Alpha";
+        public const string Version = "0.33 Alpha";
         public const bool debug = false;
+        public static bool disableLogging { get; private set; }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -101,7 +102,7 @@ namespace StardewModdingAPI
 
             try
             {
-                if (Directory.Exists(LogPath))
+                if (!Directory.Exists(LogPath))
                     Directory.CreateDirectory(LogPath);
             }
             catch (Exception ex)
@@ -113,7 +114,15 @@ namespace StardewModdingAPI
 
             Log(ExecutionPath, false);
 
-            LogStream = new StreamWriter(CurrentLog, false);
+            try
+            {
+                LogStream = new StreamWriter(CurrentLog, false);
+            }
+            catch (Exception ex)
+            {
+                disableLogging = true;
+                LogError("Could not initialize LogStream - Logging is disabled");
+            }
 
             LogInfo("Initializing SDV Assembly...");
             if (!File.Exists(ExecutionPath + "\\Stardew Valley.exe"))
@@ -341,7 +350,8 @@ namespace StardewModdingAPI
             //System.Threading.Thread.Sleep(10);
             if (debug)
             {
-                SGame.CurrentLocation = SGame.ModLocations.First(x => x.name == newLocation.name);
+                Console.WriteLine(newLocation.name);
+                SGame.CurrentLocation = SGame.ModLocations.FirstOrDefault(x => x.name == newLocation.name);
             }
             //Game1.currentLocation = SGame.CurrentLocation;
             //LogInfo(((SGameLocation) newLocation).name);
@@ -411,8 +421,12 @@ namespace StardewModdingAPI
             }
             string toLog = string.Format("[{0}] {1}", System.DateTime.Now.ToLongTimeString(), String.Format(o.ToString(), format));
             Console.WriteLine(toLog);
-            LogStream.WriteLine(toLog);
-            LogStream.Flush();
+
+            if (!disableLogging)
+            {
+                LogStream.WriteLine(toLog);
+                LogStream.Flush();
+            }
         }
 
         public static void LogColour(ConsoleColor c, object o, params object[] format)
