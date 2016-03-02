@@ -23,15 +23,30 @@ namespace StardewModdingAPI.Inheritance
             SGameLocation s = new SGameLocation();
             s.BaseGameLocation = baseClass;
             s.ModObjects = new SerializableDictionary<Vector2, SObject>();
+
+            foreach (var v in baseClass.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+            {
+                try
+                {
+                    var fi = s.GetType().GetField(v.Name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (fi != null && !fi.IsStatic)
+                    {
+                        fi.SetValue(s, v.GetValue(baseClass));
+                        //Console.WriteLine("SET {0} ON {1} TO {2}", fi.Name, s.name, v.GetValue(baseClass));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Program.LogError(ex);
+                }
+            }
+
             //s.IsFarm = baseClass.IsFarm;
             //s.IsOutdoors = baseClass.IsOutdoors;
             //s.LightLevel = baseClass.LightLevel;
             //s.Map = baseClass.Map;
             //s.objects = baseClass.objects;
             //s.temporarySprites = baseClass.temporarySprites;
-            s.map = baseClass.map;
-            s.objects = baseClass.objects;
-            s.name = baseClass.name;
 
             /*
             s.actionObjectForQuestionDialogue = baseClass.actionObjectForQuestionDialogue;
@@ -73,6 +88,9 @@ namespace StardewModdingAPI.Inheritance
             s.waterTileFlip = baseClass.waterTileFlip;
             s.waterTiles = baseClass.waterTiles;
             */
+
+
+
             return s;
         }
 

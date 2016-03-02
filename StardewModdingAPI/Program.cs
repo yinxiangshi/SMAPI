@@ -49,11 +49,18 @@ namespace StardewModdingAPI
         public static Thread gameThread;
         public static Thread consoleInputThread;
 
+        public const string Version = "0.31 Alpha";
+        public const bool debug = false;
+
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         private static void Main(string[] args)
         {
             Console.Title = "Stardew Modding API Console";
+
+            Console.Title += " - Version " + Version;
+            if (debug)
+                Console.Title += " - DEBUG IS NOT FALSE, AUTHOUR FORGET TO INCREMENT VERSION VARS";
 
             Application.ThreadException += Application_ThreadException;
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
@@ -250,25 +257,28 @@ namespace StardewModdingAPI
             DebugPixel = new Texture2D(Game1.graphics.GraphicsDevice, 1, 1);
             DebugPixel.SetData(new Color[] { Color.White });
 
-            LogColour(ConsoleColor.Magenta, "REGISTERING BASE CUSTOM ITEM");
-            SObject so = new SObject();
-            so.Name = "Mario Block";
-            so.CategoryName = "SMAPI Test Mod";
-            so.Description = "It's a block from Mario!\nLoaded in realtime by SMAPI.";
-            so.Texture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, new FileStream(ModContentPaths[0] + "\\Test.png", FileMode.Open));
-            so.IsPassable = true;
-            so.IsPlaceable = true;
-            LogColour(ConsoleColor.Cyan, "REGISTERED WITH ID OF: " + SGame.RegisterModItem(so));
+            if (debug)
+            {
+                LogColour(ConsoleColor.Magenta, "REGISTERING BASE CUSTOM ITEM");
+                SObject so = new SObject();
+                so.Name = "Mario Block";
+                so.CategoryName = "SMAPI Test Mod";
+                so.Description = "It's a block from Mario!\nLoaded in realtime by SMAPI.";
+                so.Texture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, new FileStream(ModContentPaths[0] + "\\Test.png", FileMode.Open));
+                so.IsPassable = true;
+                so.IsPlaceable = true;
+                LogColour(ConsoleColor.Cyan, "REGISTERED WITH ID OF: " + SGame.RegisterModItem(so));
 
-            LogColour(ConsoleColor.Magenta, "REGISTERING SECOND CUSTOM ITEM");
-            SObject so2 = new SObject();
-            so2.Name = "Mario Painting";
-            so2.CategoryName = "SMAPI Test Mod";
-            so2.Description = "It's a painting of a creature from Mario!\nLoaded in realtime by SMAPI.";
-            so2.Texture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, new FileStream(ModContentPaths[0] + "\\PaintingTest.png", FileMode.Open));
-            so2.IsPassable = true;
-            so2.IsPlaceable = true;
-            LogColour(ConsoleColor.Cyan, "REGISTERED WITH ID OF: " + SGame.RegisterModItem(so2));
+                LogColour(ConsoleColor.Magenta, "REGISTERING SECOND CUSTOM ITEM");
+                SObject so2 = new SObject();
+                so2.Name = "Mario Painting";
+                so2.CategoryName = "SMAPI Test Mod";
+                so2.Description = "It's a painting of a creature from Mario!\nLoaded in realtime by SMAPI.";
+                so2.Texture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, new FileStream(ModContentPaths[0] + "\\PaintingTest.png", FileMode.Open));
+                so2.IsPassable = true;
+                so2.IsPlaceable = true;
+                LogColour(ConsoleColor.Cyan, "REGISTERED WITH ID OF: " + SGame.RegisterModItem(so2));
+            }
         }
 
         static void Events_KeyPressed(Keys key)

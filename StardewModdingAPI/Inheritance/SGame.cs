@@ -117,17 +117,19 @@ namespace StardewModdingAPI.Inheritance
         {
             base.Draw(gameTime);
             Events.InvokeDrawTick();
-            /*
-            spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
 
-            if (CurrentLocation != null)
-                CurrentLocation.draw(Game1.spriteBatch);
+            if (Program.debug)
+            {
+                spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
 
-            if (player != null && player.position != null)
-                spriteBatch.DrawString(Game1.dialogueFont, Game1.player.position.ToString(), new Vector2(0, 180), Color.Orange);
-            
-            spriteBatch.End();
-            */
+                if (CurrentLocation != null)
+                    CurrentLocation.draw(Game1.spriteBatch);
+
+                if (player != null && player.position != null)
+                    spriteBatch.DrawString(Game1.dialogueFont, Game1.player.position.ToString(), new Vector2(0, 180), Color.Orange);
+
+                spriteBatch.End();
+            }
         }
 
         public static Int32 RegisterModItem(SObject modItem)
