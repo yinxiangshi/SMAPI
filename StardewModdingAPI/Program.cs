@@ -49,7 +49,7 @@ namespace StardewModdingAPI
         public static Thread gameThread;
         public static Thread consoleInputThread;
 
-        public const string Version = "0.3x Alpha";
+        public const string Version = "0.32 Alpha";
         public const bool debug = false;
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -329,14 +329,20 @@ namespace StardewModdingAPI
 
         static void Events_LocationsChanged(List<GameLocation> newLocations)
         {
-            SGame.ModLocations = SGameLocation.ConvertGameLocations(Game1.locations);
+            if (debug)
+            {
+                SGame.ModLocations = SGameLocation.ConvertGameLocations(Game1.locations);
+            }
         }
 
         static void Events_CurrentLocationChanged(GameLocation newLocation)
         {
             //SGame.CurrentLocation = null;
             //System.Threading.Thread.Sleep(10);
-            SGame.CurrentLocation = SGame.ModLocations.First(x => x.name == newLocation.name);
+            if (debug)
+            {
+                SGame.CurrentLocation = SGame.ModLocations.First(x => x.name == newLocation.name);
+            }
             //Game1.currentLocation = SGame.CurrentLocation;
             //LogInfo(((SGameLocation) newLocation).name);
             //LogInfo("LOC CHANGED: " + SGame.currentLocation.name);
