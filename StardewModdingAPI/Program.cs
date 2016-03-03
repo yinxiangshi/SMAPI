@@ -49,8 +49,8 @@ namespace StardewModdingAPI
         public static Thread gameThread;
         public static Thread consoleInputThread;
 
-        public const string Version = "0.35 Alpha";
-        public const bool debug = false;
+        public const string Version = "0.36 Alpha";
+        public const bool debug = true;
         public static bool disableLogging { get; private set; }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -63,7 +63,7 @@ namespace StardewModdingAPI
 
             Console.Title += " - Version " + Version;
             if (debug)
-                Console.Title += " - DEBUG IS NOT FALSE, AUTHOUR FORGOT TO INCREMENT VERSION VARS";
+                Console.Title += " - DEBUG IS NOT FALSE, AUTHOUR NEEDS TO REUPLOAD THIS VERSION";
             
             //TODO: Have an app.config and put the paths inside it so users can define locations to load mods from
             ExecutionPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -84,6 +84,7 @@ namespace StardewModdingAPI
                 }
                 catch (Exception ex)
                 {
+                    
                     LogError("Could not create a missing ModPath: " + ModPath + "\n\n" + ex);
                 }
             }

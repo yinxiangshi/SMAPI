@@ -602,6 +602,7 @@ namespace TrainerMod
                     int quality = 0;
                     if (cmd.CalledArgs.Length > 1)
                     {
+                        Console.WriteLine(cmd.CalledArgs[1]);
                         if (cmd.CalledArgs[1].IsInt32())
                         {
                             count = cmd.CalledArgs[1].AsInt32();

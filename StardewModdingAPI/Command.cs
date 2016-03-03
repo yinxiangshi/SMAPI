@@ -30,7 +30,7 @@ namespace StardewModdingAPI
             {
                 args = input.Split(new[] {" "}, 2, StringSplitOptions.RemoveEmptyEntries);
                 fnd = FindCommand(args[0]);
-                    args = args[1].Split(new[] { " " }, 2, StringSplitOptions.RemoveEmptyEntries);
+                args = args[1].Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
             }
             else
             {

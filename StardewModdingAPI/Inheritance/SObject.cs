@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
@@ -66,8 +67,6 @@ namespace StardewModdingAPI.Inheritance
             if (Texture != null)
             {
                 int targSize = Game1.tileSize;
-                int midX = (int) ((x) + 32);
-                int midY = (int) ((y) + 32);
 
                 Vector2 local = Game1.GlobalToLocal(Game1.viewport, new Vector2(x,y));
                 Rectangle targ = new Rectangle((int)local.X, (int)local.Y, targSize, targSize);
@@ -207,12 +206,14 @@ namespace StardewModdingAPI.Inheritance
         public override void actionWhenBeingHeld(Farmer who)
         {
             Point p = Game1.getMousePosition();
-            CurrentMouse = new Vector2(p.X, p.Y);
+            CurrentMouse = new Vector2((p.X / Game1.tileSize), (p.Y / Game1.tileSize));
+            Program.LogInfo(canBePlacedHere(Game1.currentLocation, CurrentMouse));
             base.actionWhenBeingHeld(who);
         }
 
         public override bool canBePlacedHere(GameLocation l, Vector2 tile)
         {
+            Program.LogInfo(CurrentMouse.ToString().Replace("{", "").Replace("}", ""));
             if (!l.objects.ContainsKey(tile))
                 return true;
 
@@ -221,6 +222,9 @@ namespace StardewModdingAPI.Inheritance
 
         public override bool placementAction(GameLocation location, int x, int y, Farmer who = null)
         {
+            if (Game1.didPlayerJustRightClick())
+                return false;
+
             x = (x / Game1.tileSize) * Game1.tileSize;
             y = (y / Game1.tileSize) * Game1.tileSize;
 
@@ -248,7 +252,13 @@ namespace StardewModdingAPI.Inheritance
         public override void drawPlacementBounds(SpriteBatch spriteBatch, GameLocation location)
         {
             if (canBePlacedHere(location, CurrentMouse))
-                base.drawPlacementBounds(spriteBatch, location);
+            {
+                int targSize = Game1.tileSize;
+
+                int x = Game1.oldMouseState.X + Game1.viewport.X;
+                int y = Game1.oldMouseState.Y + Game1.viewport.Y;
+                spriteBatch.Draw(Game1.mouseCursors, new Vector2((float)(x / Game1.tileSize * Game1.tileSize - Game1.viewport.X), (float)(y / Game1.tileSize * Game1.tileSize - Game1.viewport.Y)), new Microsoft.Xna.Framework.Rectangle?(new Microsoft.Xna.Framework.Rectangle(Utility.playerCanPlaceItemHere(location, (Item)this, x, y, Game1.player) ? 194 : 210, 388, 16, 16)), Color.White, 0.0f, Vector2.Zero, (float)Game1.pixelZoom, SpriteEffects.None, 0.01f);
+            }
         }
     }
 }

@@ -49,6 +49,14 @@ namespace StardewModdingAPI.Inheritance
 
         public Farmer PreviousFarmer { get; private set; }
 
+        public SGame()
+        {
+            if (Program.debug)
+            {
+                //SaveGame.serializer.
+            }
+        }
+
         protected override void Initialize()
         {
             Program.Log("XNA Initialize");
