@@ -9,3 +9,11 @@ C:\Users\zoryn\Documents\GitHub\SMAPI\TrainerMod\bin\Debug\TrainerMod.dll
 C:\Users\zoryn\Documents\GitHub\SMAPI\TrainerMod\bin\Debug\TrainerMod.pdb
 C:\Users\zoryn\Documents\GitHub\SMAPI\TrainerMod\bin\Debug\Stardew Valley.exe
 C:\Users\zoryn\Documents\GitHub\SMAPI\TrainerMod\obj\Debug\TrainerMod.pdb
+C:\Users\zoryn\Documents\GitHub\SMAPI\TrainerMod\bin\Debug\steam_appid.txt
+C:\Users\zoryn\Documents\GitHub\SMAPI\TrainerMod\bin\Debug\StardewModdingAPI.exe
+C:\Users\zoryn\Documents\GitHub\SMAPI\TrainerMod\bin\Debug\xTile.dll
+C:\Users\zoryn\Documents\GitHub\SMAPI\TrainerMod\bin\Debug\Lidgren.Network.dll
+C:\Users\zoryn\Documents\GitHub\SMAPI\TrainerMod\bin\Debug\Microsoft.Xna.Framework.Xact.dll
+C:\Users\zoryn\Documents\GitHub\SMAPI\TrainerMod\bin\Debug\Steamworks.NET.dll
+C:\Users\zoryn\Documents\GitHub\SMAPI\TrainerMod\bin\Debug\StardewModdingAPI.pdb
+C:\Users\zoryn\Documents\GitHub\SMAPI\TrainerMod\bin\Debug\Microsoft.Xna.Framework.Xact.xml

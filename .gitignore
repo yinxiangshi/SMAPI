@@ -1,7 +1,6 @@
 StardewModdingAPI/bin/
 StardewModdingAPI/obj/
 packages/
-StardewInjector/
 
 *.symlink
 *.lnk

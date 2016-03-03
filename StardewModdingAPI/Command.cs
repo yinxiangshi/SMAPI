@@ -104,7 +104,7 @@ namespace StardewModdingAPI
                 Program.LogError("Command failed to fire because it's fire event is null: " + CommandName);
                 return;
             }
-            CommandFired.Invoke(this, null);
+            CommandFired.Invoke(this, new EventArgsCommand(this));
         }
     }
 }
