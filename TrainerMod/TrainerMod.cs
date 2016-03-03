@@ -46,6 +46,9 @@ namespace TrainerMod
 
         static void Events_UpdateTick()
         {
+            if (Game1.player == null)
+                return;
+
             if (infHealth)
             {
                 Game1.player.health = Game1.player.maxHealth;
@@ -756,6 +759,8 @@ namespace TrainerMod
 
         static void RegisterNewItem(Command cmd)
         {
+            if (!Program.debug)
+                return;
             SObject s = SGame.PullModItemFromDict(0, true);
             s.Stack = 999;
             Game1.player.addItemToInventory(s);

@@ -12,6 +12,7 @@ using StardewValley.BellsAndWhistles;
 
 namespace StardewModdingAPI.Inheritance
 {
+    [Obsolete]
     public class SGameLocation : GameLocation
     {
         public GameLocation BaseGameLocation { get; private set; }

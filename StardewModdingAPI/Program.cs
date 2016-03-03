@@ -49,11 +49,13 @@ namespace StardewModdingAPI
         public static Thread gameThread;
         public static Thread consoleInputThread;
 
-        public const string Version = "0.34 Alpha";
+        public const string Version = "0.35 Alpha";
         public const bool debug = false;
         public static bool disableLogging { get; private set; }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 
         private static void Main(string[] args)
         {
@@ -62,8 +64,6 @@ namespace StardewModdingAPI
             Console.Title += " - Version " + Version;
             if (debug)
                 Console.Title += " - DEBUG IS NOT FALSE, AUTHOUR FORGOT TO INCREMENT VERSION VARS";
-
-            
             
             //TODO: Have an app.config and put the paths inside it so users can define locations to load mods from
             ExecutionPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -178,8 +178,8 @@ namespace StardewModdingAPI
             if (debug)
             {
                 //Experimental
-                Events.LocationsChanged += Events_LocationsChanged;
-                Events.CurrentLocationChanged += Events_CurrentLocationChanged;
+                //Events.LocationsChanged += Events_LocationsChanged;
+                //Events.CurrentLocationChanged += Events_CurrentLocationChanged;
             }
 
             //Do tweaks using winforms invoke because I'm lazy
@@ -349,6 +349,9 @@ namespace StardewModdingAPI
                 so2.IsPlaceable = true;
                 LogColour(ConsoleColor.Cyan, "REGISTERED WITH ID OF: " + SGame.RegisterModItem(so2));
             }
+
+            if (debug)
+                Command.CallCommand("load");
         }
 
         static void Events_KeyPressed(Keys key)
@@ -404,10 +407,6 @@ namespace StardewModdingAPI
             File.WriteAllText(Program.LogPath + "\\MODDED_ErrorLog_" + Extensions.Random.Next(100000000, 999999999) + ".txt", e.Exception.ToString());
         }
 
-        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
         static void help_CommandFired(Command cmd)
         {
             if (cmd.CalledArgs.Length > 0)
@@ -426,11 +425,6 @@ namespace StardewModdingAPI
             else
                 LogInfo("Commands: " + Command.RegisteredCommands.Select(x => x.CommandName).ToSingular());
         }
-
-
-        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
 
         #region Logging
 

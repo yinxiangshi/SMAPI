@@ -12,7 +12,10 @@ namespace StardewModdingAPI.Inheritance
 {
     public class SObject : StardewValley.Object
     {
-        public override String Name { get; set; }
+        public override String Name {
+            get { return name; }
+            set { name = value; }
+        }
         public String Description { get; set; }
         public Texture2D Texture { get; set; }
         public String CategoryName { get; set; }
@@ -29,9 +32,18 @@ namespace StardewModdingAPI.Inheritance
 
         public Boolean FlaggedForPickup { get; set; }
 
+        public Vector2 CurrentMouse { get; protected set; }
+        public Vector2 PlacedAt { get; protected set; }
+
+        public override int Stack
+        {
+            get { return stack; }
+            set { stack = value; }
+        }
+
         public SObject()
         {
-            Name = "Modded Item Name";
+            name = "Modded Item Name";
             Description = "Modded Item Description";
             CategoryName = "Modded Item Category";
             Category = 4163;
@@ -39,6 +51,9 @@ namespace StardewModdingAPI.Inheritance
             IsPassable = false;
             IsPlaceable = false;
             boundingBox = new Rectangle(0, 0, 64, 64);
+            MaxStackSize = 999;
+
+            type = "interactive";
         }
 
         public override string getDescription()
@@ -49,22 +64,20 @@ namespace StardewModdingAPI.Inheritance
         public override void draw(SpriteBatch spriteBatch, int x, int y, float alpha = 1)
         {
             if (Texture != null)
-                {
-                    int targSize = Game1.tileSize;
-                    int midX = (int) ((x) + 32);
-                    int midY = (int) ((y) + 32);
+            {
+                int targSize = Game1.tileSize;
+                int midX = (int) ((x) + 32);
+                int midY = (int) ((y) + 32);
 
-                    int targX = midX - targSize / 2;
-                    int targY = midY - targSize / 2;
-
-                    Rectangle targ = new Rectangle(targX, targY, targSize, targSize);
-                    spriteBatch.Draw(Texture, targ, null, new Color(255, 255, 255, 255f * alpha), 0, Vector2.Zero, SpriteEffects.None, 0.999f);
-                }
+                Vector2 local = Game1.GlobalToLocal(Game1.viewport, new Vector2(x,y));
+                Rectangle targ = new Rectangle((int)local.X, (int)local.Y, targSize, targSize);
+                spriteBatch.Draw(Texture, targ, null, new Color(255, 255, 255, 255f * alpha));
+            }
         }
 
         public override void draw(SpriteBatch spriteBatch, int xNonTile, int yNonTile, float layerDepth, float alpha = 1)
         {
-            Program.LogInfo("DRAW ME2");
+            Program.LogInfo("THIS DRAW FUNCTION IS NOT IMPLEMENTED I WANT TO KNOW WHERE IT IS CALLED");
             return;
             try
             {
@@ -191,39 +204,51 @@ namespace StardewModdingAPI.Inheritance
             return this.Clone();
         }
 
+        public override void actionWhenBeingHeld(Farmer who)
+        {
+            Point p = Game1.getMousePosition();
+            CurrentMouse = new Vector2(p.X, p.Y);
+            base.actionWhenBeingHeld(who);
+        }
+
+        public override bool canBePlacedHere(GameLocation l, Vector2 tile)
+        {
+            if (!l.objects.ContainsKey(tile))
+                return true;
+
+            return false;
+        }
+
         public override bool placementAction(GameLocation location, int x, int y, Farmer who = null)
         {
+            x = (x / Game1.tileSize) * Game1.tileSize;
+            y = (y / Game1.tileSize) * Game1.tileSize;
+
             Vector2 key = new Vector2(x, y);
-            if (!location.objects.ContainsKey(key))
-                location.objects.Add(key, this);
-            return false;
 
-            SGameLocation s = SGame.GetLocationFromName(location.name);
-
-            if (s.GetHashCode() != SGame.CurrentLocation.GetHashCode())
-            {
-                Program.LogError("HASH DIFFERENCE: " + s.GetHashCode() + " | " + SGame.ModLocations[SGame.ModLocations.IndexOf(SGame.ModLocations.First(z => z.name == location.name))].GetHashCode() + " | " + SGame.CurrentLocation.GetHashCode());
-                Console.ReadKey();
-            }
-
-            Console.Title = (this.GetHashCode() + " PLACEMENT");
-
-            if (s != null)
-            {
-                Vector2 index1 = new Vector2(x - (Game1.tileSize / 2), y - (Game1.tileSize / 2));
-                if (!s.ModObjects.ContainsKey(index1))
-                {
-                    s.ModObjects.Add(index1, this);
-                    Game1.player.position = index1;
-                    return true;
-                }
-            }
-            else
-            {
-                Program.LogError("No SGameLocation could be found for the supplied GameLocation!");
+            if (!canBePlacedHere(location, key))
                 return false;
-            }
-            return false;
+
+            SObject s = Clone();
+
+            s.PlacedAt = key;
+            s.boundingBox = new Rectangle(x / Game1.tileSize * Game1.tileSize, y / Game1.tileSize * Game1.tileSize, this.boundingBox.Width, this.boundingBox.Height);
+
+            location.objects.Add(key, s);
+            Program.LogInfo("{0} - {1}", this.GetHashCode(), s.GetHashCode());
+
+            return true;
+        }
+
+        public override void actionOnPlayerEntry()
+        {
+            //base.actionOnPlayerEntry();
+        }
+
+        public override void drawPlacementBounds(SpriteBatch spriteBatch, GameLocation location)
+        {
+            if (canBePlacedHere(location, CurrentMouse))
+                base.drawPlacementBounds(spriteBatch, location);
         }
     }
 }

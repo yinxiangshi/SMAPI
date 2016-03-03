@@ -1,19 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using StardewValley;
 using StardewValley.Menus;
-using StardewValley.Minigames;
 
 namespace StardewModdingAPI.Inheritance
 {
@@ -49,6 +42,11 @@ namespace StardewModdingAPI.Inheritance
         public GameLocation PreviousGameLocation { get; private set; }
         public IClickableMenu PreviousActiveMenu { get; private set; }
 
+        public Int32 PreviousTimeOfDay { get; private set; }
+        public Int32 PreviousDayOfMonth { get; private set; }
+        public String PreviousSeasonOfYear { get; private set; }
+        public Int32 PreviousYearOfGame { get; private set; }
+
         public Farmer PreviousFarmer { get; private set; }
 
         protected override void Initialize()
@@ -69,53 +67,18 @@ namespace StardewModdingAPI.Inheritance
 
         protected override void Update(GameTime gameTime)
         {
-            KStateNow = Keyboard.GetState();
-            CurrentlyPressedKeys = KStateNow.GetPressedKeys();
-            MStateNow = Mouse.GetState();
-            
-            foreach (Keys k in FramePressedKeys)
-                Events.InvokeKeyPressed(k);
+            UpdateEventCalls();
 
-            if (KStateNow != KStatePrior)
+            try
             {
-                Events.InvokeKeyboardChanged(KStateNow);
-                KStatePrior = KStateNow;
+                base.Update(gameTime);
+            }
+            catch (Exception ex)
+            {
+                Program.LogError("An error occured in the base update loop: " + ex);
+                Console.ReadKey();
             }
 
-            if (MStateNow != MStatePrior)
-            {
-                Events.InvokeMouseChanged(MStateNow);
-                MStatePrior = MStateNow;
-            }
-
-            if (Game1.activeClickableMenu != null && Game1.activeClickableMenu != PreviousActiveMenu)
-            {
-                Events.InvokeMenuChanged(Game1.activeClickableMenu);
-                PreviousActiveMenu = Game1.activeClickableMenu;
-            }
-
-            if (Game1.locations.GetHash() != PreviousGameLocations)
-            {
-                Events.InvokeLocationsChanged(Game1.locations);
-                PreviousGameLocations = Game1.locations.GetHash();
-            }
-
-            if (Game1.currentLocation != PreviousGameLocation)
-            {
-                Events.InvokeCurrentLocationChanged(Game1.currentLocation);
-                PreviousGameLocation = Game1.currentLocation;
-            }
-
-            if (Game1.player != null && Game1.player != PreviousFarmer)
-            {
-                Events.InvokeFarmerChanged(Game1.player);
-                PreviousFarmer = Game1.player;
-            }
-
-            if (CurrentLocation != null)
-                CurrentLocation.update(gameTime);
-
-            base.Update(gameTime);
             Events.InvokeUpdateTick();
 
             PreviouslyPressedKeys = CurrentlyPressedKeys;
@@ -126,15 +89,15 @@ namespace StardewModdingAPI.Inheritance
             base.Draw(gameTime);
             Events.InvokeDrawTick();
 
-            if (Program.debug)
+            if (false)
             {
                 spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
 
                 if (CurrentLocation != null)
-                    CurrentLocation.draw(Game1.spriteBatch);
+                    CurrentLocation.draw(spriteBatch);
 
                 if (player != null && player.position != null)
-                    spriteBatch.DrawString(Game1.dialogueFont, Game1.player.position.ToString(), new Vector2(0, 180), Color.Orange);
+                    spriteBatch.DrawString(dialogueFont, player.position.ToString(), new Vector2(0, 180), Color.Orange);
 
                 spriteBatch.End();
             }
@@ -164,24 +127,15 @@ namespace StardewModdingAPI.Inheritance
                 {
                     return ModItems.ElementAt(id).Value.Clone();
                 }
-                else
-                {
-                    Program.LogError("ModItem Dictionary does not contain index: " + id);
-                    return null;
-                }
+                Program.LogError("ModItem Dictionary does not contain index: " + id);
+                return null;
             }
-            else
+            if (ModItems.ContainsKey(id))
             {
-                if (ModItems.ContainsKey(id))
-                {
-                    return ModItems[id].Clone();
-                }
-                else
-                {
-                    Program.LogError("ModItem Dictionary does not contain ID: " + id);
-                    return null;
-                }
+                return ModItems[id].Clone();
             }
+            Program.LogError("ModItem Dictionary does not contain ID: " + id);
+            return null;
         }
 
         public static SGameLocation GetLocationFromName(String name)
@@ -197,30 +151,95 @@ namespace StardewModdingAPI.Inheritance
         {
             if (GetLocationFromName(name) != null)
                 return GetLocationFromName(name);
-            else
+            GameLocation gl = locations.FirstOrDefault(x => x.name == name);
+            if (gl != null)
             {
-                GameLocation gl = Game1.locations.FirstOrDefault(x => x.name == name);
-                if (gl != null)
-                {
-                    Program.LogDebug("A custom location was created for the new name: " + name);
-                    SGameLocation s = SGameLocation.ConstructFromBaseClass(gl);
-                    ModLocations.Add(s);
-                    return s;
-                }
-                else
-                {
-                    if (Game1.currentLocation != null && Game1.currentLocation.name == name)
-                    {
-                        gl = Game1.currentLocation;
-                        Program.LogDebug("A custom location was created from the current location for the new name: " + name);
-                        SGameLocation s = SGameLocation.ConstructFromBaseClass(gl);
-                        ModLocations.Add(s);
-                        return s;
-                    }
+                Program.LogDebug("A custom location was created for the new name: " + name);
+                SGameLocation s = SGameLocation.ConstructFromBaseClass(gl);
+                ModLocations.Add(s);
+                return s;
+            }
+            if (currentLocation != null && currentLocation.name == name)
+            {
+                gl = currentLocation;
+                Program.LogDebug("A custom location was created from the current location for the new name: " + name);
+                SGameLocation s = SGameLocation.ConstructFromBaseClass(gl);
+                ModLocations.Add(s);
+                return s;
+            }
 
-                    Program.LogDebug("A custom location could not be created for: " + name);
-                    return null;
-                }
+            Program.LogDebug("A custom location could not be created for: " + name);
+            return null;
+        }
+
+
+        public void UpdateEventCalls()
+        {
+            KStateNow = Keyboard.GetState();
+            CurrentlyPressedKeys = KStateNow.GetPressedKeys();
+            MStateNow = Mouse.GetState();
+
+            foreach (Keys k in FramePressedKeys)
+                Events.InvokeKeyPressed(k);
+
+            if (KStateNow != KStatePrior)
+            {
+                Events.InvokeKeyboardChanged(KStateNow);
+                KStatePrior = KStateNow;
+            }
+
+            if (MStateNow != MStatePrior)
+            {
+                Events.InvokeMouseChanged(MStateNow);
+                MStatePrior = MStateNow;
+            }
+
+            if (activeClickableMenu != null && activeClickableMenu != PreviousActiveMenu)
+            {
+                Events.InvokeMenuChanged(activeClickableMenu);
+                PreviousActiveMenu = activeClickableMenu;
+            }
+
+            if (locations.GetHash() != PreviousGameLocations)
+            {
+                Events.InvokeLocationsChanged(locations);
+                PreviousGameLocations = locations.GetHash();
+            }
+
+            if (currentLocation != PreviousGameLocation)
+            {
+                Events.InvokeCurrentLocationChanged(currentLocation);
+                PreviousGameLocation = currentLocation;
+            }
+
+            if (player != null && player != PreviousFarmer)
+            {
+                Events.InvokeFarmerChanged(player);
+                PreviousFarmer = player;
+            }
+
+            if (timeOfDay != PreviousTimeOfDay)
+            {
+                Events.InvokeTimeOfDayChanged(timeOfDay);
+                PreviousTimeOfDay = timeOfDay;
+            }
+
+            if (dayOfMonth != PreviousDayOfMonth)
+            {
+                Events.InvokeDayOfMonthChanged(dayOfMonth);
+                PreviousDayOfMonth = dayOfMonth;
+            }
+
+            if (currentSeason != PreviousSeasonOfYear)
+            {
+                Events.InvokeSeasonOfYearChanged(currentSeason);
+                PreviousSeasonOfYear = currentSeason;
+            }
+
+            if (year != PreviousYearOfGame)
+            {
+                Events.InvokeYearOfGameChanged(year);
+                PreviousYearOfGame = year;
             }
         }
     }
