@@ -3,6 +3,10 @@ StardewModdingAPI/bin/
 StardewModdingAPI/obj/
 TrainerMod/bin/
 TrainerMod/obj/
+StardewInjector/bin/
+StardewInjector/obj/
+packages/
+
 *.symlink
 *.lnk
 !*.exe

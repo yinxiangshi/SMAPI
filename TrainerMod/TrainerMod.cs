@@ -38,7 +38,7 @@ namespace TrainerMod
         public static int frozenTime;
         public static bool infHealth, infStamina, infMoney, freezeTime;
 
-        public override void Entry()
+        public override void Entry(params object[] objects)
         {
             RegisterCommands();
             Events.UpdateTick += Events_UpdateTick;
