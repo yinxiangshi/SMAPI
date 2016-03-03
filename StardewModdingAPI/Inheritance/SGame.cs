@@ -44,6 +44,8 @@ namespace StardewModdingAPI.Inheritance
         }
 
         public int PreviousGameLocations { get; private set; }
+        public int PreviousLocationObjects { get; private set; }
+
         public GameLocation PreviousGameLocation { get; private set; }
         public IClickableMenu PreviousActiveMenu { get; private set; }
 
@@ -259,6 +261,12 @@ namespace StardewModdingAPI.Inheritance
             {
                 Events.InvokeFarmerChanged(PreviousFarmer, player);
                 PreviousFarmer = player;
+            }
+
+            if(currentLocation != null && PreviousLocationObjects != currentLocation.objects.GetHash())
+            {
+                Events.InvokeOnNewLocationObject(currentLocation.objects);
+                PreviousLocationObjects = currentLocation.objects.GetHash();
             }
 
             if (timeOfDay != PreviousTimeOfDay)
