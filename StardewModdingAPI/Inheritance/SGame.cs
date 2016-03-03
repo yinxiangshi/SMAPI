@@ -2,11 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using StardewValley;
+using StardewValley.Characters;
 using StardewValley.Menus;
+using StardewValley.Monsters;
+using StardewValley.Quests;
+using StardewValley.TerrainFeatures;
 
 namespace StardewModdingAPI.Inheritance
 {
@@ -53,7 +58,37 @@ namespace StardewModdingAPI.Inheritance
         {
             if (Program.debug)
             {
-                //SaveGame.serializer.
+                SaveGame.serializer = new XmlSerializer(typeof (SaveGame), new Type[28]
+                {
+                    typeof (Tool),
+                    typeof (GameLocation),
+                    typeof (Crow),
+                    typeof (Duggy),
+                    typeof (Bug),
+                    typeof (BigSlime),
+                    typeof (Fireball),
+                    typeof (Ghost),
+                    typeof (Child),
+                    typeof (Pet),
+                    typeof (Dog),
+                    typeof (StardewValley.Characters.Cat),
+                    typeof (Horse),
+                    typeof (GreenSlime),
+                    typeof (LavaCrab),
+                    typeof (RockCrab),
+                    typeof (ShadowGuy),
+                    typeof (SkeletonMage),
+                    typeof (SquidKid),
+                    typeof (Grub),
+                    typeof (Fly),
+                    typeof (DustSpirit),
+                    typeof (Quest),
+                    typeof (MetalHead),
+                    typeof (ShadowGirl),
+                    typeof (Monster),
+                    typeof (TerrainFeature),
+                    typeof (SObject)
+                });
             }
         }
 

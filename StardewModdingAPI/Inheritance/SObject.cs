@@ -33,7 +33,9 @@ namespace StardewModdingAPI.Inheritance
 
         public Boolean FlaggedForPickup { get; set; }
 
+        [XmlIgnore]
         public Vector2 CurrentMouse { get; protected set; }
+        [XmlIgnore]
         public Vector2 PlacedAt { get; protected set; }
 
         public override int Stack
@@ -205,15 +207,20 @@ namespace StardewModdingAPI.Inheritance
 
         public override void actionWhenBeingHeld(Farmer who)
         {
-            Point p = Game1.getMousePosition();
-            CurrentMouse = new Vector2((p.X / Game1.tileSize), (p.Y / Game1.tileSize));
-            Program.LogInfo(canBePlacedHere(Game1.currentLocation, CurrentMouse));
+            int x = Game1.oldMouseState.X + Game1.viewport.X;
+            int y = Game1.oldMouseState.Y + Game1.viewport.Y;
+
+            x = x / Game1.tileSize;
+            y = y / Game1.tileSize;
+
+            CurrentMouse = new Vector2(x, y);
+            //Program.LogDebug(canBePlacedHere(Game1.currentLocation, CurrentMouse));
             base.actionWhenBeingHeld(who);
         }
 
         public override bool canBePlacedHere(GameLocation l, Vector2 tile)
         {
-            Program.LogInfo(CurrentMouse.ToString().Replace("{", "").Replace("}", ""));
+            //Program.LogDebug(CurrentMouse.ToString().Replace("{", "").Replace("}", ""));
             if (!l.objects.ContainsKey(tile))
                 return true;
 
@@ -225,8 +232,11 @@ namespace StardewModdingAPI.Inheritance
             if (Game1.didPlayerJustRightClick())
                 return false;
 
-            x = (x / Game1.tileSize) * Game1.tileSize;
-            y = (y / Game1.tileSize) * Game1.tileSize;
+            x = (x / Game1.tileSize);
+            y = (y / Game1.tileSize);
+
+            //Program.LogDebug(x + " - " + y);
+            //Console.ReadKey();
 
             Vector2 key = new Vector2(x, y);
 
