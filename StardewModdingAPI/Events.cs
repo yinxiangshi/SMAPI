@@ -11,55 +11,35 @@ namespace StardewModdingAPI
 {
     public static class Events
     {
-        public delegate void BlankEventHandler();
+        public static event EventHandler GameLoaded = delegate { };
+        public static event EventHandler Initialize = delegate { };
+        public static event EventHandler LoadContent = delegate { };
+        public static event EventHandler UpdateTick = delegate { };
+        public static event EventHandler DrawTick = delegate { };
 
-        public static event BlankEventHandler GameLoaded = delegate { };
-        public static event BlankEventHandler Initialize = delegate { };
-        public static event BlankEventHandler LoadContent = delegate { };
-        public static event BlankEventHandler UpdateTick = delegate { };
-        public static event BlankEventHandler DrawTick = delegate { };
-
-        public delegate void KStateChanged(KeyboardState newState);
-        public static event KStateChanged KeyboardChanged = delegate { };
-
-        public delegate void KeyStateChanged(Keys key);
-        public static event KeyStateChanged KeyPressed = delegate { };
-
-        public delegate void MStateChanged(MouseState newState);
-        public static event MStateChanged MouseChanged = delegate { };
-
-        public delegate void ClickableMenuChanged(IClickableMenu newMenu);
-        public static event ClickableMenuChanged MenuChanged = delegate { };
-
-        public delegate void GameLocationsChanged(List<GameLocation> newLocations);
-        public static event GameLocationsChanged LocationsChanged = delegate { };
-
-        public delegate void CurrentLocationsChanged(GameLocation newLocation);
-        public static event CurrentLocationsChanged CurrentLocationChanged = delegate { };
-
+        public static event EventHandler<EventArgsKeyboardStateChanged> KeyboardChanged = delegate { };
+        public static event EventHandler<EventArgsKeyPressed> KeyPressed = delegate { };
+        public static event EventHandler<EventArgsMouseStateChanged> MouseChanged = delegate { };
+        public static event EventHandler<EventArgsClickableMenuChanged> MenuChanged = delegate { };
+        public static event EventHandler<EventArgsGameLocationsChanged> LocationsChanged = delegate { };
+        public static event EventHandler<EventArgsCurrentLocationChanged> CurrentLocationChanged = delegate { };
         public static event EventHandler Resize = delegate { };
-
-        public delegate void FarmerChangedD(Farmer newFarmer);
-        public static event FarmerChangedD FarmerChanged = delegate { };
-
-        public delegate void IntChanged(Int32 newInt);
-        public static event IntChanged TimeOfDayChanged = delegate { };
-        public static event IntChanged DayOfMonthChanged = delegate { };
-        public static event IntChanged YearOfGameChanged = delegate { };
-
-        public delegate void StringChanged(String newString);
-        public static event StringChanged SeasonOfYearChanged = delegate { };
-
+        public static event EventHandler<EventArgsFarmerChanged> FarmerChanged = delegate { };
+        public static event EventHandler<EventArgsIntChanged> TimeOfDayChanged = delegate { };
+        public static event EventHandler<EventArgsIntChanged> DayOfMonthChanged = delegate { };
+        public static event EventHandler<EventArgsIntChanged> YearOfGameChanged = delegate { };
+        public static event EventHandler<EventArgsStringChanged> SeasonOfYearChanged = delegate { };
+                
         public static void InvokeGameLoaded()
         {
-            GameLoaded.Invoke();
+            GameLoaded.Invoke(null, EventArgs.Empty);
         }
 
         public static void InvokeInitialize()
         {
             try
             {
-                Initialize.Invoke();
+                Initialize.Invoke(null, EventArgs.Empty);
             }
             catch (Exception ex)
             {
@@ -71,7 +51,7 @@ namespace StardewModdingAPI
         {
             try
             {
-                LoadContent.Invoke();
+                LoadContent.Invoke(null, EventArgs.Empty);
             }
             catch (Exception ex)
             {
@@ -83,7 +63,7 @@ namespace StardewModdingAPI
         {
             try
             {
-                UpdateTick.Invoke();
+                UpdateTick.Invoke(null, EventArgs.Empty);
             }
             catch (Exception ex)
             {
@@ -95,7 +75,7 @@ namespace StardewModdingAPI
         {
             try
             {
-                DrawTick.Invoke();
+                DrawTick.Invoke(null, EventArgs.Empty);
             }
             catch (Exception ex)
             {
@@ -103,34 +83,34 @@ namespace StardewModdingAPI
             }
         }
 
-        public static void InvokeKeyboardChanged(KeyboardState newState)
+        public static void InvokeKeyboardChanged(KeyboardState priorState, KeyboardState newState)
         {
-            KeyboardChanged.Invoke(newState);
+            KeyboardChanged.Invoke(null, new EventArgsKeyboardStateChanged(priorState, newState));
         }
 
-        public static void InvokeMouseChanged(MouseState newState)
+        public static void InvokeMouseChanged(MouseState priorState, MouseState newState)
         {
-            MouseChanged.Invoke(newState);
+            MouseChanged.Invoke(null, new EventArgsMouseStateChanged(priorState, newState));
         }
 
         public static void InvokeKeyPressed(Keys key)
         {
-            KeyPressed.Invoke(key);
+            KeyPressed.Invoke(null, new EventArgsKeyPressed(key));
         }
 
-        public static void InvokeMenuChanged(IClickableMenu newMenu)
+        public static void InvokeMenuChanged(IClickableMenu priorMenu, IClickableMenu newMenu)
         {
-            MenuChanged.Invoke(newMenu);
+            MenuChanged.Invoke(null, new EventArgsClickableMenuChanged(priorMenu, newMenu));
         }
 
         public static void InvokeLocationsChanged(List<GameLocation> newLocations)
         {
-            LocationsChanged.Invoke(newLocations);
+            LocationsChanged.Invoke(null, new EventArgsGameLocationsChanged(newLocations));
         }
 
-        public static void InvokeCurrentLocationChanged(GameLocation newLocation)
+        public static void InvokeCurrentLocationChanged(GameLocation priorLocation, GameLocation newLocation)
         {
-            CurrentLocationChanged.Invoke(newLocation);
+            CurrentLocationChanged.Invoke(null, new EventArgsCurrentLocationChanged(priorLocation, newLocation));
         }
 
         public static void InvokeResize(object sender, EventArgs e)
@@ -138,29 +118,29 @@ namespace StardewModdingAPI
             Resize.Invoke(sender, e);
         }
 
-        public static void InvokeFarmerChanged(Farmer newFarmer)
+        public static void InvokeFarmerChanged(Farmer priorFarmer, Farmer newFarmer)
         {
-            FarmerChanged.Invoke(newFarmer);
+            FarmerChanged.Invoke(null, new EventArgsFarmerChanged(priorFarmer, newFarmer));
         }
 
-        public static void InvokeTimeOfDayChanged(Int32 newInt)
+        public static void InvokeTimeOfDayChanged(Int32 priorInt, Int32 newInt)
         {
-            TimeOfDayChanged.Invoke(newInt);
+            TimeOfDayChanged.Invoke(null, new EventArgsIntChanged(priorInt, newInt));
         }
 
-        public static void InvokeDayOfMonthChanged(Int32 newInt)
+        public static void InvokeDayOfMonthChanged(Int32 priorInt, Int32 newInt)
         {
-            DayOfMonthChanged.Invoke(newInt);
+            DayOfMonthChanged.Invoke(null, new EventArgsIntChanged(priorInt, newInt));
         }
 
-        public static void InvokeYearOfGameChanged(Int32 newInt)
+        public static void InvokeYearOfGameChanged(Int32 priorInt, Int32 newInt)
         {
-            YearOfGameChanged.Invoke(newInt);
+            YearOfGameChanged.Invoke(null, new EventArgsIntChanged(priorInt, newInt));
         }
 
-        public static void InvokeSeasonOfYearChanged(String newString)
+        public static void InvokeSeasonOfYearChanged(String priorString, String newString)
         {
-            SeasonOfYearChanged.Invoke(newString);
+            SeasonOfYearChanged.Invoke(null, new EventArgsStringChanged(priorString, newString));
         }
     }
 }
