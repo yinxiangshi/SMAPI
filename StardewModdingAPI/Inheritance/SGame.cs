@@ -170,14 +170,14 @@ namespace StardewModdingAPI.Inheritance
                 {
                     return ModItems.ElementAt(id).Value.Clone();
                 }
-                Program.LogError("ModItem Dictionary does not contain index: " + id);
+                Program.LogError("ModItem Dictionary does not contain index: " + id.ToString());
                 return null;
             }
             if (ModItems.ContainsKey(id))
             {
                 return ModItems[id].Clone();
             }
-            Program.LogError("ModItem Dictionary does not contain ID: " + id);
+            Program.LogError("ModItem Dictionary does not contain ID: " + id.ToString());
             return null;
         }
 
@@ -227,19 +227,19 @@ namespace StardewModdingAPI.Inheritance
 
             if (KStateNow != KStatePrior)
             {
-                Events.InvokeKeyboardChanged(KStateNow);
+                Events.InvokeKeyboardChanged(KStatePrior, KStateNow);
                 KStatePrior = KStateNow;
             }
 
             if (MStateNow != MStatePrior)
             {
-                Events.InvokeMouseChanged(MStateNow);
+                Events.InvokeMouseChanged(MStatePrior, MStateNow);
                 MStatePrior = MStateNow;
             }
 
             if (activeClickableMenu != null && activeClickableMenu != PreviousActiveMenu)
             {
-                Events.InvokeMenuChanged(activeClickableMenu);
+                Events.InvokeMenuChanged(PreviousActiveMenu, activeClickableMenu);
                 PreviousActiveMenu = activeClickableMenu;
             }
 
@@ -251,37 +251,37 @@ namespace StardewModdingAPI.Inheritance
 
             if (currentLocation != PreviousGameLocation)
             {
-                Events.InvokeCurrentLocationChanged(currentLocation);
+                Events.InvokeCurrentLocationChanged(PreviousGameLocation, currentLocation);
                 PreviousGameLocation = currentLocation;
             }
 
             if (player != null && player != PreviousFarmer)
             {
-                Events.InvokeFarmerChanged(player);
+                Events.InvokeFarmerChanged(PreviousFarmer, player);
                 PreviousFarmer = player;
             }
 
             if (timeOfDay != PreviousTimeOfDay)
             {
-                Events.InvokeTimeOfDayChanged(timeOfDay);
+                Events.InvokeTimeOfDayChanged(PreviousTimeOfDay, timeOfDay);
                 PreviousTimeOfDay = timeOfDay;
             }
 
             if (dayOfMonth != PreviousDayOfMonth)
             {
-                Events.InvokeDayOfMonthChanged(dayOfMonth);
+                Events.InvokeDayOfMonthChanged(PreviousDayOfMonth, dayOfMonth);
                 PreviousDayOfMonth = dayOfMonth;
             }
 
             if (currentSeason != PreviousSeasonOfYear)
             {
-                Events.InvokeSeasonOfYearChanged(currentSeason);
+                Events.InvokeSeasonOfYearChanged(PreviousSeasonOfYear, currentSeason);
                 PreviousSeasonOfYear = currentSeason;
             }
 
             if (year != PreviousYearOfGame)
             {
-                Events.InvokeYearOfGameChanged(year);
+                Events.InvokeYearOfGameChanged(PreviousYearOfGame, year);
                 PreviousYearOfGame = year;
             }
         }

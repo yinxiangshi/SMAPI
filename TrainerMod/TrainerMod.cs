@@ -44,7 +44,7 @@ namespace TrainerMod
             Events.UpdateTick += Events_UpdateTick;
         }
 
-        static void Events_UpdateTick()
+        static void Events_UpdateTick(object sender, EventArgs e)
         {
             if (Game1.player == null)
                 return;
@@ -110,55 +110,55 @@ namespace TrainerMod
             Command.RegisterCommand("world_setminelevel", "Sets mine level? | world_setminelevel", new[] { "(Int32)<value> The target level" }).CommandFired += world_setMineLevel;
         }
 
-        static void types_CommandFired(Command cmd)
+        static void types_CommandFired(object sender, EventArgsCommand e)
         {
             Program.LogInfo("[Int32: {0} - {1}], [Int64: {2} - {3}], [String: \"raw text\"], [Colour: r,g,b (EG: 128, 32, 255)]", Int32.MinValue, Int32.MaxValue, Int64.MinValue, Int64.MaxValue);
         }
 
-        static void hide_CommandFired(Command cmd)
+        static void hide_CommandFired(object sender, EventArgsCommand e)
         {
             Program.StardewInvoke(() => { Program.StardewForm.Hide(); });
         }
 
-        static void show_CommandFired(Command cmd)
+        static void show_CommandFired(object sender, EventArgsCommand e)
         {
             Program.StardewInvoke(() => { Program.StardewForm.Show(); });
         }
 
-        static void save_CommandFired(Command cmd)
+        static void save_CommandFired(object sender, EventArgsCommand e)
         {
             StardewValley.SaveGame.Save();
         }
 
-        static void load_CommandFired(Command cmd)
+        static void load_CommandFired(object sender, EventArgsCommand e)
         {
             Game1.activeClickableMenu = new StardewValley.Menus.LoadGameMenu();
         }
 
-        static void exit_CommandFired(Command cmd)
+        static void exit_CommandFired(object sender, EventArgsCommand e)
         {
             Program.gamePtr.Exit();
             Environment.Exit(0);
         }
 
-        static void player_setName(Command cmd)
+        static void player_setName(object sender, EventArgsCommand e)
         {
-            if (cmd.CalledArgs.Length > 1)
+            if (e.Command.CalledArgs.Length > 1)
             {
-                string obj = cmd.CalledArgs[0];
+                string obj = e.Command.CalledArgs[0];
                 string[] objs = "player,pet,farm".Split(new[] { ',' });
                 if (objs.Contains(obj))
                 {
                     switch (obj)
                     {
                         case "player":
-                            Game1.player.Name = cmd.CalledArgs[1];
+                            Game1.player.Name = e.Command.CalledArgs[1];
                             break;
                         case "pet":
                             Program.LogError("Pets cannot currently be renamed.");
                             break;
                         case "farm":
-                            Game1.player.farmName = cmd.CalledArgs[1];
+                            Game1.player.farmName = e.Command.CalledArgs[1];
                             break;
                     }
                 }
@@ -173,11 +173,11 @@ namespace TrainerMod
             }
         }
 
-        static void player_setMoney(Command cmd)
+        static void player_setMoney(object sender, EventArgsCommand e)
         {
-            if (cmd.CalledArgs.Length > 0)
+            if (e.Command.CalledArgs.Length > 0)
             {
-                if (cmd.CalledArgs[0] == "inf")
+                if (e.Command.CalledArgs[0] == "inf")
                 {
                     infMoney = true;
                 }
@@ -185,7 +185,7 @@ namespace TrainerMod
                 {
                     infMoney = false;
                     int ou = 0;
-                    if (Int32.TryParse(cmd.CalledArgs[0], out ou))
+                    if (Int32.TryParse(e.Command.CalledArgs[0], out ou))
                     {
                         Game1.player.Money = ou;
                         Program.LogInfo("Set {0}'s money to {1}", Game1.player.Name, Game1.player.Money);
@@ -202,11 +202,11 @@ namespace TrainerMod
             }
         }
 
-        static void player_setStamina(Command cmd)
+        static void player_setStamina(object sender, EventArgsCommand e)
         {
-            if (cmd.CalledArgs.Length > 0)
+            if (e.Command.CalledArgs.Length > 0)
             {
-                if (cmd.CalledArgs[0] == "inf")
+                if (e.Command.CalledArgs[0] == "inf")
                 {
                     infStamina = true;
                 }
@@ -214,7 +214,7 @@ namespace TrainerMod
                 {
                     infStamina = false;
                     int ou = 0;
-                    if (Int32.TryParse(cmd.CalledArgs[0], out ou))
+                    if (Int32.TryParse(e.Command.CalledArgs[0], out ou))
                     {
                         Game1.player.Stamina = ou;
                         Program.LogInfo("Set {0}'s stamina to {1}", Game1.player.Name, Game1.player.Stamina);
@@ -231,12 +231,12 @@ namespace TrainerMod
             }
         }
 
-        static void player_setMaxStamina(Command cmd)
+        static void player_setMaxStamina(object sender, EventArgsCommand e)
         {
-            if (cmd.CalledArgs.Length > 0)
+            if (e.Command.CalledArgs.Length > 0)
             {
                 int ou = 0;
-                if (Int32.TryParse(cmd.CalledArgs[0], out ou))
+                if (Int32.TryParse(e.Command.CalledArgs[0], out ou))
                 {
                     Game1.player.MaxStamina = ou;
                     Program.LogInfo("Set {0}'s max stamina to {1}", Game1.player.Name, Game1.player.MaxStamina);
@@ -252,16 +252,16 @@ namespace TrainerMod
             }
         }
 
-        static void player_setLevel(Command cmd)
+        static void player_setLevel(object sender, EventArgsCommand e)
         {
-            if (cmd.CalledArgs.Length > 1)
+            if (e.Command.CalledArgs.Length > 1)
             {
-                string skill = cmd.CalledArgs[0];
+                string skill = e.Command.CalledArgs[0];
                 string[] skills = "luck,mining,combat,farming,fishing,foraging".Split(new[] { ',' });
                 if (skills.Contains(skill))
                 {
                     int ou = 0;
-                    if (Int32.TryParse(cmd.CalledArgs[1], out ou))
+                    if (Int32.TryParse(e.Command.CalledArgs[1], out ou))
                     {
                         switch (skill)
                         {
@@ -301,13 +301,13 @@ namespace TrainerMod
             }
         }
 
-        static void player_setSpeed(Command cmd)
+        static void player_setSpeed(object sender, EventArgsCommand e)
         {
-            if (cmd.CalledArgs.Length > 0)
+            if (e.Command.CalledArgs.Length > 0)
             {
-                if (cmd.CalledArgs[0].IsInt32())
+                if (e.Command.CalledArgs[0].IsInt32())
                 {
-                    Game1.player.addedSpeed = cmd.CalledArgs[0].AsInt32();
+                    Game1.player.addedSpeed = e.Command.CalledArgs[0].AsInt32();
                     Program.LogInfo("Set {0}'s added speed to {1}", Game1.player.Name, Game1.player.addedSpeed);
                 }
                 else
@@ -321,15 +321,15 @@ namespace TrainerMod
             }
         }
 
-        static void player_changeColour(Command cmd)
+        static void player_changeColour(object sender, EventArgsCommand e)
         {
-            if (cmd.CalledArgs.Length > 1)
+            if (e.Command.CalledArgs.Length > 1)
             {
-                string obj = cmd.CalledArgs[0];
+                string obj = e.Command.CalledArgs[0];
                 string[] objs = "hair,eyes,pants".Split(new[] { ',' });
                 if (objs.Contains(obj))
                 {
-                    string[] cs = cmd.CalledArgs[1].Split(new[] { ',' }, 3);
+                    string[] cs = e.Command.CalledArgs[1].Split(new[] { ',' }, 3);
                     if (cs[0].IsInt32() && cs[1].IsInt32() && cs[2].IsInt32())
                     {
                         Color c = new Color(cs[0].AsInt32(), cs[1].AsInt32(), cs[2].AsInt32());
@@ -362,17 +362,17 @@ namespace TrainerMod
             }
         }
 
-        static void player_changeStyle(Command cmd)
+        static void player_changeStyle(object sender, EventArgsCommand e)
         {
-            if (cmd.CalledArgs.Length > 1)
+            if (e.Command.CalledArgs.Length > 1)
             {
-                string obj = cmd.CalledArgs[0];
+                string obj = e.Command.CalledArgs[0];
                 string[] objs = "hair,shirt,skin,acc,shoe,swim,gender".Split(new[] { ',' });
                 if (objs.Contains(obj))
                 {
-                    if (cmd.CalledArgs[1].IsInt32())
+                    if (e.Command.CalledArgs[1].IsInt32())
                     {
-                        int i = cmd.CalledArgs[1].AsInt32();
+                        int i = e.Command.CalledArgs[1].AsInt32();
                         switch (obj)
                         {
                             case "hair":
@@ -424,15 +424,15 @@ namespace TrainerMod
             }
         }
 
-        static void world_freezeTime(Command cmd)
+        static void world_freezeTime(object sender, EventArgsCommand e)
         {
-            if (cmd.CalledArgs.Length > 0)
+            if (e.Command.CalledArgs.Length > 0)
             {
-                if (cmd.CalledArgs[0].IsInt32())
+                if (e.Command.CalledArgs[0].IsInt32())
                 {
-                    if (cmd.CalledArgs[0].AsInt32() == 0 || cmd.CalledArgs[0].AsInt32() == 1)
+                    if (e.Command.CalledArgs[0].AsInt32() == 0 || e.Command.CalledArgs[0].AsInt32() == 1)
                     {
-                        freezeTime = cmd.CalledArgs[0].AsInt32() == 1;
+                        freezeTime = e.Command.CalledArgs[0].AsInt32() == 1;
                         frozenTime = freezeTime ? Game1.timeOfDay : 0;
                         Program.LogInfo("Time is now " + (freezeTime ? "frozen" : "thawed"));
                     }
@@ -452,15 +452,15 @@ namespace TrainerMod
             }
         }
 
-        static void world_setTime(Command cmd)
+        static void world_setTime(object sender, EventArgsCommand e)
         {
-            if (cmd.CalledArgs.Length > 0)
+            if (e.Command.CalledArgs.Length > 0)
             {
-                if (cmd.CalledArgs[0].IsInt32())
+                if (e.Command.CalledArgs[0].IsInt32())
                 {
-                    if (cmd.CalledArgs[0].AsInt32() <= 2600 && cmd.CalledArgs[0].AsInt32() >= 600)
+                    if (e.Command.CalledArgs[0].AsInt32() <= 2600 && e.Command.CalledArgs[0].AsInt32() >= 600)
                     {
-                        Game1.timeOfDay = cmd.CalledArgs[0].AsInt32();
+                        Game1.timeOfDay = e.Command.CalledArgs[0].AsInt32();
                         frozenTime = freezeTime ? Game1.timeOfDay : 0;
                         Program.LogInfo("Time set to: " + Game1.timeOfDay);
                     }
@@ -480,15 +480,15 @@ namespace TrainerMod
             }
         }
 
-        static void world_setDay(Command cmd)
+        static void world_setDay(object sender, EventArgsCommand e)
         {
-            if (cmd.CalledArgs.Length > 0)
+            if (e.Command.CalledArgs.Length > 0)
             {
-                if (cmd.CalledArgs[0].IsInt32())
+                if (e.Command.CalledArgs[0].IsInt32())
                 {
-                    if (cmd.CalledArgs[0].AsInt32() <= 28 && cmd.CalledArgs[0].AsInt32() > 0)
+                    if (e.Command.CalledArgs[0].AsInt32() <= 28 && e.Command.CalledArgs[0].AsInt32() > 0)
                     {
-                        Game1.dayOfMonth = cmd.CalledArgs[0].AsInt32();
+                        Game1.dayOfMonth = e.Command.CalledArgs[0].AsInt32();
                     }
                     else
                     {
@@ -506,11 +506,11 @@ namespace TrainerMod
             }
         }
 
-        static void world_setSeason(Command cmd)
+        static void world_setSeason(object sender, EventArgsCommand e)
         {
-            if (cmd.CalledArgs.Length > 0)
+            if (e.Command.CalledArgs.Length > 0)
             {
-                string obj = cmd.CalledArgs[0];
+                string obj = e.Command.CalledArgs[0];
                 string[] objs = "winter,spring,summer,fall".Split(new[] { ',' });
                 if (objs.Contains(obj))
                 {
@@ -527,20 +527,20 @@ namespace TrainerMod
             }
         }
 
-        static void player_setHealth(Command cmd)
+        static void player_setHealth(object sender, EventArgsCommand e)
         {
-            if (cmd.CalledArgs.Length > 0)
+            if (e.Command.CalledArgs.Length > 0)
             {
-                if (cmd.CalledArgs[0] == "inf")
+                if (e.Command.CalledArgs[0] == "inf")
                 {
                     infHealth = true;
                 }
                 else
                 {
                     infHealth = false;
-                    if (cmd.CalledArgs[0].IsInt32())
+                    if (e.Command.CalledArgs[0].IsInt32())
                     {
-                        Game1.player.health = cmd.CalledArgs[0].AsInt32();
+                        Game1.player.health = e.Command.CalledArgs[0].AsInt32();
                     }
                     else
                     {
@@ -554,13 +554,13 @@ namespace TrainerMod
             }
         }
 
-        static void player_setMaxHealth(Command cmd)
+        static void player_setMaxHealth(object sender, EventArgsCommand e)
         {
-            if (cmd.CalledArgs.Length > 0)
+            if (e.Command.CalledArgs.Length > 0)
             {
-                if (cmd.CalledArgs[0].IsInt32())
+                if (e.Command.CalledArgs[0].IsInt32())
                 {
-                    Game1.player.maxHealth = cmd.CalledArgs[0].AsInt32();
+                    Game1.player.maxHealth = e.Command.CalledArgs[0].AsInt32();
                 }
                 else
                 {
@@ -573,13 +573,13 @@ namespace TrainerMod
             }
         }
 
-        static void player_setImmunity(Command cmd)
+        static void player_setImmunity(object sender, EventArgsCommand e)
         {
-            if (cmd.CalledArgs.Length > 0)
+            if (e.Command.CalledArgs.Length > 0)
             {
-                if (cmd.CalledArgs[0].IsInt32())
+                if (e.Command.CalledArgs[0].IsInt32())
                 {
-                    Game1.player.immunity = cmd.CalledArgs[0].AsInt32();
+                    Game1.player.immunity = e.Command.CalledArgs[0].AsInt32();
                 }
                 else
                 {
@@ -592,20 +592,20 @@ namespace TrainerMod
             }
         }
 
-        static void player_addItem(Command cmd)
+        static void player_addItem(object sender, EventArgsCommand e)
         {
-            if (cmd.CalledArgs.Length > 0)
+            if (e.Command.CalledArgs.Length > 0)
             {
-                if (cmd.CalledArgs[0].IsInt32())
+                if (e.Command.CalledArgs[0].IsInt32())
                 {
                     int count = 1;
                     int quality = 0;
-                    if (cmd.CalledArgs.Length > 1)
+                    if (e.Command.CalledArgs.Length > 1)
                     {
-                        Console.WriteLine(cmd.CalledArgs[1]);
-                        if (cmd.CalledArgs[1].IsInt32())
+                        Console.WriteLine(e.Command.CalledArgs[1]);
+                        if (e.Command.CalledArgs[1].IsInt32())
                         {
-                            count = cmd.CalledArgs[1].AsInt32();
+                            count = e.Command.CalledArgs[1].AsInt32();
                         }
                         else
                         {
@@ -613,11 +613,11 @@ namespace TrainerMod
                             return;
                         }
 
-                        if (cmd.CalledArgs.Length > 2)
+                        if (e.Command.CalledArgs.Length > 2)
                         {
-                            if (cmd.CalledArgs[2].IsInt32())
+                            if (e.Command.CalledArgs[2].IsInt32())
                             {
-                                quality = cmd.CalledArgs[2].AsInt32();
+                                quality = e.Command.CalledArgs[2].AsInt32();
                             }
                             else
                             {
@@ -628,7 +628,7 @@ namespace TrainerMod
                         }
                     }
 
-                    StardewValley.Object o = new StardewValley.Object(cmd.CalledArgs[0].AsInt32(), count);
+                    StardewValley.Object o = new StardewValley.Object(e.Command.CalledArgs[0].AsInt32(), count);
                     o.quality = quality;
 
                     Game1.player.addItemByMenuIfNecessary((Item)o);
@@ -644,14 +644,14 @@ namespace TrainerMod
             }
         }
 
-        static void player_addMelee(Command cmd)
+        static void player_addMelee(object sender, EventArgsCommand e)
         {
-            if (cmd.CalledArgs.Length > 0)
+            if (e.Command.CalledArgs.Length > 0)
             {
-                if (cmd.CalledArgs[0].IsInt32())
+                if (e.Command.CalledArgs[0].IsInt32())
                 {
 
-                    MeleeWeapon toAdd = new MeleeWeapon(cmd.CalledArgs[0].AsInt32());
+                    MeleeWeapon toAdd = new MeleeWeapon(e.Command.CalledArgs[0].AsInt32());
                     Game1.player.addItemByMenuIfNecessary(toAdd);
                     Program.LogInfo("Given {0} to {1}", toAdd.Name, Game1.player.Name);
                 }
@@ -666,14 +666,14 @@ namespace TrainerMod
             }
         }
 
-        static void player_addRing(Command cmd)
+        static void player_addRing(object sender, EventArgsCommand e)
         {
-            if (cmd.CalledArgs.Length > 0)
+            if (e.Command.CalledArgs.Length > 0)
             {
-                if (cmd.CalledArgs[0].IsInt32())
+                if (e.Command.CalledArgs[0].IsInt32())
                 {
                     
-                    Ring toAdd = new Ring(cmd.CalledArgs[0].AsInt32());
+                    Ring toAdd = new Ring(e.Command.CalledArgs[0].AsInt32());
                     Game1.player.addItemByMenuIfNecessary(toAdd);
                     Program.LogInfo("Given {0} to {1}", toAdd.Name, Game1.player.Name);
                 }
@@ -688,7 +688,7 @@ namespace TrainerMod
             }
         }
 
-        static void out_items(Command cmd)
+        static void out_items(object sender, EventArgsCommand e)
         {
             for (int i = 0; i < 1000; i++)
             {
@@ -705,7 +705,7 @@ namespace TrainerMod
             }
         }
 
-        static void out_melee(Command cmd)
+        static void out_melee(object sender, EventArgsCommand e)
         {
             Dictionary<int, string> d = Game1.content.Load<Dictionary<int, string>>("Data\\weapons");
             Console.Write("DATA\\WEAPONS: ");
@@ -715,7 +715,7 @@ namespace TrainerMod
             }
         }
 
-        static void out_rings(Command cmd)
+        static void out_rings(object sender, EventArgsCommand e)
         {
             for (int i = 0; i < 100; i++)
             {
@@ -732,18 +732,18 @@ namespace TrainerMod
             }
         }
 
-        static void world_downMineLevel(Command cmd)
+        static void world_downMineLevel(object sender, EventArgsCommand e)
         {
             Game1.nextMineLevel();
         }
 
-        static void world_setMineLevel(Command cmd)
+        static void world_setMineLevel(object sender, EventArgsCommand e)
         {
-            if (cmd.CalledArgs.Length > 0)
+            if (e.Command.CalledArgs.Length > 0)
             {
-                if (cmd.CalledArgs[0].IsInt32())
+                if (e.Command.CalledArgs[0].IsInt32())
                 {
-                    Game1.enterMine(true, cmd.CalledArgs[0].AsInt32(), "");
+                    Game1.enterMine(true, e.Command.CalledArgs[0].AsInt32(), "");
                 }
                 else
                 {
@@ -756,9 +756,9 @@ namespace TrainerMod
             }
         }
 
-        static void blank_command(Command cmd) { }
+        static void blank_command(object sender, EventArgsCommand e) { }
 
-        static void RegisterNewItem(Command cmd)
+        static void RegisterNewItem(object sender, EventArgsCommand e)
         {
             if (!Program.debug)
             {

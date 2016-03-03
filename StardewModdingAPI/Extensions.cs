@@ -56,7 +56,7 @@ namespace StardewModdingAPI
             string s = string.Empty;
             foreach (var v in enumerable)
             {
-                s += v.GetHashCode();
+                s += v.GetHashCode().ToString();
             }
             return s.GetHashCode();
         } 
