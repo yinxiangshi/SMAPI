@@ -39,6 +39,17 @@ namespace StardewModdingAPI
 
         public static event EventHandler Resize = delegate { };
 
+        public delegate void FarmerChangedD(Farmer newFarmer);
+        public static event FarmerChangedD FarmerChanged = delegate { };
+
+        public delegate void IntChanged(Int32 newInt);
+        public static event IntChanged TimeOfDayChanged = delegate { };
+        public static event IntChanged DayOfMonthChanged = delegate { };
+        public static event IntChanged YearOfGameChanged = delegate { };
+
+        public delegate void StringChanged(String newString);
+        public static event StringChanged SeasonOfYearChanged = delegate { };
+
         public static void InvokeGameLoaded()
         {
             GameLoaded.Invoke();
@@ -125,6 +136,31 @@ namespace StardewModdingAPI
         public static void InvokeResize(object sender, EventArgs e)
         {
             Resize.Invoke(sender, e);
+        }
+
+        public static void InvokeFarmerChanged(Farmer newFarmer)
+        {
+            FarmerChanged.Invoke(newFarmer);
+        }
+
+        public static void InvokeTimeOfDayChanged(Int32 newInt)
+        {
+            TimeOfDayChanged.Invoke(newInt);
+        }
+
+        public static void InvokeDayOfMonthChanged(Int32 newInt)
+        {
+            DayOfMonthChanged.Invoke(newInt);
+        }
+
+        public static void InvokeYearOfGameChanged(Int32 newInt)
+        {
+            YearOfGameChanged.Invoke(newInt);
+        }
+
+        public static void InvokeSeasonOfYearChanged(String newString)
+        {
+            SeasonOfYearChanged.Invoke(newString);
         }
     }
 }

@@ -12,91 +12,47 @@ using StardewValley.BellsAndWhistles;
 
 namespace StardewModdingAPI.Inheritance
 {
+    [Obsolete]
     public class SGameLocation : GameLocation
     {
         public GameLocation BaseGameLocation { get; private set; }
 
         public SerializableDictionary<Vector2, SObject> ModObjects { get; set; }
 
-        public static SGameLocation ConstructFromBaseClass(GameLocation baseClass)
+        public static SGameLocation ConstructFromBaseClass(GameLocation baseClass, bool copyAllData = false)
         {
             SGameLocation s = new SGameLocation();
             s.BaseGameLocation = baseClass;
-            s.ModObjects = new SerializableDictionary<Vector2, SObject>();
+            s.name = baseClass.name;
 
-            foreach (var v in baseClass.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+            Program.LogDebug("CONSTRUCTED: " + s.name);
+
+            if (copyAllData)
             {
-                try
+                foreach (var v in baseClass.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
                 {
-                    var fi = s.GetType().GetField(v.Name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                    if (fi != null && !fi.IsStatic)
+                    try
                     {
-                        fi.SetValue(s, v.GetValue(baseClass));
-                        //Console.WriteLine("SET {0} ON {1} TO {2}", fi.Name, s.name, v.GetValue(baseClass));
+                        var fi = s.GetType().GetField(v.Name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (fi != null && !fi.IsStatic)
+                        {
+                            fi.SetValue(s, v.GetValue(baseClass));
+                            //Console.WriteLine("SET {0} ON {1} TO {2}", fi.Name, s.name, v.GetValue(baseClass));
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Program.LogError(ex);
                     }
                 }
-                catch (Exception ex)
-                {
-                    Program.LogError(ex);
-                }
             }
-
-            //s.IsFarm = baseClass.IsFarm;
-            //s.IsOutdoors = baseClass.IsOutdoors;
-            //s.LightLevel = baseClass.LightLevel;
-            //s.Map = baseClass.Map;
-            //s.objects = baseClass.objects;
-            //s.temporarySprites = baseClass.temporarySprites;
-
-            /*
-            s.actionObjectForQuestionDialogue = baseClass.actionObjectForQuestionDialogue;
-            s.characters = baseClass.characters;
-            s.critters = (List<Critter>)typeof(GameLocation).GetField("critters", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(baseClass);
-            s.currentEvent = baseClass.currentEvent;
-            s.debris = baseClass.debris;
-            s.doorSprites = baseClass.doorSprites;
-            s.doors = baseClass.doors;
-            s.farmers = baseClass.farmers;
-            s.fishSplashAnimation = baseClass.fishSplashAnimation;
-            s.fishSplashPoint = baseClass.fishSplashPoint;
-            s.forceViewportPlayerFollow = baseClass.forceViewportPlayerFollow;
-            s.ignoreDebrisWeather = baseClass.ignoreDebrisWeather;
-            s.ignoreLights = baseClass.ignoreLights;
-            s.ignoreOutdoorLighting = baseClass.ignoreOutdoorLighting;
-            s.isFarm = baseClass.isFarm;
-            s.isOutdoors = baseClass.isOutdoors;
-            s.isStructure = baseClass.isStructure;
-            s.largeTerrainFeatures = baseClass.largeTerrainFeatures;
-            s.lastQuestionKey = baseClass.lastQuestionKey;
-            s.lastTouchActionLocation = baseClass.lastTouchActionLocation;
-            s.lightGlows = baseClass.lightGlows;
-            s.map = baseClass.map;
-            s.name = baseClass.name;
-            s.numberOfSpawnedObjectsOnMap = baseClass.numberOfSpawnedObjectsOnMap;
-            s.objects = baseClass.objects;
-            s.orePanAnimation = baseClass.orePanAnimation;
-            s.orePanPoint = baseClass.orePanPoint;
-            s.projectiles = baseClass.projectiles;
-            s.temporarySprites = baseClass.temporarySprites;
-            s.terrainFeatures = baseClass.terrainFeatures;
-            s.uniqueName = baseClass.uniqueName;
-            s.warps = baseClass.warps;
-            s.wasUpdated = (bool)typeof(GameLocation).GetField("wasUpdated", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(baseClass);
-            s.waterAnimationIndex = baseClass.waterAnimationIndex;
-            s.waterAnimationTimer = baseClass.waterAnimationTimer;
-            s.waterColor = baseClass.waterColor;
-            s.waterTileFlip = baseClass.waterTileFlip;
-            s.waterTiles = baseClass.waterTiles;
-            */
-
-
 
             return s;
         }
 
-        public static List<SGameLocation> ConvertGameLocations(List<GameLocation> baseGameLocations)
+        public static List<SGameLocation> ConstructFromBaseClasses(List<GameLocation> baseGameLocations, bool copyAllData = false)
         {
-            return baseGameLocations.Select(ConstructFromBaseClass).ToList();
+            return baseGameLocations.Select(gl => ConstructFromBaseClass(gl, copyAllData)).ToList();
         }
 
         public virtual void update(GameTime gameTime)
@@ -109,6 +65,11 @@ namespace StardewModdingAPI.Inheritance
             {
                 v.Value.draw(b, (int)v.Key.X, (int)v.Key.Y, 0.999f, 1);
             }
+        }
+
+        public SGameLocation()
+        {
+            ModObjects = new SerializableDictionary<Vector2, SObject>();
         }
     }
 }
