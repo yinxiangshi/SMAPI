@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Input;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using StardewValley;
 using StardewValley.Menus;
 using System;
@@ -58,6 +59,15 @@ namespace StardewModdingAPI
             NewLocations = newLocations;
         }
         public List<GameLocation> NewLocations { get; private set; }
+    }
+
+    public class EventArgsLocationObjectsChanged : EventArgs
+    {
+        public EventArgsLocationObjectsChanged(SerializableDictionary<Vector2, StardewValley.Object> newObjects)
+        {
+            NewObjects = newObjects;
+        }
+        public SerializableDictionary<Vector2, StardewValley.Object> NewObjects { get; private set; }
     }
 
     public class EventArgsCurrentLocationChanged : EventArgs

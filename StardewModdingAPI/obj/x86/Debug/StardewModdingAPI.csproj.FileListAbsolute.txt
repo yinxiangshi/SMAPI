@@ -43,4 +43,3 @@ Z:\Projects\C#\SMAPI\StardewModdingAPI\bin\x86\Debug\steam_appid.txt
 Z:\Projects\C#\SMAPI\StardewModdingAPI\bin\x86\Debug\StardewModdingAPI.exe.config
 Z:\Projects\C#\SMAPI\StardewModdingAPI\bin\x86\Debug\StardewModdingAPI.exe
 Z:\Projects\C#\SMAPI\StardewModdingAPI\bin\x86\Debug\StardewModdingAPI.pdb
-Z:\Projects\C#\SMAPI\StardewModdingAPI\obj\x86\Debug\StardewModdingAPI.csprojResolveAssemblyReference.cache

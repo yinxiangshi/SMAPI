@@ -31,7 +31,5 @@ Z:\Projects\C#\SMAPI\StardewInjector\bin\Debug\StardewModdingAPI.exe
 Z:\Projects\C#\SMAPI\StardewInjector\bin\Debug\Stardew Valley.exe
 Z:\Projects\C#\SMAPI\StardewInjector\bin\Debug\xTile.dll
 Z:\Projects\C#\SMAPI\StardewInjector\bin\Debug\Lidgren.Network.dll
-Z:\Projects\C#\SMAPI\StardewInjector\bin\Debug\Microsoft.Xna.Framework.Xact.dll
 Z:\Projects\C#\SMAPI\StardewInjector\bin\Debug\Steamworks.NET.dll
 Z:\Projects\C#\SMAPI\StardewInjector\bin\Debug\StardewModdingAPI.pdb
-Z:\Projects\C#\SMAPI\StardewInjector\bin\Debug\Microsoft.Xna.Framework.Xact.xml
