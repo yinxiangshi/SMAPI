@@ -29,15 +29,26 @@ namespace StardewModdingAPI
             return result;
         }
 
-        public static bool IsInt32(this string s)
+        public static bool IsInt32(this object o)
         {
             int i;
-            return Int32.TryParse(s, out i);
+            return Int32.TryParse(o.ToString(), out i);
         }
 
-        public static Int32 AsInt32(this string s)
+        public static Int32 AsInt32(this object o)
         {
-            return Int32.Parse(s);
+            return Int32.Parse(o.ToString());
+        }
+
+        public static bool IsBool(this object o)
+        {
+            bool b;
+            return Boolean.TryParse(o.ToString(), out b);
+        }
+
+        public static bool AsBool(this object o)
+        {
+            return Boolean.Parse(o.ToString());
         }
 
         public static int GetHash(this IEnumerable enumerable)

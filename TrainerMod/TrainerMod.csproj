@@ -37,8 +37,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="Stardew Valley">
-      <HintPath>D:\#Network-Steam\SteamRepo\steamapps\common\Stardew Valley\Stardew Valley.exe</HintPath>
-      <Private>False</Private>
+      <HintPath>Z:\Games\Stardew Valley\Stardew Valley.exe</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

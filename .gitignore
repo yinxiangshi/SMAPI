@@ -1,6 +1,11 @@
 StardewModdingAPI/bin/
 StardewModdingAPI/obj/
+packages/
+StardewInjector/
+
 *.symlink
 *.lnk
 !*.exe
 !*.dll
+
+Release/Mods/StardewInjector.dll

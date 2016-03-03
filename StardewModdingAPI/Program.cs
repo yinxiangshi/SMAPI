@@ -53,6 +53,9 @@ namespace StardewModdingAPI
         public const bool debug = true;
         public static bool disableLogging { get; private set; }
 
+        public static bool StardewInjectorLoaded { get; private set; }
+        public static Mod StardewInjectorMod { get; private set; }
+
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -84,7 +87,6 @@ namespace StardewModdingAPI
                 }
                 catch (Exception ex)
                 {
-                    
                     LogError("Could not create a missing ModPath: " + ModPath + "\n\n" + ex);
                 }
             }
@@ -141,8 +143,74 @@ namespace StardewModdingAPI
 
             //Load in that assembly. Also, ignore security :D
             StardewAssembly = Assembly.UnsafeLoadFrom(ExecutionPath + "\\Stardew Valley.exe");
+
+            foreach (string ModPath in ModPaths)
+            {
+                foreach (String s in Directory.GetFiles(ModPath, "StardewInjector.dll"))
+                {
+                    LogColour(ConsoleColor.Green, "Found Stardew Injector DLL: " + s);
+                    try
+                    {
+                        Assembly mod = Assembly.UnsafeLoadFrom(s); //to combat internet-downloaded DLLs
+
+                        if (mod.DefinedTypes.Count(x => x.BaseType == typeof(Mod)) > 0)
+                        {
+                            LogColour(ConsoleColor.Green, "Loading Injector DLL...");
+                            TypeInfo tar = mod.DefinedTypes.First(x => x.BaseType == typeof(Mod));
+                            Mod m = (Mod)mod.CreateInstance(tar.ToString());
+                            Console.WriteLine("LOADED: {0} by {1} - Version {2} | Description: {3}", m.Name, m.Authour, m.Version, m.Description);
+                            m.Entry(false);
+                            StardewInjectorLoaded = true;
+                            StardewInjectorMod = m;
+                        }
+                        else
+                        {
+                            LogError("Invalid Mod DLL");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogError("Failed to load mod '{0}'. Exception details:\n" + ex, s);
+                    }
+                }
+            }
+
             StardewProgramType = StardewAssembly.GetType("StardewValley.Program", true);
             StardewGameInfo = StardewProgramType.GetField("gamePtr");
+
+            /*
+            if (File.Exists(ExecutionPath + "\\Stardew_Injector.exe"))
+            {
+                //Stardew_Injector Mode
+                StardewInjectorLoaded = true;
+                Program.LogInfo("STARDEW_INJECTOR DETECTED, LAUNCHING USING INJECTOR CALLS");
+                Assembly inj = Assembly.UnsafeLoadFrom(ExecutionPath + "\\Stardew_Injector.exe");
+                Type prog = inj.GetType("Stardew_Injector.Program", true);
+                FieldInfo hooker = prog.GetField("hooker", BindingFlags.NonPublic | BindingFlags.Static);
+
+                //hook.GetMethod("Initialize").Invoke(hooker.GetValue(null), null);
+                //customize the initialize method for SGame instead of Game
+                Assembly cecil = Assembly.UnsafeLoadFrom(ExecutionPath + "\\Mono.Cecil.dll");
+                Type assDef = cecil.GetType("Mono.Cecil.AssemblyDefinition");
+                var aDefs = assDef.GetMethods(BindingFlags.Public | BindingFlags.Static);
+                var aDef = aDefs.First(x => x.ToString().Contains("ReadAssembly(System.String)"));
+                var theAssDef = aDef.Invoke(null, new object[] { Assembly.GetExecutingAssembly().Location });
+                var modDef = assDef.GetProperty("MainModule", BindingFlags.Public | BindingFlags.Instance);
+                var theModDef = modDef.GetValue(theAssDef);
+                Console.WriteLine("MODDEF: " + theModDef);
+                Type hook = inj.GetType("Stardew_Injector.Stardew_Hooker", true);
+                hook.GetField("m_vAsmDefinition", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(hooker.GetValue(null), theAssDef);
+                hook.GetField("m_vModDefinition", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(hooker.GetValue(null), theModDef);
+
+                //hook.GetMethod("Initialize").Invoke(hooker.GetValue(null), null);
+                hook.GetMethod("ApplyHooks").Invoke(hooker.GetValue(null), null);
+                //hook.GetMethod("Finalize").Invoke(hooker.GetValue(null), null);
+                //hook.GetMethod("Run").Invoke(hooker.GetValue(null), null);
+
+                Console.ReadKey();
+                //Now go back and load Stardew through SMAPI
+            }
+            */
 
             //Change the game's version
             LogInfo("Injecting New SDV Version...");
@@ -259,6 +327,12 @@ namespace StardewModdingAPI
 
                 ready = true;
 
+                if (StardewInjectorLoaded)
+                {
+                    //StardewInjectorMod.Entry(true);
+                    StardewAssembly.EntryPoint.Invoke(null, new object[] { new string[0] });
+                }
+
                 gamePtr.Run();
             }
             catch (Exception ex)
@@ -284,6 +358,8 @@ namespace StardewModdingAPI
             {
                 foreach (String s in Directory.GetFiles(ModPath, "*.dll"))
                 {
+                    if (s.Contains("StardewInjector"))
+                        continue;
                     LogColour(ConsoleColor.Green, "Found DLL: " + s);
                     try
                     {

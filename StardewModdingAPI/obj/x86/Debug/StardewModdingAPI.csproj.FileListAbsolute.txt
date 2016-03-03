@@ -31,3 +31,13 @@ C:\TFSource\Master-Collection\StardewModdingAPI\StardewModdingAPI\obj\x86\Debug\
 C:\TFSource\Master-Collection\StardewModdingAPI\StardewModdingAPI\obj\x86\Debug\StardewModdingAPI.pdb
 C:\TFSource\Master-Collection\StardewModdingAPI\StardewModdingAPI\obj\x86\Debug\StardewModdingAPI.csprojResolveAssemblyReference.cache
 C:\Users\zoryn\Documents\GitHub\SMAPI\StardewModdingAPI\bin\x86\Debug\StardewModdingAPI.exe.config
+C:\Users\zoryn\Documents\GitHub\SMAPI\StardewModdingAPI\bin\x86\Debug\steam_appid.txt
+C:\Users\zoryn\Documents\GitHub\SMAPI\StardewModdingAPI\bin\x86\Debug\StardewModdingAPI.exe
+C:\Users\zoryn\Documents\GitHub\SMAPI\StardewModdingAPI\bin\x86\Debug\StardewModdingAPI.pdb
+C:\Users\zoryn\Documents\GitHub\SMAPI\StardewModdingAPI\bin\x86\Debug\Stardew Valley.exe
+C:\Users\zoryn\Documents\GitHub\SMAPI\StardewModdingAPI\bin\x86\Debug\xTile.dll
+C:\Users\zoryn\Documents\GitHub\SMAPI\StardewModdingAPI\bin\x86\Debug\Lidgren.Network.dll
+C:\Users\zoryn\Documents\GitHub\SMAPI\StardewModdingAPI\bin\x86\Debug\Steamworks.NET.dll
+C:\Users\zoryn\Documents\GitHub\SMAPI\StardewModdingAPI\obj\x86\Debug\StardewModdingAPI.csprojResolveAssemblyReference.cache
+C:\Users\zoryn\Documents\GitHub\SMAPI\StardewModdingAPI\obj\x86\Debug\StardewModdingAPI.exe
+C:\Users\zoryn\Documents\GitHub\SMAPI\StardewModdingAPI\obj\x86\Debug\StardewModdingAPI.pdb

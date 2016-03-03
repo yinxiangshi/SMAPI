@@ -31,7 +31,7 @@ namespace StardewModdingAPI
         /// <summary>
         /// A basic method that is the entry-point of your mod. It will always be called once when the mod loads.
         /// </summary>
-        public virtual void Entry()
+        public virtual void Entry(params object[] objects)
         {
 
         }

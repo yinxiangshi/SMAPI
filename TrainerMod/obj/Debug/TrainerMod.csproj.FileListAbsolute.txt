@@ -3,3 +3,9 @@ C:\TFSource\Master-Collection\StardewModdingAPI\TrainerMod\bin\Debug\TrainerMod.
 C:\TFSource\Master-Collection\StardewModdingAPI\TrainerMod\obj\Debug\TrainerMod.csprojResolveAssemblyReference.cache
 C:\TFSource\Master-Collection\StardewModdingAPI\TrainerMod\obj\Debug\TrainerMod.dll
 C:\TFSource\Master-Collection\StardewModdingAPI\TrainerMod\obj\Debug\TrainerMod.pdb
+C:\Users\zoryn\Documents\GitHub\SMAPI\TrainerMod\obj\Debug\TrainerMod.csprojResolveAssemblyReference.cache
+C:\Users\zoryn\Documents\GitHub\SMAPI\TrainerMod\obj\Debug\TrainerMod.dll
+C:\Users\zoryn\Documents\GitHub\SMAPI\TrainerMod\bin\Debug\TrainerMod.dll
+C:\Users\zoryn\Documents\GitHub\SMAPI\TrainerMod\bin\Debug\TrainerMod.pdb
+C:\Users\zoryn\Documents\GitHub\SMAPI\TrainerMod\bin\Debug\Stardew Valley.exe
+C:\Users\zoryn\Documents\GitHub\SMAPI\TrainerMod\obj\Debug\TrainerMod.pdb
