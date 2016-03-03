@@ -20,3 +20,23 @@ C:\Users\zoryn\Documents\GitHub\SMAPI\StardewInjector\bin\Debug\Microsoft.Xna.Fr
 C:\Users\zoryn\Documents\GitHub\SMAPI\StardewInjector\bin\Debug\Microsoft.Xna.Framework.Xact.xml
 C:\Users\zoryn\Documents\GitHub\SMAPI\StardewInjector\obj\Debug\StardewInjector.dll
 C:\Users\zoryn\Documents\GitHub\SMAPI\StardewInjector\obj\Debug\StardewInjector.pdb
+C:\TFSource\Master-Collection\StardewModdingAPI\StardewInjector\bin\Debug\StardewInjector.dll.config
+C:\TFSource\Master-Collection\StardewModdingAPI\StardewInjector\bin\Debug\StardewInjector.dll
+C:\TFSource\Master-Collection\StardewModdingAPI\StardewInjector\bin\Debug\StardewInjector.pdb
+C:\TFSource\Master-Collection\StardewModdingAPI\StardewInjector\bin\Debug\Microsoft.Xna.Framework.dll
+C:\TFSource\Master-Collection\StardewModdingAPI\StardewInjector\bin\Debug\Microsoft.Xna.Framework.Game.dll
+C:\TFSource\Master-Collection\StardewModdingAPI\StardewInjector\bin\Debug\StardewModdingAPI.exe
+C:\TFSource\Master-Collection\StardewModdingAPI\StardewInjector\bin\Debug\Stardew Valley.exe
+C:\TFSource\Master-Collection\StardewModdingAPI\StardewInjector\bin\Debug\Microsoft.Xna.Framework.Graphics.dll
+C:\TFSource\Master-Collection\StardewModdingAPI\StardewInjector\bin\Debug\xTile.dll
+C:\TFSource\Master-Collection\StardewModdingAPI\StardewInjector\bin\Debug\Lidgren.Network.dll
+C:\TFSource\Master-Collection\StardewModdingAPI\StardewInjector\bin\Debug\Microsoft.Xna.Framework.Xact.dll
+C:\TFSource\Master-Collection\StardewModdingAPI\StardewInjector\bin\Debug\Steamworks.NET.dll
+C:\TFSource\Master-Collection\StardewModdingAPI\StardewInjector\bin\Debug\StardewModdingAPI.pdb
+C:\TFSource\Master-Collection\StardewModdingAPI\StardewInjector\bin\Debug\Microsoft.Xna.Framework.xml
+C:\TFSource\Master-Collection\StardewModdingAPI\StardewInjector\bin\Debug\Microsoft.Xna.Framework.Game.xml
+C:\TFSource\Master-Collection\StardewModdingAPI\StardewInjector\bin\Debug\Microsoft.Xna.Framework.Graphics.xml
+C:\TFSource\Master-Collection\StardewModdingAPI\StardewInjector\bin\Debug\Microsoft.Xna.Framework.Xact.xml
+C:\TFSource\Master-Collection\StardewModdingAPI\StardewInjector\obj\Debug\StardewInjector.csprojResolveAssemblyReference.cache
+C:\TFSource\Master-Collection\StardewModdingAPI\StardewInjector\obj\Debug\StardewInjector.dll
+C:\TFSource\Master-Collection\StardewModdingAPI\StardewInjector\obj\Debug\StardewInjector.pdb

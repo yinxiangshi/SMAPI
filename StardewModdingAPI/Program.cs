@@ -144,6 +144,10 @@ namespace StardewModdingAPI
             //Load in that assembly. Also, ignore security :D
             StardewAssembly = Assembly.UnsafeLoadFrom(ExecutionPath + "\\Stardew Valley.exe");
 
+            //This will load the injector before anything else if it sees it
+            //It doesn't matter though
+            //I'll leave it as a feature in case anyone in the community wants to tinker with it
+            //All you need is a DLL that inherits from mod and is called StardewInjector.dll with an Entry() method
             foreach (string ModPath in ModPaths)
             {
                 foreach (String s in Directory.GetFiles(ModPath, "StardewInjector.dll"))
@@ -153,11 +157,11 @@ namespace StardewModdingAPI
                     {
                         Assembly mod = Assembly.UnsafeLoadFrom(s); //to combat internet-downloaded DLLs
 
-                        if (mod.DefinedTypes.Count(x => x.BaseType == typeof(Mod)) > 0)
+                        if (mod.DefinedTypes.Count(x => x.BaseType == typeof (Mod)) > 0)
                         {
                             LogColour(ConsoleColor.Green, "Loading Injector DLL...");
-                            TypeInfo tar = mod.DefinedTypes.First(x => x.BaseType == typeof(Mod));
-                            Mod m = (Mod)mod.CreateInstance(tar.ToString());
+                            TypeInfo tar = mod.DefinedTypes.First(x => x.BaseType == typeof (Mod));
+                            Mod m = (Mod) mod.CreateInstance(tar.ToString());
                             Console.WriteLine("LOADED: {0} by {1} - Version {2} | Description: {3}", m.Name, m.Authour, m.Version, m.Description);
                             m.Entry(false);
                             StardewInjectorLoaded = true;
@@ -178,7 +182,9 @@ namespace StardewModdingAPI
             StardewProgramType = StardewAssembly.GetType("StardewValley.Program", true);
             StardewGameInfo = StardewProgramType.GetField("gamePtr");
 
+            #region deprecated
             /*
+             * Lol no. I tried though.
             if (File.Exists(ExecutionPath + "\\Stardew_Injector.exe"))
             {
                 //Stardew_Injector Mode
@@ -211,6 +217,7 @@ namespace StardewModdingAPI
                 //Now go back and load Stardew through SMAPI
             }
             */
+            #endregion
 
             //Change the game's version
             LogInfo("Injecting New SDV Version...");
@@ -327,17 +334,24 @@ namespace StardewModdingAPI
 
                 ready = true;
 
-                if (StardewInjectorLoaded)
+                StardewGameInfo.SetValue(StardewProgramType, gamePtr);
+                gamePtr.Run();
+
+                #region deprecated
+                if (false)
                 {
+                    //Nope, I can't get it to work. I depend on Game1 being an SGame, and can't cast a parent to a child
+                    //I'm leaving this here in case the community is interested
                     //StardewInjectorMod.Entry(true);
-                    StardewAssembly.EntryPoint.Invoke(null, new object[] {new string[0]});
-                    StardewGameInfo.SetValue(StardewProgramType, gamePtr);
-                }
-                else
-                {
+                    Type gt = StardewAssembly.GetType("StardewValley.Game1", true);
+                    gamePtr = (SGame)Activator.CreateInstance(gt);
+
+                    ready = true;
+
                     StardewGameInfo.SetValue(StardewProgramType, gamePtr);
                     gamePtr.Run();
                 }
+                #endregion
             }
             catch (Exception ex)
             {
@@ -348,10 +362,14 @@ namespace StardewModdingAPI
         static void StardewForm_Closing(object sender, CancelEventArgs e)
         {
             e.Cancel = true;
-            gamePtr.Exit();
-            gamePtr.Dispose();
-            StardewForm.Hide();
-            ready = false;
+
+            if (true || MessageBox.Show("Are you sure you would like to quit Stardew Valley?\nUnsaved progress will be lost!", "Confirm Exit", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.Yes)
+            {
+                gamePtr.Exit();
+                gamePtr.Dispose();
+                StardewForm.Hide();
+                ready = false;
+            }
         }
 
         public static void LoadMods()
