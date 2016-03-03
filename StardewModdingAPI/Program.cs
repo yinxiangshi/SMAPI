@@ -55,8 +55,7 @@ namespace StardewModdingAPI
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
+        [STAThread]
         private static void Main(string[] args)
         {
             Console.Title = "Stardew Modding API Console";
@@ -322,7 +321,7 @@ namespace StardewModdingAPI
             }
         }
 
-        static void Events_LoadContent()
+        static void Events_LoadContent(object sender, EventArgs e)
         {
             LogInfo("Initializing Debug Assets...");
             DebugPixel = new Texture2D(Game1.graphics.GraphicsDevice, 1, 1);
@@ -355,7 +354,7 @@ namespace StardewModdingAPI
                 Command.CallCommand("load");
         }
 
-        static void Events_KeyPressed(Keys key)
+        static void Events_KeyPressed(object key, EventArgs e)
         {
             
         }
@@ -408,8 +407,9 @@ namespace StardewModdingAPI
             File.WriteAllText(Program.LogPath + "\\MODDED_ErrorLog_" + Extensions.Random.Next(100000000, 999999999) + ".txt", e.Exception.ToString());
         }
 
-        static void help_CommandFired(Command cmd)
+        static void help_CommandFired(object sender, EventArgs e)
         {
+            Command cmd = sender as Command;
             if (cmd.CalledArgs.Length > 0)
             {
                 Command fnd = Command.FindCommand(cmd.CalledArgs[0]);

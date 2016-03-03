@@ -14,8 +14,7 @@ namespace StardewModdingAPI
         public String CommandDesc;
         public String[] CommandArgs;
         public String[] CalledArgs;
-        public delegate void CommandFireHandler(Command cmd);
-        public event CommandFireHandler CommandFired;
+        public event EventHandler<EventArgsCommand> CommandFired;
 
         /// <summary>
         /// Calls the specified command. (It runs the command)
@@ -105,7 +104,7 @@ namespace StardewModdingAPI
                 Program.LogError("Command failed to fire because it's fire event is null: " + CommandName);
                 return;
             }
-            CommandFired.Invoke(this);
+            CommandFired.Invoke(this, null);
         }
     }
 }

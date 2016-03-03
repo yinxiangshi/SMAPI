@@ -132,7 +132,7 @@ namespace StardewModdingAPI.Inheritance
             if (drawStackNumber)
             {
                 float scale = 0.5f + scaleSize;
-                Game1.drawWithBorder(string.Concat(this.stack), Color.Black, Color.White, location + new Vector2((float) Game1.tileSize - Game1.tinyFont.MeasureString(string.Concat(this.stack)).X * scale, (float) Game1.tileSize - (float) ((double) Game1.tinyFont.MeasureString(string.Concat(this.stack)).Y * 3.0f / 4.0f) * scale), 0.0f, scale, 1f, true);
+                Game1.drawWithBorder(string.Concat(this.stack.ToString()), Color.Black, Color.White, location + new Vector2((float) Game1.tileSize - Game1.tinyFont.MeasureString(string.Concat(this.stack.ToString())).X * scale, (float) Game1.tileSize - (float) ((double) Game1.tinyFont.MeasureString(string.Concat(this.stack.ToString())).Y * 3.0f / 4.0f) * scale), 0.0f, scale, 1f, true);
             }
         }
 
