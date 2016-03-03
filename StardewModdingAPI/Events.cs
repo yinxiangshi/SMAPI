@@ -11,13 +11,11 @@ namespace StardewModdingAPI
 {
     public static class Events
     {
-        public delegate void BlankEventHandler(object sender, EventArgs e);
-
-        public static event BlankEventHandler GameLoaded = delegate { };
-        public static event BlankEventHandler Initialize = delegate { };
-        public static event BlankEventHandler LoadContent = delegate { };
-        public static event BlankEventHandler UpdateTick = delegate { };
-        public static event BlankEventHandler DrawTick = delegate { };
+        public static event EventHandler GameLoaded = delegate { };
+        public static event EventHandler Initialize = delegate { };
+        public static event EventHandler LoadContent = delegate { };
+        public static event EventHandler UpdateTick = delegate { };
+        public static event EventHandler DrawTick = delegate { };
 
         public static event EventHandler<EventArgsKeyboardStateChanged> KeyboardChanged = delegate { };
         public static event EventHandler<EventArgsKeyPressed> KeyPressed = delegate { };
