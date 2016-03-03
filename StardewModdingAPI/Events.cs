@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Input;
 using StardewValley;
 using StardewValley.Menus;
+using Microsoft.Xna.Framework;
 
 namespace StardewModdingAPI
 {
@@ -22,6 +23,7 @@ namespace StardewModdingAPI
         public static event EventHandler<EventArgsMouseStateChanged> MouseChanged = delegate { };
         public static event EventHandler<EventArgsClickableMenuChanged> MenuChanged = delegate { };
         public static event EventHandler<EventArgsGameLocationsChanged> LocationsChanged = delegate { };
+        public static event EventHandler<EventArgsLocationObjectsChanged> LocationObjectsChanged = delegate { };
         public static event EventHandler<EventArgsCurrentLocationChanged> CurrentLocationChanged = delegate { };
         public static event EventHandler Resize = delegate { };
         public static event EventHandler<EventArgsFarmerChanged> FarmerChanged = delegate { };
@@ -141,6 +143,11 @@ namespace StardewModdingAPI
         public static void InvokeSeasonOfYearChanged(String priorString, String newString)
         {
             SeasonOfYearChanged.Invoke(null, new EventArgsStringChanged(priorString, newString));
+        }
+
+        internal static void InvokeOnNewLocationObject(SerializableDictionary<Vector2, StardewValley.Object> newObjects)
+        {
+            LocationObjectsChanged.Invoke(null, new EventArgsLocationObjectsChanged(newObjects));
         }
     }
 }
