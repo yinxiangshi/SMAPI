@@ -12,6 +12,7 @@ using StardewValley.Menus;
 using StardewValley.Monsters;
 using StardewValley.Quests;
 using StardewValley.TerrainFeatures;
+using StardewModdingAPI.Events;
 
 namespace StardewModdingAPI.Inheritance
 {
@@ -47,6 +48,13 @@ namespace StardewModdingAPI.Inheritance
         public int PreviousLocationObjects { get; private set; }
         public int PreviousItems_ { get; private set; }
         public Dictionary<Item, int> PreviousItems { get; private set; }
+
+        public int PreviousCombatLevel { get; private set; }
+        public int PreviousFarmingLevel { get; private set; }
+        public int PreviousFishingLevel { get; private set; }
+        public int PreviousForagingLevel { get; private set; }
+        public int PreviousMiningLevel { get; private set; }
+        public int PreviousLuckLevel { get; private set; }
 
         public GameLocation PreviousGameLocation { get; private set; }
         public IClickableMenu PreviousActiveMenu { get; private set; }
@@ -227,7 +235,7 @@ namespace StardewModdingAPI.Inheritance
 
             foreach (Keys k in FramePressedKeys)
                 Events.ControlEvents.InvokeKeyPressed(k);
-
+            
             if (KStateNow != KStatePrior)
             {
                 Events.ControlEvents.InvokeKeyboardChanged(KStatePrior, KStateNow);
@@ -262,6 +270,42 @@ namespace StardewModdingAPI.Inheritance
             {
                 Events.PlayerEvents.InvokeFarmerChanged(PreviousFarmer, player);
                 PreviousFarmer = player;
+            }
+
+            if (player != null && player.combatLevel != PreviousCombatLevel)
+            {
+                Events.PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Combat, player.combatLevel);
+                PreviousCombatLevel = player.combatLevel;
+            }
+
+            if (player != null && player.farmingLevel != PreviousFarmingLevel)
+            {
+                Events.PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Farming, player.farmingLevel);
+                PreviousFarmingLevel = player.farmingLevel;
+            }
+
+            if (player != null && player.fishingLevel != PreviousFishingLevel)
+            {
+                Events.PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Fishing, player.fishingLevel);
+                PreviousFishingLevel = player.fishingLevel;
+            }
+
+            if (player != null && player.foragingLevel != PreviousForagingLevel)
+            {
+                Events.PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Foraging, player.foragingLevel);
+                PreviousForagingLevel = player.foragingLevel;
+            }
+
+            if (player != null && player.miningLevel != PreviousMiningLevel)
+            {
+                Events.PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Mining, player.miningLevel);
+                PreviousMiningLevel = player.miningLevel;
+            }
+
+            if (player != null && player.luckLevel != PreviousLuckLevel)
+            {
+                Events.PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Luck, player.luckLevel);
+                PreviousLuckLevel = player.luckLevel;
             }
 
             List<ItemStackChange> changedItems;            

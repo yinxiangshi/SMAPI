@@ -50,7 +50,7 @@ namespace StardewModdingAPI
         {
             return Boolean.Parse(o.ToString());
         }
-
+        
         public static int GetHash(this IEnumerable enumerable)
         {
             string s = string.Empty;
