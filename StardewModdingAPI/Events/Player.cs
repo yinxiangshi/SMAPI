@@ -1,4 +1,5 @@
-﻿using StardewValley;
+﻿using StardewModdingAPI.Inheritance;
+using StardewValley;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,9 +18,9 @@ namespace StardewModdingAPI.Events
             FarmerChanged.Invoke(null, new EventArgsFarmerChanged(priorFarmer, newFarmer));
         }
 
-        public static void InvokeInventoryChanged(List<Item> inventory)
+        public static void InvokeInventoryChanged(List<Item> inventory, List<ItemStackChange> changedItems)
         {
-            InventoryChanged.Invoke(null, new EventArgsInventoryChanged(inventory));
+            InventoryChanged.Invoke(null, new EventArgsInventoryChanged(inventory, changedItems));
         }
     }
 }

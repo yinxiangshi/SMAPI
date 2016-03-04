@@ -88,6 +88,7 @@
     <Compile Include="Events\Player.cs" />
     <Compile Include="Events\Time.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="Inheritance\ItemStackChange.cs" />
     <Compile Include="Inheritance\Menus\SBobberBar.cs" />
     <Compile Include="Inheritance\Menus\SGameMenu.cs" />
     <Compile Include="Inheritance\Menus\SInventoryPage.cs" />
@@ -110,7 +111,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>
-</PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

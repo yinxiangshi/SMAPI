@@ -45,7 +45,8 @@ namespace StardewModdingAPI.Inheritance
 
         public int PreviousGameLocations { get; private set; }
         public int PreviousLocationObjects { get; private set; }
-        public int PreviousItems { get; private set; }
+        public int PreviousItems_ { get; private set; }
+        public Dictionary<Item, int> PreviousItems { get; private set; }
 
         public GameLocation PreviousGameLocation { get; private set; }
         public IClickableMenu PreviousActiveMenu { get; private set; }
@@ -217,8 +218,7 @@ namespace StardewModdingAPI.Inheritance
             Program.LogDebug("A custom location could not be created for: " + name);
             return null;
         }
-
-
+        
         public void UpdateEventCalls()
         {
             KStateNow = Keyboard.GetState();
@@ -264,10 +264,12 @@ namespace StardewModdingAPI.Inheritance
                 PreviousFarmer = player;
             }
 
-            if(player != null && PreviousItems != player.items.GetHash())
+            List<ItemStackChange> changedItems;            
+            if (player != null && HasInventoryChanged(player.items, out changedItems))
             {
-                Events.PlayerEvents.InvokeInventoryChanged(player.items);
-            }
+                Events.PlayerEvents.InvokeInventoryChanged(player.items, changedItems);
+                PreviousItems = player.items.Where(n => n != null).ToDictionary(n => n, n => n.Stack);
+            }            
 
             if(currentLocation != null && PreviousLocationObjects != currentLocation.objects.GetHash())
             {
@@ -298,6 +300,34 @@ namespace StardewModdingAPI.Inheritance
                 Events.TimeEvents.InvokeYearOfGameChanged(PreviousYearOfGame, year);
                 PreviousYearOfGame = year;
             }
+        }
+
+        private bool HasInventoryChanged(List<Item> items, out List<ItemStackChange> changedItems)
+        {
+            changedItems = new List<ItemStackChange>();
+            IEnumerable<Item> actualItems = items.Where(n => n != null);
+            foreach (var item in actualItems)
+            {
+                if (PreviousItems != null && PreviousItems.ContainsKey(item))
+                {
+                    if(PreviousItems[item] != item.Stack)
+                    {
+                        changedItems.Add(new ItemStackChange() { Item = item, StackChange = item.Stack - PreviousItems[item], ChangeType = ChangeType.StackChange });
+                    }
+                }
+                else
+                {
+                    changedItems.Add(new ItemStackChange() { Item = item, StackChange = item.Stack, ChangeType = ChangeType.Added });
+                }
+            }
+
+            if (PreviousItems != null)
+            {
+                changedItems.AddRange(PreviousItems.Where(n => !actualItems.Any(i => i == n.Key)).Select(n =>
+                    new ItemStackChange() { Item = n.Key, StackChange = -n.Key.Stack, ChangeType = ChangeType.Removed }));
+            }
+
+            return (changedItems.Any());                        
         }
     }
 }

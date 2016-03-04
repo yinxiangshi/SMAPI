@@ -51,7 +51,7 @@ namespace StardewModdingAPI
         public static Thread consoleInputThread;
 
         public const string Version = "0.36 Alpha";
-        public const bool debug = true;
+        public const bool debug = false;
         public static bool disableLogging { get; private set; }
 
         public static bool StardewInjectorLoaded { get; private set; }
