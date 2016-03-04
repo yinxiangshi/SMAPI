@@ -23,6 +23,7 @@ using StardewValley.Network;
 using StardewValley.Tools;
 using Keys = Microsoft.Xna.Framework.Input.Keys;
 using Object = StardewValley.Object;
+using StardewModdingAPI.Events;
 
 namespace StardewModdingAPI
 {
@@ -249,8 +250,8 @@ namespace StardewModdingAPI
             //Command.RegisterCommand("crash", "crashes sdv").CommandFired += delegate { Game1.player.draw(null); };
 
             //Subscribe to events
-            Events.KeyPressed += Events_KeyPressed;
-            Events.LoadContent += Events_LoadContent;
+            Events.ControlEvents.KeyPressed += Events_KeyPressed;
+            Events.GameEvents.LoadContent += Events_LoadContent;
             //Events.MenuChanged += Events_MenuChanged; //Idk right now
             if (debug)
             {
@@ -265,12 +266,12 @@ namespace StardewModdingAPI
             {
                                     gamePtr.IsMouseVisible = false;
                                     gamePtr.Window.Title = "Stardew Valley - Version " + Game1.version;
-                                    StardewForm.Resize += Events.InvokeResize;
+                                    StardewForm.Resize += Events.GraphicsEvents.InvokeResize;
             });
 
             //Game's in memory now, send the event
             LogInfo("Game Loaded");
-            Events.InvokeGameLoaded();
+            Events.GameEvents.InvokeGameLoaded();
 
             LogColour(ConsoleColor.Cyan, "Type 'help' for help, or 'help <cmd>' for a command's usage");
             //Begin listening to input

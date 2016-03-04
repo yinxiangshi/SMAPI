@@ -10,6 +10,7 @@ using StardewValley;
 using StardewValley.Tools;
 using Microsoft.Xna.Framework;
 using StardewValley.Objects;
+using StardewModdingAPI.Events;
 
 namespace TrainerMod
 {
@@ -41,7 +42,7 @@ namespace TrainerMod
         public override void Entry(params object[] objects)
         {
             RegisterCommands();
-            Events.UpdateTick += Events_UpdateTick;
+            GameEvents.UpdateTick += Events_UpdateTick;
         }
 
         static void Events_UpdateTick(object sender, EventArgs e)

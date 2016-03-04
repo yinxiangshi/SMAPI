@@ -100,14 +100,14 @@ namespace StardewModdingAPI.Inheritance
             ModItems = new Dictionary<Int32, SObject>();
             PreviouslyPressedKeys = new Keys[0];
             base.Initialize();
-            Events.InvokeInitialize();
+            Events.GameEvents.InvokeInitialize();
         }
 
         protected override void LoadContent()
         {
             Program.Log("XNA LoadContent");
             base.LoadContent();
-            Events.InvokeLoadContent();
+            Events.GameEvents.InvokeLoadContent();
         }
 
         protected override void Update(GameTime gameTime)
@@ -124,7 +124,7 @@ namespace StardewModdingAPI.Inheritance
                 Console.ReadKey();
             }
 
-            Events.InvokeUpdateTick();
+            Events.GameEvents.InvokeUpdateTick();
 
             PreviouslyPressedKeys = CurrentlyPressedKeys;
         }
@@ -132,7 +132,7 @@ namespace StardewModdingAPI.Inheritance
         protected override void Draw(GameTime gameTime)
         {
             base.Draw(gameTime);
-            Events.InvokeDrawTick();
+            Events.GraphicsEvents.InvokeDrawTick();
 
             if (false)
             {
@@ -225,71 +225,71 @@ namespace StardewModdingAPI.Inheritance
             MStateNow = Mouse.GetState();
 
             foreach (Keys k in FramePressedKeys)
-                Events.InvokeKeyPressed(k);
+                Events.ControlEvents.InvokeKeyPressed(k);
 
             if (KStateNow != KStatePrior)
             {
-                Events.InvokeKeyboardChanged(KStatePrior, KStateNow);
+                Events.ControlEvents.InvokeKeyboardChanged(KStatePrior, KStateNow);
                 KStatePrior = KStateNow;
             }
 
             if (MStateNow != MStatePrior)
             {
-                Events.InvokeMouseChanged(MStatePrior, MStateNow);
+                Events.ControlEvents.InvokeMouseChanged(MStatePrior, MStateNow);
                 MStatePrior = MStateNow;
             }
 
             if (activeClickableMenu != null && activeClickableMenu != PreviousActiveMenu)
             {
-                Events.InvokeMenuChanged(PreviousActiveMenu, activeClickableMenu);
+                Events.MenuEvents.InvokeMenuChanged(PreviousActiveMenu, activeClickableMenu);
                 PreviousActiveMenu = activeClickableMenu;
             }
 
             if (locations.GetHash() != PreviousGameLocations)
             {
-                Events.InvokeLocationsChanged(locations);
+                Events.LocationEvents.InvokeLocationsChanged(locations);
                 PreviousGameLocations = locations.GetHash();
             }
 
             if (currentLocation != PreviousGameLocation)
             {
-                Events.InvokeCurrentLocationChanged(PreviousGameLocation, currentLocation);
+                Events.LocationEvents.InvokeCurrentLocationChanged(PreviousGameLocation, currentLocation);
                 PreviousGameLocation = currentLocation;
             }
 
             if (player != null && player != PreviousFarmer)
             {
-                Events.InvokeFarmerChanged(PreviousFarmer, player);
+                Events.PlayerEvents.InvokeFarmerChanged(PreviousFarmer, player);
                 PreviousFarmer = player;
             }
 
             if(currentLocation != null && PreviousLocationObjects != currentLocation.objects.GetHash())
             {
-                Events.InvokeOnNewLocationObject(currentLocation.objects);
+                Events.LocationEvents.InvokeOnNewLocationObject(currentLocation.objects);
                 PreviousLocationObjects = currentLocation.objects.GetHash();
             }
 
             if (timeOfDay != PreviousTimeOfDay)
             {
-                Events.InvokeTimeOfDayChanged(PreviousTimeOfDay, timeOfDay);
+                Events.TimeEvents.InvokeTimeOfDayChanged(PreviousTimeOfDay, timeOfDay);
                 PreviousTimeOfDay = timeOfDay;
             }
 
             if (dayOfMonth != PreviousDayOfMonth)
             {
-                Events.InvokeDayOfMonthChanged(PreviousDayOfMonth, dayOfMonth);
+                Events.TimeEvents.InvokeDayOfMonthChanged(PreviousDayOfMonth, dayOfMonth);
                 PreviousDayOfMonth = dayOfMonth;
             }
 
             if (currentSeason != PreviousSeasonOfYear)
             {
-                Events.InvokeSeasonOfYearChanged(PreviousSeasonOfYear, currentSeason);
+                Events.TimeEvents.InvokeSeasonOfYearChanged(PreviousSeasonOfYear, currentSeason);
                 PreviousSeasonOfYear = currentSeason;
             }
 
             if (year != PreviousYearOfGame)
             {
-                Events.InvokeYearOfGameChanged(PreviousYearOfGame, year);
+                Events.TimeEvents.InvokeYearOfGameChanged(PreviousYearOfGame, year);
                 PreviousYearOfGame = year;
             }
         }

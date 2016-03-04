@@ -78,8 +78,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Command.cs" />
-    <Compile Include="EventArgs.cs" />
-    <Compile Include="Events.cs" />
+    <Compile Include="Events\Controls.cs" />
+    <Compile Include="Events\EventArgs.cs" />
+    <Compile Include="Events\Game.cs" />
+    <Compile Include="Events\Graphics.cs" />
+    <Compile Include="Events\Location.cs" />
+    <Compile Include="Events\Menu.cs" />
+    <Compile Include="Events\Mine.cs" />
+    <Compile Include="Events\Player.cs" />
+    <Compile Include="Events\Time.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Inheritance\Menus\SBobberBar.cs" />
     <Compile Include="Inheritance\Menus\SGameMenu.cs" />
@@ -102,7 +109,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy /y "$(SolutionDir)$(ProjectName)\$(OutDir)StardewModdingAPI.exe" "$(SolutionDir)Release\"</PostBuildEvent>
+    <PostBuildEvent>
+</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
