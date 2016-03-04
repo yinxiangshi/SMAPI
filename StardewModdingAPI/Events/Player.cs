@@ -10,7 +10,7 @@ namespace StardewModdingAPI.Events
     public static class PlayerEvents
     {
         public static event EventHandler<EventArgsFarmerChanged> FarmerChanged = delegate { };
-        public static event EventHandler<EventArgsInventory> InventoryChanged = delegate { };
+        public static event EventHandler<EventArgsInventoryChanged> InventoryChanged = delegate { };
 
         public static void InvokeFarmerChanged(Farmer priorFarmer, Farmer newFarmer)
         {
@@ -19,7 +19,7 @@ namespace StardewModdingAPI.Events
 
         public static void InvokeInventoryChanged(List<Item> inventory)
         {
-            FarmerChanged.Invoke(null, new InventoryChanged(inventory));
+            InventoryChanged.Invoke(null, new EventArgsInventoryChanged(inventory));
         }
     }
 }

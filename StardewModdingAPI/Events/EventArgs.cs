@@ -92,9 +92,9 @@ namespace StardewModdingAPI.Events
         public Farmer PriorFarmer { get; private set; }
     }
 
-    public class EventArgsInventory : EventArgs
+    public class EventArgsInventoryChanged : EventArgs
     {
-        public EventArgsInventory(List<Item> inventory)
+        public EventArgsInventoryChanged(List<Item> inventory)
         {
             Inventory = inventory;
         }
