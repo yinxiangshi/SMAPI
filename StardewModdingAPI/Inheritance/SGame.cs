@@ -66,8 +66,15 @@ namespace StardewModdingAPI.Inheritance
 
         public Farmer PreviousFarmer { get; private set; }
 
+        private static SGame instance;
+        public static SGame Instance { get { return instance; } }
+
+        public Farmer CurrentFarmer { get { return player; } }
+
         public SGame()
         {
+            instance = this;
+
             if (Program.debug)
             {
                 SaveGame.serializer = new XmlSerializer(typeof (SaveGame), new Type[28]
@@ -195,11 +202,7 @@ namespace StardewModdingAPI.Inheritance
 
         public static SGameLocation GetLocationFromName(String name)
         {
-            if (ModLocations.Any(x => x.name == name))
-            {
-                return ModLocations[ModLocations.IndexOf(ModLocations.First(x => x.name == name))];
-            }
-            return null;
+            return ModLocations.FirstOrDefault(n => n.name == name);
         }
 
         public static SGameLocation LoadOrCreateSGameLocationFromName(String name)
