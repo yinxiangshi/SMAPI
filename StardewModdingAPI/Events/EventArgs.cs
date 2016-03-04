@@ -92,6 +92,15 @@ namespace StardewModdingAPI.Events
         public Farmer PriorFarmer { get; private set; }
     }
 
+    public class EventArgsInventory : EventArgs
+    {
+        public EventArgsInventory(List<Item> inventory)
+        {
+            Inventory = inventory;
+        }
+        public List<Item> Inventory { get; private set; }
+    }
+
     public class EventArgsIntChanged : EventArgs
     {
         public EventArgsIntChanged(Int32 priorInt, Int32 newInt)
