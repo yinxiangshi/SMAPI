@@ -39,16 +39,16 @@ namespace StardewInjector
                 hooker.ApplyHooks();
                 hooker.Finalize();
 
-                Program.LogInfo("INJECTOR ENTERED");
+                Log.Verbose("INJECTOR ENTERED");
             }
             else if (objects.Length > 0 && objects[0].AsBool() == true)
             {
-                Program.LogInfo("INJECTOR LAUNCHING");
+                Log.Verbose("INJECTOR LAUNCHING");
                 hooker.Run();
             }
             else
             {
-                Program.LogError("INVALID PARAMETERS FOR INJECTOR");
+                Log.Verbose("INVALID PARAMETERS FOR INJECTOR");
             }
         }
     }

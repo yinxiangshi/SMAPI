@@ -113,7 +113,7 @@ namespace TrainerMod
 
         static void types_CommandFired(object sender, EventArgsCommand e)
         {
-            Program.LogInfo("[Int32: {0} - {1}], [Int64: {2} - {3}], [String: \"raw text\"], [Colour: r,g,b (EG: 128, 32, 255)]", Int32.MinValue, Int32.MaxValue, Int64.MinValue, Int64.MaxValue);
+            Log.Verbose("[Int32: {0} - {1}], [Int64: {2} - {3}], [String: \"raw text\"], [Colour: r,g,b (EG: 128, 32, 255)]", Int32.MinValue, Int32.MaxValue, Int64.MinValue, Int64.MaxValue);
         }
 
         static void hide_CommandFired(object sender, EventArgsCommand e)
@@ -156,7 +156,7 @@ namespace TrainerMod
                             Game1.player.Name = e.Command.CalledArgs[1];
                             break;
                         case "pet":
-                            Program.LogError("Pets cannot currently be renamed.");
+                            Log.Error("Pets cannot currently be renamed.");
                             break;
                         case "farm":
                             Game1.player.farmName = e.Command.CalledArgs[1];
@@ -165,12 +165,12 @@ namespace TrainerMod
                 }
                 else
                 {
-                    Program.LogObjectInvalid();
+                    Log.LogObjectInvalid();
                 }
             }
             else
             {
-                Program.LogObjectValueNotSpecified();
+                Log.LogObjectValueNotSpecified();
             }
         }
 
@@ -189,17 +189,17 @@ namespace TrainerMod
                     if (Int32.TryParse(e.Command.CalledArgs[0], out ou))
                     {
                         Game1.player.Money = ou;
-                        Program.LogInfo("Set {0}'s money to {1}", Game1.player.Name, Game1.player.Money);
+                        Log.Verbose("Set {0}'s money to {1}", Game1.player.Name, Game1.player.Money);
                     }
                     else
                     {
-                        Program.LogValueNotInt32();
+                        Log.LogValueNotInt32();
                     }
                 }
             }
             else
             {
-                Program.LogValueNotSpecified();
+                Log.LogValueNotSpecified();
             }
         }
 
@@ -218,17 +218,17 @@ namespace TrainerMod
                     if (Int32.TryParse(e.Command.CalledArgs[0], out ou))
                     {
                         Game1.player.Stamina = ou;
-                        Program.LogInfo("Set {0}'s stamina to {1}", Game1.player.Name, Game1.player.Stamina);
+                        Log.Verbose("Set {0}'s stamina to {1}", Game1.player.Name, Game1.player.Stamina);
                     }
                     else
                     {
-                        Program.LogValueNotInt32();
+                        Log.LogValueNotInt32();
                     }
                 }
             }
             else
             {
-                Program.LogValueNotSpecified();
+                Log.LogValueNotSpecified();
             }
         }
 
@@ -240,16 +240,16 @@ namespace TrainerMod
                 if (Int32.TryParse(e.Command.CalledArgs[0], out ou))
                 {
                     Game1.player.MaxStamina = ou;
-                    Program.LogInfo("Set {0}'s max stamina to {1}", Game1.player.Name, Game1.player.MaxStamina);
+                    Log.Verbose("Set {0}'s max stamina to {1}", Game1.player.Name, Game1.player.MaxStamina);
                 }
                 else
                 {
-                    Program.LogValueNotInt32();
+                    Log.LogValueNotInt32();
                 }
             }
             else
             {
-                Program.LogValueNotSpecified();
+                Log.LogValueNotSpecified();
             }
         }
 
@@ -288,17 +288,17 @@ namespace TrainerMod
                     }
                     else
                     {
-                        Program.LogValueNotInt32();
+                        Log.LogValueNotInt32();
                     }
                 }
                 else
                 {
-                    Program.LogError("<skill> is invalid");
+                    Log.Error("<skill> is invalid");
                 }
             }
             else
             {
-                Program.LogError("<skill> and <value> must be specified");
+                Log.Error("<skill> and <value> must be specified");
             }
         }
 
@@ -309,16 +309,16 @@ namespace TrainerMod
                 if (e.Command.CalledArgs[0].IsInt32())
                 {
                     Game1.player.addedSpeed = e.Command.CalledArgs[0].AsInt32();
-                    Program.LogInfo("Set {0}'s added speed to {1}", Game1.player.Name, Game1.player.addedSpeed);
+                    Log.Verbose("Set {0}'s added speed to {1}", Game1.player.Name, Game1.player.addedSpeed);
                 }
                 else
                 {
-                    Program.LogValueNotInt32();
+                    Log.LogValueNotInt32();
                 }
             }
             else
             {
-                Program.LogValueNotSpecified();
+                Log.LogValueNotSpecified();
             }
         }
 
@@ -349,17 +349,17 @@ namespace TrainerMod
                     }
                     else
                     {
-                        Program.LogError("<colour> is invalid");
+                        Log.Error("<colour> is invalid");
                     }
                 }
                 else
                 {
-                    Program.LogObjectInvalid();
+                    Log.LogObjectInvalid();
                 }
             }
             else
             {
-                Program.LogError("<object> and <colour> must be specified");
+                Log.Error("<object> and <colour> must be specified");
             }
         }
 
@@ -397,7 +397,7 @@ namespace TrainerMod
                                 else if (i == 1)
                                     Game1.player.changeIntoSwimsuit();
                                 else
-                                    Program.LogError("<value> must be 0 or 1 for this <object>");
+                                    Log.Error("<value> must be 0 or 1 for this <object>");
                                 break;
                             case "gender":
                                 if (i == 0)
@@ -405,23 +405,23 @@ namespace TrainerMod
                                 else if (i == 1)
                                     Game1.player.changeGender(false);
                                 else
-                                    Program.LogError("<value> must be 0 or 1 for this <object>");
+                                    Log.Error("<value> must be 0 or 1 for this <object>");
                                 break;
                         }
                     }
                     else
                     {
-                        Program.LogValueInvalid();
+                        Log.LogValueInvalid();
                     }
                 }
                 else
                 {
-                    Program.LogObjectInvalid();
+                    Log.LogObjectInvalid();
                 }
             }
             else
             {
-                Program.LogObjectValueNotSpecified();
+                Log.LogObjectValueNotSpecified();
             }
         }
 
@@ -435,21 +435,21 @@ namespace TrainerMod
                     {
                         freezeTime = e.Command.CalledArgs[0].AsInt32() == 1;
                         frozenTime = freezeTime ? Game1.timeOfDay : 0;
-                        Program.LogInfo("Time is now " + (freezeTime ? "frozen" : "thawed"));
+                        Log.Verbose("Time is now " + (freezeTime ? "frozen" : "thawed"));
                     }
                     else
                     {
-                        Program.LogError("<value> should be 0 or 1");
+                        Log.Error("<value> should be 0 or 1");
                     }
                 }
                 else
                 {
-                    Program.LogValueNotInt32();
+                    Log.LogValueNotInt32();
                 }
             }
             else
             {
-                Program.LogValueNotSpecified();
+                Log.LogValueNotSpecified();
             }
         }
 
@@ -463,21 +463,21 @@ namespace TrainerMod
                     {
                         Game1.timeOfDay = e.Command.CalledArgs[0].AsInt32();
                         frozenTime = freezeTime ? Game1.timeOfDay : 0;
-                        Program.LogInfo("Time set to: " + Game1.timeOfDay);
+                        Log.Verbose("Time set to: " + Game1.timeOfDay);
                     }
                     else
                     {
-                        Program.LogError("<value> should be between 600 and 2600 (06:00 AM - 02:00 AM [NEXT DAY])");
+                        Log.Error("<value> should be between 600 and 2600 (06:00 AM - 02:00 AM [NEXT DAY])");
                     }
                 }
                 else
                 {
-                    Program.LogValueNotInt32();
+                    Log.LogValueNotInt32();
                 }
             }
             else
             {
-                Program.LogValueNotSpecified();
+                Log.LogValueNotSpecified();
             }
         }
 
@@ -493,17 +493,17 @@ namespace TrainerMod
                     }
                     else
                     {
-                        Program.LogError("<value> must be between 1 and 28");
+                        Log.Verbose("<value> must be between 1 and 28");
                     }
                 }
                 else
                 {
-                    Program.LogValueNotInt32();
+                    Log.LogValueNotInt32();
                 }
             }
             else
             {
-                Program.LogValueNotSpecified();
+                Log.LogValueNotSpecified();
             }
         }
 
@@ -519,12 +519,12 @@ namespace TrainerMod
                 }
                 else
                 {
-                    Program.LogValueInvalid();
+                    Log.LogValueInvalid();
                 }
             }
             else
             {
-                Program.LogValueNotSpecified();
+                Log.LogValueNotSpecified();
             }
         }
 
@@ -545,13 +545,13 @@ namespace TrainerMod
                     }
                     else
                     {
-                        Program.LogValueNotInt32();
+                        Log.LogValueNotInt32();
                     }
                 }
             }
             else
             {
-                Program.LogValueNotSpecified();
+                Log.LogValueNotSpecified();
             }
         }
 
@@ -565,12 +565,12 @@ namespace TrainerMod
                 }
                 else
                 {
-                    Program.LogValueNotInt32();
+                    Log.LogValueNotInt32();
                 }
             }
             else
             {
-                Program.LogValueNotSpecified();
+                Log.LogValueNotSpecified();
             }
         }
 
@@ -584,12 +584,12 @@ namespace TrainerMod
                 }
                 else
                 {
-                    Program.LogValueNotInt32();
+                    Log.LogValueNotInt32();
                 }
             }
             else
             {
-                Program.LogValueNotSpecified();
+                Log.LogValueNotSpecified();
             }
         }
 
@@ -610,7 +610,7 @@ namespace TrainerMod
                         }
                         else
                         {
-                            Program.LogError("[count] is invalid");
+                            Log.Error("[count] is invalid");
                             return;
                         }
 
@@ -622,7 +622,7 @@ namespace TrainerMod
                             }
                             else
                             {
-                                Program.LogError("[quality] is invalid");
+                                Log.Error("[quality] is invalid");
                                 return;
                             }
 
@@ -636,12 +636,12 @@ namespace TrainerMod
                 }
                 else
                 {
-                    Program.LogError("<item> is invalid");
+                    Log.Error("<item> is invalid");
                 }
             }
             else
             {
-                Program.LogObjectValueNotSpecified();
+                Log.LogObjectValueNotSpecified();
             }
         }
 
@@ -654,16 +654,16 @@ namespace TrainerMod
 
                     MeleeWeapon toAdd = new MeleeWeapon(e.Command.CalledArgs[0].AsInt32());
                     Game1.player.addItemByMenuIfNecessary(toAdd);
-                    Program.LogInfo("Given {0} to {1}", toAdd.Name, Game1.player.Name);
+                    Log.Verbose("Given {0} to {1}", toAdd.Name, Game1.player.Name);
                 }
                 else
                 {
-                    Program.LogError("<item> is invalid");
+                    Log.Error("<item> is invalid");
                 }
             }
             else
             {
-                Program.LogObjectValueNotSpecified();
+                Log.LogObjectValueNotSpecified();
             }
         }
 
@@ -676,16 +676,16 @@ namespace TrainerMod
                     
                     Ring toAdd = new Ring(e.Command.CalledArgs[0].AsInt32());
                     Game1.player.addItemByMenuIfNecessary(toAdd);
-                    Program.LogInfo("Given {0} to {1}", toAdd.Name, Game1.player.Name);
+                    Log.Verbose("Given {0} to {1}", toAdd.Name, Game1.player.Name);
                 }
                 else
                 {
-                    Program.LogError("<item> is invalid");
+                    Log.Error("<item> is invalid");
                 }
             }
             else
             {
-                Program.LogObjectValueNotSpecified();
+                Log.LogObjectValueNotSpecified();
             }
         }
 
@@ -748,12 +748,12 @@ namespace TrainerMod
                 }
                 else
                 {
-                    Program.LogValueNotInt32();
+                    Log.LogValueNotInt32();
                 }
             }
             else
             {
-                Program.LogValueNotSpecified();
+                Log.LogValueNotSpecified();
             }
         }
 
@@ -761,11 +761,10 @@ namespace TrainerMod
 
         static void RegisterNewItem(object sender, EventArgsCommand e)
         {
-            if (!Program.debug)
-            {
-                Program.LogError("Experimental code cannot be run in user mode.");
+#if DEBUG
+            Log.Error("Experimental code cannot be run in user mode.");
                 return;
-            }
+#endif
             SObject s = SGame.PullModItemFromDict(0, true);
             s.Stack = 999;
             Game1.player.addItemToInventory(s);

@@ -29,7 +29,7 @@ namespace StardewInjector
             }
             catch (Exception ex)
             {
-                Program.LogError(ex);
+                Log.Error(ex);
                 return false;
             }
         }
@@ -57,7 +57,7 @@ namespace StardewInjector
             }
             catch (Exception ex)
             {
-                Program.LogError(ex);
+                Log.Error(ex);
                 return false;
             }
         }
@@ -97,7 +97,7 @@ namespace StardewInjector
             }
             catch (Exception ex)
             {
-                Program.LogError(ex);
+                Log.Error(ex);
             }
 
         }

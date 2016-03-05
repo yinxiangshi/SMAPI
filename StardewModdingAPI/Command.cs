@@ -1,9 +1,6 @@
 ﻿using StardewModdingAPI.Events;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StardewModdingAPI
 {
@@ -44,7 +41,7 @@ namespace StardewModdingAPI
             }
             else
             {
-                Program.LogError("Unknown Command");
+                Log.Error("Unknown Command");
             }
         }
 
@@ -60,12 +57,12 @@ namespace StardewModdingAPI
             Command c = new Command(command, cdesc, args);
             if (RegisteredCommands.Contains(c))
             {
-                Program.LogError("Command already registered! [{0}]", c.CommandName);
+                Log.Error("Command already registered! [{0}]", c.CommandName);
                 return RegisteredCommands.Find(x => x.Equals(c));
             }
 
             RegisteredCommands.Add(c);
-            Program.LogColour(ConsoleColor.Cyan, "Registered command: " + command);
+            Log.Verbose(ConsoleColor.Cyan, "Registered command: " + command);
 
             return c;
         }
@@ -102,7 +99,7 @@ namespace StardewModdingAPI
         {
             if (CommandFired == null)
             {
-                Program.LogError("Command failed to fire because it's fire event is null: " + CommandName);
+                Log.Error("Command failed to fire because it's fire event is null: " + CommandName);
                 return;
             }
             CommandFired.Invoke(this, new EventArgsCommand(this));

@@ -25,7 +25,7 @@ namespace StardewModdingAPI.Inheritance
             s.BaseGameLocation = baseClass;
             s.name = baseClass.name;
 
-            Program.LogDebug("CONSTRUCTED: " + s.name);
+            Log.Debug("CONSTRUCTED: " + s.name);
 
             if (copyAllData)
             {
@@ -42,7 +42,7 @@ namespace StardewModdingAPI.Inheritance
                     }
                     catch (Exception ex)
                     {
-                        Program.LogError(ex);
+                        Log.Error(ex);
                     }
                 }
             }
