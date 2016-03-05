@@ -23,8 +23,6 @@ namespace StardewModdingAPI
         public static List<string> ModPaths = new List<string>();
         public static List<string> ModContentPaths = new List<string>();
         public static string LogPath = Path.Combine(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley")), "ErrorLogs");
-        public static string CurrentLog { get; private set; }
-        public static StreamWriter LogStream { get; private set; }
 
         public static Texture2D DebugPixel { get; private set; }
 
