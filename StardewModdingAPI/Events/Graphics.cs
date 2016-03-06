@@ -19,7 +19,7 @@ namespace StardewModdingAPI.Events
             }
             catch (Exception ex)
             {
-                Program.LogError("An exception occured in XNA DrawTick: " + ex.ToString());
+                Log.Error("An exception occured in XNA DrawTick: " + ex.ToString());
             }
         }
 

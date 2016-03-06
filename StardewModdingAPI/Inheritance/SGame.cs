@@ -75,9 +75,8 @@ namespace StardewModdingAPI.Inheritance
         {
             instance = this;
 
-            if (Program.debug)
-            {
-                SaveGame.serializer = new XmlSerializer(typeof (SaveGame), new Type[28]
+#if DEBUG
+            SaveGame.serializer = new XmlSerializer(typeof (SaveGame), new Type[28]
                 {
                     typeof (Tool),
                     typeof (GameLocation),
@@ -108,12 +107,12 @@ namespace StardewModdingAPI.Inheritance
                     typeof (TerrainFeature),
                     typeof (SObject)
                 });
-            }
+#endif
         }
 
         protected override void Initialize()
         {
-            Program.Log("XNA Initialize");
+            Log.Verbose("XNA Initialize");
             ModItems = new Dictionary<Int32, SObject>();
             PreviouslyPressedKeys = new Keys[0];
             base.Initialize();
@@ -122,7 +121,7 @@ namespace StardewModdingAPI.Inheritance
 
         protected override void LoadContent()
         {
-            Program.Log("XNA LoadContent");
+            Log.Verbose("XNA LoadContent");
             base.LoadContent();
             Events.GameEvents.InvokeLoadContent();
         }
@@ -137,7 +136,7 @@ namespace StardewModdingAPI.Inheritance
             }
             catch (Exception ex)
             {
-                Program.LogError("An error occured in the base update loop: " + ex);
+                Log.Error("An error occured in the base update loop: " + ex);
                 Console.ReadKey();
             }
 
@@ -169,7 +168,7 @@ namespace StardewModdingAPI.Inheritance
         {
             if (modItem.HasBeenRegistered)
             {
-                Program.LogError("The item {0} has already been registered with ID {1}", modItem.Name, modItem.RegisteredId);
+                Log.Error("The item {0} has already been registered with ID {1}", modItem.Name, modItem.RegisteredId);
                 return modItem.RegisteredId;
             }
             Int32 newId = LowestModItemID;
@@ -189,14 +188,14 @@ namespace StardewModdingAPI.Inheritance
                 {
                     return ModItems.ElementAt(id).Value.Clone();
                 }
-                Program.LogError("ModItem Dictionary does not contain index: " + id.ToString());
+                Log.Error("ModItem Dictionary does not contain index: " + id.ToString());
                 return null;
             }
             if (ModItems.ContainsKey(id))
             {
                 return ModItems[id].Clone();
             }
-            Program.LogError("ModItem Dictionary does not contain ID: " + id.ToString());
+            Log.Error("ModItem Dictionary does not contain ID: " + id.ToString());
             return null;
         }
 
@@ -212,7 +211,7 @@ namespace StardewModdingAPI.Inheritance
             GameLocation gl = locations.FirstOrDefault(x => x.name == name);
             if (gl != null)
             {
-                Program.LogDebug("A custom location was created for the new name: " + name);
+                Log.Debug("A custom location was created for the new name: " + name);
                 SGameLocation s = SGameLocation.ConstructFromBaseClass(gl);
                 ModLocations.Add(s);
                 return s;
@@ -220,13 +219,13 @@ namespace StardewModdingAPI.Inheritance
             if (currentLocation != null && currentLocation.name == name)
             {
                 gl = currentLocation;
-                Program.LogDebug("A custom location was created from the current location for the new name: " + name);
+                Log.Debug("A custom location was created from the current location for the new name: " + name);
                 SGameLocation s = SGameLocation.ConstructFromBaseClass(gl);
                 ModLocations.Add(s);
                 return s;
             }
 
-            Program.LogDebug("A custom location could not be created for: " + name);
+            Log.Debug("A custom location could not be created for: " + name);
             return null;
         }
         

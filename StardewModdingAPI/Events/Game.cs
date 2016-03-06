@@ -26,7 +26,7 @@ namespace StardewModdingAPI.Events
             }
             catch (Exception ex)
             {
-                Program.LogError("An exception occured in XNA Initialize: " + ex.ToString());
+                Log.Error("An exception occured in XNA Initialize: " + ex.ToString());
             }
         }
 
@@ -38,7 +38,7 @@ namespace StardewModdingAPI.Events
             }
             catch (Exception ex)
             {
-                Program.LogError("An exception occured in XNA LoadContent: " + ex.ToString());
+                Log.Error("An exception occured in XNA LoadContent: " + ex.ToString());
             }
         }
 
@@ -50,7 +50,7 @@ namespace StardewModdingAPI.Events
             }
             catch (Exception ex)
             {
-                Program.LogError("An exception occured in XNA UpdateTick: " + ex.ToString());
+                Log.Error("An exception occured in XNA UpdateTick: " + ex.ToString());
             }
         }
     }

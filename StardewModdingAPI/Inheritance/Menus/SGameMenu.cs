@@ -39,7 +39,7 @@ namespace StardewModdingAPI.Inheritance.Menus
         {
             if (pages[currentTab] is InventoryPage)
             {
-                Program.LogInfo("INV SCREEN");
+                Log.Verbose("INV SCREEN");
             }
             else
             {

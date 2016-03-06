@@ -78,7 +78,7 @@ namespace StardewModdingAPI.Inheritance
 
         public override void draw(SpriteBatch spriteBatch, int xNonTile, int yNonTile, float layerDepth, float alpha = 1)
         {
-            Program.LogInfo("THIS DRAW FUNCTION IS NOT IMPLEMENTED I WANT TO KNOW WHERE IT IS CALLED");
+            Log.Debug("THIS DRAW FUNCTION IS NOT IMPLEMENTED I WANT TO KNOW WHERE IT IS CALLED");
             return;
             try
             {
@@ -105,7 +105,7 @@ namespace StardewModdingAPI.Inheritance
             }
             catch (Exception ex)
             {
-                Program.LogError(ex.ToString());
+                Log.Error(ex.ToString());
                 Console.ReadKey();
             }
         }
@@ -249,7 +249,7 @@ namespace StardewModdingAPI.Inheritance
             s.boundingBox = new Rectangle(x / Game1.tileSize * Game1.tileSize, y / Game1.tileSize * Game1.tileSize, this.boundingBox.Width, this.boundingBox.Height);
 
             location.objects.Add(key, s);
-            Program.LogInfo("{0} - {1}", this.GetHashCode(), s.GetHashCode());
+            Log.Verbose("{0} - {1}", this.GetHashCode(), s.GetHashCode());
 
             return true;
         }
