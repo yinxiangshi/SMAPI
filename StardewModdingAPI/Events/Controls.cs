@@ -11,6 +11,7 @@ namespace StardewModdingAPI.Events
     {
         public static event EventHandler<EventArgsKeyboardStateChanged> KeyboardChanged = delegate { };
         public static event EventHandler<EventArgsKeyPressed> KeyPressed = delegate { };
+        public static event EventHandler<EventArgsKeyPressed> KeyReleased = delegate { };
         public static event EventHandler<EventArgsMouseStateChanged> MouseChanged = delegate { };
 
         public static void InvokeKeyboardChanged(KeyboardState priorState, KeyboardState newState)
@@ -26,6 +27,11 @@ namespace StardewModdingAPI.Events
         public static void InvokeKeyPressed(Keys key)
         {
             KeyPressed.Invoke(null, new EventArgsKeyPressed(key));
+        }
+
+        public static void InvokeKeyReleased(Keys key)
+        {
+            KeyReleased.Invoke(null, new EventArgsKeyPressed(key));
         }
     }
 }
