@@ -42,6 +42,7 @@
     </Reference>
     <Reference Include="Stardew Valley">
       <HintPath>$(SteamInstallPath)\steamapps\common\Stardew Valley\Stardew Valley.exe</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -53,6 +54,7 @@
     <Reference Include="System.Xml" />
     <Reference Include="xTile">
       <HintPath>$(SteamInstallPath)\steamapps\common\Stardew Valley\xTile.dll</HintPath>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -63,6 +65,7 @@
     <ProjectReference Include="..\StardewModdingAPI\StardewModdingAPI.csproj">
       <Project>{f1a573b0-f436-472c-ae29-0b91ea6b9f8f}</Project>
       <Name>StardewModdingAPI</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
