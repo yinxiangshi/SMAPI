@@ -36,9 +36,7 @@ namespace StardewModdingAPI
 
         public static Thread gameThread;
         public static Thread consoleInputThread;
-
-        public const string Version = "0.36 Alpha";
-
+        
         public static bool StardewInjectorLoaded { get; private set; }
         public static Mod StardewInjectorMod { get; private set; }
 
@@ -48,7 +46,7 @@ namespace StardewModdingAPI
         {
             Console.Title = "Stardew Modding API Console";
 
-            Console.Title += " - Version " + Version;
+            Console.Title += " - Version " + Version.VersionString;
 #if DEBUG
             Console.Title += " - DEBUG IS NOT FALSE, AUTHOUR NEEDS TO REUPLOAD THIS VERSION";
 #endif
@@ -189,7 +187,7 @@ namespace StardewModdingAPI
 
             //Change the game's version
             StardewModdingAPI.Log.Info("Injecting New SDV Version...");
-            Game1.version += "-Z_MODDED | SMAPI " + Version;
+            Game1.version += "-Z_MODDED | SMAPI " + Version.VersionString;
 
             //Create the thread for the game to run in.
             gameThread = new Thread(RunGame);
