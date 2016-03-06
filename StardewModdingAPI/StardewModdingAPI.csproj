@@ -61,6 +61,9 @@
     <PlatformTarget>x86</PlatformTarget>
     <OutputPath>bin\x86\Debug\</OutputPath>
     <Prefer32Bit>false</Prefer32Bit>
+    <DefineConstants>
+    </DefineConstants>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <PlatformTarget>x86</PlatformTarget>
@@ -99,6 +102,11 @@
   <ItemGroup>
     <Compile Include="Command.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="Entities\SCharacter.cs" />
+    <Compile Include="Entities\SFarm.cs" />
+    <Compile Include="Entities\SFarmAnimal.cs" />
+    <Compile Include="Entities\SNpc.cs" />
+    <Compile Include="Entities\SPlayer.cs" />
     <Compile Include="Events\Controls.cs" />
     <Compile Include="Events\EventArgs.cs" />
     <Compile Include="Events\Game.cs" />

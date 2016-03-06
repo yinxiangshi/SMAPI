@@ -89,7 +89,7 @@ namespace StardewModdingAPI
             //TODO: Have an app.config and put the paths inside it so users can define locations to load mods from
             _modPaths.Add(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley", "Mods"));
             _modPaths.Add(Path.Combine(Constants.ExecutionPath, "Mods"));
-            _modPaths.Add(Path.Combine(Constants.ExecutionPath, "Mods", "Content"));
+            _modContentPaths.Add(Path.Combine(Constants.ExecutionPath, "Mods", "Content"));
             _modContentPaths.Add(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley", "Mods", "Content"));
 
             //Checks that all defined modpaths exist as directories
@@ -359,25 +359,25 @@ namespace StardewModdingAPI
             DebugPixel.SetData(new Color[] { Color.White });
 
 #if DEBUG
-            Log.Verbose("REGISTERING BASE CUSTOM ITEM");
+            StardewModdingAPI.Log.Verbose("REGISTERING BASE CUSTOM ITEM");
             SObject so = new SObject();
             so.Name = "Mario Block";
             so.CategoryName = "SMAPI Test Mod";
             so.Description = "It's a block from Mario!\nLoaded in realtime by SMAPI.";
-            so.Texture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, new FileStream(ModContentPaths[0] + "\\Test.png", FileMode.Open));
+            so.Texture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, new FileStream(_modContentPaths[0] + "\\Test.png", FileMode.Open));
             so.IsPassable = true;
             so.IsPlaceable = true;
-            Log.Verbose("REGISTERED WITH ID OF: " + SGame.RegisterModItem(so));
+            StardewModdingAPI.Log.Verbose("REGISTERED WITH ID OF: " + SGame.RegisterModItem(so));
 
-            Log.Verbose("REGISTERING SECOND CUSTOM ITEM");
-            SObject so2 = new SObject();
-            so2.Name = "Mario Painting";
-            so2.CategoryName = "SMAPI Test Mod";
-            so2.Description = "It's a painting of a creature from Mario!\nLoaded in realtime by SMAPI.";
-            so2.Texture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, new FileStream(ModContentPaths[0] + "\\PaintingTest.png", FileMode.Open));
-            so2.IsPassable = true;
-            so2.IsPlaceable = true;
-            Log.Verbose("REGISTERED WITH ID OF: " + SGame.RegisterModItem(so2));
+            //StardewModdingAPI.Log.Verbose("REGISTERING SECOND CUSTOM ITEM");
+            //SObject so2 = new SObject();
+            //so2.Name = "Mario Painting";
+            //so2.CategoryName = "SMAPI Test Mod";
+            //so2.Description = "It's a painting of a creature from Mario!\nLoaded in realtime by SMAPI.";
+            //so2.Texture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, new FileStream(_modContentPaths[0] + "\\PaintingTest.png", FileMode.Open));
+            //so2.IsPassable = true;
+            //so2.IsPlaceable = true;
+            //StardewModdingAPI.Log.Verbose("REGISTERED WITH ID OF: " + SGame.RegisterModItem(so2));
 
             Command.CallCommand("load");
 #endif

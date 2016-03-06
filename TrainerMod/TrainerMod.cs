@@ -762,12 +762,10 @@ namespace TrainerMod
         static void RegisterNewItem(object sender, EventArgsCommand e)
         {
 #if DEBUG
-            Log.Error("Experimental code cannot be run in user mode.");
-                return;
-#endif
             SObject s = SGame.PullModItemFromDict(0, true);
             s.Stack = 999;
             Game1.player.addItemToInventory(s);
+#endif
         }
     }
 }
