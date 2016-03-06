@@ -77,7 +77,6 @@ namespace StardewModdingAPI
         {
             Console.Title = _consoleTitle;
 
-            Console.Title += " - Version " + Version.VersionString;
 #if DEBUG
             Console.Title += " - DEBUG IS NOT FALSE, AUTHOUR NEEDS TO REUPLOAD THIS VERSION";
 #endif
@@ -107,13 +106,11 @@ namespace StardewModdingAPI
 
             StardewModdingAPI.Log.Initialize(LogPath);
 
-            StardewModdingAPI.Log.Verbose(LogPath);
-
             if (!File.Exists(ExecutionPath + "\\Stardew Valley.exe"))
             {
                 throw new FileNotFoundException(string.Format("Could not found: {0}\\Stardew Valley.exe", ExecutionPath));
-                }
             }
+        }
 
         /// <summary>
         /// Load the injector.
@@ -271,7 +268,7 @@ namespace StardewModdingAPI
             StardewModdingAPI.Log.Verbose("Game Loaded");
             Events.GameEvents.InvokeGameLoaded();
 
-            StardewModdingAPI.Log.Comment(ConsoleColor.Cyan, "Type 'help' for help, or 'help <cmd>' for a command's usage");
+            StardewModdingAPI.Log.Comment("Type 'help' for help, or 'help <cmd>' for a command's usage");
             //Begin listening to input
             consoleInputThread.Start();
 
