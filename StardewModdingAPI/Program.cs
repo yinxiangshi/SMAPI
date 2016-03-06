@@ -21,6 +21,8 @@ namespace StardewModdingAPI
         private static List<string> _modPaths;
         private static List<string> _modContentPaths;
 
+        private static string _consoleTitle = string.Format("Stardew Modding API Console - Version {0}", Version.VersionString);
+
         public static string ExecutionPath { get; private set; }
         public static string DataPath = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley"));
         public static string LogPath = Path.Combine(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley")), "ErrorLogs");
@@ -37,9 +39,6 @@ namespace StardewModdingAPI
 
         public static Thread gameThread;
         public static Thread consoleInputThread;
-
-        private const string _version = "0.36 Alpha";
-        private static string _consoleTitle = string.Format("Stardew Modding API Console - Version {0}", _version);
 
         public static bool StardewInjectorLoaded { get; private set; }
         public static Mod StardewInjectorMod { get; private set; }
@@ -64,10 +63,10 @@ namespace StardewModdingAPI
             catch (Exception e)
             {
                 // Catch and display all exceptions. 
-                Log.Error("Critical error: " + e);
+                StardewModdingAPI.Log.Error("Critical error: " + e);
             }
 
-            Log.Comment("The API will now terminate. Press any key to continue...");
+            StardewModdingAPI.Log.Comment("The API will now terminate. Press any key to continue...");
             Console.ReadKey();
         }
 
@@ -78,6 +77,7 @@ namespace StardewModdingAPI
         {
             Console.Title = _consoleTitle;
 
+            Console.Title += " - Version " + Version.VersionString;
 #if DEBUG
             Console.Title += " - DEBUG IS NOT FALSE, AUTHOUR NEEDS TO REUPLOAD THIS VERSION";
 #endif
@@ -88,7 +88,7 @@ namespace StardewModdingAPI
         /// </summary>
         private static void ConfigurePaths()
         {
-            Log.Info("Validating api paths...");
+            StardewModdingAPI.Log.Info("Validating api paths...");
 
             _modPaths = new List<string>();
             _modContentPaths = new List<string>();
@@ -105,15 +105,15 @@ namespace StardewModdingAPI
             _modContentPaths.ForEach(path => VerifyPath(path));
             VerifyPath(LogPath);
 
-            Log.Initialize(LogPath);
+            StardewModdingAPI.Log.Initialize(LogPath);
 
-            Log.Verbose(LogPath);
+            StardewModdingAPI.Log.Verbose(LogPath);
 
             if (!File.Exists(ExecutionPath + "\\Stardew Valley.exe"))
             {
                 throw new FileNotFoundException(string.Format("Could not found: {0}\\Stardew Valley.exe", ExecutionPath));
+                }
             }
-        }
 
         /// <summary>
         /// Load the injector.
@@ -125,7 +125,7 @@ namespace StardewModdingAPI
         /// All you need is a DLL that inherits from mod and is called StardewInjector.dll with an Entry() method
         /// </remarks>
         private static void ConfigureInjector()
-        {
+            {
             //This will load the injector before anything else if it sees it
             //It doesn't matter though
             //I'll leave it as a feature in case anyone in the community wants to tinker with it
@@ -134,14 +134,14 @@ namespace StardewModdingAPI
             {
                 foreach (String s in Directory.GetFiles(ModPath, "StardewInjector.dll"))
                 {
-                    Log.Success(ConsoleColor.Green, "Found Stardew Injector DLL: " + s);
+                    StardewModdingAPI.Log.Success(ConsoleColor.Green, "Found Stardew Injector DLL: " + s);
                     try
                     {
                         Assembly mod = Assembly.UnsafeLoadFrom(s); //to combat internet-downloaded DLLs
 
                         if (mod.DefinedTypes.Count(x => x.BaseType == typeof(Mod)) > 0)
                         {
-                            Log.Success("Loading Injector DLL...");
+                            StardewModdingAPI.Log.Success("Loading Injector DLL...");
                             TypeInfo tar = mod.DefinedTypes.First(x => x.BaseType == typeof(Mod));
                             Mod m = (Mod)mod.CreateInstance(tar.ToString());
                             Console.WriteLine("LOADED: {0} by {1} - Version {2} | Description: {3}", m.Name, m.Authour, m.Version, m.Description);
@@ -151,12 +151,12 @@ namespace StardewModdingAPI
                         }
                         else
                         {
-                            Log.Error("Invalid Mod DLL");
+                            StardewModdingAPI.Log.Error("Invalid Mod DLL");
                         }
                     }
                     catch (Exception ex)
                     {
-                        Log.Error("Failed to load mod '{0}'. Exception details:\n" + ex, s);
+                        StardewModdingAPI.Log.Error("Failed to load mod '{0}'. Exception details:\n" + ex, s);
                     }
                 }
             }
@@ -167,7 +167,7 @@ namespace StardewModdingAPI
         /// </summary>
         private static void ConfigureSDV()
         {
-            Log.Info("Initializing SDV Assembly...");
+            StardewModdingAPI.Log.Info("Initializing SDV Assembly...");
 
             // Load in that assembly. Also, ignore security :D
             StardewAssembly = Assembly.UnsafeLoadFrom(ExecutionPath + "\\Stardew Valley.exe");
@@ -213,12 +213,12 @@ namespace StardewModdingAPI
             #endregion
 
             //Change the game's version
-            Log.Info("Injecting New SDV Version...");
-            Game1.version += "-Z_MODDED | SMAPI " + _version;
+            StardewModdingAPI.Log.Info("Injecting New SDV Version...");
+            Game1.version += "-Z_MODDED | SMAPI " + Version.VersionString;
 
             //Create the thread for the game to run in.
             gameThread = new Thread(RunGame);
-            Log.Info("Starting SDV...");
+            StardewModdingAPI.Log.Info("Starting SDV...");
             gameThread.Start();
 
             //I forget.
@@ -230,10 +230,10 @@ namespace StardewModdingAPI
             }
 
             //SDV is running
-            Log.Comment("SDV Loaded Into Memory");
+            StardewModdingAPI.Log.Comment("SDV Loaded Into Memory");
 
             //Create definition to listen for input
-            Log.Verbose("Initializing Console Input Thread...");
+            StardewModdingAPI.Log.Verbose("Initializing Console Input Thread...");
             consoleInputThread = new Thread(ConsoleInputThread);
 
             //The only command in the API (at least it should be, for now)\
@@ -253,7 +253,7 @@ namespace StardewModdingAPI
 #endif
 
             //Do tweaks using winforms invoke because I'm lazy
-            Log.Verbose("Applying Final SDV Tweaks...");
+            StardewModdingAPI.Log.Verbose("Applying Final SDV Tweaks...");
             StardewInvoke(() =>
             {
                 gamePtr.IsMouseVisible = false;
@@ -268,10 +268,10 @@ namespace StardewModdingAPI
         private static void GameRunInvoker()
         {
             //Game's in memory now, send the event
-            Log.Verbose("Game Loaded");
+            StardewModdingAPI.Log.Verbose("Game Loaded");
             Events.GameEvents.InvokeGameLoaded();
 
-            Log.Comment("Type 'help' for help, or 'help <cmd>' for a command's usage");
+            StardewModdingAPI.Log.Comment(ConsoleColor.Cyan, "Type 'help' for help, or 'help <cmd>' for a command's usage");
             //Begin listening to input
             consoleInputThread.Start();
 
@@ -286,8 +286,8 @@ namespace StardewModdingAPI
             if (consoleInputThread != null && consoleInputThread.ThreadState == ThreadState.Running)
                 consoleInputThread.Abort();
 
-            Log.Verbose("Game Execution Finished");
-            Log.Verbose("Shutting Down...");
+            StardewModdingAPI.Log.Verbose("Game Execution Finished");
+            StardewModdingAPI.Log.Verbose("Shutting Down...");
             Thread.Sleep(100);
             Environment.Exit(0);
         }
@@ -307,7 +307,7 @@ namespace StardewModdingAPI
             }
             catch (Exception ex)
             {
-                Log.Error("Could not create a path: " + path + "\n\n" + ex);
+                StardewModdingAPI.Log.Error("Could not create a path: " + path + "\n\n" + ex);
             }
         }
 
@@ -315,14 +315,14 @@ namespace StardewModdingAPI
 
         public static void RunGame()
         {
-            Application.ThreadException += Log.Application_ThreadException;
+            Application.ThreadException += StardewModdingAPI.Log.Application_ThreadException;
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
-            AppDomain.CurrentDomain.UnhandledException += Log.CurrentDomain_UnhandledException;
+            AppDomain.CurrentDomain.UnhandledException += StardewModdingAPI.Log.CurrentDomain_UnhandledException;
 
             try
             {
                 gamePtr = new SGame();
-                Log.Verbose("Patching SDV Graphics Profile...");
+                StardewModdingAPI.Log.Verbose("Patching SDV Graphics Profile...");
                 Game1.graphics.GraphicsProfile = GraphicsProfile.HiDef;
                 LoadMods();
 
@@ -352,7 +352,7 @@ namespace StardewModdingAPI
             }
             catch (Exception ex)
             {
-                Log.Error("Game failed to start: " + ex);
+                StardewModdingAPI.Log.Error("Game failed to start: " + ex);
             }
         }
 
@@ -371,7 +371,7 @@ namespace StardewModdingAPI
 
         public static void LoadMods()
         {
-            Log.Verbose("LOADING MODS");
+            StardewModdingAPI.Log.Verbose("LOADING MODS");
             int loadedMods = 0;
             foreach (string ModPath in _modPaths)
             {
@@ -379,14 +379,14 @@ namespace StardewModdingAPI
                 {
                     if (s.Contains("StardewInjector"))
                         continue;
-                    Log.Success("Found DLL: " + s);
+                    StardewModdingAPI.Log.Success("Found DLL: " + s);
                     try
                     {
                         Assembly mod = Assembly.UnsafeLoadFrom(s); //to combat internet-downloaded DLLs
 
                         if (mod.DefinedTypes.Count(x => x.BaseType == typeof(Mod)) > 0)
                         {
-                            Log.Verbose("Loading Mod DLL...");
+                            StardewModdingAPI.Log.Verbose("Loading Mod DLL...");
                             TypeInfo tar = mod.DefinedTypes.First(x => x.BaseType == typeof(Mod));
                             Mod m = (Mod)mod.CreateInstance(tar.ToString());
                             Console.WriteLine("LOADED MOD: {0} by {1} - Version {2} | Description: {3}", m.Name, m.Authour, m.Version, m.Description);
@@ -395,16 +395,16 @@ namespace StardewModdingAPI
                         }
                         else
                         {
-                            Log.Error("Invalid Mod DLL");
+                            StardewModdingAPI.Log.Error("Invalid Mod DLL");
                         }
                     }
                     catch (Exception ex)
                     {
-                        Log.Error("Failed to load mod '{0}'. Exception details:\n" + ex, s);
+                        StardewModdingAPI.Log.Error("Failed to load mod '{0}'. Exception details:\n" + ex, s);
                     }
                 }
             }
-            Log.Success("LOADED {0} MODS", loadedMods);
+            StardewModdingAPI.Log.Success("LOADED {0} MODS", loadedMods);
         }
 
         public static void ConsoleInputThread()
@@ -419,7 +419,7 @@ namespace StardewModdingAPI
 
         static void Events_LoadContent(object o, EventArgs e)
         {
-            Log.Info("Initializing Debug Assets...");
+            StardewModdingAPI.Log.Info("Initializing Debug Assets...");
             DebugPixel = new Texture2D(Game1.graphics.GraphicsDevice, 1, 1);
             DebugPixel.SetData(new Color[] { Color.White });
 
@@ -455,7 +455,7 @@ namespace StardewModdingAPI
 
         static void Events_MenuChanged(IClickableMenu newMenu)
         {
-            Log.Verbose("NEW MENU: " + newMenu.GetType());
+            StardewModdingAPI.Log.Verbose("NEW MENU: " + newMenu.GetType());
             if (newMenu is GameMenu)
             {
                 Game1.activeClickableMenu = SGameMenu.ConstructFromBaseClass(Game1.activeClickableMenu as GameMenu);
@@ -494,17 +494,79 @@ namespace StardewModdingAPI
             {
                 Command fnd = Command.FindCommand(e.Command.CalledArgs[0]);
                 if (fnd == null)
-                    Log.Error("The command specified could not be found");
+                    StardewModdingAPI.Log.Error("The command specified could not be found");
                 else
                 {
                     if (fnd.CommandArgs.Length > 0)
-                        Log.Info("{0}: {1} - {2}", fnd.CommandName, fnd.CommandDesc, fnd.CommandArgs.ToSingular());
+                        StardewModdingAPI.Log.Info("{0}: {1} - {2}", fnd.CommandName, fnd.CommandDesc, fnd.CommandArgs.ToSingular());
                     else
-                        Log.Info("{0}: {1}", fnd.CommandName, fnd.CommandDesc);
+                        StardewModdingAPI.Log.Info("{0}: {1}", fnd.CommandName, fnd.CommandDesc);
                 }
             }
             else
-                Log.Info("Commands: " + Command.RegisteredCommands.Select(x => x.CommandName).ToSingular());
+                StardewModdingAPI.Log.Info("Commands: " + Command.RegisteredCommands.Select(x => x.CommandName).ToSingular());
         }
+
+        #region Logging
+        [Obsolete("This method is obsolete and will be removed in v0.39, please use the appropriate methods in the Log class")]
+        public static void Log(object o, params object[] format)
+        {
+            StardewModdingAPI.Log.Info(o, format);
+        }
+
+        [Obsolete("This method is obsolete and will be removed in v0.39, please use the appropriate methods in the Log class")]
+        public static void LogColour(ConsoleColor c, object o, params object[] format)
+        {
+            StardewModdingAPI.Log.Info(o, format);
+        }
+
+        [Obsolete("This method is obsolete and will be removed in v0.39, please use the appropriate methods in the Log class")]
+        public static void LogInfo(object o, params object[] format)
+        {
+            StardewModdingAPI.Log.Info(o, format);
+        }
+
+        [Obsolete("This method is obsolete and will be removed in v0.39, please use the appropriate methods in the Log class")]
+        public static void LogError(object o, params object[] format)
+        {
+            StardewModdingAPI.Log.Error(o, format);
+        }
+
+        [Obsolete("This method is obsolete and will be removed in v0.39, please use the appropriate methods in the Log class")]
+        public static void LogDebug(object o, params object[] format)
+        {
+            StardewModdingAPI.Log.Debug(o, format);
+        }
+
+        [Obsolete("This method is obsolete and will be removed in v0.39, please use the appropriate methods in the Log class")]
+        public static void LogValueNotSpecified()
+        {
+            StardewModdingAPI.Log.Error("<value> must be specified");
+        }
+
+        [Obsolete("This method is obsolete and will be removed in v0.39, please use the appropriate methods in the Log class")]
+        public static void LogObjectValueNotSpecified()
+        {
+            StardewModdingAPI.Log.Error("<object> and <value> must be specified");
+        }
+
+        [Obsolete("This method is obsolete and will be removed in v0.39, please use the appropriate methods in the Log class")]
+        public static void LogValueInvalid()
+        {
+            StardewModdingAPI.Log.Error("<value> is invalid");
+        }
+
+        [Obsolete("This method is obsolete and will be removed in v0.39, please use the appropriate methods in the Log class")]
+        public static void LogObjectInvalid()
+        {
+            StardewModdingAPI.Log.Error("<object> is invalid");
+        }
+
+        [Obsolete("This method is obsolete and will be removed in v0.39, please use the appropriate methods in the Log class")]
+        public static void LogValueNotInt32()
+        {
+            StardewModdingAPI.Log.Error("<value> must be a whole number (Int32)");
+        }
+        #endregion
     }
 }

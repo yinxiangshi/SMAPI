@@ -43,6 +43,10 @@ namespace StardewModdingAPI.Inheritance
         { 
             get { return CurrentlyPressedKeys.Where(x => !PreviouslyPressedKeys.Contains(x)).ToArray(); }
         }
+        public Keys[] FrameReleasedKeys
+        {
+            get { return PreviouslyPressedKeys.Where(x => !CurrentlyPressedKeys.Contains(x)).ToArray(); }
+        }
 
         public int PreviousGameLocations { get; private set; }
         public int PreviousLocationObjects { get; private set; }
@@ -233,11 +237,15 @@ namespace StardewModdingAPI.Inheritance
         {
             KStateNow = Keyboard.GetState();
             CurrentlyPressedKeys = KStateNow.GetPressedKeys();
+
             MStateNow = Mouse.GetState();
 
             foreach (Keys k in FramePressedKeys)
                 Events.ControlEvents.InvokeKeyPressed(k);
-            
+
+            foreach (Keys k in FrameReleasedKeys)
+                Events.ControlEvents.InvokeKeyReleased(k);
+
             if (KStateNow != KStatePrior)
             {
                 Events.ControlEvents.InvokeKeyboardChanged(KStatePrior, KStateNow);
