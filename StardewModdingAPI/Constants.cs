@@ -13,7 +13,7 @@ namespace StardewModdingAPI
         /// Stardew Valley's local app data location.
         /// %LocalAppData%//StardewValley
         /// </summary>
-        public static string DataPath => Path.Combine(Environment.SpecialFolder.ApplicationData.ToString(), "StardewValley");
+        public static string DataPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley");
 
         /// <summary>
         /// Execution path to execute the code.
@@ -29,7 +29,7 @@ namespace StardewModdingAPI
         /// Path for log files to be output to.
         /// %LocalAppData%//StardewValley//ErrorLogs
         /// </summary>
-        public static string LogPath => Path.Combine(Environment.SpecialFolder.ApplicationData.ToString(), "StardewValley", "ErrorLogs");
+        public static string LogPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley", "ErrorLogs");
 
         public const int MajorVersion = 0;
 
