@@ -18,10 +18,11 @@ namespace StardewModdingAPI
 {
     public class Program
     {
+        private static List<string> _modPaths;
+        private static List<string> _modContentPaths;
+
         public static string ExecutionPath { get; private set; }
         public static string DataPath = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley"));
-        public static List<string> ModPaths = new List<string>();
-        public static List<string> ModContentPaths = new List<string>();
         public static string LogPath = Path.Combine(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley")), "ErrorLogs");
 
         public static Texture2D DebugPixel { get; private set; }
@@ -37,86 +38,99 @@ namespace StardewModdingAPI
         public static Thread gameThread;
         public static Thread consoleInputThread;
 
-        public const string Version = "0.36 Alpha";
+        private const string _version = "0.36 Alpha";
+        private static string _consoleTitle = string.Format("Stardew Modding API Console - Version {0}", _version);
 
         public static bool StardewInjectorLoaded { get; private set; }
         public static Mod StardewInjectorMod { get; private set; }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+        /// <summary>
+        /// Main method holding the API execution
+        /// </summary>
+        /// <param name="args"></param>
         private static void Main(string[] args)
         {
-            Console.Title = "Stardew Modding API Console";
+            try
+            {
+                ConfigureUI();
+                ConfigurePaths();
+                ConfigureInjector();
+                ConfigureSDV();
 
-            Console.Title += " - Version " + Version;
+                GameRunInvoker();
+            }
+            catch (Exception e)
+            {
+                // Catch and display all exceptions. 
+                Log.Error("Critical error: " + e);
+            }
+
+            Log.Comment("The API will now terminate. Press any key to continue...");
+            Console.ReadKey();
+        }
+
+        /// <summary>
+        /// Set up the console properties
+        /// </summary>
+        private static void ConfigureUI()
+        {
+            Console.Title = _consoleTitle;
+
 #if DEBUG
             Console.Title += " - DEBUG IS NOT FALSE, AUTHOUR NEEDS TO REUPLOAD THIS VERSION";
 #endif
+        }
+
+        /// <summary>
+        /// Setup the required paths and logging
+        /// </summary>
+        private static void ConfigurePaths()
+        {
+            Log.Info("Validating api paths...");
+
+            _modPaths = new List<string>();
+            _modContentPaths = new List<string>();
 
             //TODO: Have an app.config and put the paths inside it so users can define locations to load mods from
             ExecutionPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            ModPaths.Add(Path.Combine(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley")), "Mods"));
-            ModPaths.Add(Path.Combine(ExecutionPath, "Mods"));
-            ModPaths.Add(Path.Combine(Path.Combine(ExecutionPath, "Mods"), "Content"));
-            ModContentPaths.Add(Path.Combine(Path.Combine(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley")), "Mods"), "Content"));
+            _modPaths.Add(Path.Combine(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley")), "Mods"));
+            _modPaths.Add(Path.Combine(ExecutionPath, "Mods"));
+            _modPaths.Add(Path.Combine(Path.Combine(ExecutionPath, "Mods"), "Content"));
+            _modContentPaths.Add(Path.Combine(Path.Combine(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley")), "Mods"), "Content"));
 
             //Checks that all defined modpaths exist as directories
-            foreach (string ModPath in ModPaths)
-            {
-                try
-                {
-                    if (File.Exists(ModPath))
-                        File.Delete(ModPath);
-                    if (!Directory.Exists(ModPath))
-                        Directory.CreateDirectory(ModPath);
-                }
-                catch (Exception ex)
-                {
-                    Log.Error("Could not create a missing ModPath: " + ModPath + "\n\n" + ex);
-                }
-            }
-            //Same for content
-            foreach (string ModContentPath in ModContentPaths)
-            {
-                try
-                {
-                    if (!Directory.Exists(ModContentPath))
-                        Directory.CreateDirectory(ModContentPath);
-                }
-                catch (Exception ex)
-                {
-                    Log.Error("Could not create a missing ModContentPath: " + ModContentPath + "\n\n" + ex);
-                }
-            }
-            //And then make sure we have an errorlog dir
-            try
-            {
-                if (!Directory.Exists(LogPath))
-                    Directory.CreateDirectory(LogPath);
-            }
-            catch (Exception ex)
-            {
-                Log.Error("Could not create the missing ErrorLogs path: " + LogPath + "\n\n" + ex);
-            }
+            _modPaths.ForEach(path => VerifyPath(path));
+            _modContentPaths.ForEach(path => VerifyPath(path));
+            VerifyPath(LogPath);
 
-            Log.Info("Initializing SDV Assembly...");
+            Log.Initialize(LogPath);
+
+            Log.Verbose(LogPath);
+
             if (!File.Exists(ExecutionPath + "\\Stardew Valley.exe"))
             {
-                //If the api isn't next to SDV.exe then terminate. Though it'll crash before we even get here w/o sdv.exe. Perplexing.
-                Log.Error("Could not find: " + ExecutionPath + "\\Stardew Valley.exe");
-                Log.Error("The API will now terminate.");
-                Console.ReadKey();
-                Environment.Exit(-4);
+                throw new FileNotFoundException(string.Format("Could not found: {0}\\Stardew Valley.exe", ExecutionPath));
             }
+        }
 
-            //Load in that assembly. Also, ignore security :D
-            StardewAssembly = Assembly.UnsafeLoadFrom(ExecutionPath + "\\Stardew Valley.exe");
-
+        /// <summary>
+        /// Load the injector.
+        /// </summary>
+        /// <remarks>
+        /// This will load the injector before anything else if it sees it
+        /// It doesn't matter though
+        /// I'll leave it as a feature in case anyone in the community wants to tinker with it
+        /// All you need is a DLL that inherits from mod and is called StardewInjector.dll with an Entry() method
+        /// </remarks>
+        private static void ConfigureInjector()
+        {
             //This will load the injector before anything else if it sees it
             //It doesn't matter though
             //I'll leave it as a feature in case anyone in the community wants to tinker with it
             //All you need is a DLL that inherits from mod and is called StardewInjector.dll with an Entry() method
-            foreach (string ModPath in ModPaths)
+            foreach (string ModPath in _modPaths)
             {
                 foreach (String s in Directory.GetFiles(ModPath, "StardewInjector.dll"))
                 {
@@ -146,6 +160,17 @@ namespace StardewModdingAPI
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Load Stardev Valley and control features
+        /// </summary>
+        private static void ConfigureSDV()
+        {
+            Log.Info("Initializing SDV Assembly...");
+
+            // Load in that assembly. Also, ignore security :D
+            StardewAssembly = Assembly.UnsafeLoadFrom(ExecutionPath + "\\Stardew Valley.exe");
 
             StardewProgramType = StardewAssembly.GetType("StardewValley.Program", true);
             StardewGameInfo = StardewProgramType.GetField("gamePtr");
@@ -189,7 +214,7 @@ namespace StardewModdingAPI
 
             //Change the game's version
             Log.Info("Injecting New SDV Version...");
-            Game1.version += "-Z_MODDED | SMAPI " + Version;
+            Game1.version += "-Z_MODDED | SMAPI " + _version;
 
             //Create the thread for the game to run in.
             gameThread = new Thread(RunGame);
@@ -235,12 +260,18 @@ namespace StardewModdingAPI
                 gamePtr.Window.Title = "Stardew Valley - Version " + Game1.version;
                 StardewForm.Resize += Events.GraphicsEvents.InvokeResize;
             });
+        }
 
+        /// <summary>
+        /// Wrap the 'RunGame' method for console output
+        /// </summary>
+        private static void GameRunInvoker()
+        {
             //Game's in memory now, send the event
             Log.Verbose("Game Loaded");
             Events.GameEvents.InvokeGameLoaded();
 
-            Log.Comment(ConsoleColor.Cyan, "Type 'help' for help, or 'help <cmd>' for a command's usage");
+            Log.Comment("Type 'help' for help, or 'help <cmd>' for a command's usage");
             //Begin listening to input
             consoleInputThread.Start();
 
@@ -258,25 +289,27 @@ namespace StardewModdingAPI
             Log.Verbose("Game Execution Finished");
             Log.Verbose("Shutting Down...");
             Thread.Sleep(100);
-            /*
-            int time = 0;
-            int step = 100;
-            int target = 1000;
-            while (true)
-            {
-                time += step;
-                Thread.Sleep(step);
-
-                Console.Write(".");
-
-                if (time >= target)
-                    break;
-            }
-            */
             Environment.Exit(0);
         }
 
-
+        /// <summary>
+        /// Create the given directory path if it does not exist
+        /// </summary>
+        /// <param name="path">Desired directory path</param>
+        private static void VerifyPath(string path)
+        {
+            try
+            {
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Could not create a path: " + path + "\n\n" + ex);
+            }
+        }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -340,7 +373,7 @@ namespace StardewModdingAPI
         {
             Log.Verbose("LOADING MODS");
             int loadedMods = 0;
-            foreach (string ModPath in ModPaths)
+            foreach (string ModPath in _modPaths)
             {
                 foreach (String s in Directory.GetFiles(ModPath, "*.dll"))
                 {
