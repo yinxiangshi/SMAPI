@@ -21,12 +21,6 @@ namespace StardewModdingAPI
         private static List<string> _modPaths;
         private static List<string> _modContentPaths;
 
-        private static string _consoleTitle = string.Format("Stardew Modding API Console - Version {0}", Version.VersionString);
-
-        public static string ExecutionPath { get; private set; }
-        public static string DataPath = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley"));
-        public static string LogPath = Path.Combine(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley")), "ErrorLogs");
-
         public static Texture2D DebugPixel { get; private set; }
 
         public static SGame gamePtr;
@@ -75,7 +69,7 @@ namespace StardewModdingAPI
         /// </summary>
         private static void ConfigureUI()
         {
-            Console.Title = _consoleTitle;
+            Console.Title = Constants.ConsoleTitle;
 
 #if DEBUG
             Console.Title += " - DEBUG IS NOT FALSE, AUTHOUR NEEDS TO REUPLOAD THIS VERSION";
@@ -93,22 +87,21 @@ namespace StardewModdingAPI
             _modContentPaths = new List<string>();
 
             //TODO: Have an app.config and put the paths inside it so users can define locations to load mods from
-            ExecutionPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            _modPaths.Add(Path.Combine(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley")), "Mods"));
-            _modPaths.Add(Path.Combine(ExecutionPath, "Mods"));
-            _modPaths.Add(Path.Combine(Path.Combine(ExecutionPath, "Mods"), "Content"));
-            _modContentPaths.Add(Path.Combine(Path.Combine(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley")), "Mods"), "Content"));
+            _modPaths.Add(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley", "Mods"));
+            _modPaths.Add(Path.Combine(Constants.ExecutionPath, "Mods"));
+            _modPaths.Add(Path.Combine(Constants.ExecutionPath, "Mods", "Content"));
+            _modContentPaths.Add(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley", "Mods", "Content"));
 
             //Checks that all defined modpaths exist as directories
             _modPaths.ForEach(path => VerifyPath(path));
             _modContentPaths.ForEach(path => VerifyPath(path));
-            VerifyPath(LogPath);
+            VerifyPath(Constants.LogPath);
 
-            StardewModdingAPI.Log.Initialize(LogPath);
+            StardewModdingAPI.Log.Initialize(Constants.LogPath);
 
-            if (!File.Exists(ExecutionPath + "\\Stardew Valley.exe"))
+            if (!File.Exists(Constants.ExecutionPath + "\\Stardew Valley.exe"))
             {
-                throw new FileNotFoundException(string.Format("Could not found: {0}\\Stardew Valley.exe", ExecutionPath));
+                throw new FileNotFoundException(string.Format("Could not found: {0}\\Stardew Valley.exe", Constants.ExecutionPath));
             }
         }
 
@@ -122,11 +115,7 @@ namespace StardewModdingAPI
         /// All you need is a DLL that inherits from mod and is called StardewInjector.dll with an Entry() method
         /// </remarks>
         private static void ConfigureInjector()
-            {
-            //This will load the injector before anything else if it sees it
-            //It doesn't matter though
-            //I'll leave it as a feature in case anyone in the community wants to tinker with it
-            //All you need is a DLL that inherits from mod and is called StardewInjector.dll with an Entry() method
+        {
             foreach (string ModPath in _modPaths)
             {
                 foreach (String s in Directory.GetFiles(ModPath, "StardewInjector.dll"))
@@ -166,65 +155,22 @@ namespace StardewModdingAPI
         {
             StardewModdingAPI.Log.Info("Initializing SDV Assembly...");
 
-            // Load in that assembly. Also, ignore security :D
-            StardewAssembly = Assembly.UnsafeLoadFrom(ExecutionPath + "\\Stardew Valley.exe");
-
+            // Load in the assembly - ignores security
+            StardewAssembly = Assembly.UnsafeLoadFrom(Constants.ExecutionPath + "\\Stardew Valley.exe");
             StardewProgramType = StardewAssembly.GetType("StardewValley.Program", true);
             StardewGameInfo = StardewProgramType.GetField("gamePtr");
 
-            #region deprecated
-            /*
-             * Lol no. I tried though.
-            if (File.Exists(ExecutionPath + "\\Stardew_Injector.exe"))
-            {
-                //Stardew_Injector Mode
-                StardewInjectorLoaded = true;
-                Program.Log.LogInfo("STARDEW_INJECTOR DETECTED, LAUNCHING USING INJECTOR CALLS");
-                Assembly inj = Assembly.UnsafeLoadFrom(ExecutionPath + "\\Stardew_Injector.exe");
-                Type prog = inj.GetType("Stardew_Injector.Program", true);
-                FieldInfo hooker = prog.GetField("hooker", BindingFlags.NonPublic | BindingFlags.Static);
+            // Change the game's version
+            StardewModdingAPI.Log.Verbose("Injecting New SDV Version...");
+            Game1.version += string.Format("-Z_MODDED | SMAPI {0}", Constants.VersionString);
 
-                //hook.GetMethod("Initialize").Invoke(hooker.GetValue(null), null);
-                //customize the initialize method for SGame instead of Game
-                Assembly cecil = Assembly.UnsafeLoadFrom(ExecutionPath + "\\Mono.Cecil.dll");
-                Type assDef = cecil.GetType("Mono.Cecil.AssemblyDefinition");
-                var aDefs = assDef.GetMethods(BindingFlags.Public | BindingFlags.Static);
-                var aDef = aDefs.First(x => x.ToString().Contains("ReadAssembly(System.String)"));
-                var theAssDef = aDef.Invoke(null, new object[] { Assembly.GetExecutingAssembly().Location });
-                var modDef = assDef.GetProperty("MainModule", BindingFlags.Public | BindingFlags.Instance);
-                var theModDef = modDef.GetValue(theAssDef);
-                Console.WriteLine("MODDEF: " + theModDef);
-                Type hook = inj.GetType("Stardew_Injector.Stardew_Hooker", true);
-                hook.GetField("m_vAsmDefinition", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(hooker.GetValue(null), theAssDef);
-                hook.GetField("m_vModDefinition", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(hooker.GetValue(null), theModDef);
-
-                //hook.GetMethod("Initialize").Invoke(hooker.GetValue(null), null);
-                hook.GetMethod("ApplyHooks").Invoke(hooker.GetValue(null), null);
-                //hook.GetMethod("Finalize").Invoke(hooker.GetValue(null), null);
-                //hook.GetMethod("Run").Invoke(hooker.GetValue(null), null);
-
-                Console.ReadKey();
-                //Now go back and load Stardew through SMAPI
-            }
-            */
-            #endregion
-
-            //Change the game's version
-            StardewModdingAPI.Log.Info("Injecting New SDV Version...");
-            Game1.version += "-Z_MODDED | SMAPI " + Version.VersionString;
-
-            //Create the thread for the game to run in.
+            // Create the thread for the game to run in.
             gameThread = new Thread(RunGame);
             StardewModdingAPI.Log.Info("Starting SDV...");
             gameThread.Start();
 
-            //I forget.
-            SGame.GetStaticFields();
-
-            while (!ready)
-            {
-                //Wait for the game to load up
-            }
+            // Wait for the game to load up
+            while (!ready) ;
 
             //SDV is running
             StardewModdingAPI.Log.Comment("SDV Loaded Into Memory");
@@ -233,8 +179,7 @@ namespace StardewModdingAPI
             StardewModdingAPI.Log.Verbose("Initializing Console Input Thread...");
             consoleInputThread = new Thread(ConsoleInputThread);
 
-            //The only command in the API (at least it should be, for now)\
-
+            // The only command in the API (at least it should be, for now)
             Command.RegisterCommand("help", "Lists all commands | 'help <cmd>' returns command description").CommandFired += help_CommandFired;
             //Command.RegisterCommand("crash", "crashes sdv").CommandFired += delegate { Game1.player.draw(null); };
 
@@ -243,13 +188,6 @@ namespace StardewModdingAPI
             Events.GameEvents.LoadContent += Events_LoadContent;
             //Events.MenuChanged += Events_MenuChanged; //Idk right now
 
-#if DEBUG
-            //Experimental
-            //Events.LocationsChanged += Events_LocationsChanged;
-            //Events.CurrentLocationChanged += Events_CurrentLocationChanged;
-#endif
-
-            //Do tweaks using winforms invoke because I'm lazy
             StardewModdingAPI.Log.Verbose("Applying Final SDV Tweaks...");
             StardewInvoke(() =>
             {
