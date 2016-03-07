@@ -35,7 +35,7 @@ namespace StardewModdingAPI
 
         public const int MinorVersion = 37;
 
-        public const int PatchVersion = 1;
+        public const int PatchVersion = 2;
 
         public const string Build = "Alpha";
 

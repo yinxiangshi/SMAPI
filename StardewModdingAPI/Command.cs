@@ -62,7 +62,7 @@ namespace StardewModdingAPI
             }
 
             RegisteredCommands.Add(c);
-            Log.Verbose(ConsoleColor.Cyan, "Registered command: " + command);
+            Log.Verbose("Registered command: " + command);
 
             return c;
         }
