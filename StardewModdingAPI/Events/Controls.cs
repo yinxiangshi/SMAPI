@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Input;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,8 @@ namespace StardewModdingAPI.Events
         public static event EventHandler<EventArgsKeyPressed> KeyPressed = delegate { };
         public static event EventHandler<EventArgsKeyPressed> KeyReleased = delegate { };
         public static event EventHandler<EventArgsMouseStateChanged> MouseChanged = delegate { };
+        public static event EventHandler<EventArgsControllerButtonPressed> ControllerButtonPressed = delegate { };
+        public static event EventHandler<EventArgsControllerButtonReleased> ControllerButtonReleased = delegate { };
 
         public static void InvokeKeyboardChanged(KeyboardState priorState, KeyboardState newState)
         {
@@ -32,6 +35,16 @@ namespace StardewModdingAPI.Events
         public static void InvokeKeyReleased(Keys key)
         {
             KeyReleased.Invoke(null, new EventArgsKeyPressed(key));
+        }
+
+        public static void InvokeButtonPressed(PlayerIndex playerIndex, Buttons buttons)
+        {
+            ControllerButtonPressed.Invoke(null, new EventArgsControllerButtonPressed(playerIndex, buttons));
+        }
+
+        public static void InvokeButtonReleased(PlayerIndex playerIndex, Buttons buttons)
+        {
+            ControllerButtonReleased.Invoke(null, new EventArgsControllerButtonReleased(playerIndex, buttons));
         }
     }
 }

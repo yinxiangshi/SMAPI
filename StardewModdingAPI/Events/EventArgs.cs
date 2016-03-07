@@ -30,7 +30,29 @@ namespace StardewModdingAPI.Events
         }
         public Keys KeyPressed { get; private set; }
     }
-        
+
+    public class EventArgsControllerButtonPressed : EventArgs
+    {
+        public EventArgsControllerButtonPressed(PlayerIndex playerIndex, Buttons buttonPressed)
+        {
+            PlayerIndex = playerIndex;
+            ButtonPressed = buttonPressed;
+        }
+        public PlayerIndex PlayerIndex;
+        public Buttons ButtonPressed { get; private set; }
+    }
+
+    public class EventArgsControllerButtonReleased : EventArgs
+    {
+        public EventArgsControllerButtonReleased(PlayerIndex playerIndex, Buttons buttonReleased)
+        {
+            PlayerIndex = playerIndex;
+            ButtonReleased = buttonReleased;
+        }
+        public PlayerIndex PlayerIndex;
+        public Buttons ButtonReleased { get; private set; }
+    }
+
     public class EventArgsMouseStateChanged : EventArgs
     { 
         public EventArgsMouseStateChanged(MouseState priorState, MouseState newState)

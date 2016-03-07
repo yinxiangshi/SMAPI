@@ -48,6 +48,40 @@ namespace StardewModdingAPI.Inheritance
             get { return PreviouslyPressedKeys.Where(x => !CurrentlyPressedKeys.Contains(x)).ToArray(); }
         }
 
+        public Buttons[][] CurrentlyPressedButtons;
+        public Buttons[][] PreviouslyPressedButtons;
+
+        private bool WasButtonJustPressed(Buttons button, ButtonState buttonState, PlayerIndex stateIndex)
+        {
+            return buttonState == ButtonState.Pressed && !PreviouslyPressedButtons[(int)stateIndex].Contains(button);
+        }
+        
+        public Buttons[] GetFramePressedButtons(PlayerIndex index)
+        {     
+            GamePadState state = GamePad.GetState((PlayerIndex)index);
+            List<Buttons> buttons = new List<Buttons>();
+            if (state.IsConnected)
+            {
+                if (WasButtonJustPressed(Buttons.A, state.Buttons.A, index))                    buttons.Add(Buttons.A);
+                if (WasButtonJustPressed(Buttons.B, state.Buttons.B, index))                    buttons.Add(Buttons.B);
+                if (WasButtonJustPressed(Buttons.Back, state.Buttons.Back, index))              buttons.Add(Buttons.Back);
+                if (WasButtonJustPressed(Buttons.BigButton, state.Buttons.BigButton, index)) buttons.Add(Buttons.BigButton);
+                if (WasButtonJustPressed(Buttons.LeftShoulder, state.Buttons.LeftShoulder, index)) buttons.Add(Buttons.LeftShoulder);
+                if (WasButtonJustPressed(Buttons.LeftStick, state.Buttons.LeftStick, index)) buttons.Add(Buttons.LeftStick);
+                if (WasButtonJustPressed(Buttons.RightShoulder, state.Buttons.RightShoulder, index)) buttons.Add(Buttons.RightShoulder);
+                if (WasButtonJustPressed(Buttons.RightStick, state.Buttons.RightStick, index)) buttons.Add(Buttons.RightStick);
+                if (WasButtonJustPressed(Buttons.Start, state.Buttons.Start, index)) buttons.Add(Buttons.Start);
+                if (WasButtonJustPressed(Buttons.X, state.Buttons.X, index)) buttons.Add(Buttons.X);
+                if (WasButtonJustPressed(Buttons.Y, state.Buttons.Y, index)) buttons.Add(Buttons.Y);
+                if (WasButtonJustPressed(Buttons.DPadUp, state.DPad.Up, index)) buttons.Add(Buttons.DPadUp);
+                if (WasButtonJustPressed(Buttons.DPadDown, state.DPad.Down, index)) buttons.Add(Buttons.DPadDown);
+                if (WasButtonJustPressed(Buttons.DPadLeft, state.DPad.Left, index)) buttons.Add(Buttons.DPadLeft);
+                if (WasButtonJustPressed(Buttons.DPadRight, state.DPad.Right, index)) buttons.Add(Buttons.DPadRight);
+
+            }
+            return buttons.ToArray();  
+        }
+
         public int PreviousGameLocations { get; private set; }
         public int PreviousLocationObjects { get; private set; }
         public int PreviousItems_ { get; private set; }
@@ -245,6 +279,24 @@ namespace StardewModdingAPI.Inheritance
 
             foreach (Keys k in FrameReleasedKeys)
                 Events.ControlEvents.InvokeKeyReleased(k);
+
+            for (PlayerIndex i = PlayerIndex.One; i <= PlayerIndex.Four; i++)
+            {
+                foreach(Buttons b in GetFramePressedButtons(i))
+                {
+                    Events.ControlEvents.InvokeButtonPressed(i, b);
+                }
+            }
+
+            for (PlayerIndex i = PlayerIndex.One; i <= PlayerIndex.Four; i++)
+            {
+                GamePadState state = GamePad.GetState(i);
+                if (state.IsConnected)
+                {
+                    // TODO: Process state
+                }
+            }
+
 
             if (KStateNow != KStatePrior)
             {
