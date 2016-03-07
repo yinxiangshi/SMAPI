@@ -47,15 +47,56 @@ namespace StardewModdingAPI.Inheritance
         {
             get { return PreviouslyPressedKeys.Where(x => !CurrentlyPressedKeys.Contains(x)).ToArray(); }
         }
-
-        public Buttons[][] CurrentlyPressedButtons;
+        
         public Buttons[][] PreviouslyPressedButtons;
 
         private bool WasButtonJustPressed(Buttons button, ButtonState buttonState, PlayerIndex stateIndex)
         {
             return buttonState == ButtonState.Pressed && !PreviouslyPressedButtons[(int)stateIndex].Contains(button);
         }
-        
+
+        private bool WasButtonJustReleased(Buttons button, ButtonState buttonState, PlayerIndex stateIndex)
+        {
+            return buttonState == ButtonState.Released && PreviouslyPressedButtons[(int)stateIndex].Contains(button);
+        }
+
+        private bool WasButtonJustPressed(Buttons button, float value, PlayerIndex stateIndex)
+        {
+            return WasButtonJustPressed(button, value > 0.2f ? ButtonState.Pressed : ButtonState.Released, stateIndex);
+        }
+
+        private bool WasButtonJustReleased(Buttons button, float value, PlayerIndex stateIndex)
+        {
+            return WasButtonJustReleased(button, value > 0.2f ? ButtonState.Pressed : ButtonState.Released, stateIndex);
+        }
+
+        public Buttons[] GetButtonsDown(PlayerIndex index)
+        {
+            GamePadState state = GamePad.GetState((PlayerIndex)index);
+            List<Buttons> buttons = new List<Buttons>();
+            if (state.IsConnected)
+            {
+                if (state.Buttons.A == ButtonState.Pressed) buttons.Add(Buttons.A);
+                if (state.Buttons.B == ButtonState.Pressed) buttons.Add(Buttons.B);
+                if (state.Buttons.Back == ButtonState.Pressed) buttons.Add(Buttons.Back);
+                if (state.Buttons.BigButton == ButtonState.Pressed) buttons.Add(Buttons.BigButton);
+                if (state.Buttons.LeftShoulder == ButtonState.Pressed) buttons.Add(Buttons.LeftShoulder);
+                if (state.Buttons.LeftStick == ButtonState.Pressed) buttons.Add(Buttons.LeftStick);
+                if (state.Buttons.RightShoulder == ButtonState.Pressed) buttons.Add(Buttons.RightShoulder);
+                if (state.Buttons.RightStick == ButtonState.Pressed) buttons.Add(Buttons.RightStick);
+                if (state.Buttons.Start == ButtonState.Pressed) buttons.Add(Buttons.Start);
+                if (state.Buttons.X == ButtonState.Pressed) buttons.Add(Buttons.X);
+                if (state.Buttons.Y == ButtonState.Pressed) buttons.Add(Buttons.Y);
+                if (state.DPad.Up == ButtonState.Pressed) buttons.Add(Buttons.DPadUp);
+                if (state.DPad.Down == ButtonState.Pressed) buttons.Add(Buttons.DPadDown);
+                if (state.DPad.Left == ButtonState.Pressed) buttons.Add(Buttons.DPadLeft);
+                if (state.DPad.Right == ButtonState.Pressed) buttons.Add(Buttons.DPadRight);
+                if (state.Triggers.Left > 0.2f) buttons.Add(Buttons.LeftTrigger);
+                if (state.Triggers.Right > 0.2f) buttons.Add(Buttons.RightTrigger);
+            }
+            return buttons.ToArray();
+        }
+
         public Buttons[] GetFramePressedButtons(PlayerIndex index)
         {     
             GamePadState state = GamePad.GetState((PlayerIndex)index);
@@ -77,9 +118,37 @@ namespace StardewModdingAPI.Inheritance
                 if (WasButtonJustPressed(Buttons.DPadDown, state.DPad.Down, index)) buttons.Add(Buttons.DPadDown);
                 if (WasButtonJustPressed(Buttons.DPadLeft, state.DPad.Left, index)) buttons.Add(Buttons.DPadLeft);
                 if (WasButtonJustPressed(Buttons.DPadRight, state.DPad.Right, index)) buttons.Add(Buttons.DPadRight);
-
+                if (WasButtonJustPressed(Buttons.LeftTrigger, state.Triggers.Left, index)) buttons.Add(Buttons.LeftTrigger);
+                if (WasButtonJustPressed(Buttons.RightTrigger, state.Triggers.Right, index)) buttons.Add(Buttons.RightTrigger);
             }
             return buttons.ToArray();  
+        }
+
+        public Buttons[] GetFrameReleasedButtons(PlayerIndex index)
+        {
+            GamePadState state = GamePad.GetState((PlayerIndex)index);
+            List<Buttons> buttons = new List<Buttons>();
+            if (state.IsConnected)
+            {
+                if (WasButtonJustReleased(Buttons.A, state.Buttons.A, index)) buttons.Add(Buttons.A);
+                if (WasButtonJustReleased(Buttons.B, state.Buttons.B, index)) buttons.Add(Buttons.B);
+                if (WasButtonJustReleased(Buttons.Back, state.Buttons.Back, index)) buttons.Add(Buttons.Back);
+                if (WasButtonJustReleased(Buttons.BigButton, state.Buttons.BigButton, index)) buttons.Add(Buttons.BigButton);
+                if (WasButtonJustReleased(Buttons.LeftShoulder, state.Buttons.LeftShoulder, index)) buttons.Add(Buttons.LeftShoulder);
+                if (WasButtonJustReleased(Buttons.LeftStick, state.Buttons.LeftStick, index)) buttons.Add(Buttons.LeftStick);
+                if (WasButtonJustReleased(Buttons.RightShoulder, state.Buttons.RightShoulder, index)) buttons.Add(Buttons.RightShoulder);
+                if (WasButtonJustReleased(Buttons.RightStick, state.Buttons.RightStick, index)) buttons.Add(Buttons.RightStick);
+                if (WasButtonJustReleased(Buttons.Start, state.Buttons.Start, index)) buttons.Add(Buttons.Start);
+                if (WasButtonJustReleased(Buttons.X, state.Buttons.X, index)) buttons.Add(Buttons.X);
+                if (WasButtonJustReleased(Buttons.Y, state.Buttons.Y, index)) buttons.Add(Buttons.Y);
+                if (WasButtonJustReleased(Buttons.DPadUp, state.DPad.Up, index)) buttons.Add(Buttons.DPadUp);
+                if (WasButtonJustReleased(Buttons.DPadDown, state.DPad.Down, index)) buttons.Add(Buttons.DPadDown);
+                if (WasButtonJustReleased(Buttons.DPadLeft, state.DPad.Left, index)) buttons.Add(Buttons.DPadLeft);
+                if (WasButtonJustReleased(Buttons.DPadRight, state.DPad.Right, index)) buttons.Add(Buttons.DPadRight);
+                if (WasButtonJustReleased(Buttons.LeftTrigger, state.Triggers.Left, index)) buttons.Add(Buttons.LeftTrigger);
+                if (WasButtonJustReleased(Buttons.RightTrigger, state.Triggers.Right, index)) buttons.Add(Buttons.RightTrigger);
+            }
+            return buttons.ToArray();
         }
 
         public int PreviousGameLocations { get; private set; }
@@ -153,6 +222,9 @@ namespace StardewModdingAPI.Inheritance
             Log.Verbose("XNA Initialize");
             ModItems = new Dictionary<Int32, SObject>();
             PreviouslyPressedKeys = new Keys[0];
+            PreviouslyPressedButtons = new Buttons[4][];
+            for (int i = 0; i < 4; ++i) PreviouslyPressedButtons[i] = new Buttons[0];
+
             base.Initialize();
             Events.GameEvents.InvokeInitialize();
         }
@@ -181,6 +253,10 @@ namespace StardewModdingAPI.Inheritance
             Events.GameEvents.InvokeUpdateTick();
 
             PreviouslyPressedKeys = CurrentlyPressedKeys;
+            for(PlayerIndex i = PlayerIndex.One; i <= PlayerIndex.Four; i++)
+            {
+                PreviouslyPressedButtons[(int)i] = GetButtonsDown(i);
+            }
         }
 
         protected override void Draw(GameTime gameTime)
@@ -282,18 +358,32 @@ namespace StardewModdingAPI.Inheritance
 
             for (PlayerIndex i = PlayerIndex.One; i <= PlayerIndex.Four; i++)
             {
-                foreach(Buttons b in GetFramePressedButtons(i))
+                Buttons[] buttons = GetFramePressedButtons(i);
+                foreach (Buttons b in buttons)
                 {
-                    Events.ControlEvents.InvokeButtonPressed(i, b);
+                    if(b == Buttons.LeftTrigger || b == Buttons.RightTrigger)
+                    {
+                        Events.ControlEvents.InvokeTriggerPressed(i, b, b == Buttons.LeftTrigger ? GamePad.GetState(i).Triggers.Left : GamePad.GetState(i).Triggers.Right);
+                    }
+                    else
+                    {
+                        Events.ControlEvents.InvokeButtonPressed(i, b);
+                    }
                 }
             }
 
             for (PlayerIndex i = PlayerIndex.One; i <= PlayerIndex.Four; i++)
             {
-                GamePadState state = GamePad.GetState(i);
-                if (state.IsConnected)
+                foreach (Buttons b in GetFrameReleasedButtons(i))
                 {
-                    // TODO: Process state
+                    if (b == Buttons.LeftTrigger || b == Buttons.RightTrigger)
+                    {
+                        Events.ControlEvents.InvokeTriggerReleased(i, b, b == Buttons.LeftTrigger ? GamePad.GetState(i).Triggers.Left : GamePad.GetState(i).Triggers.Right);
+                    }
+                    else
+                    {
+                        Events.ControlEvents.InvokeButtonReleased(i, b);
+                    }
                 }
             }
 

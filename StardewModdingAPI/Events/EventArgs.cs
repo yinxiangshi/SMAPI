@@ -38,7 +38,7 @@ namespace StardewModdingAPI.Events
             PlayerIndex = playerIndex;
             ButtonPressed = buttonPressed;
         }
-        public PlayerIndex PlayerIndex;
+        public PlayerIndex PlayerIndex { get; private set; }
         public Buttons ButtonPressed { get; private set; }
     }
 
@@ -49,8 +49,34 @@ namespace StardewModdingAPI.Events
             PlayerIndex = playerIndex;
             ButtonReleased = buttonReleased;
         }
-        public PlayerIndex PlayerIndex;
+        public PlayerIndex PlayerIndex { get; private set; }
         public Buttons ButtonReleased { get; private set; }
+    }
+
+    public class EventArgsControllerTriggerPressed : EventArgs
+    {
+        public EventArgsControllerTriggerPressed(PlayerIndex playerIndex, Buttons buttonPressed, float value)
+        {
+            PlayerIndex = playerIndex;
+            ButtonPressed = buttonPressed;
+            Value = value;
+        }
+        public PlayerIndex PlayerIndex { get; private set; }
+        public Buttons ButtonPressed { get; private set; }
+        public float Value { get; private set; }
+    }
+
+    public class EventArgsControllerTriggerReleased : EventArgs
+    {
+        public EventArgsControllerTriggerReleased(PlayerIndex playerIndex, Buttons buttonReleased, float value)
+        {
+            PlayerIndex = playerIndex;
+            ButtonReleased = buttonReleased;
+            Value = value;
+        }
+        public PlayerIndex PlayerIndex { get; private set; }
+        public Buttons ButtonReleased { get; private set; }
+        public float Value { get; private set; }
     }
 
     public class EventArgsMouseStateChanged : EventArgs

@@ -16,6 +16,8 @@ namespace StardewModdingAPI.Events
         public static event EventHandler<EventArgsMouseStateChanged> MouseChanged = delegate { };
         public static event EventHandler<EventArgsControllerButtonPressed> ControllerButtonPressed = delegate { };
         public static event EventHandler<EventArgsControllerButtonReleased> ControllerButtonReleased = delegate { };
+        public static event EventHandler<EventArgsControllerTriggerPressed> ControllerTriggerPressed = delegate { };
+        public static event EventHandler<EventArgsControllerTriggerReleased> ControllerTriggerReleased = delegate { };
 
         public static void InvokeKeyboardChanged(KeyboardState priorState, KeyboardState newState)
         {
@@ -45,6 +47,16 @@ namespace StardewModdingAPI.Events
         public static void InvokeButtonReleased(PlayerIndex playerIndex, Buttons buttons)
         {
             ControllerButtonReleased.Invoke(null, new EventArgsControllerButtonReleased(playerIndex, buttons));
+        }
+
+        public static void InvokeTriggerPressed(PlayerIndex playerIndex, Buttons buttons, float value)
+        {
+            ControllerTriggerPressed.Invoke(null, new EventArgsControllerTriggerPressed(playerIndex, buttons, value));
+        }
+
+        public static void InvokeTriggerReleased(PlayerIndex playerIndex, Buttons buttons, float value)
+        {
+            ControllerTriggerReleased.Invoke(null, new EventArgsControllerTriggerReleased(playerIndex, buttons, value));
         }
     }
 }
