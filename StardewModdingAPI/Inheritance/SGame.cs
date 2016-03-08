@@ -465,12 +465,13 @@ namespace StardewModdingAPI.Inheritance
             {
                 Events.PlayerEvents.InvokeInventoryChanged(player.items, changedItems);
                 PreviousItems = player.items.Where(n => n != null).ToDictionary(n => n, n => n.Stack);
-            }            
+            }
 
-            if(currentLocation != null && PreviousLocationObjects != currentLocation.objects.GetHash())
+            var objectHash = currentLocation?.objects?.GetHash();
+            if(objectHash != null && PreviousLocationObjects != objectHash)
             {
                 Events.LocationEvents.InvokeOnNewLocationObject(currentLocation.objects);
-                PreviousLocationObjects = currentLocation.objects.GetHash();
+                PreviousLocationObjects = objectHash ?? -1;
             }
 
             if (timeOfDay != PreviousTimeOfDay)
