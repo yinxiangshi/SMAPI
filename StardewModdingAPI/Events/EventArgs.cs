@@ -30,7 +30,55 @@ namespace StardewModdingAPI.Events
         }
         public Keys KeyPressed { get; private set; }
     }
-        
+
+    public class EventArgsControllerButtonPressed : EventArgs
+    {
+        public EventArgsControllerButtonPressed(PlayerIndex playerIndex, Buttons buttonPressed)
+        {
+            PlayerIndex = playerIndex;
+            ButtonPressed = buttonPressed;
+        }
+        public PlayerIndex PlayerIndex { get; private set; }
+        public Buttons ButtonPressed { get; private set; }
+    }
+
+    public class EventArgsControllerButtonReleased : EventArgs
+    {
+        public EventArgsControllerButtonReleased(PlayerIndex playerIndex, Buttons buttonReleased)
+        {
+            PlayerIndex = playerIndex;
+            ButtonReleased = buttonReleased;
+        }
+        public PlayerIndex PlayerIndex { get; private set; }
+        public Buttons ButtonReleased { get; private set; }
+    }
+
+    public class EventArgsControllerTriggerPressed : EventArgs
+    {
+        public EventArgsControllerTriggerPressed(PlayerIndex playerIndex, Buttons buttonPressed, float value)
+        {
+            PlayerIndex = playerIndex;
+            ButtonPressed = buttonPressed;
+            Value = value;
+        }
+        public PlayerIndex PlayerIndex { get; private set; }
+        public Buttons ButtonPressed { get; private set; }
+        public float Value { get; private set; }
+    }
+
+    public class EventArgsControllerTriggerReleased : EventArgs
+    {
+        public EventArgsControllerTriggerReleased(PlayerIndex playerIndex, Buttons buttonReleased, float value)
+        {
+            PlayerIndex = playerIndex;
+            ButtonReleased = buttonReleased;
+            Value = value;
+        }
+        public PlayerIndex PlayerIndex { get; private set; }
+        public Buttons ButtonReleased { get; private set; }
+        public float Value { get; private set; }
+    }
+
     public class EventArgsMouseStateChanged : EventArgs
     { 
         public EventArgsMouseStateChanged(MouseState priorState, MouseState newState)

@@ -53,12 +53,12 @@ namespace StardewModdingAPI
         
         public static int GetHash(this IEnumerable enumerable)
         {
-            string s = string.Empty;
+            int hash = 0;
             foreach (var v in enumerable)
             {
-                s += v.GetHashCode().ToString();
+                hash ^= v.GetHashCode();
             }
-            return s.GetHashCode();
+            return hash;
         } 
     }
 }

@@ -68,12 +68,13 @@ namespace StardewModdingAPI.Inheritance
         {
             if (Texture != null)
             {
-                int targSize = Game1.tileSize;
-
-                Vector2 local = Game1.GlobalToLocal(Game1.viewport, new Vector2(x,y));
-                Rectangle targ = new Rectangle((int)local.X, (int)local.Y, targSize, targSize);
-                spriteBatch.Draw(Texture, targ, null, new Color(255, 255, 255, 255f * alpha));
+                spriteBatch.Draw(Texture, Game1.GlobalToLocal(Game1.viewport, new Vector2((float)(((x * Game1.tileSize) + (Game1.tileSize / 2)) + ((this.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0)), (float)(((y * Game1.tileSize) + (Game1.tileSize / 2)) + ((this.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0)))), new Rectangle?(Game1.currentLocation.getSourceRectForObject(this.ParentSheetIndex)), (Color)(Color.White * alpha), 0f, new Vector2(8f, 8f), (this.scale.Y > 1f) ? this.getScale().Y : ((float)Game1.pixelZoom), this.flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, (this.isPassable() ? ((float)this.getBoundingBox(new Vector2((float)x, (float)y)).Top) : ((float)this.getBoundingBox(new Vector2((float)x, (float)y)).Bottom)) / 10000f);               
             }
+        }
+
+        public void drawAsProp(SpriteBatch b)
+        {
+
         }
 
         public override void draw(SpriteBatch spriteBatch, int xNonTile, int yNonTile, float layerDepth, float alpha = 1)
