@@ -37,16 +37,16 @@
     <TargetFrameworkProfile />
   </PropertyGroup>
   <Choose>
-	<When Condition="'$(SteamInstallPath)' != ''">
-	  <PropertyGroup>
-		<SteamPath>$(SteamInstallPath)</SteamPath>
+    <When Condition="'$(SteamInstallPath)' != ''">
+      <PropertyGroup>
+        <SteamPath>$(SteamInstallPath)</SteamPath>
       </PropertyGroup>
-	</When>
-  <Otherwise>
-	<PropertyGroup>
-	  <SteamPath>..\..\..\..\Games\SteamLibrary</SteamPath>
-    </PropertyGroup>
-	</Otherwise>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <SteamPath>..\..\..\..\Games\SteamLibrary</SteamPath>
+      </PropertyGroup>
+    </Otherwise>
   </Choose>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -76,6 +76,7 @@
     <DefineConstants>
     </DefineConstants>
     <UseVSHostingProcess>true</UseVSHostingProcess>
+    <Optimize>true</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <PlatformTarget>x86</PlatformTarget>
