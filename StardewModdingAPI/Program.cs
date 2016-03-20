@@ -50,7 +50,6 @@ namespace StardewModdingAPI
             {
                 ConfigureUI();
                 ConfigurePaths();
-                ConfigureInjector();
                 ConfigureSDV();
 
                 GameRunInvoker();
@@ -103,51 +102,6 @@ namespace StardewModdingAPI
             if (!File.Exists(Constants.ExecutionPath + "\\Stardew Valley.exe"))
             {
                 throw new FileNotFoundException(string.Format("Could not found: {0}\\Stardew Valley.exe", Constants.ExecutionPath));
-            }
-        }
-
-        /// <summary>
-        /// Load the injector.
-        /// Is this deprecated? Why is there a LoadMods?
-        /// </summary>
-        /// <remarks>
-        /// This will load the injector before anything else if it sees it
-        /// It doesn't matter though
-        /// I'll leave it as a feature in case anyone in the community wants to tinker with it
-        /// All you need is a DLL that inherits from mod and is called StardewInjector.dll with an Entry() method
-        /// </remarks>
-        private static void ConfigureInjector()
-        {
-            foreach (string ModPath in _modPaths)
-            {
-                foreach (String s in Directory.GetFiles(ModPath, "StardewInjector.dll"))
-                {
-                    StardewModdingAPI.Log.Success(ConsoleColor.Green, "Found Stardew Injector DLL: " + s);
-                    try
-                    {
-                        Assembly mod = Assembly.UnsafeLoadFrom(s); //to combat internet-downloaded DLLs
-
-                        if (mod.DefinedTypes.Count(x => x.BaseType == typeof(Mod)) > 0)
-                        {
-                            StardewModdingAPI.Log.Success("Loading Injector DLL...");
-                            TypeInfo tar = mod.DefinedTypes.First(x => x.BaseType == typeof(Mod));
-                            Mod m = (Mod)mod.CreateInstance(tar.ToString());
-                            Console.WriteLine("LOADED: {0} by {1} - Version {2} | Description: {3} (@:{4})", m.Manifest.Name, m.Manifest.Authour, m.Manifest.Version, m.Manifest.Description, s);
-                            m.PathOnDisk = Path.GetDirectoryName(s);
-                            m.Entry(false);
-                            StardewInjectorLoaded = true;
-                            StardewInjectorMod = m;
-                        }
-                        else
-                        {
-                            StardewModdingAPI.Log.Error("Invalid Mod DLL");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        StardewModdingAPI.Log.Error("Failed to load mod '{0}'. Exception details:\n" + ex, s);
-                    }
-                }
             }
         }
 
@@ -263,6 +217,8 @@ namespace StardewModdingAPI
                 StardewModdingAPI.Log.Verbose("Patching SDV Graphics Profile...");
                 Game1.graphics.GraphicsProfile = GraphicsProfile.HiDef;
                 LoadMods();
+                //DEPRECATED WAY
+                LoadMods_OldWay();
 
                 StardewForm = Control.FromHandle(Program.gamePtr.Window.Handle).FindForm();
                 StardewForm.Closing += StardewForm_Closing;
@@ -378,6 +334,50 @@ namespace StardewModdingAPI
             }
             StardewModdingAPI.Log.Success("LOADED {0} MODS", loadedMods);
         }
+
+        /// <summary>
+        /// DEPRECATED. REMOVE
+        /// </summary>
+        public static void LoadMods_OldWay()
+        {
+            StardewModdingAPI.Log.Verbose("LOADING MODS (OLD WAY - DEPRECATED. ANY MODS LOADED THIS WAY NEED TO UPDATE)");
+            int loadedMods = 0;
+            foreach (string ModPath in _modPaths)
+            {
+                foreach (String s in Directory.GetFiles(ModPath, "*.dll"))
+                {
+                    if (s.Contains("StardewInjector"))
+                        continue;
+                    StardewModdingAPI.Log.Success("Found DLL: " + s);
+                    try
+                    {
+                        Assembly mod = Assembly.UnsafeLoadFrom(s); //to combat internet-downloaded DLLs
+
+                        if (mod.DefinedTypes.Count(x => x.BaseType == typeof(Mod)) > 0)
+                        {
+                            StardewModdingAPI.Log.Verbose("Loading Mod DLL...");
+                            TypeInfo tar = mod.DefinedTypes.First(x => x.BaseType == typeof(Mod));
+                            Mod m = (Mod)mod.CreateInstance(tar.ToString());
+                            m.Manifest = null;
+                            m.PathOnDisk = Path.GetDirectoryName(s);
+                            Console.WriteLine("LOADED MOD: {0} by {1} - Version {2} | Description: {3}", m.Name, m.Authour, m.Version, m.Description);
+                            loadedMods += 1;
+                            m.Entry();
+                        }
+                        else
+                        {
+                            StardewModdingAPI.Log.Error("Invalid Mod DLL");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        StardewModdingAPI.Log.Error("Failed to load mod '{0}'. Exception details:\n" + ex, s);
+                    }
+                }
+            }
+            StardewModdingAPI.Log.Success("LOADED {0} MODS THAT NEED TO UPDATE", loadedMods);
+        }
+
 
         public static void ConsoleInputThread()
         {
