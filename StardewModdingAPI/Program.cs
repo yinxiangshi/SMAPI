@@ -13,6 +13,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
+using Newtonsoft.Json;
 
 namespace StardewModdingAPI
 {
@@ -131,7 +132,7 @@ namespace StardewModdingAPI
                             StardewModdingAPI.Log.Success("Loading Injector DLL...");
                             TypeInfo tar = mod.DefinedTypes.First(x => x.BaseType == typeof(Mod));
                             Mod m = (Mod)mod.CreateInstance(tar.ToString());
-                            Console.WriteLine("LOADED: {0} by {1} - Version {2} | Description: {3} (@:{4})", m.Name, m.Authour, m.Version, m.Description, s);
+                            Console.WriteLine("LOADED: {0} by {1} - Version {2} | Description: {3} (@:{4})", m.Manifest.Name, m.Manifest.Authour, m.Manifest.Version, m.Manifest.Description, s);
                             m.PathOnDisk = Path.GetDirectoryName(s);
                             m.Entry(false);
                             StardewInjectorLoaded = true;
@@ -312,33 +313,66 @@ namespace StardewModdingAPI
             int loadedMods = 0;
             foreach (string ModPath in _modPaths)
             {
-                foreach (String s in Directory.GetFiles(ModPath, "*.dll"))
+                foreach (String d in Directory.GetDirectories(ModPath))
                 {
-                    if (s.Contains("StardewInjector"))
-                        continue;
-                    StardewModdingAPI.Log.Success("Found DLL: " + s);
-                    try
+                    foreach (String s in Directory.GetFiles(d, "manifest.json"))
                     {
-                        Assembly mod = Assembly.UnsafeLoadFrom(s); //to combat internet-downloaded DLLs
+                        if (s.Contains("StardewInjector"))
+                            continue;
+                        StardewModdingAPI.Log.Success("Found Manifest: " + s);
+                        Manifest manifest = new Manifest();
+                        try
+                        {
+                            string t = File.ReadAllText(s);
+                            if (string.IsNullOrEmpty(t))
+                            {
+                                StardewModdingAPI.Log.Error("Failed to read mod manifest '{0}'. Manifest is empty!", s);
+                                continue;
+                            }
+                            manifest = JsonConvert.DeserializeObject<Manifest>(t);
+                            if (string.IsNullOrEmpty(manifest.EntryDll))
+                            {
+                                StardewModdingAPI.Log.Error("Failed to read mod manifest '{0}'. EntryDll is empty!", s);
+                                continue;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            StardewModdingAPI.Log.Error("Failed to read mod manifest '{0}'. Exception details:\n" + ex, s);
+                            continue;
+                        }
+                        try
+                        {
+                            string targDll = Path.Combine(Path.GetDirectoryName(s), manifest.EntryDll);
+                            if (!File.Exists(targDll))
+                            {
+                                StardewModdingAPI.Log.Error("Failed to load mod '{0}'. File {1} does not exist!", s, targDll);
+                                continue;
+                            }
 
-                        if (mod.DefinedTypes.Count(x => x.BaseType == typeof(Mod)) > 0)
-                        {
-                            StardewModdingAPI.Log.Verbose("Loading Mod DLL...");
-                            TypeInfo tar = mod.DefinedTypes.First(x => x.BaseType == typeof(Mod));
-                            Mod m = (Mod)mod.CreateInstance(tar.ToString());
-                            m.PathOnDisk = Path.GetDirectoryName(s);
-                            Console.WriteLine("LOADED MOD: {0} by {1} - Version {2} | Description: {3} (@{4})", m.Name, m.Authour, m.Version, m.Description, m.PathOnDisk);
-                            loadedMods += 1;
-                            m.Entry();
+                            Assembly mod = Assembly.UnsafeLoadFrom(targDll);
+
+                            if (mod.DefinedTypes.Count(x => x.BaseType == typeof (Mod)) > 0)
+                            {
+                                StardewModdingAPI.Log.Verbose("Loading Mod DLL...");
+                                TypeInfo tar = mod.DefinedTypes.First(x => x.BaseType == typeof (Mod));
+                                Mod m = (Mod) mod.CreateInstance(tar.ToString());
+                                m.PathOnDisk = Path.GetDirectoryName(s);
+                                m.Manifest = manifest;
+                                StardewModdingAPI.Log.Success("LOADED MOD: {0} by {1} - Version {2} | Description: {3} (@ {4})", m.Manifest.Name, m.Manifest.Authour, m.Manifest.Version, m.Manifest.Description, targDll);
+                                loadedMods += 1;
+                                m.Entry();
+                            }
+                            else
+                            {
+                                StardewModdingAPI.Log.Error("Invalid Mod DLL");
+                            }
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            StardewModdingAPI.Log.Error("Invalid Mod DLL");
+                            StardewModdingAPI.Log.Error("Failed to load mod '{0}'. Exception details:\n" + ex, s);
+                            continue;
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        StardewModdingAPI.Log.Error("Failed to load mod '{0}'. Exception details:\n" + ex, s);
                     }
                 }
             }
@@ -399,7 +433,6 @@ namespace StardewModdingAPI
                 Game1.activeClickableMenu = SGameMenu.ConstructFromBaseClass(Game1.activeClickableMenu as GameMenu);
             }
         }
-
 
         static void Events_LocationsChanged(List<GameLocation> newLocations)
         {

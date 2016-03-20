@@ -9,24 +9,9 @@ namespace StardewModdingAPI
     public class Mod
     {
         /// <summary>
-        /// The name of your mod.
+        /// The mod's manifest
         /// </summary>
-        public virtual string Name { get; protected set; }
-
-        /// <summary>
-        /// The name of the mod's authour.
-        /// </summary>
-        public virtual string Authour { get; protected set; }
-
-        /// <summary>
-        /// The version of the mod.
-        /// </summary>
-        public virtual string Version { get; protected set; }
-
-        /// <summary>
-        /// A description of the mod.
-        /// </summary>
-        public virtual string Description { get; protected set; }
+        public Manifest Manifest { get; internal set; }
 
         /// <summary>
         /// Where the mod is located on the disk.
