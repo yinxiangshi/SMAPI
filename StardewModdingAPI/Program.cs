@@ -131,6 +131,7 @@ namespace StardewModdingAPI
                             TypeInfo tar = mod.DefinedTypes.First(x => x.BaseType == typeof(Mod));
                             Mod m = (Mod)mod.CreateInstance(tar.ToString());
                             Console.WriteLine("LOADED: {0} by {1} - Version {2} | Description: {3}", m.Name, m.Authour, m.Version, m.Description);
+                            m.PathOnDisk = Path.GetDirectoryName(ModPath);
                             m.Entry(false);
                             StardewInjectorLoaded = true;
                             StardewInjectorMod = m;

@@ -6,6 +6,7 @@ TrainerMod/obj/
 StardewInjector/bin/
 StardewInjector/obj/
 packages/
+steamapps/
 
 *.symlink
 *.lnk
