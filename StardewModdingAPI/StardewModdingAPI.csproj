@@ -150,6 +150,7 @@
     <Compile Include="Inheritance\SGameLocation.cs" />
     <Compile Include="Inheritance\SObject.cs" />
     <Compile Include="Log.cs" />
+    <Compile Include="Manifest.cs" />
     <Compile Include="Mod.cs" />
     <Compile Include="ModItem.cs" />
     <Compile Include="Program.cs" />

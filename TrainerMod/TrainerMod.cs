@@ -16,6 +16,7 @@ namespace TrainerMod
 {
     public class TrainerMod : Mod
     {
+        /*
         public override string Name
         {
             get { return "Trainer Mod"; }
@@ -35,6 +36,7 @@ namespace TrainerMod
         {
             get { return "Registers several commands to use. Most commands are trainer-like in that they offer forms of cheating."; }
         }
+        */
 
         public static int frozenTime;
         public static bool infHealth, infStamina, infMoney, freezeTime;
