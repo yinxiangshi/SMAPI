@@ -107,6 +107,7 @@ namespace StardewModdingAPI
 
         /// <summary>
         /// Load the injector.
+        /// Is this deprecated? Why is there a LoadMods?
         /// </summary>
         /// <remarks>
         /// This will load the injector before anything else if it sees it
@@ -130,7 +131,8 @@ namespace StardewModdingAPI
                             StardewModdingAPI.Log.Success("Loading Injector DLL...");
                             TypeInfo tar = mod.DefinedTypes.First(x => x.BaseType == typeof(Mod));
                             Mod m = (Mod)mod.CreateInstance(tar.ToString());
-                            Console.WriteLine("LOADED: {0} by {1} - Version {2} | Description: {3}", m.Name, m.Authour, m.Version, m.Description);
+                            Console.WriteLine("LOADED: {0} by {1} - Version {2} | Description: {3} (@:{4})", m.Name, m.Authour, m.Version, m.Description, s);
+                            m.PathOnDisk = Path.GetDirectoryName(s);
                             m.Entry(false);
                             StardewInjectorLoaded = true;
                             StardewInjectorMod = m;
@@ -324,7 +326,8 @@ namespace StardewModdingAPI
                             StardewModdingAPI.Log.Verbose("Loading Mod DLL...");
                             TypeInfo tar = mod.DefinedTypes.First(x => x.BaseType == typeof(Mod));
                             Mod m = (Mod)mod.CreateInstance(tar.ToString());
-                            Console.WriteLine("LOADED MOD: {0} by {1} - Version {2} | Description: {3}", m.Name, m.Authour, m.Version, m.Description);
+                            m.PathOnDisk = Path.GetDirectoryName(s);
+                            Console.WriteLine("LOADED MOD: {0} by {1} - Version {2} | Description: {3} (@{4})", m.Name, m.Authour, m.Version, m.Description, m.PathOnDisk);
                             loadedMods += 1;
                             m.Entry();
                         }

@@ -29,6 +29,11 @@ namespace StardewModdingAPI
         public virtual string Description { get; protected set; }
 
         /// <summary>
+        /// Where the mod is located on the disk.
+        /// </summary>
+        public string PathOnDisk { get; internal set; }
+
+        /// <summary>
         /// A basic method that is the entry-point of your mod. It will always be called once when the mod loads.
         /// </summary>
         public virtual void Entry(params object[] objects)
