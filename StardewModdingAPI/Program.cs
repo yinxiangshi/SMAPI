@@ -20,7 +20,7 @@ namespace StardewModdingAPI
     public class Program
     {
         private static List<string> _modPaths;
-        private static List<string> _modContentPaths;
+        //private static List<string> _modContentPaths;
 
         public static Texture2D DebugPixel { get; private set; }
 
@@ -84,17 +84,19 @@ namespace StardewModdingAPI
             StardewModdingAPI.Log.Info("Validating api paths...");
 
             _modPaths = new List<string>();
-            _modContentPaths = new List<string>();
+            //_modContentPaths = new List<string>();
 
             //TODO: Have an app.config and put the paths inside it so users can define locations to load mods from
             _modPaths.Add(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley", "Mods"));
             _modPaths.Add(Path.Combine(Constants.ExecutionPath, "Mods"));
-            _modContentPaths.Add(Path.Combine(Constants.ExecutionPath, "Mods", "Content"));
-            _modContentPaths.Add(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley", "Mods", "Content"));
+
+            //Mods need to make their own content paths, since we're doing a different, manifest-driven, approach.
+            //_modContentPaths.Add(Path.Combine(Constants.ExecutionPath, "Mods", "Content"));
+            //_modContentPaths.Add(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley", "Mods", "Content"));
 
             //Checks that all defined modpaths exist as directories
             _modPaths.ForEach(path => VerifyPath(path));
-            _modContentPaths.ForEach(path => VerifyPath(path));
+            //_modContentPaths.ForEach(path => VerifyPath(path));
             VerifyPath(Constants.LogPath);
 
             StardewModdingAPI.Log.Initialize(Constants.LogPath);
