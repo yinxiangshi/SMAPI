@@ -11,6 +11,7 @@ namespace StardewModdingAPI.Events
         public static event EventHandler GameLoaded = delegate { };
         public static event EventHandler Initialize = delegate { };
         public static event EventHandler LoadContent = delegate { };
+        public static event EventHandler FirstUpdateTick = delegate { };
         /// <summary>
         /// Fires every update (1/60 of a second)
         /// </summary>
@@ -109,6 +110,11 @@ namespace StardewModdingAPI.Events
         public static void InvokeOneSecondTick()
         {
             OneSecondTick.Invoke(null, EventArgs.Empty);
+        }
+
+        public static void InvokeFirstUpdateTick()
+        {
+            FirstUpdateTick.Invoke(null, EventArgs.Empty);
         }
     }
 }
