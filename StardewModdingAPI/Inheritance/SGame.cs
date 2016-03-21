@@ -173,6 +173,8 @@ namespace StardewModdingAPI.Inheritance
 
         public Farmer PreviousFarmer { get; private set; }
 
+        public Int32 CurrentUpdateTick { get; private set; }
+
         private static SGame instance;
         public static SGame Instance { get { return instance; } }
 
@@ -182,6 +184,7 @@ namespace StardewModdingAPI.Inheritance
         {
             instance = this;
 
+            /*
 #if DEBUG
             SaveGame.serializer = new XmlSerializer(typeof (SaveGame), new Type[28]
                 {
@@ -215,6 +218,7 @@ namespace StardewModdingAPI.Inheritance
                     typeof (SObject)
                 });
 #endif
+            */
         }
 
         protected override void Initialize()
@@ -251,6 +255,29 @@ namespace StardewModdingAPI.Inheritance
             }
 
             Events.GameEvents.InvokeUpdateTick();
+
+            if (CurrentUpdateTick % 2 == 0)
+                Events.GameEvents.InvokeSecondUpdateTick();
+
+            if (CurrentUpdateTick % 4 == 0)
+                Events.GameEvents.InvokeFourthUpdateTick();
+
+            if (CurrentUpdateTick % 8 == 0)
+                Events.GameEvents.InvokeEighthUpdateTick();
+
+            if (CurrentUpdateTick % 15 == 0)
+                Events.GameEvents.InvokeQuarterSecondTick();
+
+            if (CurrentUpdateTick % 30 == 0)
+                Events.GameEvents.InvokeHalfSecondTick();
+
+            if (CurrentUpdateTick % 60 == 0)
+                Events.GameEvents.InvokeOneSecondTick();
+
+            CurrentUpdateTick += 1;
+            if (CurrentUpdateTick >= 60)
+                CurrentUpdateTick = 0;
+
 
             PreviouslyPressedKeys = CurrentlyPressedKeys;
             for(PlayerIndex i = PlayerIndex.One; i <= PlayerIndex.Four; i++)
