@@ -60,5 +60,10 @@ namespace StardewModdingAPI
             }
             return hash;
         } 
+
+        public static T Cast<T>(this object o) where T : StardewValley.Object
+        {
+            return o as T;
+        }
     }
 }
