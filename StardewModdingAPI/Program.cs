@@ -340,9 +340,10 @@ namespace StardewModdingAPI
         /// <summary>
         /// DEPRECATED. REMOVE
         /// </summary>
+        [Obsolete]
         public static void LoadMods_OldWay()
         {
-            StardewModdingAPI.Log.Verbose("LOADING MODS (OLD WAY - DEPRECATED. ANY MODS LOADED THIS WAY NEED TO UPDATE)");
+            StardewModdingAPI.Log.Error("LOADING MODS (OLD WAY - DEPRECATED. ANY MODS LOADED THIS WAY NEED TO UPDATE)");
             int loadedMods = 0;
             foreach (string ModPath in _modPaths)
             {
@@ -377,7 +378,7 @@ namespace StardewModdingAPI
                     }
                 }
             }
-            StardewModdingAPI.Log.Success("LOADED {0} MODS THAT NEED TO UPDATE", loadedMods);
+            StardewModdingAPI.Log.Error("LOADED {0} MODS THAT NEED TO UPDATE", loadedMods);
         }
 
 
