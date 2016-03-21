@@ -4,11 +4,9 @@
 
 SMAPI (Stardew Mapping Application Programming Interface) is a tool to help modders make changes to Stardew. It is a standalone executable which goes alongside your Stardew.exe.
 
-## Latest Version: 0.38.2
-- Support for new mod layout to help keep some level of order
+## Latest Version: 0.38.4
+- Support for new mod layout to help keep some level of order (note: old way of loading mods will soon be removed! please update your mods!)
 - Inbuilt support for configuration files
-
-Download: https://github.com/ClxS/SMAPI/releases/tag/0.38.2
 
 ## Installation
 
