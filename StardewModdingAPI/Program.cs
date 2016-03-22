@@ -8,6 +8,7 @@ using StardewValley.Menus;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -46,6 +47,8 @@ namespace StardewModdingAPI
         /// <param name="args"></param>
         private static void Main(string[] args)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");
+
             try
             {
                 ConfigureUI();
