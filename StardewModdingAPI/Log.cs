@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Threading;
 
@@ -28,7 +29,7 @@ namespace StardewModdingAPI
             catch (Exception)
             {
                 // TODO: not use general exception
-                Log.Error("Could not initialize LogStream - Logging is disabled");
+                Error("Could not initialize LogStream - Logging is disabled");
             }
         }
 
@@ -36,11 +37,11 @@ namespace StardewModdingAPI
         /// Print provided parameters to the console/file as applicable
         /// </summary>
         /// <param name="message">Desired message</param>
-        /// <param name="suppressMessage">When true, writes to ONLY console and not the log file.</param>
+        /// <param name="disableLogging">When true, writes to ONLY console and not the log file.</param>
         /// <param name="values">Additional params to be added to the message</param>
         private static void PrintLog(object message, bool disableLogging, params object[] values)
         {
-            string logOutput = string.Format("[{0}] {1}", System.DateTime.Now.ToLongTimeString(), String.Format(message.ToString(), values));
+            string logOutput = $"[{DateTime.Now.ToLongTimeString()}] {string.Format(message.ToString(), values)}";
             Console.WriteLine(logOutput);
 
             if (_logStream != null && !disableLogging)
@@ -58,7 +59,7 @@ namespace StardewModdingAPI
         public static void Success(object message, params object[] values)
         {
             Console.ForegroundColor = ConsoleColor.Green;
-            Log.PrintLog(message?.ToString(), false, values);
+            PrintLog(message?.ToString(), false, values);
             Console.ForegroundColor = ConsoleColor.Gray;
         }
 
@@ -69,7 +70,9 @@ namespace StardewModdingAPI
         /// <param name="values"></param>
         public static void Verbose(object message, params object[] values)
         {
-            Log.PrintLog(message?.ToString(), false, values);
+            Console.ForegroundColor = ConsoleColor.Gray;
+            PrintLog(message?.ToString(), false, values);
+            Console.ForegroundColor = ConsoleColor.Gray;
         }
 
         /// <summary>
@@ -80,7 +83,7 @@ namespace StardewModdingAPI
         public static void Comment(object message, params object[] values)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Log.PrintLog(message?.ToString(), false, values);
+            PrintLog(message?.ToString(), false, values);
             Console.ForegroundColor = ConsoleColor.Gray;
         }
 
@@ -91,7 +94,9 @@ namespace StardewModdingAPI
         /// <param name="values"></param>
         public static void Info(object message, params object[] values)
         {
-            Log.PrintLog(message.ToString(), true, values);
+            Console.ForegroundColor = ConsoleColor.Gray;
+            PrintLog(message?.ToString(), true, values);
+            Console.ForegroundColor = ConsoleColor.Gray;
         }
 
         /// <summary>
@@ -102,7 +107,7 @@ namespace StardewModdingAPI
         public static void Error(object message, params object[] values)
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            Log.PrintLog(message.ToString(), false, values);
+            PrintLog(message?.ToString(), false, values);
             Console.ForegroundColor = ConsoleColor.Gray;
         }
 
@@ -127,7 +132,7 @@ namespace StardewModdingAPI
         public static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             Console.WriteLine("An exception has been caught");
-            File.WriteAllText(_logPath + "\\MODDED_ErrorLog.Log_" + Extensions.Random.Next(100000000, 999999999) + ".txt", e.ExceptionObject.ToString());
+            File.WriteAllText(_logPath + "\\MODDED_ErrorLog.Log_" + DateTime.UtcNow.Ticks + ".txt", e.ExceptionObject.ToString());
         }
 
         /// <summary>
