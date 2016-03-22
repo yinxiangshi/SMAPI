@@ -89,7 +89,7 @@ namespace StardewModdingAPI
                 //user config with their values
                 var u = baseConfig.JObject;
 
-                b.Merge(u);
+                b.Merge(u, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Replace });
 
                 return (Config)b.ToObject(baseConfig.GetType());
             }
