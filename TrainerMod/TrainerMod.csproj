@@ -12,12 +12,14 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\StardewModdingAPI\bin\x86\Debug\Mods\</OutputPath>
+    <OutputPath>..\StardewModdingAPI\bin\x86\Debug\Mods\TrainerMod\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -34,16 +36,16 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <Choose>
-	<When Condition="'$(SteamInstallPath)' != ''">
-	  <PropertyGroup>
-		<SteamPath>$(SteamInstallPath)</SteamPath>
+    <When Condition="'$(SteamInstallPath)' != ''">
+      <PropertyGroup>
+        <SteamPath>$(SteamInstallPath)</SteamPath>
       </PropertyGroup>
-	</When>
-  <Otherwise>
-	<PropertyGroup>
-	  <SteamPath>..\..\..\..\Games\SteamLibrary</SteamPath>
-    </PropertyGroup>
-	</Otherwise>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <SteamPath>..\</SteamPath>
+      </PropertyGroup>
+    </Otherwise>
   </Choose>
   <ItemGroup>
     <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
@@ -79,6 +81,15 @@
       <Name>StardewModdingAPI</Name>
       <Private>False</Private>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="manifest.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="FodyWeavers.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
