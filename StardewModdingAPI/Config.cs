@@ -34,7 +34,7 @@ namespace StardewModdingAPI
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        internal virtual T LoadConfig<T>() where T : Config
+        public virtual T LoadConfig<T>() where T : Config
         {
             if (string.IsNullOrEmpty(ConfigLocation))
             {
@@ -79,9 +79,18 @@ namespace StardewModdingAPI
         /// <summary>
         /// MUST be implemented in inheriting class!
         /// </summary>
-        protected virtual T GenerateBaseConfig<T>() where T : Config
+        public virtual T GenerateDefaultConfig<T>() where T : Config
         {
             return null;
+        }
+
+        /// <summary>
+        /// Use the public GenerateDefaultConfig insteaad
+        /// </summary>
+        [Obsolete]
+        protected virtual T GenerateBaseConfig<T>() where T : Config
+        {
+            return GenerateDefaultConfig<T>();
         }
 
         /// <summary>
@@ -89,7 +98,7 @@ namespace StardewModdingAPI
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        internal virtual T UpdateConfig<T>() where T : Config
+        public virtual T UpdateConfig<T>() where T : Config
         {
             try
             {
@@ -191,7 +200,6 @@ namespace StardewModdingAPI
         }
     }
 
-    [Obsolete]
     public partial class Config
     {
         [Obsolete] public static int invalids = 0;
