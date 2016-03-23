@@ -358,6 +358,10 @@ namespace StardewModdingAPI
                 }
             }
             StardewModdingAPI.Log.Success("LOADED {0} MODS", Constants.ModsLoaded);
+            if (Config.invalids > 0)
+            {
+                StardewModdingAPI.Log.Error("LOADED {0} MODS THAT HAVE INVALID CONFIG INIT CALLS\n\tTHESE MODS NEED TO UPDATE", Config.invalids);
+            }
             Console.Title = Constants.ConsoleTitle;
         }
 
