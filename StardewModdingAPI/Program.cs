@@ -290,10 +290,6 @@ namespace StardewModdingAPI
                                 continue;
                             }
 
-                            // This will need to be redone once a new minor version comes out so that we don't load
-                            // the manifest in twice, but for now we need to make sure that older manifests are
-                            // compatible with the new manifest : config format.
-                            manifest = JsonConvert.DeserializeObject<Manifest>(t);
                             manifest = (Manifest)Config.InitializeConfig(s, manifest);
                             if (string.IsNullOrEmpty(manifest.EntryDll))
                             {
