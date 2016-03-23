@@ -303,12 +303,13 @@ namespace StardewModdingAPI
                             Log.Error("Failed to create psconfigs directory '{0}'. Exception details:\n" + ex, Path.GetDirectoryName(s));
                             continue;
                         }
+                        string targDll = string.Empty;
                         try
                         {
-                            string targDll = Path.Combine(Path.GetDirectoryName(s), manifest.EntryDll);
+                            targDll = Path.Combine(Path.GetDirectoryName(s), manifest.EntryDll);
                             if (!File.Exists(targDll))
                             {
-                                Log.Error("Failed to load mod '{0}'. File {1} does not exist!", s, targDll);
+                                Log.Error("Failed to load mod '{0}'. File {1} does not exist!", manifest.EntryDll, targDll);
                                 continue;
                             }
 
@@ -332,7 +333,7 @@ namespace StardewModdingAPI
                         }
                         catch (Exception ex)
                         {
-                            Log.Error("Failed to load mod '{0}'. Exception details:\n" + ex, s);
+                            Log.Error("Failed to load mod '{0}'. Exception details:\n" + ex,  targDll);
                         }
                     }
                 }
