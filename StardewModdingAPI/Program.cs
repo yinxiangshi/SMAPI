@@ -290,7 +290,9 @@ namespace StardewModdingAPI
                                 continue;
                             }
 
-                            manifest = (Manifest)Config.InitializeConfig(s, manifest);
+                            //manifest = (Manifest)Config.InitializeConfig(s, manifest);
+                            manifest = manifest.InitializeConfig(s);
+
                             if (string.IsNullOrEmpty(manifest.EntryDll))
                             {
                                 StardewModdingAPI.Log.Error("Failed to read mod manifest '{0}'. EntryDll is empty!", s);
