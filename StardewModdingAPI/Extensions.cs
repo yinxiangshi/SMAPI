@@ -21,10 +21,14 @@ namespace StardewModdingAPI
             return new Color(Random.Next(0, 255), Random.Next(0, 255), Random.Next(0, 255));
         }
 
-        public static string ToSingular(this IEnumerable<Object> enumerable, string split = ", ")
+        public static string ToSingular(this IEnumerable ienum, string split = ", ")
         {
-            string result = string.Join(split, enumerable);
-            return result;
+            //Apparently Keys[] won't split normally :l
+            if (ienum is Keys[])
+            {
+                return string.Join(split, (Keys[])ienum);
+            }
+            return string.Join(split, ienum);
         }
 
         public static bool IsInt32(this object o)
