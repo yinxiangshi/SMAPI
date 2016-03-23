@@ -39,7 +39,7 @@ namespace StardewModdingAPI
         /// </summary>
         public virtual string EntryDll { get; set; }
 
-        public override Config GenerateBaseConfig(Config baseConfig)
+        protected override T GenerateBaseConfig<T>()
         {
             Name = "";
             Authour = "";
@@ -48,7 +48,7 @@ namespace StardewModdingAPI
             UniqueID = Guid.NewGuid().ToString();
             PerSaveConfigs = false;
             EntryDll = "";
-            return this;
+            return this as T;
         }
     }
 }

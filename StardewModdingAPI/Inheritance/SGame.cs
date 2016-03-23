@@ -29,16 +29,16 @@ namespace StardewModdingAPI.Inheritance
         public MouseState MStateNow { get; private set; }
         public MouseState MStatePrior { get; private set; }
 
-        public Keys[] CurrentlyPressedKeys { get; private set; }
-        public Keys[] PreviouslyPressedKeys { get; private set; }
+        public Keys[] CurrentlyPressedKeys => KStateNow.GetPressedKeys();
+        public Keys[] PreviouslyPressedKeys => KStatePrior.GetPressedKeys();
 
         public Keys[] FramePressedKeys 
         { 
-            get { return CurrentlyPressedKeys.Where(x => !PreviouslyPressedKeys.Contains(x)).ToArray(); }
+            get { return CurrentlyPressedKeys.Except(PreviouslyPressedKeys).ToArray(); }
         }
         public Keys[] FrameReleasedKeys
         {
-            get { return PreviouslyPressedKeys.Where(x => !CurrentlyPressedKeys.Contains(x)).ToArray(); }
+            get { return PreviouslyPressedKeys.Except(CurrentlyPressedKeys).ToArray(); }
         }
         
         public Buttons[][] PreviouslyPressedButtons;
@@ -180,6 +180,9 @@ namespace StardewModdingAPI.Inheritance
         private static SGame instance;
         public static SGame Instance => instance;
 
+        public static float FramesPerSecond { get; private set; }
+        public static bool Debug { get; private set; }
+
         public Farmer CurrentFarmer => player;
 
         public SGame()
@@ -192,7 +195,6 @@ namespace StardewModdingAPI.Inheritance
         {
             Log.Verbose("XNA Initialize");
             ModItems = new Dictionary<Int32, SObject>();
-            PreviouslyPressedKeys = new Keys[0];
             PreviouslyPressedButtons = new Buttons[4][];
             for (int i = 0; i < 4; ++i) PreviouslyPressedButtons[i] = new Buttons[0];
 
@@ -210,6 +212,11 @@ namespace StardewModdingAPI.Inheritance
         protected override void Update(GameTime gameTime)
         {
             UpdateEventCalls();
+
+            if (FramePressedKeys.Contains(Keys.F3))
+            {
+                Debug = !Debug;
+            }
 
             try
             {
@@ -250,8 +257,10 @@ namespace StardewModdingAPI.Inheritance
             if (CurrentUpdateTick >= 60)
                 CurrentUpdateTick = 0;
 
-            PreviouslyPressedKeys = CurrentlyPressedKeys;
-            for(PlayerIndex i = PlayerIndex.One; i <= PlayerIndex.Four; i++)
+            if (KStatePrior != KStateNow)
+                KStatePrior = KStateNow;
+
+            for (PlayerIndex i = PlayerIndex.One; i <= PlayerIndex.Four; i++)
             {
                 PreviouslyPressedButtons[(int)i] = GetButtonsDown(i);
             }
@@ -259,8 +268,26 @@ namespace StardewModdingAPI.Inheritance
 
         protected override void Draw(GameTime gameTime)
         {
-            base.Draw(gameTime);
+            FramesPerSecond = 1 / (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            try
+            {
+                base.Draw(gameTime);
+            }
+            catch (Exception ex)
+            {
+                Log.Error("An error occured in the base draw loop: " + ex);
+                Console.ReadKey();
+            }
+
             GraphicsEvents.InvokeDrawTick();
+
+            if (Debug)
+            {
+                spriteBatch.Begin();
+                spriteBatch.DrawString(dialogueFont, "FPS: " + FramesPerSecond, Vector2.Zero, Color.CornflowerBlue);
+                spriteBatch.End();
+            }
         }
 
         public static Int32 RegisterModItem(SObject modItem)
@@ -301,7 +328,6 @@ namespace StardewModdingAPI.Inheritance
         public void UpdateEventCalls()
         {
             KStateNow = Keyboard.GetState();
-            CurrentlyPressedKeys = KStateNow.GetPressedKeys();
 
             MStateNow = Mouse.GetState();
 
@@ -346,7 +372,6 @@ namespace StardewModdingAPI.Inheritance
             if (KStateNow != KStatePrior)
             {
                 ControlEvents.InvokeKeyboardChanged(KStatePrior, KStateNow);
-                KStatePrior = KStateNow;
             }
 
             if (MStateNow != MStatePrior)
