@@ -1,10 +1,6 @@
-﻿using StardewModdingAPI.Inheritance;
+﻿using System.Collections.Generic;
+using StardewModdingAPI.Inheritance;
 using StardewValley;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StardewModdingAPI.Entities
 {

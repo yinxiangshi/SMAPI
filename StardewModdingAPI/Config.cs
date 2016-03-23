@@ -6,7 +6,6 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -27,9 +26,15 @@ namespace StardewModdingAPI
 
         public static Config InitializeConfig(string configLocation, Config baseConfig)
         {
+            if (string.IsNullOrEmpty(configLocation))
+            {
+                Log.Verbose("The location to save the config to must not be empty.");
+                return null;
+            }
+
             if (baseConfig == null)
             {
-                Console.WriteLine("A config must be instantiated before being passed to Initialize.\n\t" + configLocation);
+                Log.Verbose("A config must be instantiated before being passed to Initialize.\n\t" + configLocation);
                 return null;
             }
 
@@ -56,7 +61,7 @@ namespace StardewModdingAPI
 
                 try
                 {
-                    var j = JObject.Parse(Encoding.UTF8.GetString(File.ReadAllBytes(baseConfig.ConfigLocation)));
+                    var j = JObject.Parse(File.ReadAllText(baseConfig.ConfigLocation));
                     baseConfig = (Config)j.ToObject(baseConfig.GetType());
                     baseConfig.ConfigLocation = p;
                     baseConfig.JObject = j;
@@ -69,7 +74,7 @@ namespace StardewModdingAPI
                 }
                 catch
                 {
-                    Console.WriteLine("Invalid JSON Renamed: " + p);
+                    Log.Verbose("Invalid JSON Renamed: " + p);
                     if (File.Exists(p))
                         File.Move(p, Path.Combine(Path.GetDirectoryName(p), Path.GetFileNameWithoutExtension(p) + "." + Guid.NewGuid() + ".json")); //Get it out of the way for a new one
                     var v = (Config)baseConfig.GetType().GetMethod("GenerateBaseConfig", BindingFlags.Public | BindingFlags.Instance).Invoke(baseConfig, new object[] { baseConfig });
@@ -95,14 +100,20 @@ namespace StardewModdingAPI
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                Log.Error(ex.ToString());
             }
             return baseConfig;
         }
 
+        /// <summary>
+        /// NOTICE: THIS IS OBSOLETE AND WILL BE REMOVED IN THE FUTURE. 'BaseConfigPath' IS NOW A PROPERTY IN A MOD
+        /// </summary>
+        /// <param name="theMod"></param>
+        /// <returns></returns>
+        [Obsolete]
         public static string GetBasePath(Mod theMod)
         {
-            return theMod.PathOnDisk + "\\config.json";
+            return theMod.BaseConfigPath;
         }
     }
 
@@ -110,9 +121,17 @@ namespace StardewModdingAPI
     {
         public static void WriteConfig(this Config baseConfig)
         {
-            var toWrite = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(baseConfig, baseConfig.GetType(), Formatting.Indented, new JsonSerializerSettings()));
-            if (!File.Exists(baseConfig.ConfigLocation) || !File.ReadAllBytes(baseConfig.ConfigLocation).SequenceEqual(toWrite))
-                File.WriteAllBytes(baseConfig.ConfigLocation, toWrite);
+            if (baseConfig == null || string.IsNullOrEmpty(baseConfig.ConfigLocation) || string.IsNullOrEmpty(Path.GetDirectoryName(baseConfig.ConfigLocation)))
+            {
+                Log.Error("A config attempted to save when it itself or it's location were null.");
+                return;
+            }
+
+            var toWrite = JsonConvert.SerializeObject(baseConfig, baseConfig.GetType(), Formatting.Indented, new JsonSerializerSettings());
+            if (!Directory.Exists(Path.GetDirectoryName(baseConfig.ConfigLocation)))
+                Directory.CreateDirectory(Path.GetDirectoryName(baseConfig.ConfigLocation));
+            if (!File.Exists(baseConfig.ConfigLocation) || !File.ReadAllText(baseConfig.ConfigLocation).SequenceEqual(toWrite))
+                File.WriteAllText(baseConfig.ConfigLocation, toWrite);
             toWrite = null;
         }
 

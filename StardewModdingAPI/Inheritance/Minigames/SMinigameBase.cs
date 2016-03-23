@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using StardewValley.Minigames;
 
 namespace StardewModdingAPI.Inheritance.Minigames
 {
-    abstract class SMinigameBase : StardewValley.Minigames.IMinigame
+    abstract class SMinigameBase : IMinigame
     {
         public abstract bool tick(GameTime time);
 

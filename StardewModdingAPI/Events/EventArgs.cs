@@ -1,13 +1,12 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using StardewModdingAPI.Inheritance;
 using StardewValley;
 using StardewValley.Menus;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Object = StardewValley.Object;
 
 namespace StardewModdingAPI.Events
 {
@@ -112,11 +111,11 @@ namespace StardewModdingAPI.Events
 
     public class EventArgsLocationObjectsChanged : EventArgs
     {
-        public EventArgsLocationObjectsChanged(SerializableDictionary<Vector2, StardewValley.Object> newObjects)
+        public EventArgsLocationObjectsChanged(SerializableDictionary<Vector2, Object> newObjects)
         {
             NewObjects = newObjects;
         }
-        public SerializableDictionary<Vector2, StardewValley.Object> NewObjects { get; private set; }
+        public SerializableDictionary<Vector2, Object> NewObjects { get; private set; }
     }
 
     public class EventArgsCurrentLocationChanged : EventArgs
@@ -197,6 +196,17 @@ namespace StardewModdingAPI.Events
         public String NewString { get; private set; }
         public String PriorString { get; private set; }
     }
+
+    public class EventArgsLoadedGameChanged : EventArgs
+    {
+        public EventArgsLoadedGameChanged(bool loadedGame)
+        {
+            LoadedGame = loadedGame;
+        }
+
+        public bool LoadedGame { get; private set; }
+    }
+
 
     public class EventArgsCommand : EventArgs
     {
