@@ -44,7 +44,7 @@ namespace StardewModdingAPI
         /// </summary>
         public static string LogPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley", "ErrorLogs");
 
-        public static readonly Version Version = new Version(0, 39, 1, "Alpha");
+        public static readonly Version Version = new Version(0, 39, 2, "Alpha");
 
         /// <summary>
         /// Not quite "constant", but it makes more sense for it to be here, at least for now
