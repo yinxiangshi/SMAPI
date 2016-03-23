@@ -79,7 +79,7 @@ namespace StardewModdingAPI
         /// <summary>
         /// MUST be implemented in inheriting class!
         /// </summary>
-        internal virtual T GenerateBaseConfig<T>() where T : Config
+        protected virtual T GenerateBaseConfig<T>() where T : Config
         {
             return null;
         }

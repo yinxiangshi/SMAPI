@@ -39,7 +39,7 @@ namespace StardewModdingAPI
         /// </summary>
         public virtual string EntryDll { get; set; }
 
-        internal override T GenerateBaseConfig<T>()
+        protected override T GenerateBaseConfig<T>()
         {
             Name = "";
             Authour = "";
