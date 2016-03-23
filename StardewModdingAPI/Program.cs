@@ -356,6 +356,7 @@ namespace StardewModdingAPI
                 }
             }
             StardewModdingAPI.Log.Success("LOADED {0} MODS", Constants.ModsLoaded);
+            Console.Title = Constants.ConsoleTitle;
         }
 
         /// <summary>
