@@ -103,7 +103,7 @@ namespace TrainerMod
             Command.RegisterCommand("out_items", "Outputs a list of items | out_items", new[] { "" }).CommandFired += out_items;
             Command.RegisterCommand("out_melee", "Outputs a list of melee weapons | out_melee", new[] { "" }).CommandFired += out_melee;
             Command.RegisterCommand("out_rings", "Outputs a list of rings | out_rings", new[] { "" }).CommandFired += out_rings;
-            Command.RegisterCommand("newitem", "Outputs a list of melee weapons | out_melee", new[] { "" }).CommandFired += RegisterNewItem;
+            Command.RegisterCommand("newitem", "not to be used | newitem", new[] { "" }).CommandFired += RegisterNewItem;
 
             Command.RegisterCommand("world_settime", "Sets the time to the specified value | world_settime <value>", new[] { "(Int32)<value> The target time [06:00 AM is 600]" }).CommandFired += world_setTime;
             Command.RegisterCommand("world_freezetime", "Freezes or thaws time | world_freezetime <value>", new[] { "(0 - 1)<value> Whether or not to freeze time. 0 is thawed, 1 is frozen" }).CommandFired += world_freezeTime;
@@ -135,6 +135,7 @@ namespace TrainerMod
 
         static void load_CommandFired(object sender, EventArgsCommand e)
         {
+            Game1.hasLoadedGame = false;
             Game1.activeClickableMenu = new StardewValley.Menus.LoadGameMenu();
         }
 

@@ -1,18 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Reflection;
-using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework.Graphics;
-using StardewValley;
 using StardewValley.Menus;
 
 namespace StardewModdingAPI.Inheritance.Menus
 {
-    public class SGameMenu : StardewValley.Menus.GameMenu
+    public class SGameMenu : GameMenu
     {
         public GameMenu BaseGameMenu { get; private set; }
 
@@ -40,9 +32,6 @@ namespace StardewModdingAPI.Inheritance.Menus
             if (pages[currentTab] is InventoryPage)
             {
                 Log.Verbose("INV SCREEN");
-            }
-            else
-            {
             }
             base.receiveRightClick(x, y, playSound);
         }

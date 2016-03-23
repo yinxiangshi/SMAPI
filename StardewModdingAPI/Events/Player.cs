@@ -1,10 +1,7 @@
-﻿using StardewModdingAPI.Inheritance;
-using StardewValley;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using StardewModdingAPI.Inheritance;
+using StardewValley;
 
 namespace StardewModdingAPI.Events
 {
@@ -13,6 +10,7 @@ namespace StardewModdingAPI.Events
         public static event EventHandler<EventArgsFarmerChanged> FarmerChanged = delegate { };
         public static event EventHandler<EventArgsInventoryChanged> InventoryChanged = delegate { };
         public static event EventHandler<EventArgsLevelUp> LeveledUp = delegate { };
+        public static event EventHandler<EventArgsLoadedGameChanged> LoadedGame = delegate { };
 
         public static void InvokeFarmerChanged(Farmer priorFarmer, Farmer newFarmer)
         {
@@ -27,6 +25,11 @@ namespace StardewModdingAPI.Events
         public static void InvokeLeveledUp(EventArgsLevelUp.LevelType type, int newLevel)
         {
             LeveledUp.Invoke(null, new EventArgsLevelUp(type, newLevel));
+        }
+
+        public static void InvokeLoadedGame(EventArgsLoadedGameChanged loaded)
+        {
+            LoadedGame.Invoke(null, loaded);
         }
     }
 }

@@ -1,11 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using StardewModdingAPI.Events;
-using StardewModdingAPI.Inheritance;
-using StardewModdingAPI.Inheritance.Menus;
-using StardewValley;
-using StardewValley.Menus;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
@@ -14,7 +7,14 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
+using StardewModdingAPI.Events;
+using StardewModdingAPI.Inheritance;
+using StardewModdingAPI.Inheritance.Menus;
+using StardewValley;
+using StardewValley.Menus;
 
 namespace StardewModdingAPI
 {
@@ -146,8 +146,8 @@ namespace StardewModdingAPI
             //Command.RegisterCommand("crash", "crashes sdv").CommandFired += delegate { Game1.player.draw(null); };
 
             //Subscribe to events
-            Events.ControlEvents.KeyPressed += Events_KeyPressed;
-            Events.GameEvents.LoadContent += Events_LoadContent;
+            ControlEvents.KeyPressed += Events_KeyPressed;
+            GameEvents.LoadContent += Events_LoadContent;
             //Events.MenuChanged += Events_MenuChanged; //Idk right now
 
             StardewModdingAPI.Log.Verbose("Applying Final SDV Tweaks...");
@@ -155,7 +155,7 @@ namespace StardewModdingAPI
             {
                 gamePtr.IsMouseVisible = false;
                 gamePtr.Window.Title = "Stardew Valley - Version " + Game1.version;
-                StardewForm.Resize += Events.GraphicsEvents.InvokeResize;
+                StardewForm.Resize += GraphicsEvents.InvokeResize;
             });
         }
 
@@ -166,7 +166,7 @@ namespace StardewModdingAPI
         {
             //Game's in memory now, send the event
             StardewModdingAPI.Log.Verbose("Game Loaded");
-            Events.GameEvents.InvokeGameLoaded();
+            GameEvents.InvokeGameLoaded();
 
             StardewModdingAPI.Log.Comment("Type 'help' for help, or 'help <cmd>' for a command's usage");
             //Begin listening to input
@@ -225,7 +225,7 @@ namespace StardewModdingAPI
                 //DEPRECATED WAY
                 LoadMods_OldWay();
 
-                StardewForm = Control.FromHandle(Program.gamePtr.Window.Handle).FindForm();
+                StardewForm = Control.FromHandle(gamePtr.Window.Handle).FindForm();
                 StardewForm.Closing += StardewForm_Closing;
 
                 ready = true;
@@ -271,7 +271,6 @@ namespace StardewModdingAPI
         public static void LoadMods()
         {
             StardewModdingAPI.Log.Verbose("LOADING MODS");
-            int loadedMods = 0;
             foreach (string ModPath in _modPaths)
             {
                 foreach (String d in Directory.GetDirectories(ModPath))
@@ -290,7 +289,12 @@ namespace StardewModdingAPI
                                 StardewModdingAPI.Log.Error("Failed to read mod manifest '{0}'. Manifest is empty!", s);
                                 continue;
                             }
+
+                            // This will need to be redone once a new minor version comes out so that we don't load
+                            // the manifest in twice, but for now we need to make sure that older manifests are
+                            // compatible with the new manifest : config format.
                             manifest = JsonConvert.DeserializeObject<Manifest>(t);
+                            manifest = (Manifest)Config.InitializeConfig(s, manifest);
                             if (string.IsNullOrEmpty(manifest.EntryDll))
                             {
                                 StardewModdingAPI.Log.Error("Failed to read mod manifest '{0}'. EntryDll is empty!", s);
@@ -300,6 +304,25 @@ namespace StardewModdingAPI
                         catch (Exception ex)
                         {
                             StardewModdingAPI.Log.Error("Failed to read mod manifest '{0}'. Exception details:\n" + ex, s);
+                            continue;
+                        }
+                        try
+                        {
+                            if (manifest.PerSaveConfigs)
+                            {
+                                if (!Directory.Exists(Path.GetDirectoryName(s)))
+                                    Directory.CreateDirectory(Path.GetDirectoryName(s));
+
+                                if (!Directory.Exists(Path.GetDirectoryName(s)))
+                                {
+                                    StardewModdingAPI.Log.Error("Failed to create psconfigs directory '{0}'. No exception occured.", Path.GetDirectoryName(s));
+                                    continue;
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            StardewModdingAPI.Log.Error("Failed to create psconfigs directory '{0}'. Exception details:\n" + ex, Path.GetDirectoryName(s));
                             continue;
                         }
                         try
@@ -321,7 +344,7 @@ namespace StardewModdingAPI
                                 m.PathOnDisk = Path.GetDirectoryName(s);
                                 m.Manifest = manifest;
                                 StardewModdingAPI.Log.Success("LOADED MOD: {0} by {1} - Version {2} | Description: {3} (@ {4})", m.Manifest.Name, m.Manifest.Authour, m.Manifest.Version, m.Manifest.Description, targDll);
-                                loadedMods += 1;
+                                Constants.ModsLoaded += 1;
                                 m.Entry();
                             }
                             else
@@ -332,12 +355,11 @@ namespace StardewModdingAPI
                         catch (Exception ex)
                         {
                             StardewModdingAPI.Log.Error("Failed to load mod '{0}'. Exception details:\n" + ex, s);
-                            continue;
                         }
                     }
                 }
             }
-            StardewModdingAPI.Log.Success("LOADED {0} MODS", loadedMods);
+            StardewModdingAPI.Log.Success("LOADED {0} MODS", Constants.ModsLoaded);
         }
 
         /// <summary>
@@ -399,7 +421,7 @@ namespace StardewModdingAPI
         {
             StardewModdingAPI.Log.Info("Initializing Debug Assets...");
             DebugPixel = new Texture2D(Game1.graphics.GraphicsDevice, 1, 1);
-            DebugPixel.SetData(new Color[] { Color.White });
+            DebugPixel.SetData(new[] { Color.White });
 
 #if DEBUG
             StardewModdingAPI.Log.Verbose("REGISTERING BASE CUSTOM ITEM");

@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
@@ -82,12 +79,18 @@ namespace StardewModdingAPI
             return t.GetBaseFieldInfo(name).GetValue(o) as T;
         }
 
+        public static void SetBaseFieldValue<T>(this Type t, object o, string name, object newValue) where T : class
+        {
+            t.GetBaseFieldInfo(name).SetValue(o, newValue as T);
+        }
+
         /*
         public static T GetBaseFieldValue<T>(this object o, string name) where T : class
         {
             return o.GetType().GetBaseFieldInfo(name).GetValue(o) as T;
         }*/
 
+            /*
         public static object GetBaseFieldValue(this object o, string name)
         {
             return o.GetType().GetBaseFieldInfo(name).GetValue(o);
@@ -96,6 +99,20 @@ namespace StardewModdingAPI
         public static void SetBaseFieldValue (this object o, string name, object newValue)
         {
             o.GetType().GetBaseFieldInfo(name).SetValue(o, newValue);
+        }
+        */
+
+        public static string RemoveNumerics(this string st)
+        {
+            string s = st;
+            foreach (char c in s)
+            {
+                if (!char.IsLetterOrDigit(c))
+                {
+                    s = s.Replace(c.ToString(), "");
+                }
+            }
+            return s;
         }
     }
 }

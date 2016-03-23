@@ -1,6 +1,6 @@
-﻿using StardewModdingAPI.Events;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using StardewModdingAPI.Events;
 
 namespace StardewModdingAPI
 {
@@ -20,7 +20,7 @@ namespace StardewModdingAPI
         /// <param name="input">The command to run</param>
         public static void CallCommand(string input)
         {
-            input = input.TrimEnd(new[] {' '});
+            input = input.TrimEnd(' ');
             string[] args = new string[0];
             Command fnd;
             if (input.Contains(" "))

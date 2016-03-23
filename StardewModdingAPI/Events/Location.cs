@@ -1,10 +1,8 @@
-﻿using Microsoft.Xna.Framework;
-using StardewValley;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
+using StardewValley;
+using Object = StardewValley.Object;
 
 namespace StardewModdingAPI.Events
 {
@@ -24,7 +22,7 @@ namespace StardewModdingAPI.Events
             CurrentLocationChanged.Invoke(null, new EventArgsCurrentLocationChanged(priorLocation, newLocation));
         }
         
-        internal static void InvokeOnNewLocationObject(SerializableDictionary<Vector2, StardewValley.Object> newObjects)
+        internal static void InvokeOnNewLocationObject(SerializableDictionary<Vector2, Object> newObjects)
         {
             LocationObjectsChanged.Invoke(null, new EventArgsLocationObjectsChanged(newObjects));
         }

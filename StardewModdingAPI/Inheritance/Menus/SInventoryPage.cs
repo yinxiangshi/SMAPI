@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using StardewValley;
-using StardewValley.Menus;
+﻿using StardewValley.Menus;
 
 namespace StardewModdingAPI.Inheritance.Menus
 {
