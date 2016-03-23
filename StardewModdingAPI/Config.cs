@@ -194,6 +194,8 @@ namespace StardewModdingAPI
     [Obsolete]
     public partial class Config
     {
+        [Obsolete] public static int invalids = 0;
+
         [JsonIgnore]
         [Obsolete]
         public virtual JObject JObject { get; protected set; }
@@ -201,6 +203,8 @@ namespace StardewModdingAPI
         [Obsolete]
         public static Config InitializeConfig(string configLocation, Config baseConfig)
         {
+            invalids++;
+
             if (string.IsNullOrEmpty(configLocation))
             {
                 Log.Verbose("The location to save the config to must not be empty.");

@@ -33,7 +33,6 @@ namespace StardewModdingAPI
         [Obsolete]
         public virtual string Description { get; set; }
 
-
         /// <summary>
         /// The mod's manifest
         /// </summary>
