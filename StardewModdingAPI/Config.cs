@@ -56,7 +56,7 @@ namespace StardewModdingAPI
                 try
                 {
                     //try to load the config from a json blob on disk
-                    T c = JsonConvert.DeserializeObject<T>(File.ReadAllText(ConfigLocation));
+                    T c = JsonConvert.DeserializeObject<T>(File.ReadAllText(ConfigLocation), new JsonSerializerSettings() {ContractResolver = new JsonResolver()});
 
                     c.ConfigLocation = ConfigLocation;
 
@@ -94,10 +94,10 @@ namespace StardewModdingAPI
             try
             {
                 //default config
-                var b = JObject.FromObject(Instance<T>().GenerateDefaultConfig<T>());
+                var b = JObject.FromObject(Instance<T>().GenerateDefaultConfig<T>(), new JsonSerializer() {ContractResolver = new JsonResolver()});
 
                 //user config
-                var u = JObject.FromObject(this);
+                var u = JObject.FromObject(this, new JsonSerializer() {ContractResolver = new JsonResolver()});
 
                 //overwrite default values with user values
                 b.Merge(u, new JsonMergeSettings {MergeArrayHandling = MergeArrayHandling.Replace});
@@ -164,7 +164,7 @@ namespace StardewModdingAPI
                 return;
             }
 
-            string s = JsonConvert.SerializeObject(baseConfig, typeof (T), Formatting.Indented, new JsonSerializerSettings());
+            string s = JsonConvert.SerializeObject(baseConfig, typeof (T), Formatting.Indented, new JsonSerializerSettings() {ContractResolver = new JsonResolver()});
 
             if (!Directory.Exists(baseConfig.ConfigDir))
                 Directory.CreateDirectory(baseConfig.ConfigDir);

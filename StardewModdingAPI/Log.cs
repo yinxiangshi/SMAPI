@@ -32,15 +32,9 @@ namespace StardewModdingAPI
             }
         }
 
-        /// <summary>
-        /// Print provided parameters to the console/file as applicable
-        /// </summary>
-        /// <param name="message">Desired message</param>
-        /// <param name="disableLogging">When true, writes to ONLY console and not the log file.</param>
-        /// <param name="values">Additional params to be added to the message</param>
-        private static void PrintLog(object message, bool disableLogging, params object[] values)
+        private static void PrintLog(object message, bool disableLogging)
         {
-            string logOutput = $"[{DateTime.Now.ToLongTimeString()}] {string.Format(message.ToString(), values)}";
+            string logOutput = $"[{DateTime.Now.ToLongTimeString()}] {message?.ToString()}";
             Console.WriteLine(logOutput);
 
             if (_logStream != null && !disableLogging)
@@ -51,14 +45,25 @@ namespace StardewModdingAPI
         }
 
         /// <summary>
+        /// Print provided parameters to the console/file as applicable
+        /// </summary>
+        /// <param name="message">Desired message</param>
+        /// <param name="disableLogging">When true, writes to ONLY console and not the log file.</param>
+        /// <param name="values">Deprecated. Does nothing.</param>
+        private static void PrintLog(object message, bool disableLogging, params object[] values)
+        {
+            PrintLog(message, disableLogging);
+        }
+
+        /// <summary>
         /// Successful message to display to console and logging.
         /// </summary>
         /// <param name="message"></param>
-        /// <param name="values"></param>
+        /// <param name="values">Deprecated. Do not use.</param>
         public static void Success(object message, params object[] values)
         {
             Console.ForegroundColor = ConsoleColor.Green;
-            PrintLog(message?.ToString(), false, values);
+            PrintLog(message?.ToString(), false);
             Console.ForegroundColor = ConsoleColor.Gray;
         }
 
@@ -66,11 +71,11 @@ namespace StardewModdingAPI
         /// Generic comment to display to console and logging.
         /// </summary>
         /// <param name="message"></param>
-        /// <param name="values"></param>
+        /// <param name="values">Deprecated. Do not use.</param>
         public static void Verbose(object message, params object[] values)
         {
             Console.ForegroundColor = ConsoleColor.Gray;
-            PrintLog(message?.ToString(), false, values);
+            PrintLog(message?.ToString(), false);
             Console.ForegroundColor = ConsoleColor.Gray;
         }
 
@@ -78,11 +83,11 @@ namespace StardewModdingAPI
         /// Additional comment to display to console and logging.
         /// </summary>
         /// <param name="message"></param>
-        /// <param name="values"></param>
+        /// <param name="values">Deprecated. Do not use.</param>
         public static void Comment(object message, params object[] values)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
-            PrintLog(message?.ToString(), false, values);
+            PrintLog(message?.ToString(), false);
             Console.ForegroundColor = ConsoleColor.Gray;
         }
 
@@ -90,11 +95,11 @@ namespace StardewModdingAPI
         /// Message for only console. Does not appear in logging.
         /// </summary>
         /// <param name="message"></param>
-        /// <param name="values"></param>
+        /// <param name="values">Deprecated. Do not use.</param>
         public static void Info(object message, params object[] values)
         {
             Console.ForegroundColor = ConsoleColor.Gray;
-            PrintLog(message?.ToString(), true, values);
+            PrintLog(message?.ToString(), true);
             Console.ForegroundColor = ConsoleColor.Gray;
         }
 
@@ -102,11 +107,11 @@ namespace StardewModdingAPI
         /// Important message indicating an error.
         /// </summary>
         /// <param name="message"></param>
-        /// <param name="values"></param>
+        /// <param name="values">Deprecated. Do not use.</param>
         public static void Error(object message, params object[] values)
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            PrintLog(message?.ToString(), false, values);
+            PrintLog(message?.ToString(), false);
             Console.ForegroundColor = ConsoleColor.Gray;
         }
 
@@ -114,12 +119,12 @@ namespace StardewModdingAPI
         /// A message displayed only while in DEBUG mode
         /// </summary>
         /// <param name="message"></param>
-        /// <param name="values"></param>
+        /// <param name="values">Deprecated. Do not use.</param>
         public static void Debug(object message, params object[] values)
         {
 #if DEBUG
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Log.PrintLog(message.ToString(), false, values);
+            Log.PrintLog(message.ToString(), false);
             Console.ForegroundColor = ConsoleColor.Gray;
 #endif
         }

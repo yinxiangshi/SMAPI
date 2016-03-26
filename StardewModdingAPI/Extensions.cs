@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
@@ -21,15 +22,27 @@ namespace StardewModdingAPI
             return new Color(Random.Next(0, 255), Random.Next(0, 255), Random.Next(0, 255));
         }
 
+        [Obsolete("The usage of ToSingular has changed. Please update your call to use ToSingular<T>")]
         public static string ToSingular(this IEnumerable ienum, string split = ", ")
         {
+            Log.Error("The usage of ToSingular has changed. Please update your call to use ToSingular<T>");
+            return "";
+        }
+
+        public static string ToSingular<T>(this IEnumerable<T> ienum, string split = ", ")// where T : class
+        {
             //Apparently Keys[] won't split normally :l
-            if (ienum is Keys[])
+            if (typeof(T) == typeof(Keys))
             {
-                return string.Join(split, (Keys[])ienum);
+                return string.Join<T>(split, ienum.ToArray<T>());
             }
             return string.Join(split, ienum);
         }
+
+        /*public static string ToSingular<T>(this IEnumerable<T> ienum, string split = ", ")
+        {
+            return string.Join(split, ienum);
+        }*/
 
         public static bool IsInt32(this object o)
         {
