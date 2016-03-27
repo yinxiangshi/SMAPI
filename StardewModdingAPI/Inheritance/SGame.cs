@@ -1245,6 +1245,8 @@ namespace StardewModdingAPI.Inheritance
                 {
                     farmEvent?.drawAboveEverything(spriteBatch);
                 }
+                GraphicsEvents.InvokeDrawTick();
+                GraphicsEvents.InvokeDrawInRenderTargetTick();
                 GraphicsEvents.InvokeOnPostRenderEvent(null, EventArgs.Empty);
                 spriteBatch.End();
                 if (!ZoomLevelIsOne)
