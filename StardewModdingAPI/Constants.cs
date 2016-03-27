@@ -42,13 +42,20 @@ namespace StardewModdingAPI
         /// Path for log files to be output to.
         /// %LocalAppData%//StardewValley//ErrorLogs
         /// </summary>
-        public static string LogPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley", "ErrorLogs");
+        public static string LogDir => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley", "ErrorLogs");
+        public static string LogPath => Path.Combine(LogDir, "MODDED_ProgramLog.Log_LATEST.txt");
 
-        public static readonly Version Version = new Version(0, 39, 2, "Alpha");
+        public static readonly Version Version = new Version(0, 39, 3, "Alpha");
 
         /// <summary>
         /// Not quite "constant", but it makes more sense for it to be here, at least for now
         /// </summary>
         public static int ModsLoaded = 0;
+
+        /// <summary>
+        /// Whether or not to enable the Render Target drawing code offered by ClxS
+        /// Do not mark as 'const' or else 'if' checks will complain that the expression is always true in ReSharper
+        /// </summary>
+        public static bool EnableDrawingIntoRenderTarget => true;
     }
 }

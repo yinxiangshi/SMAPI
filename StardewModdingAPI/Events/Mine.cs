@@ -4,11 +4,11 @@ namespace StardewModdingAPI.Events
 {
     public static class MineEvents
     {
-        public static event EventHandler<EventArgsCurrentLocationChanged> MineLevelChanged = delegate { };
+        public static event EventHandler<EventArgsMineLevelChanged> MineLevelChanged = delegate { };
 
-        public static void InvokeLocationsChanged(int currentMineLevel)
+        public static void InvokeMineLevelChanged(int previousMinelevel, int currentMineLevel)
         {
-
+            MineLevelChanged.Invoke(null, new EventArgsMineLevelChanged(previousMinelevel, currentMineLevel));
         }
     }
 }

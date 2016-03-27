@@ -152,7 +152,7 @@
     <Compile Include="Inheritance\SBareObject.cs" />
     <Compile Include="Inheritance\SObject.cs" />
     <Compile Include="JsonResolver.cs" />
-    <Compile Include="Log.cs" />
+    <Compile Include="Logger.cs" />
     <Compile Include="Manifest.cs" />
     <Compile Include="Mod.cs" />
     <Compile Include="ModItem.cs" />

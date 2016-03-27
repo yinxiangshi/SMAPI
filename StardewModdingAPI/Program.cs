@@ -59,6 +59,8 @@ namespace StardewModdingAPI
             catch (Exception e)
             {
                 // Catch and display all exceptions. 
+                Console.WriteLine(e);
+                Console.ReadKey();
                 Log.Error("Critical error: " + e);
             }
 
@@ -99,9 +101,7 @@ namespace StardewModdingAPI
             //Checks that all defined modpaths exist as directories
             _modPaths.ForEach(path => VerifyPath(path));
             //_modContentPaths.ForEach(path => VerifyPath(path));
-            VerifyPath(Constants.LogPath);
-
-            Log.Initialize(Constants.LogPath);
+            VerifyPath(Constants.LogDir);
 
             if (!File.Exists(Constants.ExecutionPath + "\\Stardew Valley.exe"))
             {
@@ -267,7 +267,7 @@ namespace StardewModdingAPI
                             string t = File.ReadAllText(s);
                             if (string.IsNullOrEmpty(t))
                             {
-                                Log.Error("Failed to read mod manifest '{0}'. Manifest is empty!", s);
+                                Log.Error($"Failed to read mod manifest '{s}'. Manifest is empty!");
                                 continue;
                             }
 
@@ -275,41 +275,47 @@ namespace StardewModdingAPI
 
                             if (string.IsNullOrEmpty(manifest.EntryDll))
                             {
-                                Log.Error("Failed to read mod manifest '{0}'. EntryDll is empty!", s);
+                                Log.Error($"Failed to read mod manifest '{s}'. EntryDll is empty!");
                                 continue;
                             }
                         }
                         catch (Exception ex)
                         {
-                            Log.Error("Failed to read mod manifest '{0}'. Exception details:\n" + ex, s);
+                            Log.Error($"Failed to read mod manifest '{s}'. Exception details:\n" + ex);
                             continue;
                         }
+                        string targDir = Path.GetDirectoryName(s);
+                        string psDir = Path.Combine(targDir, "psconfigs");
+                                    Log.Info($"Created psconfigs directory @{psDir}");
                         try
                         {
                             if (manifest.PerSaveConfigs)
                             {
-                                if (!Directory.Exists(Path.GetDirectoryName(s)))
-                                    Directory.CreateDirectory(Path.GetDirectoryName(s));
-
-                                if (!Directory.Exists(Path.GetDirectoryName(s)))
+                                if (!Directory.Exists(psDir))
                                 {
-                                    Log.Error("Failed to create psconfigs directory '{0}'. No exception occured.", Path.GetDirectoryName(s));
+                                    Directory.CreateDirectory(psDir);
+                                    Log.Info($"Created psconfigs directory @{psDir}");
+                                }
+
+                                if (!Directory.Exists(psDir))
+                                {
+                                    Log.Error($"Failed to create psconfigs directory '{psDir}'. No exception occured.");
                                     continue;
                                 }
                             }
                         }
                         catch (Exception ex)
                         {
-                            Log.Error("Failed to create psconfigs directory '{0}'. Exception details:\n" + ex, Path.GetDirectoryName(s));
+                            Log.Error($"Failed to create psconfigs directory '{targDir}'. Exception details:\n" + ex);
                             continue;
                         }
                         string targDll = string.Empty;
                         try
                         {
-                            targDll = Path.Combine(Path.GetDirectoryName(s), manifest.EntryDll);
+                            targDll = Path.Combine(targDir, manifest.EntryDll);
                             if (!File.Exists(targDll))
                             {
-                                Log.Error("Failed to load mod '{0}'. File {1} does not exist!", manifest.EntryDll, targDll);
+                                Log.Error($"Failed to load mod '{manifest.EntryDll}'. File {targDll} does not exist!");
                                 continue;
                             }
 
@@ -320,9 +326,9 @@ namespace StardewModdingAPI
                                 Log.Verbose("Loading Mod DLL...");
                                 TypeInfo tar = mod.DefinedTypes.First(x => x.BaseType == typeof (Mod));
                                 Mod m = (Mod) mod.CreateInstance(tar.ToString());
-                                m.PathOnDisk = Path.GetDirectoryName(s);
+                                m.PathOnDisk = targDir;
                                 m.Manifest = manifest;
-                                Log.Success("LOADED MOD: {0} by {1} - Version {2} | Description: {3} (@ {4})", m.Manifest.Name, m.Manifest.Authour, m.Manifest.Version, m.Manifest.Description, targDll);
+                                Log.Success($"LOADED MOD: {m.Manifest.Name} by {m.Manifest.Authour} - Version {m.Manifest.Version} | Description: {m.Manifest.Description} (@ {targDll})");
                                 Constants.ModsLoaded += 1;
                                 m.Entry();
                             }
@@ -333,12 +339,12 @@ namespace StardewModdingAPI
                         }
                         catch (Exception ex)
                         {
-                            Log.Error("Failed to load mod '{0}'. Exception details:\n" + ex,  targDll);
+                            Log.Error($"Failed to load mod '{targDll}'. Exception details:\n" + ex);
                         }
                     }
                 }
             }
-            Log.Success("LOADED {0} MODS", Constants.ModsLoaded);
+            Log.Success($"LOADED {Constants.ModsLoaded} MODS");
             Console.Title = Constants.ConsoleTitle;
         }
 

@@ -32,15 +32,10 @@ namespace StardewModdingAPI.Inheritance
         public Keys[] CurrentlyPressedKeys => KStateNow.GetPressedKeys();
         public Keys[] PreviouslyPressedKeys => KStatePrior.GetPressedKeys();
 
-        public Keys[] FramePressedKeys 
-        { 
-            get { return CurrentlyPressedKeys.Except(PreviouslyPressedKeys).ToArray(); }
-        }
-        public Keys[] FrameReleasedKeys
-        {
-            get { return PreviouslyPressedKeys.Except(CurrentlyPressedKeys).ToArray(); }
-        }
-        
+        public Keys[] FramePressedKeys => CurrentlyPressedKeys.Except(PreviouslyPressedKeys).ToArray();
+
+        public Keys[] FrameReleasedKeys => PreviouslyPressedKeys.Except(CurrentlyPressedKeys).ToArray();
+
         public Buttons[][] PreviouslyPressedButtons;
 
         private bool WasButtonJustPressed(Buttons button, ButtonState buttonState, PlayerIndex stateIndex)
@@ -160,6 +155,8 @@ namespace StardewModdingAPI.Inheritance
 
         public GameLocation PreviousGameLocation { get; private set; }
         public IClickableMenu PreviousActiveMenu { get; private set; }
+
+        public int PreviousMineLevel { get; private set; }
 
         public Int32 PreviousTimeOfDay { get; private set; }
         public Int32 PreviousDayOfMonth { get; private set; }
@@ -281,6 +278,40 @@ namespace StardewModdingAPI.Inheritance
             }
 
             GraphicsEvents.InvokeDrawTick();
+
+            if (Constants.EnableDrawingIntoRenderTarget)
+            {
+                if (!options.zoomLevel.Equals(1.0f))
+                {
+                    if (Screen.RenderTargetUsage == RenderTargetUsage.DiscardContents)
+                    {
+                        Screen = new RenderTarget2D(graphics.GraphicsDevice, Math.Min(4096, (int) (Window.ClientBounds.Width * (1.0 / options.zoomLevel))),
+                            Math.Min(4096, (int) (Window.ClientBounds.Height * (1.0 / options.zoomLevel))),
+                            false, SurfaceFormat.Color, DepthFormat.Depth16, 1, RenderTargetUsage.PreserveContents);
+                    }
+                    GraphicsDevice.SetRenderTarget(Screen);
+                }
+
+                // Not beginning the batch due to inconsistancies with the standard draw tick...
+                //spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
+
+                GraphicsEvents.InvokeDrawInRenderTargetTick();
+
+                //spriteBatch.End();
+
+                if (!options.zoomLevel.Equals(1.0f))
+                {
+                    GraphicsDevice.SetRenderTarget(null);
+                    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
+                    spriteBatch.Draw(Screen, Vector2.Zero, Screen.Bounds, Color.White, 0.0f, Vector2.Zero, options.zoomLevel, SpriteEffects.None, 1f);
+                    spriteBatch.End();
+                }
+
+                //Re-draw the mouse
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
+                spriteBatch.Draw(mouseCursors, new Vector2(getMouseX(), getMouseY()), getSourceRectForStandardTileSheet(mouseCursors, mouseCursor, 16, 16), Color.White * mouseCursorTransparency, 0.0f, Vector2.Zero, pixelZoom + dialogueButtonScale / 150f, SpriteEffects.None, 1f);
+                spriteBatch.End();
+            }
 
             if (Debug)
             {
@@ -489,6 +520,12 @@ namespace StardewModdingAPI.Inheritance
             {
                 FireLoadedGameEvent = true;
                 PreviouslyLoadedGame = hasLoadedGame;
+            }
+
+            if (mine != null && PreviousMineLevel != mine.mineLevel)
+            {
+                MineEvents.InvokeMineLevelChanged(PreviousMineLevel, mine.mineLevel);
+                PreviousMineLevel = mine.mineLevel;
             }
         }
 
