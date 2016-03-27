@@ -12,22 +12,22 @@ namespace StardewModdingAPI.Events
         public static event EventHandler<EventArgsLevelUp> LeveledUp = delegate { };
         public static event EventHandler<EventArgsLoadedGameChanged> LoadedGame = delegate { };
 
-        public static void InvokeFarmerChanged(Farmer priorFarmer, Farmer newFarmer)
+        internal static void InvokeFarmerChanged(Farmer priorFarmer, Farmer newFarmer)
         {
             FarmerChanged.Invoke(null, new EventArgsFarmerChanged(priorFarmer, newFarmer));
         }
 
-        public static void InvokeInventoryChanged(List<Item> inventory, List<ItemStackChange> changedItems)
+        internal static void InvokeInventoryChanged(List<Item> inventory, List<ItemStackChange> changedItems)
         {
             InventoryChanged.Invoke(null, new EventArgsInventoryChanged(inventory, changedItems));
         }
 
-        public static void InvokeLeveledUp(EventArgsLevelUp.LevelType type, int newLevel)
+        internal static void InvokeLeveledUp(EventArgsLevelUp.LevelType type, int newLevel)
         {
             LeveledUp.Invoke(null, new EventArgsLevelUp(type, newLevel));
         }
 
-        public static void InvokeLoadedGame(EventArgsLoadedGameChanged loaded)
+        internal static void InvokeLoadedGame(EventArgsLoadedGameChanged loaded)
         {
             LoadedGame.Invoke(null, loaded);
         }

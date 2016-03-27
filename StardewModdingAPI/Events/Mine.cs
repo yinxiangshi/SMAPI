@@ -6,7 +6,7 @@ namespace StardewModdingAPI.Events
     {
         public static event EventHandler<EventArgsMineLevelChanged> MineLevelChanged = delegate { };
 
-        public static void InvokeMineLevelChanged(int previousMinelevel, int currentMineLevel)
+        internal static void InvokeMineLevelChanged(int previousMinelevel, int currentMineLevel)
         {
             MineLevelChanged.Invoke(null, new EventArgsMineLevelChanged(previousMinelevel, currentMineLevel));
         }

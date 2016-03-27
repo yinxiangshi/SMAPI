@@ -44,12 +44,12 @@ namespace StardewModdingAPI.Events
         /// </summary>
         public static event EventHandler OneSecondTick = delegate { };
 
-        public static void InvokeGameLoaded()
+        internal static void InvokeGameLoaded()
         {
             GameLoaded.Invoke(null, EventArgs.Empty);
         }
 
-        public static void InvokeInitialize()
+        internal static void InvokeInitialize()
         {
             try
             {
@@ -61,7 +61,7 @@ namespace StardewModdingAPI.Events
             }
         }
 
-        public static void InvokeLoadContent()
+        internal static void InvokeLoadContent()
         {
             try
             {
@@ -73,7 +73,7 @@ namespace StardewModdingAPI.Events
             }
         }
 
-        public static void InvokeUpdateTick()
+        internal static void InvokeUpdateTick()
         {
             try
             {
@@ -85,37 +85,37 @@ namespace StardewModdingAPI.Events
             }
         }
 
-        public static void InvokeSecondUpdateTick()
+        internal static void InvokeSecondUpdateTick()
         {
             SecondUpdateTick.Invoke(null, EventArgs.Empty);
         }
 
-        public static void InvokeFourthUpdateTick()
+        internal static void InvokeFourthUpdateTick()
         {
             FourthUpdateTick.Invoke(null, EventArgs.Empty);
         }
 
-        public static void InvokeEighthUpdateTick()
+        internal static void InvokeEighthUpdateTick()
         {
             EighthUpdateTick.Invoke(null, EventArgs.Empty);
         }
 
-        public static void InvokeQuarterSecondTick()
+        internal static void InvokeQuarterSecondTick()
         {
             QuarterSecondTick.Invoke(null, EventArgs.Empty);
         }
 
-        public static void InvokeHalfSecondTick()
+        internal static void InvokeHalfSecondTick()
         {
             HalfSecondTick.Invoke(null, EventArgs.Empty);
         }
 
-        public static void InvokeOneSecondTick()
+        internal static void InvokeOneSecondTick()
         {
             OneSecondTick.Invoke(null, EventArgs.Empty);
         }
 
-        public static void InvokeFirstUpdateTick()
+        internal static void InvokeFirstUpdateTick()
         {
             FirstUpdateTick.Invoke(null, EventArgs.Empty);
         }

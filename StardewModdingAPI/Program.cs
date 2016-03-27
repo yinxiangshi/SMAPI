@@ -35,8 +35,8 @@ namespace StardewModdingAPI
 
         public static Texture2D DebugPixel { get; private set; }
 
-        public static bool StardewInjectorLoaded { get; private set; }
-        public static Mod StardewInjectorMod { get; private set; }
+        // ReSharper disable once PossibleNullReferenceException
+        public static int BuildType => (int) StardewProgramType.GetField("buildType", BindingFlags.Public | BindingFlags.Static).GetValue(null);
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

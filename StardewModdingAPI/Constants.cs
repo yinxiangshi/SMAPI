@@ -58,5 +58,10 @@ namespace StardewModdingAPI
         ///     Do not mark as 'const' or else 'if' checks will complain that the expression is always true in ReSharper
         /// </summary>
         public static bool EnableDrawingIntoRenderTarget => true;
+
+        /// <summary>
+        /// Completely overrides the base game's draw call to the one is SGame
+        /// </summary>
+        public static bool EnableCompletelyOverridingBaseCalls => true;
     }
 }
