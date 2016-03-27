@@ -426,7 +426,10 @@ namespace StardewModdingAPI.Inheritance
             UpdateEventCalls();
 
             if (ZoomLevelIsOne)
+            {
                 options.zoomLevel = 0.99f;
+                InvokeBasePrivateInstancedMethod("Window_ClientSizeChanged", null, null);
+            }
 
             if (FramePressedKeys.Contains(Keys.F3))
             {
