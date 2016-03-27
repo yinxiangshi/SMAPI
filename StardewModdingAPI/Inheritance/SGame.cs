@@ -479,6 +479,8 @@ namespace StardewModdingAPI.Inheritance
 
             if (Constants.EnableCompletelyOverridingBaseDrawCall)
             {
+                #region Overridden Draw
+
                 // StardewValley.Game1
                 if (!ZoomLevelIsOne)
                 {
@@ -595,6 +597,7 @@ namespace StardewModdingAPI.Inheritance
                     }
                     GraphicsDevice.Clear(BgColour);
                     spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
+                    GraphicsEvents.InvokeOnPreRenderEvent(null, EventArgs.Empty);
                     background?.draw(spriteBatch);
                     mapDisplayDevice.BeginScene(spriteBatch);
                     currentLocation.Map.GetLayer("Back").Draw(mapDisplayDevice, viewport, Location.Origin, false, pixelZoom);
@@ -837,7 +840,9 @@ namespace StardewModdingAPI.Inheritance
                     }
                     if ((displayHUD || eventUp) && currentBillboard == 0 && gameMode == 3 && !freezeControls && !panMode)
                     {
+                        GraphicsEvents.InvokeOnPreRenderHudEvent(null, EventArgs.Empty);
                         typeof (Game1).GetMethod("drawHUD", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(Program.gamePtr, null);
+                        GraphicsEvents.InvokeOnPostRenderHudEvent(null, EventArgs.Empty);
                         //this.drawHUD();
                     }
                     else if (activeClickableMenu == null && farmEvent == null)
@@ -855,7 +860,7 @@ namespace StardewModdingAPI.Inheritance
                 farmEvent?.draw(spriteBatch);
                 if (dialogueUp && !nameSelectUp && !messagePause && !(activeClickableMenu is DialogueBox))
                 {
-                        typeof (Game1).GetMethod("drawDialogueBox", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(Program.gamePtr, null);
+                    typeof (Game1).GetMethod("drawDialogueBox", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(Program.gamePtr, null);
                     //this.drawDialogueBox();
                 }
                 if (progressBar)
@@ -885,7 +890,7 @@ namespace StardewModdingAPI.Inheritance
                 }
                 if ((messagePause || globalFade) && dialogueUp)
                 {
-                        typeof (Game1).GetMethod("drawDialogueBox", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(Program.gamePtr, null);
+                    typeof (Game1).GetMethod("drawDialogueBox", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(Program.gamePtr, null);
                     //this.drawDialogueBox();
                 }
                 foreach (TemporaryAnimatedSprite current8 in screenOverlayTempSprites)
@@ -912,12 +917,15 @@ namespace StardewModdingAPI.Inheritance
                 }
                 if (activeClickableMenu != null)
                 {
+                    GraphicsEvents.InvokeOnPreRenderGuiEvent(null, EventArgs.Empty);
                     activeClickableMenu.draw(spriteBatch);
+                    GraphicsEvents.InvokeOnPostRenderGuiEvent(null, EventArgs.Empty);
                 }
                 else
                 {
                     farmEvent?.drawAboveEverything(spriteBatch);
                 }
+                GraphicsEvents.InvokeOnPostRenderEvent(null, EventArgs.Empty);
                 spriteBatch.End();
                 if (!ZoomLevelIsOne)
                 {
@@ -927,84 +935,86 @@ namespace StardewModdingAPI.Inheritance
                     spriteBatch.Draw(Screen, Vector2.Zero, Screen.Bounds, Color.White, 0f, Vector2.Zero, options.zoomLevel, SpriteEffects.None, 1f);
                     spriteBatch.End();
                 }
-                else
+
+                #endregion
+            }
+            else
+            {
+                #region Base Draw Call
+
+                try
                 {
-                    #region Base Draw Call
+                    base.Draw(gameTime);
+                }
+                catch (Exception ex)
+                {
+                    Log.AsyncR("An error occured in the base draw loop: " + ex);
+                    Console.ReadKey();
+                }
 
-                    try
-                    {
-                        base.Draw(gameTime);
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.AsyncR("An error occured in the base draw loop: " + ex);
-                        Console.ReadKey();
-                    }
+                GraphicsEvents.InvokeDrawTick();
 
-                    GraphicsEvents.InvokeDrawTick();
-
-                    if (Constants.EnableDrawingIntoRenderTarget)
+                if (Constants.EnableDrawingIntoRenderTarget)
+                {
+                    if (!options.zoomLevel.Equals(1.0f))
                     {
-                        if (!options.zoomLevel.Equals(1.0f))
+                        if (Screen.RenderTargetUsage == RenderTargetUsage.DiscardContents)
                         {
-                            if (Screen.RenderTargetUsage == RenderTargetUsage.DiscardContents)
-                            {
-                                Screen = new RenderTarget2D(graphics.GraphicsDevice, Math.Min(4096, (int) (Window.ClientBounds.Width * (1.0 / options.zoomLevel))),
-                                    Math.Min(4096, (int) (Window.ClientBounds.Height * (1.0 / options.zoomLevel))),
-                                    false, SurfaceFormat.Color, DepthFormat.Depth16, 1, RenderTargetUsage.PreserveContents);
-                            }
-                            GraphicsDevice.SetRenderTarget(Screen);
+                            Screen = new RenderTarget2D(graphics.GraphicsDevice, Math.Min(4096, (int) (Window.ClientBounds.Width * (1.0 / options.zoomLevel))),
+                                Math.Min(4096, (int) (Window.ClientBounds.Height * (1.0 / options.zoomLevel))),
+                                false, SurfaceFormat.Color, DepthFormat.Depth16, 1, RenderTargetUsage.PreserveContents);
                         }
+                        GraphicsDevice.SetRenderTarget(Screen);
+                    }
 
-                        // Not beginning the batch due to inconsistancies with the standard draw tick...
-                        //spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
+                    // Not beginning the batch due to inconsistancies with the standard draw tick...
+                    //spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
 
-                        GraphicsEvents.InvokeDrawInRenderTargetTick();
+                    GraphicsEvents.InvokeDrawInRenderTargetTick();
 
-                        //spriteBatch.End();
+                    //spriteBatch.End();
 
-                        //Re-draw the HUD
-                        spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
-                        activeClickableMenu?.draw(spriteBatch);
-                        /*
+                    //Re-draw the HUD
+                    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
+                    activeClickableMenu?.draw(spriteBatch);
+                    /*
                 if ((displayHUD || eventUp) && currentBillboard == 0 && gameMode == 3 && !freezeControls && !panMode)
                     typeof (Game1).GetMethod("drawHUD", BindingFlags.NonPublic | BindingFlags.Instance)?.Invoke(Program.gamePtr, null);
                 */
-                        spriteBatch.Draw(mouseCursors, new Vector2(getOldMouseX(), getOldMouseY()), getSourceRectForStandardTileSheet(mouseCursors, options.gamepadControls ? 44 : 0, 16, 16), Color.White, 0.0f, Vector2.Zero, pixelZoom + dialogueButtonScale / 150f, SpriteEffects.None, 1f);
+                    spriteBatch.Draw(mouseCursors, new Vector2(getOldMouseX(), getOldMouseY()), getSourceRectForStandardTileSheet(mouseCursors, options.gamepadControls ? 44 : 0, 16, 16), Color.White, 0.0f, Vector2.Zero, pixelZoom + dialogueButtonScale / 150f, SpriteEffects.None, 1f);
 
-                        spriteBatch.End();
+                    spriteBatch.End();
 
-                        if (!options.zoomLevel.Equals(1.0f))
-                        {
-                            GraphicsDevice.SetRenderTarget(null);
-                            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
-                            spriteBatch.Draw(Screen, Vector2.Zero, Screen.Bounds, Color.White, 0.0f, Vector2.Zero, options.zoomLevel, SpriteEffects.None, 1f);
-                            spriteBatch.End();
-                        }
-                    }
-
-                    if (Debug)
+                    if (!options.zoomLevel.Equals(1.0f))
                     {
-                        spriteBatch.Begin();
-                        spriteBatch.DrawString(smoothFont, "FPS: " + FramesPerSecond, Vector2.Zero, BgColour);
-
-                        int i = 1;
-                        while (DebugMessageQueue.Any())
-                        {
-                            string s = DebugMessageQueue.Dequeue();
-                            spriteBatch.DrawString(smoothFont, s, new Vector2(0, i * 12), BgColour);
-                            i++;
-                        }
-                        GraphicsEvents.InvokeDrawDebug(null, null);
+                        GraphicsDevice.SetRenderTarget(null);
+                        spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
+                        spriteBatch.Draw(Screen, Vector2.Zero, Screen.Bounds, Color.White, 0.0f, Vector2.Zero, options.zoomLevel, SpriteEffects.None, 1f);
                         spriteBatch.End();
                     }
-                    else
-                    {
-                        DebugMessageQueue.Clear();
-                    }
-
-                    #endregion
                 }
+
+                if (Debug)
+                {
+                    spriteBatch.Begin();
+                    spriteBatch.DrawString(smoothFont, "FPS: " + FramesPerSecond, Vector2.Zero, BgColour);
+
+                    int i = 1;
+                    while (DebugMessageQueue.Any())
+                    {
+                        string s = DebugMessageQueue.Dequeue();
+                        spriteBatch.DrawString(smoothFont, s, new Vector2(0, i * 12), BgColour);
+                        i++;
+                    }
+                    GraphicsEvents.InvokeDrawDebug(null, null);
+                    spriteBatch.End();
+                }
+                else
+                {
+                    DebugMessageQueue.Clear();
+                }
+
+                #endregion
             }
         }
 

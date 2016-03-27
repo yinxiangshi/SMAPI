@@ -2,11 +2,47 @@
 
 namespace StardewModdingAPI.Events
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class GraphicsEvents
     {
+        /// <summary>
+        /// Occurs when the form (game) is resized.
+        /// </summary>
         public static event EventHandler Resize = delegate { };
-        public static event EventHandler DrawTick = delegate { };
-        public static event EventHandler DrawInRenderTargetTick = delegate { };
+
+       
+
+        /// <summary>
+        /// Occurs before anything is drawn.
+        /// </summary>
+        public static event EventHandler OnPreRenderEvent = delegate { };
+
+        /// <summary>
+        /// Occurs before the GUI is drawn.
+        /// </summary>
+        public static event EventHandler OnPreRenderGuiEvent = delegate { };
+
+        /// <summary>
+        /// Occurs after the GUI is drawn.
+        /// </summary>
+        public static event EventHandler OnPostRenderGuiEvent = delegate { };
+
+        /// <summary>
+        /// Occurs before the HUD is drawn.
+        /// </summary>
+        public static event EventHandler OnPreRenderHudEvent = delegate { };
+
+        /// <summary>
+        /// Occurs after the HUD is drawn.
+        /// </summary>
+        public static event EventHandler OnPostRenderHudEvent = delegate { };
+
+        /// <summary>
+        /// Occurs after everything is drawn.
+        /// </summary>
+        public static event EventHandler OnPostRenderEvent = delegate { };
 
         /// <summary>
         /// Draws when SGame.Debug is true. F3 toggles this.
@@ -16,6 +52,52 @@ namespace StardewModdingAPI.Events
         /// </summary>
         public static event EventHandler DrawDebug = delegate { };
 
+        internal static void InvokeDrawDebug(object sender, EventArgs e)
+        {
+            DrawDebug.Invoke(sender, e);
+        }
+
+        internal static void InvokeOnPreRenderEvent(object sender, EventArgs e)
+        {
+            OnPreRenderEvent.Invoke(sender, e);
+        }
+
+        internal static void InvokeOnPreRenderGuiEvent(object sender, EventArgs e)
+        {
+            OnPreRenderGuiEvent.Invoke(sender, e);
+        }
+
+        internal static void InvokeOnPostRenderGuiEvent(object sender, EventArgs e)
+        {
+            OnPostRenderGuiEvent.Invoke(sender, e);
+        }
+
+        internal static void InvokeOnPreRenderHudEvent(object sender, EventArgs e)
+        {
+            OnPreRenderHudEvent.Invoke(sender, e);
+        }
+
+        internal static void InvokeOnPostRenderHudEvent(object sender, EventArgs e)
+        {
+            OnPostRenderHudEvent.Invoke(sender, e);
+        }
+
+        internal static void InvokeOnPostRenderEvent(object sender, EventArgs e)
+        {
+            OnPostRenderEvent.Invoke(sender, e);
+        }
+
+
+
+        #region To Remove
+
+        [Obsolete("Use the other Pre/Post render events instead.")]
+        public static event EventHandler DrawTick = delegate { };
+
+        [Obsolete("Use the other Pre/Post render events instead. All of them will automatically be drawn into the render target if needed.")]
+        public static event EventHandler DrawInRenderTargetTick = delegate { };
+
+        [Obsolete("Should not be used.")]
         public static void InvokeDrawTick()
         {
             try
@@ -28,19 +110,18 @@ namespace StardewModdingAPI.Events
             }
         }
 
+        [Obsolete("Should not be used.")]
         public static void InvokeDrawInRenderTargetTick()
         {
             DrawInRenderTargetTick.Invoke(null, EventArgs.Empty);
         }
 
+        [Obsolete("Should not be used.")]
         public static void InvokeResize(object sender, EventArgs e)
         {
             Resize.Invoke(sender, e);
         }
 
-        public static void InvokeDrawDebug(object sender, EventArgs e)
-        {
-            DrawDebug.Invoke(sender, e);
-        }
+        #endregion
     }
 }
