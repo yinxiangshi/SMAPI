@@ -994,27 +994,27 @@ namespace StardewModdingAPI.Inheritance
                     }
                 }
 
-                if (Debug)
-                {
-                    spriteBatch.Begin();
-                    spriteBatch.DrawString(smoothFont, "FPS: " + FramesPerSecond, Vector2.Zero, BgColour);
-
-                    int i = 1;
-                    while (DebugMessageQueue.Any())
-                    {
-                        string s = DebugMessageQueue.Dequeue();
-                        spriteBatch.DrawString(smoothFont, s, new Vector2(0, i * 12), BgColour);
-                        i++;
-                    }
-                    GraphicsEvents.InvokeDrawDebug(null, null);
-                    spriteBatch.End();
-                }
-                else
-                {
-                    DebugMessageQueue.Clear();
-                }
-
                 #endregion
+            }
+
+            if (Debug)
+            {
+                spriteBatch.Begin();
+                spriteBatch.DrawString(smoothFont, "FPS: " + FramesPerSecond, Vector2.Zero, Color.CornflowerBlue);
+
+                int i = 1;
+                while (DebugMessageQueue.Any())
+                {
+                    string s = DebugMessageQueue.Dequeue();
+                    spriteBatch.DrawString(smoothFont, s, new Vector2(0, i * 12), Color.CornflowerBlue);
+                    i++;
+                }
+                GraphicsEvents.InvokeDrawDebug(null, EventArgs.Empty);
+                spriteBatch.End();
+            }
+            else
+            {
+                DebugMessageQueue.Clear();
             }
         }
 
@@ -1231,7 +1231,7 @@ namespace StardewModdingAPI.Inheritance
 
             if (PreviousIsNewDay != newDay)
             {
-                TimeEvents.InvokeOnNewDay(PreviousDayOfMonth, dayOfMonth);
+                TimeEvents.InvokeOnNewDay(PreviousDayOfMonth, dayOfMonth, newDay);
                 PreviousIsNewDay = newDay;
             }
         }
