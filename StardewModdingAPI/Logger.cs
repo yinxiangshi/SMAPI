@@ -194,7 +194,7 @@ namespace StardewModdingAPI
         [Obsolete("Parameter 'values' is no longer supported. Format before logging.")]
         public static void Debug(object message, params object[] values)
         {
-            AsyncO(message);
+            Debug(message);
         }
 
         #endregion
