@@ -1,4 +1,8 @@
 ﻿using System;
+using System.IO;
+using System.Linq;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace StardewModdingAPI
 {
@@ -49,6 +53,37 @@ namespace StardewModdingAPI
             PerSaveConfigs = false;
             EntryDll = "";
             return this as T;
+        }
+
+        public override T LoadConfig<T>()
+        {
+            if (File.Exists(ConfigLocation))
+            {
+                try
+                {
+                    Manifest m = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(ConfigLocation));
+                }
+                catch
+                {
+                    //Invalid json blob. Try to remove version?
+                    try
+                    {
+                        JObject j = JObject.Parse(File.ReadAllText(ConfigLocation));
+                        if (!j.GetValue("Version").Contains("{"))
+                        {
+                            Log.AsyncC("INVALID JSON VERSION. TRYING TO REMOVE SO A NEW CAN BE AUTO-GENERATED");
+                            j.Remove("Version");
+                            File.WriteAllText(ConfigLocation, j.ToString());
+                        }
+                    }
+                    catch
+                    {
+                        //Idgaf speeder can go fuck himself
+                    }
+                }
+            }
+
+            return base.LoadConfig<T>();
         }
     }
 }
