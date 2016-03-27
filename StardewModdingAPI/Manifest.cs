@@ -76,9 +76,9 @@ namespace StardewModdingAPI
                             File.WriteAllText(ConfigLocation, j.ToString());
                         }
                     }
-                    catch
+                    catch (Exception)
                     {
-                        //Idgaf speeder can go fuck himself
+                        // ignored
                     }
                 }
             }
