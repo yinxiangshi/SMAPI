@@ -5,7 +5,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -22,15 +21,7 @@ namespace StardewModdingAPI
         public virtual Config Instance<T>() where T : Config => Activator.CreateInstance<T>();
 
         /// <summary>
-        /// Should never be used for anything.
-        /// </summary>
-        public Config()
-        {
-
-        }
-
-        /// <summary>
-        /// Loads the config from the json blob on disk, updating and re-writing to the disk if needed.
+        ///     Loads the config from the json blob on disk, updating and re-writing to the disk if needed.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
@@ -38,7 +29,7 @@ namespace StardewModdingAPI
         {
             if (string.IsNullOrEmpty(ConfigLocation))
             {
-                Log.Error("A config tried to load without specifying a location on the disk.");
+                Log.AsyncR("A config tried to load without specifying a location on the disk.");
                 return null;
             }
 
@@ -47,7 +38,7 @@ namespace StardewModdingAPI
             if (!File.Exists(ConfigLocation))
             {
                 //no config exists, generate default values
-                var c = this.GenerateDefaultConfig<T>();
+                var c = GenerateDefaultConfig<T>();
                 c.ConfigLocation = ConfigLocation;
                 ret = c;
             }
@@ -56,7 +47,7 @@ namespace StardewModdingAPI
                 try
                 {
                     //try to load the config from a json blob on disk
-                    T c = JsonConvert.DeserializeObject<T>(File.ReadAllText(ConfigLocation), new JsonSerializerSettings() {ContractResolver = new JsonResolver()});
+                    var c = JsonConvert.DeserializeObject<T>(File.ReadAllText(ConfigLocation), new JsonSerializerSettings {ContractResolver = new JsonResolver()});
 
                     c.ConfigLocation = ConfigLocation;
 
@@ -67,7 +58,7 @@ namespace StardewModdingAPI
                 }
                 catch (Exception ex)
                 {
-                    Log.Error("Invalid JSON ({0}): {1} \n{2}", GetType().Name, ConfigLocation, ex);
+                    Log.AsyncR($"Invalid JSON ({GetType().Name}): {ConfigLocation} \n{ex}");
                     return GenerateDefaultConfig<T>();
                 }
             }
@@ -77,7 +68,7 @@ namespace StardewModdingAPI
         }
 
         /// <summary>
-        /// MUST be implemented in inheriting class!
+        ///     MUST be implemented in inheriting class!
         /// </summary>
         public virtual T GenerateDefaultConfig<T>() where T : Config
         {
@@ -85,7 +76,7 @@ namespace StardewModdingAPI
         }
 
         /// <summary>
-        /// Merges a default-value config with the user-config on disk.
+        ///     Merges a default-value config with the user-config on disk.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
@@ -94,16 +85,16 @@ namespace StardewModdingAPI
             try
             {
                 //default config
-                var b = JObject.FromObject(Instance<T>().GenerateDefaultConfig<T>(), new JsonSerializer() {ContractResolver = new JsonResolver()});
+                var b = JObject.FromObject(Instance<T>().GenerateDefaultConfig<T>(), new JsonSerializer {ContractResolver = new JsonResolver()});
 
                 //user config
-                var u = JObject.FromObject(this, new JsonSerializer() {ContractResolver = new JsonResolver()});
+                var u = JObject.FromObject(this, new JsonSerializer {ContractResolver = new JsonResolver()});
 
                 //overwrite default values with user values
                 b.Merge(u, new JsonMergeSettings {MergeArrayHandling = MergeArrayHandling.Replace});
 
                 //cast json object to config
-                T c = b.ToObject<T>();
+                var c = b.ToObject<T>();
 
                 //re-write the location on disk to the object
                 c.ConfigLocation = ConfigLocation;
@@ -112,7 +103,7 @@ namespace StardewModdingAPI
             }
             catch (Exception ex)
             {
-                Log.Error("An error occured when updating a config: " + ex);
+                Log.AsyncR("An error occured when updating a config: " + ex);
                 return this as T;
             }
         }
@@ -121,10 +112,10 @@ namespace StardewModdingAPI
     public static class ConfigExtensions
     {
         /// <summary>
-        /// Initializes an instance of any class that inherits from Config.
-        /// This method performs the loading, saving, and merging of the config on the disk and in memory at a default state.
-        /// This method should not be used to re-load or to re-save a config.
-        /// NOTE: You MUST set your config EQUAL to the return of this method!
+        ///     Initializes an instance of any class that inherits from Config.
+        ///     This method performs the loading, saving, and merging of the config on the disk and in memory at a default state.
+        ///     This method should not be used to re-load or to re-save a config.
+        ///     NOTE: You MUST set your config EQUAL to the return of this method!
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="baseConfig"></param>
@@ -136,35 +127,35 @@ namespace StardewModdingAPI
             {
                 baseConfig = Activator.CreateInstance<T>();
                 /*
-                Log.Error("A config tried to initialize whilst being null.");
+                Log.AsyncR("A config tried to initialize whilst being null.");
                 return null;
                 */
             }
 
             if (string.IsNullOrEmpty(configLocation))
             {
-                Log.Error("A config tried to initialize without specifying a location on the disk.");
+                Log.AsyncR("A config tried to initialize without specifying a location on the disk.");
                 return null;
             }
 
             baseConfig.ConfigLocation = configLocation;
-            T c = baseConfig.LoadConfig<T>();
+            var c = baseConfig.LoadConfig<T>();
 
             return c;
         }
 
         /// <summary>
-        /// Writes a config to a json blob on the disk specified in the config's properties.
+        ///     Writes a config to a json blob on the disk specified in the config's properties.
         /// </summary>
         public static void WriteConfig<T>(this T baseConfig) where T : Config
         {
             if (string.IsNullOrEmpty(baseConfig?.ConfigLocation) || string.IsNullOrEmpty(baseConfig.ConfigDir))
             {
-                Log.Error("A config attempted to save when it itself or it's location were null.");
+                Log.AsyncR("A config attempted to save when it itself or it's location were null.");
                 return;
             }
 
-            string s = JsonConvert.SerializeObject(baseConfig, typeof (T), Formatting.Indented, new JsonSerializerSettings() {ContractResolver = new JsonResolver()});
+            var s = JsonConvert.SerializeObject(baseConfig, typeof (T), Formatting.Indented, new JsonSerializerSettings {ContractResolver = new JsonResolver()});
 
             if (!Directory.Exists(baseConfig.ConfigDir))
                 Directory.CreateDirectory(baseConfig.ConfigDir);
@@ -174,8 +165,8 @@ namespace StardewModdingAPI
         }
 
         /// <summary>
-        /// Re-reads the json blob on the disk and merges its values with a default config
-        /// NOTE: You MUST set your config EQUAL to the return of this method!
+        ///     Re-reads the json blob on the disk and merges its values with a default config
+        ///     NOTE: You MUST set your config EQUAL to the return of this method!
         /// </summary>
         public static T ReloadConfig<T>(this T baseConfig) where T : Config
         {

@@ -7,20 +7,28 @@ namespace StardewModdingAPI.Inheritance.Menus
 {
     public class SBobberBar : BobberBar
     {
+        /// <summary>
+        ///     DO NOT CONSTRUCT THIS CLASS
+        ///     To retrieve an instance of SBobberBar, use SBobberBar.ConstructFromBaseClass()
+        /// </summary>
+        public SBobberBar(int whichFish, float fishSize, bool treasure, int bobber) : base(whichFish, fishSize, treasure, bobber)
+        {
+        }
+
         public BobberBar BaseBobberBar { get; private set; }
 
         /// <summary>
-        /// The green rectangle bar that moves up and down
+        ///     The green rectangle bar that moves up and down
         /// </summary>
         public float bobberPosition
         {
             get { return (float) GetBaseFieldInfo("bobberPosition").GetValue(BaseBobberBar); }
             set { GetBaseFieldInfo("bobberPosition").SetValue(BaseBobberBar, value); }
         }
-        
+
         /// <summary>
-        /// The green bar on the right. How close to catching the fish you are
-        /// Range: 0 - 1 | 1 = catch, 0 = fail
+        ///     The green bar on the right. How close to catching the fish you are
+        ///     Range: 0 - 1 | 1 = catch, 0 = fail
         /// </summary>
         public float distanceFromCatching
         {
@@ -137,7 +145,7 @@ namespace StardewModdingAPI.Inheritance.Menus
         }
 
         /// <summary>
-        /// Whether or not a treasure chest appears
+        ///     Whether or not a treasure chest appears
         /// </summary>
         public bool treasure
         {
@@ -266,18 +274,9 @@ namespace StardewModdingAPI.Inheritance.Menus
 
         public static SBobberBar ConstructFromBaseClass(BobberBar baseClass)
         {
-            SBobberBar b = new SBobberBar(0, 0, false, 0);
+            var b = new SBobberBar(0, 0, false, 0);
             b.BaseBobberBar = baseClass;
             return b;
-        }
-
-        /// <summary>
-        /// DO NOT CONSTRUCT THIS CLASS
-        /// To retrieve an instance of SBobberBar, use SBobberBar.ConstructFromBaseClass()
-        /// </summary>
-        public SBobberBar(int whichFish, float fishSize, bool treasure, int bobber) : base(whichFish, fishSize, treasure, bobber)
-        {
-
         }
 
         public static FieldInfo[] GetPrivateFields()

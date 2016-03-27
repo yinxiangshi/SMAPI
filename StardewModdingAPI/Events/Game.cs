@@ -8,32 +8,39 @@ namespace StardewModdingAPI.Events
         public static event EventHandler Initialize = delegate { };
         public static event EventHandler LoadContent = delegate { };
         public static event EventHandler FirstUpdateTick = delegate { };
+
         /// <summary>
-        /// Fires every update (1/60 of a second)
+        ///     Fires every update (1/60 of a second)
         /// </summary>
         public static event EventHandler UpdateTick = delegate { };
+
         /// <summary>
-        /// Fires every other update (1/30 of a second)
+        ///     Fires every other update (1/30 of a second)
         /// </summary>
         public static event EventHandler SecondUpdateTick = delegate { };
+
         /// <summary>
-        /// Fires every fourth update (1/15 of a second)
+        ///     Fires every fourth update (1/15 of a second)
         /// </summary>
         public static event EventHandler FourthUpdateTick = delegate { };
+
         /// <summary>
-        /// Fires every eighth update (roughly 1/8 of a second)
+        ///     Fires every eighth update (roughly 1/8 of a second)
         /// </summary>
         public static event EventHandler EighthUpdateTick = delegate { };
+
         /// <summary>
-        /// Fires every fifthteenth update (1/4 of a second)
+        ///     Fires every fifthteenth update (1/4 of a second)
         /// </summary>
         public static event EventHandler QuarterSecondTick = delegate { };
+
         /// <summary>
-        /// Fires every thirtieth update (1/2 of a second)
+        ///     Fires every thirtieth update (1/2 of a second)
         /// </summary>
         public static event EventHandler HalfSecondTick = delegate { };
+
         /// <summary>
-        /// Fires every sixtieth update (a second)
+        ///     Fires every sixtieth update (a second)
         /// </summary>
         public static event EventHandler OneSecondTick = delegate { };
 
@@ -50,7 +57,7 @@ namespace StardewModdingAPI.Events
             }
             catch (Exception ex)
             {
-                Log.Error("An exception occured in XNA Initialize: " + ex);
+                Log.AsyncR("An exception occured in XNA Initialize: " + ex);
             }
         }
 
@@ -62,7 +69,7 @@ namespace StardewModdingAPI.Events
             }
             catch (Exception ex)
             {
-                Log.Error("An exception occured in XNA LoadContent: " + ex);
+                Log.AsyncR("An exception occured in XNA LoadContent: " + ex);
             }
         }
 
@@ -74,7 +81,7 @@ namespace StardewModdingAPI.Events
             }
             catch (Exception ex)
             {
-                Log.Error("An exception occured in XNA UpdateTick: " + ex);
+                Log.AsyncR("An exception occured in XNA UpdateTick: " + ex);
             }
         }
 

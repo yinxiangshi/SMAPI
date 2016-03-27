@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using StardewModdingAPI;
 
 namespace StardewModdingAPI
 {
@@ -28,7 +24,7 @@ namespace StardewModdingAPI
         #region Sync Logging
 
         /// <summary>
-        /// NOTICE: Sync logging is discouraged. Please use Async instead.
+        ///     NOTICE: Sync logging is discouraged. Please use Async instead.
         /// </summary>
         /// <param name="message">Message to log</param>
         /// <param name="colour">Colour of message</param>
@@ -39,13 +35,31 @@ namespace StardewModdingAPI
 
         #endregion
 
+        /// <summary>
+        ///     Catch unhandled exception from the application
+        /// </summary>
+        /// <remarks>Should be moved out of here if we do more than just log the exception.</remarks>
+        public static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            Console.WriteLine("An exception has been caught");
+            File.WriteAllText(Constants.LogDir + "\\MODDED_ErrorLog.Log_" + DateTime.UtcNow.Ticks + ".txt", e.ExceptionObject.ToString());
+        }
+
+        /// <summary>
+        ///     Catch thread exception from the application
+        /// </summary>
+        /// <remarks>Should be moved out of here if we do more than just log the exception.</remarks>
+        public static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
+        {
+            Console.WriteLine("A thread exception has been caught");
+            File.WriteAllText(Constants.LogDir + "\\MODDED_ErrorLog.Log_" + Extensions.Random.Next(100000000, 999999999) + ".txt", e.Exception.ToString());
+        }
+
         #region Async Logging
 
         public static void AsyncColour(object message, ConsoleColor colour)
         {
-            Task.Run(() => {
-                               PrintLog(new LogInfo(message?.ToString(), colour));
-            });
+            Task.Run(() => { PrintLog(new LogInfo(message?.ToString(), colour)); });
         }
 
         public static void Async(object message)
@@ -85,55 +99,31 @@ namespace StardewModdingAPI
 
         #endregion
 
-
-
-
-
-        /// <summary>
-        /// Catch unhandled exception from the application
-        /// </summary>
-        /// <remarks>Should be moved out of here if we do more than just log the exception.</remarks>
-        public static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
-        {
-            Console.WriteLine("An exception has been caught");
-            File.WriteAllText(Constants.LogDir + "\\MODDED_ErrorLog.Log_" + DateTime.UtcNow.Ticks + ".txt", e.ExceptionObject.ToString());
-        }
-
-        /// <summary>
-        /// Catch thread exception from the application
-        /// </summary>
-        /// <remarks>Should be moved out of here if we do more than just log the exception.</remarks>
-        public static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
-        {
-            Console.WriteLine("A thread exception has been caught");
-            File.WriteAllText(Constants.LogDir + "\\MODDED_ErrorLog.Log_" + Extensions.Random.Next(100000000, 999999999) + ".txt", e.Exception.ToString());
-        }
-
         #region ToRemove
 
         public static void LogValueNotSpecified()
         {
-            Error("<value> must be specified");
+            AsyncR("<value> must be specified");
         }
 
         public static void LogObjectValueNotSpecified()
         {
-            Error("<object> and <value> must be specified");
+            AsyncR("<object> and <value> must be specified");
         }
 
         public static void LogValueInvalid()
         {
-            Error("<value> is invalid");
+            AsyncR("<value> is invalid");
         }
 
         public static void LogObjectInvalid()
         {
-            Error("<object> is invalid");
+            AsyncR("<object> is invalid");
         }
 
         public static void LogValueNotInt32()
         {
-            Error("<value> must be a whole number (Int32)");
+            AsyncR("<value> must be a whole number (Int32)");
         }
 
         [Obsolete("Parameter 'values' is no longer supported. Format before logging.")]
@@ -167,7 +157,7 @@ namespace StardewModdingAPI
         }
 
         [Obsolete("Parameter 'values' is no longer supported. Format before logging.")]
-        public static void Error(object message, params object[] values)
+        public static void AsyncR(object message, params object[] values)
         {
             AsyncR(message);
         }
@@ -182,7 +172,7 @@ namespace StardewModdingAPI
     }
 
     /// <summary>
-    /// A Logging class implementing the Singleton pattern and an internal Queue to be flushed perdiodically
+    ///     A Logging class implementing the Singleton pattern and an internal Queue to be flushed perdiodically
     /// </summary>
     public class LogWriter
     {
@@ -192,12 +182,14 @@ namespace StardewModdingAPI
         private static StreamWriter _stream;
 
         /// <summary>
-        /// Private to prevent creation of other instances
+        ///     Private to prevent creation of other instances
         /// </summary>
-        private LogWriter() { }
+        private LogWriter()
+        {
+        }
 
         /// <summary>
-        /// Exposes _instace and creates a new one if it is null
+        ///     Exposes _instace and creates a new one if it is null
         /// </summary>
         internal static LogWriter Instance
         {
@@ -218,14 +210,14 @@ namespace StardewModdingAPI
         }
 
         /// <summary>
-        /// Writes into the ConcurrentQueue the Message specified
+        ///     Writes into the ConcurrentQueue the Message specified
         /// </summary>
         /// <param name="message">The message to write to the log</param>
         public void WriteToLog(string message)
         {
             lock (_logQueue)
             {
-                LogInfo logEntry = new LogInfo(message);
+                var logEntry = new LogInfo(message);
                 _logQueue.Enqueue(logEntry);
 
                 if (_logQueue.Any())
@@ -236,7 +228,7 @@ namespace StardewModdingAPI
         }
 
         /// <summary>
-        /// Writes into the ConcurrentQueue the Entry specified
+        ///     Writes into the ConcurrentQueue the Entry specified
         /// </summary>
         /// <param name="logEntry">The logEntry to write to the log</param>
         public void WriteToLog(LogInfo logEntry)
@@ -253,7 +245,7 @@ namespace StardewModdingAPI
         }
 
         /// <summary>
-        /// Flushes the ConcurrentQueue to the log file specified in Constants
+        ///     Flushes the ConcurrentQueue to the log file specified in Constants
         /// </summary>
         private void FlushLog()
         {
@@ -276,7 +268,7 @@ namespace StardewModdingAPI
     }
 
     /// <summary>
-    /// A struct to store the message and the Date and Time the log entry was created
+    ///     A struct to store the message and the Date and Time the log entry was created
     /// </summary>
     public struct LogInfo
     {

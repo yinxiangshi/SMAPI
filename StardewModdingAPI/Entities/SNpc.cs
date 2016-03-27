@@ -1,6 +1,6 @@
 ﻿namespace StardewModdingAPI.Entities
 {
-    class SNpc
+    internal class SNpc
     {
     }
 }

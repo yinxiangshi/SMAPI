@@ -1,6 +1,6 @@
 ﻿namespace StardewModdingAPI.Entities
 {
-    class SFarmAnimal
+    internal class SFarmAnimal
     {
     }
 }

@@ -1,16 +1,14 @@
-﻿using StardewModdingAPI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Mime;
-using System.Text;
-using System.Threading.Tasks;
-using StardewModdingAPI.Inheritance;
-using StardewValley;
-using StardewValley.Tools;
 using Microsoft.Xna.Framework;
-using StardewValley.Objects;
+using StardewModdingAPI;
 using StardewModdingAPI.Events;
+using StardewValley;
+using StardewValley.Menus;
+using StardewValley.Objects;
+using StardewValley.Tools;
+using Object = StardewValley.Object;
 
 namespace TrainerMod
 {
@@ -47,7 +45,7 @@ namespace TrainerMod
             GameEvents.UpdateTick += Events_UpdateTick;
         }
 
-        static void Events_UpdateTick(object sender, EventArgs e)
+        private static void Events_UpdateTick(object sender, EventArgs e)
         {
             if (Game1.player == null)
                 return;
@@ -83,74 +81,74 @@ namespace TrainerMod
             Command.RegisterCommand("exit", "Closes the game | exit").CommandFired += exit_CommandFired;
             Command.RegisterCommand("stop", "Closes the game | stop").CommandFired += exit_CommandFired;
 
-            Command.RegisterCommand("player_setname", "Sets the player's name | player_setname <object> <value>", new[] { "(player, pet, farm)<object> (String)<value> The target name" }).CommandFired += player_setName;
-            Command.RegisterCommand("player_setmoney", "Sets the player's money | player_setmoney <value>|inf", new[] { "(Int32)<value> The target money" }).CommandFired += player_setMoney;
-            Command.RegisterCommand("player_setstamina", "Sets the player's stamina | player_setstamina <value>|inf", new[] { "(Int32)<value> The target stamina" }).CommandFired += player_setStamina;
-            Command.RegisterCommand("player_setmaxstamina", "Sets the player's max stamina | player_setmaxstamina <value>", new[] { "(Int32)<value> The target max stamina" }).CommandFired += player_setMaxStamina;
-            Command.RegisterCommand("player_sethealth", "Sets the player's health | player_sethealth <value>|inf", new[] { "(Int32)<value> The target health" }).CommandFired += player_setHealth;
-            Command.RegisterCommand("player_setmaxhealth", "Sets the player's max health | player_setmaxhealth <value>", new[] { "(Int32)<value> The target max health" }).CommandFired += player_setMaxHealth;
-            Command.RegisterCommand("player_setimmunity", "Sets the player's immunity | player_setimmunity <value>", new[] { "(Int32)<value> The target immunity" }).CommandFired += player_setImmunity;
+            Command.RegisterCommand("player_setname", "Sets the player's name | player_setname <object> <value>", new[] {"(player, pet, farm)<object> (String)<value> The target name"}).CommandFired += player_setName;
+            Command.RegisterCommand("player_setmoney", "Sets the player's money | player_setmoney <value>|inf", new[] {"(Int32)<value> The target money"}).CommandFired += player_setMoney;
+            Command.RegisterCommand("player_setstamina", "Sets the player's stamina | player_setstamina <value>|inf", new[] {"(Int32)<value> The target stamina"}).CommandFired += player_setStamina;
+            Command.RegisterCommand("player_setmaxstamina", "Sets the player's max stamina | player_setmaxstamina <value>", new[] {"(Int32)<value> The target max stamina"}).CommandFired += player_setMaxStamina;
+            Command.RegisterCommand("player_sethealth", "Sets the player's health | player_sethealth <value>|inf", new[] {"(Int32)<value> The target health"}).CommandFired += player_setHealth;
+            Command.RegisterCommand("player_setmaxhealth", "Sets the player's max health | player_setmaxhealth <value>", new[] {"(Int32)<value> The target max health"}).CommandFired += player_setMaxHealth;
+            Command.RegisterCommand("player_setimmunity", "Sets the player's immunity | player_setimmunity <value>", new[] {"(Int32)<value> The target immunity"}).CommandFired += player_setImmunity;
 
-            Command.RegisterCommand("player_setlevel", "Sets the player's specified skill to the specified value | player_setlevel <skill> <value>", new[] { "(luck, mining, combat, farming, fishing, foraging)<skill> (1-10)<value> The target level" }).CommandFired += player_setLevel;
-            Command.RegisterCommand("player_setspeed", "Sets the player's speed to the specified value?", new[] { "(Int32)<value> The target speed [0 is normal]" }).CommandFired += player_setSpeed;
-            Command.RegisterCommand("player_changecolour", "Sets the player's colour of the specified object | player_changecolor <object> <colour>", new[] { "(hair, eyes, pants)<object> (r,g,b)<colour>" }).CommandFired += player_changeColour;
-            Command.RegisterCommand("player_changestyle", "Sets the player's style of the specified object | player_changecolor <object> <value>", new[] { "(hair, shirt, skin, acc, shoe, swim, gender)<object> (Int32)<value>" }).CommandFired += player_changeStyle;
+            Command.RegisterCommand("player_setlevel", "Sets the player's specified skill to the specified value | player_setlevel <skill> <value>", new[] {"(luck, mining, combat, farming, fishing, foraging)<skill> (1-10)<value> The target level"}).CommandFired += player_setLevel;
+            Command.RegisterCommand("player_setspeed", "Sets the player's speed to the specified value?", new[] {"(Int32)<value> The target speed [0 is normal]"}).CommandFired += player_setSpeed;
+            Command.RegisterCommand("player_changecolour", "Sets the player's colour of the specified object | player_changecolor <object> <colour>", new[] {"(hair, eyes, pants)<object> (r,g,b)<colour>"}).CommandFired += player_changeColour;
+            Command.RegisterCommand("player_changestyle", "Sets the player's style of the specified object | player_changecolor <object> <value>", new[] {"(hair, shirt, skin, acc, shoe, swim, gender)<object> (Int32)<value>"}).CommandFired += player_changeStyle;
 
-            Command.RegisterCommand("player_additem", "Gives the player an item | player_additem <item> [count] [quality]", new[] { "(Int32)<id> (Int32)[count] (Int32)[quality]" }).CommandFired += player_addItem;
-            Command.RegisterCommand("player_addmelee", "Gives the player a melee item | player_addmelee <item>", new[] { "?<item>" }).CommandFired += player_addMelee;
-            Command.RegisterCommand("player_addring", "Gives the player a ring | player_addring <item>", new[] { "?<item>" }).CommandFired += player_addRing;
+            Command.RegisterCommand("player_additem", "Gives the player an item | player_additem <item> [count] [quality]", new[] {"(Int32)<id> (Int32)[count] (Int32)[quality]"}).CommandFired += player_addItem;
+            Command.RegisterCommand("player_addmelee", "Gives the player a melee item | player_addmelee <item>", new[] {"?<item>"}).CommandFired += player_addMelee;
+            Command.RegisterCommand("player_addring", "Gives the player a ring | player_addring <item>", new[] {"?<item>"}).CommandFired += player_addRing;
 
-            Command.RegisterCommand("out_items", "Outputs a list of items | out_items", new[] { "" }).CommandFired += out_items;
-            Command.RegisterCommand("out_melee", "Outputs a list of melee weapons | out_melee", new[] { "" }).CommandFired += out_melee;
-            Command.RegisterCommand("out_rings", "Outputs a list of rings | out_rings", new[] { "" }).CommandFired += out_rings;
-            Command.RegisterCommand("newitem", "not to be used | newitem", new[] { "" }).CommandFired += RegisterNewItem;
+            Command.RegisterCommand("out_items", "Outputs a list of items | out_items", new[] {""}).CommandFired += out_items;
+            Command.RegisterCommand("out_melee", "Outputs a list of melee weapons | out_melee", new[] {""}).CommandFired += out_melee;
+            Command.RegisterCommand("out_rings", "Outputs a list of rings | out_rings", new[] {""}).CommandFired += out_rings;
+            Command.RegisterCommand("newitem", "not to be used | newitem", new[] {""}).CommandFired += RegisterNewItem;
 
-            Command.RegisterCommand("world_settime", "Sets the time to the specified value | world_settime <value>", new[] { "(Int32)<value> The target time [06:00 AM is 600]" }).CommandFired += world_setTime;
-            Command.RegisterCommand("world_freezetime", "Freezes or thaws time | world_freezetime <value>", new[] { "(0 - 1)<value> Whether or not to freeze time. 0 is thawed, 1 is frozen" }).CommandFired += world_freezeTime;
-            Command.RegisterCommand("world_setday", "Sets the day to the specified value | world_setday <value>", new[] { "(Int32)<value> The target day [1-28]" }).CommandFired += world_setDay;
-            Command.RegisterCommand("world_setseason", "Sets the season to the specified value | world_setseason <value>", new[] { "(winter, spring, summer, fall)<value> The target season" }).CommandFired += world_setSeason;
-            Command.RegisterCommand("world_downminelevel", "Goes down one mine level? | world_downminelevel", new[] { "" }).CommandFired += world_downMineLevel;
-            Command.RegisterCommand("world_setminelevel", "Sets mine level? | world_setminelevel", new[] { "(Int32)<value> The target level" }).CommandFired += world_setMineLevel;
+            Command.RegisterCommand("world_settime", "Sets the time to the specified value | world_settime <value>", new[] {"(Int32)<value> The target time [06:00 AM is 600]"}).CommandFired += world_setTime;
+            Command.RegisterCommand("world_freezetime", "Freezes or thaws time | world_freezetime <value>", new[] {"(0 - 1)<value> Whether or not to freeze time. 0 is thawed, 1 is frozen"}).CommandFired += world_freezeTime;
+            Command.RegisterCommand("world_setday", "Sets the day to the specified value | world_setday <value>", new[] {"(Int32)<value> The target day [1-28]"}).CommandFired += world_setDay;
+            Command.RegisterCommand("world_setseason", "Sets the season to the specified value | world_setseason <value>", new[] {"(winter, spring, summer, fall)<value> The target season"}).CommandFired += world_setSeason;
+            Command.RegisterCommand("world_downminelevel", "Goes down one mine level? | world_downminelevel", new[] {""}).CommandFired += world_downMineLevel;
+            Command.RegisterCommand("world_setminelevel", "Sets mine level? | world_setminelevel", new[] {"(Int32)<value> The target level"}).CommandFired += world_setMineLevel;
         }
 
-        static void types_CommandFired(object sender, EventArgsCommand e)
+        private static void types_CommandFired(object sender, EventArgsCommand e)
         {
-            Log.Verbose("[Int32: {0} - {1}], [Int64: {2} - {3}], [String: \"raw text\"], [Colour: r,g,b (EG: 128, 32, 255)]", Int32.MinValue, Int32.MaxValue, Int64.MinValue, Int64.MaxValue);
+            Log.AsyncY($"[Int32: {int.MinValue} - {int.MaxValue}], [Int64: {long.MinValue} - {long.MaxValue}], [String: \"raw text\"], [Colour: r,g,b (EG: 128, 32, 255)]");
         }
 
-        static void hide_CommandFired(object sender, EventArgsCommand e)
+        private static void hide_CommandFired(object sender, EventArgsCommand e)
         {
             Program.StardewInvoke(() => { Program.StardewForm.Hide(); });
         }
 
-        static void show_CommandFired(object sender, EventArgsCommand e)
+        private static void show_CommandFired(object sender, EventArgsCommand e)
         {
             Program.StardewInvoke(() => { Program.StardewForm.Show(); });
         }
 
-        static void save_CommandFired(object sender, EventArgsCommand e)
+        private static void save_CommandFired(object sender, EventArgsCommand e)
         {
-            StardewValley.SaveGame.Save();
+            SaveGame.Save();
         }
 
-        static void load_CommandFired(object sender, EventArgsCommand e)
+        private static void load_CommandFired(object sender, EventArgsCommand e)
         {
             Game1.hasLoadedGame = false;
-            Game1.activeClickableMenu = new StardewValley.Menus.LoadGameMenu();
+            Game1.activeClickableMenu = new LoadGameMenu();
         }
 
-        static void exit_CommandFired(object sender, EventArgsCommand e)
+        private static void exit_CommandFired(object sender, EventArgsCommand e)
         {
             Program.gamePtr.Exit();
             Environment.Exit(0);
         }
 
-        static void player_setName(object sender, EventArgsCommand e)
+        private static void player_setName(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 1)
             {
-                string obj = e.Command.CalledArgs[0];
-                string[] objs = "player,pet,farm".Split(new[] { ',' });
+                var obj = e.Command.CalledArgs[0];
+                var objs = "player,pet,farm".Split(',');
                 if (objs.Contains(obj))
                 {
                     switch (obj)
@@ -159,7 +157,7 @@ namespace TrainerMod
                             Game1.player.Name = e.Command.CalledArgs[1];
                             break;
                         case "pet":
-                            Log.Error("Pets cannot currently be renamed.");
+                            Log.AsyncR("Pets cannot currently be renamed.");
                             break;
                         case "farm":
                             Game1.player.farmName = e.Command.CalledArgs[1];
@@ -177,7 +175,7 @@ namespace TrainerMod
             }
         }
 
-        static void player_setMoney(object sender, EventArgsCommand e)
+        private static void player_setMoney(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 0)
             {
@@ -188,11 +186,11 @@ namespace TrainerMod
                 else
                 {
                     infMoney = false;
-                    int ou = 0;
-                    if (Int32.TryParse(e.Command.CalledArgs[0], out ou))
+                    var ou = 0;
+                    if (int.TryParse(e.Command.CalledArgs[0], out ou))
                     {
                         Game1.player.Money = ou;
-                        Log.Verbose("Set {0}'s money to {1}", Game1.player.Name, Game1.player.Money);
+                        Log.Async($"Set {Game1.player.Name}'s money to {Game1.player.Money}");
                     }
                     else
                     {
@@ -206,7 +204,7 @@ namespace TrainerMod
             }
         }
 
-        static void player_setStamina(object sender, EventArgsCommand e)
+        private static void player_setStamina(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 0)
             {
@@ -217,11 +215,11 @@ namespace TrainerMod
                 else
                 {
                     infStamina = false;
-                    int ou = 0;
-                    if (Int32.TryParse(e.Command.CalledArgs[0], out ou))
+                    var ou = 0;
+                    if (int.TryParse(e.Command.CalledArgs[0], out ou))
                     {
                         Game1.player.Stamina = ou;
-                        Log.Verbose("Set {0}'s stamina to {1}", Game1.player.Name, Game1.player.Stamina);
+                        Log.Async($"Set {Game1.player.Name}'s stamina to {Game1.player.Stamina}");
                     }
                     else
                     {
@@ -235,15 +233,15 @@ namespace TrainerMod
             }
         }
 
-        static void player_setMaxStamina(object sender, EventArgsCommand e)
+        private static void player_setMaxStamina(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 0)
             {
-                int ou = 0;
-                if (Int32.TryParse(e.Command.CalledArgs[0], out ou))
+                var ou = 0;
+                if (int.TryParse(e.Command.CalledArgs[0], out ou))
                 {
                     Game1.player.MaxStamina = ou;
-                    Log.Verbose("Set {0}'s max stamina to {1}", Game1.player.Name, Game1.player.MaxStamina);
+                    Log.Async($"Set {Game1.player.Name}'s max stamina to {Game1.player.MaxStamina}");
                 }
                 else
                 {
@@ -256,16 +254,16 @@ namespace TrainerMod
             }
         }
 
-        static void player_setLevel(object sender, EventArgsCommand e)
+        private static void player_setLevel(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 1)
             {
-                string skill = e.Command.CalledArgs[0];
-                string[] skills = "luck,mining,combat,farming,fishing,foraging".Split(new[] { ',' });
+                var skill = e.Command.CalledArgs[0];
+                var skills = "luck,mining,combat,farming,fishing,foraging".Split(',');
                 if (skills.Contains(skill))
                 {
-                    int ou = 0;
-                    if (Int32.TryParse(e.Command.CalledArgs[1], out ou))
+                    var ou = 0;
+                    if (int.TryParse(e.Command.CalledArgs[1], out ou))
                     {
                         switch (skill)
                         {
@@ -296,23 +294,23 @@ namespace TrainerMod
                 }
                 else
                 {
-                    Log.Error("<skill> is invalid");
+                    Log.AsyncR("<skill> is invalid");
                 }
             }
             else
             {
-                Log.Error("<skill> and <value> must be specified");
+                Log.AsyncR("<skill> and <value> must be specified");
             }
         }
 
-        static void player_setSpeed(object sender, EventArgsCommand e)
+        private static void player_setSpeed(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 0)
             {
                 if (e.Command.CalledArgs[0].IsInt32())
                 {
                     Game1.player.addedSpeed = e.Command.CalledArgs[0].AsInt32();
-                    Log.Verbose("Set {0}'s added speed to {1}", Game1.player.Name, Game1.player.addedSpeed);
+                    Log.Async($"Set {Game1.player.Name}'s added speed to {Game1.player.addedSpeed}");
                 }
                 else
                 {
@@ -325,18 +323,18 @@ namespace TrainerMod
             }
         }
 
-        static void player_changeColour(object sender, EventArgsCommand e)
+        private static void player_changeColour(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 1)
             {
-                string obj = e.Command.CalledArgs[0];
-                string[] objs = "hair,eyes,pants".Split(new[] { ',' });
+                var obj = e.Command.CalledArgs[0];
+                var objs = "hair,eyes,pants".Split(',');
                 if (objs.Contains(obj))
                 {
-                    string[] cs = e.Command.CalledArgs[1].Split(new[] { ',' }, 3);
+                    var cs = e.Command.CalledArgs[1].Split(new[] {','}, 3);
                     if (cs[0].IsInt32() && cs[1].IsInt32() && cs[2].IsInt32())
                     {
-                        Color c = new Color(cs[0].AsInt32(), cs[1].AsInt32(), cs[2].AsInt32());
+                        var c = new Color(cs[0].AsInt32(), cs[1].AsInt32(), cs[2].AsInt32());
                         switch (obj)
                         {
                             case "hair":
@@ -352,7 +350,7 @@ namespace TrainerMod
                     }
                     else
                     {
-                        Log.Error("<colour> is invalid");
+                        Log.AsyncR("<colour> is invalid");
                     }
                 }
                 else
@@ -362,21 +360,21 @@ namespace TrainerMod
             }
             else
             {
-                Log.Error("<object> and <colour> must be specified");
+                Log.AsyncR("<object> and <colour> must be specified");
             }
         }
 
-        static void player_changeStyle(object sender, EventArgsCommand e)
+        private static void player_changeStyle(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 1)
             {
-                string obj = e.Command.CalledArgs[0];
-                string[] objs = "hair,shirt,skin,acc,shoe,swim,gender".Split(new[] { ',' });
+                var obj = e.Command.CalledArgs[0];
+                var objs = "hair,shirt,skin,acc,shoe,swim,gender".Split(',');
                 if (objs.Contains(obj))
                 {
                     if (e.Command.CalledArgs[1].IsInt32())
                     {
-                        int i = e.Command.CalledArgs[1].AsInt32();
+                        var i = e.Command.CalledArgs[1].AsInt32();
                         switch (obj)
                         {
                             case "hair":
@@ -400,7 +398,7 @@ namespace TrainerMod
                                 else if (i == 1)
                                     Game1.player.changeIntoSwimsuit();
                                 else
-                                    Log.Error("<value> must be 0 or 1 for this <object>");
+                                    Log.AsyncR("<value> must be 0 or 1 for this <object>");
                                 break;
                             case "gender":
                                 if (i == 0)
@@ -408,7 +406,7 @@ namespace TrainerMod
                                 else if (i == 1)
                                     Game1.player.changeGender(false);
                                 else
-                                    Log.Error("<value> must be 0 or 1 for this <object>");
+                                    Log.AsyncR("<value> must be 0 or 1 for this <object>");
                                 break;
                         }
                     }
@@ -428,7 +426,7 @@ namespace TrainerMod
             }
         }
 
-        static void world_freezeTime(object sender, EventArgsCommand e)
+        private static void world_freezeTime(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 0)
             {
@@ -438,11 +436,11 @@ namespace TrainerMod
                     {
                         freezeTime = e.Command.CalledArgs[0].AsInt32() == 1;
                         frozenTime = freezeTime ? Game1.timeOfDay : 0;
-                        Log.Verbose("Time is now " + (freezeTime ? "frozen" : "thawed"));
+                        Log.AsyncY("Time is now " + (freezeTime ? "frozen" : "thawed"));
                     }
                     else
                     {
-                        Log.Error("<value> should be 0 or 1");
+                        Log.AsyncR("<value> should be 0 or 1");
                     }
                 }
                 else
@@ -456,7 +454,7 @@ namespace TrainerMod
             }
         }
 
-        static void world_setTime(object sender, EventArgsCommand e)
+        private static void world_setTime(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 0)
             {
@@ -466,11 +464,11 @@ namespace TrainerMod
                     {
                         Game1.timeOfDay = e.Command.CalledArgs[0].AsInt32();
                         frozenTime = freezeTime ? Game1.timeOfDay : 0;
-                        Log.Verbose("Time set to: " + Game1.timeOfDay);
+                        Log.AsyncY("Time set to: " + Game1.timeOfDay);
                     }
                     else
                     {
-                        Log.Error("<value> should be between 600 and 2600 (06:00 AM - 02:00 AM [NEXT DAY])");
+                        Log.AsyncR("<value> should be between 600 and 2600 (06:00 AM - 02:00 AM [NEXT DAY])");
                     }
                 }
                 else
@@ -484,7 +482,7 @@ namespace TrainerMod
             }
         }
 
-        static void world_setDay(object sender, EventArgsCommand e)
+        private static void world_setDay(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 0)
             {
@@ -496,7 +494,7 @@ namespace TrainerMod
                     }
                     else
                     {
-                        Log.Verbose("<value> must be between 1 and 28");
+                        Log.AsyncY("<value> must be between 1 and 28");
                     }
                 }
                 else
@@ -510,12 +508,12 @@ namespace TrainerMod
             }
         }
 
-        static void world_setSeason(object sender, EventArgsCommand e)
+        private static void world_setSeason(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 0)
             {
-                string obj = e.Command.CalledArgs[0];
-                string[] objs = "winter,spring,summer,fall".Split(new[] { ',' });
+                var obj = e.Command.CalledArgs[0];
+                var objs = "winter,spring,summer,fall".Split(',');
                 if (objs.Contains(obj))
                 {
                     Game1.currentSeason = obj;
@@ -531,7 +529,7 @@ namespace TrainerMod
             }
         }
 
-        static void player_setHealth(object sender, EventArgsCommand e)
+        private static void player_setHealth(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 0)
             {
@@ -558,7 +556,7 @@ namespace TrainerMod
             }
         }
 
-        static void player_setMaxHealth(object sender, EventArgsCommand e)
+        private static void player_setMaxHealth(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 0)
             {
@@ -577,7 +575,7 @@ namespace TrainerMod
             }
         }
 
-        static void player_setImmunity(object sender, EventArgsCommand e)
+        private static void player_setImmunity(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 0)
             {
@@ -596,14 +594,14 @@ namespace TrainerMod
             }
         }
 
-        static void player_addItem(object sender, EventArgsCommand e)
+        private static void player_addItem(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 0)
             {
                 if (e.Command.CalledArgs[0].IsInt32())
                 {
-                    int count = 1;
-                    int quality = 0;
+                    var count = 1;
+                    var quality = 0;
                     if (e.Command.CalledArgs.Length > 1)
                     {
                         Console.WriteLine(e.Command.CalledArgs[1]);
@@ -613,7 +611,7 @@ namespace TrainerMod
                         }
                         else
                         {
-                            Log.Error("[count] is invalid");
+                            Log.AsyncR("[count] is invalid");
                             return;
                         }
 
@@ -625,21 +623,20 @@ namespace TrainerMod
                             }
                             else
                             {
-                                Log.Error("[quality] is invalid");
+                                Log.AsyncR("[quality] is invalid");
                                 return;
                             }
-
                         }
                     }
 
-                    StardewValley.Object o = new StardewValley.Object(e.Command.CalledArgs[0].AsInt32(), count);
+                    var o = new Object(e.Command.CalledArgs[0].AsInt32(), count);
                     o.quality = quality;
 
-                    Game1.player.addItemByMenuIfNecessary((Item)o);
+                    Game1.player.addItemByMenuIfNecessary(o);
                 }
                 else
                 {
-                    Log.Error("<item> is invalid");
+                    Log.AsyncR("<item> is invalid");
                 }
             }
             else
@@ -648,20 +645,19 @@ namespace TrainerMod
             }
         }
 
-        static void player_addMelee(object sender, EventArgsCommand e)
+        private static void player_addMelee(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 0)
             {
                 if (e.Command.CalledArgs[0].IsInt32())
                 {
-
-                    MeleeWeapon toAdd = new MeleeWeapon(e.Command.CalledArgs[0].AsInt32());
+                    var toAdd = new MeleeWeapon(e.Command.CalledArgs[0].AsInt32());
                     Game1.player.addItemByMenuIfNecessary(toAdd);
-                    Log.Verbose("Given {0} to {1}", toAdd.Name, Game1.player.Name);
+                    Log.Async($"Given {toAdd.Name} to {Game1.player.Name}");
                 }
                 else
                 {
-                    Log.Error("<item> is invalid");
+                    Log.AsyncR("<item> is invalid");
                 }
             }
             else
@@ -670,20 +666,19 @@ namespace TrainerMod
             }
         }
 
-        static void player_addRing(object sender, EventArgsCommand e)
+        private static void player_addRing(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 0)
             {
                 if (e.Command.CalledArgs[0].IsInt32())
                 {
-                    
-                    Ring toAdd = new Ring(e.Command.CalledArgs[0].AsInt32());
+                    var toAdd = new Ring(e.Command.CalledArgs[0].AsInt32());
                     Game1.player.addItemByMenuIfNecessary(toAdd);
-                    Log.Verbose("Given {0} to {1}", toAdd.Name, Game1.player.Name);
+                    Log.Async($"Given {toAdd.Name} to {Game1.player.Name}");
                 }
                 else
                 {
-                    Log.Error("<item> is invalid");
+                    Log.AsyncR("<item> is invalid");
                 }
             }
             else
@@ -692,26 +687,25 @@ namespace TrainerMod
             }
         }
 
-        static void out_items(object sender, EventArgsCommand e)
+        private static void out_items(object sender, EventArgsCommand e)
         {
-            for (int i = 0; i < 1000; i++)
+            for (var i = 0; i < 1000; i++)
             {
                 try
                 {
-                    Item it = new StardewValley.Object(i, 1);
+                    Item it = new Object(i, 1);
                     if (it.Name != "Error Item")
                         Console.WriteLine(i + "| " + it.Name);
                 }
                 catch
                 {
-
                 }
             }
         }
 
-        static void out_melee(object sender, EventArgsCommand e)
+        private static void out_melee(object sender, EventArgsCommand e)
         {
-            Dictionary<int, string> d = Game1.content.Load<Dictionary<int, string>>("Data\\weapons");
+            var d = Game1.content.Load<Dictionary<int, string>>("Data\\weapons");
             Console.Write("DATA\\WEAPONS: ");
             foreach (var v in d)
             {
@@ -719,9 +713,9 @@ namespace TrainerMod
             }
         }
 
-        static void out_rings(object sender, EventArgsCommand e)
+        private static void out_rings(object sender, EventArgsCommand e)
         {
-            for (int i = 0; i < 100; i++)
+            for (var i = 0; i < 100; i++)
             {
                 try
                 {
@@ -731,17 +725,16 @@ namespace TrainerMod
                 }
                 catch
                 {
-
                 }
             }
         }
 
-        static void world_downMineLevel(object sender, EventArgsCommand e)
+        private static void world_downMineLevel(object sender, EventArgsCommand e)
         {
             Game1.nextMineLevel();
         }
 
-        static void world_setMineLevel(object sender, EventArgsCommand e)
+        private static void world_setMineLevel(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 0)
             {
@@ -760,9 +753,11 @@ namespace TrainerMod
             }
         }
 
-        static void blank_command(object sender, EventArgsCommand e) { }
+        private static void blank_command(object sender, EventArgsCommand e)
+        {
+        }
 
-        static void RegisterNewItem(object sender, EventArgsCommand e)
+        private static void RegisterNewItem(object sender, EventArgsCommand e)
         {
 #if DEBUG
             SObject s = SGame.PullModItemFromDict(0, true);

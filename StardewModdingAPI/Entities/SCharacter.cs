@@ -1,6 +1,6 @@
 ﻿namespace StardewModdingAPI.Entities
 {
-    class SCharacter
+    internal class SCharacter
     {
     }
 }

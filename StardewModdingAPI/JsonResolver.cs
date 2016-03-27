@@ -1,34 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Design;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using StardewModdingAPI.Inheritance;
+using Object = StardewValley.Object;
 
 namespace StardewModdingAPI
 {
-    class JsonResolver : DefaultContractResolver
+    internal class JsonResolver : DefaultContractResolver
     {
         protected override JsonContract CreateContract(Type objectType)
         {
-            if (objectType == typeof(Rectangle) || objectType == typeof(Rectangle?))
+            if (objectType == typeof (Rectangle) || objectType == typeof (Rectangle?))
             {
                 Console.WriteLine("FOUND A RECT");
-                JsonContract contract = base.CreateObjectContract(objectType);
+                JsonContract contract = CreateObjectContract(objectType);
                 contract.Converter = new RectangleConverter();
                 return contract;
             }
-            if (objectType == typeof(StardewValley.Object))
+            if (objectType == typeof (Object))
             {
-                Log.Verbose("FOUND AN OBJECT");
-                JsonContract contract = base.CreateObjectContract(objectType);
+                Log.AsyncY("FOUND AN OBJECT");
+                JsonContract contract = CreateObjectContract(objectType);
                 contract.Converter = new ObjectConverter();
                 return contract;
-
             }
             return base.CreateContract(objectType);
         }
@@ -38,20 +35,20 @@ namespace StardewModdingAPI
     {
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            Log.Verbose("TRYING TO WRITE");
-            var obj = (StardewValley.Object)value;
-            Log.Verbose("TRYING TO WRITE");
+            Log.AsyncY("TRYING TO WRITE");
+            var obj = (Object) value;
+            Log.AsyncY("TRYING TO WRITE");
 
             var jObject = GetObject(obj);
-            Log.Verbose("TRYING TO WRITE");
+            Log.AsyncY("TRYING TO WRITE");
 
             try
             {
-                Log.Verbose(jObject.ToString());
+                Log.AsyncY(jObject.ToString());
             }
             catch (Exception ex)
             {
-                Log.Error(ex);
+                Log.AsyncR(ex);
             }
 
             Console.ReadKey();
@@ -71,7 +68,7 @@ namespace StardewModdingAPI
             throw new NotImplementedException();
         }
 
-        protected static JObject GetObject(StardewValley.Object o)
+        protected static JObject GetObject(Object o)
         {
             try
             {
@@ -82,29 +79,29 @@ namespace StardewModdingAPI
                 var quality = o.quality;
 
                 var oo = new SBareObject(parentSheetIndex, stack, isRecipe, price, quality);
-                Log.Success(JsonConvert.SerializeObject(oo));
+                Log.AsyncG(JsonConvert.SerializeObject(oo));
                 return JObject.FromObject(oo);
             }
             catch (Exception ex)
             {
-                Log.Error(ex);
+                Log.AsyncR(ex);
                 Console.ReadKey();
             }
             return null;
         }
 
-        protected static StardewValley.Object GetObject(JObject jObject)
+        protected static Object GetObject(JObject jObject)
         {
-            int? parentSheetIndex = GetTokenValue<object>(jObject, "parentSheetIndex") as int?;
-            int? stack = GetTokenValue<object>(jObject, "parentSheetIndex") as int?;
-            bool? isRecipe = GetTokenValue<object>(jObject, "parentSheetIndex") as bool?;
-            int? price = GetTokenValue<object>(jObject, "parentSheetIndex") as int?;
-            int? quality = GetTokenValue<object>(jObject, "parentSheetIndex") as int?;
+            var parentSheetIndex = GetTokenValue<object>(jObject, "parentSheetIndex") as int?;
+            var stack = GetTokenValue<object>(jObject, "parentSheetIndex") as int?;
+            var isRecipe = GetTokenValue<object>(jObject, "parentSheetIndex") as bool?;
+            var price = GetTokenValue<object>(jObject, "parentSheetIndex") as int?;
+            var quality = GetTokenValue<object>(jObject, "parentSheetIndex") as int?;
 
-            return new StardewValley.Object(parentSheetIndex ?? 0, stack ?? 0, isRecipe ?? false, price ?? -1, quality ?? 0);
+            return new Object(parentSheetIndex ?? 0, stack ?? 0, isRecipe ?? false, price ?? -1, quality ?? 0);
         }
 
-        protected static StardewValley.Object GetObject(JToken jToken)
+        protected static Object GetObject(JToken jToken)
         {
             var jObject = JObject.FromObject(jToken);
 
@@ -123,7 +120,7 @@ namespace StardewModdingAPI
     {
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            var rectangle = (Rectangle)value;
+            var rectangle = (Rectangle) value;
 
             var jObject = GetObject(rectangle);
 
@@ -150,7 +147,7 @@ namespace StardewModdingAPI
             var width = rectangle.Width;
             var height = rectangle.Height;
 
-            return JObject.FromObject(new { x, y, width, height });
+            return JObject.FromObject(new {x, y, width, height});
         }
 
         protected static Rectangle GetRectangle(JObject jObject)
@@ -173,7 +170,7 @@ namespace StardewModdingAPI
         protected static int? GetTokenValue(JObject jObject, string tokenName)
         {
             JToken jToken;
-            return jObject.TryGetValue(tokenName, StringComparison.InvariantCultureIgnoreCase, out jToken) ? (int)jToken : (int?)null;
+            return jObject.TryGetValue(tokenName, StringComparison.InvariantCultureIgnoreCase, out jToken) ? (int) jToken : (int?) null;
         }
     }
 
@@ -181,7 +178,7 @@ namespace StardewModdingAPI
     {
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            var rectangleList = (IList<Rectangle>)value;
+            var rectangleList = (IList<Rectangle>) value;
 
             var jArray = new JArray();
 

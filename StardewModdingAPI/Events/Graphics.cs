@@ -16,7 +16,7 @@ namespace StardewModdingAPI.Events
             }
             catch (Exception ex)
             {
-                Log.Error("An exception occured in a Mod's DrawTick: " + ex);
+                Log.AsyncR("An exception occured in a Mod's DrawTick: " + ex);
             }
         }
 
