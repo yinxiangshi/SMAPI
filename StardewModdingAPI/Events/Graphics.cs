@@ -12,8 +12,6 @@ namespace StardewModdingAPI.Events
         /// </summary>
         public static event EventHandler Resize = delegate { };
 
-       
-
         /// <summary>
         /// Occurs before anything is drawn.
         /// </summary>
@@ -87,7 +85,10 @@ namespace StardewModdingAPI.Events
             OnPostRenderEvent.Invoke(sender, e);
         }
 
-
+        internal static void InvokeResize(object sender, EventArgs e)
+        {
+            Resize.Invoke(sender, e);
+        }
 
         #region To Remove
 
@@ -114,12 +115,6 @@ namespace StardewModdingAPI.Events
         public static void InvokeDrawInRenderTargetTick()
         {
             DrawInRenderTargetTick.Invoke(null, EventArgs.Empty);
-        }
-
-        [Obsolete("Should not be used.")]
-        public static void InvokeResize(object sender, EventArgs e)
-        {
-            Resize.Invoke(sender, e);
         }
 
         #endregion

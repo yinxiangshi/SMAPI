@@ -165,12 +165,12 @@ namespace StardewModdingAPI
         }
 
         /// <summary>
-        ///     Re-reads the json blob on the disk and merges its values with a default config
+        ///     Re-reads the json blob on the disk and merges its values with a default config.
         ///     NOTE: You MUST set your config EQUAL to the return of this method!
         /// </summary>
         public static T ReloadConfig<T>(this T baseConfig) where T : Config
         {
-            return baseConfig.UpdateConfig<T>();
+            return baseConfig.LoadConfig<T>();
         }
     }
 }
