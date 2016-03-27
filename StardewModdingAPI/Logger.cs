@@ -21,19 +21,7 @@ namespace StardewModdingAPI
             _writer.WriteToLog(li);
         }
 
-        #region Sync Logging
-
-        /// <summary>
-        ///     NOTICE: Sync logging is discouraged. Please use Async instead.
-        /// </summary>
-        /// <param name="message">Message to log</param>
-        /// <param name="colour">Colour of message</param>
-        public static void SyncColour(object message, ConsoleColor colour)
-        {
-            PrintLog(new LogInfo(message?.ToString(), colour));
-        }
-
-        #endregion
+        #region Exception Logging
 
         /// <summary>
         ///     Catch unhandled exception from the application
@@ -54,6 +42,22 @@ namespace StardewModdingAPI
             Console.WriteLine("A thread exception has been caught");
             File.WriteAllText(Constants.LogDir + "\\MODDED_ErrorLog.Log_" + Extensions.Random.Next(100000000, 999999999) + ".txt", e.Exception.ToString());
         }
+
+        #endregion
+
+        #region Sync Logging
+
+        /// <summary>
+        ///     NOTICE: Sync logging is discouraged. Please use Async instead.
+        /// </summary>
+        /// <param name="message">Message to log</param>
+        /// <param name="colour">Colour of message</param>
+        public static void SyncColour(object message, ConsoleColor colour)
+        {
+            PrintLog(new LogInfo(message?.ToString(), colour));
+        }
+
+        #endregion
 
         #region Async Logging
 
@@ -95,6 +99,26 @@ namespace StardewModdingAPI
         public static void AsyncM(object message)
         {
             AsyncColour(message?.ToString(), ConsoleColor.Magenta);
+        }
+
+        public static void Error(object message)
+        {
+            AsyncR("[ERROR] " + message);
+        }
+
+        public static void Success(object message)
+        {
+            AsyncG("[SUCCESS] " + message);
+        }
+
+        public static void Info(object message)
+        {
+            AsyncY("[INFO] " + message);
+        }
+
+        public static void Out(object message)
+        {
+            Async("[OUT] " + message);
         }
 
         #endregion
@@ -157,7 +181,7 @@ namespace StardewModdingAPI
         }
 
         [Obsolete("Parameter 'values' is no longer supported. Format before logging.")]
-        public static void AsyncR(object message, params object[] values)
+        public static void Error(object message, params object[] values)
         {
             AsyncR(message);
         }
