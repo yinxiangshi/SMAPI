@@ -202,6 +202,14 @@ namespace StardewModdingAPI.Inheritance
         public static bool Debug { get; private set; }
 
         /// <summary>
+        /// A queue of messages to log when Debug is true.
+        /// If debug is false this queue will be emptied every frame.
+        /// Do not add to the queue if debug is false.
+        /// The queue will be drawn once every Draw update.
+        /// </summary>
+        public static Queue<String> DebugMessageQueue { get; private set; }
+
+        /// <summary>
         /// The current player (equal to Farmer.Player)
         /// </summary>
         [Obsolete("Use Farmer.Player instead")]
@@ -363,6 +371,7 @@ namespace StardewModdingAPI.Inheritance
         {
             Log.AsyncY("XNA Initialize");
             //ModItems = new Dictionary<int, SObject>();
+            DebugMessageQueue = new Queue<string>();
             PreviouslyPressedButtons = new Buttons[4][];
             for (var i = 0; i < 4; ++i) PreviouslyPressedButtons[i] = new Buttons[0];
 
@@ -499,8 +508,21 @@ namespace StardewModdingAPI.Inheritance
             if (Debug)
             {
                 spriteBatch.Begin();
-                spriteBatch.DrawString(dialogueFont, "FPS: " + FramesPerSecond, Vector2.Zero, Color.CornflowerBlue);
+                spriteBatch.DrawString(smoothFont, "FPS: " + FramesPerSecond, Vector2.Zero, Color.CornflowerBlue);
+
+                int i = 1;
+                while (DebugMessageQueue.Any())
+                {
+                    string s = DebugMessageQueue.Dequeue();
+                    spriteBatch.DrawString(smoothFont, s, new Vector2(0, i * 12), Color.CornflowerBlue);
+                    i++;
+                }
+                GraphicsEvents.InvokeDrawDebug(null, null);
                 spriteBatch.End();
+            }
+            else
+            {
+                DebugMessageQueue.Clear();
             }
         }
 

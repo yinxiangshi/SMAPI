@@ -78,7 +78,7 @@ namespace StardewModdingAPI
             }
 
             RegisteredCommands.Add(c);
-            Log.AsyncY("Registered command: " + command);
+            Log.Async("Registered command: " + command);
 
             return c;
         }

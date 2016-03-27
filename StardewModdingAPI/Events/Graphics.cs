@@ -8,6 +8,14 @@ namespace StardewModdingAPI.Events
         public static event EventHandler DrawTick = delegate { };
         public static event EventHandler DrawInRenderTargetTick = delegate { };
 
+        /// <summary>
+        /// Draws when SGame.Debug is true. F3 toggles this.
+        /// Game1.spriteBatch.Begin() is pre-called.
+        /// Do not make end or begin calls to the spritebatch.
+        /// If you are only trying to add debug information, use SGame.DebugMessageQueue in your Update loop.
+        /// </summary>
+        public static event EventHandler DrawDebug = delegate { };
+
         public static void InvokeDrawTick()
         {
             try
@@ -28,6 +36,11 @@ namespace StardewModdingAPI.Events
         public static void InvokeResize(object sender, EventArgs e)
         {
             Resize.Invoke(sender, e);
+        }
+
+        public static void InvokeDrawDebug(object sender, EventArgs e)
+        {
+            DrawDebug.Invoke(sender, e);
         }
     }
 }
