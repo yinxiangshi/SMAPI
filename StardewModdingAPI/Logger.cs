@@ -121,6 +121,11 @@ namespace StardewModdingAPI
             Async("[OUT] " + message);
         }
 
+        public static void Debug(object message)
+        {
+            AsyncO("[DEBUG] " + message);
+        }
+
         #endregion
 
         #region ToRemove
@@ -159,13 +164,13 @@ namespace StardewModdingAPI
         [Obsolete("Parameter 'values' is no longer supported. Format before logging.")]
         public static void Success(object message, params object[] values)
         {
-            AsyncG(message);
+            Success(message);
         }
 
         [Obsolete("Parameter 'values' is no longer supported. Format before logging.")]
         public static void Verbose(object message, params object[] values)
         {
-            Async(message);
+            Out(message);
         }
 
         [Obsolete("Parameter 'values' is no longer supported. Format before logging.")]
@@ -177,19 +182,19 @@ namespace StardewModdingAPI
         [Obsolete("Parameter 'values' is no longer supported. Format before logging.")]
         public static void Info(object message, params object[] values)
         {
-            AsyncY(message);
+            Info(message);
         }
 
         [Obsolete("Parameter 'values' is no longer supported. Format before logging.")]
         public static void Error(object message, params object[] values)
         {
-            AsyncR(message);
+            Error(message);
         }
 
         [Obsolete("Parameter 'values' is no longer supported. Format before logging.")]
         public static void Debug(object message, params object[] values)
         {
-            AsyncO(message);
+            Debug(message);
         }
 
         #endregion
