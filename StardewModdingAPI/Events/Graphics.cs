@@ -6,6 +6,7 @@ namespace StardewModdingAPI.Events
     {
         public static event EventHandler Resize = delegate { };
         public static event EventHandler DrawTick = delegate { };
+        public static event EventHandler DrawInRenderTargetTick = delegate { };
 
         public static void InvokeDrawTick()
         {
@@ -15,8 +16,13 @@ namespace StardewModdingAPI.Events
             }
             catch (Exception ex)
             {
-                Log.Error("An exception occured in XNA DrawTick: " + ex);
+                Log.AsyncR("An exception occured in a Mod's DrawTick: " + ex);
             }
+        }
+
+        public static void InvokeDrawInRenderTargetTick()
+        {
+            DrawInRenderTargetTick.Invoke(null, EventArgs.Empty);
         }
 
         public static void InvokeResize(object sender, EventArgs e)

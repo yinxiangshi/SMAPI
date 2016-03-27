@@ -21,7 +21,7 @@ namespace StardewModdingAPI.Events
         {
             CurrentLocationChanged.Invoke(null, new EventArgsCurrentLocationChanged(priorLocation, newLocation));
         }
-        
+
         internal static void InvokeOnNewLocationObject(SerializableDictionary<Vector2, Object> newObjects)
         {
             LocationObjectsChanged.Invoke(null, new EventArgsLocationObjectsChanged(newObjects));

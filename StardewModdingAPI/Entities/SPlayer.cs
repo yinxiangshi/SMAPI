@@ -1,33 +1,33 @@
-﻿using System.Collections.Generic;
-using StardewModdingAPI.Inheritance;
+﻿using System;
+using System.Collections.Generic;
 using StardewValley;
 
 namespace StardewModdingAPI.Entities
 {
-    public static class SPlayer
+    /// <summary>
+    ///     Static class for intergrating with the player
+    /// </summary>
+    public class SPlayer
     {
-        public static List<Farmer> AllFarmers
-        {
-            get
-            {
-                return SGame.getAllFarmers();
-            }
-        }
+        /// <summary>
+        /// Calls 'getAllFarmers' in Game1
+        /// </summary>
+        public static List<Farmer> AllFarmers => Game1.getAllFarmers();
 
-        public static Farmer CurrentFarmer
-        {
-            get
-            {
-                return SGame.player;
-            }
-        }
+        /// <summary>
+        /// Do not use.
+        /// </summary>
+        [Obsolete("Use 'Player' instead.")]
+        public static Farmer CurrentFarmer => Game1.player;
 
-        public static GameLocation CurrentFarmerLocation
-        {
-            get
-            {
-                return SGame.player.currentLocation;
-            }
-        }
+        /// <summary>
+        /// Gets the current player from Game1
+        /// </summary>
+        public static Farmer Player => Game1.player;
+
+        /// <summary>
+        /// Gets the player's current location from Game1
+        /// </summary>
+        public static GameLocation CurrentFarmerLocation => Player.currentLocation;
     }
 }

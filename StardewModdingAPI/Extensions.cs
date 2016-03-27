@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
@@ -21,41 +22,53 @@ namespace StardewModdingAPI
             return new Color(Random.Next(0, 255), Random.Next(0, 255), Random.Next(0, 255));
         }
 
+        [Obsolete("The usage of ToSingular has changed. Please update your call to use ToSingular<T>")]
         public static string ToSingular(this IEnumerable ienum, string split = ", ")
         {
+            Log.AsyncR("The usage of ToSingular has changed. Please update your call to use ToSingular<T>");
+            return "";
+        }
+
+        public static string ToSingular<T>(this IEnumerable<T> ienum, string split = ", ") // where T : class
+        {
             //Apparently Keys[] won't split normally :l
-            if (ienum is Keys[])
+            if (typeof (T) == typeof (Keys))
             {
-                return string.Join(split, (Keys[])ienum);
+                return string.Join(split, ienum.ToArray());
             }
             return string.Join(split, ienum);
         }
 
+        /*public static string ToSingular<T>(this IEnumerable<T> ienum, string split = ", ")
+        {
+            return string.Join(split, ienum);
+        }*/
+
         public static bool IsInt32(this object o)
         {
             int i;
-            return Int32.TryParse(o.ToString(), out i);
+            return int.TryParse(o.ToString(), out i);
         }
 
-        public static Int32 AsInt32(this object o)
+        public static int AsInt32(this object o)
         {
-            return Int32.Parse(o.ToString());
+            return int.Parse(o.ToString());
         }
 
         public static bool IsBool(this object o)
         {
             bool b;
-            return Boolean.TryParse(o.ToString(), out b);
+            return bool.TryParse(o.ToString(), out b);
         }
 
         public static bool AsBool(this object o)
         {
-            return Boolean.Parse(o.ToString());
+            return bool.Parse(o.ToString());
         }
-        
+
         public static int GetHash(this IEnumerable enumerable)
         {
-            int hash = 0;
+            var hash = 0;
             foreach (var v in enumerable)
             {
                 hash ^= v.GetHashCode();
@@ -94,7 +107,7 @@ namespace StardewModdingAPI
             return o.GetType().GetBaseFieldInfo(name).GetValue(o) as T;
         }*/
 
-            /*
+        /*
         public static object GetBaseFieldValue(this object o, string name)
         {
             return o.GetType().GetBaseFieldInfo(name).GetValue(o);
@@ -108,8 +121,8 @@ namespace StardewModdingAPI
 
         public static string RemoveNumerics(this string st)
         {
-            string s = st;
-            foreach (char c in s)
+            var s = st;
+            foreach (var c in s)
             {
                 if (!char.IsLetterOrDigit(c))
                 {

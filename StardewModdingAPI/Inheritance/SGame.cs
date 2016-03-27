@@ -11,65 +11,264 @@ using StardewValley.Menus;
 
 namespace StardewModdingAPI.Inheritance
 {
+    /// <summary>
+    /// The 'SGame' class.
+    /// This summary, and many others, only exists because XML doc tags.
+    /// </summary>
     public class SGame : Game1
     {
-        public static Dictionary<Int32, SObject> ModItems { get; private set; }
-        public const Int32 LowestModItemID = 1000;
+        /// <summary>
+        /// Useless right now.
+        /// </summary>
+        public const int LowestModItemID = 1000;
 
-        public static FieldInfo[] StaticFields { get { return GetStaticFields(); } }
+        private bool FireLoadedGameEvent;
 
-        public static FieldInfo[] GetStaticFields()
-        {
-            return typeof(Game1).GetFields();
-        }
-
-        public KeyboardState KStateNow { get; private set; }
-        public KeyboardState KStatePrior { get; private set; }
-
-        public MouseState MStateNow { get; private set; }
-        public MouseState MStatePrior { get; private set; }
-
-        public Keys[] CurrentlyPressedKeys => KStateNow.GetPressedKeys();
-        public Keys[] PreviouslyPressedKeys => KStatePrior.GetPressedKeys();
-
-        public Keys[] FramePressedKeys 
-        { 
-            get { return CurrentlyPressedKeys.Except(PreviouslyPressedKeys).ToArray(); }
-        }
-        public Keys[] FrameReleasedKeys
-        {
-            get { return PreviouslyPressedKeys.Except(CurrentlyPressedKeys).ToArray(); }
-        }
-        
+        /// <summary>
+        /// Gets a jagged array of all buttons pressed on the gamepad the prior frame.
+        /// </summary>
         public Buttons[][] PreviouslyPressedButtons;
 
+        internal SGame()
+        {
+            Instance = this;
+            FirstUpdate = true;
+        }
+
+        /// <summary>
+        /// Useless at this time.
+        /// </summary>
+        [Obsolete]
+        public static Dictionary<int, SObject> ModItems { get; private set; }
+
+        /// <summary>
+        /// The current KeyboardState
+        /// </summary>
+        public KeyboardState KStateNow { get; private set; }
+        /// <summary>
+        /// The prior KeyboardState
+        /// </summary>
+        public KeyboardState KStatePrior { get; private set; }
+
+        /// <summary>
+        /// The current MouseState
+        /// </summary>
+        public MouseState MStateNow { get; private set; }
+
+        /// <summary>
+        /// The prior MouseState
+        /// </summary>
+        public MouseState MStatePrior { get; private set; }
+
+        /// <summary>
+        /// All keys pressed on the current frame
+        /// </summary>
+        public Keys[] CurrentlyPressedKeys => KStateNow.GetPressedKeys();
+
+        /// <summary>
+        /// All keys pressed on the prior frame
+        /// </summary>
+        public Keys[] PreviouslyPressedKeys => KStatePrior.GetPressedKeys();
+
+        /// <summary>
+        /// All keys pressed on this frame except for the ones pressed on the prior frame
+        /// </summary>
+        public Keys[] FramePressedKeys => CurrentlyPressedKeys.Except(PreviouslyPressedKeys).ToArray();
+
+        /// <summary>
+        /// All keys pressed on the prior frame except for the ones pressed on the current frame
+        /// </summary>
+        public Keys[] FrameReleasedKeys => PreviouslyPressedKeys.Except(CurrentlyPressedKeys).ToArray();
+
+        /// <summary>
+        /// Whether or not a save was tagged as 'Loaded' the prior frame.
+        /// </summary>
+        public bool PreviouslyLoadedGame { get; private set; }
+
+        /// <summary>
+        /// The list of GameLocations on the prior frame
+        /// </summary>
+        public int PreviousGameLocations { get; private set; }
+
+        /// <summary>
+        /// The list of GameObjects on the prior frame
+        /// </summary>
+        public int PreviousLocationObjects { get; private set; }
+
+        /// <summary>
+        /// The list of Items in the player's inventory on the prior frame
+        /// </summary>
+        public Dictionary<Item, int> PreviousItems { get; private set; }
+
+        /// <summary>
+        /// The player's Combat level on the prior frame
+        /// </summary>
+        public int PreviousCombatLevel { get; private set; }
+        /// <summary>
+        /// The player's Farming level on the prior frame
+        /// </summary>
+        public int PreviousFarmingLevel { get; private set; }
+        /// <summary>
+        /// The player's Fishing level on the prior frame
+        /// </summary>
+        public int PreviousFishingLevel { get; private set; }
+        /// <summary>
+        /// The player's Foraging level on the prior frame
+        /// </summary>
+        public int PreviousForagingLevel { get; private set; }
+        /// <summary>
+        /// The player's Mining level on the prior frame
+        /// </summary>
+        public int PreviousMiningLevel { get; private set; }
+        /// <summary>
+        /// The player's Luck level on the prior frame
+        /// </summary>
+        public int PreviousLuckLevel { get; private set; }
+
+        //Kill me now comments are so boring
+
+        /// <summary>
+        /// The player's previous game location
+        /// </summary>
+        public GameLocation PreviousGameLocation { get; private set; }
+
+        /// <summary>
+        /// The previous ActiveGameMenu in Game1
+        /// </summary>
+        public IClickableMenu PreviousActiveMenu { get; private set; }
+
+        /// <summary>
+        /// The previous mine level
+        /// </summary>
+        public int PreviousMineLevel { get; private set; }
+
+        /// <summary>
+        /// The previous TimeOfDay (Int32 between 600 and 2400?)
+        /// </summary>
+        public int PreviousTimeOfDay { get; private set; }
+
+        /// <summary>
+        /// The previous DayOfMonth (Int32 between 1 and 28?)
+        /// </summary>
+        public int PreviousDayOfMonth { get; private set; }
+
+        /// <summary>
+        /// The previous Season (String as follows: "winter", "spring", "summer", "fall")
+        /// </summary>
+        public string PreviousSeasonOfYear { get; private set; }
+
+        /// <summary>
+        /// The previous Year
+        /// </summary>
+        public int PreviousYearOfGame { get; private set; }
+
+        /// <summary>
+        /// The previous 'Farmer' (Player)
+        /// </summary>
+        public Farmer PreviousFarmer { get; private set; }
+
+        /// <summary>
+        /// The current index of the update tick. Recycles every 60th tick to 0. (Int32 between 0 and 59)
+        /// </summary>
+        public int CurrentUpdateTick { get; private set; }
+
+        /// <summary>
+        /// Whether or not this update frame is the very first of the entire game
+        /// </summary>
+        public bool FirstUpdate { get; private set; }
+
+        /// <summary>
+        /// The current RenderTarget in Game1 (Private field, uses reflection)
+        /// </summary>
+        public RenderTarget2D Screen
+        {
+            get { return typeof (Game1).GetBaseFieldValue<RenderTarget2D>(Program.gamePtr, "screen"); }
+            set { typeof (Game1).SetBaseFieldValue<RenderTarget2D>(this, "screen", value); }
+        }
+
+        /// <summary>
+        /// Static accessor for an Instance of the class SGame
+        /// </summary>
+        public static SGame Instance { get; private set; }
+
+        /// <summary>
+        /// The game's FPS. Re-determined every Draw update.
+        /// </summary>
+        public static float FramesPerSecond { get; private set; }
+
+        /// <summary>
+        /// Whether or not we're in a pseudo 'debug' mode. Mostly for displaying information like FPS.
+        /// </summary>
+        public static bool Debug { get; private set; }
+
+        /// <summary>
+        /// The current player (equal to Farmer.Player)
+        /// </summary>
+        [Obsolete("Use Farmer.Player instead")]
+        public Farmer CurrentFarmer => player;
+
+        /// <summary>
+        /// Gets ALL static fields that belong to 'Game1'
+        /// </summary>
+        public static FieldInfo[] GetStaticFields => typeof (Game1).GetFields();
+        
+        /// <summary>
+        /// Whether or not a button was just pressed on the controller
+        /// </summary>
+        /// <param name="button"></param>
+        /// <param name="buttonState"></param>
+        /// <param name="stateIndex"></param>
+        /// <returns></returns>
         private bool WasButtonJustPressed(Buttons button, ButtonState buttonState, PlayerIndex stateIndex)
         {
-            return buttonState == ButtonState.Pressed && !PreviouslyPressedButtons[(int)stateIndex].Contains(button);
+            return buttonState == ButtonState.Pressed && !PreviouslyPressedButtons[(int) stateIndex].Contains(button);
         }
 
+        /// <summary>
+        /// Whether or not a button was just released on the controller
+        /// </summary>
+        /// <param name="button"></param>
+        /// <param name="buttonState"></param>
+        /// <param name="stateIndex"></param>
+        /// <returns></returns>
         private bool WasButtonJustReleased(Buttons button, ButtonState buttonState, PlayerIndex stateIndex)
         {
-            return buttonState == ButtonState.Released && PreviouslyPressedButtons[(int)stateIndex].Contains(button);
+            return buttonState == ButtonState.Released && PreviouslyPressedButtons[(int) stateIndex].Contains(button);
         }
 
+        /// <summary>
+        /// Whether or not an analog button was just pressed on the controller
+        /// </summary>
+        /// <param name="button"></param>
+        /// <param name="value"></param>
+        /// <param name="stateIndex"></param>
+        /// <returns></returns>
         private bool WasButtonJustPressed(Buttons button, float value, PlayerIndex stateIndex)
         {
             return WasButtonJustPressed(button, value > 0.2f ? ButtonState.Pressed : ButtonState.Released, stateIndex);
         }
-
+        
+        /// <summary>
+        /// Whether or not an analog button was just released on the controller
+        /// </summary>
+        /// <param name="button"></param>
+        /// <param name="value"></param>
+        /// <param name="stateIndex"></param>
+        /// <returns></returns>
         private bool WasButtonJustReleased(Buttons button, float value, PlayerIndex stateIndex)
         {
             return WasButtonJustReleased(button, value > 0.2f ? ButtonState.Pressed : ButtonState.Released, stateIndex);
         }
 
-        public bool PreviouslyLoadedGame { get; private set; }
-        private bool FireLoadedGameEvent;
-
+        /// <summary>
+        /// Gets an array of all Buttons pressed on a joystick
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         public Buttons[] GetButtonsDown(PlayerIndex index)
         {
-            GamePadState state = GamePad.GetState(index);
-            List<Buttons> buttons = new List<Buttons>();
+            var state = GamePad.GetState(index);
+            var buttons = new List<Buttons>();
             if (state.IsConnected)
             {
                 if (state.Buttons.A == ButtonState.Pressed) buttons.Add(Buttons.A);
@@ -93,15 +292,20 @@ namespace StardewModdingAPI.Inheritance
             return buttons.ToArray();
         }
 
+        /// <summary>
+        /// Gets all buttons that were pressed on the current frame of a joystick
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         public Buttons[] GetFramePressedButtons(PlayerIndex index)
-        {     
-            GamePadState state = GamePad.GetState(index);
-            List<Buttons> buttons = new List<Buttons>();
+        {
+            var state = GamePad.GetState(index);
+            var buttons = new List<Buttons>();
             if (state.IsConnected)
             {
-                if (WasButtonJustPressed(Buttons.A, state.Buttons.A, index))                    buttons.Add(Buttons.A);
-                if (WasButtonJustPressed(Buttons.B, state.Buttons.B, index))                    buttons.Add(Buttons.B);
-                if (WasButtonJustPressed(Buttons.Back, state.Buttons.Back, index))              buttons.Add(Buttons.Back);
+                if (WasButtonJustPressed(Buttons.A, state.Buttons.A, index)) buttons.Add(Buttons.A);
+                if (WasButtonJustPressed(Buttons.B, state.Buttons.B, index)) buttons.Add(Buttons.B);
+                if (WasButtonJustPressed(Buttons.Back, state.Buttons.Back, index)) buttons.Add(Buttons.Back);
                 if (WasButtonJustPressed(Buttons.BigButton, state.Buttons.BigButton, index)) buttons.Add(Buttons.BigButton);
                 if (WasButtonJustPressed(Buttons.LeftShoulder, state.Buttons.LeftShoulder, index)) buttons.Add(Buttons.LeftShoulder);
                 if (WasButtonJustPressed(Buttons.LeftStick, state.Buttons.LeftStick, index)) buttons.Add(Buttons.LeftStick);
@@ -117,13 +321,18 @@ namespace StardewModdingAPI.Inheritance
                 if (WasButtonJustPressed(Buttons.LeftTrigger, state.Triggers.Left, index)) buttons.Add(Buttons.LeftTrigger);
                 if (WasButtonJustPressed(Buttons.RightTrigger, state.Triggers.Right, index)) buttons.Add(Buttons.RightTrigger);
             }
-            return buttons.ToArray();  
+            return buttons.ToArray();
         }
 
+        /// <summary>
+        /// Gets all buttons that were released on the current frame of a joystick
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         public Buttons[] GetFrameReleasedButtons(PlayerIndex index)
         {
-            GamePadState state = GamePad.GetState(index);
-            List<Buttons> buttons = new List<Buttons>();
+            var state = GamePad.GetState(index);
+            var buttons = new List<Buttons>();
             if (state.IsConnected)
             {
                 if (WasButtonJustReleased(Buttons.A, state.Buttons.A, index)) buttons.Add(Buttons.A);
@@ -147,68 +356,34 @@ namespace StardewModdingAPI.Inheritance
             return buttons.ToArray();
         }
 
-        public int PreviousGameLocations { get; private set; }
-        public int PreviousLocationObjects { get; private set; }
-        public Dictionary<Item, int> PreviousItems { get; private set; }
-
-        public int PreviousCombatLevel { get; private set; }
-        public int PreviousFarmingLevel { get; private set; }
-        public int PreviousFishingLevel { get; private set; }
-        public int PreviousForagingLevel { get; private set; }
-        public int PreviousMiningLevel { get; private set; }
-        public int PreviousLuckLevel { get; private set; }
-
-        public GameLocation PreviousGameLocation { get; private set; }
-        public IClickableMenu PreviousActiveMenu { get; private set; }
-
-        public Int32 PreviousTimeOfDay { get; private set; }
-        public Int32 PreviousDayOfMonth { get; private set; }
-        public String PreviousSeasonOfYear { get; private set; }
-        public Int32 PreviousYearOfGame { get; private set; }
-
-        public Farmer PreviousFarmer { get; private set; }
-
-        public Int32 CurrentUpdateTick { get; private set; }
-        public bool FirstUpdate { get; private set; }
-
-        public RenderTarget2D Screen
-        {
-            get { return typeof (Game1).GetBaseFieldValue<RenderTarget2D>(Program.gamePtr, "screen"); }
-            set { typeof (Game1).SetBaseFieldValue<RenderTarget2D>(this, "screen", value); }
-        }
-
-        private static SGame instance;
-        public static SGame Instance => instance;
-
-        public static float FramesPerSecond { get; private set; }
-        public static bool Debug { get; private set; }
-
-        public Farmer CurrentFarmer => player;
-
-        public SGame()
-        {
-            instance = this;
-            FirstUpdate = true;
-        }
-
+        /// <summary>
+        /// XNA Init Method
+        /// </summary>
         protected override void Initialize()
         {
-            Log.Verbose("XNA Initialize");
-            ModItems = new Dictionary<Int32, SObject>();
+            Log.AsyncY("XNA Initialize");
+            //ModItems = new Dictionary<int, SObject>();
             PreviouslyPressedButtons = new Buttons[4][];
-            for (int i = 0; i < 4; ++i) PreviouslyPressedButtons[i] = new Buttons[0];
+            for (var i = 0; i < 4; ++i) PreviouslyPressedButtons[i] = new Buttons[0];
 
             base.Initialize();
             GameEvents.InvokeInitialize();
         }
 
+        /// <summary>
+        /// XNA LC Method
+        /// </summary>
         protected override void LoadContent()
         {
-            Log.Verbose("XNA LoadContent");
+            Log.AsyncY("XNA LoadContent");
             base.LoadContent();
             GameEvents.InvokeLoadContent();
         }
 
+        /// <summary>
+        /// XNA Update Method
+        /// </summary>
+        /// <param name="gameTime"></param>
         protected override void Update(GameTime gameTime)
         {
             UpdateEventCalls();
@@ -224,7 +399,7 @@ namespace StardewModdingAPI.Inheritance
             }
             catch (Exception ex)
             {
-                Log.Error("An error occured in the base update loop: " + ex);
+                Log.AsyncR("An error occured in the base update loop: " + ex);
                 Console.ReadKey();
             }
 
@@ -260,15 +435,19 @@ namespace StardewModdingAPI.Inheritance
             if (KStatePrior != KStateNow)
                 KStatePrior = KStateNow;
 
-            for (PlayerIndex i = PlayerIndex.One; i <= PlayerIndex.Four; i++)
+            for (var i = PlayerIndex.One; i <= PlayerIndex.Four; i++)
             {
-                PreviouslyPressedButtons[(int)i] = GetButtonsDown(i);
+                PreviouslyPressedButtons[(int) i] = GetButtonsDown(i);
             }
         }
 
+        /// <summary>
+        /// XNA Draw Method
+        /// </summary>
+        /// <param name="gameTime"></param>
         protected override void Draw(GameTime gameTime)
         {
-            FramesPerSecond = 1 / (float)gameTime.ElapsedGameTime.TotalSeconds;
+            FramesPerSecond = 1 / (float) gameTime.ElapsedGameTime.TotalSeconds;
 
             try
             {
@@ -276,11 +455,46 @@ namespace StardewModdingAPI.Inheritance
             }
             catch (Exception ex)
             {
-                Log.Error("An error occured in the base draw loop: " + ex);
+                Log.AsyncR("An error occured in the base draw loop: " + ex);
                 Console.ReadKey();
             }
 
             GraphicsEvents.InvokeDrawTick();
+
+            if (Constants.EnableDrawingIntoRenderTarget)
+            {
+                if (!options.zoomLevel.Equals(1.0f))
+                {
+                    if (Screen.RenderTargetUsage == RenderTargetUsage.DiscardContents)
+                    {
+                        Screen = new RenderTarget2D(graphics.GraphicsDevice, Math.Min(4096, (int) (Window.ClientBounds.Width * (1.0 / options.zoomLevel))),
+                            Math.Min(4096, (int) (Window.ClientBounds.Height * (1.0 / options.zoomLevel))),
+                            false, SurfaceFormat.Color, DepthFormat.Depth16, 1, RenderTargetUsage.PreserveContents);
+                    }
+                    GraphicsDevice.SetRenderTarget(Screen);
+                }
+
+                // Not beginning the batch due to inconsistancies with the standard draw tick...
+                //spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
+
+                GraphicsEvents.InvokeDrawInRenderTargetTick();
+
+                //spriteBatch.End();
+
+                //Re-draw the HUD
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
+                if ((displayHUD || eventUp) && currentBillboard == 0 && gameMode == 3 && !freezeControls && !panMode)
+                    typeof (Game1).GetMethod("drawHUD", BindingFlags.NonPublic | BindingFlags.Instance)?.Invoke(Program.gamePtr, null);
+                spriteBatch.End();
+
+                if (!options.zoomLevel.Equals(1.0f))
+                {
+                    GraphicsDevice.SetRenderTarget(null);
+                    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
+                    spriteBatch.Draw(Screen, Vector2.Zero, Screen.Bounds, Color.White, 0.0f, Vector2.Zero, options.zoomLevel, SpriteEffects.None, 1f);
+                    spriteBatch.End();
+                }
+            }
 
             if (Debug)
             {
@@ -290,14 +504,15 @@ namespace StardewModdingAPI.Inheritance
             }
         }
 
-        public static Int32 RegisterModItem(SObject modItem)
+        [Obsolete("Do not use at this time.")]
+        private static int RegisterModItem(SObject modItem)
         {
             if (modItem.HasBeenRegistered)
             {
-                Log.Error("The item {0} has already been registered with ID {1}", modItem.Name, modItem.RegisteredId);
+                Log.AsyncR($"The item {modItem.Name} has already been registered with ID {modItem.RegisteredId}");
                 return modItem.RegisteredId;
             }
-            Int32 newId = LowestModItemID;
+            var newId = LowestModItemID;
             if (ModItems.Count > 0)
                 newId = Math.Max(LowestModItemID, ModItems.OrderBy(x => x.Key).First().Key + 1);
             ModItems.Add(newId, modItem);
@@ -306,7 +521,8 @@ namespace StardewModdingAPI.Inheritance
             return newId;
         }
 
-        public static SObject PullModItemFromDict(Int32 id, bool isIndex)
+        [Obsolete("Do not use at this time.")]
+        private static SObject PullModItemFromDict(int id, bool isIndex)
         {
             if (isIndex)
             {
@@ -314,35 +530,35 @@ namespace StardewModdingAPI.Inheritance
                 {
                     return ModItems.ElementAt(id).Value.Clone();
                 }
-                Log.Error("ModItem Dictionary does not contain index: " + id);
+                Log.AsyncR("ModItem Dictionary does not contain index: " + id);
                 return null;
             }
             if (ModItems.ContainsKey(id))
             {
                 return ModItems[id].Clone();
             }
-            Log.Error("ModItem Dictionary does not contain ID: " + id);
+            Log.AsyncR("ModItem Dictionary does not contain ID: " + id);
             return null;
         }
-        
-        public void UpdateEventCalls()
+
+        private void UpdateEventCalls()
         {
             KStateNow = Keyboard.GetState();
 
             MStateNow = Mouse.GetState();
 
-            foreach (Keys k in FramePressedKeys)
+            foreach (var k in FramePressedKeys)
                 ControlEvents.InvokeKeyPressed(k);
 
-            foreach (Keys k in FrameReleasedKeys)
+            foreach (var k in FrameReleasedKeys)
                 ControlEvents.InvokeKeyReleased(k);
 
-            for (PlayerIndex i = PlayerIndex.One; i <= PlayerIndex.Four; i++)
+            for (var i = PlayerIndex.One; i <= PlayerIndex.Four; i++)
             {
-                Buttons[] buttons = GetFramePressedButtons(i);
-                foreach (Buttons b in buttons)
+                var buttons = GetFramePressedButtons(i);
+                foreach (var b in buttons)
                 {
-                    if(b == Buttons.LeftTrigger || b == Buttons.RightTrigger)
+                    if (b == Buttons.LeftTrigger || b == Buttons.RightTrigger)
                     {
                         ControlEvents.InvokeTriggerPressed(i, b, b == Buttons.LeftTrigger ? GamePad.GetState(i).Triggers.Left : GamePad.GetState(i).Triggers.Right);
                     }
@@ -353,9 +569,9 @@ namespace StardewModdingAPI.Inheritance
                 }
             }
 
-            for (PlayerIndex i = PlayerIndex.One; i <= PlayerIndex.Four; i++)
+            for (var i = PlayerIndex.One; i <= PlayerIndex.Four; i++)
             {
-                foreach (Buttons b in GetFrameReleasedButtons(i))
+                foreach (var b in GetFrameReleasedButtons(i))
                 {
                     if (b == Buttons.LeftTrigger || b == Buttons.RightTrigger)
                     {
@@ -440,7 +656,7 @@ namespace StardewModdingAPI.Inheritance
                 PreviousLuckLevel = player.luckLevel;
             }
 
-            List<ItemStackChange> changedItems;            
+            List<ItemStackChange> changedItems;
             if (player != null && HasInventoryChanged(player.items, out changedItems))
             {
                 PlayerEvents.InvokeInventoryChanged(player.items, changedItems);
@@ -448,7 +664,7 @@ namespace StardewModdingAPI.Inheritance
             }
 
             var objectHash = currentLocation?.objects?.GetHash();
-            if(objectHash != null && PreviousLocationObjects != objectHash)
+            if (objectHash != null && PreviousLocationObjects != objectHash)
             {
                 LocationEvents.InvokeOnNewLocationObject(currentLocation.objects);
                 PreviousLocationObjects = objectHash ?? -1;
@@ -490,6 +706,12 @@ namespace StardewModdingAPI.Inheritance
                 FireLoadedGameEvent = true;
                 PreviouslyLoadedGame = hasLoadedGame;
             }
+
+            if (mine != null && PreviousMineLevel != mine.mineLevel)
+            {
+                MineEvents.InvokeMineLevelChanged(PreviousMineLevel, mine.mineLevel);
+                PreviousMineLevel = mine.mineLevel;
+            }
         }
 
         private bool HasInventoryChanged(List<Item> items, out List<ItemStackChange> changedItems)
@@ -500,24 +722,24 @@ namespace StardewModdingAPI.Inheritance
             {
                 if (PreviousItems != null && PreviousItems.ContainsKey(item))
                 {
-                    if(PreviousItems[item] != item.Stack)
+                    if (PreviousItems[item] != item.Stack)
                     {
-                        changedItems.Add(new ItemStackChange { Item = item, StackChange = item.Stack - PreviousItems[item], ChangeType = ChangeType.StackChange });
+                        changedItems.Add(new ItemStackChange {Item = item, StackChange = item.Stack - PreviousItems[item], ChangeType = ChangeType.StackChange});
                     }
                 }
                 else
                 {
-                    changedItems.Add(new ItemStackChange { Item = item, StackChange = item.Stack, ChangeType = ChangeType.Added });
+                    changedItems.Add(new ItemStackChange {Item = item, StackChange = item.Stack, ChangeType = ChangeType.Added});
                 }
             }
 
             if (PreviousItems != null)
             {
                 changedItems.AddRange(PreviousItems.Where(n => actualItems.All(i => i != n.Key)).Select(n =>
-                    new ItemStackChange { Item = n.Key, StackChange = -n.Key.Stack, ChangeType = ChangeType.Removed }));
+                    new ItemStackChange {Item = n.Key, StackChange = -n.Key.Stack, ChangeType = ChangeType.Removed}));
             }
 
-            return (changedItems.Any());                        
+            return changedItems.Any();
         }
     }
 }

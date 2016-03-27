@@ -9,22 +9,22 @@ namespace StardewModdingAPI.Events
         public static event EventHandler<EventArgsIntChanged> YearOfGameChanged = delegate { };
         public static event EventHandler<EventArgsStringChanged> SeasonOfYearChanged = delegate { };
 
-        public static void InvokeTimeOfDayChanged(Int32 priorInt, Int32 newInt)
+        public static void InvokeTimeOfDayChanged(int priorInt, int newInt)
         {
             TimeOfDayChanged.Invoke(null, new EventArgsIntChanged(priorInt, newInt));
         }
 
-        public static void InvokeDayOfMonthChanged(Int32 priorInt, Int32 newInt)
+        public static void InvokeDayOfMonthChanged(int priorInt, int newInt)
         {
             DayOfMonthChanged.Invoke(null, new EventArgsIntChanged(priorInt, newInt));
         }
 
-        public static void InvokeYearOfGameChanged(Int32 priorInt, Int32 newInt)
+        public static void InvokeYearOfGameChanged(int priorInt, int newInt)
         {
             YearOfGameChanged.Invoke(null, new EventArgsIntChanged(priorInt, newInt));
         }
 
-        public static void InvokeSeasonOfYearChanged(String priorString, String newString)
+        public static void InvokeSeasonOfYearChanged(string priorString, string newString)
         {
             SeasonOfYearChanged.Invoke(null, new EventArgsStringChanged(priorString, newString));
         }

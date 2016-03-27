@@ -5,7 +5,7 @@ using StardewValley.Minigames;
 
 namespace StardewModdingAPI.Inheritance.Minigames
 {
-    abstract class SMinigameBase : IMinigame
+    internal abstract class SMinigameBase : IMinigame
     {
         public abstract bool tick(GameTime time);
 

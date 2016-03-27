@@ -79,6 +79,7 @@
     </DefineConstants>
     <UseVSHostingProcess>true</UseVSHostingProcess>
     <Optimize>true</Optimize>
+    <DocumentationFile>bin\x86\Debug\StardewModdingAPI.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <PlatformTarget>x86</PlatformTarget>
@@ -149,8 +150,10 @@
     <Compile Include="Inheritance\Menus\SGameMenu.cs" />
     <Compile Include="Inheritance\Menus\SInventoryPage.cs" />
     <Compile Include="Inheritance\Minigames\SMinigameBase.cs" />
+    <Compile Include="Inheritance\SBareObject.cs" />
     <Compile Include="Inheritance\SObject.cs" />
-    <Compile Include="Log.cs" />
+    <Compile Include="JsonResolver.cs" />
+    <Compile Include="Logger.cs" />
     <Compile Include="Manifest.cs" />
     <Compile Include="Mod.cs" />
     <Compile Include="ModItem.cs" />
