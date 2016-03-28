@@ -144,6 +144,11 @@ namespace StardewModdingAPI.Inheritance
         public IClickableMenu PreviousActiveMenu { get; private set; }
 
         /// <summary>
+        /// Indicates if the MenuClosed event was fired to prevent it from re-firing.
+        /// </summary>
+        internal bool WasMenuClosedInvoked = false;
+
+        /// <summary>
         /// The previous mine level
         /// </summary>
         public int PreviousMineLevel { get; private set; }
@@ -1438,6 +1443,13 @@ namespace StardewModdingAPI.Inheritance
             {
                 MenuEvents.InvokeMenuChanged(PreviousActiveMenu, activeClickableMenu);
                 PreviousActiveMenu = activeClickableMenu;
+                WasMenuClosedInvoked = false;
+            }
+
+            if (!WasMenuClosedInvoked && PreviousActiveMenu != null && activeClickableMenu == null)
+            {
+                MenuEvents.InvokeMenuClosed(PreviousActiveMenu);
+                WasMenuClosedInvoked = true;
             }
 
             if (locations.GetHash() != PreviousGameLocations)
