@@ -231,6 +231,13 @@ namespace StardewModdingAPI
                     // ReSharper disable once InconsistentlySynchronizedField
                     _logQueue = new ConcurrentQueue<LogInfo>();
                     Console.WriteLine(Constants.LogPath);
+
+                    // If the ErrorLogs dir doesn't exist StreamWriter will throw an exception.
+                    if (!Directory.Exists(Constants.LogDir))
+                    {
+                        Directory.CreateDirectory(Constants.LogDir);
+                    }
+
                     _stream = new StreamWriter(Constants.LogPath, false);
                     Console.WriteLine("Created log instance");
                 }
