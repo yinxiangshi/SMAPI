@@ -867,7 +867,9 @@ namespace StardewModdingAPI.Inheritance
                     {
                         spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
                         activeClickableMenu.drawBackground(spriteBatch);
+                        GraphicsEvents.InvokeOnPreRenderGuiEvent(null, EventArgs.Empty);
                         activeClickableMenu.draw(spriteBatch);
+                        GraphicsEvents.InvokeOnPostRenderGuiEvent(null, EventArgs.Empty);
                         spriteBatch.End();
                         if (!ZoomLevelIsOne)
                         {
