@@ -430,11 +430,11 @@ namespace StardewModdingAPI.Inheritance
             QueueDebugMessage("FPS: " + FramesPerSecond);
             UpdateEventCalls();
 
-            if (ZoomLevelIsOne)
+            /*if (ZoomLevelIsOne)
             {
                 options.zoomLevel = 0.99f;
                 InvokeBasePrivateInstancedMethod("Window_ClientSizeChanged", null, null);
-            }
+            }*/
 
             if (FramePressedKeys.Contains(Keys.F3))
             {
@@ -1107,7 +1107,7 @@ namespace StardewModdingAPI.Inheritance
                         }
                     }
                     spriteBatch.End();
-                    base.Draw(gameTime);
+                    //base.Draw(gameTime);
                     spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
                     if (eventUp && currentLocation.currentEvent != null)
                     {
