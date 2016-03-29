@@ -392,6 +392,34 @@ namespace StardewModdingAPI.Inheritance
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        public static MethodInfo DrawFarmBuildings = typeof (Game1).GetMethod("drawFarmBuildings", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public static MethodInfo DrawHUD = typeof (Game1).GetMethod("drawHUD", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public static MethodInfo DrawDialogueBox = typeof (Game1).GetMethod("drawDialogueBox", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        public static MethodInfo CheckForEscapeKeys = typeof (Game1).GetMethod("checkForEscapeKeys", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        public static MethodInfo UpdateControlInput = typeof(Game1).GetMethod("UpdateControlInput", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        public static MethodInfo UpdateCharacters = typeof(Game1).GetMethod("UpdateCharacters", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        public static MethodInfo UpdateLocations = typeof(Game1).GetMethod("UpdateLocations", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        public static MethodInfo getViewportCenter = typeof(Game1).GetMethod("getViewportCenter", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        public static MethodInfo UpdateTitleScreen = typeof(Game1).GetMethod("UpdateTitleScreen", BindingFlags.NonPublic | BindingFlags.Instance);
+
+
+        /// <summary>
         /// Whether or not the game's zoom level is 1.0f
         /// </summary>
         public bool ZoomLevelIsOne => options.zoomLevel.Equals(1.0f);
@@ -468,7 +496,9 @@ namespace StardewModdingAPI.Inheritance
                             client.receiveMessages();
                     }
                     if (IsActive)
-                        InvokeBasePrivateInstancedMethod("checkForEscapeKeys");
+                        InvokeMethodInfo(CheckForEscapeKeys);
+                        //InvokeBasePrivateInstancedMethod("checkForEscapeKeys");
+                    
                         //this.checkForEscapeKeys();
                     updateMusic();
                     updateRaindropPosition();
@@ -514,7 +544,8 @@ namespace StardewModdingAPI.Inheritance
                             }
                         }
                         else
-                            InvokeBasePrivateInstancedMethod("UpdateControlInput", gameTime);
+                            InvokeMethodInfo(UpdateControlInput, gameTime);
+                        //InvokeBasePrivateInstancedMethod("UpdateControlInput", gameTime);
                         //this.UpdateControlInput(gameTime);
                     }
                     else if (pauseThenDoFunctionTimer > 0)
@@ -693,7 +724,8 @@ namespace StardewModdingAPI.Inheritance
                                 if (pauseTime > 0.0)
                                     updatePause(gameTime);
                                 if (!globalFade && !freezeControls && (activeClickableMenu == null && IsActive))
-                                    InvokeBasePrivateInstancedMethod("UpdateControlInput", gameTime);
+                                    InvokeMethodInfo(UpdateControlInput, gameTime);
+                                //InvokeBasePrivateInstancedMethod("UpdateControlInput", gameTime);
                                 //this.UpdateControlInput(gameTime);
                             }
                             if (showingEndOfNightStuff && endOfNightMenus.Count() == 0 && activeClickableMenu == null)
@@ -707,9 +739,13 @@ namespace StardewModdingAPI.Inheritance
                                     UpdateGameClock(gameTime);
                                 //this.UpdateCharacters(gameTime);
                                 //this.UpdateLocations(gameTime);
-                                InvokeBasePrivateInstancedMethod("UpdateCharacters", gameTime);
-                                InvokeBasePrivateInstancedMethod("UpdateLocations", gameTime);
-                                UpdateViewPort(false, (Point)InvokeBasePrivateInstancedMethod("getViewportCenter"));
+                                //InvokeBasePrivateInstancedMethod("UpdateCharacters", gameTime);
+                                //InvokeBasePrivateInstancedMethod("UpdateLocations", gameTime);
+                                //UpdateViewPort(false, (Point)InvokeBasePrivateInstancedMethod("getViewportCenter"));
+
+                                InvokeMethodInfo(UpdateCharacters, gameTime);
+                                InvokeMethodInfo(UpdateLocations, gameTime);
+                                UpdateViewPort(false, (Point)InvokeMethodInfo(getViewportCenter));
                             }
                             UpdateOther(gameTime);
                             if (messagePause)
@@ -726,7 +762,8 @@ namespace StardewModdingAPI.Inheritance
                     }
                     else
                     {
-                        InvokeBasePrivateInstancedMethod("UpdateTitleScreen", gameTime);
+                        //InvokeBasePrivateInstancedMethod("UpdateTitleScreen", gameTime);
+                        InvokeMethodInfo(UpdateTitleScreen, gameTime);
                         //this.UpdateTitleScreen(gameTime);
                         if (activeClickableMenu != null)
                             updateActiveMenu(gameTime);
@@ -1008,7 +1045,8 @@ namespace StardewModdingAPI.Inheritance
                     }
                     if (currentLocation.Name.Equals("Farm"))
                     {
-                        typeof (Game1).GetMethod("drawFarmBuildings", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(Program.gamePtr, null);
+                        //typeof (Game1).GetMethod("drawFarmBuildings", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(Program.gamePtr, null);
+                        DrawFarmBuildings.Invoke(Program.gamePtr, null);
                         //this.drawFarmBuildings();
                     }
                     if (tvStation >= 0)
@@ -1166,7 +1204,8 @@ namespace StardewModdingAPI.Inheritance
                     if ((displayHUD || eventUp) && currentBillboard == 0 && gameMode == 3 && !freezeControls && !panMode)
                     {
                         GraphicsEvents.InvokeOnPreRenderHudEvent(null, EventArgs.Empty);
-                        typeof (Game1).GetMethod("drawHUD", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(Program.gamePtr, null);
+                        //typeof (Game1).GetMethod("drawHUD", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(Program.gamePtr, null);
+                        DrawHUD.Invoke(Program.gamePtr, null);
                         GraphicsEvents.InvokeOnPostRenderHudEvent(null, EventArgs.Empty);
                         //this.drawHUD();
                     }
@@ -1185,7 +1224,8 @@ namespace StardewModdingAPI.Inheritance
                 farmEvent?.draw(spriteBatch);
                 if (dialogueUp && !nameSelectUp && !messagePause && !(activeClickableMenu is DialogueBox))
                 {
-                    typeof (Game1).GetMethod("drawDialogueBox", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(Program.gamePtr, null);
+                    //typeof (Game1).GetMethod("drawDialogueBox", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(Program.gamePtr, null);
+                    DrawDialogueBox.Invoke(Program.gamePtr, null);
                     //this.drawDialogueBox();
                 }
                 if (progressBar)
@@ -1215,7 +1255,8 @@ namespace StardewModdingAPI.Inheritance
                 }
                 if ((messagePause || globalFade) && dialogueUp)
                 {
-                    typeof (Game1).GetMethod("drawDialogueBox", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(Program.gamePtr, null);
+                    //typeof (Game1).GetMethod("drawDialogueBox", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(Program.gamePtr, null);
+                    DrawDialogueBox.Invoke(Program.gamePtr, null);
                     //this.drawDialogueBox();
                 }
                 foreach (TemporaryAnimatedSprite current8 in screenOverlayTempSprites)
@@ -1607,6 +1648,7 @@ namespace StardewModdingAPI.Inheritance
         /// <param name="name">The name of the method</param>
         /// <param name="parameters">Any parameters needed</param>
         /// <returns>Whatever the method normally returns. Null if void.</returns>
+        [Obsolete("This is very slow. Cache the method info and then invoke it with InvokeMethodInfo().")]
         public static object InvokeBasePrivateInstancedMethod(string name, params object[] parameters)
         {
             try
@@ -1616,6 +1658,25 @@ namespace StardewModdingAPI.Inheritance
             catch
             {
                 Log.AsyncR("Failed to call base method: " + name);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Invokes a given method info with the supplied parameters
+        /// </summary>
+        /// <param name="mi"></param>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
+        public static object InvokeMethodInfo(MethodInfo mi, params object[] parameters)
+        {
+            try
+            {
+                return mi.Invoke(Program.gamePtr, parameters);
+            }
+            catch
+            {
+                Log.AsyncR("Failed to call base method: " + mi.Name);
                 return null;
             }
         }
