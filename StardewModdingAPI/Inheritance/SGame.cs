@@ -962,7 +962,7 @@ namespace StardewModdingAPI.Inheritance
                                 }
                             }
                             spriteBatch.End();
-                            GraphicsDevice.SetRenderTarget(!ZoomLevelIsOne ? null : Screen);
+                            GraphicsDevice.SetRenderTarget(ZoomLevelIsOne ? null : Screen);
                         }
                         if (bloomDay)
                         {
@@ -1158,7 +1158,7 @@ namespace StardewModdingAPI.Inheritance
 
                         spriteBatch.End();
 
-                        base.Draw(gameTime);
+                        //base.Draw(gameTime);
 
                         /*try
                         {
