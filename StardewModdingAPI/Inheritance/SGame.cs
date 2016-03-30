@@ -208,8 +208,8 @@ namespace StardewModdingAPI.Inheritance
         /// </summary>
         public int ThumbstickMotionMargin
         {
-            get { return (int)typeof(Game1).GetBaseFieldValue<object>(Program.gamePtr, "thumbstickMotionMargin"); }
-            set { typeof(Game1).SetBaseFieldValue<object>(this, "thumbstickMotionMargin", value); }
+            get { return (int)typeof(Game1).GetField("thumbstickMotionMargin", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null); }
+            set { typeof(Game1).GetField("thumbstickMotionMargin", BindingFlags.NonPublic | BindingFlags.Static).SetValue(null, value); }
         }
 
         /// <summary>
