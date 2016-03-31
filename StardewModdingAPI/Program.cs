@@ -50,6 +50,8 @@ namespace StardewModdingAPI
 
             try
             {
+                Log.AsyncY("SDV Version: " + Game1.version);
+                Log.AsyncY("SMAPI Version: " + Constants.Version.VersionString);
                 ConfigureUI();
                 ConfigurePaths();
                 ConfigureSDV();
