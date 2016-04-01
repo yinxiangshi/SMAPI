@@ -1312,10 +1312,7 @@ namespace StardewModdingAPI.Inheritance
 
                     GraphicsEvents.InvokeOnPostRenderEvent(null, EventArgs.Empty);
                     spriteBatch.End();
-
-                    GraphicsEvents.InvokeDrawTick();
-                    GraphicsEvents.InvokeDrawInRenderTargetTick();
-
+                    
                     if (!ZoomLevelIsOne)
                     {
                         GraphicsDevice.SetRenderTarget(null);
@@ -1324,6 +1321,9 @@ namespace StardewModdingAPI.Inheritance
                         spriteBatch.Draw(Screen, Vector2.Zero, Screen.Bounds, Color.White, 0f, Vector2.Zero, options.zoomLevel, SpriteEffects.None, 1f);
                         spriteBatch.End();
                     }
+
+                    GraphicsEvents.InvokeDrawTick();
+                    GraphicsEvents.InvokeDrawInRenderTargetTick();
                 }
                 catch (Exception ex)
                 {
