@@ -1219,6 +1219,8 @@ namespace StardewModdingAPI.Inheritance
                         {
                             drawBillboard();
                         }
+
+                        GraphicsEvents.InvokeOnPreRenderHudEventNoCheck(null, EventArgs.Empty);
                         if ((displayHUD || eventUp) && currentBillboard == 0 && gameMode == 3 && !freezeControls && !panMode)
                         {
                             GraphicsEvents.InvokeOnPreRenderHudEvent(null, EventArgs.Empty);
@@ -1231,6 +1233,8 @@ namespace StardewModdingAPI.Inheritance
                         {
                             spriteBatch.Draw(mouseCursors, new Vector2(getOldMouseX(), getOldMouseY()), getSourceRectForStandardTileSheet(mouseCursors, 0, 16, 16), Color.White, 0f, Vector2.Zero, 4f + dialogueButtonScale / 150f, SpriteEffects.None, 1f);
                         }
+                        GraphicsEvents.InvokeOnPostRenderHudEventNoCheck(null, EventArgs.Empty);
+
                         if (hudMessages.Any() && (!eventUp || isFestival()))
                         {
                             for (int l = hudMessages.Count - 1; l >= 0; l--)
@@ -1299,6 +1303,8 @@ namespace StardewModdingAPI.Inheritance
                     {
                         spriteBatch.DrawString(smallFont, keyHelpString, new Vector2(tileSize, viewport.Height - tileSize - (dialogueUp ? (tileSize * 3 + (isQuestion ? (questionChoices.Count * tileSize) : 0)) : 0) - smallFont.MeasureString(keyHelpString).Y), Color.LightGray, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.9999999f);
                     }
+
+                    GraphicsEvents.InvokeOnPreRenderGuiEventNoCheck(null, EventArgs.Empty);
                     if (activeClickableMenu != null)
                     {
                         GraphicsEvents.InvokeOnPreRenderGuiEvent(null, EventArgs.Empty);
@@ -1309,6 +1315,7 @@ namespace StardewModdingAPI.Inheritance
                     {
                         farmEvent?.drawAboveEverything(spriteBatch);
                     }
+                    GraphicsEvents.InvokeOnPostRenderGuiEventNoCheck(null, EventArgs.Empty);
 
                     GraphicsEvents.InvokeOnPostRenderEvent(null, EventArgs.Empty);
                     spriteBatch.End();
