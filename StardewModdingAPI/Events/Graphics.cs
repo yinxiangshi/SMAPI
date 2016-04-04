@@ -43,6 +43,27 @@ namespace StardewModdingAPI.Events
         public static event EventHandler OnPostRenderEvent = delegate { };
 
         /// <summary>
+        /// Occurs before the GUI is drawn. Does not check for conditional statements.
+        /// </summary>
+
+        public static event EventHandler OnPreRenderGuiEventNoCheck = delegate { };
+        /// <summary>
+        /// Occurs after the GUI is drawn. Does not check for conditional statements.
+        /// </summary>
+
+        public static event EventHandler OnPostRenderGuiEventNoCheck = delegate { };
+        /// <summary>
+        /// Occurs before the HUD is drawn. Does not check for conditional statements.
+        /// </summary>
+
+        public static event EventHandler OnPreRenderHudEventNoCheck = delegate { };
+        /// <summary>
+        /// Occurs after the HUD is drawn. Does not check for conditional statements.
+        /// </summary>
+
+        public static event EventHandler OnPostRenderHudEventNoCheck = delegate { };
+
+        /// <summary>
         /// Draws when SGame.Debug is true. F3 toggles this.
         /// Game1.spriteBatch.Begin() is pre-called.
         /// Do not make end or begin calls to the spritebatch.
@@ -83,6 +104,26 @@ namespace StardewModdingAPI.Events
         internal static void InvokeOnPostRenderEvent(object sender, EventArgs e)
         {
             OnPostRenderEvent.Invoke(sender, e);
+        }
+
+        internal static void InvokeOnPreRenderGuiEventNoCheck(object sender, EventArgs e)
+        {
+            OnPreRenderGuiEventNoCheck.Invoke(sender, e);
+        }
+
+        internal static void InvokeOnPostRenderGuiEventNoCheck(object sender, EventArgs e)
+        {
+            OnPostRenderGuiEventNoCheck.Invoke(sender, e);
+        }
+
+        internal static void InvokeOnPreRenderHudEventNoCheck(object sender, EventArgs e)
+        {
+            OnPreRenderHudEventNoCheck.Invoke(sender, e);
+        }
+
+        internal static void InvokeOnPostRenderHudEventNoCheck(object sender, EventArgs e)
+        {
+            OnPostRenderHudEventNoCheck.Invoke(sender, e);
         }
 
         internal static void InvokeResize(object sender, EventArgs e)
