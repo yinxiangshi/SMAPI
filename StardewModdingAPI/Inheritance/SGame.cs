@@ -204,15 +204,6 @@ namespace StardewModdingAPI.Inheritance
         }
 
         /// <summary>
-        /// 
-        /// </summary>
-        public int ThumbstickMotionMargin
-        {
-            get { return (int)typeof(Game1).GetField("thumbstickMotionMargin", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null); }
-            set { typeof(Game1).GetField("thumbstickMotionMargin", BindingFlags.NonPublic | BindingFlags.Static).SetValue(null, value); }
-        }
-
-        /// <summary>
         /// The current Colour in Game1 (Private field, uses reflection)
         /// </summary>
         public Color BgColour
@@ -581,8 +572,8 @@ namespace StardewModdingAPI.Inheritance
                                 }
                                 else
                                 {
-                                    if (ThumbstickMotionMargin > 0)
-                                        ThumbstickMotionMargin -= gameTime.ElapsedGameTime.Milliseconds;
+                                    if (thumbstickMotionMargin > 0)
+                                        thumbstickMotionMargin -= gameTime.ElapsedGameTime.Milliseconds;
                                     if (IsActive)
                                     {
                                         KeyboardState state1 = Keyboard.GetState();
