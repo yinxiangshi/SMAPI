@@ -10,7 +10,7 @@ namespace StardewModdingAPI
     /// </summary>
     public static class Constants
     {
-        public static readonly Version Version = new Version(0, 39, 7, "Alpha");
+        public static readonly Version Version = new Version(0, 40, 0, "Alpha");
 
         /// <summary>
         ///     Not quite "constant", but it makes more sense for it to be here, at least for now
