@@ -12,10 +12,6 @@ To install SMAPI:
 - Extract the zip file alongside your Stardew.exe, for example, if using Steam this would be somewhere like C:/ProgramFiles/Steam/steamapps/common/StardewValley
 - To launch SMAPI, launch StardewValleyModdingAPI.exe
 
-To install mods:
-- To install mods just download the mod's .DLL file, and place it in %appdata%\StardewValley\Mods\. Alternatively run the 'run'    program and type %appdata% if you are unable to find the folder
-  SMAPI will take care of the rest!
-
 ## Future Plans
 - Content only mods
 - Support for a wide range of events
