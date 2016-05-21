@@ -23,6 +23,8 @@
 88| Coconut
 90| Cactus Fruit
 92| Sap
+93| Torch
+94| Spirit Torch
 96| Dwarf Scroll I
 97| Dwarf Scroll II
 98| Dwarf Scroll III
@@ -276,6 +278,7 @@
 412| Winter Root
 413| Blue Slime Egg
 414| Crystal Fruit
+415| Stepping Stone Path
 416| Snow Yam
 417| Sweet Gem Berry
 418| Crocus
@@ -416,7 +419,7 @@
 583| Prehistoric Rib
 584| Prehistoric Vertebra
 585| Skeletal Tail
-586| Nautilus Shell
+586| Nautilus Fossil
 587| Amphibian Fossil
 588| Palm Fossil
 589| Trilobite
