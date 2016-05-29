@@ -38,7 +38,7 @@
       <ol>
         <li>Make sure all requirements are installed.</li>
         <li>Extract the SMAPI zip archive alongside your Stardew.exe. For example, if using Steam this would be somewhere like ‘C:/ProgramFiles/Steam/steamapps/common/StardewValley’.</li>
-        <li>To launch SMAPI, launch StardewValleyModdingAPI.exe.</li>
+        <li>To launch SMAPI, launch StardewModdingAPI.exe.</li>
       </ol>
     </td>
   </tr>
