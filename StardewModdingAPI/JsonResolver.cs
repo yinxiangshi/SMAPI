@@ -13,14 +13,14 @@ namespace StardewModdingAPI
     {
         protected override JsonContract CreateContract(Type objectType)
         {
-            if (objectType == typeof (Rectangle) || objectType == typeof (Rectangle?))
+            if (objectType == typeof(Rectangle) || objectType == typeof(Rectangle?))
             {
                 Console.WriteLine("FOUND A RECT");
                 JsonContract contract = CreateObjectContract(objectType);
                 contract.Converter = new RectangleConverter();
                 return contract;
             }
-            if (objectType == typeof (Object))
+            if (objectType == typeof(Object))
             {
                 Log.AsyncY("FOUND AN OBJECT");
                 JsonContract contract = CreateObjectContract(objectType);

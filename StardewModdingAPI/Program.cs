@@ -325,10 +325,10 @@ namespace StardewModdingAPI
 
                             var mod = Assembly.UnsafeLoadFrom(targDll);
 
-                            if (mod.DefinedTypes.Count(x => x.BaseType == typeof (Mod)) > 0)
+                            if (mod.DefinedTypes.Count(x => x.BaseType == typeof(Mod)) > 0)
                             {
                                 Log.AsyncY("Loading Mod DLL...");
-                                var tar = mod.DefinedTypes.First(x => x.BaseType == typeof (Mod));
+                                var tar = mod.DefinedTypes.First(x => x.BaseType == typeof(Mod));
                                 var m = (Mod) mod.CreateInstance(tar.ToString());
                                 m.PathOnDisk = targDir;
                                 m.Manifest = manifest;

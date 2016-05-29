@@ -281,12 +281,12 @@ namespace StardewModdingAPI.Inheritance.Menus
 
         public static FieldInfo[] GetPrivateFields()
         {
-            return typeof (BobberBar).GetFields(BindingFlags.Instance | BindingFlags.NonPublic);
+            return typeof(BobberBar).GetFields(BindingFlags.Instance | BindingFlags.NonPublic);
         }
 
         public static FieldInfo GetBaseFieldInfo(string name)
         {
-            return typeof (BobberBar).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic);
+            return typeof(BobberBar).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic);
         }
     }
 }
