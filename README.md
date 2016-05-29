@@ -9,6 +9,7 @@
     <td width="222px"><a href="https://github.com/ClxS/SMAPI/wiki">Wiki</a></td>
   </tr>
 </table>
+</br>
 <table>
   <tr>
     <td align="center" width="888px"><b>ABOUT</b></td>
@@ -45,6 +46,16 @@
 </table>
 <table>
   <tr>
+    <td align="center" width="888px"><b>MOD DEVELOPERS</b></td>
+  </tr>
+  <tr>
+    <td>
+      Mod developers would work off the release branch. The master branch will contain mid-version updates which could make your mods incompatable with both the current release and the upcoming releases. You should also take a look at the <a href="https://github.com/ClxS/SMAPI/wiki">Wiki</a> for some quick modding tutorials.
+    </td>
+  </tr>
+</table>
+<table>
+  <tr>
     <td align="center" width="888px"><b>FUTURE PLANS</b></td>
   </tr>
   <tr>
@@ -54,16 +65,6 @@
         <li>Support for a wide range of events.</li>
         <li>Enable the addition of new custom content such as locations, NPCs, and items.</li>
       </ul>
-    </td>
-  </tr>
-</table>
-<table>
-  <tr>
-    <td align="center" width="888px"><b>MOD DEVELOPERS</b></td>
-  </tr>
-  <tr>
-    <td>
-      Mod developers would work off the release branch. The master branch will contain mid-version updates which could make your mods incompatable with both the current release and the upcoming releases. You should also take a look at the <a href="https://github.com/ClxS/SMAPI/wiki">Wiki</a> for some quick modding tutorials.
     </td>
   </tr>
 </table>
