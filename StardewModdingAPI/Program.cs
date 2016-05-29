@@ -225,7 +225,7 @@ namespace StardewModdingAPI
                 LoadMods();
 
                 StardewForm = Control.FromHandle(gamePtr.Window.Handle).FindForm();
-                StardewForm.Closing += StardewForm_Closing;
+                if (StardewForm != null) StardewForm.Closing += StardewForm_Closing;
 
                 ready = true;
 
@@ -328,11 +328,14 @@ namespace StardewModdingAPI
                                 Log.AsyncY("Loading Mod DLL...");
                                 var tar = mod.DefinedTypes.First(x => x.BaseType == typeof(Mod));
                                 var m = (Mod) mod.CreateInstance(tar.ToString());
-                                m.PathOnDisk = targDir;
-                                m.Manifest = manifest;
-                                Log.AsyncG($"LOADED MOD: {m.Manifest.Name} by {m.Manifest.Authour} - Version {m.Manifest.Version} | Description: {m.Manifest.Description} (@ {targDll})");
-                                Constants.ModsLoaded += 1;
-                                m.Entry();
+                                if (m != null)
+                                {
+                                    m.PathOnDisk = targDir;
+                                    m.Manifest = manifest;
+                                    Log.AsyncG($"LOADED MOD: {m.Manifest.Name} by {m.Manifest.Authour} - Version {m.Manifest.Version} | Description: {m.Manifest.Description} (@ {targDll})");
+                                    Constants.ModsLoaded += 1;
+                                    m.Entry();
+                                }
                             }
                             else
                             {
