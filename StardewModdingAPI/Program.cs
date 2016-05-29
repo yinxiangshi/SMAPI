@@ -89,25 +89,23 @@ namespace StardewModdingAPI
         {
             Log.AsyncY("Validating api paths...");
 
-            _modPaths = new List<string>();
+            _modPaths = new List<string> {Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley", "Mods"), Path.Combine(Constants.ExecutionPath, "Mods")};
             //_modContentPaths = new List<string>();
 
             //TODO: Have an app.config and put the paths inside it so users can define locations to load mods from
-            _modPaths.Add(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley", "Mods"));
-            _modPaths.Add(Path.Combine(Constants.ExecutionPath, "Mods"));
 
             //Mods need to make their own content paths, since we're doing a different, manifest-driven, approach.
             //_modContentPaths.Add(Path.Combine(Constants.ExecutionPath, "Mods", "Content"));
             //_modContentPaths.Add(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley", "Mods", "Content"));
 
             //Checks that all defined modpaths exist as directories
-            _modPaths.ForEach(path => VerifyPath(path));
+            _modPaths.ForEach(VerifyPath);
             //_modContentPaths.ForEach(path => VerifyPath(path));
             VerifyPath(Constants.LogDir);
 
             if (!File.Exists(Constants.ExecutionPath + "\\Stardew Valley.exe"))
             {
-                throw new FileNotFoundException(string.Format("Could not found: {0}\\Stardew Valley.exe", Constants.ExecutionPath));
+                throw new FileNotFoundException($"Could not found: {Constants.ExecutionPath}\\Stardew Valley.exe");
             }
         }
 
@@ -440,10 +438,7 @@ namespace StardewModdingAPI
                     Log.AsyncR("The command specified could not be found");
                 else
                 {
-                    if (fnd.CommandArgs.Length > 0)
-                        Log.AsyncY($"{fnd.CommandName}: {fnd.CommandDesc} - {fnd.CommandArgs.ToSingular()}");
-                    else
-                        Log.AsyncY($"{fnd.CommandName}: {fnd.CommandDesc}");
+                    Log.AsyncY(fnd.CommandArgs.Length > 0 ? $"{fnd.CommandName}: {fnd.CommandDesc} - {fnd.CommandArgs.ToSingular()}" : $"{fnd.CommandName}: {fnd.CommandDesc}");
                 }
             }
             else

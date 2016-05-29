@@ -5,10 +5,7 @@ namespace StardewModdingAPI
 {
     internal class ModItem : Object
     {
-        public Item AsItem
-        {
-            get { return this; }
-        }
+        public Item AsItem => this;
 
         public override string Name { get; set; }
         public string Description { get; set; }

@@ -181,22 +181,24 @@ namespace StardewModdingAPI.Inheritance
 
         public SObject Clone()
         {
-            var toRet = new SObject();
+            var toRet = new SObject
+            {
+                Name = Name,
+                CategoryName = CategoryName,
+                Description = Description,
+                Texture = Texture,
+                IsPassable = IsPassable,
+                IsPlaceable = IsPlaceable,
+                quality = quality,
+                scale = scale,
+                isSpawnedObject = isSpawnedObject,
+                isRecipe = isRecipe,
+                questItem = questItem,
+                stack = 1,
+                HasBeenRegistered = HasBeenRegistered,
+                RegisteredId = RegisteredId
+            };
 
-            toRet.Name = Name;
-            toRet.CategoryName = CategoryName;
-            toRet.Description = Description;
-            toRet.Texture = Texture;
-            toRet.IsPassable = IsPassable;
-            toRet.IsPlaceable = IsPlaceable;
-            toRet.quality = quality;
-            toRet.scale = scale;
-            toRet.isSpawnedObject = isSpawnedObject;
-            toRet.isRecipe = isRecipe;
-            toRet.questItem = questItem;
-            toRet.stack = 1;
-            toRet.HasBeenRegistered = HasBeenRegistered;
-            toRet.RegisteredId = RegisteredId;
 
             return toRet;
         }

@@ -22,8 +22,7 @@ namespace StardewModdingAPI.Inheritance.Menus
 
         public static SGameMenu ConstructFromBaseClass(GameMenu baseClass)
         {
-            var s = new SGameMenu();
-            s.BaseGameMenu = baseClass;
+            var s = new SGameMenu {BaseGameMenu = baseClass};
             return s;
         }
 

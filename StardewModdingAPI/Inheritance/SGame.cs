@@ -506,8 +506,7 @@ namespace StardewModdingAPI.Inheritance
                         //this.checkForEscapeKeys();
                         updateMusic();
                         updateRaindropPosition();
-                        if (bloom != null)
-                            bloom.tick(gameTime);
+                        bloom?.tick(gameTime);
                         if (globalFade)
                         {
                             if (!dialogueUp)
@@ -559,8 +558,7 @@ namespace StardewModdingAPI.Inheritance
                             if (pauseThenDoFunctionTimer <= 0)
                             {
                                 freezeControls = false;
-                                if (afterPause != null)
-                                    afterPause();
+                                afterPause?.Invoke();
                             }
                         }
                         if (gameMode == 3 || gameMode == 2)
@@ -657,8 +655,8 @@ namespace StardewModdingAPI.Inheritance
                                                 currentMinigame.releaseLeftClick(getMouseX(), getMouseY());
                                             foreach (Buttons b in Utility.getPressedButtons(oldPadState, state3))
                                                 currentMinigame.receiveKeyRelease(Utility.mapGamePadButtonToKey(b));
-                                            if (state3.IsConnected && state3.IsButtonDown(Buttons.A) && currentMinigame != null)
-                                                currentMinigame.leftClickHeld(0, 0);
+                                            if (state3.IsConnected && state3.IsButtonDown(Buttons.A))
+                                                currentMinigame?.leftClickHeld(0, 0);
                                         }
                                         if (currentMinigame == null)
                                         {
@@ -774,8 +772,7 @@ namespace StardewModdingAPI.Inheritance
                             if (gameMode == 10)
                                 UpdateOther(gameTime);
                         }
-                        if (audioEngine != null)
-                            audioEngine.Update();
+                        audioEngine?.Update();
                         if (multiplayerMode == 2 && gameMode == 3)
                             server.sendMessages(gameTime);
                     }

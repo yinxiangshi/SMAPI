@@ -629,8 +629,7 @@ namespace TrainerMod
                         }
                     }
 
-                    var o = new Object(e.Command.CalledArgs[0].AsInt32(), count);
-                    o.quality = quality;
+                    var o = new Object(e.Command.CalledArgs[0].AsInt32(), count) {quality = quality};
 
                     Game1.player.addItemByMenuIfNecessary(o);
                 }
