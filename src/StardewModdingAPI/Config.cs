@@ -155,7 +155,7 @@ namespace StardewModdingAPI
                 return;
             }
 
-            var s = JsonConvert.SerializeObject(baseConfig, typeof (T), Formatting.Indented, new JsonSerializerSettings {ContractResolver = new JsonResolver()});
+            var s = JsonConvert.SerializeObject(baseConfig, typeof(T), Formatting.Indented, new JsonSerializerSettings {ContractResolver = new JsonResolver()});
 
             if (!Directory.Exists(baseConfig.ConfigDir))
                 Directory.CreateDirectory(baseConfig.ConfigDir);

@@ -22,8 +22,7 @@ namespace StardewModdingAPI.Inheritance.Menus
 
         public static SGameMenu ConstructFromBaseClass(GameMenu baseClass)
         {
-            var s = new SGameMenu();
-            s.BaseGameMenu = baseClass;
+            var s = new SGameMenu {BaseGameMenu = baseClass};
             return s;
         }
 
@@ -38,12 +37,12 @@ namespace StardewModdingAPI.Inheritance.Menus
 
         public static FieldInfo[] GetPrivateFields()
         {
-            return typeof (GameMenu).GetFields(BindingFlags.Instance | BindingFlags.NonPublic);
+            return typeof(GameMenu).GetFields(BindingFlags.Instance | BindingFlags.NonPublic);
         }
 
         public static FieldInfo GetBaseFieldInfo(string name)
         {
-            return typeof (GameMenu).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic);
+            return typeof(GameMenu).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic);
         }
     }
 }

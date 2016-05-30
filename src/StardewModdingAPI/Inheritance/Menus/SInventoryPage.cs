@@ -12,8 +12,7 @@ namespace StardewModdingAPI.Inheritance.Menus
 
         public static SInventoryPage ConstructFromBaseClass(InventoryPage baseClass)
         {
-            var s = new SInventoryPage(0, 0, 0, 0);
-            s.BaseInventoryPage = baseClass;
+            var s = new SInventoryPage(0, 0, 0, 0) {BaseInventoryPage = baseClass};
             return s;
         }
     }

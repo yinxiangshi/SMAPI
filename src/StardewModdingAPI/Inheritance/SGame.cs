@@ -52,6 +52,7 @@ namespace StardewModdingAPI.Inheritance
         /// The current KeyboardState
         /// </summary>
         public KeyboardState KStateNow { get; private set; }
+
         /// <summary>
         /// The prior KeyboardState
         /// </summary>
@@ -111,22 +112,27 @@ namespace StardewModdingAPI.Inheritance
         /// The player's Combat level on the prior frame
         /// </summary>
         public int PreviousCombatLevel { get; private set; }
+
         /// <summary>
         /// The player's Farming level on the prior frame
         /// </summary>
         public int PreviousFarmingLevel { get; private set; }
+
         /// <summary>
         /// The player's Fishing level on the prior frame
         /// </summary>
         public int PreviousFishingLevel { get; private set; }
+
         /// <summary>
         /// The player's Foraging level on the prior frame
         /// </summary>
         public int PreviousForagingLevel { get; private set; }
+
         /// <summary>
         /// The player's Mining level on the prior frame
         /// </summary>
         public int PreviousMiningLevel { get; private set; }
+
         /// <summary>
         /// The player's Luck level on the prior frame
         /// </summary>
@@ -199,8 +205,8 @@ namespace StardewModdingAPI.Inheritance
         /// </summary>
         public RenderTarget2D Screen
         {
-            get { return typeof (Game1).GetBaseFieldValue<RenderTarget2D>(Program.gamePtr, "screen"); }
-            set { typeof (Game1).SetBaseFieldValue<RenderTarget2D>(this, "screen", value); }
+            get { return typeof(Game1).GetBaseFieldValue<RenderTarget2D>(Program.gamePtr, "screen"); }
+            set { typeof(Game1).SetBaseFieldValue<RenderTarget2D>(this, "screen", value); }
         }
 
         /// <summary>
@@ -208,7 +214,7 @@ namespace StardewModdingAPI.Inheritance
         /// </summary>
         public Color BgColour
         {
-            get { return (Color)typeof(Game1).GetBaseFieldValue<object>(Program.gamePtr, "bgColor"); }
+            get { return (Color) typeof(Game1).GetBaseFieldValue<object>(Program.gamePtr, "bgColor"); }
             set { typeof(Game1).SetBaseFieldValue<object>(this, "bgColor", value); }
         }
 
@@ -226,6 +232,7 @@ namespace StardewModdingAPI.Inheritance
         /// Whether or not we're in a pseudo 'debug' mode. Mostly for displaying information like FPS.
         /// </summary>
         public static bool Debug { get; private set; }
+
         internal static Queue<String> DebugMessageQueue { get; private set; }
 
         /// <summary>
@@ -237,8 +244,8 @@ namespace StardewModdingAPI.Inheritance
         /// <summary>
         /// Gets ALL static fields that belong to 'Game1'
         /// </summary>
-        public static FieldInfo[] GetStaticFields => typeof (Game1).GetFields();
-        
+        public static FieldInfo[] GetStaticFields => typeof(Game1).GetFields();
+
         /// <summary>
         /// Whether or not a button was just pressed on the controller
         /// </summary>
@@ -274,7 +281,7 @@ namespace StardewModdingAPI.Inheritance
         {
             return WasButtonJustPressed(button, value > 0.2f ? ButtonState.Pressed : ButtonState.Released, stateIndex);
         }
-        
+
         /// <summary>
         /// Whether or not an analog button was just released on the controller
         /// </summary>
@@ -386,19 +393,19 @@ namespace StardewModdingAPI.Inheritance
         /// <summary>
         /// 
         /// </summary>
-        public static MethodInfo DrawFarmBuildings = typeof (Game1).GetMethod("drawFarmBuildings", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static MethodInfo DrawFarmBuildings = typeof(Game1).GetMethod("drawFarmBuildings", BindingFlags.NonPublic | BindingFlags.Instance);
 
         /// <summary>
         /// 
         /// </summary>
-        public static MethodInfo DrawHUD = typeof (Game1).GetMethod("drawHUD", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static MethodInfo DrawHUD = typeof(Game1).GetMethod("drawHUD", BindingFlags.NonPublic | BindingFlags.Instance);
 
         /// <summary>
         /// 
         /// </summary>
-        public static MethodInfo DrawDialogueBox = typeof (Game1).GetMethod("drawDialogueBox", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static MethodInfo DrawDialogueBox = typeof(Game1).GetMethod("drawDialogueBox", BindingFlags.NonPublic | BindingFlags.Instance);
 
-        public static MethodInfo CheckForEscapeKeys = typeof (Game1).GetMethod("checkForEscapeKeys", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static MethodInfo CheckForEscapeKeys = typeof(Game1).GetMethod("checkForEscapeKeys", BindingFlags.NonPublic | BindingFlags.Instance);
 
         public static MethodInfo UpdateControlInput = typeof(Game1).GetMethod("UpdateControlInput", BindingFlags.NonPublic | BindingFlags.Instance);
 
@@ -499,8 +506,7 @@ namespace StardewModdingAPI.Inheritance
                         //this.checkForEscapeKeys();
                         updateMusic();
                         updateRaindropPosition();
-                        if (bloom != null)
-                            bloom.tick(gameTime);
+                        bloom?.tick(gameTime);
                         if (globalFade)
                         {
                             if (!dialogueUp)
@@ -552,8 +558,7 @@ namespace StardewModdingAPI.Inheritance
                             if (pauseThenDoFunctionTimer <= 0)
                             {
                                 freezeControls = false;
-                                if (afterPause != null)
-                                    afterPause();
+                                afterPause?.Invoke();
                             }
                         }
                         if (gameMode == 3 || gameMode == 2)
@@ -650,8 +655,8 @@ namespace StardewModdingAPI.Inheritance
                                                 currentMinigame.releaseLeftClick(getMouseX(), getMouseY());
                                             foreach (Buttons b in Utility.getPressedButtons(oldPadState, state3))
                                                 currentMinigame.receiveKeyRelease(Utility.mapGamePadButtonToKey(b));
-                                            if (state3.IsConnected && state3.IsButtonDown(Buttons.A) && currentMinigame != null)
-                                                currentMinigame.leftClickHeld(0, 0);
+                                            if (state3.IsConnected && state3.IsButtonDown(Buttons.A))
+                                                currentMinigame?.leftClickHeld(0, 0);
                                         }
                                         if (currentMinigame == null)
                                         {
@@ -767,8 +772,7 @@ namespace StardewModdingAPI.Inheritance
                             if (gameMode == 10)
                                 UpdateOther(gameTime);
                         }
-                        if (audioEngine != null)
-                            audioEngine.Update();
+                        audioEngine?.Update();
                         if (multiplayerMode == 2 && gameMode == 3)
                             server.sendMessages(gameTime);
                     }
@@ -780,7 +784,7 @@ namespace StardewModdingAPI.Inheritance
 
                 //typeof (Game).GetMethod("Update", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(this, new object[] {gameTime});
                 //base.Update(gameTime);
-                
+
                 #endregion
             }
             else
@@ -1322,7 +1326,7 @@ namespace StardewModdingAPI.Inheritance
                         spriteBatch.End();
                     }
 
-                    GraphicsEvents.InvokeDrawTick();                    
+                    GraphicsEvents.InvokeDrawTick();
                 }
                 catch (Exception ex)
                 {
@@ -1675,7 +1679,7 @@ namespace StardewModdingAPI.Inheritance
         {
             try
             {
-                return typeof (Game1).GetMethod(name, BindingFlags.NonPublic | BindingFlags.Instance).Invoke(Program.gamePtr, parameters);
+                return typeof(Game1).GetMethod(name, BindingFlags.NonPublic | BindingFlags.Instance).Invoke(Program.gamePtr, parameters);
             }
             catch
             {

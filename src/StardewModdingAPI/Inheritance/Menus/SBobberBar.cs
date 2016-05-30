@@ -267,26 +267,22 @@ namespace StardewModdingAPI.Inheritance.Menus
             set { GetBaseFieldInfo("bobberBarAcceleration").SetValue(BaseBobberBar, value); }
         }
 
-        public static FieldInfo[] PrivateFields
-        {
-            get { return GetPrivateFields(); }
-        }
+        public static FieldInfo[] PrivateFields => GetPrivateFields();
 
         public static SBobberBar ConstructFromBaseClass(BobberBar baseClass)
         {
-            var b = new SBobberBar(0, 0, false, 0);
-            b.BaseBobberBar = baseClass;
+            var b = new SBobberBar(0, 0, false, 0) {BaseBobberBar = baseClass};
             return b;
         }
 
         public static FieldInfo[] GetPrivateFields()
         {
-            return typeof (BobberBar).GetFields(BindingFlags.Instance | BindingFlags.NonPublic);
+            return typeof(BobberBar).GetFields(BindingFlags.Instance | BindingFlags.NonPublic);
         }
 
         public static FieldInfo GetBaseFieldInfo(string name)
         {
-            return typeof (BobberBar).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic);
+            return typeof(BobberBar).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic);
         }
     }
 }

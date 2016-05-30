@@ -45,22 +45,21 @@ namespace StardewModdingAPI.Events
         /// <summary>
         /// Occurs before the GUI is drawn. Does not check for conditional statements.
         /// </summary>
-
         public static event EventHandler OnPreRenderGuiEventNoCheck = delegate { };
+
         /// <summary>
         /// Occurs after the GUI is drawn. Does not check for conditional statements.
         /// </summary>
-
         public static event EventHandler OnPostRenderGuiEventNoCheck = delegate { };
+
         /// <summary>
         /// Occurs before the HUD is drawn. Does not check for conditional statements.
         /// </summary>
-
         public static event EventHandler OnPreRenderHudEventNoCheck = delegate { };
+
         /// <summary>
         /// Occurs after the HUD is drawn. Does not check for conditional statements.
         /// </summary>
-
         public static event EventHandler OnPostRenderHudEventNoCheck = delegate { };
 
         /// <summary>

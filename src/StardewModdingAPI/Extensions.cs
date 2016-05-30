@@ -32,7 +32,7 @@ namespace StardewModdingAPI
         public static string ToSingular<T>(this IEnumerable<T> ienum, string split = ", ") // where T : class
         {
             //Apparently Keys[] won't split normally :l
-            if (typeof (T) == typeof (Keys))
+            if (typeof(T) == typeof(Keys))
             {
                 return string.Join(split, ienum.ToArray());
             }
