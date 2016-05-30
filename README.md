@@ -39,9 +39,9 @@
       <ol>
         <li>Make sure all requirements are installed.</li>
         <li>Extract the SMAPI zip archive alongside your Stardew.exe. For example, if using Steam this would be somewhere like ‘C:/ProgramFiles/Steam/steamapps/common/StardewValley’.</li>
-        <li>To launch SMAPI, launch StardewModdingAPI.exe.</li>
+        <li>To start SMAPI, launch StardewModdingAPI.exe.</li>
       </ol>
-      NOTE!: If you are using Steam and still wish to have the Steam overlay while playing, you will need to add a launch option to the game. For example, this launch option will tell steam to use SMAPI by default: "C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley\StardewModdingAPI.exe %command%
+      NOTE!: If you are using Steam and still wish to have the Steam overlay while playing, you will need to add a launch option to the game. For example, this launch option will tell Steam to use SMAPI by default: "C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley\StardewModdingAPI.exe %command%
     </td>
   </tr>
 </table>
