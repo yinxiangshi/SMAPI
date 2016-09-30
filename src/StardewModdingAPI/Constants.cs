@@ -62,6 +62,6 @@ namespace StardewModdingAPI
         /// <summary>
         /// Completely overrides the base game's draw call to the one is SGame
         /// </summary>
-        public static bool EnableCompletelyOverridingBaseCalls => true;
+        public static bool EnableCompletelyOverridingBaseCalls => false;
     }
 }

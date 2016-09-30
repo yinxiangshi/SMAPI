@@ -83,12 +83,12 @@ namespace StardewModdingAPI
 
         public static FieldInfo[] GetPrivateFields(this object o)
         {
-            return o.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic);
+            return o.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Static);
         }
 
         public static FieldInfo GetBaseFieldInfo(this Type t, string name)
         {
-            return t.GetField(name, BindingFlags.Instance | BindingFlags.NonPublic);
+            return t.GetField(name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Static);
         }
 
         public static T GetBaseFieldValue<T>(this Type t, object o, string name) where T : class
