@@ -486,7 +486,7 @@ namespace StardewModdingAPI.Inheritance
                 debugMode = !debugMode;
             }
 
-            if (Constants.EnableCompletelyOverridingBaseCalls)
+            if (Constants.EnableCompletelyOverridingBaseCalls && false)
             {
                 #region Overridden Update Call
 
