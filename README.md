@@ -12,6 +12,16 @@
 </br>
 <table>
   <tr>
+    <td align="center" width="888px"><b>HELP + SUPPORT</b></td>
+  </tr>
+  <tr>
+    <td>
+      This repository is archived and issues are not actively read. For support with issues, please check the Stardew Valley official forums: http://community.playstarbound.com/threads/stardew-modding-api-0-40-1-1.108375/
+    </td>
+  </tr>
+</table>
+<table>
+  <tr>
     <td align="center" width="888px"><b>ABOUT</b></td>
   </tr>
   <tr>
