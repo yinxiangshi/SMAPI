@@ -124,17 +124,47 @@ namespace StardewModdingAPI
             Log.AsyncY("Injecting New SDV Version...");
             Game1.version += $"-Z_MODDED | SMAPI {Constants.Version.VersionString}";
 
+            // add error interceptors
+#if SMAPI_FOR_WINDOWS
+            Application.ThreadException += Log.Application_ThreadException;
+            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+#endif
+            AppDomain.CurrentDomain.UnhandledException += Log.CurrentDomain_UnhandledException;
+
+            // initialise game
+            try
+            {
+                Log.AsyncY("Initializing SDV...");
+                gamePtr = new SGame();
+
+                // hook events
+                gamePtr.Exiting += (sender, e) => ready = false;
+                gamePtr.Window.ClientSizeChanged += GraphicsEvents.InvokeResize;
+
+                // patch graphics
+                Log.AsyncY("Patching SDV Graphics Profile...");
+                Game1.graphics.GraphicsProfile = GraphicsProfile.HiDef;
+
+                // load mods
+                LoadMods();
+
+                // initialise
+                StardewGameInfo.SetValue(StardewProgramType, gamePtr);
+                Log.AsyncY("Applying Final SDV Tweaks...");
+                gamePtr.IsMouseVisible = false;
+                gamePtr.Window.Title = "Stardew Valley - Version " + Game1.version;
+            }
+            catch (Exception ex)
+            {
+                Log.AsyncR("Game failed to initialise: " + ex);
+                return;
+            }
+
             // initialise after game launches
             new Thread(() =>
             {
                 // Wait for the game to load up
                 while (!ready) Thread.Sleep(1000);
-
-                // Apply final tweaks
-                Log.AsyncY("Applying Final SDV Tweaks...");
-                gamePtr.IsMouseVisible = false;
-                gamePtr.Window.Title = "Stardew Valley - Version " + Game1.version;
-                gamePtr.Window.ClientSizeChanged += GraphicsEvents.InvokeResize;
 
                 // Create definition to listen for input
                 Log.AsyncY("Initializing Console Input Thread...");
@@ -169,7 +199,16 @@ namespace StardewModdingAPI
 
             // Start game loop
             Log.AsyncY("Starting SDV...");
-            RunGame();
+            try
+            {
+                ready = true;
+                gamePtr.Run();
+            }
+            catch (Exception ex)
+            {
+                ready = false;
+                Log.AsyncR("Game failed to start: " + ex);
+            }
         }
 
         /// <summary>
@@ -192,33 +231,6 @@ namespace StardewModdingAPI
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        public static void RunGame()
-        {
-#if SMAPI_FOR_WINDOWS
-            Application.ThreadException += Log.Application_ThreadException;
-            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
-#endif
-            AppDomain.CurrentDomain.UnhandledException += Log.CurrentDomain_UnhandledException;
-
-            try
-            {
-                gamePtr = new SGame();
-                Log.AsyncY("Patching SDV Graphics Profile...");
-                Game1.graphics.GraphicsProfile = GraphicsProfile.HiDef;
-                LoadMods();
-
-                ready = true;
-                gamePtr.Exiting += (sender, e) => ready = false;
-
-                StardewGameInfo.SetValue(StardewProgramType, gamePtr);
-                gamePtr.Run();
-            }
-            catch (Exception ex)
-            {
-                Log.AsyncR("Game failed to start: " + ex);
-            }
-        }
 
         public static void LoadMods()
         {
