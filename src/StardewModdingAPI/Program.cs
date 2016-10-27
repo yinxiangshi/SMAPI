@@ -19,6 +19,11 @@ namespace StardewModdingAPI
 {
     public class Program
     {
+        /// <summary>The full path to the Stardew Valley executable.</summary>
+        private static readonly string GameExecutablePath = File.Exists(Path.Combine(Constants.ExecutionPath, "StardewValley.exe"))
+            ? Path.Combine(Constants.ExecutionPath, "StardewValley.exe") // Linux or Mac
+            : Path.Combine(Constants.ExecutionPath, "Stardew Valley.exe"); // Windows
+
         private static List<string> _modPaths;
 
         public static SGame gamePtr;
@@ -103,9 +108,9 @@ namespace StardewModdingAPI
             //_modContentPaths.ForEach(path => VerifyPath(path));
             VerifyPath(Constants.LogDir);
 
-            if (!File.Exists(Constants.ExecutionPath + "\\Stardew Valley.exe"))
+            if (!File.Exists(GameExecutablePath))
             {
-                throw new FileNotFoundException($"Could not found: {Constants.ExecutionPath}\\Stardew Valley.exe");
+                throw new FileNotFoundException($"Could not found: {GameExecutablePath}");
             }
         }
 
@@ -117,7 +122,7 @@ namespace StardewModdingAPI
             Log.AsyncY("Initializing SDV Assembly...");
 
             // Load in the assembly - ignores security
-            StardewAssembly = Assembly.UnsafeLoadFrom(Constants.ExecutionPath + "\\Stardew Valley.exe");
+            StardewAssembly = Assembly.UnsafeLoadFrom(GameExecutablePath);
             StardewProgramType = StardewAssembly.GetType("StardewValley.Program", true);
             StardewGameInfo = StardewProgramType.GetField("gamePtr");
 
