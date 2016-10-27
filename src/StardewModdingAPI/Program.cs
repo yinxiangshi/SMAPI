@@ -57,9 +57,7 @@ namespace StardewModdingAPI
                 Log.AsyncY("SMAPI Version: " + Constants.Version.VersionString);
                 ConfigureUI();
                 ConfigurePaths();
-                ConfigureSDV();
-
-                GameRunInvoker();
+                StartGame();
             }
             catch (Exception e)
             {
@@ -112,13 +110,12 @@ namespace StardewModdingAPI
         }
 
         /// <summary>
-        ///     Load Stardev Valley and control features
+        ///     Load Stardev Valley and control features, and launch the game.
         /// </summary>
-        private static void ConfigureSDV()
+        private static void StartGame()
         {
-            Log.AsyncY("Initializing SDV Assembly...");
-
             // Load in the assembly - ignores security
+            Log.AsyncY("Initializing SDV Assembly...");
             StardewAssembly = Assembly.UnsafeLoadFrom(GameExecutablePath);
             StardewProgramType = StardewAssembly.GetType("StardewValley.Program", true);
             StardewGameInfo = StardewProgramType.GetField("gamePtr");
@@ -127,64 +124,52 @@ namespace StardewModdingAPI
             Log.AsyncY("Injecting New SDV Version...");
             Game1.version += $"-Z_MODDED | SMAPI {Constants.Version.VersionString}";
 
-            // Create the thread for the game to run in.
-            gameThread = new Thread(RunGame);
+            // initialise after game launches
+            new Thread(() =>
+            {
+                // Wait for the game to load up
+                while (!ready) Thread.Sleep(1000);
+
+                // Apply final tweaks
+                Log.AsyncY("Applying Final SDV Tweaks...");
+                gamePtr.IsMouseVisible = false;
+                gamePtr.Window.Title = "Stardew Valley - Version " + Game1.version;
+                gamePtr.Window.ClientSizeChanged += GraphicsEvents.InvokeResize;
+
+                // Create definition to listen for input
+                Log.AsyncY("Initializing Console Input Thread...");
+                consoleInputThread = new Thread(ConsoleInputThread);
+
+                // The only command in the API (at least it should be, for now)
+                Command.RegisterCommand("help", "Lists all commands | 'help <cmd>' returns command description").CommandFired += help_CommandFired;
+
+                // Subscribe to events
+                ControlEvents.KeyPressed += Events_KeyPressed;
+                GameEvents.LoadContent += Events_LoadContent;
+
+                // Game's in memory now, send the event
+                Log.AsyncY("Game Loaded");
+                GameEvents.InvokeGameLoaded();
+
+                // Listen for command line input
+                Log.AsyncY("Type 'help' for help, or 'help <cmd>' for a command's usage");
+                consoleInputThread.Start();
+                while (ready)
+                    Thread.Sleep(1000 / 10); // Check if the game is still running 10 times a second
+
+                // Abort the thread, we're closing
+                if (consoleInputThread != null && consoleInputThread.ThreadState == ThreadState.Running)
+                    consoleInputThread.Abort();
+
+                Log.AsyncY("Game Execution Finished");
+                Log.AsyncY("Shutting Down...");
+                Thread.Sleep(100);
+                Environment.Exit(0);
+            }).Start();
+
+            // Start game loop
             Log.AsyncY("Starting SDV...");
-            gameThread.Start();
-
-            // Wait for the game to load up
-            while (!ready)
-            {
-            }
-
-            //SDV is running
-            Log.AsyncY("SDV Loaded Into Memory");
-
-            //Create definition to listen for input
-            Log.AsyncY("Initializing Console Input Thread...");
-            consoleInputThread = new Thread(ConsoleInputThread);
-
-            // The only command in the API (at least it should be, for now)
-            Command.RegisterCommand("help", "Lists all commands | 'help <cmd>' returns command description").CommandFired += help_CommandFired;
-
-            //Subscribe to events
-            ControlEvents.KeyPressed += Events_KeyPressed;
-            GameEvents.LoadContent += Events_LoadContent;
-
-            Log.AsyncY("Applying Final SDV Tweaks...");
-            gamePtr.IsMouseVisible = false;
-            gamePtr.Window.Title = "Stardew Valley - Version " + Game1.version;
-            gamePtr.Window.ClientSizeChanged += GraphicsEvents.InvokeResize;
-        }
-
-        /// <summary>
-        ///     Wrap the 'RunGame' method for console output
-        /// </summary>
-        private static void GameRunInvoker()
-        {
-            //Game's in memory now, send the event
-            Log.AsyncY("Game Loaded");
-            GameEvents.InvokeGameLoaded();
-
-            Log.AsyncY("Type 'help' for help, or 'help <cmd>' for a command's usage");
-            //Begin listening to input
-            consoleInputThread.Start();
-
-
-            while (ready)
-            {
-                //Check if the game is still running 10 times a second
-                Thread.Sleep(1000 / 10);
-            }
-
-            //abort the thread, we're closing
-            if (consoleInputThread != null && consoleInputThread.ThreadState == ThreadState.Running)
-                consoleInputThread.Abort();
-
-            Log.AsyncY("Game Execution Finished");
-            Log.AsyncY("Shutting Down...");
-            Thread.Sleep(100);
-            Environment.Exit(0);
+            RunGame();
         }
 
         /// <summary>
