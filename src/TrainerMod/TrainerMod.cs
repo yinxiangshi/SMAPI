@@ -14,28 +14,6 @@ namespace TrainerMod
 {
     public class TrainerMod : Mod
     {
-        /*
-        public override string Name
-        {
-            get { return "Trainer Mod"; }
-        }
-
-        public override string Authour
-        {
-            get { return "Zoryn Aaron"; }
-        }
-
-        public override string Version
-        {
-            get { return "1.0"; }
-        }
-
-        public override string Description
-        {
-            get { return "Registers several commands to use. Most commands are trainer-like in that they offer forms of cheating."; }
-        }
-        */
-
         public static int frozenTime;
         public static bool infHealth, infStamina, infMoney, freezeTime;
 
@@ -758,11 +736,6 @@ namespace TrainerMod
 
         private static void RegisterNewItem(object sender, EventArgsCommand e)
         {
-#if DEBUG
-            SObject s = SGame.PullModItemFromDict(0, true);
-            s.Stack = 999;
-            Game1.player.addItemToInventory(s);
-#endif
         }
     }
 }

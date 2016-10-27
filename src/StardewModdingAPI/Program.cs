@@ -81,7 +81,6 @@ namespace StardewModdingAPI
         private static void ConfigureUI()
         {
             Console.Title = Constants.ConsoleTitle;
-
 #if DEBUG
             Console.Title += " - DEBUG IS NOT FALSE, AUTHOUR NEEDS TO REUPLOAD THIS VERSION";
 #endif
@@ -149,12 +148,10 @@ namespace StardewModdingAPI
 
             // The only command in the API (at least it should be, for now)
             Command.RegisterCommand("help", "Lists all commands | 'help <cmd>' returns command description").CommandFired += help_CommandFired;
-            //Command.RegisterCommand("crash", "crashes sdv").CommandFired += delegate { Game1.player.draw(null); };
 
             //Subscribe to events
             ControlEvents.KeyPressed += Events_KeyPressed;
             GameEvents.LoadContent += Events_LoadContent;
-            //Events.MenuChanged += Events_MenuChanged; //Idk right now
 
             Log.AsyncY("Applying Final SDV Tweaks...");
             StardewInvoke(() =>
@@ -360,8 +357,6 @@ namespace StardewModdingAPI
 
         public static void ConsoleInputThread()
         {
-            var input = string.Empty;
-
             while (true)
             {
                 Command.CallCommand(Console.ReadLine());
@@ -373,63 +368,10 @@ namespace StardewModdingAPI
             Log.AsyncY("Initializing Debug Assets...");
             DebugPixel = new Texture2D(Game1.graphics.GraphicsDevice, 1, 1);
             DebugPixel.SetData(new[] {Color.White});
-
-#if DEBUG
-            StardewModdingAPI.Log.Async("REGISTERING BASE CUSTOM ITEM");
-            SObject so = new SObject();
-            so.Name = "Mario Block";
-            so.CategoryName = "SMAPI Test Mod";
-            so.Description = "It's a block from Mario!\nLoaded in realtime by SMAPI.";
-            so.Texture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, new FileStream(_modContentPaths[0] + "\\Test.png", FileMode.Open));
-            so.IsPassable = true;
-            so.IsPlaceable = true;
-            StardewModdingAPI.Log.Async("REGISTERED WITH ID OF: " + SGame.RegisterModItem(so));
-
-            //StardewModdingAPI.Log.Async("REGISTERING SECOND CUSTOM ITEM");
-            //SObject so2 = new SObject();
-            //so2.Name = "Mario Painting";
-            //so2.CategoryName = "SMAPI Test Mod";
-            //so2.Description = "It's a painting of a creature from Mario!\nLoaded in realtime by SMAPI.";
-            //so2.Texture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, new FileStream(_modContentPaths[0] + "\\PaintingTest.png", FileMode.Open));
-            //so2.IsPassable = true;
-            //so2.IsPlaceable = true;
-            //StardewModdingAPI.Log.Async("REGISTERED WITH ID OF: " + SGame.RegisterModItem(so2));
-
-            Command.CallCommand("load");
-#endif
         }
 
         private static void Events_KeyPressed(object o, EventArgsKeyPressed e)
         {
-        }
-
-        private static void Events_MenuChanged(IClickableMenu newMenu)
-        {
-            Log.AsyncY("NEW MENU: " + newMenu.GetType());
-            if (newMenu is GameMenu)
-            {
-                Game1.activeClickableMenu = SGameMenu.ConstructFromBaseClass(Game1.activeClickableMenu as GameMenu);
-            }
-        }
-
-        private static void Events_LocationsChanged(List<GameLocation> newLocations)
-        {
-#if DEBUG
-            SGame.ModLocations = SGameLocation.ConstructFromBaseClasses(Game1.locations);
-#endif
-        }
-
-        private static void Events_CurrentLocationChanged(GameLocation newLocation)
-        {
-            //SGame.CurrentLocation = null;
-            //System.Threading.Thread.Sleep(10);
-#if DEBUG
-            Console.WriteLine(newLocation.name);
-            SGame.CurrentLocation = SGame.LoadOrCreateSGameLocationFromName(newLocation.name);
-#endif
-            //Game1.currentLocation = SGame.CurrentLocation;
-            //Log.LogComment(((SGameLocation) newLocation).name);
-            //Log.LogComment("LOC CHANGED: " + SGame.currentLocation.name);
         }
 
         public static void StardewInvoke(Action a)
