@@ -50,9 +50,6 @@ namespace TrainerMod
         {
             Command.RegisterCommand("types", "Lists all value types | types").CommandFired += types_CommandFired;
 
-            Command.RegisterCommand("hide", "Hides the game form | hide").CommandFired += hide_CommandFired;
-            Command.RegisterCommand("show", "Shows the game form | show").CommandFired += show_CommandFired;
-
             Command.RegisterCommand("save", "Saves the game? Doesn't seem to work. | save").CommandFired += save_CommandFired;
             Command.RegisterCommand("load", "Shows the load screen | load").CommandFired += load_CommandFired;
 
@@ -92,16 +89,6 @@ namespace TrainerMod
         private static void types_CommandFired(object sender, EventArgsCommand e)
         {
             Log.AsyncY($"[Int32: {int.MinValue} - {int.MaxValue}], [Int64: {long.MinValue} - {long.MaxValue}], [String: \"raw text\"], [Colour: r,g,b (EG: 128, 32, 255)]");
-        }
-
-        private static void hide_CommandFired(object sender, EventArgsCommand e)
-        {
-            Program.StardewInvoke(() => { Program.StardewForm.Hide(); });
-        }
-
-        private static void show_CommandFired(object sender, EventArgsCommand e)
-        {
-            Program.StardewInvoke(() => { Program.StardewForm.Show(); });
         }
 
         private static void save_CommandFired(object sender, EventArgsCommand e)

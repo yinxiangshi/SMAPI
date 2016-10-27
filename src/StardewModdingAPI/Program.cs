@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -11,9 +10,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Inheritance;
-using StardewModdingAPI.Inheritance.Menus;
 using StardewValley;
-using StardewValley.Menus;
 
 namespace StardewModdingAPI
 {
@@ -32,7 +29,6 @@ namespace StardewModdingAPI
         public static Assembly StardewAssembly;
         public static Type StardewProgramType;
         public static FieldInfo StardewGameInfo;
-        public static Form StardewForm;
 
         public static Thread gameThread;
         public static Thread consoleInputThread;
@@ -154,12 +150,9 @@ namespace StardewModdingAPI
             GameEvents.LoadContent += Events_LoadContent;
 
             Log.AsyncY("Applying Final SDV Tweaks...");
-            StardewInvoke(() =>
-            {
-                gamePtr.IsMouseVisible = false;
-                gamePtr.Window.Title = "Stardew Valley - Version " + Game1.version;
-                StardewForm.Resize += GraphicsEvents.InvokeResize;
-            });
+            gamePtr.IsMouseVisible = false;
+            gamePtr.Window.Title = "Stardew Valley - Version " + Game1.version;
+            gamePtr.Window.ClientSizeChanged += GraphicsEvents.InvokeResize;
         }
 
         /// <summary>
@@ -226,10 +219,8 @@ namespace StardewModdingAPI
                 Game1.graphics.GraphicsProfile = GraphicsProfile.HiDef;
                 LoadMods();
 
-                StardewForm = Control.FromHandle(gamePtr.Window.Handle).FindForm();
-                if (StardewForm != null) StardewForm.Closing += StardewForm_Closing;
-
                 ready = true;
+                gamePtr.Exiting += (sender, e) => ready = false;
 
                 StardewGameInfo.SetValue(StardewProgramType, gamePtr);
                 gamePtr.Run();
@@ -237,19 +228,6 @@ namespace StardewModdingAPI
             catch (Exception ex)
             {
                 Log.AsyncR("Game failed to start: " + ex);
-            }
-        }
-
-        private static void StardewForm_Closing(object sender, CancelEventArgs e)
-        {
-            e.Cancel = true;
-
-            if (true || MessageBox.Show("Are you sure you would like to quit Stardew Valley?\nUnsaved progress will be lost!", "Confirm Exit", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.Yes)
-            {
-                gamePtr.Exit();
-                gamePtr.Dispose();
-                StardewForm.Hide();
-                ready = false;
             }
         }
 
@@ -372,11 +350,6 @@ namespace StardewModdingAPI
 
         private static void Events_KeyPressed(object o, EventArgsKeyPressed e)
         {
-        }
-
-        public static void StardewInvoke(Action a)
-        {
-            StardewForm.Invoke(a);
         }
 
         private static void help_CommandFired(object o, EventArgsCommand e)
