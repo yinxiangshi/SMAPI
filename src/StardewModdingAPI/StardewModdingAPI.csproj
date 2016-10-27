@@ -190,6 +190,9 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+    <Content Include="StardewValley" Condition="$(OS) != 'Windows_NT'">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="FodyWeavers.xml" />
