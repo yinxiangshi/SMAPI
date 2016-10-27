@@ -92,6 +92,9 @@
   </PropertyGroup>
   <Choose>
     <When Condition="$(OS) == 'Windows_NT'">
+      <PropertyGroup>
+        <DefineConstants>$(DefineConstants);SMAPI_FOR_WINDOWS</DefineConstants>
+      </PropertyGroup>
       <ItemGroup>
         <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
           <Private>False</Private>
@@ -117,6 +120,9 @@
       </ItemGroup>
     </When>
     <Otherwise>
+      <PropertyGroup>
+        <DefineConstants>$(DefineConstants);SMAPI_FOR_UNIX</DefineConstants>
+      </PropertyGroup>
       <ItemGroup>
         <Reference Include="MonoGame.Framework">
           <HintPath>$(GamePath)\MonoGame.Framework.dll</HintPath>
@@ -142,7 +148,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Forms" Condition="$(OS) == 'Windows_NT'" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />

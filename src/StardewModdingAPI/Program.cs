@@ -5,7 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+#if SMAPI_FOR_WINDOWS
 using System.Windows.Forms;
+#endif
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Events;
@@ -208,8 +210,10 @@ namespace StardewModdingAPI
 
         public static void RunGame()
         {
+#if SMAPI_FOR_WINDOWS
             Application.ThreadException += Log.Application_ThreadException;
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+#endif
             AppDomain.CurrentDomain.UnhandledException += Log.CurrentDomain_UnhandledException;
 
             try
