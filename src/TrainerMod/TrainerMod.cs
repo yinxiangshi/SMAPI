@@ -14,28 +14,6 @@ namespace TrainerMod
 {
     public class TrainerMod : Mod
     {
-        /*
-        public override string Name
-        {
-            get { return "Trainer Mod"; }
-        }
-
-        public override string Authour
-        {
-            get { return "Zoryn Aaron"; }
-        }
-
-        public override string Version
-        {
-            get { return "1.0"; }
-        }
-
-        public override string Description
-        {
-            get { return "Registers several commands to use. Most commands are trainer-like in that they offer forms of cheating."; }
-        }
-        */
-
         public static int frozenTime;
         public static bool infHealth, infStamina, infMoney, freezeTime;
 
@@ -71,9 +49,6 @@ namespace TrainerMod
         public static void RegisterCommands()
         {
             Command.RegisterCommand("types", "Lists all value types | types").CommandFired += types_CommandFired;
-
-            Command.RegisterCommand("hide", "Hides the game form | hide").CommandFired += hide_CommandFired;
-            Command.RegisterCommand("show", "Shows the game form | show").CommandFired += show_CommandFired;
 
             Command.RegisterCommand("save", "Saves the game? Doesn't seem to work. | save").CommandFired += save_CommandFired;
             Command.RegisterCommand("load", "Shows the load screen | load").CommandFired += load_CommandFired;
@@ -114,16 +89,6 @@ namespace TrainerMod
         private static void types_CommandFired(object sender, EventArgsCommand e)
         {
             Log.AsyncY($"[Int32: {int.MinValue} - {int.MaxValue}], [Int64: {long.MinValue} - {long.MaxValue}], [String: \"raw text\"], [Colour: r,g,b (EG: 128, 32, 255)]");
-        }
-
-        private static void hide_CommandFired(object sender, EventArgsCommand e)
-        {
-            Program.StardewInvoke(() => { Program.StardewForm.Hide(); });
-        }
-
-        private static void show_CommandFired(object sender, EventArgsCommand e)
-        {
-            Program.StardewInvoke(() => { Program.StardewForm.Show(); });
         }
 
         private static void save_CommandFired(object sender, EventArgsCommand e)
@@ -758,11 +723,6 @@ namespace TrainerMod
 
         private static void RegisterNewItem(object sender, EventArgsCommand e)
         {
-#if DEBUG
-            SObject s = SGame.PullModItemFromDict(0, true);
-            s.Stack = 999;
-            Game1.player.addItemToInventory(s);
-#endif
         }
     }
 }
