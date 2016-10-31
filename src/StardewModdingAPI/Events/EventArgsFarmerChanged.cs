@@ -24,8 +24,8 @@ namespace StardewModdingAPI.Events
         /// <param name="newFarmer">The new player character.</param>
         public EventArgsFarmerChanged(Farmer priorFarmer, Farmer newFarmer)
         {
-            this.NewFarmer = NewFarmer;
-            this.PriorFarmer = PriorFarmer;
+            this.PriorFarmer = priorFarmer;
+            this.NewFarmer = newFarmer;
         }
     }
 }

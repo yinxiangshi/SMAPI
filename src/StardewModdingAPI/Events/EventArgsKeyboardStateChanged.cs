@@ -24,7 +24,7 @@ namespace StardewModdingAPI.Events
         /// <param name="newState">The current keyboard state.</param>
         public EventArgsKeyboardStateChanged(KeyboardState priorState, KeyboardState newState)
         {
-            this.NewState = newState;
+            this.PriorState = priorState;
             this.NewState = newState;
         }
     }

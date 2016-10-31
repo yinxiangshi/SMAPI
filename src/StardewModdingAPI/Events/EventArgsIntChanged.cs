@@ -23,8 +23,8 @@ namespace StardewModdingAPI.Events
         /// <param name="newInt">The current value.</param>
         public EventArgsIntChanged(int priorInt, int newInt)
         {
-            this.NewInt = NewInt;
-            this.PriorInt = PriorInt;
+            this.PriorInt = priorInt;
+            this.NewInt = newInt;
         }
     }
 }
