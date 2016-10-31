@@ -10,9 +10,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "metadata", "metadata", "{86C452BE-D2D8-45B4-B63F-E329EB06CEDA}"
 	ProjectSection(SolutionItems) = preProject
 		..\.gitignore = ..\.gitignore
-		..\CHANGELOG.md = ..\CHANGELOG.md
 		..\LICENSE = ..\LICENSE
 		..\README.md = ..\README.md
+		..\release-notes.md = ..\release-notes.md
 	EndProjectSection
 EndProject
 Global
