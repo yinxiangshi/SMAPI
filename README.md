@@ -14,7 +14,7 @@ your game files.
 ## For mod developers
 
 * [How to develop mods](http://canimod.com/guides/creating-a-smapi-mod)
-* [SMAPI change log](CHANGELOG.md)
+* [Release notes](release-notes.md)
 * [SMAPI/Farmhand Discord](https://discordapp.com/invite/0t3fh2xhHVc6Vdyx) (chat with SMAPI developers)
 
 ## For SMAPI developers
