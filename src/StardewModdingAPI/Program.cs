@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -23,7 +22,8 @@ namespace StardewModdingAPI
             ? Path.Combine(Constants.ExecutionPath, "StardewValley.exe") // Linux or Mac
             : Path.Combine(Constants.ExecutionPath, "Stardew Valley.exe"); // Windows
 
-        private static List<string> _modPaths;
+        /// <summary>The full path to the folder containing mods.</summary>
+        private static readonly string ModPath = Path.Combine(Constants.ExecutionPath, "Mods");
 
         public static SGame gamePtr;
         public static bool ready;
@@ -56,7 +56,7 @@ namespace StardewModdingAPI
                 Log.AsyncY("SDV Version: " + Game1.version);
                 Log.AsyncY("SMAPI Version: " + Constants.Version.VersionString);
                 ConfigureUI();
-                ConfigurePaths();
+                CreateDirectories();
                 StartGame();
             }
             catch (Exception e)
@@ -82,31 +82,14 @@ namespace StardewModdingAPI
 #endif
         }
 
-        /// <summary>
-        ///     Setup the required paths and logging
-        /// </summary>
-        private static void ConfigurePaths()
+        /// <summary>Create and verify the SMAPI directories.</summary>
+        private static void CreateDirectories()
         {
-            Log.AsyncY("Validating api paths...");
-
-            _modPaths = new List<string> {Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley", "Mods"), Path.Combine(Constants.ExecutionPath, "Mods")};
-            //_modContentPaths = new List<string>();
-
-            //TODO: Have an app.config and put the paths inside it so users can define locations to load mods from
-
-            //Mods need to make their own content paths, since we're doing a different, manifest-driven, approach.
-            //_modContentPaths.Add(Path.Combine(Constants.ExecutionPath, "Mods", "Content"));
-            //_modContentPaths.Add(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley", "Mods", "Content"));
-
-            //Checks that all defined modpaths exist as directories
-            _modPaths.ForEach(VerifyPath);
-            //_modContentPaths.ForEach(path => VerifyPath(path));
+            Log.AsyncY("Validating file paths...");
+            VerifyPath(ModPath);
             VerifyPath(Constants.LogDir);
-
             if (!File.Exists(GameExecutablePath))
-            {
-                throw new FileNotFoundException($"Could not found: {GameExecutablePath}");
-            }
+                throw new FileNotFoundException($"Could not find executable: {GameExecutablePath}");
         }
 
         /// <summary>
@@ -211,18 +194,14 @@ namespace StardewModdingAPI
             }
         }
 
-        /// <summary>
-        ///     Create the given directory path if it does not exist
-        /// </summary>
-        /// <param name="path">Desired directory path</param>
+        /// <summary>Create a directory path if it doesn't exist.</summary>
+        /// <param name="path">The directory path.</param>
         private static void VerifyPath(string path)
         {
             try
             {
                 if (!Directory.Exists(path))
-                {
                     Directory.CreateDirectory(path);
-                }
             }
             catch (Exception ex)
             {
@@ -235,101 +214,96 @@ namespace StardewModdingAPI
         public static void LoadMods()
         {
             Log.AsyncY("LOADING MODS");
-            foreach (var ModPath in _modPaths)
+            foreach (string directory in Directory.GetDirectories(ModPath))
             {
-                foreach (var d in Directory.GetDirectories(ModPath))
+                foreach (string manifestFile in Directory.GetFiles(directory, "manifest.json"))
                 {
-                    foreach (var s in Directory.GetFiles(d, "manifest.json"))
+                    if (manifestFile.Contains("StardewInjector"))
+                        continue;
+                    Log.AsyncG("Found Manifest: " + manifestFile);
+                    var manifest = new Manifest();
+                    try
                     {
-                        if (s.Contains("StardewInjector"))
-                            continue;
-                        Log.AsyncG("Found Manifest: " + s);
-                        var manifest = new Manifest();
-                        try
+                        string t = File.ReadAllText(manifestFile);
+                        if (string.IsNullOrEmpty(t))
                         {
-                            var t = File.ReadAllText(s);
-                            if (string.IsNullOrEmpty(t))
-                            {
-                                Log.AsyncR($"Failed to read mod manifest '{s}'. Manifest is empty!");
-                                continue;
-                            }
-
-                            manifest = manifest.InitializeConfig(s);
-
-                            if (string.IsNullOrEmpty(manifest.EntryDll))
-                            {
-                                Log.AsyncR($"Failed to read mod manifest '{s}'. EntryDll is empty!");
-                                continue;
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Log.AsyncR($"Failed to read mod manifest '{s}'. Exception details:\n" + ex);
+                            Log.AsyncR($"Failed to read mod manifest '{manifestFile}'. Manifest is empty!");
                             continue;
                         }
-                        var targDir = Path.GetDirectoryName(s);
-                        var psDir = Path.Combine(targDir, "psconfigs");
-                        Log.AsyncY($"Created psconfigs directory @{psDir}");
-                        try
-                        {
-                            if (manifest.PerSaveConfigs)
-                            {
-                                if (!Directory.Exists(psDir))
-                                {
-                                    Directory.CreateDirectory(psDir);
-                                    Log.AsyncY($"Created psconfigs directory @{psDir}");
-                                }
 
-                                if (!Directory.Exists(psDir))
-                                {
-                                    Log.AsyncR($"Failed to create psconfigs directory '{psDir}'. No exception occured.");
-                                    continue;
-                                }
-                            }
-                        }
-                        catch (Exception ex)
+                        manifest = manifest.InitializeConfig(manifestFile);
+
+                        if (string.IsNullOrEmpty(manifest.EntryDll))
                         {
-                            Log.AsyncR($"Failed to create psconfigs directory '{targDir}'. Exception details:\n" + ex);
+                            Log.AsyncR($"Failed to read mod manifest '{manifestFile}'. EntryDll is empty!");
                             continue;
                         }
-                        var targDll = string.Empty;
-                        try
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.AsyncR($"Failed to read mod manifest '{manifestFile}'. Exception details:\n" + ex);
+                        continue;
+                    }
+                    string targDir = Path.GetDirectoryName(manifestFile);
+                    string psDir = Path.Combine(targDir, "psconfigs");
+                    Log.AsyncY($"Created psconfigs directory @{psDir}");
+                    try
+                    {
+                        if (manifest.PerSaveConfigs)
                         {
-                            targDll = Path.Combine(targDir, manifest.EntryDll);
-                            if (!File.Exists(targDll))
+                            if (!Directory.Exists(psDir))
                             {
-                                Log.AsyncR($"Failed to load mod '{manifest.EntryDll}'. File {targDll} does not exist!");
+                                Directory.CreateDirectory(psDir);
+                                Log.AsyncY($"Created psconfigs directory @{psDir}");
+                            }
+
+                            if (!Directory.Exists(psDir))
+                            {
+                                Log.AsyncR($"Failed to create psconfigs directory '{psDir}'. No exception occured.");
                                 continue;
                             }
-
-                            var mod = Assembly.UnsafeLoadFrom(targDll);
-
-                            if (mod.DefinedTypes.Count(x => x.BaseType == typeof(Mod)) > 0)
-                            {
-                                Log.AsyncY("Loading Mod DLL...");
-                                var tar = mod.DefinedTypes.First(x => x.BaseType == typeof(Mod));
-                                var m = (Mod) mod.CreateInstance(tar.ToString());
-                                if (m != null)
-                                {
-                                    m.PathOnDisk = targDir;
-                                    m.Manifest = manifest;
-                                    Log.AsyncG($"LOADED MOD: {m.Manifest.Name} by {m.Manifest.Authour} - Version {m.Manifest.Version} | Description: {m.Manifest.Description} (@ {targDll})");
-                                    Constants.ModsLoaded += 1;
-                                    m.Entry();
-                                }
-                            }
-                            else
-                            {
-                                Log.AsyncR("Invalid Mod DLL");
-                            }
                         }
-                        catch (Exception ex)
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.AsyncR($"Failed to create psconfigs directory '{targDir}'. Exception details:\n" + ex);
+                        continue;
+                    }
+                    string targDll = string.Empty;
+                    try
+                    {
+                        targDll = Path.Combine(targDir, manifest.EntryDll);
+                        if (!File.Exists(targDll))
                         {
-                            Log.AsyncR($"Failed to load mod '{targDll}'. Exception details:\n" + ex);
+                            Log.AsyncR($"Failed to load mod '{manifest.EntryDll}'. File {targDll} does not exist!");
+                            continue;
                         }
+
+                        Assembly modAssembly = Assembly.UnsafeLoadFrom(targDll);
+                        if (modAssembly.DefinedTypes.Count(x => x.BaseType == typeof(Mod)) > 0)
+                        {
+                            Log.AsyncY("Loading Mod DLL...");
+                            TypeInfo tar = modAssembly.DefinedTypes.First(x => x.BaseType == typeof(Mod));
+                            Mod modEntry = (Mod)modAssembly.CreateInstance(tar.ToString());
+                            if (modEntry != null)
+                            {
+                                modEntry.PathOnDisk = targDir;
+                                modEntry.Manifest = manifest;
+                                Log.AsyncG($"LOADED MOD: {modEntry.Manifest.Name} by {modEntry.Manifest.Authour} - Version {modEntry.Manifest.Version} | Description: {modEntry.Manifest.Description} (@ {targDll})");
+                                Constants.ModsLoaded += 1;
+                                modEntry.Entry();
+                            }
+                        }
+                        else
+                            Log.AsyncR("Invalid Mod DLL");
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.AsyncR($"Failed to load mod '{targDll}'. Exception details:\n" + ex);
                     }
                 }
             }
+
             Log.AsyncG($"LOADED {Constants.ModsLoaded} MODS");
             Console.Title = Constants.ConsoleTitle;
         }
@@ -346,7 +320,7 @@ namespace StardewModdingAPI
         {
             Log.AsyncY("Initializing Debug Assets...");
             DebugPixel = new Texture2D(Game1.graphics.GraphicsDevice, 1, 1);
-            DebugPixel.SetData(new[] {Color.White});
+            DebugPixel.SetData(new[] { Color.White });
         }
 
         private static void Events_KeyPressed(object o, EventArgsKeyPressed e)
