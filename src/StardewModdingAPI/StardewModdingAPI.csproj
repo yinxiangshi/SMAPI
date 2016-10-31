@@ -162,7 +162,6 @@
     <Compile Include="Command.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Constants.cs" />
-    <Compile Include="Entities\SPlayer.cs" />
     <Compile Include="Events\ControlEvents.cs" />
     <Compile Include="Events\EventArgsCommand.cs" />
     <Compile Include="Events\EventArgsClickableMenuChanged.cs" />
@@ -195,9 +194,6 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="Inheritance\ChangeType.cs" />
     <Compile Include="Inheritance\ItemStackChange.cs" />
-    <Compile Include="Inheritance\Menus\SBobberBar.cs" />
-    <Compile Include="Inheritance\Menus\SGameMenu.cs" />
-    <Compile Include="Inheritance\Menus\SInventoryPage.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="LogWriter.cs" />
