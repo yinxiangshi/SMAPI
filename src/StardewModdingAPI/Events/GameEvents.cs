@@ -2,58 +2,61 @@
 
 namespace StardewModdingAPI.Events
 {
+    /// <summary>Events raised when the game changes state.</summary>
     public static class GameEvents
     {
-        public static event EventHandler GameLoaded = delegate { };
+        /*********
+        ** Events
+        *********/
+        /// <summary>Raised during launch after configuring XNA or MonoGame. The game window hasn't been opened by this point. Called during <see cref="Microsoft.Xna.Framework.Game.Initialize"/>.</summary>
         public static event EventHandler Initialize = delegate { };
+
+        /// <summary>Raised during launch after configuring Stardew Valley, loading it into memory, and opening the game window. The window is still blank by this point.</summary>
+        public static event EventHandler GameLoaded = delegate { };
+
+        /// <summary>Raised before XNA loads or reloads graphics resources. Called during <see cref="Microsoft.Xna.Framework.Game.LoadContent"/>.</summary>
         public static event EventHandler LoadContent = delegate { };
+
+        /// <summary>Raised during the first game update tick.</summary>
         public static event EventHandler FirstUpdateTick = delegate { };
 
-        /// <summary>
-        ///     Fires every update (1/60 of a second)
-        /// </summary>
+        /// <summary>Raised when the game updates its state (≈60 times per second).</summary>
         public static event EventHandler UpdateTick = delegate { };
 
-        /// <summary>
-        ///     Fires every other update (1/30 of a second)
-        /// </summary>
+        /// <summary>Raised every other tick (≈30 times per second).</summary>
         public static event EventHandler SecondUpdateTick = delegate { };
 
-        /// <summary>
-        ///     Fires every fourth update (1/15 of a second)
-        /// </summary>
+        /// <summary>Raised every fourth tick (≈15 times per second).</summary>
         public static event EventHandler FourthUpdateTick = delegate { };
 
-        /// <summary>
-        ///     Fires every eighth update (roughly 1/8 of a second)
-        /// </summary>
+        /// <summary>Raised every eighth tick (≈8 times per second).</summary>
         public static event EventHandler EighthUpdateTick = delegate { };
 
-        /// <summary>
-        ///     Fires every fifthteenth update (1/4 of a second)
-        /// </summary>
+        /// <summary>Raised every 15th tick (≈4 times per second).</summary>
         public static event EventHandler QuarterSecondTick = delegate { };
 
-        /// <summary>
-        ///     Fires every thirtieth update (1/2 of a second)
-        /// </summary>
+        /// <summary>Raised every 30th tick (≈twice per second).</summary>
         public static event EventHandler HalfSecondTick = delegate { };
 
-        /// <summary>
-        ///     Fires every sixtieth update (a second)
-        /// </summary>
+        /// <summary>Raised every 60th tick (≈once per second).</summary>
         public static event EventHandler OneSecondTick = delegate { };
 
+
+        /*********
+        ** Internal methods
+        *********/
+        /// <summary>Raise a <see cref="GameLoaded"/> event.</summary>
         internal static void InvokeGameLoaded()
         {
-            GameLoaded.Invoke(null, EventArgs.Empty);
+            GameEvents.GameLoaded.Invoke(null, EventArgs.Empty);
         }
 
+        /// <summary>Raise an <see cref="Initialize"/> event.</summary>
         internal static void InvokeInitialize()
         {
             try
             {
-                Initialize.Invoke(null, EventArgs.Empty);
+                GameEvents.Initialize.Invoke(null, EventArgs.Empty);
             }
             catch (Exception ex)
             {
@@ -61,11 +64,12 @@ namespace StardewModdingAPI.Events
             }
         }
 
+        /// <summary>Raise a <see cref="LoadContent"/> event.</summary>
         internal static void InvokeLoadContent()
         {
             try
             {
-                LoadContent.Invoke(null, EventArgs.Empty);
+                GameEvents.LoadContent.Invoke(null, EventArgs.Empty);
             }
             catch (Exception ex)
             {
@@ -73,11 +77,12 @@ namespace StardewModdingAPI.Events
             }
         }
 
+        /// <summary>Raise an <see cref="UpdateTick"/> event.</summary>
         internal static void InvokeUpdateTick()
         {
             try
             {
-                UpdateTick.Invoke(null, EventArgs.Empty);
+                GameEvents.UpdateTick.Invoke(null, EventArgs.Empty);
             }
             catch (Exception ex)
             {
@@ -85,39 +90,46 @@ namespace StardewModdingAPI.Events
             }
         }
 
+        /// <summary>Raise a <see cref="SecondUpdateTick"/> event.</summary>
         internal static void InvokeSecondUpdateTick()
         {
-            SecondUpdateTick.Invoke(null, EventArgs.Empty);
+            GameEvents.SecondUpdateTick.Invoke(null, EventArgs.Empty);
         }
 
+        /// <summary>Raise a <see cref="FourthUpdateTick"/> event.</summary>
         internal static void InvokeFourthUpdateTick()
         {
-            FourthUpdateTick.Invoke(null, EventArgs.Empty);
+            GameEvents.FourthUpdateTick.Invoke(null, EventArgs.Empty);
         }
 
+        /// <summary>Raise a <see cref="EighthUpdateTick"/> event.</summary>
         internal static void InvokeEighthUpdateTick()
         {
-            EighthUpdateTick.Invoke(null, EventArgs.Empty);
+            GameEvents.EighthUpdateTick.Invoke(null, EventArgs.Empty);
         }
 
+        /// <summary>Raise a <see cref="QuarterSecondTick"/> event.</summary>
         internal static void InvokeQuarterSecondTick()
         {
-            QuarterSecondTick.Invoke(null, EventArgs.Empty);
+            GameEvents.QuarterSecondTick.Invoke(null, EventArgs.Empty);
         }
 
+        /// <summary>Raise a <see cref="HalfSecondTick"/> event.</summary>
         internal static void InvokeHalfSecondTick()
         {
-            HalfSecondTick.Invoke(null, EventArgs.Empty);
+            GameEvents.HalfSecondTick.Invoke(null, EventArgs.Empty);
         }
 
+        /// <summary>Raise a <see cref="OneSecondTick"/> event.</summary>
         internal static void InvokeOneSecondTick()
         {
-            OneSecondTick.Invoke(null, EventArgs.Empty);
+            GameEvents.OneSecondTick.Invoke(null, EventArgs.Empty);
         }
 
+        /// <summary>Raise a <see cref="FirstUpdateTick"/> event.</summary>
         internal static void InvokeFirstUpdateTick()
         {
-            FirstUpdateTick.Invoke(null, EventArgs.Empty);
+            GameEvents.FirstUpdateTick.Invoke(null, EventArgs.Empty);
         }
     }
 }

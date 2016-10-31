@@ -4,17 +4,34 @@ using Microsoft.Xna.Framework.Input;
 
 namespace StardewModdingAPI.Events
 {
+    /// <summary>Event arguments for a <see cref="ControlEvents.ControllerTriggerReleased"/> event.</summary>
     public class EventArgsControllerTriggerReleased : EventArgs
     {
-        public EventArgsControllerTriggerReleased(PlayerIndex playerIndex, Buttons buttonReleased, float value)
-        {
-            PlayerIndex = playerIndex;
-            ButtonReleased = buttonReleased;
-            Value = value;
-        }
-
+        /*********
+        ** Accessors
+        *********/
+        /// <summary>The player who pressed the button.</summary>
         public PlayerIndex PlayerIndex { get; private set; }
+
+        /// <summary>The controller button that was released.</summary>
         public Buttons ButtonReleased { get; private set; }
+
+        /// <summary>The current trigger value.</summary>
         public float Value { get; private set; }
+
+
+        /*********
+        ** Public methods
+        *********/
+        /// <summary>Construct an instance.</summary>
+        /// <param name="playerIndex">The player who pressed the trigger button.</param>
+        /// <param name="button">The trigger button that was released.</param>
+        /// <param name="value">The current trigger value.</param>
+        public EventArgsControllerTriggerReleased(PlayerIndex playerIndex, Buttons button, float value)
+        {
+            this.PlayerIndex = playerIndex;
+            this.ButtonReleased = button;
+            this.Value = value;
+        }
     }
 }

@@ -3,13 +3,24 @@ using Microsoft.Xna.Framework.Input;
 
 namespace StardewModdingAPI.Events
 {
+    /// <summary>Event arguments for a <see cref="ControlEvents.KeyboardChanged"/> event.</summary>
     public class EventArgsKeyPressed : EventArgs
     {
-        public EventArgsKeyPressed(Keys keyPressed)
-        {
-            KeyPressed = keyPressed;
-        }
-
+        /*********
+        ** Accessors
+        *********/
+        /// <summary>The keyboard button that was pressed.</summary>
         public Keys KeyPressed { get; private set; }
+
+
+        /*********
+        ** Public methods
+        *********/
+        /// <summary>Construct an instance.</summary>
+        /// <param name="key">The keyboard button that was pressed.</param>
+        public EventArgsKeyPressed(Keys key)
+        {
+            this.KeyPressed = key;
+        }
     }
 }

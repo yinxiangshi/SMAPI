@@ -2,41 +2,70 @@
 
 namespace StardewModdingAPI.Events
 {
+    /// <summary>Events raised when the in-game date or time changes.</summary>
     public static class TimeEvents
     {
+        /*********
+        ** Events
+        *********/
+        /// <summary>Raised after the in-game clock changes.</summary>
         public static event EventHandler<EventArgsIntChanged> TimeOfDayChanged = delegate { };
+
+        /// <summary>Raised after the day-of-month value changes, including when loading a save (unlike <see cref="OnNewDay"/>).</summary>
         public static event EventHandler<EventArgsIntChanged> DayOfMonthChanged = delegate { };
+
+        /// <summary>Raised after the year value changes.</summary>
         public static event EventHandler<EventArgsIntChanged> YearOfGameChanged = delegate { };
+
+        /// <summary>Raised after the season value changes.</summary>
         public static event EventHandler<EventArgsStringChanged> SeasonOfYearChanged = delegate { };
 
-        /// <summary>
-        /// Occurs when Game1.newDay changes. True directly before saving, and False directly after.
-        /// </summary>
+        /// <summary>Raised when the player is transitioning to a new day and the game is performing its day update logic. This event is triggered twice: once after the game starts transitioning, and again after it finishes.</summary>
         public static event EventHandler<EventArgsNewDay> OnNewDay = delegate { };
 
-        internal static void InvokeTimeOfDayChanged(int priorInt, int newInt)
+
+        /*********
+        ** Internal methods
+        *********/
+        /// <summary>Raise a <see cref="InvokeDayOfMonthChanged"/> event.</summary>
+        /// <param name="priorTime">The previous time in military time format (e.g. 6:00pm is 1800).</param>
+        /// <param name="newTime">The current time in military time format (e.g. 6:10pm is 1810).</param>
+        internal static void InvokeTimeOfDayChanged(int priorTime, int newTime)
         {
-            TimeOfDayChanged.Invoke(null, new EventArgsIntChanged(priorInt, newInt));
+            TimeEvents.TimeOfDayChanged.Invoke(null, new EventArgsIntChanged(priorTime, newTime));
         }
 
-        internal static void InvokeDayOfMonthChanged(int priorInt, int newInt)
+        /// <summary>Raise a <see cref="DayOfMonthChanged"/> event.</summary>
+        /// <param name="priorDay">The previous day value.</param>
+        /// <param name="newDay">The current day value.</param>
+        internal static void InvokeDayOfMonthChanged(int priorDay, int newDay)
         {
-            DayOfMonthChanged.Invoke(null, new EventArgsIntChanged(priorInt, newInt));
+            TimeEvents.DayOfMonthChanged.Invoke(null, new EventArgsIntChanged(priorDay, newDay));
         }
 
-        internal static void InvokeYearOfGameChanged(int priorInt, int newInt)
+        /// <summary>Raise a <see cref="YearOfGameChanged"/> event.</summary>
+        /// <param name="priorYear">The previous year value.</param>
+        /// <param name="newYear">The current year value.</param>
+        internal static void InvokeYearOfGameChanged(int priorYear, int newYear)
         {
-            YearOfGameChanged.Invoke(null, new EventArgsIntChanged(priorInt, newInt));
+            TimeEvents.YearOfGameChanged.Invoke(null, new EventArgsIntChanged(priorYear, newYear));
         }
 
-        internal static void InvokeSeasonOfYearChanged(string priorString, string newString)
+        /// <summary>Raise a <see cref="SeasonOfYearChanged"/> event.</summary>
+        /// <param name="priorSeason">The previous season name.</param>
+        /// <param name="newSeason">The current season name.</param>
+        internal static void InvokeSeasonOfYearChanged(string priorSeason, string newSeason)
         {
-            SeasonOfYearChanged.Invoke(null, new EventArgsStringChanged(priorString, newString));
+            TimeEvents.SeasonOfYearChanged.Invoke(null, new EventArgsStringChanged(priorSeason, newSeason));
         }
 
-        internal static void InvokeOnNewDay(int priorInt, int newInt, bool newDay)
+        /// <summary>Raise a <see cref="OnNewDay"/> event.</summary>
+        /// <param name="priorDay">The previous day value.</param>
+        /// <param name="newDay">The current day value.</param>
+        /// <param name="isTransitioning">Whether the game just started the transition (<c>true</c>) or finished it (<c>false</c>).</param>
+        internal static void InvokeOnNewDay(int priorDay, int newDay, bool isTransitioning)
         {
-            OnNewDay.Invoke(null, new EventArgsNewDay(priorInt, newInt, newDay));
+            TimeEvents.OnNewDay.Invoke(null, new EventArgsNewDay(priorDay, newDay, isTransitioning));
         }
     }
 }
