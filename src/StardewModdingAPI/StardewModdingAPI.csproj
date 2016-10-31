@@ -198,8 +198,6 @@
     <Compile Include="Inheritance\Menus\SBobberBar.cs" />
     <Compile Include="Inheritance\Menus\SGameMenu.cs" />
     <Compile Include="Inheritance\Menus\SInventoryPage.cs" />
-    <Compile Include="Inheritance\SBareObject.cs" />
-    <Compile Include="JsonResolver.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="LogWriter.cs" />

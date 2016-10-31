@@ -47,14 +47,11 @@ namespace StardewModdingAPI
                 try
                 {
                     //try to load the config from a json blob on disk
-                    var c = JsonConvert.DeserializeObject<T>(File.ReadAllText(ConfigLocation), new JsonSerializerSettings {ContractResolver = new JsonResolver()});
-
-                    c.ConfigLocation = ConfigLocation;
+                    T config = JsonConvert.DeserializeObject<T>(File.ReadAllText(this.ConfigLocation));
+                    config.ConfigLocation = this.ConfigLocation;
 
                     //update the config with default values if needed
-                    ret = c.UpdateConfig<T>();
-
-                    c = null;
+                    ret = config.UpdateConfig<T>();
                 }
                 catch (Exception ex)
                 {
@@ -85,10 +82,10 @@ namespace StardewModdingAPI
             try
             {
                 //default config
-                var b = JObject.FromObject(Instance<T>().GenerateDefaultConfig<T>(), new JsonSerializer {ContractResolver = new JsonResolver()});
+                var b = JObject.FromObject(this.Instance<T>().GenerateDefaultConfig<T>());
 
                 //user config
-                var u = JObject.FromObject(this, new JsonSerializer {ContractResolver = new JsonResolver()});
+                var u = JObject.FromObject(this);
 
                 //overwrite default values with user values
                 b.Merge(u, new JsonMergeSettings {MergeArrayHandling = MergeArrayHandling.Replace});
@@ -97,7 +94,7 @@ namespace StardewModdingAPI
                 var c = b.ToObject<T>();
 
                 //re-write the location on disk to the object
-                c.ConfigLocation = ConfigLocation;
+                c.ConfigLocation = this.ConfigLocation;
 
                 return c;
             }
@@ -155,7 +152,7 @@ namespace StardewModdingAPI
                 return;
             }
 
-            var s = JsonConvert.SerializeObject(baseConfig, typeof(T), Formatting.Indented, new JsonSerializerSettings {ContractResolver = new JsonResolver()});
+            var s = JsonConvert.SerializeObject(baseConfig, Formatting.Indented);
 
             if (!Directory.Exists(baseConfig.ConfigDir))
                 Directory.CreateDirectory(baseConfig.ConfigDir);
