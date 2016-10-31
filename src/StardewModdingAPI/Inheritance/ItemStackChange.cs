@@ -2,13 +2,6 @@
 
 namespace StardewModdingAPI.Inheritance
 {
-    public enum ChangeType
-    {
-        Removed,
-        Added,
-        StackChange
-    }
-
     public class ItemStackChange
     {
         public Item Item { get; set; }
