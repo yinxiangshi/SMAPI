@@ -34,7 +34,6 @@ namespace StardewModdingAPI
 
         public static Thread gameThread;
         public static Thread consoleInputThread;
-        //private static List<string> _modContentPaths;
 
         public static Texture2D DebugPixel { get; private set; }
 

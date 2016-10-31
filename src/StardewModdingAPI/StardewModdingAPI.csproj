@@ -162,10 +162,6 @@
     <Compile Include="Command.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Constants.cs" />
-    <Compile Include="Entities\SCharacter.cs" />
-    <Compile Include="Entities\SFarm.cs" />
-    <Compile Include="Entities\SFarmAnimal.cs" />
-    <Compile Include="Entities\SNpc.cs" />
     <Compile Include="Entities\SPlayer.cs" />
     <Compile Include="Events\Controls.cs" />
     <Compile Include="Events\EventArgs.cs" />
@@ -181,14 +177,11 @@
     <Compile Include="Inheritance\Menus\SBobberBar.cs" />
     <Compile Include="Inheritance\Menus\SGameMenu.cs" />
     <Compile Include="Inheritance\Menus\SInventoryPage.cs" />
-    <Compile Include="Inheritance\Minigames\SMinigameBase.cs" />
     <Compile Include="Inheritance\SBareObject.cs" />
-    <Compile Include="Inheritance\SObject.cs" />
     <Compile Include="JsonResolver.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Manifest.cs" />
     <Compile Include="Mod.cs" />
-    <Compile Include="ModItem.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Inheritance\SGame.cs" />

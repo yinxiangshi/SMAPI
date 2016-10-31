@@ -207,7 +207,6 @@ namespace StardewModdingAPI
     {
         private static LogWriter _instance;
         private static ConcurrentQueue<LogInfo> _logQueue;
-        private static DateTime _lastFlushTime = DateTime.Now;
         private static StreamWriter _stream;
 
         /// <summary>

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -23,11 +22,6 @@ namespace StardewModdingAPI.Inheritance
     /// </summary>
     public class SGame : Game1
     {
-        /// <summary>
-        /// Useless right now.
-        /// </summary>
-        public const int LowestModItemID = 1000;
-
         private bool FireLoadedGameEvent;
 
         /// <summary>
@@ -40,13 +34,6 @@ namespace StardewModdingAPI.Inheritance
             Instance = this;
             FirstUpdate = true;
         }
-
-        /// <summary>
-        /// Useless at this time.
-        /// </summary>
-        [Obsolete]
-        // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public static Dictionary<int, SObject> ModItems { get; private set; }
 
         /// <summary>
         /// The current KeyboardState
@@ -1409,45 +1396,6 @@ namespace StardewModdingAPI.Inheritance
             {
                 DebugMessageQueue.Clear();
             }
-        }
-
-        [Obsolete("Do not use at this time.")]
-        // ReSharper disable once UnusedMember.Local
-        private static int RegisterModItem(SObject modItem)
-        {
-            if (modItem.HasBeenRegistered)
-            {
-                Log.AsyncR($"The item {modItem.Name} has already been registered with ID {modItem.RegisteredId}");
-                return modItem.RegisteredId;
-            }
-            var newId = LowestModItemID;
-            if (ModItems.Count > 0)
-                newId = Math.Max(LowestModItemID, ModItems.OrderBy(x => x.Key).First().Key + 1);
-            ModItems.Add(newId, modItem);
-            modItem.HasBeenRegistered = true;
-            modItem.RegisteredId = newId;
-            return newId;
-        }
-
-        [Obsolete("Do not use at this time.")]
-        // ReSharper disable once UnusedMember.Local
-        private static SObject PullModItemFromDict(int id, bool isIndex)
-        {
-            if (isIndex)
-            {
-                if (ModItems.ElementAtOrDefault(id).Value != null)
-                {
-                    return ModItems.ElementAt(id).Value.Clone();
-                }
-                Log.AsyncR("ModItem Dictionary does not contain index: " + id);
-                return null;
-            }
-            if (ModItems.ContainsKey(id))
-            {
-                return ModItems[id].Clone();
-            }
-            Log.AsyncR("ModItem Dictionary does not contain ID: " + id);
-            return null;
         }
 
         private void UpdateEventCalls()

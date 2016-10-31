@@ -39,11 +39,6 @@ namespace StardewModdingAPI
             return string.Join(split, ienum);
         }
 
-        /*public static string ToSingular<T>(this IEnumerable<T> ienum, string split = ", ")
-        {
-            return string.Join(split, ienum);
-        }*/
-
         public static bool IsInt32(this object o)
         {
             int i;
@@ -100,24 +95,6 @@ namespace StardewModdingAPI
         {
             t.GetBaseFieldInfo(name).SetValue(o, newValue as T);
         }
-
-        /*
-        public static T GetBaseFieldValue<T>(this object o, string name) where T : class
-        {
-            return o.GetType().GetBaseFieldInfo(name).GetValue(o) as T;
-        }*/
-
-        /*
-        public static object GetBaseFieldValue(this object o, string name)
-        {
-            return o.GetType().GetBaseFieldInfo(name).GetValue(o);
-        }
-
-        public static void SetBaseFieldValue (this object o, string name, object newValue)
-        {
-            o.GetType().GetBaseFieldInfo(name).SetValue(o, newValue);
-        }
-        */
 
         public static string RemoveNumerics(this string st)
         {
