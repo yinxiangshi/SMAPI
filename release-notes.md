@@ -3,7 +3,7 @@
 ## 1.x
 * 1.0 (upcoming, [log](https://github.com/CLxS/SMAPI/compare/0.40.1.1-3...master))
   * Added support for Linux and Mac.
-  * Removed support mods in AppData **(breaking change)**.
+  * Removed support for mods in undocumented `%appdata\StardewValley\mods` folder **(breaking change)**.
   * Simplified compiling from source.
   * Internal cleanup & refactoring.
 
