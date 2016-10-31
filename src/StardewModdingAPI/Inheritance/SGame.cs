@@ -54,6 +54,12 @@ namespace StardewModdingAPI.Inheritance
         /// </summary>
         public MouseState MStatePrior { get; private set; }
 
+        /// <summary>The current mouse position on the screen adjusted for the zoom level.</summary>
+        public Point MPositionNow { get; private set; }
+
+        /// <summary>The previous mouse position on the screen adjusted for the zoom level.</summary>
+        public Point MPositionPrior { get; private set; }
+
         /// <summary>
         /// All keys pressed on the current frame
         /// </summary>
@@ -261,7 +267,7 @@ namespace StardewModdingAPI.Inheritance
         {
             return WasButtonJustPressed(button, value > 0.2f ? ButtonState.Pressed : ButtonState.Released, stateIndex);
         }
-        
+
         /// <summary>
         /// Whether or not an analog button was just released on the controller
         /// </summary>
@@ -767,7 +773,7 @@ namespace StardewModdingAPI.Inheritance
 
                 //typeof (Game).GetMethod("Update", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(this, new object[] {gameTime});
                 //base.Update(gameTime);
-                
+
                 #endregion
             }
             else
@@ -1403,6 +1409,7 @@ namespace StardewModdingAPI.Inheritance
             KStateNow = Keyboard.GetState();
 
             MStateNow = Mouse.GetState();
+            MPositionNow = new Point(Game1.getMouseX(), Game1.getMouseY());
 
             foreach (var k in FramePressedKeys)
                 ControlEvents.InvokeKeyPressed(k);
@@ -1449,8 +1456,9 @@ namespace StardewModdingAPI.Inheritance
 
             if (MStateNow != MStatePrior)
             {
-                ControlEvents.InvokeMouseChanged(MStatePrior, MStateNow);
+                ControlEvents.InvokeMouseChanged(MStatePrior, MStateNow, MPositionPrior, MPositionNow);
                 MStatePrior = MStateNow;
+                MPositionPrior = MPositionPrior;
             }
 
             if (activeClickableMenu != null && activeClickableMenu != PreviousActiveMenu)

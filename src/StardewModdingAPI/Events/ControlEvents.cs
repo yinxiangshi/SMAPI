@@ -49,9 +49,11 @@ namespace StardewModdingAPI.Events
         /// <summary>Raise a <see cref="MouseChanged"/> event.</summary>
         /// <param name="priorState">The previous mouse state.</param>
         /// <param name="newState">The current mouse state.</param>
-        internal static void InvokeMouseChanged(MouseState priorState, MouseState newState)
+        /// <param name="priorPosition">The previous mouse position on the screen adjusted for the zoom level.</param>
+        /// <param name="newPosition">The current mouse position on the screen adjusted for the zoom level.</param>
+        internal static void InvokeMouseChanged(MouseState priorState, MouseState newState, Point priorPosition, Point newPosition)
         {
-            ControlEvents.MouseChanged.Invoke(null, new EventArgsMouseStateChanged(priorState, newState));
+            ControlEvents.MouseChanged.Invoke(null, new EventArgsMouseStateChanged(priorState, newState, priorPosition, newPosition));
         }
 
         /// <summary>Raise a <see cref="KeyPressed"/> event.</summary>

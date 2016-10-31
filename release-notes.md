@@ -3,8 +3,9 @@
 ## 1.x
 * 1.0 (upcoming, [log](https://github.com/CLxS/SMAPI/compare/0.40.1.1-3...master))
   * Added support for Linux and Mac.
+  * Added zoom-adjusted mouse position to mouse-changed event arguments.
+  * Fixed several events not correctly propagating state.
   * Removed undocumented support for mods in AppData folder **(breaking change)**.
-  * Fixed several events not correctly propagating state (#129).
   * Internal cleanup:
     * Simplified compiling from source.
     * Added code documentation.
