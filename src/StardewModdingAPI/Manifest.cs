@@ -6,74 +6,71 @@ using Newtonsoft.Json.Linq;
 
 namespace StardewModdingAPI
 {
+    /// <summary>A manifest which describes a mod for SMAPI.</summary>
     public class Manifest : Config
     {
-        /// <summary>
-        ///     The name of your mod.
-        /// </summary>
+        /*********
+        ** Accessors
+        *********/
+        /// <summary>The mod name.</summary>
         public virtual string Name { get; set; }
 
-        /// <summary>
-        ///     The name of the mod's authour.
-        /// </summary>
+        /// <summary>The mod author's name.</summary>
         public virtual string Authour { get; set; }
 
-        /// <summary>
-        ///     The version of the mod.
-        /// </summary>
+        /// <summary>The mod version.</summary>
         public virtual Version Version { get; set; }
 
-        /// <summary>
-        ///     A description of the mod.
-        /// </summary>
+        /// <summary>A brief description of the mod.</summary>
         public virtual string Description { get; set; }
 
-        /// <summary>
-        ///     The unique ID of the mod. It doesn't *need* to be anything.
-        /// </summary>
+        /// <summary>The unique mod ID.</summary>
         public virtual string UniqueID { get; set; }
 
-        /// <summary>
-        ///     Whether or not the mod uses per-save-config files.
-        /// </summary>
+        /// <summary>Whether the mod uses per-save config files.</summary>
         public virtual bool PerSaveConfigs { get; set; }
 
-        /// <summary>
-        ///     The name of the DLL in the directory that has the Entry() method.
-        /// </summary>
+        /// <summary>The name of the DLL in the directory that has the <see cref="Mod.Entry"/> method.</summary>
         public virtual string EntryDll { get; set; }
 
+
+        /*********
+        ** Public methods
+        *********/
+        /// <summary>Get the default config values.</summary>
         public override T GenerateDefaultConfig<T>()
         {
-            Name = "";
-            Authour = "";
-            Version = new Version(0, 0, 0, "");
-            Description = "";
-            UniqueID = Guid.NewGuid().ToString();
-            PerSaveConfigs = false;
-            EntryDll = "";
+            this.Name = "";
+            this.Authour = "";
+            this.Version = new Version(0, 0, 0, "");
+            this.Description = "";
+            this.UniqueID = Guid.NewGuid().ToString();
+            this.PerSaveConfigs = false;
+            this.EntryDll = "";
             return this as T;
         }
 
+        /// <summary>Load the config from the JSON file, saving it to disk if needed.</summary>
+        /// <typeparam name="T">The config class type.</typeparam>
         public override T LoadConfig<T>()
         {
-            if (File.Exists(ConfigLocation))
+            if (File.Exists(this.ConfigLocation))
             {
                 try
                 {
-                    Manifest m = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(ConfigLocation));
+                    Manifest m = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(this.ConfigLocation));
                 }
                 catch
                 {
                     //Invalid json blob. Try to remove version?
                     try
                     {
-                        JObject j = JObject.Parse(File.ReadAllText(ConfigLocation));
+                        JObject j = JObject.Parse(File.ReadAllText(this.ConfigLocation));
                         if (!j.GetValue("Version").Contains("{"))
                         {
                             Log.AsyncC("INVALID JSON VERSION. TRYING TO REMOVE SO A NEW CAN BE AUTO-GENERATED");
                             j.Remove("Version");
-                            File.WriteAllText(ConfigLocation, j.ToString());
+                            File.WriteAllText(this.ConfigLocation, j.ToString());
                         }
                     }
                     catch (Exception)

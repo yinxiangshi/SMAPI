@@ -38,7 +38,7 @@ namespace StardewModdingAPI
         public static Texture2D DebugPixel { get; private set; }
 
         // ReSharper disable once PossibleNullReferenceException
-        public static int BuildType => (int) StardewProgramType.GetField("buildType", BindingFlags.Public | BindingFlags.Static).GetValue(null);
+        public static int BuildType => (int)StardewProgramType.GetField("buildType", BindingFlags.Public | BindingFlags.Static).GetValue(null);
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -215,35 +215,39 @@ namespace StardewModdingAPI
             Log.AsyncY("LOADING MODS");
             foreach (string directory in Directory.GetDirectories(ModPath))
             {
-                foreach (string manifestFile in Directory.GetFiles(directory, "manifest.json"))
+                foreach (string manifestPath in Directory.GetFiles(directory, "manifest.json"))
                 {
-                    if (manifestFile.Contains("StardewInjector"))
+                    if (manifestPath.Contains("StardewInjector"))
                         continue;
-                    Log.AsyncG("Found Manifest: " + manifestFile);
-                    var manifest = new Manifest();
+
+                    // read manifest
+                    Log.AsyncG($"Found Manifest: {manifestPath}");
+                    Manifest manifest = new Manifest();
                     try
                     {
-                        string t = File.ReadAllText(manifestFile);
-                        if (string.IsNullOrEmpty(t))
+                        // read manifest text
+                        string json = File.ReadAllText(manifestPath);
+                        if (string.IsNullOrEmpty(json))
                         {
-                            Log.AsyncR($"Failed to read mod manifest '{manifestFile}'. Manifest is empty!");
+                            Log.AsyncR($"Failed to read mod manifest '{manifestPath}'. Manifest is empty!");
                             continue;
                         }
 
-                        manifest = manifest.InitializeConfig(manifestFile);
-
+                        // deserialise manifest
+                        manifest = manifest.InitializeConfig(manifestPath);
                         if (string.IsNullOrEmpty(manifest.EntryDll))
                         {
-                            Log.AsyncR($"Failed to read mod manifest '{manifestFile}'. EntryDll is empty!");
+                            Log.AsyncR($"Failed to read mod manifest '{manifestPath}'. EntryDll is empty!");
                             continue;
                         }
                     }
                     catch (Exception ex)
                     {
-                        Log.AsyncR($"Failed to read mod manifest '{manifestFile}'. Exception details:\n" + ex);
+                        Log.AsyncR($"Failed to read mod manifest '{manifestPath}'. Exception details:\n" + ex);
                         continue;
                     }
-                    string targDir = Path.GetDirectoryName(manifestFile);
+
+                    string targDir = Path.GetDirectoryName(manifestPath);
                     string psDir = Path.Combine(targDir, "psconfigs");
                     Log.AsyncY($"Created psconfigs directory @{psDir}");
                     try

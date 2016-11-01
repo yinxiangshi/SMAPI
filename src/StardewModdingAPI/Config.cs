@@ -1,8 +1,4 @@
-﻿/*
-    Copyright 2016 Zoey (Zoryn)
-*/
-
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
@@ -10,119 +6,107 @@ using Newtonsoft.Json.Linq;
 
 namespace StardewModdingAPI
 {
+    /// <summary>A dynamic configuration class for a mod.</summary>
     public abstract class Config
     {
+        /*********
+        ** Accessors
+        *********/
+        /// <summary>The full path to the configuration file.</summary>
         [JsonIgnore]
         public virtual string ConfigLocation { get; protected internal set; }
 
+        /// <summary>The directory path containing the configuration file.</summary>
         [JsonIgnore]
-        public virtual string ConfigDir => Path.GetDirectoryName(ConfigLocation);
+        public virtual string ConfigDir => Path.GetDirectoryName(this.ConfigLocation);
 
+
+        /*********
+        ** Public methods
+        *********/
+        /// <summary>Construct an instance of the config class.</summary>
+        /// <typeparam name="T">The config class type.</typeparam>
         public virtual Config Instance<T>() where T : Config => Activator.CreateInstance<T>();
 
-        /// <summary>
-        ///     Loads the config from the json blob on disk, updating and re-writing to the disk if needed.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
+        /// <summary>Load the config from the JSON file, saving it to disk if needed.</summary>
+        /// <typeparam name="T">The config class type.</typeparam>
         public virtual T LoadConfig<T>() where T : Config
         {
-            if (string.IsNullOrEmpty(ConfigLocation))
+            // validate
+            if (string.IsNullOrEmpty(this.ConfigLocation))
             {
                 Log.AsyncR("A config tried to load without specifying a location on the disk.");
                 return null;
             }
 
-            T ret = null;
-
-            if (!File.Exists(ConfigLocation))
+            // read or generate config
+            T returnValue;
+            if (!File.Exists(this.ConfigLocation))
             {
-                //no config exists, generate default values
-                var c = GenerateDefaultConfig<T>();
-                c.ConfigLocation = ConfigLocation;
-                ret = c;
+                T config = this.GenerateDefaultConfig<T>();
+                config.ConfigLocation = this.ConfigLocation;
+                returnValue = config;
             }
             else
             {
                 try
                 {
-                    //try to load the config from a json blob on disk
                     T config = JsonConvert.DeserializeObject<T>(File.ReadAllText(this.ConfigLocation));
                     config.ConfigLocation = this.ConfigLocation;
-
-                    //update the config with default values if needed
-                    ret = config.UpdateConfig<T>();
+                    returnValue = config.UpdateConfig<T>();
                 }
                 catch (Exception ex)
                 {
-                    Log.AsyncR($"Invalid JSON ({GetType().Name}): {ConfigLocation} \n{ex}");
-                    return GenerateDefaultConfig<T>();
+                    Log.AsyncR($"Invalid JSON ({this.GetType().Name}): {this.ConfigLocation} \n{ex}");
+                    return this.GenerateDefaultConfig<T>();
                 }
             }
 
-            ret.WriteConfig();
-            return ret;
+            returnValue.WriteConfig();
+            return returnValue;
         }
 
         /// <summary>Get the default config values.</summary>
         public abstract T GenerateDefaultConfig<T>() where T : Config;
 
-        /// <summary>
-        ///     Merges a default-value config with the user-config on disk.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
+        /// <summary>Get the current configuration with missing values defaulted.</summary>
+        /// <typeparam name="T">The config class type.</typeparam>
         public virtual T UpdateConfig<T>() where T : Config
         {
             try
             {
-                //default config
-                var b = JObject.FromObject(this.Instance<T>().GenerateDefaultConfig<T>());
+                // get default + user config
+                JObject defaultConfig = JObject.FromObject(this.Instance<T>().GenerateDefaultConfig<T>());
+                JObject currentConfig = JObject.FromObject(this);
+                defaultConfig.Merge(currentConfig, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Replace });
 
-                //user config
-                var u = JObject.FromObject(this);
+                // cast json object to config
+                T config = defaultConfig.ToObject<T>();
 
-                //overwrite default values with user values
-                b.Merge(u, new JsonMergeSettings {MergeArrayHandling = MergeArrayHandling.Replace});
+                // update location
+                config.ConfigLocation = this.ConfigLocation;
 
-                //cast json object to config
-                var c = b.ToObject<T>();
-
-                //re-write the location on disk to the object
-                c.ConfigLocation = this.ConfigLocation;
-
-                return c;
+                return config;
             }
             catch (Exception ex)
             {
-                Log.AsyncR("An error occured when updating a config: " + ex);
+                Log.AsyncR($"An error occured when updating a config: {ex}");
                 return this as T;
             }
         }
     }
 
+    /// <summary>Provides extension methods for <see cref="Config"/> classes.</summary>
     public static class ConfigExtensions
     {
-        /// <summary>
-        ///     Initializes an instance of any class that inherits from Config.
-        ///     This method performs the loading, saving, and merging of the config on the disk and in memory at a default state.
-        ///     This method should not be used to re-load or to re-save a config.
-        ///     NOTE: You MUST set your config EQUAL to the return of this method!
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="baseConfig"></param>
-        /// <param name="configLocation"></param>
-        /// <returns></returns>
+        /// <summary>Initialise the configuration. That includes loading, saving, and merging the config file and in memory at a default state. This method should not be used to reload or to resave a config. NOTE: You MUST set your config EQUAL to the return of this method!</summary>
+        /// <typeparam name="T">The config class type.</typeparam>
+        /// <param name="baseConfig">The base configuration to initialise.</param>
+        /// <param name="configLocation">The base configuration file path.</param>
         public static T InitializeConfig<T>(this T baseConfig, string configLocation) where T : Config
         {
             if (baseConfig == null)
-            {
                 baseConfig = Activator.CreateInstance<T>();
-                /*
-                Log.AsyncR("A config tried to initialize whilst being null.");
-                return null;
-                */
-            }
 
             if (string.IsNullOrEmpty(configLocation))
             {
@@ -131,14 +115,12 @@ namespace StardewModdingAPI
             }
 
             baseConfig.ConfigLocation = configLocation;
-            var c = baseConfig.LoadConfig<T>();
-
-            return c;
+            return baseConfig.LoadConfig<T>();
         }
 
-        /// <summary>
-        ///     Writes a config to a json blob on the disk specified in the config's properties.
-        /// </summary>
+        /// <summary>Writes the configuration to the JSON file.</summary>
+        /// <typeparam name="T">The config class type.</typeparam>
+        /// <param name="baseConfig">The base configuration to initialise.</param>
         public static void WriteConfig<T>(this T baseConfig) where T : Config
         {
             if (string.IsNullOrEmpty(baseConfig?.ConfigLocation) || string.IsNullOrEmpty(baseConfig.ConfigDir))
@@ -147,19 +129,17 @@ namespace StardewModdingAPI
                 return;
             }
 
-            var s = JsonConvert.SerializeObject(baseConfig, Formatting.Indented);
-
+            string json = JsonConvert.SerializeObject(baseConfig, Formatting.Indented);
             if (!Directory.Exists(baseConfig.ConfigDir))
                 Directory.CreateDirectory(baseConfig.ConfigDir);
 
-            if (!File.Exists(baseConfig.ConfigLocation) || !File.ReadAllText(baseConfig.ConfigLocation).SequenceEqual(s))
-                File.WriteAllText(baseConfig.ConfigLocation, s);
+            if (!File.Exists(baseConfig.ConfigLocation) || !File.ReadAllText(baseConfig.ConfigLocation).SequenceEqual(json))
+                File.WriteAllText(baseConfig.ConfigLocation, json);
         }
 
-        /// <summary>
-        ///     Re-reads the json blob on the disk and merges its values with a default config.
-        ///     NOTE: You MUST set your config EQUAL to the return of this method!
-        /// </summary>
+        /// <summary>Rereads the JSON file and merges its values with a default config. NOTE: You MUST set your config EQUAL to the return of this method!</summary>
+        /// <typeparam name="T">The config class type.</typeparam>
+        /// <param name="baseConfig">The base configuration to initialise.</param>
         public static T ReloadConfig<T>(this T baseConfig) where T : Config
         {
             return baseConfig.LoadConfig<T>();
