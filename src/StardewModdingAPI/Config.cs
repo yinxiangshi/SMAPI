@@ -10,7 +10,7 @@ using Newtonsoft.Json.Linq;
 
 namespace StardewModdingAPI
 {
-    public class Config
+    public abstract class Config
     {
         [JsonIgnore]
         public virtual string ConfigLocation { get; protected internal set; }
@@ -64,13 +64,8 @@ namespace StardewModdingAPI
             return ret;
         }
 
-        /// <summary>
-        ///     MUST be implemented in inheriting class!
-        /// </summary>
-        public virtual T GenerateDefaultConfig<T>() where T : Config
-        {
-            return null;
-        }
+        /// <summary>Get the default config values.</summary>
+        public abstract T GenerateDefaultConfig<T>() where T : Config;
 
         /// <summary>
         ///     Merges a default-value config with the user-config on disk.
