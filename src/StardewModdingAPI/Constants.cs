@@ -43,7 +43,7 @@ namespace StardewModdingAPI
         /// <summary>
         ///     Title for the API console
         /// </summary>
-        public static string ConsoleTitle => $"Stardew Modding API Console - Version {Version.VersionString} - Mods Loaded: {ModsLoaded}";
+        public static string ConsoleTitle => $"Stardew Modding API Console - Version {Constants.Version} - Mods Loaded: {Constants.ModsLoaded}";
 
         /// <summary>
         ///     Path for log files to be output to.

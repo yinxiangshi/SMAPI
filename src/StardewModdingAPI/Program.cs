@@ -53,7 +53,7 @@ namespace StardewModdingAPI
             try
             {
                 Log.AsyncY("SDV Version: " + Game1.version);
-                Log.AsyncY("SMAPI Version: " + Constants.Version.VersionString);
+                Log.AsyncY("SMAPI Version: " + Constants.Version);
                 ConfigureUI();
                 CreateDirectories();
                 StartGame();
@@ -104,7 +104,7 @@ namespace StardewModdingAPI
 
             // Change the game's version
             Log.AsyncY("Injecting New SDV Version...");
-            Game1.version += $"-Z_MODDED | SMAPI {Constants.Version.VersionString}";
+            Game1.version += $"-Z_MODDED | SMAPI {Constants.Version}";
 
             // add error interceptors
 #if SMAPI_FOR_WINDOWS

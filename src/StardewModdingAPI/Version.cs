@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 
 namespace StardewModdingAPI
 {
@@ -20,9 +21,10 @@ namespace StardewModdingAPI
         /// <summary>An optional build tag.</summary>
         public string Build { get; set; }
 
-        /// <summary>A string representation of the version.</summary>
+        /// <summary>Obsolete.</summary>
         [JsonIgnore]
-        public string VersionString => $"{MajorVersion}.{MinorVersion}.{PatchVersion} {Build}";
+        [Obsolete("Use `Version.ToString()` instead.")]
+        public string VersionString => this.ToString();
 
 
         /*********
@@ -40,6 +42,11 @@ namespace StardewModdingAPI
             this.PatchVersion = patch;
             this.Build = build;
         }
+
+        /// <summary>Get a string representation of the version.</summary>
+        public override string ToString()
+        {
+            return $"{this.MajorVersion}.{this.MinorVersion}.{this.PatchVersion} {this.Build}".Trim();
         }
     }
 }
