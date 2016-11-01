@@ -2,50 +2,49 @@
 
 namespace StardewModdingAPI
 {
+    /// <summary>The base class for a mod.</summary>
     public class Mod
     {
-        /// <summary>
-        ///     The mod's manifest
-        /// </summary>
+        /*********
+        ** Accessors
+        *********/
+        /// <summary>The mod's manifest.</summary>
         public Manifest Manifest { get; internal set; }
 
-        /// <summary>
-        ///     Where the mod is located on the disk.
-        /// </summary>
+        /// <summary>The full path to the mod's directory on the disk.</summary>
         public string PathOnDisk { get; internal set; }
 
-        /// <summary>
-        ///     A basic path to store your mod's config at.
-        /// </summary>
+        /// <summary>The full path to the mod's <c>config.json</c> file on the disk.</summary>
         public string BaseConfigPath => Path.Combine(this.PathOnDisk, "config.json");
 
-        /// <summary>
-        ///     A basic path to where per-save configs are stored
-        /// </summary>
-        public string PerSaveConfigFolder => GetPerSaveConfigFolder();
+        /// <summary>The full path to the per-save configs folder (if <see cref="StardewModdingAPI.Manifest.PerSaveConfigs"/> is <c>true</c>).</summary>
+        public string PerSaveConfigFolder => this.GetPerSaveConfigFolder();
 
-        /// <summary>
-        ///     A basic path to store your mod's config at, dependent on the current save.
-        ///     The Manifest must allow for per-save configs. This is to keep from having an
-        ///     empty directory in every mod folder.
-        /// </summary>
-        public string PerSaveConfigPath => Constants.CurrentSavePathExists ? Path.Combine(PerSaveConfigFolder, Constants.SaveFolderName + ".json") : "";
+        /// <summary>The full path to the per-save configuration file for the current save (if <see cref="StardewModdingAPI.Manifest.PerSaveConfigs"/> is <c>true</c>).</summary>
+        public string PerSaveConfigPath => Constants.CurrentSavePathExists ? Path.Combine(this.PerSaveConfigFolder, Constants.SaveFolderName + ".json") : "";
 
-        /// <summary>
-        ///     A basic method that is the entry-point of your mod. It will always be called once when the mod loads.
-        /// </summary>
+
+        /*********
+        ** Public methods
+        *********/
+        /// <summary>The entry point for your mod. It will always be called once when the mod loads.</summary>
         public virtual void Entry(params object[] objects)
         {
         }
 
+
+        /*********
+        ** Private methods
+        *********/
+        /// <summary>Get the full path to the per-save configuration file for the current save (if <see cref="StardewModdingAPI.Manifest.PerSaveConfigs"/> is <c>true</c>).</summary>
         private string GetPerSaveConfigFolder()
         {
-            if (Manifest.PerSaveConfigs)
+            if (!this.Manifest.PerSaveConfigs)
             {
-                return Path.Combine(PathOnDisk, "psconfigs");
+                Log.AsyncR($"The mod [{this.Manifest.Name}] is not configured to use per-save configs.");
+                return "";
             }
-            Log.AsyncR($"The mod [{Manifest.Name}] is not configured to use per-save configs.");
-            return "";
+            return Path.Combine(this.PathOnDisk, "psconfigs");
         }
     }
 }
