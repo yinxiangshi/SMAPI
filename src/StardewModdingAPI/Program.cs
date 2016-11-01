@@ -292,7 +292,7 @@ namespace StardewModdingAPI
                             {
                                 modEntry.PathOnDisk = targDir;
                                 modEntry.Manifest = manifest;
-                                Log.AsyncG($"LOADED MOD: {modEntry.Manifest.Name} by {modEntry.Manifest.Authour} - Version {modEntry.Manifest.Version} | Description: {modEntry.Manifest.Description} (@ {targDll})");
+                                Log.AsyncG($"LOADED MOD: {modEntry.Manifest.Name} by {modEntry.Manifest.Author} - Version {modEntry.Manifest.Version} | Description: {modEntry.Manifest.Description} (@ {targDll})");
                                 Constants.ModsLoaded += 1;
                                 modEntry.Entry();
                             }

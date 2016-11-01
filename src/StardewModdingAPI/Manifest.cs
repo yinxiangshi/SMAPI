@@ -16,7 +16,15 @@ namespace StardewModdingAPI
         public virtual string Name { get; set; }
 
         /// <summary>The mod author's name.</summary>
-        public virtual string Authour { get; set; }
+        public virtual string Author { get; set; }
+
+        /// <summary>Obsolete.</summary>
+        [Obsolete("Use 'Author'.")]
+        public virtual string Authour
+        {
+            get { return this.Author; }
+            set { this.Author = value; }
+        }
 
         /// <summary>The mod version.</summary>
         public virtual Version Version { get; set; }
@@ -41,7 +49,7 @@ namespace StardewModdingAPI
         public override T GenerateDefaultConfig<T>()
         {
             this.Name = "";
-            this.Authour = "";
+            this.Author = "";
             this.Version = new Version(0, 0, 0, "");
             this.Description = "";
             this.UniqueID = Guid.NewGuid().ToString();
