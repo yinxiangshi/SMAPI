@@ -10,7 +10,7 @@ namespace StardewModdingAPI
     /// </summary>
     public static class Constants
     {
-        public static readonly Version Version = new Version(0, 40, 0, "1.1-3");
+        public static readonly Version Version = new Version(1, 0, 0, $"alpha-{DateTime.UtcNow.ToString("yyyyMMddHHmm")}");
 
         /// <summary>
         ///     Not quite "constant", but it makes more sense for it to be here, at least for now
