@@ -52,11 +52,11 @@ namespace StardewModdingAPI
 
             try
             {
-                Log.AsyncY("SDV Version: " + Game1.version);
-                Log.AsyncY("SMAPI Version: " + Constants.Version);
-                ConfigureUI();
-                CreateDirectories();
-                StartGame();
+                Log.AsyncY($"SMAPI {Constants.Version}");
+                Log.AsyncY($"Stardew Valley {Game1.version} on {Environment.OSVersion}");
+                Program.ConfigureUI();
+                Program.CreateDirectories();
+                Program.StartGame();
             }
             catch (Exception e)
             {
