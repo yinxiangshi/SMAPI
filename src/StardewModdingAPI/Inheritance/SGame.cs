@@ -457,12 +457,6 @@ namespace StardewModdingAPI.Inheritance
                 Debug = !Debug;
             }
 
-            if (FramePressedKeys.Contains(Keys.F2))
-            {
-                //Built-in debug mode
-                debugMode = !debugMode;
-            }
-
             if (Constants.EnableCompletelyOverridingBaseCalls && false) //We no longer need this.
             {
                 #region Overridden Update Call
