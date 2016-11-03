@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Events;
+using StardewModdingAPI.Framework;
 using StardewModdingAPI.Inheritance;
 using StardewValley;
 
@@ -54,6 +55,7 @@ namespace StardewModdingAPI
             {
                 Log.AsyncY($"SMAPI {Constants.Version}");
                 Log.AsyncY($"Stardew Valley {Game1.version} on {Environment.OSVersion}");
+                Program.CheckForUpdateAsync();
                 Program.ConfigureUI();
                 Program.CreateDirectories();
                 Program.StartGame();
@@ -89,6 +91,25 @@ namespace StardewModdingAPI
             VerifyPath(Constants.LogDir);
             if (!File.Exists(GameExecutablePath))
                 throw new FileNotFoundException($"Could not find executable: {GameExecutablePath}");
+        }
+
+        /// <summary>Asynchronously check for a new version of SMAPI, and print a message to the console if an update is available.</summary>
+        private static void CheckForUpdateAsync()
+        {
+            new Thread(() =>
+            {
+                try
+                {
+                    GitRelease release = UpdateHelper.GetLatestVersionAsync(Constants.GitHubRepository).Result;
+                    Version latestVersion = new Version(release.Tag);
+                    if (latestVersion.CompareTo(Constants.Version) > 0)
+                        Log.AsyncColour($"You can update SMAPI from version {Constants.Version} to {latestVersion}", ConsoleColor.Magenta);
+                }
+                catch (Exception ex)
+                {
+                    Log.Debug($"Couldn't check for a new version of SMAPI. This won't affect your game, but you may not be notified of new versions if this keeps happening.\n{ex}");
+                }
+            }).Start();
         }
 
         /// <summary>

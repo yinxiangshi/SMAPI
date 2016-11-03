@@ -3,8 +3,9 @@
 ## 1.x
 * 1.0 (upcoming, [log](https://github.com/CLxS/SMAPI/compare/0.40.1.1-3...master))
   * Added support for Linux and Mac.
-  * Added zoom-adjusted mouse position to mouse-changed event arguments.
+  * Added background update check on launch.
   * Added OS version to log.
+  * Added zoom-adjusted mouse position to mouse-changed event arguments.
   * Switched to [semantic versioning](http://semver.org).
   * Fixed mod versions not being displayed correctly on log.
   * Fixed misspelled field in `manifest.json` schema.

@@ -10,7 +10,11 @@ namespace StardewModdingAPI
     /// </summary>
     public static class Constants
     {
+        /// <summary>SMAPI's current semantic version.</summary>
         public static readonly Version Version = new Version(1, 0, 0, $"alpha-{DateTime.UtcNow.ToString("yyyyMMddHHmm")}");
+
+        /// <summary>The GitHub repository to check for updates.</summary>
+        public const string GitHubRepository = "cjsu/SMAPI";
 
         /// <summary>
         ///     Not quite "constant", but it makes more sense for it to be here, at least for now
