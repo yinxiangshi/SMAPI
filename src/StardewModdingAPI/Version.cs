@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace StardewModdingAPI
 {
-    /// <summary>A semantic mod version with an optional build tag.</summary>
+    /// <summary>A semantic version with an optional release tag.</summary>
     public struct Version
     {
         /*********
@@ -46,7 +46,30 @@ namespace StardewModdingAPI
         /// <summary>Get a string representation of the version.</summary>
         public override string ToString()
         {
-            return $"{this.MajorVersion}.{this.MinorVersion}.{this.PatchVersion} {this.Build}".Trim();
+            // version
+            string result = this.PatchVersion != 0
+                ? $"{this.MajorVersion}.{this.MinorVersion}.{this.PatchVersion}"
+                : $"{this.MajorVersion}.{this.MinorVersion}";
+
+            // tag
+            string tag = this.GetNormalisedTag(this.Build);
+            if (tag != null)
+                result += $"-{tag}";
+            return result;
+        }
+
+
+        /*********
+        ** Private methods
+        *********/
+        /// <summary>Get a normalised build tag.</summary>
+        /// <param name="tag">The tag to normalise.</param>
+        private string GetNormalisedTag(string tag)
+        {
+            tag = tag?.Trim().Trim('-');
+            if (string.IsNullOrWhiteSpace(tag) || tag == "0")
+                return null;
+            return tag;
         }
     }
 }

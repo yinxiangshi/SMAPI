@@ -5,6 +5,7 @@
   * Added support for Linux and Mac.
   * Added zoom-adjusted mouse position to mouse-changed event arguments.
   * Added OS version to log.
+  * Switched to [semantic versioning](http://semver.org).
   * Fixed mod versions not being displayed correctly on log.
   * Fixed misspelled field in `manifest.json` schema.
   * Fixed several events not correctly propagating state.
