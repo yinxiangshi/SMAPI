@@ -444,343 +444,19 @@ namespace StardewModdingAPI.Inheritance
             QueueDebugMessage("FPS: " + FramesPerSecond);
             UpdateEventCalls();
 
-            /*
-            if (ZoomLevelIsOne)
-            {
-                options.zoomLevel = 0.99f;
-                InvokeBasePrivateInstancedMethod("Window_ClientSizeChanged", null, null);
-            }
-            */
-
             if (FramePressedKeys.Contains(Keys.F3))
             {
                 Debug = !Debug;
             }
 
-            if (Constants.EnableCompletelyOverridingBaseCalls && false) //We no longer need this.
+            try
             {
-                #region Overridden Update Call
-
-                try
-                {
-                    if (Program.BuildType == 0)
-                        SteamHelper.update();
-                    if ((paused /*|| !this.IsActive*/) && (options == null || options.pauseWhenOutOfFocus || paused))
-                        return;
-                    if (quit)
-                        Exit();
-                    currentGameTime = gameTime;
-                    if (gameMode != 11)
-                    {
-                        if (IsMultiplayer && gameMode == 3)
-                        {
-                            if (multiplayerMode == 2)
-                                server.receiveMessages();
-                            else
-                                client.receiveMessages();
-                        }
-                        if (IsActive)
-                            InvokeMethodInfo(CheckForEscapeKeys);
-                        //InvokeBasePrivateInstancedMethod("checkForEscapeKeys");
-
-                        //this.checkForEscapeKeys();
-                        updateMusic();
-                        updateRaindropPosition();
-                        if (bloom != null)
-                            bloom.tick(gameTime);
-                        if (globalFade)
-                        {
-                            if (!dialogueUp)
-                            {
-                                if (fadeIn)
-                                {
-                                    fadeToBlackAlpha = Math.Max(0.0f, fadeToBlackAlpha - globalFadeSpeed);
-                                    if (fadeToBlackAlpha <= 0.0)
-                                    {
-                                        globalFade = false;
-                                        if (afterFade != null)
-                                        {
-                                            afterFadeFunction afterFadeFunction = afterFade;
-                                            afterFade();
-                                            if (afterFade != null && afterFade.Equals(afterFadeFunction))
-                                                afterFade = null;
-                                            if (nonWarpFade)
-                                                fadeToBlack = false;
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    fadeToBlackAlpha = Math.Min(1f, fadeToBlackAlpha + globalFadeSpeed);
-                                    if (fadeToBlackAlpha >= 1.0)
-                                    {
-                                        globalFade = false;
-                                        if (afterFade != null)
-                                        {
-                                            afterFadeFunction afterFadeFunction = afterFade;
-                                            afterFade();
-                                            if (afterFade != null && afterFade.Equals(afterFadeFunction))
-                                                afterFade = null;
-                                            if (nonWarpFade)
-                                                fadeToBlack = false;
-                                        }
-                                    }
-                                }
-                            }
-                            else
-                                InvokeMethodInfo(UpdateControlInput, gameTime);
-                            //InvokeBasePrivateInstancedMethod("UpdateControlInput", gameTime);
-                            //this.UpdateControlInput(gameTime);
-                        }
-                        else if (pauseThenDoFunctionTimer > 0)
-                        {
-                            freezeControls = true;
-                            pauseThenDoFunctionTimer -= gameTime.ElapsedGameTime.Milliseconds;
-                            if (pauseThenDoFunctionTimer <= 0)
-                            {
-                                freezeControls = false;
-                                if (afterPause != null)
-                                    afterPause();
-                            }
-                        }
-                        if (gameMode == 3 || gameMode == 2)
-                        {
-                            player.millisecondsPlayed += (uint) gameTime.ElapsedGameTime.Milliseconds;
-                            bool flag = true;
-                            if (currentMinigame != null)
-                            {
-                                if (pauseTime > 0.0)
-                                    updatePause(gameTime);
-                                if (fadeToBlack)
-                                {
-                                    updateScreenFade(gameTime);
-                                    if (fadeToBlackAlpha >= 1.0)
-                                        fadeToBlack = false;
-                                }
-                                else
-                                {
-                                    if (thumbstickMotionMargin > 0)
-                                        thumbstickMotionMargin -= gameTime.ElapsedGameTime.Milliseconds;
-                                    if (IsActive)
-                                    {
-                                        KeyboardState state1 = Keyboard.GetState();
-                                        MouseState state2 = Mouse.GetState();
-                                        GamePadState state3 = GamePad.GetState(PlayerIndex.One);
-                                        foreach (Keys keys in state1.GetPressedKeys())
-                                        {
-                                            if (!oldKBState.IsKeyDown(keys))
-                                                currentMinigame.receiveKeyPress(keys);
-                                        }
-                                        if (options.gamepadControls)
-                                        {
-                                            if (currentMinigame == null)
-                                            {
-                                                oldMouseState = state2;
-                                                oldKBState = state1;
-                                                oldPadState = state3;
-                                                return;
-                                            }
-                                            foreach (Buttons b in Utility.getPressedButtons(state3, oldPadState))
-                                                currentMinigame.receiveKeyPress(Utility.mapGamePadButtonToKey(b));
-                                            if (currentMinigame == null)
-                                            {
-                                                oldMouseState = state2;
-                                                oldKBState = state1;
-                                                oldPadState = state3;
-                                                return;
-                                            }
-                                            if (state3.ThumbSticks.Right.Y < -0.200000002980232 && oldPadState.ThumbSticks.Right.Y >= -0.200000002980232)
-                                                currentMinigame.receiveKeyPress(Keys.Down);
-                                            if (state3.ThumbSticks.Right.Y > 0.200000002980232 && oldPadState.ThumbSticks.Right.Y <= 0.200000002980232)
-                                                currentMinigame.receiveKeyPress(Keys.Up);
-                                            if (state3.ThumbSticks.Right.X < -0.200000002980232 && oldPadState.ThumbSticks.Right.X >= -0.200000002980232)
-                                                currentMinigame.receiveKeyPress(Keys.Left);
-                                            if (state3.ThumbSticks.Right.X > 0.200000002980232 && oldPadState.ThumbSticks.Right.X <= 0.200000002980232)
-                                                currentMinigame.receiveKeyPress(Keys.Right);
-                                            if (oldPadState.ThumbSticks.Right.Y < -0.200000002980232 && state3.ThumbSticks.Right.Y >= -0.200000002980232)
-                                                currentMinigame.receiveKeyRelease(Keys.Down);
-                                            if (oldPadState.ThumbSticks.Right.Y > 0.200000002980232 && state3.ThumbSticks.Right.Y <= 0.200000002980232)
-                                                currentMinigame.receiveKeyRelease(Keys.Up);
-                                            if (oldPadState.ThumbSticks.Right.X < -0.200000002980232 && state3.ThumbSticks.Right.X >= -0.200000002980232)
-                                                currentMinigame.receiveKeyRelease(Keys.Left);
-                                            if (oldPadState.ThumbSticks.Right.X > 0.200000002980232 && state3.ThumbSticks.Right.X <= 0.200000002980232)
-                                                currentMinigame.receiveKeyRelease(Keys.Right);
-                                            if (isGamePadThumbstickInMotion())
-                                            {
-                                                setMousePosition(getMouseX() + (int) (state3.ThumbSticks.Left.X * 16.0), getMouseY() - (int) (state3.ThumbSticks.Left.Y * 16.0));
-                                                lastCursorMotionWasMouse = false;
-                                            }
-                                            else if (getMousePosition().X != getOldMouseX() || getMousePosition().Y != getOldMouseY())
-                                                lastCursorMotionWasMouse = true;
-                                        }
-                                        foreach (Keys keys in oldKBState.GetPressedKeys())
-                                        {
-                                            if (!state1.IsKeyDown(keys))
-                                                currentMinigame.receiveKeyRelease(keys);
-                                        }
-                                        if (options.gamepadControls)
-                                        {
-                                            if (currentMinigame == null)
-                                            {
-                                                oldMouseState = state2;
-                                                oldKBState = state1;
-                                                oldPadState = state3;
-                                                return;
-                                            }
-                                            if (state3.IsConnected && state3.IsButtonDown(Buttons.X) && !oldPadState.IsButtonDown(Buttons.X))
-                                                currentMinigame.receiveRightClick(getMouseX(), getMouseY(), true);
-                                            else if (state3.IsConnected && state3.IsButtonDown(Buttons.A) && !oldPadState.IsButtonDown(Buttons.A))
-                                                currentMinigame.receiveLeftClick(getMouseX(), getMouseY(), true);
-                                            else if (state3.IsConnected && !state3.IsButtonDown(Buttons.X) && oldPadState.IsButtonDown(Buttons.X))
-                                                currentMinigame.releaseRightClick(getMouseX(), getMouseY());
-                                            else if (state3.IsConnected && !state3.IsButtonDown(Buttons.A) && oldPadState.IsButtonDown(Buttons.A))
-                                                currentMinigame.releaseLeftClick(getMouseX(), getMouseY());
-                                            foreach (Buttons b in Utility.getPressedButtons(oldPadState, state3))
-                                                currentMinigame.receiveKeyRelease(Utility.mapGamePadButtonToKey(b));
-                                            if (state3.IsConnected && state3.IsButtonDown(Buttons.A) && currentMinigame != null)
-                                                currentMinigame.leftClickHeld(0, 0);
-                                        }
-                                        if (currentMinigame == null)
-                                        {
-                                            oldMouseState = state2;
-                                            oldKBState = state1;
-                                            oldPadState = state3;
-                                            return;
-                                        }
-                                        if (state2.LeftButton == ButtonState.Pressed && oldMouseState.LeftButton != ButtonState.Pressed)
-                                            currentMinigame.receiveLeftClick(getMouseX(), getMouseY(), true);
-                                        if (state2.RightButton == ButtonState.Pressed && oldMouseState.RightButton != ButtonState.Pressed)
-                                            currentMinigame.receiveRightClick(getMouseX(), getMouseY(), true);
-                                        if (state2.LeftButton == ButtonState.Released && oldMouseState.LeftButton == ButtonState.Pressed)
-                                            currentMinigame.releaseLeftClick(getMouseX(), getMouseY());
-                                        if (state2.RightButton == ButtonState.Released && oldMouseState.RightButton == ButtonState.Pressed)
-                                            currentMinigame.releaseLeftClick(getMouseX(), getMouseY());
-                                        if (state2.LeftButton == ButtonState.Pressed && oldMouseState.LeftButton == ButtonState.Pressed)
-                                            currentMinigame.leftClickHeld(getMouseX(), getMouseY());
-                                        oldMouseState = state2;
-                                        oldKBState = state1;
-                                        oldPadState = state3;
-                                    }
-                                    if (currentMinigame != null && currentMinigame.tick(gameTime))
-                                    {
-                                        currentMinigame.unload();
-                                        currentMinigame = null;
-                                        fadeIn = true;
-                                        fadeToBlackAlpha = 1f;
-                                        return;
-                                    }
-                                }
-                                flag = IsMultiplayer;
-                            }
-                            else if (farmEvent != null && farmEvent.tickUpdate(gameTime))
-                            {
-                                farmEvent.makeChangesToLocation();
-                                timeOfDay = 600;
-                                UpdateOther(gameTime);
-                                displayHUD = true;
-                                farmEvent = null;
-                                currentLocation = getLocationFromName("FarmHouse");
-                                player.position = Utility.PointToVector2(Utility.getHomeOfFarmer(player).getBedSpot()) * tileSize;
-                                player.position.X -= tileSize;
-                                changeMusicTrack("none");
-                                currentLocation.resetForPlayerEntry();
-                                player.forceCanMove();
-                                freezeControls = false;
-                                displayFarmer = true;
-                                outdoorLight = Color.White;
-                                viewportFreeze = false;
-                                fadeToBlackAlpha = 0.0f;
-                                fadeToBlack = false;
-                                globalFadeToClear(null, 0.02f);
-                                player.mailForTomorrow.Clear();
-                                showEndOfNightStuff();
-                            }
-                            if (flag)
-                            {
-                                if (endOfNightMenus.Count() > 0 && activeClickableMenu == null)
-                                    activeClickableMenu = endOfNightMenus.Pop();
-                                if (activeClickableMenu != null)
-                                {
-                                    updateActiveMenu(gameTime);
-                                }
-                                else
-                                {
-                                    if (pauseTime > 0.0)
-                                        updatePause(gameTime);
-                                    if (!globalFade && !freezeControls && (activeClickableMenu == null && IsActive))
-                                        InvokeMethodInfo(UpdateControlInput, gameTime);
-                                    //InvokeBasePrivateInstancedMethod("UpdateControlInput", gameTime);
-                                    //this.UpdateControlInput(gameTime);
-                                }
-                                if (showingEndOfNightStuff && endOfNightMenus.Count() == 0 && activeClickableMenu == null)
-                                {
-                                    showingEndOfNightStuff = false;
-                                    globalFadeToClear(playMorningSong, 0.02f);
-                                }
-                                if (!showingEndOfNightStuff)
-                                {
-                                    if (IsMultiplayer || activeClickableMenu == null && currentMinigame == null)
-                                        UpdateGameClock(gameTime);
-                                    //this.UpdateCharacters(gameTime);
-                                    //this.UpdateLocations(gameTime);
-                                    //InvokeBasePrivateInstancedMethod("UpdateCharacters", gameTime);
-                                    //InvokeBasePrivateInstancedMethod("UpdateLocations", gameTime);
-                                    //UpdateViewPort(false, (Point)InvokeBasePrivateInstancedMethod("getViewportCenter"));
-
-                                    InvokeMethodInfo(UpdateCharacters, gameTime);
-                                    InvokeMethodInfo(UpdateLocations, gameTime);
-                                    UpdateViewPort(false, (Point) InvokeMethodInfo(getViewportCenter));
-                                }
-                                UpdateOther(gameTime);
-                                if (messagePause)
-                                {
-                                    KeyboardState state1 = Keyboard.GetState();
-                                    MouseState state2 = Mouse.GetState();
-                                    GamePadState state3 = GamePad.GetState(PlayerIndex.One);
-                                    if (isOneOfTheseKeysDown(state1, options.actionButton) && !isOneOfTheseKeysDown(oldKBState, options.actionButton))
-                                        pressActionButton(state1, state2, state3);
-                                    oldKBState = state1;
-                                    oldPadState = state3;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            //InvokeBasePrivateInstancedMethod("UpdateTitleScreen", gameTime);
-                            InvokeMethodInfo(UpdateTitleScreen, gameTime);
-                            //this.UpdateTitleScreen(gameTime);
-                            if (activeClickableMenu != null)
-                                updateActiveMenu(gameTime);
-                            if (gameMode == 10)
-                                UpdateOther(gameTime);
-                        }
-                        if (audioEngine != null)
-                            audioEngine.Update();
-                        if (multiplayerMode == 2 && gameMode == 3)
-                            server.sendMessages(gameTime);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Log.Error("An error occurred in the overridden update loop: " + ex);
-                }
-
-                //typeof (Game).GetMethod("Update", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(this, new object[] {gameTime});
-                //base.Update(gameTime);
-
-                #endregion
+                base.Update(gameTime);
             }
-            else
+            catch (Exception ex)
             {
-                try
-                {
-                    base.Update(gameTime);
-                }
-                catch (Exception ex)
-                {
-                    Log.AsyncR("An error occured in the base update loop: " + ex);
-                    Console.ReadKey();
-                }
+                Log.AsyncR("An error occured in the base update loop: " + ex);
+                Console.ReadKey();
             }
 
             GameEvents.InvokeUpdateTick();
@@ -1038,9 +714,7 @@ namespace StardewModdingAPI.Inheritance
                         }
                         if (currentLocation.Name.Equals("Farm"))
                         {
-                            //typeof (Game1).GetMethod("drawFarmBuildings", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(Program.gamePtr, null);
                             DrawFarmBuildings.Invoke(Program.gamePtr, null);
-                            //this.drawFarmBuildings();
                         }
                         if (tvStation >= 0)
                         {
@@ -1202,10 +876,8 @@ namespace StardewModdingAPI.Inheritance
                         if ((displayHUD || eventUp) && currentBillboard == 0 && gameMode == 3 && !freezeControls && !panMode)
                         {
                             GraphicsEvents.InvokeOnPreRenderHudEvent(null, EventArgs.Empty);
-                            //typeof (Game1).GetMethod("drawHUD", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(Program.gamePtr, null);
                             DrawHUD.Invoke(Program.gamePtr, null);
                             GraphicsEvents.InvokeOnPostRenderHudEvent(null, EventArgs.Empty);
-                            //this.drawHUD();
                         }
                         else if (activeClickableMenu == null && farmEvent == null)
                         {
@@ -1224,9 +896,7 @@ namespace StardewModdingAPI.Inheritance
                     farmEvent?.draw(spriteBatch);
                     if (dialogueUp && !nameSelectUp && !messagePause && !(activeClickableMenu is DialogueBox))
                     {
-                        //typeof (Game1).GetMethod("drawDialogueBox", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(Program.gamePtr, null);
                         DrawDialogueBox.Invoke(Program.gamePtr, null);
-                        //this.drawDialogueBox();
                     }
                     if (progressBar)
                     {
@@ -1255,9 +925,7 @@ namespace StardewModdingAPI.Inheritance
                     }
                     if ((messagePause || globalFade) && dialogueUp)
                     {
-                        //typeof (Game1).GetMethod("drawDialogueBox", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(Program.gamePtr, null);
                         DrawDialogueBox.Invoke(Program.gamePtr, null);
-                        //this.drawDialogueBox();
                     }
                     foreach (TemporaryAnimatedSprite current8 in screenOverlayTempSprites)
                     {
