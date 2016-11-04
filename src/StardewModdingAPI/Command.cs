@@ -59,7 +59,7 @@ namespace StardewModdingAPI
         {
             if (this.CommandFired == null)
             {
-                Log.AsyncR("Command failed to fire because it's fire event is null: " + this.CommandName);
+                Log.AsyncR($"Command failed to fire because it's fire event is null: {this.CommandName}");
                 return;
             }
             this.CommandFired.Invoke(this, new EventArgsCommand(this));
@@ -107,7 +107,6 @@ namespace StardewModdingAPI
             }
 
             Command.RegisteredCommands.Add(command);
-            Log.Async("Registered command: " + name);
 
             return command;
         }
