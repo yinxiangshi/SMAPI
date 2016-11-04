@@ -16,11 +16,12 @@ using StardewValley;
 
 namespace StardewModdingAPI
 {
+    /// <summary>The main entry point for SMAPI, responsible for hooking into and launching the game.</summary>
     public class Program
     {
-        /// <summary>The number of mods currently loaded by SMAPI.</summary>
-        public static int ModsLoaded = 0;
-
+        /*********
+        ** Properties
+        *********/
         /// <summary>The full path to the Stardew Valley executable.</summary>
         private static readonly string GameExecutablePath = File.Exists(Path.Combine(Constants.ExecutionPath, "StardewValley.exe"))
             ? Path.Combine(Constants.ExecutionPath, "StardewValley.exe") // Linux or Mac
@@ -29,56 +30,79 @@ namespace StardewModdingAPI
         /// <summary>The full path to the folder containing mods.</summary>
         private static readonly string ModPath = Path.Combine(Constants.ExecutionPath, "Mods");
 
+        /*********
+        ** Accessors
+        *********/
+        /// <summary>The number of mods currently loaded by SMAPI.</summary>
+        public static int ModsLoaded;
+
+        /// <summary>The underlying game instance.</summary>
         public static SGame gamePtr;
+
+        /// <summary>Whether the game is currently running.</summary>
         public static bool ready;
 
+        /// <summary>The underlying game assembly.</summary>
         public static Assembly StardewAssembly;
+
+        /// <summary>The underlying <see cref="StardewValley.Program"/> type.</summary>
         public static Type StardewProgramType;
+
+        /// <summary>The field containing game's main instance.</summary>
         public static FieldInfo StardewGameInfo;
 
+        // unused?
         public static Thread gameThread;
+
+        /// <summary>The thread running the console input thread.</summary>
         public static Thread consoleInputThread;
 
+        /// <summary>A pixel which can be stretched and colourised for display.</summary>
         public static Texture2D DebugPixel { get; private set; }
 
         // ReSharper disable once PossibleNullReferenceException
-        public static int BuildType => (int)StardewProgramType.GetField("buildType", BindingFlags.Public | BindingFlags.Static).GetValue(null);
+        /// <summary>The game's build type (i.e. GOG vs Steam).</summary>
+        public static int BuildType => (int)Program.StardewProgramType.GetField("buildType", BindingFlags.Public | BindingFlags.Static).GetValue(null);
 
-        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        /// <summary>
-        ///     Main method holding the API execution
-        /// </summary>
-        /// <param name="args"></param>
+        /*********
+        ** Public methods
+        *********/
+        /// <summary>The main entry point which hooks into and launches the game.</summary>
+        /// <param name="args">The command-line arguments.</param>
         private static void Main(string[] args)
         {
+            // set thread culture for consistent log formatting
             Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");
 
+            // hook into & launch the game
             try
             {
                 Log.AsyncY($"SMAPI {Constants.Version}");
                 Log.AsyncY($"Stardew Valley {Game1.version} on {Environment.OSVersion}");
+                Program.ConfigureConsoleWindow();
                 Program.CheckForUpdateAsync();
-                Program.ConfigureUI();
                 Program.CreateDirectories();
                 Program.StartGame();
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                // Catch and display all exceptions. 
-                Console.WriteLine(e);
+                Console.WriteLine(ex);
                 Console.ReadKey();
-                Log.AsyncR("Critical error: " + e);
+                Log.AsyncR($"Critical error: {ex}");
             }
 
+            // print message when game ends
             Log.AsyncY("The API will now terminate. Press any key to continue...");
             Console.ReadKey();
         }
 
-        /// <summary>
-        ///     Set up the console properties
-        /// </summary>
-        private static void ConfigureUI()
+
+        /*********
+        ** Private methods
+        *********/
+        /// <summary>Configure the console window.</summary>
+        private static void ConfigureConsoleWindow()
         {
             Console.Title = Constants.ConsoleTitle;
 #if DEBUG
@@ -90,10 +114,10 @@ namespace StardewModdingAPI
         private static void CreateDirectories()
         {
             Log.AsyncY("Validating file paths...");
-            VerifyPath(ModPath);
-            VerifyPath(Constants.LogDir);
-            if (!File.Exists(GameExecutablePath))
-                throw new FileNotFoundException($"Could not find executable: {GameExecutablePath}");
+            Program.VerifyPath(Program.ModPath);
+            Program.VerifyPath(Constants.LogDir);
+            if (!File.Exists(Program.GameExecutablePath))
+                throw new FileNotFoundException($"Could not find executable: {Program.GameExecutablePath}");
         }
 
         /// <summary>Asynchronously check for a new version of SMAPI, and print a message to the console if an update is available.</summary>
@@ -115,18 +139,16 @@ namespace StardewModdingAPI
             }).Start();
         }
 
-        /// <summary>
-        ///     Load Stardev Valley and control features, and launch the game.
-        /// </summary>
+        /// <summary>Hook into Stardew Valley and launch the game.</summary>
         private static void StartGame()
         {
-            // Load in the assembly - ignores security
+            // load the game assembly (ignore security)
             Log.AsyncY("Initializing SDV Assembly...");
-            StardewAssembly = Assembly.UnsafeLoadFrom(GameExecutablePath);
-            StardewProgramType = StardewAssembly.GetType("StardewValley.Program", true);
-            StardewGameInfo = StardewProgramType.GetField("gamePtr");
+            Program.StardewAssembly = Assembly.UnsafeLoadFrom(Program.GameExecutablePath);
+            Program.StardewProgramType = Program.StardewAssembly.GetType("StardewValley.Program", true);
+            Program.StardewGameInfo = Program.StardewProgramType.GetField("gamePtr");
 
-            // Change the game's version
+            // change the game's version
             Log.AsyncY("Injecting New SDV Version...");
             Game1.version += $"-Z_MODDED | SMAPI {Constants.Version}";
 
@@ -141,61 +163,60 @@ namespace StardewModdingAPI
             try
             {
                 Log.AsyncY("Initializing SDV...");
-                gamePtr = new SGame();
+                Program.gamePtr = new SGame();
 
                 // hook events
-                gamePtr.Exiting += (sender, e) => ready = false;
-                gamePtr.Window.ClientSizeChanged += GraphicsEvents.InvokeResize;
+                Program.gamePtr.Exiting += (sender, e) => Program.ready = false;
+                Program.gamePtr.Window.ClientSizeChanged += GraphicsEvents.InvokeResize;
 
                 // patch graphics
                 Log.AsyncY("Patching SDV Graphics Profile...");
                 Game1.graphics.GraphicsProfile = GraphicsProfile.HiDef;
 
                 // load mods
-                LoadMods();
+                Program.LoadMods();
 
                 // initialise
-                StardewGameInfo.SetValue(StardewProgramType, gamePtr);
+                Program.StardewGameInfo.SetValue(Program.StardewProgramType, Program.gamePtr);
                 Log.AsyncY("Applying Final SDV Tweaks...");
-                gamePtr.IsMouseVisible = false;
-                gamePtr.Window.Title = "Stardew Valley - Version " + Game1.version;
+                Program.gamePtr.IsMouseVisible = false;
+                Program.gamePtr.Window.Title = $"Stardew Valley - Version {Game1.version}";
             }
             catch (Exception ex)
             {
-                Log.AsyncR("Game failed to initialise: " + ex);
+                Log.AsyncR($"Game failed to initialise: {ex}");
                 return;
             }
 
             // initialise after game launches
             new Thread(() =>
             {
-                // Wait for the game to load up
-                while (!ready) Thread.Sleep(1000);
+                // wait for the game to load up
+                while (!Program.ready) Thread.Sleep(1000);
 
                 // Create definition to listen for input
                 Log.AsyncY("Initializing Console Input Thread...");
-                consoleInputThread = new Thread(ConsoleInputThread);
+                Program.consoleInputThread = new Thread(Program.ConsoleInputLoop);
 
-                // The only command in the API (at least it should be, for now)
-                Command.RegisterCommand("help", "Lists all commands | 'help <cmd>' returns command description").CommandFired += help_CommandFired;
+                // register help command
+                Command.RegisterCommand("help", "Lists all commands | 'help <cmd>' returns command description").CommandFired += Program.help_CommandFired;
 
-                // Subscribe to events
-                ControlEvents.KeyPressed += Events_KeyPressed;
-                GameEvents.LoadContent += Events_LoadContent;
+                // subscribe to events
+                GameEvents.LoadContent += Program.Events_LoadContent;
 
-                // Game's in memory now, send the event
+                // raise game loaded event
                 Log.AsyncY("Game Loaded");
                 GameEvents.InvokeGameLoaded();
 
-                // Listen for command line input
+                // listen for command line input
                 Log.AsyncY("Type 'help' for help, or 'help <cmd>' for a command's usage");
-                consoleInputThread.Start();
-                while (ready)
+                Program.consoleInputThread.Start();
+                while (Program.ready)
                     Thread.Sleep(1000 / 10); // Check if the game is still running 10 times a second
 
                 // Abort the thread, we're closing
-                if (consoleInputThread != null && consoleInputThread.ThreadState == ThreadState.Running)
-                    consoleInputThread.Abort();
+                if (Program.consoleInputThread != null && Program.consoleInputThread.ThreadState == ThreadState.Running)
+                    Program.consoleInputThread.Abort();
 
                 Log.AsyncY("Game Execution Finished");
                 Log.AsyncY("Shutting Down...");
@@ -203,17 +224,17 @@ namespace StardewModdingAPI
                 Environment.Exit(0);
             }).Start();
 
-            // Start game loop
+            // start game loop
             Log.AsyncY("Starting SDV...");
             try
             {
-                ready = true;
-                gamePtr.Run();
+                Program.ready = true;
+                Program.gamePtr.Run();
             }
             catch (Exception ex)
             {
-                ready = false;
-                Log.AsyncR("Game failed to start: " + ex);
+                Program.ready = false;
+                Log.AsyncR($"Game failed to start: {ex}");
             }
         }
 
@@ -228,16 +249,15 @@ namespace StardewModdingAPI
             }
             catch (Exception ex)
             {
-                Log.AsyncR("Could not create a path: " + path + "\n\n" + ex);
+                Log.AsyncR($"Could not create a path: {path}\n\n{ex}");
             }
         }
 
-        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        public static void LoadMods()
+        /// <summary>Load and hook up all mods in the mod directory.</summary>
+        private static void LoadMods()
         {
             Log.AsyncY("LOADING MODS");
-            foreach (string directory in Directory.GetDirectories(ModPath))
+            foreach (string directory in Directory.GetDirectories(Program.ModPath))
             {
                 foreach (string manifestPath in Directory.GetFiles(directory, "manifest.json"))
                 {
@@ -267,10 +287,11 @@ namespace StardewModdingAPI
                     }
                     catch (Exception ex)
                     {
-                        Log.AsyncR($"Failed to read mod manifest '{manifestPath}'. Exception details:\n" + ex);
+                        Log.AsyncR($"Failed to read mod manifest '{manifestPath}'. Exception details:\n{ex}");
                         continue;
                     }
 
+                    // create per-save directory
                     string targDir = Path.GetDirectoryName(manifestPath);
                     string psDir = Path.Combine(targDir, "psconfigs");
                     Log.AsyncY($"Created psconfigs directory @{psDir}");
@@ -293,9 +314,11 @@ namespace StardewModdingAPI
                     }
                     catch (Exception ex)
                     {
-                        Log.AsyncR($"Failed to create psconfigs directory '{targDir}'. Exception details:\n" + ex);
+                        Log.AsyncR($"Failed to create psconfigs directory '{targDir}'. Exception details:\n{ex}");
                         continue;
                     }
+
+                    // load DLL & hook up mod
                     string targDll = string.Empty;
                     try
                     {
@@ -326,45 +349,45 @@ namespace StardewModdingAPI
                     }
                     catch (Exception ex)
                     {
-                        Log.AsyncR($"Failed to load mod '{targDll}'. Exception details:\n" + ex);
+                        Log.AsyncR($"Failed to load mod '{targDll}'. Exception details:\n{ex}");
                     }
                 }
             }
 
+            // print result
             Log.AsyncG($"LOADED {Program.ModsLoaded} MODS");
             Console.Title = Constants.ConsoleTitle;
         }
 
-        public static void ConsoleInputThread()
+        /// <summary>Run a loop handling console input.</summary>
+        private static void ConsoleInputLoop()
         {
             while (true)
-            {
                 Command.CallCommand(Console.ReadLine());
-            }
         }
 
-        private static void Events_LoadContent(object o, EventArgs e)
+        /// <summary>Raised before XNA loads or reloads graphics resources. Called during <see cref="Microsoft.Xna.Framework.Game.LoadContent"/>.</summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event data.</param>
+        private static void Events_LoadContent(object sender, EventArgs e)
         {
             Log.AsyncY("Initializing Debug Assets...");
-            DebugPixel = new Texture2D(Game1.graphics.GraphicsDevice, 1, 1);
-            DebugPixel.SetData(new[] { Color.White });
+            Program.DebugPixel = new Texture2D(Game1.graphics.GraphicsDevice, 1, 1);
+            Program.DebugPixel.SetData(new[] { Color.White });
         }
 
-        private static void Events_KeyPressed(object o, EventArgsKeyPressed e)
-        {
-        }
-
-        private static void help_CommandFired(object o, EventArgsCommand e)
+        /// <summary>The method called when the user submits the help command in the console.</summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event data.</param>
+        private static void help_CommandFired(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 0)
             {
-                var fnd = Command.FindCommand(e.Command.CalledArgs[0]);
-                if (fnd == null)
-                    Log.AsyncR("The command specified could not be found");
+                var command = Command.FindCommand(e.Command.CalledArgs[0]);
+                if (command == null)
+                    Log.AsyncR("The specified command could not be found");
                 else
-                {
-                    Log.AsyncY(fnd.CommandArgs.Length > 0 ? $"{fnd.CommandName}: {fnd.CommandDesc} - {string.Join(", ", fnd.CommandArgs)}" : $"{fnd.CommandName}: {fnd.CommandDesc}");
-                }
+                    Log.AsyncY(command.CommandArgs.Length > 0 ? $"{command.CommandName}: {command.CommandDesc} - {string.Join(", ", command.CommandArgs)}" : $"{command.CommandName}: {command.CommandDesc}");
             }
             else
                 Log.AsyncY("Commands: " + string.Join(", ", Command.RegisteredCommands.Select(x => x.CommandName)));
