@@ -7,7 +7,6 @@ using System.Threading;
 #if SMAPI_FOR_WINDOWS
 using System.Windows.Forms;
 #endif
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework;
@@ -50,15 +49,6 @@ namespace StardewModdingAPI
 
         /// <summary>The field containing game's main instance.</summary>
         public static FieldInfo StardewGameInfo;
-
-        // unused?
-        public static Thread gameThread;
-
-        /// <summary>The thread running the console input thread.</summary>
-        public static Thread consoleInputThread;
-
-        /// <summary>A pixel which can be stretched and colourised for display.</summary>
-        public static Texture2D DebugPixel { get; private set; }
 
         // ReSharper disable once PossibleNullReferenceException
         /// <summary>The game's build type (i.e. GOG vs Steam).</summary>
@@ -194,29 +184,24 @@ namespace StardewModdingAPI
                 // wait for the game to load up
                 while (!Program.ready) Thread.Sleep(1000);
 
-                // Create definition to listen for input
-                Log.AsyncY("Initializing Console Input Thread...");
-                Program.consoleInputThread = new Thread(Program.ConsoleInputLoop);
-
                 // register help command
                 Command.RegisterCommand("help", "Lists all commands | 'help <cmd>' returns command description").CommandFired += Program.help_CommandFired;
-
-                // subscribe to events
-                GameEvents.LoadContent += Program.Events_LoadContent;
 
                 // raise game loaded event
                 Log.AsyncY("Game Loaded");
                 GameEvents.InvokeGameLoaded();
 
                 // listen for command line input
+                Log.AsyncY("Starting console...");
                 Log.AsyncY("Type 'help' for help, or 'help <cmd>' for a command's usage");
-                Program.consoleInputThread.Start();
+                Thread consoleInputThread = new Thread(Program.ConsoleInputLoop);
+                consoleInputThread.Start();
                 while (Program.ready)
                     Thread.Sleep(1000 / 10); // Check if the game is still running 10 times a second
 
-                // Abort the thread, we're closing
-                if (Program.consoleInputThread != null && Program.consoleInputThread.ThreadState == ThreadState.Running)
-                    Program.consoleInputThread.Abort();
+                // abort the console thread, we're closing
+                if (consoleInputThread.ThreadState == ThreadState.Running)
+                    consoleInputThread.Abort();
 
                 Log.AsyncY("Game Execution Finished");
                 Log.AsyncY("Shutting Down...");
@@ -364,16 +349,6 @@ namespace StardewModdingAPI
         {
             while (true)
                 Command.CallCommand(Console.ReadLine());
-        }
-
-        /// <summary>Raised before XNA loads or reloads graphics resources. Called during <see cref="Microsoft.Xna.Framework.Game.LoadContent"/>.</summary>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="e">The event data.</param>
-        private static void Events_LoadContent(object sender, EventArgs e)
-        {
-            Log.AsyncY("Initializing Debug Assets...");
-            Program.DebugPixel = new Texture2D(Game1.graphics.GraphicsDevice, 1, 1);
-            Program.DebugPixel.SetData(new[] { Color.White });
         }
 
         /// <summary>The method called when the user submits the help command in the console.</summary>
