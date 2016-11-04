@@ -104,9 +104,6 @@ namespace StardewModdingAPI.Inheritance
         /// <summary>The active game menu at last check.</summary>
         public IClickableMenu PreviousActiveMenu { get; private set; }
 
-        /// <summary>Whether the <see cref="MenuEvents.MenuClosed"/> event was raised in the last tick.</summary>
-        internal bool WasMenuClosedInvoked;
-
         /// <summary>The mine level at last check.</summary>
         public int PreviousMineLevel { get; private set; }
 
@@ -936,18 +933,13 @@ namespace StardewModdingAPI.Inheritance
             }
 
             // raise menu changed
-            if (Game1.activeClickableMenu != null && Game1.activeClickableMenu != this.PreviousActiveMenu)
+            if (Game1.activeClickableMenu != this.PreviousActiveMenu)
             {
-                MenuEvents.InvokeMenuChanged(this.PreviousActiveMenu, Game1.activeClickableMenu);
+                if (Game1.activeClickableMenu != null)
+                    MenuEvents.InvokeMenuChanged(this.PreviousActiveMenu, Game1.activeClickableMenu);
+                else
+                    MenuEvents.InvokeMenuClosed(this.PreviousActiveMenu);
                 this.PreviousActiveMenu = Game1.activeClickableMenu;
-                this.WasMenuClosedInvoked = false;
-            }
-
-            // raise menu closed
-            if (!this.WasMenuClosedInvoked && this.PreviousActiveMenu != null && Game1.activeClickableMenu == null)
-            {
-                MenuEvents.InvokeMenuClosed(this.PreviousActiveMenu);
-                this.WasMenuClosedInvoked = true;
             }
 
             // raise location list changed
