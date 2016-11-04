@@ -1,0 +1,1 @@
+﻿See instructions at http://canimod.com/guides/using-mods#installing-smapi.

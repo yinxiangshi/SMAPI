@@ -33,7 +33,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>$(SolutionDir)\..\bin\Debug\SMAPI</OutputPath>
     <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -44,7 +44,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>$(SolutionDir)\..\bin\Release\SMAPI</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -58,7 +58,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <UseVSHostingProcess>true</UseVSHostingProcess>
     <Optimize>false</Optimize>
-    <DocumentationFile>bin\Debug\StardewModdingAPI.XML</DocumentationFile>
+    <OutputPath>$(SolutionDir)\..\bin\Debug\SMAPI</OutputPath>
+    <DocumentationFile>bin\Debug\StardewModdingAPI.xml</DocumentationFile>
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
     <LangVersion>6</LangVersion>
   </PropertyGroup>
@@ -66,7 +67,8 @@
     <PlatformTarget>x86</PlatformTarget>
     <OutputPath>bin\Release\</OutputPath>
     <Prefer32Bit>false</Prefer32Bit>
-    <DocumentationFile>bin\Release\StardewModdingAPI.XML</DocumentationFile>
+    <OutputPath>$(SolutionDir)\..\bin\Release\SMAPI</OutputPath>
+    <DocumentationFile>bin\Release\StardewModdingAPI.xml</DocumentationFile>
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
@@ -148,7 +150,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.Numerics" Condition="$(OS) != 'Windows_NT'">
+    <Reference Include="System.Numerics">
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Windows.Forms" Condition="$(OS) == 'Windows_NT'" />
@@ -213,14 +215,16 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
-    <Content Include="StardewModdingAPI" Condition="$(OS) != 'Windows_NT'">
+    <None Include="unix-launcher.sh">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="FodyWeavers.xml" />
     <Content Include="icon.ico" />
-    <Content Include="steam_appid.txt" />
+    <Content Include="steam_appid.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5">

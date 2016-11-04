@@ -3,10 +3,12 @@
 ## 1.x
 * 1.0 (upcoming, [log](https://github.com/CLxS/SMAPI/compare/0.40.1.1-3...master))
   * Added support for Linux and Mac.
+  * Added installer.
   * Added background update check on launch.
   * Added OS version to log.
   * Added zoom-adjusted mouse position to mouse-changed event arguments.
   * Switched to [semantic versioning](http://semver.org).
+  * Fixed missing `steam_appid.txt` file.
   * Fixed mod versions not being displayed correctly on log.
   * Fixed misspelled field in `manifest.json` schema.
   * Fixed several events not correctly propagating state.
@@ -15,8 +17,8 @@
   * Internal cleanup:
     * Simplified compiling from source.
     * Added code documentation.
-    * Internal cleanup & refactoring.
     * Removed obsolete and unfinished code.
+    * Internal cleanup & refactoring.
 
 ## 0.x
 * 0.40.1.1 (2016-09-30, [log](https://github.com/CLxS/SMAPI/compare/0.40.0...0.40.1.1-3))
