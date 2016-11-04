@@ -3,13 +3,13 @@
 ## 1.x
 * 1.0 (upcoming, [log](https://github.com/CLxS/SMAPI/compare/0.40.1.1-3...master))
   * Added support for Linux and Mac.
-  * Added installer.
+  * Added installer to automate adding & removing SMAPI.
   * Added background update check on launch.
   * Added OS version to log.
   * Added zoom-adjusted mouse position to mouse-changed event arguments.
   * Switched to [semantic versioning](http://semver.org).
   * Fixed missing `steam_appid.txt` file.
-  * Fixed mod versions not being displayed correctly on log.
+  * Fixed mod versions not being displayed correctly in the log.
   * Fixed misspelled field in `manifest.json` schema.
   * Fixed several events not correctly propagating state.
   * Removed undocumented support for mods in AppData folder **(breaking change)**.
