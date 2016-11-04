@@ -27,9 +27,6 @@ namespace StardewModdingAPI
         /// <summary>The GitHub repository to check for updates.</summary>
         public const string GitHubRepository = "cjsu/SMAPI";
 
-        /// <summary>The number of mods currently loaded by SMAPI.</summary>
-        public static int ModsLoaded = 0;
-
         /// <summary>The directory path containing Stardew Valley's app data.</summary>
         public static string DataPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley");
 
@@ -52,7 +49,7 @@ namespace StardewModdingAPI
         public static string ExecutionPath => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
         /// <summary>The title of the SMAPI console window.</summary>
-        public static string ConsoleTitle => $"Stardew Modding API Console - Version {Constants.Version} - Mods Loaded: {Constants.ModsLoaded}";
+        public static string ConsoleTitle => $"Stardew Modding API Console - Version {Constants.Version} - Mods Loaded: {Program.ModsLoaded}";
 
         /// <summary>The directory path in which error logs should be stored.</summary>
         public static string LogDir => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley", "ErrorLogs");

@@ -18,6 +18,9 @@ namespace StardewModdingAPI
 {
     public class Program
     {
+        /// <summary>The number of mods currently loaded by SMAPI.</summary>
+        public static int ModsLoaded = 0;
+
         /// <summary>The full path to the Stardew Valley executable.</summary>
         private static readonly string GameExecutablePath = File.Exists(Path.Combine(Constants.ExecutionPath, "StardewValley.exe"))
             ? Path.Combine(Constants.ExecutionPath, "StardewValley.exe") // Linux or Mac
@@ -314,7 +317,7 @@ namespace StardewModdingAPI
                                 modEntry.PathOnDisk = targDir;
                                 modEntry.Manifest = manifest;
                                 Log.AsyncG($"LOADED MOD: {modEntry.Manifest.Name} by {modEntry.Manifest.Author} - Version {modEntry.Manifest.Version} | Description: {modEntry.Manifest.Description} (@ {targDll})");
-                                Constants.ModsLoaded += 1;
+                                Program.ModsLoaded += 1;
                                 modEntry.Entry();
                             }
                         }
@@ -328,7 +331,7 @@ namespace StardewModdingAPI
                 }
             }
 
-            Log.AsyncG($"LOADED {Constants.ModsLoaded} MODS");
+            Log.AsyncG($"LOADED {Program.ModsLoaded} MODS");
             Console.Title = Constants.ConsoleTitle;
         }
 
