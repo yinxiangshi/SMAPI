@@ -956,51 +956,55 @@ namespace StardewModdingAPI.Inheritance
                 this.PreviousGameLocation = Game1.currentLocation;
             }
 
-            // raise player changed
-            if (Game1.player != null && Game1.player != this.PreviousFarmer)
+            // player events
+            if (Game1.player != null)
             {
-                PlayerEvents.InvokeFarmerChanged(this.PreviousFarmer, Game1.player);
-                this.PreviousFarmer = Game1.player;
-            }
+                // raise player changed
+                if (Game1.player != this.PreviousFarmer)
+                {
+                    PlayerEvents.InvokeFarmerChanged(this.PreviousFarmer, Game1.player);
+                    this.PreviousFarmer = Game1.player;
+                }
 
-            // raise player leveled up a skill
-            if (Game1.player != null && Game1.player.combatLevel != this.PreviousCombatLevel)
-            {
-                PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Combat, Game1.player.combatLevel);
-                this.PreviousCombatLevel = Game1.player.combatLevel;
-            }
-            if (Game1.player != null && Game1.player.farmingLevel != this.PreviousFarmingLevel)
-            {
-                PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Farming, Game1.player.farmingLevel);
-                this.PreviousFarmingLevel = Game1.player.farmingLevel;
-            }
-            if (Game1.player != null && Game1.player.fishingLevel != this.PreviousFishingLevel)
-            {
-                PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Fishing, Game1.player.fishingLevel);
-                this.PreviousFishingLevel = Game1.player.fishingLevel;
-            }
-            if (Game1.player != null && Game1.player.foragingLevel != this.PreviousForagingLevel)
-            {
-                PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Foraging, Game1.player.foragingLevel);
-                this.PreviousForagingLevel = Game1.player.foragingLevel;
-            }
-            if (Game1.player != null && Game1.player.miningLevel != this.PreviousMiningLevel)
-            {
-                PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Mining, Game1.player.miningLevel);
-                this.PreviousMiningLevel = Game1.player.miningLevel;
-            }
-            if (Game1.player != null && Game1.player.luckLevel != this.PreviousLuckLevel)
-            {
-                PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Luck, Game1.player.luckLevel);
-                this.PreviousLuckLevel = Game1.player.luckLevel;
-            }
+                // raise player leveled up a skill
+                if (Game1.player.combatLevel != this.PreviousCombatLevel)
+                {
+                    PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Combat, Game1.player.combatLevel);
+                    this.PreviousCombatLevel = Game1.player.combatLevel;
+                }
+                if (Game1.player.farmingLevel != this.PreviousFarmingLevel)
+                {
+                    PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Farming, Game1.player.farmingLevel);
+                    this.PreviousFarmingLevel = Game1.player.farmingLevel;
+                }
+                if (Game1.player.fishingLevel != this.PreviousFishingLevel)
+                {
+                    PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Fishing, Game1.player.fishingLevel);
+                    this.PreviousFishingLevel = Game1.player.fishingLevel;
+                }
+                if (Game1.player.foragingLevel != this.PreviousForagingLevel)
+                {
+                    PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Foraging, Game1.player.foragingLevel);
+                    this.PreviousForagingLevel = Game1.player.foragingLevel;
+                }
+                if (Game1.player.miningLevel != this.PreviousMiningLevel)
+                {
+                    PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Mining, Game1.player.miningLevel);
+                    this.PreviousMiningLevel = Game1.player.miningLevel;
+                }
+                if (Game1.player.luckLevel != this.PreviousLuckLevel)
+                {
+                    PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Luck, Game1.player.luckLevel);
+                    this.PreviousLuckLevel = Game1.player.luckLevel;
+                }
 
-            // raise player inventory changed
-            List<ItemStackChange> changedItems;
-            if (Game1.player != null && this.HasInventoryChanged(Game1.player.items, out changedItems))
-            {
-                PlayerEvents.InvokeInventoryChanged(Game1.player.items, changedItems);
-                this.PreviousItems = Game1.player.items.Where(n => n != null).ToDictionary(n => n, n => n.Stack);
+                // raise player inventory changed
+                List<ItemStackChange> changedItems;
+                if (this.HasInventoryChanged(Game1.player.items, out changedItems))
+                {
+                    PlayerEvents.InvokeInventoryChanged(Game1.player.items, changedItems);
+                    this.PreviousItems = Game1.player.items.Where(n => n != null).ToDictionary(n => n, n => n.Stack);
+                }
             }
 
             // raise current location's object list changed
