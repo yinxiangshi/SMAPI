@@ -246,9 +246,6 @@ namespace StardewModdingAPI
             {
                 foreach (string manifestPath in Directory.GetFiles(directory, "manifest.json"))
                 {
-                    if (manifestPath.Contains("StardewInjector"))
-                        continue;
-
                     // read manifest
                     Log.AsyncG($"Found Manifest: {manifestPath}");
                     Manifest manifest = new Manifest();
