@@ -363,11 +363,11 @@ namespace StardewModdingAPI
                     Log.AsyncR("The command specified could not be found");
                 else
                 {
-                    Log.AsyncY(fnd.CommandArgs.Length > 0 ? $"{fnd.CommandName}: {fnd.CommandDesc} - {fnd.CommandArgs.ToSingular()}" : $"{fnd.CommandName}: {fnd.CommandDesc}");
+                    Log.AsyncY(fnd.CommandArgs.Length > 0 ? $"{fnd.CommandName}: {fnd.CommandDesc} - {string.Join(", ", fnd.CommandArgs)}" : $"{fnd.CommandName}: {fnd.CommandDesc}");
                 }
             }
             else
-                Log.AsyncY("Commands: " + Command.RegisteredCommands.Select(x => x.CommandName).ToSingular());
+                Log.AsyncY("Commands: " + string.Join(", ", Command.RegisteredCommands.Select(x => x.CommandName)));
         }
     }
 }

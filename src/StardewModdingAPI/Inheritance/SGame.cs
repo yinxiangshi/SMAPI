@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -134,15 +135,15 @@ namespace StardewModdingAPI.Inheritance
         /// <summary>The game's current render target.</summary>
         public RenderTarget2D Screen
         {
-            get { return typeof(Game1).GetBaseFieldValue<RenderTarget2D>(Program.gamePtr, "screen"); }
-            set { typeof(Game1).SetBaseFieldValue<RenderTarget2D>(this, "screen", value); }
+            get { return this.GetBaseFieldValue<RenderTarget2D>("screen"); }
+            set { this.SetBaseFieldValue<RenderTarget2D>("screen", value); }
         }
 
         /// <summary>The game's current background color.</summary>
         public Color BgColour
         {
-            get { return (Color)typeof(Game1).GetBaseFieldValue<object>(Program.gamePtr, "bgColor"); }
-            set { typeof(Game1).SetBaseFieldValue<object>(this, "bgColor", value); }
+            get { return (Color)this.GetBaseFieldValue<object>("bgColor"); }
+            set { this.SetBaseFieldValue<object>("bgColor", value); }
         }
 
         /// <summary>The current game instance.</summary>
@@ -879,10 +880,10 @@ namespace StardewModdingAPI.Inheritance
             }
 
             // raise location list changed
-            if (Game1.locations.GetHash() != this.PreviousGameLocations)
+            if (this.GetHash(Game1.locations) != this.PreviousGameLocations)
             {
                 LocationEvents.InvokeLocationsChanged(Game1.locations);
-                this.PreviousGameLocations = Game1.locations.GetHash();
+                this.PreviousGameLocations = this.GetHash(Game1.locations);
             }
 
             // raise current location changed
@@ -944,7 +945,7 @@ namespace StardewModdingAPI.Inheritance
             }
 
             // raise current location's object list changed
-            int? objectHash = Game1.currentLocation?.objects?.GetHash();
+            int? objectHash = Game1.currentLocation?.objects != null ? this.GetHash(Game1.currentLocation.objects) : (int?)null;
             if (objectHash != null && this.PreviousLocationObjects != objectHash)
             {
                 LocationEvents.InvokeOnNewLocationObject(Game1.currentLocation.objects);
@@ -1031,6 +1032,40 @@ namespace StardewModdingAPI.Inheritance
                     yield return new ItemStackChange { Item = entry.Key, StackChange = -entry.Key.Stack, ChangeType = ChangeType.Removed };
                 }
             }
+        }
+
+        /// <summary>Get a hash value for an enumeration.</summary>
+        /// <param name="enumerable">The enumeration of items to hash.</param>
+        private int GetHash(IEnumerable enumerable)
+        {
+            var hash = 0;
+            foreach (var v in enumerable)
+                hash ^= v.GetHashCode();
+            return hash;
+        }
+
+        /// <summary>Get reflection metadata for a private <see cref="Game1"/> field.</summary>
+        /// <param name="name">The field name.</param>
+        private FieldInfo GetBaseFieldInfo(string name)
+        {
+            return typeof(Game1).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Static);
+        }
+
+        /// <summary>Get the value of a private <see cref="Game1"/> field.</summary>
+        /// <typeparam name="TValue">The expected value type.</typeparam>
+        /// <param name="name">The field name.</param>
+        private TValue GetBaseFieldValue<TValue>(string name) where TValue : class
+        {
+            return this.GetBaseFieldInfo(name).GetValue(Program.gamePtr) as TValue;
+        }
+
+        /// <summary>Set the value of a private <see cref="Game1"/> field.</summary>
+        /// <typeparam name="TValue">The expected value type.</typeparam>
+        /// <param name="name">The field name.</param>
+        /// <param name="value">The value to set.</param>
+        public void SetBaseFieldValue<TValue>(string name, object value) where TValue : class
+        {
+            this.GetBaseFieldInfo(name).SetValue(Program.gamePtr, value as TValue);
         }
     }
 }

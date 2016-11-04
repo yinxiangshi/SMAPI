@@ -7,6 +7,9 @@ namespace StardewModdingAPI
 {
     public static class Log
     {
+        /// <summary>A pseudorandom number generator used to generate log files.</summary>
+        private static readonly Random Random = new Random();
+
         private static readonly LogWriter _writer;
 
         static Log()
@@ -38,9 +41,8 @@ namespace StardewModdingAPI
         public static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
         {
             Console.WriteLine("A thread exception has been caught");
-            File.WriteAllText(Path.Combine(Constants.LogDir, $"MODDED_ErrorLog.Log_{Extensions.Random.Next(100000000, 999999999)}.txt"), e.Exception.ToString());
+            File.WriteAllText(Path.Combine(Constants.LogDir, $"MODDED_ErrorLog.Log_{Log.Random.Next(100000000, 999999999)}.txt"), e.Exception.ToString());
         }
-
         #endregion
 
         #region Sync Logging

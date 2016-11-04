@@ -8,6 +8,7 @@ using StardewValley;
 using StardewValley.Menus;
 using StardewValley.Objects;
 using StardewValley.Tools;
+using TrainerMod.Framework;
 using Object = StardewValley.Object;
 
 namespace TrainerMod
@@ -272,9 +273,9 @@ namespace TrainerMod
         {
             if (e.Command.CalledArgs.Length > 0)
             {
-                if (e.Command.CalledArgs[0].IsInt32())
+                if (e.Command.CalledArgs[0].IsInt())
                 {
-                    Game1.player.addedSpeed = e.Command.CalledArgs[0].AsInt32();
+                    Game1.player.addedSpeed = e.Command.CalledArgs[0].ToInt();
                     Log.Async($"Set {Game1.player.Name}'s added speed to {Game1.player.addedSpeed}");
                 }
                 else
@@ -297,9 +298,9 @@ namespace TrainerMod
                 if (objs.Contains(obj))
                 {
                     var cs = e.Command.CalledArgs[1].Split(new[] {','}, 3);
-                    if (cs[0].IsInt32() && cs[1].IsInt32() && cs[2].IsInt32())
+                    if (cs[0].IsInt() && cs[1].IsInt() && cs[2].IsInt())
                     {
-                        var c = new Color(cs[0].AsInt32(), cs[1].AsInt32(), cs[2].AsInt32());
+                        var c = new Color(cs[0].ToInt(), cs[1].ToInt(), cs[2].ToInt());
                         switch (obj)
                         {
                             case "hair":
@@ -337,9 +338,9 @@ namespace TrainerMod
                 var objs = "hair,shirt,skin,acc,shoe,swim,gender".Split(',');
                 if (objs.Contains(obj))
                 {
-                    if (e.Command.CalledArgs[1].IsInt32())
+                    if (e.Command.CalledArgs[1].IsInt())
                     {
-                        var i = e.Command.CalledArgs[1].AsInt32();
+                        var i = e.Command.CalledArgs[1].ToInt();
                         switch (obj)
                         {
                             case "hair":
@@ -395,11 +396,11 @@ namespace TrainerMod
         {
             if (e.Command.CalledArgs.Length > 0)
             {
-                if (e.Command.CalledArgs[0].IsInt32())
+                if (e.Command.CalledArgs[0].IsInt())
                 {
-                    if (e.Command.CalledArgs[0].AsInt32() == 0 || e.Command.CalledArgs[0].AsInt32() == 1)
+                    if (e.Command.CalledArgs[0].ToInt() == 0 || e.Command.CalledArgs[0].ToInt() == 1)
                     {
-                        freezeTime = e.Command.CalledArgs[0].AsInt32() == 1;
+                        freezeTime = e.Command.CalledArgs[0].ToInt() == 1;
                         frozenTime = freezeTime ? Game1.timeOfDay : 0;
                         Log.AsyncY("Time is now " + (freezeTime ? "frozen" : "thawed"));
                     }
@@ -423,11 +424,11 @@ namespace TrainerMod
         {
             if (e.Command.CalledArgs.Length > 0)
             {
-                if (e.Command.CalledArgs[0].IsInt32())
+                if (e.Command.CalledArgs[0].IsInt())
                 {
-                    if (e.Command.CalledArgs[0].AsInt32() <= 2600 && e.Command.CalledArgs[0].AsInt32() >= 600)
+                    if (e.Command.CalledArgs[0].ToInt() <= 2600 && e.Command.CalledArgs[0].ToInt() >= 600)
                     {
-                        Game1.timeOfDay = e.Command.CalledArgs[0].AsInt32();
+                        Game1.timeOfDay = e.Command.CalledArgs[0].ToInt();
                         frozenTime = freezeTime ? Game1.timeOfDay : 0;
                         Log.AsyncY("Time set to: " + Game1.timeOfDay);
                     }
@@ -451,11 +452,11 @@ namespace TrainerMod
         {
             if (e.Command.CalledArgs.Length > 0)
             {
-                if (e.Command.CalledArgs[0].IsInt32())
+                if (e.Command.CalledArgs[0].IsInt())
                 {
-                    if (e.Command.CalledArgs[0].AsInt32() <= 28 && e.Command.CalledArgs[0].AsInt32() > 0)
+                    if (e.Command.CalledArgs[0].ToInt() <= 28 && e.Command.CalledArgs[0].ToInt() > 0)
                     {
-                        Game1.dayOfMonth = e.Command.CalledArgs[0].AsInt32();
+                        Game1.dayOfMonth = e.Command.CalledArgs[0].ToInt();
                     }
                     else
                     {
@@ -505,9 +506,9 @@ namespace TrainerMod
                 else
                 {
                     infHealth = false;
-                    if (e.Command.CalledArgs[0].IsInt32())
+                    if (e.Command.CalledArgs[0].IsInt())
                     {
-                        Game1.player.health = e.Command.CalledArgs[0].AsInt32();
+                        Game1.player.health = e.Command.CalledArgs[0].ToInt();
                     }
                     else
                     {
@@ -525,9 +526,9 @@ namespace TrainerMod
         {
             if (e.Command.CalledArgs.Length > 0)
             {
-                if (e.Command.CalledArgs[0].IsInt32())
+                if (e.Command.CalledArgs[0].IsInt())
                 {
-                    Game1.player.maxHealth = e.Command.CalledArgs[0].AsInt32();
+                    Game1.player.maxHealth = e.Command.CalledArgs[0].ToInt();
                 }
                 else
                 {
@@ -544,9 +545,9 @@ namespace TrainerMod
         {
             if (e.Command.CalledArgs.Length > 0)
             {
-                if (e.Command.CalledArgs[0].IsInt32())
+                if (e.Command.CalledArgs[0].IsInt())
                 {
-                    Game1.player.immunity = e.Command.CalledArgs[0].AsInt32();
+                    Game1.player.immunity = e.Command.CalledArgs[0].ToInt();
                 }
                 else
                 {
@@ -563,16 +564,16 @@ namespace TrainerMod
         {
             if (e.Command.CalledArgs.Length > 0)
             {
-                if (e.Command.CalledArgs[0].IsInt32())
+                if (e.Command.CalledArgs[0].IsInt())
                 {
                     var count = 1;
                     var quality = 0;
                     if (e.Command.CalledArgs.Length > 1)
                     {
                         Console.WriteLine(e.Command.CalledArgs[1]);
-                        if (e.Command.CalledArgs[1].IsInt32())
+                        if (e.Command.CalledArgs[1].IsInt())
                         {
-                            count = e.Command.CalledArgs[1].AsInt32();
+                            count = e.Command.CalledArgs[1].ToInt();
                         }
                         else
                         {
@@ -582,9 +583,9 @@ namespace TrainerMod
 
                         if (e.Command.CalledArgs.Length > 2)
                         {
-                            if (e.Command.CalledArgs[2].IsInt32())
+                            if (e.Command.CalledArgs[2].IsInt())
                             {
-                                quality = e.Command.CalledArgs[2].AsInt32();
+                                quality = e.Command.CalledArgs[2].ToInt();
                             }
                             else
                             {
@@ -594,7 +595,7 @@ namespace TrainerMod
                         }
                     }
 
-                    var o = new Object(e.Command.CalledArgs[0].AsInt32(), count) {quality = quality};
+                    var o = new Object(e.Command.CalledArgs[0].ToInt(), count) {quality = quality};
 
                     Game1.player.addItemByMenuIfNecessary(o);
                 }
@@ -613,9 +614,9 @@ namespace TrainerMod
         {
             if (e.Command.CalledArgs.Length > 0)
             {
-                if (e.Command.CalledArgs[0].IsInt32())
+                if (e.Command.CalledArgs[0].IsInt())
                 {
-                    var toAdd = new MeleeWeapon(e.Command.CalledArgs[0].AsInt32());
+                    var toAdd = new MeleeWeapon(e.Command.CalledArgs[0].ToInt());
                     Game1.player.addItemByMenuIfNecessary(toAdd);
                     Log.Async($"Given {toAdd.Name} to {Game1.player.Name}");
                 }
@@ -634,9 +635,9 @@ namespace TrainerMod
         {
             if (e.Command.CalledArgs.Length > 0)
             {
-                if (e.Command.CalledArgs[0].IsInt32())
+                if (e.Command.CalledArgs[0].IsInt())
                 {
-                    var toAdd = new Ring(e.Command.CalledArgs[0].AsInt32());
+                    var toAdd = new Ring(e.Command.CalledArgs[0].ToInt());
                     Game1.player.addItemByMenuIfNecessary(toAdd);
                     Log.Async($"Given {toAdd.Name} to {Game1.player.Name}");
                 }
@@ -702,9 +703,9 @@ namespace TrainerMod
         {
             if (e.Command.CalledArgs.Length > 0)
             {
-                if (e.Command.CalledArgs[0].IsInt32())
+                if (e.Command.CalledArgs[0].IsInt())
                 {
-                    Game1.enterMine(true, e.Command.CalledArgs[0].AsInt32(), "");
+                    Game1.enterMine(true, e.Command.CalledArgs[0].ToInt(), "");
                 }
                 else
                 {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using StardewValley;
 
@@ -12,7 +13,7 @@ namespace StardewModdingAPI
         ** Properties
         *********/
         /// <summary>The directory name containing the current save's data (if a save is loaded).</summary>
-        private static string RawSaveFolderName => Constants.PlayerNull ? string.Empty : $"{Game1.player.name.RemoveNumerics()}_{Game1.uniqueIDForThisGame}";
+        private static string RawSaveFolderName => Constants.PlayerNull ? string.Empty : Constants.GetSaveFolderName();
 
         /// <summary>The directory path containing the current save's data (if a save is loaded).</summary>
         private static string RawSavePath => Constants.PlayerNull ? string.Empty : Path.Combine(Constants.SavesPath, Constants.RawSaveFolderName);
@@ -56,5 +57,16 @@ namespace StardewModdingAPI
 
         /// <summary>The file path to the error log where the latest output should be saved.</summary>
         public static string LogPath => Path.Combine(Constants.LogDir, "MODDED_ProgramLog.Log_LATEST.txt");
+
+
+        /*********
+        ** Private field
+        *********/
+        /// <summary>Get the name of a save directory for the current player.</summary>
+        private static string GetSaveFolderName()
+        {
+            string prefix = new string(Game1.player.name.Where(char.IsLetterOrDigit).ToArray());
+            return $"{prefix}_{Game1.uniqueIDForThisGame}";
+        }
     }
 }
