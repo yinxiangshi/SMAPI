@@ -161,9 +161,6 @@ namespace StardewModdingAPI.Inheritance
         [Obsolete("Use Game1.player instead")]
         public Farmer CurrentFarmer => Game1.player;
 
-        /// <summary>Get ALL static fields that belong to 'Game1'.</summary>
-        public static FieldInfo[] GetStaticFields => typeof(Game1).GetFields();
-
         /// <summary>The game method which draws the farm buildings.</summary>
         public static MethodInfo DrawFarmBuildings = typeof(Game1).GetMethod("drawFarmBuildings", BindingFlags.NonPublic | BindingFlags.Instance);
 
@@ -172,27 +169,6 @@ namespace StardewModdingAPI.Inheritance
 
         /// <summary>The game method which draws the current dialogue box, if any.</summary>
         public static MethodInfo DrawDialogueBox = typeof(Game1).GetMethod("drawDialogueBox", BindingFlags.NonPublic | BindingFlags.Instance);
-
-        /// <summary>The game method which handles any escape keys that are currently pressed (e.g. closing the active menu).</summary>
-        public static MethodInfo CheckForEscapeKeys = typeof(Game1).GetMethod("checkForEscapeKeys", BindingFlags.NonPublic | BindingFlags.Instance);
-
-        /// <summary>The game method which detects and handles user input. This includes updating state, checking for hover actions, propagating clicks, etc.</summary>
-        public static MethodInfo UpdateControlInput = typeof(Game1).GetMethod("UpdateControlInput", BindingFlags.NonPublic | BindingFlags.Instance);
-
-        /// <summary>The game method which updates player characters (see <see cref="Farmer.Update"/>).</summary>
-        public static MethodInfo UpdateCharacters = typeof(Game1).GetMethod("UpdateCharacters", BindingFlags.NonPublic | BindingFlags.Instance);
-
-        /// <summary>The game method which updates all locations.</summary>
-        public static MethodInfo UpdateLocations = typeof(Game1).GetMethod("UpdateLocations", BindingFlags.NonPublic | BindingFlags.Instance);
-
-        /// <summary>The game method which gets the viewport-relative coordinate at the center of the screen.</summary>
-        public static MethodInfo getViewportCenter = typeof(Game1).GetMethod("getViewportCenter", BindingFlags.NonPublic | BindingFlags.Instance);
-
-        /// <summary>The game method which updates the title screen to reflect time and user input.</summary>
-        public static MethodInfo UpdateTitleScreen = typeof(Game1).GetMethod("UpdateTitleScreen", BindingFlags.NonPublic | BindingFlags.Instance);
-
-        // unused?
-        public delegate void BaseBaseDraw();
 
 
         /*********
@@ -283,41 +259,6 @@ namespace StardewModdingAPI.Inheritance
                 if (this.WasButtonJustReleased(Buttons.RightTrigger, state.Triggers.Right, index)) buttons.Add(Buttons.RightTrigger);
             }
             return buttons.ToArray();
-        }
-
-        /// <summary>Safely invoke a private non-static <see cref="Game1"/> method. If the invocation fails, this logs an error and returns null.</summary>
-        /// <param name="name">The method name to find.</param>
-        /// <param name="parameters">The parameters to pass to the method.</param>
-        /// <returns>Returns the method return value (or null if void).</returns>
-        [Obsolete("This is very slow. Cache the method info and then invoke it with InvokeMethodInfo().")]
-        public static object InvokeBasePrivateInstancedMethod(string name, params object[] parameters)
-        {
-            try
-            {
-                return typeof(Game1).GetMethod(name, BindingFlags.NonPublic | BindingFlags.Instance).Invoke(Program.gamePtr, parameters);
-            }
-            catch
-            {
-                Log.AsyncR($"Failed to call base method '{name}'");
-                return null;
-            }
-        }
-
-        /// <summary>Safely invoke a method with the given parameters. If the invocation fails, this logs an error and returns null.</summary>
-        /// <param name="method">The method to invoke.</param>
-        /// <param name="parameters">The parameters to pass to the method.</param>
-        /// <returns>Returns the method return value (or null if void).</returns>
-        public static object InvokeMethodInfo(MethodInfo method, params object[] parameters)
-        {
-            try
-            {
-                return method.Invoke(Program.gamePtr, parameters);
-            }
-            catch
-            {
-                Log.AsyncR($"Failed to call base method '{method.Name}'");
-                return null;
-            }
         }
 
         /// <summary>Queue a message to be added to the debug output.</summary>
