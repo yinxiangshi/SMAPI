@@ -56,16 +56,5 @@ namespace StardewModdingAPI
         public static string LogDir => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley", "ErrorLogs");
 
         public static string LogPath => Path.Combine(LogDir, "MODDED_ProgramLog.Log_LATEST.txt");
-
-        /// <summary>
-        ///     Whether or not to enable the Render Target drawing code offered by ClxS
-        ///     Do not mark as 'const' or else 'if' checks will complain that the expression is always true in ReSharper
-        /// </summary>
-        public static bool EnableDrawingIntoRenderTarget => true;
-
-        /// <summary>
-        /// Completely overrides the base game's draw call to the one is SGame
-        /// </summary>
-        public static bool EnableCompletelyOverridingBaseCalls => true;
     }
 }
