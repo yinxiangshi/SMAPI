@@ -999,8 +999,8 @@ namespace StardewModdingAPI.Inheritance
                 }
 
                 // raise player inventory changed
-                List<ItemStackChange> changedItems;
-                if (this.HasInventoryChanged(Game1.player.items, out changedItems))
+                ItemStackChange[] changedItems = this.GetInventoryChanges(Game1.player.items, this.PreviousItems).ToArray();
+                if (changedItems.Any())
                 {
                     PlayerEvents.InvokeInventoryChanged(Game1.player.items, changedItems);
                     this.PreviousItems = Game1.player.items.Where(n => n != null).ToDictionary(n => n, n => n.Stack);
@@ -1064,38 +1064,37 @@ namespace StardewModdingAPI.Inheritance
             }
         }
 
-        /// <summary>Get whether the player inventory has changed.</summary>
-        /// <param name="items">The player's current inventory.</param>
-        /// <param name="changedItems">An out parameter populated with the detected changes.</param>
-        private bool HasInventoryChanged(List<Item> items, out List<ItemStackChange> changedItems)
+        /// <summary>Get the player inventory changes between two states.</summary>
+        /// <param name="current">The player's current inventory.</param>
+        /// <param name="previous">The player's previous inventory.</param>
+        private IEnumerable<ItemStackChange> GetInventoryChanges(IEnumerable<Item> current, IDictionary<Item, int> previous)
         {
-            changedItems = new List<ItemStackChange>();
-            Item[] actualItems = items.Where(n => n != null).ToArray();
-            foreach (var item in actualItems)
+            current = current.Where(n => n != null).ToArray();
+            foreach (Item item in current)
             {
                 // stack size changed
-                if (this.PreviousItems != null && this.PreviousItems.ContainsKey(item))
+                if (previous != null && previous.ContainsKey(item))
                 {
-                    if (this.PreviousItems[item] != item.Stack)
-                        changedItems.Add(new ItemStackChange { Item = item, StackChange = item.Stack - this.PreviousItems[item], ChangeType = ChangeType.StackChange });
+                    if (previous[item] != item.Stack)
+                        yield return new ItemStackChange { Item = item, StackChange = item.Stack - previous[item], ChangeType = ChangeType.StackChange };
                 }
 
                 // new item
                 else
-                    changedItems.Add(new ItemStackChange { Item = item, StackChange = item.Stack, ChangeType = ChangeType.Added });
+                    yield return new ItemStackChange { Item = item, StackChange = item.Stack, ChangeType = ChangeType.Added };
             }
 
             // removed items
-            if (this.PreviousItems != null)
+            if (previous != null)
             {
-                changedItems.AddRange(
-                    from item in this.PreviousItems
-                    where actualItems.All(i => i != item.Key)
-                    select new ItemStackChange { Item = item.Key, StackChange = -item.Key.Stack, ChangeType = ChangeType.Removed }
-                );
-            }
+                foreach (var entry in previous)
+                {
+                    if (current.Any(i => i == entry.Key))
+                        continue;
 
-            return changedItems.Any();
+                    yield return new ItemStackChange { Item = entry.Key, StackChange = -entry.Key.Stack, ChangeType = ChangeType.Removed };
+                }
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using StardewModdingAPI.Inheritance;
 using StardewValley;
 
@@ -45,9 +46,9 @@ namespace StardewModdingAPI.Events
         /// <summary>Raise an <see cref="InventoryChanged"/> event.</summary>
         /// <param name="inventory">The player's inventory.</param>
         /// <param name="changedItems">The inventory changes.</param>
-        internal static void InvokeInventoryChanged(List<Item> inventory, List<ItemStackChange> changedItems)
+        internal static void InvokeInventoryChanged(List<Item> inventory, IEnumerable<ItemStackChange> changedItems)
         {
-            PlayerEvents.InventoryChanged.Invoke(null, new EventArgsInventoryChanged(inventory, changedItems));
+            PlayerEvents.InventoryChanged.Invoke(null, new EventArgsInventoryChanged(inventory, changedItems.ToList()));
         }
 
         /// <summary>Rase a <see cref="LeveledUp"/> event.</summary>
