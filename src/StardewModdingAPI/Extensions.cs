@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
 namespace StardewModdingAPI
@@ -15,18 +14,6 @@ namespace StardewModdingAPI
         public static bool IsKeyDown(this Keys key)
         {
             return Keyboard.GetState().IsKeyDown(key);
-        }
-
-        public static Color RandomColour()
-        {
-            return new Color(Random.Next(0, 255), Random.Next(0, 255), Random.Next(0, 255));
-        }
-
-        [Obsolete("The usage of ToSingular has changed. Please update your call to use ToSingular<T>")]
-        public static string ToSingular(this IEnumerable ienum, string split = ", ")
-        {
-            Log.AsyncR("The usage of ToSingular has changed. Please update your call to use ToSingular<T>");
-            return "";
         }
 
         public static string ToSingular<T>(this IEnumerable<T> ienum, string split = ", ") // where T : class
@@ -50,17 +37,6 @@ namespace StardewModdingAPI
             return int.Parse(o.ToString());
         }
 
-        public static bool IsBool(this object o)
-        {
-            bool b;
-            return bool.TryParse(o.ToString(), out b);
-        }
-
-        public static bool AsBool(this object o)
-        {
-            return bool.Parse(o.ToString());
-        }
-
         public static int GetHash(this IEnumerable enumerable)
         {
             var hash = 0;
@@ -69,16 +45,6 @@ namespace StardewModdingAPI
                 hash ^= v.GetHashCode();
             }
             return hash;
-        }
-
-        public static T Cast<T>(this object o) where T : class
-        {
-            return o as T;
-        }
-
-        public static FieldInfo[] GetPrivateFields(this object o)
-        {
-            return o.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Static);
         }
 
         public static FieldInfo GetBaseFieldInfo(this Type t, string name)
