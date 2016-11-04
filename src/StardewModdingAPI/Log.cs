@@ -5,198 +5,227 @@ using System.Threading.Tasks;
 
 namespace StardewModdingAPI
 {
+    /// <summary>A singleton which logs messages to the SMAPI console and log file.</summary>
     public static class Log
     {
+        /*********
+        ** Properties
+        *********/
         /// <summary>A pseudorandom number generator used to generate log files.</summary>
         private static readonly Random Random = new Random();
 
-        private static readonly LogWriter _writer;
+        /// <summary>The underlying log writer.</summary>
+        private static readonly LogWriter Writer = LogWriter.Instance;
 
-        static Log()
-        {
-            _writer = LogWriter.Instance;
-        }
 
-        private static void PrintLog(LogInfo li)
-        {
-            _writer.WriteToLog(li);
-        }
-
-        #region Exception Logging
-
-        /// <summary>
-        ///     Catch unhandled exception from the application
-        /// </summary>
-        /// <remarks>Should be moved out of here if we do more than just log the exception.</remarks>
+        /*********
+        ** Public methods
+        *********/
+        /****
+        ** Exceptions
+        ****/
+        /// <summary>Log an exception event.</summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event arguments.</param>
         public static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             Console.WriteLine("An exception has been caught");
             File.WriteAllText(Path.Combine(Constants.LogDir, $"MODDED_ErrorLog.Log_{DateTime.UtcNow.Ticks}.txt"), e.ExceptionObject.ToString());
         }
 
-        /// <summary>
-        ///     Catch thread exception from the application
-        /// </summary>
-        /// <remarks>Should be moved out of here if we do more than just log the exception.</remarks>
+        /// <summary>Log a thread exception event.</summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event arguments.</param>
         public static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
         {
             Console.WriteLine("A thread exception has been caught");
             File.WriteAllText(Path.Combine(Constants.LogDir, $"MODDED_ErrorLog.Log_{Log.Random.Next(100000000, 999999999)}.txt"), e.Exception.ToString());
         }
-        #endregion
 
-        #region Sync Logging
-
-        /// <summary>
-        ///     NOTICE: Sync logging is discouraged. Please use Async instead.
-        /// </summary>
-        /// <param name="message">Message to log</param>
-        /// <param name="colour">Colour of message</param>
-        public static void SyncColour(object message, ConsoleColor colour)
+        /****
+        ** Synchronous logging
+        ****/
+        /// <summary>Synchronously log a message to the console. NOTE: synchronous logging is discouraged; use asynchronous methods instead.</summary>
+        /// <param name="message">The message to log.</param>
+        /// <param name="color">The message color.</param>
+        public static void SyncColour(object message, ConsoleColor color)
         {
-            PrintLog(new LogInfo(message?.ToString(), colour));
+            Log.PrintLog(new LogInfo(message?.ToString(), color));
         }
 
-        #endregion
-
-        #region Async Logging
-
-        public static void AsyncColour(object message, ConsoleColor colour)
+        /****
+        ** Asynchronous logging
+        ****/
+        /// <summary>Asynchronously log a message to the console with the specified color.</summary>
+        /// <param name="message">The message to log.</param>
+        /// <param name="color">The message color.</param>
+        public static void AsyncColour(object message, ConsoleColor color)
         {
-            Task.Run(() => { PrintLog(new LogInfo(message?.ToString(), colour)); });
+            Task.Run(() => { Log.PrintLog(new LogInfo(message?.ToString(), color)); });
         }
 
+        /// <summary>Asynchronously log a message to the console.</summary>
+        /// <param name="message">The message to log.</param>
         public static void Async(object message)
         {
-            AsyncColour(message?.ToString(), ConsoleColor.Gray);
+            Log.AsyncColour(message?.ToString(), ConsoleColor.Gray);
         }
 
+        /// <summary>Asynchronously log a red message to the console.</summary>
+        /// <param name="message">The message to log.</param>
         public static void AsyncR(object message)
         {
-            AsyncColour(message?.ToString(), ConsoleColor.Red);
+            Log.AsyncColour(message?.ToString(), ConsoleColor.Red);
         }
 
+        /// <summary>Asynchronously log an orange message to the console.</summary>
+        /// <param name="message">The message to log.</param>
         public static void AsyncO(object message)
         {
-            AsyncColour(message.ToString(), ConsoleColor.DarkYellow);
+            Log.AsyncColour(message.ToString(), ConsoleColor.DarkYellow);
         }
 
+        /// <summary>Asynchronously log a yellow message to the console.</summary>
+        /// <param name="message">The message to log.</param>
         public static void AsyncY(object message)
         {
-            AsyncColour(message?.ToString(), ConsoleColor.Yellow);
+            Log.AsyncColour(message?.ToString(), ConsoleColor.Yellow);
         }
 
+        /// <summary>Asynchronously log a green message to the console.</summary>
+        /// <param name="message">The message to log.</param>
         public static void AsyncG(object message)
         {
-            AsyncColour(message?.ToString(), ConsoleColor.Green);
+            Log.AsyncColour(message?.ToString(), ConsoleColor.Green);
         }
 
+        /// <summary>Asynchronously log a cyan message to the console.</summary>
+        /// <param name="message">The message to log.</param>
         public static void AsyncC(object message)
         {
-            AsyncColour(message?.ToString(), ConsoleColor.Cyan);
+            Log.AsyncColour(message?.ToString(), ConsoleColor.Cyan);
         }
 
+        /// <summary>Asynchronously log a magenta message to the console.</summary>
+        /// <param name="message">The message to log.</param>
         public static void AsyncM(object message)
         {
-            AsyncColour(message?.ToString(), ConsoleColor.Magenta);
+            Log.AsyncColour(message?.ToString(), ConsoleColor.Magenta);
         }
 
+        /// <summary>Asynchronously log an error to the console.</summary>
+        /// <param name="message">The message to log.</param>
         public static void Error(object message)
         {
-            AsyncR("[ERROR] " + message);
+            Log.AsyncR("[ERROR] " + message);
         }
 
+        /// <summary>Asynchronously log a success message to the console.</summary>
+        /// <param name="message">The message to log.</param>
         public static void Success(object message)
         {
-            AsyncG("[SUCCESS] " + message);
+            Log.AsyncG("[SUCCESS] " + message);
         }
 
+        /// <summary>Asynchronously log an info message to the console.</summary>
+        /// <param name="message">The message to log.</param>
         public static void Info(object message)
         {
-            AsyncY("[INFO] " + message);
+            Log.AsyncY("[INFO] " + message);
         }
 
+        // unused?
         public static void Out(object message)
         {
-            Async("[OUT] " + message);
+            Log.Async("[OUT] " + message);
         }
 
+        /// <summary>Asynchronously log a debug message to the console.</summary>
+        /// <param name="message">The message to log.</param>
         public static void Debug(object message)
         {
-            AsyncO("[DEBUG] " + message);
+            Log.AsyncO("[DEBUG] " + message);
         }
 
-        #endregion
-
-        #region ToRemove
-
+        /****
+        ** Obsolete
+        ****/
         public static void LogValueNotSpecified()
         {
-            AsyncR("<value> must be specified");
+            Log.AsyncR("<value> must be specified");
         }
 
         public static void LogObjectValueNotSpecified()
         {
-            AsyncR("<object> and <value> must be specified");
+            Log.AsyncR("<object> and <value> must be specified");
         }
 
         public static void LogValueInvalid()
         {
-            AsyncR("<value> is invalid");
+            Log.AsyncR("<value> is invalid");
         }
 
         public static void LogObjectInvalid()
         {
-            AsyncR("<object> is invalid");
+            Log.AsyncR("<object> is invalid");
         }
 
         public static void LogValueNotInt32()
         {
-            AsyncR("<value> must be a whole number (Int32)");
+            Log.AsyncR("<value> must be a whole number (Int32)");
         }
 
         [Obsolete("Parameter 'values' is no longer supported. Format before logging.")]
         private static void PrintLog(object message, bool disableLogging, params object[] values)
         {
-            PrintLog(new LogInfo(message?.ToString()));
+            Log.PrintLog(new LogInfo(message?.ToString()));
         }
 
         [Obsolete("Parameter 'values' is no longer supported. Format before logging.")]
         public static void Success(object message, params object[] values)
         {
-            Success(message);
+            Log.Success(message);
         }
 
         [Obsolete("Parameter 'values' is no longer supported. Format before logging.")]
         public static void Verbose(object message, params object[] values)
         {
-            Out(message);
+            Log.Out(message);
         }
 
         [Obsolete("Parameter 'values' is no longer supported. Format before logging.")]
         public static void Comment(object message, params object[] values)
         {
-            AsyncC(message);
+            Log.AsyncC(message);
         }
 
         [Obsolete("Parameter 'values' is no longer supported. Format before logging.")]
         public static void Info(object message, params object[] values)
         {
-            Info(message);
+            Log.Info(message);
         }
 
         [Obsolete("Parameter 'values' is no longer supported. Format before logging.")]
         public static void Error(object message, params object[] values)
         {
-            Error(message);
+            Log.Error(message);
         }
 
         [Obsolete("Parameter 'values' is no longer supported. Format before logging.")]
         public static void Debug(object message, params object[] values)
         {
-            Debug(message);
+            Log.Debug(message);
         }
 
-        #endregion
+
+        /*********
+        ** Private methods
+        *********/
+        /// <summary>Write a message to the log.</summary>
+        /// <param name="message">The message to write.</param>
+        private static void PrintLog(LogInfo message)
+        {
+            Log.Writer.WriteToLog(message);
+        }
     }
 }

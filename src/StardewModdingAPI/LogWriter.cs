@@ -5,35 +5,36 @@ using System.Linq;
 
 namespace StardewModdingAPI
 {
-    /// <summary>
-    ///     A Logging class implementing the Singleton pattern and an internal Queue to be flushed perdiodically
-    /// </summary>
+    /// <summary>A log writer which queues messages for output, and periodically flushes them to the console and log file.</summary>
     public class LogWriter
     {
+        /*********
+        ** Properties
+        *********/
+        /// <summary>The singleton instance.</summary>
         private static LogWriter _instance;
-        private static ConcurrentQueue<LogInfo> _logQueue;
-        private static StreamWriter _stream;
 
-        /// <summary>
-        ///     Private to prevent creation of other instances
-        /// </summary>
-        private LogWriter()
-        {
-        }
+        /// <summary>The queued messages to flush.</summary>
+        private static ConcurrentQueue<LogInfo> Queue;
 
-        /// <summary>
-        ///     Exposes _instace and creates a new one if it is null
-        /// </summary>
+        /// <summary>The underlying file stream.</summary>
+        private static StreamWriter FileStream;
+
+
+        /*********
+        ** Accessors
+        *********/
+        /// <summary>The singleton instance.</summary>
         internal static LogWriter Instance
         {
             get
             {
-                if (_instance == null)
+                if (LogWriter._instance == null)
                 {
-                    _instance = new LogWriter();
+                    LogWriter._instance = new LogWriter();
                     // Field cannot be used by anything else regardless, do not surround with lock { }
                     // ReSharper disable once InconsistentlySynchronizedField
-                    _logQueue = new ConcurrentQueue<LogInfo>();
+                    LogWriter.Queue = new ConcurrentQueue<LogInfo>();
                     Console.WriteLine(Constants.LogPath);
 
                     // If the ErrorLogs dir doesn't exist StreamWriter will throw an exception.
@@ -42,57 +43,56 @@ namespace StardewModdingAPI
                         Directory.CreateDirectory(Constants.LogDir);
                     }
 
-                    _stream = new StreamWriter(Constants.LogPath, false);
+                    LogWriter.FileStream = new StreamWriter(Constants.LogPath, false);
                     Console.WriteLine("Created log instance");
                 }
-                return _instance;
+                return LogWriter._instance;
             }
         }
 
-        /// <summary>
-        ///     Writes into the ConcurrentQueue the Message specified
-        /// </summary>
-        /// <param name="message">The message to write to the log</param>
+
+        /*********
+        ** Public methods
+        *********/
+        /// <summary>Queue a message for output.</summary>
+        /// <param name="message">The message to log.</param>
         public void WriteToLog(string message)
         {
-            lock (_logQueue)
+            lock (LogWriter.Queue)
             {
                 var logEntry = new LogInfo(message);
-                _logQueue.Enqueue(logEntry);
+                LogWriter.Queue.Enqueue(logEntry);
 
-                if (_logQueue.Any())
-                {
-                    FlushLog();
-                }
+                if (LogWriter.Queue.Any())
+                    this.FlushLog();
             }
         }
 
-        /// <summary>
-        ///     Writes into the ConcurrentQueue the Entry specified
-        /// </summary>
-        /// <param name="logEntry">The logEntry to write to the log</param>
-        public void WriteToLog(LogInfo logEntry)
+        /// <summary>Queue a message for output.</summary>
+        /// <param name="message">The message to log.</param>
+        public void WriteToLog(LogInfo message)
         {
-            lock (_logQueue)
+            lock (LogWriter.Queue)
             {
-                _logQueue.Enqueue(logEntry);
-
-                if (_logQueue.Any())
-                {
-                    FlushLog();
-                }
+                LogWriter.Queue.Enqueue(message);
+                if (LogWriter.Queue.Any())
+                    this.FlushLog();
             }
         }
 
-        /// <summary>
-        ///     Flushes the ConcurrentQueue to the log file specified in Constants
-        /// </summary>
+        /*********
+        ** Private methods
+        *********/
+        /// <summary>Construct an instance.</summary>
+        private LogWriter() { }
+
+        /// <summary>Flush the underlying queue to the console and file.</summary>
         private void FlushLog()
         {
-            lock (_stream)
+            lock (LogWriter.FileStream)
             {
                 LogInfo entry;
-                while (_logQueue.TryDequeue(out entry))
+                while (LogWriter.Queue.TryDequeue(out entry))
                 {
                     string m = $"[{entry.LogTime}] {entry.Message}";
 
@@ -100,9 +100,9 @@ namespace StardewModdingAPI
                     Console.WriteLine(m);
                     Console.ForegroundColor = ConsoleColor.Gray;
 
-                    _stream.WriteLine(m);
+                    LogWriter.FileStream.WriteLine(m);
                 }
-                _stream.Flush();
+                LogWriter.FileStream.Flush();
             }
         }
     }
