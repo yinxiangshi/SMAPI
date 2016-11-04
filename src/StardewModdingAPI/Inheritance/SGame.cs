@@ -16,42 +16,38 @@ using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace StardewModdingAPI.Inheritance
 {
-    /// <summary>
-    /// The 'SGame' class.
-    /// This summary, and many others, only exists because XML doc tags.
-    /// </summary>
+    /// <summary>SMAPI's extension of the game's core <see cref="Game1"/>, used to inject events.</summary>
     public class SGame : Game1
     {
+        /*********
+        ** Properties
+        *********/
+        /// <summary>Whether to raise <see cref="PlayerEvents.LoadedGame"/> on the next tick.</summary>
         private bool FireLoadedGameEvent;
 
-        /// <summary>
-        /// Gets a jagged array of all buttons pressed on the gamepad the prior frame.
-        /// </summary>
+        /// <summary>The debug messages to add to the next debug output.</summary>
+        internal static Queue<string> DebugMessageQueue { get; private set; }
+
+        /// <summary>Whether the game's zoom level is at 100% (i.e. nothing should be scaled).</summary>
+        public bool ZoomLevelIsOne => Game1.options.zoomLevel.Equals(1.0f);
+
+
+        /*********
+        ** Accessors
+        *********/
+        /// <summary>Arrays of pressed controller buttons indexed by <see cref="PlayerIndex"/>.</summary>
         public Buttons[][] PreviouslyPressedButtons;
 
-        internal SGame()
-        {
-            Instance = this;
-            FirstUpdate = true;
-        }
-
-        /// <summary>
-        /// The current KeyboardState
-        /// </summary>
+        /// <summary>A record of the keyboard state (i.e. the up/down state for each button) as of the latest tick.</summary>
         public KeyboardState KStateNow { get; private set; }
-        /// <summary>
-        /// The prior KeyboardState
-        /// </summary>
+
+        /// <summary>A record of the keyboard state (i.e. the up/down state for each button) as of the previous tick.</summary>
         public KeyboardState KStatePrior { get; private set; }
 
-        /// <summary>
-        /// The current MouseState
-        /// </summary>
+        /// <summary>A record of the mouse state (i.e. the cursor position, scroll amount, and the up/down state for each button) as of the latest tick.</summary>
         public MouseState MStateNow { get; private set; }
 
-        /// <summary>
-        /// The prior MouseState
-        /// </summary>
+        /// <summary>A record of the mouse state (i.e. the cursor position, scroll amount, and the up/down state for each button) as of the previous tick.</summary>
         public MouseState MStatePrior { get; private set; }
 
         /// <summary>The current mouse position on the screen adjusted for the zoom level.</summary>
@@ -60,231 +56,150 @@ namespace StardewModdingAPI.Inheritance
         /// <summary>The previous mouse position on the screen adjusted for the zoom level.</summary>
         public Point MPositionPrior { get; private set; }
 
-        /// <summary>
-        /// All keys pressed on the current frame
-        /// </summary>
-        public Keys[] CurrentlyPressedKeys => KStateNow.GetPressedKeys();
+        /// <summary>The keys that were pressed as of the latest tick.</summary>
+        public Keys[] CurrentlyPressedKeys => this.KStateNow.GetPressedKeys();
 
-        /// <summary>
-        /// All keys pressed on the prior frame
-        /// </summary>
-        public Keys[] PreviouslyPressedKeys => KStatePrior.GetPressedKeys();
+        /// <summary>The keys that were pressed as of the previous tick.</summary>
+        public Keys[] PreviouslyPressedKeys => this.KStatePrior.GetPressedKeys();
 
-        /// <summary>
-        /// All keys pressed on this frame except for the ones pressed on the prior frame
-        /// </summary>
-        public Keys[] FramePressedKeys => CurrentlyPressedKeys.Except(PreviouslyPressedKeys).ToArray();
+        /// <summary>The keys that just entered the down state.</summary>
+        public Keys[] FramePressedKeys => this.CurrentlyPressedKeys.Except(this.PreviouslyPressedKeys).ToArray();
 
-        /// <summary>
-        /// All keys pressed on the prior frame except for the ones pressed on the current frame
-        /// </summary>
-        public Keys[] FrameReleasedKeys => PreviouslyPressedKeys.Except(CurrentlyPressedKeys).ToArray();
+        /// <summary>The keys that just entered the up state.</summary>
+        public Keys[] FrameReleasedKeys => this.PreviouslyPressedKeys.Except(this.CurrentlyPressedKeys).ToArray();
 
-        /// <summary>
-        /// Whether or not a save was tagged as 'Loaded' the prior frame.
-        /// </summary>
+        /// <summary>Whether a save is currently loaded at last check.</summary>
         public bool PreviouslyLoadedGame { get; private set; }
 
-        /// <summary>
-        /// The list of GameLocations on the prior frame
-        /// </summary>
+        /// <summary>A hash of <see cref="Game1.locations"/> at last check.</summary>
         public int PreviousGameLocations { get; private set; }
 
-        /// <summary>
-        /// The list of GameObjects on the prior frame
-        /// </summary>
+        /// <summary>A hash of the current location's <see cref="GameLocation.objects"/> at last check.</summary>
         public int PreviousLocationObjects { get; private set; }
 
-        /// <summary>
-        /// The list of Items in the player's inventory on the prior frame
-        /// </summary>
+        /// <summary>The player's inventory at last check.</summary>
         public Dictionary<Item, int> PreviousItems { get; private set; }
 
-        /// <summary>
-        /// The player's Combat level on the prior frame
-        /// </summary>
+        /// <summary>The player's combat skill level at last check.</summary>
         public int PreviousCombatLevel { get; private set; }
-        /// <summary>
-        /// The player's Farming level on the prior frame
-        /// </summary>
+
+        /// <summary>The player's farming skill level at last check.</summary>
         public int PreviousFarmingLevel { get; private set; }
-        /// <summary>
-        /// The player's Fishing level on the prior frame
-        /// </summary>
+
+        /// <summary>The player's fishing skill level at last check.</summary>
         public int PreviousFishingLevel { get; private set; }
-        /// <summary>
-        /// The player's Foraging level on the prior frame
-        /// </summary>
+
+        /// <summary>The player's foraging skill level at last check.</summary>
         public int PreviousForagingLevel { get; private set; }
-        /// <summary>
-        /// The player's Mining level on the prior frame
-        /// </summary>
+
+        /// <summary>The player's mining skill level at last check.</summary>
         public int PreviousMiningLevel { get; private set; }
-        /// <summary>
-        /// The player's Luck level on the prior frame
-        /// </summary>
+
+        /// <summary>The player's luck skill level at last check.</summary>
         public int PreviousLuckLevel { get; private set; }
 
-        //Kill me now comments are so boring
-
-        /// <summary>
-        /// The player's previous game location
-        /// </summary>
+        /// <summary>The player's location at last check.</summary>
         public GameLocation PreviousGameLocation { get; private set; }
 
-        /// <summary>
-        /// The previous ActiveGameMenu in Game1
-        /// </summary>
+        /// <summary>The active game menu at last check.</summary>
         public IClickableMenu PreviousActiveMenu { get; private set; }
 
-        /// <summary>
-        /// Indicates if the MenuClosed event was fired to prevent it from re-firing.
-        /// </summary>
-        internal bool WasMenuClosedInvoked = false;
+        /// <summary>Whether the <see cref="MenuEvents.MenuClosed"/> event was raised in the last tick.</summary>
+        internal bool WasMenuClosedInvoked;
 
-        /// <summary>
-        /// The previous mine level
-        /// </summary>
+        /// <summary>The mine level at last check.</summary>
         public int PreviousMineLevel { get; private set; }
 
-        /// <summary>
-        /// The previous TimeOfDay (Int32 between 600 and 2400?)
-        /// </summary>
+        /// <summary>The time of day (in 24-hour military format) at last check.</summary>
         public int PreviousTimeOfDay { get; private set; }
 
-        /// <summary>
-        /// The previous DayOfMonth (Int32 between 1 and 28?)
-        /// </summary>
+        /// <summary>The day of month (1–28) at last check.</summary>
         public int PreviousDayOfMonth { get; private set; }
 
-        /// <summary>
-        /// The previous Season (String as follows: "winter", "spring", "summer", "fall")
-        /// </summary>
+        /// <summary>The season name (winter, spring, summer, or fall) at last check.</summary>
         public string PreviousSeasonOfYear { get; private set; }
 
-        /// <summary>
-        /// The previous Year
-        /// </summary>
+        /// <summary>The year number at last check.</summary>
         public int PreviousYearOfGame { get; private set; }
 
-        /// <summary>
-        /// The previous result of Game1.newDay
-        /// </summary>
+        /// <summary>Whether the game was transitioning to a new day at last check.</summary>
         public bool PreviousIsNewDay { get; private set; }
 
-        /// <summary>
-        /// The previous 'Farmer' (Player)
-        /// </summary>
+        /// <summary>The player character at last check.</summary>
         public Farmer PreviousFarmer { get; private set; }
 
-        /// <summary>
-        /// The current index of the update tick. Recycles every 60th tick to 0. (Int32 between 0 and 59)
-        /// </summary>
+        /// <summary>An index incremented on every tick and reset every 60th tick (0–59).</summary>
         public int CurrentUpdateTick { get; private set; }
 
-        /// <summary>
-        /// Whether or not this update frame is the very first of the entire game
-        /// </summary>
+        /// <summary>Whether this is the very first update tick since the game started.</summary>
         public bool FirstUpdate { get; private set; }
 
-        /// <summary>
-        /// The current RenderTarget in Game1 (Private field, uses reflection)
-        /// </summary>
+        /// <summary>The game's current render target.</summary>
         public RenderTarget2D Screen
         {
-            get { return typeof (Game1).GetBaseFieldValue<RenderTarget2D>(Program.gamePtr, "screen"); }
-            set { typeof (Game1).SetBaseFieldValue<RenderTarget2D>(this, "screen", value); }
+            get { return typeof(Game1).GetBaseFieldValue<RenderTarget2D>(Program.gamePtr, "screen"); }
+            set { typeof(Game1).SetBaseFieldValue<RenderTarget2D>(this, "screen", value); }
         }
 
-        /// <summary>
-        /// The current Colour in Game1 (Private field, uses reflection)
-        /// </summary>
+        /// <summary>The game's current background color.</summary>
         public Color BgColour
         {
             get { return (Color)typeof(Game1).GetBaseFieldValue<object>(Program.gamePtr, "bgColor"); }
             set { typeof(Game1).SetBaseFieldValue<object>(this, "bgColor", value); }
         }
 
-        /// <summary>
-        /// Static accessor for an Instance of the class SGame
-        /// </summary>
+        /// <summary>The current game instance.</summary>
         public static SGame Instance { get; private set; }
 
-        /// <summary>
-        /// The game's FPS. Re-determined every Draw update.
-        /// </summary>
+        /// <summary>The game's current frame rate, recalculated on each draw update.</summary>
         public static float FramesPerSecond { get; private set; }
 
-        /// <summary>
-        /// Whether or not we're in a pseudo 'debug' mode. Mostly for displaying information like FPS.
-        /// </summary>
+        /// <summary>Whether we're in pseudo-debug mode, which shows information like FPS.</summary>
         public static bool Debug { get; private set; }
-        internal static Queue<String> DebugMessageQueue { get; private set; }
 
-        /// <summary>
-        /// The current player (equal to Farmer.Player)
-        /// </summary>
-        [Obsolete("Use Farmer.Player instead")]
-        public Farmer CurrentFarmer => player;
+        /// <summary>The current player.</summary>
+        [Obsolete("Use Game1.player instead")]
+        public Farmer CurrentFarmer => Game1.player;
 
-        /// <summary>
-        /// Gets ALL static fields that belong to 'Game1'
-        /// </summary>
-        public static FieldInfo[] GetStaticFields => typeof (Game1).GetFields();
-        
-        /// <summary>
-        /// Whether or not a button was just pressed on the controller
-        /// </summary>
-        /// <param name="button"></param>
-        /// <param name="buttonState"></param>
-        /// <param name="stateIndex"></param>
-        /// <returns></returns>
-        private bool WasButtonJustPressed(Buttons button, ButtonState buttonState, PlayerIndex stateIndex)
-        {
-            return buttonState == ButtonState.Pressed && !PreviouslyPressedButtons[(int) stateIndex].Contains(button);
-        }
+        /// <summary>Get ALL static fields that belong to 'Game1'.</summary>
+        public static FieldInfo[] GetStaticFields => typeof(Game1).GetFields();
 
-        /// <summary>
-        /// Whether or not a button was just released on the controller
-        /// </summary>
-        /// <param name="button"></param>
-        /// <param name="buttonState"></param>
-        /// <param name="stateIndex"></param>
-        /// <returns></returns>
-        private bool WasButtonJustReleased(Buttons button, ButtonState buttonState, PlayerIndex stateIndex)
-        {
-            return buttonState == ButtonState.Released && PreviouslyPressedButtons[(int) stateIndex].Contains(button);
-        }
+        /// <summary>The game method which draws the farm buildings.</summary>
+        public static MethodInfo DrawFarmBuildings = typeof(Game1).GetMethod("drawFarmBuildings", BindingFlags.NonPublic | BindingFlags.Instance);
 
-        /// <summary>
-        /// Whether or not an analog button was just pressed on the controller
-        /// </summary>
-        /// <param name="button"></param>
-        /// <param name="value"></param>
-        /// <param name="stateIndex"></param>
-        /// <returns></returns>
-        private bool WasButtonJustPressed(Buttons button, float value, PlayerIndex stateIndex)
-        {
-            return WasButtonJustPressed(button, value > 0.2f ? ButtonState.Pressed : ButtonState.Released, stateIndex);
-        }
+        /// <summary>The game method which draws the game HUD.</summary>
+        public static MethodInfo DrawHUD = typeof(Game1).GetMethod("drawHUD", BindingFlags.NonPublic | BindingFlags.Instance);
 
-        /// <summary>
-        /// Whether or not an analog button was just released on the controller
-        /// </summary>
-        /// <param name="button"></param>
-        /// <param name="value"></param>
-        /// <param name="stateIndex"></param>
-        /// <returns></returns>
-        private bool WasButtonJustReleased(Buttons button, float value, PlayerIndex stateIndex)
-        {
-            return WasButtonJustReleased(button, value > 0.2f ? ButtonState.Pressed : ButtonState.Released, stateIndex);
-        }
+        /// <summary>The game method which draws the current dialogue box, if any.</summary>
+        public static MethodInfo DrawDialogueBox = typeof(Game1).GetMethod("drawDialogueBox", BindingFlags.NonPublic | BindingFlags.Instance);
 
-        /// <summary>
-        /// Gets an array of all Buttons pressed on a joystick
-        /// </summary>
-        /// <param name="index"></param>
-        /// <returns></returns>
+        /// <summary>The game method which handles any escape keys that are currently pressed (e.g. closing the active menu).</summary>
+        public static MethodInfo CheckForEscapeKeys = typeof(Game1).GetMethod("checkForEscapeKeys", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        /// <summary>The game method which detects and handles user input. This includes updating state, checking for hover actions, propagating clicks, etc.</summary>
+        public static MethodInfo UpdateControlInput = typeof(Game1).GetMethod("UpdateControlInput", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        /// <summary>The game method which updates player characters (see <see cref="Farmer.Update"/>).</summary>
+        public static MethodInfo UpdateCharacters = typeof(Game1).GetMethod("UpdateCharacters", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        /// <summary>The game method which updates all locations.</summary>
+        public static MethodInfo UpdateLocations = typeof(Game1).GetMethod("UpdateLocations", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        /// <summary>The game method which gets the viewport-relative coordinate at the center of the screen.</summary>
+        public static MethodInfo getViewportCenter = typeof(Game1).GetMethod("getViewportCenter", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        /// <summary>The game method which updates the title screen to reflect time and user input.</summary>
+        public static MethodInfo UpdateTitleScreen = typeof(Game1).GetMethod("UpdateTitleScreen", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        // unused?
+        public delegate void BaseBaseDraw();
+
+
+        /*********
+        ** Public methods
+        *********/
+        /// <summary>Get the controller buttons which are currently pressed.</summary>
+        /// <param name="index">The controller to check.</param>
         public Buttons[] GetButtonsDown(PlayerIndex index)
         {
             var state = GamePad.GetState(index);
@@ -312,122 +227,139 @@ namespace StardewModdingAPI.Inheritance
             return buttons.ToArray();
         }
 
-        /// <summary>
-        /// Gets all buttons that were pressed on the current frame of a joystick
-        /// </summary>
-        /// <param name="index"></param>
-        /// <returns></returns>
+        /// <summary>Get the controller buttons which were pressed after the last update.</summary>
+        /// <param name="index">The controller to check.</param>
         public Buttons[] GetFramePressedButtons(PlayerIndex index)
         {
             var state = GamePad.GetState(index);
             var buttons = new List<Buttons>();
             if (state.IsConnected)
             {
-                if (WasButtonJustPressed(Buttons.A, state.Buttons.A, index)) buttons.Add(Buttons.A);
-                if (WasButtonJustPressed(Buttons.B, state.Buttons.B, index)) buttons.Add(Buttons.B);
-                if (WasButtonJustPressed(Buttons.Back, state.Buttons.Back, index)) buttons.Add(Buttons.Back);
-                if (WasButtonJustPressed(Buttons.BigButton, state.Buttons.BigButton, index)) buttons.Add(Buttons.BigButton);
-                if (WasButtonJustPressed(Buttons.LeftShoulder, state.Buttons.LeftShoulder, index)) buttons.Add(Buttons.LeftShoulder);
-                if (WasButtonJustPressed(Buttons.LeftStick, state.Buttons.LeftStick, index)) buttons.Add(Buttons.LeftStick);
-                if (WasButtonJustPressed(Buttons.RightShoulder, state.Buttons.RightShoulder, index)) buttons.Add(Buttons.RightShoulder);
-                if (WasButtonJustPressed(Buttons.RightStick, state.Buttons.RightStick, index)) buttons.Add(Buttons.RightStick);
-                if (WasButtonJustPressed(Buttons.Start, state.Buttons.Start, index)) buttons.Add(Buttons.Start);
-                if (WasButtonJustPressed(Buttons.X, state.Buttons.X, index)) buttons.Add(Buttons.X);
-                if (WasButtonJustPressed(Buttons.Y, state.Buttons.Y, index)) buttons.Add(Buttons.Y);
-                if (WasButtonJustPressed(Buttons.DPadUp, state.DPad.Up, index)) buttons.Add(Buttons.DPadUp);
-                if (WasButtonJustPressed(Buttons.DPadDown, state.DPad.Down, index)) buttons.Add(Buttons.DPadDown);
-                if (WasButtonJustPressed(Buttons.DPadLeft, state.DPad.Left, index)) buttons.Add(Buttons.DPadLeft);
-                if (WasButtonJustPressed(Buttons.DPadRight, state.DPad.Right, index)) buttons.Add(Buttons.DPadRight);
-                if (WasButtonJustPressed(Buttons.LeftTrigger, state.Triggers.Left, index)) buttons.Add(Buttons.LeftTrigger);
-                if (WasButtonJustPressed(Buttons.RightTrigger, state.Triggers.Right, index)) buttons.Add(Buttons.RightTrigger);
+                if (this.WasButtonJustPressed(Buttons.A, state.Buttons.A, index)) buttons.Add(Buttons.A);
+                if (this.WasButtonJustPressed(Buttons.B, state.Buttons.B, index)) buttons.Add(Buttons.B);
+                if (this.WasButtonJustPressed(Buttons.Back, state.Buttons.Back, index)) buttons.Add(Buttons.Back);
+                if (this.WasButtonJustPressed(Buttons.BigButton, state.Buttons.BigButton, index)) buttons.Add(Buttons.BigButton);
+                if (this.WasButtonJustPressed(Buttons.LeftShoulder, state.Buttons.LeftShoulder, index)) buttons.Add(Buttons.LeftShoulder);
+                if (this.WasButtonJustPressed(Buttons.LeftStick, state.Buttons.LeftStick, index)) buttons.Add(Buttons.LeftStick);
+                if (this.WasButtonJustPressed(Buttons.RightShoulder, state.Buttons.RightShoulder, index)) buttons.Add(Buttons.RightShoulder);
+                if (this.WasButtonJustPressed(Buttons.RightStick, state.Buttons.RightStick, index)) buttons.Add(Buttons.RightStick);
+                if (this.WasButtonJustPressed(Buttons.Start, state.Buttons.Start, index)) buttons.Add(Buttons.Start);
+                if (this.WasButtonJustPressed(Buttons.X, state.Buttons.X, index)) buttons.Add(Buttons.X);
+                if (this.WasButtonJustPressed(Buttons.Y, state.Buttons.Y, index)) buttons.Add(Buttons.Y);
+                if (this.WasButtonJustPressed(Buttons.DPadUp, state.DPad.Up, index)) buttons.Add(Buttons.DPadUp);
+                if (this.WasButtonJustPressed(Buttons.DPadDown, state.DPad.Down, index)) buttons.Add(Buttons.DPadDown);
+                if (this.WasButtonJustPressed(Buttons.DPadLeft, state.DPad.Left, index)) buttons.Add(Buttons.DPadLeft);
+                if (this.WasButtonJustPressed(Buttons.DPadRight, state.DPad.Right, index)) buttons.Add(Buttons.DPadRight);
+                if (this.WasButtonJustPressed(Buttons.LeftTrigger, state.Triggers.Left, index)) buttons.Add(Buttons.LeftTrigger);
+                if (this.WasButtonJustPressed(Buttons.RightTrigger, state.Triggers.Right, index)) buttons.Add(Buttons.RightTrigger);
             }
             return buttons.ToArray();
         }
 
-        /// <summary>
-        /// Gets all buttons that were released on the current frame of a joystick
-        /// </summary>
-        /// <param name="index"></param>
-        /// <returns></returns>
+        /// <summary>Get the controller buttons which were released after the last update.</summary>
+        /// <param name="index">The controller to check.</param>
         public Buttons[] GetFrameReleasedButtons(PlayerIndex index)
         {
             var state = GamePad.GetState(index);
             var buttons = new List<Buttons>();
             if (state.IsConnected)
             {
-                if (WasButtonJustReleased(Buttons.A, state.Buttons.A, index)) buttons.Add(Buttons.A);
-                if (WasButtonJustReleased(Buttons.B, state.Buttons.B, index)) buttons.Add(Buttons.B);
-                if (WasButtonJustReleased(Buttons.Back, state.Buttons.Back, index)) buttons.Add(Buttons.Back);
-                if (WasButtonJustReleased(Buttons.BigButton, state.Buttons.BigButton, index)) buttons.Add(Buttons.BigButton);
-                if (WasButtonJustReleased(Buttons.LeftShoulder, state.Buttons.LeftShoulder, index)) buttons.Add(Buttons.LeftShoulder);
-                if (WasButtonJustReleased(Buttons.LeftStick, state.Buttons.LeftStick, index)) buttons.Add(Buttons.LeftStick);
-                if (WasButtonJustReleased(Buttons.RightShoulder, state.Buttons.RightShoulder, index)) buttons.Add(Buttons.RightShoulder);
-                if (WasButtonJustReleased(Buttons.RightStick, state.Buttons.RightStick, index)) buttons.Add(Buttons.RightStick);
-                if (WasButtonJustReleased(Buttons.Start, state.Buttons.Start, index)) buttons.Add(Buttons.Start);
-                if (WasButtonJustReleased(Buttons.X, state.Buttons.X, index)) buttons.Add(Buttons.X);
-                if (WasButtonJustReleased(Buttons.Y, state.Buttons.Y, index)) buttons.Add(Buttons.Y);
-                if (WasButtonJustReleased(Buttons.DPadUp, state.DPad.Up, index)) buttons.Add(Buttons.DPadUp);
-                if (WasButtonJustReleased(Buttons.DPadDown, state.DPad.Down, index)) buttons.Add(Buttons.DPadDown);
-                if (WasButtonJustReleased(Buttons.DPadLeft, state.DPad.Left, index)) buttons.Add(Buttons.DPadLeft);
-                if (WasButtonJustReleased(Buttons.DPadRight, state.DPad.Right, index)) buttons.Add(Buttons.DPadRight);
-                if (WasButtonJustReleased(Buttons.LeftTrigger, state.Triggers.Left, index)) buttons.Add(Buttons.LeftTrigger);
-                if (WasButtonJustReleased(Buttons.RightTrigger, state.Triggers.Right, index)) buttons.Add(Buttons.RightTrigger);
+                if (this.WasButtonJustReleased(Buttons.A, state.Buttons.A, index)) buttons.Add(Buttons.A);
+                if (this.WasButtonJustReleased(Buttons.B, state.Buttons.B, index)) buttons.Add(Buttons.B);
+                if (this.WasButtonJustReleased(Buttons.Back, state.Buttons.Back, index)) buttons.Add(Buttons.Back);
+                if (this.WasButtonJustReleased(Buttons.BigButton, state.Buttons.BigButton, index)) buttons.Add(Buttons.BigButton);
+                if (this.WasButtonJustReleased(Buttons.LeftShoulder, state.Buttons.LeftShoulder, index)) buttons.Add(Buttons.LeftShoulder);
+                if (this.WasButtonJustReleased(Buttons.LeftStick, state.Buttons.LeftStick, index)) buttons.Add(Buttons.LeftStick);
+                if (this.WasButtonJustReleased(Buttons.RightShoulder, state.Buttons.RightShoulder, index)) buttons.Add(Buttons.RightShoulder);
+                if (this.WasButtonJustReleased(Buttons.RightStick, state.Buttons.RightStick, index)) buttons.Add(Buttons.RightStick);
+                if (this.WasButtonJustReleased(Buttons.Start, state.Buttons.Start, index)) buttons.Add(Buttons.Start);
+                if (this.WasButtonJustReleased(Buttons.X, state.Buttons.X, index)) buttons.Add(Buttons.X);
+                if (this.WasButtonJustReleased(Buttons.Y, state.Buttons.Y, index)) buttons.Add(Buttons.Y);
+                if (this.WasButtonJustReleased(Buttons.DPadUp, state.DPad.Up, index)) buttons.Add(Buttons.DPadUp);
+                if (this.WasButtonJustReleased(Buttons.DPadDown, state.DPad.Down, index)) buttons.Add(Buttons.DPadDown);
+                if (this.WasButtonJustReleased(Buttons.DPadLeft, state.DPad.Left, index)) buttons.Add(Buttons.DPadLeft);
+                if (this.WasButtonJustReleased(Buttons.DPadRight, state.DPad.Right, index)) buttons.Add(Buttons.DPadRight);
+                if (this.WasButtonJustReleased(Buttons.LeftTrigger, state.Triggers.Left, index)) buttons.Add(Buttons.LeftTrigger);
+                if (this.WasButtonJustReleased(Buttons.RightTrigger, state.Triggers.Right, index)) buttons.Add(Buttons.RightTrigger);
             }
             return buttons.ToArray();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public static MethodInfo DrawFarmBuildings = typeof (Game1).GetMethod("drawFarmBuildings", BindingFlags.NonPublic | BindingFlags.Instance);
+        /// <summary>Safely invoke a private non-static <see cref="Game1"/> method. If the invocation fails, this logs an error and returns null.</summary>
+        /// <param name="name">The method name to find.</param>
+        /// <param name="parameters">The parameters to pass to the method.</param>
+        /// <returns>Returns the method return value (or null if void).</returns>
+        [Obsolete("This is very slow. Cache the method info and then invoke it with InvokeMethodInfo().")]
+        public static object InvokeBasePrivateInstancedMethod(string name, params object[] parameters)
+        {
+            try
+            {
+                return typeof(Game1).GetMethod(name, BindingFlags.NonPublic | BindingFlags.Instance).Invoke(Program.gamePtr, parameters);
+            }
+            catch
+            {
+                Log.AsyncR($"Failed to call base method '{name}'");
+                return null;
+            }
+        }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public static MethodInfo DrawHUD = typeof (Game1).GetMethod("drawHUD", BindingFlags.NonPublic | BindingFlags.Instance);
+        /// <summary>Safely invoke a method with the given parameters. If the invocation fails, this logs an error and returns null.</summary>
+        /// <param name="method">The method to invoke.</param>
+        /// <param name="parameters">The parameters to pass to the method.</param>
+        /// <returns>Returns the method return value (or null if void).</returns>
+        public static object InvokeMethodInfo(MethodInfo method, params object[] parameters)
+        {
+            try
+            {
+                return method.Invoke(Program.gamePtr, parameters);
+            }
+            catch
+            {
+                Log.AsyncR($"Failed to call base method '{method.Name}'");
+                return null;
+            }
+        }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public static MethodInfo DrawDialogueBox = typeof (Game1).GetMethod("drawDialogueBox", BindingFlags.NonPublic | BindingFlags.Instance);
+        /// <summary>Queue a message to be added to the debug output.</summary>
+        /// <param name="message">The message to add.</param>
+        /// <returns>Returns whether the message was successfully queued.</returns>
+        public static bool QueueDebugMessage(string message)
+        {
+            if (!SGame.Debug)
+                return false;
+            if (SGame.DebugMessageQueue.Count > 32)
+                return false;
 
-        public static MethodInfo CheckForEscapeKeys = typeof (Game1).GetMethod("checkForEscapeKeys", BindingFlags.NonPublic | BindingFlags.Instance);
+            SGame.DebugMessageQueue.Enqueue(message);
+            return true;
+        }
 
-        public static MethodInfo UpdateControlInput = typeof(Game1).GetMethod("UpdateControlInput", BindingFlags.NonPublic | BindingFlags.Instance);
 
-        public static MethodInfo UpdateCharacters = typeof(Game1).GetMethod("UpdateCharacters", BindingFlags.NonPublic | BindingFlags.Instance);
+        /*********
+        ** Protected methods
+        *********/
+        /// <summary>Construct an instance.</summary>
+        internal SGame()
+        {
+            SGame.Instance = this;
+            this.FirstUpdate = true;
+        }
 
-        public static MethodInfo UpdateLocations = typeof(Game1).GetMethod("UpdateLocations", BindingFlags.NonPublic | BindingFlags.Instance);
-
-        public static MethodInfo getViewportCenter = typeof(Game1).GetMethod("getViewportCenter", BindingFlags.NonPublic | BindingFlags.Instance);
-
-        public static MethodInfo UpdateTitleScreen = typeof(Game1).GetMethod("UpdateTitleScreen", BindingFlags.NonPublic | BindingFlags.Instance);
-
-        public delegate void BaseBaseDraw();
-
-        /// <summary>
-        /// Whether or not the game's zoom level is 1.0f
-        /// </summary>
-        public bool ZoomLevelIsOne => options.zoomLevel.Equals(1.0f);
-
-        /// <summary>
-        /// XNA Init Method
-        /// </summary>
+        /// <summary>The method called during game launch after configuring XNA or MonoGame. The game window hasn't been opened by this point.</summary>
         protected override void Initialize()
         {
             Log.AsyncY("XNA Initialize");
             //ModItems = new Dictionary<int, SObject>();
-            DebugMessageQueue = new Queue<string>();
-            PreviouslyPressedButtons = new Buttons[4][];
-            for (var i = 0; i < 4; ++i) PreviouslyPressedButtons[i] = new Buttons[0];
+            SGame.DebugMessageQueue = new Queue<string>();
+            this.PreviouslyPressedButtons = new Buttons[4][];
+            for (var i = 0; i < 4; ++i)
+                this.PreviouslyPressedButtons[i] = new Buttons[0];
 
             base.Initialize();
             GameEvents.InvokeInitialize();
         }
 
-        /// <summary>
-        /// XNA LC Method
-        /// </summary>
+        /// <summary>The method called before XNA or MonoGame loads or reloads graphics resources.</summary>
         protected override void LoadContent()
         {
             Log.AsyncY("XNA LoadContent");
@@ -435,152 +367,142 @@ namespace StardewModdingAPI.Inheritance
             GameEvents.InvokeLoadContent();
         }
 
-        /// <summary>
-        /// XNA Update Method
-        /// </summary>
-        /// <param name="gameTime"></param>
+        /// <summary>The method called when the game is updating its state. This happens roughly 60 times per second.</summary>
+        /// <param name="gameTime">A snapshot of the game timing state.</param>
         protected override void Update(GameTime gameTime)
         {
-            QueueDebugMessage("FPS: " + FramesPerSecond);
-            UpdateEventCalls();
+            // add FPS to debug output
+            SGame.QueueDebugMessage($"FPS: {SGame.FramesPerSecond}");
 
-            if (FramePressedKeys.Contains(Keys.F3))
-            {
-                Debug = !Debug;
-            }
+            // update SMAPI events
+            this.UpdateEventCalls();
 
+            // toggle debug output
+            if (this.FramePressedKeys.Contains(Keys.F3))
+                SGame.Debug = !SGame.Debug;
+
+            // let game update
             try
             {
                 base.Update(gameTime);
             }
             catch (Exception ex)
             {
-                Log.AsyncR("An error occured in the base update loop: " + ex);
+                Log.AsyncR($"An error occured in the base update loop: {ex}");
                 Console.ReadKey();
             }
 
+            // raise update events
             GameEvents.InvokeUpdateTick();
-            if (FirstUpdate)
+            if (this.FirstUpdate)
             {
                 GameEvents.InvokeFirstUpdateTick();
-                FirstUpdate = false;
+                this.FirstUpdate = false;
             }
-
-            if (CurrentUpdateTick % 2 == 0)
+            if (this.CurrentUpdateTick % 2 == 0)
                 GameEvents.InvokeSecondUpdateTick();
-
-            if (CurrentUpdateTick % 4 == 0)
+            if (this.CurrentUpdateTick % 4 == 0)
                 GameEvents.InvokeFourthUpdateTick();
-
-            if (CurrentUpdateTick % 8 == 0)
+            if (this.CurrentUpdateTick % 8 == 0)
                 GameEvents.InvokeEighthUpdateTick();
-
-            if (CurrentUpdateTick % 15 == 0)
+            if (this.CurrentUpdateTick % 15 == 0)
                 GameEvents.InvokeQuarterSecondTick();
-
-            if (CurrentUpdateTick % 30 == 0)
+            if (this.CurrentUpdateTick % 30 == 0)
                 GameEvents.InvokeHalfSecondTick();
-
-            if (CurrentUpdateTick % 60 == 0)
+            if (this.CurrentUpdateTick % 60 == 0)
                 GameEvents.InvokeOneSecondTick();
+            this.CurrentUpdateTick += 1;
+            if (this.CurrentUpdateTick >= 60)
+                this.CurrentUpdateTick = 0;
 
-            CurrentUpdateTick += 1;
-            if (CurrentUpdateTick >= 60)
-                CurrentUpdateTick = 0;
+            // track keyboard state
+            if (this.KStatePrior != this.KStateNow)
+                this.KStatePrior = this.KStateNow;
 
-            if (KStatePrior != KStateNow)
-                KStatePrior = KStateNow;
-
+            // track controller button state
             for (var i = PlayerIndex.One; i <= PlayerIndex.Four; i++)
-            {
-                PreviouslyPressedButtons[(int) i] = GetButtonsDown(i);
-            }
+                this.PreviouslyPressedButtons[(int)i] = this.GetButtonsDown(i);
         }
 
-        /// <summary>
-        /// XNA Draw Method
-        /// </summary>
-        /// <param name="gameTime"></param>
+        /// <summary>The method called to draw everything to the screen.</summary>
+        /// <param name="gameTime">A snapshot of the game timing state.</param>
         protected override void Draw(GameTime gameTime)
         {
-            FramesPerSecond = 1 / (float) gameTime.ElapsedGameTime.TotalSeconds;
+            // track frame rate
+            SGame.FramesPerSecond = 1 / (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             if (Constants.EnableCompletelyOverridingBaseCalls)
             {
-                #region Overridden Draw
-
                 try
                 {
-                    if (!ZoomLevelIsOne)
-                    {
-                        GraphicsDevice.SetRenderTarget(Screen);
-                    }
+                    if (!this.ZoomLevelIsOne)
+                        this.GraphicsDevice.SetRenderTarget(this.Screen);
 
-                    GraphicsDevice.Clear(BgColour);
-                    if (options.showMenuBackground && activeClickableMenu != null && activeClickableMenu.showWithoutTransparencyIfOptionIsSet())
+                    this.GraphicsDevice.Clear(this.BgColour);
+                    if (Game1.options.showMenuBackground && Game1.activeClickableMenu != null && Game1.activeClickableMenu.showWithoutTransparencyIfOptionIsSet())
                     {
-                        spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
-                        activeClickableMenu.drawBackground(spriteBatch);
+                        Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
+                        Game1.activeClickableMenu.drawBackground(Game1.spriteBatch);
                         GraphicsEvents.InvokeOnPreRenderGuiEvent(null, EventArgs.Empty);
-                        activeClickableMenu.draw(spriteBatch);
+                        Game1.activeClickableMenu.draw(Game1.spriteBatch);
                         GraphicsEvents.InvokeOnPostRenderGuiEvent(null, EventArgs.Empty);
-                        spriteBatch.End();
-                        if (!ZoomLevelIsOne)
+                        Game1.spriteBatch.End();
+                        if (!this.ZoomLevelIsOne)
                         {
-                            GraphicsDevice.SetRenderTarget(null);
-                            GraphicsDevice.Clear(BgColour);
-                            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
-                            spriteBatch.Draw(Screen, Vector2.Zero, Screen.Bounds, Color.White, 0f, Vector2.Zero, options.zoomLevel, SpriteEffects.None, 1f);
-                            spriteBatch.End();
+                            this.GraphicsDevice.SetRenderTarget(null);
+                            this.GraphicsDevice.Clear(this.BgColour);
+                            Game1.spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
+                            Game1.spriteBatch.Draw(this.Screen, Vector2.Zero, this.Screen.Bounds, Color.White, 0f, Vector2.Zero, Game1.options.zoomLevel, SpriteEffects.None, 1f);
+                            Game1.spriteBatch.End();
                         }
                         return;
                     }
-                    if (gameMode == 11)
+                    if (Game1.gameMode == 11)
                     {
-                        spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
-                        spriteBatch.DrawString(smoothFont, "Stardew Valley has crashed...", new Vector2(16f, 16f), Color.HotPink);
-                        spriteBatch.DrawString(smoothFont, "Please send the error report or a screenshot of this message to @ConcernedApe. (http://stardewvalley.net/contact/)", new Vector2(16f, 32f), new Color(0, 255, 0));
-                        spriteBatch.DrawString(smoothFont, parseText(errorMessage, smoothFont, graphics.GraphicsDevice.Viewport.Width), new Vector2(16f, 48f), Color.White);
-                        spriteBatch.End();
+                        Game1.spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
+                        Game1.spriteBatch.DrawString(Game1.smoothFont, "Stardew Valley has crashed...", new Vector2(16f, 16f), Color.HotPink);
+                        Game1.spriteBatch.DrawString(Game1.smoothFont, "Please send the error report or a screenshot of this message to @ConcernedApe. (http://stardewvalley.net/contact/)", new Vector2(16f, 32f), new Color(0, 255, 0));
+                        Game1.spriteBatch.DrawString(Game1.smoothFont, Game1.parseText(Game1.errorMessage, Game1.smoothFont, Game1.graphics.GraphicsDevice.Viewport.Width), new Vector2(16f, 48f), Color.White);
+                        Game1.spriteBatch.End();
                         return;
                     }
-                    if (currentMinigame != null)
+                    if (Game1.currentMinigame != null)
                     {
-                        currentMinigame.draw(spriteBatch);
-                        if (globalFade && !menuUp && (!nameSelectUp || messagePause))
+                        Game1.currentMinigame.draw(Game1.spriteBatch);
+                        if (Game1.globalFade && !Game1.menuUp && (!Game1.nameSelectUp || Game1.messagePause))
                         {
-                            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
-                            spriteBatch.Draw(fadeToBlackRect, graphics.GraphicsDevice.Viewport.Bounds, Color.Black * ((gameMode == 0) ? (1f - fadeToBlackAlpha) : fadeToBlackAlpha));
-                            spriteBatch.End();
+                            Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
+                            Game1.spriteBatch.Draw(Game1.fadeToBlackRect, Game1.graphics.GraphicsDevice.Viewport.Bounds, Color.Black * ((Game1.gameMode == 0) ? (1f - Game1.fadeToBlackAlpha) : Game1.fadeToBlackAlpha));
+                            Game1.spriteBatch.End();
                         }
-                        if (!ZoomLevelIsOne)
+                        if (!this.ZoomLevelIsOne)
                         {
-                            GraphicsDevice.SetRenderTarget(null);
-                            GraphicsDevice.Clear(BgColour);
-                            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
-                            spriteBatch.Draw(Screen, Vector2.Zero, Screen.Bounds, Color.White, 0f, Vector2.Zero, options.zoomLevel, SpriteEffects.None, 1f);
-                            spriteBatch.End();
-                        }
-                        return;
-                    }
-                    if (showingEndOfNightStuff)
-                    {
-                        spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
-                        activeClickableMenu?.draw(spriteBatch);
-                        spriteBatch.End();
-                        if (!ZoomLevelIsOne)
-                        {
-                            GraphicsDevice.SetRenderTarget(null);
-                            GraphicsDevice.Clear(BgColour);
-                            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
-                            spriteBatch.Draw(Screen, Vector2.Zero, Screen.Bounds, Color.White, 0f, Vector2.Zero, options.zoomLevel, SpriteEffects.None, 1f);
-                            spriteBatch.End();
+                            this.GraphicsDevice.SetRenderTarget(null);
+                            this.GraphicsDevice.Clear(this.BgColour);
+                            Game1.spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
+                            Game1.spriteBatch.Draw(this.Screen, Vector2.Zero, this.Screen.Bounds, Color.White, 0f, Vector2.Zero, Game1.options.zoomLevel, SpriteEffects.None, 1f);
+                            Game1.spriteBatch.End();
                         }
                         return;
                     }
-                    if (gameMode == 6)
+                    if (Game1.showingEndOfNightStuff)
                     {
-                        spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
+                        Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
+                        Game1.activeClickableMenu?.draw(Game1.spriteBatch);
+                        Game1.spriteBatch.End();
+                        if (!this.ZoomLevelIsOne)
+                        {
+                            this.GraphicsDevice.SetRenderTarget(null);
+                            this.GraphicsDevice.Clear(this.BgColour);
+                            Game1.spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
+                            Game1.spriteBatch.Draw(this.Screen, Vector2.Zero, this.Screen.Bounds, Color.White, 0f, Vector2.Zero, Game1.options.zoomLevel, SpriteEffects.None, 1f);
+                            Game1.spriteBatch.End();
+                        }
+                        return;
+                    }
+                    if (Game1.gameMode == 6)
+                    {
+                        Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
                         string text = "";
                         int num = 0;
                         while (num < gameTime.TotalGameTime.TotalMilliseconds % 999.0 / 333.0)
@@ -588,184 +510,144 @@ namespace StardewModdingAPI.Inheritance
                             text += ".";
                             num++;
                         }
-                        SpriteText.drawString(spriteBatch, "Loading" + text, 64, graphics.GraphicsDevice.Viewport.Height - 64, 999, -1, 999, 1f, 1f, false, 0, "Loading...");
-                        spriteBatch.End();
-                        if (!ZoomLevelIsOne)
+                        SpriteText.drawString(Game1.spriteBatch, "Loading" + text, 64, Game1.graphics.GraphicsDevice.Viewport.Height - 64, 999, -1, 999, 1f, 1f, false, 0, "Loading...");
+                        Game1.spriteBatch.End();
+                        if (!this.ZoomLevelIsOne)
                         {
-                            GraphicsDevice.SetRenderTarget(null);
-                            GraphicsDevice.Clear(BgColour);
-                            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
-                            spriteBatch.Draw(Screen, Vector2.Zero, Screen.Bounds, Color.White, 0f, Vector2.Zero, options.zoomLevel, SpriteEffects.None, 1f);
-                            spriteBatch.End();
+                            this.GraphicsDevice.SetRenderTarget(null);
+                            this.GraphicsDevice.Clear(this.BgColour);
+                            Game1.spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
+                            Game1.spriteBatch.Draw(this.Screen, Vector2.Zero, this.Screen.Bounds, Color.White, 0f, Vector2.Zero, Game1.options.zoomLevel, SpriteEffects.None, 1f);
+                            Game1.spriteBatch.End();
                         }
                         return;
                     }
-                    if (gameMode == 0)
-                    {
-                        spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
-                    }
+                    if (Game1.gameMode == 0)
+                        Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
                     else
                     {
-                        if (drawLighting)
+                        if (Game1.drawLighting)
                         {
-                            GraphicsDevice.SetRenderTarget(lightmap);
-                            GraphicsDevice.Clear(Color.White * 0f);
-                            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.PointClamp, null, null);
-                            spriteBatch.Draw(staminaRect, lightmap.Bounds, currentLocation.name.Equals("UndergroundMine") ? mine.getLightingColor(gameTime) : ((!ambientLight.Equals(Color.White) && (!isRaining || !currentLocation.isOutdoors)) ? ambientLight : outdoorLight));
-                            for (int i = 0; i < currentLightSources.Count; i++)
+                            this.GraphicsDevice.SetRenderTarget(Game1.lightmap);
+                            this.GraphicsDevice.Clear(Color.White * 0f);
+                            Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.PointClamp, null, null);
+                            Game1.spriteBatch.Draw(Game1.staminaRect, Game1.lightmap.Bounds, Game1.currentLocation.name.Equals("UndergroundMine") ? Game1.mine.getLightingColor(gameTime) : ((!Game1.ambientLight.Equals(Color.White) && (!Game1.isRaining || !Game1.currentLocation.isOutdoors)) ? Game1.ambientLight : Game1.outdoorLight));
+                            for (int i = 0; i < Game1.currentLightSources.Count; i++)
                             {
-                                if (Utility.isOnScreen(currentLightSources.ElementAt(i).position, (int) (currentLightSources.ElementAt(i).radius * tileSize * 4f)))
-                                {
-                                    spriteBatch.Draw(currentLightSources.ElementAt(i).lightTexture, GlobalToLocal(viewport, currentLightSources.ElementAt(i).position) / options.lightingQuality, currentLightSources.ElementAt(i).lightTexture.Bounds, currentLightSources.ElementAt(i).color, 0f, new Vector2(currentLightSources.ElementAt(i).lightTexture.Bounds.Center.X, currentLightSources.ElementAt(i).lightTexture.Bounds.Center.Y), currentLightSources.ElementAt(i).radius / options.lightingQuality, SpriteEffects.None, 0.9f);
-                                }
+                                if (Utility.isOnScreen(Game1.currentLightSources.ElementAt(i).position, (int)(Game1.currentLightSources.ElementAt(i).radius * Game1.tileSize * 4f)))
+                                    Game1.spriteBatch.Draw(Game1.currentLightSources.ElementAt(i).lightTexture, Game1.GlobalToLocal(Game1.viewport, Game1.currentLightSources.ElementAt(i).position) / Game1.options.lightingQuality, Game1.currentLightSources.ElementAt(i).lightTexture.Bounds, Game1.currentLightSources.ElementAt(i).color, 0f, new Vector2(Game1.currentLightSources.ElementAt(i).lightTexture.Bounds.Center.X, Game1.currentLightSources.ElementAt(i).lightTexture.Bounds.Center.Y), Game1.currentLightSources.ElementAt(i).radius / Game1.options.lightingQuality, SpriteEffects.None, 0.9f);
                             }
-                            spriteBatch.End();
-                            GraphicsDevice.SetRenderTarget(ZoomLevelIsOne ? null : Screen);
+                            Game1.spriteBatch.End();
+                            this.GraphicsDevice.SetRenderTarget(this.ZoomLevelIsOne ? null : this.Screen);
                         }
-                        if (bloomDay)
-                        {
-                            bloom?.BeginDraw();
-                        }
-                        GraphicsDevice.Clear(BgColour);
-                        spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
+                        if (Game1.bloomDay)
+                            Game1.bloom?.BeginDraw();
+                        this.GraphicsDevice.Clear(this.BgColour);
+                        Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
                         GraphicsEvents.InvokeOnPreRenderEvent(null, EventArgs.Empty);
-                        background?.draw(spriteBatch);
-                        mapDisplayDevice.BeginScene(spriteBatch);
-                        currentLocation.Map.GetLayer("Back").Draw(mapDisplayDevice, viewport, Location.Origin, false, pixelZoom);
-                        currentLocation.drawWater(spriteBatch);
-                        if (CurrentEvent == null)
+                        Game1.background?.draw(Game1.spriteBatch);
+                        Game1.mapDisplayDevice.BeginScene(Game1.spriteBatch);
+                        Game1.currentLocation.Map.GetLayer("Back").Draw(Game1.mapDisplayDevice, Game1.viewport, Location.Origin, false, Game1.pixelZoom);
+                        Game1.currentLocation.drawWater(Game1.spriteBatch);
+                        if (Game1.CurrentEvent == null)
                         {
-                            using (List<NPC>.Enumerator enumerator = currentLocation.characters.GetEnumerator())
+                            using (List<NPC>.Enumerator enumerator = Game1.currentLocation.characters.GetEnumerator())
                             {
                                 while (enumerator.MoveNext())
                                 {
                                     NPC current = enumerator.Current;
-                                    if (current != null && !current.swimming && !current.hideShadow && !current.IsMonster && !currentLocation.shouldShadowBeDrawnAboveBuildingsLayer(current.getTileLocation()))
-                                    {
-                                        spriteBatch.Draw(shadowTexture, GlobalToLocal(viewport, current.position + new Vector2(current.sprite.spriteWidth * pixelZoom / 2f, current.GetBoundingBox().Height + (current.IsMonster ? 0 : (pixelZoom * 3)))), shadowTexture.Bounds, Color.White, 0f, new Vector2(shadowTexture.Bounds.Center.X, shadowTexture.Bounds.Center.Y), (pixelZoom + current.yJumpOffset / 40f) * current.scale, SpriteEffects.None, Math.Max(0f, current.getStandingY() / 10000f) - 1E-06f);
-                                    }
+                                    if (current != null && !current.swimming && !current.hideShadow && !current.IsMonster && !Game1.currentLocation.shouldShadowBeDrawnAboveBuildingsLayer(current.getTileLocation()))
+                                        Game1.spriteBatch.Draw(Game1.shadowTexture, Game1.GlobalToLocal(Game1.viewport, current.position + new Vector2(current.sprite.spriteWidth * Game1.pixelZoom / 2f, current.GetBoundingBox().Height + (current.IsMonster ? 0 : (Game1.pixelZoom * 3)))), Game1.shadowTexture.Bounds, Color.White, 0f, new Vector2(Game1.shadowTexture.Bounds.Center.X, Game1.shadowTexture.Bounds.Center.Y), (Game1.pixelZoom + current.yJumpOffset / 40f) * current.scale, SpriteEffects.None, Math.Max(0f, current.getStandingY() / 10000f) - 1E-06f);
                                 }
                                 goto IL_B30;
                             }
                         }
-                        foreach (NPC current2 in CurrentEvent.actors)
+                        foreach (NPC current2 in Game1.CurrentEvent.actors)
                         {
-                            if (!current2.swimming && !current2.hideShadow && !currentLocation.shouldShadowBeDrawnAboveBuildingsLayer(current2.getTileLocation()))
-                            {
-                                spriteBatch.Draw(shadowTexture, GlobalToLocal(viewport, current2.position + new Vector2(current2.sprite.spriteWidth * pixelZoom / 2f, current2.GetBoundingBox().Height + (current2.IsMonster ? 0 : (pixelZoom * 3)))), shadowTexture.Bounds, Color.White, 0f, new Vector2(shadowTexture.Bounds.Center.X, shadowTexture.Bounds.Center.Y), (pixelZoom + current2.yJumpOffset / 40f) * current2.scale, SpriteEffects.None, Math.Max(0f, current2.getStandingY() / 10000f) - 1E-06f);
-                            }
+                            if (!current2.swimming && !current2.hideShadow && !Game1.currentLocation.shouldShadowBeDrawnAboveBuildingsLayer(current2.getTileLocation()))
+                                Game1.spriteBatch.Draw(Game1.shadowTexture, Game1.GlobalToLocal(Game1.viewport, current2.position + new Vector2(current2.sprite.spriteWidth * Game1.pixelZoom / 2f, current2.GetBoundingBox().Height + (current2.IsMonster ? 0 : (Game1.pixelZoom * 3)))), Game1.shadowTexture.Bounds, Color.White, 0f, new Vector2(Game1.shadowTexture.Bounds.Center.X, Game1.shadowTexture.Bounds.Center.Y), (Game1.pixelZoom + current2.yJumpOffset / 40f) * current2.scale, SpriteEffects.None, Math.Max(0f, current2.getStandingY() / 10000f) - 1E-06f);
                         }
                         IL_B30:
-                        if (!player.swimming && !player.isRidingHorse() && !currentLocation.shouldShadowBeDrawnAboveBuildingsLayer(player.getTileLocation()))
+                        if (!Game1.player.swimming && !Game1.player.isRidingHorse() && !Game1.currentLocation.shouldShadowBeDrawnAboveBuildingsLayer(Game1.player.getTileLocation()))
+                            Game1.spriteBatch.Draw(Game1.shadowTexture, Game1.GlobalToLocal(Game1.player.position + new Vector2(32f, 24f)), Game1.shadowTexture.Bounds, Color.White, 0f, new Vector2(Game1.shadowTexture.Bounds.Center.X, Game1.shadowTexture.Bounds.Center.Y), 4f - (((Game1.player.running || Game1.player.usingTool) && Game1.player.FarmerSprite.indexInCurrentAnimation > 1) ? (Math.Abs(FarmerRenderer.featureYOffsetPerFrame[Game1.player.FarmerSprite.CurrentFrame]) * 0.5f) : 0f), SpriteEffects.None, 0f);
+                        Game1.currentLocation.Map.GetLayer("Buildings").Draw(Game1.mapDisplayDevice, Game1.viewport, Location.Origin, false, Game1.pixelZoom);
+                        Game1.mapDisplayDevice.EndScene();
+                        Game1.spriteBatch.End();
+                        Game1.spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
+                        if (Game1.CurrentEvent == null)
                         {
-                            spriteBatch.Draw(shadowTexture, GlobalToLocal(player.position + new Vector2(32f, 24f)), shadowTexture.Bounds, Color.White, 0f, new Vector2(shadowTexture.Bounds.Center.X, shadowTexture.Bounds.Center.Y), 4f - (((player.running || player.usingTool) && player.FarmerSprite.indexInCurrentAnimation > 1) ? (Math.Abs(FarmerRenderer.featureYOffsetPerFrame[player.FarmerSprite.CurrentFrame]) * 0.5f) : 0f), SpriteEffects.None, 0f);
-                        }
-                        currentLocation.Map.GetLayer("Buildings").Draw(mapDisplayDevice, viewport, Location.Origin, false, pixelZoom);
-                        mapDisplayDevice.EndScene();
-                        spriteBatch.End();
-                        spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
-                        if (CurrentEvent == null)
-                        {
-                            using (List<NPC>.Enumerator enumerator3 = currentLocation.characters.GetEnumerator())
+                            using (List<NPC>.Enumerator enumerator3 = Game1.currentLocation.characters.GetEnumerator())
                             {
                                 while (enumerator3.MoveNext())
                                 {
                                     NPC current3 = enumerator3.Current;
-                                    if (current3 != null && !current3.swimming && !current3.hideShadow && currentLocation.shouldShadowBeDrawnAboveBuildingsLayer(current3.getTileLocation()))
-                                    {
-                                        spriteBatch.Draw(shadowTexture, GlobalToLocal(viewport, current3.position + new Vector2(current3.sprite.spriteWidth * pixelZoom / 2f, current3.GetBoundingBox().Height + (current3.IsMonster ? 0 : (pixelZoom * 3)))), shadowTexture.Bounds, Color.White, 0f, new Vector2(shadowTexture.Bounds.Center.X, shadowTexture.Bounds.Center.Y), (pixelZoom + current3.yJumpOffset / 40f) * current3.scale, SpriteEffects.None, Math.Max(0f, current3.getStandingY() / 10000f) - 1E-06f);
-                                    }
+                                    if (current3 != null && !current3.swimming && !current3.hideShadow && Game1.currentLocation.shouldShadowBeDrawnAboveBuildingsLayer(current3.getTileLocation()))
+                                        Game1.spriteBatch.Draw(Game1.shadowTexture, Game1.GlobalToLocal(Game1.viewport, current3.position + new Vector2(current3.sprite.spriteWidth * Game1.pixelZoom / 2f, current3.GetBoundingBox().Height + (current3.IsMonster ? 0 : (Game1.pixelZoom * 3)))), Game1.shadowTexture.Bounds, Color.White, 0f, new Vector2(Game1.shadowTexture.Bounds.Center.X, Game1.shadowTexture.Bounds.Center.Y), (Game1.pixelZoom + current3.yJumpOffset / 40f) * current3.scale, SpriteEffects.None, Math.Max(0f, current3.getStandingY() / 10000f) - 1E-06f);
                                 }
                                 goto IL_F5F;
                             }
                         }
-                        foreach (NPC current4 in CurrentEvent.actors)
+                        foreach (NPC current4 in Game1.CurrentEvent.actors)
                         {
-                            if (!current4.swimming && !current4.hideShadow && currentLocation.shouldShadowBeDrawnAboveBuildingsLayer(current4.getTileLocation()))
-                            {
-                                spriteBatch.Draw(shadowTexture, GlobalToLocal(viewport, current4.position + new Vector2(current4.sprite.spriteWidth * pixelZoom / 2f, current4.GetBoundingBox().Height + (current4.IsMonster ? 0 : (pixelZoom * 3)))), shadowTexture.Bounds, Color.White, 0f, new Vector2(shadowTexture.Bounds.Center.X, shadowTexture.Bounds.Center.Y), (pixelZoom + current4.yJumpOffset / 40f) * current4.scale, SpriteEffects.None, Math.Max(0f, current4.getStandingY() / 10000f) - 1E-06f);
-                            }
+                            if (!current4.swimming && !current4.hideShadow && Game1.currentLocation.shouldShadowBeDrawnAboveBuildingsLayer(current4.getTileLocation()))
+                                Game1.spriteBatch.Draw(Game1.shadowTexture, Game1.GlobalToLocal(Game1.viewport, current4.position + new Vector2(current4.sprite.spriteWidth * Game1.pixelZoom / 2f, current4.GetBoundingBox().Height + (current4.IsMonster ? 0 : (Game1.pixelZoom * 3)))), Game1.shadowTexture.Bounds, Color.White, 0f, new Vector2(Game1.shadowTexture.Bounds.Center.X, Game1.shadowTexture.Bounds.Center.Y), (Game1.pixelZoom + current4.yJumpOffset / 40f) * current4.scale, SpriteEffects.None, Math.Max(0f, current4.getStandingY() / 10000f) - 1E-06f);
                         }
                         IL_F5F:
-                        if (!player.swimming && !player.isRidingHorse() && currentLocation.shouldShadowBeDrawnAboveBuildingsLayer(player.getTileLocation()))
+                        if (!Game1.player.swimming && !Game1.player.isRidingHorse() && Game1.currentLocation.shouldShadowBeDrawnAboveBuildingsLayer(Game1.player.getTileLocation()))
+                            Game1.spriteBatch.Draw(Game1.shadowTexture, Game1.GlobalToLocal(Game1.player.position + new Vector2(32f, 24f)), Game1.shadowTexture.Bounds, Color.White, 0f, new Vector2(Game1.shadowTexture.Bounds.Center.X, Game1.shadowTexture.Bounds.Center.Y), 4f - (((Game1.player.running || Game1.player.usingTool) && Game1.player.FarmerSprite.indexInCurrentAnimation > 1) ? (Math.Abs(FarmerRenderer.featureYOffsetPerFrame[Game1.player.FarmerSprite.CurrentFrame]) * 0.5f) : 0f), SpriteEffects.None, Math.Max(0.0001f, Game1.player.getStandingY() / 10000f + 0.00011f) - 0.0001f);
+                        if (Game1.displayFarmer)
+                            Game1.player.draw(Game1.spriteBatch);
+                        if ((Game1.eventUp || Game1.killScreen) && !Game1.killScreen)
+                            Game1.currentLocation.currentEvent?.draw(Game1.spriteBatch);
+                        if (Game1.player.currentUpgrade != null && Game1.player.currentUpgrade.daysLeftTillUpgradeDone <= 3 && Game1.currentLocation.Name.Equals("Farm"))
+                            Game1.spriteBatch.Draw(Game1.player.currentUpgrade.workerTexture, Game1.GlobalToLocal(Game1.viewport, Game1.player.currentUpgrade.positionOfCarpenter), Game1.player.currentUpgrade.getSourceRectangle(), Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, (Game1.player.currentUpgrade.positionOfCarpenter.Y + Game1.tileSize * 3 / 4) / 10000f);
+                        Game1.currentLocation.draw(Game1.spriteBatch);
+                        if (Game1.eventUp && Game1.currentLocation.currentEvent?.messageToScreen != null)
+                            Game1.drawWithBorder(Game1.currentLocation.currentEvent.messageToScreen, Color.Black, Color.White, new Vector2(Game1.graphics.GraphicsDevice.Viewport.TitleSafeArea.Width / 2 - Game1.borderFont.MeasureString(Game1.currentLocation.currentEvent.messageToScreen).X / 2f, Game1.graphics.GraphicsDevice.Viewport.TitleSafeArea.Height - Game1.tileSize), 0f, 1f, 0.999f);
+                        if (Game1.player.ActiveObject == null && (Game1.player.UsingTool || Game1.pickingTool) && Game1.player.CurrentTool != null && (!Game1.player.CurrentTool.Name.Equals("Seeds") || Game1.pickingTool))
+                            Game1.drawTool(Game1.player);
+                        if (Game1.currentLocation.Name.Equals("Farm"))
+                            SGame.DrawFarmBuildings.Invoke(Program.gamePtr, null);
+                        if (Game1.tvStation >= 0)
+                            Game1.spriteBatch.Draw(Game1.tvStationTexture, Game1.GlobalToLocal(Game1.viewport, new Vector2(6 * Game1.tileSize + Game1.tileSize / 4, 2 * Game1.tileSize + Game1.tileSize / 2)), new Rectangle(Game1.tvStation * 24, 0, 24, 15), Color.White, 0f, Vector2.Zero, 4f, SpriteEffects.None, 1E-08f);
+                        if (Game1.panMode)
                         {
-                            spriteBatch.Draw(shadowTexture, GlobalToLocal(player.position + new Vector2(32f, 24f)), shadowTexture.Bounds, Color.White, 0f, new Vector2(shadowTexture.Bounds.Center.X, shadowTexture.Bounds.Center.Y), 4f - (((player.running || player.usingTool) && player.FarmerSprite.indexInCurrentAnimation > 1) ? (Math.Abs(FarmerRenderer.featureYOffsetPerFrame[player.FarmerSprite.CurrentFrame]) * 0.5f) : 0f), SpriteEffects.None, Math.Max(0.0001f, player.getStandingY() / 10000f + 0.00011f) - 0.0001f);
+                            Game1.spriteBatch.Draw(Game1.fadeToBlackRect, new Rectangle((int)Math.Floor((Game1.getOldMouseX() + Game1.viewport.X) / (double)Game1.tileSize) * Game1.tileSize - Game1.viewport.X, (int)Math.Floor((Game1.getOldMouseY() + Game1.viewport.Y) / (double)Game1.tileSize) * Game1.tileSize - Game1.viewport.Y, Game1.tileSize, Game1.tileSize), Color.Lime * 0.75f);
+                            foreach (Warp current5 in Game1.currentLocation.warps)
+                                Game1.spriteBatch.Draw(Game1.fadeToBlackRect, new Rectangle(current5.X * Game1.tileSize - Game1.viewport.X, current5.Y * Game1.tileSize - Game1.viewport.Y, Game1.tileSize, Game1.tileSize), Color.Red * 0.75f);
                         }
-                        if (displayFarmer)
+                        Game1.mapDisplayDevice.BeginScene(Game1.spriteBatch);
+                        Game1.currentLocation.Map.GetLayer("Front").Draw(Game1.mapDisplayDevice, Game1.viewport, Location.Origin, false, Game1.pixelZoom);
+                        Game1.mapDisplayDevice.EndScene();
+                        Game1.currentLocation.drawAboveFrontLayer(Game1.spriteBatch);
+                        Game1.spriteBatch.End();
+                        Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
+                        if (Game1.currentLocation.Name.Equals("Farm") && Game1.stats.SeedsSown >= 200u)
                         {
-                            player.draw(spriteBatch);
+                            Game1.spriteBatch.Draw(Game1.debrisSpriteSheet, Game1.GlobalToLocal(Game1.viewport, new Vector2(3 * Game1.tileSize + Game1.tileSize / 4, Game1.tileSize + Game1.tileSize / 3)), Game1.getSourceRectForStandardTileSheet(Game1.debrisSpriteSheet, 16), Color.White);
+                            Game1.spriteBatch.Draw(Game1.debrisSpriteSheet, Game1.GlobalToLocal(Game1.viewport, new Vector2(4 * Game1.tileSize + Game1.tileSize, 2 * Game1.tileSize + Game1.tileSize)), Game1.getSourceRectForStandardTileSheet(Game1.debrisSpriteSheet, 16), Color.White);
+                            Game1.spriteBatch.Draw(Game1.debrisSpriteSheet, Game1.GlobalToLocal(Game1.viewport, new Vector2(5 * Game1.tileSize, 2 * Game1.tileSize)), Game1.getSourceRectForStandardTileSheet(Game1.debrisSpriteSheet, 16), Color.White);
+                            Game1.spriteBatch.Draw(Game1.debrisSpriteSheet, Game1.GlobalToLocal(Game1.viewport, new Vector2(3 * Game1.tileSize + Game1.tileSize / 2, 3 * Game1.tileSize)), Game1.getSourceRectForStandardTileSheet(Game1.debrisSpriteSheet, 16), Color.White);
+                            Game1.spriteBatch.Draw(Game1.debrisSpriteSheet, Game1.GlobalToLocal(Game1.viewport, new Vector2(5 * Game1.tileSize - Game1.tileSize / 4, Game1.tileSize)), Game1.getSourceRectForStandardTileSheet(Game1.debrisSpriteSheet, 16), Color.White);
+                            Game1.spriteBatch.Draw(Game1.debrisSpriteSheet, Game1.GlobalToLocal(Game1.viewport, new Vector2(4 * Game1.tileSize, 3 * Game1.tileSize + Game1.tileSize / 6)), Game1.getSourceRectForStandardTileSheet(Game1.debrisSpriteSheet, 16), Color.White);
+                            Game1.spriteBatch.Draw(Game1.debrisSpriteSheet, Game1.GlobalToLocal(Game1.viewport, new Vector2(4 * Game1.tileSize + Game1.tileSize / 5, 2 * Game1.tileSize + Game1.tileSize / 3)), Game1.getSourceRectForStandardTileSheet(Game1.debrisSpriteSheet, 16), Color.White);
                         }
-                        if ((eventUp || killScreen) && !killScreen)
+                        if (Game1.displayFarmer && Game1.player.ActiveObject != null && Game1.player.ActiveObject.bigCraftable && this.checkBigCraftableBoundariesForFrontLayer() && Game1.currentLocation.Map.GetLayer("Front").PickTile(new Location(Game1.player.getStandingX(), Game1.player.getStandingY()), Game1.viewport.Size) == null)
+                            Game1.drawPlayerHeldObject(Game1.player);
+                        else if (Game1.displayFarmer && Game1.player.ActiveObject != null && ((Game1.currentLocation.Map.GetLayer("Front").PickTile(new Location((int)Game1.player.position.X, (int)Game1.player.position.Y - Game1.tileSize * 3 / 5), Game1.viewport.Size) != null && !Game1.currentLocation.Map.GetLayer("Front").PickTile(new Location((int)Game1.player.position.X, (int)Game1.player.position.Y - Game1.tileSize * 3 / 5), Game1.viewport.Size).TileIndexProperties.ContainsKey("FrontAlways")) || (Game1.currentLocation.Map.GetLayer("Front").PickTile(new Location(Game1.player.GetBoundingBox().Right, (int)Game1.player.position.Y - Game1.tileSize * 3 / 5), Game1.viewport.Size) != null && !Game1.currentLocation.Map.GetLayer("Front").PickTile(new Location(Game1.player.GetBoundingBox().Right, (int)Game1.player.position.Y - Game1.tileSize * 3 / 5), Game1.viewport.Size).TileIndexProperties.ContainsKey("FrontAlways"))))
+                            Game1.drawPlayerHeldObject(Game1.player);
+                        if ((Game1.player.UsingTool || Game1.pickingTool) && Game1.player.CurrentTool != null && (!Game1.player.CurrentTool.Name.Equals("Seeds") || Game1.pickingTool) && Game1.currentLocation.Map.GetLayer("Front").PickTile(new Location(Game1.player.getStandingX(), (int)Game1.player.position.Y - Game1.tileSize * 3 / 5), Game1.viewport.Size) != null && Game1.currentLocation.Map.GetLayer("Front").PickTile(new Location(Game1.player.getStandingX(), Game1.player.getStandingY()), Game1.viewport.Size) == null)
+                            Game1.drawTool(Game1.player);
+                        if (Game1.currentLocation.Map.GetLayer("AlwaysFront") != null)
                         {
-                            currentLocation.currentEvent?.draw(spriteBatch);
+                            Game1.mapDisplayDevice.BeginScene(Game1.spriteBatch);
+                            Game1.currentLocation.Map.GetLayer("AlwaysFront").Draw(Game1.mapDisplayDevice, Game1.viewport, Location.Origin, false, Game1.pixelZoom);
+                            Game1.mapDisplayDevice.EndScene();
                         }
-                        if (player.currentUpgrade != null && player.currentUpgrade.daysLeftTillUpgradeDone <= 3 && currentLocation.Name.Equals("Farm"))
-                        {
-                            spriteBatch.Draw(player.currentUpgrade.workerTexture, GlobalToLocal(viewport, player.currentUpgrade.positionOfCarpenter), player.currentUpgrade.getSourceRectangle(), Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, (player.currentUpgrade.positionOfCarpenter.Y + tileSize * 3 / 4) / 10000f);
-                        }
-                        currentLocation.draw(spriteBatch);
-                        if (eventUp && currentLocation.currentEvent?.messageToScreen != null)
-                        {
-                            drawWithBorder(currentLocation.currentEvent.messageToScreen, Color.Black, Color.White, new Vector2(graphics.GraphicsDevice.Viewport.TitleSafeArea.Width / 2 - borderFont.MeasureString(currentLocation.currentEvent.messageToScreen).X / 2f, graphics.GraphicsDevice.Viewport.TitleSafeArea.Height - tileSize), 0f, 1f, 0.999f);
-                        }
-                        if (player.ActiveObject == null && (player.UsingTool || pickingTool) && player.CurrentTool != null && (!player.CurrentTool.Name.Equals("Seeds") || pickingTool))
-                        {
-                            drawTool(player);
-                        }
-                        if (currentLocation.Name.Equals("Farm"))
-                        {
-                            DrawFarmBuildings.Invoke(Program.gamePtr, null);
-                        }
-                        if (tvStation >= 0)
-                        {
-                            spriteBatch.Draw(tvStationTexture, GlobalToLocal(viewport, new Vector2(6 * tileSize + tileSize / 4, 2 * tileSize + tileSize / 2)), new Rectangle(tvStation * 24, 0, 24, 15), Color.White, 0f, Vector2.Zero, 4f, SpriteEffects.None, 1E-08f);
-                        }
-                        if (panMode)
-                        {
-                            spriteBatch.Draw(fadeToBlackRect, new Rectangle((int) Math.Floor((getOldMouseX() + viewport.X) / (double) tileSize) * tileSize - viewport.X, (int) Math.Floor((getOldMouseY() + viewport.Y) / (double) tileSize) * tileSize - viewport.Y, tileSize, tileSize), Color.Lime * 0.75f);
-                            foreach (Warp current5 in currentLocation.warps)
-                            {
-                                spriteBatch.Draw(fadeToBlackRect, new Rectangle(current5.X * tileSize - viewport.X, current5.Y * tileSize - viewport.Y, tileSize, tileSize), Color.Red * 0.75f);
-                            }
-                        }
-                        mapDisplayDevice.BeginScene(spriteBatch);
-                        currentLocation.Map.GetLayer("Front").Draw(mapDisplayDevice, viewport, Location.Origin, false, pixelZoom);
-                        mapDisplayDevice.EndScene();
-                        currentLocation.drawAboveFrontLayer(spriteBatch);
-                        spriteBatch.End();
-                        spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
-                        if (currentLocation.Name.Equals("Farm") && stats.SeedsSown >= 200u)
-                        {
-                            spriteBatch.Draw(debrisSpriteSheet, GlobalToLocal(viewport, new Vector2(3 * tileSize + tileSize / 4, tileSize + tileSize / 3)), getSourceRectForStandardTileSheet(debrisSpriteSheet, 16), Color.White);
-                            spriteBatch.Draw(debrisSpriteSheet, GlobalToLocal(viewport, new Vector2(4 * tileSize + tileSize, 2 * tileSize + tileSize)), getSourceRectForStandardTileSheet(debrisSpriteSheet, 16), Color.White);
-                            spriteBatch.Draw(debrisSpriteSheet, GlobalToLocal(viewport, new Vector2(5 * tileSize, 2 * tileSize)), getSourceRectForStandardTileSheet(debrisSpriteSheet, 16), Color.White);
-                            spriteBatch.Draw(debrisSpriteSheet, GlobalToLocal(viewport, new Vector2(3 * tileSize + tileSize / 2, 3 * tileSize)), getSourceRectForStandardTileSheet(debrisSpriteSheet, 16), Color.White);
-                            spriteBatch.Draw(debrisSpriteSheet, GlobalToLocal(viewport, new Vector2(5 * tileSize - tileSize / 4, tileSize)), getSourceRectForStandardTileSheet(debrisSpriteSheet, 16), Color.White);
-                            spriteBatch.Draw(debrisSpriteSheet, GlobalToLocal(viewport, new Vector2(4 * tileSize, 3 * tileSize + tileSize / 6)), getSourceRectForStandardTileSheet(debrisSpriteSheet, 16), Color.White);
-                            spriteBatch.Draw(debrisSpriteSheet, GlobalToLocal(viewport, new Vector2(4 * tileSize + tileSize / 5, 2 * tileSize + tileSize / 3)), getSourceRectForStandardTileSheet(debrisSpriteSheet, 16), Color.White);
-                        }
-                        if (displayFarmer && player.ActiveObject != null && player.ActiveObject.bigCraftable && checkBigCraftableBoundariesForFrontLayer() && currentLocation.Map.GetLayer("Front").PickTile(new Location(player.getStandingX(), player.getStandingY()), viewport.Size) == null)
-                        {
-                            drawPlayerHeldObject(player);
-                        }
-                        else if (displayFarmer && player.ActiveObject != null && ((currentLocation.Map.GetLayer("Front").PickTile(new Location((int) player.position.X, (int) player.position.Y - tileSize * 3 / 5), viewport.Size) != null && !currentLocation.Map.GetLayer("Front").PickTile(new Location((int) player.position.X, (int) player.position.Y - tileSize * 3 / 5), viewport.Size).TileIndexProperties.ContainsKey("FrontAlways")) || (currentLocation.Map.GetLayer("Front").PickTile(new Location(player.GetBoundingBox().Right, (int) player.position.Y - tileSize * 3 / 5), viewport.Size) != null && !currentLocation.Map.GetLayer("Front").PickTile(new Location(player.GetBoundingBox().Right, (int) player.position.Y - tileSize * 3 / 5), viewport.Size).TileIndexProperties.ContainsKey("FrontAlways"))))
-                        {
-                            drawPlayerHeldObject(player);
-                        }
-                        if ((player.UsingTool || pickingTool) && player.CurrentTool != null && (!player.CurrentTool.Name.Equals("Seeds") || pickingTool) && currentLocation.Map.GetLayer("Front").PickTile(new Location(player.getStandingX(), (int) player.position.Y - tileSize * 3 / 5), viewport.Size) != null && currentLocation.Map.GetLayer("Front").PickTile(new Location(player.getStandingX(), player.getStandingY()), viewport.Size) == null)
-                        {
-                            drawTool(player);
-                        }
-                        if (currentLocation.Map.GetLayer("AlwaysFront") != null)
-                        {
-                            mapDisplayDevice.BeginScene(spriteBatch);
-                            currentLocation.Map.GetLayer("AlwaysFront").Draw(mapDisplayDevice, viewport, Location.Origin, false, pixelZoom);
-                            mapDisplayDevice.EndScene();
-                        }
-                        if (toolHold > 400f && player.CurrentTool.UpgradeLevel >= 1 && player.canReleaseTool)
+                        if (Game1.toolHold > 400f && Game1.player.CurrentTool.UpgradeLevel >= 1 && Game1.player.canReleaseTool)
                         {
                             Color color = Color.White;
-                            switch ((int) (toolHold / 600f) + 2)
+                            switch ((int)(Game1.toolHold / 600f) + 2)
                             {
                                 case 1:
                                     color = Tool.copperColor;
@@ -780,216 +662,170 @@ namespace StardewModdingAPI.Inheritance
                                     color = Tool.iridiumColor;
                                     break;
                             }
-                            spriteBatch.Draw(littleEffect, new Rectangle((int) player.getLocalPosition(viewport).X - 2, (int) player.getLocalPosition(viewport).Y - (player.CurrentTool.Name.Equals("Watering Can") ? 0 : tileSize) - 2, (int) (toolHold % 600f * 0.08f) + 4, tileSize / 8 + 4), Color.Black);
-                            spriteBatch.Draw(littleEffect, new Rectangle((int) player.getLocalPosition(viewport).X, (int) player.getLocalPosition(viewport).Y - (player.CurrentTool.Name.Equals("Watering Can") ? 0 : tileSize), (int) (toolHold % 600f * 0.08f), tileSize / 8), color);
+                            Game1.spriteBatch.Draw(Game1.littleEffect, new Rectangle((int)Game1.player.getLocalPosition(Game1.viewport).X - 2, (int)Game1.player.getLocalPosition(Game1.viewport).Y - (Game1.player.CurrentTool.Name.Equals("Watering Can") ? 0 : Game1.tileSize) - 2, (int)(Game1.toolHold % 600f * 0.08f) + 4, Game1.tileSize / 8 + 4), Color.Black);
+                            Game1.spriteBatch.Draw(Game1.littleEffect, new Rectangle((int)Game1.player.getLocalPosition(Game1.viewport).X, (int)Game1.player.getLocalPosition(Game1.viewport).Y - (Game1.player.CurrentTool.Name.Equals("Watering Can") ? 0 : Game1.tileSize), (int)(Game1.toolHold % 600f * 0.08f), Game1.tileSize / 8), color);
                         }
-                        if (isDebrisWeather && currentLocation.IsOutdoors && !currentLocation.ignoreDebrisWeather && !currentLocation.Name.Equals("Desert") && viewport.X > -10)
+                        if (Game1.isDebrisWeather && Game1.currentLocation.IsOutdoors && !Game1.currentLocation.ignoreDebrisWeather && !Game1.currentLocation.Name.Equals("Desert") && Game1.viewport.X > -10)
                         {
-                            foreach (WeatherDebris current6 in debrisWeather)
-                            {
-                                current6.draw(spriteBatch);
-                            }
+                            foreach (WeatherDebris current6 in Game1.debrisWeather)
+                                current6.draw(Game1.spriteBatch);
                         }
-                        farmEvent?.draw(spriteBatch);
-                        if (currentLocation.LightLevel > 0f && timeOfDay < 2000)
+                        Game1.farmEvent?.draw(Game1.spriteBatch);
+                        if (Game1.currentLocation.LightLevel > 0f && Game1.timeOfDay < 2000)
+                            Game1.spriteBatch.Draw(Game1.fadeToBlackRect, Game1.graphics.GraphicsDevice.Viewport.Bounds, Color.Black * Game1.currentLocation.LightLevel);
+                        if (Game1.screenGlow)
+                            Game1.spriteBatch.Draw(Game1.fadeToBlackRect, Game1.graphics.GraphicsDevice.Viewport.Bounds, Game1.screenGlowColor * Game1.screenGlowAlpha);
+                        Game1.currentLocation.drawAboveAlwaysFrontLayer(Game1.spriteBatch);
+                        if (Game1.player.CurrentTool is FishingRod && ((Game1.player.CurrentTool as FishingRod).isTimingCast || (Game1.player.CurrentTool as FishingRod).castingChosenCountdown > 0f || (Game1.player.CurrentTool as FishingRod).fishCaught || (Game1.player.CurrentTool as FishingRod).showingTreasure))
+                            Game1.player.CurrentTool.draw(Game1.spriteBatch);
+                        if (Game1.isRaining && Game1.currentLocation.IsOutdoors && !Game1.currentLocation.Name.Equals("Desert") && !(Game1.currentLocation is Summit) && (!Game1.eventUp || Game1.currentLocation.isTileOnMap(new Vector2(Game1.viewport.X / Game1.tileSize, Game1.viewport.Y / Game1.tileSize))))
                         {
-                            spriteBatch.Draw(fadeToBlackRect, graphics.GraphicsDevice.Viewport.Bounds, Color.Black * currentLocation.LightLevel);
-                        }
-                        if (screenGlow)
-                        {
-                            spriteBatch.Draw(fadeToBlackRect, graphics.GraphicsDevice.Viewport.Bounds, screenGlowColor * screenGlowAlpha);
-                        }
-                        currentLocation.drawAboveAlwaysFrontLayer(spriteBatch);
-                        if (player.CurrentTool is FishingRod && ((player.CurrentTool as FishingRod).isTimingCast || (player.CurrentTool as FishingRod).castingChosenCountdown > 0f || (player.CurrentTool as FishingRod).fishCaught || (player.CurrentTool as FishingRod).showingTreasure))
-                        {
-                            player.CurrentTool.draw(spriteBatch);
-                        }
-                        if (isRaining && currentLocation.IsOutdoors && !currentLocation.Name.Equals("Desert") && !(currentLocation is Summit) && (!eventUp || currentLocation.isTileOnMap(new Vector2(viewport.X / tileSize, viewport.Y / tileSize))))
-                        {
-                            for (int j = 0; j < rainDrops.Length; j++)
-                            {
-                                spriteBatch.Draw(rainTexture, rainDrops[j].position, getSourceRectForStandardTileSheet(rainTexture, rainDrops[j].frame), Color.White);
-                            }
+                            for (int j = 0; j < Game1.rainDrops.Length; j++)
+                                Game1.spriteBatch.Draw(Game1.rainTexture, Game1.rainDrops[j].position, Game1.getSourceRectForStandardTileSheet(Game1.rainTexture, Game1.rainDrops[j].frame), Color.White);
                         }
 
-                        spriteBatch.End();
+                        Game1.spriteBatch.End();
 
                         //base.Draw(gameTime);
 
-                        spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
-                        if (eventUp && currentLocation.currentEvent != null)
+                        Game1.spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
+                        if (Game1.eventUp && Game1.currentLocation.currentEvent != null)
                         {
-                            foreach (NPC current7 in currentLocation.currentEvent.actors)
+                            foreach (NPC current7 in Game1.currentLocation.currentEvent.actors)
                             {
                                 if (current7.isEmoting)
                                 {
-                                    Vector2 localPosition = current7.getLocalPosition(viewport);
-                                    localPosition.Y -= tileSize * 2 + pixelZoom * 3;
+                                    Vector2 localPosition = current7.getLocalPosition(Game1.viewport);
+                                    localPosition.Y -= Game1.tileSize * 2 + Game1.pixelZoom * 3;
                                     if (current7.age == 2)
-                                    {
-                                        localPosition.Y += tileSize / 2;
-                                    }
+                                        localPosition.Y += Game1.tileSize / 2;
                                     else if (current7.gender == 1)
-                                    {
-                                        localPosition.Y += tileSize / 6;
-                                    }
-                                    spriteBatch.Draw(emoteSpriteSheet, localPosition, new Rectangle(current7.CurrentEmoteIndex * (tileSize / 4) % emoteSpriteSheet.Width, current7.CurrentEmoteIndex * (tileSize / 4) / emoteSpriteSheet.Width * (tileSize / 4), tileSize / 4, tileSize / 4), Color.White, 0f, Vector2.Zero, 4f, SpriteEffects.None, current7.getStandingY() / 10000f);
+                                        localPosition.Y += Game1.tileSize / 6;
+                                    Game1.spriteBatch.Draw(Game1.emoteSpriteSheet, localPosition, new Rectangle(current7.CurrentEmoteIndex * (Game1.tileSize / 4) % Game1.emoteSpriteSheet.Width, current7.CurrentEmoteIndex * (Game1.tileSize / 4) / Game1.emoteSpriteSheet.Width * (Game1.tileSize / 4), Game1.tileSize / 4, Game1.tileSize / 4), Color.White, 0f, Vector2.Zero, 4f, SpriteEffects.None, current7.getStandingY() / 10000f);
                                 }
                             }
                         }
-                        spriteBatch.End();
-                        if (drawLighting)
+                        Game1.spriteBatch.End();
+                        if (Game1.drawLighting)
                         {
-                            spriteBatch.Begin(SpriteSortMode.Deferred, new BlendState
+                            Game1.spriteBatch.Begin(SpriteSortMode.Deferred, new BlendState
                             {
                                 ColorBlendFunction = BlendFunction.ReverseSubtract,
                                 ColorDestinationBlend = Blend.One,
                                 ColorSourceBlend = Blend.SourceColor
                             }, SamplerState.LinearClamp, null, null);
-                            spriteBatch.Draw(lightmap, Vector2.Zero, lightmap.Bounds, Color.White, 0f, Vector2.Zero, options.lightingQuality, SpriteEffects.None, 1f);
-                            if (isRaining && currentLocation.isOutdoors && !(currentLocation is Desert))
+                            Game1.spriteBatch.Draw(Game1.lightmap, Vector2.Zero, Game1.lightmap.Bounds, Color.White, 0f, Vector2.Zero, Game1.options.lightingQuality, SpriteEffects.None, 1f);
+                            if (Game1.isRaining && Game1.currentLocation.isOutdoors && !(Game1.currentLocation is Desert))
                             {
-                                spriteBatch.Draw(staminaRect, graphics.GraphicsDevice.Viewport.Bounds, Color.OrangeRed * 0.45f);
+                                Game1.spriteBatch.Draw(Game1.staminaRect, Game1.graphics.GraphicsDevice.Viewport.Bounds, Color.OrangeRed * 0.45f);
                             }
-                            spriteBatch.End();
+                            Game1.spriteBatch.End();
                         }
-                        spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
-                        if (drawGrid)
+                        Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
+                        if (Game1.drawGrid)
                         {
-                            int num2 = -viewport.X % tileSize;
-                            float num3 = -(float) viewport.Y % tileSize;
-                            for (int k = num2; k < graphics.GraphicsDevice.Viewport.Width; k += tileSize)
-                            {
-                                spriteBatch.Draw(staminaRect, new Rectangle(k, (int) num3, 1, graphics.GraphicsDevice.Viewport.Height), Color.Red * 0.5f);
-                            }
-                            for (float num4 = num3; num4 < (float) graphics.GraphicsDevice.Viewport.Height; num4 += (float) tileSize)
-                            {
-                                spriteBatch.Draw(staminaRect, new Rectangle(num2, (int) num4, graphics.GraphicsDevice.Viewport.Width, 1), Color.Red * 0.5f);
-                            }
+                            int num2 = -Game1.viewport.X % Game1.tileSize;
+                            float num3 = -(float)Game1.viewport.Y % Game1.tileSize;
+                            for (int k = num2; k < Game1.graphics.GraphicsDevice.Viewport.Width; k += Game1.tileSize)
+                                Game1.spriteBatch.Draw(Game1.staminaRect, new Rectangle(k, (int)num3, 1, Game1.graphics.GraphicsDevice.Viewport.Height), Color.Red * 0.5f);
+                            for (float num4 = num3; num4 < (float)Game1.graphics.GraphicsDevice.Viewport.Height; num4 += (float)Game1.tileSize)
+                                Game1.spriteBatch.Draw(Game1.staminaRect, new Rectangle(num2, (int)num4, Game1.graphics.GraphicsDevice.Viewport.Width, 1), Color.Red * 0.5f);
                         }
-                        if (currentBillboard != 0)
-                        {
-                            drawBillboard();
-                        }
+                        if (Game1.currentBillboard != 0)
+                            this.drawBillboard();
 
                         GraphicsEvents.InvokeOnPreRenderHudEventNoCheck(null, EventArgs.Empty);
-                        if ((displayHUD || eventUp) && currentBillboard == 0 && gameMode == 3 && !freezeControls && !panMode)
+                        if ((Game1.displayHUD || Game1.eventUp) && Game1.currentBillboard == 0 && Game1.gameMode == 3 && !Game1.freezeControls && !Game1.panMode)
                         {
                             GraphicsEvents.InvokeOnPreRenderHudEvent(null, EventArgs.Empty);
-                            DrawHUD.Invoke(Program.gamePtr, null);
+                            SGame.DrawHUD.Invoke(Program.gamePtr, null);
                             GraphicsEvents.InvokeOnPostRenderHudEvent(null, EventArgs.Empty);
                         }
-                        else if (activeClickableMenu == null && farmEvent == null)
-                        {
-                            spriteBatch.Draw(mouseCursors, new Vector2(getOldMouseX(), getOldMouseY()), getSourceRectForStandardTileSheet(mouseCursors, 0, 16, 16), Color.White, 0f, Vector2.Zero, 4f + dialogueButtonScale / 150f, SpriteEffects.None, 1f);
-                        }
+                        else if (Game1.activeClickableMenu == null && Game1.farmEvent == null)
+                            Game1.spriteBatch.Draw(Game1.mouseCursors, new Vector2(Game1.getOldMouseX(), Game1.getOldMouseY()), Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, 0, 16, 16), Color.White, 0f, Vector2.Zero, 4f + Game1.dialogueButtonScale / 150f, SpriteEffects.None, 1f);
                         GraphicsEvents.InvokeOnPostRenderHudEventNoCheck(null, EventArgs.Empty);
 
-                        if (hudMessages.Any() && (!eventUp || isFestival()))
+                        if (Game1.hudMessages.Any() && (!Game1.eventUp || Game1.isFestival()))
                         {
-                            for (int l = hudMessages.Count - 1; l >= 0; l--)
-                            {
-                                hudMessages[l].draw(spriteBatch, l);
-                            }
+                            for (int l = Game1.hudMessages.Count - 1; l >= 0; l--)
+                                Game1.hudMessages[l].draw(Game1.spriteBatch, l);
                         }
                     }
-                    farmEvent?.draw(spriteBatch);
-                    if (dialogueUp && !nameSelectUp && !messagePause && !(activeClickableMenu is DialogueBox))
+                    Game1.farmEvent?.draw(Game1.spriteBatch);
+                    if (Game1.dialogueUp && !Game1.nameSelectUp && !Game1.messagePause && !(Game1.activeClickableMenu is DialogueBox))
+                        SGame.DrawDialogueBox.Invoke(Program.gamePtr, null);
+                    if (Game1.progressBar)
                     {
-                        DrawDialogueBox.Invoke(Program.gamePtr, null);
+                        Game1.spriteBatch.Draw(Game1.fadeToBlackRect, new Rectangle((Game1.graphics.GraphicsDevice.Viewport.TitleSafeArea.Width - Game1.dialogueWidth) / 2, Game1.graphics.GraphicsDevice.Viewport.TitleSafeArea.Bottom - Game1.tileSize * 2, Game1.dialogueWidth, Game1.tileSize / 2), Color.LightGray);
+                        Game1.spriteBatch.Draw(Game1.staminaRect, new Rectangle((Game1.graphics.GraphicsDevice.Viewport.TitleSafeArea.Width - Game1.dialogueWidth) / 2, Game1.graphics.GraphicsDevice.Viewport.TitleSafeArea.Bottom - Game1.tileSize * 2, (int)(Game1.pauseAccumulator / Game1.pauseTime * Game1.dialogueWidth), Game1.tileSize / 2), Color.DimGray);
                     }
-                    if (progressBar)
+                    if (Game1.eventUp)
+                        Game1.currentLocation.currentEvent?.drawAfterMap(Game1.spriteBatch);
+                    if (Game1.isRaining && Game1.currentLocation.isOutdoors && !(Game1.currentLocation is Desert))
+                        Game1.spriteBatch.Draw(Game1.staminaRect, Game1.graphics.GraphicsDevice.Viewport.Bounds, Color.Blue * 0.2f);
+                    if ((Game1.fadeToBlack || Game1.globalFade) && !Game1.menuUp && (!Game1.nameSelectUp || Game1.messagePause))
+                        Game1.spriteBatch.Draw(Game1.fadeToBlackRect, Game1.graphics.GraphicsDevice.Viewport.Bounds, Color.Black * ((Game1.gameMode == 0) ? (1f - Game1.fadeToBlackAlpha) : Game1.fadeToBlackAlpha));
+                    else if (Game1.flashAlpha > 0f)
                     {
-                        spriteBatch.Draw(fadeToBlackRect, new Rectangle((graphics.GraphicsDevice.Viewport.TitleSafeArea.Width - dialogueWidth) / 2, graphics.GraphicsDevice.Viewport.TitleSafeArea.Bottom - tileSize * 2, dialogueWidth, tileSize / 2), Color.LightGray);
-                        spriteBatch.Draw(staminaRect, new Rectangle((graphics.GraphicsDevice.Viewport.TitleSafeArea.Width - dialogueWidth) / 2, graphics.GraphicsDevice.Viewport.TitleSafeArea.Bottom - tileSize * 2, (int) (pauseAccumulator / pauseTime * dialogueWidth), tileSize / 2), Color.DimGray);
+                        if (Game1.options.screenFlash)
+                            Game1.spriteBatch.Draw(Game1.fadeToBlackRect, Game1.graphics.GraphicsDevice.Viewport.Bounds, Color.White * Math.Min(1f, Game1.flashAlpha));
+                        Game1.flashAlpha -= 0.1f;
                     }
-                    if (eventUp)
+                    if ((Game1.messagePause || Game1.globalFade) && Game1.dialogueUp)
+                        SGame.DrawDialogueBox.Invoke(Program.gamePtr, null);
+                    foreach (TemporaryAnimatedSprite current8 in Game1.screenOverlayTempSprites)
+                        current8.draw(Game1.spriteBatch, true);
+                    if (Game1.debugMode)
                     {
-                        currentLocation.currentEvent?.drawAfterMap(spriteBatch);
-                    }
-                    if (isRaining && currentLocation.isOutdoors && !(currentLocation is Desert))
-                    {
-                        spriteBatch.Draw(staminaRect, graphics.GraphicsDevice.Viewport.Bounds, Color.Blue * 0.2f);
-                    }
-                    if ((fadeToBlack || globalFade) && !menuUp && (!nameSelectUp || messagePause))
-                    {
-                        spriteBatch.Draw(fadeToBlackRect, graphics.GraphicsDevice.Viewport.Bounds, Color.Black * ((gameMode == 0) ? (1f - fadeToBlackAlpha) : fadeToBlackAlpha));
-                    }
-                    else if (flashAlpha > 0f)
-                    {
-                        if (options.screenFlash)
+                        Game1.spriteBatch.DrawString(Game1.smallFont, string.Concat(new object[]
                         {
-                            spriteBatch.Draw(fadeToBlackRect, graphics.GraphicsDevice.Viewport.Bounds, Color.White * Math.Min(1f, flashAlpha));
-                        }
-                        flashAlpha -= 0.1f;
-                    }
-                    if ((messagePause || globalFade) && dialogueUp)
-                    {
-                        DrawDialogueBox.Invoke(Program.gamePtr, null);
-                    }
-                    foreach (TemporaryAnimatedSprite current8 in screenOverlayTempSprites)
-                    {
-                        current8.draw(spriteBatch, true);
-                    }
-                    if (debugMode)
-                    {
-                        spriteBatch.DrawString(smallFont, string.Concat(new object[]
-                        {
-                            panMode ? ((getOldMouseX() + viewport.X) / tileSize + "," + (getOldMouseY() + viewport.Y) / tileSize) : string.Concat("aplayer: ", player.getStandingX() / tileSize, ", ", player.getStandingY() / tileSize),
+                            Game1.panMode ? ((Game1.getOldMouseX() + Game1.viewport.X) / Game1.tileSize + "," + (Game1.getOldMouseY() + Game1.viewport.Y) / Game1.tileSize) : string.Concat("aplayer: ", Game1.player.getStandingX() / Game1.tileSize, ", ", Game1.player.getStandingY() / Game1.tileSize),
                             Environment.NewLine,
                             "debugOutput: ",
-                            debugOutput
-                        }), new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X, GraphicsDevice.Viewport.TitleSafeArea.Y), Color.Red, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.9999999f);
+                            Game1.debugOutput
+                        }), new Vector2(this.GraphicsDevice.Viewport.TitleSafeArea.X, this.GraphicsDevice.Viewport.TitleSafeArea.Y), Color.Red, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.9999999f);
                     }
                     /*if (inputMode)
                     {
                         spriteBatch.DrawString(smallFont, "Input: " + debugInput, new Vector2(tileSize, tileSize * 3), Color.Purple);
                     }*/
-                    if (showKeyHelp)
-                    {
-                        spriteBatch.DrawString(smallFont, keyHelpString, new Vector2(tileSize, viewport.Height - tileSize - (dialogueUp ? (tileSize * 3 + (isQuestion ? (questionChoices.Count * tileSize) : 0)) : 0) - smallFont.MeasureString(keyHelpString).Y), Color.LightGray, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.9999999f);
-                    }
+                    if (Game1.showKeyHelp)
+                        Game1.spriteBatch.DrawString(Game1.smallFont, Game1.keyHelpString, new Vector2(Game1.tileSize, Game1.viewport.Height - Game1.tileSize - (Game1.dialogueUp ? (Game1.tileSize * 3 + (Game1.isQuestion ? (Game1.questionChoices.Count * Game1.tileSize) : 0)) : 0) - Game1.smallFont.MeasureString(Game1.keyHelpString).Y), Color.LightGray, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.9999999f);
 
                     GraphicsEvents.InvokeOnPreRenderGuiEventNoCheck(null, EventArgs.Empty);
-                    if (activeClickableMenu != null)
+                    if (Game1.activeClickableMenu != null)
                     {
                         GraphicsEvents.InvokeOnPreRenderGuiEvent(null, EventArgs.Empty);
-                        activeClickableMenu.draw(spriteBatch);
+                        Game1.activeClickableMenu.draw(Game1.spriteBatch);
                         GraphicsEvents.InvokeOnPostRenderGuiEvent(null, EventArgs.Empty);
                     }
                     else
-                    {
-                        farmEvent?.drawAboveEverything(spriteBatch);
-                    }
+                        Game1.farmEvent?.drawAboveEverything(Game1.spriteBatch);
                     GraphicsEvents.InvokeOnPostRenderGuiEventNoCheck(null, EventArgs.Empty);
 
                     GraphicsEvents.InvokeOnPostRenderEvent(null, EventArgs.Empty);
-                    spriteBatch.End();
+                    Game1.spriteBatch.End();
 
                     GraphicsEvents.InvokeDrawInRenderTargetTick();
 
-                    if (!ZoomLevelIsOne)
+                    if (!this.ZoomLevelIsOne)
                     {
-                        GraphicsDevice.SetRenderTarget(null);
-                        GraphicsDevice.Clear(BgColour);
-                        spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
-                        spriteBatch.Draw(Screen, Vector2.Zero, Screen.Bounds, Color.White, 0f, Vector2.Zero, options.zoomLevel, SpriteEffects.None, 1f);
-                        spriteBatch.End();
+                        this.GraphicsDevice.SetRenderTarget(null);
+                        this.GraphicsDevice.Clear(this.BgColour);
+                        Game1.spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
+                        Game1.spriteBatch.Draw(this.Screen, Vector2.Zero, this.Screen.Bounds, Color.White, 0f, Vector2.Zero, Game1.options.zoomLevel, SpriteEffects.None, 1f);
+                        Game1.spriteBatch.End();
                     }
 
-                    GraphicsEvents.InvokeDrawTick();                    
+                    GraphicsEvents.InvokeDrawTick();
                 }
                 catch (Exception ex)
                 {
                     Log.Error("An error occured in the overridden draw loop: " + ex);
                 }
-
-                #endregion
             }
             else
             {
-                #region Base Draw Call
-
                 try
                 {
                     base.Draw(gameTime);
@@ -1004,15 +840,22 @@ namespace StardewModdingAPI.Inheritance
 
                 if (Constants.EnableDrawingIntoRenderTarget)
                 {
-                    if (!options.zoomLevel.Equals(1.0f))
+                    if (!Game1.options.zoomLevel.Equals(1.0f))
                     {
-                        if (Screen.RenderTargetUsage == RenderTargetUsage.DiscardContents)
+                        if (this.Screen.RenderTargetUsage == RenderTargetUsage.DiscardContents)
                         {
-                            Screen = new RenderTarget2D(graphics.GraphicsDevice, Math.Min(4096, (int) (Window.ClientBounds.Width * (1.0 / options.zoomLevel))),
-                                Math.Min(4096, (int) (Window.ClientBounds.Height * (1.0 / options.zoomLevel))),
-                                false, SurfaceFormat.Color, DepthFormat.Depth16, 1, RenderTargetUsage.PreserveContents);
+                            this.Screen = new RenderTarget2D(
+                                Game1.graphics.GraphicsDevice,
+                                Math.Min(4096, (int)(this.Window.ClientBounds.Width * (1.0 / Game1.options.zoomLevel))),
+                                Math.Min(4096, (int)(this.Window.ClientBounds.Height * (1.0 / Game1.options.zoomLevel))),
+                                false,
+                                SurfaceFormat.Color,
+                                DepthFormat.Depth16,
+                                1,
+                                RenderTargetUsage.PreserveContents
+                            );
                         }
-                        GraphicsDevice.SetRenderTarget(Screen);
+                        this.GraphicsDevice.SetRenderTarget(this.Screen);
                     }
 
                     // Not beginning the batch due to inconsistancies with the standard draw tick...
@@ -1023,318 +866,299 @@ namespace StardewModdingAPI.Inheritance
                     //spriteBatch.End();
 
                     //Re-draw the HUD
-                    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
-                    activeClickableMenu?.draw(spriteBatch);
+                    Game1.spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
+                    Game1.activeClickableMenu?.draw(Game1.spriteBatch);
                     /*
                 if ((displayHUD || eventUp) && currentBillboard == 0 && gameMode == 3 && !freezeControls && !panMode)
                     typeof (Game1).GetMethod("drawHUD", BindingFlags.NonPublic | BindingFlags.Instance)?.Invoke(Program.gamePtr, null);
                 */
-                    spriteBatch.Draw(mouseCursors, new Vector2(getOldMouseX(), getOldMouseY()), getSourceRectForStandardTileSheet(mouseCursors, options.gamepadControls ? 44 : 0, 16, 16), Color.White, 0.0f, Vector2.Zero, pixelZoom + dialogueButtonScale / 150f, SpriteEffects.None, 1f);
+                    Game1.spriteBatch.Draw(Game1.mouseCursors, new Vector2(Game1.getOldMouseX(), Game1.getOldMouseY()), Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, Game1.options.gamepadControls ? 44 : 0, 16, 16), Color.White, 0.0f, Vector2.Zero, Game1.pixelZoom + Game1.dialogueButtonScale / 150f, SpriteEffects.None, 1f);
 
-                    spriteBatch.End();
+                    Game1.spriteBatch.End();
 
-                    if (!options.zoomLevel.Equals(1.0f))
+                    if (!Game1.options.zoomLevel.Equals(1.0f))
                     {
-                        GraphicsDevice.SetRenderTarget(null);
-                        spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
-                        spriteBatch.Draw(Screen, Vector2.Zero, Screen.Bounds, Color.White, 0.0f, Vector2.Zero, options.zoomLevel, SpriteEffects.None, 1f);
-                        spriteBatch.End();
+                        this.GraphicsDevice.SetRenderTarget(null);
+                        Game1.spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
+                        Game1.spriteBatch.Draw(this.Screen, Vector2.Zero, this.Screen.Bounds, Color.White, 0.0f, Vector2.Zero, Game1.options.zoomLevel, SpriteEffects.None, 1f);
+                        Game1.spriteBatch.End();
                     }
                 }
-
-                #endregion
             }
 
-            if (Debug)
+            if (SGame.Debug)
             {
-                spriteBatch.Begin();
+                Game1.spriteBatch.Begin();
 
                 int i = 0;
-                while (DebugMessageQueue.Any())
+                while (SGame.DebugMessageQueue.Any())
                 {
-                    string s = DebugMessageQueue.Dequeue();
-                    spriteBatch.DrawString(smoothFont, s, new Vector2(0, i * 14), Color.CornflowerBlue);
+                    string message = SGame.DebugMessageQueue.Dequeue();
+                    Game1.spriteBatch.DrawString(Game1.smoothFont, message, new Vector2(0, i * 14), Color.CornflowerBlue);
                     i++;
                 }
                 GraphicsEvents.InvokeDrawDebug(null, EventArgs.Empty);
 
-                spriteBatch.End();
+                Game1.spriteBatch.End();
             }
             else
-            {
-                DebugMessageQueue.Clear();
-            }
+                SGame.DebugMessageQueue.Clear();
         }
 
+        /// <summary>Get whether a controller button was pressed since the last check.</summary>
+        /// <param name="button">The controller button to check.</param>
+        /// <param name="buttonState">The last known state.</param>
+        /// <param name="stateIndex">The player whose controller to check.</param>
+        private bool WasButtonJustPressed(Buttons button, ButtonState buttonState, PlayerIndex stateIndex)
+        {
+            return buttonState == ButtonState.Pressed && !this.PreviouslyPressedButtons[(int)stateIndex].Contains(button);
+        }
+
+        /// <summary>Get whether a controller button was released since the last check.</summary>
+        /// <param name="button">The controller button to check.</param>
+        /// <param name="buttonState">The last known state.</param>
+        /// <param name="stateIndex">The player whose controller to check.</param>
+        private bool WasButtonJustReleased(Buttons button, ButtonState buttonState, PlayerIndex stateIndex)
+        {
+            return buttonState == ButtonState.Released && this.PreviouslyPressedButtons[(int)stateIndex].Contains(button);
+        }
+
+        /// <summary>Get whether an analogue controller button was pressed since the last check.</summary>
+        /// <param name="button">The controller button to check.</param>
+        /// <param name="value">The last known value.</param>
+        /// <param name="stateIndex">The player whose controller to check.</param>
+        private bool WasButtonJustPressed(Buttons button, float value, PlayerIndex stateIndex)
+        {
+            return this.WasButtonJustPressed(button, value > 0.2f ? ButtonState.Pressed : ButtonState.Released, stateIndex);
+        }
+
+        /// <summary>Get whether an analogue controller button was released since the last check.</summary>
+        /// <param name="button">The controller button to check.</param>
+        /// <param name="value">The last known value.</param>
+        /// <param name="stateIndex">The player whose controller to check.</param>
+        private bool WasButtonJustReleased(Buttons button, float value, PlayerIndex stateIndex)
+        {
+            return this.WasButtonJustReleased(button, value > 0.2f ? ButtonState.Pressed : ButtonState.Released, stateIndex);
+        }
+
+        /// <summary>Detect changes since the last update ticket and trigger mod events.</summary>
         private void UpdateEventCalls()
         {
-            KStateNow = Keyboard.GetState();
+            // get latest state
+            this.KStateNow = Keyboard.GetState();
+            this.MStateNow = Mouse.GetState();
+            this.MPositionNow = new Point(Game1.getMouseX(), Game1.getMouseY());
 
-            MStateNow = Mouse.GetState();
-            MPositionNow = new Point(Game1.getMouseX(), Game1.getMouseY());
+            // raise key pressed
+            foreach (var key in this.FramePressedKeys)
+                ControlEvents.InvokeKeyPressed(key);
 
-            foreach (var k in FramePressedKeys)
-                ControlEvents.InvokeKeyPressed(k);
+            // raise key released
+            foreach (var key in this.FrameReleasedKeys)
+                ControlEvents.InvokeKeyReleased(key);
 
-            foreach (var k in FrameReleasedKeys)
-                ControlEvents.InvokeKeyReleased(k);
-
+            // raise controller button pressed
             for (var i = PlayerIndex.One; i <= PlayerIndex.Four; i++)
             {
-                var buttons = GetFramePressedButtons(i);
-                foreach (var b in buttons)
+                var buttons = this.GetFramePressedButtons(i);
+                foreach (var button in buttons)
                 {
-                    if (b == Buttons.LeftTrigger || b == Buttons.RightTrigger)
-                    {
-                        ControlEvents.InvokeTriggerPressed(i, b, b == Buttons.LeftTrigger ? GamePad.GetState(i).Triggers.Left : GamePad.GetState(i).Triggers.Right);
-                    }
+                    if (button == Buttons.LeftTrigger || button == Buttons.RightTrigger)
+                        ControlEvents.InvokeTriggerPressed(i, button, button == Buttons.LeftTrigger ? GamePad.GetState(i).Triggers.Left : GamePad.GetState(i).Triggers.Right);
                     else
-                    {
-                        ControlEvents.InvokeButtonPressed(i, b);
-                    }
+                        ControlEvents.InvokeButtonPressed(i, button);
                 }
             }
 
+            // raise controller button released
             for (var i = PlayerIndex.One; i <= PlayerIndex.Four; i++)
             {
-                foreach (var b in GetFrameReleasedButtons(i))
+                foreach (var button in this.GetFrameReleasedButtons(i))
                 {
-                    if (b == Buttons.LeftTrigger || b == Buttons.RightTrigger)
-                    {
-                        ControlEvents.InvokeTriggerReleased(i, b, b == Buttons.LeftTrigger ? GamePad.GetState(i).Triggers.Left : GamePad.GetState(i).Triggers.Right);
-                    }
+                    if (button == Buttons.LeftTrigger || button == Buttons.RightTrigger)
+                        ControlEvents.InvokeTriggerReleased(i, button, button == Buttons.LeftTrigger ? GamePad.GetState(i).Triggers.Left : GamePad.GetState(i).Triggers.Right);
                     else
-                    {
-                        ControlEvents.InvokeButtonReleased(i, b);
-                    }
+                        ControlEvents.InvokeButtonReleased(i, button);
                 }
             }
 
+            // raise keyboard state changed
+            if (this.KStateNow != this.KStatePrior)
+                ControlEvents.InvokeKeyboardChanged(this.KStatePrior, this.KStateNow);
 
-            if (KStateNow != KStatePrior)
+            // raise mouse state changed
+            if (this.MStateNow != this.MStatePrior)
             {
-                ControlEvents.InvokeKeyboardChanged(KStatePrior, KStateNow);
+                ControlEvents.InvokeMouseChanged(this.MStatePrior, this.MStateNow, this.MPositionPrior, this.MPositionNow);
+                this.MStatePrior = this.MStateNow;
+                this.MPositionPrior = this.MPositionPrior;
             }
 
-            if (MStateNow != MStatePrior)
+            // raise menu changed
+            if (Game1.activeClickableMenu != null && Game1.activeClickableMenu != this.PreviousActiveMenu)
             {
-                ControlEvents.InvokeMouseChanged(MStatePrior, MStateNow, MPositionPrior, MPositionNow);
-                MStatePrior = MStateNow;
-                MPositionPrior = MPositionPrior;
+                MenuEvents.InvokeMenuChanged(this.PreviousActiveMenu, Game1.activeClickableMenu);
+                this.PreviousActiveMenu = Game1.activeClickableMenu;
+                this.WasMenuClosedInvoked = false;
             }
 
-            if (activeClickableMenu != null && activeClickableMenu != PreviousActiveMenu)
+            // raise menu closed
+            if (!this.WasMenuClosedInvoked && this.PreviousActiveMenu != null && Game1.activeClickableMenu == null)
             {
-                MenuEvents.InvokeMenuChanged(PreviousActiveMenu, activeClickableMenu);
-                PreviousActiveMenu = activeClickableMenu;
-                WasMenuClosedInvoked = false;
+                MenuEvents.InvokeMenuClosed(this.PreviousActiveMenu);
+                this.WasMenuClosedInvoked = true;
             }
 
-            if (!WasMenuClosedInvoked && PreviousActiveMenu != null && activeClickableMenu == null)
+            // raise location list changed
+            if (Game1.locations.GetHash() != this.PreviousGameLocations)
             {
-                MenuEvents.InvokeMenuClosed(PreviousActiveMenu);
-                WasMenuClosedInvoked = true;
+                LocationEvents.InvokeLocationsChanged(Game1.locations);
+                this.PreviousGameLocations = Game1.locations.GetHash();
             }
 
-            if (locations.GetHash() != PreviousGameLocations)
+            // raise current location changed
+            if (Game1.currentLocation != this.PreviousGameLocation)
             {
-                LocationEvents.InvokeLocationsChanged(locations);
-                PreviousGameLocations = locations.GetHash();
+                LocationEvents.InvokeCurrentLocationChanged(this.PreviousGameLocation, Game1.currentLocation);
+                this.PreviousGameLocation = Game1.currentLocation;
             }
 
-            if (currentLocation != PreviousGameLocation)
+            // raise player changed
+            if (Game1.player != null && Game1.player != this.PreviousFarmer)
             {
-                LocationEvents.InvokeCurrentLocationChanged(PreviousGameLocation, currentLocation);
-                PreviousGameLocation = currentLocation;
+                PlayerEvents.InvokeFarmerChanged(this.PreviousFarmer, Game1.player);
+                this.PreviousFarmer = Game1.player;
             }
 
-            if (player != null && player != PreviousFarmer)
+            // raise player leveled up a skill
+            if (Game1.player != null && Game1.player.combatLevel != this.PreviousCombatLevel)
             {
-                PlayerEvents.InvokeFarmerChanged(PreviousFarmer, player);
-                PreviousFarmer = player;
+                PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Combat, Game1.player.combatLevel);
+                this.PreviousCombatLevel = Game1.player.combatLevel;
+            }
+            if (Game1.player != null && Game1.player.farmingLevel != this.PreviousFarmingLevel)
+            {
+                PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Farming, Game1.player.farmingLevel);
+                this.PreviousFarmingLevel = Game1.player.farmingLevel;
+            }
+            if (Game1.player != null && Game1.player.fishingLevel != this.PreviousFishingLevel)
+            {
+                PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Fishing, Game1.player.fishingLevel);
+                this.PreviousFishingLevel = Game1.player.fishingLevel;
+            }
+            if (Game1.player != null && Game1.player.foragingLevel != this.PreviousForagingLevel)
+            {
+                PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Foraging, Game1.player.foragingLevel);
+                this.PreviousForagingLevel = Game1.player.foragingLevel;
+            }
+            if (Game1.player != null && Game1.player.miningLevel != this.PreviousMiningLevel)
+            {
+                PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Mining, Game1.player.miningLevel);
+                this.PreviousMiningLevel = Game1.player.miningLevel;
+            }
+            if (Game1.player != null && Game1.player.luckLevel != this.PreviousLuckLevel)
+            {
+                PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Luck, Game1.player.luckLevel);
+                this.PreviousLuckLevel = Game1.player.luckLevel;
             }
 
-            if (player != null && player.combatLevel != PreviousCombatLevel)
-            {
-                PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Combat, player.combatLevel);
-                PreviousCombatLevel = player.combatLevel;
-            }
-
-            if (player != null && player.farmingLevel != PreviousFarmingLevel)
-            {
-                PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Farming, player.farmingLevel);
-                PreviousFarmingLevel = player.farmingLevel;
-            }
-
-            if (player != null && player.fishingLevel != PreviousFishingLevel)
-            {
-                PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Fishing, player.fishingLevel);
-                PreviousFishingLevel = player.fishingLevel;
-            }
-
-            if (player != null && player.foragingLevel != PreviousForagingLevel)
-            {
-                PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Foraging, player.foragingLevel);
-                PreviousForagingLevel = player.foragingLevel;
-            }
-
-            if (player != null && player.miningLevel != PreviousMiningLevel)
-            {
-                PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Mining, player.miningLevel);
-                PreviousMiningLevel = player.miningLevel;
-            }
-
-            if (player != null && player.luckLevel != PreviousLuckLevel)
-            {
-                PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Luck, player.luckLevel);
-                PreviousLuckLevel = player.luckLevel;
-            }
-
+            // raise player inventory changed
             List<ItemStackChange> changedItems;
-            if (player != null && HasInventoryChanged(player.items, out changedItems))
+            if (Game1.player != null && this.HasInventoryChanged(Game1.player.items, out changedItems))
             {
-                PlayerEvents.InvokeInventoryChanged(player.items, changedItems);
-                PreviousItems = player.items.Where(n => n != null).ToDictionary(n => n, n => n.Stack);
+                PlayerEvents.InvokeInventoryChanged(Game1.player.items, changedItems);
+                this.PreviousItems = Game1.player.items.Where(n => n != null).ToDictionary(n => n, n => n.Stack);
             }
 
-            var objectHash = currentLocation?.objects?.GetHash();
-            if (objectHash != null && PreviousLocationObjects != objectHash)
+            // raise current location's object list changed
+            int? objectHash = Game1.currentLocation?.objects?.GetHash();
+            if (objectHash != null && this.PreviousLocationObjects != objectHash)
             {
-                LocationEvents.InvokeOnNewLocationObject(currentLocation.objects);
-                PreviousLocationObjects = objectHash ?? -1;
+                LocationEvents.InvokeOnNewLocationObject(Game1.currentLocation.objects);
+                this.PreviousLocationObjects = objectHash ?? -1;
             }
 
-            if (timeOfDay != PreviousTimeOfDay)
+            // raise time changed
+            if (Game1.timeOfDay != this.PreviousTimeOfDay)
             {
-                TimeEvents.InvokeTimeOfDayChanged(PreviousTimeOfDay, timeOfDay);
-                PreviousTimeOfDay = timeOfDay;
+                TimeEvents.InvokeTimeOfDayChanged(this.PreviousTimeOfDay, Game1.timeOfDay);
+                this.PreviousTimeOfDay = Game1.timeOfDay;
+            }
+            if (Game1.dayOfMonth != this.PreviousDayOfMonth)
+            {
+                TimeEvents.InvokeDayOfMonthChanged(this.PreviousDayOfMonth, Game1.dayOfMonth);
+                this.PreviousDayOfMonth = Game1.dayOfMonth;
+            }
+            if (Game1.currentSeason != this.PreviousSeasonOfYear)
+            {
+                TimeEvents.InvokeSeasonOfYearChanged(this.PreviousSeasonOfYear, Game1.currentSeason);
+                this.PreviousSeasonOfYear = Game1.currentSeason;
+            }
+            if (Game1.year != this.PreviousYearOfGame)
+            {
+                TimeEvents.InvokeYearOfGameChanged(this.PreviousYearOfGame, Game1.year);
+                this.PreviousYearOfGame = Game1.year;
             }
 
-            if (dayOfMonth != PreviousDayOfMonth)
+            // raise player loaded save (in the following tick to let the game finish updating first)
+            if (this.FireLoadedGameEvent)
             {
-                TimeEvents.InvokeDayOfMonthChanged(PreviousDayOfMonth, dayOfMonth);
-                PreviousDayOfMonth = dayOfMonth;
+                PlayerEvents.InvokeLoadedGame(new EventArgsLoadedGameChanged(Game1.hasLoadedGame));
+                this.FireLoadedGameEvent = false;
+            }
+            if (Game1.hasLoadedGame != this.PreviouslyLoadedGame)
+            {
+                this.FireLoadedGameEvent = true;
+                this.PreviouslyLoadedGame = Game1.hasLoadedGame;
             }
 
-            if (currentSeason != PreviousSeasonOfYear)
+            // raise mine level changed
+            if (Game1.mine != null && Game1.mine.mineLevel != this.PreviousMineLevel)
             {
-                TimeEvents.InvokeSeasonOfYearChanged(PreviousSeasonOfYear, currentSeason);
-                PreviousSeasonOfYear = currentSeason;
+                MineEvents.InvokeMineLevelChanged(this.PreviousMineLevel, Game1.mine.mineLevel);
+                this.PreviousMineLevel = Game1.mine.mineLevel;
             }
 
-            if (year != PreviousYearOfGame)
+            // raise game transitioning to new day
+            if (Game1.newDay != this.PreviousIsNewDay)
             {
-                TimeEvents.InvokeYearOfGameChanged(PreviousYearOfGame, year);
-                PreviousYearOfGame = year;
-            }
-
-            //NOTE THAT THIS MUST CHECK BEFORE SETTING IT TO TRUE BECAUSE OF SOME SILLY ISSUES
-            if (FireLoadedGameEvent)
-            {
-                PlayerEvents.InvokeLoadedGame(new EventArgsLoadedGameChanged(hasLoadedGame));
-                FireLoadedGameEvent = false;
-            }
-
-            if (hasLoadedGame != PreviouslyLoadedGame)
-            {
-                FireLoadedGameEvent = true;
-                PreviouslyLoadedGame = hasLoadedGame;
-            }
-
-            if (mine != null && PreviousMineLevel != mine.mineLevel)
-            {
-                MineEvents.InvokeMineLevelChanged(PreviousMineLevel, mine.mineLevel);
-                PreviousMineLevel = mine.mineLevel;
-            }
-
-            if (PreviousIsNewDay != newDay)
-            {
-                TimeEvents.InvokeOnNewDay(PreviousDayOfMonth, dayOfMonth, newDay);
-                PreviousIsNewDay = newDay;
+                TimeEvents.InvokeOnNewDay(this.PreviousDayOfMonth, Game1.dayOfMonth, Game1.newDay);
+                this.PreviousIsNewDay = Game1.newDay;
             }
         }
 
+        /// <summary>Get whether the player inventory has changed.</summary>
+        /// <param name="items">The player's current inventory.</param>
+        /// <param name="changedItems">An out parameter populated with the detected changes.</param>
         private bool HasInventoryChanged(List<Item> items, out List<ItemStackChange> changedItems)
         {
             changedItems = new List<ItemStackChange>();
-            IEnumerable<Item> actualItems = items.Where(n => n != null).ToArray();
+            Item[] actualItems = items.Where(n => n != null).ToArray();
             foreach (var item in actualItems)
             {
-                if (PreviousItems != null && PreviousItems.ContainsKey(item))
+                // stack size changed
+                if (this.PreviousItems != null && this.PreviousItems.ContainsKey(item))
                 {
-                    if (PreviousItems[item] != item.Stack)
-                    {
-                        changedItems.Add(new ItemStackChange {Item = item, StackChange = item.Stack - PreviousItems[item], ChangeType = ChangeType.StackChange});
-                    }
+                    if (this.PreviousItems[item] != item.Stack)
+                        changedItems.Add(new ItemStackChange { Item = item, StackChange = item.Stack - this.PreviousItems[item], ChangeType = ChangeType.StackChange });
                 }
+
+                // new item
                 else
-                {
-                    changedItems.Add(new ItemStackChange {Item = item, StackChange = item.Stack, ChangeType = ChangeType.Added});
-                }
+                    changedItems.Add(new ItemStackChange { Item = item, StackChange = item.Stack, ChangeType = ChangeType.Added });
             }
 
-            if (PreviousItems != null)
+            // removed items
+            if (this.PreviousItems != null)
             {
-                changedItems.AddRange(PreviousItems.Where(n => actualItems.All(i => i != n.Key)).Select(n =>
-                    new ItemStackChange {Item = n.Key, StackChange = -n.Key.Stack, ChangeType = ChangeType.Removed}));
+                changedItems.AddRange(
+                    from item in this.PreviousItems
+                    where actualItems.All(i => i != item.Key)
+                    select new ItemStackChange { Item = item.Key, StackChange = -item.Key.Stack, ChangeType = ChangeType.Removed }
+                );
             }
 
             return changedItems.Any();
-        }
-
-        /// <summary>
-        /// Invokes a private, non-static method in Game1 via Reflection
-        /// </summary>
-        /// <param name="name">The name of the method</param>
-        /// <param name="parameters">Any parameters needed</param>
-        /// <returns>Whatever the method normally returns. Null if void.</returns>
-        [Obsolete("This is very slow. Cache the method info and then invoke it with InvokeMethodInfo().")]
-        public static object InvokeBasePrivateInstancedMethod(string name, params object[] parameters)
-        {
-            try
-            {
-                return typeof (Game1).GetMethod(name, BindingFlags.NonPublic | BindingFlags.Instance).Invoke(Program.gamePtr, parameters);
-            }
-            catch
-            {
-                Log.AsyncR("Failed to call base method: " + name);
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Invokes a given method info with the supplied parameters
-        /// </summary>
-        /// <param name="mi"></param>
-        /// <param name="parameters"></param>
-        /// <returns></returns>
-        public static object InvokeMethodInfo(MethodInfo mi, params object[] parameters)
-        {
-            try
-            {
-                return mi.Invoke(Program.gamePtr, parameters);
-            }
-            catch
-            {
-                Log.AsyncR("Failed to call base method: " + mi.Name);
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Queue's a message to be drawn in Debug mode (F3)
-        /// </summary>
-        /// <returns></returns>
-        public static bool QueueDebugMessage(string message)
-        {
-            if (!Debug)
-                return false;
-
-            if (DebugMessageQueue.Count > 32)
-                return false;
-
-            DebugMessageQueue.Enqueue(message);
-            return true;
         }
     }
 }
