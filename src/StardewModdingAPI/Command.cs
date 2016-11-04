@@ -4,106 +4,119 @@ using StardewModdingAPI.Events;
 
 namespace StardewModdingAPI
 {
+    /// <summary>A command that can be submitted through the SMAPI console to interact with SMAPI.</summary>
     public class Command
     {
+        /*********
+        ** Properties
+        *********/
+        /****
+        ** SMAPI
+        ****/
+        /// <summary>The commands registered with SMAPI.</summary>
         internal static List<Command> RegisteredCommands = new List<Command>();
-        public string[] CalledArgs;
-        public string[] CommandArgs;
-        public string CommandDesc;
 
-        public string CommandName;
-
-        /// <summary>
-        ///     Creates a Command from a Name, Description, and Arguments
-        /// </summary>
-        /// <param name="cname">Name</param>
-        /// <param name="cdesc">Description</param>
-        /// <param name="args">Arguments</param>
-        public Command(string cname, string cdesc, string[] args = null)
-        {
-            CommandName = cname;
-            CommandDesc = cdesc;
-            if (args == null)
-                args = new string[0];
-            CommandArgs = args;
-        }
-
+        /// <summary>The event raised when this command is submitted through the console.</summary>
         public event EventHandler<EventArgsCommand> CommandFired;
 
-        /// <summary>
-        ///     Calls the specified command. (It runs the command)
-        /// </summary>
-        /// <param name="input">The command to run</param>
+        /****
+        ** Command
+        ****/
+        /// <summary>The name of the command.</summary>
+        public string CommandName;
+
+        /// <summary>A human-readable description of what the command does.</summary>
+        public string CommandDesc;
+
+        /// <summary>A human-readable list of accepted arguments.</summary>
+        public string[] CommandArgs;
+
+        /// <summary>The actual submitted argument values.</summary>
+        public string[] CalledArgs;
+
+
+        /*********
+        ** Public methods
+        *********/
+        /****
+        ** Command
+        ****/
+        /// <summary>Construct an instance.</summary>
+        /// <param name="name">The name of the command.</param>
+        /// <param name="description">A human-readable description of what the command does.</param>
+        /// <param name="args">A human-readable list of accepted arguments.</param>
+        public Command(string name, string description, string[] args = null)
+        {
+            this.CommandName = name;
+            this.CommandDesc = description;
+            if (args == null)
+                args = new string[0];
+            this.CommandArgs = args;
+        }
+
+        /// <summary>Trigger this command.</summary>
+        public void Fire()
+        {
+            if (this.CommandFired == null)
+            {
+                Log.AsyncR("Command failed to fire because it's fire event is null: " + this.CommandName);
+                return;
+            }
+            this.CommandFired.Invoke(this, new EventArgsCommand(this));
+        }
+
+        /****
+        ** SMAPI
+        ****/
+        /// <summary>Invoke the specified command.</summary>
+        /// <param name="input">The command to run, including the command name and any arguments.</param>
         public static void CallCommand(string input)
         {
             input = input.TrimEnd(' ');
-            var args = new string[0];
-            Command fnd;
+            string[] args = new string[0];
+            Command command;
             if (input.Contains(" "))
             {
-                args = input.Split(new[] {" "}, 2, StringSplitOptions.RemoveEmptyEntries);
-                fnd = FindCommand(args[0]);
-                args = args[1].Split(new[] {" "}, StringSplitOptions.RemoveEmptyEntries);
+                args = input.Split(new[] { " " }, 2, StringSplitOptions.RemoveEmptyEntries);
+                command = Command.FindCommand(args[0]);
+                args = args[1].Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
             }
             else
-            {
-                fnd = FindCommand(input);
-            }
+                command = Command.FindCommand(input);
 
-            if (fnd != null)
+            if (command != null)
             {
-                fnd.CalledArgs = args;
-                fnd.Fire();
+                command.CalledArgs = args;
+                command.Fire();
             }
             else
-            {
-                Log.AsyncR("Unknown Command");
-            }
+                Log.AsyncR("Unknown command");
         }
 
-        /// <summary>
-        ///     Registers a command to the list of commands properly
-        /// </summary>
-        /// <param name="command">Name of the command to register</param>
-        /// <param name="cdesc">Description</param>
-        /// <param name="args">Arguments (these are purely for viewing so that a user can see what an argument needs to be)</param>
-        /// <returns></returns>
-        public static Command RegisterCommand(string command, string cdesc, string[] args = null)
+        /// <summary>Register a command with SMAPI.</summary>
+        /// <param name="name">The name of the command.</param>
+        /// <param name="description">A human-readable description of what the command does.</param>
+        /// <param name="args">A human-readable list of accepted arguments.</param>
+        public static Command RegisterCommand(string name, string description, string[] args = null)
         {
-            var c = new Command(command, cdesc, args);
-            if (RegisteredCommands.Contains(c))
+            var command = new Command(name, description, args);
+            if (Command.RegisteredCommands.Contains(command))
             {
-                Log.AsyncR($"Command already registered! [{c.CommandName}]");
-                return RegisteredCommands.Find(x => x.Equals(c));
+                Log.AsyncR($"Command already registered! [{command.CommandName}]");
+                return Command.RegisteredCommands.Find(x => x.Equals(command));
             }
 
-            RegisteredCommands.Add(c);
-            Log.Async("Registered command: " + command);
+            Command.RegisteredCommands.Add(command);
+            Log.Async("Registered command: " + name);
 
-            return c;
+            return command;
         }
 
-        /// <summary>
-        ///     Looks up a command in the list of registered commands. Returns null if it doesn't exist (I think)
-        /// </summary>
-        /// <param name="name">Name of command to find</param>
-        /// <returns></returns>
+        /// <summary>Find a command with the given name.</summary>
+        /// <param name="name">The command name to find.</param>
         public static Command FindCommand(string name)
         {
-            return RegisteredCommands.Find(x => x.CommandName.Equals(name));
-        }
-
-        /// <summary>
-        ///     Runs a command. Fires it. Calls it. Any of those.
-        /// </summary>
-        public void Fire()
-        {
-            if (CommandFired == null)
-            {
-                Log.AsyncR("Command failed to fire because it's fire event is null: " + CommandName);
-                return;
-            }
-            CommandFired.Invoke(this, new EventArgsCommand(this));
+            return Command.RegisteredCommands.Find(x => x.CommandName.Equals(name));
         }
     }
 }
