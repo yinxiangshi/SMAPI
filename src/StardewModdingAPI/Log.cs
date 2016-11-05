@@ -125,23 +125,22 @@ namespace StardewModdingAPI
         /// <param name="message">The message to log.</param>
         public static void Success(object message)
         {
-            Log.AsyncG("[SUCCESS] " + message);
+            Log.AsyncG(message);
         }
 
         /// <summary>Asynchronously log an info message to the console.</summary>
         /// <param name="message">The message to log.</param>
         public static void Info(object message)
         {
-            Log.AsyncY("[INFO] " + message);
+            Log.AsyncY(message);
         }
 
         /// <summary>Asynchronously log a debug message to the console.</summary>
         /// <param name="message">The message to log.</param>
         public static void Debug(object message)
         {
-            Log.AsyncO("[DEBUG] " + message);
+            Log.AsyncColour(message, ConsoleColor.DarkGray);
         }
-
 
         /*********
         ** Private methods

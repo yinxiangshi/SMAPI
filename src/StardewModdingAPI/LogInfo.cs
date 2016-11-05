@@ -33,7 +33,7 @@ namespace StardewModdingAPI
                 message = "[null]";
             this.Message = message;
             this.LogDate = DateTime.Now.ToString("yyyy-MM-dd");
-            this.LogTime = DateTime.Now.ToString("hh:mm:ss.fff tt");
+            this.LogTime = DateTime.Now.ToString("HH:mm:ss");
             this.Colour = color;
         }
     }

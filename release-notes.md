@@ -14,6 +14,7 @@
   * Fixed several events not correctly propagating state.
   * Removed undocumented support for mods in AppData folder **(breaking change)**.
   * Removed `F2` debug mode.
+  * Made log less verbose and more informative.
   * Internal cleanup:
     * Simplified compiling from source.
     * Added code documentation.

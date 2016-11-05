@@ -68,22 +68,38 @@ namespace StardewModdingAPI
             // hook into & launch the game
             try
             {
-                Log.AsyncY($"SMAPI {Constants.Version}");
-                Log.AsyncY($"Stardew Valley {Game1.version} on {Environment.OSVersion}");
-                Program.ConfigureConsoleWindow();
+                Log.SyncColour($"Launching SMAPI {Constants.Version} with Stardew Valley {Game1.version} on {Environment.OSVersion}", ConsoleColor.DarkGray); // make sure this is the first line, to simplify troubleshooting instructions
+                Log.Debug("Initialising...");
+
+                // set window title
+                Console.Title = Constants.ConsoleTitle;
+
+                // verify paths
+                Program.VerifyPath(Program.ModPath);
+                Program.VerifyPath(Constants.LogDir);
+                if (!File.Exists(Program.GameExecutablePath))
+                {
+                    Log.Error($"Couldn't find executable: {Program.GameExecutablePath}");
+                    Log.Debug("Shutting down. Press any key to continue...");
+                    Console.ReadKey();
+                    return;
+                }
+
+                // check for update
                 Program.CheckForUpdateAsync();
-                Program.CreateDirectories();
+
+                // launch game
                 Program.StartGame();
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
                 Console.ReadKey();
-                Log.AsyncR($"Critical error: {ex}");
+                Log.Error($"Critical error: {ex}");
             }
 
             // print message when game ends
-            Log.AsyncY("The API will now terminate. Press any key to continue...");
+            Log.Info("Shutting down. Press any key to continue...");
             Console.ReadKey();
         }
 
@@ -91,25 +107,6 @@ namespace StardewModdingAPI
         /*********
         ** Private methods
         *********/
-        /// <summary>Configure the console window.</summary>
-        private static void ConfigureConsoleWindow()
-        {
-            Console.Title = Constants.ConsoleTitle;
-#if DEBUG
-            Console.Title += " - DEBUG IS NOT FALSE, AUTHOUR NEEDS TO REUPLOAD THIS VERSION";
-#endif
-        }
-
-        /// <summary>Create and verify the SMAPI directories.</summary>
-        private static void CreateDirectories()
-        {
-            Log.AsyncY("Validating file paths...");
-            Program.VerifyPath(Program.ModPath);
-            Program.VerifyPath(Constants.LogDir);
-            if (!File.Exists(Program.GameExecutablePath))
-                throw new FileNotFoundException($"Could not find executable: {Program.GameExecutablePath}");
-        }
-
         /// <summary>Asynchronously check for a new version of SMAPI, and print a message to the console if an update is available.</summary>
         private static void CheckForUpdateAsync()
         {
@@ -133,13 +130,12 @@ namespace StardewModdingAPI
         private static void StartGame()
         {
             // load the game assembly (ignore security)
-            Log.AsyncY("Initializing SDV Assembly...");
+            Log.Debug("Preparing game...");
             Program.StardewAssembly = Assembly.UnsafeLoadFrom(Program.GameExecutablePath);
             Program.StardewProgramType = Program.StardewAssembly.GetType("StardewValley.Program", true);
             Program.StardewGameInfo = Program.StardewProgramType.GetField("gamePtr");
 
             // change the game's version
-            Log.AsyncY("Injecting New SDV Version...");
             Game1.version += $"-Z_MODDED | SMAPI {Constants.Version}";
 
             // add error interceptors
@@ -152,7 +148,7 @@ namespace StardewModdingAPI
             // initialise game
             try
             {
-                Log.AsyncY("Initializing SDV...");
+                Log.Debug("Patching game...");
                 Program.gamePtr = new SGame();
 
                 // hook events
@@ -160,21 +156,20 @@ namespace StardewModdingAPI
                 Program.gamePtr.Window.ClientSizeChanged += GraphicsEvents.InvokeResize;
 
                 // patch graphics
-                Log.AsyncY("Patching SDV Graphics Profile...");
                 Game1.graphics.GraphicsProfile = GraphicsProfile.HiDef;
 
                 // load mods
                 Program.LoadMods();
 
                 // initialise
+                Log.Debug("Tweaking game...");
                 Program.StardewGameInfo.SetValue(Program.StardewProgramType, Program.gamePtr);
-                Log.AsyncY("Applying Final SDV Tweaks...");
                 Program.gamePtr.IsMouseVisible = false;
                 Program.gamePtr.Window.Title = $"Stardew Valley - Version {Game1.version}";
             }
             catch (Exception ex)
             {
-                Log.AsyncR($"Game failed to initialise: {ex}");
+                Log.Error($"Game failed to initialise: {ex}");
                 return;
             }
 
@@ -188,12 +183,11 @@ namespace StardewModdingAPI
                 Command.RegisterCommand("help", "Lists all commands | 'help <cmd>' returns command description").CommandFired += Program.help_CommandFired;
 
                 // raise game loaded event
-                Log.AsyncY("Game Loaded");
                 GameEvents.InvokeGameLoaded();
 
                 // listen for command line input
-                Log.AsyncY("Starting console...");
-                Log.AsyncY("Type 'help' for help, or 'help <cmd>' for a command's usage");
+                Log.Debug("Starting console...");
+                Log.Info("Type 'help' for help, or 'help <cmd>' for a command's usage");
                 Thread consoleInputThread = new Thread(Program.ConsoleInputLoop);
                 consoleInputThread.Start();
                 while (Program.ready)
@@ -203,14 +197,13 @@ namespace StardewModdingAPI
                 if (consoleInputThread.ThreadState == ThreadState.Running)
                     consoleInputThread.Abort();
 
-                Log.AsyncY("Game Execution Finished");
-                Log.AsyncY("Shutting Down...");
+                Log.Debug("Game has ended. Shutting down...");
                 Thread.Sleep(100);
                 Environment.Exit(0);
             }).Start();
 
             // start game loop
-            Log.AsyncY("Starting SDV...");
+            Log.Debug("Starting Stardew Valley...");
             try
             {
                 Program.ready = true;
@@ -219,7 +212,7 @@ namespace StardewModdingAPI
             catch (Exception ex)
             {
                 Program.ready = false;
-                Log.AsyncR($"Game failed to start: {ex}");
+                Log.Error($"Game failed to start: {ex}");
             }
         }
 
@@ -234,20 +227,22 @@ namespace StardewModdingAPI
             }
             catch (Exception ex)
             {
-                Log.AsyncR($"Could not create a path: {path}\n\n{ex}");
+                Log.Error($"Couldn't create a path: {path}\n\n{ex}");
             }
         }
 
         /// <summary>Load and hook up all mods in the mod directory.</summary>
         private static void LoadMods()
         {
-            Log.AsyncY("LOADING MODS");
+            Log.Debug("Loading mods...");
             foreach (string directory in Directory.GetDirectories(Program.ModPath))
             {
                 foreach (string manifestPath in Directory.GetFiles(directory, "manifest.json"))
                 {
+                    // error format
+                    string errorPrefix = $"Couldn't load mod for manifest '{manifestPath}'";
+
                     // read manifest
-                    Log.AsyncG($"Found Manifest: {manifestPath}");
                     Manifest manifest = new Manifest();
                     try
                     {
@@ -255,7 +250,7 @@ namespace StardewModdingAPI
                         string json = File.ReadAllText(manifestPath);
                         if (string.IsNullOrEmpty(json))
                         {
-                            Log.AsyncR($"Failed to read mod manifest '{manifestPath}'. Manifest is empty!");
+                            Log.Error($"{errorPrefix}: manifest is empty.");
                             continue;
                         }
 
@@ -263,40 +258,34 @@ namespace StardewModdingAPI
                         manifest = manifest.InitializeConfig(manifestPath);
                         if (string.IsNullOrEmpty(manifest.EntryDll))
                         {
-                            Log.AsyncR($"Failed to read mod manifest '{manifestPath}'. EntryDll is empty!");
+                            Log.Error($"{errorPrefix}: manifest doesn't specify an entry DLL.");
                             continue;
                         }
                     }
                     catch (Exception ex)
                     {
-                        Log.AsyncR($"Failed to read mod manifest '{manifestPath}'. Exception details:\n{ex}");
+                        Log.Error($"{errorPrefix}: manifest parsing failed.\n{ex}");
                         continue;
                     }
 
                     // create per-save directory
                     string targDir = Path.GetDirectoryName(manifestPath);
                     string psDir = Path.Combine(targDir, "psconfigs");
-                    Log.AsyncY($"Created psconfigs directory @{psDir}");
                     try
                     {
                         if (manifest.PerSaveConfigs)
                         {
+                            Directory.CreateDirectory(psDir);
                             if (!Directory.Exists(psDir))
                             {
-                                Directory.CreateDirectory(psDir);
-                                Log.AsyncY($"Created psconfigs directory @{psDir}");
-                            }
-
-                            if (!Directory.Exists(psDir))
-                            {
-                                Log.AsyncR($"Failed to create psconfigs directory '{psDir}'. No exception occured.");
+                                Log.Error($"{errorPrefix}: couldn't create the per-save configuration directory ('psconfigs') requested by this mod. The failure reason is unknown.");
                                 continue;
                             }
                         }
                     }
                     catch (Exception ex)
                     {
-                        Log.AsyncR($"Failed to create psconfigs directory '{targDir}'. Exception details:\n{ex}");
+                        Log.Error($"{errorPrefix}: couldm't create the per-save configuration directory ('psconfigs') requested by this mod.\n{ex}");
                         continue;
                     }
 
@@ -307,37 +296,36 @@ namespace StardewModdingAPI
                         targDll = Path.Combine(targDir, manifest.EntryDll);
                         if (!File.Exists(targDll))
                         {
-                            Log.AsyncR($"Failed to load mod '{manifest.EntryDll}'. File {targDll} does not exist!");
+                            Log.Error($"{errorPrefix}: target DLL '{targDll}' does not exist.");
                             continue;
                         }
 
                         Assembly modAssembly = Assembly.UnsafeLoadFrom(targDll);
                         if (modAssembly.DefinedTypes.Count(x => x.BaseType == typeof(Mod)) > 0)
                         {
-                            Log.AsyncY("Loading Mod DLL...");
                             TypeInfo tar = modAssembly.DefinedTypes.First(x => x.BaseType == typeof(Mod));
                             Mod modEntry = (Mod)modAssembly.CreateInstance(tar.ToString());
                             if (modEntry != null)
                             {
                                 modEntry.PathOnDisk = targDir;
                                 modEntry.Manifest = manifest;
-                                Log.AsyncG($"LOADED MOD: {modEntry.Manifest.Name} by {modEntry.Manifest.Author} - Version {modEntry.Manifest.Version} | Description: {modEntry.Manifest.Description} (@ {targDll})");
+                                Log.Info($"Loaded mod: {modEntry.Manifest.Name} by {modEntry.Manifest.Author}, v{modEntry.Manifest.Version} | {modEntry.Manifest.Description}\n@ {targDll}");
                                 Program.ModsLoaded += 1;
                                 modEntry.Entry();
                             }
                         }
                         else
-                            Log.AsyncR("Invalid Mod DLL");
+                            Log.Error($"{errorPrefix}: the mod DLL does not contain an implementation of the 'Mod' class.");
                     }
                     catch (Exception ex)
                     {
-                        Log.AsyncR($"Failed to load mod '{targDll}'. Exception details:\n{ex}");
+                        Log.Error($"{errorPrefix}: an error occurred while loading the target DLL.\n{ex}");
                     }
                 }
             }
 
             // print result
-            Log.AsyncG($"LOADED {Program.ModsLoaded} MODS");
+            Log.Debug($"Loaded {Program.ModsLoaded} mods.");
             Console.Title = Constants.ConsoleTitle;
         }
 
@@ -357,12 +345,12 @@ namespace StardewModdingAPI
             {
                 var command = Command.FindCommand(e.Command.CalledArgs[0]);
                 if (command == null)
-                    Log.AsyncR("The specified command could not be found");
+                    Log.Error("The specified command could't be found");
                 else
-                    Log.AsyncY(command.CommandArgs.Length > 0 ? $"{command.CommandName}: {command.CommandDesc} - {string.Join(", ", command.CommandArgs)}" : $"{command.CommandName}: {command.CommandDesc}");
+                    Log.Info(command.CommandArgs.Length > 0 ? $"{command.CommandName}: {command.CommandDesc} - {string.Join(", ", command.CommandArgs)}" : $"{command.CommandName}: {command.CommandDesc}");
             }
             else
-                Log.AsyncY("Commands: " + string.Join(", ", Command.RegisteredCommands.Select(x => x.CommandName)));
+                Log.Info("Commands: " + string.Join(", ", Command.RegisteredCommands.Select(x => x.CommandName)));
         }
     }
 }
