@@ -3,10 +3,10 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 
-namespace StardewModdingAPI
+namespace StardewModdingAPI.Framework
 {
     /// <summary>A log writer which queues messages for output, and periodically flushes them to the console and log file.</summary>
-    public class LogWriter
+    internal class LogWriter
     {
         /*********
         ** Properties
@@ -79,6 +79,7 @@ namespace StardewModdingAPI
                     this.FlushLog();
             }
         }
+
 
         /*********
         ** Private methods

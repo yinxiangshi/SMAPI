@@ -198,8 +198,8 @@
     <Compile Include="Inheritance\ChangeType.cs" />
     <Compile Include="Inheritance\ItemStackChange.cs" />
     <Compile Include="Log.cs" />
-    <Compile Include="Logger.cs" />
-    <Compile Include="LogWriter.cs" />
+    <Compile Include="LogInfo.cs" />
+    <Compile Include="Framework\LogWriter.cs" />
     <Compile Include="Manifest.cs" />
     <Compile Include="Mod.cs" />
     <Compile Include="Program.cs" />
