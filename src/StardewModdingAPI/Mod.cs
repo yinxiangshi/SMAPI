@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace StardewModdingAPI
 {
@@ -8,6 +9,9 @@ namespace StardewModdingAPI
         /*********
         ** Accessors
         *********/
+        /// <summary>Provides methods for interacting with the mod directory, such as read/writing a config file or custom JSON files.</summary>
+        public ModHelper Helper { get; internal set; }
+
         /// <summary>The mod's manifest.</summary>
         public Manifest Manifest { get; internal set; }
 
@@ -28,9 +32,12 @@ namespace StardewModdingAPI
         ** Public methods
         *********/
         /// <summary>The entry point for your mod. It will always be called once when the mod loads.</summary>
-        public virtual void Entry(params object[] objects)
-        {
-        }
+        [Obsolete("This overload is obsolete since SMAPI 1.0.")]
+        public virtual void Entry(params object[] objects) { }
+
+        /// <summary>The entry point for your mod. It will always be called once when the mod loads.</summary>
+        /// <param name="helper">Provides methods for interacting with the mod directory, such as read/writing a config file or custom JSON files.</param>
+        public virtual void Entry(ModHelper helper) { }
 
 
         /*********

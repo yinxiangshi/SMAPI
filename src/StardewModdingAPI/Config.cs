@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 namespace StardewModdingAPI
 {
     /// <summary>A dynamic configuration class for a mod.</summary>
+    [Obsolete("This base class is obsolete since SMAPI 1.0. See the latest project README for details.")]
     public abstract class Config
     {
         /*********
@@ -26,10 +27,12 @@ namespace StardewModdingAPI
         *********/
         /// <summary>Construct an instance of the config class.</summary>
         /// <typeparam name="T">The config class type.</typeparam>
+        [Obsolete("This base class is obsolete since SMAPI 1.0. See the latest project README for details.")]
         public virtual Config Instance<T>() where T : Config => Activator.CreateInstance<T>();
 
         /// <summary>Load the config from the JSON file, saving it to disk if needed.</summary>
         /// <typeparam name="T">The config class type.</typeparam>
+        [Obsolete("This base class is obsolete since SMAPI 1.0. See the latest project README for details.")]
         public virtual T LoadConfig<T>() where T : Config
         {
             // validate
@@ -67,10 +70,12 @@ namespace StardewModdingAPI
         }
 
         /// <summary>Get the default config values.</summary>
+        [Obsolete("This base class is obsolete since SMAPI 1.0. See the latest project README for details.")]
         public abstract T GenerateDefaultConfig<T>() where T : Config;
 
         /// <summary>Get the current configuration with missing values defaulted.</summary>
         /// <typeparam name="T">The config class type.</typeparam>
+        [Obsolete("This base class is obsolete since SMAPI 1.0. See the latest project README for details.")]
         public virtual T UpdateConfig<T>() where T : Config
         {
             try
@@ -97,12 +102,14 @@ namespace StardewModdingAPI
     }
 
     /// <summary>Provides extension methods for <see cref="Config"/> classes.</summary>
+    [Obsolete("This base class is obsolete since SMAPI 1.0. See the latest project README for details.")]
     public static class ConfigExtensions
     {
         /// <summary>Initialise the configuration. That includes loading, saving, and merging the config file and in memory at a default state. This method should not be used to reload or to resave a config. NOTE: You MUST set your config EQUAL to the return of this method!</summary>
         /// <typeparam name="T">The config class type.</typeparam>
         /// <param name="baseConfig">The base configuration to initialise.</param>
         /// <param name="configLocation">The base configuration file path.</param>
+        [Obsolete("This base class is obsolete since SMAPI 1.0. See the latest project README for details.")]
         public static T InitializeConfig<T>(this T baseConfig, string configLocation) where T : Config
         {
             if (baseConfig == null)
@@ -121,6 +128,7 @@ namespace StardewModdingAPI
         /// <summary>Writes the configuration to the JSON file.</summary>
         /// <typeparam name="T">The config class type.</typeparam>
         /// <param name="baseConfig">The base configuration to initialise.</param>
+        [Obsolete("This base class is obsolete since SMAPI 1.0. See the latest project README for details.")]
         public static void WriteConfig<T>(this T baseConfig) where T : Config
         {
             if (string.IsNullOrEmpty(baseConfig?.ConfigLocation) || string.IsNullOrEmpty(baseConfig.ConfigDir))
@@ -140,6 +148,7 @@ namespace StardewModdingAPI
         /// <summary>Rereads the JSON file and merges its values with a default config. NOTE: You MUST set your config EQUAL to the return of this method!</summary>
         /// <typeparam name="T">The config class type.</typeparam>
         /// <param name="baseConfig">The base configuration to initialise.</param>
+        [Obsolete("This base class is obsolete since SMAPI 1.0. See the latest project README for details.")]
         public static T ReloadConfig<T>(this T baseConfig) where T : Config
         {
             return baseConfig.LoadConfig<T>();

@@ -314,11 +314,13 @@ namespace StardewModdingAPI
                             Mod modEntry = (Mod)modAssembly.CreateInstance(tar.ToString());
                             if (modEntry != null)
                             {
+                                modEntry.Helper = new ModHelper(targDir);
                                 modEntry.PathOnDisk = targDir;
                                 modEntry.Manifest = manifest;
                                 Log.Info($"Loaded mod: {modEntry.Manifest.Name} by {modEntry.Manifest.Author}, v{modEntry.Manifest.Version} | {modEntry.Manifest.Description}\n@ {targDll}");
                                 Program.ModsLoaded += 1;
-                                modEntry.Entry();
+                                modEntry.Entry(); // obsolete
+                                modEntry.Entry(modEntry.Helper);
                             }
                         }
                         else

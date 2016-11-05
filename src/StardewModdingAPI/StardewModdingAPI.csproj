@@ -161,6 +161,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Advanced\ConfigFile.cs" />
+    <Compile Include="Advanced\IConfigFile.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Constants.cs" />
@@ -202,6 +204,7 @@
     <Compile Include="Framework\LogWriter.cs" />
     <Compile Include="Manifest.cs" />
     <Compile Include="Mod.cs" />
+    <Compile Include="ModHelper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Inheritance\SGame.cs" />
