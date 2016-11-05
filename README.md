@@ -11,6 +11,10 @@ your game files.
 * [Support forums](http://community.playstarbound.com/threads/stardew-modding-api-0-40-1-1.108375/)
 * [Stardew Valley Discord](https://discord.gg/KCJHWhX) (chat with players and developers)
 
+If you need help, [ask in this forum thread](http://community.playstarbound.com/threads/stardew-modding-api-0-40-1-1.108375)
+or [come talk to us on Discord](https://discord.gg/KCJHWhX). Your question will be seen by more
+people who can help that way. (Please don't submit issues on GitHub for support questions.)
+
 ## For mod developers
 
 * [How to develop mods](http://canimod.com/guides/creating-a-smapi-mod)
