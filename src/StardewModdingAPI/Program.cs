@@ -69,12 +69,19 @@ namespace StardewModdingAPI
             try
             {
                 Log.SyncColour($"Launching SMAPI {Constants.Version} with Stardew Valley {Game1.version} on {Environment.OSVersion}", ConsoleColor.DarkGray); // make sure this is the first line, to simplify troubleshooting instructions
+
+                // verify version
+                if (String.Compare(Game1.version, Constants.MinimumGameVersion, StringComparison.InvariantCultureIgnoreCase) < 0)
+                {
+                    Log.Error($"Oops! You're running Stardew Valley {Game1.version}, but the oldest supported version is {Constants.MinimumGameVersion}. Please update your game before using SMAPI. If you're on the Steam beta channel, note that the beta channel may not receive the latest updates.");
+                    Log.Debug("Shutting down. Press any key to continue...");
+                    Console.ReadKey();
+                    return;
+                }
+
+                // initialise
                 Log.Debug("Initialising...");
-
-                // set window title
                 Console.Title = Constants.ConsoleTitle;
-
-                // verify paths
                 Program.VerifyPath(Program.ModPath);
                 Program.VerifyPath(Constants.LogDir);
                 if (!File.Exists(Program.GameExecutablePath))
