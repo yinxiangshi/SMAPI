@@ -66,7 +66,7 @@ namespace StardewModdingAPI
             {
                 try
                 {
-                    Manifest m = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(this.ConfigLocation));
+                    JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(this.ConfigLocation));
                 }
                 catch
                 {

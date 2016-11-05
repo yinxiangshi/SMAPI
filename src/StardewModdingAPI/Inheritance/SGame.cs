@@ -949,7 +949,7 @@ namespace StardewModdingAPI.Inheritance
             if (objectHash != null && this.PreviousLocationObjects != objectHash)
             {
                 LocationEvents.InvokeOnNewLocationObject(Game1.currentLocation.objects);
-                this.PreviousLocationObjects = objectHash ?? -1;
+                this.PreviousLocationObjects = objectHash.Value;
             }
 
             // raise time changed
