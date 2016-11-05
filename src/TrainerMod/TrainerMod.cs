@@ -132,12 +132,12 @@ namespace TrainerMod
                 }
                 else
                 {
-                    Log.LogObjectInvalid();
+                    TrainerMod.LogObjectInvalid();
                 }
             }
             else
             {
-                Log.LogObjectValueNotSpecified();
+                TrainerMod.LogObjectValueNotSpecified();
             }
         }
 
@@ -160,13 +160,13 @@ namespace TrainerMod
                     }
                     else
                     {
-                        Log.LogValueNotInt32();
+                        TrainerMod.LogValueNotInt32();
                     }
                 }
             }
             else
             {
-                Log.LogValueNotSpecified();
+                TrainerMod.LogValueNotSpecified();
             }
         }
 
@@ -189,13 +189,13 @@ namespace TrainerMod
                     }
                     else
                     {
-                        Log.LogValueNotInt32();
+                        TrainerMod.LogValueNotInt32();
                     }
                 }
             }
             else
             {
-                Log.LogValueNotSpecified();
+                TrainerMod.LogValueNotSpecified();
             }
         }
 
@@ -211,12 +211,12 @@ namespace TrainerMod
                 }
                 else
                 {
-                    Log.LogValueNotInt32();
+                    TrainerMod.LogValueNotInt32();
                 }
             }
             else
             {
-                Log.LogValueNotSpecified();
+                TrainerMod.LogValueNotSpecified();
             }
         }
 
@@ -255,7 +255,7 @@ namespace TrainerMod
                     }
                     else
                     {
-                        Log.LogValueNotInt32();
+                        TrainerMod.LogValueNotInt32();
                     }
                 }
                 else
@@ -280,12 +280,12 @@ namespace TrainerMod
                 }
                 else
                 {
-                    Log.LogValueNotInt32();
+                    TrainerMod.LogValueNotInt32();
                 }
             }
             else
             {
-                Log.LogValueNotSpecified();
+                TrainerMod.LogValueNotSpecified();
             }
         }
 
@@ -321,7 +321,7 @@ namespace TrainerMod
                 }
                 else
                 {
-                    Log.LogObjectInvalid();
+                    TrainerMod.LogObjectInvalid();
                 }
             }
             else
@@ -378,17 +378,17 @@ namespace TrainerMod
                     }
                     else
                     {
-                        Log.LogValueInvalid();
+                        TrainerMod.LogValueInvalid();
                     }
                 }
                 else
                 {
-                    Log.LogObjectInvalid();
+                    TrainerMod.LogObjectInvalid();
                 }
             }
             else
             {
-                Log.LogObjectValueNotSpecified();
+                TrainerMod.LogObjectValueNotSpecified();
             }
         }
 
@@ -411,12 +411,12 @@ namespace TrainerMod
                 }
                 else
                 {
-                    Log.LogValueNotInt32();
+                    TrainerMod.LogValueNotInt32();
                 }
             }
             else
             {
-                Log.LogValueNotSpecified();
+                TrainerMod.LogValueNotSpecified();
             }
         }
 
@@ -439,12 +439,12 @@ namespace TrainerMod
                 }
                 else
                 {
-                    Log.LogValueNotInt32();
+                    TrainerMod.LogValueNotInt32();
                 }
             }
             else
             {
-                Log.LogValueNotSpecified();
+                TrainerMod.LogValueNotSpecified();
             }
         }
 
@@ -465,12 +465,12 @@ namespace TrainerMod
                 }
                 else
                 {
-                    Log.LogValueNotInt32();
+                    TrainerMod.LogValueNotInt32();
                 }
             }
             else
             {
-                Log.LogValueNotSpecified();
+                TrainerMod.LogValueNotSpecified();
             }
         }
 
@@ -486,12 +486,12 @@ namespace TrainerMod
                 }
                 else
                 {
-                    Log.LogValueInvalid();
+                    TrainerMod.LogValueInvalid();
                 }
             }
             else
             {
-                Log.LogValueNotSpecified();
+                TrainerMod.LogValueNotSpecified();
             }
         }
 
@@ -512,13 +512,13 @@ namespace TrainerMod
                     }
                     else
                     {
-                        Log.LogValueNotInt32();
+                        TrainerMod.LogValueNotInt32();
                     }
                 }
             }
             else
             {
-                Log.LogValueNotSpecified();
+                TrainerMod.LogValueNotSpecified();
             }
         }
 
@@ -532,12 +532,12 @@ namespace TrainerMod
                 }
                 else
                 {
-                    Log.LogValueNotInt32();
+                    TrainerMod.LogValueNotInt32();
                 }
             }
             else
             {
-                Log.LogValueNotSpecified();
+                TrainerMod.LogValueNotSpecified();
             }
         }
 
@@ -551,12 +551,12 @@ namespace TrainerMod
                 }
                 else
                 {
-                    Log.LogValueNotInt32();
+                    TrainerMod.LogValueNotInt32();
                 }
             }
             else
             {
-                Log.LogValueNotSpecified();
+                TrainerMod.LogValueNotSpecified();
             }
         }
 
@@ -606,7 +606,7 @@ namespace TrainerMod
             }
             else
             {
-                Log.LogObjectValueNotSpecified();
+                TrainerMod.LogObjectValueNotSpecified();
             }
         }
 
@@ -627,7 +627,7 @@ namespace TrainerMod
             }
             else
             {
-                Log.LogObjectValueNotSpecified();
+                TrainerMod.LogObjectValueNotSpecified();
             }
         }
 
@@ -648,7 +648,7 @@ namespace TrainerMod
             }
             else
             {
-                Log.LogObjectValueNotSpecified();
+                TrainerMod.LogObjectValueNotSpecified();
             }
         }
 
@@ -709,12 +709,12 @@ namespace TrainerMod
                 }
                 else
                 {
-                    Log.LogValueNotInt32();
+                    TrainerMod.LogValueNotInt32();
                 }
             }
             else
             {
-                Log.LogValueNotSpecified();
+                TrainerMod.LogValueNotSpecified();
             }
         }
 
@@ -724,6 +724,32 @@ namespace TrainerMod
 
         private static void RegisterNewItem(object sender, EventArgsCommand e)
         {
+        }
+
+        /// <summary>Log an error indicating the </summary>
+        public static void LogValueNotSpecified()
+        {
+            Log.AsyncR("<value> must be specified");
+        }
+
+        public static void LogObjectValueNotSpecified()
+        {
+            Log.AsyncR("<object> and <value> must be specified");
+        }
+
+        public static void LogValueInvalid()
+        {
+            Log.AsyncR("<value> is invalid");
+        }
+
+        public static void LogObjectInvalid()
+        {
+            Log.AsyncR("<object> is invalid");
+        }
+
+        public static void LogValueNotInt32()
+        {
+            Log.AsyncR("<value> must be a whole number (Int32)");
         }
     }
 }

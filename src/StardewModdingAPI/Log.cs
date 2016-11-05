@@ -135,87 +135,11 @@ namespace StardewModdingAPI
             Log.AsyncY("[INFO] " + message);
         }
 
-        // unused?
-        public static void Out(object message)
-        {
-            Log.Async("[OUT] " + message);
-        }
-
         /// <summary>Asynchronously log a debug message to the console.</summary>
         /// <param name="message">The message to log.</param>
         public static void Debug(object message)
         {
             Log.AsyncO("[DEBUG] " + message);
-        }
-
-        /****
-        ** Obsolete
-        ****/
-        public static void LogValueNotSpecified()
-        {
-            Log.AsyncR("<value> must be specified");
-        }
-
-        public static void LogObjectValueNotSpecified()
-        {
-            Log.AsyncR("<object> and <value> must be specified");
-        }
-
-        public static void LogValueInvalid()
-        {
-            Log.AsyncR("<value> is invalid");
-        }
-
-        public static void LogObjectInvalid()
-        {
-            Log.AsyncR("<object> is invalid");
-        }
-
-        public static void LogValueNotInt32()
-        {
-            Log.AsyncR("<value> must be a whole number (Int32)");
-        }
-
-        [Obsolete("Parameter 'values' is no longer supported. Format before logging.")]
-        private static void PrintLog(object message, bool disableLogging, params object[] values)
-        {
-            Log.PrintLog(new LogInfo(message?.ToString()));
-        }
-
-        [Obsolete("Parameter 'values' is no longer supported. Format before logging.")]
-        public static void Success(object message, params object[] values)
-        {
-            Log.Success(message);
-        }
-
-        [Obsolete("Parameter 'values' is no longer supported. Format before logging.")]
-        public static void Verbose(object message, params object[] values)
-        {
-            Log.Out(message);
-        }
-
-        [Obsolete("Parameter 'values' is no longer supported. Format before logging.")]
-        public static void Comment(object message, params object[] values)
-        {
-            Log.AsyncC(message);
-        }
-
-        [Obsolete("Parameter 'values' is no longer supported. Format before logging.")]
-        public static void Info(object message, params object[] values)
-        {
-            Log.Info(message);
-        }
-
-        [Obsolete("Parameter 'values' is no longer supported. Format before logging.")]
-        public static void Error(object message, params object[] values)
-        {
-            Log.Error(message);
-        }
-
-        [Obsolete("Parameter 'values' is no longer supported. Format before logging.")]
-        public static void Debug(object message, params object[] values)
-        {
-            Log.Debug(message);
         }
 
 
