@@ -74,8 +74,6 @@ namespace StardewModdingAPI
                 if (String.Compare(Game1.version, Constants.MinimumGameVersion, StringComparison.InvariantCultureIgnoreCase) < 0)
                 {
                     Log.Error($"Oops! You're running Stardew Valley {Game1.version}, but the oldest supported version is {Constants.MinimumGameVersion}. Please update your game before using SMAPI. If you're on the Steam beta channel, note that the beta channel may not receive the latest updates.");
-                    Log.Debug("Shutting down. Press any key to continue...");
-                    Console.ReadKey();
                     return;
                 }
 
@@ -87,7 +85,6 @@ namespace StardewModdingAPI
                 if (!File.Exists(Program.GameExecutablePath))
                 {
                     Log.Error($"Couldn't find executable: {Program.GameExecutablePath}");
-                    Log.Debug("Shutting down. Press any key to continue...");
                     Console.ReadKey();
                     return;
                 }
@@ -104,10 +101,6 @@ namespace StardewModdingAPI
                 Console.ReadKey();
                 Log.Error($"Critical error: {ex}");
             }
-
-            // print message when game ends
-            Log.Info("Shutting down. Press any key to continue...");
-            Console.ReadKey();
         }
 
 
@@ -204,7 +197,8 @@ namespace StardewModdingAPI
                 if (consoleInputThread.ThreadState == ThreadState.Running)
                     consoleInputThread.Abort();
 
-                Log.Debug("Game has ended. Shutting down...");
+                Log.Info("Game has ended. Press any key to continue...");
+                Console.ReadKey();
                 Thread.Sleep(100);
                 Environment.Exit(0);
             }).Start();
