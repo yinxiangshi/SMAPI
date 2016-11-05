@@ -56,7 +56,7 @@ namespace StardewModdingApi.Installer
             this.PrintDebug("Collecting information...");
             Platform platform = this.DetectPlatform();
             DirectoryInfo packageDir = new DirectoryInfo(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), platform.ToString()));
-            DirectoryInfo installDir = this.InteractivelyGetInstallPath();
+            DirectoryInfo installDir = this.InteractivelyGetInstallPath(platform);
             string executablePath = Path.Combine(installDir.FullName, platform == Platform.Mono ? "StardewValley.exe" : "Stardew Valley.exe");
             string unixGameLauncherPath = Path.Combine(installDir.FullName, "StardewValley");
             string unixGameLauncherBackupPath = Path.Combine(installDir.FullName, "StardewValley-original");
@@ -276,7 +276,8 @@ namespace StardewModdingApi.Installer
         }
 
         /// <summary>Interactively locate the game's install path.</summary>
-        private DirectoryInfo InteractivelyGetInstallPath()
+        /// <param name="platform">The current platform.</param>
+        private DirectoryInfo InteractivelyGetInstallPath(Platform platform)
         {
             // try default paths
             foreach (string defaultPath in this.DefaultInstallPaths)
@@ -292,12 +293,16 @@ namespace StardewModdingApi.Installer
                 // get path from user
                 Console.WriteLine("   Enter the game's full directory path (the one containing 'StardewValley.exe' or 'Stardew Valley.exe').");
                 Console.Write("   > ");
-                string path = Console.ReadLine();
+                string path = Console.ReadLine()?.Trim();
                 if (string.IsNullOrWhiteSpace(path))
                 {
                     Console.WriteLine("   You must specify a directory path to continue.");
                     continue;
                 }
+
+                // normalise on Windows
+                if (platform == Platform.Windows)
+                    path = path.Replace("\"", ""); // in Windows, quotes are used to escape spaces and aren't part of the file path
 
                 // get directory
                 if (File.Exists(path))
