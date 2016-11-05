@@ -195,6 +195,7 @@
     <Compile Include="Events\MineEvents.cs" />
     <Compile Include="Events\PlayerEvents.cs" />
     <Compile Include="Events\TimeEvents.cs" />
+    <Compile Include="Framework\DeprecationManager.cs" />
     <Compile Include="Framework\UpdateHelper.cs" />
     <Compile Include="Framework\GitRelease.cs" />
     <Compile Include="Inheritance\ChangeType.cs" />

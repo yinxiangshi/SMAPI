@@ -32,8 +32,15 @@ namespace StardewModdingAPI
 
         /// <summary>Obsolete.</summary>
         [JsonIgnore]
-        [Obsolete("Use `Version.ToString()` instead.")]
-        public string VersionString => this.ToString();
+        [Obsolete("Use " + nameof(Version) + "." + nameof(Version.ToString) + " instead.")]
+        public string VersionString
+        {
+            get
+            {
+                Program.DeprecationManager.Warn($"{nameof(Version)}.{nameof(Version.VersionString)}", "1.0");
+                return this.ToString();
+            }
+        }
 
 
         /*********
@@ -59,7 +66,7 @@ namespace StardewModdingAPI
             var match = Version.Regex.Match(version);
             if (!match.Success)
                 throw new FormatException($"The input '{version}' is not a semantic version.");
-            
+
             this.MajorVersion = int.Parse(match.Groups["major"].Value);
             this.MinorVersion = match.Groups["minor"].Success ? int.Parse(match.Groups["minor"].Value) : 0;
             this.PatchVersion = match.Groups["patch"].Success ? int.Parse(match.Groups["patch"].Value) : 0;

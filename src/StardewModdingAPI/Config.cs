@@ -99,6 +99,17 @@ namespace StardewModdingAPI
                 return this as T;
             }
         }
+
+
+        /*********
+        ** Protected methods
+        *********/
+        /// <summary>Construct an instance.</summary>
+        protected Config()
+        {
+            Program.DeprecationManager.Warn("the Config class", "1.0");
+            Program.DeprecationManager.MarkWarned($"{nameof(Mod)}.{nameof(Mod.BaseConfigPath)}", "1.0"); // typically used to construct config, avoid redundant warnings
+        }
     }
 
     /// <summary>Provides extension methods for <see cref="Config"/> classes.</summary>

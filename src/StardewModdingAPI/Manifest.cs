@@ -9,6 +9,10 @@ namespace StardewModdingAPI
         /*********
         ** Accessors
         *********/
+        /// <summary>Whether the manifest defined the deprecated <see cref="Authour"/> field.</summary>
+        [JsonIgnore]
+        internal bool UsedAuthourField { get; private set; }
+
         /// <summary>The mod name.</summary>
         public virtual string Name { get; set; } = "";
 
@@ -20,7 +24,11 @@ namespace StardewModdingAPI
         public virtual string Authour
         {
             get { return this.Author; }
-            set { this.Author = value; }
+            set
+            {
+                this.UsedAuthourField = true;
+                this.Author = value;
+            }
         }
 
         /// <summary>The mod version.</summary>

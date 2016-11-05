@@ -54,6 +54,8 @@ namespace StardewModdingAPI
         /// <summary>The game's build type (i.e. GOG vs Steam).</summary>
         public static int BuildType => (int)Program.StardewProgramType.GetField("buildType", BindingFlags.Public | BindingFlags.Static).GetValue(null);
 
+        /// <summary>Manages deprecation warnings.</summary>
+        internal static readonly DeprecationManager DeprecationManager = new DeprecationManager();
 
         /*********
         ** Public methods
@@ -267,6 +269,10 @@ namespace StardewModdingAPI
                             Log.Error($"{errorPrefix}: manifest doesn't specify an entry DLL.");
                             continue;
                         }
+
+                        // log deprecated fields
+                        if(manifest.UsedAuthourField)
+                            Program.DeprecationManager.Warn(manifest.Name, $"{nameof(Manifest)}.{nameof(Manifest.Authour)}", "1.0");
                     }
                     catch (Exception ex)
                     {
@@ -277,6 +283,7 @@ namespace StardewModdingAPI
                     // create per-save directory
                     if (manifest.PerSaveConfigs)
                     {
+                        Program.DeprecationManager.Warn($"{nameof(Manifest)}.{nameof(Manifest.PerSaveConfigs)}", "1.0");
                         try
                         {
                             string psDir = Path.Combine(directory, "psconfigs");
@@ -312,13 +319,21 @@ namespace StardewModdingAPI
                             Mod modEntry = (Mod)modAssembly.CreateInstance(modEntryType.ToString());
                             if (modEntry != null)
                             {
+                                // add as possible source of deprecation warnings
+                                Program.DeprecationManager.AddMod(modAssembly, manifest.Name);
+
+                                // hook up mod
                                 modEntry.Helper = helper;
                                 modEntry.PathOnDisk = directory;
                                 modEntry.Manifest = manifest;
                                 Log.Info($"Loaded mod: {modEntry.Manifest.Name} by {modEntry.Manifest.Author}, v{modEntry.Manifest.Version} | {modEntry.Manifest.Description}\n@ {targDll}");
                                 Program.ModsLoaded += 1;
-                                modEntry.Entry(); // obsolete
+                                modEntry.Entry(); // deprecated
                                 modEntry.Entry(modEntry.Helper);
+
+                                // raise deprecation warning for old Entry() method
+                                if (Program.DeprecationManager.IsVirtualMethodImplemented(modEntryType, typeof(Mod), nameof(Mod.Entry)))
+                                    Program.DeprecationManager.Warn(manifest.Name, $"an old version of {nameof(Mod)}.{nameof(Mod.Entry)}", "1.0");
                             }
                         }
                         else
