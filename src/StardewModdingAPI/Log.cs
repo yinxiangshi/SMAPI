@@ -16,7 +16,7 @@ namespace StardewModdingAPI
         private static readonly Random Random = new Random();
 
         /// <summary>The underlying log writer.</summary>
-        private static readonly LogWriter Writer = LogWriter.Instance;
+        private static readonly LogWriter Writer = new LogWriter(Constants.LogPath);
 
 
         /*********
