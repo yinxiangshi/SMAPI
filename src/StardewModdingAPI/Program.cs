@@ -240,7 +240,7 @@ namespace StardewModdingAPI
             {
                 foreach (string manifestPath in Directory.GetFiles(directory, "manifest.json"))
                 {
-                    // error format
+                    ModHelper helper = new ModHelper(directory);
                     string errorPrefix = $"Couldn't load mod for manifest '{manifestPath}'";
 
                     // read manifest
@@ -256,7 +256,12 @@ namespace StardewModdingAPI
                         }
 
                         // deserialise manifest
-                        manifest = manifest.InitializeConfig(manifestPath);
+                        manifest = helper.ReadJsonFile<Manifest>("manifest.json");
+                        if (manifest == null)
+                        {
+                            Log.Error($"{errorPrefix}: the manifest file does not exist.");
+                            continue;
+                        }
                         if (string.IsNullOrEmpty(manifest.EntryDll))
                         {
                             Log.Error($"{errorPrefix}: manifest doesn't specify an entry DLL.");
@@ -270,12 +275,11 @@ namespace StardewModdingAPI
                     }
 
                     // create per-save directory
-                    string targDir = Path.GetDirectoryName(manifestPath);
-                    string psDir = Path.Combine(targDir, "psconfigs");
-                    try
+                    if (manifest.PerSaveConfigs)
                     {
-                        if (manifest.PerSaveConfigs)
+                        try
                         {
+                            string psDir = Path.Combine(directory, "psconfigs");
                             Directory.CreateDirectory(psDir);
                             if (!Directory.Exists(psDir))
                             {
@@ -283,18 +287,18 @@ namespace StardewModdingAPI
                                 continue;
                             }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error($"{errorPrefix}: couldm't create the per-save configuration directory ('psconfigs') requested by this mod.\n{ex}");
-                        continue;
+                        catch (Exception ex)
+                        {
+                            Log.Error($"{errorPrefix}: couldm't create the per-save configuration directory ('psconfigs') requested by this mod.\n{ex}");
+                            continue;
+                        }
                     }
 
                     // load DLL & hook up mod
                     string targDll = string.Empty;
                     try
                     {
-                        targDll = Path.Combine(targDir, manifest.EntryDll);
+                        targDll = Path.Combine(directory, manifest.EntryDll);
                         if (!File.Exists(targDll))
                         {
                             Log.Error($"{errorPrefix}: target DLL '{targDll}' does not exist.");
@@ -304,12 +308,12 @@ namespace StardewModdingAPI
                         Assembly modAssembly = Assembly.UnsafeLoadFrom(targDll);
                         if (modAssembly.DefinedTypes.Count(x => x.BaseType == typeof(Mod)) > 0)
                         {
-                            TypeInfo tar = modAssembly.DefinedTypes.First(x => x.BaseType == typeof(Mod));
-                            Mod modEntry = (Mod)modAssembly.CreateInstance(tar.ToString());
+                            TypeInfo modEntryType = modAssembly.DefinedTypes.First(x => x.BaseType == typeof(Mod));
+                            Mod modEntry = (Mod)modAssembly.CreateInstance(modEntryType.ToString());
                             if (modEntry != null)
                             {
-                                modEntry.Helper = new ModHelper(targDir);
-                                modEntry.PathOnDisk = targDir;
+                                modEntry.Helper = helper;
+                                modEntry.PathOnDisk = directory;
                                 modEntry.Manifest = manifest;
                                 Log.Info($"Loaded mod: {modEntry.Manifest.Name} by {modEntry.Manifest.Author}, v{modEntry.Manifest.Version} | {modEntry.Manifest.Description}\n@ {targDll}");
                                 Program.ModsLoaded += 1;
