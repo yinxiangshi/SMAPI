@@ -326,7 +326,7 @@ namespace StardewModdingAPI
                                 modEntry.Helper = helper;
                                 modEntry.PathOnDisk = directory;
                                 modEntry.Manifest = manifest;
-                                Log.Info($"Loaded mod: {modEntry.Manifest.Name} by {modEntry.Manifest.Author}, v{modEntry.Manifest.Version} | {modEntry.Manifest.Description}\n@ {targDll}");
+                                Log.Info($"Loaded mod: {modEntry.Manifest.Name} by {modEntry.Manifest.Author}, v{modEntry.Manifest.Version} | {modEntry.Manifest.Description}");
                                 Program.ModsLoaded += 1;
                                 modEntry.Entry(); // deprecated
                                 modEntry.Entry(modEntry.Helper);

@@ -287,7 +287,6 @@ namespace StardewModdingAPI.Inheritance
         /// <summary>The method called during game launch after configuring XNA or MonoGame. The game window hasn't been opened by this point.</summary>
         protected override void Initialize()
         {
-            Log.AsyncY("XNA Initialize");
             //ModItems = new Dictionary<int, SObject>();
             SGame.DebugMessageQueue = new Queue<string>();
             this.PreviouslyPressedButtons = new Buttons[4][];
@@ -301,7 +300,6 @@ namespace StardewModdingAPI.Inheritance
         /// <summary>The method called before XNA or MonoGame loads or reloads graphics resources.</summary>
         protected override void LoadContent()
         {
-            Log.AsyncY("XNA LoadContent");
             base.LoadContent();
             GameEvents.InvokeLoadContent();
         }
