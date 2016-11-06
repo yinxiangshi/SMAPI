@@ -118,7 +118,7 @@ namespace StardewModdingAPI
         /// <param name="message">The message to log.</param>
         public static void Warning(object message)
         {
-            Log.AsyncY("[WARN] " + message);
+            Log.AsyncColour("[WARN] " + message, ConsoleColor.DarkRed);
         }
 
         /// <summary>Asynchronously log an error to the console.</summary>

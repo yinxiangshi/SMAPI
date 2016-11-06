@@ -59,8 +59,7 @@ namespace StardewModdingAPI
         [Obsolete("The usage of ToSingular has changed. Please update your call to use ToSingular<T>")]
         public static string ToSingular(this IEnumerable ienum, string split = ", ")
         {
-            Program.DeprecationManager.Warn($"{nameof(Extensions)}.{nameof(Extensions.ToSingular)}", "1.0", DeprecationLevel.Info);
-            Log.Error("The usage of ToSingular has changed. Please update your call to use ToSingular<T>");
+            Program.DeprecationManager.Warn($"{nameof(Extensions)}.{nameof(Extensions.ToSingular)}", "1.0", DeprecationLevel.PendingRemoval);
             return "";
         }
 
@@ -75,7 +74,7 @@ namespace StardewModdingAPI
             //Apparently Keys[] won't split normally :l
             if (typeof(T) == typeof(Keys))
             {
-                return string.Join(split, ienum.ToArray());
+                return string.Join(split, ienum.ToArray()); 
             }
             return string.Join(split, ienum);
         }
