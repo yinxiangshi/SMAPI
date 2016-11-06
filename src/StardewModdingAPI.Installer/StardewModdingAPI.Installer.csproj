@@ -51,7 +51,7 @@
   <!-- package files -->
   <Target Name="AfterBuild">
     <PropertyGroup>
-      <CompiledInstallerPath>$(SolutionDir)\..\bin\$(Configuration)\~Package</CompiledInstallerPath>
+      <CompiledInstallerPath>$(SolutionDir)\..\bin\Packaged</CompiledInstallerPath>
       <CompiledSmapiPath>$(SolutionDir)\..\bin\$(Configuration)\SMAPI</CompiledSmapiPath>
     </PropertyGroup>
     <ItemGroup>
@@ -66,6 +66,8 @@
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\Newtonsoft.Json.dll" DestinationFolder="$(CompiledInstallerPath)\Mono" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.exe" DestinationFolder="$(CompiledInstallerPath)\Mono" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.exe.mdb" DestinationFolder="$(CompiledInstallerPath)\Mono" />
+    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.xml" DestinationFolder="$(CompiledInstallerPath)\Windows" />
+    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI-settings.json" DestinationFolder="$(CompiledInstallerPath)\Windows" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\System.Numerics.dll" DestinationFolder="$(CompiledInstallerPath)\Mono" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\unix-launcher.sh" DestinationFiles="$(CompiledInstallerPath)\Mono\StardewModdingAPI" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\steam_appid.txt" DestinationFolder="$(CompiledInstallerPath)\Mono" />
@@ -74,6 +76,7 @@
     <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.exe" DestinationFolder="$(CompiledInstallerPath)\Windows" />
     <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.pdb" DestinationFolder="$(CompiledInstallerPath)\Windows" />
     <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.xml" DestinationFolder="$(CompiledInstallerPath)\Windows" />
+    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI-settings.json" DestinationFolder="$(CompiledInstallerPath)\Windows" />
     <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\steam_appid.txt" DestinationFolder="$(CompiledInstallerPath)\Windows" />
     <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="@(CompiledMods)" DestinationFolder="$(CompiledInstallerPath)\Windows\Mods\%(RecursiveDir)" />
   </Target>

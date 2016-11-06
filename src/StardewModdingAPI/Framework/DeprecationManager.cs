@@ -19,6 +19,13 @@ namespace StardewModdingAPI.Framework
 
 
         /*********
+        ** Accessors
+        *********/
+        /// <summary>Whether <see cref="DeprecationLevel.Notice"/>-level deprecation messages should be shown in the console.</summary>
+        public bool SendNoticesToConsole { get; set; }
+
+
+        /*********
         ** Public methods
         *********/
         /// <summary>Register a mod as a possible source of deprecation warnings.</summary>
@@ -63,7 +70,10 @@ namespace StardewModdingAPI.Framework
             switch (severity)
             {
                 case DeprecationLevel.Notice:
-                    Log.LogToFile(message);
+                    if (this.SendNoticesToConsole)
+                        Log.Debug($"[DEV] {message}");
+                    else
+                        Log.LogToFile(message);
                     break;
 
                 case DeprecationLevel.Info:

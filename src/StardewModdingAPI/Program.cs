@@ -8,6 +8,7 @@ using System.Threading;
 using System.Windows.Forms;
 #endif
 using Microsoft.Xna.Framework.Graphics;
+using Newtonsoft.Json;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework;
 using StardewModdingAPI.Inheritance;
@@ -66,6 +67,18 @@ namespace StardewModdingAPI
         {
             // set thread culture for consistent log formatting
             Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");
+
+            // load user settings
+            {
+                string settingsPath = $@"{Constants.ExecutionPath}\{typeof(Program).Assembly.GetName().Name}-settings.json";
+                if (File.Exists(settingsPath))
+                {
+                    string json = File.ReadAllText(settingsPath);
+                    UserSettings settings = JsonConvert.DeserializeObject<UserSettings>(json);
+                    Program.DeprecationManager.SendNoticesToConsole = settings?.DeveloperMode == true;
+                }
+                
+            }
 
             // hook into & launch the game
             try
@@ -271,7 +284,7 @@ namespace StardewModdingAPI
                         }
 
                         // log deprecated fields
-                        if(manifest.UsedAuthourField)
+                        if (manifest.UsedAuthourField)
                             Program.DeprecationManager.Warn(manifest.Name, $"{nameof(Manifest)}.{nameof(Manifest.Authour)}", "1.0", DeprecationLevel.Notice);
                     }
                     catch (Exception ex)

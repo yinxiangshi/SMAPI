@@ -59,7 +59,7 @@
     <UseVSHostingProcess>true</UseVSHostingProcess>
     <Optimize>false</Optimize>
     <OutputPath>$(SolutionDir)\..\bin\Debug\SMAPI</OutputPath>
-    <DocumentationFile>bin\Debug\StardewModdingAPI.xml</DocumentationFile>
+    <DocumentationFile>$(SolutionDir)\..\bin\Debug\SMAPI\StardewModdingAPI.xml</DocumentationFile>
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
     <LangVersion>6</LangVersion>
   </PropertyGroup>
@@ -68,7 +68,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <Prefer32Bit>false</Prefer32Bit>
     <OutputPath>$(SolutionDir)\..\bin\Release\SMAPI</OutputPath>
-    <DocumentationFile>bin\Release\StardewModdingAPI.xml</DocumentationFile>
+    <DocumentationFile>$(SolutionDir)\..\bin\Debug\SMAPI\StardewModdingAPI.xml</DocumentationFile>
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
@@ -200,6 +200,7 @@
     <Compile Include="Framework\DeprecationManager.cs" />
     <Compile Include="Framework\UpdateHelper.cs" />
     <Compile Include="Framework\GitRelease.cs" />
+    <Compile Include="Framework\UserSettings.cs" />
     <Compile Include="Inheritance\ChangeType.cs" />
     <Compile Include="Inheritance\ItemStackChange.cs" />
     <Compile Include="Log.cs" />
@@ -220,6 +221,9 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+    <Content Include="StardewModdingAPI-settings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="unix-launcher.sh">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
