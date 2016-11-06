@@ -86,7 +86,6 @@ directory containing `src`).
    4. Open a terminal in the `SMAPI-<version>` directory and run `chmod 755 Mono/StardewModdingAPI`.
    5. Copy & paste the `SMAPI-<version>` directory as `SMAPI-<version>-for-developers`.
    6. In the `SMAPI-<version>` directory, delete the following files:
-      * `Mono/StardewModdingAPI.xml`
       * `Mono/StardewModdingAPI-settings.json`
       * `Windows/StardewModdingAPI.xml`
       * `Windows/StardewModdingAPI-settings.json`

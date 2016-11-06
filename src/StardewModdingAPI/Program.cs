@@ -70,7 +70,7 @@ namespace StardewModdingAPI
 
             // load user settings
             {
-                string settingsPath = $@"{Constants.ExecutionPath}\{typeof(Program).Assembly.GetName().Name}-settings.json";
+                string settingsPath = Path.Combine(Constants.ExecutionPath, $"{typeof(Program).Assembly.GetName().Name}-settings.json");
                 if (File.Exists(settingsPath))
                 {
                     string json = File.ReadAllText(settingsPath);
