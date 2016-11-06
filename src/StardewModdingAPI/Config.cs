@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using StardewModdingAPI.Framework;
 
 namespace StardewModdingAPI
 {
@@ -107,7 +108,7 @@ namespace StardewModdingAPI
         /// <summary>Construct an instance.</summary>
         protected Config()
         {
-            Program.DeprecationManager.Warn("the Config class", "1.0");
+            Program.DeprecationManager.Warn("the Config class", "1.0", DeprecationLevel.Notice);
             Program.DeprecationManager.MarkWarned($"{nameof(Mod)}.{nameof(Mod.BaseConfigPath)}", "1.0"); // typically used to construct config, avoid redundant warnings
         }
     }

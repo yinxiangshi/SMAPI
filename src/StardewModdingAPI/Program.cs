@@ -272,7 +272,7 @@ namespace StardewModdingAPI
 
                         // log deprecated fields
                         if(manifest.UsedAuthourField)
-                            Program.DeprecationManager.Warn(manifest.Name, $"{nameof(Manifest)}.{nameof(Manifest.Authour)}", "1.0");
+                            Program.DeprecationManager.Warn(manifest.Name, $"{nameof(Manifest)}.{nameof(Manifest.Authour)}", "1.0", DeprecationLevel.Notice);
                     }
                     catch (Exception ex)
                     {
@@ -283,7 +283,7 @@ namespace StardewModdingAPI
                     // create per-save directory
                     if (manifest.PerSaveConfigs)
                     {
-                        Program.DeprecationManager.Warn($"{nameof(Manifest)}.{nameof(Manifest.PerSaveConfigs)}", "1.0");
+                        Program.DeprecationManager.Warn($"{nameof(Manifest)}.{nameof(Manifest.PerSaveConfigs)}", "1.0", DeprecationLevel.Notice);
                         try
                         {
                             string psDir = Path.Combine(directory, "psconfigs");
@@ -333,7 +333,7 @@ namespace StardewModdingAPI
 
                                 // raise deprecation warning for old Entry() method
                                 if (Program.DeprecationManager.IsVirtualMethodImplemented(modEntryType, typeof(Mod), nameof(Mod.Entry)))
-                                    Program.DeprecationManager.Warn(manifest.Name, $"an old version of {nameof(Mod)}.{nameof(Mod.Entry)}", "1.0");
+                                    Program.DeprecationManager.Warn(manifest.Name, $"an old version of {nameof(Mod)}.{nameof(Mod.Entry)}", "1.0", DeprecationLevel.Notice);
                             }
                         }
                         else

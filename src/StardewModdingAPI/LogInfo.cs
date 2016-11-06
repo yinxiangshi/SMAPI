@@ -20,6 +20,9 @@ namespace StardewModdingAPI
         /// <summary>The message color.</summary>
         public ConsoleColor Colour { get; set; }
 
+        /// <summary>Whether the message should be printed to the console.</summary>
+        internal bool PrintConsole { get; set; }
+
 
         /*********
         ** Public methods
@@ -35,6 +38,7 @@ namespace StardewModdingAPI
             this.LogDate = DateTime.Now.ToString("yyyy-MM-dd");
             this.LogTime = DateTime.Now.ToString("HH:mm:ss");
             this.Colour = color;
+            this.PrintConsole = true;
         }
     }
 }

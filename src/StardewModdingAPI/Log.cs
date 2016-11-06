@@ -114,6 +114,13 @@ namespace StardewModdingAPI
             Log.AsyncColour(message?.ToString(), ConsoleColor.Magenta);
         }
 
+        /// <summary>Asynchronously log a warning to the console.</summary>
+        /// <param name="message">The message to log.</param>
+        public static void Warning(object message)
+        {
+            Log.AsyncY("[WARN] " + message);
+        }
+
         /// <summary>Asynchronously log an error to the console.</summary>
         /// <param name="message">The message to log.</param>
         public static void Error(object message)
@@ -140,6 +147,13 @@ namespace StardewModdingAPI
         public static void Debug(object message)
         {
             Log.AsyncColour(message, ConsoleColor.DarkGray);
+        }
+
+        /// <summary>Asynchronously log a message to the file that's not shown in the console.</summary>
+        /// <param name="message">The message to log.</param>
+        internal static void LogToFile(string message)
+        {
+            Task.Run(() => { Log.PrintLog(new LogInfo(message) { PrintConsole = false }); });
         }
 
         /*********

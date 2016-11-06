@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
+using StardewModdingAPI.Framework;
 
 namespace StardewModdingAPI
 {
@@ -37,7 +38,7 @@ namespace StardewModdingAPI
         {
             get
             {
-                Program.DeprecationManager.Warn($"{nameof(Version)}.{nameof(Version.VersionString)}", "1.0");
+                Program.DeprecationManager.Warn($"{nameof(Version)}.{nameof(Version.VersionString)}", "1.0", DeprecationLevel.Notice);
                 return this.ToString();
             }
         }

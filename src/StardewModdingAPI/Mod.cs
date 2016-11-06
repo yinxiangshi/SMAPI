@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using StardewModdingAPI.Framework;
 
 namespace StardewModdingAPI
 {
@@ -27,7 +28,7 @@ namespace StardewModdingAPI
         {
             get
             {
-                Program.DeprecationManager.Warn($"{nameof(Mod)}.{nameof(PathOnDisk)}", "1.0");
+                Program.DeprecationManager.Warn($"{nameof(Mod)}.{nameof(PathOnDisk)}", "1.0", DeprecationLevel.Notice);
                 return this._pathOnDisk;
             }
             internal set { this._pathOnDisk = value; }
@@ -39,7 +40,7 @@ namespace StardewModdingAPI
         {
             get
             {
-                Program.DeprecationManager.Warn($"{nameof(Mod)}.{nameof(BaseConfigPath)}", "1.0");
+                Program.DeprecationManager.Warn($"{nameof(Mod)}.{nameof(BaseConfigPath)}", "1.0", DeprecationLevel.Notice);
                 Program.DeprecationManager.MarkWarned($"{nameof(Mod)}.{nameof(PathOnDisk)}", "1.0"); // avoid redundant warnings
                 return Path.Combine(this.PathOnDisk, "config.json");
             }
@@ -55,7 +56,7 @@ namespace StardewModdingAPI
         {
             get
             {
-                Program.DeprecationManager.Warn($"{nameof(Mod)}.{nameof(PerSaveConfigPath)}", "1.0");
+                Program.DeprecationManager.Warn($"{nameof(Mod)}.{nameof(PerSaveConfigPath)}", "1.0", DeprecationLevel.Notice);
                 Program.DeprecationManager.MarkWarned($"{nameof(Mod)}.{nameof(PerSaveConfigFolder)}", "1.0"); // avoid redundant warnings
                 return Constants.CurrentSavePathExists ? Path.Combine(this.PerSaveConfigFolder, Constants.SaveFolderName + ".json") : "";
             }
@@ -80,7 +81,7 @@ namespace StardewModdingAPI
         /// <summary>Get the full path to the per-save configuration file for the current save (if <see cref="StardewModdingAPI.Manifest.PerSaveConfigs"/> is <c>true</c>).</summary>
         private string GetPerSaveConfigFolder()
         {
-            Program.DeprecationManager.Warn($"{nameof(Mod)}.{nameof(PerSaveConfigFolder)}", "1.0");
+            Program.DeprecationManager.Warn($"{nameof(Mod)}.{nameof(PerSaveConfigFolder)}", "1.0", DeprecationLevel.Notice);
             Program.DeprecationManager.MarkWarned($"{nameof(Mod)}.{nameof(PathOnDisk)}", "1.0"); // avoid redundant warnings
 
             if (!this.Manifest.PerSaveConfigs)

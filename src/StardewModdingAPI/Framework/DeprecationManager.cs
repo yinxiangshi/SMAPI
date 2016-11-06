@@ -32,24 +32,51 @@ namespace StardewModdingAPI.Framework
         /// <summary>Log a deprecation warning.</summary>
         /// <param name="nounPhrase">A noun phrase describing what is deprecated.</param>
         /// <param name="version">The SMAPI version which deprecated it.</param>
-        public void Warn(string nounPhrase, string version)
+        /// <param name="severity">How deprecated the code is.</param>
+        public void Warn(string nounPhrase, string version, DeprecationLevel severity)
         {
-            this.Warn(this.GetSourceNameFromStack(), nounPhrase, version);
+            this.Warn(this.GetSourceNameFromStack(), nounPhrase, version, severity);
         }
 
         /// <summary>Log a deprecation warning.</summary>
         /// <param name="source">The friendly mod name which used the deprecated code.</param>
         /// <param name="nounPhrase">A noun phrase describing what is deprecated.</param>
         /// <param name="version">The SMAPI version which deprecated it.</param>
-        public void Warn(string source, string nounPhrase, string version)
+        /// <param name="severity">How deprecated the code is.</param>
+        public void Warn(string source, string nounPhrase, string version, DeprecationLevel severity)
         {
+            // ignore if already warned
             if (source != null && !this.MarkWarned(source, nounPhrase, version))
                 return;
 
-            Log.Debug(source != null
-                ? $"NOTE: {source} used {nounPhrase}, which is deprecated since SMAPI {version}. It will work fine for now, but may be removed in a future version of SMAPI."
-                : $"NOTE: an unknown mod used {nounPhrase}, which is deprecated since SMAPI {version}. It will work fine for now, but may be removed in a future version of SMAPI.\n{Environment.StackTrace}"
-            );
+            // build message
+            string message = source != null
+                ? $"{source} used {nounPhrase}, which is deprecated since SMAPI {version}."
+                : $"An unknown mod used {nounPhrase}, which is deprecated since SMAPI {version}.";
+            message += severity != DeprecationLevel.PendingRemoval
+                ? " It will work fine for now, but may be removed in a future version of SMAPI."
+                : " It will be removed soon, so the mod will break if it's not updated.";
+            if (source == null)
+                message += $"{Environment.NewLine}{Environment.StackTrace}";
+
+            // log message
+            switch (severity)
+            {
+                case DeprecationLevel.Notice:
+                    Log.LogToFile(message);
+                    break;
+
+                case DeprecationLevel.Info:
+                    Log.Debug(message);
+                    break;
+
+                case DeprecationLevel.PendingRemoval:
+                    Log.Warning(message);
+                    break;
+
+                default:
+                    throw new NotImplementedException($"Unknown deprecation level '{severity}'");
+            }
         }
 
         /// <summary>Mark a deprecation warning as already logged.</summary>
