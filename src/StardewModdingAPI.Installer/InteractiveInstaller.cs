@@ -57,10 +57,13 @@ namespace StardewModdingApi.Installer
             Platform platform = this.DetectPlatform();
             DirectoryInfo packageDir = new DirectoryInfo(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), platform.ToString()));
             DirectoryInfo installDir = this.InteractivelyGetInstallPath(platform);
-            string executablePath = Path.Combine(installDir.FullName, platform == Platform.Mono ? "StardewValley.exe" : "Stardew Valley.exe");
-            string unixGameLauncherPath = Path.Combine(installDir.FullName, "StardewValley");
-            string unixGameLauncherBackupPath = Path.Combine(installDir.FullName, "StardewValley-original");
-            string unixSmapiLauncherPath = Path.Combine(installDir.FullName, "StardewModdingAPI");
+            var paths = new
+            {
+                executable = Path.Combine(installDir.FullName, platform == Platform.Mono ? "StardewValley.exe" : "Stardew Valley.exe"),
+                unixSmapiLauncher = Path.Combine(installDir.FullName, "StardewModdingAPI"),
+                unixLauncher = Path.Combine(installDir.FullName, "StardewValley"),
+                unixLauncherBackup = Path.Combine(installDir.FullName, "StardewValley-original")
+            };
 
             this.PrintDebug($"Detected {(platform == Platform.Windows ? "Windows" : "Linux or Mac")} with game in {installDir}.");
 
@@ -72,7 +75,7 @@ namespace StardewModdingApi.Installer
                 this.ExitError($"The '{platform}' package directory is missing (should be at {packageDir}).");
                 return;
             }
-            if (!File.Exists(executablePath))
+            if (!File.Exists(paths.executable))
             {
                 this.ExitError("The detected game install path doesn't contain a Stardew Valley executable.");
                 return;
@@ -114,12 +117,12 @@ namespace StardewModdingApi.Installer
                 case ScriptAction.Uninstall:
                     {
                         // restore game launcher
-                        if (platform == Platform.Mono && File.Exists(unixGameLauncherBackupPath))
+                        if (platform == Platform.Mono && File.Exists(paths.unixLauncherBackup))
                         {
                             this.PrintDebug("Restoring game launcher...");
-                            if (File.Exists(unixGameLauncherPath))
-                                File.Delete(unixGameLauncherPath);
-                            File.Move(unixGameLauncherBackupPath, unixGameLauncherPath);
+                            if (File.Exists(paths.unixLauncher))
+                                File.Delete(paths.unixLauncher);
+                            File.Move(paths.unixLauncherBackup, paths.unixLauncher);
                         }
 
                         // remove SMAPI files
@@ -149,12 +152,12 @@ namespace StardewModdingApi.Installer
                         if (platform == Platform.Mono)
                         {
                             this.PrintDebug("Safely replacing game launcher...");
-                            if (!File.Exists(unixGameLauncherBackupPath))
-                                File.Move(unixGameLauncherPath, unixGameLauncherBackupPath);
-                            else if (File.Exists(unixGameLauncherPath))
-                                File.Delete(unixGameLauncherPath);
+                            if (!File.Exists(paths.unixLauncherBackup))
+                                File.Move(paths.unixLauncher, paths.unixLauncherBackup);
+                            else if (File.Exists(paths.unixLauncher))
+                                File.Delete(paths.unixLauncher);
 
-                            File.Move(unixSmapiLauncherPath, unixGameLauncherPath);
+                            File.Move(paths.unixSmapiLauncher, paths.unixLauncher);
                         }
 
                         // create mods directory (if needed)
