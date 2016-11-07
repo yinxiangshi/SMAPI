@@ -1,27 +1,33 @@
 # Release notes
 
-## 1.x
-* 1.0 (upcoming, [log](https://github.com/CLxS/SMAPI/compare/0.40.1.1-3...master))
+## 1.0
+See [log](https://github.com/CLxS/SMAPI/compare/0.40.1.1-3...master).
+
+For players:
   * Added support for Linux and Mac.
   * Added installer to automate adding & removing SMAPI.
   * Added background update check on launch.
-  * Added OS version to log.
-  * Added zoom-adjusted mouse position to mouse-changed event arguments.
-  * Added deprecation warnings.
-  * Switched to [semantic versioning](http://semver.org).
-  * Fixed an issue where mod UIs would disappear at non-100% zoom.
   * Fixed missing `steam_appid.txt` file.
-  * Fixed mod versions not being displayed correctly in the log.
-  * Fixed misspelled field in `manifest.json` schema.
-  * Fixed several events not correctly propagating state.
+  * Fixed some mod UIs disappearing at a non-default zoom level for some users.
   * Removed undocumented support for mods in AppData folder **(breaking change)**.
   * Removed `F2` debug mode.
-  * Made log less verbose and more informative.
-  * Internal cleanup:
-    * Simplified compiling from source.
-    * Added code documentation.
-    * Removed obsolete and unfinished code.
-    * Internal cleanup & refactoring.
+
+For mod developers:
+  * Added deprecation warnings.
+  * Added OS version to log.
+  * Added zoom-adjusted mouse position to mouse-changed event arguments.
+  * Added SMAPI code documentation.
+  * Switched to [semantic versioning](http://semver.org).
+  * Fixed mod versions not shown correctly in the log.
+  * Fixed misspelled field in `manifest.json` schema.
+  * Fixed some events getting wrong data.
+  * Simplified log output.
+
+For SMAPI developers:
+  * Simplified compiling from source.
+  * Formalised release process and added automated build packaging.
+  * Removed obsolete and unfinished code.
+  * Internal cleanup & refactoring.
 
 ## 0.x
 * 0.40.1.1 (2016-09-30, [log](https://github.com/CLxS/SMAPI/compare/0.40.0...0.40.1.1-3))

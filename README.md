@@ -69,7 +69,6 @@ directory containing `src`).
             StardewModdingAPI
             StardewModdingAPI.exe
             StardewModdingAPI.exe.mdb
-            StardewModdingAPI.xml
             StardewModdingAPI-settings.json
             System.Numerics.dll
             steam_appid.txt

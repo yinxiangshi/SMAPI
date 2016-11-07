@@ -23,13 +23,13 @@ namespace StardewModdingAPI
         ** Accessors
         *********/
         /// <summary>SMAPI's current semantic version.</summary>
-        public static readonly Version Version = new Version(1, 0, 0, $"alpha-{DateTime.UtcNow.ToString("yyyyMMddHHmm")}");
+        public static readonly Version Version = new Version(1, 0, 0, "beta");
 
         /// <summary>The minimum supported version of Stardew Valley.</summary>
         public const string MinimumGameVersion = "1.1";
 
         /// <summary>The GitHub repository to check for updates.</summary>
-        public const string GitHubRepository = "cjsu/SMAPI";
+        public const string GitHubRepository = "Pathoschild/SMAPI";
 
         /// <summary>The directory path containing Stardew Valley's app data.</summary>
         public static string DataPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley");
