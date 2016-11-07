@@ -9,6 +9,7 @@
   * Added zoom-adjusted mouse position to mouse-changed event arguments.
   * Added deprecation warnings.
   * Switched to [semantic versioning](http://semver.org).
+  * Fixed an issue where mod UIs would disappear at non-100% zoom.
   * Fixed missing `steam_appid.txt` file.
   * Fixed mod versions not being displayed correctly in the log.
   * Fixed misspelled field in `manifest.json` schema.
