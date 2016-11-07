@@ -43,6 +43,7 @@ namespace StardewModdingApi.Installer
         ///     2. On Linux/Mac: back up the game launcher and replace it with the SMAPI launcher. (This isn't possible on Windows, so the user needs to configure it manually.)
         ///     3. Create the 'Mods' directory.
         ///     4. Copy the bundled mods into the 'Mods' directory (deleting any existing versions).
+        ///     5. Move any mods from app data into game's mods directory.
         /// 
         /// Uninstall logic:
         ///     1. On Linux/Mac: if a backup of the launcher exists, delete the launcher and restore the backup.
@@ -53,7 +54,6 @@ namespace StardewModdingApi.Installer
             /****
             ** collect details
             ****/
-            this.PrintDebug("Collecting information...");
             Platform platform = this.DetectPlatform();
             DirectoryInfo packageDir = new DirectoryInfo(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), platform.ToString()));
             DirectoryInfo installDir = this.InteractivelyGetInstallPath(platform);
@@ -62,13 +62,11 @@ namespace StardewModdingApi.Installer
             string unixGameLauncherBackupPath = Path.Combine(installDir.FullName, "StardewValley-original");
             string unixSmapiLauncherPath = Path.Combine(installDir.FullName, "StardewModdingAPI");
 
-            this.PrintDebug($"Detected {(platform == Platform.Windows ? "Windows" : "Linux or Mac")}.");
-            this.PrintDebug($"Detected game in {installDir}.");
+            this.PrintDebug($"Detected {(platform == Platform.Windows ? "Windows" : "Linux or Mac")} with game in {installDir}.");
 
             /****
             ** validate assumptions
             ****/
-            this.PrintDebug("Verifying...");
             if (!packageDir.Exists)
             {
                 this.ExitError($"The '{platform}' package directory is missing (should be at {packageDir}).");
@@ -85,14 +83,11 @@ namespace StardewModdingApi.Installer
             ** ask user what to do
             ****/
             Console.WriteLine("You can....");
-            Console.ForegroundColor = ConsoleColor.DarkGreen;
-            if (platform == Platform.Mono)
-                Console.WriteLine("[1] Install SMAPI. This will safely update the files so you can launch the game the same way as before.");
-            else
-                Console.WriteLine("[1] Install SMAPI. You'll need to launch StardewModdingAPI.exe instead afterwards; see the readme.txt for details.");
-            Console.ForegroundColor = ConsoleColor.DarkRed;
+            Console.WriteLine(platform == Platform.Mono
+                ? "[1] Install SMAPI. This will safely update the files so you can launch the game the same way as before."
+                : "[1] Install SMAPI. You'll need to launch StardewModdingAPI.exe instead afterwards; see the readme.txt for details."
+            );
             Console.WriteLine("[2] Uninstall SMAPI.");
-            Console.ResetColor();
 
             ScriptAction action;
             {
@@ -191,22 +186,29 @@ namespace StardewModdingApi.Installer
                                     sourceFile.CopyTo(Path.Combine(targetDir.FullName, sourceFile.Name));
                             }
                         }
+
+                        // remove obsolete appdata mods
+                        this.InteractivelyRemoveAppDataMods(platform, modsDir);
                     }
                     break;
             }
             Console.WriteLine();
-            
+
             /****
             ** exit
             ****/
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
             Console.WriteLine("Done!");
             if (platform == Platform.Windows)
             {
-                if(action == ScriptAction.Install)
-                    Console.WriteLine("Don't forget to launch StardewModdingAPI.exe instead of the normal game executable. See the readme.txt for details.");
-                else
-                    Console.WriteLine("If you manually changed shortcuts or Steam to launch SMAPI, don't forget to change those back.");
+                Console.WriteLine(action == ScriptAction.Install
+                    ? "Don't forget to launch StardewModdingAPI.exe instead of the normal game executable. See the readme.txt for details."
+                    : "If you manually changed shortcuts or Steam to launch SMAPI, don't forget to change those back."
+                );
             }
+            else if (action == ScriptAction.Install)
+                Console.WriteLine("You can launch the game the same way as before to play with mods.");
+            Console.ResetColor();
             Console.ReadKey();
         }
 
@@ -324,6 +326,58 @@ namespace StardewModdingApi.Installer
                 // looks OK
                 Console.WriteLine("   OK!");
                 return directory;
+            }
+        }
+
+        /// <summary>Interactively move mods out of the appdata directory.</summary>
+        /// <param name="platform">The current platform.</param>
+        /// <param name="properModsDir">The directory which should contain all mods.</param>
+        private void InteractivelyRemoveAppDataMods(Platform platform, DirectoryInfo properModsDir)
+        {
+            // get path
+            string homePath = platform == Platform.Windows
+                ? Environment.GetEnvironmentVariable("APPDATA")
+                : Path.Combine(Environment.GetEnvironmentVariable("HOME"), ".config");
+            string appDataPath = Path.Combine(homePath, "StardewValley");
+            DirectoryInfo modDir = new DirectoryInfo(Path.Combine(appDataPath, "Mods"));
+
+            // check if migration needed
+            if (!modDir.Exists)
+                return;
+            this.PrintDebug($"Found an obsolete mod path: {modDir.FullName}");
+            this.PrintDebug("   Support for mods here was dropped in SMAPI 1.0 (it was never officially supported).");
+
+            // move mods if no conflicts (else warn)
+            foreach (FileSystemInfo entry in modDir.EnumerateFileSystemInfos())
+            {
+                // get type
+                bool isDir = entry is DirectoryInfo;
+                if (!isDir && !(entry is FileInfo))
+                    continue; // should never happen
+
+                // check paths
+                string newPath = Path.Combine(properModsDir.FullName, entry.Name);
+                if (isDir ? Directory.Exists(newPath) : File.Exists(newPath))
+                {
+                    this.PrintWarning($"   Can't move {entry.Name} because it already exists in your game's mod directory.");
+                    continue;
+                }
+
+                // move into mods
+                this.PrintDebug($"   Moving {entry.Name} into the game's mod directory...");
+                if (isDir)
+                    (entry as DirectoryInfo).MoveTo(newPath);
+                else
+                    (entry as FileInfo).MoveTo(newPath);
+            }
+
+            // delete if empty
+            if (modDir.EnumerateFileSystemInfos().Any())
+                this.PrintWarning("   You have files in this folder which couldn't be moved automatically. These will be ignored by SMAPI.");
+            else
+            {
+                this.PrintDebug("   Deleted empty directory.");
+                modDir.Delete();
             }
         }
     }
