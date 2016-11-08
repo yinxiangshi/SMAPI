@@ -59,7 +59,7 @@ namespace StardewModdingAPI
         [Obsolete("The usage of ToSingular has changed. Please update your call to use ToSingular<T>")]
         public static string ToSingular(this IEnumerable ienum, string split = ", ")
         {
-            Program.DeprecationManager.Warn($"{nameof(Extensions)}.{nameof(Extensions.ToSingular)}", "1.0", DeprecationLevel.PendingRemoval);
+            Program.DeprecationManager.Warn($"{nameof(Extensions)}.{nameof(Extensions.ToSingular)}", "0.39.3", DeprecationLevel.PendingRemoval);
             return "";
         }
 
