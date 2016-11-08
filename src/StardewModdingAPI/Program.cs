@@ -23,9 +23,11 @@ namespace StardewModdingAPI
         ** Properties
         *********/
         /// <summary>The full path to the Stardew Valley executable.</summary>
-        private static readonly string GameExecutablePath = File.Exists(Path.Combine(Constants.ExecutionPath, "StardewValley.exe"))
-            ? Path.Combine(Constants.ExecutionPath, "StardewValley.exe") // Linux or Mac
-            : Path.Combine(Constants.ExecutionPath, "Stardew Valley.exe"); // Windows
+#if SMAPI_FOR_WINDOWS
+        private static readonly string GameExecutablePath = Path.Combine(Constants.ExecutionPath, "Stardew Valley.exe");
+#else
+        private static readonly string GameExecutablePath = Path.Combine(Constants.ExecutionPath, "StardewValley.exe");
+#endif
 
         /// <summary>The full path to the folder containing mods.</summary>
         private static readonly string ModPath = Path.Combine(Constants.ExecutionPath, "Mods");
