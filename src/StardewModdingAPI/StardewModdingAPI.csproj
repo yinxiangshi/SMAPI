@@ -200,9 +200,10 @@
     <Compile Include="Framework\UserSettings.cs" />
     <Compile Include="Inheritance\ChangeType.cs" />
     <Compile Include="Inheritance\ItemStackChange.cs" />
+    <Compile Include="Inheritance\SObject.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="LogInfo.cs" />
-    <Compile Include="Framework\LogWriter.cs" />
+    <Compile Include="LogWriter.cs" />
     <Compile Include="Manifest.cs" />
     <Compile Include="Mod.cs" />
     <Compile Include="ModHelper.cs" />
