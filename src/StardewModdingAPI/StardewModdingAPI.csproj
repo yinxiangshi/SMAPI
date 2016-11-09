@@ -268,7 +268,7 @@
     <StartProgram>$(GamePath)\StardewModdingAPI.exe</StartProgram>
     <StartWorkingDirectory>$(GamePath)</StartWorkingDirectory>
   </PropertyGroup>
-  <Target Name="AfterBuild">
+  <Target Name="AfterBuild" Condition="$(Configuration) == 'Debug' AND $(OS) == 'Windows_NT'">
     <Copy SourceFiles="$(TargetDir)\$(TargetName).exe" DestinationFolder="$(GamePath)" />
     <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)" />
     <Copy SourceFiles="$(TargetDir)\$(TargetName).xml" DestinationFolder="$(GamePath)" />
