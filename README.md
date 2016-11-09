@@ -34,6 +34,11 @@ SMAPI uses build configuration derived from the [crosswiki mod config](https://g
 to detect your current OS automatically and load the correct references. Compile output will be
 placed in a `bin` directory at the root of the git repository.
 
+### Debugging a local build
+Rebuilding the solution in debug mode will copy the SMAPI files into your game directory. Starting
+the `StardewModdingAPI` project with debugging will launch SMAPI with the debugger attached, so you
+can intercept errors and step through the code being executed.
+
 ### Preparing a release
 To prepare a crossplatform SMAPI release, you'll need to compile it on two platforms. See
 _[crossplatforming a SMAPI mod](http://canimod.com/guides/crossplatforming-a-smapi-mod#preparing-a-mod-release)_
