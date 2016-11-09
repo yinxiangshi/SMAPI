@@ -2,37 +2,20 @@
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI.Framework;
 using StardewValley;
 using Object = StardewValley.Object;
 
 #pragma warning disable 1591
-
 namespace StardewModdingAPI.Inheritance
 {
-    [Obsolete("Do not use at this time.")]
+    /// <summary>Provides access to the game's <see cref="Object"/> internals.</summary>
+    [Obsolete("This class is deprecated and will be removed in a future version.")]
     public class SObject : Object
     {
-        public SObject()
-        {
-            name = "Modded Item Name";
-            Description = "Modded Item Description";
-            CategoryName = "Modded Item Category";
-            Category = 4163;
-            CategoryColour = Color.White;
-            IsPassable = false;
-            IsPlaceable = false;
-            boundingBox = new Rectangle(0, 0, 64, 64);
-            MaxStackSize = 999;
-
-            type = "interactive";
-        }
-
-        public override string Name
-        {
-            get { return name; }
-            set { name = value; }
-        }
-
+        /*********
+        ** Accessors
+        *********/
         public string Description { get; set; }
         public Texture2D Texture { get; set; }
         public string CategoryName { get; set; }
@@ -61,6 +44,32 @@ namespace StardewModdingAPI.Inheritance
             set { stack = value; }
         }
 
+        /*********
+        ** Public methods
+        *********/
+        public SObject()
+        {
+            Program.DeprecationManager.Warn(nameof(SObject), "0.39.3", DeprecationLevel.Notice);
+
+            name = "Modded Item Name";
+            Description = "Modded Item Description";
+            CategoryName = "Modded Item Category";
+            Category = 4163;
+            CategoryColour = Color.White;
+            IsPassable = false;
+            IsPlaceable = false;
+            boundingBox = new Rectangle(0, 0, 64, 64);
+            MaxStackSize = 999;
+
+            type = "interactive";
+        }
+
+        public override string Name
+        {
+            get { return name; }
+            set { name = value; }
+        }
+
         public override string getDescription()
         {
             return Description;
@@ -81,34 +90,6 @@ namespace StardewModdingAPI.Inheritance
         public override void draw(SpriteBatch spriteBatch, int xNonTile, int yNonTile, float layerDepth, float alpha = 1)
         {
             Log.Debug("THIS DRAW FUNCTION IS NOT IMPLEMENTED I WANT TO KNOW WHERE IT IS CALLED");
-            //try
-            //{
-            //    if (Texture != null)
-            //    {
-            //        int targSize = Game1.tileSize;
-            //        int midX = (xNonTile) + 32;
-            //        int midY = (yNonTile) + 32;
-
-            //        int targX = midX - targSize / 2;
-            //        int targY = midY - targSize / 2;
-
-            //        Rectangle targ = new Rectangle(targX, targY, targSize, targSize);
-            //        spriteBatch.Draw(Texture, targ, null, new Color(255, 255, 255, 255f * alpha), 0, Vector2.Zero, SpriteEffects.None, layerDepth);
-            //        //spriteBatch.Draw(Program.DebugPixel, targ, null, Color.Red, 0, Vector2.Zero, SpriteEffects.None, layerDepth);
-            //        /*
-            //        spriteBatch.DrawString(Game1.dialogueFont, "TARG: " + targ, new Vector2(128, 0), Color.Red);
-            //        spriteBatch.DrawString(Game1.dialogueFont, ".", new Vector2(targX * 0.5f, targY), Color.Orange);
-            //        spriteBatch.DrawString(Game1.dialogueFont, ".", new Vector2(targX, targY), Color.Red);
-            //        spriteBatch.DrawString(Game1.dialogueFont, ".", new Vector2(targX * 1.5f, targY), Color.Yellow);
-            //        spriteBatch.DrawString(Game1.dialogueFont, ".", new Vector2(targX * 2f, targY), Color.Green);
-            //        */
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    Log.AsyncR(ex.ToString());
-            //    Console.ReadKey();
-            //}
         }
 
         public override void drawInMenu(SpriteBatch spriteBatch, Vector2 location, float scaleSize, float transparency, float layerDepth, bool drawStackNumber)

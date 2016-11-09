@@ -7,6 +7,7 @@ namespace StardewModdingAPI
 {
     /// <summary>A log writer which queues messages for output, and periodically flushes them to the console and log file.</summary>
     /// <remarks>Only one instance should be created.</remarks>
+    [Obsolete("This class is internal and should not be referenced outside SMAPI. It will no longer be exposed in a future version.")]
     public class LogWriter
     {
         /*********
