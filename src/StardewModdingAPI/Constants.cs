@@ -23,7 +23,7 @@ namespace StardewModdingAPI
         ** Accessors
         *********/
         /// <summary>SMAPI's current semantic version.</summary>
-        public static readonly Version Version = new Version(1, 0, 0, "beta");
+        public static readonly Version Version = new Version(1, 0, 0, "beta2");
 
         /// <summary>The minimum supported version of Stardew Valley.</summary>
         public const string MinimumGameVersion = "1.1";
