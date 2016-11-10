@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using StardewModdingAPI.Events;
 
 namespace StardewModdingAPI
@@ -68,29 +69,31 @@ namespace StardewModdingAPI
         /****
         ** SMAPI
         ****/
-        /// <summary>Invoke the specified command.</summary>
+        /// <summary>Parse a command string and invoke it if valid.</summary>
         /// <param name="input">The command to run, including the command name and any arguments.</param>
         public static void CallCommand(string input)
         {
-            input = input.TrimEnd(' ');
-            string[] args = new string[0];
-            Command command;
-            if (input.Contains(" "))
-            {
-                args = input.Split(new[] { " " }, 2, StringSplitOptions.RemoveEmptyEntries);
-                command = Command.FindCommand(args[0]);
-                args = args[1].Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
-            }
-            else
-                command = Command.FindCommand(input);
+            // normalise input
+            input = input?.Trim();
+            if (string.IsNullOrWhiteSpace(input))
+                return;
 
-            if (command != null)
+            // tokenise input
+            string[] args = input.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            string commandName = args[0];
+            args = args.Skip(1).ToArray();
+
+            // get command
+            Command command = Command.FindCommand(commandName);
+            if (command == null)
             {
-                command.CalledArgs = args;
-                command.Fire();
-            }
-            else
                 Log.AsyncR("Unknown command");
+                return;
+            }
+
+            // fire command
+            command.CalledArgs = args;
+            command.Fire();
         }
 
         /// <summary>Register a command with SMAPI.</summary>
