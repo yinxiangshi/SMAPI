@@ -298,7 +298,7 @@ namespace StardewModdingAPI
                     // create per-save directory
                     if (manifest.PerSaveConfigs)
                     {
-                        Program.DeprecationManager.Warn($"{nameof(Manifest)}.{nameof(Manifest.PerSaveConfigs)}", "1.0", DeprecationLevel.Notice);
+                        Program.DeprecationManager.Warn(manifest.Name, $"{nameof(Manifest)}.{nameof(Manifest.PerSaveConfigs)}", "1.0", DeprecationLevel.Notice);
                         try
                         {
                             string psDir = Path.Combine(directory, "psconfigs");
