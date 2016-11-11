@@ -1,7 +1,7 @@
 # Release notes
 
 ## 1.0
-See [log](https://github.com/CLxS/SMAPI/compare/0.40.1.1-3...master).
+See [log](https://github.com/CLxS/SMAPI/compare/0.40.1.1-3...1.0).
 
 For players:
   * Added support for Linux and Mac.
