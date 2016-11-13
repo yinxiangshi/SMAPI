@@ -195,6 +195,7 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="Framework\DeprecationLevel.cs" />
     <Compile Include="Framework\DeprecationManager.cs" />
+    <Compile Include="Framework\ModRegistry.cs" />
     <Compile Include="Framework\UpdateHelper.cs" />
     <Compile Include="Framework\GitRelease.cs" />
     <Compile Include="Framework\UserSettings.cs" />

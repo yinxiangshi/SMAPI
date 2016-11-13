@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Reflection;
 
 namespace StardewModdingAPI.Framework
@@ -11,11 +10,11 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Properties
         *********/
-        /// <summary>The friendly mod names treated as deprecation warning sources (assembly full name => mod name).</summary>
-        private readonly IDictionary<string, string> ModNamesByAssembly = new Dictionary<string, string>();
-
         /// <summary>The deprecations which have already been logged (as 'mod name::noun phrase::version').</summary>
         private readonly HashSet<string> LoggedDeprecations = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+
+        /// <summary>Tracks the installed mods.</summary>
+        private readonly ModRegistry ModRegistry;
 
 
         /*********
@@ -28,12 +27,11 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Public methods
         *********/
-        /// <summary>Register a mod as a possible source of deprecation warnings.</summary>
-        /// <param name="assembly">The mod assembly.</param>
-        /// <param name="name">The mod's friendly name.</param>
-        public void AddMod(Assembly assembly, string name)
+        /// <summary>Construct an instance.</summary>
+        /// <param name="modRegistry">Tracks the installed mods.</param>
+        public DeprecationManager(ModRegistry modRegistry)
         {
-            this.ModNamesByAssembly[assembly.FullName] = name;
+            this.ModRegistry = modRegistry;
         }
 
         /// <summary>Log a deprecation warning.</summary>
@@ -42,7 +40,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="severity">How deprecated the code is.</param>
         public void Warn(string nounPhrase, string version, DeprecationLevel severity)
         {
-            this.Warn(this.GetSourceNameFromStack(), nounPhrase, version, severity);
+            this.Warn(this.ModRegistry.GetModFromStack(), nounPhrase, version, severity);
         }
 
         /// <summary>Log a deprecation warning.</summary>
@@ -95,7 +93,7 @@ namespace StardewModdingAPI.Framework
         /// <returns>Returns whether the deprecation was successfully marked as warned. Returns <c>false</c> if it was already marked.</returns>
         public bool MarkWarned(string nounPhrase, string version)
         {
-            return this.MarkWarned(this.GetSourceNameFromStack(), nounPhrase, version);
+            return this.MarkWarned(this.ModRegistry.GetModFromStack(), nounPhrase, version);
         }
 
         /// <summary>Mark a deprecation warning as already logged.</summary>
@@ -123,39 +121,6 @@ namespace StardewModdingAPI.Framework
         {
             MethodInfo method = subtype.GetMethod(nameof(Mod.Entry), new[] { typeof(object[]) });
             return method.DeclaringType != baseType;
-        }
-
-
-        /*********
-        ** Private methods
-        *********/
-        /// <summary>Get the friendly name for the closest assembly registered as a source of deprecation warnings.</summary>
-        /// <returns>Returns the source name, or <c>null</c> if no registered assemblies were found.</returns>
-        private string GetSourceNameFromStack()
-        {
-            // get stack frames
-            StackTrace stack = new StackTrace();
-            StackFrame[] frames = stack.GetFrames();
-            if (frames == null)
-                return null;
-
-            // search stack for a source assembly
-            foreach (StackFrame frame in frames)
-            {
-                // get assembly name
-                MethodBase method = frame.GetMethod();
-                Type type = method.ReflectedType;
-                if (type == null)
-                    continue;
-                string assemblyName = type.Assembly.FullName;
-
-                // get name if it's a registered source
-                if (this.ModNamesByAssembly.ContainsKey(assemblyName))
-                    return this.ModNamesByAssembly[assemblyName];
-            }
-
-            // no known assembly found
-            return null;
         }
     }
 }

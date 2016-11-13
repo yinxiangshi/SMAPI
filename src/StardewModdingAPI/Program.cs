@@ -57,8 +57,12 @@ namespace StardewModdingAPI
         /// <summary>The game's build type (i.e. GOG vs Steam).</summary>
         public static int BuildType => (int)Program.StardewProgramType.GetField("buildType", BindingFlags.Public | BindingFlags.Static).GetValue(null);
 
+        /// <summary>Tracks the installed mods.</summary>
+        internal static readonly ModRegistry ModRegistry = new ModRegistry();
+
         /// <summary>Manages deprecation warnings.</summary>
-        internal static readonly DeprecationManager DeprecationManager = new DeprecationManager();
+        internal static readonly DeprecationManager DeprecationManager = new DeprecationManager(Program.ModRegistry);
+
 
         /*********
         ** Public methods
@@ -334,13 +338,13 @@ namespace StardewModdingAPI
                             Mod modEntry = (Mod)modAssembly.CreateInstance(modEntryType.ToString());
                             if (modEntry != null)
                             {
-                                // add as possible source of deprecation warnings
-                                Program.DeprecationManager.AddMod(modAssembly, manifest.Name);
+                                // track mod
+                                Program.ModRegistry.Add(manifest, modAssembly);
 
                                 // hook up mod
+                                modEntry.Manifest = manifest;
                                 modEntry.Helper = helper;
                                 modEntry.PathOnDisk = directory;
-                                modEntry.Manifest = manifest;
                                 Log.Info($"Loaded mod: {modEntry.Manifest.Name} by {modEntry.Manifest.Author}, v{modEntry.Manifest.Version} | {modEntry.Manifest.Description}");
                                 Program.ModsLoaded += 1;
                                 modEntry.Entry(); // deprecated
