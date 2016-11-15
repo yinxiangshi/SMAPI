@@ -57,7 +57,7 @@ namespace StardewModdingAPI.Framework
                 ? $"{source} used {nounPhrase}, which is deprecated since SMAPI {version}."
                 : $"An unknown mod used {nounPhrase}, which is deprecated since SMAPI {version}.";
             message += severity != DeprecationLevel.PendingRemoval
-                ? " It will work fine for now, but may be removed in a future version of SMAPI."
+                ? " This will break in a future version of SMAPI."
                 : " It will be removed soon, so the mod will break if it's not updated.";
             if (source == null)
                 message += $"{Environment.NewLine}{Environment.StackTrace}";
