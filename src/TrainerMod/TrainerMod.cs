@@ -119,7 +119,7 @@ namespace TrainerMod
         /// <param name="e">The event arguments.</param>
         private void HandleTypes(object sender, EventArgsCommand e)
         {
-            Log.AsyncY($"[Int32: {int.MinValue} - {int.MaxValue}], [Int64: {long.MinValue} - {long.MaxValue}], [String: \"raw text\"], [Colour: r,g,b (EG: 128, 32, 255)]");
+            this.Monitor.Log($"[Int32: {int.MinValue} - {int.MaxValue}], [Int64: {long.MinValue} - {long.MaxValue}], [String: \"raw text\"], [Colour: r,g,b (EG: 128, 32, 255)]", LogLevel.Info);
         }
 
         /// <summary>The event raised when the 'save' command is triggered.</summary>
@@ -165,7 +165,7 @@ namespace TrainerMod
                             Game1.player.Name = e.Command.CalledArgs[1];
                             break;
                         case "pet":
-                            Log.AsyncR("Pets cannot currently be renamed.");
+                            this.Monitor.Log("Pets cannot currently be renamed.", LogLevel.Info);
                             break;
                         case "farm":
                             Game1.player.farmName = e.Command.CalledArgs[1];
@@ -196,7 +196,7 @@ namespace TrainerMod
                     if (int.TryParse(amountStr, out amount))
                     {
                         Game1.player.Money = amount;
-                        Log.Async($"Set {Game1.player.Name}'s money to {Game1.player.Money}");
+                        this.Monitor.Log($"Set {Game1.player.Name}'s money to {Game1.player.Money}", LogLevel.Info);
                     }
                     else
                         this.LogValueNotInt32();
@@ -223,7 +223,7 @@ namespace TrainerMod
                     if (int.TryParse(amountStr, out amount))
                     {
                         Game1.player.Stamina = amount;
-                        Log.Async($"Set {Game1.player.Name}'s stamina to {Game1.player.Stamina}");
+                        this.Monitor.Log($"Set {Game1.player.Name}'s stamina to {Game1.player.Stamina}", LogLevel.Info);
                     }
                     else
                         this.LogValueNotInt32();
@@ -244,7 +244,7 @@ namespace TrainerMod
                 if (int.TryParse(e.Command.CalledArgs[0], out amount))
                 {
                     Game1.player.MaxStamina = amount;
-                    Log.Async($"Set {Game1.player.Name}'s max stamina to {Game1.player.MaxStamina}");
+                    this.Monitor.Log($"Set {Game1.player.Name}'s max stamina to {Game1.player.MaxStamina}", LogLevel.Info);
                 }
                 else
                     this.LogValueNotInt32();
@@ -293,10 +293,10 @@ namespace TrainerMod
                         this.LogValueNotInt32();
                 }
                 else
-                    Log.AsyncR("<skill> is invalid");
+                    this.Monitor.Log("<skill> is invalid", LogLevel.Error);
             }
             else
-                Log.AsyncR("<skill> and <value> must be specified");
+                this.Monitor.Log("<skill> and <value> must be specified", LogLevel.Error);
         }
 
         /// <summary>The event raised when the 'player_setSpeed' command is triggered.</summary>
@@ -310,7 +310,7 @@ namespace TrainerMod
                 if (amountStr.IsInt())
                 {
                     Game1.player.addedSpeed = amountStr.ToInt();
-                    Log.Async($"Set {Game1.player.Name}'s added speed to {Game1.player.addedSpeed}");
+                    this.Monitor.Log($"Set {Game1.player.Name}'s added speed to {Game1.player.addedSpeed}", LogLevel.Info);
                 }
                 else
                     this.LogValueNotInt32();
@@ -348,13 +348,13 @@ namespace TrainerMod
                         }
                     }
                     else
-                        Log.AsyncR("<colour> is invalid");
+                        this.Monitor.Log("<colour> is invalid", LogLevel.Error);
                 }
                 else
                     this.LogObjectInvalid();
             }
             else
-                Log.AsyncR("<object> and <colour> must be specified");
+                this.Monitor.Log("<object> and <colour> must be specified", LogLevel.Error);
         }
 
         /// <summary>The event raised when the 'player_changeStyle' command is triggered.</summary>
@@ -394,7 +394,7 @@ namespace TrainerMod
                                 else if (styleID == 1)
                                     Game1.player.changeIntoSwimsuit();
                                 else
-                                    Log.AsyncR("<value> must be 0 or 1 for this <object>");
+                                    this.Monitor.Log("<value> must be 0 or 1 for this <object>", LogLevel.Error);
                                 break;
                             case "gender":
                                 if (styleID == 0)
@@ -402,7 +402,7 @@ namespace TrainerMod
                                 else if (styleID == 1)
                                     Game1.player.changeGender(false);
                                 else
-                                    Log.AsyncR("<value> must be 0 or 1 for this <object>");
+                                    this.Monitor.Log("<value> must be 0 or 1 for this <object>", LogLevel.Error);
                                 break;
                         }
                     }
@@ -431,10 +431,10 @@ namespace TrainerMod
                     {
                         this.FreezeTime = value == 1;
                         this.FrozenTime = this.FreezeTime ? Game1.timeOfDay : 0;
-                        Log.AsyncY("Time is now " + (this.FreezeTime ? "frozen" : "thawed"));
+                        this.Monitor.Log("Time is now " + (this.FreezeTime ? "frozen" : "thawed"), LogLevel.Info);
                     }
                     else
-                        Log.AsyncR("<value> should be 0 or 1");
+                        this.Monitor.Log("<value> should be 0 or 1", LogLevel.Error);
                 }
                 else
                     this.LogValueNotInt32();
@@ -459,10 +459,10 @@ namespace TrainerMod
                     {
                         Game1.timeOfDay = e.Command.CalledArgs[0].ToInt();
                         this.FrozenTime = this.FreezeTime ? Game1.timeOfDay : 0;
-                        Log.AsyncY($"Time set to: {Game1.timeOfDay}");
+                        this.Monitor.Log($"Time set to: {Game1.timeOfDay}", LogLevel.Info);
                     }
                     else
-                        Log.AsyncR("<value> should be between 600 and 2600 (06:00 AM - 02:00 AM [NEXT DAY])");
+                        this.Monitor.Log("<value> should be between 600 and 2600 (06:00 AM - 02:00 AM [NEXT DAY])", LogLevel.Error);
                 }
                 else
                     this.LogValueNotInt32();
@@ -486,7 +486,7 @@ namespace TrainerMod
                     if (day <= 28 && day > 0)
                         Game1.dayOfMonth = day;
                     else
-                        Log.AsyncY("<value> must be between 1 and 28");
+                        this.Monitor.Log("<value> must be between 1 and 28", LogLevel.Error);
                 }
                 else
                     this.LogValueNotInt32();
@@ -590,7 +590,7 @@ namespace TrainerMod
                             count = e.Command.CalledArgs[1].ToInt();
                         else
                         {
-                            Log.AsyncR("[count] is invalid");
+                            this.Monitor.Log("[count] is invalid", LogLevel.Error);
                             return;
                         }
 
@@ -600,7 +600,7 @@ namespace TrainerMod
                                 quality = e.Command.CalledArgs[2].ToInt();
                             else
                             {
-                                Log.AsyncR("[quality] is invalid");
+                                this.Monitor.Log("[quality] is invalid", LogLevel.Error);
                                 return;
                             }
                         }
@@ -611,7 +611,7 @@ namespace TrainerMod
                     Game1.player.addItemByMenuIfNecessary(item);
                 }
                 else
-                    Log.AsyncR("<item> is invalid");
+                    this.Monitor.Log("<item> is invalid", LogLevel.Error);
             }
             else
                 this.LogObjectValueNotSpecified();
@@ -628,10 +628,10 @@ namespace TrainerMod
                 {
                     MeleeWeapon weapon = new MeleeWeapon(e.Command.CalledArgs[0].ToInt());
                     Game1.player.addItemByMenuIfNecessary(weapon);
-                    Log.Async($"Given {weapon.Name} to {Game1.player.Name}");
+                    this.Monitor.Log($"Gave {weapon.Name} to {Game1.player.Name}", LogLevel.Info);
                 }
                 else
-                    Log.AsyncR("<item> is invalid");
+                    this.Monitor.Log("<item> is invalid", LogLevel.Error);
             }
             else
                 this.LogObjectValueNotSpecified();
@@ -648,10 +648,10 @@ namespace TrainerMod
                 {
                     Ring ring = new Ring(e.Command.CalledArgs[0].ToInt());
                     Game1.player.addItemByMenuIfNecessary(ring);
-                    Log.Async($"Given {ring.Name} to {Game1.player.Name}");
+                    this.Monitor.Log($"Gave {ring.Name} to {Game1.player.Name}", LogLevel.Info);
                 }
                 else
-                    Log.AsyncR("<item> is invalid");
+                    this.Monitor.Log("<item> is invalid", LogLevel.Error);
             }
             else
                 this.LogObjectValueNotSpecified();
@@ -668,7 +668,7 @@ namespace TrainerMod
                 {
                     Item itemName = new Object(itemID, 1);
                     if (itemName.Name != "Error Item")
-                        Console.WriteLine($"{itemID} | {itemName.Name}");
+                        this.Monitor.Log($"{itemID} | {itemName.Name}", LogLevel.Info);
                 }
                 catch { }
             }
@@ -680,9 +680,9 @@ namespace TrainerMod
         private void HandleOutMelee(object sender, EventArgsCommand e)
         {
             var data = Game1.content.Load<Dictionary<int, string>>("Data\\weapons");
-            Console.Write("DATA\\WEAPONS: ");
+            this.Monitor.Log("DATA\\WEAPONS: ", LogLevel.Info);
             foreach (var pair in data)
-                Console.WriteLine($"{pair.Key} | {pair.Value}");
+                this.Monitor.Log($"{pair.Key} | {pair.Value}", LogLevel.Info);
         }
 
         /// <summary>The event raised when the 'out_rings' command is triggered.</summary>
@@ -696,7 +696,7 @@ namespace TrainerMod
                 {
                     Item item = new Ring(ringID);
                     if (item.Name != "Error Item")
-                        Console.WriteLine($"{ringID} | {item.Name}");
+                        this.Monitor.Log($"{ringID} | {item.Name}", LogLevel.Info);
                 }
                 catch { }
             }
@@ -732,31 +732,31 @@ namespace TrainerMod
         /// <summary>Log an error indicating a value must be specified.</summary>
         public void LogValueNotSpecified()
         {
-            Log.AsyncR("<value> must be specified");
+            this.Monitor.Log("<value> must be specified", LogLevel.Error);
         }
 
         /// <summary>Log an error indicating a target and value must be specified.</summary>
         public void LogObjectValueNotSpecified()
         {
-            Log.AsyncR("<object> and <value> must be specified");
+            this.Monitor.Log("<object> and <value> must be specified", LogLevel.Error);
         }
 
         /// <summary>Log an error indicating a value is invalid.</summary>
         public void LogValueInvalid()
         {
-            Log.AsyncR("<value> is invalid");
+            this.Monitor.Log("<value> is invalid", LogLevel.Error);
         }
 
         /// <summary>Log an error indicating a target is invalid.</summary>
         public void LogObjectInvalid()
         {
-            Log.AsyncR("<object> is invalid");
+            this.Monitor.Log("<object> is invalid", LogLevel.Error);
         }
 
         /// <summary>Log an error indicating a value must be an integer.</summary>
         public void LogValueNotInt32()
         {
-            Log.AsyncR("<value> must be a whole number (Int32)");
+            this.Monitor.Log("<value> must be a whole number (Int32)", LogLevel.Error);
         }
     }
 }
