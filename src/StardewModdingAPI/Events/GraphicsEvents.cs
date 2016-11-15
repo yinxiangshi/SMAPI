@@ -88,8 +88,9 @@ namespace StardewModdingAPI.Events
         }
 
         /// <summary>Raise a <see cref="DrawTick"/> event.</summary>
+        /// <param name="monitor">Encapsulates logging and monitoring.</param>
         [Obsolete("Should not be used.")]
-        public static void InvokeDrawTick()
+        public static void InvokeDrawTick(IMonitor monitor)
         {
             try
             {
@@ -97,7 +98,7 @@ namespace StardewModdingAPI.Events
             }
             catch (Exception ex)
             {
-                Log.AsyncR("An exception occured in a Mod's DrawTick: " + ex);
+                monitor.Log($"A mod crashed handling an event.\n{ex}", LogLevel.Error);
             }
         }
 

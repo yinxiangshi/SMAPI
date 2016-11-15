@@ -52,7 +52,8 @@ namespace StardewModdingAPI.Events
         }
 
         /// <summary>Raise an <see cref="Initialize"/> event.</summary>
-        internal static void InvokeInitialize()
+        /// <param name="monitor">Encapsulates logging and monitoring.</param>
+        internal static void InvokeInitialize(IMonitor monitor)
         {
             try
             {
@@ -60,12 +61,13 @@ namespace StardewModdingAPI.Events
             }
             catch (Exception ex)
             {
-                Log.Error($"A mod crashed handling an event.\n{ex}");
+                monitor.Log($"A mod crashed handling an event.\n{ex}", LogLevel.Error);
             }
         }
 
         /// <summary>Raise a <see cref="LoadContent"/> event.</summary>
-        internal static void InvokeLoadContent()
+        /// <param name="monitor">Encapsulates logging and monitoring.</param>
+        internal static void InvokeLoadContent(IMonitor monitor)
         {
             try
             {
@@ -73,12 +75,13 @@ namespace StardewModdingAPI.Events
             }
             catch (Exception ex)
             {
-                Log.Error($"A mod crashed handling an event.\n{ex}");
+                monitor.Log($"A mod crashed handling an event.\n{ex}", LogLevel.Error);
             }
         }
 
         /// <summary>Raise an <see cref="UpdateTick"/> event.</summary>
-        internal static void InvokeUpdateTick()
+        /// <param name="monitor">Encapsulates logging and monitoring.</param>
+        internal static void InvokeUpdateTick(IMonitor monitor)
         {
             try
             {
@@ -86,7 +89,7 @@ namespace StardewModdingAPI.Events
             }
             catch (Exception ex)
             {
-                Log.Error($"A mod crashed handling an event.\n{ex}");
+                monitor.Log($"A mod crashed handling an event.\n{ex}", LogLevel.Error);
             }
         }
 

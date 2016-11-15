@@ -39,7 +39,7 @@ namespace StardewModdingAPI
             // validate
             if (string.IsNullOrEmpty(this.ConfigLocation))
             {
-                Log.AsyncR("A config tried to load without specifying a location on the disk.");
+                Log.Error("A config tried to load without specifying a location on the disk.");
                 return null;
             }
 
@@ -61,7 +61,7 @@ namespace StardewModdingAPI
                 }
                 catch (Exception ex)
                 {
-                    Log.AsyncR($"Invalid JSON ({this.GetType().Name}): {this.ConfigLocation} \n{ex}");
+                    Log.Error($"Invalid JSON ({this.GetType().Name}): {this.ConfigLocation} \n{ex}");
                     return this.GenerateDefaultConfig<T>();
                 }
             }
@@ -96,7 +96,7 @@ namespace StardewModdingAPI
             }
             catch (Exception ex)
             {
-                Log.AsyncR($"An error occured when updating a config: {ex}");
+                Log.Error($"An error occured when updating a config: {ex}");
                 return this as T;
             }
         }
@@ -129,7 +129,7 @@ namespace StardewModdingAPI
 
             if (string.IsNullOrEmpty(configLocation))
             {
-                Log.AsyncR("A config tried to initialize without specifying a location on the disk.");
+                Log.Error("A config tried to initialize without specifying a location on the disk.");
                 return null;
             }
 
@@ -145,7 +145,7 @@ namespace StardewModdingAPI
         {
             if (string.IsNullOrEmpty(baseConfig?.ConfigLocation) || string.IsNullOrEmpty(baseConfig.ConfigDir))
             {
-                Log.AsyncR("A config attempted to save when it itself or it's location were null.");
+                Log.Error("A config attempted to save when it itself or it's location were null.");
                 return;
             }
 

@@ -59,10 +59,7 @@ namespace StardewModdingAPI
         public void Fire()
         {
             if (this.CommandFired == null)
-            {
-                Log.AsyncR($"Command failed to fire because it's fire event is null: {this.CommandName}");
-                return;
-            }
+                throw new InvalidOperationException($"Can't run command '{this.CommandName}' because it has no registered handler.");
             this.CommandFired.Invoke(this, new EventArgsCommand(this));
         }
 
@@ -71,7 +68,8 @@ namespace StardewModdingAPI
         ****/
         /// <summary>Parse a command string and invoke it if valid.</summary>
         /// <param name="input">The command to run, including the command name and any arguments.</param>
-        public static void CallCommand(string input)
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
+        public static void CallCommand(string input, IMonitor monitor)
         {
             // normalise input
             input = input?.Trim();
@@ -87,7 +85,7 @@ namespace StardewModdingAPI
             Command command = Command.FindCommand(commandName);
             if (command == null)
             {
-                Log.AsyncR("Unknown command");
+                monitor.Log("Unknown command", LogLevel.Error);
                 return;
             }
 
@@ -104,13 +102,9 @@ namespace StardewModdingAPI
         {
             var command = new Command(name, description, args);
             if (Command.RegisteredCommands.Contains(command))
-            {
-                Log.AsyncR($"Command already registered! [{command.CommandName}]");
-                return Command.RegisteredCommands.Find(x => x.Equals(command));
-            }
+                throw new InvalidOperationException($"The '{command.CommandName}' command is already registered!");
 
             Command.RegisteredCommands.Add(command);
-
             return command;
         }
 

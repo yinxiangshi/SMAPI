@@ -89,7 +89,7 @@ namespace StardewModdingAPI
 
             if (!this.Manifest.PerSaveConfigs)
             {
-                Log.Error($"The mod [{this.Manifest.Name}] is not configured to use per-save configs.");
+                this.Monitor.Log("Tried to fetch the per-save config folder, but this mod isn't configured to use per-save config files.", LogLevel.Error);
                 return "";
             }
             return Path.Combine(this.PathOnDisk, "psconfigs");

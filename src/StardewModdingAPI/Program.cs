@@ -191,7 +191,7 @@ namespace StardewModdingAPI
             try
             {
                 Program.Monitor.Log("Patching game...");
-                Program.gamePtr = new SGame();
+                Program.gamePtr = new SGame(Program.Monitor);
 
                 // hook events
                 Program.gamePtr.Exiting += (sender, e) => Program.ready = false;
@@ -396,7 +396,7 @@ namespace StardewModdingAPI
         private static void ConsoleInputLoop()
         {
             while (true)
-                Command.CallCommand(Console.ReadLine());
+                Command.CallCommand(Console.ReadLine(), Program.Monitor);
         }
 
         /// <summary>The method called when the user submits the help command in the console.</summary>

@@ -32,6 +32,9 @@ namespace StardewModdingAPI.Inheritance
         /// <summary>Whether the game's zoom level is at 100% (i.e. nothing should be scaled).</summary>
         public bool ZoomLevelIsOne => Game1.options.zoomLevel.Equals(1.0f);
 
+        /// <summary>Encapsulates monitoring and logging.</summary>
+        private readonly IMonitor Monitor;
+
 
         /*********
         ** Accessors
@@ -278,10 +281,12 @@ namespace StardewModdingAPI.Inheritance
         ** Protected methods
         *********/
         /// <summary>Construct an instance.</summary>
-        internal SGame()
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
+        internal SGame(IMonitor monitor)
         {
-            SGame.Instance = this;
+            this.Monitor = monitor;
             this.FirstUpdate = true;
+            SGame.Instance = this;
         }
 
         /// <summary>The method called during game launch after configuring XNA or MonoGame. The game window hasn't been opened by this point.</summary>
@@ -294,14 +299,14 @@ namespace StardewModdingAPI.Inheritance
                 this.PreviouslyPressedButtons[i] = new Buttons[0];
 
             base.Initialize();
-            GameEvents.InvokeInitialize();
+            GameEvents.InvokeInitialize(this.Monitor);
         }
 
         /// <summary>The method called before XNA or MonoGame loads or reloads graphics resources.</summary>
         protected override void LoadContent()
         {
             base.LoadContent();
-            GameEvents.InvokeLoadContent();
+            GameEvents.InvokeLoadContent(this.Monitor);
         }
 
         /// <summary>The method called when the game is updating its state. This happens roughly 60 times per second.</summary>
@@ -325,12 +330,12 @@ namespace StardewModdingAPI.Inheritance
             }
             catch (Exception ex)
             {
-                Log.AsyncR($"An error occured in the base update loop: {ex}");
+                this.Monitor.Log($"An error occured in the base update loop: {ex}", LogLevel.Error);
                 Console.ReadKey();
             }
 
             // raise update events
-            GameEvents.InvokeUpdateTick();
+            GameEvents.InvokeUpdateTick(this.Monitor);
             if (this.FirstUpdate)
             {
                 GameEvents.InvokeFirstUpdateTick();
@@ -752,11 +757,11 @@ namespace StardewModdingAPI.Inheritance
                     Game1.spriteBatch.End();
                 }
 
-                GraphicsEvents.InvokeDrawTick();
+                GraphicsEvents.InvokeDrawTick(this.Monitor);
             }
             catch (Exception ex)
             {
-                Log.Error("An error occured in the overridden draw loop: " + ex);
+                this.Monitor.Log($"An error occured in the overridden draw loop: {ex}", LogLevel.Error);
             }
 
             if (SGame.Debug)

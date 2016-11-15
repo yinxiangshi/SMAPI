@@ -87,11 +87,6 @@ namespace StardewModdingAPI.Inheritance
         {
         }
 
-        public override void draw(SpriteBatch spriteBatch, int xNonTile, int yNonTile, float layerDepth, float alpha = 1)
-        {
-            Log.Debug("THIS DRAW FUNCTION IS NOT IMPLEMENTED I WANT TO KNOW WHERE IT IS CALLED");
-        }
-
         public override void drawInMenu(SpriteBatch spriteBatch, Vector2 location, float scaleSize, float transparency, float layerDepth, bool drawStackNumber)
         {
             if (isRecipe)
@@ -219,9 +214,6 @@ namespace StardewModdingAPI.Inheritance
             x = x / Game1.tileSize;
             y = y / Game1.tileSize;
 
-            //Program.LogDebug(x + " - " + y);
-            //Console.ReadKey();
-
             var key = new Vector2(x, y);
 
             if (!canBePlacedHere(location, key))
@@ -233,7 +225,6 @@ namespace StardewModdingAPI.Inheritance
             s.boundingBox = new Rectangle(x / Game1.tileSize * Game1.tileSize, y / Game1.tileSize * Game1.tileSize, boundingBox.Width, boundingBox.Height);
 
             location.objects.Add(key, s);
-            Log.Async($"{GetHashCode()} - {s.GetHashCode()}");
 
             return true;
         }
