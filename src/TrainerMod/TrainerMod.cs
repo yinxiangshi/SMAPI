@@ -102,7 +102,6 @@ namespace TrainerMod
             Command.RegisterCommand("out_items", "Outputs a list of items | out_items", new[] { "" }).CommandFired += TrainerMod.HandleOutItems;
             Command.RegisterCommand("out_melee", "Outputs a list of melee weapons | out_melee", new[] { "" }).CommandFired += TrainerMod.HandleOutMelee;
             Command.RegisterCommand("out_rings", "Outputs a list of rings | out_rings", new[] { "" }).CommandFired += TrainerMod.HandleOutRings;
-            Command.RegisterCommand("newitem", "not to be used | newitem", new[] { "" }).CommandFired += TrainerMod.HandleNewItem;
 
             Command.RegisterCommand("world_settime", "Sets the time to the specified value | world_settime <value>", new[] { "(Int32)<value> The target time [06:00 AM is 600]" }).CommandFired += TrainerMod.HandleWorldSetTime;
             Command.RegisterCommand("world_freezetime", "Freezes or thaws time | world_freezetime <value>", new[] { "(0 - 1)<value> Whether or not to freeze time. 0 is thawed, 1 is frozen" }).CommandFired += TrainerMod.HandleWorldFreezeTime;
@@ -726,11 +725,6 @@ namespace TrainerMod
             else
                 TrainerMod.LogValueNotSpecified();
         }
-
-        /// <summary>The event raised when the 'newIteem' command is triggered.</summary>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="e">The event arguments.</param>
-        private static void HandleNewItem(object sender, EventArgsCommand e) { }
 
         /****
         ** Logging
