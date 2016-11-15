@@ -20,19 +20,19 @@ namespace TrainerMod
         ** Properties
         *********/
         /// <summary>The time of day at which to freeze time.</summary>
-        private static int FrozenTime;
+        private int FrozenTime;
 
         /// <summary>Whether to keep the player's health at its maximum.</summary>
-        private static bool InfiniteHealth;
+        private bool InfiniteHealth;
 
         /// <summary>Whether to keep the player's stamina at its maximum.</summary>
-        private static bool InfiniteStamina;
+        private bool InfiniteStamina;
 
         /// <summary>Whether to keep the player's money at a set value.</summary>
-        private static bool InfiniteMoney;
+        private bool InfiniteMoney;
 
         /// <summary>Whether to freeze time.</summary>
-        private static bool FreezeTime;
+        private bool FreezeTime;
 
 
         /*********
@@ -42,8 +42,8 @@ namespace TrainerMod
         /// <param name="helper">Provides methods for interacting with the mod directory, such as read/writing a config file or custom JSON files.</param>
         public override void Entry(ModHelper helper)
         {
-            TrainerMod.RegisterCommands();
-            GameEvents.UpdateTick += TrainerMod.ReceiveUpdateTick;
+            this.RegisterCommands();
+            GameEvents.UpdateTick += this.ReceiveUpdateTick;
         }
 
 
@@ -56,59 +56,59 @@ namespace TrainerMod
         /// <summary>The method invoked when the game updates its state.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private static void ReceiveUpdateTick(object sender, EventArgs e)
+        private void ReceiveUpdateTick(object sender, EventArgs e)
         {
             if (Game1.player == null)
                 return;
 
-            if (TrainerMod.InfiniteHealth)
+            if (this.InfiniteHealth)
                 Game1.player.health = Game1.player.maxHealth;
-            if (TrainerMod.InfiniteStamina)
+            if (this.InfiniteStamina)
                 Game1.player.stamina = Game1.player.MaxStamina;
-            if (TrainerMod.InfiniteMoney)
+            if (this.InfiniteMoney)
                 Game1.player.money = 999999;
-            if (TrainerMod.FreezeTime)
-                Game1.timeOfDay = TrainerMod.FrozenTime;
+            if (this.FreezeTime)
+                Game1.timeOfDay = this.FrozenTime;
         }
 
         /// <summary>Register all trainer commands.</summary>
-        private static void RegisterCommands()
+        private void RegisterCommands()
         {
-            Command.RegisterCommand("types", "Lists all value types | types").CommandFired += TrainerMod.HandleTypes;
+            Command.RegisterCommand("types", "Lists all value types | types").CommandFired += this.HandleTypes;
 
-            Command.RegisterCommand("save", "Saves the game? Doesn't seem to work. | save").CommandFired += TrainerMod.HandleSave;
-            Command.RegisterCommand("load", "Shows the load screen | load").CommandFired += TrainerMod.HandleLoad;
+            Command.RegisterCommand("save", "Saves the game? Doesn't seem to work. | save").CommandFired += this.HandleSave;
+            Command.RegisterCommand("load", "Shows the load screen | load").CommandFired += this.HandleLoad;
 
-            Command.RegisterCommand("exit", "Closes the game | exit").CommandFired += TrainerMod.HandleExit;
-            Command.RegisterCommand("stop", "Closes the game | stop").CommandFired += TrainerMod.HandleExit;
+            Command.RegisterCommand("exit", "Closes the game | exit").CommandFired += this.HandleExit;
+            Command.RegisterCommand("stop", "Closes the game | stop").CommandFired += this.HandleExit;
 
-            Command.RegisterCommand("player_setname", "Sets the player's name | player_setname <object> <value>", new[] { "(player, pet, farm)<object> (String)<value> The target name" }).CommandFired += TrainerMod.HandlePlayerSetName;
-            Command.RegisterCommand("player_setmoney", "Sets the player's money | player_setmoney <value>|inf", new[] { "(Int32)<value> The target money" }).CommandFired += TrainerMod.HandlePlayerSetMoney;
-            Command.RegisterCommand("player_setstamina", "Sets the player's stamina | player_setstamina <value>|inf", new[] { "(Int32)<value> The target stamina" }).CommandFired += TrainerMod.HandlePlayerSetStamina;
-            Command.RegisterCommand("player_setmaxstamina", "Sets the player's max stamina | player_setmaxstamina <value>", new[] { "(Int32)<value> The target max stamina" }).CommandFired += TrainerMod.HandlePlayerSetMaxStamina;
-            Command.RegisterCommand("player_sethealth", "Sets the player's health | player_sethealth <value>|inf", new[] { "(Int32)<value> The target health" }).CommandFired += TrainerMod.HandlePlayerSetHealth;
-            Command.RegisterCommand("player_setmaxhealth", "Sets the player's max health | player_setmaxhealth <value>", new[] { "(Int32)<value> The target max health" }).CommandFired += TrainerMod.HandlePlayerSetMaxHealth;
-            Command.RegisterCommand("player_setimmunity", "Sets the player's immunity | player_setimmunity <value>", new[] { "(Int32)<value> The target immunity" }).CommandFired += TrainerMod.HandlePlayerSetImmunity;
+            Command.RegisterCommand("player_setname", "Sets the player's name | player_setname <object> <value>", new[] { "(player, pet, farm)<object> (String)<value> The target name" }).CommandFired += this.HandlePlayerSetName;
+            Command.RegisterCommand("player_setmoney", "Sets the player's money | player_setmoney <value>|inf", new[] { "(Int32)<value> The target money" }).CommandFired += this.HandlePlayerSetMoney;
+            Command.RegisterCommand("player_setstamina", "Sets the player's stamina | player_setstamina <value>|inf", new[] { "(Int32)<value> The target stamina" }).CommandFired += this.HandlePlayerSetStamina;
+            Command.RegisterCommand("player_setmaxstamina", "Sets the player's max stamina | player_setmaxstamina <value>", new[] { "(Int32)<value> The target max stamina" }).CommandFired += this.HandlePlayerSetMaxStamina;
+            Command.RegisterCommand("player_sethealth", "Sets the player's health | player_sethealth <value>|inf", new[] { "(Int32)<value> The target health" }).CommandFired += this.HandlePlayerSetHealth;
+            Command.RegisterCommand("player_setmaxhealth", "Sets the player's max health | player_setmaxhealth <value>", new[] { "(Int32)<value> The target max health" }).CommandFired += this.HandlePlayerSetMaxHealth;
+            Command.RegisterCommand("player_setimmunity", "Sets the player's immunity | player_setimmunity <value>", new[] { "(Int32)<value> The target immunity" }).CommandFired += this.HandlePlayerSetImmunity;
 
-            Command.RegisterCommand("player_setlevel", "Sets the player's specified skill to the specified value | player_setlevel <skill> <value>", new[] { "(luck, mining, combat, farming, fishing, foraging)<skill> (1-10)<value> The target level" }).CommandFired += TrainerMod.HandlePlayerSetLevel;
-            Command.RegisterCommand("player_setspeed", "Sets the player's speed to the specified value?", new[] { "(Int32)<value> The target speed [0 is normal]" }).CommandFired += TrainerMod.HandlePlayerSetSpeed;
-            Command.RegisterCommand("player_changecolour", "Sets the player's colour of the specified object | player_changecolor <object> <colour>", new[] { "(hair, eyes, pants)<object> (r,g,b)<colour>" }).CommandFired += TrainerMod.HandlePlayerChangeColor;
-            Command.RegisterCommand("player_changestyle", "Sets the player's style of the specified object | player_changecolor <object> <value>", new[] { "(hair, shirt, skin, acc, shoe, swim, gender)<object> (Int32)<value>" }).CommandFired += TrainerMod.HandlePlayerChangeStyle;
+            Command.RegisterCommand("player_setlevel", "Sets the player's specified skill to the specified value | player_setlevel <skill> <value>", new[] { "(luck, mining, combat, farming, fishing, foraging)<skill> (1-10)<value> The target level" }).CommandFired += this.HandlePlayerSetLevel;
+            Command.RegisterCommand("player_setspeed", "Sets the player's speed to the specified value?", new[] { "(Int32)<value> The target speed [0 is normal]" }).CommandFired += this.HandlePlayerSetSpeed;
+            Command.RegisterCommand("player_changecolour", "Sets the player's colour of the specified object | player_changecolor <object> <colour>", new[] { "(hair, eyes, pants)<object> (r,g,b)<colour>" }).CommandFired += this.HandlePlayerChangeColor;
+            Command.RegisterCommand("player_changestyle", "Sets the player's style of the specified object | player_changecolor <object> <value>", new[] { "(hair, shirt, skin, acc, shoe, swim, gender)<object> (Int32)<value>" }).CommandFired += this.HandlePlayerChangeStyle;
 
-            Command.RegisterCommand("player_additem", "Gives the player an item | player_additem <item> [count] [quality]", new[] { "(Int32)<id> (Int32)[count] (Int32)[quality]" }).CommandFired += TrainerMod.HandlePlayerAddItem;
-            Command.RegisterCommand("player_addmelee", "Gives the player a melee item | player_addmelee <item>", new[] { "?<item>" }).CommandFired += TrainerMod.HandlePlayerAddMelee;
-            Command.RegisterCommand("player_addring", "Gives the player a ring | player_addring <item>", new[] { "?<item>" }).CommandFired += TrainerMod.HandlePlayerAddRing;
+            Command.RegisterCommand("player_additem", "Gives the player an item | player_additem <item> [count] [quality]", new[] { "(Int32)<id> (Int32)[count] (Int32)[quality]" }).CommandFired += this.HandlePlayerAddItem;
+            Command.RegisterCommand("player_addmelee", "Gives the player a melee item | player_addmelee <item>", new[] { "?<item>" }).CommandFired += this.HandlePlayerAddMelee;
+            Command.RegisterCommand("player_addring", "Gives the player a ring | player_addring <item>", new[] { "?<item>" }).CommandFired += this.HandlePlayerAddRing;
 
-            Command.RegisterCommand("out_items", "Outputs a list of items | out_items", new[] { "" }).CommandFired += TrainerMod.HandleOutItems;
-            Command.RegisterCommand("out_melee", "Outputs a list of melee weapons | out_melee", new[] { "" }).CommandFired += TrainerMod.HandleOutMelee;
-            Command.RegisterCommand("out_rings", "Outputs a list of rings | out_rings", new[] { "" }).CommandFired += TrainerMod.HandleOutRings;
+            Command.RegisterCommand("out_items", "Outputs a list of items | out_items", new[] { "" }).CommandFired += this.HandleOutItems;
+            Command.RegisterCommand("out_melee", "Outputs a list of melee weapons | out_melee", new[] { "" }).CommandFired += this.HandleOutMelee;
+            Command.RegisterCommand("out_rings", "Outputs a list of rings | out_rings", new[] { "" }).CommandFired += this.HandleOutRings;
 
-            Command.RegisterCommand("world_settime", "Sets the time to the specified value | world_settime <value>", new[] { "(Int32)<value> The target time [06:00 AM is 600]" }).CommandFired += TrainerMod.HandleWorldSetTime;
-            Command.RegisterCommand("world_freezetime", "Freezes or thaws time | world_freezetime <value>", new[] { "(0 - 1)<value> Whether or not to freeze time. 0 is thawed, 1 is frozen" }).CommandFired += TrainerMod.HandleWorldFreezeTime;
-            Command.RegisterCommand("world_setday", "Sets the day to the specified value | world_setday <value>", new[] { "(Int32)<value> The target day [1-28]" }).CommandFired += TrainerMod.world_setDay;
-            Command.RegisterCommand("world_setseason", "Sets the season to the specified value | world_setseason <value>", new[] { "(winter, spring, summer, fall)<value> The target season" }).CommandFired += TrainerMod.HandleWorldSetSeason;
-            Command.RegisterCommand("world_downminelevel", "Goes down one mine level? | world_downminelevel", new[] { "" }).CommandFired += TrainerMod.HandleWorldDownMineLevel;
-            Command.RegisterCommand("world_setminelevel", "Sets mine level? | world_setminelevel", new[] { "(Int32)<value> The target level" }).CommandFired += TrainerMod.HandleWorldSetMineLevel;
+            Command.RegisterCommand("world_settime", "Sets the time to the specified value | world_settime <value>", new[] { "(Int32)<value> The target time [06:00 AM is 600]" }).CommandFired += this.HandleWorldSetTime;
+            Command.RegisterCommand("world_freezetime", "Freezes or thaws time | world_freezetime <value>", new[] { "(0 - 1)<value> Whether or not to freeze time. 0 is thawed, 1 is frozen" }).CommandFired += this.HandleWorldFreezeTime;
+            Command.RegisterCommand("world_setday", "Sets the day to the specified value | world_setday <value>", new[] { "(Int32)<value> The target day [1-28]" }).CommandFired += this.world_setDay;
+            Command.RegisterCommand("world_setseason", "Sets the season to the specified value | world_setseason <value>", new[] { "(winter, spring, summer, fall)<value> The target season" }).CommandFired += this.HandleWorldSetSeason;
+            Command.RegisterCommand("world_downminelevel", "Goes down one mine level? | world_downminelevel", new[] { "" }).CommandFired += this.HandleWorldDownMineLevel;
+            Command.RegisterCommand("world_setminelevel", "Sets mine level? | world_setminelevel", new[] { "(Int32)<value> The target level" }).CommandFired += this.HandleWorldSetMineLevel;
         }
 
         /****
@@ -117,7 +117,7 @@ namespace TrainerMod
         /// <summary>The event raised when the 'types' command is triggered.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private static void HandleTypes(object sender, EventArgsCommand e)
+        private void HandleTypes(object sender, EventArgsCommand e)
         {
             Log.AsyncY($"[Int32: {int.MinValue} - {int.MaxValue}], [Int64: {long.MinValue} - {long.MaxValue}], [String: \"raw text\"], [Colour: r,g,b (EG: 128, 32, 255)]");
         }
@@ -125,7 +125,7 @@ namespace TrainerMod
         /// <summary>The event raised when the 'save' command is triggered.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private static void HandleSave(object sender, EventArgsCommand e)
+        private void HandleSave(object sender, EventArgsCommand e)
         {
             SaveGame.Save();
         }
@@ -133,7 +133,7 @@ namespace TrainerMod
         /// <summary>The event raised when the 'load' command is triggered.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private static void HandleLoad(object sender, EventArgsCommand e)
+        private void HandleLoad(object sender, EventArgsCommand e)
         {
             Game1.hasLoadedGame = false;
             Game1.activeClickableMenu = new LoadGameMenu();
@@ -142,7 +142,7 @@ namespace TrainerMod
         /// <summary>The event raised when the 'exit' command is triggered.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private static void HandleExit(object sender, EventArgsCommand e)
+        private void HandleExit(object sender, EventArgsCommand e)
         {
             Program.gamePtr.Exit();
             Environment.Exit(0);
@@ -151,7 +151,7 @@ namespace TrainerMod
         /// <summary>The event raised when the 'player_setName' command is triggered.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private static void HandlePlayerSetName(object sender, EventArgsCommand e)
+        private void HandlePlayerSetName(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 1)
             {
@@ -173,25 +173,25 @@ namespace TrainerMod
                     }
                 }
                 else
-                    TrainerMod.LogObjectInvalid();
+                    this.LogObjectInvalid();
             }
             else
-                TrainerMod.LogObjectValueNotSpecified();
+                this.LogObjectValueNotSpecified();
         }
 
         /// <summary>The event raised when the 'player_setMoney' command is triggered.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private static void HandlePlayerSetMoney(object sender, EventArgsCommand e)
+        private void HandlePlayerSetMoney(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 0)
             {
                 string amountStr = e.Command.CalledArgs[0];
                 if (amountStr == "inf")
-                    TrainerMod.InfiniteMoney = true;
+                    this.InfiniteMoney = true;
                 else
                 {
-                    TrainerMod.InfiniteMoney = false;
+                    this.InfiniteMoney = false;
                     int amount;
                     if (int.TryParse(amountStr, out amount))
                     {
@@ -199,26 +199,26 @@ namespace TrainerMod
                         Log.Async($"Set {Game1.player.Name}'s money to {Game1.player.Money}");
                     }
                     else
-                        TrainerMod.LogValueNotInt32();
+                        this.LogValueNotInt32();
                 }
             }
             else
-                TrainerMod.LogValueNotSpecified();
+                this.LogValueNotSpecified();
         }
 
         /// <summary>The event raised when the 'player_setStamina' command is triggered.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private static void HandlePlayerSetStamina(object sender, EventArgsCommand e)
+        private void HandlePlayerSetStamina(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 0)
             {
                 string amountStr = e.Command.CalledArgs[0];
                 if (amountStr == "inf")
-                    TrainerMod.InfiniteStamina = true;
+                    this.InfiniteStamina = true;
                 else
                 {
-                    TrainerMod.InfiniteStamina = false;
+                    this.InfiniteStamina = false;
                     int amount;
                     if (int.TryParse(amountStr, out amount))
                     {
@@ -226,17 +226,17 @@ namespace TrainerMod
                         Log.Async($"Set {Game1.player.Name}'s stamina to {Game1.player.Stamina}");
                     }
                     else
-                        TrainerMod.LogValueNotInt32();
+                        this.LogValueNotInt32();
                 }
             }
             else
-                TrainerMod.LogValueNotSpecified();
+                this.LogValueNotSpecified();
         }
 
         /// <summary>The event raised when the 'player_setMaxStamina' command is triggered.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private static void HandlePlayerSetMaxStamina(object sender, EventArgsCommand e)
+        private void HandlePlayerSetMaxStamina(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 0)
             {
@@ -247,16 +247,16 @@ namespace TrainerMod
                     Log.Async($"Set {Game1.player.Name}'s max stamina to {Game1.player.MaxStamina}");
                 }
                 else
-                    TrainerMod.LogValueNotInt32();
+                    this.LogValueNotInt32();
             }
             else
-                TrainerMod.LogValueNotSpecified();
+                this.LogValueNotSpecified();
         }
 
         /// <summary>The event raised when the 'player_setLevel' command is triggered.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private static void HandlePlayerSetLevel(object sender, EventArgsCommand e)
+        private void HandlePlayerSetLevel(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 1)
             {
@@ -290,7 +290,7 @@ namespace TrainerMod
                         }
                     }
                     else
-                        TrainerMod.LogValueNotInt32();
+                        this.LogValueNotInt32();
                 }
                 else
                     Log.AsyncR("<skill> is invalid");
@@ -302,7 +302,7 @@ namespace TrainerMod
         /// <summary>The event raised when the 'player_setSpeed' command is triggered.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private static void HandlePlayerSetSpeed(object sender, EventArgsCommand e)
+        private void HandlePlayerSetSpeed(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 0)
             {
@@ -313,16 +313,16 @@ namespace TrainerMod
                     Log.Async($"Set {Game1.player.Name}'s added speed to {Game1.player.addedSpeed}");
                 }
                 else
-                    TrainerMod.LogValueNotInt32();
+                    this.LogValueNotInt32();
             }
             else
-                TrainerMod.LogValueNotSpecified();
+                this.LogValueNotSpecified();
         }
 
         /// <summary>The event raised when the 'player_changeColour' command is triggered.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private static void HandlePlayerChangeColor(object sender, EventArgsCommand e)
+        private void HandlePlayerChangeColor(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 1)
             {
@@ -351,7 +351,7 @@ namespace TrainerMod
                         Log.AsyncR("<colour> is invalid");
                 }
                 else
-                    TrainerMod.LogObjectInvalid();
+                    this.LogObjectInvalid();
             }
             else
                 Log.AsyncR("<object> and <colour> must be specified");
@@ -360,7 +360,7 @@ namespace TrainerMod
         /// <summary>The event raised when the 'player_changeStyle' command is triggered.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private static void HandlePlayerChangeStyle(object sender, EventArgsCommand e)
+        private void HandlePlayerChangeStyle(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 1)
             {
@@ -407,19 +407,19 @@ namespace TrainerMod
                         }
                     }
                     else
-                        TrainerMod.LogValueInvalid();
+                        this.LogValueInvalid();
                 }
                 else
-                    TrainerMod.LogObjectInvalid();
+                    this.LogObjectInvalid();
             }
             else
-                TrainerMod.LogObjectValueNotSpecified();
+                this.LogObjectValueNotSpecified();
         }
 
         /// <summary>The event raised when the 'world_freezeTime' command is triggered.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private static void HandleWorldFreezeTime(object sender, EventArgsCommand e)
+        private void HandleWorldFreezeTime(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 0)
             {
@@ -429,24 +429,24 @@ namespace TrainerMod
                     int value = valueStr.ToInt();
                     if (value == 0 || value == 1)
                     {
-                        TrainerMod.FreezeTime = value == 1;
-                        TrainerMod.FrozenTime = TrainerMod.FreezeTime ? Game1.timeOfDay : 0;
-                        Log.AsyncY("Time is now " + (TrainerMod.FreezeTime ? "frozen" : "thawed"));
+                        this.FreezeTime = value == 1;
+                        this.FrozenTime = this.FreezeTime ? Game1.timeOfDay : 0;
+                        Log.AsyncY("Time is now " + (this.FreezeTime ? "frozen" : "thawed"));
                     }
                     else
                         Log.AsyncR("<value> should be 0 or 1");
                 }
                 else
-                    TrainerMod.LogValueNotInt32();
+                    this.LogValueNotInt32();
             }
             else
-                TrainerMod.LogValueNotSpecified();
+                this.LogValueNotSpecified();
         }
 
         /// <summary>The event raised when the 'world_setTime' command is triggered.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private static void HandleWorldSetTime(object sender, EventArgsCommand e)
+        private void HandleWorldSetTime(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 0)
             {
@@ -458,23 +458,23 @@ namespace TrainerMod
                     if (time <= 2600 && time >= 600)
                     {
                         Game1.timeOfDay = e.Command.CalledArgs[0].ToInt();
-                        TrainerMod.FrozenTime = TrainerMod.FreezeTime ? Game1.timeOfDay : 0;
+                        this.FrozenTime = this.FreezeTime ? Game1.timeOfDay : 0;
                         Log.AsyncY($"Time set to: {Game1.timeOfDay}");
                     }
                     else
                         Log.AsyncR("<value> should be between 600 and 2600 (06:00 AM - 02:00 AM [NEXT DAY])");
                 }
                 else
-                    TrainerMod.LogValueNotInt32();
+                    this.LogValueNotInt32();
             }
             else
-                TrainerMod.LogValueNotSpecified();
+                this.LogValueNotSpecified();
         }
 
         /// <summary>The event raised when the 'world_setDay' command is triggered.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private static void world_setDay(object sender, EventArgsCommand e)
+        private void world_setDay(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 0)
             {
@@ -489,16 +489,16 @@ namespace TrainerMod
                         Log.AsyncY("<value> must be between 1 and 28");
                 }
                 else
-                    TrainerMod.LogValueNotInt32();
+                    this.LogValueNotInt32();
             }
             else
-                TrainerMod.LogValueNotSpecified();
+                this.LogValueNotSpecified();
         }
 
         /// <summary>The event raised when the 'world_setSeason' command is triggered.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private static void HandleWorldSetSeason(object sender, EventArgsCommand e)
+        private void HandleWorldSetSeason(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 0)
             {
@@ -507,40 +507,40 @@ namespace TrainerMod
                 if (validSeasons.Contains(season))
                     Game1.currentSeason = season;
                 else
-                    TrainerMod.LogValueInvalid();
+                    this.LogValueInvalid();
             }
             else
-                TrainerMod.LogValueNotSpecified();
+                this.LogValueNotSpecified();
         }
 
         /// <summary>The event raised when the 'player_setHealth' command is triggered.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private static void HandlePlayerSetHealth(object sender, EventArgsCommand e)
+        private void HandlePlayerSetHealth(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 0)
             {
                 string amountStr = e.Command.CalledArgs[0];
 
                 if (amountStr == "inf")
-                    TrainerMod.InfiniteHealth = true;
+                    this.InfiniteHealth = true;
                 else
                 {
-                    TrainerMod.InfiniteHealth = false;
+                    this.InfiniteHealth = false;
                     if (amountStr.IsInt())
                         Game1.player.health = amountStr.ToInt();
                     else
-                        TrainerMod.LogValueNotInt32();
+                        this.LogValueNotInt32();
                 }
             }
             else
-                TrainerMod.LogValueNotSpecified();
+                this.LogValueNotSpecified();
         }
 
         /// <summary>The event raised when the 'player_setMaxHealth' command is triggered.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private static void HandlePlayerSetMaxHealth(object sender, EventArgsCommand e)
+        private void HandlePlayerSetMaxHealth(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 0)
             {
@@ -548,16 +548,16 @@ namespace TrainerMod
                 if (amountStr.IsInt())
                     Game1.player.maxHealth = amountStr.ToInt();
                 else
-                    TrainerMod.LogValueNotInt32();
+                    this.LogValueNotInt32();
             }
             else
-                TrainerMod.LogValueNotSpecified();
+                this.LogValueNotSpecified();
         }
 
         /// <summary>The event raised when the 'player_setImmunity' command is triggered.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private static void HandlePlayerSetImmunity(object sender, EventArgsCommand e)
+        private void HandlePlayerSetImmunity(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 0)
             {
@@ -565,16 +565,16 @@ namespace TrainerMod
                 if (amountStr.IsInt())
                     Game1.player.immunity = amountStr.ToInt();
                 else
-                    TrainerMod.LogValueNotInt32();
+                    this.LogValueNotInt32();
             }
             else
-                TrainerMod.LogValueNotSpecified();
+                this.LogValueNotSpecified();
         }
 
         /// <summary>The event raised when the 'player_addItem' command is triggered.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private static void HandlePlayerAddItem(object sender, EventArgsCommand e)
+        private void HandlePlayerAddItem(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 0)
             {
@@ -614,13 +614,13 @@ namespace TrainerMod
                     Log.AsyncR("<item> is invalid");
             }
             else
-                TrainerMod.LogObjectValueNotSpecified();
+                this.LogObjectValueNotSpecified();
         }
 
         /// <summary>The event raised when the 'player_addMelee' command is triggered.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private static void HandlePlayerAddMelee(object sender, EventArgsCommand e)
+        private void HandlePlayerAddMelee(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 0)
             {
@@ -634,13 +634,13 @@ namespace TrainerMod
                     Log.AsyncR("<item> is invalid");
             }
             else
-                TrainerMod.LogObjectValueNotSpecified();
+                this.LogObjectValueNotSpecified();
         }
 
         /// <summary>The event raised when the 'player_addRing' command is triggered.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private static void HandlePlayerAddRing(object sender, EventArgsCommand e)
+        private void HandlePlayerAddRing(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 0)
             {
@@ -654,13 +654,13 @@ namespace TrainerMod
                     Log.AsyncR("<item> is invalid");
             }
             else
-                TrainerMod.LogObjectValueNotSpecified();
+                this.LogObjectValueNotSpecified();
         }
 
         /// <summary>The event raised when the 'out_items' command is triggered.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private static void HandleOutItems(object sender, EventArgsCommand e)
+        private void HandleOutItems(object sender, EventArgsCommand e)
         {
             for (var itemID = 0; itemID < 1000; itemID++)
             {
@@ -677,7 +677,7 @@ namespace TrainerMod
         /// <summary>The event raised when the 'out_melee' command is triggered.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private static void HandleOutMelee(object sender, EventArgsCommand e)
+        private void HandleOutMelee(object sender, EventArgsCommand e)
         {
             var data = Game1.content.Load<Dictionary<int, string>>("Data\\weapons");
             Console.Write("DATA\\WEAPONS: ");
@@ -688,7 +688,7 @@ namespace TrainerMod
         /// <summary>The event raised when the 'out_rings' command is triggered.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private static void HandleOutRings(object sender, EventArgsCommand e)
+        private void HandleOutRings(object sender, EventArgsCommand e)
         {
             for (var ringID = 0; ringID < 100; ringID++)
             {
@@ -705,7 +705,7 @@ namespace TrainerMod
         /// <summary>The event raised when the 'world_downMineLevel' command is triggered.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private static void HandleWorldDownMineLevel(object sender, EventArgsCommand e)
+        private void HandleWorldDownMineLevel(object sender, EventArgsCommand e)
         {
             Game1.nextMineLevel();
         }
@@ -713,48 +713,48 @@ namespace TrainerMod
         /// <summary>The event raised when the 'world_setMineLevel' command is triggered.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private static void HandleWorldSetMineLevel(object sender, EventArgsCommand e)
+        private void HandleWorldSetMineLevel(object sender, EventArgsCommand e)
         {
             if (e.Command.CalledArgs.Length > 0)
             {
                 if (e.Command.CalledArgs[0].IsInt())
                     Game1.enterMine(true, e.Command.CalledArgs[0].ToInt(), "");
                 else
-                    TrainerMod.LogValueNotInt32();
+                    this.LogValueNotInt32();
             }
             else
-                TrainerMod.LogValueNotSpecified();
+                this.LogValueNotSpecified();
         }
 
         /****
         ** Logging
         ****/
         /// <summary>Log an error indicating a value must be specified.</summary>
-        public static void LogValueNotSpecified()
+        public void LogValueNotSpecified()
         {
             Log.AsyncR("<value> must be specified");
         }
 
         /// <summary>Log an error indicating a target and value must be specified.</summary>
-        public static void LogObjectValueNotSpecified()
+        public void LogObjectValueNotSpecified()
         {
             Log.AsyncR("<object> and <value> must be specified");
         }
 
         /// <summary>Log an error indicating a value is invalid.</summary>
-        public static void LogValueInvalid()
+        public void LogValueInvalid()
         {
             Log.AsyncR("<value> is invalid");
         }
 
         /// <summary>Log an error indicating a target is invalid.</summary>
-        public static void LogObjectInvalid()
+        public void LogObjectInvalid()
         {
             Log.AsyncR("<object> is invalid");
         }
 
         /// <summary>Log an error indicating a value must be an integer.</summary>
-        public static void LogValueNotInt32()
+        public void LogValueNotInt32()
         {
             Log.AsyncR("<value> must be a whole number (Int32)");
         }
