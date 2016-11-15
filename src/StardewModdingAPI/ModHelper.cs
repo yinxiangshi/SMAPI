@@ -60,12 +60,24 @@ namespace StardewModdingAPI
         /// <summary>Read a JSON file.</summary>
         /// <typeparam name="TModel">The model type.</typeparam>
         /// <param name="path">The file path relative to the mod directory.</param>
+        /// <returns>Returns the deserialised model, or <c>null</c> if the file doesn't exist or is empty.</returns>
         public TModel ReadJsonFile<TModel>(string path)
             where TModel : class
         {
+            // read file
             string fullPath = Path.Combine(this.DirectoryPath, path);
-            TModel model = JsonConvert.DeserializeObject<TModel>(File.ReadAllText(fullPath));
+            string json;
+            try
+            {
+                json = File.ReadAllText(fullPath);
+            }
+            catch (FileNotFoundException)
+            {
+                return null;
+            }
 
+            // deserialise model
+            TModel model = JsonConvert.DeserializeObject<TModel>(json);
             if (model is IConfigFile)
             {
                 var wrapper = (IConfigFile)model;
