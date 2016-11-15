@@ -1,7 +1,7 @@
 ﻿namespace TrainerMod.Framework
 {
     /// <summary>Provides extension methods on primitive types.</summary>
-    public static class Extensions
+    internal static class Extensions
     {
         /*********
         ** Public methods

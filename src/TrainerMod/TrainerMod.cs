@@ -20,19 +20,19 @@ namespace TrainerMod
         ** Properties
         *********/
         /// <summary>The time of day at which to freeze time.</summary>
-        public static int FrozenTime;
+        private static int FrozenTime;
 
         /// <summary>Whether to keep the player's health at its maximum.</summary>
-        public static bool InfiniteHealth;
+        private static bool InfiniteHealth;
 
         /// <summary>Whether to keep the player's stamina at its maximum.</summary>
-        public static bool InfiniteStamina;
+        private static bool InfiniteStamina;
 
         /// <summary>Whether to keep the player's money at a set value.</summary>
-        public static bool InfiniteMoney;
+        private static bool InfiniteMoney;
 
         /// <summary>Whether to freeze time.</summary>
-        public static bool FreezeTime;
+        private static bool FreezeTime;
 
 
         /*********
@@ -72,7 +72,7 @@ namespace TrainerMod
         }
 
         /// <summary>Register all trainer commands.</summary>
-        public static void RegisterCommands()
+        private static void RegisterCommands()
         {
             Command.RegisterCommand("types", "Lists all value types | types").CommandFired += TrainerMod.HandleTypes;
 
