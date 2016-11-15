@@ -19,6 +19,9 @@ namespace StardewModdingAPI
         /// <summary>Provides methods for interacting with the mod directory, such as read/writing a config file or custom JSON files.</summary>
         public ModHelper Helper { get; internal set; }
 
+        /// <summary>Writes messages to the console and log file.</summary>
+        public IMonitor Monitor { get; internal set; }
+
         /// <summary>The mod's manifest.</summary>
         public Manifest Manifest { get; internal set; }
 
