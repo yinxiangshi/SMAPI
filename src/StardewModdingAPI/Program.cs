@@ -72,7 +72,7 @@ namespace StardewModdingAPI
         internal static readonly ModRegistry ModRegistry = new ModRegistry();
 
         /// <summary>Manages deprecation warnings.</summary>
-        internal static readonly DeprecationManager DeprecationManager = new DeprecationManager(Program.ModRegistry);
+        internal static readonly DeprecationManager DeprecationManager = new DeprecationManager(Program.Monitor, Program.ModRegistry);
 
 
         /*********
@@ -96,7 +96,6 @@ namespace StardewModdingAPI
 
                     if (Program.DeveloperMode)
                     {
-                        Program.DeprecationManager.SendNoticesToConsole = settings?.DeveloperMode == true;
                         Program.Monitor.ShowTraceInConsole = true;
                         Program.Monitor.Log($"SMAPI is running in developer mode. The console may be much more verbose. You can disable developer mode by deleting the {settingsFileName} file in the game directory.", LogLevel.Alert);
                     }

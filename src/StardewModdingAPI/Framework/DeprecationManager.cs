@@ -13,24 +13,22 @@ namespace StardewModdingAPI.Framework
         /// <summary>The deprecations which have already been logged (as 'mod name::noun phrase::version').</summary>
         private readonly HashSet<string> LoggedDeprecations = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
 
+        /// <summary>Encapsulates monitoring and logging for a given module.</summary>
+        private readonly IMonitor Monitor;
+
         /// <summary>Tracks the installed mods.</summary>
         private readonly ModRegistry ModRegistry;
-
-
-        /*********
-        ** Accessors
-        *********/
-        /// <summary>Whether <see cref="DeprecationLevel.Notice"/>-level deprecation messages should be shown in the console.</summary>
-        public bool SendNoticesToConsole { get; set; }
 
 
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
+        /// <param name="monitor">Encapsulates monitoring and logging for a given module.</param>
         /// <param name="modRegistry">Tracks the installed mods.</param>
-        public DeprecationManager(ModRegistry modRegistry)
+        public DeprecationManager(IMonitor monitor, ModRegistry modRegistry)
         {
+            this.Monitor = monitor;
             this.ModRegistry = modRegistry;
         }
 
@@ -68,18 +66,15 @@ namespace StardewModdingAPI.Framework
             switch (severity)
             {
                 case DeprecationLevel.Notice:
-                    if (this.SendNoticesToConsole)
-                        Log.Debug($"[DEV] {message}");
-                    else
-                        Log.LogToFile(message);
+                    this.Monitor.Log(message, LogLevel.Trace);
                     break;
 
                 case DeprecationLevel.Info:
-                    Log.Debug(message);
+                    this.Monitor.Log(message, LogLevel.Info);
                     break;
 
                 case DeprecationLevel.PendingRemoval:
-                    Log.Warning(message);
+                    this.Monitor.Log(message, LogLevel.Warn);
                     break;
 
                 default:

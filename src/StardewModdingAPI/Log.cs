@@ -18,9 +18,6 @@ namespace StardewModdingAPI
         /// <summary>Tracks the installed mods.</summary>
         internal static ModRegistry ModRegistry;
 
-        /// <summary>A temporary field to avoid infinite loops (since we use a deprecated interface to warn about the deprecated interface).</summary>
-        private static bool WarnedDeprecated;
-
 
         /*********
         ** Public methods
@@ -181,11 +178,7 @@ namespace StardewModdingAPI
         /// <summary>Raise a deprecation warning.</summary>
         private static void WarnDeprecated()
         {
-            if (!Log.WarnedDeprecated)
-            {
-                Log.WarnedDeprecated = true;
-                Program.DeprecationManager.Warn($"the {nameof(Log)} class", "1.1", DeprecationLevel.Notice);
-            }
+            Program.DeprecationManager.Warn("an unknown mod", $"the {nameof(Log)} class", "1.1", DeprecationLevel.Notice);
         }
 
         /// <summary>Get the name of the mod logging a message from the stack.</summary>
