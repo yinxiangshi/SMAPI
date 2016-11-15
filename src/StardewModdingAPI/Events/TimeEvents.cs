@@ -9,19 +9,19 @@ namespace StardewModdingAPI.Events
         ** Events
         *********/
         /// <summary>Raised after the in-game clock changes.</summary>
-        public static event EventHandler<EventArgsIntChanged> TimeOfDayChanged = delegate { };
+        public static event EventHandler<EventArgsIntChanged> TimeOfDayChanged;
 
         /// <summary>Raised after the day-of-month value changes, including when loading a save (unlike <see cref="OnNewDay"/>).</summary>
-        public static event EventHandler<EventArgsIntChanged> DayOfMonthChanged = delegate { };
+        public static event EventHandler<EventArgsIntChanged> DayOfMonthChanged;
 
         /// <summary>Raised after the year value changes.</summary>
-        public static event EventHandler<EventArgsIntChanged> YearOfGameChanged = delegate { };
+        public static event EventHandler<EventArgsIntChanged> YearOfGameChanged;
 
         /// <summary>Raised after the season value changes.</summary>
-        public static event EventHandler<EventArgsStringChanged> SeasonOfYearChanged = delegate { };
+        public static event EventHandler<EventArgsStringChanged> SeasonOfYearChanged;
 
         /// <summary>Raised when the player is transitioning to a new day and the game is performing its day update logic. This event is triggered twice: once after the game starts transitioning, and again after it finishes.</summary>
-        public static event EventHandler<EventArgsNewDay> OnNewDay = delegate { };
+        public static event EventHandler<EventArgsNewDay> OnNewDay;
 
 
         /*********
@@ -32,7 +32,7 @@ namespace StardewModdingAPI.Events
         /// <param name="newTime">The current time in military time format (e.g. 6:10pm is 1810).</param>
         internal static void InvokeTimeOfDayChanged(int priorTime, int newTime)
         {
-            TimeEvents.TimeOfDayChanged.Invoke(null, new EventArgsIntChanged(priorTime, newTime));
+            TimeEvents.TimeOfDayChanged?.Invoke(null, new EventArgsIntChanged(priorTime, newTime));
         }
 
         /// <summary>Raise a <see cref="DayOfMonthChanged"/> event.</summary>
@@ -40,7 +40,7 @@ namespace StardewModdingAPI.Events
         /// <param name="newDay">The current day value.</param>
         internal static void InvokeDayOfMonthChanged(int priorDay, int newDay)
         {
-            TimeEvents.DayOfMonthChanged.Invoke(null, new EventArgsIntChanged(priorDay, newDay));
+            TimeEvents.DayOfMonthChanged?.Invoke(null, new EventArgsIntChanged(priorDay, newDay));
         }
 
         /// <summary>Raise a <see cref="YearOfGameChanged"/> event.</summary>
@@ -48,7 +48,7 @@ namespace StardewModdingAPI.Events
         /// <param name="newYear">The current year value.</param>
         internal static void InvokeYearOfGameChanged(int priorYear, int newYear)
         {
-            TimeEvents.YearOfGameChanged.Invoke(null, new EventArgsIntChanged(priorYear, newYear));
+            TimeEvents.YearOfGameChanged?.Invoke(null, new EventArgsIntChanged(priorYear, newYear));
         }
 
         /// <summary>Raise a <see cref="SeasonOfYearChanged"/> event.</summary>
@@ -56,7 +56,7 @@ namespace StardewModdingAPI.Events
         /// <param name="newSeason">The current season name.</param>
         internal static void InvokeSeasonOfYearChanged(string priorSeason, string newSeason)
         {
-            TimeEvents.SeasonOfYearChanged.Invoke(null, new EventArgsStringChanged(priorSeason, newSeason));
+            TimeEvents.SeasonOfYearChanged?.Invoke(null, new EventArgsStringChanged(priorSeason, newSeason));
         }
 
         /// <summary>Raise a <see cref="OnNewDay"/> event.</summary>
@@ -65,7 +65,7 @@ namespace StardewModdingAPI.Events
         /// <param name="isTransitioning">Whether the game just started the transition (<c>true</c>) or finished it (<c>false</c>).</param>
         internal static void InvokeOnNewDay(int priorDay, int newDay, bool isTransitioning)
         {
-            TimeEvents.OnNewDay.Invoke(null, new EventArgsNewDay(priorDay, newDay, isTransitioning));
+            TimeEvents.OnNewDay?.Invoke(null, new EventArgsNewDay(priorDay, newDay, isTransitioning));
         }
     }
 }

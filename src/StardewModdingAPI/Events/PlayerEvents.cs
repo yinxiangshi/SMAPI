@@ -13,16 +13,16 @@ namespace StardewModdingAPI.Events
         ** Events
         *********/
         /// <summary>Raised after the player loads a saved game.</summary>
-        public static event EventHandler<EventArgsLoadedGameChanged> LoadedGame = delegate { };
+        public static event EventHandler<EventArgsLoadedGameChanged> LoadedGame;
 
         /// <summary>Raised after the game assigns a new player character. This happens just before <see cref="LoadedGame"/>; it's unclear how this would happen any other time.</summary>
-        public static event EventHandler<EventArgsFarmerChanged> FarmerChanged = delegate { };
+        public static event EventHandler<EventArgsFarmerChanged> FarmerChanged;
 
         /// <summary>Raised after the player's inventory changes in any way (added or removed item, sorted, etc).</summary>
-        public static event EventHandler<EventArgsInventoryChanged> InventoryChanged = delegate { };
+        public static event EventHandler<EventArgsInventoryChanged> InventoryChanged;
 
         /// <summary> Raised after the player levels up a skill. This happens as soon as they level up, not when the game notifies the player after their character goes to bed.</summary>
-        public static event EventHandler<EventArgsLevelUp> LeveledUp = delegate { };
+        public static event EventHandler<EventArgsLevelUp> LeveledUp;
 
 
         /*********
@@ -32,7 +32,7 @@ namespace StardewModdingAPI.Events
         /// <param name="loaded">Whether the save has been loaded. This is always true.</param>
         internal static void InvokeLoadedGame(EventArgsLoadedGameChanged loaded)
         {
-            PlayerEvents.LoadedGame.Invoke(null, loaded);
+            PlayerEvents.LoadedGame?.Invoke(null, loaded);
         }
 
         /// <summary>Raise a <see cref="FarmerChanged"/> event.</summary>
@@ -40,7 +40,7 @@ namespace StardewModdingAPI.Events
         /// <param name="newFarmer">The new player character.</param>
         internal static void InvokeFarmerChanged(Farmer priorFarmer, Farmer newFarmer)
         {
-            PlayerEvents.FarmerChanged.Invoke(null, new EventArgsFarmerChanged(priorFarmer, newFarmer));
+            PlayerEvents.FarmerChanged?.Invoke(null, new EventArgsFarmerChanged(priorFarmer, newFarmer));
         }
 
         /// <summary>Raise an <see cref="InventoryChanged"/> event.</summary>
@@ -48,7 +48,7 @@ namespace StardewModdingAPI.Events
         /// <param name="changedItems">The inventory changes.</param>
         internal static void InvokeInventoryChanged(List<Item> inventory, IEnumerable<ItemStackChange> changedItems)
         {
-            PlayerEvents.InventoryChanged.Invoke(null, new EventArgsInventoryChanged(inventory, changedItems.ToList()));
+            PlayerEvents.InventoryChanged?.Invoke(null, new EventArgsInventoryChanged(inventory, changedItems.ToList()));
         }
 
         /// <summary>Rase a <see cref="LeveledUp"/> event.</summary>
@@ -56,7 +56,7 @@ namespace StardewModdingAPI.Events
         /// <param name="newLevel">The new skill level.</param>
         internal static void InvokeLeveledUp(EventArgsLevelUp.LevelType type, int newLevel)
         {
-            PlayerEvents.LeveledUp.Invoke(null, new EventArgsLevelUp(type, newLevel));
+            PlayerEvents.LeveledUp?.Invoke(null, new EventArgsLevelUp(type, newLevel));
         }
     }
 }

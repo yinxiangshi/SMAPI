@@ -9,7 +9,7 @@ namespace StardewModdingAPI.Events
         ** Events
         *********/
         /// <summary>Raised after the player warps to a new level of the mine.</summary>
-        public static event EventHandler<EventArgsMineLevelChanged> MineLevelChanged = delegate { };
+        public static event EventHandler<EventArgsMineLevelChanged> MineLevelChanged;
 
 
         /*********
@@ -20,7 +20,7 @@ namespace StardewModdingAPI.Events
         /// <param name="currentMineLevel">The current mine level.</param>
         internal static void InvokeMineLevelChanged(int previousMineLevel, int currentMineLevel)
         {
-            MineEvents.MineLevelChanged.Invoke(null, new EventArgsMineLevelChanged(previousMineLevel, currentMineLevel));
+            MineEvents.MineLevelChanged?.Invoke(null, new EventArgsMineLevelChanged(previousMineLevel, currentMineLevel));
         }
     }
 }

@@ -11,28 +11,28 @@ namespace StardewModdingAPI.Events
         ** Events
         *********/
         /// <summary>Raised when the <see cref="KeyboardState"/> changes. That happens when the player presses or releases a key.</summary>
-        public static event EventHandler<EventArgsKeyboardStateChanged> KeyboardChanged = delegate { };
+        public static event EventHandler<EventArgsKeyboardStateChanged> KeyboardChanged;
 
         /// <summary>Raised when the player presses a keyboard key.</summary>
-        public static event EventHandler<EventArgsKeyPressed> KeyPressed = delegate { };
+        public static event EventHandler<EventArgsKeyPressed> KeyPressed;
 
         /// <summary>Raised when the player releases a keyboard key.</summary>
-        public static event EventHandler<EventArgsKeyPressed> KeyReleased = delegate { };
+        public static event EventHandler<EventArgsKeyPressed> KeyReleased;
 
         /// <summary>Raised when the <see cref="MouseState"/> changes. That happens when the player moves the mouse, scrolls the mouse wheel, or presses/releases a button.</summary>
-        public static event EventHandler<EventArgsMouseStateChanged> MouseChanged = delegate { };
+        public static event EventHandler<EventArgsMouseStateChanged> MouseChanged;
 
         /// <summary>The player pressed a controller button. This event isn't raised for trigger buttons.</summary>
-        public static event EventHandler<EventArgsControllerButtonPressed> ControllerButtonPressed = delegate { };
+        public static event EventHandler<EventArgsControllerButtonPressed> ControllerButtonPressed;
 
         /// <summary>The player released a controller button. This event isn't raised for trigger buttons.</summary>
-        public static event EventHandler<EventArgsControllerButtonReleased> ControllerButtonReleased = delegate { };
+        public static event EventHandler<EventArgsControllerButtonReleased> ControllerButtonReleased;
 
         /// <summary>The player pressed a controller trigger button.</summary>
-        public static event EventHandler<EventArgsControllerTriggerPressed> ControllerTriggerPressed = delegate { };
+        public static event EventHandler<EventArgsControllerTriggerPressed> ControllerTriggerPressed;
 
         /// <summary>The player released a controller trigger button.</summary>
-        public static event EventHandler<EventArgsControllerTriggerReleased> ControllerTriggerReleased = delegate { };
+        public static event EventHandler<EventArgsControllerTriggerReleased> ControllerTriggerReleased;
 
 
         /*********
@@ -43,7 +43,7 @@ namespace StardewModdingAPI.Events
         /// <param name="newState">The current keyboard state.</param>
         internal static void InvokeKeyboardChanged(KeyboardState priorState, KeyboardState newState)
         {
-            ControlEvents.KeyboardChanged.Invoke(null, new EventArgsKeyboardStateChanged(priorState, newState));
+            ControlEvents.KeyboardChanged?.Invoke(null, new EventArgsKeyboardStateChanged(priorState, newState));
         }
 
         /// <summary>Raise a <see cref="MouseChanged"/> event.</summary>
@@ -53,21 +53,21 @@ namespace StardewModdingAPI.Events
         /// <param name="newPosition">The current mouse position on the screen adjusted for the zoom level.</param>
         internal static void InvokeMouseChanged(MouseState priorState, MouseState newState, Point priorPosition, Point newPosition)
         {
-            ControlEvents.MouseChanged.Invoke(null, new EventArgsMouseStateChanged(priorState, newState, priorPosition, newPosition));
+            ControlEvents.MouseChanged?.Invoke(null, new EventArgsMouseStateChanged(priorState, newState, priorPosition, newPosition));
         }
 
         /// <summary>Raise a <see cref="KeyPressed"/> event.</summary>
         /// <param name="key">The keyboard button that was pressed.</param>
         internal static void InvokeKeyPressed(Keys key)
         {
-            ControlEvents.KeyPressed.Invoke(null, new EventArgsKeyPressed(key));
+            ControlEvents.KeyPressed?.Invoke(null, new EventArgsKeyPressed(key));
         }
 
         /// <summary>Raise a <see cref="KeyReleased"/> event.</summary>
         /// <param name="key">The keyboard button that was released.</param>
         internal static void InvokeKeyReleased(Keys key)
         {
-            ControlEvents.KeyReleased.Invoke(null, new EventArgsKeyPressed(key));
+            ControlEvents.KeyReleased?.Invoke(null, new EventArgsKeyPressed(key));
         }
 
         /// <summary>Raise a <see cref="ControllerButtonPressed"/> event.</summary>
@@ -75,7 +75,7 @@ namespace StardewModdingAPI.Events
         /// <param name="button">The controller button that was pressed.</param>
         internal static void InvokeButtonPressed(PlayerIndex playerIndex, Buttons button)
         {
-            ControlEvents.ControllerButtonPressed.Invoke(null, new EventArgsControllerButtonPressed(playerIndex, button));
+            ControlEvents.ControllerButtonPressed?.Invoke(null, new EventArgsControllerButtonPressed(playerIndex, button));
         }
 
         /// <summary>Raise a <see cref="ControllerButtonReleased"/> event.</summary>
@@ -83,7 +83,7 @@ namespace StardewModdingAPI.Events
         /// <param name="button">The controller button that was released.</param>
         internal static void InvokeButtonReleased(PlayerIndex playerIndex, Buttons button)
         {
-            ControlEvents.ControllerButtonReleased.Invoke(null, new EventArgsControllerButtonReleased(playerIndex, button));
+            ControlEvents.ControllerButtonReleased?.Invoke(null, new EventArgsControllerButtonReleased(playerIndex, button));
         }
 
         /// <summary>Raise a <see cref="ControllerTriggerPressed"/> event.</summary>
@@ -92,7 +92,7 @@ namespace StardewModdingAPI.Events
         /// <param name="value">The current trigger value.</param>
         internal static void InvokeTriggerPressed(PlayerIndex playerIndex, Buttons button, float value)
         {
-            ControlEvents.ControllerTriggerPressed.Invoke(null, new EventArgsControllerTriggerPressed(playerIndex, button, value));
+            ControlEvents.ControllerTriggerPressed?.Invoke(null, new EventArgsControllerTriggerPressed(playerIndex, button, value));
         }
 
         /// <summary>Raise a <see cref="ControllerTriggerReleased"/> event.</summary>
@@ -101,7 +101,7 @@ namespace StardewModdingAPI.Events
         /// <param name="value">The current trigger value.</param>
         internal static void InvokeTriggerReleased(PlayerIndex playerIndex, Buttons button, float value)
         {
-            ControlEvents.ControllerTriggerReleased.Invoke(null, new EventArgsControllerTriggerReleased(playerIndex, button, value));
+            ControlEvents.ControllerTriggerReleased?.Invoke(null, new EventArgsControllerTriggerReleased(playerIndex, button, value));
         }
     }
 }
