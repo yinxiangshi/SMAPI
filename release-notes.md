@@ -1,5 +1,15 @@
 # Release notes
 
+## 1.1
+See [log](https://github.com/CLxS/SMAPI/compare/1.0...master).
+
+* Improved logging:
+  * simplified logging API;
+  * added support for trace logs (written to the log file, but hidden in the console by default);
+  * critical errors are now sent to the regular log instead of a separate file;
+  * messages are now shown in order;
+  * messages now show which mod logged them.
+
 ## 1.0
 See [log](https://github.com/CLxS/SMAPI/compare/0.40.1.1-3...1.0).
 

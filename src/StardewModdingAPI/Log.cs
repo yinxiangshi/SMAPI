@@ -1,22 +1,25 @@
 using System;
-using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
 using StardewModdingAPI.Framework;
+using Monitor = StardewModdingAPI.Framework.Monitor;
 
 namespace StardewModdingAPI
 {
     /// <summary>A singleton which logs messages to the SMAPI console and log file.</summary>
+    [Obsolete("Use " + nameof(Mod) + "." + nameof(Mod.Monitor))]
     public static class Log
     {
         /*********
-        ** Properties
+        ** Accessors
         *********/
-        /// <summary>A pseudorandom number generator used to generate log files.</summary>
-        private static readonly Random Random = new Random();
+        /// <summary>The underlying logger.</summary>
+        internal static Monitor Monitor;
 
-        /// <summary>The underlying log writer.</summary>
-        private static readonly LogWriter Writer = new LogWriter(Constants.LogPath);
+        /// <summary>Tracks the installed mods.</summary>
+        internal static ModRegistry ModRegistry;
+
+        /// <summary>A temporary field to avoid infinite loops (since we use a deprecated interface to warn about the deprecated interface).</summary>
+        private static bool WarnedDeprecated;
 
 
         /*********
@@ -30,8 +33,8 @@ namespace StardewModdingAPI
         /// <param name="e">The event arguments.</param>
         public static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            Console.WriteLine("An exception has been caught");
-            File.WriteAllText(Path.Combine(Constants.LogDir, $"MODDED_ErrorLog.Log_{DateTime.UtcNow.Ticks}.txt"), e.ExceptionObject.ToString());
+            Log.WarnDeprecated();
+            Log.Monitor.Log($"Critical app domain exception: {e.ExceptionObject}", LogLevel.Error);
         }
 
         /// <summary>Log a thread exception event.</summary>
@@ -39,8 +42,8 @@ namespace StardewModdingAPI
         /// <param name="e">The event arguments.</param>
         public static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
         {
-            Console.WriteLine("A thread exception has been caught");
-            File.WriteAllText(Path.Combine(Constants.LogDir, $"MODDED_ErrorLog.Log_{Log.Random.Next(100000000, 999999999)}.txt"), e.Exception.ToString());
+            Log.WarnDeprecated();
+            Log.Monitor.Log($"Critical thread exception: {e.Exception}", LogLevel.Error);
         }
 
         /****
@@ -51,7 +54,8 @@ namespace StardewModdingAPI
         /// <param name="color">The message color.</param>
         public static void SyncColour(object message, ConsoleColor color)
         {
-            Log.PrintLog(new LogInfo(message?.ToString(), color));
+            Log.WarnDeprecated();
+            Log.Monitor.LegacyLog(Log.GetModName(), message?.ToString(), color);
         }
 
         /****
@@ -62,76 +66,87 @@ namespace StardewModdingAPI
         /// <param name="color">The message color.</param>
         public static void AsyncColour(object message, ConsoleColor color)
         {
-            Task.Run(() => { Log.PrintLog(new LogInfo(message?.ToString(), color)); });
+            Log.WarnDeprecated();
+            Log.Monitor.LegacyLog(Log.GetModName(), message?.ToString(), color);
         }
 
         /// <summary>Asynchronously log a message to the console.</summary>
         /// <param name="message">The message to log.</param>
         public static void Async(object message)
         {
-            Log.AsyncColour(message?.ToString(), ConsoleColor.Gray);
+            Log.WarnDeprecated();
+            Log.Monitor.LegacyLog(Log.GetModName(), message?.ToString(), ConsoleColor.Gray);
         }
 
         /// <summary>Asynchronously log a red message to the console.</summary>
         /// <param name="message">The message to log.</param>
         public static void AsyncR(object message)
         {
-            Log.AsyncColour(message?.ToString(), ConsoleColor.Red);
+            Log.WarnDeprecated();
+            Log.Monitor.LegacyLog(Log.GetModName(), message?.ToString(), ConsoleColor.Red);
         }
 
         /// <summary>Asynchronously log an orange message to the console.</summary>
         /// <param name="message">The message to log.</param>
         public static void AsyncO(object message)
         {
-            Log.AsyncColour(message.ToString(), ConsoleColor.DarkYellow);
+            Log.WarnDeprecated();
+            Log.Monitor.LegacyLog(Log.GetModName(), message?.ToString(), ConsoleColor.DarkYellow);
         }
 
         /// <summary>Asynchronously log a yellow message to the console.</summary>
         /// <param name="message">The message to log.</param>
         public static void AsyncY(object message)
         {
-            Log.AsyncColour(message?.ToString(), ConsoleColor.Yellow);
+            Log.WarnDeprecated();
+            Log.Monitor.LegacyLog(Log.GetModName(), message?.ToString(), ConsoleColor.Yellow);
         }
 
         /// <summary>Asynchronously log a green message to the console.</summary>
         /// <param name="message">The message to log.</param>
         public static void AsyncG(object message)
         {
-            Log.AsyncColour(message?.ToString(), ConsoleColor.Green);
+            Log.WarnDeprecated();
+            Log.Monitor.LegacyLog(Log.GetModName(), message?.ToString(), ConsoleColor.Green);
         }
 
         /// <summary>Asynchronously log a cyan message to the console.</summary>
         /// <param name="message">The message to log.</param>
         public static void AsyncC(object message)
         {
-            Log.AsyncColour(message?.ToString(), ConsoleColor.Cyan);
+            Log.WarnDeprecated();
+            Log.Monitor.LegacyLog(Log.GetModName(), message?.ToString(), ConsoleColor.Cyan);
         }
 
         /// <summary>Asynchronously log a magenta message to the console.</summary>
         /// <param name="message">The message to log.</param>
         public static void AsyncM(object message)
         {
-            Log.AsyncColour(message?.ToString(), ConsoleColor.Magenta);
+            Log.WarnDeprecated();
+            Log.Monitor.LegacyLog(Log.GetModName(), message?.ToString(), ConsoleColor.Magenta);
         }
 
         /// <summary>Asynchronously log a warning to the console.</summary>
         /// <param name="message">The message to log.</param>
         public static void Warning(object message)
         {
-            Log.AsyncColour("[WARN] " + message, ConsoleColor.DarkRed);
+            Log.WarnDeprecated();
+            Log.Monitor.LegacyLog(Log.GetModName(), message?.ToString(), ConsoleColor.Yellow, LogLevel.Warn);
         }
 
         /// <summary>Asynchronously log an error to the console.</summary>
         /// <param name="message">The message to log.</param>
         public static void Error(object message)
         {
-            Log.AsyncR("[ERROR] " + message);
+            Log.WarnDeprecated();
+            Log.Monitor.LegacyLog(Log.GetModName(), message?.ToString(), ConsoleColor.Red, LogLevel.Error);
         }
 
         /// <summary>Asynchronously log a success message to the console.</summary>
         /// <param name="message">The message to log.</param>
         public static void Success(object message)
         {
+            Log.WarnDeprecated();
             Log.AsyncG(message);
         }
 
@@ -139,31 +154,44 @@ namespace StardewModdingAPI
         /// <param name="message">The message to log.</param>
         public static void Info(object message)
         {
-            Log.AsyncY(message);
+            Log.WarnDeprecated();
+            Log.Monitor.LegacyLog(Log.GetModName(), message?.ToString(), ConsoleColor.White, LogLevel.Info);
         }
 
         /// <summary>Asynchronously log a debug message to the console.</summary>
         /// <param name="message">The message to log.</param>
         public static void Debug(object message)
         {
-            Log.AsyncColour(message, ConsoleColor.DarkGray);
+            Log.WarnDeprecated();
+            Log.Monitor.LegacyLog(Log.GetModName(), message?.ToString(), ConsoleColor.DarkGray);
         }
 
         /// <summary>Asynchronously log a message to the file that's not shown in the console.</summary>
         /// <param name="message">The message to log.</param>
         internal static void LogToFile(string message)
         {
-            Task.Run(() => { Log.PrintLog(new LogInfo(message) { PrintConsole = false }); });
+            Log.WarnDeprecated();
+            Log.Monitor.LegacyLog(Log.GetModName(), message, ConsoleColor.DarkGray, LogLevel.Trace);
         }
+
 
         /*********
         ** Private methods
         *********/
-        /// <summary>Write a message to the log.</summary>
-        /// <param name="message">The message to write.</param>
-        private static void PrintLog(LogInfo message)
+        /// <summary>Raise a deprecation warning.</summary>
+        private static void WarnDeprecated()
         {
-            Log.Writer.WriteToLog(message);
+            if (!Log.WarnedDeprecated)
+            {
+                Log.WarnedDeprecated = true;
+                Program.DeprecationManager.Warn($"the {nameof(Log)} class", "1.1", DeprecationLevel.Notice);
+            }
+        }
+
+        /// <summary>Get the name of the mod logging a message from the stack.</summary>
+        private static string GetModName()
+        {
+            return Log.ModRegistry.GetModFromStack() ?? "<unknown mod>";
         }
     }
 }

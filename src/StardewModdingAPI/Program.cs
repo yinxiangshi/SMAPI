@@ -103,6 +103,10 @@ namespace StardewModdingAPI
                 }
             }
 
+            // initialise legacy log
+            Log.Monitor = new Monitor("legacy mod", Program.LogFile) { ShowTraceInConsole = Program.DeveloperMode };
+            Log.ModRegistry = Program.ModRegistry;
+
             // hook into & launch the game
             try
             {

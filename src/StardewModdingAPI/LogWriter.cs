@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Concurrent;
-using System.IO;
-using System.Linq;
+using StardewModdingAPI.Framework;
 
 namespace StardewModdingAPI
 {
@@ -13,79 +11,51 @@ namespace StardewModdingAPI
         /*********
         ** Properties
         *********/
-        /// <summary>The queued messages to flush.</summary>
-        private readonly ConcurrentQueue<LogInfo> Queue;
-
-        /// <summary>The underlying file stream.</summary>
-        private readonly StreamWriter FileStream;
+        /// <summary>Manages reading and writing to the log file.</summary>
+        private readonly LogFileManager LogFile;
 
 
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="path">The log path to write.</param>
-        public LogWriter(string path)
+        /// <param name="logFile">Manages reading and writing to the log file.</param>
+        internal LogWriter(LogFileManager logFile)
         {
-            // create log directory (required for stream writer)
-            Directory.CreateDirectory(Path.GetDirectoryName(path));
-
-            // initialise
-            this.Queue = new ConcurrentQueue<LogInfo>();
-            this.FileStream = new StreamWriter(Constants.LogPath, false);
+            this.WarnDeprecated();
+            this.LogFile = logFile;
         }
 
         /// <summary>Queue a message for output.</summary>
         /// <param name="message">The message to log.</param>
         public void WriteToLog(string message)
         {
-            lock (this.Queue)
-            {
-                var logEntry = new LogInfo(message);
-                this.Queue.Enqueue(logEntry);
-
-                if (this.Queue.Any())
-                    this.FlushLog();
-            }
+            this.WarnDeprecated();
+            this.WriteToLog(new LogInfo(message));
         }
 
         /// <summary>Queue a message for output.</summary>
         /// <param name="message">The message to log.</param>
         public void WriteToLog(LogInfo message)
         {
-            lock (this.Queue)
+            this.WarnDeprecated();
+            string output = $"[{message.LogTime}] {message.Message}";
+            if (message.PrintConsole)
             {
-                this.Queue.Enqueue(message);
-                if (this.Queue.Any())
-                    this.FlushLog();
+                Console.ForegroundColor = message.Colour;
+                Console.WriteLine(message);
+                Console.ForegroundColor = ConsoleColor.Gray;
             }
+            this.LogFile.WriteLine(output);
         }
-
 
         /*********
         ** Private methods
         *********/
-        /// <summary>Flush the underlying queue to the console and file.</summary>
-        private void FlushLog()
+        /// <summary>Raise a deprecation warning.</summary>
+        private void WarnDeprecated()
         {
-            lock (this.FileStream)
-            {
-                LogInfo entry;
-                while (this.Queue.TryDequeue(out entry))
-                {
-                    string message = $"[{entry.LogTime}] {entry.Message}";
-
-                    if (entry.PrintConsole)
-                    {
-                        Console.ForegroundColor = entry.Colour;
-                        Console.WriteLine(message);
-                        Console.ForegroundColor = ConsoleColor.Gray;
-                    }
-
-                    this.FileStream.WriteLine(message);
-                }
-                this.FileStream.Flush();
-            }
+            Program.DeprecationManager.Warn($"the {nameof(LogWriter)} class", "1.0", DeprecationLevel.Notice);
         }
     }
 }
