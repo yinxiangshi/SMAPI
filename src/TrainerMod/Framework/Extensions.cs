@@ -3,6 +3,9 @@
     /// <summary>Provides extension methods on primitive types.</summary>
     public static class Extensions
     {
+        /*********
+        ** Public methods
+        *********/
         /// <summary>Get whether an object is a number.</summary>
         /// <param name="value">The object value.</param>
         public static bool IsInt(this object value)
