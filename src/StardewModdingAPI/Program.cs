@@ -286,7 +286,7 @@ namespace StardewModdingAPI
                     string errorPrefix = $"Couldn't load mod for manifest '{manifestPath}'";
 
                     // read manifest
-                    Manifest manifest = new Manifest();
+                    Manifest manifest;
                     try
                     {
                         // read manifest text
@@ -342,17 +342,16 @@ namespace StardewModdingAPI
                     }
 
                     // load DLL & hook up mod
-                    string targDll = string.Empty;
                     try
                     {
-                        targDll = Path.Combine(directory, manifest.EntryDll);
-                        if (!File.Exists(targDll))
+                        string assemblyPath = Path.Combine(directory, manifest.EntryDll);
+                        if (!File.Exists(assemblyPath))
                         {
-                            Program.Monitor.Log($"{errorPrefix}: target DLL '{targDll}' does not exist.", LogLevel.Error);
+                            Program.Monitor.Log($"{errorPrefix}: target DLL '{assemblyPath}' does not exist.", LogLevel.Error);
                             continue;
                         }
 
-                        Assembly modAssembly = Assembly.UnsafeLoadFrom(targDll);
+                        Assembly modAssembly = Assembly.UnsafeLoadFrom(assemblyPath);
                         if (modAssembly.DefinedTypes.Count(x => x.BaseType == typeof(Mod)) > 0)
                         {
                             TypeInfo modEntryType = modAssembly.DefinedTypes.First(x => x.BaseType == typeof(Mod));
