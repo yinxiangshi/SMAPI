@@ -3,17 +3,20 @@
 ## 1.1
 See [log](https://github.com/CLxS/SMAPI/compare/1.0...master).
 
-* Added new logging interface:
-  * simpler to use;
-  * supports trace logs (written to the log file, but hidden in the console by default);
-  * messages now shown in order;
-  * messages now show which mod logged them;
-  * more consistent and intuitive console color scheme;
-  * no longer puts critical errors in a separate file.
-* Added optional `MinimumApiVersion` to `manifest.json`.
-* Added emergency interrupt feature for mods which may corrupt saves.
-* Fixed `helper.ReadConfig<T>` error when the `config.json` file doesn't exist.
-* Fixed console exiting immediately when some exceptions occur.
+For players:
+  * Fixed console exiting immediately when some exceptions occur.
+  * Fixed an error in 1.0 when mod uses `config.json` but the file doesn't exist.
+  * Fixed critical errors being saved to a separate log file.
+
+For developers:
+  * Added new logging interface:
+    * easier to use;
+    * supports trace logs (written to the log file, but hidden in the console by default);
+    * messages are now listed in order;
+    * messages now show which mod logged them;
+    * more consistent and intuitive console color scheme.
+  * Added optional `MinimumApiVersion` to `manifest.json`.
+  * Added emergency interrupt feature for mods which may corrupt saves.
 
 ## 1.0
 See [log](https://github.com/CLxS/SMAPI/compare/0.40.1.1-3...1.0).
