@@ -98,6 +98,13 @@ namespace StardewModdingAPI
             return string.Compare(this.ToString(), other.ToString(), StringComparison.InvariantCultureIgnoreCase);
         }
 
+        /// <summary>Get whether this version is newer than the specified version.</summary>
+        /// <param name="other">The version to compare with this instance.</param>
+        public bool IsNewerThan(Version other)
+        {
+            return this.CompareTo(other) > 0;
+        }
+
         /// <summary>Get a string representation of the version.</summary>
         public override string ToString()
         {

@@ -44,6 +44,9 @@ namespace StardewModdingAPI
         [Obsolete("Use " + nameof(Mod) + "." + nameof(Mod.Helper) + "." + nameof(ModHelper.ReadConfig) + " instead")]
         public virtual bool PerSaveConfigs { get; set; }
 
+        /// <summary>The minimum SMAPI version required by this mod, if any.</summary>
+        public string MinimumApiVersion { get; set; }
+
         /// <summary>The name of the DLL in the directory that has the <see cref="Mod.Entry"/> method.</summary>
         public virtual string EntryDll { get; set; } = "";
     }

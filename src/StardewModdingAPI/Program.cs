@@ -158,7 +158,7 @@ namespace StardewModdingAPI
                 {
                     GitRelease release = UpdateHelper.GetLatestVersionAsync(Constants.GitHubRepository).Result;
                     Version latestVersion = new Version(release.Tag);
-                    if (latestVersion.CompareTo(Constants.Version) > 0)
+                    if (latestVersion.IsNewerThan(Constants.Version))
                         Program.Monitor.Log($"You can update SMAPI from version {Constants.Version} to {latestVersion}", LogLevel.Alert);
                 }
                 catch (Exception ex)
@@ -318,6 +318,25 @@ namespace StardewModdingAPI
                     {
                         Program.Monitor.Log($"{errorPrefix}: manifest parsing failed.\n{ex}", LogLevel.Error);
                         continue;
+                    }
+
+                    // validate version
+                    if (!string.IsNullOrWhiteSpace(manifest.MinimumApiVersion))
+                    {
+                        try
+                        {
+                            Version minVersion = new Version(manifest.MinimumApiVersion);
+                            if (minVersion.IsNewerThan(Constants.Version))
+                            {
+                                Program.Monitor.Log($"{errorPrefix}: this mod requires SMAPI {minVersion} or later. Please update SMAPI to the latest version to use this mod.", LogLevel.Error);
+                                continue;
+                            }
+                        }
+                        catch (FormatException ex) when (ex.Message.Contains("not a semantic version"))
+                        {
+                            Program.Monitor.Log($"{errorPrefix}: the mod specified an invalid minimum SMAPI version '{manifest.MinimumApiVersion}'. This should be a semantic version number like {Constants.Version}.", LogLevel.Error);
+                            continue;
+                        }
                     }
 
                     // create per-save directory
