@@ -404,12 +404,15 @@ namespace StardewModdingAPI
                                 modEntry.PathOnDisk = directory;
                                 Program.Monitor.Log($"Loaded mod: {modEntry.Manifest.Name} by {modEntry.Manifest.Author}, v{modEntry.Manifest.Version} | {modEntry.Manifest.Description}", LogLevel.Info);
                                 Program.ModsLoaded += 1;
-                                modEntry.Entry(); // deprecated
-                                modEntry.Entry(modEntry.Helper);
+                                modEntry.Entry(); // deprecated since 1.0
+                                modEntry.Entry((ModHelper)modEntry.Helper); // deprecated since 1.1
+                                modEntry.Entry(modEntry.Helper); // deprecated since 1.1
 
                                 // raise deprecation warning for old Entry() method
-                                if (Program.DeprecationManager.IsVirtualMethodImplemented(modEntryType, typeof(Mod), nameof(Mod.Entry)))
+                                if (Program.DeprecationManager.IsVirtualMethodImplemented(modEntryType, typeof(Mod), nameof(Mod.Entry), new[] { typeof(object[]) }))
                                     Program.DeprecationManager.Warn(manifest.Name, $"an old version of {nameof(Mod)}.{nameof(Mod.Entry)}", "1.0", DeprecationLevel.Notice);
+                                if (Program.DeprecationManager.IsVirtualMethodImplemented(modEntryType, typeof(Mod), nameof(Mod.Entry), new[] { typeof(ModHelper) }))
+                                    Program.DeprecationManager.Warn(manifest.Name, $"an old version of {nameof(Mod)}.{nameof(Mod.Entry)}", "1.1", DeprecationLevel.Notice);
                             }
                         }
                         else

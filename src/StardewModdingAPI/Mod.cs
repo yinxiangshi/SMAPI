@@ -17,7 +17,7 @@ namespace StardewModdingAPI
         ** Accessors
         *********/
         /// <summary>Provides methods for interacting with the mod directory, such as read/writing a config file or custom JSON files.</summary>
-        public ModHelper Helper { get; internal set; }
+        public IModHelper Helper { get; internal set; }
 
         /// <summary>Writes messages to the console and log file.</summary>
         public IMonitor Monitor { get; internal set; }
@@ -26,7 +26,7 @@ namespace StardewModdingAPI
         public Manifest Manifest { get; internal set; }
 
         /// <summary>The full path to the mod's directory on the disk.</summary>
-        [Obsolete("Use " + nameof(Mod.Helper) + "." + nameof(ModHelper.DirectoryPath) + " instead")]
+        [Obsolete("Use " + nameof(Mod.Helper) + "." + nameof(IModHelper.DirectoryPath) + " instead")]
         public string PathOnDisk
         {
             get
@@ -38,7 +38,7 @@ namespace StardewModdingAPI
         }
 
         /// <summary>The full path to the mod's <c>config.json</c> file on the disk.</summary>
-        [Obsolete("Use " + nameof(Mod.Helper) + "." + nameof(ModHelper.ReadConfig) + " instead")]
+        [Obsolete("Use " + nameof(Mod.Helper) + "." + nameof(IModHelper.ReadConfig) + " instead")]
         public string BaseConfigPath
         {
             get
@@ -50,11 +50,11 @@ namespace StardewModdingAPI
         }
 
         /// <summary>The full path to the per-save configs folder (if <see cref="StardewModdingAPI.Manifest.PerSaveConfigs"/> is <c>true</c>).</summary>
-        [Obsolete("Use " + nameof(Mod.Helper) + "." + nameof(ModHelper.ReadJsonFile) + " instead")]
+        [Obsolete("Use " + nameof(Mod.Helper) + "." + nameof(IModHelper.ReadJsonFile) + " instead")]
         public string PerSaveConfigFolder => this.GetPerSaveConfigFolder();
 
         /// <summary>The full path to the per-save configuration file for the current save (if <see cref="StardewModdingAPI.Manifest.PerSaveConfigs"/> is <c>true</c>).</summary>
-        [Obsolete("Use " + nameof(Mod.Helper) + "." + nameof(ModHelper.ReadJsonFile) + " instead")]
+        [Obsolete("Use " + nameof(Mod.Helper) + "." + nameof(IModHelper.ReadJsonFile) + " instead")]
         public string PerSaveConfigPath
         {
             get
@@ -75,7 +75,12 @@ namespace StardewModdingAPI
 
         /// <summary>The entry point for your mod. It will always be called once when the mod loads.</summary>
         /// <param name="helper">Provides methods for interacting with the mod directory, such as read/writing a config file or custom JSON files.</param>
+        [Obsolete("This overload is obsolete since SMAPI 1.1.")]
         public virtual void Entry(ModHelper helper) { }
+
+        /// <summary>The entry point for your mod. It will always be called once when the mod loads.</summary>
+        /// <param name="helper">Provides methods for interacting with the mod directory, such as read/writing a config file or custom JSON files.</param>
+        public virtual void Entry(IModHelper helper) { }
 
 
         /*********

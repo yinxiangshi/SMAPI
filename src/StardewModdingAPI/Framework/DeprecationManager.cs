@@ -112,9 +112,10 @@ namespace StardewModdingAPI.Framework
         /// <param name="subtype">The type to check.</param>
         /// <param name="baseType">The base type which declares the virtual method.</param>
         /// <param name="name">The method name.</param>
-        public bool IsVirtualMethodImplemented(Type subtype, Type baseType, string name)
+        /// <param name="argumentTypes">The expected argument types.</param>
+        internal bool IsVirtualMethodImplemented(Type subtype, Type baseType, string name, Type[] argumentTypes)
         {
-            MethodInfo method = subtype.GetMethod(nameof(Mod.Entry), new[] { typeof(object[]) });
+            MethodInfo method = subtype.GetMethod(nameof(Mod.Entry), argumentTypes);
             return method.DeclaringType != baseType;
         }
     }

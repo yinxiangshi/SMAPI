@@ -7,7 +7,7 @@
         ** Accessors
         *********/
         /// <summary>Provides methods for interacting with the mod directory, including read/writing the config file.</summary>
-        ModHelper ModHelper { get; set; }
+        IModHelper ModHelper { get; set; }
 
         /// <summary>The file path from which the model was loaded, relative to the mod directory.</summary>
         string FilePath { get; set; }
