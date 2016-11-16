@@ -20,7 +20,7 @@ namespace StardewModdingAPI
         public virtual string Author { get; set; } = "";
 
         /// <summary>Obsolete.</summary>
-        [Obsolete("Use 'Author'.")]
+        [Obsolete("Use " + nameof(Manifest) + "." + nameof(Manifest.Author) + ".")]
         public virtual string Authour
         {
             get { return this.Author; }
@@ -41,6 +41,7 @@ namespace StardewModdingAPI
         public virtual string UniqueID { get; set; } = Guid.NewGuid().ToString();
 
         /// <summary>Whether the mod uses per-save config files.</summary>
+        [Obsolete("Use " + nameof(Mod) + "." + nameof(Mod.Helper) + "." + nameof(ModHelper.ReadConfig) + " instead")]
         public virtual bool PerSaveConfigs { get; set; }
 
         /// <summary>The name of the DLL in the directory that has the <see cref="Mod.Entry"/> method.</summary>
