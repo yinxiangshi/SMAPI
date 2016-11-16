@@ -6,10 +6,13 @@ See [log](https://github.com/CLxS/SMAPI/compare/1.0...master).
 * Added new logging interface:
   * simpler to use;
   * supports trace logs (written to the log file, but hidden in the console by default);
-  * no longer puts critical errors in a separate log file;
   * messages now shown in order;
-  * messages now show which mod logged them.
+  * messages now show which mod logged them;
+  * more consistent and intuitive console color scheme;
+  * no longer puts critical errors in a separate file.
 * Added optional `MinimumApiVersion` to `manifest.json`.
+* Fixed `helper.ReadConfig<T>` error when the `config.json` file doesn't exist.
+* Fixed console exiting immediately when some exceptions occur.
 
 ## 1.0
 See [log](https://github.com/CLxS/SMAPI/compare/0.40.1.1-3...1.0).
