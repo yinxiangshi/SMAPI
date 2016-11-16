@@ -85,7 +85,7 @@ namespace StardewModdingAPI
             Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");
 
             // add info header
-            Program.Monitor.Log($"Launching SMAPI {Constants.Version} with Stardew Valley {Game1.version} on {Environment.OSVersion}", LogLevel.Info);
+            Program.Monitor.Log($"SMAPI {Constants.Version} with Stardew Valley {Game1.version} on {Environment.OSVersion}", LogLevel.Info);
 
             // load user settings
             {
@@ -120,7 +120,7 @@ namespace StardewModdingAPI
                 }
 
                 // initialise
-                Program.Monitor.Log("Initialising...");
+                Program.Monitor.Log("Loading SMAPI...");
                 Console.Title = Constants.ConsoleTitle;
                 Program.VerifyPath(Program.ModPath);
                 Program.VerifyPath(Constants.LogDir);
@@ -171,31 +171,28 @@ namespace StardewModdingAPI
         /// <summary>Hook into Stardew Valley and launch the game.</summary>
         private static void StartGame()
         {
-            // load the game assembly (ignore security)
-            Program.Monitor.Log("Preparing game...");
-            Program.StardewAssembly = Assembly.UnsafeLoadFrom(Program.GameExecutablePath);
-            Program.StardewProgramType = Program.StardewAssembly.GetType("StardewValley.Program", true);
-            Program.StardewGameInfo = Program.StardewProgramType.GetField("gamePtr");
-
-            // change the game's version
-            Game1.version += $"-Z_MODDED | SMAPI {Constants.Version}";
-
-            // add error interceptors
-#if SMAPI_FOR_WINDOWS
-            Application.ThreadException += (sender, e) => Program.Monitor.Log($"Critical thread exception: {e.Exception}", LogLevel.Error);
-            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
-#endif
-            AppDomain.CurrentDomain.UnhandledException += (sender, e) => Program.Monitor.Log($"Critical app domain exception: {e.ExceptionObject}", LogLevel.Error);
-
-            // initialise game
             try
             {
-                Program.Monitor.Log("Patching game...");
-                Program.gamePtr = new SGame(Program.Monitor);
+                // load the game assembly
+                Program.Monitor.Log("Loading game...");
+                Program.StardewAssembly = Assembly.UnsafeLoadFrom(Program.GameExecutablePath);
+                Program.StardewProgramType = Program.StardewAssembly.GetType("StardewValley.Program", true);
+                Program.StardewGameInfo = Program.StardewProgramType.GetField("gamePtr");
+                Game1.version += $"-Z_MODDED | SMAPI {Constants.Version}";
 
-                // hook events
+                // add error interceptors
+#if SMAPI_FOR_WINDOWS
+                Application.ThreadException += (sender, e) => Program.Monitor.Log($"Critical thread exception: {e.Exception}", LogLevel.Error);
+                Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+#endif
+                AppDomain.CurrentDomain.UnhandledException += (sender, e) => Program.Monitor.Log($"Critical app domain exception: {e.ExceptionObject}", LogLevel.Error);
+
+                // initialise game instance
+                Program.gamePtr = new SGame(Program.Monitor) { IsMouseVisible = false };
                 Program.gamePtr.Exiting += (sender, e) => Program.ready = false;
                 Program.gamePtr.Window.ClientSizeChanged += GraphicsEvents.InvokeResize;
+                Program.gamePtr.Window.Title = $"Stardew Valley - Version {Game1.version}";
+                Program.StardewGameInfo.SetValue(Program.StardewProgramType, Program.gamePtr);
 
                 // patch graphics
                 Game1.graphics.GraphicsProfile = GraphicsProfile.HiDef;
@@ -203,59 +200,49 @@ namespace StardewModdingAPI
                 // load mods
                 Program.LoadMods();
 
-                // initialise
-                Program.Monitor.Log("Tweaking game...");
-                Program.StardewGameInfo.SetValue(Program.StardewProgramType, Program.gamePtr);
-                Program.gamePtr.IsMouseVisible = false;
-                Program.gamePtr.Window.Title = $"Stardew Valley - Version {Game1.version}";
+                // initialise console after game launches
+                new Thread(() =>
+                {
+                    // wait for the game to load up
+                    while (!Program.ready) Thread.Sleep(1000);
+
+                    // register help command
+                    Command.RegisterCommand("help", "Lists all commands | 'help <cmd>' returns command description").CommandFired += Program.help_CommandFired;
+
+                    // raise game loaded event
+                    GameEvents.InvokeGameLoaded();
+
+                    // listen for command line input
+                    Program.Monitor.Log("Starting console...");
+                    Program.Monitor.Log("Type 'help' for help, or 'help <cmd>' for a command's usage", LogLevel.Info);
+                    Thread consoleInputThread = new Thread(Program.ConsoleInputLoop);
+                    consoleInputThread.Start();
+                    while (Program.ready)
+                        Thread.Sleep(1000 / 10); // Check if the game is still running 10 times a second
+
+                    // abort the console thread, we're closing
+                    if (consoleInputThread.ThreadState == ThreadState.Running)
+                        consoleInputThread.Abort();
+                    Program.PressAnyKeyToExit();
+                }).Start();
+
+                // start game loop
+                Program.Monitor.Log("Starting game...");
+                try
+                {
+                    Program.ready = true;
+                    Program.gamePtr.Run();
+                }
+                finally
+                {
+                    Program.ready = false;
+                }
             }
             catch (Exception ex)
             {
-                Program.Monitor.Log($"Game failed to initialise: {ex}", LogLevel.Error);
+                Program.Monitor.Log($"SMAPI encountered a fatal error:\n{ex}", LogLevel.Error);
+                Program.PressAnyKeyToExit();
                 return;
-            }
-
-            // initialise after game launches
-            new Thread(() =>
-            {
-                // wait for the game to load up
-                while (!Program.ready) Thread.Sleep(1000);
-
-                // register help command
-                Command.RegisterCommand("help", "Lists all commands | 'help <cmd>' returns command description").CommandFired += Program.help_CommandFired;
-
-                // raise game loaded event
-                GameEvents.InvokeGameLoaded();
-
-                // listen for command line input
-                Program.Monitor.Log("Starting console...");
-                Program.Monitor.Log("Type 'help' for help, or 'help <cmd>' for a command's usage", LogLevel.Info);
-                Thread consoleInputThread = new Thread(Program.ConsoleInputLoop);
-                consoleInputThread.Start();
-                while (Program.ready)
-                    Thread.Sleep(1000 / 10); // Check if the game is still running 10 times a second
-
-                // abort the console thread, we're closing
-                if (consoleInputThread.ThreadState == ThreadState.Running)
-                    consoleInputThread.Abort();
-
-                Program.Monitor.Log("Game has ended. Press any key to continue...", LogLevel.Info);
-                Console.ReadKey();
-                Thread.Sleep(100);
-                Environment.Exit(0);
-            }).Start();
-
-            // start game loop
-            Program.Monitor.Log("Starting Stardew Valley...");
-            try
-            {
-                Program.ready = true;
-                Program.gamePtr.Run();
-            }
-            catch (Exception ex)
-            {
-                Program.ready = false;
-                Program.Monitor.Log($"Game failed to start: {ex}", LogLevel.Error);
             }
         }
 
@@ -433,6 +420,15 @@ namespace StardewModdingAPI
             }
             else
                 Program.Monitor.Log("Commands: " + string.Join(", ", Command.RegisteredCommands.Select(x => x.CommandName)), LogLevel.Info);
+        }
+
+        /// <summary>Show a 'press any key to exit' message, and exit when they press a key.</summary>
+        private static void PressAnyKeyToExit()
+        {
+            Program.Monitor.Log("Game has ended. Press any key to exit.", LogLevel.Info);
+            Console.ReadKey();
+            Thread.Sleep(100);
+            Environment.Exit(0);
         }
     }
 }
