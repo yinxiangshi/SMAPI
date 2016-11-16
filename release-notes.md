@@ -11,6 +11,7 @@ See [log](https://github.com/CLxS/SMAPI/compare/1.0...master).
   * more consistent and intuitive console color scheme;
   * no longer puts critical errors in a separate file.
 * Added optional `MinimumApiVersion` to `manifest.json`.
+* Added emergency interrupt feature for mods which may corrupt saves.
 * Fixed `helper.ReadConfig<T>` error when the `config.json` file doesn't exist.
 * Fixed console exiting immediately when some exceptions occur.
 

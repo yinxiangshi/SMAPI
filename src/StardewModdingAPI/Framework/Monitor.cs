@@ -65,6 +65,22 @@ namespace StardewModdingAPI.Framework
             this.LogImpl(this.Source, message, Monitor.Colors[level], level);
         }
 
+        /// <summary>Immediately exit the game without saving. This should only be invoked when an irrecoverable fatal error happens that risks save corruption or game-breaking bugs.</summary>
+        /// <param name="reason">The reason for the shutdown.</param>
+        public void ExitGameImmediately(string reason)
+        {
+            Program.ExitGameImmediately(this.Source, reason);
+            Program.gamePtr.Exit();
+        }
+
+        /// <summary>Log a fatal error message.</summary>
+        /// <param name="message">The message to log.</param>
+        internal void LogFatal(string message)
+        {
+            Console.BackgroundColor = ConsoleColor.Red;
+            this.LogImpl(this.Source, message, ConsoleColor.White, LogLevel.Error);
+        }
+
         /// <summary>Log a message for the player or developer, using the specified console color.</summary>
         /// <param name="source">The name of the mod logging the message.</param>
         /// <param name="message">The message to log.</param>

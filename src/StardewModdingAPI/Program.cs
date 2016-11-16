@@ -42,6 +42,9 @@ namespace StardewModdingAPI
         /// <summary>Whether SMAPI is running in developer mode.</summary>
         private static bool DeveloperMode;
 
+        /// <summary>Tracks whether the game should exit immediately and any pending initialisation should be cancelled.</summary>
+        private static readonly CancellationTokenSource CancellationTokenSource = new CancellationTokenSource();
+
 
         /*********
         ** Accessors
@@ -127,7 +130,7 @@ namespace StardewModdingAPI
                 if (!File.Exists(Program.GameExecutablePath))
                 {
                     Program.Monitor.Log($"Couldn't find executable: {Program.GameExecutablePath}", LogLevel.Error);
-                    Console.ReadKey();
+                    Program.PressAnyKeyToExit();
                     return;
                 }
 
@@ -139,9 +142,22 @@ namespace StardewModdingAPI
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
-                Console.ReadKey();
                 Program.Monitor.Log($"Critical error: {ex}", LogLevel.Error);
+            }
+            Program.PressAnyKeyToExit();
+        }
+
+        /// <summary>Immediately exit the game without saving. This should only be invoked when an irrecoverable fatal error happens that risks save corruption or game-breaking bugs.</summary>
+        /// <param name="module">The module which requested an immediate exit.</param>
+        /// <param name="reason">The reason provided for the shutdown.</param>
+        internal static void ExitGameImmediately(string module, string reason)
+        {
+            Program.Monitor.LogFatal($"{module} requested an immediate game shutdown: {reason}");
+            Program.CancellationTokenSource.Cancel();
+            if (Program.ready)
+            {
+                Program.gamePtr.Exiting += (sender, e) => Program.PressAnyKeyToExit();
+                Program.gamePtr.Exit();
             }
         }
 
@@ -199,6 +215,11 @@ namespace StardewModdingAPI
 
                 // load mods
                 Program.LoadMods();
+                if (Program.CancellationTokenSource.IsCancellationRequested)
+                {
+                    Program.Monitor.Log("Shutdown requested; interrupting initialisation.", LogLevel.Error);
+                    return;
+                }
 
                 // initialise console after game launches
                 new Thread(() =>
@@ -223,11 +244,15 @@ namespace StardewModdingAPI
                     // abort the console thread, we're closing
                     if (consoleInputThread.ThreadState == ThreadState.Running)
                         consoleInputThread.Abort();
-                    Program.PressAnyKeyToExit();
                 }).Start();
 
                 // start game loop
                 Program.Monitor.Log("Starting game...");
+                if (Program.CancellationTokenSource.IsCancellationRequested)
+                {
+                    Program.Monitor.Log("Shutdown requested; interrupting initialisation.", LogLevel.Error);
+                    return;
+                }
                 try
                 {
                     Program.ready = true;
@@ -241,8 +266,6 @@ namespace StardewModdingAPI
             catch (Exception ex)
             {
                 Program.Monitor.Log($"SMAPI encountered a fatal error:\n{ex}", LogLevel.Error);
-                Program.PressAnyKeyToExit();
-                return;
             }
         }
 
@@ -269,6 +292,13 @@ namespace StardewModdingAPI
             {
                 foreach (string manifestPath in Directory.GetFiles(directory, "manifest.json"))
                 {
+                    // check for cancellation
+                    if (Program.CancellationTokenSource.IsCancellationRequested)
+                    {
+                        Program.Monitor.Log("Shutdown requested; interrupting mod loading.", LogLevel.Error);
+                        return;
+                    }
+
                     ModHelper helper = new ModHelper(directory);
                     string errorPrefix = $"Couldn't load mod for manifest '{manifestPath}'";
 
@@ -426,8 +456,8 @@ namespace StardewModdingAPI
         private static void PressAnyKeyToExit()
         {
             Program.Monitor.Log("Game has ended. Press any key to exit.", LogLevel.Info);
-            Console.ReadKey();
             Thread.Sleep(100);
+            Console.ReadKey();
             Environment.Exit(0);
         }
     }
