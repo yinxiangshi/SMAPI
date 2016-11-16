@@ -40,7 +40,7 @@ namespace TrainerMod
         *********/
         /// <summary>The entry point for your mod. It will always be called once when the mod loads.</summary>
         /// <param name="helper">Provides methods for interacting with the mod directory, such as read/writing a config file or custom JSON files.</param>
-        public override void Entry(ModHelper helper)
+        public override void Entry(IModHelper helper)
         {
             this.RegisterCommands();
             GameEvents.UpdateTick += this.ReceiveUpdateTick;

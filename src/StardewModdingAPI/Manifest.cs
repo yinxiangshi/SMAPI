@@ -41,7 +41,7 @@ namespace StardewModdingAPI
         public virtual string UniqueID { get; set; } = Guid.NewGuid().ToString();
 
         /// <summary>Whether the mod uses per-save config files.</summary>
-        [Obsolete("Use " + nameof(Mod) + "." + nameof(Mod.Helper) + "." + nameof(ModHelper.ReadConfig) + " instead")]
+        [Obsolete("Use " + nameof(Mod) + "." + nameof(Mod.Helper) + "." + nameof(IModHelper.ReadConfig) + " instead")]
         public virtual bool PerSaveConfigs { get; set; }
 
         /// <summary>The minimum SMAPI version required by this mod, if any.</summary>

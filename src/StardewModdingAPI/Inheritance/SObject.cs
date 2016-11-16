@@ -40,8 +40,8 @@ namespace StardewModdingAPI.Inheritance
 
         public override int Stack
         {
-            get { return stack; }
-            set { stack = value; }
+            get { return this.stack; }
+            set { this.stack = value; }
         }
 
         /*********
@@ -51,35 +51,35 @@ namespace StardewModdingAPI.Inheritance
         {
             Program.DeprecationManager.Warn(nameof(SObject), "0.39.3", DeprecationLevel.Notice);
 
-            name = "Modded Item Name";
-            Description = "Modded Item Description";
-            CategoryName = "Modded Item Category";
-            Category = 4163;
-            CategoryColour = Color.White;
-            IsPassable = false;
-            IsPlaceable = false;
-            boundingBox = new Rectangle(0, 0, 64, 64);
-            MaxStackSize = 999;
+            this.name = "Modded Item Name";
+            this.Description = "Modded Item Description";
+            this.CategoryName = "Modded Item Category";
+            this.Category = 4163;
+            this.CategoryColour = Color.White;
+            this.IsPassable = false;
+            this.IsPlaceable = false;
+            this.boundingBox = new Rectangle(0, 0, 64, 64);
+            this.MaxStackSize = 999;
 
-            type = "interactive";
+            this.type = "interactive";
         }
 
         public override string Name
         {
-            get { return name; }
-            set { name = value; }
+            get { return this.name; }
+            set { this.name = value; }
         }
 
         public override string getDescription()
         {
-            return Description;
+            return this.Description;
         }
 
         public override void draw(SpriteBatch spriteBatch, int x, int y, float alpha = 1)
         {
-            if (Texture != null)
+            if (this.Texture != null)
             {
-                spriteBatch.Draw(Texture, Game1.GlobalToLocal(Game1.viewport, new Vector2(x * Game1.tileSize + Game1.tileSize / 2 + (shakeTimer > 0 ? Game1.random.Next(-1, 2) : 0), y * Game1.tileSize + Game1.tileSize / 2 + (shakeTimer > 0 ? Game1.random.Next(-1, 2) : 0))), Game1.currentLocation.getSourceRectForObject(ParentSheetIndex), Color.White * alpha, 0f, new Vector2(8f, 8f), scale.Y > 1f ? getScale().Y : Game1.pixelZoom, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, (isPassable() ? getBoundingBox(new Vector2(x, y)).Top : getBoundingBox(new Vector2(x, y)).Bottom) / 10000f);
+                spriteBatch.Draw(this.Texture, Game1.GlobalToLocal(Game1.viewport, new Vector2(x * Game1.tileSize + Game1.tileSize / 2 + (this.shakeTimer > 0 ? Game1.random.Next(-1, 2) : 0), y * Game1.tileSize + Game1.tileSize / 2 + (this.shakeTimer > 0 ? Game1.random.Next(-1, 2) : 0))), Game1.currentLocation.getSourceRectForObject(this.ParentSheetIndex), Color.White * alpha, 0f, new Vector2(8f, 8f), this.scale.Y > 1f ? this.getScale().Y : Game1.pixelZoom, this.flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, (this.isPassable() ? this.getBoundingBox(new Vector2(x, y)).Top : this.getBoundingBox(new Vector2(x, y)).Bottom) / 10000f);
             }
         }
 
@@ -89,13 +89,13 @@ namespace StardewModdingAPI.Inheritance
 
         public override void drawInMenu(SpriteBatch spriteBatch, Vector2 location, float scaleSize, float transparency, float layerDepth, bool drawStackNumber)
         {
-            if (isRecipe)
+            if (this.isRecipe)
             {
                 transparency = 0.5f;
                 scaleSize *= 0.75f;
             }
 
-            if (Texture != null)
+            if (this.Texture != null)
             {
                 var targSize = (int) (64 * scaleSize * 0.9f);
                 var midX = (int) (location.X + 32);
@@ -104,18 +104,18 @@ namespace StardewModdingAPI.Inheritance
                 var targX = midX - targSize / 2;
                 var targY = midY - targSize / 2;
 
-                spriteBatch.Draw(Texture, new Rectangle(targX, targY, targSize, targSize), null, new Color(255, 255, 255, transparency), 0, Vector2.Zero, SpriteEffects.None, layerDepth);
+                spriteBatch.Draw(this.Texture, new Rectangle(targX, targY, targSize, targSize), null, new Color(255, 255, 255, transparency), 0, Vector2.Zero, SpriteEffects.None, layerDepth);
             }
             if (drawStackNumber)
             {
                 var _scale = 0.5f + scaleSize;
-                Game1.drawWithBorder(stack.ToString(), Color.Black, Color.White, location + new Vector2(Game1.tileSize - Game1.tinyFont.MeasureString(string.Concat(stack.ToString())).X * _scale, Game1.tileSize - (float) ((double) Game1.tinyFont.MeasureString(string.Concat(stack.ToString())).Y * 3.0f / 4.0f) * _scale), 0.0f, _scale, 1f, true);
+                Game1.drawWithBorder(this.stack.ToString(), Color.Black, Color.White, location + new Vector2(Game1.tileSize - Game1.tinyFont.MeasureString(string.Concat(this.stack.ToString())).X * _scale, Game1.tileSize - (float) ((double) Game1.tinyFont.MeasureString(string.Concat(this.stack.ToString())).Y * 3.0f / 4.0f) * _scale), 0.0f, _scale, 1f, true);
             }
         }
 
         public override void drawWhenHeld(SpriteBatch spriteBatch, Vector2 objectPosition, Farmer f)
         {
-            if (Texture != null)
+            if (this.Texture != null)
             {
                 var targSize = 64;
                 var midX = (int) (objectPosition.X + 32);
@@ -124,55 +124,55 @@ namespace StardewModdingAPI.Inheritance
                 var targX = midX - targSize / 2;
                 var targY = midY - targSize / 2;
 
-                spriteBatch.Draw(Texture, new Rectangle(targX, targY, targSize, targSize), null, Color.White, 0, Vector2.Zero, SpriteEffects.None, (f.getStandingY() + 2) / 10000f);
+                spriteBatch.Draw(this.Texture, new Rectangle(targX, targY, targSize, targSize), null, Color.White, 0, Vector2.Zero, SpriteEffects.None, (f.getStandingY() + 2) / 10000f);
             }
         }
 
         public override Color getCategoryColor()
         {
-            return CategoryColour;
+            return this.CategoryColour;
         }
 
         public override string getCategoryName()
         {
-            if (string.IsNullOrEmpty(CategoryName))
+            if (string.IsNullOrEmpty(this.CategoryName))
                 return "Modded Item";
-            return CategoryName;
+            return this.CategoryName;
         }
 
         public override bool isPassable()
         {
-            return IsPassable;
+            return this.IsPassable;
         }
 
         public override bool isPlaceable()
         {
-            return IsPlaceable;
+            return this.IsPlaceable;
         }
 
         public override int maximumStackSize()
         {
-            return MaxStackSize;
+            return this.MaxStackSize;
         }
 
         public SObject Clone()
         {
             var toRet = new SObject
             {
-                Name = Name,
-                CategoryName = CategoryName,
-                Description = Description,
-                Texture = Texture,
-                IsPassable = IsPassable,
-                IsPlaceable = IsPlaceable,
-                quality = quality,
-                scale = scale,
-                isSpawnedObject = isSpawnedObject,
-                isRecipe = isRecipe,
-                questItem = questItem,
+                Name = this.Name,
+                CategoryName = this.CategoryName,
+                Description = this.Description,
+                Texture = this.Texture,
+                IsPassable = this.IsPassable,
+                IsPlaceable = this.IsPlaceable,
+                quality = this.quality,
+                scale = this.scale,
+                isSpawnedObject = this.isSpawnedObject,
+                isRecipe = this.isRecipe,
+                questItem = this.questItem,
                 stack = 1,
-                HasBeenRegistered = HasBeenRegistered,
-                RegisteredId = RegisteredId
+                HasBeenRegistered = this.HasBeenRegistered,
+                RegisteredId = this.RegisteredId
             };
 
 
@@ -181,7 +181,7 @@ namespace StardewModdingAPI.Inheritance
 
         public override Item getOne()
         {
-            return Clone();
+            return this.Clone();
         }
 
         public override void actionWhenBeingHeld(Farmer who)
@@ -192,7 +192,7 @@ namespace StardewModdingAPI.Inheritance
             x = x / Game1.tileSize;
             y = y / Game1.tileSize;
 
-            CurrentMouse = new Vector2(x, y);
+            this.CurrentMouse = new Vector2(x, y);
             //Program.LogDebug(canBePlacedHere(Game1.currentLocation, CurrentMouse));
             base.actionWhenBeingHeld(who);
         }
@@ -216,13 +216,13 @@ namespace StardewModdingAPI.Inheritance
 
             var key = new Vector2(x, y);
 
-            if (!canBePlacedHere(location, key))
+            if (!this.canBePlacedHere(location, key))
                 return false;
 
-            var s = Clone();
+            var s = this.Clone();
 
             s.PlacedAt = key;
-            s.boundingBox = new Rectangle(x / Game1.tileSize * Game1.tileSize, y / Game1.tileSize * Game1.tileSize, boundingBox.Width, boundingBox.Height);
+            s.boundingBox = new Rectangle(x / Game1.tileSize * Game1.tileSize, y / Game1.tileSize * Game1.tileSize, this.boundingBox.Width, this.boundingBox.Height);
 
             location.objects.Add(key, s);
 
@@ -236,7 +236,7 @@ namespace StardewModdingAPI.Inheritance
 
         public override void drawPlacementBounds(SpriteBatch spriteBatch, GameLocation location)
         {
-            if (canBePlacedHere(location, CurrentMouse))
+            if (this.canBePlacedHere(location, this.CurrentMouse))
             {
                 var targSize = Game1.tileSize;
 

@@ -6,7 +6,7 @@ using StardewModdingAPI.Advanced;
 namespace StardewModdingAPI
 {
     /// <summary>Provides methods for interacting with a mod directory.</summary>
-    [Obsolete("Use " + nameof(IModHelper) + "instead.")]
+    [Obsolete("Use " + nameof(IModHelper) + " instead.")]
     public class ModHelper : IModHelper
     {
         /*********

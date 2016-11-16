@@ -299,7 +299,7 @@ namespace StardewModdingAPI
                         return;
                     }
 
-                    ModHelper helper = new ModHelper(directory);
+                    IModHelper helper = new ModHelper(directory);
                     string errorPrefix = $"Couldn't load mod for manifest '{manifestPath}'";
 
                     // read manifest
