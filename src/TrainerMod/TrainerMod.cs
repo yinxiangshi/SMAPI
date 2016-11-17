@@ -38,7 +38,7 @@ namespace TrainerMod
         /*********
         ** Public methods
         *********/
-        /// <summary>The entry point for your mod. It will always be called once when the mod loads.</summary>
+        /// <summary>The mod entry point, called after the mod is first loaded.</summary>
         /// <param name="helper">Provides methods for interacting with the mod directory, such as read/writing a config file or custom JSON files.</param>
         public override void Entry(IModHelper helper)
         {

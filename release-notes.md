@@ -16,7 +16,7 @@ For developers:
     * messages now show which mod logged them;
     * more consistent and intuitive console color scheme.
   * Added optional `MinimumApiVersion` to `manifest.json`.
-  * Added emergency interrupt feature for mods which may corrupt saves.
+  * Added emergency interrupt feature for dangerous mods.
 
 ## 1.0
 See [log](https://github.com/CLxS/SMAPI/compare/0.40.1.1-3...1.0).

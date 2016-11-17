@@ -69,16 +69,16 @@ namespace StardewModdingAPI
         /*********
         ** Public methods
         *********/
-        /// <summary>The entry point for your mod. It will always be called once when the mod loads.</summary>
+        /// <summary>The mod entry point, called after the mod is first loaded.</summary>
         [Obsolete("This overload is obsolete since SMAPI 1.0.")]
         public virtual void Entry(params object[] objects) { }
 
-        /// <summary>The entry point for your mod. It will always be called once when the mod loads.</summary>
+        /// <summary>The mod entry point, called after the mod is first loaded.</summary>
         /// <param name="helper">Provides methods for interacting with the mod directory, such as read/writing a config file or custom JSON files.</param>
         [Obsolete("This overload is obsolete since SMAPI 1.1.")]
         public virtual void Entry(ModHelper helper) { }
 
-        /// <summary>The entry point for your mod. It will always be called once when the mod loads.</summary>
+        /// <summary>The mod entry point, called after the mod is first loaded.</summary>
         /// <param name="helper">Provides methods for interacting with the mod directory, such as read/writing a config file or custom JSON files.</param>
         public virtual void Entry(IModHelper helper) { }
 
