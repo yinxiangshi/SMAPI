@@ -158,6 +158,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\GlobalAssemblyInfo.cs">
+      <Link>Properties\GlobalAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="Advanced\ConfigFile.cs" />
     <Compile Include="Advanced\IConfigFile.cs" />
     <Compile Include="Command.cs" />

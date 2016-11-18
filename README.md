@@ -45,7 +45,7 @@ _[crossplatforming a SMAPI mod](http://canimod.com/guides/crossplatforming-a-sma
 for the first-time setup. For simplicity, all paths are relative to the root of the repository (the
 directory containing `src`).
 
-1. Update the version number in `AssemblyInfo.cs` and `Constants::Version`. Make sure you use a
+1. Update the version number in `GlobalAssemblyInfo.cs` and `Constants::Version`. Make sure you use a
    [semantic version](http://semver.org). Recommended format:
 
    build type | format                            | example
