@@ -368,6 +368,7 @@ namespace StardewModdingAPI.Inheritance
 
         /// <summary>The method called to draw everything to the screen.</summary>
         /// <param name="gameTime">A snapshot of the game timing state.</param>
+        /// <remarks>This implementation is identical to <see cref="Game1.Draw"/>, except for minor formatting and added events.</remarks>
         protected override void Draw(GameTime gameTime)
         {
             // track frame rate
