@@ -155,6 +155,14 @@ namespace StardewModdingAPI
             Log.Monitor.LegacyLog(Log.GetModName(), message?.ToString(), ConsoleColor.White, LogLevel.Info);
         }
 
+        /// <summary>Asynchronously log an info message to the console.</summary>
+        /// <param name="message">The message to log.</param>
+        public static void Out(object message)
+        {
+            Log.WarnDeprecated();
+            Log.Async($"[OUT] {message}");
+        }
+
         /// <summary>Asynchronously log a debug message to the console.</summary>
         /// <param name="message">The message to log.</param>
         public static void Debug(object message)
