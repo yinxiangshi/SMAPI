@@ -1,20 +1,13 @@
 # Release notes
 
-## 1.1.1
-See [log](https://github.com/CLxS/SMAPI/compare/1.1...master).
-
-This is a patch release that addresses compatibility with older mods.
-
-* Fixed deprecation warnings being repeated if the mod can't be identified.
-* Fixed compatibility with mods that use `Log.Out`.
-
 ## 1.1
-See [log](https://github.com/CLxS/SMAPI/compare/1.0...1.1).
+See [log](https://github.com/CLxS/SMAPI/compare/1.0...master).
 
 For players:
   * Fixed console exiting immediately when some exceptions occur.
   * Fixed an error in 1.0 when mod uses `config.json` but the file doesn't exist.
   * Fixed critical errors being saved to a separate log file.
+  * Fixed compatibility with mods that use `Log.Out`.<sup>1.1.1</sup>
 
 For developers:
   * Added new logging interface:
@@ -25,6 +18,7 @@ For developers:
     * more consistent and intuitive console color scheme.
   * Added optional `MinimumApiVersion` to `manifest.json`.
   * Added emergency interrupt feature for dangerous mods.
+  * Fixed deprecation warnings being repeated if the mod can't be identified.<sup>1.1.1</sup>
 
 ## 1.0
 See [log](https://github.com/CLxS/SMAPI/compare/0.40.1.1-3...1.0).
