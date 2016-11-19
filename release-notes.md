@@ -4,6 +4,8 @@
 See [log](https://github.com/CLxS/SMAPI/compare/1.1...master).
 
 This is a patch release that addresses compatibility with older mods.
+
+* Fixed deprecation warnings being repeated if the mod can't be identified.
 ## 1.1
 See [log](https://github.com/CLxS/SMAPI/compare/1.0...1.1).
 

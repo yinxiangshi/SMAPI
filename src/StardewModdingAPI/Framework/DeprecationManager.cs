@@ -49,7 +49,7 @@ namespace StardewModdingAPI.Framework
         public void Warn(string source, string nounPhrase, string version, DeprecationLevel severity)
         {
             // ignore if already warned
-            if (source != null && !this.MarkWarned(source, nounPhrase, version))
+            if (!this.MarkWarned(source ?? "<unknown>", nounPhrase, version))
                 return;
 
             // build message
