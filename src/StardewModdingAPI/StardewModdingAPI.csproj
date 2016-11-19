@@ -166,6 +166,7 @@
     <Compile Include="Command.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="Entities\SPlayer.cs" />
     <Compile Include="Events\ControlEvents.cs" />
     <Compile Include="Events\EventArgsCommand.cs" />
     <Compile Include="Events\EventArgsClickableMenuChanged.cs" />
