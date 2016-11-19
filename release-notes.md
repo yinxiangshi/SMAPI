@@ -7,7 +7,7 @@ For players:
   * Fixed console exiting immediately when some exceptions occur.
   * Fixed an error in 1.0 when mod uses `config.json` but the file doesn't exist.
   * Fixed critical errors being saved to a separate log file.
-  * Fixed compatibility with mods that use `Log.Out`.<sup>1.1.1</sup>
+  * Fixed compatibility with mods that use obsolete `Log` methods.<sup>1.1.1</sup>
 
 For developers:
   * Added new logging interface:

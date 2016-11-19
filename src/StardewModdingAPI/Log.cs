@@ -179,6 +179,112 @@ namespace StardewModdingAPI
             Log.Monitor.LegacyLog(Log.GetModName(), message, ConsoleColor.DarkGray, LogLevel.Trace);
         }
 
+        /// <summary>Obsolete.</summary>
+        public static void LogValueNotSpecified()
+        {
+            Log.WarnDeprecated();
+            Log.AsyncR("<value> must be specified");
+        }
+
+        /// <summary>Obsolete.</summary>
+        public static void LogObjectValueNotSpecified()
+        {
+            Log.WarnDeprecated();
+            Log.AsyncR("<object> and <value> must be specified");
+        }
+
+        /// <summary>Obsolete.</summary>
+        public static void LogValueInvalid()
+        {
+            Log.WarnDeprecated();
+            Log.AsyncR("<value> is invalid");
+        }
+
+        /// <summary>Obsolete.</summary>
+        public static void LogObjectInvalid()
+        {
+            Log.WarnDeprecated();
+            Log.AsyncR("<object> is invalid");
+        }
+
+        /// <summary>Obsolete.</summary>
+        public static void LogValueNotInt32()
+        {
+            Log.WarnDeprecated();
+            Log.AsyncR("<value> must be a whole number (Int32)");
+        }
+
+        /// <summary>Obsolete.</summary>
+        /// <param name="message">The message to log.</param>
+        /// <param name="disableLogging">Obsolete.</param>
+        /// <param name="values">Obsolete.</param>
+        [Obsolete("Parameter 'values' is no longer supported. Format before logging.")]
+        private static void PrintLog(object message, bool disableLogging, params object[] values)
+        {
+            Log.WarnDeprecated();
+            Log.Monitor.LegacyLog(Log.GetModName(), message?.ToString(), ConsoleColor.Gray);
+        }
+
+        /// <summary>Obsolete.</summary>
+        /// <param name="message">The message to log.</param>
+        /// <param name="values">Obsolete.</param>
+        [Obsolete("Parameter 'values' is no longer supported. Format before logging.")]
+        public static void Success(object message, params object[] values)
+        {
+            Log.WarnDeprecated();
+            Log.Success(message);
+        }
+
+        /// <summary>Obsolete.</summary>
+        /// <param name="message">The message to log.</param>
+        /// <param name="values">Obsolete.</param>
+        [Obsolete("Parameter 'values' is no longer supported. Format before logging.")]
+        public static void Verbose(object message, params object[] values)
+        {
+            Log.WarnDeprecated();
+            Log.Out(message);
+        }
+
+        /// <summary>Obsolete.</summary>
+        /// <param name="message">The message to log.</param>
+        /// <param name="values">Obsolete.</param>
+        [Obsolete("Parameter 'values' is no longer supported. Format before logging.")]
+        public static void Comment(object message, params object[] values)
+        {
+            Log.WarnDeprecated();
+            Log.AsyncC(message);
+        }
+
+        /// <summary>Obsolete.</summary>
+        /// <param name="message">The message to log.</param>
+        /// <param name="values">Obsolete.</param>
+        [Obsolete("Parameter 'values' is no longer supported. Format before logging.")]
+        public static void Info(object message, params object[] values)
+        {
+            Log.WarnDeprecated();
+            Log.Info(message);
+        }
+
+        /// <summary>Obsolete.</summary>
+        /// <param name="message">The message to log.</param>
+        /// <param name="values">Obsolete.</param>
+        [Obsolete("Parameter 'values' is no longer supported. Format before logging.")]
+        public static void Error(object message, params object[] values)
+        {
+            Log.WarnDeprecated();
+            Log.Error(message);
+        }
+
+        /// <summary>Obsolete.</summary>
+        /// <param name="message">The message to log.</param>
+        /// <param name="values">Obsolete.</param>
+        [Obsolete("Parameter 'values' is no longer supported. Format before logging.")]
+        public static void Debug(object message, params object[] values)
+        {
+            Log.WarnDeprecated();
+            Log.Debug(message);
+        }
+
 
         /*********
         ** Private methods
