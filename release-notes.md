@@ -8,6 +8,7 @@ For players:
   * Fixed an error in 1.0 when mod uses `config.json` but the file doesn't exist.
   * Fixed critical errors being saved to a separate log file.
   * Fixed compatibility with mods that use obsolete `Log` methods.<sup>1.1.1</sup>
+  * Fixed race condition where some mods would sometimes crash because the game wasn't ready yet.<sup>1.1.1</sup>
 
 For developers:
   * Added new logging interface:

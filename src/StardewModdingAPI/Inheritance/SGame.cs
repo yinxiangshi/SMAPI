@@ -316,6 +316,10 @@ namespace StardewModdingAPI.Inheritance
             // add FPS to debug output
             SGame.QueueDebugMessage($"FPS: {SGame.FramesPerSecond}");
 
+            // raise game loaded
+            if (this.FirstUpdate)
+                GameEvents.InvokeGameLoaded();
+
             // update SMAPI events
             this.UpdateEventCalls();
 

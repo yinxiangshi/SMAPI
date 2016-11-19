@@ -230,9 +230,6 @@ namespace StardewModdingAPI
                     // register help command
                     Command.RegisterCommand("help", "Lists all commands | 'help <cmd>' returns command description").CommandFired += Program.help_CommandFired;
 
-                    // raise game loaded event
-                    GameEvents.InvokeGameLoaded();
-
                     // listen for command line input
                     Program.Monitor.Log("Starting console...");
                     Program.Monitor.Log("Type 'help' for help, or 'help <cmd>' for a command's usage", LogLevel.Info);
