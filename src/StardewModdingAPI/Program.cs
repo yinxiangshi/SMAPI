@@ -301,151 +301,150 @@ namespace StardewModdingAPI
             ModAssemblyLoader modAssemblyLoader = new ModAssemblyLoader(Program.CachePath);
             foreach (string directory in Directory.GetDirectories(Program.ModPath))
             {
-                foreach (string manifestPath in Directory.GetFiles(directory, "manifest.json"))
+                // check for cancellation
+                if (Program.CancellationTokenSource.IsCancellationRequested)
                 {
-                    // check for cancellation
-                    if (Program.CancellationTokenSource.IsCancellationRequested)
+                    Program.Monitor.Log("Shutdown requested; interrupting mod loading.", LogLevel.Error);
+                    return;
+                }
+
+                // get helper
+                IModHelper helper = new ModHelper(directory);
+
+                // get manifest path
+                string manifestPath = Path.Combine(directory, "manifest.json");
+                string errorPrefix = $"Couldn't load mod for manifest '{manifestPath}'";
+                Manifest manifest;
+                try
+                {
+                    // read manifest text
+                    string json = File.ReadAllText(manifestPath);
+                    if (string.IsNullOrEmpty(json))
                     {
-                        Program.Monitor.Log("Shutdown requested; interrupting mod loading.", LogLevel.Error);
-                        return;
-                    }
-
-                    IModHelper helper = new ModHelper(directory);
-                    string errorPrefix = $"Couldn't load mod for manifest '{manifestPath}'";
-
-                    // read manifest
-                    Manifest manifest;
-                    try
-                    {
-                        // read manifest text
-                        string json = File.ReadAllText(manifestPath);
-                        if (string.IsNullOrEmpty(json))
-                        {
-                            Program.Monitor.Log($"{errorPrefix}: manifest is empty.", LogLevel.Error);
-                            continue;
-                        }
-
-                        // deserialise manifest
-                        manifest = helper.ReadJsonFile<Manifest>("manifest.json");
-                        if (manifest == null)
-                        {
-                            Program.Monitor.Log($"{errorPrefix}: the manifest file does not exist.", LogLevel.Error);
-                            continue;
-                        }
-                        if (string.IsNullOrEmpty(manifest.EntryDll))
-                        {
-                            Program.Monitor.Log($"{errorPrefix}: manifest doesn't specify an entry DLL.", LogLevel.Error);
-                            continue;
-                        }
-
-                        // log deprecated fields
-                        if (manifest.UsedAuthourField)
-                            Program.DeprecationManager.Warn(manifest.Name, $"{nameof(Manifest)}.{nameof(Manifest.Authour)}", "1.0", DeprecationLevel.Notice);
-                    }
-                    catch (Exception ex)
-                    {
-                        Program.Monitor.Log($"{errorPrefix}: manifest parsing failed.\n{ex.GetLogSummary()}", LogLevel.Error);
+                        Program.Monitor.Log($"{errorPrefix}: manifest is empty.", LogLevel.Error);
                         continue;
                     }
 
-                    // validate version
-                    if (!string.IsNullOrWhiteSpace(manifest.MinimumApiVersion))
+                    // deserialise manifest
+                    manifest = helper.ReadJsonFile<Manifest>("manifest.json");
+                    if (manifest == null)
                     {
-                        try
-                        {
-                            Version minVersion = new Version(manifest.MinimumApiVersion);
-                            if (minVersion.IsNewerThan(Constants.Version))
-                            {
-                                Program.Monitor.Log($"{errorPrefix}: this mod requires SMAPI {minVersion} or later. Please update SMAPI to the latest version to use this mod.", LogLevel.Error);
-                                continue;
-                            }
-                        }
-                        catch (FormatException ex) when (ex.Message.Contains("not a semantic version"))
-                        {
-                            Program.Monitor.Log($"{errorPrefix}: the mod specified an invalid minimum SMAPI version '{manifest.MinimumApiVersion}'. This should be a semantic version number like {Constants.Version}.", LogLevel.Error);
-                            continue;
-                        }
+                        Program.Monitor.Log($"{errorPrefix}: the manifest file does not exist.", LogLevel.Error);
+                        continue;
                     }
-
-                    // create per-save directory
-                    if (manifest.PerSaveConfigs)
+                    if (string.IsNullOrEmpty(manifest.EntryDll))
                     {
-                        Program.DeprecationManager.Warn(manifest.Name, $"{nameof(Manifest)}.{nameof(Manifest.PerSaveConfigs)}", "1.0", DeprecationLevel.Notice);
-                        try
-                        {
-                            string psDir = Path.Combine(directory, "psconfigs");
-                            Directory.CreateDirectory(psDir);
-                            if (!Directory.Exists(psDir))
-                            {
-                                Program.Monitor.Log($"{errorPrefix}: couldn't create the per-save configuration directory ('psconfigs') requested by this mod. The failure reason is unknown.", LogLevel.Error);
-                                continue;
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Program.Monitor.Log($"{errorPrefix}: couldm't create the per-save configuration directory ('psconfigs') requested by this mod.\n{ex.GetLogSummary()}", LogLevel.Error);
-                            continue;
-                        }
-                    }
-
-                    // load assembly
-                    Assembly modAssembly;
-                    try
-                    {
-                        // get assembly path
-                        string assemblyPath = Path.Combine(directory, manifest.EntryDll);
-                        if (!File.Exists(assemblyPath))
-                        {
-                            Program.Monitor.Log($"{errorPrefix}: target DLL '{assemblyPath}' does not exist.", LogLevel.Error);
-                            continue;
-                        }
-
-                        // read assembly
-                        modAssembly = modAssemblyLoader.ProcessAssembly(assemblyPath);
-                        if (modAssembly.DefinedTypes.Count(x => x.BaseType == typeof(Mod)) == 0)
-                        {
-                            Program.Monitor.Log($"{errorPrefix}: the mod DLL does not contain an implementation of the 'Mod' class.", LogLevel.Error);
-                            continue;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Program.Monitor.Log($"{errorPrefix}: an error occurred while optimising the target DLL.\n{ex}", LogLevel.Error);
+                        Program.Monitor.Log($"{errorPrefix}: manifest doesn't specify an entry DLL.", LogLevel.Error);
                         continue;
                     }
 
-                    // hook up mod
+                    // log deprecated fields
+                    if (manifest.UsedAuthourField)
+                        Program.DeprecationManager.Warn(manifest.Name, $"{nameof(Manifest)}.{nameof(Manifest.Authour)}", "1.0", DeprecationLevel.Notice);
+                }
+                catch (Exception ex)
+                {
+                    Program.Monitor.Log($"{errorPrefix}: manifest parsing failed.\n{ex.GetLogSummary()}", LogLevel.Error);
+                    continue;
+                }
+
+                // validate version
+                if (!string.IsNullOrWhiteSpace(manifest.MinimumApiVersion))
+                {
                     try
                     {
-                        TypeInfo modEntryType = modAssembly.DefinedTypes.First(x => x.BaseType == typeof(Mod));
-                        Mod modEntry = (Mod)modAssembly.CreateInstance(modEntryType.ToString());
-                        if (modEntry != null)
+                        Version minVersion = new Version(manifest.MinimumApiVersion);
+                        if (minVersion.IsNewerThan(Constants.Version))
                         {
-                            // track mod
-                            Program.ModRegistry.Add(manifest, modAssembly);
+                            Program.Monitor.Log($"{errorPrefix}: this mod requires SMAPI {minVersion} or later. Please update SMAPI to the latest version to use this mod.", LogLevel.Error);
+                            continue;
+                        }
+                    }
+                    catch (FormatException ex) when (ex.Message.Contains("not a semantic version"))
+                    {
+                        Program.Monitor.Log($"{errorPrefix}: the mod specified an invalid minimum SMAPI version '{manifest.MinimumApiVersion}'. This should be a semantic version number like {Constants.Version}.", LogLevel.Error);
+                        continue;
+                    }
+                }
 
-                            // hook up mod
-                            modEntry.Manifest = manifest;
-                            modEntry.Helper = helper;
-                            modEntry.Monitor = new Monitor(manifest.Name, Program.LogFile) { ShowTraceInConsole = Program.DeveloperMode };
-                            modEntry.PathOnDisk = directory;
-                            Program.Monitor.Log($"Loaded mod: {modEntry.Manifest.Name} by {modEntry.Manifest.Author}, v{modEntry.Manifest.Version} | {modEntry.Manifest.Description}", LogLevel.Info);
-                            Program.ModsLoaded += 1;
-                            modEntry.Entry(); // deprecated since 1.0
-                            modEntry.Entry((ModHelper)modEntry.Helper); // deprecated since 1.1
-                            modEntry.Entry(modEntry.Helper); // deprecated since 1.1
-
-                            // raise deprecation warning for old Entry() method
-                            if (Program.DeprecationManager.IsVirtualMethodImplemented(modEntryType, typeof(Mod), nameof(Mod.Entry), new[] { typeof(object[]) }))
-                                Program.DeprecationManager.Warn(manifest.Name, $"an old version of {nameof(Mod)}.{nameof(Mod.Entry)}", "1.0", DeprecationLevel.Notice);
-                            if (Program.DeprecationManager.IsVirtualMethodImplemented(modEntryType, typeof(Mod), nameof(Mod.Entry), new[] { typeof(ModHelper) }))
-                                Program.DeprecationManager.Warn(manifest.Name, $"an old version of {nameof(Mod)}.{nameof(Mod.Entry)}", "1.1", DeprecationLevel.Notice);
+                // create per-save directory
+                if (manifest.PerSaveConfigs)
+                {
+                    Program.DeprecationManager.Warn(manifest.Name, $"{nameof(Manifest)}.{nameof(Manifest.PerSaveConfigs)}", "1.0", DeprecationLevel.Notice);
+                    try
+                    {
+                        string psDir = Path.Combine(directory, "psconfigs");
+                        Directory.CreateDirectory(psDir);
+                        if (!Directory.Exists(psDir))
+                        {
+                            Program.Monitor.Log($"{errorPrefix}: couldn't create the per-save configuration directory ('psconfigs') requested by this mod. The failure reason is unknown.", LogLevel.Error);
+                            continue;
                         }
                     }
                     catch (Exception ex)
                     {
-                        Program.Monitor.Log($"{errorPrefix}: an error occurred while loading the target DLL.\n{ex.GetLogSummary()}", LogLevel.Error);
+                        Program.Monitor.Log($"{errorPrefix}: couldm't create the per-save configuration directory ('psconfigs') requested by this mod.\n{ex.GetLogSummary()}", LogLevel.Error);
+                        continue;
                     }
+                }
+
+                // load assembly
+                Assembly modAssembly;
+                try
+                {
+                    // get assembly path
+                    string assemblyPath = Path.Combine(directory, manifest.EntryDll);
+                    if (!File.Exists(assemblyPath))
+                    {
+                        Program.Monitor.Log($"{errorPrefix}: target DLL '{assemblyPath}' does not exist.", LogLevel.Error);
+                        continue;
+                    }
+
+                    // read assembly
+                    modAssembly = modAssemblyLoader.ProcessAssembly(assemblyPath);
+                    if (modAssembly.DefinedTypes.Count(x => x.BaseType == typeof(Mod)) == 0)
+                    {
+                        Program.Monitor.Log($"{errorPrefix}: the mod DLL does not contain an implementation of the 'Mod' class.", LogLevel.Error);
+                        continue;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Program.Monitor.Log($"{errorPrefix}: an error occurred while optimising the target DLL.\n{ex}", LogLevel.Error);
+                    continue;
+                }
+
+                // hook up mod
+                try
+                {
+                    TypeInfo modEntryType = modAssembly.DefinedTypes.First(x => x.BaseType == typeof(Mod));
+                    Mod modEntry = (Mod)modAssembly.CreateInstance(modEntryType.ToString());
+                    if (modEntry != null)
+                    {
+                        // track mod
+                        Program.ModRegistry.Add(manifest, modAssembly);
+
+                        // hook up mod
+                        modEntry.Manifest = manifest;
+                        modEntry.Helper = helper;
+                        modEntry.Monitor = new Monitor(manifest.Name, Program.LogFile) { ShowTraceInConsole = Program.DeveloperMode };
+                        modEntry.PathOnDisk = directory;
+                        Program.Monitor.Log($"Loaded mod: {modEntry.Manifest.Name} by {modEntry.Manifest.Author}, v{modEntry.Manifest.Version} | {modEntry.Manifest.Description}", LogLevel.Info);
+                        Program.ModsLoaded += 1;
+                        modEntry.Entry(); // deprecated since 1.0
+                        modEntry.Entry((ModHelper)modEntry.Helper); // deprecated since 1.1
+                        modEntry.Entry(modEntry.Helper); // deprecated since 1.1
+
+                        // raise deprecation warning for old Entry() method
+                        if (Program.DeprecationManager.IsVirtualMethodImplemented(modEntryType, typeof(Mod), nameof(Mod.Entry), new[] { typeof(object[]) }))
+                            Program.DeprecationManager.Warn(manifest.Name, $"an old version of {nameof(Mod)}.{nameof(Mod.Entry)}", "1.0", DeprecationLevel.Notice);
+                        if (Program.DeprecationManager.IsVirtualMethodImplemented(modEntryType, typeof(Mod), nameof(Mod.Entry), new[] { typeof(ModHelper) }))
+                            Program.DeprecationManager.Warn(manifest.Name, $"an old version of {nameof(Mod)}.{nameof(Mod.Entry)}", "1.1", DeprecationLevel.Notice);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Program.Monitor.Log($"{errorPrefix}: an error occurred while loading the target DLL.\n{ex.GetLogSummary()}", LogLevel.Error);
                 }
             }
 
