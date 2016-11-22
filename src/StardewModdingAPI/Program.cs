@@ -301,6 +301,10 @@ namespace StardewModdingAPI
             ModAssemblyLoader modAssemblyLoader = new ModAssemblyLoader(Program.CachePath);
             foreach (string directory in Directory.GetDirectories(Program.ModPath))
             {
+                // ignore internal directory
+                if (new DirectoryInfo(directory).Name == ".cache")
+                    continue;
+
                 // check for cancellation
                 if (Program.CancellationTokenSource.IsCancellationRequested)
                 {
@@ -388,20 +392,32 @@ namespace StardewModdingAPI
                     }
                 }
 
+                // preprocess mod assemblies
+                {
+                    bool succeeded = true;
+                    foreach (string assemblyPath in Directory.GetFiles(directory, "*.dll"))
+                    {
+                        try
+                        {
+                            modAssemblyLoader.ProcessAssembly(assemblyPath);
+                        }
+                        catch (Exception ex)
+                        {
+                            Program.Monitor.Log($"{errorPrefix}: an error occurred while preprocessing '{assemblyPath}'.\n{ex}", LogLevel.Error);
+                            succeeded = false;
+                            break;
+                        }
+                    }
+                    if (!succeeded)
+                        continue;
+                }
+
                 // load assembly
                 Assembly modAssembly;
                 try
                 {
-                    // get assembly path
                     string assemblyPath = Path.Combine(directory, manifest.EntryDll);
-                    if (!File.Exists(assemblyPath))
-                    {
-                        Program.Monitor.Log($"{errorPrefix}: target DLL '{assemblyPath}' does not exist.", LogLevel.Error);
-                        continue;
-                    }
-
-                    // read assembly
-                    modAssembly = modAssemblyLoader.ProcessAssembly(assemblyPath);
+                    modAssembly = modAssemblyLoader.LoadCachedAssembly(assemblyPath);
                     if (modAssembly.DefinedTypes.Count(x => x.BaseType == typeof(Mod)) == 0)
                     {
                         Program.Monitor.Log($"{errorPrefix}: the mod DLL does not contain an implementation of the 'Mod' class.", LogLevel.Error);
