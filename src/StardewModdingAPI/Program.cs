@@ -33,6 +33,9 @@ namespace StardewModdingAPI
         /// <summary>The full path to the folder containing mods.</summary>
         private static readonly string ModPath = Path.Combine(Constants.ExecutionPath, "Mods");
 
+        /// <summary>The full path to the folder containing cached SMAPI data.</summary>
+        private static readonly string CachePath = Path.Combine(Program.ModPath, ".cache");
+
         /// <summary>The log file to which to write messages.</summary>
         private static readonly LogFileManager LogFile = new LogFileManager(Constants.LogPath);
 
@@ -126,6 +129,7 @@ namespace StardewModdingAPI
                 Program.Monitor.Log("Loading SMAPI...");
                 Console.Title = Constants.ConsoleTitle;
                 Program.VerifyPath(Program.ModPath);
+                Program.VerifyPath(Program.CachePath);
                 Program.VerifyPath(Constants.LogDir);
                 if (!File.Exists(Program.GameExecutablePath))
                 {
@@ -293,6 +297,8 @@ namespace StardewModdingAPI
         private static void LoadMods()
         {
             Program.Monitor.Log("Loading mods...");
+
+            ModAssemblyLoader modAssemblyLoader = new ModAssemblyLoader(Program.CachePath);
             foreach (string directory in Directory.GetDirectories(Program.ModPath))
             {
                 foreach (string manifestPath in Directory.GetFiles(directory, "manifest.json"))
@@ -382,9 +388,11 @@ namespace StardewModdingAPI
                         }
                     }
 
-                    // load DLL & hook up mod
+                    // load assembly
+                    Assembly modAssembly;
                     try
                     {
+                        // get assembly path
                         string assemblyPath = Path.Combine(directory, manifest.EntryDll);
                         if (!File.Exists(assemblyPath))
                         {
@@ -392,36 +400,47 @@ namespace StardewModdingAPI
                             continue;
                         }
 
-                        Assembly modAssembly = Assembly.UnsafeLoadFrom(assemblyPath);
-                        if (modAssembly.DefinedTypes.Count(x => x.BaseType == typeof(Mod)) > 0)
+                        // read assembly
+                        modAssembly = modAssemblyLoader.ProcessAssembly(assemblyPath);
+                        if (modAssembly.DefinedTypes.Count(x => x.BaseType == typeof(Mod)) == 0)
                         {
-                            TypeInfo modEntryType = modAssembly.DefinedTypes.First(x => x.BaseType == typeof(Mod));
-                            Mod modEntry = (Mod)modAssembly.CreateInstance(modEntryType.ToString());
-                            if (modEntry != null)
-                            {
-                                // track mod
-                                Program.ModRegistry.Add(manifest, modAssembly);
-
-                                // hook up mod
-                                modEntry.Manifest = manifest;
-                                modEntry.Helper = helper;
-                                modEntry.Monitor = new Monitor(manifest.Name, Program.LogFile) { ShowTraceInConsole = Program.DeveloperMode };
-                                modEntry.PathOnDisk = directory;
-                                Program.Monitor.Log($"Loaded mod: {modEntry.Manifest.Name} by {modEntry.Manifest.Author}, v{modEntry.Manifest.Version} | {modEntry.Manifest.Description}", LogLevel.Info);
-                                Program.ModsLoaded += 1;
-                                modEntry.Entry(); // deprecated since 1.0
-                                modEntry.Entry((ModHelper)modEntry.Helper); // deprecated since 1.1
-                                modEntry.Entry(modEntry.Helper); // deprecated since 1.1
-
-                                // raise deprecation warning for old Entry() method
-                                if (Program.DeprecationManager.IsVirtualMethodImplemented(modEntryType, typeof(Mod), nameof(Mod.Entry), new[] { typeof(object[]) }))
-                                    Program.DeprecationManager.Warn(manifest.Name, $"an old version of {nameof(Mod)}.{nameof(Mod.Entry)}", "1.0", DeprecationLevel.Notice);
-                                if (Program.DeprecationManager.IsVirtualMethodImplemented(modEntryType, typeof(Mod), nameof(Mod.Entry), new[] { typeof(ModHelper) }))
-                                    Program.DeprecationManager.Warn(manifest.Name, $"an old version of {nameof(Mod)}.{nameof(Mod.Entry)}", "1.1", DeprecationLevel.Notice);
-                            }
-                        }
-                        else
                             Program.Monitor.Log($"{errorPrefix}: the mod DLL does not contain an implementation of the 'Mod' class.", LogLevel.Error);
+                            continue;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Program.Monitor.Log($"{errorPrefix}: an error occurred while optimising the target DLL.\n{ex}", LogLevel.Error);
+                        continue;
+                    }
+
+                    // hook up mod
+                    try
+                    {
+                        TypeInfo modEntryType = modAssembly.DefinedTypes.First(x => x.BaseType == typeof(Mod));
+                        Mod modEntry = (Mod)modAssembly.CreateInstance(modEntryType.ToString());
+                        if (modEntry != null)
+                        {
+                            // track mod
+                            Program.ModRegistry.Add(manifest, modAssembly);
+
+                            // hook up mod
+                            modEntry.Manifest = manifest;
+                            modEntry.Helper = helper;
+                            modEntry.Monitor = new Monitor(manifest.Name, Program.LogFile) { ShowTraceInConsole = Program.DeveloperMode };
+                            modEntry.PathOnDisk = directory;
+                            Program.Monitor.Log($"Loaded mod: {modEntry.Manifest.Name} by {modEntry.Manifest.Author}, v{modEntry.Manifest.Version} | {modEntry.Manifest.Description}", LogLevel.Info);
+                            Program.ModsLoaded += 1;
+                            modEntry.Entry(); // deprecated since 1.0
+                            modEntry.Entry((ModHelper)modEntry.Helper); // deprecated since 1.1
+                            modEntry.Entry(modEntry.Helper); // deprecated since 1.1
+
+                            // raise deprecation warning for old Entry() method
+                            if (Program.DeprecationManager.IsVirtualMethodImplemented(modEntryType, typeof(Mod), nameof(Mod.Entry), new[] { typeof(object[]) }))
+                                Program.DeprecationManager.Warn(manifest.Name, $"an old version of {nameof(Mod)}.{nameof(Mod.Entry)}", "1.0", DeprecationLevel.Notice);
+                            if (Program.DeprecationManager.IsVirtualMethodImplemented(modEntryType, typeof(Mod), nameof(Mod.Entry), new[] { typeof(ModHelper) }))
+                                Program.DeprecationManager.Warn(manifest.Name, $"an old version of {nameof(Mod)}.{nameof(Mod.Entry)}", "1.1", DeprecationLevel.Notice);
+                        }
                     }
                     catch (Exception ex)
                     {
