@@ -206,7 +206,7 @@ namespace StardewModdingAPI
                 // initialise game instance
                 Program.gamePtr = new SGame(Program.Monitor) { IsMouseVisible = false };
                 Program.gamePtr.Exiting += (sender, e) => Program.ready = false;
-                Program.gamePtr.Window.ClientSizeChanged += GraphicsEvents.InvokeResize;
+                Program.gamePtr.Window.ClientSizeChanged += (sender, e) => GraphicsEvents.InvokeResize(Program.Monitor, sender, e);
                 Program.gamePtr.Window.Title = $"Stardew Valley - Version {Game1.version}";
                 Program.StardewGameInfo.SetValue(Program.StardewProgramType, Program.gamePtr);
 

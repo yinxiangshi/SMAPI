@@ -1,4 +1,5 @@
 ﻿using System;
+using StardewModdingAPI.Framework;
 using StardewValley.Menus;
 
 namespace StardewModdingAPI.Events
@@ -20,18 +21,20 @@ namespace StardewModdingAPI.Events
         ** Internal methods
         *********/
         /// <summary>Raise a <see cref="MenuChanged"/> event.</summary>
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="priorMenu">The previous menu.</param>
         /// <param name="newMenu">The current menu.</param>
-        internal static void InvokeMenuChanged(IClickableMenu priorMenu, IClickableMenu newMenu)
+        internal static void InvokeMenuChanged(IMonitor monitor, IClickableMenu priorMenu, IClickableMenu newMenu)
         {
-            MenuEvents.MenuChanged?.Invoke(null, new EventArgsClickableMenuChanged(priorMenu, newMenu));
+            monitor.SafelyRaiseGenericEvent($"{nameof(MenuEvents)}.{nameof(MenuEvents.MenuChanged)}", MenuEvents.MenuChanged?.GetInvocationList(), null, new EventArgsClickableMenuChanged(priorMenu, newMenu));
         }
 
         /// <summary>Raise a <see cref="MenuClosed"/> event.</summary>
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="priorMenu">The menu that was closed.</param>
-        internal static void InvokeMenuClosed(IClickableMenu priorMenu)
+        internal static void InvokeMenuClosed(IMonitor monitor, IClickableMenu priorMenu)
         {
-            MenuEvents.MenuClosed?.Invoke(null, new EventArgsClickableMenuClosed(priorMenu));
+            monitor.SafelyRaiseGenericEvent($"{nameof(MenuEvents)}.{nameof(MenuEvents.MenuClosed)}", MenuEvents.MenuClosed?.GetInvocationList(), null, new EventArgsClickableMenuClosed(priorMenu));
         }
     }
 }

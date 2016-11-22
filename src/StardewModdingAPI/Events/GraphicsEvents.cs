@@ -1,4 +1,5 @@
 ﻿using System;
+using StardewModdingAPI.Framework;
 
 namespace StardewModdingAPI.Events
 {
@@ -72,19 +73,19 @@ namespace StardewModdingAPI.Events
         ** Generic events
         ****/
         /// <summary>Raise a <see cref="Resize"/> event.</summary>
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="sender">The object which raised the event.</param>
         /// <param name="e">The event arguments.</param>
-        internal static void InvokeResize(object sender, EventArgs e)
+        internal static void InvokeResize(IMonitor monitor, object sender, EventArgs e)
         {
-            GraphicsEvents.Resize?.Invoke(sender, e);
+            monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.Resize)}", GraphicsEvents.Resize?.GetInvocationList(), sender, e);
         }
 
         /// <summary>Raise a <see cref="DrawDebug"/> event.</summary>
-        /// <param name="sender">The object which raised the event.</param>
-        /// <param name="e">The event arguments.</param>
-        internal static void InvokeDrawDebug(object sender, EventArgs e)
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
+        internal static void InvokeDrawDebug(IMonitor monitor)
         {
-            GraphicsEvents.DrawDebug?.Invoke(sender, e);
+            monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.DrawDebug)}", GraphicsEvents.DrawDebug?.GetInvocationList());
         }
 
         /// <summary>Raise a <see cref="DrawTick"/> event.</summary>
@@ -92,110 +93,94 @@ namespace StardewModdingAPI.Events
         [Obsolete("Should not be used.")]
         public static void InvokeDrawTick(IMonitor monitor)
         {
-            try
-            {
-                GraphicsEvents.DrawTick?.Invoke(null, EventArgs.Empty);
-            }
-            catch (Exception ex)
-            {
-                monitor.Log($"A mod crashed handling an event.\n{ex}", LogLevel.Error);
-            }
+            monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.DrawTick)}", GraphicsEvents.DrawTick?.GetInvocationList());
         }
 
         /// <summary>Raise a <see cref="DrawInRenderTargetTick"/> event.</summary>
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
         [Obsolete("Should not be used.")]
-        public static void InvokeDrawInRenderTargetTick()
+        public static void InvokeDrawInRenderTargetTick(IMonitor monitor)
         {
-            GraphicsEvents.DrawInRenderTargetTick?.Invoke(null, EventArgs.Empty);
+            monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.DrawInRenderTargetTick)}", GraphicsEvents.DrawInRenderTargetTick?.GetInvocationList());
         }
 
         /****
         ** Main render events
         ****/
         /// <summary>Raise an <see cref="OnPreRenderEvent"/> event.</summary>
-        /// <param name="sender">The object which raised the event.</param>
-        /// <param name="e">The event arguments.</param>
-        internal static void InvokeOnPreRenderEvent(object sender, EventArgs e)
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
+        internal static void InvokeOnPreRenderEvent(IMonitor monitor)
         {
-            GraphicsEvents.OnPreRenderEvent?.Invoke(sender, e);
+            monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.OnPreRenderEvent)}", GraphicsEvents.OnPreRenderEvent?.GetInvocationList());
         }
 
         /// <summary>Raise an <see cref="OnPostRenderEvent"/> event.</summary>
-        /// <param name="sender">The object which raised the event.</param>
-        /// <param name="e">The event arguments.</param>
-        internal static void InvokeOnPostRenderEvent(object sender, EventArgs e)
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
+        internal static void InvokeOnPostRenderEvent(IMonitor monitor)
         {
-            GraphicsEvents.OnPostRenderEvent?.Invoke(sender, e);
+            monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.OnPostRenderEvent)}", GraphicsEvents.OnPostRenderEvent?.GetInvocationList());
         }
 
         /****
         ** HUD events
         ****/
         /// <summary>Raise an <see cref="OnPreRenderGuiEvent"/> event.</summary>
-        /// <param name="sender">The object which raised the event.</param>
-        /// <param name="e">The event arguments.</param>
-        internal static void InvokeOnPreRenderGuiEvent(object sender, EventArgs e)
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
+        internal static void InvokeOnPreRenderGuiEvent(IMonitor monitor)
         {
-            GraphicsEvents.OnPreRenderGuiEvent?.Invoke(sender, e);
+            monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.OnPreRenderGuiEvent)}", GraphicsEvents.OnPreRenderGuiEvent?.GetInvocationList());
         }
 
         /// <summary>Raise an <see cref="OnPreRenderGuiEventNoCheck"/> event.</summary>
-        /// <param name="sender">The object which raised the event.</param>
-        /// <param name="e">The event arguments.</param>
-        internal static void InvokeOnPreRenderGuiEventNoCheck(object sender, EventArgs e)
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
+        internal static void InvokeOnPreRenderGuiEventNoCheck(IMonitor monitor)
         {
-            GraphicsEvents.OnPreRenderGuiEventNoCheck?.Invoke(sender, e);
+            monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.OnPreRenderGuiEventNoCheck)}", GraphicsEvents.OnPreRenderGuiEventNoCheck?.GetInvocationList());
         }
 
         /// <summary>Raise an <see cref="OnPostRenderGuiEvent"/> event.</summary>
-        /// <param name="sender">The object which raised the event.</param>
-        /// <param name="e">The event arguments.</param>
-        internal static void InvokeOnPostRenderGuiEvent(object sender, EventArgs e)
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
+        internal static void InvokeOnPostRenderGuiEvent(IMonitor monitor)
         {
-            GraphicsEvents.OnPostRenderGuiEvent?.Invoke(sender, e);
+            monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.OnPostRenderGuiEvent)}", GraphicsEvents.OnPostRenderGuiEvent?.GetInvocationList());
         }
 
         /// <summary>Raise an <see cref="OnPostRenderGuiEventNoCheck"/> event.</summary>
-        /// <param name="sender">The object which raised the event.</param>
-        /// <param name="e">The event arguments.</param>
-        internal static void InvokeOnPostRenderGuiEventNoCheck(object sender, EventArgs e)
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
+        internal static void InvokeOnPostRenderGuiEventNoCheck(IMonitor monitor)
         {
-            GraphicsEvents.OnPostRenderGuiEventNoCheck?.Invoke(sender, e);
+            monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.OnPostRenderGuiEventNoCheck)}", GraphicsEvents.OnPostRenderGuiEventNoCheck?.GetInvocationList());
         }
 
         /****
         ** GUI events
         ****/
         /// <summary>Raise an <see cref="OnPreRenderHudEvent"/> event.</summary>
-        /// <param name="sender">The object which raised the event.</param>
-        /// <param name="e">The event arguments.</param>
-        internal static void InvokeOnPreRenderHudEvent(object sender, EventArgs e)
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
+        internal static void InvokeOnPreRenderHudEvent(IMonitor monitor)
         {
-            GraphicsEvents.OnPreRenderHudEvent?.Invoke(sender, e);
+            monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.OnPreRenderHudEvent)}", GraphicsEvents.OnPreRenderHudEvent?.GetInvocationList());
         }
 
         /// <summary>Raise an <see cref="OnPreRenderHudEventNoCheck"/> event.</summary>
-        /// <param name="sender">The object which raised the event.</param>
-        /// <param name="e">The event arguments.</param>
-        internal static void InvokeOnPreRenderHudEventNoCheck(object sender, EventArgs e)
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
+        internal static void InvokeOnPreRenderHudEventNoCheck(IMonitor monitor)
         {
-            GraphicsEvents.OnPreRenderHudEventNoCheck?.Invoke(sender, e);
+            monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.OnPreRenderHudEventNoCheck)}", GraphicsEvents.OnPreRenderHudEventNoCheck?.GetInvocationList());
         }
 
         /// <summary>Raise an <see cref="OnPostRenderHudEvent"/> event.</summary>
-        /// <param name="sender">The object which raised the event.</param>
-        /// <param name="e">The event arguments.</param>
-        internal static void InvokeOnPostRenderHudEvent(object sender, EventArgs e)
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
+        internal static void InvokeOnPostRenderHudEvent(IMonitor monitor)
         {
-            GraphicsEvents.OnPostRenderHudEvent?.Invoke(sender, e);
+            monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.OnPostRenderHudEvent)}", GraphicsEvents.OnPostRenderHudEvent?.GetInvocationList());
         }
 
         /// <summary>Raise an <see cref="OnPostRenderHudEventNoCheck"/> event.</summary>
-        /// <param name="sender">The object which raised the event.</param>
-        /// <param name="e">The event arguments.</param>
-        internal static void InvokeOnPostRenderHudEventNoCheck(object sender, EventArgs e)
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
+        internal static void InvokeOnPostRenderHudEventNoCheck(IMonitor monitor)
         {
-            GraphicsEvents.OnPostRenderHudEventNoCheck?.Invoke(sender, e);
+            monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.OnPostRenderHudEventNoCheck)}", GraphicsEvents.OnPostRenderHudEventNoCheck?.GetInvocationList());
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using StardewModdingAPI.Framework;
 
 namespace StardewModdingAPI.Events
 {
@@ -16,11 +17,12 @@ namespace StardewModdingAPI.Events
         ** Internal methods
         *********/
         /// <summary>Raise a <see cref="MineLevelChanged"/> event.</summary>
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="previousMineLevel">The previous mine level.</param>
         /// <param name="currentMineLevel">The current mine level.</param>
-        internal static void InvokeMineLevelChanged(int previousMineLevel, int currentMineLevel)
+        internal static void InvokeMineLevelChanged(IMonitor monitor, int previousMineLevel, int currentMineLevel)
         {
-            MineEvents.MineLevelChanged?.Invoke(null, new EventArgsMineLevelChanged(previousMineLevel, currentMineLevel));
+            monitor.SafelyRaiseGenericEvent($"{nameof(MineEvents)}.{nameof(MineEvents.MineLevelChanged)}", MineEvents.MineLevelChanged?.GetInvocationList(), null, new EventArgsMineLevelChanged(previousMineLevel, currentMineLevel));
         }
     }
 }

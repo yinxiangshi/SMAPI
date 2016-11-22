@@ -199,6 +199,7 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="Framework\DeprecationLevel.cs" />
     <Compile Include="Framework\DeprecationManager.cs" />
+    <Compile Include="Framework\InternalExtensions.cs" />
     <Compile Include="IModHelper.cs" />
     <Compile Include="Framework\LogFileManager.cs" />
     <Compile Include="LogLevel.cs" />

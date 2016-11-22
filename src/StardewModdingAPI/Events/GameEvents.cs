@@ -1,4 +1,5 @@
 ﻿using System;
+using StardewModdingAPI.Framework;
 
 namespace StardewModdingAPI.Events
 {
@@ -46,93 +47,80 @@ namespace StardewModdingAPI.Events
         ** Internal methods
         *********/
         /// <summary>Raise a <see cref="GameLoaded"/> event.</summary>
-        internal static void InvokeGameLoaded()
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
+        internal static void InvokeGameLoaded(IMonitor monitor)
         {
-            GameEvents.GameLoaded?.Invoke(null, EventArgs.Empty);
+            monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.GameLoaded)}", GameEvents.GameLoaded?.GetInvocationList());
         }
 
         /// <summary>Raise an <see cref="Initialize"/> event.</summary>
         /// <param name="monitor">Encapsulates logging and monitoring.</param>
         internal static void InvokeInitialize(IMonitor monitor)
         {
-            try
-            {
-                GameEvents.Initialize?.Invoke(null, EventArgs.Empty);
-            }
-            catch (Exception ex)
-            {
-                monitor.Log($"A mod crashed handling an event.\n{ex}", LogLevel.Error);
-            }
+            monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.Initialize)}", GameEvents.Initialize?.GetInvocationList());
         }
 
         /// <summary>Raise a <see cref="LoadContent"/> event.</summary>
         /// <param name="monitor">Encapsulates logging and monitoring.</param>
         internal static void InvokeLoadContent(IMonitor monitor)
         {
-            try
-            {
-                GameEvents.LoadContent?.Invoke(null, EventArgs.Empty);
-            }
-            catch (Exception ex)
-            {
-                monitor.Log($"A mod crashed handling an event.\n{ex}", LogLevel.Error);
-            }
+            monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.LoadContent)}", GameEvents.LoadContent?.GetInvocationList());
         }
 
         /// <summary>Raise an <see cref="UpdateTick"/> event.</summary>
         /// <param name="monitor">Encapsulates logging and monitoring.</param>
         internal static void InvokeUpdateTick(IMonitor monitor)
         {
-            try
-            {
-                GameEvents.UpdateTick?.Invoke(null, EventArgs.Empty);
-            }
-            catch (Exception ex)
-            {
-                monitor.Log($"A mod crashed handling an event.\n{ex}", LogLevel.Error);
-            }
+            monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.UpdateTick)}", GameEvents.UpdateTick?.GetInvocationList());
         }
 
         /// <summary>Raise a <see cref="SecondUpdateTick"/> event.</summary>
-        internal static void InvokeSecondUpdateTick()
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
+        internal static void InvokeSecondUpdateTick(IMonitor monitor)
         {
-            GameEvents.SecondUpdateTick?.Invoke(null, EventArgs.Empty);
+            monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.SecondUpdateTick)}", GameEvents.SecondUpdateTick?.GetInvocationList());
         }
 
         /// <summary>Raise a <see cref="FourthUpdateTick"/> event.</summary>
-        internal static void InvokeFourthUpdateTick()
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
+        internal static void InvokeFourthUpdateTick(IMonitor monitor)
         {
-            GameEvents.FourthUpdateTick?.Invoke(null, EventArgs.Empty);
+            monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.FourthUpdateTick)}", GameEvents.FourthUpdateTick?.GetInvocationList());
         }
 
         /// <summary>Raise a <see cref="EighthUpdateTick"/> event.</summary>
-        internal static void InvokeEighthUpdateTick()
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
+        internal static void InvokeEighthUpdateTick(IMonitor monitor)
         {
-            GameEvents.EighthUpdateTick?.Invoke(null, EventArgs.Empty);
+            monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.EighthUpdateTick)}", GameEvents.EighthUpdateTick?.GetInvocationList());
         }
 
         /// <summary>Raise a <see cref="QuarterSecondTick"/> event.</summary>
-        internal static void InvokeQuarterSecondTick()
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
+        internal static void InvokeQuarterSecondTick(IMonitor monitor)
         {
-            GameEvents.QuarterSecondTick?.Invoke(null, EventArgs.Empty);
+            monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.QuarterSecondTick)}", GameEvents.QuarterSecondTick?.GetInvocationList());
         }
 
         /// <summary>Raise a <see cref="HalfSecondTick"/> event.</summary>
-        internal static void InvokeHalfSecondTick()
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
+        internal static void InvokeHalfSecondTick(IMonitor monitor)
         {
-            GameEvents.HalfSecondTick?.Invoke(null, EventArgs.Empty);
+            monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.HalfSecondTick)}", GameEvents.HalfSecondTick?.GetInvocationList());
         }
 
         /// <summary>Raise a <see cref="OneSecondTick"/> event.</summary>
-        internal static void InvokeOneSecondTick()
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
+        internal static void InvokeOneSecondTick(IMonitor monitor)
         {
-            GameEvents.OneSecondTick?.Invoke(null, EventArgs.Empty);
+            monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.OneSecondTick)}", GameEvents.OneSecondTick?.GetInvocationList());
         }
 
         /// <summary>Raise a <see cref="FirstUpdateTick"/> event.</summary>
-        internal static void InvokeFirstUpdateTick()
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
+        internal static void InvokeFirstUpdateTick(IMonitor monitor)
         {
-            GameEvents.FirstUpdateTick?.Invoke(null, EventArgs.Empty);
+            monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.FirstUpdateTick)}", GameEvents.FirstUpdateTick?.GetInvocationList());
         }
     }
 }

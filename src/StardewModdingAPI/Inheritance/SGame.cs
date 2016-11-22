@@ -318,7 +318,7 @@ namespace StardewModdingAPI.Inheritance
 
             // raise game loaded
             if (this.FirstUpdate)
-                GameEvents.InvokeGameLoaded();
+                GameEvents.InvokeGameLoaded(this.Monitor);
 
             // update SMAPI events
             this.UpdateEventCalls();
@@ -342,21 +342,21 @@ namespace StardewModdingAPI.Inheritance
             GameEvents.InvokeUpdateTick(this.Monitor);
             if (this.FirstUpdate)
             {
-                GameEvents.InvokeFirstUpdateTick();
+                GameEvents.InvokeFirstUpdateTick(this.Monitor);
                 this.FirstUpdate = false;
             }
             if (this.CurrentUpdateTick % 2 == 0)
-                GameEvents.InvokeSecondUpdateTick();
+                GameEvents.InvokeSecondUpdateTick(this.Monitor);
             if (this.CurrentUpdateTick % 4 == 0)
-                GameEvents.InvokeFourthUpdateTick();
+                GameEvents.InvokeFourthUpdateTick(this.Monitor);
             if (this.CurrentUpdateTick % 8 == 0)
-                GameEvents.InvokeEighthUpdateTick();
+                GameEvents.InvokeEighthUpdateTick(this.Monitor);
             if (this.CurrentUpdateTick % 15 == 0)
-                GameEvents.InvokeQuarterSecondTick();
+                GameEvents.InvokeQuarterSecondTick(this.Monitor);
             if (this.CurrentUpdateTick % 30 == 0)
-                GameEvents.InvokeHalfSecondTick();
+                GameEvents.InvokeHalfSecondTick(this.Monitor);
             if (this.CurrentUpdateTick % 60 == 0)
-                GameEvents.InvokeOneSecondTick();
+                GameEvents.InvokeOneSecondTick(this.Monitor);
             this.CurrentUpdateTick += 1;
             if (this.CurrentUpdateTick >= 60)
                 this.CurrentUpdateTick = 0;
@@ -388,9 +388,9 @@ namespace StardewModdingAPI.Inheritance
                 {
                     Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
                     Game1.activeClickableMenu.drawBackground(Game1.spriteBatch);
-                    GraphicsEvents.InvokeOnPreRenderGuiEvent(null, EventArgs.Empty);
+                    GraphicsEvents.InvokeOnPreRenderGuiEvent(this.Monitor);
                     Game1.activeClickableMenu.draw(Game1.spriteBatch);
-                    GraphicsEvents.InvokeOnPostRenderGuiEvent(null, EventArgs.Empty);
+                    GraphicsEvents.InvokeOnPostRenderGuiEvent(this.Monitor);
                     Game1.spriteBatch.End();
                     if (!this.ZoomLevelIsOne)
                     {
@@ -489,7 +489,7 @@ namespace StardewModdingAPI.Inheritance
                         Game1.bloom?.BeginDraw();
                     this.GraphicsDevice.Clear(this.BgColour);
                     Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
-                    GraphicsEvents.InvokeOnPreRenderEvent(null, EventArgs.Empty);
+                    GraphicsEvents.InvokeOnPreRenderEvent(this.Monitor);
                     Game1.background?.draw(Game1.spriteBatch);
                     Game1.mapDisplayDevice.BeginScene(Game1.spriteBatch);
                     Game1.currentLocation.Map.GetLayer("Back").Draw(Game1.mapDisplayDevice, Game1.viewport, Location.Origin, false, Game1.pixelZoom);
@@ -679,16 +679,16 @@ namespace StardewModdingAPI.Inheritance
                     if (Game1.currentBillboard != 0)
                         this.drawBillboard();
 
-                    GraphicsEvents.InvokeOnPreRenderHudEventNoCheck(null, EventArgs.Empty);
+                    GraphicsEvents.InvokeOnPreRenderHudEventNoCheck(this.Monitor);
                     if ((Game1.displayHUD || Game1.eventUp) && Game1.currentBillboard == 0 && Game1.gameMode == 3 && !Game1.freezeControls && !Game1.panMode)
                     {
-                        GraphicsEvents.InvokeOnPreRenderHudEvent(null, EventArgs.Empty);
+                        GraphicsEvents.InvokeOnPreRenderHudEvent(this.Monitor);
                         SGame.DrawHUD.Invoke(Program.gamePtr, null);
-                        GraphicsEvents.InvokeOnPostRenderHudEvent(null, EventArgs.Empty);
+                        GraphicsEvents.InvokeOnPostRenderHudEvent(this.Monitor);
                     }
                     else if (Game1.activeClickableMenu == null && Game1.farmEvent == null)
                         Game1.spriteBatch.Draw(Game1.mouseCursors, new Vector2(Game1.getOldMouseX(), Game1.getOldMouseY()), Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, 0, 16, 16), Color.White, 0f, Vector2.Zero, 4f + Game1.dialogueButtonScale / 150f, SpriteEffects.None, 1f);
-                    GraphicsEvents.InvokeOnPostRenderHudEventNoCheck(null, EventArgs.Empty);
+                    GraphicsEvents.InvokeOnPostRenderHudEventNoCheck(this.Monitor);
 
                     if (Game1.hudMessages.Any() && (!Game1.eventUp || Game1.isFestival()))
                     {
@@ -737,21 +737,21 @@ namespace StardewModdingAPI.Inheritance
                 if (Game1.showKeyHelp)
                     Game1.spriteBatch.DrawString(Game1.smallFont, Game1.keyHelpString, new Vector2(Game1.tileSize, Game1.viewport.Height - Game1.tileSize - (Game1.dialogueUp ? (Game1.tileSize * 3 + (Game1.isQuestion ? (Game1.questionChoices.Count * Game1.tileSize) : 0)) : 0) - Game1.smallFont.MeasureString(Game1.keyHelpString).Y), Color.LightGray, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.9999999f);
 
-                GraphicsEvents.InvokeOnPreRenderGuiEventNoCheck(null, EventArgs.Empty);
+                GraphicsEvents.InvokeOnPreRenderGuiEventNoCheck(this.Monitor);
                 if (Game1.activeClickableMenu != null)
                 {
-                    GraphicsEvents.InvokeOnPreRenderGuiEvent(null, EventArgs.Empty);
+                    GraphicsEvents.InvokeOnPreRenderGuiEvent(this.Monitor);
                     Game1.activeClickableMenu.draw(Game1.spriteBatch);
-                    GraphicsEvents.InvokeOnPostRenderGuiEvent(null, EventArgs.Empty);
+                    GraphicsEvents.InvokeOnPostRenderGuiEvent(this.Monitor);
                 }
                 else
                     Game1.farmEvent?.drawAboveEverything(Game1.spriteBatch);
-                GraphicsEvents.InvokeOnPostRenderGuiEventNoCheck(null, EventArgs.Empty);
+                GraphicsEvents.InvokeOnPostRenderGuiEventNoCheck(this.Monitor);
 
-                GraphicsEvents.InvokeOnPostRenderEvent(null, EventArgs.Empty);
+                GraphicsEvents.InvokeOnPostRenderEvent(this.Monitor);
                 Game1.spriteBatch.End();
 
-                GraphicsEvents.InvokeDrawInRenderTargetTick();
+                GraphicsEvents.InvokeDrawInRenderTargetTick(this.Monitor);
 
                 if (!this.ZoomLevelIsOne)
                 {
@@ -780,7 +780,7 @@ namespace StardewModdingAPI.Inheritance
                     Game1.spriteBatch.DrawString(Game1.smoothFont, message, new Vector2(0, i * 14), Color.CornflowerBlue);
                     i++;
                 }
-                GraphicsEvents.InvokeDrawDebug(null, EventArgs.Empty);
+                GraphicsEvents.InvokeDrawDebug(this.Monitor);
 
                 Game1.spriteBatch.End();
             }
@@ -834,11 +834,11 @@ namespace StardewModdingAPI.Inheritance
 
             // raise key pressed
             foreach (var key in this.FramePressedKeys)
-                ControlEvents.InvokeKeyPressed(key);
+                ControlEvents.InvokeKeyPressed(this.Monitor, key);
 
             // raise key released
             foreach (var key in this.FrameReleasedKeys)
-                ControlEvents.InvokeKeyReleased(key);
+                ControlEvents.InvokeKeyReleased(this.Monitor, key);
 
             // raise controller button pressed
             for (var i = PlayerIndex.One; i <= PlayerIndex.Four; i++)
@@ -847,9 +847,9 @@ namespace StardewModdingAPI.Inheritance
                 foreach (var button in buttons)
                 {
                     if (button == Buttons.LeftTrigger || button == Buttons.RightTrigger)
-                        ControlEvents.InvokeTriggerPressed(i, button, button == Buttons.LeftTrigger ? GamePad.GetState(i).Triggers.Left : GamePad.GetState(i).Triggers.Right);
+                        ControlEvents.InvokeTriggerPressed(this.Monitor, i, button, button == Buttons.LeftTrigger ? GamePad.GetState(i).Triggers.Left : GamePad.GetState(i).Triggers.Right);
                     else
-                        ControlEvents.InvokeButtonPressed(i, button);
+                        ControlEvents.InvokeButtonPressed(this.Monitor, i, button);
                 }
             }
 
@@ -859,20 +859,20 @@ namespace StardewModdingAPI.Inheritance
                 foreach (var button in this.GetFrameReleasedButtons(i))
                 {
                     if (button == Buttons.LeftTrigger || button == Buttons.RightTrigger)
-                        ControlEvents.InvokeTriggerReleased(i, button, button == Buttons.LeftTrigger ? GamePad.GetState(i).Triggers.Left : GamePad.GetState(i).Triggers.Right);
+                        ControlEvents.InvokeTriggerReleased(this.Monitor, i, button, button == Buttons.LeftTrigger ? GamePad.GetState(i).Triggers.Left : GamePad.GetState(i).Triggers.Right);
                     else
-                        ControlEvents.InvokeButtonReleased(i, button);
+                        ControlEvents.InvokeButtonReleased(this.Monitor, i, button);
                 }
             }
 
             // raise keyboard state changed
             if (this.KStateNow != this.KStatePrior)
-                ControlEvents.InvokeKeyboardChanged(this.KStatePrior, this.KStateNow);
+                ControlEvents.InvokeKeyboardChanged(this.Monitor, this.KStatePrior, this.KStateNow);
 
             // raise mouse state changed
             if (this.MStateNow != this.MStatePrior)
             {
-                ControlEvents.InvokeMouseChanged(this.MStatePrior, this.MStateNow, this.MPositionPrior, this.MPositionNow);
+                ControlEvents.InvokeMouseChanged(this.Monitor, this.MStatePrior, this.MStateNow, this.MPositionPrior, this.MPositionNow);
                 this.MStatePrior = this.MStateNow;
                 this.MPositionPrior = this.MPositionPrior;
             }
@@ -881,23 +881,23 @@ namespace StardewModdingAPI.Inheritance
             if (Game1.activeClickableMenu != this.PreviousActiveMenu)
             {
                 if (Game1.activeClickableMenu != null)
-                    MenuEvents.InvokeMenuChanged(this.PreviousActiveMenu, Game1.activeClickableMenu);
+                    MenuEvents.InvokeMenuChanged(this.Monitor, this.PreviousActiveMenu, Game1.activeClickableMenu);
                 else
-                    MenuEvents.InvokeMenuClosed(this.PreviousActiveMenu);
+                    MenuEvents.InvokeMenuClosed(this.Monitor, this.PreviousActiveMenu);
                 this.PreviousActiveMenu = Game1.activeClickableMenu;
             }
 
             // raise location list changed
             if (this.GetHash(Game1.locations) != this.PreviousGameLocations)
             {
-                LocationEvents.InvokeLocationsChanged(Game1.locations);
+                LocationEvents.InvokeLocationsChanged(this.Monitor, Game1.locations);
                 this.PreviousGameLocations = this.GetHash(Game1.locations);
             }
 
             // raise current location changed
             if (Game1.currentLocation != this.PreviousGameLocation)
             {
-                LocationEvents.InvokeCurrentLocationChanged(this.PreviousGameLocation, Game1.currentLocation);
+                LocationEvents.InvokeCurrentLocationChanged(this.Monitor, this.PreviousGameLocation, Game1.currentLocation);
                 this.PreviousGameLocation = Game1.currentLocation;
             }
 
@@ -907,39 +907,39 @@ namespace StardewModdingAPI.Inheritance
                 // raise player changed
                 if (Game1.player != this.PreviousFarmer)
                 {
-                    PlayerEvents.InvokeFarmerChanged(this.PreviousFarmer, Game1.player);
+                    PlayerEvents.InvokeFarmerChanged(this.Monitor, this.PreviousFarmer, Game1.player);
                     this.PreviousFarmer = Game1.player;
                 }
 
                 // raise player leveled up a skill
                 if (Game1.player.combatLevel != this.PreviousCombatLevel)
                 {
-                    PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Combat, Game1.player.combatLevel);
+                    PlayerEvents.InvokeLeveledUp(this.Monitor, EventArgsLevelUp.LevelType.Combat, Game1.player.combatLevel);
                     this.PreviousCombatLevel = Game1.player.combatLevel;
                 }
                 if (Game1.player.farmingLevel != this.PreviousFarmingLevel)
                 {
-                    PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Farming, Game1.player.farmingLevel);
+                    PlayerEvents.InvokeLeveledUp(this.Monitor, EventArgsLevelUp.LevelType.Farming, Game1.player.farmingLevel);
                     this.PreviousFarmingLevel = Game1.player.farmingLevel;
                 }
                 if (Game1.player.fishingLevel != this.PreviousFishingLevel)
                 {
-                    PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Fishing, Game1.player.fishingLevel);
+                    PlayerEvents.InvokeLeveledUp(this.Monitor, EventArgsLevelUp.LevelType.Fishing, Game1.player.fishingLevel);
                     this.PreviousFishingLevel = Game1.player.fishingLevel;
                 }
                 if (Game1.player.foragingLevel != this.PreviousForagingLevel)
                 {
-                    PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Foraging, Game1.player.foragingLevel);
+                    PlayerEvents.InvokeLeveledUp(this.Monitor, EventArgsLevelUp.LevelType.Foraging, Game1.player.foragingLevel);
                     this.PreviousForagingLevel = Game1.player.foragingLevel;
                 }
                 if (Game1.player.miningLevel != this.PreviousMiningLevel)
                 {
-                    PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Mining, Game1.player.miningLevel);
+                    PlayerEvents.InvokeLeveledUp(this.Monitor, EventArgsLevelUp.LevelType.Mining, Game1.player.miningLevel);
                     this.PreviousMiningLevel = Game1.player.miningLevel;
                 }
                 if (Game1.player.luckLevel != this.PreviousLuckLevel)
                 {
-                    PlayerEvents.InvokeLeveledUp(EventArgsLevelUp.LevelType.Luck, Game1.player.luckLevel);
+                    PlayerEvents.InvokeLeveledUp(this.Monitor, EventArgsLevelUp.LevelType.Luck, Game1.player.luckLevel);
                     this.PreviousLuckLevel = Game1.player.luckLevel;
                 }
 
@@ -947,7 +947,7 @@ namespace StardewModdingAPI.Inheritance
                 ItemStackChange[] changedItems = this.GetInventoryChanges(Game1.player.items, this.PreviousItems).ToArray();
                 if (changedItems.Any())
                 {
-                    PlayerEvents.InvokeInventoryChanged(Game1.player.items, changedItems);
+                    PlayerEvents.InvokeInventoryChanged(this.Monitor, Game1.player.items, changedItems);
                     this.PreviousItems = Game1.player.items.Where(n => n != null).ToDictionary(n => n, n => n.Stack);
                 }
             }
@@ -956,36 +956,36 @@ namespace StardewModdingAPI.Inheritance
             int? objectHash = Game1.currentLocation?.objects != null ? this.GetHash(Game1.currentLocation.objects) : (int?)null;
             if (objectHash != null && this.PreviousLocationObjects != objectHash)
             {
-                LocationEvents.InvokeOnNewLocationObject(Game1.currentLocation.objects);
+                LocationEvents.InvokeOnNewLocationObject(this.Monitor, Game1.currentLocation.objects);
                 this.PreviousLocationObjects = objectHash.Value;
             }
 
             // raise time changed
             if (Game1.timeOfDay != this.PreviousTimeOfDay)
             {
-                TimeEvents.InvokeTimeOfDayChanged(this.PreviousTimeOfDay, Game1.timeOfDay);
+                TimeEvents.InvokeTimeOfDayChanged(this.Monitor, this.PreviousTimeOfDay, Game1.timeOfDay);
                 this.PreviousTimeOfDay = Game1.timeOfDay;
             }
             if (Game1.dayOfMonth != this.PreviousDayOfMonth)
             {
-                TimeEvents.InvokeDayOfMonthChanged(this.PreviousDayOfMonth, Game1.dayOfMonth);
+                TimeEvents.InvokeDayOfMonthChanged(this.Monitor, this.PreviousDayOfMonth, Game1.dayOfMonth);
                 this.PreviousDayOfMonth = Game1.dayOfMonth;
             }
             if (Game1.currentSeason != this.PreviousSeasonOfYear)
             {
-                TimeEvents.InvokeSeasonOfYearChanged(this.PreviousSeasonOfYear, Game1.currentSeason);
+                TimeEvents.InvokeSeasonOfYearChanged(this.Monitor, this.PreviousSeasonOfYear, Game1.currentSeason);
                 this.PreviousSeasonOfYear = Game1.currentSeason;
             }
             if (Game1.year != this.PreviousYearOfGame)
             {
-                TimeEvents.InvokeYearOfGameChanged(this.PreviousYearOfGame, Game1.year);
+                TimeEvents.InvokeYearOfGameChanged(this.Monitor, this.PreviousYearOfGame, Game1.year);
                 this.PreviousYearOfGame = Game1.year;
             }
 
             // raise player loaded save (in the following tick to let the game finish updating first)
             if (this.FireLoadedGameEvent)
             {
-                PlayerEvents.InvokeLoadedGame(new EventArgsLoadedGameChanged(Game1.hasLoadedGame));
+                PlayerEvents.InvokeLoadedGame(this.Monitor, new EventArgsLoadedGameChanged(Game1.hasLoadedGame));
                 this.FireLoadedGameEvent = false;
             }
             if (Game1.hasLoadedGame != this.PreviouslyLoadedGame)
@@ -997,14 +997,14 @@ namespace StardewModdingAPI.Inheritance
             // raise mine level changed
             if (Game1.mine != null && Game1.mine.mineLevel != this.PreviousMineLevel)
             {
-                MineEvents.InvokeMineLevelChanged(this.PreviousMineLevel, Game1.mine.mineLevel);
+                MineEvents.InvokeMineLevelChanged(this.Monitor, this.PreviousMineLevel, Game1.mine.mineLevel);
                 this.PreviousMineLevel = Game1.mine.mineLevel;
             }
 
             // raise game transitioning to new day
             if (Game1.newDay != this.PreviousIsNewDay)
             {
-                TimeEvents.InvokeOnNewDay(this.PreviousDayOfMonth, Game1.dayOfMonth, Game1.newDay);
+                TimeEvents.InvokeOnNewDay(this.Monitor, this.PreviousDayOfMonth, Game1.dayOfMonth, Game1.newDay);
                 this.PreviousIsNewDay = Game1.newDay;
             }
         }

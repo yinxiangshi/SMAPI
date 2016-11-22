@@ -1,4 +1,5 @@
 ﻿using System;
+using StardewModdingAPI.Framework;
 
 namespace StardewModdingAPI.Events
 {
@@ -28,44 +29,49 @@ namespace StardewModdingAPI.Events
         ** Internal methods
         *********/
         /// <summary>Raise a <see cref="InvokeDayOfMonthChanged"/> event.</summary>
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="priorTime">The previous time in military time format (e.g. 6:00pm is 1800).</param>
         /// <param name="newTime">The current time in military time format (e.g. 6:10pm is 1810).</param>
-        internal static void InvokeTimeOfDayChanged(int priorTime, int newTime)
+        internal static void InvokeTimeOfDayChanged(IMonitor monitor, int priorTime, int newTime)
         {
-            TimeEvents.TimeOfDayChanged?.Invoke(null, new EventArgsIntChanged(priorTime, newTime));
+            monitor.SafelyRaiseGenericEvent($"{nameof(TimeEvents)}.{nameof(TimeEvents.TimeOfDayChanged)}", TimeEvents.TimeOfDayChanged?.GetInvocationList(), null, new EventArgsIntChanged(priorTime, newTime));
         }
 
         /// <summary>Raise a <see cref="DayOfMonthChanged"/> event.</summary>
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="priorDay">The previous day value.</param>
         /// <param name="newDay">The current day value.</param>
-        internal static void InvokeDayOfMonthChanged(int priorDay, int newDay)
+        internal static void InvokeDayOfMonthChanged(IMonitor monitor, int priorDay, int newDay)
         {
-            TimeEvents.DayOfMonthChanged?.Invoke(null, new EventArgsIntChanged(priorDay, newDay));
+            monitor.SafelyRaiseGenericEvent($"{nameof(TimeEvents)}.{nameof(TimeEvents.DayOfMonthChanged)}", TimeEvents.DayOfMonthChanged?.GetInvocationList(), null, new EventArgsIntChanged(priorDay, newDay));
         }
 
         /// <summary>Raise a <see cref="YearOfGameChanged"/> event.</summary>
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="priorYear">The previous year value.</param>
         /// <param name="newYear">The current year value.</param>
-        internal static void InvokeYearOfGameChanged(int priorYear, int newYear)
+        internal static void InvokeYearOfGameChanged(IMonitor monitor, int priorYear, int newYear)
         {
-            TimeEvents.YearOfGameChanged?.Invoke(null, new EventArgsIntChanged(priorYear, newYear));
+            monitor.SafelyRaiseGenericEvent($"{nameof(TimeEvents)}.{nameof(TimeEvents.YearOfGameChanged)}", TimeEvents.YearOfGameChanged?.GetInvocationList(), null, new EventArgsIntChanged(priorYear, newYear));
         }
 
         /// <summary>Raise a <see cref="SeasonOfYearChanged"/> event.</summary>
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="priorSeason">The previous season name.</param>
         /// <param name="newSeason">The current season name.</param>
-        internal static void InvokeSeasonOfYearChanged(string priorSeason, string newSeason)
+        internal static void InvokeSeasonOfYearChanged(IMonitor monitor, string priorSeason, string newSeason)
         {
-            TimeEvents.SeasonOfYearChanged?.Invoke(null, new EventArgsStringChanged(priorSeason, newSeason));
+            monitor.SafelyRaiseGenericEvent($"{nameof(TimeEvents)}.{nameof(TimeEvents.SeasonOfYearChanged)}", TimeEvents.SeasonOfYearChanged?.GetInvocationList(), null, new EventArgsStringChanged(priorSeason, newSeason));
         }
 
         /// <summary>Raise a <see cref="OnNewDay"/> event.</summary>
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="priorDay">The previous day value.</param>
         /// <param name="newDay">The current day value.</param>
         /// <param name="isTransitioning">Whether the game just started the transition (<c>true</c>) or finished it (<c>false</c>).</param>
-        internal static void InvokeOnNewDay(int priorDay, int newDay, bool isTransitioning)
+        internal static void InvokeOnNewDay(IMonitor monitor, int priorDay, int newDay, bool isTransitioning)
         {
-            TimeEvents.OnNewDay?.Invoke(null, new EventArgsNewDay(priorDay, newDay, isTransitioning));
+            monitor.SafelyRaiseGenericEvent($"{nameof(TimeEvents)}.{nameof(TimeEvents.OnNewDay)}", TimeEvents.OnNewDay?.GetInvocationList(), null, new EventArgsNewDay(priorDay, newDay, isTransitioning));
         }
     }
 }

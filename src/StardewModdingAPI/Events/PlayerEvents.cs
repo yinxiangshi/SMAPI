@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using StardewModdingAPI.Framework;
 using StardewModdingAPI.Inheritance;
 using StardewValley;
 
@@ -29,34 +30,38 @@ namespace StardewModdingAPI.Events
         ** Internal methods
         *********/
         /// <summary>Raise a <see cref="LoadedGame"/> event.</summary>
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="loaded">Whether the save has been loaded. This is always true.</param>
-        internal static void InvokeLoadedGame(EventArgsLoadedGameChanged loaded)
+        internal static void InvokeLoadedGame(IMonitor monitor, EventArgsLoadedGameChanged loaded)
         {
-            PlayerEvents.LoadedGame?.Invoke(null, loaded);
+            monitor.SafelyRaiseGenericEvent($"{nameof(PlayerEvents)}.{nameof(PlayerEvents.LoadedGame)}", PlayerEvents.LoadedGame?.GetInvocationList(), null, loaded);
         }
 
         /// <summary>Raise a <see cref="FarmerChanged"/> event.</summary>
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="priorFarmer">The previous player character.</param>
         /// <param name="newFarmer">The new player character.</param>
-        internal static void InvokeFarmerChanged(Farmer priorFarmer, Farmer newFarmer)
+        internal static void InvokeFarmerChanged(IMonitor monitor, Farmer priorFarmer, Farmer newFarmer)
         {
-            PlayerEvents.FarmerChanged?.Invoke(null, new EventArgsFarmerChanged(priorFarmer, newFarmer));
+            monitor.SafelyRaiseGenericEvent($"{nameof(PlayerEvents)}.{nameof(PlayerEvents.FarmerChanged)}", PlayerEvents.FarmerChanged?.GetInvocationList(), null, new EventArgsFarmerChanged(priorFarmer, newFarmer));
         }
 
         /// <summary>Raise an <see cref="InventoryChanged"/> event.</summary>
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="inventory">The player's inventory.</param>
         /// <param name="changedItems">The inventory changes.</param>
-        internal static void InvokeInventoryChanged(List<Item> inventory, IEnumerable<ItemStackChange> changedItems)
+        internal static void InvokeInventoryChanged(IMonitor monitor, List<Item> inventory, IEnumerable<ItemStackChange> changedItems)
         {
-            PlayerEvents.InventoryChanged?.Invoke(null, new EventArgsInventoryChanged(inventory, changedItems.ToList()));
+            monitor.SafelyRaiseGenericEvent($"{nameof(PlayerEvents)}.{nameof(PlayerEvents.InventoryChanged)}", PlayerEvents.InventoryChanged?.GetInvocationList(), null, new EventArgsInventoryChanged(inventory, changedItems.ToList()));
         }
 
         /// <summary>Rase a <see cref="LeveledUp"/> event.</summary>
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="type">The player skill that leveled up.</param>
         /// <param name="newLevel">The new skill level.</param>
-        internal static void InvokeLeveledUp(EventArgsLevelUp.LevelType type, int newLevel)
+        internal static void InvokeLeveledUp(IMonitor monitor, EventArgsLevelUp.LevelType type, int newLevel)
         {
-            PlayerEvents.LeveledUp?.Invoke(null, new EventArgsLevelUp(type, newLevel));
+            monitor.SafelyRaiseGenericEvent($"{nameof(PlayerEvents)}.{nameof(PlayerEvents.LeveledUp)}", PlayerEvents.LeveledUp?.GetInvocationList(), null, new EventArgsLevelUp(type, newLevel));
         }
     }
 }
