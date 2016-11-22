@@ -9,6 +9,8 @@ For players:
   * Fixed critical errors being saved to a separate log file.
   * Fixed compatibility with some older mods.<sup>1.1.1, 1.1.2</sup>
   * Fixed race condition where some mods would sometimes crash because the game wasn't ready yet.<sup>1.1.1</sup>
+  * Fixed errors in some mod event handlers crashing the game.<sup>1.1.2</sup>
+  * Fixed issue where an error in one mod's event handler would cause other mods' handlers to never be called.<sup>1.1.2</sup>
 
 For developers:
   * Added new logging interface:
