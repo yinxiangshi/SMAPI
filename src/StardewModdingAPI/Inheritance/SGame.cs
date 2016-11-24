@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using StardewModdingAPI.Events;
+using StardewModdingAPI.Framework;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
 using StardewValley.Locations;
@@ -334,7 +335,7 @@ namespace StardewModdingAPI.Inheritance
             }
             catch (Exception ex)
             {
-                this.Monitor.Log($"An error occured in the base update loop: {ex}", LogLevel.Error);
+                this.Monitor.Log($"An error occured in the base update loop: {ex.GetLogSummary()}", LogLevel.Error);
                 Console.ReadKey();
             }
 
@@ -766,7 +767,7 @@ namespace StardewModdingAPI.Inheritance
             }
             catch (Exception ex)
             {
-                this.Monitor.Log($"An error occured in the overridden draw loop: {ex}", LogLevel.Error);
+                this.Monitor.Log($"An error occured in the overridden draw loop: {ex.GetLogSummary()}", LogLevel.Error);
             }
 
             if (SGame.Debug)

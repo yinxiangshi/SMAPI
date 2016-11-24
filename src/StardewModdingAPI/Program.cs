@@ -142,7 +142,7 @@ namespace StardewModdingAPI
             }
             catch (Exception ex)
             {
-                Program.Monitor.Log($"Critical error: {ex}", LogLevel.Error);
+                Program.Monitor.Log($"Critical error: {ex.GetLogSummary()}", LogLevel.Error);
             }
             Program.PressAnyKeyToExit();
         }
@@ -179,7 +179,7 @@ namespace StardewModdingAPI
                 }
                 catch (Exception ex)
                 {
-                    Program.Monitor.Log($"Couldn't check for a new version of SMAPI. This won't affect your game, but you may not be notified of new versions if this keeps happening.\n{ex}");
+                    Program.Monitor.Log($"Couldn't check for a new version of SMAPI. This won't affect your game, but you may not be notified of new versions if this keeps happening.\n{ex.GetLogSummary()}");
                 }
             }).Start();
         }
@@ -198,7 +198,7 @@ namespace StardewModdingAPI
 
                 // add error interceptors
 #if SMAPI_FOR_WINDOWS
-                Application.ThreadException += (sender, e) => Program.Monitor.Log($"Critical thread exception: {e.Exception}", LogLevel.Error);
+                Application.ThreadException += (sender, e) => Program.Monitor.Log($"Critical thread exception: {e.Exception.GetLogSummary()}", LogLevel.Error);
                 Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
 #endif
                 AppDomain.CurrentDomain.UnhandledException += (sender, e) => Program.Monitor.Log($"Critical app domain exception: {e.ExceptionObject}", LogLevel.Error);
@@ -262,7 +262,7 @@ namespace StardewModdingAPI
             }
             catch (Exception ex)
             {
-                Program.Monitor.Log($"SMAPI encountered a fatal error:\n{ex}", LogLevel.Error);
+                Program.Monitor.Log($"SMAPI encountered a fatal error:\n{ex.GetLogSummary()}", LogLevel.Error);
             }
         }
 
@@ -277,7 +277,7 @@ namespace StardewModdingAPI
             }
             catch (Exception ex)
             {
-                Program.Monitor.Log($"Couldn't create a path: {path}\n\n{ex}", LogLevel.Error);
+                Program.Monitor.Log($"Couldn't create a path: {path}\n\n{ex.GetLogSummary()}", LogLevel.Error);
             }
         }
 
@@ -330,7 +330,7 @@ namespace StardewModdingAPI
                     }
                     catch (Exception ex)
                     {
-                        Program.Monitor.Log($"{errorPrefix}: manifest parsing failed.\n{ex}", LogLevel.Error);
+                        Program.Monitor.Log($"{errorPrefix}: manifest parsing failed.\n{ex.GetLogSummary()}", LogLevel.Error);
                         continue;
                     }
 
@@ -369,7 +369,7 @@ namespace StardewModdingAPI
                         }
                         catch (Exception ex)
                         {
-                            Program.Monitor.Log($"{errorPrefix}: couldm't create the per-save configuration directory ('psconfigs') requested by this mod.\n{ex}", LogLevel.Error);
+                            Program.Monitor.Log($"{errorPrefix}: couldm't create the per-save configuration directory ('psconfigs') requested by this mod.\n{ex.GetLogSummary()}", LogLevel.Error);
                             continue;
                         }
                     }
@@ -417,7 +417,7 @@ namespace StardewModdingAPI
                     }
                     catch (Exception ex)
                     {
-                        Program.Monitor.Log($"{errorPrefix}: an error occurred while loading the target DLL.\n{ex}", LogLevel.Error);
+                        Program.Monitor.Log($"{errorPrefix}: an error occurred while loading the target DLL.\n{ex.GetLogSummary()}", LogLevel.Error);
                     }
                 }
             }

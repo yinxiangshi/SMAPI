@@ -8,6 +8,9 @@ For players:
   * Fixed errors in some mod event handlers crashing the game.
   * Fixed issue where an error in one mod's event handler would cause other mods' handlers to never be called.
 
+For developers:
+  * Improved logging to show relevant details when a `ReflectionTypeLoadException` is caught by SMAPI.
+
 ## 1.1
 See [log](https://github.com/CLxS/SMAPI/compare/1.0...1.1.1).
 

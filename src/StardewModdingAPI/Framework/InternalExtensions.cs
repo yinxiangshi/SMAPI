@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace StardewModdingAPI.Framework
 {
@@ -32,7 +33,7 @@ namespace StardewModdingAPI.Framework
                 }
                 catch (Exception ex)
                 {
-                    monitor.Log($"A mod failed handling the {name} event:\n{ex}", LogLevel.Error);
+                    monitor.Log($"A mod failed handling the {name} event:\n{ex.GetLogSummary()}", LogLevel.Error);
                 }
             }
         }
@@ -57,9 +58,27 @@ namespace StardewModdingAPI.Framework
                 }
                 catch (Exception ex)
                 {
-                    monitor.Log($"A mod failed handling the {name} event:\n{ex}", LogLevel.Error);
+                    monitor.Log($"A mod failed handling the {name} event:\n{ex.GetLogSummary()}", LogLevel.Error);
                 }
             }
+        }
+
+        /****
+        ** Exceptions
+        ****/
+        /// <summary>Get a string representation of an exception suitable for writing to the error log.</summary>
+        /// <param name="exception">The error to summarise.</param>
+        public static string GetLogSummary(this Exception exception)
+        {
+            string summary = exception.ToString();
+
+            if (exception is ReflectionTypeLoadException)
+            {
+                foreach (Exception childEx in ((ReflectionTypeLoadException)exception).LoaderExceptions)
+                    summary += $"\n\n{childEx.GetLogSummary()}";
+            }
+
+            return summary;
         }
     }
 }
