@@ -1,15 +1,15 @@
 # Release notes
 
-## 1.2 (upcoming)
+## 1.2
 See [log](https://github.com/CLxS/SMAPI/compare/1.1.1...master).
 
 For players:
   * Fixed compatibility with some older mods.
-  * Fixed errors in some mod event handlers crashing the game.
-  * Fixed issue where an error in one mod's event handler would cause other mods' handlers to never be called.
+  * Fixed mod errors in most event handlers crashing the game.
+  * Fixed mod errors in some event handlers preventing other mods from receiving the same event.
 
 For developers:
-  * Improved logging to show relevant details when a `ReflectionTypeLoadException` is caught by SMAPI.
+  * Improved logging to show `ReflectionTypeLoadException` details when it's caught by SMAPI.
 
 ## 1.1
 See [log](https://github.com/CLxS/SMAPI/compare/1.0...1.1.1).
