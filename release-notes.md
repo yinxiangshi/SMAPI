@@ -1,7 +1,7 @@
 # Release notes
 
 ## 1.2
-See [log](https://github.com/CLxS/SMAPI/compare/1.1.1...master).
+See [log](https://github.com/CLxS/SMAPI/compare/1.1.1...1.2).
 
 For players:
   * Fixed compatibility with some older mods.
