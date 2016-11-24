@@ -72,7 +72,10 @@ namespace StardewModdingAPI
 
         /// <summary>Get the default config values.</summary>
         [Obsolete("This base class is obsolete since SMAPI 1.0. See the latest project README for details.")]
-        public abstract T GenerateDefaultConfig<T>() where T : Config;
+        public virtual T GenerateDefaultConfig<T>() where T : Config
+        {
+            return null;
+        }
 
         /// <summary>Get the current configuration with missing values defaulted.</summary>
         /// <typeparam name="T">The config class type.</typeparam>
