@@ -161,6 +161,14 @@ namespace StardewModdingAPI
             }
         }
 
+        /// <summary>Get a monitor for legacy code which doesn't have one passed in.</summary>
+        [Obsolete("This method should only be used when needed for backwards compatibility.")]
+        internal static IMonitor GetLegacyMonitorForMod()
+        {
+            string modName = Program.ModRegistry.GetModFromStack() ?? "unknown";
+            return new Monitor(modName, Program.LogFile);
+        }
+
 
         /*********
         ** Private methods
