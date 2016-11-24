@@ -134,8 +134,8 @@ namespace StardewModdingAPI
                     return;
                 }
 
-                // check for update
-                Program.CheckForUpdateAsync();
+                // check for update when game loads
+                GameEvents.GameLoaded += (sender, e) => Program.CheckForUpdateAsync();
 
                 // launch game
                 Program.StartGame();

@@ -7,6 +7,7 @@ For players:
   * Fixed compatibility with some older mods.
   * Fixed mod errors in most event handlers crashing the game.
   * Fixed mod errors in some event handlers preventing other mods from receiving the same event.
+  * Fixed game crashing on startup with an audio error for some players.
 
 For developers:
   * Improved logging to show `ReflectionTypeLoadException` details when it's caught by SMAPI.
