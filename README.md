@@ -5,20 +5,24 @@ It takes care of loading mods into the game context, and exposes events they can
 with the game. It's safely installed alongside the game's executable, and doesn't change any of
 your game files.
 
+## Contents
+* [For players](#for-players)
+* [For mod developers](#for-mod-developers)
+* [For SMAPI developers](#for-smapi-developers)
+  * [Compiling from source](#compiling-from-source)
+  * [Debugging a local build](#debugging-a-local-build)
+  * [Preparing a release](#preparing-a-release)
+
 ## For players
-
 * [How to install SMAPI & use mods](http://canimod.com/guides/using-mods#installing-smapi)
-* [Support forums](http://community.playstarbound.com/threads/stardew-modding-api-0-40-1-1.108375/)
-* [Stardew Valley Discord](https://discord.gg/KCJHWhX) (chat with players and developers)
-
-If you need help, [ask in this forum thread](http://community.playstarbound.com/threads/stardew-modding-api-0-40-1-1.108375)
-or [come talk to us on Discord](https://discord.gg/KCJHWhX). Your question will be seen by more
-people who can help that way. (Please don't submit issues on GitHub for support questions.)
+* [Release notes](release-notes.md#release-notes)
+* Need help? Come [chat on Discord](https://discord.gg/KCJHWhX) or [post in the support forums](http://community.playstarbound.com/threads/smapi-stardew-modding-api.108375/).  
+  _Please don't submit issues on GitHub for support questions._
 
 ## For mod developers
-
 * [How to develop mods](http://canimod.com/guides/creating-a-smapi-mod)
-* [Release notes](release-notes.md)
+* [How to update mods](http://canimod.com/guides/updating-a-smapi-mod)
+* [Release notes](release-notes.md#release-notes)
 * [SMAPI/Farmhand Discord](https://discordapp.com/invite/0t3fh2xhHVc6Vdyx) (chat with SMAPI developers)
 
 ## For SMAPI developers
