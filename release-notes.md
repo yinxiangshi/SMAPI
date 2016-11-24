@@ -1,16 +1,22 @@
 # Release notes
 
+## 1.2 (upcoming)
+See [log](https://github.com/CLxS/SMAPI/compare/1.1.1...master).
+
+For players:
+  * Fixed compatibility with some older mods.
+  * Fixed errors in some mod event handlers crashing the game.
+  * Fixed issue where an error in one mod's event handler would cause other mods' handlers to never be called.
+
 ## 1.1
-See [log](https://github.com/CLxS/SMAPI/compare/1.0...master).
+See [log](https://github.com/CLxS/SMAPI/compare/1.0...1.1.1).
 
 For players:
   * Fixed console exiting immediately when some exceptions occur.
   * Fixed an error in 1.0 when mod uses `config.json` but the file doesn't exist.
   * Fixed critical errors being saved to a separate log file.
-  * Fixed compatibility with some older mods.<sup>1.1.1, 1.1.2</sup>
+  * Fixed compatibility with some older mods.<sup>1.1.1</sup>
   * Fixed race condition where some mods would sometimes crash because the game wasn't ready yet.<sup>1.1.1</sup>
-  * Fixed errors in some mod event handlers crashing the game.<sup>1.1.2</sup>
-  * Fixed issue where an error in one mod's event handler would cause other mods' handlers to never be called.<sup>1.1.2</sup>
 
 For developers:
   * Added new logging interface:
