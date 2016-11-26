@@ -214,6 +214,7 @@
     <Compile Include="Events\TimeEvents.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Framework\AssemblyRewriting\CachePaths.cs" />
+    <Compile Include="Framework\AssemblyRewriting\AssemblyTypeRewriter.cs" />
     <Compile Include="Framework\DeprecationLevel.cs" />
     <Compile Include="Framework\DeprecationManager.cs" />
     <Compile Include="Framework\InternalExtensions.cs" />

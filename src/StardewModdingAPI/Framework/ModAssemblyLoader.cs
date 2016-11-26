@@ -17,6 +17,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>The directory in which to cache data.</summary>
         private readonly string CacheDirPath;
 
+        /// <summary>Rewrites assembly types to match the current platform.</summary>
+        private readonly AssemblyTypeRewriter AssemblyTypeRewriter;
+
         /// <summary>Encapsulates monitoring and logging for a given module.</summary>
         private readonly IMonitor Monitor;
 
@@ -32,6 +35,7 @@ namespace StardewModdingAPI.Framework
         {
             this.CacheDirPath = cacheDirPath;
             this.Monitor = monitor;
+            this.AssemblyTypeRewriter = this.GetAssemblyRewriter(targetPlatform);
         }
 
         /// <summary>Preprocess an assembly and cache the modified version.</summary>
@@ -52,14 +56,17 @@ namespace StardewModdingAPI.Framework
                 this.Monitor.Log($"Preprocessing new assembly {assemblyPath}...");
 
                 // read assembly definition
-                AssemblyDefinition definition;
+                AssemblyDefinition assembly;
                 using (Stream readStream = new MemoryStream(assemblyBytes))
-                    definition = AssemblyDefinition.ReadAssembly(readStream);
+                    assembly = AssemblyDefinition.ReadAssembly(readStream);
+
+                // rewrite assembly to match platform
+                this.AssemblyTypeRewriter.RewriteAssembly(assembly);
 
                 // write cache
                 using (MemoryStream outStream = new MemoryStream())
                 {
-                    definition.Write(outStream);
+                    assembly.Write(outStream);
                     byte[] outBytes = outStream.ToArray();
                     Directory.CreateDirectory(cachePaths.Directory);
                     File.WriteAllBytes(cachePaths.Assembly, outBytes);
@@ -91,6 +98,52 @@ namespace StardewModdingAPI.Framework
             string cacheAssemblyPath = Path.Combine(dirPath, $"{key}.dll");
             string cacheHashPath = Path.Combine(dirPath, $"{key}.hash");
             return new CachePaths(dirPath, cacheAssemblyPath, cacheHashPath);
+        }
+
+        /// <summary>Get an assembly rewriter for the target platform.</summary>
+        /// <param name="targetPlatform">The target game platform.</param>
+        private AssemblyTypeRewriter GetAssemblyRewriter(Platform targetPlatform)
+        {
+            // get assembly changes needed for platform
+            string[] removeAssemblyReferences;
+            Assembly[] targetAssemblies;
+            switch (targetPlatform)
+            {
+                case Platform.Mono:
+                    removeAssemblyReferences = new[]
+                    {
+                        "Stardew Valley",
+                        "Microsoft.Xna.Framework",
+                        "Microsoft.Xna.Framework.Game",
+                        "Microsoft.Xna.Framework.Graphics"
+                    };
+                    targetAssemblies = new[]
+                    {
+                        typeof(StardewValley.Game1).Assembly,
+                        typeof(Microsoft.Xna.Framework.Vector2).Assembly
+                    };
+                    break;
+
+                case Platform.Windows:
+                    removeAssemblyReferences = new[]
+                    {
+                        "StardewValley",
+                        "MonoGame.Framework"
+                    };
+                    targetAssemblies = new[]
+                    {
+                        typeof(StardewValley.Game1).Assembly,
+                        typeof(Microsoft.Xna.Framework.Vector2).Assembly,
+                        typeof(Microsoft.Xna.Framework.Game).Assembly,
+                        typeof(Microsoft.Xna.Framework.Graphics.SpriteBatch).Assembly
+                    };
+                    break;
+
+                default:
+                    throw new InvalidOperationException($"Unknown target platform '{targetPlatform}'.");
+            }
+
+            return new AssemblyTypeRewriter(targetAssemblies, removeAssemblyReferences);
         }
     }
 }
