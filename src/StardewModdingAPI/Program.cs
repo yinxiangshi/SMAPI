@@ -23,12 +23,16 @@ namespace StardewModdingAPI
         /*********
         ** Properties
         *********/
-        /// <summary>The full path to the Stardew Valley executable.</summary>
+        /// <summary>The target game platform.</summary>
+        private static readonly Platform TargetPlatform =
 #if SMAPI_FOR_WINDOWS
-        private static readonly string GameExecutablePath = Path.Combine(Constants.ExecutionPath, "Stardew Valley.exe");
+        Platform.Windows;
 #else
-        private static readonly string GameExecutablePath = Path.Combine(Constants.ExecutionPath, "StardewValley.exe");
+        Platform.Mono;
 #endif
+
+        /// <summary>The full path to the Stardew Valley executable.</summary>
+        private static readonly string GameExecutablePath = Path.Combine(Constants.ExecutionPath, Program.TargetPlatform == Platform.Windows ? "Stardew Valley.exe" : "StardewValley.exe");
 
         /// <summary>The full path to the folder containing mods.</summary>
         private static readonly string ModPath = Path.Combine(Constants.ExecutionPath, "Mods");
@@ -298,7 +302,7 @@ namespace StardewModdingAPI
         {
             Program.Monitor.Log("Loading mods...");
 
-            ModAssemblyLoader modAssemblyLoader = new ModAssemblyLoader(Program.CachePath, Program.Monitor);
+            ModAssemblyLoader modAssemblyLoader = new ModAssemblyLoader(Program.CachePath, Program.TargetPlatform, Program.Monitor);
             foreach (string directory in Directory.GetDirectories(Program.ModPath))
             {
                 // ignore internal directory

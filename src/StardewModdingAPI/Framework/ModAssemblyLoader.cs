@@ -25,8 +25,9 @@ namespace StardewModdingAPI.Framework
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="cacheDirPath">The cache directory.</param>
+        /// <param name="targetPlatform">The current game platform.</param>
         /// <param name="monitor">Encapsulates monitoring and logging for a given module.</param>
-        public ModAssemblyLoader(string cacheDirPath, IMonitor monitor)
+        public ModAssemblyLoader(string cacheDirPath, Platform targetPlatform, IMonitor monitor)
         {
             this.CacheDirPath = cacheDirPath;
             this.Monitor = monitor;

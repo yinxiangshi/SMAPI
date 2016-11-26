@@ -217,6 +217,7 @@
     <Compile Include="Framework\DeprecationManager.cs" />
     <Compile Include="Framework\InternalExtensions.cs" />
     <Compile Include="Framework\ModAssemblyLoader.cs" />
+    <Compile Include="Framework\Platform.cs" />
     <Compile Include="IModHelper.cs" />
     <Compile Include="Framework\LogFileManager.cs" />
     <Compile Include="LogLevel.cs" />
