@@ -43,6 +43,8 @@ namespace StardewModdingAPI.Framework
         public void ProcessAssembly(string assemblyPath)
         {
             // read assembly data
+            string assemblyFileName = Path.GetFileName(assemblyPath);
+            string assemblyDir = Path.GetDirectoryName(assemblyPath);
             byte[] assemblyBytes = File.ReadAllBytes(assemblyPath);
             byte[] hash = MD5.Create().ComputeHash(assemblyBytes);
 
@@ -53,7 +55,7 @@ namespace StardewModdingAPI.Framework
             // process assembly if not cached
             if (!canUseCache)
             {
-                this.Monitor.Log($"Preprocessing new assembly {assemblyPath}...");
+                this.Monitor.Log($"Preprocessing new assembly {assemblyFileName}...");
 
                 // read assembly definition
                 AssemblyDefinition assembly;
@@ -66,11 +68,21 @@ namespace StardewModdingAPI.Framework
                 // write cache
                 using (MemoryStream outStream = new MemoryStream())
                 {
+                    // get assembly bytes
                     assembly.Write(outStream);
                     byte[] outBytes = outStream.ToArray();
+
+                    // write assembly data
                     Directory.CreateDirectory(cachePaths.Directory);
                     File.WriteAllBytes(cachePaths.Assembly, outBytes);
                     File.WriteAllBytes(cachePaths.Hash, hash);
+
+                    // copy any mdb/pdb files
+                    foreach (string path in Directory.GetFiles(assemblyDir, "*.mdb").Concat(Directory.GetFiles(assemblyDir, "*.pdb")))
+                    {
+                        string filename = Path.GetFileName(path);
+                        File.Copy(path, Path.Combine(cachePaths.Directory, filename), overwrite: true);
+                    }
                 }
             }
         }
