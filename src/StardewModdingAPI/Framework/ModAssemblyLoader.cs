@@ -16,15 +16,20 @@ namespace StardewModdingAPI.Framework
         /// <summary>The directory in which to cache data.</summary>
         private readonly string CacheDirPath;
 
+        /// <summary>Encapsulates monitoring and logging for a given module.</summary>
+        private readonly IMonitor Monitor;
+
 
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="cacheDirPath">The cache directory.</param>
-        public ModAssemblyLoader(string cacheDirPath)
+        /// <param name="monitor">Encapsulates monitoring and logging for a given module.</param>
+        public ModAssemblyLoader(string cacheDirPath, IMonitor monitor)
         {
             this.CacheDirPath = cacheDirPath;
+            this.Monitor = monitor;
         }
 
         /// <summary>Preprocess an assembly and cache the modified version.</summary>
@@ -42,6 +47,8 @@ namespace StardewModdingAPI.Framework
             // process assembly if not cached
             if (!canUseCache)
             {
+                this.Monitor.Log($"Preprocessing new assembly {assemblyPath}...");
+
                 // read assembly definition
                 AssemblyDefinition definition;
                 using (Stream readStream = new MemoryStream(assemblyBytes))

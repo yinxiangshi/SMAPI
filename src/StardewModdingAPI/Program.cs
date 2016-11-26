@@ -298,7 +298,7 @@ namespace StardewModdingAPI
         {
             Program.Monitor.Log("Loading mods...");
 
-            ModAssemblyLoader modAssemblyLoader = new ModAssemblyLoader(Program.CachePath);
+            ModAssemblyLoader modAssemblyLoader = new ModAssemblyLoader(Program.CachePath, Program.Monitor);
             foreach (string directory in Directory.GetDirectories(Program.ModPath))
             {
                 // ignore internal directory
@@ -403,7 +403,7 @@ namespace StardewModdingAPI
                         }
                         catch (Exception ex)
                         {
-                            Program.Monitor.Log($"{errorPrefix}: an error occurred while preprocessing '{assemblyPath}'.\n{ex}", LogLevel.Error);
+                            Program.Monitor.Log($"{errorPrefix}: an error occurred while preprocessing '{Path.GetFileName(assemblyPath)}'.\n{ex.GetLogSummary()}", LogLevel.Error);
                             succeeded = false;
                             break;
                         }
@@ -426,7 +426,7 @@ namespace StardewModdingAPI
                 }
                 catch (Exception ex)
                 {
-                    Program.Monitor.Log($"{errorPrefix}: an error occurred while optimising the target DLL.\n{ex}", LogLevel.Error);
+                    Program.Monitor.Log($"{errorPrefix}: an error occurred while optimising the target DLL.\n{ex.GetLogSummary()}", LogLevel.Error);
                     continue;
                 }
 
