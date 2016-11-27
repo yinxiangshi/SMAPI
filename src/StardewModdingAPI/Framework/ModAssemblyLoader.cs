@@ -20,7 +20,7 @@ namespace StardewModdingAPI.Framework
         /// <summary>Rewrites assembly types to match the current platform.</summary>
         private readonly AssemblyTypeRewriter AssemblyTypeRewriter;
 
-        /// <summary>Encapsulates monitoring and logging for a given module.</summary>
+        /// <summary>Encapsulates monitoring and logging.</summary>
         private readonly IMonitor Monitor;
 
 
@@ -30,7 +30,7 @@ namespace StardewModdingAPI.Framework
         /// <summary>Construct an instance.</summary>
         /// <param name="cacheDirPath">The cache directory.</param>
         /// <param name="targetPlatform">The current game platform.</param>
-        /// <param name="monitor">Encapsulates monitoring and logging for a given module.</param>
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
         public ModAssemblyLoader(string cacheDirPath, Platform targetPlatform, IMonitor monitor)
         {
             this.CacheDirPath = cacheDirPath;
@@ -55,7 +55,7 @@ namespace StardewModdingAPI.Framework
             // process assembly if not cached
             if (!canUseCache)
             {
-                this.Monitor.Log($"Preprocessing new assembly {assemblyFileName}...");
+                this.Monitor.Log($"Loading {assemblyFileName} for the first time; preprocessing...");
 
                 // read assembly definition
                 AssemblyDefinition assembly;
@@ -155,7 +155,7 @@ namespace StardewModdingAPI.Framework
                     throw new InvalidOperationException($"Unknown target platform '{targetPlatform}'.");
             }
 
-            return new AssemblyTypeRewriter(targetAssemblies, removeAssemblyReferences);
+            return new AssemblyTypeRewriter(targetAssemblies, removeAssemblyReferences, this.Monitor);
         }
     }
 }

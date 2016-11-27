@@ -23,6 +23,9 @@ namespace StardewModdingAPI.Framework.AssemblyRewriting
         /// <summary>An assembly => reference cache.</summary>
         private readonly IDictionary<Assembly, AssemblyNameReference> AssemblyNameReferences;
 
+        /// <summary>Encapsulates monitoring and logging.</summary>
+        private readonly IMonitor Monitor;
+
 
         /*********
         ** Public methods
@@ -30,11 +33,13 @@ namespace StardewModdingAPI.Framework.AssemblyRewriting
         /// <summary>Construct an instance.</summary>
         /// <param name="targetAssemblies">The assembly filenames to target. Equivalent types will be rewritten to use these assemblies.</param>
         /// <param name="removeAssemblyNames">The short assembly names to remove as assembly reference, and replace with the <paramref name="targetAssemblies"/>.</param>
-        public AssemblyTypeRewriter(Assembly[] targetAssemblies, string[] removeAssemblyNames)
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
+        public AssemblyTypeRewriter(Assembly[] targetAssemblies, string[] removeAssemblyNames, IMonitor monitor)
         {
             // save config
             this.TargetAssemblies = targetAssemblies;
             this.RemoveAssemblyNames = removeAssemblyNames;
+            this.Monitor = monitor;
 
             // cache assembly metadata
             this.AssemblyNameReferences = targetAssemblies.ToDictionary(assembly => assembly, assembly => AssemblyNameReference.Parse(assembly.FullName));
@@ -62,31 +67,39 @@ namespace StardewModdingAPI.Framework.AssemblyRewriting
         /// <param name="assembly">The assembly to rewrite.</param>
         public void RewriteAssembly(AssemblyDefinition assembly)
         {
-            foreach (ModuleDefinition module in assembly.Modules)
+            ModuleDefinition module = assembly.Modules.Single(); // technically an assembly can have multiple modules, but none of the build tools (including MSBuild) support it; simplify by assuming one module
+            bool shouldRewrite = false;
+
+            // remove old assembly references
+            for (int i = 0; i < module.AssemblyReferences.Count; i++)
             {
-                // remove old assembly references
-                bool shouldRewrite = false;
-                for (int i = 0; i < module.AssemblyReferences.Count; i++)
+                bool shouldRemove = this.RemoveAssemblyNames.Any(name => module.AssemblyReferences[i].Name == name);
+                if (shouldRemove)
                 {
-                    bool shouldRemove = this.RemoveAssemblyNames.Any(name => module.AssemblyReferences[i].Name == name);
-                    if (shouldRemove)
-                    {
-                        shouldRewrite = true;
-                        module.AssemblyReferences.RemoveAt(i);
-                        i--;
-                    }
+                    this.Monitor.Log($"removing reference to {module.AssemblyReferences[i]}", LogLevel.Trace);
+                    shouldRewrite = true;
+                    module.AssemblyReferences.RemoveAt(i);
+                    i--;
+                }
+            }
+
+            // replace references
+            if (shouldRewrite)
+            {
+                // add target assembly references
+                foreach (AssemblyNameReference target in this.AssemblyNameReferences.Values)
+                {
+                    this.Monitor.Log($"  adding reference to {target}", LogLevel.Trace);
+                    module.AssemblyReferences.Add(target);
                 }
 
-                // replace references
-                if (shouldRewrite)
+                // rewrite type scopes to use target assemblies
+                IEnumerable<TypeReference> typeReferences = module.GetTypeReferences().OrderBy(p => p.FullName);
+                string lastTypeLogged = null;
+                foreach (TypeReference type in typeReferences)
                 {
-                    // add target assembly references
-                    foreach (AssemblyNameReference target in this.AssemblyNameReferences.Values)
-                        module.AssemblyReferences.Add(target);
-
-                    // rewrite type scopes to use target assemblies
-                    foreach (TypeReference type in module.GetTypeReferences())
-                        this.ChangeTypeScope(type);
+                    this.ChangeTypeScope(type, shouldLog: type.FullName != lastTypeLogged);
+                    lastTypeLogged = type.FullName;
                 }
             }
         }
@@ -97,7 +110,8 @@ namespace StardewModdingAPI.Framework.AssemblyRewriting
         *********/
         /// <summary>Get the correct reference to use for compatibility with the current platform.</summary>
         /// <param name="type">The type reference to rewrite.</param>
-        private void ChangeTypeScope(TypeReference type)
+        /// <param name="shouldLog">Whether to log a message.</param>
+        private void ChangeTypeScope(TypeReference type, bool shouldLog)
         {
             // check skip conditions
             if (type == null || type.FullName.StartsWith("System."))
@@ -110,6 +124,8 @@ namespace StardewModdingAPI.Framework.AssemblyRewriting
 
             // replace scope
             AssemblyNameReference assemblyRef = this.AssemblyNameReferences[assembly];
+            if (shouldLog)
+                this.Monitor.Log($"redirecting {type.FullName} from {type.Scope.Name} to {assemblyRef.Name}", LogLevel.Trace);
             type.Scope = assemblyRef;
         }
     }
