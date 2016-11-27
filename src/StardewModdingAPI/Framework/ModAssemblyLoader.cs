@@ -94,7 +94,7 @@ namespace StardewModdingAPI.Framework
             CachePaths cachePaths = this.GetCacheInfo(assemblyPath);
             if (!File.Exists(cachePaths.Assembly))
                 throw new InvalidOperationException($"The assembly {assemblyPath} doesn't exist in the preprocessed cache.");
-            return Assembly.UnsafeLoadFrom(cachePaths.Assembly);
+            return Assembly.UnsafeLoadFrom(cachePaths.Assembly); // unsafe load allows DLLs downloaded from the Internet without the user needing to 'unblock' them
         }
 
 

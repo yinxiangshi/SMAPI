@@ -65,24 +65,29 @@ namespace StardewModdingAPI.Framework.AssemblyRewriting
             foreach (ModuleDefinition module in assembly.Modules)
             {
                 // remove old assembly references
+                bool shouldRewrite = false;
                 for (int i = 0; i < module.AssemblyReferences.Count; i++)
                 {
-                    bool shouldRemove = this.RemoveAssemblyNames.Any(name => module.AssemblyReferences[i].Name == name) || this.TargetAssemblies.Any(a => module.AssemblyReferences[i].Name == a.GetName().Name);
+                    bool shouldRemove = this.RemoveAssemblyNames.Any(name => module.AssemblyReferences[i].Name == name);
                     if (shouldRemove)
                     {
+                        shouldRewrite = true;
                         module.AssemblyReferences.RemoveAt(i);
                         i--;
                     }
                 }
 
-                // add target assembly references
-                foreach (AssemblyNameReference target in this.AssemblyNameReferences.Values)
-                    module.AssemblyReferences.Add(target);
+                // replace references
+                if (shouldRewrite)
+                {
+                    // add target assembly references
+                    foreach (AssemblyNameReference target in this.AssemblyNameReferences.Values)
+                        module.AssemblyReferences.Add(target);
 
-                // rewrite type scopes to use target assemblies
-                TypeReference[] refs = (TypeReference[])module.GetTypeReferences();
-                foreach (TypeReference type in refs)
-                    this.ChangeTypeScope(type);
+                    // rewrite type scopes to use target assemblies
+                    foreach (TypeReference type in module.GetTypeReferences())
+                        this.ChangeTypeScope(type);
+                }
             }
         }
 
