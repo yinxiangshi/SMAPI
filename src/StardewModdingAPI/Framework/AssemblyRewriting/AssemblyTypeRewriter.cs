@@ -11,11 +11,8 @@ namespace StardewModdingAPI.Framework.AssemblyRewriting
         /*********
         ** Properties
         *********/
-        /// <summary>The assemblies to target. Equivalent types will be rewritten to use these assemblies.</summary>
-        private readonly Assembly[] TargetAssemblies;
-
-        /// <summary>>The short assembly names to remove as assembly reference, and replace with the <see cref="TargetAssemblies"/>.</summary>
-        private readonly string[] RemoveAssemblyNames;
+        /// <summary>Metadata for mapping assemblies to the current <see cref="Platform"/>.</summary>
+        private readonly PlatformAssemblyMap AssemblyMap;
 
         /// <summary>A type => assembly lookup for types which should be rewritten.</summary>
         private readonly IDictionary<string, Assembly> TypeAssemblies;
@@ -31,22 +28,20 @@ namespace StardewModdingAPI.Framework.AssemblyRewriting
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="targetAssemblies">The assembly filenames to target. Equivalent types will be rewritten to use these assemblies.</param>
-        /// <param name="removeAssemblyNames">The short assembly names to remove as assembly reference, and replace with the <paramref name="targetAssemblies"/>.</param>
+        /// <param name="assemblyMap">Metadata for mapping assemblies to the current <see cref="Platform"/>.</param>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        public AssemblyTypeRewriter(Assembly[] targetAssemblies, string[] removeAssemblyNames, IMonitor monitor)
+        public AssemblyTypeRewriter(PlatformAssemblyMap assemblyMap, IMonitor monitor)
         {
             // save config
-            this.TargetAssemblies = targetAssemblies;
-            this.RemoveAssemblyNames = removeAssemblyNames;
+            this.AssemblyMap = assemblyMap;
             this.Monitor = monitor;
 
             // cache assembly metadata
-            this.AssemblyNameReferences = targetAssemblies.ToDictionary(assembly => assembly, assembly => AssemblyNameReference.Parse(assembly.FullName));
+            this.AssemblyNameReferences = assemblyMap.Targets.ToDictionary(assembly => assembly, assembly => AssemblyNameReference.Parse(assembly.FullName));
 
             // collect type => assembly lookup
             this.TypeAssemblies = new Dictionary<string, Assembly>();
-            foreach (Assembly assembly in targetAssemblies)
+            foreach (Assembly assembly in assemblyMap.Targets)
             {
                 foreach (Module assemblyModule in assembly.Modules)
                 {
@@ -73,7 +68,7 @@ namespace StardewModdingAPI.Framework.AssemblyRewriting
             // remove old assembly references
             for (int i = 0; i < module.AssemblyReferences.Count; i++)
             {
-                bool shouldRemove = this.RemoveAssemblyNames.Any(name => module.AssemblyReferences[i].Name == name);
+                bool shouldRemove = this.AssemblyMap.RemoveNames.Any(name => module.AssemblyReferences[i].Name == name);
                 if (shouldRemove)
                 {
                     this.Monitor.Log($"removing reference to {module.AssemblyReferences[i]}", LogLevel.Trace);

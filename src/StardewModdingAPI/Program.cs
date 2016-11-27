@@ -303,6 +303,8 @@ namespace StardewModdingAPI
             Program.Monitor.Log("Loading mods...");
 
             ModAssemblyLoader modAssemblyLoader = new ModAssemblyLoader(Program.CachePath, Program.TargetPlatform, Program.Monitor);
+            AppDomain.CurrentDomain.AssemblyResolve += (sender, e) => modAssemblyLoader.ResolveAssembly(e.Name); // supplement Mono's assembly resolution which doesn't handle assembly rewrites very well
+
             foreach (string directory in Directory.GetDirectories(Program.ModPath))
             {
                 // ignore internal directory
@@ -391,7 +393,7 @@ namespace StardewModdingAPI
                     }
                     catch (Exception ex)
                     {
-                        Program.Monitor.Log($"{errorPrefix}: couldm't create the per-save configuration directory ('psconfigs') requested by this mod.\n{ex.GetLogSummary()}", LogLevel.Error);
+                        Program.Monitor.Log($"{errorPrefix}: couldn't create the per-save configuration directory ('psconfigs') requested by this mod.\n{ex.GetLogSummary()}", LogLevel.Error);
                         continue;
                     }
                 }

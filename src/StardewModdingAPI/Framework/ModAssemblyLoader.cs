@@ -17,6 +17,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>The directory in which to cache data.</summary>
         private readonly string CacheDirPath;
 
+        /// <summary>Metadata for mapping assemblies to the current <see cref="Platform"/>.</summary>
+        private readonly PlatformAssemblyMap AssemblyMap;
+
         /// <summary>Rewrites assembly types to match the current platform.</summary>
         private readonly AssemblyTypeRewriter AssemblyTypeRewriter;
 
@@ -35,7 +38,8 @@ namespace StardewModdingAPI.Framework
         {
             this.CacheDirPath = cacheDirPath;
             this.Monitor = monitor;
-            this.AssemblyTypeRewriter = this.GetAssemblyRewriter(targetPlatform);
+            this.AssemblyMap = this.GetAssemblyMap(targetPlatform);
+            this.AssemblyTypeRewriter = new AssemblyTypeRewriter(this.AssemblyMap, monitor);
         }
 
         /// <summary>Preprocess an assembly and cache the modified version.</summary>
@@ -97,6 +101,14 @@ namespace StardewModdingAPI.Framework
             return Assembly.UnsafeLoadFrom(cachePaths.Assembly); // unsafe load allows DLLs downloaded from the Internet without the user needing to 'unblock' them
         }
 
+        /// <summary>Resolve an assembly from its name.</summary>
+        /// <param name="name">The assembly name.</param>
+        public Assembly ResolveAssembly(string name)
+        {
+            string shortName = name.Split(new[] { ',' }, 2).First();
+            return this.AssemblyMap.Targets.FirstOrDefault(p => p.GetName().Name == shortName);
+        }
+
 
         /*********
         ** Private methods
@@ -112,9 +124,9 @@ namespace StardewModdingAPI.Framework
             return new CachePaths(dirPath, cacheAssemblyPath, cacheHashPath);
         }
 
-        /// <summary>Get an assembly rewriter for the target platform.</summary>
+        /// <summary>Get metadata for mapping assemblies to the current platform.</summary>
         /// <param name="targetPlatform">The target game platform.</param>
-        private AssemblyTypeRewriter GetAssemblyRewriter(Platform targetPlatform)
+        private PlatformAssemblyMap GetAssemblyMap(Platform targetPlatform)
         {
             // get assembly changes needed for platform
             string[] removeAssemblyReferences;
@@ -155,7 +167,7 @@ namespace StardewModdingAPI.Framework
                     throw new InvalidOperationException($"Unknown target platform '{targetPlatform}'.");
             }
 
-            return new AssemblyTypeRewriter(targetAssemblies, removeAssemblyReferences, this.Monitor);
+            return new PlatformAssemblyMap(targetPlatform, removeAssemblyReferences, targetAssemblies);
         }
     }
 }
