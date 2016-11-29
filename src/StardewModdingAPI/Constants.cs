@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -110,6 +111,12 @@ namespace StardewModdingAPI
             }
 
             return new PlatformAssemblyMap(targetPlatform, removeAssemblyReferences, targetAssemblies);
+        }
+
+        /// <summary>Get method rewriters which fix incompatible method calls in mod assemblies.</summary>
+        internal static IEnumerable<IMethodRewriter> GetMethodRewriters()
+        {
+            yield break;
         }
 
 

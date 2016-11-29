@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Reflection;
 using Mono.Cecil;
+using Mono.Cecil.Cil;
+using Mono.Cecil.Rocks;
 using StardewModdingAPI.AssemblyRewriters;
 
 namespace StardewModdingAPI.Framework.AssemblyRewriting
@@ -17,9 +19,6 @@ namespace StardewModdingAPI.Framework.AssemblyRewriting
 
         /// <summary>A type => assembly lookup for types which should be rewritten.</summary>
         private readonly IDictionary<string, Assembly> TypeAssemblies;
-
-        /// <summary>An assembly => reference cache.</summary>
-        private readonly IDictionary<Assembly, AssemblyNameReference> AssemblyNameReferences;
 
         /// <summary>Encapsulates monitoring and logging.</summary>
         private readonly IMonitor Monitor;
@@ -37,24 +36,18 @@ namespace StardewModdingAPI.Framework.AssemblyRewriting
             this.AssemblyMap = assemblyMap;
             this.Monitor = monitor;
 
-            // cache assembly metadata
-            this.AssemblyNameReferences = assemblyMap.Targets.ToDictionary(assembly => assembly, assembly => AssemblyNameReference.Parse(assembly.FullName));
-
             // collect type => assembly lookup
             this.TypeAssemblies = new Dictionary<string, Assembly>();
             foreach (Assembly assembly in assemblyMap.Targets)
             {
-                foreach (Module assemblyModule in assembly.Modules)
+                ModuleDefinition module = this.AssemblyMap.TargetModules[assembly];
+                foreach (TypeDefinition type in module.GetTypes())
                 {
-                    ModuleDefinition module = ModuleDefinition.ReadModule(assemblyModule.FullyQualifiedName);
-                    foreach (TypeDefinition type in module.GetTypes())
-                    {
-                        if (!type.IsPublic)
-                            continue; // no need to rewrite
-                        if (type.Namespace.Contains("<"))
-                            continue; // ignore assembly metadata
-                        this.TypeAssemblies[type.FullName] = assembly;
-                    }
+                    if (!type.IsPublic)
+                        continue; // no need to rewrite
+                    if (type.Namespace.Contains("<"))
+                        continue; // ignore assembly metadata
+                    this.TypeAssemblies[type.FullName] = assembly;
                 }
             }
         }
@@ -64,13 +57,12 @@ namespace StardewModdingAPI.Framework.AssemblyRewriting
         public void RewriteAssembly(AssemblyDefinition assembly)
         {
             ModuleDefinition module = assembly.Modules.Single(); // technically an assembly can have multiple modules, but none of the build tools (including MSBuild) support it; simplify by assuming one module
-            bool shouldRewrite = false;
 
             // remove old assembly references
+            bool shouldRewrite = false;
             for (int i = 0; i < module.AssemblyReferences.Count; i++)
             {
-                bool shouldRemove = this.AssemblyMap.RemoveNames.Any(name => module.AssemblyReferences[i].Name == name);
-                if (shouldRemove)
+                if (this.AssemblyMap.RemoveNames.Any(name => module.AssemblyReferences[i].Name == name))
                 {
                     this.Monitor.Log($"removing reference to {module.AssemblyReferences[i]}", LogLevel.Trace);
                     shouldRewrite = true;
@@ -78,25 +70,52 @@ namespace StardewModdingAPI.Framework.AssemblyRewriting
                     i--;
                 }
             }
+            if (!shouldRewrite)
+                return;
 
-            // replace references
-            if (shouldRewrite)
+            // add target assembly references
+            foreach (AssemblyNameReference target in this.AssemblyMap.TargetReferences.Values)
             {
-                // add target assembly references
-                foreach (AssemblyNameReference target in this.AssemblyNameReferences.Values)
-                {
-                    this.Monitor.Log($"  adding reference to {target}", LogLevel.Trace);
-                    module.AssemblyReferences.Add(target);
-                }
+                this.Monitor.Log($"  adding reference to {target}", LogLevel.Trace);
+                module.AssemblyReferences.Add(target);
+            }
 
-                // rewrite type scopes to use target assemblies
-                IEnumerable<TypeReference> typeReferences = module.GetTypeReferences().OrderBy(p => p.FullName);
-                string lastTypeLogged = null;
-                foreach (TypeReference type in typeReferences)
+            // rewrite type scopes to use target assemblies
+            IEnumerable<TypeReference> typeReferences = module.GetTypeReferences().OrderBy(p => p.FullName);
+            string lastTypeLogged = null;
+            foreach (TypeReference type in typeReferences)
+            {
+                this.ChangeTypeScope(type, shouldLog: type.FullName != lastTypeLogged);
+                lastTypeLogged = type.FullName;
+            }
+
+            // rewrite incompatible methods
+            IMethodRewriter[] methodRewriters = Constants.GetMethodRewriters().ToArray();
+            foreach (MethodDefinition method in this.GetMethods(module))
+            {
+                // skip methods with no rewritable method
+                bool hasMethodToRewrite = method.Body.Instructions.Any(op => (op.OpCode == OpCodes.Call || op.OpCode == OpCodes.Callvirt) && methodRewriters.Any(rewriter => rewriter.ShouldRewrite((MethodReference)op.Operand)));
+                if (!hasMethodToRewrite)
+                    continue;
+
+                // rewrite method references
+                method.Body.SimplifyMacros();
+                ILProcessor cil = method.Body.GetILProcessor();
+                Instruction[] instructions = cil.Body.Instructions.ToArray();
+                foreach (Instruction op in instructions)
                 {
-                    this.ChangeTypeScope(type, shouldLog: type.FullName != lastTypeLogged);
-                    lastTypeLogged = type.FullName;
+                    if (op.OpCode == OpCodes.Call || op.OpCode == OpCodes.Callvirt)
+                    {
+                        IMethodRewriter rewriter = methodRewriters.FirstOrDefault(p => p.ShouldRewrite((MethodReference)op.Operand));
+                        if (rewriter != null)
+                        {
+                            MethodReference methodRef = (MethodReference)op.Operand;
+                            this.Monitor.Log($"rewriting method reference {methodRef.DeclaringType.FullName}.{methodRef.Name}");
+                            rewriter.Rewrite(module, cil, op, methodRef, this.AssemblyMap);
+                        }
+                    }
                 }
+                method.Body.OptimizeMacros();
             }
         }
 
@@ -119,10 +138,23 @@ namespace StardewModdingAPI.Framework.AssemblyRewriting
                 return;
 
             // replace scope
-            AssemblyNameReference assemblyRef = this.AssemblyNameReferences[assembly];
+            AssemblyNameReference assemblyRef = this.AssemblyMap.TargetReferences[assembly];
             if (shouldLog)
                 this.Monitor.Log($"redirecting {type.FullName} from {type.Scope.Name} to {assemblyRef.Name}", LogLevel.Trace);
             type.Scope = assemblyRef;
+        }
+
+        /// <summary>Get all methods in a module.</summary>
+        /// <param name="module">The module to search.</param>
+        private IEnumerable<MethodDefinition> GetMethods(ModuleDefinition module)
+        {
+            return (
+                from type in module.GetTypes()
+                where type.HasMethods
+                from method in type.Methods
+                where method.HasBody
+                select method
+            );
         }
     }
 }

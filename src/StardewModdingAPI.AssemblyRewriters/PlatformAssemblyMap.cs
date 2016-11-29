@@ -1,4 +1,7 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using Mono.Cecil;
 
 namespace StardewModdingAPI.AssemblyRewriters
 {
@@ -8,6 +11,9 @@ namespace StardewModdingAPI.AssemblyRewriters
         /*********
         ** Accessors
         *********/
+        /****
+        ** Data
+        ****/
         /// <summary>The target game platform.</summary>
         public readonly Platform TargetPlatform;
 
@@ -15,7 +21,18 @@ namespace StardewModdingAPI.AssemblyRewriters
         public readonly string[] RemoveNames;
 
         /// <summary>The assembly filenames to target. Equivalent types should be rewritten to use these assemblies.</summary>
+
+        /****
+        ** Metadata
+        ****/
+        /// <summary>The assemblies to target. Equivalent types should be rewritten to use these assemblies.</summary>
         public readonly Assembly[] Targets;
+
+        /// <summary>An assembly => reference cache.</summary>
+        public readonly IDictionary<Assembly, AssemblyNameReference> TargetReferences;
+
+        /// <summary>An assembly => module cache.</summary>
+        public readonly IDictionary<Assembly, ModuleDefinition> TargetModules;
 
 
         /*********
@@ -27,9 +44,14 @@ namespace StardewModdingAPI.AssemblyRewriters
         /// <param name="targetAssemblies">The assemblies to target.</param>
         public PlatformAssemblyMap(Platform targetPlatform, string[] removeAssemblyNames, Assembly[] targetAssemblies)
         {
+            // save data
             this.TargetPlatform = targetPlatform;
             this.RemoveNames = removeAssemblyNames;
+
+            // cache assembly metadata
             this.Targets = targetAssemblies;
+            this.TargetReferences = this.Targets.ToDictionary(assembly => assembly, assembly => AssemblyNameReference.Parse(assembly.FullName));
+            this.TargetModules = this.Targets.ToDictionary(assembly => assembly, assembly => ModuleDefinition.ReadModule(assembly.Modules.Single().FullyQualifiedName));
         }
     }
 }
