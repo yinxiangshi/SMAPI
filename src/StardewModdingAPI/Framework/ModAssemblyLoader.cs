@@ -38,7 +38,7 @@ namespace StardewModdingAPI.Framework
         {
             this.CacheDirPath = cacheDirPath;
             this.Monitor = monitor;
-            this.AssemblyMap = this.GetAssemblyMap(targetPlatform);
+            this.AssemblyMap = Constants.GetAssemblyMap(targetPlatform);
             this.AssemblyTypeRewriter = new AssemblyTypeRewriter(this.AssemblyMap, monitor);
         }
 
@@ -122,52 +122,6 @@ namespace StardewModdingAPI.Framework
             string cacheAssemblyPath = Path.Combine(dirPath, $"{key}.dll");
             string cacheHashPath = Path.Combine(dirPath, $"{key}.hash");
             return new CachePaths(dirPath, cacheAssemblyPath, cacheHashPath);
-        }
-
-        /// <summary>Get metadata for mapping assemblies to the current platform.</summary>
-        /// <param name="targetPlatform">The target game platform.</param>
-        private PlatformAssemblyMap GetAssemblyMap(Platform targetPlatform)
-        {
-            // get assembly changes needed for platform
-            string[] removeAssemblyReferences;
-            Assembly[] targetAssemblies;
-            switch (targetPlatform)
-            {
-                case Platform.Mono:
-                    removeAssemblyReferences = new[]
-                    {
-                        "Stardew Valley",
-                        "Microsoft.Xna.Framework",
-                        "Microsoft.Xna.Framework.Game",
-                        "Microsoft.Xna.Framework.Graphics"
-                    };
-                    targetAssemblies = new[]
-                    {
-                        typeof(StardewValley.Game1).Assembly,
-                        typeof(Microsoft.Xna.Framework.Vector2).Assembly
-                    };
-                    break;
-
-                case Platform.Windows:
-                    removeAssemblyReferences = new[]
-                    {
-                        "StardewValley",
-                        "MonoGame.Framework"
-                    };
-                    targetAssemblies = new[]
-                    {
-                        typeof(StardewValley.Game1).Assembly,
-                        typeof(Microsoft.Xna.Framework.Vector2).Assembly,
-                        typeof(Microsoft.Xna.Framework.Game).Assembly,
-                        typeof(Microsoft.Xna.Framework.Graphics.SpriteBatch).Assembly
-                    };
-                    break;
-
-                default:
-                    throw new InvalidOperationException($"Unknown target platform '{targetPlatform}'.");
-            }
-
-            return new PlatformAssemblyMap(targetPlatform, removeAssemblyReferences, targetAssemblies);
         }
     }
 }
