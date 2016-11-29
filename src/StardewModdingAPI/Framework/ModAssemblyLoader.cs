@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using Mono.Cecil;
+using StardewModdingAPI.AssemblyRewriters;
 using StardewModdingAPI.Framework.AssemblyRewriting;
 
 namespace StardewModdingAPI.Framework

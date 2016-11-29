@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using Mono.Cecil;
+using StardewModdingAPI.AssemblyRewriters;
 
 namespace StardewModdingAPI.Framework.AssemblyRewriting
 {

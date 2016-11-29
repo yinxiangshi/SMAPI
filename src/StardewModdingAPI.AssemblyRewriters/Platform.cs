@@ -1,7 +1,7 @@
-namespace StardewModdingAPI.Framework
+namespace StardewModdingAPI.AssemblyRewriters
 {
     /// <summary>The game's platform version.</summary>
-    internal enum Platform
+    public enum Platform
     {
         /// <summary>The Linux/Mac version of the game.</summary>
         Mono,

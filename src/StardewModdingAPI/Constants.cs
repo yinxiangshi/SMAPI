@@ -2,8 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using StardewModdingAPI.Framework;
-using StardewModdingAPI.Framework.AssemblyRewriting;
+using StardewModdingAPI.AssemblyRewriters;
 using StardewValley;
 
 namespace StardewModdingAPI

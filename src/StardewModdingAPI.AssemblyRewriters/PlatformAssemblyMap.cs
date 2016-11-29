@@ -1,9 +1,9 @@
 using System.Reflection;
 
-namespace StardewModdingAPI.Framework.AssemblyRewriting
+namespace StardewModdingAPI.AssemblyRewriters
 {
     /// <summary>Metadata for mapping assemblies to the current <see cref="Platform"/>.</summary>
-    internal class PlatformAssemblyMap
+    public class PlatformAssemblyMap
     {
         /*********
         ** Accessors

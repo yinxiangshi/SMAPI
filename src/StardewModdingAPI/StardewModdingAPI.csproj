@@ -156,12 +156,10 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="Framework\AssemblyRewriting\CachePaths.cs" />
     <Compile Include="Framework\AssemblyRewriting\AssemblyTypeRewriter.cs" />
-    <Compile Include="Framework\AssemblyRewriting\PlatformAssemblyMap.cs" />
     <Compile Include="Framework\DeprecationLevel.cs" />
     <Compile Include="Framework\DeprecationManager.cs" />
     <Compile Include="Framework\InternalExtensions.cs" />
     <Compile Include="Framework\ModAssemblyLoader.cs" />
-    <Compile Include="Framework\Platform.cs" />
     <Compile Include="IModHelper.cs" />
     <Compile Include="Framework\LogFileManager.cs" />
     <Compile Include="LogLevel.cs" />
@@ -218,6 +216,12 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\StardewModdingAPI.AssemblyRewriters\StardewModdingAPI.AssemblyRewriters.csproj">
+      <Project>{10db0676-9fc1-4771-a2c8-e2519f091e49}</Project>
+      <Name>StardewModdingAPI.AssemblyRewriters</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>
@@ -243,6 +247,7 @@
   </PropertyGroup>
   <Target Name="AfterBuild" Condition="$(Configuration) == 'Debug' AND $(OS) == 'Windows_NT'">
     <Copy SourceFiles="$(TargetDir)\$(TargetName).exe" DestinationFolder="$(GamePath)" />
+    <Copy SourceFiles="$(TargetDir)\StardewModdingAPI.AssemblyRewriters.dll" DestinationFolder="$(GamePath)" />
     <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)" />
     <Copy SourceFiles="$(TargetDir)\$(TargetName).xml" DestinationFolder="$(GamePath)" />
     <Copy SourceFiles="$(TargetDir)\Newtonsoft.Json.dll" DestinationFolder="$(GamePath)" />
