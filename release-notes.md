@@ -1,5 +1,11 @@
 # Release notes
 
+## 1.3
+See [log](https://github.com/CLxS/SMAPI/compare/stable...develop).
+
+For players:
+  * You can now run most mods on any platform (e.g. run Windows mods on Linux/Mac).
+
 ## 1.2
 See [log](https://github.com/CLxS/SMAPI/compare/1.1.1...1.2).
 
