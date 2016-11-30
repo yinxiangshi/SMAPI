@@ -27,6 +27,27 @@ namespace StardewModdingApi.Installer
             @"C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley"
         };
 
+        /// <summary>The files to remove when uninstalling SMAPI.</summary>
+        private readonly string[] UninstallFiles =
+        {
+            // common
+            "StardewModdingAPI.exe",
+            "StardewModdingAPI-settings.json",
+            "StardewModdingAPI.AssemblyRewriters.dll",
+            "steam_appid.txt",
+
+            // Linux/Mac only
+            "Mono.Cecil.dll",
+            "Mono.Cecil.Rocks.dll",
+            "Newtonsoft.Json.dll",
+            "StardewModdingAPI",
+            "StardewModdingAPI.exe.mdb",
+            "System.Numerics.dll",
+
+            // Windows only
+            "StardewModdingAPI.pdb"
+        };
+
 
         /*********
         ** Public methods
@@ -47,7 +68,7 @@ namespace StardewModdingApi.Installer
         /// 
         /// Uninstall logic:
         ///     1. On Linux/Mac: if a backup of the launcher exists, delete the launcher and restore the backup.
-        ///     2. Delete all files in the game directory matching a file under package/Windows or package/Mono.
+        ///     2. Delete all files in the game directory matching one of the <see cref="UninstallFiles"/>.
         /// </remarks>
         public void Run(string[] args)
         {
@@ -127,9 +148,9 @@ namespace StardewModdingApi.Installer
 
                         // remove SMAPI files
                         this.PrintDebug("Removing SMAPI files...");
-                        foreach (FileInfo sourceFile in packageDir.EnumerateFiles())
+                        foreach (string filename in this.UninstallFiles)
                         {
-                            string targetPath = Path.Combine(installDir.FullName, sourceFile.Name);
+                            string targetPath = Path.Combine(installDir.FullName, filename);
                             if (File.Exists(targetPath))
                                 File.Delete(targetPath);
                         }
