@@ -2,6 +2,7 @@
 <Weavers>
   <Costura>
     <ExcludeAssemblies>
+        StardewModdingAPI.AssemblyRewriters
         Stardew Valley
         xTile
         Steamworks.NET

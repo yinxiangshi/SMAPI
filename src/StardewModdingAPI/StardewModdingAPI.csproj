@@ -79,67 +79,24 @@
   <PropertyGroup>
     <ApplicationIcon>icon.ico</ApplicationIcon>
   </PropertyGroup>
-  <PropertyGroup>
-    <!-- Linux paths -->
-    <GamePath Condition="!Exists('$(GamePath)')">$(HOME)/GOG Games/Stardew Valley/game</GamePath>
-    <GamePath Condition="!Exists('$(GamePath)')">$(HOME)/.local/share/Steam/steamapps/common/Stardew Valley</GamePath>
-    <!-- Mac paths -->
-    <GamePath Condition="!Exists('$(GamePath)')">$(HOME)/Library/Application Support/Steam/steamapps/common/Stardew Valley/Contents/MacOS</GamePath>
-    <!-- Windows paths -->
-    <GamePath Condition="!Exists('$(GamePath)')">C:\Program Files (x86)\GalaxyClient\Games\Stardew Valley</GamePath>
-    <GamePath Condition="!Exists('$(GamePath)')">C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley</GamePath>
-  </PropertyGroup>
-  <Choose>
-    <When Condition="$(OS) == 'Windows_NT'">
-      <PropertyGroup>
-        <DefineConstants>$(DefineConstants);SMAPI_FOR_WINDOWS</DefineConstants>
-      </PropertyGroup>
-      <ItemGroup>
-        <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.Xna.Framework.Xact, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Stardew Valley">
-          <HintPath>$(GamePath)\Stardew Valley.exe</HintPath>
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="xTile, Version=2.0.4.0, Culture=neutral, processorArchitecture=x86">
-          <HintPath>$(GamePath)\xTile.dll</HintPath>
-          <Private>False</Private>
-          <SpecificVersion>False</SpecificVersion>
-        </Reference>
-      </ItemGroup>
-    </When>
-    <Otherwise>
-      <PropertyGroup>
-        <DefineConstants>$(DefineConstants);SMAPI_FOR_UNIX</DefineConstants>
-      </PropertyGroup>
-      <ItemGroup>
-        <Reference Include="MonoGame.Framework">
-          <HintPath>$(GamePath)\MonoGame.Framework.dll</HintPath>
-          <Private>False</Private>
-          <SpecificVersion>False</SpecificVersion>
-        </Reference>
-        <Reference Include="StardewValley">
-          <HintPath>$(GamePath)\StardewValley.exe</HintPath>
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="xTile">
-          <HintPath>$(GamePath)\xTile.dll</HintPath>
-          <Private>False</Private>
-        </Reference>
-      </ItemGroup>
-    </Otherwise>
-  </Choose>
+  <Import Project="$(SolutionDir)\dependencies.targets" />
   <ItemGroup>
+    <Reference Include="Mono.Cecil, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\packages\Mono.Cecil.0.9.6.4\lib\net45\Mono.Cecil.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Mono.Cecil.Mdb, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\packages\Mono.Cecil.0.9.6.4\lib\net45\Mono.Cecil.Mdb.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Mono.Cecil.Pdb, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\packages\Mono.Cecil.0.9.6.4\lib\net45\Mono.Cecil.Pdb.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Mono.Cecil.Rocks, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\packages\Mono.Cecil.0.9.6.4\lib\net45\Mono.Cecil.Rocks.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
@@ -197,9 +154,12 @@
     <Compile Include="Events\PlayerEvents.cs" />
     <Compile Include="Events\TimeEvents.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="Framework\AssemblyRewriting\CachePaths.cs" />
+    <Compile Include="Framework\AssemblyRewriting\AssemblyTypeRewriter.cs" />
     <Compile Include="Framework\DeprecationLevel.cs" />
     <Compile Include="Framework\DeprecationManager.cs" />
     <Compile Include="Framework\InternalExtensions.cs" />
+    <Compile Include="Framework\ModAssemblyLoader.cs" />
     <Compile Include="IModHelper.cs" />
     <Compile Include="Framework\LogFileManager.cs" />
     <Compile Include="LogLevel.cs" />
@@ -256,6 +216,12 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\StardewModdingAPI.AssemblyRewriters\StardewModdingAPI.AssemblyRewriters.csproj">
+      <Project>{10db0676-9fc1-4771-a2c8-e2519f091e49}</Project>
+      <Name>StardewModdingAPI.AssemblyRewriters</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>
@@ -282,8 +248,10 @@
   <Target Name="AfterBuild" Condition="$(Configuration) == 'Debug'">
     <Copy SourceFiles="$(TargetDir)\$(TargetName).exe" DestinationFolder="$(GamePath)" />
     <Copy SourceFiles="$(TargetDir)\StardewModdingAPI.AssemblyRewriters.dll" DestinationFolder="$(GamePath)" />
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)" Condition="$(OS) == 'Windows_NT'" />
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).xml" DestinationFolder="$(GamePath)" Condition="$(OS) == 'Windows_NT'" />
+    <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)" />
+    <Copy SourceFiles="$(TargetDir)\$(TargetName).xml" DestinationFolder="$(GamePath)" />
     <Copy SourceFiles="$(TargetDir)\Newtonsoft.Json.dll" DestinationFolder="$(GamePath)" />
+    <Copy SourceFiles="$(TargetDir)\Mono.Cecil.dll" DestinationFolder="$(GamePath)" />
+    <Copy SourceFiles="$(TargetDir)\Mono.Cecil.Rocks.dll" DestinationFolder="$(GamePath)" />
   </Target>
 </Project>

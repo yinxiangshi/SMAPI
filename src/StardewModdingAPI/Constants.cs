@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using StardewModdingAPI.AssemblyRewriters;
+using StardewModdingAPI.AssemblyRewriters.Rewriters;
 using StardewValley;
 
 namespace StardewModdingAPI
@@ -60,6 +63,65 @@ namespace StardewModdingAPI
 
         /// <summary>The file path to the error log where the latest output should be saved.</summary>
         public static string LogPath => Path.Combine(Constants.LogDir, "MODDED_ProgramLog.Log_LATEST.txt");
+
+
+        /*********
+        ** Internal field
+        *********/
+        /// <summary>Get metadata for mapping assemblies to the current platform.</summary>
+        /// <param name="targetPlatform">The target game platform.</param>
+        internal static PlatformAssemblyMap GetAssemblyMap(Platform targetPlatform)
+        {
+            // get assembly changes needed for platform
+            string[] removeAssemblyReferences;
+            Assembly[] targetAssemblies;
+            switch (targetPlatform)
+            {
+                case Platform.Mono:
+                    removeAssemblyReferences = new[]
+                    {
+                        "Stardew Valley",
+                        "Microsoft.Xna.Framework",
+                        "Microsoft.Xna.Framework.Game",
+                        "Microsoft.Xna.Framework.Graphics"
+                    };
+                    targetAssemblies = new[]
+                    {
+                        typeof(StardewValley.Game1).Assembly,
+                        typeof(Microsoft.Xna.Framework.Vector2).Assembly
+                    };
+                    break;
+
+                case Platform.Windows:
+                    removeAssemblyReferences = new[]
+                    {
+                        "StardewValley",
+                        "MonoGame.Framework"
+                    };
+                    targetAssemblies = new[]
+                    {
+                        typeof(StardewValley.Game1).Assembly,
+                        typeof(Microsoft.Xna.Framework.Vector2).Assembly,
+                        typeof(Microsoft.Xna.Framework.Game).Assembly,
+                        typeof(Microsoft.Xna.Framework.Graphics.SpriteBatch).Assembly
+                    };
+                    break;
+
+                default:
+                    throw new InvalidOperationException($"Unknown target platform '{targetPlatform}'.");
+            }
+
+            return new PlatformAssemblyMap(targetPlatform, removeAssemblyReferences, targetAssemblies);
+        }
+
+        /// <summary>Get method rewriters which fix incompatible method calls in mod assemblies.</summary>
+        internal static IEnumerable<IMethodRewriter> GetMethodRewriters()
+        {
+            return new[]
+            {
+                new SpriteBatchRewriter()
+            };
+        }
 
 
         /*********
