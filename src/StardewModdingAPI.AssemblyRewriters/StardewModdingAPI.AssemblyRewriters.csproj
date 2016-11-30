@@ -75,6 +75,9 @@
     <Compile Include="Platform.cs" />
     <Compile Include="PlatformAssemblyMap.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Rewriters\BaseMethodRewriter.cs" />
+    <Compile Include="Rewriters\SpriteBatchRewriter.cs" />
+    <Compile Include="Wrappers\CompatibleSpriteBatch.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

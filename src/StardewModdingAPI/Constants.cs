@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using StardewModdingAPI.AssemblyRewriters;
+using StardewModdingAPI.AssemblyRewriters.Rewriters;
 using StardewValley;
 
 namespace StardewModdingAPI
@@ -116,7 +117,10 @@ namespace StardewModdingAPI
         /// <summary>Get method rewriters which fix incompatible method calls in mod assemblies.</summary>
         internal static IEnumerable<IMethodRewriter> GetMethodRewriters()
         {
-            yield break;
+            return new[]
+            {
+                new SpriteBatchRewriter()
+            };
         }
 
 
