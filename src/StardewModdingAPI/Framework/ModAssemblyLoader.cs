@@ -51,11 +51,11 @@ namespace StardewModdingAPI.Framework
             string assemblyFileName = Path.GetFileName(assemblyPath);
             string assemblyDir = Path.GetDirectoryName(assemblyPath);
             byte[] assemblyBytes = File.ReadAllBytes(assemblyPath);
-            byte[] hash = MD5.Create().ComputeHash(assemblyBytes);
+            string hash = $"SMAPI {Constants.Version}|" + string.Join("", MD5.Create().ComputeHash(assemblyBytes).Select(p => p.ToString("X2")));
 
             // check cache
             CachePaths cachePaths = this.GetCacheInfo(assemblyPath);
-            bool canUseCache = File.Exists(cachePaths.Assembly) && File.Exists(cachePaths.Hash) && hash.SequenceEqual(File.ReadAllBytes(cachePaths.Hash));
+            bool canUseCache = File.Exists(cachePaths.Assembly) && File.Exists(cachePaths.Hash) && hash == File.ReadAllText(cachePaths.Hash);
 
             // process assembly if not cached
             if (!canUseCache)
@@ -80,7 +80,7 @@ namespace StardewModdingAPI.Framework
                     // write assembly data
                     Directory.CreateDirectory(cachePaths.Directory);
                     File.WriteAllBytes(cachePaths.Assembly, outBytes);
-                    File.WriteAllBytes(cachePaths.Hash, hash);
+                    File.WriteAllText(cachePaths.Hash, hash);
 
                     // copy any mdb/pdb files
                     foreach (string path in Directory.GetFiles(assemblyDir, "*.mdb").Concat(Directory.GetFiles(assemblyDir, "*.pdb")))
