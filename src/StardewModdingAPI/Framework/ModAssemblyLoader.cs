@@ -103,10 +103,9 @@ namespace StardewModdingAPI.Framework
         }
 
         /// <summary>Resolve an assembly from its name.</summary>
-        /// <param name="name">The assembly name.</param>
-        public Assembly ResolveAssembly(string name)
+        /// <param name="shortName">The short assembly name.</param>
+        public Assembly ResolveAssembly(string shortName)
         {
-            string shortName = name.Split(new[] { ',' }, 2).First();
             return this.AssemblyMap.Targets.FirstOrDefault(p => p.GetName().Name == shortName);
         }
 
