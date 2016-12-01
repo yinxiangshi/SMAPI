@@ -86,6 +86,9 @@ directory containing `src`).
             steam_appid.txt
          Windows/
             Mods/*
+            Mono.Cecil.dll
+            Mono.Cecil.Rocks.dll
+            Newtonsoft.Json.dll
             StardewModdingAPI.exe
             StardewModdingAPI.pdb
             StardewModdingAPI.xml

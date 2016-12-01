@@ -198,7 +198,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="FodyWeavers.xml" />
     <Content Include="icon.ico" />
     <Content Include="steam_appid.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -227,14 +226,6 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
-  <!-- merge Json.NET into the assembly (only in release mode to allow debugging, and only for Windows since Costura isn't crossplatform) -->
-  <Import Project="..\packages\Fody.1.29.4\build\dotnet\Fody.targets" Condition="$(Configuration) != 'Debug' AND $(OS) == 'WINDOWS_NT' AND Exists('..\packages\Fody.1.29.4\build\dotnet\Fody.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Fody.1.29.4\build\dotnet\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.1.29.4\build\dotnet\Fody.targets'))" />
-  </Target>
   <!-- if game path is invalid, show one user-friendly error instead of a slew of reference errors -->
   <Target Name="BeforeBuild">
     <Error Condition="!Exists('$(GamePath)')" Text="Failed to find the game install path automatically; edit the *.csproj file and manually add a &lt;GamePath&gt; setting with the full directory path containing the Stardew Valley executable." />
