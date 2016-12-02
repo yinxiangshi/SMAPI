@@ -103,10 +103,19 @@ namespace StardewModdingAPI.Framework
         }
 
         /// <summary>Resolve an assembly from its name.</summary>
-        /// <param name="shortName">The short assembly name.</param>
-        public Assembly ResolveAssembly(string shortName)
+        /// <param name="name">The assembly name.</param>
+        /// <remarks>
+        /// This implementation returns the first loaded assembly which matches the short form of
+        /// the assembly name, to resolve assembly resolution issues when rewriting
+        /// assemblies (especially with Mono). Since this is meant to be called on <see cref="AppDomain.AssemblyResolve"/>,
+        /// the implicit assumption is that loading the exact assembly failed.
+        /// </remarks>
+        public Assembly ResolveAssembly(string name)
         {
-            return this.AssemblyMap.Targets.FirstOrDefault(p => p.GetName().Name == shortName);
+            string shortName = name.Split(new[] { ',' }, 2).First(); // get simple name (without version and culture)
+            return AppDomain.CurrentDomain
+                .GetAssemblies()
+                .FirstOrDefault(p => p.GetName().Name == shortName);
         }
 
 

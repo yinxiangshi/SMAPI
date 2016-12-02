@@ -305,26 +305,7 @@ namespace StardewModdingAPI
 
             // get assembly loader
             ModAssemblyLoader modAssemblyLoader = new ModAssemblyLoader(Program.CachePath, Program.TargetPlatform, Program.Monitor);
-
-            // handle assembly resolution failure
-            AppDomain.CurrentDomain.AssemblyResolve += (sender, e) =>
-            {
-                // get assembly name (without version, culture, etc)
-                string shortName = e.Name.Split(new[] { ',' }, 2).First();
-
-                // one of the assembly references injected during assembly rewriting?
-                // technically this shouldn't happen, but apparently Mono's assembly resolution doesn't handle assembly rewrites very well
-                Assembly assembly = modAssemblyLoader.ResolveAssembly(shortName);
-                if (assembly != null)
-                    return assembly;
-
-                // Json.NET?
-                // mods often reference one version of Json.NET, but SMAPI might use a different version
-                if (shortName == typeof(JsonConvert).Assembly.GetName().Name)
-                    return typeof(JsonConvert).Assembly;
-
-                return null;
-            };
+            AppDomain.CurrentDomain.AssemblyResolve += (sender, e) => modAssemblyLoader.ResolveAssembly(e.Name);
 
             // load mods
             foreach (string directory in Directory.GetDirectories(Program.ModPath))
