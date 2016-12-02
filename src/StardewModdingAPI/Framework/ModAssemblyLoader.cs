@@ -60,7 +60,7 @@ namespace StardewModdingAPI.Framework
             // process assembly if not cached
             if (!canUseCache)
             {
-                this.Monitor.Log($"Loading {assemblyFileName} for the first time; preprocessing...");
+                this.Monitor.Log($"Loading {assemblyFileName} for the first time; preprocessing...", LogLevel.Trace);
 
                 // read assembly definition
                 AssemblyDefinition assembly;

@@ -110,7 +110,7 @@ namespace StardewModdingAPI.Framework.AssemblyRewriting
                         if (rewriter != null)
                         {
                             MethodReference methodRef = (MethodReference)op.Operand;
-                            this.Monitor.Log($"rewriting method reference {methodRef.DeclaringType.FullName}.{methodRef.Name}");
+                            this.Monitor.Log($"rewriting method reference {methodRef.DeclaringType.FullName}.{methodRef.Name}", LogLevel.Trace);
                             rewriter.Rewrite(module, cil, op, methodRef, this.AssemblyMap);
                         }
                     }
