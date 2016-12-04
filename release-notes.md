@@ -1,5 +1,12 @@
 # Release notes
 
+## 1.3
+See [log](https://github.com/CLxS/SMAPI/compare/1.2...1.3).
+
+For players:
+  * You can now run most mods on any platform (e.g. run Windows mods on Linux/Mac).
+  * Fixed the normal uninstaller not removing files added by the 'SMAPI for developers' installer.
+
 ## 1.2
 See [log](https://github.com/CLxS/SMAPI/compare/1.1.1...1.2).
 

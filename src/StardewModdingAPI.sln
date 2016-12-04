@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StardewModdingAPI.Installer
 		{F1A573B0-F436-472C-AE29-0B91EA6B9F8F} = {F1A573B0-F436-472C-AE29-0B91EA6B9F8F}
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StardewModdingAPI.AssemblyRewriters", "StardewModdingAPI.AssemblyRewriters\StardewModdingAPI.AssemblyRewriters.csproj", "{10DB0676-9FC1-4771-A2C8-E2519F091E49}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -67,6 +69,18 @@ Global
 		{443DDF81-6AAF-420A-A610-3459F37E5575}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{443DDF81-6AAF-420A-A610-3459F37E5575}.Release|x86.ActiveCfg = Release|Any CPU
 		{443DDF81-6AAF-420A-A610-3459F37E5575}.Release|x86.Build.0 = Release|Any CPU
+		{10DB0676-9FC1-4771-A2C8-E2519F091E49}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10DB0676-9FC1-4771-A2C8-E2519F091E49}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10DB0676-9FC1-4771-A2C8-E2519F091E49}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{10DB0676-9FC1-4771-A2C8-E2519F091E49}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{10DB0676-9FC1-4771-A2C8-E2519F091E49}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{10DB0676-9FC1-4771-A2C8-E2519F091E49}.Debug|x86.Build.0 = Debug|Any CPU
+		{10DB0676-9FC1-4771-A2C8-E2519F091E49}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10DB0676-9FC1-4771-A2C8-E2519F091E49}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10DB0676-9FC1-4771-A2C8-E2519F091E49}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{10DB0676-9FC1-4771-A2C8-E2519F091E49}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{10DB0676-9FC1-4771-A2C8-E2519F091E49}.Release|x86.ActiveCfg = Release|Any CPU
+		{10DB0676-9FC1-4771-A2C8-E2519F091E49}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

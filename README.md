@@ -71,22 +71,29 @@ directory containing `src`).
    3. If you did everything right so far, you should have a directory like this:
 
       ```
-      SMAPI-1.0/
+      SMAPI-1.x/
          Mono/
             Mods/*
+            Mono.Cecil.dll
+            Mono.Cecil.Rocks.dll
             Newtonsoft.Json.dll
             StardewModdingAPI
             StardewModdingAPI.exe
             StardewModdingAPI.exe.mdb
             StardewModdingAPI-settings.json
+            StardewModdingAPI.AssemblyRewriters.dll
             System.Numerics.dll
             steam_appid.txt
          Windows/
             Mods/*
+            Mono.Cecil.dll
+            Mono.Cecil.Rocks.dll
+            Newtonsoft.Json.dll
             StardewModdingAPI.exe
             StardewModdingAPI.pdb
             StardewModdingAPI.xml
             StardewModdingAPI-settings.json
+            StardewModdingAPI.AssemblyRewriters.dll
             steam_appid.txt
          install.exe
          readme.txt
