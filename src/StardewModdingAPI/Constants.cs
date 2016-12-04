@@ -32,7 +32,7 @@ namespace StardewModdingAPI
         public const string MinimumGameVersion = "1.1";
 
         /// <summary>The GitHub repository to check for updates.</summary>
-        public const string GitHubRepository = "ClxS/SMAPI";
+        public const string GitHubRepository = "Pathoschild/SMAPI";
 
         /// <summary>The directory path containing Stardew Valley's app data.</summary>
         public static string DataPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley");
