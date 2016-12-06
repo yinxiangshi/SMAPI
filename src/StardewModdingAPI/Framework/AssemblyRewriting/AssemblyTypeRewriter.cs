@@ -54,7 +54,8 @@ namespace StardewModdingAPI.Framework.AssemblyRewriting
 
         /// <summary>Rewrite the types referenced by an assembly.</summary>
         /// <param name="assembly">The assembly to rewrite.</param>
-        public void RewriteAssembly(AssemblyDefinition assembly)
+        /// <returns>Returns whether the assembly was modified.</returns>
+        public bool RewriteAssembly(AssemblyDefinition assembly)
         {
             ModuleDefinition module = assembly.Modules.Single(); // technically an assembly can have multiple modules, but none of the build tools (including MSBuild) support it; simplify by assuming one module
 
@@ -71,7 +72,7 @@ namespace StardewModdingAPI.Framework.AssemblyRewriting
                 }
             }
             if (!shouldRewrite)
-                return;
+                return false;
 
             // add target assembly references
             foreach (AssemblyNameReference target in this.AssemblyMap.TargetReferences.Values)
@@ -117,6 +118,7 @@ namespace StardewModdingAPI.Framework.AssemblyRewriting
                 }
                 method.Body.OptimizeMacros();
             }
+            return true;
         }
 
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -12,6 +13,7 @@ using Newtonsoft.Json;
 using StardewModdingAPI.AssemblyRewriters;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework;
+using StardewModdingAPI.Framework.AssemblyRewriting;
 using StardewModdingAPI.Inheritance;
 using StardewValley;
 using Monitor = StardewModdingAPI.Framework.Monitor;
@@ -38,8 +40,8 @@ namespace StardewModdingAPI
         /// <summary>The full path to the folder containing mods.</summary>
         private static readonly string ModPath = Path.Combine(Constants.ExecutionPath, "Mods");
 
-        /// <summary>The full path to the folder containing cached SMAPI data.</summary>
-        private static readonly string CachePath = Path.Combine(Program.ModPath, ".cache");
+        /// <summary>The name of the folder containing a mod's cached assembly data.</summary>
+        private static readonly string CacheDirName = ".cache";
 
         /// <summary>The log file to which to write messages.</summary>
         private static readonly LogFileManager LogFile = new LogFileManager(Constants.LogPath);
@@ -134,7 +136,6 @@ namespace StardewModdingAPI
                 Program.Monitor.Log("Loading SMAPI...");
                 Console.Title = Constants.ConsoleTitle;
                 Program.VerifyPath(Program.ModPath);
-                Program.VerifyPath(Program.CachePath);
                 Program.VerifyPath(Constants.LogDir);
                 if (!File.Exists(Program.GameExecutablePath))
                 {
@@ -304,7 +305,7 @@ namespace StardewModdingAPI
             Program.Monitor.Log("Loading mods...");
 
             // get assembly loader
-            ModAssemblyLoader modAssemblyLoader = new ModAssemblyLoader(Program.CachePath, Program.TargetPlatform, Program.Monitor);
+            ModAssemblyLoader modAssemblyLoader = new ModAssemblyLoader(Program.CacheDirName, Program.TargetPlatform, Program.Monitor);
             AppDomain.CurrentDomain.AssemblyResolve += (sender, e) => modAssemblyLoader.ResolveAssembly(e.Name);
 
             // load mods
@@ -401,14 +402,15 @@ namespace StardewModdingAPI
                     }
                 }
 
-                // preprocess mod assemblies
+                // preprocess mod assemblies for compatibility
+                var processedAssemblies = new List<RewriteResult>();
                 {
                     bool succeeded = true;
                     foreach (string assemblyPath in Directory.GetFiles(directory, "*.dll"))
                     {
                         try
                         {
-                            modAssemblyLoader.ProcessAssembly(assemblyPath);
+                            processedAssemblies.Add(modAssemblyLoader.ProcessAssemblyUnlessCached(assemblyPath));
                         }
                         catch (Exception ex)
                         {
@@ -420,13 +422,27 @@ namespace StardewModdingAPI
                     if (!succeeded)
                         continue;
                 }
+                bool forceUseCachedAssembly = processedAssemblies.Any(p => p.UseCachedAssembly); // make sure DLLs are kept together for dependency resolution
+                if (processedAssemblies.Any(p => p.IsNewerThanCache))
+                    modAssemblyLoader.WriteCache(processedAssemblies, forceUseCachedAssembly);
 
-                // load assembly
+                // get entry assembly path
+                string mainAssemblyPath;
+                {
+                    RewriteResult mainProcessedAssembly = processedAssemblies.FirstOrDefault(p => p.OriginalAssemblyPath == Path.Combine(directory, manifest.EntryDll));
+                    if (mainProcessedAssembly == null)
+                    {
+                        Program.Monitor.Log($"{errorPrefix}: the specified mod DLL does not exist.", LogLevel.Error);
+                        continue;
+                    }
+                    mainAssemblyPath = forceUseCachedAssembly ? mainProcessedAssembly.CachePaths.Assembly : mainProcessedAssembly.OriginalAssemblyPath;
+                }
+
+                // load entry assembly
                 Assembly modAssembly;
                 try
                 {
-                    string assemblyPath = Path.Combine(directory, manifest.EntryDll);
-                    modAssembly = modAssemblyLoader.LoadCachedAssembly(assemblyPath);
+                    modAssembly = Assembly.UnsafeLoadFrom(mainAssemblyPath); // unsafe load allows downloaded DLLs
                     if (modAssembly.DefinedTypes.Count(x => x.BaseType == typeof(Mod)) == 0)
                     {
                         Program.Monitor.Log($"{errorPrefix}: the mod DLL does not contain an implementation of the 'Mod' class.", LogLevel.Error);

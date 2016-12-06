@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using Mono.Cecil;
+using Newtonsoft.Json;
 using StardewModdingAPI.AssemblyRewriters;
 using StardewModdingAPI.Framework.AssemblyRewriting;
 
@@ -15,8 +17,8 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Properties
         *********/
-        /// <summary>The directory in which to cache data.</summary>
-        private readonly string CacheDirPath;
+        /// <summary>The name of the directory containing a mod's cached data.</summary>
+        private readonly string CacheDirName;
 
         /// <summary>Metadata for mapping assemblies to the current <see cref="Platform"/>.</summary>
         private readonly PlatformAssemblyMap AssemblyMap;
@@ -32,74 +34,76 @@ namespace StardewModdingAPI.Framework
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="cacheDirPath">The cache directory.</param>
+        /// <param name="cacheDirName">The name of the directory containing a mod's cached data.</param>
         /// <param name="targetPlatform">The current game platform.</param>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        public ModAssemblyLoader(string cacheDirPath, Platform targetPlatform, IMonitor monitor)
+        public ModAssemblyLoader(string cacheDirName, Platform targetPlatform, IMonitor monitor)
         {
-            this.CacheDirPath = cacheDirPath;
+            this.CacheDirName = cacheDirName;
             this.Monitor = monitor;
             this.AssemblyMap = Constants.GetAssemblyMap(targetPlatform);
             this.AssemblyTypeRewriter = new AssemblyTypeRewriter(this.AssemblyMap, monitor);
         }
 
-        /// <summary>Preprocess an assembly and cache the modified version.</summary>
+        /// <summary>Preprocess an assembly unless the cache is up to date.</summary>
         /// <param name="assemblyPath">The assembly file path.</param>
-        public void ProcessAssembly(string assemblyPath)
+        /// <returns>Returns the rewrite metadata for the preprocessed assembly.</returns>
+        public RewriteResult ProcessAssemblyUnlessCached(string assemblyPath)
         {
             // read assembly data
-            string assemblyFileName = Path.GetFileName(assemblyPath);
-            string assemblyDir = Path.GetDirectoryName(assemblyPath);
             byte[] assemblyBytes = File.ReadAllBytes(assemblyPath);
-            string hash = $"SMAPI {Constants.Version}|" + string.Join("", MD5.Create().ComputeHash(assemblyBytes).Select(p => p.ToString("X2")));
+            string hash = string.Join("", MD5.Create().ComputeHash(assemblyBytes).Select(p => p.ToString("X2")));
 
-            // check cache
-            CachePaths cachePaths = this.GetCacheInfo(assemblyPath);
-            bool canUseCache = File.Exists(cachePaths.Assembly) && File.Exists(cachePaths.Hash) && hash == File.ReadAllText(cachePaths.Hash);
-
-            // process assembly if not cached
-            if (!canUseCache)
+            // get cached result if current
+            CachePaths cachePaths = this.GetCachePaths(assemblyPath);
             {
-                this.Monitor.Log($"Loading {assemblyFileName} for the first time; preprocessing...", LogLevel.Trace);
+                CacheEntry cacheEntry = File.Exists(cachePaths.Metadata) ? JsonConvert.DeserializeObject<CacheEntry>(File.ReadAllText(cachePaths.Metadata)) : null;
+                if (cacheEntry != null && cacheEntry.IsUpToDate(cachePaths, hash, Constants.Version))
+                    return new RewriteResult(assemblyPath, cachePaths, assemblyBytes, cacheEntry.Hash, cacheEntry.UseCachedAssembly, isNewerThanCache: false); // no rewrite needed
+            }
+            this.Monitor.Log($"Preprocessing {Path.GetFileName(assemblyPath)} for compatibility...", LogLevel.Trace);
 
-                // read assembly definition
-                AssemblyDefinition assembly;
-                using (Stream readStream = new MemoryStream(assemblyBytes))
-                    assembly = AssemblyDefinition.ReadAssembly(readStream);
-
-                // rewrite assembly to match platform
-                this.AssemblyTypeRewriter.RewriteAssembly(assembly);
-
-                // write cache
-                using (MemoryStream outStream = new MemoryStream())
-                {
-                    // get assembly bytes
-                    assembly.Write(outStream);
-                    byte[] outBytes = outStream.ToArray();
-
-                    // write assembly data
-                    Directory.CreateDirectory(cachePaths.Directory);
-                    File.WriteAllBytes(cachePaths.Assembly, outBytes);
-                    File.WriteAllText(cachePaths.Hash, hash);
-
-                    // copy any mdb/pdb files
-                    foreach (string path in Directory.GetFiles(assemblyDir, "*.mdb").Concat(Directory.GetFiles(assemblyDir, "*.pdb")))
-                    {
-                        string filename = Path.GetFileName(path);
-                        File.Copy(path, Path.Combine(cachePaths.Directory, filename), overwrite: true);
-                    }
-                }
+            // rewrite assembly
+            AssemblyDefinition assembly;
+            using (Stream readStream = new MemoryStream(assemblyBytes))
+                assembly = AssemblyDefinition.ReadAssembly(readStream);
+            bool modified = this.AssemblyTypeRewriter.RewriteAssembly(assembly);
+            using (MemoryStream outStream = new MemoryStream())
+            {
+                assembly.Write(outStream);
+                byte[] outBytes = outStream.ToArray();
+                return new RewriteResult(assemblyPath, cachePaths, outBytes, hash, useCachedAssembly: modified, isNewerThanCache: true);
             }
         }
 
-        /// <summary>Load a preprocessed assembly.</summary>
-        /// <param name="assemblyPath">The assembly file path.</param>
-        public Assembly LoadCachedAssembly(string assemblyPath)
+        /// <summary>Write rewritten assembly metadata to the cache for a mod.</summary>
+        /// <param name="results">The rewrite results.</param>
+        /// <param name="forceCacheAssemblies">Whether to write all assemblies to the cache, even if they weren't modified.</param>
+        /// <exception cref="InvalidOperationException">There are no results to write, or the results are not all for the same directory.</exception>
+        public void WriteCache(IEnumerable<RewriteResult> results, bool forceCacheAssemblies)
         {
-            CachePaths cachePaths = this.GetCacheInfo(assemblyPath);
-            if (!File.Exists(cachePaths.Assembly))
-                throw new InvalidOperationException($"The assembly {assemblyPath} doesn't exist in the preprocessed cache.");
-            return Assembly.UnsafeLoadFrom(cachePaths.Assembly); // unsafe load allows DLLs downloaded from the Internet without the user needing to 'unblock' them
+            results = results.ToArray();
+
+            // get cache directory
+            if (!results.Any())
+                throw new InvalidOperationException("There are no assemblies to cache.");
+            if (results.Select(p => p.CachePaths.Directory).Distinct().Count() > 1)
+                throw new InvalidOperationException("The assemblies can't be cached together because they have different source directories.");
+            string cacheDir = results.Select(p => p.CachePaths.Directory).First();
+
+            // reset cache
+            if (Directory.Exists(cacheDir))
+                Directory.Delete(cacheDir, recursive: true);
+            Directory.CreateDirectory(cacheDir);
+
+            // cache all results
+            foreach (RewriteResult result in results)
+            {
+                CacheEntry cacheEntry = new CacheEntry(result.Hash, Constants.Version.ToString(), forceCacheAssemblies || result.UseCachedAssembly);
+                File.WriteAllText(result.CachePaths.Metadata, JsonConvert.SerializeObject(cacheEntry));
+                if (forceCacheAssemblies || result.UseCachedAssembly)
+                    File.WriteAllBytes(result.CachePaths.Assembly, result.AssemblyBytes);
+            }
         }
 
         /// <summary>Resolve an assembly from its name.</summary>
@@ -124,13 +128,13 @@ namespace StardewModdingAPI.Framework
         *********/
         /// <summary>Get the cache details for an assembly.</summary>
         /// <param name="assemblyPath">The assembly file path.</param>
-        private CachePaths GetCacheInfo(string assemblyPath)
+        private CachePaths GetCachePaths(string assemblyPath)
         {
-            string key = Path.GetFileNameWithoutExtension(assemblyPath);
-            string dirPath = Path.Combine(this.CacheDirPath, new DirectoryInfo(Path.GetDirectoryName(assemblyPath)).Name);
-            string cacheAssemblyPath = Path.Combine(dirPath, $"{key}.dll");
-            string cacheHashPath = Path.Combine(dirPath, $"{key}.hash");
-            return new CachePaths(dirPath, cacheAssemblyPath, cacheHashPath);
+            string fileName = Path.GetFileName(assemblyPath);
+            string dirPath = Path.Combine(Path.GetDirectoryName(assemblyPath), this.CacheDirName);
+            string cacheAssemblyPath = Path.Combine(dirPath, fileName);
+            string metadataPath = Path.Combine(dirPath, $"{fileName}.json");
+            return new CachePaths(dirPath, cacheAssemblyPath, metadataPath);
         }
     }
 }
