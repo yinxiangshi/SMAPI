@@ -27,8 +27,8 @@ namespace StardewModdingApi.Installer
             @"C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley"
         };
 
-        /// <summary>The files to remove when uninstalling SMAPI.</summary>
-        private readonly string[] UninstallFiles =
+        /// <summary>The directory or file paths to remove when uninstalling SMAPI, relative to the game directory.</summary>
+        private readonly string[] UninstallPaths =
         {
             // common
             "StardewModdingAPI.exe",
@@ -45,7 +45,10 @@ namespace StardewModdingApi.Installer
             "System.Numerics.dll",
 
             // Windows only
-            "StardewModdingAPI.pdb"
+            "StardewModdingAPI.pdb",
+
+            // obsolete
+            "Mods/.cache"
         };
 
 
@@ -59,16 +62,17 @@ namespace StardewModdingApi.Installer
         ///     1. Collect information (mainly OS and install path) and validate it.
         ///     2. Ask the user whether to install or uninstall.
         /// 
-        /// Install flow:
-        ///     1. Copy the SMAPI files from package/Windows or package/Mono into the game directory.
-        ///     2. On Linux/Mac: back up the game launcher and replace it with the SMAPI launcher. (This isn't possible on Windows, so the user needs to configure it manually.)
-        ///     3. Create the 'Mods' directory.
-        ///     4. Copy the bundled mods into the 'Mods' directory (deleting any existing versions).
-        ///     5. Move any mods from app data into game's mods directory.
-        /// 
         /// Uninstall logic:
         ///     1. On Linux/Mac: if a backup of the launcher exists, delete the launcher and restore the backup.
-        ///     2. Delete all files in the game directory matching one of the <see cref="UninstallFiles"/>.
+        ///     2. Delete all files and folders in the game directory matching one of the <see cref="UninstallPaths"/>.
+        /// 
+        /// Install flow:
+        ///     1. Run the uninstall flow.
+        ///     2. Copy the SMAPI files from package/Windows or package/Mono into the game directory.
+        ///     3. On Linux/Mac: back up the game launcher and replace it with the SMAPI launcher. (This isn't possible on Windows, so the user needs to configure it manually.)
+        ///     4. Create the 'Mods' directory.
+        ///     5. Copy the bundled mods into the 'Mods' directory (deleting any existing versions).
+        ///     6. Move any mods from app data into game's mods directory.
         /// </remarks>
         public void Run(string[] args)
         {
@@ -143,15 +147,20 @@ namespace StardewModdingApi.Installer
             }
 
             // remove old files
-            string[] removeFiles = this.UninstallFiles
+            string[] removePaths = this.UninstallPaths
                 .Select(path => Path.Combine(installDir.FullName, path))
-                .Where(File.Exists)
+                .Where(path => Directory.Exists(path) || File.Exists(path))
                 .ToArray();
-            if (removeFiles.Any())
+            if (removePaths.Any())
             {
                 this.PrintDebug(action == ScriptAction.Install ? "Removing previous SMAPI files..." : "Removing SMAPI files...");
-                foreach (string path in removeFiles)
-                    File.Delete(path);
+                foreach (string path in removePaths)
+                {
+                    if (Directory.Exists(path))
+                        Directory.Delete(path, recursive: true);
+                    else
+                        File.Delete(path);
+                }
             }
 
             /****
