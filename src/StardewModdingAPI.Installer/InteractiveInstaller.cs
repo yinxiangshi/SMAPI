@@ -131,90 +131,88 @@ namespace StardewModdingApi.Installer
             Console.WriteLine();
 
             /****
-            ** Perform action
+            ** Always uninstall old files
             ****/
-            switch (action)
+            // restore game launcher
+            if (platform == Platform.Mono && File.Exists(paths.unixLauncherBackup))
             {
-                case ScriptAction.Uninstall:
+                this.PrintDebug("Removing SMAPI launcher...");
+                if (File.Exists(paths.unixLauncher))
+                    File.Delete(paths.unixLauncher);
+                File.Move(paths.unixLauncherBackup, paths.unixLauncher);
+            }
+
+            // remove old files
+            string[] removeFiles = this.UninstallFiles
+                .Select(path => Path.Combine(installDir.FullName, path))
+                .Where(File.Exists)
+                .ToArray();
+            if (removeFiles.Any())
+            {
+                this.PrintDebug(action == ScriptAction.Install ? "Removing previous SMAPI files..." : "Removing SMAPI files...");
+                foreach (string path in removeFiles)
+                    File.Delete(path);
+            }
+
+            /****
+            ** Install new files
+            ****/
+            if (action == ScriptAction.Install)
+            {
+                // copy SMAPI files to game dir
+                this.PrintDebug("Adding SMAPI files...");
+                foreach (FileInfo sourceFile in packageDir.EnumerateFiles())
+                {
+                    string targetPath = Path.Combine(installDir.FullName, sourceFile.Name);
+                    if (File.Exists(targetPath))
+                        File.Delete(targetPath);
+                    sourceFile.CopyTo(targetPath);
+                }
+
+                // replace mod launcher (if possible)
+                if (platform == Platform.Mono)
+                {
+                    this.PrintDebug("Safely replacing game launcher...");
+                    if (!File.Exists(paths.unixLauncherBackup))
+                        File.Move(paths.unixLauncher, paths.unixLauncherBackup);
+                    else if (File.Exists(paths.unixLauncher))
+                        File.Delete(paths.unixLauncher);
+
+                    File.Move(paths.unixSmapiLauncher, paths.unixLauncher);
+                }
+
+                // create mods directory (if needed)
+                DirectoryInfo modsDir = new DirectoryInfo(Path.Combine(installDir.FullName, "Mods"));
+                if (!modsDir.Exists)
+                {
+                    this.PrintDebug("Creating mods directory...");
+                    modsDir.Create();
+                }
+
+                // add or replace bundled mods
+                Directory.CreateDirectory(Path.Combine(installDir.FullName, "Mods"));
+                DirectoryInfo packagedModsDir = new DirectoryInfo(Path.Combine(packageDir.FullName, "Mods"));
+                if (packagedModsDir.Exists && packagedModsDir.EnumerateDirectories().Any())
+                {
+                    this.PrintDebug("Adding bundled mods...");
+                    foreach (DirectoryInfo sourceDir in packagedModsDir.EnumerateDirectories())
                     {
-                        // restore game launcher
-                        if (platform == Platform.Mono && File.Exists(paths.unixLauncherBackup))
-                        {
-                            this.PrintDebug("Restoring game launcher...");
-                            if (File.Exists(paths.unixLauncher))
-                                File.Delete(paths.unixLauncher);
-                            File.Move(paths.unixLauncherBackup, paths.unixLauncher);
-                        }
+                        this.PrintDebug($"   adding {sourceDir.Name}...");
 
-                        // remove SMAPI files
-                        this.PrintDebug("Removing SMAPI files...");
-                        foreach (string filename in this.UninstallFiles)
-                        {
-                            string targetPath = Path.Combine(installDir.FullName, filename);
-                            if (File.Exists(targetPath))
-                                File.Delete(targetPath);
-                        }
+                        // initialise target dir
+                        DirectoryInfo targetDir = new DirectoryInfo(Path.Combine(modsDir.FullName, sourceDir.Name));
+                        if (targetDir.Exists)
+                            targetDir.Delete(recursive: true);
+                        targetDir.Create();
+
+                        // copy files
+                        foreach (FileInfo sourceFile in sourceDir.EnumerateFiles())
+                            sourceFile.CopyTo(Path.Combine(targetDir.FullName, sourceFile.Name));
                     }
-                    break;
+                }
 
-                case ScriptAction.Install:
-                    {
-                        // copy SMAPI files to game dir
-                        this.PrintDebug("Copying SMAPI files to game directory...");
-                        foreach (FileInfo sourceFile in packageDir.EnumerateFiles())
-                        {
-                            string targetPath = Path.Combine(installDir.FullName, sourceFile.Name);
-                            if (File.Exists(targetPath))
-                                File.Delete(targetPath);
-                            sourceFile.CopyTo(targetPath);
-                        }
-
-                        // replace mod launcher (if possible)
-                        if (platform == Platform.Mono)
-                        {
-                            this.PrintDebug("Safely replacing game launcher...");
-                            if (!File.Exists(paths.unixLauncherBackup))
-                                File.Move(paths.unixLauncher, paths.unixLauncherBackup);
-                            else if (File.Exists(paths.unixLauncher))
-                                File.Delete(paths.unixLauncher);
-
-                            File.Move(paths.unixSmapiLauncher, paths.unixLauncher);
-                        }
-
-                        // create mods directory (if needed)
-                        DirectoryInfo modsDir = new DirectoryInfo(Path.Combine(installDir.FullName, "Mods"));
-                        if (!modsDir.Exists)
-                        {
-                            this.PrintDebug("Creating mods directory...");
-                            modsDir.Create();
-                        }
-
-                        // add or replace bundled mods
-                        Directory.CreateDirectory(Path.Combine(installDir.FullName, "Mods"));
-                        DirectoryInfo packagedModsDir = new DirectoryInfo(Path.Combine(packageDir.FullName, "Mods"));
-                        if (packagedModsDir.Exists && packagedModsDir.EnumerateDirectories().Any())
-                        {
-                            this.PrintDebug("Adding bundled mods...");
-                            foreach (DirectoryInfo sourceDir in packagedModsDir.EnumerateDirectories())
-                            {
-                                this.PrintDebug($"   adding {sourceDir.Name}...");
-
-                                // initialise target dir
-                                DirectoryInfo targetDir = new DirectoryInfo(Path.Combine(modsDir.FullName, sourceDir.Name));
-                                if (targetDir.Exists)
-                                    targetDir.Delete(recursive: true);
-                                targetDir.Create();
-
-                                // copy files
-                                foreach (FileInfo sourceFile in sourceDir.EnumerateFiles())
-                                    sourceFile.CopyTo(Path.Combine(targetDir.FullName, sourceFile.Name));
-                            }
-                        }
-
-                        // remove obsolete appdata mods
-                        this.InteractivelyRemoveAppDataMods(platform, modsDir);
-                    }
-                    break;
+                // remove obsolete appdata mods
+                this.InteractivelyRemoveAppDataMods(platform, modsDir);
             }
             Console.WriteLine();
 
