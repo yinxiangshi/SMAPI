@@ -119,7 +119,7 @@ namespace StardewModdingApi.Installer
 
             ScriptAction action;
             {
-                string choice = this.InteractivelyChoose("What do you want to do?", "1", "2");
+                string choice = this.InteractivelyChoose("What do you want to do? Type 1 or 2, then press enter.", "1", "2");
                 switch (choice)
                 {
                     case "1":
@@ -320,12 +320,11 @@ namespace StardewModdingApi.Installer
             }
 
             // ask user
-            Console.WriteLine("Oops, couldn't find your Stardew Valley install path automatically. You'll need to specify where the game is installed (or install SMAPI manually).");
+            Console.WriteLine("Oops, couldn't find the game automatically.");
             while (true)
             {
                 // get path from user
-                Console.WriteLine("   Enter the game's full directory path (the one containing 'StardewValley.exe' or 'Stardew Valley.exe').");
-                Console.Write("   > ");
+                Console.WriteLine($"Type the file path to the game directory (the one containing '{(platform == Platform.Mono ? "StardewValley.exe" : "Stardew Valley.exe")}'), then press enter.");
                 string path = Console.ReadLine()?.Trim();
                 if (string.IsNullOrWhiteSpace(path))
                 {

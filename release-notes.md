@@ -6,9 +6,10 @@ See [log](https://github.com/CLxS/SMAPI/compare/stable...develop).
 For players:
   * Installing SMAPI will now automatically clean up old SMAPI files.
   * Each mod now has its own `.cache` folder, so removing the mod won't leave orphaned cache files behind.
+  * Tweaked installer wording to avoid confusion.
 
 For developers:
-  * Fixed issue where you could no longer debug into an assembly because it was copied into the `.cache` directory. That will now only happen if necessary.
+  * Fixed an issue where you couldn't debug into an assembly because it was copied into the `.cache` directory. That will now only happen if necessary.
 
 ## 1.3
 See [log](https://github.com/CLxS/SMAPI/compare/1.2...1.3).
