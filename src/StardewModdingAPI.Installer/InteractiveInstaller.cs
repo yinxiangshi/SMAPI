@@ -406,10 +406,7 @@ namespace StardewModdingApi.Installer
 
                 // move into mods
                 this.PrintDebug($"   Moving {entry.Name} into the game's mod directory...");
-                if (isDir)
-                    (entry as DirectoryInfo).MoveTo(newPath);
-                else
-                    (entry as FileInfo).MoveTo(newPath);
+                this.Move(entry, newPath);
             }
 
             // delete if empty
@@ -419,6 +416,33 @@ namespace StardewModdingApi.Installer
             {
                 this.PrintDebug("   Deleted empty directory.");
                 modDir.Delete();
+            }
+        }
+
+        /// <summary>Move a filesystem entry to a new parent directory.</summary>
+        /// <param name="entry">The filesystem entry to move.</param>
+        /// <param name="newPath">The destination path.</param>
+        /// <remarks>We can't use <see cref="FileInfo.MoveTo"/> or <see cref="DirectoryInfo.MoveTo"/>, because those don't work across partitions.</remarks>
+        private void Move(FileSystemInfo entry, string newPath)
+        {
+            // file
+            if (entry is FileInfo)
+            {
+                FileInfo file = (FileInfo)entry;
+                file.CopyTo(newPath);
+                file.Delete();
+            }
+
+            // directory
+            else
+            {
+                Directory.CreateDirectory(newPath);
+
+                DirectoryInfo directory = (DirectoryInfo)entry;
+                foreach (FileSystemInfo child in directory.EnumerateFileSystemInfos())
+                    this.Move(child, Path.Combine(newPath, child.Name));
+
+                directory.Delete();
             }
         }
     }

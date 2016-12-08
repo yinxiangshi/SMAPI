@@ -7,7 +7,8 @@ For players:
   * Installing SMAPI will now automatically clean up old SMAPI files.
   * Each mod now has its own `.cache` folder, so removing the mod won't leave orphaned cache files behind.
   * Tweaked installer wording to avoid confusion.
-  * Fixed the installer not removing TrainerMod from the legacy appdata mods directory if it's already present in the game mods directory.
+  * Fixed the installer not removing TrainerMod from appdata if it's already in the game mods directory.
+  * Fixed the installer not moving mods out of appdata if the game isn't installed on the same Windows partition.
 
 For developers:
   * Added a searchable `list_items` command to replace the `out_items`, `out_melee`, and `out_rings` commands.
