@@ -102,6 +102,11 @@
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Framework\Extensions.cs" />
+    <Compile Include="ItemData\ISearchItem.cs" />
+    <Compile Include="ItemData\ItemType.cs" />
+    <Compile Include="ItemData\SearchableObject.cs" />
+    <Compile Include="ItemData\SearchableRing.cs" />
+    <Compile Include="ItemData\SearchableWeapon.cs" />
     <Compile Include="TrainerMod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
