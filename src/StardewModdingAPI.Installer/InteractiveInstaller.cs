@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+#if SMAPI_FOR_WINDOWS
 using Microsoft.Win32;
+#endif
 using StardewModdingApi.Installer.Enums;
 
 namespace StardewModdingApi.Installer
@@ -15,18 +18,37 @@ namespace StardewModdingApi.Installer
         *********/
         /// <summary>The default file paths where Stardew Valley can be installed.</summary>
         /// <remarks>Derived from the crossplatform mod config: https://github.com/Pathoschild/Stardew.ModBuildConfig. </remarks>
-        private readonly string[] DefaultInstallPaths = {
-            // Linux
-            $"{Environment.GetEnvironmentVariable("HOME")}/GOG Games/Stardew Valley/game",
-            $"{Environment.GetEnvironmentVariable("HOME")}/.local/share/Steam/steamapps/common/Stardew Valley",
+        private IEnumerable<string> DefaultInstallPaths
+        {
+            get
+            {
+                // Linux
+                yield return $"{Environment.GetEnvironmentVariable("HOME")}/GOG Games/Stardew Valley/game";
+                yield return $"{Environment.GetEnvironmentVariable("HOME")}/.local/share/Steam/steamapps/common/Stardew Valley";
 
-            // Mac
-            $"{Environment.GetEnvironmentVariable("HOME")}/Library/Application Support/Steam/steamapps/common/Stardew Valley/Contents/MacOS",
+                // Mac
+                yield return $"{Environment.GetEnvironmentVariable("HOME")}/Library/Application Support/Steam/steamapps/common/Stardew Valley/Contents/MacOS";
 
-            // Windows
-            @"C:\Program Files (x86)\GalaxyClient\Games\Stardew Valley",
-            @"C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley"
-        };
+                // Windows
+                yield return @"C:\Program Files (x86)\GalaxyClient\Games\Stardew Valley";
+                yield return @"C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley";
+
+                // Windows registry
+#if SMAPI_FOR_WINDOWS
+                IDictionary<string, string> registryKeys = new Dictionary<string, string>
+                {
+                    [@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 413150"] = "InstallLocation", // Steam
+                    [@"SOFTWARE\WOW6432Node\GOG.com\Games\1453375253"] = "PATH", // GOG on 64-bit Windows
+                };
+                foreach (var pair in registryKeys)
+                {
+                    string path = this.GetLocalMachineRegistryValue(pair.Key, pair.Value);
+                    if (!string.IsNullOrWhiteSpace(path))
+                        yield return path;
+                }
+#endif
+            }
+        }
 
         /// <summary>The directory or file paths to remove when uninstalling SMAPI, relative to the game directory.</summary>
         private readonly string[] UninstallPaths =
@@ -262,6 +284,21 @@ namespace StardewModdingApi.Installer
             }
         }
 
+#if SMAPI_FOR_WINDOWS
+        /// <summary>Get the value of a key in the Windows registry.</summary>
+        /// <param name="key">The full path of the registry key relative to HKLM.</param>
+        /// <param name="name">The name of the value.</param>
+        private string GetLocalMachineRegistryValue(string key, string name)
+        {
+            RegistryKey localMachine = Environment.Is64BitOperatingSystem ? RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64) : Registry.LocalMachine;
+            RegistryKey openKey = localMachine.OpenSubKey(key);
+            if (openKey == null)
+                return null;
+            using (openKey)
+                return (string)openKey.GetValue(name);
+        }
+#endif
+
         /// <summary>Print a debug message.</summary>
         /// <param name="text">The text to print.</param>
         private void PrintDebug(string text)
@@ -317,41 +354,6 @@ namespace StardewModdingApi.Installer
             {
                 if (Directory.Exists(defaultPath))
                     return new DirectoryInfo(defaultPath);
-            }
-
-            if (platform == Platform.Windows)
-            { 
-            // Needed to get 64Keys
-            RegistryKey localKey = Environment.Is64BitOperatingSystem ? RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64) : Registry.LocalMachine;
-                
-            string stardewValleyPath;
-            var registry = localKey.OpenSubKey(@"SOFTWARE\WOW6432Node\GOG.com\Games\1453375253");
-            if (registry != null)
-            {
-                stardewValleyPath = (string)registry.GetValue("PATH");
-                if (!string.IsNullOrEmpty(stardewValleyPath))
-                {
-                        registry.Close();
-                        if (Directory.Exists(stardewValleyPath))
-                    {
-                        return new DirectoryInfo(stardewValleyPath);
-                    }
-                }
-            }
-
-            registry = localKey.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 413150");
-                if (registry != null)
-                {
-                    stardewValleyPath = (string)registry.GetValue("InstallLocation");
-                    if (!string.IsNullOrEmpty(stardewValleyPath))
-                    {
-                        registry.Close();
-                        if (Directory.Exists(stardewValleyPath))
-                        {
-                            return new DirectoryInfo(stardewValleyPath);
-                        }         
-                    }
-                }
             }
 
             // ask user
