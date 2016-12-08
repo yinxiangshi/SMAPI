@@ -9,8 +9,9 @@ For players:
   * Tweaked installer wording to avoid confusion.
 
 For developers:
+  * Added a searchable `list_items` command to replace the `out_items`, `out_melee`, and `out_rings` commands.
+  * Added `TypeLoadException` details when intercepted by SMAPI.
   * Fixed an issue where you couldn't debug into an assembly because it was copied into the `.cache` directory. That will now only happen if necessary.
-  * Replaced the `out_items`, `out_melee`, and `out_rings` console commands with `list_items`, which also supports searching.
 
 ## 1.3
 See [log](https://github.com/CLxS/SMAPI/compare/1.2...1.3).

@@ -70,15 +70,21 @@ namespace StardewModdingAPI.Framework
         /// <param name="exception">The error to summarise.</param>
         public static string GetLogSummary(this Exception exception)
         {
-            string summary = exception.ToString();
+            // type load exception
+            if (exception is TypeLoadException)
+                return $"Failed loading type: {((TypeLoadException)exception).TypeName}: {exception}";
 
+            // reflection type load exception
             if (exception is ReflectionTypeLoadException)
             {
+                string summary = exception.ToString();
                 foreach (Exception childEx in ((ReflectionTypeLoadException)exception).LoaderExceptions)
                     summary += $"\n\n{childEx.GetLogSummary()}";
+                return summary;
             }
 
-            return summary;
+            // anything else
+            return exception.ToString();
         }
     }
 }
