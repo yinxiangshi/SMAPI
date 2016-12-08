@@ -373,7 +373,7 @@ namespace StardewModdingAPI.Inheritance
 
         /// <summary>The method called to draw everything to the screen.</summary>
         /// <param name="gameTime">A snapshot of the game timing state.</param>
-        /// <remarks>This implementation is identical to <see cref="Game1.Draw"/>, except for minor formatting and added events.</remarks>
+        /// <remarks>This implementation is identical to <see cref="Game1.Draw"/>, except for try..catch around menu draw code, minor formatting, and added events.</remarks>
         protected override void Draw(GameTime gameTime)
         {
             // track frame rate
@@ -388,9 +388,25 @@ namespace StardewModdingAPI.Inheritance
                 if (Game1.options.showMenuBackground && Game1.activeClickableMenu != null && Game1.activeClickableMenu.showWithoutTransparencyIfOptionIsSet())
                 {
                     Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
-                    Game1.activeClickableMenu.drawBackground(Game1.spriteBatch);
+                    try
+                    {
+                        Game1.activeClickableMenu.drawBackground(Game1.spriteBatch);
+                    }
+                    catch (Exception ex)
+                    {
+                        this.Monitor.Log($"The {Game1.activeClickableMenu.GetType().FullName} menu crashed while drawing its background. SMAPI will force it to exit to avoid crashing the game.\n{ex.GetLogSummary()}", LogLevel.Error);
+                        Game1.activeClickableMenu.exitThisMenu();
+                    }
                     GraphicsEvents.InvokeOnPreRenderGuiEvent(this.Monitor);
-                    Game1.activeClickableMenu.draw(Game1.spriteBatch);
+                    try
+                    {
+                        Game1.activeClickableMenu.draw(Game1.spriteBatch);
+                    }
+                    catch (Exception ex)
+                    {
+                        this.Monitor.Log($"The {Game1.activeClickableMenu.GetType().FullName} menu crashed while drawing itself. SMAPI will force it to exit to avoid crashing the game.\n{ex.GetLogSummary()}", LogLevel.Error);
+                        Game1.activeClickableMenu.exitThisMenu();
+                    }
                     GraphicsEvents.InvokeOnPostRenderGuiEvent(this.Monitor);
                     Game1.spriteBatch.End();
                     if (!this.ZoomLevelIsOne)
@@ -434,7 +450,15 @@ namespace StardewModdingAPI.Inheritance
                 if (Game1.showingEndOfNightStuff)
                 {
                     Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
-                    Game1.activeClickableMenu?.draw(Game1.spriteBatch);
+                    try
+                    {
+                        Game1.activeClickableMenu?.draw(Game1.spriteBatch);
+                    }
+                    catch (Exception ex)
+                    {
+                        this.Monitor.Log($"The {Game1.activeClickableMenu.GetType().FullName} menu crashed while drawing itself. SMAPI will force it to exit to avoid crashing the game.\n{ex.GetLogSummary()}", LogLevel.Error);
+                        Game1.activeClickableMenu.exitThisMenu();
+                    }
                     Game1.spriteBatch.End();
                     if (!this.ZoomLevelIsOne)
                     {
@@ -742,7 +766,15 @@ namespace StardewModdingAPI.Inheritance
                 if (Game1.activeClickableMenu != null)
                 {
                     GraphicsEvents.InvokeOnPreRenderGuiEvent(this.Monitor);
-                    Game1.activeClickableMenu.draw(Game1.spriteBatch);
+                    try
+                    {
+                        Game1.activeClickableMenu.draw(Game1.spriteBatch);
+                    }
+                    catch (Exception ex)
+                    {
+                        this.Monitor.Log($"The {Game1.activeClickableMenu.GetType().FullName} menu crashed while drawing itself. SMAPI will force it to exit to avoid crashing the game.\n{ex.GetLogSummary()}", LogLevel.Error);
+                        Game1.activeClickableMenu.exitThisMenu();
+                    }
                     GraphicsEvents.InvokeOnPostRenderGuiEvent(this.Monitor);
                 }
                 else
