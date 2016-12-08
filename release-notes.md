@@ -4,9 +4,10 @@
 See [log](https://github.com/CLxS/SMAPI/compare/stable...develop).
 
 For players:
-  * Installing SMAPI will now automatically clean up old SMAPI files.
-  * Each mod now has its own `.cache` folder, so removing the mod won't leave orphaned cache files behind.
-  * Tweaked installer wording to avoid confusion.
+  * The installer will now automatically detect most custom install paths.
+  * The installer will now automatically clean up old SMAPI files.
+  * Each mod now has its own `.cache` folder, so removing the mod won't leave orphaned cache files behind. The installer will automatically remove the old `.cache` folder.
+  * Improved installer wording to avoid confusion.
   * Fixed the installer not removing TrainerMod from appdata if it's already in the game mods directory.
   * Fixed the installer not moving mods out of appdata if the game isn't installed on the same Windows partition.
   * Fixed the SMAPI terminal not opening by default on Mac. Linux users are out of luck.
