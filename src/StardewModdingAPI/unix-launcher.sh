@@ -1,7 +1,7 @@
 #!/bin/bash
 # MonoKickstart Shell Script
 # Written by Ethan "flibitijibibo" Lee
-# Modified for StardewModdingAPI by Viz
+# Modified for StardewModdingAPI by Viz and Pathoschild
 
 # Move to script's directory
 cd "`dirname "$0"`"
@@ -28,7 +28,7 @@ if [ "$UNAME" == "Darwin" ]; then
 
 	ln -sf mcs.bin.osx mcs
 	cp StardewValley.bin.osx StardewModdingAPI.bin.osx
-	./StardewModdingAPI.bin.osx $@
+	open -a Terminal ./StardewModdingAPI.bin.osx $@
 else
 	if [ "$ARCH" == "x86_64" ]; then
 		ln -sf mcs.bin.x86_64 mcs

@@ -9,6 +9,7 @@ For players:
   * Tweaked installer wording to avoid confusion.
   * Fixed the installer not removing TrainerMod from appdata if it's already in the game mods directory.
   * Fixed the installer not moving mods out of appdata if the game isn't installed on the same Windows partition.
+  * Fixed the SMAPI terminal not opening by default on Mac. Linux users are out of luck.
 
 For developers:
   * Added a searchable `list_items` command to replace the `out_items`, `out_melee`, and `out_rings` commands.
