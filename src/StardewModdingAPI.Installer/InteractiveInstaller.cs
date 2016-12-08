@@ -89,7 +89,6 @@ namespace StardewModdingApi.Installer
                 unixLauncher = Path.Combine(installDir.FullName, "StardewValley"),
                 unixLauncherBackup = Path.Combine(installDir.FullName, "StardewValley-original")
             };
-
             this.PrintDebug($"Detected {(platform == Platform.Windows ? "Windows" : "Linux or Mac")} with game in {installDir}.");
 
             /****
@@ -221,7 +220,7 @@ namespace StardewModdingApi.Installer
                 }
 
                 // remove obsolete appdata mods
-                this.InteractivelyRemoveAppDataMods(platform, modsDir);
+                this.InteractivelyRemoveAppDataMods(platform, modsDir, packagedModsDir);
             }
             Console.WriteLine();
 
@@ -362,8 +361,12 @@ namespace StardewModdingApi.Installer
         /// <summary>Interactively move mods out of the appdata directory.</summary>
         /// <param name="platform">The current platform.</param>
         /// <param name="properModsDir">The directory which should contain all mods.</param>
-        private void InteractivelyRemoveAppDataMods(Platform platform, DirectoryInfo properModsDir)
+        /// <param name="packagedModsDir">The installer directory containing packaged mods.</param>
+        private void InteractivelyRemoveAppDataMods(Platform platform, DirectoryInfo properModsDir, DirectoryInfo packagedModsDir)
         {
+            // get packaged mods to delete
+            string[] packagedModNames = packagedModsDir.GetDirectories().Select(p => p.Name).ToArray();
+
             // get path
             string homePath = platform == Platform.Windows
                 ? Environment.GetEnvironmentVariable("APPDATA")
@@ -384,6 +387,14 @@ namespace StardewModdingApi.Installer
                 bool isDir = entry is DirectoryInfo;
                 if (!isDir && !(entry is FileInfo))
                     continue; // should never happen
+
+                // delete packaged mods (newer version bundled into SMAPI)
+                if (isDir && packagedModNames.Contains(entry.Name, StringComparer.InvariantCultureIgnoreCase))
+                {
+                    this.PrintDebug($"   Deleting {entry.Name} because it's bundled into SMAPI...");
+                    entry.Delete();
+                    continue;
+                }
 
                 // check paths
                 string newPath = Path.Combine(properModsDir.FullName, entry.Name);
