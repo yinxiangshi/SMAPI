@@ -1,12 +1,25 @@
 using System;
+using System.Linq;
 using System.Reflection;
+using System.Runtime.Caching;
 using StardewModdingAPI.Reflection;
 
 namespace StardewModdingAPI.Framework.Reflection
 {
     /// <summary>Provides helper methods for accessing private game code.</summary>
+    /// <remarks>This implementation searches up the type hierarchy, and caches the reflected fields and methods with a sliding expiry (to optimise performance without unnecessary memory usage).</remarks>
     internal class ReflectionHelper : IReflectionHelper
     {
+        /*********
+        ** Properties
+        *********/
+        /// <summary>The cached fields and methods found via reflection.</summary>
+        private readonly MemoryCache Cache = new MemoryCache(typeof(ReflectionHelper).FullName);
+
+        /// <summary>The sliding cache expiration time.</summary>
+        private readonly TimeSpan SlidingCacheExpiry = TimeSpan.FromMinutes(5);
+
+
         /*********
         ** Public methods
         *********/
@@ -152,12 +165,17 @@ namespace StardewModdingAPI.Framework.Reflection
         /// <param name="bindingFlags">The reflection binding which flags which indicates what type of field to find.</param>
         private IPrivateField<TValue> GetFieldFromHierarchy<TValue>(Type type, object obj, string name, BindingFlags bindingFlags)
         {
-            FieldInfo field = null;
-            for (; type != null && field == null; type = type.BaseType)
-                field = type.GetField(name, bindingFlags);
+            bool isStatic = bindingFlags.HasFlag(BindingFlags.Static);
+            FieldInfo field = this.GetCached<FieldInfo>($"field::{isStatic}::{type.FullName}::{name}", () =>
+            {
+                FieldInfo fieldInfo = null;
+                for (; type != null && fieldInfo == null; type = type.BaseType)
+                    fieldInfo = type.GetField(name, bindingFlags);
+                return fieldInfo;
+            });
 
             return field != null
-                ? new PrivateField<TValue>(type, obj, field, isStatic: bindingFlags.HasFlag(BindingFlags.Static))
+                ? new PrivateField<TValue>(type, obj, field, isStatic)
                 : null;
         }
 
@@ -168,9 +186,14 @@ namespace StardewModdingAPI.Framework.Reflection
         /// <param name="bindingFlags">The reflection binding which flags which indicates what type of method to find.</param>
         private IPrivateMethod GetMethodFromHierarchy(Type type, object obj, string name, BindingFlags bindingFlags)
         {
-            MethodInfo method = null;
-            for (; type != null && method == null; type = type.BaseType)
-                method = type.GetMethod(name, bindingFlags);
+            bool isStatic = bindingFlags.HasFlag(BindingFlags.Static);
+            MethodInfo method = this.GetCached($"method::{isStatic}::{type.FullName}::{name}", () =>
+            {
+                MethodInfo methodInfo = null;
+                for (; type != null && methodInfo == null; type = type.BaseType)
+                    methodInfo = type.GetMethod(name, bindingFlags);
+                return methodInfo;
+            });
 
             return method != null
                 ? new PrivateMethod(type, obj, method, isStatic: bindingFlags.HasFlag(BindingFlags.Static))
@@ -185,13 +208,33 @@ namespace StardewModdingAPI.Framework.Reflection
         /// <param name="argumentTypes">The argument types of the method signature to find.</param>
         private PrivateMethod GetMethodFromHierarchy(Type type, object obj, string name, BindingFlags bindingFlags, Type[] argumentTypes)
         {
-            MethodInfo method = null;
-            for (; type != null && method == null; type = type.BaseType)
-                method = type.GetMethod(name, bindingFlags, null, argumentTypes, null);
-
+            bool isStatic = bindingFlags.HasFlag(BindingFlags.Static);
+            MethodInfo method = this.GetCached($"method::{isStatic}::{type.FullName}::{name}({string.Join(",", argumentTypes.Select(p => p.FullName))})", () =>
+            {
+                MethodInfo methodInfo = null;
+                for (; type != null && methodInfo == null; type = type.BaseType)
+                    methodInfo = type.GetMethod(name, bindingFlags, null, argumentTypes, null);
+                return methodInfo;
+            });
             return method != null
-                ? new PrivateMethod(type, obj, method, isStatic: bindingFlags.HasFlag(BindingFlags.Static))
+                ? new PrivateMethod(type, obj, method, isStatic)
                 : null;
+        }
+
+        /// <summary>Get a method or field through the cache.</summary>
+        /// <typeparam name="TMemberInfo">The expected <see cref="MemberInfo"/> type.</typeparam>
+        /// <param name="key">The cache key.</param>
+        /// <param name="fetch">Fetches a new value to cache.</param>
+        private TMemberInfo GetCached<TMemberInfo>(string key, Func<TMemberInfo> fetch) where TMemberInfo : MemberInfo
+        {
+            // get from cache
+            if (this.Cache.Contains(key))
+                return (TMemberInfo)this.Cache[key];
+
+            // fetch & cache new value
+            TMemberInfo result = fetch();
+            this.Cache.Add(key, result, new CacheItemPolicy { SlidingExpiration = this.SlidingCacheExpiry });
+            return result;
         }
     }
 }
