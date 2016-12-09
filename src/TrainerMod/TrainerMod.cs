@@ -40,7 +40,7 @@ namespace TrainerMod
         ** Public methods
         *********/
         /// <summary>The mod entry point, called after the mod is first loaded.</summary>
-        /// <param name="helper">Provides methods for interacting with the mod directory, such as read/writing a config file or custom JSON files.</param>
+        /// <param name="helper">Provides simplified APIs for writing mods.</param>
         public override void Entry(IModHelper helper)
         {
             this.RegisterCommands();
@@ -694,7 +694,7 @@ namespace TrainerMod
             else
                 this.LogValueNotSpecified();
         }
-        
+
         /****
         ** Helpers
         ****/

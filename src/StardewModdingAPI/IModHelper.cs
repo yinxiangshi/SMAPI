@@ -1,6 +1,8 @@
-﻿namespace StardewModdingAPI
+﻿using StardewModdingAPI.Reflection;
+
+namespace StardewModdingAPI
 {
-    /// <summary>Provides methods for interacting with a mod directory.</summary>
+    /// <summary>Provides simplified APIs for writing mods.</summary>
     public interface IModHelper
     {
         /*********
@@ -8,6 +10,9 @@
         *********/
         /// <summary>The mod directory path.</summary>
         string DirectoryPath { get; }
+
+        /// <summary>Simplifies access to private game code.</summary>
+        IReflectionHelper Reflection { get; }
 
 
         /*********

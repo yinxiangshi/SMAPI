@@ -161,6 +161,9 @@
     <Compile Include="Framework\DeprecationManager.cs" />
     <Compile Include="Framework\InternalExtensions.cs" />
     <Compile Include="Framework\ModAssemblyLoader.cs" />
+    <Compile Include="Framework\Reflection\PrivateField.cs" />
+    <Compile Include="Framework\Reflection\PrivateMethod.cs" />
+    <Compile Include="Framework\Reflection\ReflectionHelper.cs" />
     <Compile Include="IModHelper.cs" />
     <Compile Include="Framework\LogFileManager.cs" />
     <Compile Include="LogLevel.cs" />
@@ -182,6 +185,9 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Inheritance\SGame.cs" />
+    <Compile Include="Reflection\IPrivateField.cs" />
+    <Compile Include="Reflection\IPrivateMethod.cs" />
+    <Compile Include="Reflection\IReflectionHelper.cs" />
     <Compile Include="Version.cs" />
   </ItemGroup>
   <ItemGroup>
