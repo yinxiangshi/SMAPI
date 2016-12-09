@@ -14,6 +14,7 @@ For players:
   * Fixed the SMAPI terminal not opening by default on Mac. Linux users are out of luck.
 
 For developers:
+  * Added a reflection API (accessible as `helper.Reflection`) that simplifies robust access to the game's private fields and methods.
   * Added a searchable `list_items` command to replace the `out_items`, `out_melee`, and `out_rings` commands.
   * Added `TypeLoadException` details when intercepted by SMAPI.
   * Fixed an issue where you couldn't debug into an assembly because it was copied into the `.cache` directory. That will now only happen if necessary.
