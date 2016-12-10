@@ -6,16 +6,16 @@ See [log](https://github.com/CLxS/SMAPI/compare/stable...develop).
 For players:
   * The installer will now automatically detect most custom install paths.
   * The installer will now automatically clean up old SMAPI files.
-  * Each mod now has its own `.cache` folder, so removing the mod won't leave orphaned cache files behind. The installer will automatically remove the old `.cache` folder.
-  * Improved installer wording to avoid confusion.
-  * SMAPI will now intercept mod errors in menu draw code, and exit the menu to prevent your game from crashing.
+  * SMAPI will now prevent mods from crashing your game due to broken custom menus.
+  * Each mod now has its own `.cache` folder, so removing the mod won't leave orphaned cache files behind.
+  * Improved installer wording to reduce confusion.
   * Fixed the installer not removing TrainerMod from appdata if it's already in the game mods directory.
   * Fixed the installer not moving mods out of appdata if the game isn't installed on the same Windows partition.
-  * Fixed the SMAPI terminal not opening by default on Linux and Mac.
+  * Fixed the SMAPI console not being shown on Linux and Mac.
 
 For developers:
-  * Added a reflection API (accessible as `helper.Reflection`) that simplifies robust access to the game's private fields and methods.
-  * Added a searchable `list_items` command to replace the `out_items`, `out_melee`, and `out_rings` commands.
+  * Added a reflection API (via `helper.Reflection`) that simplifies robust access to the game's private fields and methods.
+  * Added a searchable `list_items` console command to replace the `out_items`, `out_melee`, and `out_rings` commands.
   * Added `TypeLoadException` details when intercepted by SMAPI.
   * Fixed an issue where you couldn't debug into an assembly because it was copied into the `.cache` directory. That will now only happen if necessary.
 
