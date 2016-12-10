@@ -30,13 +30,30 @@ if [ "$UNAME" == "Darwin" ]; then
 	cp StardewValley.bin.osx StardewModdingAPI.bin.osx
 	open -a Terminal ./StardewModdingAPI.bin.osx $@
 else
+	# get launcher
+	COMMAND=""
 	if [ "$ARCH" == "x86_64" ]; then
 		ln -sf mcs.bin.x86_64 mcs
 		cp StardewValley.bin.x86_64 StardewModdingAPI.bin.x86_64
-		./StardewModdingAPI.bin.x86_64 $@
+		COMMAND="./StardewModdingAPI.bin.x86_64 $@"
 	else
 		ln -sf mcs.bin.x86 mcs
 		cp StardewValley.bin.x86 StardewModdingAPI.bin.x86
-		./StardewModdingAPI.bin.x86 $@
+		COMMAND="./StardewModdingAPI.bin.x86 $@"
+	fi
+
+	# open terminal
+	if command -v x-terminal-emulator 2>/dev/null; then
+		x-terminal-emulator -e "$COMMAND"
+	elif command -v gnome-terminal 2>/dev/null; then
+		gnome-terminal -e "$COMMAND"
+	elif command -v xterm 2>/dev/null; then
+		xterm -e "$COMMAND"
+	elif command -v konsole 2>/dev/null; then
+		konsole -e "$COMMAND"
+	elif command -v terminal 2>/dev/null; then
+		terminal -e "$COMMAND"
+	else
+		$COMMAND
 	fi
 fi
