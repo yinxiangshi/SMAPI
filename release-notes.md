@@ -11,7 +11,7 @@ For players:
   * SMAPI will now intercept mod errors in menu draw code, and exit the menu to prevent your game from crashing.
   * Fixed the installer not removing TrainerMod from appdata if it's already in the game mods directory.
   * Fixed the installer not moving mods out of appdata if the game isn't installed on the same Windows partition.
-  * Fixed the SMAPI terminal not opening by default on Mac. Linux users are out of luck.
+  * Fixed the SMAPI terminal not opening by default on Linux and Mac.
 
 For developers:
   * Added a reflection API (accessible as `helper.Reflection`) that simplifies robust access to the game's private fields and methods.
