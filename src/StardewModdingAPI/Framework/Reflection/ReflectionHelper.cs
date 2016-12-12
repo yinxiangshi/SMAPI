@@ -12,6 +12,16 @@ namespace StardewModdingAPI.Framework.Reflection
         /*********
         ** Properties
         *********/
+        /// <summary>MemberInfo wrapper for tracking validity.</summary>
+        internal struct CacheEntry
+        {
+            /// <summary>Is this member valid. Used to avoid unecessary lookups.</summary>
+            public bool IsValid;
+
+            /// <summary>The reflection data for this member. This will be null if IsValid is false.</summary>
+            public MemberInfo MemberInfo;
+        }
+
         /// <summary>The cached fields and methods found via reflection.</summary>
         private readonly MemoryCache Cache = new MemoryCache(typeof(ReflectionHelper).FullName);
 
@@ -67,10 +77,17 @@ namespace StardewModdingAPI.Framework.Reflection
         /// <param name="obj">The object which has the field.</param>
         /// <param name="name">The field name.</param>
         /// <param name="required">Whether to throw an exception if the private field is not found.</param>
-        /// <remarks>This is a shortcut for <see cref="GetPrivateField{TValue}(object,string,bool)"/> followed by <see cref="IPrivateField{TValue}.GetValue"/>.</remarks>
+        /// <returns>The value of the field or the default value of the type if the field is not found.</returns>
+        /// <remarks>
+        /// This is a shortcut for <see cref="GetPrivateField{TValue}(object,string,bool)"/> followed by <see cref="IPrivateField{TValue}.GetValue"/>.
+        /// When <paramref name="required" /> is false, this will return the default value if reflection fails. If you need to check whether the field exists, use <see cref="GetPrivateField{TValue}(object,string,bool)" /> instead.
+        /// </remarks>
         public TValue GetPrivateValue<TValue>(object obj, string name, bool required = true)
         {
-            return this.GetPrivateField<TValue>(obj, name, required).GetValue();
+            IPrivateField<TValue> field = this.GetPrivateField<TValue>(obj, name, required);
+            return (field != null)
+                ? field.GetValue()
+                : default(TValue);
         }
 
         /// <summary>Get the value of a private static field.</summary>
@@ -78,10 +95,17 @@ namespace StardewModdingAPI.Framework.Reflection
         /// <param name="type">The type which has the field.</param>
         /// <param name="name">The field name.</param>
         /// <param name="required">Whether to throw an exception if the private field is not found.</param>
-        /// <remarks>This is a shortcut for <see cref="GetPrivateField{TValue}(Type,string,bool)"/> followed by <see cref="IPrivateField{TValue}.GetValue"/>.</remarks>
+        /// <returns>The value of the field or the default value of the type if the field is not found.</returns>
+        /// <remarks>
+        /// This is a shortcut for <see cref="GetPrivateField{TValue}(Type,string,bool)"/> followed by <see cref="IPrivateField{TValue}.GetValue"/>.
+        /// When <paramref name="required" /> is false, this will return the default value if reflection fails. If you need to check whether the field exists, use <see cref="GetPrivateField{TValue}(Type,string,bool)" /> instead.
+        /// </remarks>
         public TValue GetPrivateValue<TValue>(Type type, string name, bool required = true)
         {
-            return this.GetPrivateField<TValue>(type, name, required).GetValue();
+            IPrivateField<TValue> field = this.GetPrivateField<TValue>(type, name, required);
+            return (field != null)
+                ? field.GetValue()
+                : default(TValue);
         }
 
         /****
@@ -228,11 +252,22 @@ namespace StardewModdingAPI.Framework.Reflection
         {
             // get from cache
             if (this.Cache.Contains(key))
-                return (TMemberInfo)this.Cache[key];
+            {
+                CacheEntry entry = (CacheEntry)this.Cache[key];
+                return entry.IsValid 
+                    ? (TMemberInfo)entry.MemberInfo 
+                    : default(TMemberInfo);
+            }
 
-            // fetch & cache new value
+            // fetch & cache new value, marking if it's valid for future lookups.
             TMemberInfo result = fetch();
-            this.Cache.Add(key, result, new CacheItemPolicy { SlidingExpiration = this.SlidingCacheExpiry });
+            CacheEntry cacheEntry = new CacheEntry()
+            {
+                IsValid = (result != null),
+                MemberInfo = result
+            };
+
+            this.Cache.Add(key, cacheEntry, new CacheItemPolicy { SlidingExpiration = this.SlidingCacheExpiry });
             return result;
         }
     }
