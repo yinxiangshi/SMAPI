@@ -3,7 +3,6 @@ using System.IO;
 using Newtonsoft.Json;
 using StardewModdingAPI.Advanced;
 using StardewModdingAPI.Framework.Reflection;
-using StardewModdingAPI.Reflection;
 
 namespace StardewModdingAPI
 {

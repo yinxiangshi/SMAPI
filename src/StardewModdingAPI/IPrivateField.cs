@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace StardewModdingAPI.Reflection
+namespace StardewModdingAPI
 {
     /// <summary>A private field obtained through reflection.</summary>
     /// <typeparam name="TValue">The field value type.</typeparam>

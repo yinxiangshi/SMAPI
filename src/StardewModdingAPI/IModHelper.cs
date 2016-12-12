@@ -1,6 +1,4 @@
-﻿using StardewModdingAPI.Reflection;
-
-namespace StardewModdingAPI
+﻿namespace StardewModdingAPI
 {
     /// <summary>Provides simplified APIs for writing mods.</summary>
     public interface IModHelper

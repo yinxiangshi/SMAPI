@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace StardewModdingAPI.Reflection
+namespace StardewModdingAPI
 {
     /// <summary>Simplifies access to private game code.</summary>
     public interface IReflectionHelper

@@ -184,9 +184,9 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Inheritance\SGame.cs" />
-    <Compile Include="Reflection\IPrivateField.cs" />
-    <Compile Include="Reflection\IPrivateMethod.cs" />
-    <Compile Include="Reflection\IReflectionHelper.cs" />
+    <Compile Include="IPrivateField.cs" />
+    <Compile Include="IPrivateMethod.cs" />
+    <Compile Include="IReflectionHelper.cs" />
     <Compile Include="Version.cs" />
   </ItemGroup>
   <ItemGroup>

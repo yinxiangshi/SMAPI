@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace StardewModdingAPI.Reflection
+namespace StardewModdingAPI
 {
     /// <summary>A private method obtained through reflection.</summary>
     public interface IPrivateMethod
