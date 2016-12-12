@@ -1,12 +1,12 @@
 # Release notes
 
-## 1.4 (upcoming)
-See [log](https://github.com/CLxS/SMAPI/compare/stable...develop).
+## 1.4
+See [log](https://github.com/CLxS/SMAPI/compare/1.3...1.4).
 
 For players:
+  * SMAPI will now prevent mods from crashing your game with menu errors.
   * The installer will now automatically detect most custom install paths.
   * The installer will now automatically clean up old SMAPI files.
-  * SMAPI will now prevent mods from crashing your game due to broken custom menus.
   * Each mod now has its own `.cache` folder, so removing the mod won't leave orphaned cache files behind.
   * Improved installer wording to reduce confusion.
   * Fixed the installer not removing TrainerMod from appdata if it's already in the game mods directory.
