@@ -1,5 +1,24 @@
 # Release notes
 
+## 1.4
+See [log](https://github.com/CLxS/SMAPI/compare/1.3...1.4).
+
+For players:
+  * SMAPI will now prevent mods from crashing your game with menu errors.
+  * The installer will now automatically detect most custom install paths.
+  * The installer will now automatically clean up old SMAPI files.
+  * Each mod now has its own `.cache` folder, so removing the mod won't leave orphaned cache files behind.
+  * Improved installer wording to reduce confusion.
+  * Fixed the installer not removing TrainerMod from appdata if it's already in the game mods directory.
+  * Fixed the installer not moving mods out of appdata if the game isn't installed on the same Windows partition.
+  * Fixed the SMAPI console not being shown on Linux and Mac.
+
+For developers:
+  * Added a reflection API (via `helper.Reflection`) that simplifies robust access to the game's private fields and methods.
+  * Added a searchable `list_items` console command to replace the `out_items`, `out_melee`, and `out_rings` commands.
+  * Added `TypeLoadException` details when intercepted by SMAPI.
+  * Fixed an issue where you couldn't debug into an assembly because it was copied into the `.cache` directory. That will now only happen if necessary.
+
 ## 1.3
 See [log](https://github.com/CLxS/SMAPI/compare/1.2...1.3).
 

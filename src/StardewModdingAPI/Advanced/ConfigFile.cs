@@ -9,7 +9,7 @@ namespace StardewModdingAPI.Advanced
         /*********
         ** Accessors
         *********/
-        /// <summary>Provides methods for interacting with the mod directory, including read/writing the config file.</summary>
+        /// <summary>Provides simplified APIs for writing mods.</summary>
         public IModHelper ModHelper { get; set; }
 
         /// <summary>The file path from which the model was loaded, relative to the mod directory.</summary>

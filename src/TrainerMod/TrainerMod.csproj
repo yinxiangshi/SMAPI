@@ -102,6 +102,11 @@
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Framework\Extensions.cs" />
+    <Compile Include="ItemData\ISearchItem.cs" />
+    <Compile Include="ItemData\ItemType.cs" />
+    <Compile Include="ItemData\SearchableObject.cs" />
+    <Compile Include="ItemData\SearchableRing.cs" />
+    <Compile Include="ItemData\SearchableWeapon.cs" />
     <Compile Include="TrainerMod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -126,5 +131,11 @@
   <Target Name="BeforeBuild">
     <!-- if game path is invalid, show one user-friendly error instead of a slew of reference errors -->
     <Error Condition="!Exists('$(GamePath)')" Text="Failed to find the game install path automatically; edit the *.csproj file and manually add a &lt;GamePath&gt; setting with the full directory path containing the Stardew Valley executable." />
+  </Target>
+  <Target Name="AfterBuild" Condition="$(Configuration) == 'Debug'">
+    <Copy SourceFiles="$(TargetDir)\$(TargetName).dll" DestinationFolder="$(GamePath)\Mods\TrainerMod" />
+    <Copy SourceFiles="$(TargetDir)\$(TargetName).dll.mdb" DestinationFolder="$(GamePath)\Mods\TrainerMod" Condition="$(OS) != 'Windows_NT'" />
+    <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)\Mods\TrainerMod" Condition="$(OS) == 'Windows_NT'" />
+    <Copy SourceFiles="$(TargetDir)\manifest.json" DestinationFolder="$(GamePath)\Mods\TrainerMod" />
   </Target>
 </Project>

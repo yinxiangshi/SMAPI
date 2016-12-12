@@ -9,6 +9,7 @@ using StardewValley.Menus;
 using StardewValley.Objects;
 using StardewValley.Tools;
 using TrainerMod.Framework;
+using TrainerMod.ItemData;
 using Object = StardewValley.Object;
 
 namespace TrainerMod
@@ -39,7 +40,7 @@ namespace TrainerMod
         ** Public methods
         *********/
         /// <summary>The mod entry point, called after the mod is first loaded.</summary>
-        /// <param name="helper">Provides methods for interacting with the mod directory, such as read/writing a config file or custom JSON files.</param>
+        /// <param name="helper">Provides simplified APIs for writing mods.</param>
         public override void Entry(IModHelper helper)
         {
             this.RegisterCommands();
@@ -99,9 +100,7 @@ namespace TrainerMod
             Command.RegisterCommand("player_addmelee", "Gives the player a melee item | player_addmelee <item>", new[] { "?<item>" }).CommandFired += this.HandlePlayerAddMelee;
             Command.RegisterCommand("player_addring", "Gives the player a ring | player_addring <item>", new[] { "?<item>" }).CommandFired += this.HandlePlayerAddRing;
 
-            Command.RegisterCommand("out_items", "Outputs a list of items | out_items", new[] { "" }).CommandFired += this.HandleOutItems;
-            Command.RegisterCommand("out_melee", "Outputs a list of melee weapons | out_melee", new[] { "" }).CommandFired += this.HandleOutMelee;
-            Command.RegisterCommand("out_rings", "Outputs a list of rings | out_rings", new[] { "" }).CommandFired += this.HandleOutRings;
+            Command.RegisterCommand("list_items", "Lists items in the game data | list_items [search]", new[] { "(String)<search>" }).CommandFired += this.HandleListItems;
 
             Command.RegisterCommand("world_settime", "Sets the time to the specified value | world_settime <value>", new[] { "(Int32)<value> The target time [06:00 AM is 600]" }).CommandFired += this.HandleWorldSetTime;
             Command.RegisterCommand("world_freezetime", "Freezes or thaws time | world_freezetime <value>", new[] { "(0 - 1)<value> Whether or not to freeze time. 0 is thawed, 1 is frozen" }).CommandFired += this.HandleWorldFreezeTime;
@@ -657,49 +656,19 @@ namespace TrainerMod
                 this.LogObjectValueNotSpecified();
         }
 
-        /// <summary>The event raised when the 'out_items' command is triggered.</summary>
+        /// <summary>The event raised when the 'list_items' command is triggered.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private void HandleOutItems(object sender, EventArgsCommand e)
+        private void HandleListItems(object sender, EventArgsCommand e)
         {
-            for (var itemID = 0; itemID < 1000; itemID++)
-            {
-                try
-                {
-                    Item itemName = new Object(itemID, 1);
-                    if (itemName.Name != "Error Item")
-                        this.Monitor.Log($"{itemID} | {itemName.Name}", LogLevel.Info);
-                }
-                catch { }
-            }
-        }
+            var matches = this.GetItems(e.Command.CalledArgs).ToArray();
 
-        /// <summary>The event raised when the 'out_melee' command is triggered.</summary>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="e">The event arguments.</param>
-        private void HandleOutMelee(object sender, EventArgsCommand e)
-        {
-            var data = Game1.content.Load<Dictionary<int, string>>("Data\\weapons");
-            this.Monitor.Log("DATA\\WEAPONS: ", LogLevel.Info);
-            foreach (var pair in data)
-                this.Monitor.Log($"{pair.Key} | {pair.Value}", LogLevel.Info);
-        }
-
-        /// <summary>The event raised when the 'out_rings' command is triggered.</summary>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="e">The event arguments.</param>
-        private void HandleOutRings(object sender, EventArgsCommand e)
-        {
-            for (var ringID = 0; ringID < 100; ringID++)
-            {
-                try
-                {
-                    Item item = new Ring(ringID);
-                    if (item.Name != "Error Item")
-                        this.Monitor.Log($"{ringID} | {item.Name}", LogLevel.Info);
-                }
-                catch { }
-            }
+            // show matches
+            string summary = "Searching...\n";
+            if (matches.Any())
+                this.Monitor.Log(summary + this.GetTableString(matches, new[] { "type", "id", "name" }, val => new[] { val.Type.ToString(), val.ID.ToString(), val.Name }), LogLevel.Info);
+            else
+                this.Monitor.Log(summary + "No items found", LogLevel.Info);
         }
 
         /// <summary>The event raised when the 'world_downMineLevel' command is triggered.</summary>
@@ -724,6 +693,88 @@ namespace TrainerMod
             }
             else
                 this.LogValueNotSpecified();
+        }
+
+        /****
+        ** Helpers
+        ****/
+        /// <summary>Get all items which can be searched and added to the player's inventory through the console.</summary>
+        /// <param name="searchWords">The search string to find.</param>
+        private IEnumerable<ISearchItem> GetItems(string[] searchWords)
+        {
+            // normalise search term
+            searchWords = searchWords?.Where(word => !string.IsNullOrWhiteSpace(word)).ToArray();
+            if (searchWords?.Any() == false)
+                searchWords = null;
+
+            // find matches
+            return (
+                from item in this.GetItems()
+                let term = $"{item.ID}|{item.Type}|{item.Name}"
+                where searchWords == null || searchWords.All(word => term.IndexOf(word, StringComparison.CurrentCultureIgnoreCase) != -1)
+                select item
+            );
+        }
+
+        /// <summary>Get all items which can be searched and added to the player's inventory through the console.</summary>
+        private IEnumerable<ISearchItem> GetItems()
+        {
+            // objects
+            foreach (int id in Game1.objectInformation.Keys)
+            {
+                ISearchItem obj = id >= Ring.ringLowerIndexRange && id <= Ring.ringUpperIndexRange
+                    ? new SearchableRing(id)
+                    : (ISearchItem)new SearchableObject(id);
+                if (obj.IsValid)
+                    yield return obj;
+            }
+
+            // weapons
+            foreach (int id in Game1.content.Load<Dictionary<int, string>>("Data\\weapons").Keys)
+            {
+                ISearchItem weapon = new SearchableWeapon(id);
+                if (weapon.IsValid)
+                    yield return weapon;
+            }
+        }
+
+        /// <summary>Get an ASCII table for a set of tabular data.</summary>
+        /// <typeparam name="T">The data type.</typeparam>
+        /// <param name="data">The data to display.</param>
+        /// <param name="header">The table header.</param>
+        /// <param name="getRow">Returns a set of fields for a data value.</param>
+        private string GetTableString<T>(IEnumerable<T> data, string[] header, Func<T, string[]> getRow)
+        {
+            // get table data
+            int[] widths = header.Select(p => p.Length).ToArray();
+            string[][] rows = data
+                .Select(item =>
+                {
+                    string[] fields = getRow(item);
+                    if (fields.Length != widths.Length)
+                        throw new InvalidOperationException($"Expected {widths.Length} columns, but found {fields.Length}: {string.Join(", ", fields)}");
+
+                    for (int i = 0; i < fields.Length; i++)
+                        widths[i] = Math.Max(widths[i], fields[i].Length);
+
+                    return fields;
+                })
+                .ToArray();
+
+            // render fields
+            List<string[]> lines = new List<string[]>(rows.Length + 2)
+            {
+                header,
+                header.Select((value, i) => "".PadRight(widths[i], '-')).ToArray()
+            };
+            lines.AddRange(rows);
+
+            return string.Join(
+                Environment.NewLine,
+                lines.Select(line => string.Join(" | ",
+                    line.Select((field, i) => field.PadRight(widths[i], ' ')).ToArray())
+                )
+            );
         }
 
         /****

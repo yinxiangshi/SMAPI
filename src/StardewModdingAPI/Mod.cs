@@ -13,10 +13,11 @@ namespace StardewModdingAPI
         /// <summary>The backing field for <see cref="Mod.PathOnDisk"/>.</summary>
         private string _pathOnDisk;
 
+
         /*********
         ** Accessors
         *********/
-        /// <summary>Provides methods for interacting with the mod directory, such as read/writing a config file or custom JSON files.</summary>
+        /// <summary>Provides simplified APIs for writing mods.</summary>
         public IModHelper Helper { get; internal set; }
 
         /// <summary>Writes messages to the console and log file.</summary>
@@ -74,12 +75,12 @@ namespace StardewModdingAPI
         public virtual void Entry(params object[] objects) { }
 
         /// <summary>The mod entry point, called after the mod is first loaded.</summary>
-        /// <param name="helper">Provides methods for interacting with the mod directory, such as read/writing a config file or custom JSON files.</param>
+        /// <param name="helper">Provides simplified APIs for writing mods.</param>
         [Obsolete("This overload is obsolete since SMAPI 1.1.")]
         public virtual void Entry(ModHelper helper) { }
 
         /// <summary>The mod entry point, called after the mod is first loaded.</summary>
-        /// <param name="helper">Provides methods for interacting with the mod directory, such as read/writing a config file or custom JSON files.</param>
+        /// <param name="helper">Provides simplified APIs for writing mods.</param>
         public virtual void Entry(IModHelper helper) { }
 
 

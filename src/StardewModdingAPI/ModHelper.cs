@@ -2,11 +2,12 @@
 using System.IO;
 using Newtonsoft.Json;
 using StardewModdingAPI.Advanced;
+using StardewModdingAPI.Framework.Reflection;
 
 namespace StardewModdingAPI
 {
-    /// <summary>Provides methods for interacting with a mod directory.</summary>
-    [Obsolete("Use " + nameof(IModHelper) + " instead.")]
+    /// <summary>Provides simplified APIs for writing mods.</summary>
+    [Obsolete("Use " + nameof(IModHelper) + " instead.")] // only direct mod access to this class is obsolete
     public class ModHelper : IModHelper
     {
         /*********
@@ -14,6 +15,9 @@ namespace StardewModdingAPI
         *********/
         /// <summary>The mod directory path.</summary>
         public string DirectoryPath { get; }
+
+        /// <summary>Simplifies access to private game code.</summary>
+        public IReflectionHelper Reflection { get; } = new ReflectionHelper();
 
 
         /*********
