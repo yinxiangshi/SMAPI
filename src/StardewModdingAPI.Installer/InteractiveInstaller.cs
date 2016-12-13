@@ -66,6 +66,7 @@ namespace StardewModdingApi.Installer
             "StardewModdingAPI",
             "StardewModdingAPI.exe.mdb",
             "System.Numerics.dll",
+            "System.Runtime.Caching.dll",
 
             // Windows only
             "StardewModdingAPI.pdb",

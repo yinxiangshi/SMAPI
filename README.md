@@ -83,6 +83,7 @@ directory containing `src`).
             StardewModdingAPI-settings.json
             StardewModdingAPI.AssemblyRewriters.dll
             System.Numerics.dll
+            System.Runtime.Caching.dll
             steam_appid.txt
          Windows/
             Mods/*
