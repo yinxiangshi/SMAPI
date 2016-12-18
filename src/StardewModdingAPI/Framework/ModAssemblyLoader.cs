@@ -58,7 +58,7 @@ namespace StardewModdingAPI.Framework
             CachePaths cachePaths = this.GetCachePaths(assemblyPath);
             {
                 CacheEntry cacheEntry = File.Exists(cachePaths.Metadata) ? JsonConvert.DeserializeObject<CacheEntry>(File.ReadAllText(cachePaths.Metadata)) : null;
-                if (cacheEntry != null && cacheEntry.IsUpToDate(cachePaths, hash, Constants.Version))
+                if (cacheEntry != null && cacheEntry.IsUpToDate(cachePaths, hash, Constants.ApiVersion))
                     return new RewriteResult(assemblyPath, cachePaths, assemblyBytes, cacheEntry.Hash, cacheEntry.UseCachedAssembly, isNewerThanCache: false); // no rewrite needed
             }
             this.Monitor.Log($"Preprocessing {Path.GetFileName(assemblyPath)} for compatibility...", LogLevel.Trace);
@@ -99,7 +99,7 @@ namespace StardewModdingAPI.Framework
             // cache all results
             foreach (RewriteResult result in results)
             {
-                CacheEntry cacheEntry = new CacheEntry(result.Hash, Constants.Version.ToString(), forceCacheAssemblies || result.UseCachedAssembly);
+                CacheEntry cacheEntry = new CacheEntry(result.Hash, Constants.ApiVersion.ToString(), forceCacheAssemblies || result.UseCachedAssembly);
                 File.WriteAllText(result.CachePaths.Metadata, JsonConvert.SerializeObject(cacheEntry));
                 if (forceCacheAssemblies || result.UseCachedAssembly)
                     File.WriteAllBytes(result.CachePaths.Assembly, result.AssemblyBytes);

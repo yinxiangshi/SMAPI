@@ -98,7 +98,7 @@ namespace StardewModdingAPI
             Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");
 
             // add info header
-            Program.Monitor.Log($"SMAPI {Constants.Version} with Stardew Valley {Game1.version} on {Environment.OSVersion}", LogLevel.Info);
+            Program.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Game1.version} on {Environment.OSVersion}", LogLevel.Info);
 
             // load user settings
             {
@@ -191,9 +191,9 @@ namespace StardewModdingAPI
                 try
                 {
                     GitRelease release = UpdateHelper.GetLatestVersionAsync(Constants.GitHubRepository).Result;
-                    Version latestVersion = new Version(release.Tag);
-                    if (latestVersion.IsNewerThan(Constants.Version))
-                        Program.Monitor.Log($"You can update SMAPI from version {Constants.Version} to {latestVersion}", LogLevel.Alert);
+                    ISemanticVersion latestVersion = new SemanticVersion(release.Tag);
+                    if (latestVersion.IsNewerThan(Constants.ApiVersion))
+                        Program.Monitor.Log($"You can update SMAPI from version {Constants.ApiVersion} to {latestVersion}", LogLevel.Alert);
                 }
                 catch (Exception ex)
                 {
@@ -212,7 +212,7 @@ namespace StardewModdingAPI
                 Program.StardewAssembly = Assembly.UnsafeLoadFrom(Program.GameExecutablePath);
                 Program.StardewProgramType = Program.StardewAssembly.GetType("StardewValley.Program", true);
                 Program.StardewGameInfo = Program.StardewProgramType.GetField("gamePtr");
-                Game1.version += $"-Z_MODDED | SMAPI {Constants.Version}";
+                Game1.version += $"-Z_MODDED | SMAPI {Constants.ApiVersion}";
 
                 // add error interceptors
 #if SMAPI_FOR_WINDOWS
@@ -335,7 +335,7 @@ namespace StardewModdingAPI
                 string errorPrefix = $"Couldn't load mod for manifest '{manifestPath}'";
 
                 // read manifest
-                Manifest manifest;
+                ManifestImpl manifest;
                 try
                 {
                     // read manifest text
@@ -347,7 +347,7 @@ namespace StardewModdingAPI
                     }
 
                     // deserialise manifest
-                    manifest = helper.ReadJsonFile<Manifest>("manifest.json");
+                    manifest = helper.ReadJsonFile<ManifestImpl>("manifest.json");
                     if (manifest == null)
                     {
                         Program.Monitor.Log($"{errorPrefix}: the manifest file does not exist.", LogLevel.Error);
@@ -374,8 +374,8 @@ namespace StardewModdingAPI
                 {
                     try
                     {
-                        Version minVersion = new Version(manifest.MinimumApiVersion);
-                        if (minVersion.IsNewerThan(Constants.Version))
+                        ISemanticVersion minVersion = new SemanticVersion(manifest.MinimumApiVersion);
+                        if (minVersion.IsNewerThan(Constants.ApiVersion))
                         {
                             Program.Monitor.Log($"{errorPrefix}: this mod requires SMAPI {minVersion} or later. Please update SMAPI to the latest version to use this mod.", LogLevel.Error);
                             continue;
@@ -473,11 +473,11 @@ namespace StardewModdingAPI
                         Program.ModRegistry.Add(manifest, modAssembly);
 
                         // hook up mod
-                        modEntry.Manifest = manifest;
+                        modEntry.ModManifest = manifest;
                         modEntry.Helper = helper;
                         modEntry.Monitor = new Monitor(manifest.Name, Program.LogFile) { ShowTraceInConsole = Program.DeveloperMode };
                         modEntry.PathOnDisk = directory;
-                        Program.Monitor.Log($"Loaded mod: {modEntry.Manifest.Name} by {modEntry.Manifest.Author}, v{modEntry.Manifest.Version} | {modEntry.Manifest.Description}", LogLevel.Info);
+                        Program.Monitor.Log($"Loaded mod: {modEntry.ModManifest.Name} by {modEntry.ModManifest.Author}, v{modEntry.ModManifest.Version} | {modEntry.ModManifest.Description}", LogLevel.Info);
                         Program.ModsLoaded += 1;
                         modEntry.Entry(); // deprecated since 1.0
                         modEntry.Entry((ModHelper)modEntry.Helper); // deprecated since 1.1

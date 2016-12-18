@@ -26,7 +26,11 @@ namespace StardewModdingAPI
         ** Accessors
         *********/
         /// <summary>SMAPI's current semantic version.</summary>
-        public static readonly Version Version = new Version(1, 4, 0, null);
+        [Obsolete("Use " + nameof(Constants) + "." + nameof(ApiVersion))]
+        public static readonly Version Version = (Version)Constants.ApiVersion;
+
+        /// <summary>SMAPI's current semantic version.</summary>
+        public static ISemanticVersion ApiVersion => new Version(1, 4, 0, null, suppressDeprecationWarning: true);
 
         /// <summary>The minimum supported version of Stardew Valley.</summary>
         public const string MinimumGameVersion = "1.1";
@@ -56,7 +60,7 @@ namespace StardewModdingAPI
         public static string ExecutionPath => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
         /// <summary>The title of the SMAPI console window.</summary>
-        public static string ConsoleTitle => $"Stardew Modding API Console - Version {Constants.Version} - Mods Loaded: {Program.ModsLoaded}";
+        public static string ConsoleTitle => $"Stardew Modding API Console - Version {Constants.ApiVersion} - Mods Loaded: {Program.ModsLoaded}";
 
         /// <summary>The directory path in which error logs should be stored.</summary>
         public static string LogDir => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley", "ErrorLogs");

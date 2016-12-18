@@ -166,8 +166,10 @@
     <Compile Include="Framework\Reflection\PrivateField.cs" />
     <Compile Include="Framework\Reflection\PrivateMethod.cs" />
     <Compile Include="Framework\Reflection\ReflectionHelper.cs" />
+    <Compile Include="IManifest.cs" />
     <Compile Include="IModHelper.cs" />
     <Compile Include="Framework\LogFileManager.cs" />
+    <Compile Include="ISemanticVersion.cs" />
     <Compile Include="LogLevel.cs" />
     <Compile Include="Framework\ModRegistry.cs" />
     <Compile Include="Framework\UpdateHelper.cs" />
@@ -190,6 +192,7 @@
     <Compile Include="IPrivateField.cs" />
     <Compile Include="IPrivateMethod.cs" />
     <Compile Include="IReflectionHelper.cs" />
+    <Compile Include="SemanticVersion.cs" />
     <Compile Include="Version.cs" />
   </ItemGroup>
   <ItemGroup>
