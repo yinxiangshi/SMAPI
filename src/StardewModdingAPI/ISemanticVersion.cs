@@ -31,5 +31,8 @@ namespace StardewModdingAPI
         /// <summary>Get whether this version is newer than the specified version.</summary>
         /// <param name="other">The version to compare with this instance.</param>
         bool IsNewerThan(ISemanticVersion other);
+
+        /// <summary>Get a string representation of the version.</summary>
+        string ToString();
     }
 }

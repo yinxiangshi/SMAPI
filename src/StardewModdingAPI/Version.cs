@@ -85,6 +85,11 @@ namespace StardewModdingAPI
             return this.GetSemanticVersion().IsNewerThan(other);
         }
 
+        /// <summary>Get a string representation of the version.</summary>
+        public override string ToString()
+        {
+            return this.GetSemanticVersion().ToString();
+        }
 
         /*********
         ** Private methods
