@@ -53,6 +53,21 @@ namespace StardewModdingAPI
             this.Build = build;
         }
 
+        /// <summary>Construct an instance.</summary>
+        /// <param name="version">The semantic version string.</param>
+        /// <exception cref="FormatException">The <paramref name="version"/> is not a valid semantic version.</exception>
+        internal SemanticVersion(string version)
+        {
+            var match = SemanticVersion.Regex.Match(version);
+            if (!match.Success)
+                throw new FormatException($"The input '{version}' is not a valid semantic version.");
+
+            this.MajorVersion = int.Parse(match.Groups["major"].Value);
+            this.MinorVersion = match.Groups["minor"].Success ? int.Parse(match.Groups["minor"].Value) : 0;
+            this.PatchVersion = match.Groups["patch"].Success ? int.Parse(match.Groups["patch"].Value) : 0;
+            this.Build = match.Groups["build"].Success ? match.Groups["build"].Value : null;
+        }
+
         /// <summary>Get an integer indicating whether this version precedes (less than 0), supercedes (more than 0), or is equivalent to (0) the specified version.</summary>
         /// <param name="other">The version to compare with this instance.</param>
         /// <remarks>The implementation is defined by Semantic Version 2.0 (http://semver.org/).</remarks>
@@ -141,20 +156,6 @@ namespace StardewModdingAPI
         /*********
         ** Private methods
         *********/
-        /// <summary>Construct an instance.</summary>
-        /// <param name="version">The semantic version string.</param>
-        internal SemanticVersion(string version)
-        {
-            var match = SemanticVersion.Regex.Match(version);
-            if (!match.Success)
-                throw new FormatException($"The input '{version}' is not a semantic version.");
-
-            this.MajorVersion = int.Parse(match.Groups["major"].Value);
-            this.MinorVersion = match.Groups["minor"].Success ? int.Parse(match.Groups["minor"].Value) : 0;
-            this.PatchVersion = match.Groups["patch"].Success ? int.Parse(match.Groups["patch"].Value) : 0;
-            this.Build = match.Groups["build"].Success ? match.Groups["build"].Value : null;
-        }
-
         /// <summary>Get a normalised build tag.</summary>
         /// <param name="tag">The tag to normalise.</param>
         private string GetNormalisedTag(string tag)

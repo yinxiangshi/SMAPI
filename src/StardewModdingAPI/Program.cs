@@ -381,7 +381,7 @@ namespace StardewModdingAPI
                             continue;
                         }
                     }
-                    catch (FormatException ex) when (ex.Message.Contains("not a semantic version"))
+                    catch (FormatException ex) when (ex.Message.Contains("not a valid semantic version"))
                     {
                         Program.Monitor.Log($"{errorPrefix}: the mod specified an invalid minimum SMAPI version '{manifest.MinimumApiVersion}'. This should be a semantic version number like {Constants.Version}.", LogLevel.Error);
                         continue;
