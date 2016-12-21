@@ -48,25 +48,56 @@ namespace StardewModdingAPI
 
         /// <summary>Get an integer indicating whether this version precedes (less than 0), supercedes (more than 0), or is equivalent to (0) the specified version.</summary>
         /// <param name="other">The version to compare with this instance.</param>
+        /// <remarks>The implementation is defined by Semantic Version 2.0 (http://semver.org/).</remarks>
         public int CompareTo(ISemanticVersion other)
         {
-            // compare version numbers
+            const int same = 0;
+            const int curNewer = 1;
+            const int curOlder = -1;
+
+            // compare stable versions
             if (this.MajorVersion != other.MajorVersion)
-                return this.MajorVersion - other.MajorVersion;
+                return this.MajorVersion.CompareTo(other.MajorVersion);
             if (this.MinorVersion != other.MinorVersion)
-                return this.MinorVersion - other.MinorVersion;
+                return this.MinorVersion.CompareTo(other.MinorVersion);
             if (this.PatchVersion != other.PatchVersion)
-                return this.PatchVersion - other.PatchVersion;
+                return this.PatchVersion.CompareTo(other.PatchVersion);
+            if (this.Build == other.Build)
+                return same;
 
-            // stable version (without tag) supercedes prerelease (with tag)
-            bool curHasTag = !string.IsNullOrWhiteSpace(this.Build);
-            bool otherHasTag = !string.IsNullOrWhiteSpace(other.Build);
-            if (!curHasTag && otherHasTag)
-                return 1;
-            if (curHasTag && !otherHasTag)
-                return -1;
+            // stable supercedes pre-release
+            bool curIsStable = string.IsNullOrWhiteSpace(this.Build);
+            bool otherIsStable = string.IsNullOrWhiteSpace(other.Build);
+            if (curIsStable)
+                return curNewer;
+            if (otherIsStable)
+                return curOlder;
 
-            // else compare by string
+            // compare two pre-release tag values
+            string[] curParts = this.Build.Split('.');
+            string[] otherParts = other.Build.Split('.');
+            for (int i = 0; i < curParts.Length; i++)
+            {
+                // longer prerelease tag supercedes if otherwise equal
+                if (otherParts.Length <= i)
+                    return curNewer;
+
+                // compare if different
+                if (curParts[i] != otherParts[i])
+                {
+                    // compare numerically if possible
+                    {
+                        int curNum, otherNum;
+                        if (int.TryParse(curParts[i], out curNum) && int.TryParse(otherParts[i], out otherNum))
+                            return curNum.CompareTo(otherNum);
+                    }
+
+                    // else compare lexically
+                    return string.Compare(curParts[i], otherParts[i], StringComparison.OrdinalIgnoreCase);
+                }
+            }
+
+            // fallback (this should never happen)
             return string.Compare(this.ToString(), other.ToString(), StringComparison.InvariantCultureIgnoreCase);
         }
 
