@@ -78,9 +78,9 @@ directory containing `src`).
             Mono.Cecil.Rocks.dll
             Newtonsoft.Json.dll
             StardewModdingAPI
+            StardewModdingAPI.config.json
             StardewModdingAPI.exe
             StardewModdingAPI.exe.mdb
-            StardewModdingAPI-settings.json
             StardewModdingAPI.AssemblyRewriters.dll
             System.Numerics.dll
             System.Runtime.Caching.dll
@@ -90,10 +90,10 @@ directory containing `src`).
             Mono.Cecil.dll
             Mono.Cecil.Rocks.dll
             Newtonsoft.Json.dll
+            StardewModdingAPI.config.json
             StardewModdingAPI.exe
             StardewModdingAPI.pdb
             StardewModdingAPI.xml
-            StardewModdingAPI-settings.json
             StardewModdingAPI.AssemblyRewriters.dll
             steam_appid.txt
          install.exe
@@ -102,7 +102,7 @@ directory containing `src`).
    4. Open a terminal in the `SMAPI-<version>` directory and run `chmod 755 Mono/StardewModdingAPI`.
    5. Copy & paste the `SMAPI-<version>` directory as `SMAPI-<version>-for-developers`.
    6. In the `SMAPI-<version>` directory, delete the following files:
-      * `Mono/StardewModdingAPI-settings.json`
+      * `Mono/StardewModdingAPI.config.json`
+      * `Windows/StardewModdingAPI.config.json`
       * `Windows/StardewModdingAPI.xml`
-      * `Windows/StardewModdingAPI-settings.json`
    7. Compress the two folders into `SMAPI-<version>.zip` and `SMAPI-<version>-for-developers.zip`.

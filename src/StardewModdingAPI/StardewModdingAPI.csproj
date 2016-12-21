@@ -202,7 +202,7 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
-    <Content Include="StardewModdingAPI-settings.json">
+    <Content Include="StardewModdingAPI.config.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="unix-launcher.sh">
@@ -251,6 +251,7 @@
   </PropertyGroup>
   <Target Name="AfterBuild" Condition="$(Configuration) == 'Debug'">
     <Copy SourceFiles="$(TargetDir)\$(TargetName).exe" DestinationFolder="$(GamePath)" />
+    <Copy SourceFiles="$(TargetDir)\$(TargetName).config.json" DestinationFolder="$(GamePath)" />
     <Copy SourceFiles="$(TargetDir)\StardewModdingAPI.AssemblyRewriters.dll" DestinationFolder="$(GamePath)" />
     <Copy SourceFiles="$(TargetDir)\$(TargetName).exe.mdb" DestinationFolder="$(GamePath)" Condition="$(OS) != 'Windows_NT'" />
     <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)" Condition="$(OS) == 'Windows_NT'" />

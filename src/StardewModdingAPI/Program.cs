@@ -102,7 +102,7 @@ namespace StardewModdingAPI
 
             // load user settings
             {
-                string settingsFileName = $"{typeof(Program).Assembly.GetName().Name}-settings.json";
+                string settingsFileName = $"{typeof(Program).Assembly.GetName().Name}.config.json";
                 string settingsPath = Path.Combine(Constants.ExecutionPath, settingsFileName);
                 if (File.Exists(settingsPath))
                 {
