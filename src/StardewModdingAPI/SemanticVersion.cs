@@ -13,6 +13,9 @@ namespace StardewModdingAPI
         /// <remarks>Derived from https://github.com/maxhauser/semver.</remarks>
         private static readonly Regex Regex = new Regex(@"^(?<major>\d+)(\.(?<minor>\d+))?(\.(?<patch>\d+))?(?<build>.*)$", RegexOptions.CultureInvariant | RegexOptions.ExplicitCapture);
 
+        /// <summary>The backing field for <see cref="Build"/>.</summary>
+        private string _build;
+
 
         /*********
         ** Accessors
@@ -27,7 +30,11 @@ namespace StardewModdingAPI
         public int PatchVersion { get; set; }
 
         /// <summary>An optional build tag.</summary>
-        public string Build { get; set; }
+        public string Build
+        {
+            get { return this._build; }
+            set { this._build = this.GetNormalisedTag(value); }
+        }
 
 
         /*********
@@ -124,7 +131,7 @@ namespace StardewModdingAPI
                 : $"{this.MajorVersion}.{this.MinorVersion}";
 
             // tag
-            string tag = this.GetNormalisedTag(this.Build);
+            string tag = this.Build;
             if (tag != null)
                 result += $"-{tag}";
             return result;
@@ -145,7 +152,7 @@ namespace StardewModdingAPI
             this.MajorVersion = int.Parse(match.Groups["major"].Value);
             this.MinorVersion = match.Groups["minor"].Success ? int.Parse(match.Groups["minor"].Value) : 0;
             this.PatchVersion = match.Groups["patch"].Success ? int.Parse(match.Groups["patch"].Value) : 0;
-            this.Build = (match.Groups["build"].Success ? match.Groups["build"].Value : "").Trim(' ', '-', '.');
+            this.Build = match.Groups["build"].Success ? match.Groups["build"].Value : null;
         }
 
         /// <summary>Get a normalised build tag.</summary>
@@ -153,8 +160,10 @@ namespace StardewModdingAPI
         private string GetNormalisedTag(string tag)
         {
             tag = tag?.Trim().Trim('-', '.');
-            if (string.IsNullOrWhiteSpace(tag) || tag == "0")
+            if (string.IsNullOrWhiteSpace(tag))
                 return null;
+            if (tag == "0")
+                return null; // from incorrect examples in old SMAPI documentation
             return tag;
         }
     }
