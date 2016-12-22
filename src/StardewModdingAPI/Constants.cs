@@ -68,6 +68,9 @@ namespace StardewModdingAPI
         /// <summary>The file path to the error log where the latest output should be saved.</summary>
         public static string LogPath => Path.Combine(Constants.LogDir, "MODDED_ProgramLog.Log_LATEST.txt");
 
+        /// <summary>The file path for the SMAPI configuration file.</summary>
+        internal static string ApiConfigPath => Path.Combine(Constants.ExecutionPath, $"{typeof(Program).Assembly.GetName().Name}.config.json");
+
 
         /*********
         ** Protected methods

@@ -49,8 +49,8 @@ namespace StardewModdingAPI
         /// <summary>The core logger for SMAPI.</summary>
         private static readonly Monitor Monitor = new Monitor("SMAPI", Program.LogFile);
 
-        /// <summary>Whether SMAPI is running in developer mode.</summary>
-        private static bool DeveloperMode;
+        /// <summary>The user settings for SMAPI.</summary>
+        private static UserSettings Settings;
 
         /// <summary>Tracks whether the game should exit immediately and any pending initialisation should be cancelled.</summary>
         private static readonly CancellationTokenSource CancellationTokenSource = new CancellationTokenSource();
@@ -100,26 +100,29 @@ namespace StardewModdingAPI
             // add info header
             Program.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Game1.version} on {Environment.OSVersion}", LogLevel.Info);
 
-            // load user settings
+            // initialise user settings
             {
-                string settingsFileName = $"{typeof(Program).Assembly.GetName().Name}.config.json";
-                string settingsPath = Path.Combine(Constants.ExecutionPath, settingsFileName);
+                string settingsPath = Constants.ApiConfigPath;
                 if (File.Exists(settingsPath))
                 {
                     string json = File.ReadAllText(settingsPath);
-                    UserSettings settings = JsonConvert.DeserializeObject<UserSettings>(json);
-                    Program.DeveloperMode = settings?.DeveloperMode == true;
-
-                    if (Program.DeveloperMode)
-                    {
-                        Program.Monitor.ShowTraceInConsole = true;
-                        Program.Monitor.Log($"SMAPI is running in developer mode. The console may be much more verbose. You can disable developer mode by deleting the {settingsFileName} file in the game directory.", LogLevel.Alert);
-                    }
+                    Program.Settings = JsonConvert.DeserializeObject<UserSettings>(json);
                 }
+                else
+                    Program.Settings = new UserSettings();
+
+                File.WriteAllText(settingsPath, JsonConvert.SerializeObject(Program.Settings, Formatting.Indented));
+            }
+
+            // add warning headers
+            if (Program.Settings.DeveloperMode)
+            {
+                Program.Monitor.ShowTraceInConsole = true;
+                Program.Monitor.Log($"SMAPI is running in developer mode. The console may be much more verbose. You can disable developer mode by editing or deleting {Constants.ApiConfigPath}.", LogLevel.Alert);
             }
 
             // initialise legacy log
-            Log.Monitor = new Monitor("legacy mod", Program.LogFile) { ShowTraceInConsole = Program.DeveloperMode };
+            Log.Monitor = new Monitor("legacy mod", Program.LogFile) { ShowTraceInConsole = Program.Settings.DeveloperMode };
             Log.ModRegistry = Program.ModRegistry;
 
             // hook into & launch the game
@@ -478,7 +481,7 @@ namespace StardewModdingAPI
                     // inject data
                     mod.ModManifest = manifest;
                     mod.Helper = helper;
-                    mod.Monitor = new Monitor(manifest.Name, Program.LogFile) { ShowTraceInConsole = Program.DeveloperMode };
+                    mod.Monitor = new Monitor(manifest.Name, Program.LogFile) { ShowTraceInConsole = Program.Settings.DeveloperMode };
                     mod.PathOnDisk = directory;
 
                     // track mod
