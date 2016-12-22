@@ -167,6 +167,7 @@
     <Compile Include="Framework\Reflection\PrivateMethod.cs" />
     <Compile Include="Framework\Reflection\ReflectionHelper.cs" />
     <Compile Include="IManifest.cs" />
+    <Compile Include="IMod.cs" />
     <Compile Include="IModHelper.cs" />
     <Compile Include="Framework\LogFileManager.cs" />
     <Compile Include="ISemanticVersion.cs" />

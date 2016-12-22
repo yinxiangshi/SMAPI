@@ -5,7 +5,7 @@ using StardewModdingAPI.Framework;
 namespace StardewModdingAPI
 {
     /// <summary>The base class for a mod.</summary>
-    public class Mod
+    public class Mod : IMod
     {
         /*********
         ** Properties

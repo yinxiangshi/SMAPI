@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 
 namespace StardewModdingAPI.Framework
@@ -11,6 +12,9 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Properties
         *********/
+        /// <summary>The registered mod data.</summary>
+        private readonly List<IMod> Mods = new List<IMod>();
+
         /// <summary>The friendly mod names treated as deprecation warning sources (assembly full name => mod name).</summary>
         private readonly IDictionary<string, string> ModNamesByAssembly = new Dictionary<string, string>();
 
@@ -19,11 +23,17 @@ namespace StardewModdingAPI.Framework
         ** Public methods
         *********/
         /// <summary>Register a mod as a possible source of deprecation warnings.</summary>
-        /// <param name="manifest">The mod manifest.</param>
-        /// <param name="assembly">The mod assembly.</param>
-        public void Add(Manifest manifest, Assembly assembly)
+        /// <param name="mod">The mod instance.</param>
+        public void Add(IMod mod)
         {
-            this.ModNamesByAssembly[assembly.FullName] = manifest.Name;
+            this.Mods.Add(mod);
+            this.ModNamesByAssembly[mod.GetType().Assembly.FullName] = mod.ModManifest.Name;
+        }
+
+        /// <summary>Get all enabled mods.</summary>
+        public IEnumerable<IMod> GetMods()
+        {
+            return (from mod in this.Mods select mod);
         }
 
         /// <summary>Get the friendly name for the closest assembly registered as a source of deprecation warnings.</summary>

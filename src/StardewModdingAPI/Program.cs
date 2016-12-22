@@ -462,37 +462,53 @@ namespace StardewModdingAPI
                     continue;
                 }
 
-                // hook up mod
+                // get mod instance
+                Mod mod;
                 try
                 {
+                    // get implementation
                     TypeInfo modEntryType = modAssembly.DefinedTypes.First(x => x.BaseType == typeof(Mod));
-                    Mod modEntry = (Mod)modAssembly.CreateInstance(modEntryType.ToString());
-                    if (modEntry != null)
+                    mod = (Mod)modAssembly.CreateInstance(modEntryType.ToString());
+                    if (mod == null)
                     {
-                        // track mod
-                        Program.ModRegistry.Add(manifest, modAssembly);
-
-                        // hook up mod
-                        modEntry.ModManifest = manifest;
-                        modEntry.Helper = helper;
-                        modEntry.Monitor = new Monitor(manifest.Name, Program.LogFile) { ShowTraceInConsole = Program.DeveloperMode };
-                        modEntry.PathOnDisk = directory;
-                        Program.Monitor.Log($"Loaded mod: {modEntry.ModManifest.Name} by {modEntry.ModManifest.Author}, v{modEntry.ModManifest.Version} | {modEntry.ModManifest.Description}", LogLevel.Info);
-                        Program.ModsLoaded += 1;
-                        modEntry.Entry(); // deprecated since 1.0
-                        modEntry.Entry((ModHelper)modEntry.Helper); // deprecated since 1.1
-                        modEntry.Entry(modEntry.Helper); // deprecated since 1.1
-
-                        // raise deprecation warning for old Entry() method
-                        if (Program.DeprecationManager.IsVirtualMethodImplemented(modEntryType, typeof(Mod), nameof(Mod.Entry), new[] { typeof(object[]) }))
-                            Program.DeprecationManager.Warn(manifest.Name, $"an old version of {nameof(Mod)}.{nameof(Mod.Entry)}", "1.0", DeprecationLevel.Notice);
-                        if (Program.DeprecationManager.IsVirtualMethodImplemented(modEntryType, typeof(Mod), nameof(Mod.Entry), new[] { typeof(ModHelper) }))
-                            Program.DeprecationManager.Warn(manifest.Name, $"an old version of {nameof(Mod)}.{nameof(Mod.Entry)}", "1.1", DeprecationLevel.Notice);
+                        Program.Monitor.Log($"{errorPrefix}: the mod's entry class could not be instantiated.");
+                        continue;
                     }
+
+                    // inject data
+                    mod.ModManifest = manifest;
+                    mod.Helper = helper;
+                    mod.Monitor = new Monitor(manifest.Name, Program.LogFile) { ShowTraceInConsole = Program.DeveloperMode };
+                    mod.PathOnDisk = directory;
+
+                    // track mod
+                    Program.ModRegistry.Add(mod);
+                    Program.ModsLoaded += 1;
+                    Program.Monitor.Log($"Loaded mod: {manifest.Name} by {manifest.Author}, v{manifest.Version} | {manifest.Description}", LogLevel.Info);
                 }
                 catch (Exception ex)
                 {
                     Program.Monitor.Log($"{errorPrefix}: an error occurred while loading the target DLL.\n{ex.GetLogSummary()}", LogLevel.Error);
+                    continue;
+                }
+
+                // call mod entry
+                try
+                {
+                    // call entry methods
+                    mod.Entry(); // deprecated since 1.0
+                    mod.Entry((ModHelper)mod.Helper); // deprecated since 1.1
+                    mod.Entry(mod.Helper);
+
+                    // raise deprecation warning for old Entry() methods
+                    if (Program.DeprecationManager.IsVirtualMethodImplemented(mod.GetType(), typeof(Mod), nameof(Mod.Entry), new[] { typeof(object[]) }))
+                        Program.DeprecationManager.Warn(manifest.Name, $"an old version of {nameof(Mod)}.{nameof(Mod.Entry)}", "1.0", DeprecationLevel.Notice);
+                    if (Program.DeprecationManager.IsVirtualMethodImplemented(mod.GetType(), typeof(Mod), nameof(Mod.Entry), new[] { typeof(ModHelper) }))
+                        Program.DeprecationManager.Warn(manifest.Name, $"an old version of {nameof(Mod)}.{nameof(Mod.Entry)}", "1.1", DeprecationLevel.Notice);
+                }
+                catch (Exception ex)
+                {
+                    Program.Monitor.Log($"The {manifest.Name} mod failed on entry initialisation. It will still be loaded, but may not function correctly.\n{ex.GetLogSummary()}", LogLevel.Warn);
                 }
             }
 
