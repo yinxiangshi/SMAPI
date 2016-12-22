@@ -323,8 +323,10 @@ namespace StardewModdingAPI
             // load mods
             foreach (string directory in Directory.GetDirectories(Program.ModPath))
             {
+                string directoryName = new DirectoryInfo(directory).Name;
+
                 // ignore internal directory
-                if (new DirectoryInfo(directory).Name == ".cache")
+                if (directoryName == ".cache")
                     continue;
 
                 // check for cancellation
@@ -341,7 +343,7 @@ namespace StardewModdingAPI
                 string manifestPath = Path.Combine(directory, "manifest.json");
                 if (!File.Exists(manifestPath))
                 {
-                    Program.Monitor.Log($"Ignored folder \"{new DirectoryInfo(directory).Name}\" which doesn't have a manifest.json.", LogLevel.Warn);
+                    Program.Monitor.Log($"Ignored folder \"{directoryName}\" which doesn't have a manifest.json.", LogLevel.Warn);
                     continue;
                 }
                 string errorPrefix = $"Couldn't load mod for manifest '{manifestPath}'";

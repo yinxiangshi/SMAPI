@@ -5,6 +5,7 @@ See [log](https://github.com/Pathoschild/SMAPI/compare/stable...develop).
 
 For players:
   * Added option to disable update checks.
+  * SMAPI will now show a friendly error with update links when you try to use a known incompatible mod version.
   * Fixed error when a mod uses the new reflection API on a missing field or method.
 
 For developers:
