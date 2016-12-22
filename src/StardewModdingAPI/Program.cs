@@ -118,8 +118,10 @@ namespace StardewModdingAPI
             if (Program.Settings.DeveloperMode)
             {
                 Program.Monitor.ShowTraceInConsole = true;
-                Program.Monitor.Log($"SMAPI is running in developer mode. The console may be much more verbose. You can disable developer mode by editing or deleting {Constants.ApiConfigPath}.", LogLevel.Alert);
+                Program.Monitor.Log($"You configured SMAPI to run in developer mode. The console may be much more verbose. You can disable developer mode by installing the non-developer version of SMAPI, or by editing or deleting {Constants.ApiConfigPath}.", LogLevel.Warn);
             }
+            if (!Program.Settings.CheckForUpdates)
+                Program.Monitor.Log($"You configured SMAPI to not check for updates. Running an old version of SMAPI is not recommended. You can enable update checks by editing or deleting {Constants.ApiConfigPath}.", LogLevel.Warn);
 
             // initialise legacy log
             Log.Monitor = new Monitor("legacy mod", Program.LogFile) { ShowTraceInConsole = Program.Settings.DeveloperMode };
@@ -148,7 +150,8 @@ namespace StardewModdingAPI
                 }
 
                 // check for update when game loads
-                GameEvents.GameLoaded += (sender, e) => Program.CheckForUpdateAsync();
+                if (Program.Settings.CheckForUpdates)
+                    GameEvents.GameLoaded += (sender, e) => Program.CheckForUpdateAsync();
 
                 // launch game
                 Program.StartGame();

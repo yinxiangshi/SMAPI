@@ -4,6 +4,7 @@
 See [log](https://github.com/Pathoschild/SMAPI/compare/stable...develop).
 
 For players:
+  * Added option to disable update checks.
   * Fixed error when a mod uses the new reflection API on a missing field or method.
 
 For developers:
