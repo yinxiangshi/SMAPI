@@ -56,6 +56,7 @@ namespace StardewModdingApi.Installer
             // common
             "StardewModdingAPI.exe",
             "StardewModdingAPI.config.json",
+            "StardewModdingAPI.data.json",
             "StardewModdingAPI.AssemblyRewriters.dll",
             "steam_appid.txt",
 

@@ -79,6 +79,7 @@ directory containing `src`).
             Newtonsoft.Json.dll
             StardewModdingAPI
             StardewModdingAPI.config.json
+            StardewModdingAPI.data.json
             StardewModdingAPI.exe
             StardewModdingAPI.exe.mdb
             StardewModdingAPI.AssemblyRewriters.dll
@@ -91,6 +92,7 @@ directory containing `src`).
             Mono.Cecil.Rocks.dll
             Newtonsoft.Json.dll
             StardewModdingAPI.config.json
+            StardewModdingAPI.data.json
             StardewModdingAPI.exe
             StardewModdingAPI.pdb
             StardewModdingAPI.xml

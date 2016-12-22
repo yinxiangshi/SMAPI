@@ -74,6 +74,7 @@
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.exe.mdb" DestinationFolder="$(CompiledInstallerPath)\Mono" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.AssemblyRewriters.dll" DestinationFolder="$(CompiledInstallerPath)\Mono" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.config.json" DestinationFolder="$(CompiledInstallerPath)\Mono" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.data.json" DestinationFolder="$(CompiledInstallerPath)\Mono" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\System.Numerics.dll" DestinationFolder="$(CompiledInstallerPath)\Mono" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\System.Runtime.Caching.dll" DestinationFolder="$(CompiledInstallerPath)\Mono" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\unix-launcher.sh" DestinationFiles="$(CompiledInstallerPath)\Mono\StardewModdingAPI" />
@@ -88,6 +89,7 @@
     <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.xml" DestinationFolder="$(CompiledInstallerPath)\Windows" />
     <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.AssemblyRewriters.dll" DestinationFolder="$(CompiledInstallerPath)\Windows" />
     <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.config.json" DestinationFolder="$(CompiledInstallerPath)\Windows" />
+    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.data.json" DestinationFolder="$(CompiledInstallerPath)\Windows" />
     <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\steam_appid.txt" DestinationFolder="$(CompiledInstallerPath)\Windows" />
     <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="@(CompiledMods)" DestinationFolder="$(CompiledInstallerPath)\Windows\Mods\%(RecursiveDir)" />
   </Target>

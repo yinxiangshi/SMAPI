@@ -40,7 +40,7 @@ namespace StardewModdingAPI
         public string EntryDll { get; set; }
 
         /// <summary>The unique mod ID.</summary>
-        public string UniqueID { get; set; } = Guid.NewGuid().ToString();
+        public string UniqueID { get; set; }
 
 
         /****

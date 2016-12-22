@@ -315,6 +315,11 @@ namespace StardewModdingAPI
             ModAssemblyLoader modAssemblyLoader = new ModAssemblyLoader(Program.CacheDirName, Program.TargetPlatform, Program.Monitor);
             AppDomain.CurrentDomain.AssemblyResolve += (sender, e) => modAssemblyLoader.ResolveAssembly(e.Name);
 
+            // get known incompatible mods
+            IDictionary<string, IncompatibleMod> incompatibleMods = File.Exists(Constants.ApiModMetadataPath)
+                ? JsonConvert.DeserializeObject<IncompatibleMod[]>(File.ReadAllText(Constants.ApiModMetadataPath)).ToDictionary(p => p.ID, p => p)
+                : new Dictionary<string, IncompatibleMod>(0);
+
             // load mods
             foreach (string directory in Directory.GetDirectories(Program.ModPath))
             {
@@ -374,6 +379,23 @@ namespace StardewModdingAPI
                 {
                     Program.Monitor.Log($"{errorPrefix}: manifest parsing failed.\n{ex.GetLogSummary()}", LogLevel.Error);
                     continue;
+                }
+
+                // validate known incompatible mods
+                IncompatibleMod incompatible;
+                if (incompatibleMods.TryGetValue(manifest.UniqueID ?? $"{manifest.Name}|{manifest.Author}|{manifest.EntryDll}", out incompatible))
+                {
+                    if (!manifest.Version.IsNewerThan(new SemanticVersion(incompatible.Version)))
+                    {
+                        string warning = $"Skipped {incompatible.Name} ≤v{incompatible.Version} because this version is not compatible with the latest version of the game. Please check for a newer version of the mod here:";
+                        if (!string.IsNullOrWhiteSpace(incompatible.UpdateUrl))
+                            warning += $"{Environment.NewLine}- official mod: {incompatible.UpdateUrl}";
+                        if (!string.IsNullOrWhiteSpace(incompatible.UnofficialUpdateUrl))
+                            warning += $"{Environment.NewLine}- unofficial update: {incompatible.UnofficialUpdateUrl}";
+
+                        Program.Monitor.Log(warning, LogLevel.Error);
+                        continue;
+                    }
                 }
 
                 // validate version
