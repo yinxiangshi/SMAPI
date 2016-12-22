@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace StardewModdingAPI.Framework
+namespace StardewModdingAPI.Framework.Models
 {
     /// <summary>Metadata about a GitHub release tag.</summary>
     internal class GitRelease

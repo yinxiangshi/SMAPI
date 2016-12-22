@@ -1,4 +1,4 @@
-﻿namespace StardewModdingAPI.Framework
+﻿namespace StardewModdingAPI.Framework.Models
 {
     /// <summary>Contains user settings from SMAPI's JSON configuration file.</summary>
     internal class UserSettings

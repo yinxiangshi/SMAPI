@@ -174,8 +174,8 @@
     <Compile Include="LogLevel.cs" />
     <Compile Include="Framework\ModRegistry.cs" />
     <Compile Include="Framework\UpdateHelper.cs" />
-    <Compile Include="Framework\GitRelease.cs" />
-    <Compile Include="Framework\UserSettings.cs" />
+    <Compile Include="Framework\Models\GitRelease.cs" />
+    <Compile Include="Framework\Models\UserSettings.cs" />
     <Compile Include="IMonitor.cs" />
     <Compile Include="Inheritance\ChangeType.cs" />
     <Compile Include="Inheritance\ItemStackChange.cs" />

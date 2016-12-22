@@ -14,6 +14,7 @@ using StardewModdingAPI.AssemblyRewriters;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.AssemblyRewriting;
+using StardewModdingAPI.Framework.Models;
 using StardewModdingAPI.Inheritance;
 using StardewValley;
 using Monitor = StardewModdingAPI.Framework.Monitor;
