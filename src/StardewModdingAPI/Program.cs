@@ -316,9 +316,18 @@ namespace StardewModdingAPI
             AppDomain.CurrentDomain.AssemblyResolve += (sender, e) => modAssemblyLoader.ResolveAssembly(e.Name);
 
             // get known incompatible mods
-            IDictionary<string, IncompatibleMod> incompatibleMods = File.Exists(Constants.ApiModMetadataPath)
-                ? JsonConvert.DeserializeObject<IncompatibleMod[]>(File.ReadAllText(Constants.ApiModMetadataPath)).ToDictionary(p => p.ID, p => p)
-                : new Dictionary<string, IncompatibleMod>(0);
+            IDictionary<string, IncompatibleMod> incompatibleMods;
+            try
+            {
+                incompatibleMods = File.Exists(Constants.ApiModMetadataPath)
+                    ? JsonConvert.DeserializeObject<IncompatibleMod[]>(File.ReadAllText(Constants.ApiModMetadataPath)).ToDictionary(p => p.ID, p => p)
+                    : new Dictionary<string, IncompatibleMod>(0);
+            }
+            catch (Exception ex)
+            {
+                incompatibleMods = new Dictionary<string, IncompatibleMod>();
+                Program.Monitor.Log($"Couldn't read metadata file at {Constants.ApiModMetadataPath}. SMAPI will still run, but some features may be disabled.\n{ex}", LogLevel.Warn);
+            }
 
             // load mods
             foreach (string directory in Directory.GetDirectories(Program.ModPath))
