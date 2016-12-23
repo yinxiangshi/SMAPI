@@ -1,16 +1,17 @@
 # Release notes
 
 ## 1.5
-See [log](https://github.com/Pathoschild/SMAPI/compare/stable...develop).
+See [log](https://github.com/Pathoschild/SMAPI/compare/1.4...1.5).
 
 For players:
-  * Added option to disable update checks.
+  * Added an option to disable update checks.
   * SMAPI will now show a friendly error with update links when you try to use a known incompatible mod version.
-  * Fixed error when a mod uses the new reflection API on a missing field or method.
+  * Fixed an error when a mod uses the new reflection API on a missing field or method.
+  * Fixed an issue where mods weren't notified of a menu change if it changed while SMAPI was still notifying mods of the previous change.
 
 For developers:
   * Deprecated `Version` in favour of `SemanticVersion`.  
-    _This new implementation is [semver 2.0](http://semver.org/)-compliant, introduces `NewerThan(version)` and `OlderThan(version)` convenience methods, adds support for parsing a version string into a `SemanticVersion`, and fixes various bugs with the former implementation._
+    _This new implementation is [semver 2.0](http://semver.org/)-compliant, introduces `NewerThan(version)` and `OlderThan(version)` convenience methods, adds support for parsing a version string into a `SemanticVersion`, and fixes various bugs with the former implementation. This also replaces `Manifest` with `IManifest`._
   * Increased deprecation levels for `SObject`, `Extensions`, `LogWriter` (not `Log`), `SPlayer`, and `Mod.Entry(ModHelper)` (not `Mod.Entry(IModHelper)`).
 
 ## 1.4
