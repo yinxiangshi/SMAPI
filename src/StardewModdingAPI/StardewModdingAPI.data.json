@@ -11,27 +11,31 @@ This file contains advanced metadata for SMAPI. You shouldn't change this file.
     "Name": "Better Sprinklers",
     "Version": "2.1",
     "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/41",
-    "UnofficialUpdateUrl": "http://community.playstarbound.com/threads/125031"
+    "UnofficialUpdateUrl": "http://community.playstarbound.com/threads/125031",
+    "ForceCompatibleVersion": "^2.1-EntoPatch" 
   },
   {
     "ID": "SPDChestLabel",
     "Name": "Chest Label System",
     "Version": "1.5",
     "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/242",
-    "UnofficialUpdateUrl": "http://community.playstarbound.com/threads/125031"
+    "UnofficialUpdateUrl": "http://community.playstarbound.com/threads/125031",
+    "ForceCompatibleVersion": "^1.5-EntoPatch"
   },
   {
     "ID": "CJBCheatsMenu",
     "Name": "CJB Cheats Menu",
     "Version": "1.12",
     "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/4",
-    "UnofficialUpdateUrl": "http://community.playstarbound.com/threads/125031"
+    "UnofficialUpdateUrl": "http://community.playstarbound.com/threads/125031",
+    "ForceCompatibleVersion": "^1.12-EntoPatch"
   },
   {
     "ID": "CJBItemSpawner",
     "Name": "CJB Item Spawner",
     "Version": "1.5",
     "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/93",
-    "UnofficialUpdateUrl": "http://community.playstarbound.com/threads/125031"
+    "UnofficialUpdateUrl": "http://community.playstarbound.com/threads/125031",
+    "ForceCompatibleVersion": "^1.5-EntoPatch"
   }
 ]

@@ -384,23 +384,23 @@ namespace StardewModdingAPI
                 }
 
                 // validate known incompatible mods
-                IncompatibleMod incompatible;
-                if (incompatibleMods.TryGetValue(manifest.UniqueID ?? $"{manifest.Name}|{manifest.Author}|{manifest.EntryDll}", out incompatible))
+                IncompatibleMod compatibility;
+                if (incompatibleMods.TryGetValue(manifest.UniqueID ?? $"{manifest.Name}|{manifest.Author}|{manifest.EntryDll}", out compatibility))
                 {
-                    if (!manifest.Version.IsNewerThan(new SemanticVersion(incompatible.Version)))
+                    if (!compatibility.IsCompatible(manifest.Version))
                     {
-                        string warning = $"Skipped {incompatible.Name} ≤v{incompatible.Version} because this version is not compatible with the latest version of the game. Please check for a newer version of the mod here:";
-                        if (!string.IsNullOrWhiteSpace(incompatible.UpdateUrl))
-                            warning += $"{Environment.NewLine}- official mod: {incompatible.UpdateUrl}";
-                        if (!string.IsNullOrWhiteSpace(incompatible.UnofficialUpdateUrl))
-                            warning += $"{Environment.NewLine}- unofficial update: {incompatible.UnofficialUpdateUrl}";
+                        string warning = $"Skipped {compatibility.Name} ≤v{compatibility.Version} because this version is not compatible with the latest version of the game. Please check for a newer version of the mod here:";
+                        if (!string.IsNullOrWhiteSpace(compatibility.UpdateUrl))
+                            warning += $"{Environment.NewLine}- official mod: {compatibility.UpdateUrl}";
+                        if (!string.IsNullOrWhiteSpace(compatibility.UnofficialUpdateUrl))
+                            warning += $"{Environment.NewLine}- unofficial update: {compatibility.UnofficialUpdateUrl}";
 
                         Program.Monitor.Log(warning, LogLevel.Error);
                         continue;
                     }
                 }
 
-                // validate version
+                // validate SMAPI version
                 if (!string.IsNullOrWhiteSpace(manifest.MinimumApiVersion))
                 {
                     try
