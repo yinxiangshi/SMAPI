@@ -11,6 +11,7 @@ For players:
 For developers:
   * Deprecated `Version` in favour of `SemanticVersion`.  
     _This new implementation is [semver 2.0](http://semver.org/)-compliant, introduces `NewerThan(version)` and `OlderThan(version)` convenience methods, adds support for parsing a version string into a `SemanticVersion`, and fixes various bugs with the former implementation._
+  * Increased deprecation levels for `SObject`, `Extensions`, `LogWriter` (not `Log`), `SPlayer`, and `Mod.Entry(ModHelper)` (not `Mod.Entry(IModHelper)`).
 
 ## 1.4
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.3...1.4).
