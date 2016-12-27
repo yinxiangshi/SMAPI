@@ -26,7 +26,11 @@ namespace StardewModdingAPI
         ** Accessors
         *********/
         /// <summary>SMAPI's current semantic version.</summary>
-        public static readonly Version Version = new Version(1, 4, 0, null);
+        [Obsolete("Use " + nameof(Constants) + "." + nameof(ApiVersion))]
+        public static readonly Version Version = (Version)Constants.ApiVersion;
+
+        /// <summary>SMAPI's current semantic version.</summary>
+        public static ISemanticVersion ApiVersion => new Version(1, 5, 0, null, suppressDeprecationWarning: true);
 
         /// <summary>The minimum supported version of Stardew Valley.</summary>
         public const string MinimumGameVersion = "1.1";
@@ -56,13 +60,19 @@ namespace StardewModdingAPI
         public static string ExecutionPath => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
         /// <summary>The title of the SMAPI console window.</summary>
-        public static string ConsoleTitle => $"Stardew Modding API Console - Version {Constants.Version} - Mods Loaded: {Program.ModsLoaded}";
+        public static string ConsoleTitle => $"Stardew Modding API Console - Version {Constants.ApiVersion} - Mods Loaded: {Program.ModsLoaded}";
 
         /// <summary>The directory path in which error logs should be stored.</summary>
         public static string LogDir => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley", "ErrorLogs");
 
         /// <summary>The file path to the error log where the latest output should be saved.</summary>
         public static string LogPath => Path.Combine(Constants.LogDir, "MODDED_ProgramLog.Log_LATEST.txt");
+
+        /// <summary>The file path for the SMAPI configuration file.</summary>
+        internal static string ApiConfigPath => Path.Combine(Constants.ExecutionPath, $"{typeof(Program).Assembly.GetName().Name}.config.json");
+
+        /// <summary>The file path for the SMAPI data file containing metadata about known mods.</summary>
+        internal static string ApiModMetadataPath => Path.Combine(Constants.ExecutionPath, $"{typeof(Program).Assembly.GetName().Name}.data.json");
 
 
         /*********

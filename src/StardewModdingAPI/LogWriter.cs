@@ -55,7 +55,7 @@ namespace StardewModdingAPI
         /// <summary>Raise a deprecation warning.</summary>
         private void WarnDeprecated()
         {
-            Program.DeprecationManager.Warn($"the {nameof(LogWriter)} class", "1.0", DeprecationLevel.Notice);
+            Program.DeprecationManager.Warn($"the {nameof(LogWriter)} class", "1.0", DeprecationLevel.Info);
         }
     }
 }

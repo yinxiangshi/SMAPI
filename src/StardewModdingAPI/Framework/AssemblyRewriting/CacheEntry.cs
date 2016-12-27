@@ -36,7 +36,7 @@ namespace StardewModdingAPI.Framework.AssemblyRewriting
         /// <param name="paths">The paths for the cached assembly.</param>
         /// <param name="hash">The MD5 hash of the original assembly.</param>
         /// <param name="currentVersion">The current SMAPI version.</param>
-        public bool IsUpToDate(CachePaths paths, string hash, Version currentVersion)
+        public bool IsUpToDate(CachePaths paths, string hash, ISemanticVersion currentVersion)
         {
             return hash == this.Hash
                 && this.ApiVersion == currentVersion.ToString()

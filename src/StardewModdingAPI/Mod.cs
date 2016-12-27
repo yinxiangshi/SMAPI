@@ -5,7 +5,7 @@ using StardewModdingAPI.Framework;
 namespace StardewModdingAPI
 {
     /// <summary>The base class for a mod.</summary>
-    public class Mod
+    public class Mod : IMod
     {
         /*********
         ** Properties
@@ -24,7 +24,18 @@ namespace StardewModdingAPI
         public IMonitor Monitor { get; internal set; }
 
         /// <summary>The mod's manifest.</summary>
-        public Manifest Manifest { get; internal set; }
+        [Obsolete("Use " + nameof(Mod) + "." + nameof(ModManifest))]
+        public Manifest Manifest
+        {
+            get
+            {
+                Program.DeprecationManager.Warn($"{nameof(Mod)}.{nameof(Manifest)}", "1.5", DeprecationLevel.Notice);
+                return (Manifest)this.ModManifest;
+            }
+        }
+
+        /// <summary>The mod's manifest.</summary>
+        public IManifest ModManifest { get; internal set; }
 
         /// <summary>The full path to the mod's directory on the disk.</summary>
         [Obsolete("Use " + nameof(Mod.Helper) + "." + nameof(IModHelper.DirectoryPath) + " instead")]
@@ -94,7 +105,7 @@ namespace StardewModdingAPI
             Program.DeprecationManager.Warn($"{nameof(Mod)}.{nameof(Mod.PerSaveConfigFolder)}", "1.0", DeprecationLevel.Notice);
             Program.DeprecationManager.MarkWarned($"{nameof(Mod)}.{nameof(Mod.PathOnDisk)}", "1.0"); // avoid redundant warnings
 
-            if (!this.Manifest.PerSaveConfigs)
+            if (!((Manifest)this.Manifest).PerSaveConfigs)
             {
                 this.Monitor.Log("Tried to fetch the per-save config folder, but this mod isn't configured to use per-save config files.", LogLevel.Error);
                 return "";

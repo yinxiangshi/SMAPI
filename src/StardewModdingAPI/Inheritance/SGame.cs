@@ -913,11 +913,17 @@ namespace StardewModdingAPI.Inheritance
             // raise menu changed
             if (Game1.activeClickableMenu != this.PreviousActiveMenu)
             {
+                // raise events
+                IClickableMenu previousMenu = this.PreviousActiveMenu;
+                IClickableMenu newMenu = Game1.activeClickableMenu;
                 if (Game1.activeClickableMenu != null)
-                    MenuEvents.InvokeMenuChanged(this.Monitor, this.PreviousActiveMenu, Game1.activeClickableMenu);
+                    MenuEvents.InvokeMenuChanged(this.Monitor, previousMenu, newMenu);
                 else
-                    MenuEvents.InvokeMenuClosed(this.Monitor, this.PreviousActiveMenu);
-                this.PreviousActiveMenu = Game1.activeClickableMenu;
+                    MenuEvents.InvokeMenuClosed(this.Monitor, previousMenu);
+
+                // update previous menu
+                // (if the menu was changed in one of the handlers, deliberately defer detection until the next update so mods can be notified of the new menu change)
+                this.PreviousActiveMenu = newMenu;
             }
 
             // raise location list changed

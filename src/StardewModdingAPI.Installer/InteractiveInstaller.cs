@@ -55,7 +55,8 @@ namespace StardewModdingApi.Installer
         {
             // common
             "StardewModdingAPI.exe",
-            "StardewModdingAPI-settings.json",
+            "StardewModdingAPI.config.json",
+            "StardewModdingAPI.data.json",
             "StardewModdingAPI.AssemblyRewriters.dll",
             "steam_appid.txt",
 
@@ -72,7 +73,8 @@ namespace StardewModdingApi.Installer
             "StardewModdingAPI.pdb",
 
             // obsolete
-            "Mods/.cache"
+            "Mods/.cache", // 1.3-1.4
+            "StardewModdingAPI-settings.json" // 1.0-1.4
         };
 
 
