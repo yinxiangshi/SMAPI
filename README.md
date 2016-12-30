@@ -14,6 +14,7 @@ your game files.
   * [Preparing a release](#preparing-a-release)
 * [Advanced usage](#advanced-usage)
   * [Configuration file](#configuration-file)
+  * [Command-line arguments](#command-line-arguments)
 
 ## For players
 * [How to install SMAPI & use mods](http://canimod.com/guides/using-mods#installing-smapi)
@@ -121,3 +122,11 @@ field | purpose
 ----- | -------
 `DeveloperMode` | Default `false` (except in _SMAPI for developers_ releases). Whether to enable features intended for mod developers. Currently this only makes `TRACE`-level messages appear in the console.
 `CheckForUpdates` | Default `true`. Whether SMAPI should check for a newer version when you load the game. If a new version is available, a small message will appear in the console. This doesn't affect the load time even if your connection is offline or slow, because it happens in the background.
+
+### Command-line arguments
+SMAPI recognises the following command-line arguments. These are intended for internal use and may
+change without warning.
+
+argument | purpose
+-------- | -------
+`--no-terminal` | SMAPI won't write anything to the console window. (Messages will still be written to the log file.)

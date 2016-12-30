@@ -93,12 +93,14 @@ namespace StardewModdingAPI
         ** Public methods
         *********/
         /// <summary>The main entry point which hooks into and launches the game.</summary>
-        private static void Main()
+        /// <param name="args">The command-line arguments.</param>
+        private static void Main(string[] args)
         {
-            // set thread culture for consistent log formatting
-            Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");
+            // set log options
+            Program.Monitor.WriteToConsole = !args.Contains("--no-terminal");
+            Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB"); // for consistent log formatting
 
-            // add info header
+            // add info headers
             Program.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Game1.version} on {Environment.OSVersion}", LogLevel.Info);
 
             // initialise user settings
@@ -123,6 +125,8 @@ namespace StardewModdingAPI
             }
             if (!Program.Settings.CheckForUpdates)
                 Program.Monitor.Log($"You configured SMAPI to not check for updates. Running an old version of SMAPI is not recommended. You can enable update checks by editing or deleting {Constants.ApiConfigPath}.", LogLevel.Warn);
+            if (!Program.Monitor.WriteToConsole)
+                Program.Monitor.Log($"Writing to the terminal is disabled because the --no-terminal argument was received. This usually means launching the terminal failed.", LogLevel.Warn);
 
             // initialise legacy log
             Log.Monitor = Program.GetSecondaryMonitor("legacy mod");
@@ -595,7 +599,7 @@ namespace StardewModdingAPI
         /// <param name="name">The name of the module which will log messages with this instance.</param>
         private static Monitor GetSecondaryMonitor(string name)
         {
-            return new Monitor(name, Program.LogFile) { ShowTraceInConsole = Program.Settings.DeveloperMode };
+            return new Monitor(name, Program.LogFile) { WriteToConsole = Program.Monitor.WriteToConsole, ShowTraceInConsole = Program.Settings.DeveloperMode };
         }
     }
 }
