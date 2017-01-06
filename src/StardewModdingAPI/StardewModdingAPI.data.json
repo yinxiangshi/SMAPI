@@ -27,7 +27,6 @@ This file contains advanced metadata for SMAPI. You shouldn't change this file.
     "Name": "CJB Cheats Menu",
     "Version": "1.12",
     "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/4",
-    "UnofficialUpdateUrl": "http://community.playstarbound.com/threads/125031",
     "ForceCompatibleVersion": "^1.12-EntoPatch"
   },
   {
@@ -35,7 +34,6 @@ This file contains advanced metadata for SMAPI. You shouldn't change this file.
     "Name": "CJB Item Spawner",
     "Version": "1.5",
     "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/93",
-    "UnofficialUpdateUrl": "http://community.playstarbound.com/threads/125031",
     "ForceCompatibleVersion": "^1.5-EntoPatch"
   }
 ]
