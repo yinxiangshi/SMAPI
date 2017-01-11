@@ -1,5 +1,13 @@
 # Release notes
 
+## 1.6 (upcoming)
+See [log](https://github.com/Pathoschild/SMAPI/compare/stable...develop).
+
+For players:
+* Fixed issue where the installer couldn't find the game for some players on 32-bit Windows.
+* Fixed issue where SMAPI couldn't be launched from Steam for some Linux players.
+* Updated list of incompatible mods.
+
 ## 1.5
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.4...1.5).
 
