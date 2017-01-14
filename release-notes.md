@@ -6,7 +6,8 @@ See [log](https://github.com/Pathoschild/SMAPI/compare/stable...develop).
 For players:
 * Fixed issue where the installer couldn't find the game for some players on 32-bit Windows.
 * Fixed issue where SMAPI couldn't be launched from Steam for some Linux players.
-* Fixed error loading mods if they have a `.cache` folder created on a different platform.
+* Fixed issue where values in `config.json` were duplicated in some cases.
+* Fixed error loading mods that were released with a `.cache` folder from a different platform.
 * Updated list of incompatible mods.
 
 For mod developers:
