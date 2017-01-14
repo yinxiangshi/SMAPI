@@ -133,12 +133,12 @@ namespace StardewModdingAPI.Framework
         {
             try
             {
-                Console.ResetColor();
+                Console.ForegroundColor = Console.ForegroundColor;
                 return true;
             }
             catch (Exception)
             {
-                return false;
+                return false; // Mono bug
             }
         }
     }
