@@ -402,7 +402,7 @@ namespace StardewModdingAPI
                 {
                     if (!compatibility.IsCompatible(manifest.Version))
                     {
-                        string warning = $"Skipped {compatibility.Name} ≤v{compatibility.Version} because this version is not compatible with the latest version of the game. Please check for a newer version of the mod here:";
+                        string warning = $"Skipped {compatibility.Name} {manifest.Version} because this version is not compatible with the latest version of the game. Please check for a newer version of the mod here:";
                         if (!string.IsNullOrWhiteSpace(compatibility.UpdateUrl))
                             warning += $"{Environment.NewLine}- official mod: {compatibility.UpdateUrl}";
                         if (!string.IsNullOrWhiteSpace(compatibility.UnofficialUpdateUrl))

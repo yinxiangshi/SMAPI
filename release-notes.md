@@ -8,6 +8,9 @@ For players:
 * Fixed issue where SMAPI couldn't be launched from Steam for some Linux players.
 * Updated list of incompatible mods.
 
+For SMAPI developers:
+  * Added support for specifying a lower bound in mod incompatibility data.
+
 ## 1.5
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.4...1.5).
 
