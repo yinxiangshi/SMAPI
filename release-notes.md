@@ -4,6 +4,7 @@
 See [log](https://github.com/Pathoschild/SMAPI/compare/stable...develop).
 
 For players:
+* Added console commands to open the game & data folders in the system's file browser.
 * Fixed issue where the installer couldn't find the game for some players on 32-bit Windows.
 * Fixed issue where SMAPI couldn't be launched from Steam for some Linux players.
 * Fixed issue where values in `config.json` were duplicated in some cases.

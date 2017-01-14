@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
@@ -108,6 +109,9 @@ namespace TrainerMod
             Command.RegisterCommand("world_setseason", "Sets the season to the specified value | world_setseason <value>", new[] { "(winter, spring, summer, fall)<value> The target season" }).CommandFired += this.HandleWorldSetSeason;
             Command.RegisterCommand("world_downminelevel", "Goes down one mine level? | world_downminelevel", new[] { "" }).CommandFired += this.HandleWorldDownMineLevel;
             Command.RegisterCommand("world_setminelevel", "Sets mine level? | world_setminelevel", new[] { "(Int32)<value> The target level" }).CommandFired += this.HandleWorldSetMineLevel;
+
+            Command.RegisterCommand("show_game_files", "Opens the game folder. | show_game_files").CommandFired += this.HandleShowGameFiles;
+            Command.RegisterCommand("show_data_files", "Opens the folder containing the save and log files. | show_data_files").CommandFired += this.HandleShowDataFiles;
         }
 
         /****
@@ -693,6 +697,22 @@ namespace TrainerMod
             }
             else
                 this.LogValueNotSpecified();
+        }
+
+        /// <summary>The event raised when the 'show_game_files' command is triggered.</summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event arguments.</param>
+        private void HandleShowGameFiles(object sender, EventArgsCommand e)
+        {
+            Process.Start(Constants.ExecutionPath);
+        }
+
+        /// <summary>The event raised when the 'show_data_files' command is triggered.</summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event arguments.</param>
+        private void HandleShowDataFiles(object sender, EventArgsCommand e)
+        {
+            Process.Start(Constants.DataPath);
         }
 
         /****
