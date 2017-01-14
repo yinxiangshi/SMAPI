@@ -29,6 +29,10 @@ namespace StardewModdingAPI.Framework.Models
         /// <summary>A regular expression matching version strings to consider compatible, even if they technically precede <see cref="UpperVersion"/>.</summary>
         public string ForceCompatibleVersion { get; set; }
 
+        /// <summary>The reason phrase to show in the warning, or <c>null</c> to use the default value.</summary>
+        /// <example>"this version is incompatible with the latest version of the game"</example>
+        public string ReasonPhrase { get; set; }
+
 
         /*********
         ** Public methods
