@@ -6,6 +6,7 @@ This file contains advanced metadata for SMAPI. You shouldn't change this file.
 
 */
 [
+  /* versions not compatible with Stardew Valley 1.1+ */
   {
     "ID": "SPDSprinklersMod",
     "Name": "Better Sprinklers",
@@ -35,5 +36,15 @@ This file contains advanced metadata for SMAPI. You shouldn't change this file.
     "UpperVersion": "1.5",
     "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/93",
     "ForceCompatibleVersion": "^1.5-EntoPatch"
+  },
+
+  /* versions which crash the game */
+  {
+    "ID": "NPCMapLocationsMod",
+    "Name": "NPC Map Locations",
+    "LowerVersion": "1.43",
+    "UpperVersion": "1.43",
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/239",
+    "ReasonPhrase": "this version has an update check error which crashes the game"
   }
 ]
