@@ -77,6 +77,9 @@ namespace StardewModdingApi.Installer
             "StardewModdingAPI-settings.json" // 1.0-1.4
         };
 
+        /// <summary>Whether the current console supports color formatting.</summary>
+        private static readonly bool ConsoleSupportsColor = InteractiveInstaller.GetConsoleSupportsColor();
+
 
         /*********
         ** Public methods
@@ -253,18 +256,18 @@ namespace StardewModdingApi.Installer
             /****
             ** exit
             ****/
-            Console.ForegroundColor = ConsoleColor.DarkGreen;
-            Console.WriteLine("Done!");
+            this.PrintColor("Done!", ConsoleColor.DarkGreen);
             if (platform == Platform.Windows)
             {
-                Console.WriteLine(action == ScriptAction.Install
-                    ? "Don't forget to launch StardewModdingAPI.exe instead of the normal game executable. See the readme.txt for details."
-                    : "If you manually changed shortcuts or Steam to launch SMAPI, don't forget to change those back."
+                this.PrintColor(
+                    action == ScriptAction.Install
+                        ? "Don't forget to launch StardewModdingAPI.exe instead of the normal game executable. See the readme.txt for details."
+                        : "If you manually changed shortcuts or Steam to launch SMAPI, don't forget to change those back.",
+                    ConsoleColor.DarkGreen
                 );
             }
             else if (action == ScriptAction.Install)
-                Console.WriteLine("You can launch the game the same way as before to play with mods.");
-            Console.ResetColor();
+                this.PrintColor("You can launch the game the same way as before to play with mods.", ConsoleColor.DarkGreen);
             Console.ReadKey();
         }
 
@@ -287,6 +290,20 @@ namespace StardewModdingApi.Installer
             }
         }
 
+        /// <summary>Test whether the current console supports color formatting.</summary>
+        private static bool GetConsoleSupportsColor()
+        {
+            try
+            {
+                Console.ResetColor();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
 #if SMAPI_FOR_WINDOWS
         /// <summary>Get the value of a key in the Windows registry.</summary>
         /// <param name="key">The full path of the registry key relative to HKLM.</param>
@@ -306,28 +323,37 @@ namespace StardewModdingApi.Installer
         /// <param name="text">The text to print.</param>
         private void PrintDebug(string text)
         {
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.WriteLine(text);
-            Console.ResetColor();
+            this.PrintColor(text, ConsoleColor.DarkGray);
         }
 
         /// <summary>Print a warning message.</summary>
         /// <param name="text">The text to print.</param>
         private void PrintWarning(string text)
         {
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.WriteLine(text);
-            Console.ResetColor();
+            this.PrintColor(text, ConsoleColor.DarkYellow);
         }
 
         /// <summary>Print an error and pause the console if needed.</summary>
         /// <param name="error">The error text.</param>
         private void ExitError(string error)
         {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(error);
-            Console.ResetColor();
+            this.PrintColor(error, ConsoleColor.Red);
             Console.ReadLine();
+        }
+
+        /// <summary>Print a message to the console.</summary>
+        /// <param name="text">The message text.</param>
+        /// <param name="color">The text foreground color.</param>
+        private void PrintColor(string text, ConsoleColor color)
+        {
+            if (InteractiveInstaller.ConsoleSupportsColor)
+            {
+                Console.ForegroundColor = color;
+                Console.WriteLine(text);
+                Console.ResetColor();
+            }
+            else
+                Console.WriteLine(text);
         }
 
         /// <summary>Interactively ask the user to choose a value.</summary>

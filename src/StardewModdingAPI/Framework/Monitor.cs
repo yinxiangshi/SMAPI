@@ -34,6 +34,9 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Accessors
         *********/
+        /// <summary>Whether the current console supports color codes.</summary>
+        internal static readonly bool ConsoleSupportsColor = Monitor.GetConsoleSupportsColor();
+
         /// <summary>Whether to show trace messages in the console.</summary>
         internal bool ShowTraceInConsole { get; set; }
 
@@ -113,11 +116,30 @@ namespace StardewModdingAPI.Framework
             // log
             if (this.WriteToConsole && (this.ShowTraceInConsole || level != LogLevel.Trace))
             {
-                Console.ForegroundColor = color;
-                Console.WriteLine(message);
-                Console.ResetColor();
+                if (Monitor.ConsoleSupportsColor)
+                {
+                    Console.ForegroundColor = color;
+                    Console.WriteLine(message);
+                    Console.ResetColor();
+                }
+                else
+                    Console.WriteLine(message);
             }
             this.LogFile.WriteLine(message);
+        }
+
+        /// <summary>Test whether the current console supports color formatting.</summary>
+        private static bool GetConsoleSupportsColor()
+        {
+            try
+            {
+                Console.ResetColor();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
     }
 }

@@ -9,6 +9,7 @@ For players:
 * Fixed issue where SMAPI couldn't be launched from Steam for some Linux players.
 * Fixed issue where values in `config.json` were duplicated in some cases.
 * Fixed error loading mods that were released with a `.cache` folder from a different platform.
+* Fixed error when the console doesn't support colour.
 * Updated list of incompatible mods.
 
 For mod developers:

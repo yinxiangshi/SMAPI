@@ -42,9 +42,14 @@ namespace StardewModdingAPI
             string output = $"[{message.LogTime}] {message.Message}";
             if (message.PrintConsole)
             {
-                Console.ForegroundColor = message.Colour;
-                Console.WriteLine(message);
-                Console.ForegroundColor = ConsoleColor.Gray;
+                if (Monitor.ConsoleSupportsColor)
+                {
+                    Console.ForegroundColor = message.Colour;
+                    Console.WriteLine(message);
+                    Console.ResetColor();
+                }
+                else
+                    Console.WriteLine(message);
             }
             this.LogFile.WriteLine(output);
         }
