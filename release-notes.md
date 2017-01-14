@@ -8,6 +8,9 @@ For players:
 * Fixed issue where SMAPI couldn't be launched from Steam for some Linux players.
 * Updated list of incompatible mods.
 
+For mod developers:
+* Fixed error when reading a custom JSON file from a directory that doesn't exist.
+
 For SMAPI developers:
   * Added support for specifying a lower bound in mod incompatibility data.
   * Added support for custom incompatible-mod-version error text.

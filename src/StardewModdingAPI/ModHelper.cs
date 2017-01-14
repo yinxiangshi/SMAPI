@@ -76,11 +76,7 @@ namespace StardewModdingAPI
             {
                 json = File.ReadAllText(fullPath);
             }
-            catch (FileNotFoundException)
-            {
-                return null;
-            }
-            catch (DirectoryNotFoundException)
+            catch (Exception ex) when (ex is DirectoryNotFoundException || ex is FileNotFoundException)
             {
                 return null;
             }
