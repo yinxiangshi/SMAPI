@@ -42,7 +42,7 @@ This file contains advanced metadata for SMAPI. You shouldn't change this file.
   {
     "ID": "NPCMapLocationsMod",
     "Name": "NPC Map Locations",
-    "LowerVersion": "1.43",
+    "LowerVersion": "1.42",
     "UpperVersion": "1.43",
     "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/239",
     "ReasonPhrase": "this version has an update check error which crashes the game"
