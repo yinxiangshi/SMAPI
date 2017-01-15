@@ -913,10 +913,17 @@ namespace StardewModdingAPI.Inheritance
             // raise menu changed
             if (Game1.activeClickableMenu != this.PreviousActiveMenu)
             {
-                // raise events
                 IClickableMenu previousMenu = this.PreviousActiveMenu;
                 IClickableMenu newMenu = Game1.activeClickableMenu;
-                if (Game1.activeClickableMenu != null)
+
+                // raise save events
+                if (newMenu is SaveGameMenu)
+                    SaveEvents.InvokeBeforeSave(this.Monitor);
+                else if (previousMenu is SaveGameMenu)
+                    SaveEvents.InvokeAfterSave(this.Monitor);
+
+                // raise menu events
+                if (newMenu != null)
                     MenuEvents.InvokeMenuChanged(this.Monitor, previousMenu, newMenu);
                 else
                     MenuEvents.InvokeMenuClosed(this.Monitor, previousMenu);
@@ -1024,6 +1031,7 @@ namespace StardewModdingAPI.Inheritance
             // raise player loaded save (in the following tick to let the game finish updating first)
             if (this.FireLoadedGameEvent)
             {
+                SaveEvents.InvokeAfterLoad(this.Monitor);
                 PlayerEvents.InvokeLoadedGame(this.Monitor, new EventArgsLoadedGameChanged(Game1.hasLoadedGame));
                 this.FireLoadedGameEvent = false;
             }
