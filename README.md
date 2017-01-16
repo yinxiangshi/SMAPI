@@ -57,20 +57,20 @@ folder containing `src`).
 
    build type | format                            | example
    :--------- | :-------------------------------- | :------
-   dev build  | `<version>-alpha-<timestamp>`     | `1.0.0-alpha-201611300500`
-   beta       | `<version>-beta<incrementing ID>` | `1.0.0-beta2`
+   dev build  | `<version>-alpha.<timestamp>`     | `1.0.0-alpha.20171230`
+   beta       | `<version>-beta.<incrementing ID>`| `1.0.0-beta`, `1.0.0-beta.2`, …
    release    | `<version>`                       | `1.0.0`
 
 2. In Windows:
    1. Rebuild the solution in _Release_ mode.
-   2. Rename `bin/Packaged` to `SMAPI-<version>` (e.g. `SMAPI-1.0`).
-   2. Transfer the `SMAPI-<version>` folder to Linux or Mac.  
+   2. Rename `bin/Packaged` to `SMAPI <version>` (e.g. `SMAPI 1.6`).
+   2. Transfer the `SMAPI <version>` folder to Linux or Mac.  
       _This adds the installer executable and Windows files. We'll do the rest in Linux or Mac,
       since we need to set Unix file permissions that Windows won't save._
 
 2. In Linux or Mac:
    1. Rebuild the solution in _Release_ mode.
-   2. Copy `bin/Packaged/Mono` into the `SMAPI-<version>` folder.
+   2. Copy `bin/Packaged/Mono` into the `SMAPI <version>` folder.
    3. If you did everything right so far, you should have a folder like this:
 
       ```
@@ -104,13 +104,13 @@ folder containing `src`).
          install.exe
          readme.txt
       ```
-   4. Open a terminal in the `SMAPI-<version>` folder and run `chmod 755 Mono/StardewModdingAPI`.
-   5. Copy & paste the `SMAPI-<version>` folder as `SMAPI-<version>-for-developers`.
-   6. In the `SMAPI-<version>` folder, delete the following files:
+   4. Open a terminal in the `SMAPI <version>` folder and run `chmod 755 Mono/StardewModdingAPI`.
+   5. Copy & paste the `SMAPI <version>` folder as `SMAPI <version> for developers`.
+   6. In the `SMAPI <version>` folder, delete the following files:
       * `Mono/StardewModdingAPI.config.json`
       * `Windows/StardewModdingAPI.config.json`
       * `Windows/StardewModdingAPI.xml`
-   7. Compress the two folders into `SMAPI-<version>.zip` and `SMAPI-<version>-for-developers.zip`.
+   7. Compress the two folders into `SMAPI <version>.zip` and `SMAPI <version> for developers.zip`.
 
 ## Advanced usage
 ### Configuration file
