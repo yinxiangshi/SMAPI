@@ -22,6 +22,7 @@ namespace StardewModdingAPI.Events
         public static event EventHandler<EventArgsStringChanged> SeasonOfYearChanged;
 
         /// <summary>Raised when the player is transitioning to a new day and the game is performing its day update logic. This event is triggered twice: once after the game starts transitioning, and again after it finishes.</summary>
+        [Obsolete("Use " + nameof(TimeEvents) + "." + nameof(DayOfMonthChanged) + " or " + nameof(SaveEvents) + " instead")]
         public static event EventHandler<EventArgsNewDay> OnNewDay;
 
 
@@ -71,7 +72,14 @@ namespace StardewModdingAPI.Events
         /// <param name="isTransitioning">Whether the game just started the transition (<c>true</c>) or finished it (<c>false</c>).</param>
         internal static void InvokeOnNewDay(IMonitor monitor, int priorDay, int newDay, bool isTransitioning)
         {
-            monitor.SafelyRaiseGenericEvent($"{nameof(TimeEvents)}.{nameof(TimeEvents.OnNewDay)}", TimeEvents.OnNewDay?.GetInvocationList(), null, new EventArgsNewDay(priorDay, newDay, isTransitioning));
+            if (TimeEvents.OnNewDay == null)
+                return;
+
+            string name = $"{nameof(TimeEvents)}.{nameof(TimeEvents.OnNewDay)}";
+            Delegate[] handlers = TimeEvents.OnNewDay.GetInvocationList();
+
+            Program.DeprecationManager.WarnForEvent(handlers, name, "1.6", DeprecationLevel.Notice);
+            monitor.SafelyRaiseGenericEvent(name, handlers, null, new EventArgsNewDay(priorDay, newDay, isTransitioning));
         }
     }
 }

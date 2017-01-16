@@ -36,6 +36,34 @@ namespace StardewModdingAPI.Framework
             return (from mod in this.Mods select mod);
         }
 
+        /// <summary>Get the friendly mod name which handles a delegate.</summary>
+        /// <param name="delegate">The delegate to follow.</param>
+        /// <returns>Returns the mod name, or <c>null</c> if the delegate isn't implemented by a known mod.</returns>
+        public string GetModFrom(Delegate @delegate)
+        {
+            return @delegate?.Target != null
+                ? this.GetModFrom(@delegate.Target.GetType())
+                : null;
+        }
+
+        /// <summary>Get the friendly mod name which defines a type.</summary>
+        /// <param name="type">The type to check.</param>
+        /// <returns>Returns the mod name, or <c>null</c> if the type isn't part of a known mod.</returns>
+        public string GetModFrom(Type type)
+        {
+            // null
+            if (type == null)
+                return null;
+
+            // known type
+            string assemblyName = type.Assembly.FullName;
+            if (this.ModNamesByAssembly.ContainsKey(assemblyName))
+                return this.ModNamesByAssembly[assemblyName];
+
+            // not found
+            return null;
+        }
+
         /// <summary>Get the friendly name for the closest assembly registered as a source of deprecation warnings.</summary>
         /// <returns>Returns the source name, or <c>null</c> if no registered assemblies were found.</returns>
         public string GetModFromStack()
@@ -49,16 +77,10 @@ namespace StardewModdingAPI.Framework
             // search stack for a source assembly
             foreach (StackFrame frame in frames)
             {
-                // get assembly name
                 MethodBase method = frame.GetMethod();
-                Type type = method.ReflectedType;
-                if (type == null)
-                    continue;
-                string assemblyName = type.Assembly.FullName;
-
-                // get name if it's a registered source
-                if (this.ModNamesByAssembly.ContainsKey(assemblyName))
-                    return this.ModNamesByAssembly[assemblyName];
+                string name = this.GetModFrom(method.ReflectedType);
+                if (name != null)
+                    return name;
             }
 
             // no known assembly found

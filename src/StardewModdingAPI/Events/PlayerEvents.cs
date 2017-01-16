@@ -14,9 +14,11 @@ namespace StardewModdingAPI.Events
         ** Events
         *********/
         /// <summary>Raised after the player loads a saved game.</summary>
+        [Obsolete("Use " + nameof(SaveEvents) + "." + nameof(SaveEvents.AfterLoad) + " instead")]
         public static event EventHandler<EventArgsLoadedGameChanged> LoadedGame;
 
         /// <summary>Raised after the game assigns a new player character. This happens just before <see cref="LoadedGame"/>; it's unclear how this would happen any other time.</summary>
+        [Obsolete("should no longer be used")]
         public static event EventHandler<EventArgsFarmerChanged> FarmerChanged;
 
         /// <summary>Raised after the player's inventory changes in any way (added or removed item, sorted, etc).</summary>
@@ -34,7 +36,14 @@ namespace StardewModdingAPI.Events
         /// <param name="loaded">Whether the save has been loaded. This is always true.</param>
         internal static void InvokeLoadedGame(IMonitor monitor, EventArgsLoadedGameChanged loaded)
         {
-            monitor.SafelyRaiseGenericEvent($"{nameof(PlayerEvents)}.{nameof(PlayerEvents.LoadedGame)}", PlayerEvents.LoadedGame?.GetInvocationList(), null, loaded);
+            if (PlayerEvents.LoadedGame == null)
+                return;
+
+            string name = $"{nameof(PlayerEvents)}.{nameof(PlayerEvents.LoadedGame)}";
+            Delegate[] handlers = PlayerEvents.LoadedGame.GetInvocationList();
+
+            Program.DeprecationManager.WarnForEvent(handlers, name, "1.6", DeprecationLevel.Notice);
+            monitor.SafelyRaiseGenericEvent(name, handlers, null, loaded);
         }
 
         /// <summary>Raise a <see cref="FarmerChanged"/> event.</summary>
@@ -43,7 +52,14 @@ namespace StardewModdingAPI.Events
         /// <param name="newFarmer">The new player character.</param>
         internal static void InvokeFarmerChanged(IMonitor monitor, Farmer priorFarmer, Farmer newFarmer)
         {
-            monitor.SafelyRaiseGenericEvent($"{nameof(PlayerEvents)}.{nameof(PlayerEvents.FarmerChanged)}", PlayerEvents.FarmerChanged?.GetInvocationList(), null, new EventArgsFarmerChanged(priorFarmer, newFarmer));
+            if (PlayerEvents.FarmerChanged == null)
+                return;
+
+            string name = $"{nameof(PlayerEvents)}.{nameof(PlayerEvents.FarmerChanged)}";
+            Delegate[] handlers = PlayerEvents.FarmerChanged.GetInvocationList();
+
+            Program.DeprecationManager.WarnForEvent(handlers, name, "1.6", DeprecationLevel.Notice);
+            monitor.SafelyRaiseGenericEvent(name, handlers, null, new EventArgsFarmerChanged(priorFarmer, newFarmer));
         }
 
         /// <summary>Raise an <see cref="InventoryChanged"/> event.</summary>

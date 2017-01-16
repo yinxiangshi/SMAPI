@@ -13,6 +13,11 @@ For players:
 * Updated list of incompatible mods.
 
 For mod developers:
+* Added three events: `SaveEvents.BeforeSave`, `SaveEvents.AfterSave`, and `SaveEvents.AfterLoad`.
+* Deprecated three events:
+  * `TimeEvents.OnNewDay` is unreliable, use `TimeEvents.DayOfMonthChanged` or `SaveEvents` instead;
+  * `PlayerEvents.LoadedGame` is replaced by `SaveEvents.AfterLoad`;
+  * `PlayerEvents.FarmerChanged` serves no purpose.
 * Fixed error when reading a custom JSON file from a directory that doesn't exist.
 
 For SMAPI developers:
