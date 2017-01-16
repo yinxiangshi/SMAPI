@@ -93,12 +93,14 @@ namespace StardewModdingAPI
         ** Public methods
         *********/
         /// <summary>The main entry point which hooks into and launches the game.</summary>
-        private static void Main()
+        /// <param name="args">The command-line arguments.</param>
+        private static void Main(string[] args)
         {
-            // set thread culture for consistent log formatting
-            Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");
+            // set log options
+            Program.Monitor.WriteToConsole = !args.Contains("--no-terminal");
+            Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB"); // for consistent log formatting
 
-            // add info header
+            // add info headers
             Program.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Game1.version} on {Environment.OSVersion}", LogLevel.Info);
 
             // initialise user settings
@@ -123,9 +125,11 @@ namespace StardewModdingAPI
             }
             if (!Program.Settings.CheckForUpdates)
                 Program.Monitor.Log($"You configured SMAPI to not check for updates. Running an old version of SMAPI is not recommended. You can enable update checks by editing or deleting {Constants.ApiConfigPath}.", LogLevel.Warn);
+            if (!Program.Monitor.WriteToConsole)
+                Program.Monitor.Log($"Writing to the terminal is disabled because the --no-terminal argument was received. This usually means launching the terminal failed.", LogLevel.Warn);
 
             // initialise legacy log
-            Log.Monitor = new Monitor("legacy mod", Program.LogFile) { ShowTraceInConsole = Program.Settings.DeveloperMode };
+            Log.Monitor = Program.GetSecondaryMonitor("legacy mod");
             Log.ModRegistry = Program.ModRegistry;
 
             // hook into & launch the game
@@ -183,7 +187,7 @@ namespace StardewModdingAPI
         internal static IMonitor GetLegacyMonitorForMod()
         {
             string modName = Program.ModRegistry.GetModFromStack() ?? "unknown";
-            return new Monitor(modName, Program.LogFile);
+            return Program.GetSecondaryMonitor(modName);
         }
 
 
@@ -398,7 +402,8 @@ namespace StardewModdingAPI
                 {
                     if (!compatibility.IsCompatible(manifest.Version))
                     {
-                        string warning = $"Skipped {compatibility.Name} ≤v{compatibility.Version} because this version is not compatible with the latest version of the game. Please check for a newer version of the mod here:";
+                        string reasonPhrase = compatibility.ReasonPhrase ?? "this version is not compatible with the latest version of the game";
+                        string warning = $"Skipped {compatibility.Name} {manifest.Version} because {reasonPhrase}. Please check for a newer version of the mod here:";
                         if (!string.IsNullOrWhiteSpace(compatibility.UpdateUrl))
                             warning += $"{Environment.NewLine}- official mod: {compatibility.UpdateUrl}";
                         if (!string.IsNullOrWhiteSpace(compatibility.UnofficialUpdateUrl))
@@ -518,7 +523,7 @@ namespace StardewModdingAPI
                     // inject data
                     mod.ModManifest = manifest;
                     mod.Helper = helper;
-                    mod.Monitor = new Monitor(manifest.Name, Program.LogFile) { ShowTraceInConsole = Program.Settings.DeveloperMode };
+                    mod.Monitor = Program.GetSecondaryMonitor(manifest.Name);
                     mod.PathOnDisk = directory;
 
                     // track mod
@@ -589,6 +594,13 @@ namespace StardewModdingAPI
             Thread.Sleep(100);
             Console.ReadKey();
             Environment.Exit(0);
+        }
+
+        /// <summary>Get a monitor instance derived from SMAPI's current settings.</summary>
+        /// <param name="name">The name of the module which will log messages with this instance.</param>
+        private static Monitor GetSecondaryMonitor(string name)
+        {
+            return new Monitor(name, Program.LogFile) { WriteToConsole = Program.Monitor.WriteToConsole, ShowTraceInConsole = Program.Settings.DeveloperMode };
         }
     }
 }

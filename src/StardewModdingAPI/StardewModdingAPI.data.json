@@ -6,18 +6,19 @@ This file contains advanced metadata for SMAPI. You shouldn't change this file.
 
 */
 [
+  /* versions not compatible with Stardew Valley 1.1+ */
   {
     "ID": "SPDSprinklersMod",
     "Name": "Better Sprinklers",
-    "Version": "2.1",
+    "UpperVersion": "2.1",
     "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/41",
     "UnofficialUpdateUrl": "http://community.playstarbound.com/threads/125031",
-    "ForceCompatibleVersion": "^2.1-EntoPatch" 
+    "ForceCompatibleVersion": "^2.1-EntoPatch"
   },
   {
     "ID": "SPDChestLabel",
     "Name": "Chest Label System",
-    "Version": "1.5",
+    "UpperVersion": "1.5",
     "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/242",
     "UnofficialUpdateUrl": "http://community.playstarbound.com/threads/125031",
     "ForceCompatibleVersion": "^1.5-EntoPatch"
@@ -25,17 +26,25 @@ This file contains advanced metadata for SMAPI. You shouldn't change this file.
   {
     "ID": "CJBCheatsMenu",
     "Name": "CJB Cheats Menu",
-    "Version": "1.12",
+    "UpperVersion": "1.12",
     "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/4",
-    "UnofficialUpdateUrl": "http://community.playstarbound.com/threads/125031",
     "ForceCompatibleVersion": "^1.12-EntoPatch"
   },
   {
     "ID": "CJBItemSpawner",
     "Name": "CJB Item Spawner",
-    "Version": "1.5",
+    "UpperVersion": "1.5",
     "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/93",
-    "UnofficialUpdateUrl": "http://community.playstarbound.com/threads/125031",
     "ForceCompatibleVersion": "^1.5-EntoPatch"
+  },
+
+  /* versions which crash the game */
+  {
+    "ID": "NPCMapLocationsMod",
+    "Name": "NPC Map Locations",
+    "LowerVersion": "1.42",
+    "UpperVersion": "1.43",
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/239",
+    "ReasonPhrase": "this version has an update check error which crashes the game"
   }
 ]

@@ -8,6 +8,7 @@ namespace StardewModdingAPI
     internal class ManifestImpl : Manifest, IManifest
     {
         /// <summary>The mod version.</summary>
+        [JsonProperty("Version", ObjectCreationHandling = ObjectCreationHandling.Auto/* avoids issue where Json.NET can't determine concrete type for interface */)]
         public new ISemanticVersion Version
         {
             get { return base.Version; }

@@ -1,5 +1,30 @@
 # Release notes
 
+## 1.6
+See [log](https://github.com/Pathoschild/SMAPI/compare/1.5...1.6).
+
+For players:
+* Added console commands to open the game/data folders.
+* Updated list of incompatible mods.
+* Fixed `config.json` values being duplicated in some cases.
+* Fixed some Linux users not being able to launch SMAPI from Steam.
+* Fixed the installer not finding custom install paths on 32-bit Windows.
+* Fixed error when loading a mod which was released with a `.cache` folder for a different platform.
+* Fixed error when the console doesn't support colour.
+* Fixed error when a mod reads a custom JSON file from a directory that doesn't exist.
+
+For mod developers:
+* Added three events: `SaveEvents.BeforeSave`, `SaveEvents.AfterSave`, and `SaveEvents.AfterLoad`.
+* Deprecated three events:
+  * `TimeEvents.OnNewDay` is unreliable; use `TimeEvents.DayOfMonthChanged` or `SaveEvents` instead.
+  * `PlayerEvents.LoadedGame` is replaced by `SaveEvents.AfterLoad`.
+  * `PlayerEvents.FarmerChanged` serves no purpose.
+
+For SMAPI developers:
+  * Added support for specifying a lower bound in mod incompatibility data.
+  * Added support for custom incompatible-mod error text.
+  * Fixed issue where `TrainerMod` used older logic to detect the game path.
+
 ## 1.5
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.4...1.5).
 

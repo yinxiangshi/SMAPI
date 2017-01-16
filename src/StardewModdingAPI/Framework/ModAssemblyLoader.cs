@@ -29,6 +29,8 @@ namespace StardewModdingAPI.Framework
         /// <summary>Encapsulates monitoring and logging.</summary>
         private readonly IMonitor Monitor;
 
+        /// <summary>The current game platform.</summary>
+        private readonly Platform TargetPlatform;
 
         /*********
         ** Public methods
@@ -40,6 +42,7 @@ namespace StardewModdingAPI.Framework
         public ModAssemblyLoader(string cacheDirName, Platform targetPlatform, IMonitor monitor)
         {
             this.CacheDirName = cacheDirName;
+            this.TargetPlatform = targetPlatform;
             this.Monitor = monitor;
             this.AssemblyMap = Constants.GetAssemblyMap(targetPlatform);
             this.AssemblyTypeRewriter = new AssemblyTypeRewriter(this.AssemblyMap, monitor);
@@ -58,7 +61,7 @@ namespace StardewModdingAPI.Framework
             CachePaths cachePaths = this.GetCachePaths(assemblyPath);
             {
                 CacheEntry cacheEntry = File.Exists(cachePaths.Metadata) ? JsonConvert.DeserializeObject<CacheEntry>(File.ReadAllText(cachePaths.Metadata)) : null;
-                if (cacheEntry != null && cacheEntry.IsUpToDate(cachePaths, hash, Constants.ApiVersion))
+                if (cacheEntry != null && cacheEntry.IsUpToDate(cachePaths, hash, Constants.ApiVersion, this.TargetPlatform, Environment.MachineName))
                     return new RewriteResult(assemblyPath, cachePaths, assemblyBytes, cacheEntry.Hash, cacheEntry.UseCachedAssembly, isNewerThanCache: false); // no rewrite needed
             }
             this.Monitor.Log($"Preprocessing {Path.GetFileName(assemblyPath)} for compatibility...", LogLevel.Trace);
@@ -99,7 +102,7 @@ namespace StardewModdingAPI.Framework
             // cache all results
             foreach (RewriteResult result in results)
             {
-                CacheEntry cacheEntry = new CacheEntry(result.Hash, Constants.ApiVersion.ToString(), forceCacheAssemblies || result.UseCachedAssembly);
+                CacheEntry cacheEntry = new CacheEntry(result.Hash, Constants.ApiVersion.ToString(), this.TargetPlatform, Environment.MachineName, forceCacheAssemblies || result.UseCachedAssembly);
                 File.WriteAllText(result.CachePaths.Metadata, JsonConvert.SerializeObject(cacheEntry));
                 if (forceCacheAssemblies || result.UseCachedAssembly)
                     File.WriteAllBytes(result.CachePaths.Assembly, result.AssemblyBytes);

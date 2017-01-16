@@ -64,4 +64,12 @@ else
 	else
 		$LAUNCHER
 	fi
+
+	# some Linux users get error 127 (command not found) from the above block, even though
+	# `command -v` indicates the command is valid. As a fallback, launch SMAPI without a terminal when
+	# that happens and pass in an argument indicating SMAPI shouldn't try writing to the terminal
+	# (which can be slow if there is none).
+	if [ $? -eq 127 ]; then
+		$LAUNCHER --no-terminal
+	fi
 fi

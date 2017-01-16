@@ -11,6 +11,17 @@ namespace StardewModdingAPI
     public class ModHelper : IModHelper
     {
         /*********
+        ** Properties
+        *********/
+        /// <summary>The JSON settings to use when serialising and deserialising files.</summary>
+        private readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
+        {
+            Formatting = Formatting.Indented,
+            ObjectCreationHandling = ObjectCreationHandling.Replace // avoid issue where default ICollection<T> values are duplicated each time the config is loaded
+        };
+
+
+        /*********
         ** Accessors
         *********/
         /// <summary>The mod directory path.</summary>
@@ -76,13 +87,13 @@ namespace StardewModdingAPI
             {
                 json = File.ReadAllText(fullPath);
             }
-            catch (FileNotFoundException)
+            catch (Exception ex) when (ex is DirectoryNotFoundException || ex is FileNotFoundException)
             {
                 return null;
             }
 
             // deserialise model
-            TModel model = JsonConvert.DeserializeObject<TModel>(json);
+            TModel model = JsonConvert.DeserializeObject<TModel>(json, this.JsonSettings);
             if (model is IConfigFile)
             {
                 var wrapper = (IConfigFile)model;
@@ -108,7 +119,7 @@ namespace StardewModdingAPI
                 Directory.CreateDirectory(dir);
 
             // write file
-            string json = JsonConvert.SerializeObject(model, Formatting.Indented);
+            string json = JsonConvert.SerializeObject(model, this.JsonSettings);
             File.WriteAllText(path, json);
         }
     }
