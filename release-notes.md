@@ -1,7 +1,7 @@
 # Release notes
 
 ## 1.6
-See [log](https://github.com/Pathoschild/SMAPI/compare/stable...develop).
+See [log](https://github.com/Pathoschild/SMAPI/compare/1.5...1.6).
 
 For players:
 * Added console commands to open the game/data folders.
