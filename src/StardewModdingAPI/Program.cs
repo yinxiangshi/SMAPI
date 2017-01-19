@@ -294,7 +294,7 @@ namespace StardewModdingAPI
             }
             catch (Exception ex)
             {
-                Program.Monitor.Log($"SMAPI encountered a fatal error:\n{ex.GetLogSummary()}", LogLevel.Error);
+                Program.Monitor.Log($"The game encountered a fatal error:\n{ex.GetLogSummary()}", LogLevel.Error);
             }
         }
 
