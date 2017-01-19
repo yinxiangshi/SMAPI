@@ -24,8 +24,9 @@ namespace StardewModdingAPI.Inheritance
         /*********
         ** Properties
         *********/
-        /// <summary>Whether to raise <see cref="PlayerEvents.LoadedGame"/> on the next tick.</summary>
-        private bool FireLoadedGameEvent;
+        /// <summary>The number of ticks until SMAPI should notify mods when <see cref="Game1.hasLoadedGame"/> is set.</summary>
+        /// <remarks>Skipping a few frames ensures the game finishes initialising the world before mods try to change it.</remarks>
+        private int AfterLoadTimer = 5;
 
         /// <summary>The debug messages to add to the next debug output.</summary>
         internal static Queue<string> DebugMessageQueue { get; private set; }
@@ -1028,17 +1029,15 @@ namespace StardewModdingAPI.Inheritance
                 this.PreviousYearOfGame = Game1.year;
             }
 
-            // raise player loaded save (in the following tick to let the game finish updating first)
-            if (this.FireLoadedGameEvent)
+            // raise save loaded
+            if (Game1.hasLoadedGame && this.AfterLoadTimer >= 0)
             {
-                SaveEvents.InvokeAfterLoad(this.Monitor);
-                PlayerEvents.InvokeLoadedGame(this.Monitor, new EventArgsLoadedGameChanged(Game1.hasLoadedGame));
-                this.FireLoadedGameEvent = false;
-            }
-            if (Game1.hasLoadedGame != this.PreviouslyLoadedGame)
-            {
-                this.FireLoadedGameEvent = true;
-                this.PreviouslyLoadedGame = Game1.hasLoadedGame;
+                if (this.AfterLoadTimer == 0)
+                {
+                    SaveEvents.InvokeAfterLoad(this.Monitor);
+                    PlayerEvents.InvokeLoadedGame(this.Monitor, new EventArgsLoadedGameChanged(Game1.hasLoadedGame));
+                }
+                this.AfterLoadTimer--;
             }
 
             // raise mine level changed
