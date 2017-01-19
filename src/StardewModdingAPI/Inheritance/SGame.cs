@@ -935,9 +935,10 @@ namespace StardewModdingAPI.Inheritance
                 IClickableMenu newMenu = Game1.activeClickableMenu;
 
                 // raise save events
-                if (newMenu is SaveGameMenu)
+                // (saving is performed by SaveGameMenu; on days when the player shipping something, ShippingMenu wraps SaveGameMenu)
+                if (newMenu is SaveGameMenu || newMenu is ShippingMenu)
                     SaveEvents.InvokeBeforeSave(this.Monitor);
-                else if (previousMenu is SaveGameMenu)
+                else if (previousMenu is SaveGameMenu || previousMenu is ShippingMenu)
                     SaveEvents.InvokeAfterSave(this.Monitor);
 
                 // raise menu events
