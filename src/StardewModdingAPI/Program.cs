@@ -337,6 +337,7 @@ namespace StardewModdingAPI
             }
 
             // load mod assemblies
+            List<Action> deprecationWarnings = new List<Action>(); // queue up deprecation warnings to show after mod list
             foreach (string directory in Directory.GetDirectories(Program.ModPath))
             {
                 string directoryName = new DirectoryInfo(directory).Name;
@@ -391,7 +392,7 @@ namespace StardewModdingAPI
 
                     // log deprecated fields
                     if (manifest.UsedAuthourField)
-                        Program.DeprecationManager.Warn(manifest.Name, $"{nameof(Manifest)}.{nameof(Manifest.Authour)}", "1.0", DeprecationLevel.Notice);
+                        deprecationWarnings.Add(() => Program.DeprecationManager.Warn(manifest.Name, $"{nameof(Manifest)}.{nameof(Manifest.Authour)}", "1.0", DeprecationLevel.Notice));
                 }
                 catch (Exception ex)
                 {
@@ -439,7 +440,7 @@ namespace StardewModdingAPI
                 // create per-save directory
                 if (manifest.PerSaveConfigs)
                 {
-                    Program.DeprecationManager.Warn(manifest.Name, $"{nameof(Manifest)}.{nameof(Manifest.PerSaveConfigs)}", "1.0", DeprecationLevel.Info);
+                    deprecationWarnings.Add(() => Program.DeprecationManager.Warn(manifest.Name, $"{nameof(Manifest)}.{nameof(Manifest.PerSaveConfigs)}", "1.0", DeprecationLevel.Info));
                     try
                     {
                         string psDir = Path.Combine(directory, "psconfigs");
@@ -540,6 +541,11 @@ namespace StardewModdingAPI
                     continue;
                 }
             }
+
+            // log deprecation warnings
+            foreach (Action warning in deprecationWarnings)
+                warning();
+            deprecationWarnings = null;
 
             // initialise mods
             foreach (Mod mod in Program.ModRegistry.GetMods())

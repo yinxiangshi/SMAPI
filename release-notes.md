@@ -9,6 +9,7 @@ For players:
 For mod developers:
 * Added a mod registry which provides metadata about loaded mods (see `helper.ModRegistry`).
 * `Mod.Entry()` is now only called once all mods have loaded.
+* Deprecation warnings are now logged after the list of loaded mods.
 * Fixed `SaveEvents.BeforeSave` and `SaveEvents.AfterSave` not triggering on days when the player shipped something.
 * Fixed `PlayerEvents.LoadedGame` and `SaveEvents.AfterLoad` being fired before the world finishes initialising.
 * Fixed some `LocationEvents`, `PlayerEvents`, and `TimeEvents` being fired during game startup.
