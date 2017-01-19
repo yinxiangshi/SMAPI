@@ -226,7 +226,7 @@ namespace StardewModdingAPI
                 Program.StardewAssembly = Assembly.UnsafeLoadFrom(Program.GameExecutablePath);
                 Program.StardewProgramType = Program.StardewAssembly.GetType("StardewValley.Program", true);
                 Program.StardewGameInfo = Program.StardewProgramType.GetField("gamePtr");
-                Game1.version += $"-Z_MODDED | SMAPI {Constants.ApiVersion}";
+                Game1.version += $" | SMAPI {Constants.ApiVersion}";
 
                 // add error interceptors
 #if SMAPI_FOR_WINDOWS
