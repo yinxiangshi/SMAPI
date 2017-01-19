@@ -130,7 +130,7 @@ namespace StardewModdingAPI
 
             // print file paths
             Program.Monitor.Log($"Mods go here: {Program.ModPath}");
-            
+
             // initialise legacy log
             Log.Monitor = Program.GetSecondaryMonitor("legacy mod");
             Log.ModRegistry = Program.ModRegistry;
@@ -336,7 +336,7 @@ namespace StardewModdingAPI
                 Program.Monitor.Log($"Couldn't read metadata file at {Constants.ApiModMetadataPath}. SMAPI will still run, but some features may be disabled.\n{ex}", LogLevel.Warn);
             }
 
-            // load mods
+            // load mod assemblies
             foreach (string directory in Directory.GetDirectories(Program.ModPath))
             {
                 string directoryName = new DirectoryInfo(directory).Name;
@@ -539,8 +539,11 @@ namespace StardewModdingAPI
                     Program.Monitor.Log($"{errorPrefix}: an error occurred while loading the target DLL.\n{ex.GetLogSummary()}", LogLevel.Error);
                     continue;
                 }
+            }
 
-                // call mod entry
+            // initialise mods
+            foreach (Mod mod in Program.ModRegistry.GetMods())
+            {
                 try
                 {
                     // call entry methods
@@ -550,13 +553,13 @@ namespace StardewModdingAPI
 
                     // raise deprecation warning for old Entry() methods
                     if (Program.DeprecationManager.IsVirtualMethodImplemented(mod.GetType(), typeof(Mod), nameof(Mod.Entry), new[] { typeof(object[]) }))
-                        Program.DeprecationManager.Warn(manifest.Name, $"{nameof(Mod)}.{nameof(Mod.Entry)}(object[]) instead of {nameof(Mod)}.{nameof(Mod.Entry)}({nameof(IModHelper)})", "1.0", DeprecationLevel.Notice);
+                        Program.DeprecationManager.Warn(mod.ModManifest.Name, $"{nameof(Mod)}.{nameof(Mod.Entry)}(object[]) instead of {nameof(Mod)}.{nameof(Mod.Entry)}({nameof(IModHelper)})", "1.0", DeprecationLevel.Notice);
                     if (Program.DeprecationManager.IsVirtualMethodImplemented(mod.GetType(), typeof(Mod), nameof(Mod.Entry), new[] { typeof(ModHelper) }))
-                        Program.DeprecationManager.Warn(manifest.Name, $"{nameof(Mod)}.{nameof(Mod.Entry)}({nameof(ModHelper)}) instead of {nameof(Mod)}.{nameof(Mod.Entry)}({nameof(IModHelper)})", "1.1", DeprecationLevel.PendingRemoval);
+                        Program.DeprecationManager.Warn(mod.ModManifest.Name, $"{nameof(Mod)}.{nameof(Mod.Entry)}({nameof(ModHelper)}) instead of {nameof(Mod)}.{nameof(Mod.Entry)}({nameof(IModHelper)})", "1.1", DeprecationLevel.PendingRemoval);
                 }
                 catch (Exception ex)
                 {
-                    Program.Monitor.Log($"The {manifest.Name} mod failed on entry initialisation. It will still be loaded, but may not function correctly.\n{ex.GetLogSummary()}", LogLevel.Warn);
+                    Program.Monitor.Log($"The {mod.ModManifest.Name} mod failed on entry initialisation. It will still be loaded, but may not function correctly.\n{ex.GetLogSummary()}", LogLevel.Warn);
                 }
             }
 
