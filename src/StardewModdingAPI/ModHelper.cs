@@ -30,22 +30,31 @@ namespace StardewModdingAPI
         /// <summary>Simplifies access to private game code.</summary>
         public IReflectionHelper Reflection { get; } = new ReflectionHelper();
 
+        /// <summary>Metadata about loaded mods.</summary>
+        public IModRegistry ModRegistry { get; }
+
 
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="modDirectory">The mod directory path.</param>
-        public ModHelper(string modDirectory)
+        /// <param name="modRegistry">Metadata about loaded mods.</param>
+        /// <exception cref="ArgumentException">An argument is null or invalid.</exception>
+        /// <exception cref="InvalidOperationException">The <paramref name="modDirectory"/> path does not exist on disk.</exception>
+        public ModHelper(string modDirectory, IModRegistry modRegistry)
         {
             // validate
+            if (modRegistry == null)
+                throw new ArgumentException("The mod registry cannot be null.");
             if (string.IsNullOrWhiteSpace(modDirectory))
-                throw new InvalidOperationException("The mod directory cannot be empty.");
+                throw new ArgumentException("The mod directory cannot be empty.");
             if (!Directory.Exists(modDirectory))
                 throw new InvalidOperationException("The specified mod directory does not exist.");
 
             // initialise
             this.DirectoryPath = modDirectory;
+            this.ModRegistry = modRegistry;
         }
 
         /****

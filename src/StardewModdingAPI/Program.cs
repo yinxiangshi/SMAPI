@@ -353,7 +353,7 @@ namespace StardewModdingAPI
                 }
 
                 // get helper
-                IModHelper helper = new ModHelper(directory);
+                IModHelper helper = new ModHelper(directory, Program.ModRegistry);
 
                 // get manifest path
                 string manifestPath = Path.Combine(directory, "manifest.json");

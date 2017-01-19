@@ -7,7 +7,7 @@ using System.Reflection;
 namespace StardewModdingAPI.Framework
 {
     /// <summary>Tracks the installed mods.</summary>
-    internal class ModRegistry
+    internal class ModRegistry : IModRegistry
     {
         /*********
         ** Properties
@@ -22,6 +22,33 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Public methods
         *********/
+        /****
+        ** IModRegistry
+        ****/
+        /// <summary>Get metadata for all loaded mods.</summary>
+        public IEnumerable<IManifest> GetAll()
+        {
+            return this.Mods.Select(p => p.ModManifest);
+        }
+
+        /// <summary>Get metadata for a loaded mod.</summary>
+        /// <param name="uniqueID">The mod's unique ID.</param>
+        /// <returns>Returns the matching mod's metadata, or <c>null</c> if not found.</returns>
+        public IManifest Get(string uniqueID)
+        {
+            return this.GetAll().FirstOrDefault(p => p.UniqueID == uniqueID);
+        }
+
+        /// <summary>Get whether a mod has been loaded.</summary>
+        /// <param name="uniqueID">The mod's unique ID.</param>
+        public bool IsLoaded(string uniqueID)
+        {
+            return this.GetAll().Any(p => p.UniqueID == uniqueID);
+        }
+
+        /****
+        ** Internal methods
+        ****/
         /// <summary>Register a mod as a possible source of deprecation warnings.</summary>
         /// <param name="mod">The mod instance.</param>
         public void Add(IMod mod)
