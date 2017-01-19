@@ -5,6 +5,7 @@ See [log](https://github.com/Pathoschild/SMAPI/compare/1.6...1.7).
 
 For mod developers:
 * Fixed `PlayerEvents.LoadedGame` and `SaveEvents.AfterLoad` being fired before the world finishes initialising.
+* Fixed some `LocationEvents`, `PlayerEvents`, and `TimeEvents` being fired during game startup.
 
 ## 1.6
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.5...1.6).
