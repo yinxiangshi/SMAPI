@@ -3,7 +3,11 @@
 ## 1.7
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.6...1.7).
 
+For players:
+* Added mod folder path to the console output.
+
 For mod developers:
+* Fixed `SaveEvents.BeforeSave` and `SaveEvents.AfterSave` not triggering on days when the player shipped something.
 * Fixed `PlayerEvents.LoadedGame` and `SaveEvents.AfterLoad` being fired before the world finishes initialising.
 * Fixed some `LocationEvents`, `PlayerEvents`, and `TimeEvents` being fired during game startup.
 
