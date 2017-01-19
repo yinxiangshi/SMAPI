@@ -10,6 +10,8 @@ For mod developers:
 * Fixed `SaveEvents.BeforeSave` and `SaveEvents.AfterSave` not triggering on days when the player shipped something.
 * Fixed `PlayerEvents.LoadedGame` and `SaveEvents.AfterLoad` being fired before the world finishes initialising.
 * Fixed some `LocationEvents`, `PlayerEvents`, and `TimeEvents` being fired during game startup.
+* Increased deprecation levels for `SObject`, `LogWriter` (not `Log`), and `Mod.Entry(ModHelper)` (not `Mod.Entry(IModHelper)`) to _pending removal_.
+* Increased deprecation levels for `Mod.PerSaveConfigFolder`, `Mod.PerSaveConfigPath`, and `Version.VersionString` to _info_.
 
 ## 1.6
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.5...1.6).

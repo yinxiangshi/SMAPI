@@ -71,7 +71,7 @@ namespace StardewModdingAPI
         {
             get
             {
-                Program.DeprecationManager.Warn($"{nameof(Mod)}.{nameof(Mod.PerSaveConfigPath)}", "1.0", DeprecationLevel.Notice);
+                Program.DeprecationManager.Warn($"{nameof(Mod)}.{nameof(Mod.PerSaveConfigPath)}", "1.0", DeprecationLevel.Info);
                 Program.DeprecationManager.MarkWarned($"{nameof(Mod)}.{nameof(Mod.PerSaveConfigFolder)}", "1.0"); // avoid redundant warnings
                 return Constants.CurrentSavePathExists ? Path.Combine(this.PerSaveConfigFolder, Constants.SaveFolderName + ".json") : "";
             }

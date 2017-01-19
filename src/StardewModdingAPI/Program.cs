@@ -439,7 +439,7 @@ namespace StardewModdingAPI
                 // create per-save directory
                 if (manifest.PerSaveConfigs)
                 {
-                    Program.DeprecationManager.Warn(manifest.Name, $"{nameof(Manifest)}.{nameof(Manifest.PerSaveConfigs)}", "1.0", DeprecationLevel.Notice);
+                    Program.DeprecationManager.Warn(manifest.Name, $"{nameof(Manifest)}.{nameof(Manifest.PerSaveConfigs)}", "1.0", DeprecationLevel.Info);
                     try
                     {
                         string psDir = Path.Combine(directory, "psconfigs");
@@ -552,7 +552,7 @@ namespace StardewModdingAPI
                     if (Program.DeprecationManager.IsVirtualMethodImplemented(mod.GetType(), typeof(Mod), nameof(Mod.Entry), new[] { typeof(object[]) }))
                         Program.DeprecationManager.Warn(manifest.Name, $"{nameof(Mod)}.{nameof(Mod.Entry)}(object[]) instead of {nameof(Mod)}.{nameof(Mod.Entry)}({nameof(IModHelper)})", "1.0", DeprecationLevel.Notice);
                     if (Program.DeprecationManager.IsVirtualMethodImplemented(mod.GetType(), typeof(Mod), nameof(Mod.Entry), new[] { typeof(ModHelper) }))
-                        Program.DeprecationManager.Warn(manifest.Name, $"{nameof(Mod)}.{nameof(Mod.Entry)}({nameof(ModHelper)}) instead of {nameof(Mod)}.{nameof(Mod.Entry)}({nameof(IModHelper)})", "1.1", DeprecationLevel.Info);
+                        Program.DeprecationManager.Warn(manifest.Name, $"{nameof(Mod)}.{nameof(Mod.Entry)}({nameof(ModHelper)}) instead of {nameof(Mod)}.{nameof(Mod.Entry)}({nameof(IModHelper)})", "1.1", DeprecationLevel.PendingRemoval);
                 }
                 catch (Exception ex)
                 {
