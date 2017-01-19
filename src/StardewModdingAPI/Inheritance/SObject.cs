@@ -49,7 +49,7 @@ namespace StardewModdingAPI.Inheritance
         *********/
         public SObject()
         {
-            Program.DeprecationManager.Warn(nameof(SObject), "0.39.3", DeprecationLevel.Info);
+            Program.DeprecationManager.Warn(nameof(SObject), "0.39.3", DeprecationLevel.PendingRemoval);
 
             this.name = "Modded Item Name";
             this.Description = "Modded Item Description";

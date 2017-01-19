@@ -1,4 +1,19 @@
-# Release notes
+﻿# Release notes
+
+## 1.7
+See [log](https://github.com/Pathoschild/SMAPI/compare/1.6...1.7).
+
+For players:
+* The console now shows the folder path where mods should be added.
+* The console now shows deprecation warnings after the list of loaded mods (instead of intermingled).
+
+For mod developers:
+* Added a mod registry which provides metadata about loaded mods.
+* The `Entry(…)` method is now deferred until all mods are loaded.
+* Fixed `SaveEvents.BeforeSave` and `.AfterSave` not triggering on days when the player shipped something.
+* Fixed `PlayerEvents.LoadedGame` and `SaveEvents.AfterLoad` being fired before the world finishes initialising.
+* Fixed some `LocationEvents`, `PlayerEvents`, and `TimeEvents` being fired during game startup.
+* Increased deprecation levels for `SObject`, `LogWriter` (not `Log`), and `Mod.Entry(ModHelper)` (not `Mod.Entry(IModHelper)`) to _pending removal_. Increased deprecation levels for `Mod.PerSaveConfigFolder`, `Mod.PerSaveConfigPath`, and `Version.VersionString` to _info_.
 
 ## 1.6
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.5...1.6).

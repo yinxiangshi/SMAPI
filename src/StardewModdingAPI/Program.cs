@@ -100,7 +100,7 @@ namespace StardewModdingAPI
             Program.Monitor.WriteToConsole = !args.Contains("--no-terminal");
             Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB"); // for consistent log formatting
 
-            // add info headers
+            // add info header
             Program.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Game1.version} on {Environment.OSVersion}", LogLevel.Info);
 
             // initialise user settings
@@ -126,7 +126,10 @@ namespace StardewModdingAPI
             if (!Program.Settings.CheckForUpdates)
                 Program.Monitor.Log($"You configured SMAPI to not check for updates. Running an old version of SMAPI is not recommended. You can enable update checks by editing or deleting {Constants.ApiConfigPath}.", LogLevel.Warn);
             if (!Program.Monitor.WriteToConsole)
-                Program.Monitor.Log($"Writing to the terminal is disabled because the --no-terminal argument was received. This usually means launching the terminal failed.", LogLevel.Warn);
+                Program.Monitor.Log("Writing to the terminal is disabled because the --no-terminal argument was received. This usually means launching the terminal failed.", LogLevel.Warn);
+
+            // print file paths
+            Program.Monitor.Log($"Mods go here: {Program.ModPath}");
 
             // initialise legacy log
             Log.Monitor = Program.GetSecondaryMonitor("legacy mod");
@@ -223,7 +226,7 @@ namespace StardewModdingAPI
                 Program.StardewAssembly = Assembly.UnsafeLoadFrom(Program.GameExecutablePath);
                 Program.StardewProgramType = Program.StardewAssembly.GetType("StardewValley.Program", true);
                 Program.StardewGameInfo = Program.StardewProgramType.GetField("gamePtr");
-                Game1.version += $"-Z_MODDED | SMAPI {Constants.ApiVersion}";
+                Game1.version += $" | SMAPI {Constants.ApiVersion}";
 
                 // add error interceptors
 #if SMAPI_FOR_WINDOWS
@@ -291,7 +294,7 @@ namespace StardewModdingAPI
             }
             catch (Exception ex)
             {
-                Program.Monitor.Log($"SMAPI encountered a fatal error:\n{ex.GetLogSummary()}", LogLevel.Error);
+                Program.Monitor.Log($"The game encountered a fatal error:\n{ex.GetLogSummary()}", LogLevel.Error);
             }
         }
 
@@ -333,7 +336,8 @@ namespace StardewModdingAPI
                 Program.Monitor.Log($"Couldn't read metadata file at {Constants.ApiModMetadataPath}. SMAPI will still run, but some features may be disabled.\n{ex}", LogLevel.Warn);
             }
 
-            // load mods
+            // load mod assemblies
+            List<Action> deprecationWarnings = new List<Action>(); // queue up deprecation warnings to show after mod list
             foreach (string directory in Directory.GetDirectories(Program.ModPath))
             {
                 string directoryName = new DirectoryInfo(directory).Name;
@@ -350,7 +354,7 @@ namespace StardewModdingAPI
                 }
 
                 // get helper
-                IModHelper helper = new ModHelper(directory);
+                IModHelper helper = new ModHelper(directory, Program.ModRegistry);
 
                 // get manifest path
                 string manifestPath = Path.Combine(directory, "manifest.json");
@@ -388,7 +392,7 @@ namespace StardewModdingAPI
 
                     // log deprecated fields
                     if (manifest.UsedAuthourField)
-                        Program.DeprecationManager.Warn(manifest.Name, $"{nameof(Manifest)}.{nameof(Manifest.Authour)}", "1.0", DeprecationLevel.Notice);
+                        deprecationWarnings.Add(() => Program.DeprecationManager.Warn(manifest.Name, $"{nameof(Manifest)}.{nameof(Manifest.Authour)}", "1.0", DeprecationLevel.Notice));
                 }
                 catch (Exception ex)
                 {
@@ -436,7 +440,7 @@ namespace StardewModdingAPI
                 // create per-save directory
                 if (manifest.PerSaveConfigs)
                 {
-                    Program.DeprecationManager.Warn(manifest.Name, $"{nameof(Manifest)}.{nameof(Manifest.PerSaveConfigs)}", "1.0", DeprecationLevel.Notice);
+                    deprecationWarnings.Add(() => Program.DeprecationManager.Warn(manifest.Name, $"{nameof(Manifest)}.{nameof(Manifest.PerSaveConfigs)}", "1.0", DeprecationLevel.Info));
                     try
                     {
                         string psDir = Path.Combine(directory, "psconfigs");
@@ -536,8 +540,16 @@ namespace StardewModdingAPI
                     Program.Monitor.Log($"{errorPrefix}: an error occurred while loading the target DLL.\n{ex.GetLogSummary()}", LogLevel.Error);
                     continue;
                 }
+            }
 
-                // call mod entry
+            // log deprecation warnings
+            foreach (Action warning in deprecationWarnings)
+                warning();
+            deprecationWarnings = null;
+
+            // initialise mods
+            foreach (Mod mod in Program.ModRegistry.GetMods())
+            {
                 try
                 {
                     // call entry methods
@@ -547,13 +559,13 @@ namespace StardewModdingAPI
 
                     // raise deprecation warning for old Entry() methods
                     if (Program.DeprecationManager.IsVirtualMethodImplemented(mod.GetType(), typeof(Mod), nameof(Mod.Entry), new[] { typeof(object[]) }))
-                        Program.DeprecationManager.Warn(manifest.Name, $"{nameof(Mod)}.{nameof(Mod.Entry)}(object[]) instead of {nameof(Mod)}.{nameof(Mod.Entry)}({nameof(IModHelper)})", "1.0", DeprecationLevel.Notice);
+                        Program.DeprecationManager.Warn(mod.ModManifest.Name, $"{nameof(Mod)}.{nameof(Mod.Entry)}(object[]) instead of {nameof(Mod)}.{nameof(Mod.Entry)}({nameof(IModHelper)})", "1.0", DeprecationLevel.Notice);
                     if (Program.DeprecationManager.IsVirtualMethodImplemented(mod.GetType(), typeof(Mod), nameof(Mod.Entry), new[] { typeof(ModHelper) }))
-                        Program.DeprecationManager.Warn(manifest.Name, $"{nameof(Mod)}.{nameof(Mod.Entry)}({nameof(ModHelper)}) instead of {nameof(Mod)}.{nameof(Mod.Entry)}({nameof(IModHelper)})", "1.1", DeprecationLevel.Info);
+                        Program.DeprecationManager.Warn(mod.ModManifest.Name, $"{nameof(Mod)}.{nameof(Mod.Entry)}({nameof(ModHelper)}) instead of {nameof(Mod)}.{nameof(Mod.Entry)}({nameof(IModHelper)})", "1.1", DeprecationLevel.PendingRemoval);
                 }
                 catch (Exception ex)
                 {
-                    Program.Monitor.Log($"The {manifest.Name} mod failed on entry initialisation. It will still be loaded, but may not function correctly.\n{ex.GetLogSummary()}", LogLevel.Warn);
+                    Program.Monitor.Log($"The {mod.ModManifest.Name} mod failed on entry initialisation. It will still be loaded, but may not function correctly.\n{ex.GetLogSummary()}", LogLevel.Warn);
                 }
             }
 

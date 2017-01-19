@@ -30,7 +30,7 @@ namespace StardewModdingAPI
         {
             get
             {
-                Program.DeprecationManager.Warn($"{nameof(Version)}.{nameof(Version.VersionString)}", "1.0", DeprecationLevel.Notice);
+                Program.DeprecationManager.Warn($"{nameof(Version)}.{nameof(Version.VersionString)}", "1.0", DeprecationLevel.Info);
                 return this.GetSemanticVersion().ToString();
             }
         }
