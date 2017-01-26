@@ -1,5 +1,11 @@
 ﻿# Release notes
 
+## 1.8
+See [log](https://github.com/Pathoschild/SMAPI/compare/1.7...1.8).
+
+* For mod developers:
+  * You can now create a `SemanticVersion` from a version string.
+
 ## 1.7
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.6...1.7).
 

@@ -56,7 +56,7 @@ namespace StardewModdingAPI
         /// <summary>Construct an instance.</summary>
         /// <param name="version">The semantic version string.</param>
         /// <exception cref="FormatException">The <paramref name="version"/> is not a valid semantic version.</exception>
-        internal SemanticVersion(string version)
+        public SemanticVersion(string version)
         {
             var match = SemanticVersion.Regex.Match(version);
             if (!match.Success)
