@@ -1,4 +1,4 @@
-![](https://raw.githubusercontent.com/Gormogon/SMAPI/master/docs/imgs/SMAPI.png)
+![](docs/imgs/SMAPI.png)
 
 **SMAPI** is an [open-source](LICENSE) modding API for [Stardew Valley](http://stardewvalley.net/).
 It takes care of loading mods into the game context, and exposes events they can use to interact
