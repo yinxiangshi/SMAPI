@@ -13,7 +13,6 @@ using Newtonsoft.Json;
 using StardewModdingAPI.AssemblyRewriters;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework;
-using StardewModdingAPI.Framework.AssemblyRewriting;
 using StardewModdingAPI.Framework.Models;
 using StardewModdingAPI.Inheritance;
 using StardewValley;
@@ -319,7 +318,7 @@ namespace StardewModdingAPI
             Program.Monitor.Log("Loading mods...");
 
             // get assembly loader
-            ModAssemblyLoader modAssemblyLoader = new ModAssemblyLoader(Program.CacheDirName, Program.TargetPlatform, Program.Monitor);
+            AssemblyLoader modAssemblyLoader = new AssemblyLoader(Program.TargetPlatform, Program.Monitor);
             AppDomain.CurrentDomain.AssemblyResolve += (sender, e) => modAssemblyLoader.ResolveAssembly(e.Name);
 
             // get known incompatible mods
@@ -458,50 +457,29 @@ namespace StardewModdingAPI
                     }
                 }
 
-                // preprocess mod assemblies for compatibility
-                var processedAssemblies = new List<RewriteResult>();
+                // validate mod path to simplify errors
+                string assemblyPath = Path.Combine(directory, manifest.EntryDll);
+                if (!File.Exists(assemblyPath))
                 {
-                    bool succeeded = true;
-                    foreach (string assemblyPath in Directory.GetFiles(directory, "*.dll"))
-                    {
-                        if (Path.GetFileName(assemblyPath).StartsWith("."))
-                            continue; // skip hidden files (e.g. Mac sometimes copies with "._" prefix).
-
-                        try
-                        {
-                            processedAssemblies.Add(modAssemblyLoader.ProcessAssemblyUnlessCached(assemblyPath));
-                        }
-                        catch (Exception ex)
-                        {
-                            Program.Monitor.Log($"{errorPrefix}: an error occurred while preprocessing '{Path.GetFileName(assemblyPath)}'.\n{ex.GetLogSummary()}", LogLevel.Error);
-                            succeeded = false;
-                            break;
-                        }
-                    }
-                    if (!succeeded)
-                        continue;
-                }
-                bool forceUseCachedAssembly = processedAssemblies.Any(p => p.UseCachedAssembly); // make sure DLLs are kept together for dependency resolution
-                if (processedAssemblies.Any(p => p.IsNewerThanCache))
-                    modAssemblyLoader.WriteCache(processedAssemblies, forceUseCachedAssembly);
-
-                // get entry assembly path
-                string mainAssemblyPath;
-                {
-                    RewriteResult mainProcessedAssembly = processedAssemblies.FirstOrDefault(p => p.OriginalAssemblyPath == Path.Combine(directory, manifest.EntryDll));
-                    if (mainProcessedAssembly == null)
-                    {
-                        Program.Monitor.Log($"{errorPrefix}: the specified mod DLL does not exist.", LogLevel.Error);
-                        continue;
-                    }
-                    mainAssemblyPath = forceUseCachedAssembly ? mainProcessedAssembly.CachePaths.Assembly : mainProcessedAssembly.OriginalAssemblyPath;
+                    Program.Monitor.Log($"{errorPrefix}: the entry DLL '{manifest.EntryDll}' does not exist.", LogLevel.Error);
+                    continue;
                 }
 
-                // load entry assembly
+                // preprocess & load mod assembly
                 Assembly modAssembly;
                 try
                 {
-                    modAssembly = Assembly.UnsafeLoadFrom(mainAssemblyPath); // unsafe load allows downloaded DLLs
+                    modAssembly = modAssemblyLoader.Load(assemblyPath);
+                }
+                catch (Exception ex)
+                {
+                    Program.Monitor.Log($"{errorPrefix}: an error occurred while preprocessing '{manifest.EntryDll}'.\n{ex.GetLogSummary()}", LogLevel.Error);
+                    continue;
+                }
+
+                // validate assembly
+                try
+                {
                     if (modAssembly.DefinedTypes.Count(x => x.BaseType == typeof(Mod)) == 0)
                     {
                         Program.Monitor.Log($"{errorPrefix}: the mod DLL does not contain an implementation of the 'Mod' class.", LogLevel.Error);
@@ -510,11 +488,11 @@ namespace StardewModdingAPI
                 }
                 catch (Exception ex)
                 {
-                    Program.Monitor.Log($"{errorPrefix}: an error occurred while optimising the target DLL.\n{ex.GetLogSummary()}", LogLevel.Error);
+                    Program.Monitor.Log($"{errorPrefix}: an error occurred while reading the mod DLL.\n{ex.GetLogSummary()}", LogLevel.Error);
                     continue;
                 }
 
-                // get mod instance
+                // initialise mod
                 Mod mod;
                 try
                 {
