@@ -20,8 +20,6 @@ namespace StardewModdingAPI.AssemblyRewriters
         /// <summary>The short assembly names to remove as assembly reference, and replace with the <see cref="Targets"/>. These should be short names (like "Stardew Valley").</summary>
         public readonly string[] RemoveNames;
 
-        /// <summary>The assembly filenames to target. Equivalent types should be rewritten to use these assemblies.</summary>
-
         /****
         ** Metadata
         ****/

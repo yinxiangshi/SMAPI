@@ -53,7 +53,7 @@ namespace StardewModdingAPI.Framework
             }
         }
 
-        /// <summary>Preprocess and load an assembly, writing modified assemblies to the cache folder if needed.</summary>
+        /// <summary>Preprocess and load an assembly.</summary>
         /// <param name="assemblyPath">The assembly file path.</param>
         /// <returns>Returns the rewrite metadata for the preprocessed assembly.</returns>
         public Assembly Load(string assemblyPath)
