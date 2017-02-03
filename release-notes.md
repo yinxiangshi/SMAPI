@@ -3,11 +3,23 @@
 ## 1.8
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.7...1.8).
 
-* For players:
-  * Fixed a rare issue where loading mods failed due to hidden metadata files on Mac.
+For players:
+* Mods will no longer have generated `.cache` subfolders.
+* Fixed multiple issues where mods failed during assembly loading.
 
-* For mod developers:
-  * You can now create a `SemanticVersion` from a version string.
+For mod developers:
+* You can now create a `SemanticVersion` from a version string.
+* **Warning:** `Assembly.GetExecutingAssembly().Location` will no longer return a valid path,
+  because mod assemblies are now loaded from memory. This has been strongly discouraged since
+  SMAPI 1.3 (which sometimes loaded DLLs from a `.cache` subfolder).
+
+For SMAPI developers:
+* Rewrote assembly loading from the ground up. The new implementation...
+  * is much simpler;
+  * eliminates the `.cache` folders by loading assemblies from memory;
+  * ensures DLLs are loaded in leaf-to-root order;
+  * improves dependent assembly resolution;
+  * reduces log verbosity.
 
 ## 1.7
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.6...1.7).
