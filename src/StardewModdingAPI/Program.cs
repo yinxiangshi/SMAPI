@@ -464,6 +464,9 @@ namespace StardewModdingAPI
                     bool succeeded = true;
                     foreach (string assemblyPath in Directory.GetFiles(directory, "*.dll"))
                     {
+                        if (Path.GetFileName(assemblyPath).StartsWith("."))
+                            continue; // skip hidden files (e.g. Mac sometimes copies with "._" prefix).
+
                         try
                         {
                             processedAssemblies.Add(modAssemblyLoader.ProcessAssemblyUnlessCached(assemblyPath));

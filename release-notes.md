@@ -3,6 +3,9 @@
 ## 1.8
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.7...1.8).
 
+* For players:
+  * Fixed a rare issue where loading mods failed due to hidden metadata files on Mac.
+
 * For mod developers:
   * You can now create a `SemanticVersion` from a version string.
 
