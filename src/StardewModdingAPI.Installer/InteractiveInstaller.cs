@@ -147,11 +147,9 @@ namespace StardewModdingApi.Installer
             ** ask user what to do
             ****/
             Console.WriteLine("You can....");
-            Console.WriteLine(platform == Platform.Mono
-                ? "[1] Install SMAPI. This will safely update the files so you can launch the game the same way as before."
-                : "[1] Install SMAPI. You'll need to launch StardewModdingAPI.exe instead afterwards; see the readme.txt for details."
-            );
+            Console.WriteLine("[1] Install SMAPI.");
             Console.WriteLine("[2] Uninstall SMAPI.");
+            Console.WriteLine();
 
             ScriptAction action;
             {
