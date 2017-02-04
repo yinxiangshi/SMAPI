@@ -40,9 +40,6 @@ namespace StardewModdingAPI
         /// <summary>The full path to the folder containing mods.</summary>
         private static readonly string ModPath = Path.Combine(Constants.ExecutionPath, "Mods");
 
-        /// <summary>The name of the folder containing a mod's cached assembly data.</summary>
-        private static readonly string CacheDirName = ".cache";
-
         /// <summary>The log file to which to write messages.</summary>
         private static readonly LogFileManager LogFile = new LogFileManager(Constants.LogPath);
 
@@ -340,10 +337,6 @@ namespace StardewModdingAPI
             foreach (string directory in Directory.GetDirectories(Program.ModPath))
             {
                 string directoryName = new DirectoryInfo(directory).Name;
-
-                // ignore internal directory
-                if (directoryName == ".cache")
-                    continue;
 
                 // check for cancellation
                 if (Program.CancellationTokenSource.IsCancellationRequested)
