@@ -51,32 +51,38 @@ namespace StardewModdingApi.Installer
             }
         }
 
-        /// <summary>The directory or file paths to remove when uninstalling SMAPI, relative to the game directory.</summary>
-        private readonly string[] UninstallPaths =
+        /// <summary>Get the absolute file or folder paths to remove when uninstalling SMAPI.</summary>
+        /// <param name="installDir">The folder for Stardew Valley and SMAPI.</param>
+        /// <param name="modsDir">The folder for SMAPI mods.</param>
+        private IEnumerable<string> GetUninstallPaths(DirectoryInfo installDir, DirectoryInfo modsDir)
         {
+            Func<string, string> installPath = path => Path.Combine(installDir.FullName, path);
+
             // common
-            "StardewModdingAPI.exe",
-            "StardewModdingAPI.config.json",
-            "StardewModdingAPI.data.json",
-            "StardewModdingAPI.AssemblyRewriters.dll",
-            "steam_appid.txt",
+            yield return installPath("StardewModdingAPI.exe");
+            yield return installPath("StardewModdingAPI.config.json");
+            yield return installPath("StardewModdingAPI.data.json");
+            yield return installPath("StardewModdingAPI.AssemblyRewriters.dll");
+            yield return installPath("steam_appid.txt");
 
             // Linux/Mac only
-            "Mono.Cecil.dll",
-            "Mono.Cecil.Rocks.dll",
-            "Newtonsoft.Json.dll",
-            "StardewModdingAPI",
-            "StardewModdingAPI.exe.mdb",
-            "System.Numerics.dll",
-            "System.Runtime.Caching.dll",
+            yield return installPath("Mono.Cecil.dll");
+            yield return installPath("Mono.Cecil.Rocks.dll");
+            yield return installPath("Newtonsoft.Json.dll");
+            yield return installPath("StardewModdingAPI");
+            yield return installPath("StardewModdingAPI.exe.mdb");
+            yield return installPath("System.Numerics.dll");
+            yield return installPath("System.Runtime.Caching.dll");
 
             // Windows only
-            "StardewModdingAPI.pdb",
+            yield return installPath("StardewModdingAPI.pdb");
 
             // obsolete
-            "Mods/.cache", // 1.3-1.4
-            "StardewModdingAPI-settings.json" // 1.0-1.4
-        };
+            yield return installPath("Mods/.cache"); // 1.3-1.4
+            yield return installPath("StardewModdingAPI-settings.json"); // 1.0-1.4
+            foreach (DirectoryInfo modDir in modsDir.EnumerateDirectories())
+                yield return Path.Combine(modDir.FullName, ".cache"); // 1.4–1.7
+        }
 
         /// <summary>Whether the current console supports color formatting.</summary>
         private static readonly bool ConsoleSupportsColor = InteractiveInstaller.GetConsoleSupportsColor();
@@ -112,6 +118,7 @@ namespace StardewModdingApi.Installer
             Platform platform = this.DetectPlatform();
             DirectoryInfo packageDir = new DirectoryInfo(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "internal", platform.ToString()));
             DirectoryInfo installDir = this.InteractivelyGetInstallPath(platform);
+            DirectoryInfo modsDir = new DirectoryInfo(Path.Combine(installDir.FullName, "Mods"));
             var paths = new
             {
                 executable = Path.Combine(installDir.FullName, platform == Platform.Mono ? "StardewValley.exe" : "Stardew Valley.exe"),
@@ -176,8 +183,7 @@ namespace StardewModdingApi.Installer
             }
 
             // remove old files
-            string[] removePaths = this.UninstallPaths
-                .Select(path => Path.Combine(installDir.FullName, path))
+            string[] removePaths = this.GetUninstallPaths(installDir, modsDir)
                 .Where(path => Directory.Exists(path) || File.Exists(path))
                 .ToArray();
             if (removePaths.Any())
@@ -220,7 +226,6 @@ namespace StardewModdingApi.Installer
                 }
 
                 // create mods directory (if needed)
-                DirectoryInfo modsDir = new DirectoryInfo(Path.Combine(installDir.FullName, "Mods"));
                 if (!modsDir.Exists)
                 {
                     this.PrintDebug("Creating mods directory...");
