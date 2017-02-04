@@ -80,8 +80,11 @@ namespace StardewModdingApi.Installer
             // obsolete
             yield return installPath("Mods/.cache"); // 1.3-1.4
             yield return installPath("StardewModdingAPI-settings.json"); // 1.0-1.4
-            foreach (DirectoryInfo modDir in modsDir.EnumerateDirectories())
-                yield return Path.Combine(modDir.FullName, ".cache"); // 1.4–1.7
+            if (modsDir.Exists)
+            {
+                foreach (DirectoryInfo modDir in modsDir.EnumerateDirectories())
+                    yield return Path.Combine(modDir.FullName, ".cache"); // 1.4–1.7
+            }
         }
 
         /// <summary>Whether the current console supports color formatting.</summary>
