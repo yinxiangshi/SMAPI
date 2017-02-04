@@ -148,6 +148,8 @@
     <Compile Include="Events\EventArgsStringChanged.cs" />
     <Compile Include="Events\GameEvents.cs" />
     <Compile Include="Events\GraphicsEvents.cs" />
+    <Compile Include="Framework\AssemblyDefinitionResolver.cs" />
+    <Compile Include="Framework\AssemblyParseResult.cs" />
     <Compile Include="IModRegistry.cs" />
     <Compile Include="Events\LocationEvents.cs" />
     <Compile Include="Events\MenuEvents.cs" />
@@ -156,15 +158,11 @@
     <Compile Include="Events\SaveEvents.cs" />
     <Compile Include="Events\TimeEvents.cs" />
     <Compile Include="Extensions.cs" />
-    <Compile Include="Framework\AssemblyRewriting\RewriteResult.cs" />
-    <Compile Include="Framework\AssemblyRewriting\CachePaths.cs" />
-    <Compile Include="Framework\AssemblyRewriting\AssemblyTypeRewriter.cs" />
-    <Compile Include="Framework\AssemblyRewriting\CacheEntry.cs" />
     <Compile Include="Framework\DeprecationLevel.cs" />
     <Compile Include="Framework\DeprecationManager.cs" />
     <Compile Include="Framework\InternalExtensions.cs" />
     <Compile Include="Framework\Models\IncompatibleMod.cs" />
-    <Compile Include="Framework\ModAssemblyLoader.cs" />
+    <Compile Include="Framework\AssemblyLoader.cs" />
     <Compile Include="Framework\Reflection\CacheEntry.cs" />
     <Compile Include="Framework\Reflection\PrivateField.cs" />
     <Compile Include="Framework\Reflection\PrivateMethod.cs" />
