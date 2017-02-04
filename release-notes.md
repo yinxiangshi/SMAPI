@@ -13,6 +13,7 @@ For mod developers:
 * **Breaking change:** `Assembly.GetExecutingAssembly().Location` will no longer reliably
   return a valid path, because mod assemblies will be loaded from memory when rewritten for
   compatibility. (It's been deprecated since SMAPI 1.3.)
+* Increased deprecation level for `Extensions` to _pending removal_.
 
 For SMAPI developers:
 * Rewrote assembly loading from the ground up. The new implementation...

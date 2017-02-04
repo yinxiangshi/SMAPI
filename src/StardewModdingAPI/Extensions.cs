@@ -27,7 +27,7 @@ namespace StardewModdingAPI
         {
             get
             {
-                Program.DeprecationManager.Warn($"{nameof(Extensions)}.{nameof(Extensions.Random)}", "1.0", DeprecationLevel.Info);
+                Program.DeprecationManager.Warn($"{nameof(Extensions)}.{nameof(Extensions.Random)}", "1.0", DeprecationLevel.PendingRemoval);
                 return Extensions._random;
             }
         }
@@ -40,7 +40,7 @@ namespace StardewModdingAPI
         /// <param name="key">The key to check.</param>
         public static bool IsKeyDown(this Keys key)
         {
-            Program.DeprecationManager.Warn($"{nameof(Extensions)}.{nameof(Extensions.IsKeyDown)}", "1.0", DeprecationLevel.Info);
+            Program.DeprecationManager.Warn($"{nameof(Extensions)}.{nameof(Extensions.IsKeyDown)}", "1.0", DeprecationLevel.PendingRemoval);
 
             return Keyboard.GetState().IsKeyDown(key);
         }
@@ -48,7 +48,7 @@ namespace StardewModdingAPI
         /// <summary>Get a random color.</summary>
         public static Color RandomColour()
         {
-            Program.DeprecationManager.Warn($"{nameof(Extensions)}.{nameof(Extensions.RandomColour)}", "1.0", DeprecationLevel.Info);
+            Program.DeprecationManager.Warn($"{nameof(Extensions)}.{nameof(Extensions.RandomColour)}", "1.0", DeprecationLevel.PendingRemoval);
 
             return new Color(Extensions.Random.Next(0, 255), Extensions.Random.Next(0, 255), Extensions.Random.Next(0, 255));
         }
@@ -69,7 +69,7 @@ namespace StardewModdingAPI
         /// <param name="split">The value separator.</param>
         public static string ToSingular<T>(this IEnumerable<T> ienum, string split = ", ")
         {
-            Program.DeprecationManager.Warn($"{nameof(Extensions)}.{nameof(Extensions.ToSingular)}", "1.0", DeprecationLevel.Info);
+            Program.DeprecationManager.Warn($"{nameof(Extensions)}.{nameof(Extensions.ToSingular)}", "1.0", DeprecationLevel.PendingRemoval);
 
             //Apparently Keys[] won't split normally :l
             if (typeof(T) == typeof(Keys))
@@ -83,7 +83,7 @@ namespace StardewModdingAPI
         /// <param name="o">The value.</param>
         public static bool IsInt32(this object o)
         {
-            Program.DeprecationManager.Warn($"{nameof(Extensions)}.{nameof(Extensions.IsInt32)}", "1.0", DeprecationLevel.Info);
+            Program.DeprecationManager.Warn($"{nameof(Extensions)}.{nameof(Extensions.IsInt32)}", "1.0", DeprecationLevel.PendingRemoval);
 
             int i;
             return int.TryParse(o.ToString(), out i);
@@ -93,7 +93,7 @@ namespace StardewModdingAPI
         /// <param name="o">The value.</param>
         public static int AsInt32(this object o)
         {
-            Program.DeprecationManager.Warn($"{nameof(Extensions)}.{nameof(Extensions.AsInt32)}", "1.0", DeprecationLevel.Info);
+            Program.DeprecationManager.Warn($"{nameof(Extensions)}.{nameof(Extensions.AsInt32)}", "1.0", DeprecationLevel.PendingRemoval);
 
             return int.Parse(o.ToString());
         }
@@ -102,7 +102,7 @@ namespace StardewModdingAPI
         /// <param name="o">The value.</param>
         public static bool IsBool(this object o)
         {
-            Program.DeprecationManager.Warn($"{nameof(Extensions)}.{nameof(Extensions.IsBool)}", "1.0", DeprecationLevel.Info);
+            Program.DeprecationManager.Warn($"{nameof(Extensions)}.{nameof(Extensions.IsBool)}", "1.0", DeprecationLevel.PendingRemoval);
 
             bool b;
             return bool.TryParse(o.ToString(), out b);
@@ -112,7 +112,7 @@ namespace StardewModdingAPI
         /// <param name="o">The value.</param>
         public static bool AsBool(this object o)
         {
-            Program.DeprecationManager.Warn($"{nameof(Extensions)}.{nameof(Extensions.AsBool)}", "1.0", DeprecationLevel.Info);
+            Program.DeprecationManager.Warn($"{nameof(Extensions)}.{nameof(Extensions.AsBool)}", "1.0", DeprecationLevel.PendingRemoval);
 
             return bool.Parse(o.ToString());
         }
@@ -121,7 +121,7 @@ namespace StardewModdingAPI
         /// <param name="enumerable">The values to hash.</param>
         public static int GetHash(this IEnumerable enumerable)
         {
-            Program.DeprecationManager.Warn($"{nameof(Extensions)}.{nameof(Extensions.GetHash)}", "1.0", DeprecationLevel.Info);
+            Program.DeprecationManager.Warn($"{nameof(Extensions)}.{nameof(Extensions.GetHash)}", "1.0", DeprecationLevel.PendingRemoval);
 
             var hash = 0;
             foreach (var v in enumerable)
@@ -134,7 +134,7 @@ namespace StardewModdingAPI
         /// <param name="o">The value.</param>
         public static T Cast<T>(this object o) where T : class
         {
-            Program.DeprecationManager.Warn($"{nameof(Extensions)}.{nameof(Extensions.Cast)}", "1.0", DeprecationLevel.Info);
+            Program.DeprecationManager.Warn($"{nameof(Extensions)}.{nameof(Extensions.Cast)}", "1.0", DeprecationLevel.PendingRemoval);
 
             return o as T;
         }
@@ -143,7 +143,7 @@ namespace StardewModdingAPI
         /// <param name="o">The object to scan.</param>
         public static FieldInfo[] GetPrivateFields(this object o)
         {
-            Program.DeprecationManager.Warn($"{nameof(Extensions)}.{nameof(Extensions.GetPrivateFields)}", "1.0", DeprecationLevel.Info);
+            Program.DeprecationManager.Warn($"{nameof(Extensions)}.{nameof(Extensions.GetPrivateFields)}", "1.0", DeprecationLevel.PendingRemoval);
             return o.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Static);
         }
 
@@ -152,7 +152,7 @@ namespace StardewModdingAPI
         /// <param name="name">The name of the field to find.</param>
         public static FieldInfo GetBaseFieldInfo(this Type t, string name)
         {
-            Program.DeprecationManager.Warn($"{nameof(Extensions)}.{nameof(Extensions.GetBaseFieldValue)}", "1.0", DeprecationLevel.Info);
+            Program.DeprecationManager.Warn($"{nameof(Extensions)}.{nameof(Extensions.GetBaseFieldValue)}", "1.0", DeprecationLevel.PendingRemoval);
             return t.GetField(name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Static);
         }
 
@@ -162,7 +162,7 @@ namespace StardewModdingAPI
         /// <param name="name">The name of the field to find.</param>
         public static T GetBaseFieldValue<T>(this Type t, object o, string name) where T : class
         {
-            Program.DeprecationManager.Warn($"{nameof(Extensions)}.{nameof(Extensions.GetBaseFieldValue)}", "1.0", DeprecationLevel.Info);
+            Program.DeprecationManager.Warn($"{nameof(Extensions)}.{nameof(Extensions.GetBaseFieldValue)}", "1.0", DeprecationLevel.PendingRemoval);
             return t.GetBaseFieldInfo(name).GetValue(o) as T;
         }
 
@@ -173,7 +173,7 @@ namespace StardewModdingAPI
         /// <param name="newValue">The value to set.</param>
         public static void SetBaseFieldValue<T>(this Type t, object o, string name, object newValue) where T : class
         {
-            Program.DeprecationManager.Warn($"{nameof(Extensions)}.{nameof(Extensions.SetBaseFieldValue)}", "1.0", DeprecationLevel.Info);
+            Program.DeprecationManager.Warn($"{nameof(Extensions)}.{nameof(Extensions.SetBaseFieldValue)}", "1.0", DeprecationLevel.PendingRemoval);
             t.GetBaseFieldInfo(name).SetValue(o, newValue as T);
         }
 
@@ -181,7 +181,7 @@ namespace StardewModdingAPI
         /// <param name="st">The string to copy.</param>
         public static string RemoveNumerics(this string st)
         {
-            Program.DeprecationManager.Warn($"{nameof(Extensions)}.{nameof(Extensions.RemoveNumerics)}", "1.0", DeprecationLevel.Info);
+            Program.DeprecationManager.Warn($"{nameof(Extensions)}.{nameof(Extensions.RemoveNumerics)}", "1.0", DeprecationLevel.PendingRemoval);
             var s = st;
             foreach (var c in s)
             {
