@@ -4,8 +4,9 @@
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.7...1.8).
 
 For players:
-* Mods will no longer have generated `.cache` subfolders.
+* Mods will no longer generate `.cache` subfolders.
 * Fixed multiple issues where mods failed during assembly loading.
+* Tweaked install package to reduce confusion.
 
 For mod developers:
 * You can now create a `SemanticVersion` from a version string.

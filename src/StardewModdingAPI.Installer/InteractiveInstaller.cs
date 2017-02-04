@@ -27,7 +27,7 @@ namespace StardewModdingApi.Installer
                 yield return $"{Environment.GetEnvironmentVariable("HOME")}/.local/share/Steam/steamapps/common/Stardew Valley";
 
                 // Mac
-                yield return $"/Applications/Stardew Valley.app/Contents/MacOS";
+                yield return "/Applications/Stardew Valley.app/Contents/MacOS";
                 yield return $"{Environment.GetEnvironmentVariable("HOME")}/Library/Application Support/Steam/steamapps/common/Stardew Valley/Contents/MacOS";
 
                 // Windows
@@ -110,7 +110,7 @@ namespace StardewModdingApi.Installer
             ** collect details
             ****/
             Platform platform = this.DetectPlatform();
-            DirectoryInfo packageDir = new DirectoryInfo(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), platform.ToString()));
+            DirectoryInfo packageDir = new DirectoryInfo(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "internal", platform.ToString()));
             DirectoryInfo installDir = this.InteractivelyGetInstallPath(platform);
             var paths = new
             {
@@ -126,7 +126,7 @@ namespace StardewModdingApi.Installer
             ****/
             if (!packageDir.Exists)
             {
-                this.ExitError($"The '{platform}' package directory is missing (should be at {packageDir}).");
+                this.ExitError($"The 'internal/{platform}' package folder is missing (should be at {packageDir}).");
                 return;
             }
             if (!File.Exists(paths.executable))

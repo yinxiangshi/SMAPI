@@ -7,45 +7,46 @@
   -->
   <Target Name="AfterBuild">
     <PropertyGroup>
-      <CompiledInstallerPath>$(SolutionDir)\..\bin\Packaged</CompiledInstallerPath>
       <CompiledSmapiPath>$(SolutionDir)\..\bin\$(Configuration)\SMAPI</CompiledSmapiPath>
+      <PackagePath>$(SolutionDir)\..\bin\Packaged</PackagePath>
+      <PackageInternalPath>$(PackagePath)\internal</PackageInternalPath>
     </PropertyGroup>
     <ItemGroup>
       <CompiledMods Include="$(SolutionDir)\..\bin\$(Configuration)\Mods\**\*.*" />
     </ItemGroup>
     <!-- reset package directory -->
-    <RemoveDir Directories="$(CompiledInstallerPath)" />
+    <RemoveDir Directories="$(PackagePath)" />
     
     <!-- copy installer files -->
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).exe" DestinationFiles="$(CompiledInstallerPath)\install.exe" />
-    <Copy SourceFiles="$(TargetDir)\readme.txt" DestinationFiles="$(CompiledInstallerPath)\readme.txt" />
+    <Copy SourceFiles="$(TargetDir)\$(TargetName).exe" DestinationFiles="$(PackagePath)\install.exe" />
+    <Copy SourceFiles="$(TargetDir)\readme.txt" DestinationFiles="$(PackagePath)\README.txt" />
     
     <!-- copy SMAPI files for Mono -->
-    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\Mono.Cecil.dll" DestinationFolder="$(CompiledInstallerPath)\Mono" />
-    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\Mono.Cecil.Rocks.dll" DestinationFolder="$(CompiledInstallerPath)\Mono" />
-    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\Newtonsoft.Json.dll" DestinationFolder="$(CompiledInstallerPath)\Mono" />
-    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.exe" DestinationFolder="$(CompiledInstallerPath)\Mono" />
-    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.exe.mdb" DestinationFolder="$(CompiledInstallerPath)\Mono" />
-    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.AssemblyRewriters.dll" DestinationFolder="$(CompiledInstallerPath)\Mono" />
-    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.config.json" DestinationFolder="$(CompiledInstallerPath)\Mono" />
-    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.data.json" DestinationFolder="$(CompiledInstallerPath)\Mono" />
-    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\System.Numerics.dll" DestinationFolder="$(CompiledInstallerPath)\Mono" />
-    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\System.Runtime.Caching.dll" DestinationFolder="$(CompiledInstallerPath)\Mono" />
-    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\unix-launcher.sh" DestinationFiles="$(CompiledInstallerPath)\Mono\StardewModdingAPI" />
-    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\steam_appid.txt" DestinationFolder="$(CompiledInstallerPath)\Mono" />
-    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="@(CompiledMods)" DestinationFolder="$(CompiledInstallerPath)\Mono\Mods\%(RecursiveDir)" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\Mono.Cecil.dll" DestinationFolder="$(PackageInternalPath)\Mono" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\Mono.Cecil.Rocks.dll" DestinationFolder="$(PackageInternalPath)\Mono" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\Newtonsoft.Json.dll" DestinationFolder="$(PackageInternalPath)\Mono" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.exe" DestinationFolder="$(PackageInternalPath)\Mono" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.exe.mdb" DestinationFolder="$(PackageInternalPath)\Mono" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.AssemblyRewriters.dll" DestinationFolder="$(PackageInternalPath)\Mono" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.config.json" DestinationFolder="$(PackageInternalPath)\Mono" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.data.json" DestinationFolder="$(PackageInternalPath)\Mono" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\System.Numerics.dll" DestinationFolder="$(PackageInternalPath)\Mono" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\System.Runtime.Caching.dll" DestinationFolder="$(PackageInternalPath)\Mono" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\unix-launcher.sh" DestinationFiles="$(PackageInternalPath)\Mono\StardewModdingAPI" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\steam_appid.txt" DestinationFolder="$(PackageInternalPath)\Mono" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="@(CompiledMods)" DestinationFolder="$(PackageInternalPath)\Mono\Mods\%(RecursiveDir)" />
     
     <!-- copy SMAPI files for Windows -->
-    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\Mono.Cecil.dll" DestinationFolder="$(CompiledInstallerPath)\Windows" />
-    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\Mono.Cecil.Rocks.dll" DestinationFolder="$(CompiledInstallerPath)\Windows" />
-    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\Newtonsoft.Json.dll" DestinationFolder="$(CompiledInstallerPath)\Windows" />
-    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.exe" DestinationFolder="$(CompiledInstallerPath)\Windows" />
-    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.pdb" DestinationFolder="$(CompiledInstallerPath)\Windows" />
-    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.xml" DestinationFolder="$(CompiledInstallerPath)\Windows" />
-    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.AssemblyRewriters.dll" DestinationFolder="$(CompiledInstallerPath)\Windows" />
-    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.config.json" DestinationFolder="$(CompiledInstallerPath)\Windows" />
-    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.data.json" DestinationFolder="$(CompiledInstallerPath)\Windows" />
-    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\steam_appid.txt" DestinationFolder="$(CompiledInstallerPath)\Windows" />
-    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="@(CompiledMods)" DestinationFolder="$(CompiledInstallerPath)\Windows\Mods\%(RecursiveDir)" />
+    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\Mono.Cecil.dll" DestinationFolder="$(PackageInternalPath)\Windows" />
+    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\Mono.Cecil.Rocks.dll" DestinationFolder="$(PackageInternalPath)\Windows" />
+    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\Newtonsoft.Json.dll" DestinationFolder="$(PackageInternalPath)\Windows" />
+    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.exe" DestinationFolder="$(PackageInternalPath)\Windows" />
+    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.pdb" DestinationFolder="$(PackageInternalPath)\Windows" />
+    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.xml" DestinationFolder="$(PackageInternalPath)\Windows" />
+    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.AssemblyRewriters.dll" DestinationFolder="$(PackageInternalPath)\Windows" />
+    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.config.json" DestinationFolder="$(PackageInternalPath)\Windows" />
+    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.data.json" DestinationFolder="$(PackageInternalPath)\Windows" />
+    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\steam_appid.txt" DestinationFolder="$(PackageInternalPath)\Windows" />
+    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="@(CompiledMods)" DestinationFolder="$(PackageInternalPath)\Windows\Mods\%(RecursiveDir)" />
   </Target>
 </Project>
