@@ -10,16 +10,17 @@ For players:
 
 For mod developers:
 * You can now create a `SemanticVersion` from a version string.
-* **Warning:** `Assembly.GetExecutingAssembly().Location` will no longer return a valid path,
-  because mod assemblies are now loaded from memory. This has been strongly discouraged since
-  SMAPI 1.3 (which sometimes loaded DLLs from a `.cache` subfolder).
+* **Breaking change:** `Assembly.GetExecutingAssembly().Location` will no longer reliably
+  return a valid path, because mod assemblies will be loaded from memory when rewritten for
+  compatibility. (It's been deprecated since SMAPI 1.3.)
 
 For SMAPI developers:
 * Rewrote assembly loading from the ground up. The new implementation...
   * is much simpler;
-  * eliminates the `.cache` folders by loading assemblies from memory;
-  * ensures DLLs are loaded in leaf-to-root order;
+  * eliminates the `.cache` folders by loading rewritten assemblies from memory;
+  * ensures DLLs are loaded in leaf-to-root order (i.e. dependencies first);
   * improves dependent assembly resolution;
+  * no longer loads DLLs if they're not referenced;
   * reduces log verbosity.
 
 ## 1.7
