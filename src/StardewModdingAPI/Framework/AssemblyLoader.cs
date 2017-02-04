@@ -72,14 +72,19 @@ namespace StardewModdingAPI.Framework
             Assembly lastAssembly = null;
             foreach (AssemblyParseResult assembly in assemblies)
             {
-                this.Monitor.Log($"Loading {assembly.File.FullName}...", LogLevel.Trace);
-                this.RewriteAssembly(assembly.Definition);
-                using (MemoryStream outStream = new MemoryStream())
+                this.Monitor.Log($"Loading {assembly.File.Name}...", LogLevel.Trace);
+                bool changed = this.RewriteAssembly(assembly.Definition);
+                if (changed)
                 {
-                    assembly.Definition.Write(outStream);
-                    byte[] bytes = outStream.ToArray();
-                    lastAssembly = Assembly.Load(bytes);
+                    using (MemoryStream outStream = new MemoryStream())
+                    {
+                        assembly.Definition.Write(outStream);
+                        byte[] bytes = outStream.ToArray();
+                        lastAssembly = Assembly.Load(bytes);
+                    }
                 }
+                else
+                    lastAssembly = Assembly.UnsafeLoadFrom(assembly.File.FullName);
             }
 
             // last assembly loaded is the root
