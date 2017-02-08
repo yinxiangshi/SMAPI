@@ -183,10 +183,9 @@
     <Compile Include="Events\ItemStackChange.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="Framework\Monitor.cs" />
-    <Compile Include="LogInfo.cs" />
     <Compile Include="Manifest.cs" />
     <Compile Include="Mod.cs" />
-    <Compile Include="ModHelper.cs" />
+    <Compile Include="Framework\ModHelper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Framework\SGame.cs" />

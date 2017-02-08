@@ -4,11 +4,10 @@ using Newtonsoft.Json;
 using StardewModdingAPI.Advanced;
 using StardewModdingAPI.Framework.Reflection;
 
-namespace StardewModdingAPI
+namespace StardewModdingAPI.Framework
 {
     /// <summary>Provides simplified APIs for writing mods.</summary>
-    [Obsolete("Use " + nameof(IModHelper) + " instead.")] // only direct mod access to this class is obsolete
-    public class ModHelper : IModHelper
+    internal class ModHelper : IModHelper
     {
         /*********
         ** Properties
