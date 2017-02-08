@@ -104,9 +104,6 @@ namespace StardewModdingAPI.Framework
         /// <summary>The keys that just entered the up state.</summary>
         public Keys[] FrameReleasedKeys => this.PreviouslyPressedKeys.Except(this.CurrentlyPressedKeys).ToArray();
 
-        /// <summary>Whether a save is currently loaded at last check.</summary>
-        public bool PreviouslyLoadedGame { get; private set; }
-
         /// <summary>A hash of <see cref="Game1.locations"/> at last check.</summary>
         public int PreviousGameLocations { get; private set; }
 
@@ -416,7 +413,7 @@ namespace StardewModdingAPI.Framework
                 if (SGame._newDayTask != null)
                 {
                     this.GraphicsDevice.Clear(this.bgColor);
-                    base.Draw(gameTime);
+                    //base.Draw(gameTime);
                 }
                 else if (this.IsSaving)
                 {
@@ -425,10 +422,20 @@ namespace StardewModdingAPI.Framework
                     if (activeClickableMenu != null)
                     {
                         Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, (DepthStencilState)null, (RasterizerState)null);
-                        activeClickableMenu.draw(Game1.spriteBatch);
+                        try
+                        {
+                            GraphicsEvents.InvokeOnPreRenderGuiEvent(this.Monitor);
+                            activeClickableMenu.draw(Game1.spriteBatch);
+                            GraphicsEvents.InvokeOnPostRenderGuiEvent(this.Monitor);
+                        }
+                        catch (Exception ex)
+                        {
+                            this.Monitor.Log($"The {activeClickableMenu.GetType().FullName} menu crashed while drawing itself during save. SMAPI will force it to exit to avoid crashing the game.\n{ex.GetLogSummary()}", LogLevel.Error);
+                            activeClickableMenu.exitThisMenu();
+                        }
                         Game1.spriteBatch.End();
                     }
-                    base.Draw(gameTime);
+                    //base.Draw(gameTime);
                 }
                 else
                 {
@@ -438,8 +445,18 @@ namespace StardewModdingAPI.Framework
                     if (Game1.activeClickableMenu != null && Game1.options.showMenuBackground && Game1.activeClickableMenu.showWithoutTransparencyIfOptionIsSet())
                     {
                         Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, (DepthStencilState)null, (RasterizerState)null);
-                        Game1.activeClickableMenu.drawBackground(Game1.spriteBatch);
-                        Game1.activeClickableMenu.draw(Game1.spriteBatch);
+                        try
+                        {
+                            Game1.activeClickableMenu.drawBackground(Game1.spriteBatch);
+                            GraphicsEvents.InvokeOnPreRenderGuiEvent(this.Monitor);
+                            Game1.activeClickableMenu.draw(Game1.spriteBatch);
+                            GraphicsEvents.InvokeOnPostRenderGuiEvent(this.Monitor);
+                        }
+                        catch (Exception ex)
+                        {
+                            this.Monitor.Log($"The {Game1.activeClickableMenu.GetType().FullName} menu crashed while drawing itself. SMAPI will force it to exit to avoid crashing the game.\n{ex.GetLogSummary()}", LogLevel.Error);
+                            Game1.activeClickableMenu.exitThisMenu();
+                        }
                         Game1.spriteBatch.End();
                         if ((double)Game1.options.zoomLevel != 1.0)
                         {
@@ -490,7 +507,19 @@ namespace StardewModdingAPI.Framework
                     {
                         Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, (DepthStencilState)null, (RasterizerState)null);
                         if (Game1.activeClickableMenu != null)
-                            Game1.activeClickableMenu.draw(Game1.spriteBatch);
+                        {
+                            try
+                            {
+                                GraphicsEvents.InvokeOnPreRenderGuiEvent(this.Monitor);
+                                Game1.activeClickableMenu.draw(Game1.spriteBatch);
+                                GraphicsEvents.InvokeOnPostRenderGuiEvent(this.Monitor);
+                            }
+                            catch (Exception ex)
+                            {
+                                this.Monitor.Log($"The {Game1.activeClickableMenu.GetType().FullName} menu crashed while drawing itself during end-of-night-stuff. SMAPI will force it to exit to avoid crashing the game.\n{ex.GetLogSummary()}", LogLevel.Error);
+                                Game1.activeClickableMenu.exitThisMenu();
+                            }
+                        }
                         Game1.spriteBatch.End();
                         if ((double)Game1.options.zoomLevel != 1.0)
                         {
@@ -562,6 +591,7 @@ namespace StardewModdingAPI.Framework
                                 Game1.bloom.BeginDraw();
                             this.GraphicsDevice.Clear(this.bgColor);
                             Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, (DepthStencilState)null, (RasterizerState)null);
+                            GraphicsEvents.InvokeOnPreRenderEvent(this.Monitor);
                             if (Game1.background != null)
                                 Game1.background.draw(Game1.spriteBatch);
                             Game1.mapDisplayDevice.BeginScene(Game1.spriteBatch);
@@ -807,7 +837,7 @@ namespace StardewModdingAPI.Framework
                                     Game1.spriteBatch.Draw(Game1.rainTexture, Game1.rainDrops[index].position, new Microsoft.Xna.Framework.Rectangle?(Game1.getSourceRectForStandardTileSheet(Game1.rainTexture, Game1.rainDrops[index].frame, -1, -1)), Color.White);
                             }
                             Game1.spriteBatch.End();
-                            base.Draw(gameTime);
+                            //base.Draw(gameTime);
                             Game1.spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp, (DepthStencilState)null, (RasterizerState)null);
                             if (Game1.eventUp && Game1.currentLocation.currentEvent != null)
                             {
@@ -895,10 +925,14 @@ namespace StardewModdingAPI.Framework
                             }
                             if (Game1.currentBillboard != 0)
                                 this.drawBillboard();
-                            if ((Game1.displayHUD || Game1.eventUp) && (Game1.currentBillboard == 0 && (int)Game1.gameMode == 3) && (!Game1.freezeControls && !Game1.panMode))
+                            if ((Game1.displayHUD || Game1.eventUp) && (Game1.currentBillboard == 0 && (int) Game1.gameMode == 3) && (!Game1.freezeControls && !Game1.panMode))
+                            {
+                                GraphicsEvents.InvokeOnPreRenderHudEvent(this.Monitor);
                                 this.drawHUD();
+                                GraphicsEvents.InvokeOnPostRenderHudEvent(this.Monitor);
+                            }
                             else if (Game1.activeClickableMenu == null && Game1.farmEvent == null)
-                                Game1.spriteBatch.Draw(Game1.mouseCursors, new Vector2((float)Game1.getOldMouseX(), (float)Game1.getOldMouseY()), new Microsoft.Xna.Framework.Rectangle?(Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, 0, 16, 16)), Color.White, 0.0f, Vector2.Zero, (float)(4.0 + (double)Game1.dialogueButtonScale / 150.0), SpriteEffects.None, 1f);
+                                Game1.spriteBatch.Draw(Game1.mouseCursors, new Vector2((float) Game1.getOldMouseX(), (float) Game1.getOldMouseY()), new Microsoft.Xna.Framework.Rectangle?(Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, 0, 16, 16)), Color.White, 0.0f, Vector2.Zero, (float) (4.0 + (double) Game1.dialogueButtonScale / 150.0), SpriteEffects.None, 1f);
                             if (Game1.hudMessages.Count > 0 && (!Game1.eventUp || Game1.isFestival()))
                             {
                                 for (int i = Game1.hudMessages.Count - 1; i >= 0; --i)
@@ -1019,7 +1053,19 @@ namespace StardewModdingAPI.Framework
                         if (Game1.showKeyHelp)
                             Game1.spriteBatch.DrawString(Game1.smallFont, Game1.keyHelpString, new Vector2((float)Game1.tileSize, (float)(Game1.viewport.Height - Game1.tileSize - (Game1.dialogueUp ? Game1.tileSize * 3 + (Game1.isQuestion ? Game1.questionChoices.Count * Game1.tileSize : 0) : 0)) - Game1.smallFont.MeasureString(Game1.keyHelpString).Y), Color.LightGray, 0.0f, Vector2.Zero, 1f, SpriteEffects.None, 0.9999999f);
                         if (Game1.activeClickableMenu != null)
-                            Game1.activeClickableMenu.draw(Game1.spriteBatch);
+                        {
+                            try
+                            {
+                                GraphicsEvents.InvokeOnPreRenderGuiEvent(this.Monitor);
+                                Game1.activeClickableMenu.draw(Game1.spriteBatch);
+                                GraphicsEvents.InvokeOnPostRenderGuiEvent(this.Monitor);
+                            }
+                            catch (Exception ex)
+                            {
+                                this.Monitor.Log($"The {Game1.activeClickableMenu.GetType().FullName} menu crashed while drawing itself. SMAPI will force it to exit to avoid crashing the game.\n{ex.GetLogSummary()}", LogLevel.Error);
+                                Game1.activeClickableMenu.exitThisMenu();
+                            }
+                        }
                         else if (Game1.farmEvent != null)
                             Game1.farmEvent.drawAboveEverything(Game1.spriteBatch);
                         Game1.spriteBatch.End();
@@ -1035,6 +1081,7 @@ namespace StardewModdingAPI.Framework
                         this.GraphicsDevice.Clear(this.bgColor);
                         Game1.spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
                         Game1.spriteBatch.Draw((Texture2D)this.screenWrapper, Vector2.Zero, new Microsoft.Xna.Framework.Rectangle?(this.screenWrapper.Bounds), Color.White, 0.0f, Vector2.Zero, Game1.options.zoomLevel, SpriteEffects.None, 1f);
+                        GraphicsEvents.InvokeOnPostRenderEvent(this.Monitor);
                         Game1.spriteBatch.End();
                     }
                 }
