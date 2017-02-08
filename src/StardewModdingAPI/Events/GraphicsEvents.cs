@@ -18,14 +18,6 @@ namespace StardewModdingAPI.Events
         /// <summary>Raised when drawing debug information to the screen (when <see cref="SGame.Debug"/> is true). This is called after the sprite batch is begun. If you just want to add debug info, use <see cref="SGame.DebugMessageQueue" /> in your update loop.</summary>
         public static event EventHandler DrawDebug;
 
-        /// <summary>Obsolete.</summary>
-        [Obsolete("Use the other Pre/Post render events instead.")]
-        public static event EventHandler DrawTick;
-
-        /// <summary>Obsolete.</summary>
-        [Obsolete("Use the other Pre/Post render events instead. All of them will automatically be drawn into the render target if needed.")]
-        public static event EventHandler DrawInRenderTargetTick;
-
         /****
         ** Main render events
         ****/
@@ -86,22 +78,6 @@ namespace StardewModdingAPI.Events
         internal static void InvokeDrawDebug(IMonitor monitor)
         {
             monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.DrawDebug)}", GraphicsEvents.DrawDebug?.GetInvocationList());
-        }
-
-        /// <summary>Raise a <see cref="DrawTick"/> event.</summary>
-        /// <param name="monitor">Encapsulates logging and monitoring.</param>
-        [Obsolete("Should not be used.")]
-        public static void InvokeDrawTick(IMonitor monitor)
-        {
-            monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.DrawTick)}", GraphicsEvents.DrawTick?.GetInvocationList());
-        }
-
-        /// <summary>Raise a <see cref="DrawInRenderTargetTick"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        [Obsolete("Should not be used.")]
-        public static void InvokeDrawInRenderTargetTick(IMonitor monitor)
-        {
-            monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.DrawInRenderTargetTick)}", GraphicsEvents.DrawInRenderTargetTick?.GetInvocationList());
         }
 
         /****
