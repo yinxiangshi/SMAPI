@@ -5,6 +5,7 @@ See [log](https://github.com/Pathoschild/SMAPI/compare/1.8...1.9).
 
 For players:
 * Updated for Stardew Valley 1.2.
+* Simplified log filename.
 
 For mod developers:
 * Added `SaveEvents.AfterReturnToTitle` event.
