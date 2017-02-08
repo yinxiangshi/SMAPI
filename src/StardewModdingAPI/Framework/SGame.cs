@@ -37,6 +37,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>Whether the player has loaded a save and the world has finished initialising.</summary>
         private bool IsWorldReady => this.AfterLoadTimer < 0;
 
+        /// <summary>Whether the game is returning to the menu.</summary>
+        private bool IsExiting = false;
+
         /// <summary>The debug messages to add to the next debug output.</summary>
         internal static Queue<string> DebugMessageQueue { get; private set; }
 
@@ -1158,6 +1161,19 @@ namespace StardewModdingAPI.Framework
                     PlayerEvents.InvokeLoadedGame(this.Monitor, new EventArgsLoadedGameChanged(Game1.hasLoadedGame));
                 }
                 this.AfterLoadTimer--;
+            }
+
+            // before exit to title
+            if (Game1.exitToTitle)
+                this.IsExiting = true;
+
+            // after exit to title
+            if (this.IsWorldReady && this.IsExiting && Game1.activeClickableMenu is TitleMenu)
+            {
+                Console.WriteLine($"{Game1.currentGameTime.TotalGameTime}: after return to title");
+                SaveEvents.InvokeAfterReturnToTitle(this.Monitor);
+                this.AfterLoadTimer = 5;
+                this.IsExiting = false;
             }
 
             // input events

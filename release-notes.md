@@ -7,9 +7,10 @@ For players:
 * Updated for Stardew Valley 1.2.
 
 For mod developers:
+* Added `SaveEvents.AfterReturnToTitle` event.
 * Added `GetPrivateProperty` to reflection helper.
-* Many deprecated APIs have been removed; see [deprecation guide](http://canimod.com/guides/updating-a-smapi-mod)
-  for more information.
+* Many deprecated APIs have been removed; see the
+  [deprecation guide](http://canimod.com/guides/updating-a-smapi-mod) for more information.
 
 ## 1.8
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.7...1.8).
