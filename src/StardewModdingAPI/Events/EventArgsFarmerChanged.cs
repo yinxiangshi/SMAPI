@@ -1,5 +1,5 @@
 using System;
-using StardewValley;
+using SFarmer = StardewValley.Farmer;
 
 namespace StardewModdingAPI.Events
 {
@@ -10,10 +10,10 @@ namespace StardewModdingAPI.Events
         ** Accessors
         *********/
         /// <summary>The previous player character.</summary>
-        public Farmer NewFarmer { get; }
+        public SFarmer NewFarmer { get; }
 
         /// <summary>The new player character.</summary>
-        public Farmer PriorFarmer { get; }
+        public SFarmer PriorFarmer { get; }
 
 
         /*********
@@ -22,7 +22,7 @@ namespace StardewModdingAPI.Events
         /// <summary>Construct an instance.</summary>
         /// <param name="priorFarmer">The previous player character.</param>
         /// <param name="newFarmer">The new player character.</param>
-        public EventArgsFarmerChanged(Farmer priorFarmer, Farmer newFarmer)
+        public EventArgsFarmerChanged(SFarmer priorFarmer, SFarmer newFarmer)
         {
             this.PriorFarmer = priorFarmer;
             this.NewFarmer = newFarmer;

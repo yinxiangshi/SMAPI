@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using StardewModdingAPI.Framework;
 using StardewValley;
+using SFarmer = StardewValley.Farmer;
 
 namespace StardewModdingAPI.Events
 {
@@ -49,7 +50,7 @@ namespace StardewModdingAPI.Events
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="priorFarmer">The previous player character.</param>
         /// <param name="newFarmer">The new player character.</param>
-        internal static void InvokeFarmerChanged(IMonitor monitor, Farmer priorFarmer, Farmer newFarmer)
+        internal static void InvokeFarmerChanged(IMonitor monitor, SFarmer priorFarmer, SFarmer newFarmer)
         {
             if (PlayerEvents.FarmerChanged == null)
                 return;

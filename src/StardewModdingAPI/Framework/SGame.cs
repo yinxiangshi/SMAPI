@@ -14,6 +14,7 @@ using StardewValley.Menus;
 using StardewValley.Tools;
 using xTile.Dimensions;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using SFarmer = StardewValley.Farmer;
 
 namespace StardewModdingAPI.Framework
 {
@@ -131,7 +132,7 @@ namespace StardewModdingAPI.Framework
         public bool PreviousIsNewDay { get; private set; }
 
         /// <summary>The player character at last check.</summary>
-        public Farmer PreviousFarmer { get; private set; }
+        public SFarmer PreviousFarmer { get; private set; }
 
         /// <summary>An index incremented on every tick and reset every 60th tick (0–59).</summary>
         public int CurrentUpdateTick { get; private set; }
@@ -164,7 +165,7 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>The current player.</summary>
         [Obsolete("Use Game1.player instead")]
-        public Farmer CurrentFarmer => Game1.player;
+        public SFarmer CurrentFarmer => Game1.player;
 
         /// <summary>The game method which draws the farm buildings.</summary>
         public static MethodInfo DrawFarmBuildings = typeof(Game1).GetMethod("drawFarmBuildings", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -296,7 +297,6 @@ namespace StardewModdingAPI.Framework
         /// <summary>The method called during game launch after configuring XNA or MonoGame. The game window hasn't been opened by this point.</summary>
         protected override void Initialize()
         {
-            //ModItems = new Dictionary<int, SObject>();
             SGame.DebugMessageQueue = new Queue<string>();
             this.PreviouslyPressedButtons = new Buttons[4][];
             for (var i = 0; i < 4; ++i)
