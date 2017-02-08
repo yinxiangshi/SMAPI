@@ -29,7 +29,7 @@ namespace StardewModdingAPI
         public static ISemanticVersion ApiVersion => new SemanticVersion(1, 8, 0, null);
 
         /// <summary>The minimum supported version of Stardew Valley.</summary>
-        public const string MinimumGameVersion = "1.1";
+        public const string MinimumGameVersion = "1.2";
 
         /// <summary>The GitHub repository to check for updates.</summary>
         public const string GitHubRepository = "Pathoschild/SMAPI";
