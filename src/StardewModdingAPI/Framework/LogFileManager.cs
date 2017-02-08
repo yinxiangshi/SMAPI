@@ -34,7 +34,9 @@ namespace StardewModdingAPI.Framework
         /// <param name="message">The message to log.</param>
         public void WriteLine(string message)
         {
-            this.Stream.WriteLine(message);
+            // always use Windows-style line endings for convenience
+            // (Linux/Mac editors are fine with them, Windows editors often require them)
+            this.Stream.Write(message + "\r\n");
         }
 
         /// <summary>Release all resources.</summary>

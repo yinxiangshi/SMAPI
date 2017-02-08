@@ -12,6 +12,7 @@ For mod developers:
 * Added `GetPrivateProperty` to reflection helper.
 * Many deprecated APIs have been removed; see the
   [deprecation guide](http://canimod.com/guides/updating-a-smapi-mod) for more information.
+* Log files now always use `\r\n` to simplify crossplatform viewing.
 
 ## 1.8
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.7...1.8).
