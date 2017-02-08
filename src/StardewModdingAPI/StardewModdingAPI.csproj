@@ -149,6 +149,7 @@
     <Compile Include="Events\GraphicsEvents.cs" />
     <Compile Include="Framework\AssemblyDefinitionResolver.cs" />
     <Compile Include="Framework\AssemblyParseResult.cs" />
+    <Compile Include="Framework\Reflection\PrivateProperty.cs" />
     <Compile Include="Framework\Serialisation\SemanticVersionConverter.cs" />
     <Compile Include="IModRegistry.cs" />
     <Compile Include="Events\LocationEvents.cs" />
@@ -170,6 +171,7 @@
     <Compile Include="IMod.cs" />
     <Compile Include="IModHelper.cs" />
     <Compile Include="Framework\LogFileManager.cs" />
+    <Compile Include="IPrivateProperty.cs" />
     <Compile Include="ISemanticVersion.cs" />
     <Compile Include="LogLevel.cs" />
     <Compile Include="Framework\ModRegistry.cs" />

@@ -7,6 +7,7 @@ For players:
 * Updated for Stardew Valley 1.2.
 
 For mod developers:
+* Added `GetPrivateProperty` to reflection helper.
 * Many deprecated APIs have been removed; see [deprecation guide](http://canimod.com/guides/updating-a-smapi-mod)
   for more information.
 
