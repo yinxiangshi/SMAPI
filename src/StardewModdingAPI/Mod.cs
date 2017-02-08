@@ -24,17 +24,6 @@ namespace StardewModdingAPI
         public IMonitor Monitor { get; internal set; }
 
         /// <summary>The mod's manifest.</summary>
-        [Obsolete("Use " + nameof(Mod) + "." + nameof(ModManifest))]
-        public Manifest Manifest
-        {
-            get
-            {
-                Program.DeprecationManager.Warn($"{nameof(Mod)}.{nameof(Manifest)}", "1.5", DeprecationLevel.Notice);
-                return (Manifest)this.ModManifest;
-            }
-        }
-
-        /// <summary>The mod's manifest.</summary>
         public IManifest ModManifest { get; internal set; }
 
         /// <summary>The full path to the mod's directory on the disk.</summary>
@@ -87,11 +76,6 @@ namespace StardewModdingAPI
 
         /// <summary>The mod entry point, called after the mod is first loaded.</summary>
         /// <param name="helper">Provides simplified APIs for writing mods.</param>
-        [Obsolete("This overload is obsolete since SMAPI 1.1.")]
-        public virtual void Entry(ModHelper helper) { }
-
-        /// <summary>The mod entry point, called after the mod is first loaded.</summary>
-        /// <param name="helper">Provides simplified APIs for writing mods.</param>
         public virtual void Entry(IModHelper helper) { }
 
 
@@ -105,7 +89,7 @@ namespace StardewModdingAPI
             Program.DeprecationManager.Warn($"{nameof(Mod)}.{nameof(Mod.PerSaveConfigFolder)}", "1.0", DeprecationLevel.Notice);
             Program.DeprecationManager.MarkWarned($"{nameof(Mod)}.{nameof(Mod.PathOnDisk)}", "1.0"); // avoid redundant warnings
 
-            if (!((Manifest)this.Manifest).PerSaveConfigs)
+            if (!((Manifest)this.ModManifest).PerSaveConfigs)
             {
                 this.Monitor.Log("Tried to fetch the per-save config folder, but this mod isn't configured to use per-save config files.", LogLevel.Error);
                 return "";

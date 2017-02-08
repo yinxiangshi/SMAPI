@@ -7,7 +7,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using StardewModdingAPI.Events;
-using StardewModdingAPI.Framework;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
 using StardewValley.Locations;
@@ -16,10 +15,10 @@ using StardewValley.Tools;
 using xTile.Dimensions;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
-namespace StardewModdingAPI.Inheritance
+namespace StardewModdingAPI.Framework
 {
     /// <summary>SMAPI's extension of the game's core <see cref="Game1"/>, used to inject events.</summary>
-    public class SGame : Game1
+    internal class SGame : Game1
     {
         /*********
         ** Properties

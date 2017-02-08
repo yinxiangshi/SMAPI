@@ -15,7 +15,7 @@ namespace StardewModdingAPI.Events
         /// <summary>Raised after the game window is resized.</summary>
         public static event EventHandler Resize;
 
-        /// <summary>Raised when drawing debug information to the screen (when <see cref="StardewModdingAPI.Inheritance.SGame.Debug"/> is true). This is called after the sprite batch is begun. If you just want to add debug info, use <see cref="StardewModdingAPI.Inheritance.SGame.DebugMessageQueue" /> in your update loop.</summary>
+        /// <summary>Raised when drawing debug information to the screen (when <see cref="SGame.Debug"/> is true). This is called after the sprite batch is begun. If you just want to add debug info, use <see cref="SGame.DebugMessageQueue" /> in your update loop.</summary>
         public static event EventHandler DrawDebug;
 
         /// <summary>Obsolete.</summary>

@@ -69,15 +69,6 @@ namespace StardewModdingAPI
         ****/
         /// <summary>Parse a command string and invoke it if valid.</summary>
         /// <param name="input">The command to run, including the command name and any arguments.</param>
-        [Obsolete("Use the overload which passes in your mod's monitor")]
-        public static void CallCommand(string input)
-        {
-            Program.DeprecationManager.Warn($"an old version of {nameof(Command)}.{nameof(Command.CallCommand)}", "1.1", DeprecationLevel.Notice);
-            Command.CallCommand(input, Program.GetLegacyMonitorForMod());
-        }
-
-        /// <summary>Parse a command string and invoke it if valid.</summary>
-        /// <param name="input">The command to run, including the command name and any arguments.</param>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         public static void CallCommand(string input, IMonitor monitor)
         {

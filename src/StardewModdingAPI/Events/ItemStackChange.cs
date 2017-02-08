@@ -1,6 +1,6 @@
-﻿using StardewValley;
+using StardewValley;
 
-namespace StardewModdingAPI.Inheritance
+namespace StardewModdingAPI.Events
 {
     /// <summary>Represents an inventory slot that changed.</summary>
     public class ItemStackChange

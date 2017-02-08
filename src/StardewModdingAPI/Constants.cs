@@ -26,11 +26,7 @@ namespace StardewModdingAPI
         ** Accessors
         *********/
         /// <summary>SMAPI's current semantic version.</summary>
-        [Obsolete("Use " + nameof(Constants) + "." + nameof(ApiVersion))]
-        public static readonly Version Version = (Version)Constants.ApiVersion;
-
-        /// <summary>SMAPI's current semantic version.</summary>
-        public static ISemanticVersion ApiVersion => new Version(1, 8, 0, null, suppressDeprecationWarning: true);
+        public static ISemanticVersion ApiVersion => new SemanticVersion(1, 8, 0, null);
 
         /// <summary>The minimum supported version of Stardew Valley.</summary>
         public const string MinimumGameVersion = "1.1";

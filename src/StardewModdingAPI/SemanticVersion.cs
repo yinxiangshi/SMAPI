@@ -13,28 +13,21 @@ namespace StardewModdingAPI
         /// <remarks>Derived from https://github.com/maxhauser/semver.</remarks>
         private static readonly Regex Regex = new Regex(@"^(?<major>\d+)(\.(?<minor>\d+))?(\.(?<patch>\d+))?(?<build>.*)$", RegexOptions.CultureInvariant | RegexOptions.ExplicitCapture);
 
-        /// <summary>The backing field for <see cref="Build"/>.</summary>
-        private string _build;
-
 
         /*********
         ** Accessors
         *********/
         /// <summary>The major version incremented for major API changes.</summary>
-        public int MajorVersion { get; set; }
+        public int MajorVersion { get; }
 
         /// <summary>The minor version incremented for backwards-compatible changes.</summary>
-        public int MinorVersion { get; set; }
+        public int MinorVersion { get; }
 
         /// <summary>The patch version for backwards-compatible bug fixes.</summary>
-        public int PatchVersion { get; set; }
+        public int PatchVersion { get; }
 
         /// <summary>An optional build tag.</summary>
-        public string Build
-        {
-            get { return this._build; }
-            set { this._build = this.GetNormalisedTag(value); }
-        }
+        public string Build { get; }
 
 
         /*********
@@ -50,7 +43,7 @@ namespace StardewModdingAPI
             this.MajorVersion = major;
             this.MinorVersion = minor;
             this.PatchVersion = patch;
-            this.Build = build;
+            this.Build = this.GetNormalisedTag(build);
         }
 
         /// <summary>Construct an instance.</summary>
@@ -65,7 +58,7 @@ namespace StardewModdingAPI
             this.MajorVersion = int.Parse(match.Groups["major"].Value);
             this.MinorVersion = match.Groups["minor"].Success ? int.Parse(match.Groups["minor"].Value) : 0;
             this.PatchVersion = match.Groups["patch"].Success ? int.Parse(match.Groups["patch"].Value) : 0;
-            this.Build = match.Groups["build"].Success ? match.Groups["build"].Value : null;
+            this.Build = match.Groups["build"].Success ? this.GetNormalisedTag(match.Groups["build"].Value) : null;
         }
 
         /// <summary>Get an integer indicating whether this version precedes (less than 0), supercedes (more than 0), or is equivalent to (0) the specified version.</summary>

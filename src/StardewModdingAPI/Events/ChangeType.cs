@@ -1,4 +1,4 @@
-namespace StardewModdingAPI.Inheritance
+namespace StardewModdingAPI.Events
 {
     /// <summary>Indicates how an inventory item changed.</summary>
     public enum ChangeType

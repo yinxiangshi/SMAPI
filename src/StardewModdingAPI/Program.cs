@@ -14,14 +14,13 @@ using StardewModdingAPI.AssemblyRewriters;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.Models;
-using StardewModdingAPI.Inheritance;
 using StardewValley;
 using Monitor = StardewModdingAPI.Framework.Monitor;
 
 namespace StardewModdingAPI
 {
     /// <summary>The main entry point for SMAPI, responsible for hooking into and launching the game.</summary>
-    public class Program
+    internal class Program
     {
         /*********
         ** Properties
@@ -52,31 +51,27 @@ namespace StardewModdingAPI
         /// <summary>Tracks whether the game should exit immediately and any pending initialisation should be cancelled.</summary>
         private static readonly CancellationTokenSource CancellationTokenSource = new CancellationTokenSource();
 
+        /// <summary>Whether the game is currently running.</summary>
+        private static bool ready;
+
+        /// <summary>The underlying game assembly.</summary>
+        private static Assembly StardewAssembly;
+
+        /// <summary>The underlying <see cref="StardewValley.Program"/> type.</summary>
+        private static Type StardewProgramType;
+
+        /// <summary>The field containing game's main instance.</summary>
+        private static FieldInfo StardewGameInfo;
+
 
         /*********
         ** Accessors
         *********/
-        /// <summary>The number of mods currently loaded by SMAPI.</summary>
-        public static int ModsLoaded;
-
         /// <summary>The underlying game instance.</summary>
-        public static SGame gamePtr;
+        internal static SGame gamePtr;
 
-        /// <summary>Whether the game is currently running.</summary>
-        public static bool ready;
-
-        /// <summary>The underlying game assembly.</summary>
-        public static Assembly StardewAssembly;
-
-        /// <summary>The underlying <see cref="StardewValley.Program"/> type.</summary>
-        public static Type StardewProgramType;
-
-        /// <summary>The field containing game's main instance.</summary>
-        public static FieldInfo StardewGameInfo;
-
-        // ReSharper disable once PossibleNullReferenceException
-        /// <summary>The game's build type (i.e. GOG vs Steam).</summary>
-        public static int BuildType => (int)Program.StardewProgramType.GetField("buildType", BindingFlags.Public | BindingFlags.Static).GetValue(null);
+        /// <summary>The number of mods currently loaded by SMAPI.</summary>
+        internal static int ModsLoaded;
 
         /// <summary>Tracks the installed mods.</summary>
         internal static readonly ModRegistry ModRegistry = new ModRegistry();
@@ -358,7 +353,7 @@ namespace StardewModdingAPI
                 string errorPrefix = $"Couldn't load mod for manifest '{manifestPath}'";
 
                 // read manifest
-                ManifestImpl manifest;
+                Manifest manifest;
                 try
                 {
                     // read manifest text
@@ -370,7 +365,7 @@ namespace StardewModdingAPI
                     }
 
                     // deserialise manifest
-                    manifest = helper.ReadJsonFile<ManifestImpl>("manifest.json");
+                    manifest = helper.ReadJsonFile<Manifest>("manifest.json");
                     if (manifest == null)
                     {
                         Program.Monitor.Log($"{errorPrefix}: the manifest file does not exist.", LogLevel.Error);
@@ -381,10 +376,6 @@ namespace StardewModdingAPI
                         Program.Monitor.Log($"{errorPrefix}: manifest doesn't specify an entry DLL.", LogLevel.Error);
                         continue;
                     }
-
-                    // log deprecated fields
-                    if (manifest.UsedAuthourField)
-                        deprecationWarnings.Add(() => Program.DeprecationManager.Warn(manifest.Name, $"{nameof(Manifest)}.{nameof(Manifest.Authour)}", "1.0", DeprecationLevel.Notice));
                 }
                 catch (Exception ex)
                 {
@@ -424,7 +415,7 @@ namespace StardewModdingAPI
                     }
                     catch (FormatException ex) when (ex.Message.Contains("not a valid semantic version"))
                     {
-                        Program.Monitor.Log($"{errorPrefix}: the mod specified an invalid minimum SMAPI version '{manifest.MinimumApiVersion}'. This should be a semantic version number like {Constants.Version}.", LogLevel.Error);
+                        Program.Monitor.Log($"{errorPrefix}: the mod specified an invalid minimum SMAPI version '{manifest.MinimumApiVersion}'. This should be a semantic version number like {Constants.ApiVersion}.", LogLevel.Error);
                         continue;
                     }
                 }
@@ -528,14 +519,11 @@ namespace StardewModdingAPI
                 {
                     // call entry methods
                     mod.Entry(); // deprecated since 1.0
-                    mod.Entry((ModHelper)mod.Helper); // deprecated since 1.1
                     mod.Entry(mod.Helper);
 
                     // raise deprecation warning for old Entry() methods
                     if (Program.DeprecationManager.IsVirtualMethodImplemented(mod.GetType(), typeof(Mod), nameof(Mod.Entry), new[] { typeof(object[]) }))
                         Program.DeprecationManager.Warn(mod.ModManifest.Name, $"{nameof(Mod)}.{nameof(Mod.Entry)}(object[]) instead of {nameof(Mod)}.{nameof(Mod.Entry)}({nameof(IModHelper)})", "1.0", DeprecationLevel.Notice);
-                    if (Program.DeprecationManager.IsVirtualMethodImplemented(mod.GetType(), typeof(Mod), nameof(Mod.Entry), new[] { typeof(ModHelper) }))
-                        Program.DeprecationManager.Warn(mod.ModManifest.Name, $"{nameof(Mod)}.{nameof(Mod.Entry)}({nameof(ModHelper)}) instead of {nameof(Mod)}.{nameof(Mod.Entry)}({nameof(IModHelper)})", "1.1", DeprecationLevel.PendingRemoval);
                 }
                 catch (Exception ex)
                 {

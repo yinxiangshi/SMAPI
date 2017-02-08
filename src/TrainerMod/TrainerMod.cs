@@ -81,9 +81,6 @@ namespace TrainerMod
             Command.RegisterCommand("save", "Saves the game? Doesn't seem to work. | save").CommandFired += this.HandleSave;
             Command.RegisterCommand("load", "Shows the load screen | load").CommandFired += this.HandleLoad;
 
-            Command.RegisterCommand("exit", "Closes the game | exit").CommandFired += this.HandleExit;
-            Command.RegisterCommand("stop", "Closes the game | stop").CommandFired += this.HandleExit;
-
             Command.RegisterCommand("player_setname", "Sets the player's name | player_setname <object> <value>", new[] { "(player, pet, farm)<object> (String)<value> The target name" }).CommandFired += this.HandlePlayerSetName;
             Command.RegisterCommand("player_setmoney", "Sets the player's money | player_setmoney <value>|inf", new[] { "(Int32)<value> The target money" }).CommandFired += this.HandlePlayerSetMoney;
             Command.RegisterCommand("player_setstamina", "Sets the player's stamina | player_setstamina <value>|inf", new[] { "(Int32)<value> The target stamina" }).CommandFired += this.HandlePlayerSetStamina;
@@ -140,15 +137,6 @@ namespace TrainerMod
         {
             Game1.hasLoadedGame = false;
             Game1.activeClickableMenu = new LoadGameMenu();
-        }
-
-        /// <summary>The event raised when the 'exit' command is triggered.</summary>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="e">The event arguments.</param>
-        private void HandleExit(object sender, EventArgsCommand e)
-        {
-            Program.gamePtr.Exit();
-            Environment.Exit(0);
         }
 
         /// <summary>The event raised when the 'player_setName' command is triggered.</summary>
