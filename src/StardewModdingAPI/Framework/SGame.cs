@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
@@ -48,14 +49,13 @@ namespace StardewModdingAPI.Framework
         /****
         ** Private wrappers
         ****/
-        // ReSharper disable InconsistentNaming
+        // ReSharper disable ArrangeStaticMemberQualifier, ArrangeThisQualifier, InconsistentNaming
         /// <summary>Used to access private fields and methods.</summary>
         private static readonly IReflectionHelper Reflection = new ReflectionHelper();
         private static List<float> _fpsList => SGame.Reflection.GetPrivateField<List<float>>(typeof(Game1), nameof(_fpsList)).GetValue();
         private static Stopwatch _fpsStopwatch => SGame.Reflection.GetPrivateField<Stopwatch>(typeof(Game1), nameof(SGame._fpsStopwatch)).GetValue();
         private static float _fps
         {
-            get { return SGame.Reflection.GetPrivateField<float>(typeof(Game1), nameof(_fps)).GetValue(); }
             set { SGame.Reflection.GetPrivateField<float>(typeof(Game1), nameof(_fps)).SetValue(value); }
         }
         private static Task _newDayTask => SGame.Reflection.GetPrivateField<Task>(typeof(Game1), nameof(_newDayTask)).GetValue();
@@ -65,7 +65,7 @@ namespace StardewModdingAPI.Framework
         private readonly Action drawFarmBuildings = () => SGame.Reflection.GetPrivateMethod(SGame.Instance, nameof(drawFarmBuildings)).Invoke(new object[0]);
         private readonly Action drawHUD = () => SGame.Reflection.GetPrivateMethod(SGame.Instance, nameof(drawHUD)).Invoke(new object[0]);
         private readonly Action drawDialogueBox = () => SGame.Reflection.GetPrivateMethod(SGame.Instance, nameof(drawDialogueBox)).Invoke(new object[0]);
-        // ReSharper restore InconsistentNaming
+        // ReSharper restore ArrangeStaticMemberQualifier, ArrangeThisQualifier, InconsistentNaming
 
 
         /*********
@@ -377,6 +377,13 @@ namespace StardewModdingAPI.Framework
         /// <summary>The method called to draw everything to the screen.</summary>
         /// <param name="gameTime">A snapshot of the game timing state.</param>
         /// <remarks>This implementation is identical to <see cref="Game1.Draw"/>, except for try..catch around menu draw code, minor formatting, and added events.</remarks>
+        [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator", Justification = "copied from game code as-is")]
+        [SuppressMessage("ReSharper", "LocalVariableHidesMember", Justification = "copied from game code as-is")]
+        [SuppressMessage("ReSharper", "PossibleLossOfFraction", Justification = "copied from game code as-is")]
+        [SuppressMessage("ReSharper", "RedundantArgumentDefaultValue", Justification = "copied from game code as-is")]
+        [SuppressMessage("ReSharper", "RedundantCast", Justification = "copied from game code as-is")]
+        [SuppressMessage("ReSharper", "RedundantExplicitNullableCreation", Justification = "copied from game code as-is")]
+        [SuppressMessage("ReSharper", "RedundantTypeArgumentsOfMethod", Justification = "copied from game code as-is")]
         protected override void Draw(GameTime gameTime)
         {
             // track frame rate
