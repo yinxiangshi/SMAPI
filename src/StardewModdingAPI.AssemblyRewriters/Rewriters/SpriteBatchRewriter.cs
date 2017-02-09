@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using StardewModdingAPI.AssemblyRewriters.Framework;
 
 namespace StardewModdingAPI.AssemblyRewriters.Rewriters
 {
@@ -13,7 +14,7 @@ namespace StardewModdingAPI.AssemblyRewriters.Rewriters
         /*********
         ** Protected methods
         *********/
-        /// <summary>Get whether the given method reference can be rewritten.</summary>
+        /// <summary>Get whether a method reference should be rewritten.</summary>
         /// <param name="methodRef">The method reference.</param>
         /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
         protected override bool ShouldRewrite(MethodReference methodRef, bool platformChanged)

@@ -4,7 +4,7 @@ using System.Reflection;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
-namespace StardewModdingAPI.AssemblyRewriters.Rewriters
+namespace StardewModdingAPI.AssemblyRewriters.Framework
 {
     /// <summary>Base class for a method rewriter.</summary>
     public abstract class BaseMethodRewriter : IInstructionRewriter
@@ -37,10 +37,11 @@ namespace StardewModdingAPI.AssemblyRewriters.Rewriters
             this.Rewrite(module, cil, instruction, methodRef, assemblyMap);
         }
 
+
         /*********
         ** Protected methods
         *********/
-        /// <summary>Get whether the given method reference can be rewritten.</summary>
+        /// <summary>Get whether a method reference should be rewritten.</summary>
         /// <param name="methodRef">The method reference.</param>
         /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
         protected abstract bool ShouldRewrite(MethodReference methodRef, bool platformChanged);
@@ -69,7 +70,7 @@ namespace StardewModdingAPI.AssemblyRewriters.Rewriters
                 return false;
             for (int i = 0; i < referenceParameters.Length; i++)
             {
-                if (!this.IsMatchingType(definitionParameters[i].ParameterType, referenceParameters[i].ParameterType))
+                if (!RewriteHelper.IsMatchingType(definitionParameters[i].ParameterType, referenceParameters[i].ParameterType))
                     return false;
             }
             return true;
@@ -83,35 +84,6 @@ namespace StardewModdingAPI.AssemblyRewriters.Rewriters
             return type
                 .GetMethods(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public)
                 .Any(method => this.HasMatchingSignature(method, reference));
-        }
-
-        /// <summary>Get whether a type matches a type reference.</summary>
-        /// <param name="type">The defined type.</param>
-        /// <param name="reference">The type reference.</param>
-        private bool IsMatchingType(Type type, TypeReference reference)
-        {
-            // same namespace & name
-            if (type.Namespace != reference.Namespace || type.Name != reference.Name)
-                return false;
-
-            // same generic parameters
-            if (type.IsGenericType)
-            {
-                if (!reference.IsGenericInstance)
-                    return false;
-
-                Type[] defGenerics = type.GetGenericArguments();
-                TypeReference[] refGenerics = ((GenericInstanceType)reference).GenericArguments.ToArray();
-                if (defGenerics.Length != refGenerics.Length)
-                    return false;
-                for (int i = 0; i < defGenerics.Length; i++)
-                {
-                    if (!this.IsMatchingType(defGenerics[i], refGenerics[i]))
-                        return false;
-                }
-            }
-
-            return true;
         }
     }
 }
