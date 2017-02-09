@@ -15,9 +15,10 @@ namespace StardewModdingAPI.AssemblyRewriters.Rewriters
         ** Protected methods
         *********/
         /// <summary>Get whether a method reference should be rewritten.</summary>
+        /// <param name="instruction">The IL instruction.</param>
         /// <param name="methodRef">The method reference.</param>
         /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        protected override bool ShouldRewrite(MethodReference methodRef, bool platformChanged)
+        protected override bool ShouldRewrite(Instruction instruction, MethodReference methodRef, bool platformChanged)
         {
             return platformChanged
                 && methodRef.DeclaringType.FullName == typeof(SpriteBatch).FullName

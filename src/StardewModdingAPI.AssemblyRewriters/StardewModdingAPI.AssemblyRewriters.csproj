@@ -74,8 +74,10 @@
     <Compile Include="Platform.cs" />
     <Compile Include="PlatformAssemblyMap.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Framework\BaseFieldRewriter.cs" />
     <Compile Include="Framework\BaseMethodRewriter.cs" />
     <Compile Include="Framework\RewriteHelper.cs" />
+    <Compile Include="Rewriters\ActiveClickableMenuRewriter.cs" />
     <Compile Include="Rewriters\SpriteBatchRewriter.cs" />
   </ItemGroup>
   <ItemGroup>

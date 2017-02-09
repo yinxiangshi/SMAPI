@@ -17,13 +17,9 @@ namespace StardewModdingAPI.AssemblyRewriters.Framework
         /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
         public bool ShouldRewrite(Instruction instruction, bool platformChanged)
         {
-            // ignore non-method-call instructions
             if (instruction.OpCode != OpCodes.Call && instruction.OpCode != OpCodes.Callvirt)
-                return false;
-
-            // check reference
-            MethodReference methodRef = (MethodReference)instruction.Operand;
-            return this.ShouldRewrite(methodRef, platformChanged);
+                return false; // not a method reference
+            return this.ShouldRewrite(instruction, (MethodReference)instruction.Operand, platformChanged);
         }
 
         /// <summary>Rewrite a CIL instruction for compatibility.</summary>
@@ -42,9 +38,10 @@ namespace StardewModdingAPI.AssemblyRewriters.Framework
         ** Protected methods
         *********/
         /// <summary>Get whether a method reference should be rewritten.</summary>
+        /// <param name="instruction">The IL instruction.</param>
         /// <param name="methodRef">The method reference.</param>
         /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        protected abstract bool ShouldRewrite(MethodReference methodRef, bool platformChanged);
+        protected abstract bool ShouldRewrite(Instruction instruction, MethodReference methodRef, bool platformChanged);
 
         /// <summary>Rewrite a method for compatibility.</summary>
         /// <param name="module">The module being rewritten.</param>
