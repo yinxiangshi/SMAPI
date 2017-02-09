@@ -72,10 +72,10 @@ namespace StardewModdingAPI.Framework
             Assembly lastAssembly = null;
             foreach (AssemblyParseResult assembly in assemblies)
             {
-                this.Monitor.Log($"Loading {assembly.File.Name}...", LogLevel.Trace);
                 bool changed = this.RewriteAssembly(assembly.Definition);
                 if (changed)
                 {
+                    this.Monitor.Log($"Loading {assembly.File.Name} (rewritten in memory)...", LogLevel.Trace);
                     using (MemoryStream outStream = new MemoryStream())
                     {
                         assembly.Definition.Write(outStream);
@@ -84,7 +84,10 @@ namespace StardewModdingAPI.Framework
                     }
                 }
                 else
+                {
+                    this.Monitor.Log($"Loading {assembly.File.Name}...", LogLevel.Trace);
                     lastAssembly = Assembly.UnsafeLoadFrom(assembly.File.FullName);
+                }
             }
 
             // last assembly loaded is the root
@@ -155,59 +158,59 @@ namespace StardewModdingAPI.Framework
         /// <returns>Returns whether the assembly was modified.</returns>
         private bool RewriteAssembly(AssemblyDefinition assembly)
         {
-            ModuleDefinition module = assembly.Modules.Single(); // technically an assembly can have multiple modules, but none of the build tools (including MSBuild) support it; simplify by assuming one module
+            ModuleDefinition module = assembly.MainModule;
 
-            // remove old assembly references
-            bool shouldRewrite = false;
+            // swap assembly references if needed (e.g. XNA => MonoGame)
+            bool platformChanged = false;
             for (int i = 0; i < module.AssemblyReferences.Count; i++)
             {
+                // remove old assembly reference
                 if (this.AssemblyMap.RemoveNames.Any(name => module.AssemblyReferences[i].Name == name))
                 {
-                    shouldRewrite = true;
+                    platformChanged = true;
                     module.AssemblyReferences.RemoveAt(i);
                     i--;
                 }
             }
-            if (!shouldRewrite)
-                return false;
+            if (platformChanged)
+            {
+                // add target assembly references
+                foreach (AssemblyNameReference target in this.AssemblyMap.TargetReferences.Values)
+                    module.AssemblyReferences.Add(target);
 
-            // add target assembly references
-            foreach (AssemblyNameReference target in this.AssemblyMap.TargetReferences.Values)
-                module.AssemblyReferences.Add(target);
+                // rewrite type scopes to use target assemblies
+                IEnumerable<TypeReference> typeReferences = module.GetTypeReferences().OrderBy(p => p.FullName);
+                foreach (TypeReference type in typeReferences)
+                    this.ChangeTypeScope(type);
+            }
 
-            // rewrite type scopes to use target assemblies
-            IEnumerable<TypeReference> typeReferences = module.GetTypeReferences().OrderBy(p => p.FullName);
-            foreach (TypeReference type in typeReferences)
-                this.ChangeTypeScope(type);
-
-            // rewrite incompatible methods
-            IMethodRewriter[] methodRewriters = Constants.GetMethodRewriters().ToArray();
+            // rewrite incompatible instructions
+            bool anyRewritten = false;
+            IInstructionRewriter[] rewriters = Constants.GetRewriters().ToArray();
             foreach (MethodDefinition method in this.GetMethods(module))
             {
-                // skip methods with no rewritable method
-                bool hasMethodToRewrite = method.Body.Instructions.Any(op => (op.OpCode == OpCodes.Call || op.OpCode == OpCodes.Callvirt) && methodRewriters.Any(rewriter => rewriter.ShouldRewrite((MethodReference)op.Operand)));
-                if (!hasMethodToRewrite)
+                // skip methods with no rewritable instructions
+                bool canRewrite = method.Body.Instructions.Any(op => rewriters.Any(rewriter => rewriter.ShouldRewrite(op, platformChanged)));
+                if (!canRewrite)
                     continue;
 
-                // rewrite method references
+                // prepare method
                 method.Body.SimplifyMacros();
                 ILProcessor cil = method.Body.GetILProcessor();
-                Instruction[] instructions = cil.Body.Instructions.ToArray();
-                foreach (Instruction op in instructions)
+
+                // rewrite instructions
+                foreach (Instruction op in cil.Body.Instructions.ToArray())
                 {
-                    if (op.OpCode == OpCodes.Call || op.OpCode == OpCodes.Callvirt)
-                    {
-                        IMethodRewriter rewriter = methodRewriters.FirstOrDefault(p => p.ShouldRewrite((MethodReference)op.Operand));
-                        if (rewriter != null)
-                        {
-                            MethodReference methodRef = (MethodReference)op.Operand;
-                            rewriter.Rewrite(module, cil, op, methodRef, this.AssemblyMap);
-                        }
-                    }
+                    IInstructionRewriter rewriter = rewriters.FirstOrDefault(p => p.ShouldRewrite(op, platformChanged));
+                    rewriter?.Rewrite(module, cil, op, this.AssemblyMap);
                 }
+
+                // finalise method
                 method.Body.OptimizeMacros();
+                anyRewritten = true;
             }
-            return true;
+
+            return platformChanged || anyRewritten;
         }
 
         /// <summary>Get the correct reference to use for compatibility with the current platform.</summary>

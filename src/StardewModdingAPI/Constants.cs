@@ -120,8 +120,8 @@ namespace StardewModdingAPI
             return new PlatformAssemblyMap(targetPlatform, removeAssemblyReferences, targetAssemblies);
         }
 
-        /// <summary>Get method rewriters which fix incompatible method calls in mod assemblies.</summary>
-        internal static IEnumerable<IMethodRewriter> GetMethodRewriters()
+        /// <summary>Get rewriters which fix incompatible CIL instructions in mod assemblies.</summary>
+        internal static IEnumerable<IInstructionRewriter> GetRewriters()
         {
             return new[]
             {
