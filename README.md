@@ -81,7 +81,6 @@ folder containing `src`).
             Mono/
                Mods/*
                Mono.Cecil.dll
-               Mono.Cecil.Rocks.dll
                Newtonsoft.Json.dll
                StardewModdingAPI
                StardewModdingAPI.AssemblyRewriters.dll
@@ -95,7 +94,6 @@ folder containing `src`).
             Windows/
                Mods/*
                Mono.Cecil.dll
-               Mono.Cecil.Rocks.dll
                Newtonsoft.Json.dll
                StardewModdingAPI.AssemblyRewriters.dll
                StardewModdingAPI.config.json

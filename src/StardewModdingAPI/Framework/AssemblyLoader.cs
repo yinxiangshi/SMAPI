@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using Mono.Cecil.Rocks;
 using StardewModdingAPI.AssemblyRewriters;
 
 namespace StardewModdingAPI.Framework
@@ -195,7 +194,6 @@ namespace StardewModdingAPI.Framework
                     continue;
 
                 // prepare method
-                method.Body.SimplifyMacros();
                 ILProcessor cil = method.Body.GetILProcessor();
 
                 // rewrite instructions
@@ -206,7 +204,6 @@ namespace StardewModdingAPI.Framework
                 }
 
                 // finalise method
-                method.Body.OptimizeMacros();
                 anyRewritten = true;
             }
 

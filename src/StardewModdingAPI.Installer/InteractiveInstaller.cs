@@ -59,6 +59,8 @@ namespace StardewModdingApi.Installer
             Func<string, string> installPath = path => Path.Combine(installDir.FullName, path);
 
             // common
+            yield return installPath("Mono.Cecil.dll");
+            yield return installPath("Newtonsoft.Json.dll");
             yield return installPath("StardewModdingAPI.exe");
             yield return installPath("StardewModdingAPI.config.json");
             yield return installPath("StardewModdingAPI.data.json");
@@ -66,9 +68,6 @@ namespace StardewModdingApi.Installer
             yield return installPath("steam_appid.txt");
 
             // Linux/Mac only
-            yield return installPath("Mono.Cecil.dll");
-            yield return installPath("Mono.Cecil.Rocks.dll");
-            yield return installPath("Newtonsoft.Json.dll");
             yield return installPath("StardewModdingAPI");
             yield return installPath("StardewModdingAPI.exe.mdb");
             yield return installPath("System.Numerics.dll");
@@ -79,6 +78,7 @@ namespace StardewModdingApi.Installer
 
             // obsolete
             yield return installPath("Mods/.cache"); // 1.3-1.4
+            yield return installPath("Mono.Cecil.Rocks.dll"); // 1.3–1.8
             yield return installPath("StardewModdingAPI-settings.json"); // 1.0-1.4
             if (modsDir.Exists)
             {
