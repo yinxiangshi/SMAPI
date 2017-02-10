@@ -130,7 +130,8 @@ namespace StardewModdingAPI
                 new SpriteBatch_MethodRewriter(),
 
                 // Stardew Valley 1.2
-                new Game1_ActiveClickableMenu_FieldRewriter()
+                new Game1_ActiveClickableMenu_FieldRewriter(),
+                new Game1_Player_FieldRewriter()
             };
         }
 
