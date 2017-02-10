@@ -123,9 +123,10 @@ namespace StardewModdingAPI
         /// <summary>Get rewriters which fix incompatible CIL instructions in mod assemblies.</summary>
         internal static IEnumerable<IInstructionRewriter> GetRewriters()
         {
-            return new[]
+            return new IInstructionRewriter[]
             {
-                new SpriteBatchRewriter()
+                new SpriteBatchRewriter(),
+                new ActiveClickableMenuRewriter()
             };
         }
 
