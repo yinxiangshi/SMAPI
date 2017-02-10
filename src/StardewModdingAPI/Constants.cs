@@ -131,6 +131,7 @@ namespace StardewModdingAPI
 
                 // Stardew Valley 1.2
                 new Game1_ActiveClickableMenu_FieldRewriter(),
+                new Game1_GameMode_FieldRewriter(),
                 new Game1_Player_FieldRewriter()
             };
         }
