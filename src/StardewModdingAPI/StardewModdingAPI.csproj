@@ -257,6 +257,5 @@
     <Copy SourceFiles="$(TargetDir)\$(TargetName).xml" DestinationFolder="$(GamePath)" Condition="$(OS) == 'Windows_NT'" />
     <Copy SourceFiles="$(TargetDir)\Newtonsoft.Json.dll" DestinationFolder="$(GamePath)" />
     <Copy SourceFiles="$(TargetDir)\Mono.Cecil.dll" DestinationFolder="$(GamePath)" />
-    <Copy SourceFiles="$(TargetDir)\Mono.Cecil.Rocks.dll" DestinationFolder="$(GamePath)" />
   </Target>
 </Project>
