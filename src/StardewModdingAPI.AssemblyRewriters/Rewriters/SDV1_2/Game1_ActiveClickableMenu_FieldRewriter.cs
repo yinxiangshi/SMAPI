@@ -1,13 +1,15 @@
+using System.Diagnostics.CodeAnalysis;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using StardewModdingAPI.AssemblyRewriters.Framework;
 using StardewValley;
 
-namespace StardewModdingAPI.AssemblyRewriters.Rewriters
+namespace StardewModdingAPI.AssemblyRewriters.Rewriters.SDV1_2
 {
     /// <summary>Rewrites field references to <see cref="Game1.activeClickableMenu"/>.</summary>
     /// <remarks>Stardew Valley changed the <see cref="Game1.activeClickableMenu"/> field to a property, which broke many mods that reference it.</remarks>
-    public class ActiveClickableMenuRewriter : BaseFieldRewriter
+    [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "This class is not meant to be used directly, and is deliberately named to make it easier to know what it changes at a glance.")]
+    public class Game1_ActiveClickableMenu_FieldRewriter : BaseFieldRewriter
     {
         /*********
         ** Protected methods

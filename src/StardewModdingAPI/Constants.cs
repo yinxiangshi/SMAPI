@@ -4,7 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using StardewModdingAPI.AssemblyRewriters;
-using StardewModdingAPI.AssemblyRewriters.Rewriters;
+using StardewModdingAPI.AssemblyRewriters.Rewriters.Crossplatform;
+using StardewModdingAPI.AssemblyRewriters.Rewriters.SDV1_2;
 using StardewValley;
 
 namespace StardewModdingAPI
@@ -125,8 +126,11 @@ namespace StardewModdingAPI
         {
             return new IInstructionRewriter[]
             {
-                new SpriteBatchRewriter(),
-                new ActiveClickableMenuRewriter()
+                // crossplatform
+                new SpriteBatch_MethodRewriter(),
+
+                // Stardew Valley 1.2
+                new Game1_ActiveClickableMenu_FieldRewriter()
             };
         }
 

@@ -5,11 +5,12 @@ using Mono.Cecil;
 using Mono.Cecil.Cil;
 using StardewModdingAPI.AssemblyRewriters.Framework;
 
-namespace StardewModdingAPI.AssemblyRewriters.Rewriters
+namespace StardewModdingAPI.AssemblyRewriters.Rewriters.Crossplatform
 {
     /// <summary>Rewrites references to <see cref="SpriteBatch"/> to fix inconsistent method signatures between MonoGame and XNA.</summary>
     /// <remarks>MonoGame has one <c>SpriteBatch.Begin</c> method with optional arguments, but XNA has multiple method overloads. Incompatible method references are rewritten to use <see cref="WrapperMethods"/>, which redirects all method signatures to the proper compiled MonoGame/XNA method.</remarks>
-    public class SpriteBatchRewriter : BaseMethodRewriter
+    [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "This class is not meant to be used directly, and is deliberately named to make it easier to know what it changes at a glance.")]
+    public class SpriteBatch_MethodRewriter : BaseMethodRewriter
     {
         /*********
         ** Protected methods
@@ -22,7 +23,7 @@ namespace StardewModdingAPI.AssemblyRewriters.Rewriters
         {
             return platformChanged
                 && methodRef.DeclaringType.FullName == typeof(SpriteBatch).FullName
-                && this.HasMatchingSignature(typeof(SpriteBatchRewriter.WrapperMethods), methodRef);
+                && this.HasMatchingSignature(typeof(SpriteBatch_MethodRewriter.WrapperMethods), methodRef);
         }
 
         /// <summary>Rewrite a method for compatibility.</summary>
@@ -33,7 +34,7 @@ namespace StardewModdingAPI.AssemblyRewriters.Rewriters
         /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
         protected override void Rewrite(ModuleDefinition module, ILProcessor cil, Instruction instruction, MethodReference methodRef, PlatformAssemblyMap assemblyMap)
         {
-            methodRef.DeclaringType = module.Import(typeof(SpriteBatchRewriter.WrapperMethods));
+            methodRef.DeclaringType = module.Import(typeof(SpriteBatch_MethodRewriter.WrapperMethods));
         }
 
 
