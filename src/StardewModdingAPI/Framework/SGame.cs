@@ -1120,6 +1120,7 @@ namespace StardewModdingAPI.Framework
                 {
                     SaveEvents.InvokeAfterLoad(this.Monitor);
                     PlayerEvents.InvokeLoadedGame(this.Monitor, new EventArgsLoadedGameChanged(Game1.hasLoadedGame));
+                    TimeEvents.InvokeAfterDayStarted(this.Monitor);
                 }
                 this.AfterLoadTimer--;
             }
@@ -1200,7 +1201,10 @@ namespace StardewModdingAPI.Framework
                 if (newMenu is SaveGameMenu || newMenu is ShippingMenu)
                     SaveEvents.InvokeBeforeSave(this.Monitor);
                 else if (previousMenu is SaveGameMenu || previousMenu is ShippingMenu)
+                {
                     SaveEvents.InvokeAfterSave(this.Monitor);
+                    TimeEvents.InvokeAfterDayStarted(this.Monitor);
+                }
 
                 // raise menu events
                 if (newMenu != null)

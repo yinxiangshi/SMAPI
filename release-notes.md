@@ -10,7 +10,7 @@ For players:
 * Fixed game's debug output being shown in the console for all users.
 
 For mod developers:
-* Added `SaveEvents.AfterReturnToTitle` event.
+* Added `SaveEvents.AfterReturnToTitle` and `TimeEvents.AfterDayStarted` events.
 * Added `GetPrivateProperty` reflection helper.
 * Many deprecated APIs have been removed; see the
   [deprecation guide](http://canimod.com/guides/updating-a-smapi-mod) for more information.
