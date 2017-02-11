@@ -337,9 +337,12 @@ namespace StardewModdingAPI
 
             // load mod assemblies
             List<Action> deprecationWarnings = new List<Action>(); // queue up deprecation warnings to show after mod list
-            foreach (string directory in Directory.GetDirectories(Program.ModPath))
+            foreach (string directoryPath in Directory.GetDirectories(Program.ModPath))
             {
-                string directoryName = new DirectoryInfo(directory).Name;
+                // passthrough empty directories
+                DirectoryInfo directory = new DirectoryInfo(directoryPath);
+                while (!directory.GetFiles().Any() && directory.GetDirectories().Length == 1)
+                    directory = directory.GetDirectories().First();
 
                 // check for cancellation
                 if (Program.CancellationTokenSource.IsCancellationRequested)
@@ -349,13 +352,13 @@ namespace StardewModdingAPI
                 }
 
                 // get helper
-                IModHelper helper = new ModHelper(directory, Program.ModRegistry);
+                IModHelper helper = new ModHelper(directory.FullName, Program.ModRegistry);
 
                 // get manifest path
-                string manifestPath = Path.Combine(directory, "manifest.json");
+                string manifestPath = Path.Combine(directory.FullName, "manifest.json");
                 if (!File.Exists(manifestPath))
                 {
-                    Program.Monitor.Log($"Ignored folder \"{directoryName}\" which doesn't have a manifest.json.", LogLevel.Warn);
+                    Program.Monitor.Log($"Ignored folder \"{directory.Name}\" which doesn't have a manifest.json.", LogLevel.Warn);
                     continue;
                 }
                 string errorPrefix = $"Couldn't load mod for manifest '{manifestPath}'";
@@ -434,7 +437,7 @@ namespace StardewModdingAPI
                     deprecationWarnings.Add(() => Program.DeprecationManager.Warn(manifest.Name, $"{nameof(Manifest)}.{nameof(Manifest.PerSaveConfigs)}", "1.0", DeprecationLevel.Info));
                     try
                     {
-                        string psDir = Path.Combine(directory, "psconfigs");
+                        string psDir = Path.Combine(directory.FullName, "psconfigs");
                         Directory.CreateDirectory(psDir);
                         if (!Directory.Exists(psDir))
                         {
@@ -450,7 +453,7 @@ namespace StardewModdingAPI
                 }
 
                 // validate mod path to simplify errors
-                string assemblyPath = Path.Combine(directory, manifest.EntryDll);
+                string assemblyPath = Path.Combine(directory.FullName, manifest.EntryDll);
                 if (!File.Exists(assemblyPath))
                 {
                     Program.Monitor.Log($"{errorPrefix}: the entry DLL '{manifest.EntryDll}' does not exist.", LogLevel.Error);
@@ -501,7 +504,7 @@ namespace StardewModdingAPI
                     mod.ModManifest = manifest;
                     mod.Helper = helper;
                     mod.Monitor = Program.GetSecondaryMonitor(manifest.Name);
-                    mod.PathOnDisk = directory;
+                    mod.PathOnDisk = directory.FullName;
 
                     // track mod
                     Program.ModRegistry.Add(mod);
