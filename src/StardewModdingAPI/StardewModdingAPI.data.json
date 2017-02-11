@@ -42,6 +42,13 @@ This file contains advanced metadata for SMAPI. You shouldn't change this file.
 
   /* versions not compatible with Stardew Valley 1.2+ */
   {
+    "Name": "AccessChestAnywhere",
+    "ID": "AccessChestAnywhere",
+    "UpperVersion": "1.1",
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/257",
+    "UnofficialUpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/518"
+  },
+  {
     "Name": "Better Sprinklers",
     "ID": "SPDSprinklersMod",
     "UpperVersion": "2.1",
@@ -56,10 +63,34 @@ This file contains advanced metadata for SMAPI. You shouldn't change this file.
     "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/878"
   },
   {
+    "Name": "Chests Anywhere",
+    "ID": "ChestsAnywhere",
+    "UpperVersion": "1.8.2",
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/518"
+  },
+  {
+    "Name": "CJB Automation",
+    "ID": "CJBAutomation",
+    "UpperVersion": "1.4",
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/211"
+  },
+  {
+    "Name": "Enemy Health Bars",
+    "ID": "SPDHealthBar",
+    "UpperVersion": "1.7",
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/193"
+  },
+  {
     "Name": "Entoarox Framework",
     "ID": "eacdb74b-4080-4452-b16b-93773cda5cf9",
     "UpperVersion": "1.6.1",
     "UpdateUrl": "http://community.playstarbound.com/resources/4228"
+  },
+  {
+    "Name": "Extended Fridge",
+    "ID": "Mystra007ExtendedFridge",
+    "UpperVersion": "1.0", // real latest version is 0.94, but mod incorrectly sets version to 1.0 in manifest
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/485"
   },
   {
     "Name": "Get Dressed",
@@ -68,9 +99,39 @@ This file contains advanced metadata for SMAPI. You shouldn't change this file.
     "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/331"
   },
   {
+    "Name": "Lookup Anything",
+    "ID": "Pathoschild.LookupAnything",
+    "UpperVersion": "1.10.1",
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/541"
+  },
+  {
+    "Name": "Lookup Anything",
+    "ID": "LookupAnything", // ID changed in latest version
+    "UpperVersion": "1.10.1",
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/541"
+  },
+  {
     "Name": "NoSoilDecay",
     "ID": "289dee03-5f38-4d8e-8ffc-e440198e8610",
     "UpperVersion": "0.5",
     "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/237"
+  },
+  {
+    "Name": "Reusable Wallpapers",
+    "ID": "dae1b553-2e39-43e7-8400-c7c5c836134b",
+    "UpperVersion": "1.5",
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/356"
+  },
+  {
+    "Name": "Save Anywhere", // depends on StarDustCore
+    "ID": "SaveAnywhere",
+    "UpperVersion": "2.0",
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/444"
+  },
+  {
+    "Name": "StarDustCore",
+    "ID": "StarDustCore",
+    "UpperVersion": "1.0",
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/683"
   }
 ]
