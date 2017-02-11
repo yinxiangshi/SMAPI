@@ -6,45 +6,71 @@ This file contains advanced metadata for SMAPI. You shouldn't change this file.
 
 */
 [
+  /* versions which crash the game */
+  {
+    "Name": "NPC Map Locations",
+    "ID": "NPCMapLocationsMod",
+    "LowerVersion": "1.42",
+    "UpperVersion": "1.43",
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/239",
+    "ReasonPhrase": "this version has an update check error which crashes the game"
+  },
+
   /* versions not compatible with Stardew Valley 1.1+ */
   {
-    "ID": "SPDSprinklersMod",
-    "Name": "Better Sprinklers",
-    "UpperVersion": "2.1",
-    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/41",
-    "UnofficialUpdateUrl": "http://community.playstarbound.com/threads/125031",
-    "ForceCompatibleVersion": "^2.1-EntoPatch"
-  },
-  {
-    "ID": "SPDChestLabel",
     "Name": "Chest Label System",
+    "ID": "SPDChestLabel",
     "UpperVersion": "1.5",
     "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/242",
     "UnofficialUpdateUrl": "http://community.playstarbound.com/threads/125031",
     "ForceCompatibleVersion": "^1.5-EntoPatch"
   },
   {
-    "ID": "CJBCheatsMenu",
     "Name": "CJB Cheats Menu",
+    "ID": "CJBCheatsMenu",
     "UpperVersion": "1.12",
     "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/4",
     "ForceCompatibleVersion": "^1.12-EntoPatch"
   },
   {
-    "ID": "CJBItemSpawner",
     "Name": "CJB Item Spawner",
+    "ID": "CJBItemSpawner",
     "UpperVersion": "1.5",
     "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/93",
     "ForceCompatibleVersion": "^1.5-EntoPatch"
   },
 
-  /* versions which crash the game */
+  /* versions not compatible with Stardew Valley 1.2+ */
   {
-    "ID": "NPCMapLocationsMod",
-    "Name": "NPC Map Locations",
-    "LowerVersion": "1.42",
-    "UpperVersion": "1.43",
-    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/239",
-    "ReasonPhrase": "this version has an update check error which crashes the game"
+    "Name": "Better Sprinklers",
+    "ID": "SPDSprinklersMod",
+    "UpperVersion": "2.1",
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/41",
+    "UnofficialUpdateUrl": "http://community.playstarbound.com/threads/125031",
+    "ForceCompatibleVersion": "^2.1-EntoPatch.7"
+  },
+  {
+    "Name": "Casks Anywhere",
+    "ID": "CasksAnywhere",
+    "UpperVersion": "1.1",
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/878"
+  },
+  {
+    "Name": "Entoarox Framework",
+    "ID": "eacdb74b-4080-4452-b16b-93773cda5cf9",
+    "UpperVersion": "1.6.1",
+    "UpdateUrl": "http://community.playstarbound.com/resources/4228"
+  },
+  {
+    "Name": "Get Dressed",
+    "ID": "GetDressed.dll",
+    "UpperVersion": "3.2",
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/331"
+  },
+  {
+    "Name": "NoSoilDecay",
+    "ID": "289dee03-5f38-4d8e-8ffc-e440198e8610",
+    "UpperVersion": "0.5",
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/237"
   }
 ]

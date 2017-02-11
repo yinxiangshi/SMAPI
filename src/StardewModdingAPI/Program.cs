@@ -385,7 +385,7 @@ namespace StardewModdingAPI
 
                 // validate known incompatible mods
                 IncompatibleMod compatibility;
-                if (incompatibleMods.TryGetValue(manifest.UniqueID ?? $"{manifest.Name}|{manifest.Author}|{manifest.EntryDll}", out compatibility))
+                if (incompatibleMods.TryGetValue(!string.IsNullOrWhiteSpace(manifest.UniqueID) ? manifest.UniqueID : manifest.EntryDll, out compatibility))
                 {
                     if (!compatibility.IsCompatible(manifest.Version))
                     {
