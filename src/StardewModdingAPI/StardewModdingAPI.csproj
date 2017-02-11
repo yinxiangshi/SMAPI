@@ -241,14 +241,8 @@
   <Target Name="BeforeBuild">
     <Error Condition="!Exists('$(GamePath)')" Text="Failed to find the game install path automatically; edit the *.csproj file and manually add a &lt;GamePath&gt; setting with the full directory path containing the Stardew Valley executable." />
   </Target>
+
   <!-- copy files into game directory and enable debugging (only in debug mode) -->
-  <PropertyGroup Condition="$(Configuration) == 'Debug'">
-    <StartAction>Program</StartAction>
-    <StartProgram>$(GamePath)\StardewModdingAPI.exe</StartProgram>
-    <StartWorkingDirectory>$(GamePath)</StartWorkingDirectory>
-  </PropertyGroup>
-  <!-- Fix for Mac and Linux(?) -->
-  <PropertyGroup Condition="'$(RunConfiguration)' == 'Default'" />
   <Target Name="AfterBuild" Condition="$(Configuration) == 'Debug'">
     <Copy SourceFiles="$(TargetDir)\$(TargetName).exe" DestinationFolder="$(GamePath)" />
     <Copy SourceFiles="$(TargetDir)\$(TargetName).config.json" DestinationFolder="$(GamePath)" />
@@ -260,4 +254,15 @@
     <Copy SourceFiles="$(TargetDir)\Newtonsoft.Json.dll" DestinationFolder="$(GamePath)" />
     <Copy SourceFiles="$(TargetDir)\Mono.Cecil.dll" DestinationFolder="$(GamePath)" />
   </Target>
+
+  <!-- launch SMAPI on debug -->
+  <PropertyGroup Condition="$(Configuration) == 'Debug'">
+    <StartAction>Program</StartAction>
+    <StartProgram>$(GamePath)\StardewModdingAPI.exe</StartProgram>
+    <StartWorkingDirectory>$(GamePath)</StartWorkingDirectory>
+  </PropertyGroup>
+  
+  <!-- Somehow this makes Visual Studio for Mac recognise the previous section. -->
+  <!-- Nobody knows why. -->
+  <PropertyGroup Condition="'$(RunConfiguration)' == 'Default'" />
 </Project>

@@ -6,6 +6,7 @@ See [log](https://github.com/Pathoschild/SMAPI/compare/1.8...1.9).
 For players:
 * Updated for Stardew Valley 1.2.
 * Simplified log filename.
+* SMAPI now rewrites most mods for Stardew Valley 1.2 compatibility.
 
 For mod developers:
 * Added `SaveEvents.AfterReturnToTitle` event.
@@ -13,6 +14,9 @@ For mod developers:
 * Many deprecated APIs have been removed; see the
   [deprecation guide](http://canimod.com/guides/updating-a-smapi-mod) for more information.
 * Log files now always use `\r\n` to simplify crossplatform viewing.
+
+For SMAPI developers:
+* Added support for debugging with Visual Studio for Mac.
 
 ## 1.8
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.7...1.8).
