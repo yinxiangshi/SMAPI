@@ -44,6 +44,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>Whether to write anything to the console. This should be disabled if no console is available.</summary>
         internal bool WriteToConsole { get; set; } = true;
 
+        /// <summary>Whether to write anything to the log file. This should almost always be enabled.</summary>
+        internal bool WriteToFile { get; set; } = true;
+
 
         /*********
         ** Public methods
@@ -116,7 +119,7 @@ namespace StardewModdingAPI.Framework
             string levelStr = level.ToString().ToUpper().PadRight(Monitor.MaxLevelLength);
             message = $"[{DateTime.Now:HH:mm:ss} {levelStr} {source}] {message}";
 
-            // log
+            // write to console
             if (this.WriteToConsole && (this.ShowTraceInConsole || level != LogLevel.Trace))
             {
                 this.ConsoleManager.ExclusiveWriteWithoutInterception(() =>
@@ -131,7 +134,10 @@ namespace StardewModdingAPI.Framework
                         Console.WriteLine(message);
                 });
             }
-            this.LogFile.WriteLine(message);
+
+            // write to log file
+            if (this.WriteToFile)
+                this.LogFile.WriteLine(message);
         }
     }
 }
