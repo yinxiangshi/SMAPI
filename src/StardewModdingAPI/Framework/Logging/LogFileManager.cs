@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace StardewModdingAPI.Framework
+namespace StardewModdingAPI.Framework.Logging
 {
     /// <summary>Manages reading and writing to log file.</summary>
     internal class LogFileManager : IDisposable

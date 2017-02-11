@@ -145,6 +145,8 @@
     <Compile Include="Events\GraphicsEvents.cs" />
     <Compile Include="Framework\AssemblyDefinitionResolver.cs" />
     <Compile Include="Framework\AssemblyParseResult.cs" />
+    <Compile Include="Framework\Logging\ConsoleInterceptionManager.cs" />
+    <Compile Include="Framework\Logging\InterceptingTextWriter.cs" />
     <Compile Include="Framework\Reflection\PrivateProperty.cs" />
     <Compile Include="Framework\Serialisation\SemanticVersionConverter.cs" />
     <Compile Include="IModRegistry.cs" />
@@ -166,7 +168,7 @@
     <Compile Include="IManifest.cs" />
     <Compile Include="IMod.cs" />
     <Compile Include="IModHelper.cs" />
-    <Compile Include="Framework\LogFileManager.cs" />
+    <Compile Include="Framework\Logging\LogFileManager.cs" />
     <Compile Include="IPrivateProperty.cs" />
     <Compile Include="ISemanticVersion.cs" />
     <Compile Include="LogLevel.cs" />

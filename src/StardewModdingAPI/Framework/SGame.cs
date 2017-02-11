@@ -1170,7 +1170,6 @@ namespace StardewModdingAPI.Framework
             // after exit to title
             if (this.IsWorldReady && this.IsExiting && Game1.activeClickableMenu is TitleMenu)
             {
-                Console.WriteLine($"{Game1.currentGameTime.TotalGameTime}: after return to title");
                 SaveEvents.InvokeAfterReturnToTitle(this.Monitor);
                 this.AfterLoadTimer = 5;
                 this.IsExiting = false;

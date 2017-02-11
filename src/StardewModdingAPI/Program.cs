@@ -13,6 +13,7 @@ using Newtonsoft.Json;
 using StardewModdingAPI.AssemblyRewriters;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework;
+using StardewModdingAPI.Framework.Logging;
 using StardewModdingAPI.Framework.Models;
 using StardewValley;
 using Monitor = StardewModdingAPI.Framework.Monitor;
@@ -42,8 +43,11 @@ namespace StardewModdingAPI
         /// <summary>The log file to which to write messages.</summary>
         private static readonly LogFileManager LogFile = new LogFileManager(Constants.LogPath);
 
+        /// <summary>Manages console output interception.</summary>
+        private static readonly ConsoleInterceptionManager ConsoleManager = new ConsoleInterceptionManager();
+
         /// <summary>The core logger for SMAPI.</summary>
-        private static readonly Monitor Monitor = new Monitor("SMAPI", Program.LogFile);
+        private static readonly Monitor Monitor = new Monitor("SMAPI", Program.ConsoleManager, Program.LogFile);
 
         /// <summary>The user settings for SMAPI.</summary>
         private static UserSettings Settings;
@@ -87,14 +91,12 @@ namespace StardewModdingAPI
         /// <param name="args">The command-line arguments.</param>
         private static void Main(string[] args)
         {
-            // set log options
+            // initialise logging
             Program.Monitor.WriteToConsole = !args.Contains("--no-terminal");
             Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB"); // for consistent log formatting
-
-            // add info header
             Program.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Game1.version} on {Environment.OSVersion}", LogLevel.Info);
 
-            // initialise user settings
+            // read config
             {
                 string settingsPath = Constants.ApiConfigPath;
                 if (File.Exists(settingsPath))
@@ -106,6 +108,12 @@ namespace StardewModdingAPI
                     Program.Settings = new UserSettings();
 
                 File.WriteAllText(settingsPath, JsonConvert.SerializeObject(Program.Settings, Formatting.Indented));
+            }
+
+            // redirect direct console output
+            {
+                IMonitor monitor = Program.GetSecondaryMonitor("Console.Out");
+                Program.ConsoleManager.OnLineIntercepted += line => monitor.Log(line, LogLevel.Trace);
             }
 
             // add warning headers
@@ -574,7 +582,7 @@ namespace StardewModdingAPI
         /// <param name="name">The name of the module which will log messages with this instance.</param>
         private static Monitor GetSecondaryMonitor(string name)
         {
-            return new Monitor(name, Program.LogFile) { WriteToConsole = Program.Monitor.WriteToConsole, ShowTraceInConsole = Program.Settings.DeveloperMode };
+            return new Monitor(name, Program.ConsoleManager, Program.LogFile) { WriteToConsole = Program.Monitor.WriteToConsole, ShowTraceInConsole = Program.Settings.DeveloperMode };
         }
     }
 }

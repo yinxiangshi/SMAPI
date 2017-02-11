@@ -4,13 +4,13 @@
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.8...1.9).
 
 For players:
-* Updated for Stardew Valley 1.2.
+* Updated for Stardew Valley 1.2. Most mods are now rewritten for compatibility; some mods require an update from their authors.
 * Simplified log filename.
-* SMAPI now rewrites most mods for Stardew Valley 1.2 compatibility.
+* Fixed game's debug output being shown in the console for all users.
 
 For mod developers:
 * Added `SaveEvents.AfterReturnToTitle` event.
-* Added `GetPrivateProperty` to reflection helper.
+* Added `GetPrivateProperty` reflection helper.
 * Many deprecated APIs have been removed; see the
   [deprecation guide](http://canimod.com/guides/updating-a-smapi-mod) for more information.
 * Log files now always use `\r\n` to simplify crossplatform viewing.
