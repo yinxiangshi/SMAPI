@@ -30,7 +30,7 @@ namespace StardewModdingAPI.Framework
         /****
         ** SMAPI state
         ****/
-        /// <summary>The number of ticks until SMAPI should notify mods when <see cref="Game1.hasLoadedGame"/> is set.</summary>
+        /// <summary>The number of ticks until SMAPI should notify mods that the game has loaded.</summary>
         /// <remarks>Skipping a few frames ensures the game finishes initialising the world before mods try to change it.</remarks>
         private int AfterLoadTimer = 5;
 
@@ -1114,7 +1114,7 @@ namespace StardewModdingAPI.Framework
         private void UpdateEventCalls()
         {
             // save loaded event
-            if (Game1.hasLoadedGame && this.AfterLoadTimer >= 0)
+            if (Game1.hasLoadedGame && !SaveGame.IsProcessing/*still loading save*/ && this.AfterLoadTimer >= 0)
             {
                 if (this.AfterLoadTimer == 0)
                 {
