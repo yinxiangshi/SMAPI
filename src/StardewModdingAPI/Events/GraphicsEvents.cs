@@ -15,9 +15,6 @@ namespace StardewModdingAPI.Events
         /// <summary>Raised after the game window is resized.</summary>
         public static event EventHandler Resize;
 
-        /// <summary>Raised when drawing debug information to the screen (when <see cref="SGame.Debug"/> is true). This is called after the sprite batch is begun. If you just want to add debug info, use <see cref="SGame.DebugMessageQueue" /> in your update loop.</summary>
-        public static event EventHandler DrawDebug;
-
         /****
         ** Main render events
         ****/
@@ -59,13 +56,6 @@ namespace StardewModdingAPI.Events
         internal static void InvokeResize(IMonitor monitor, object sender, EventArgs e)
         {
             monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.Resize)}", GraphicsEvents.Resize?.GetInvocationList(), sender, e);
-        }
-
-        /// <summary>Raise a <see cref="DrawDebug"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        internal static void InvokeDrawDebug(IMonitor monitor)
-        {
-            monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.DrawDebug)}", GraphicsEvents.DrawDebug?.GetInvocationList());
         }
 
         /****

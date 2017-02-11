@@ -40,9 +40,6 @@ namespace StardewModdingAPI.Framework
         /// <summary>Whether the game is returning to the menu.</summary>
         private bool IsExiting = false;
 
-        /// <summary>The debug messages to add to the next debug output.</summary>
-        internal static Queue<string> DebugMessageQueue { get; private set; }
-
         /// <summary>Whether the game's zoom level is at 100% (i.e. nothing should be scaled).</summary>
         public bool ZoomLevelIsOne => Game1.options.zoomLevel.Equals(1.0f);
 
@@ -267,20 +264,6 @@ namespace StardewModdingAPI.Framework
             return buttons.ToArray();
         }
 
-        /// <summary>Queue a message to be added to the debug output.</summary>
-        /// <param name="message">The message to add.</param>
-        /// <returns>Returns whether the message was successfully queued.</returns>
-        public static bool QueueDebugMessage(string message)
-        {
-            if (!SGame.Debug)
-                return false;
-            if (SGame.DebugMessageQueue.Count > 32)
-                return false;
-
-            SGame.DebugMessageQueue.Enqueue(message);
-            return true;
-        }
-
 
         /*********
         ** Protected methods
@@ -297,7 +280,6 @@ namespace StardewModdingAPI.Framework
         /// <summary>The method called during game launch after configuring XNA or MonoGame. The game window hasn't been opened by this point.</summary>
         protected override void Initialize()
         {
-            SGame.DebugMessageQueue = new Queue<string>();
             this.PreviouslyPressedButtons = new Buttons[4][];
             for (var i = 0; i < 4; ++i)
                 this.PreviouslyPressedButtons[i] = new Buttons[0];
@@ -317,9 +299,6 @@ namespace StardewModdingAPI.Framework
         /// <param name="gameTime">A snapshot of the game timing state.</param>
         protected override void Update(GameTime gameTime)
         {
-            // add FPS to debug output
-            SGame.QueueDebugMessage($"FPS: {SGame.FramesPerSecond}");
-
             // raise game loaded
             if (this.FirstUpdate)
                 GameEvents.InvokeGameLoaded(this.Monitor);
@@ -928,14 +907,14 @@ namespace StardewModdingAPI.Framework
                             }
                             if (Game1.currentBillboard != 0)
                                 this.drawBillboard();
-                            if ((Game1.displayHUD || Game1.eventUp) && (Game1.currentBillboard == 0 && (int) Game1.gameMode == 3) && (!Game1.freezeControls && !Game1.panMode))
+                            if ((Game1.displayHUD || Game1.eventUp) && (Game1.currentBillboard == 0 && (int)Game1.gameMode == 3) && (!Game1.freezeControls && !Game1.panMode))
                             {
                                 GraphicsEvents.InvokeOnPreRenderHudEvent(this.Monitor);
                                 this.drawHUD();
                                 GraphicsEvents.InvokeOnPostRenderHudEvent(this.Monitor);
                             }
                             else if (Game1.activeClickableMenu == null && Game1.farmEvent == null)
-                                Game1.spriteBatch.Draw(Game1.mouseCursors, new Vector2((float) Game1.getOldMouseX(), (float) Game1.getOldMouseY()), new Microsoft.Xna.Framework.Rectangle?(Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, 0, 16, 16)), Color.White, 0.0f, Vector2.Zero, (float) (4.0 + (double) Game1.dialogueButtonScale / 150.0), SpriteEffects.None, 1f);
+                                Game1.spriteBatch.Draw(Game1.mouseCursors, new Vector2((float)Game1.getOldMouseX(), (float)Game1.getOldMouseY()), new Microsoft.Xna.Framework.Rectangle?(Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, 0, 16, 16)), Color.White, 0.0f, Vector2.Zero, (float)(4.0 + (double)Game1.dialogueButtonScale / 150.0), SpriteEffects.None, 1f);
                             if (Game1.hudMessages.Count > 0 && (!Game1.eventUp || Game1.isFestival()))
                             {
                                 for (int i = Game1.hudMessages.Count - 1; i >= 0; --i)
@@ -1093,24 +1072,6 @@ namespace StardewModdingAPI.Framework
             {
                 this.Monitor.Log($"An error occured in the overridden draw loop: {ex.GetLogSummary()}", LogLevel.Error);
             }
-
-            if (SGame.Debug)
-            {
-                Game1.spriteBatch.Begin();
-
-                int i = 0;
-                while (SGame.DebugMessageQueue.Any())
-                {
-                    string message = SGame.DebugMessageQueue.Dequeue();
-                    Game1.spriteBatch.DrawString(Game1.smoothFont, message, new Vector2(0, i * 14), Color.CornflowerBlue);
-                    i++;
-                }
-                GraphicsEvents.InvokeDrawDebug(this.Monitor);
-
-                Game1.spriteBatch.End();
-            }
-            else
-                SGame.DebugMessageQueue.Clear();
         }
 
         /// <summary>Get whether a controller button was pressed since the last check.</summary>
