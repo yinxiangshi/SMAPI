@@ -129,6 +129,12 @@ This file contains advanced metadata for SMAPI. You shouldn't change this file.
     "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/444"
   },
   {
+    "Name": "StackSplitX",
+    "ID": "StackSplitX.dll",
+    "UpperVersion": "1.0",
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/798"
+  },
+  {
     "Name": "StarDustCore",
     "ID": "StarDustCore",
     "UpperVersion": "1.0",
