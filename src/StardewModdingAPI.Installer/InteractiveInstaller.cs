@@ -104,7 +104,7 @@ namespace StardewModdingApi.Installer
         /// 
         /// Uninstall logic:
         ///     1. On Linux/Mac: if a backup of the launcher exists, delete the launcher and restore the backup.
-        ///     2. Delete all files and folders in the game directory matching one of the <see cref="UninstallPaths"/>.
+        ///     2. Delete all files and folders in the game directory matching one of the values returned by <see cref="GetUninstallPaths"/>.
         /// 
         /// Install flow:
         ///     1. Run the uninstall flow.
@@ -179,8 +179,7 @@ namespace StardewModdingApi.Installer
             if (platform == Platform.Mono && File.Exists(paths.unixLauncherBackup))
             {
                 this.PrintDebug("Removing SMAPI launcher...");
-                if (File.Exists(paths.unixLauncher))
-                    File.Delete(paths.unixLauncher);
+                this.InteractivelyDelete(paths.unixLauncher);
                 File.Move(paths.unixLauncherBackup, paths.unixLauncher);
             }
 
@@ -192,12 +191,7 @@ namespace StardewModdingApi.Installer
             {
                 this.PrintDebug(action == ScriptAction.Install ? "Removing previous SMAPI files..." : "Removing SMAPI files...");
                 foreach (string path in removePaths)
-                {
-                    if (Directory.Exists(path))
-                        Directory.Delete(path, recursive: true);
-                    else
-                        File.Delete(path);
-                }
+                    this.InteractivelyDelete(path);
             }
 
             /****
@@ -210,8 +204,7 @@ namespace StardewModdingApi.Installer
                 foreach (FileInfo sourceFile in packageDir.EnumerateFiles())
                 {
                     string targetPath = Path.Combine(installDir.FullName, sourceFile.Name);
-                    if (File.Exists(targetPath))
-                        File.Delete(targetPath);
+                    this.InteractivelyDelete(targetPath);
                     sourceFile.CopyTo(targetPath);
                 }
 
@@ -222,7 +215,7 @@ namespace StardewModdingApi.Installer
                     if (!File.Exists(paths.unixLauncherBackup))
                         File.Move(paths.unixLauncher, paths.unixLauncherBackup);
                     else if (File.Exists(paths.unixLauncher))
-                        File.Delete(paths.unixLauncher);
+                        this.InteractivelyDelete(paths.unixLauncher);
 
                     File.Move(paths.unixSmapiLauncher, paths.unixLauncher);
                 }
@@ -246,8 +239,7 @@ namespace StardewModdingApi.Installer
 
                         // initialise target dir
                         DirectoryInfo targetDir = new DirectoryInfo(Path.Combine(modsDir.FullName, sourceDir.Name));
-                        if (targetDir.Exists)
-                            targetDir.Delete(recursive: true);
+                        this.InteractivelyDelete(targetDir.FullName);
                         targetDir.Create();
 
                         // copy files
@@ -362,6 +354,16 @@ namespace StardewModdingApi.Installer
             }
             else
                 Console.WriteLine(text);
+        }
+
+        /// <summary>Interactively delete a file or folder path.</summary>
+        /// <param name="path">The file or folder path.</param>
+        private void InteractivelyDelete(string path)
+        {
+            if (Directory.Exists(path))
+                Directory.Delete(path, recursive: true);
+            else if (File.Exists(path))
+                File.Delete(path);
         }
 
         /// <summary>Interactively ask the user to choose a value.</summary>
