@@ -12,6 +12,7 @@ For players:
 
 For mod developers:
 * Added `SaveEvents.AfterReturnToTitle` and `TimeEvents.AfterDayStarted` events.
+* Added a simpler API for console commands (see `helper.ConsoleCommands`).
 * Added `GetPrivateProperty` reflection helper.
 * Many deprecated APIs have been removed; see the
   [deprecation guide](http://canimod.com/guides/updating-a-smapi-mod) for more information.
