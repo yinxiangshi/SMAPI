@@ -137,12 +137,14 @@ namespace StardewModdingApi.Installer
             ****/
             if (!packageDir.Exists)
             {
-                this.ExitError($"The 'internal/{platform}' package folder is missing (should be at {packageDir}).");
+                this.PrintError($"The 'internal/{platform}' package folder is missing (should be at {packageDir}).");
+                Console.ReadLine();
                 return;
             }
             if (!File.Exists(paths.executable))
             {
-                this.ExitError("The detected game install path doesn't contain a Stardew Valley executable.");
+                this.PrintError("The detected game install path doesn't contain a Stardew Valley executable.");
+                Console.ReadLine();
                 return;
             }
             Console.WriteLine();
@@ -333,12 +335,11 @@ namespace StardewModdingApi.Installer
             this.PrintColor(text, ConsoleColor.DarkYellow);
         }
 
-        /// <summary>Print an error and pause the console if needed.</summary>
-        /// <param name="error">The error text.</param>
-        private void ExitError(string error)
+        /// <summary>Print a warning message.</summary>
+        /// <param name="text">The text to print.</param>
+        private void PrintError(string text)
         {
-            this.PrintColor(error, ConsoleColor.Red);
-            Console.ReadLine();
+            this.PrintColor(text, ConsoleColor.Red);
         }
 
         /// <summary>Print a message to the console.</summary>
