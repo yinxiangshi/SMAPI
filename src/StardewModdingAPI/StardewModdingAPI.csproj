@@ -148,6 +148,7 @@
     <Compile Include="Framework\Logging\ConsoleInterceptionManager.cs" />
     <Compile Include="Framework\Logging\InterceptingTextWriter.cs" />
     <Compile Include="Framework\Reflection\PrivateProperty.cs" />
+    <Compile Include="Framework\Serialisation\JsonHelper.cs" />
     <Compile Include="Framework\Serialisation\SemanticVersionConverter.cs" />
     <Compile Include="IModRegistry.cs" />
     <Compile Include="Events\LocationEvents.cs" />

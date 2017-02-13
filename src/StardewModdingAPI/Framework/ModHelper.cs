@@ -1,8 +1,7 @@
 ﻿using System;
 using System.IO;
-using Newtonsoft.Json;
-using StardewModdingAPI.Advanced;
 using StardewModdingAPI.Framework.Reflection;
+using StardewModdingAPI.Framework.Serialisation;
 
 namespace StardewModdingAPI.Framework
 {
@@ -12,12 +11,8 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Properties
         *********/
-        /// <summary>The JSON settings to use when serialising and deserialising files.</summary>
-        private readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
-        {
-            Formatting = Formatting.Indented,
-            ObjectCreationHandling = ObjectCreationHandling.Replace // avoid issue where default ICollection<T> values are duplicated each time the config is loaded
-        };
+        /// <summary>Encapsulates SMAPI's JSON file parsing.</summary>
+        private readonly JsonHelper JsonHelper;
 
 
         /*********
@@ -38,20 +33,24 @@ namespace StardewModdingAPI.Framework
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="modDirectory">The mod directory path.</param>
+        /// <param name="jsonHelper">Encapsulate SMAPI's JSON parsing.</param>
         /// <param name="modRegistry">Metadata about loaded mods.</param>
-        /// <exception cref="ArgumentException">An argument is null or invalid.</exception>
+        /// <exception cref="ArgumentNullException">An argument is null or empty.</exception>
         /// <exception cref="InvalidOperationException">The <paramref name="modDirectory"/> path does not exist on disk.</exception>
-        public ModHelper(string modDirectory, IModRegistry modRegistry)
+        public ModHelper(string modDirectory, JsonHelper jsonHelper, IModRegistry modRegistry)
         {
             // validate
-            if (modRegistry == null)
-                throw new ArgumentException("The mod registry cannot be null.");
             if (string.IsNullOrWhiteSpace(modDirectory))
-                throw new ArgumentException("The mod directory cannot be empty.");
+                throw new ArgumentNullException(nameof(modDirectory));
+            if (jsonHelper == null)
+                throw new ArgumentNullException(nameof(jsonHelper));
+            if (modRegistry == null)
+                throw new ArgumentNullException(nameof(modRegistry));
             if (!Directory.Exists(modDirectory))
                 throw new InvalidOperationException("The specified mod directory does not exist.");
 
             // initialise
+            this.JsonHelper = jsonHelper;
             this.DirectoryPath = modDirectory;
             this.ModRegistry = modRegistry;
         }
@@ -88,28 +87,8 @@ namespace StardewModdingAPI.Framework
         public TModel ReadJsonFile<TModel>(string path)
             where TModel : class
         {
-            // read file
-            string fullPath = Path.Combine(this.DirectoryPath, path);
-            string json;
-            try
-            {
-                json = File.ReadAllText(fullPath);
-            }
-            catch (Exception ex) when (ex is DirectoryNotFoundException || ex is FileNotFoundException)
-            {
-                return null;
-            }
-
-            // deserialise model
-            TModel model = JsonConvert.DeserializeObject<TModel>(json, this.JsonSettings);
-            if (model is IConfigFile)
-            {
-                var wrapper = (IConfigFile)model;
-                wrapper.ModHelper = this;
-                wrapper.FilePath = path;
-            }
-
-            return model;
+            path = Path.Combine(this.DirectoryPath, path);
+            return this.JsonHelper.ReadJsonFile<TModel>(path, this);
         }
 
         /// <summary>Save to a JSON file.</summary>
@@ -120,15 +99,7 @@ namespace StardewModdingAPI.Framework
             where TModel : class
         {
             path = Path.Combine(this.DirectoryPath, path);
-
-            // create directory if needed
-            string dir = Path.GetDirectoryName(path);
-            if (!Directory.Exists(dir))
-                Directory.CreateDirectory(dir);
-
-            // write file
-            string json = JsonConvert.SerializeObject(model, this.JsonSettings);
-            File.WriteAllText(path, json);
+            this.JsonHelper.WriteJsonFile(path, model);
         }
     }
 }

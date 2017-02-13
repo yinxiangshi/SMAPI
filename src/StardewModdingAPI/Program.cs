@@ -15,6 +15,7 @@ using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.Logging;
 using StardewModdingAPI.Framework.Models;
+using StardewModdingAPI.Framework.Serialisation;
 using StardewValley;
 using Monitor = StardewModdingAPI.Framework.Monitor;
 
@@ -319,6 +320,9 @@ namespace StardewModdingAPI
         {
             Program.Monitor.Log("Loading mods...");
 
+            // get JSON helper
+            JsonHelper jsonHelper = new JsonHelper();
+
             // get assembly loader
             AssemblyLoader modAssemblyLoader = new AssemblyLoader(Program.TargetPlatform, Program.Monitor);
             AppDomain.CurrentDomain.AssemblyResolve += (sender, e) => modAssemblyLoader.ResolveAssembly(e.Name);
@@ -353,9 +357,6 @@ namespace StardewModdingAPI
                     return;
                 }
 
-                // get helper
-                IModHelper helper = new ModHelper(directory.FullName, Program.ModRegistry);
-
                 // get manifest path
                 string manifestPath = Path.Combine(directory.FullName, "manifest.json");
                 if (!File.Exists(manifestPath))
@@ -378,7 +379,7 @@ namespace StardewModdingAPI
                     }
 
                     // deserialise manifest
-                    manifest = helper.ReadJsonFile<Manifest>("manifest.json");
+                    manifest = jsonHelper.ReadJsonFile<Manifest>(Path.Combine(directory.FullName, "manifest.json"), null);
                     if (manifest == null)
                     {
                         Program.Monitor.Log($"{errorPrefix}: the manifest file does not exist.", LogLevel.Error);
@@ -503,8 +504,9 @@ namespace StardewModdingAPI
                     }
 
                     // inject data
+                    // get helper
                     mod.ModManifest = manifest;
-                    mod.Helper = helper;
+                    mod.Helper = new ModHelper(directory.FullName, jsonHelper, Program.ModRegistry);
                     mod.Monitor = Program.GetSecondaryMonitor(manifest.Name);
                     mod.PathOnDisk = directory.FullName;
 
