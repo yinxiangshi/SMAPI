@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 #if SMAPI_FOR_WINDOWS
 using Microsoft.Win32;
 #endif
@@ -357,14 +358,59 @@ namespace StardewModdingApi.Installer
                 Console.WriteLine(text);
         }
 
-        /// <summary>Interactively delete a file or folder path.</summary>
+        /// <summary>Interactively delete a file or folder path, and block until deletion completes.</summary>
         /// <param name="path">The file or folder path.</param>
         private void InteractivelyDelete(string path)
         {
-            if (Directory.Exists(path))
-                Directory.Delete(path, recursive: true);
-            else if (File.Exists(path))
-                File.Delete(path);
+            while (true)
+            {
+                try
+                {
+                    this.ForceDelete(Directory.Exists(path) ? new DirectoryInfo(path) : (FileSystemInfo)new FileInfo(path));
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    this.PrintError($"Oops! The installer couldn't delete {path}: [{ex.GetType().Name}] {ex.Message}.");
+                    this.PrintError("Please delete it yourself, then press any key to retry.");
+                    Console.ReadKey();
+                }
+            }
+        }
+
+        /// <summary>Delete a file or folder regardless of file permissions, and block until deletion completes.</summary>
+        /// <param name="entry">The file or folder to reset.</param>
+        private void ForceDelete(FileSystemInfo entry)
+        {
+            // ignore if already deleted
+            entry.Refresh();
+            if (!entry.Exists)
+                return;
+
+            // delete children
+            var folder = entry as DirectoryInfo;
+            if (folder != null)
+            {
+                foreach (FileSystemInfo child in folder.GetFileSystemInfos())
+                    this.ForceDelete(child);
+            }
+
+            // reset permissions & delete
+            entry.Attributes = FileAttributes.Normal;
+            entry.Delete();
+
+            // wait for deletion to finish
+            for (int i = 0; i < 10; i++)
+            {
+                entry.Refresh();
+                if (entry.Exists)
+                    Thread.Sleep(500);
+            }
+
+            // throw exception if deletion didn't happen before timeout
+            entry.Refresh();
+            if (entry.Exists)
+                throw new IOException($"Timed out trying to delete {entry.FullName}");
         }
 
         /// <summary>Interactively ask the user to choose a value.</summary>
