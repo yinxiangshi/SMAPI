@@ -83,7 +83,7 @@ This file contains advanced metadata for SMAPI. You shouldn't change this file.
   {
     "Name": "Entoarox Framework",
     "ID": "eacdb74b-4080-4452-b16b-93773cda5cf9",
-    "UpperVersion": "1.6.1",
+    "UpperVersion": "1.6.5",
     "UpdateUrl": "http://community.playstarbound.com/resources/4228"
   },
   {
