@@ -73,6 +73,7 @@ namespace StardewModdingAPI
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         public static void CallCommand(string input, IMonitor monitor)
         {
+            Program.DeprecationManager.Warn("Command.CallCommand", "1.9", DeprecationLevel.Notice);
             Program.CommandManager.Trigger(input);
         }
 
@@ -108,6 +109,7 @@ namespace StardewModdingAPI
         /// <param name="name">The command name to find.</param>
         public static Command FindCommand(string name)
         {
+            Program.DeprecationManager.Warn("Command.FindCommand", "1.9", DeprecationLevel.Notice);
             if (name == null)
                 return null;
 
@@ -125,15 +127,9 @@ namespace StardewModdingAPI
         /// <param name="args">The command arguments.</param>
         private static void Fire(string name, string[] args)
         {
-            // get legacy command
             Command command;
             if (!Command.LegacyCommands.TryGetValue(name, out command))
-            {
                 throw new InvalidOperationException($"Can't run command '{name}' because there's no such legacy command.");
-                return;
-            }
-
-            // raise event
             command.Fire();
         }
     }
