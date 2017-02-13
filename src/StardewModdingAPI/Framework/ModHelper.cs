@@ -27,17 +27,22 @@ namespace StardewModdingAPI.Framework
         /// <summary>Metadata about loaded mods.</summary>
         public IModRegistry ModRegistry { get; }
 
+        /// <summary>An API for managing console commands.</summary>
+        public ICommandHelper ConsoleCommands { get; }
+
 
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
+        /// <param name="modName">The friendly mod name.</param>
         /// <param name="modDirectory">The mod directory path.</param>
         /// <param name="jsonHelper">Encapsulate SMAPI's JSON parsing.</param>
         /// <param name="modRegistry">Metadata about loaded mods.</param>
+        /// <param name="commandManager">Manages console commands.</param>
         /// <exception cref="ArgumentNullException">An argument is null or empty.</exception>
         /// <exception cref="InvalidOperationException">The <paramref name="modDirectory"/> path does not exist on disk.</exception>
-        public ModHelper(string modDirectory, JsonHelper jsonHelper, IModRegistry modRegistry)
+        public ModHelper(string modName, string modDirectory, JsonHelper jsonHelper, IModRegistry modRegistry, CommandManager commandManager)
         {
             // validate
             if (string.IsNullOrWhiteSpace(modDirectory))
@@ -53,6 +58,7 @@ namespace StardewModdingAPI.Framework
             this.JsonHelper = jsonHelper;
             this.DirectoryPath = modDirectory;
             this.ModRegistry = modRegistry;
+            this.ConsoleCommands = new CommandHelper(modName, commandManager);
         }
 
         /****

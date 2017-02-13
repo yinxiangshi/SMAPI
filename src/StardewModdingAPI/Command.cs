@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework;
 
 namespace StardewModdingAPI
 {
     /// <summary>A command that can be submitted through the SMAPI console to interact with SMAPI.</summary>
+    [Obsolete("Use " + nameof(IModHelper) + "." + nameof(IModHelper.ConsoleCommands))]
     public class Command
     {
         /*********
@@ -16,7 +16,7 @@ namespace StardewModdingAPI
         ** SMAPI
         ****/
         /// <summary>The commands registered with SMAPI.</summary>
-        internal static List<Command> RegisteredCommands = new List<Command>();
+        private static readonly IDictionary<string, Command> LegacyCommands = new Dictionary<string, Command>(StringComparer.InvariantCultureIgnoreCase);
 
         /// <summary>The event raised when this command is submitted through the console.</summary>
         public event EventHandler<EventArgsCommand> CommandFired;
@@ -64,6 +64,7 @@ namespace StardewModdingAPI
             this.CommandFired.Invoke(this, new EventArgsCommand(this));
         }
 
+
         /****
         ** SMAPI
         ****/
@@ -72,27 +73,7 @@ namespace StardewModdingAPI
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         public static void CallCommand(string input, IMonitor monitor)
         {
-            // normalise input
-            input = input?.Trim();
-            if (string.IsNullOrWhiteSpace(input))
-                return;
-
-            // tokenise input
-            string[] args = input.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            string commandName = args[0];
-            args = args.Skip(1).ToArray();
-
-            // get command
-            Command command = Command.FindCommand(commandName);
-            if (command == null)
-            {
-                monitor.Log("Unknown command", LogLevel.Error);
-                return;
-            }
-
-            // fire command
-            command.CalledArgs = args;
-            command.Fire();
+            Program.CommandManager.Trigger(input);
         }
 
         /// <summary>Register a command with SMAPI.</summary>
@@ -101,11 +82,25 @@ namespace StardewModdingAPI
         /// <param name="args">A human-readable list of accepted arguments.</param>
         public static Command RegisterCommand(string name, string description, string[] args = null)
         {
-            var command = new Command(name, description, args);
-            if (Command.RegisteredCommands.Contains(command))
-                throw new InvalidOperationException($"The '{command.CommandName}' command is already registered!");
+            name = name?.Trim().ToLower();
 
-            Command.RegisteredCommands.Add(command);
+            // raise deprecation warning
+            Program.DeprecationManager.Warn("Command.RegisterCommand", "1.9", DeprecationLevel.Notice);
+
+            // validate
+            if (Command.LegacyCommands.ContainsKey(name))
+                throw new InvalidOperationException($"The '{name}' command is already registered!");
+
+            // add command
+            string modName = Program.ModRegistry.GetModFromStack() ?? "<unknown mod>";
+            string documentation = args?.Length > 0
+                ? $"{description} - {string.Join(", ", args)}"
+                : description;
+            Program.CommandManager.Add(modName, name, documentation, Command.Fire);
+
+            // add legacy command
+            Command command = new Command(name, description, args);
+            Command.LegacyCommands.Add(name, command);
             return command;
         }
 
@@ -113,7 +108,33 @@ namespace StardewModdingAPI
         /// <param name="name">The command name to find.</param>
         public static Command FindCommand(string name)
         {
-            return Command.RegisteredCommands.Find(x => x.CommandName.Equals(name));
+            if (name == null)
+                return null;
+
+            Command command;
+            Command.LegacyCommands.TryGetValue(name.Trim(), out command);
+            return command;
+        }
+
+
+        /*********
+        ** Private methods
+        *********/
+        /// <summary>Trigger this command.</summary>
+        /// <param name="name">The command name.</param>
+        /// <param name="args">The command arguments.</param>
+        private static void Fire(string name, string[] args)
+        {
+            // get legacy command
+            Command command;
+            if (!Command.LegacyCommands.TryGetValue(name, out command))
+            {
+                throw new InvalidOperationException($"Can't run command '{name}' because there's no such legacy command.");
+                return;
+            }
+
+            // raise event
+            command.Fire();
         }
     }
 }

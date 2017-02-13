@@ -3,6 +3,7 @@
 namespace StardewModdingAPI.Events
 {
     /// <summary>Event arguments for a <see cref="StardewModdingAPI.Command.CommandFired"/> event.</summary>
+    [Obsolete("Use " + nameof(IModHelper) + "." + nameof(IModHelper.ConsoleCommands))]
     public class EventArgsCommand : EventArgs
     {
         /*********

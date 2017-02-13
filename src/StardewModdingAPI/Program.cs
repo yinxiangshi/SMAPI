@@ -84,6 +84,9 @@ namespace StardewModdingAPI
         /// <summary>Manages deprecation warnings.</summary>
         internal static readonly DeprecationManager DeprecationManager = new DeprecationManager(Program.Monitor, Program.ModRegistry);
 
+        /// <summary>Manages console commands.</summary>
+        internal static readonly CommandManager CommandManager = new CommandManager();
+
 
         /*********
         ** Public methods
@@ -262,7 +265,7 @@ namespace StardewModdingAPI
                     while (!Program.ready) Thread.Sleep(1000);
 
                     // register help command
-                    Command.RegisterCommand("help", "Lists all commands | 'help <cmd>' returns command description").CommandFired += Program.help_CommandFired;
+                    Program.CommandManager.Add("SMAPI", "help", "Lists all commands | 'help <cmd>' returns command description", Program.HandleHelpCommand);
 
                     // listen for command line input
                     Program.Monitor.Log("Starting console...");
@@ -506,7 +509,7 @@ namespace StardewModdingAPI
                     // inject data
                     // get helper
                     mod.ModManifest = manifest;
-                    mod.Helper = new ModHelper(directory.FullName, jsonHelper, Program.ModRegistry);
+                    mod.Helper = new ModHelper(manifest.Name, directory.FullName, jsonHelper, Program.ModRegistry, Program.CommandManager);
                     mod.Monitor = Program.GetSecondaryMonitor(manifest.Name);
                     mod.PathOnDisk = directory.FullName;
 
@@ -556,24 +559,29 @@ namespace StardewModdingAPI
         private static void ConsoleInputLoop()
         {
             while (true)
-                Command.CallCommand(Console.ReadLine(), Program.Monitor);
+            {
+                string input = Console.ReadLine();
+                if (!Program.CommandManager.Trigger(input))
+                    Program.Monitor.Log("Unknown command; type 'help' for a list of available commands.", LogLevel.Error);
+            }
         }
 
         /// <summary>The method called when the user submits the help command in the console.</summary>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="e">The event data.</param>
-        private static void help_CommandFired(object sender, EventArgsCommand e)
+        /// <param name="name">The command name.</param>
+        /// <param name="arguments">The command arguments.</param>
+        private static void HandleHelpCommand(string name, string[] arguments)
         {
-            if (e.Command.CalledArgs.Length > 0)
+            if (arguments.Any())
             {
-                var command = Command.FindCommand(e.Command.CalledArgs[0]);
-                if (command == null)
-                    Program.Monitor.Log("The specified command could't be found", LogLevel.Error);
+
+                Framework.Command result = Program.CommandManager.Get(arguments[0]);
+                if (result == null)
+                    Program.Monitor.Log("There's no command with that name.", LogLevel.Error);
                 else
-                    Program.Monitor.Log(command.CommandArgs.Length > 0 ? $"{command.CommandName}: {command.CommandDesc} - {string.Join(", ", command.CommandArgs)}" : $"{command.CommandName}: {command.CommandDesc}", LogLevel.Info);
+                    Program.Monitor.Log($"{result.Name}: {result.Documentation} [added by {result.ModName}]", LogLevel.Info);
             }
             else
-                Program.Monitor.Log("Commands: " + string.Join(", ", Command.RegisteredCommands.Select(x => x.CommandName)), LogLevel.Info);
+                Program.Monitor.Log("Commands: " + string.Join(", ", Program.CommandManager.GetAll().Select(p => p.Name)), LogLevel.Info);
         }
 
         /// <summary>Show a 'press any key to exit' message, and exit when they press a key.</summary>

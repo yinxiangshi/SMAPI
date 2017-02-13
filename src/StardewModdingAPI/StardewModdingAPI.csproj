@@ -117,6 +117,7 @@
     <Compile Include="Advanced\ConfigFile.cs" />
     <Compile Include="Advanced\IConfigFile.cs" />
     <Compile Include="Command.cs" />
+    <Compile Include="Framework\Command.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Events\ControlEvents.cs" />
@@ -145,11 +146,14 @@
     <Compile Include="Events\GraphicsEvents.cs" />
     <Compile Include="Framework\AssemblyDefinitionResolver.cs" />
     <Compile Include="Framework\AssemblyParseResult.cs" />
+    <Compile Include="Framework\CommandManager.cs" />
     <Compile Include="Framework\Logging\ConsoleInterceptionManager.cs" />
     <Compile Include="Framework\Logging\InterceptingTextWriter.cs" />
+    <Compile Include="Framework\CommandHelper.cs" />
     <Compile Include="Framework\Reflection\PrivateProperty.cs" />
     <Compile Include="Framework\Serialisation\JsonHelper.cs" />
     <Compile Include="Framework\Serialisation\SemanticVersionConverter.cs" />
+    <Compile Include="ICommandHelper.cs" />
     <Compile Include="IModRegistry.cs" />
     <Compile Include="Events\LocationEvents.cs" />
     <Compile Include="Events\MenuEvents.cs" />
