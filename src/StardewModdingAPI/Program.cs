@@ -578,7 +578,7 @@ namespace StardewModdingAPI
                 if (result == null)
                     Program.Monitor.Log("There's no command with that name.", LogLevel.Error);
                 else
-                    Program.Monitor.Log($"{result.Name}: {result.Documentation} [added by {result.ModName}]", LogLevel.Info);
+                    Program.Monitor.Log($"{result.Name}: {result.Documentation}\n(Added by {result.ModName}.)", LogLevel.Info);
             }
             else
                 Program.Monitor.Log("Commands: " + string.Join(", ", Program.CommandManager.GetAll().Select(p => p.Name)), LogLevel.Info);
