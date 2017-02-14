@@ -50,11 +50,11 @@ namespace StardewModdingAPI
             }
         }
 
-        /// <summary>The full path to the per-save configs folder (if <see cref="StardewModdingAPI.Manifest.PerSaveConfigs"/> is <c>true</c>).</summary>
+        /// <summary>The full path to the per-save configs folder (if <see cref="Manifest.PerSaveConfigs"/> is <c>true</c>).</summary>
         [Obsolete("Use " + nameof(Mod.Helper) + "." + nameof(IModHelper.ReadJsonFile) + " instead")]
         public string PerSaveConfigFolder => this.GetPerSaveConfigFolder();
 
-        /// <summary>The full path to the per-save configuration file for the current save (if <see cref="StardewModdingAPI.Manifest.PerSaveConfigs"/> is <c>true</c>).</summary>
+        /// <summary>The full path to the per-save configuration file for the current save (if <see cref="Manifest.PerSaveConfigs"/> is <c>true</c>).</summary>
         [Obsolete("Use " + nameof(Mod.Helper) + "." + nameof(IModHelper.ReadJsonFile) + " instead")]
         public string PerSaveConfigPath
         {
@@ -82,7 +82,7 @@ namespace StardewModdingAPI
         /*********
         ** Private methods
         *********/
-        /// <summary>Get the full path to the per-save configuration file for the current save (if <see cref="StardewModdingAPI.Manifest.PerSaveConfigs"/> is <c>true</c>).</summary>
+        /// <summary>Get the full path to the per-save configuration file for the current save (if <see cref="Manifest.PerSaveConfigs"/> is <c>true</c>).</summary>
         [Obsolete]
         private string GetPerSaveConfigFolder()
         {

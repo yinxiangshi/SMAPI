@@ -2,10 +2,10 @@
 using Newtonsoft.Json;
 using StardewModdingAPI.Framework.Serialisation;
 
-namespace StardewModdingAPI
+namespace StardewModdingAPI.Framework
 {
     /// <summary>A manifest which describes a mod for SMAPI.</summary>
-    public class Manifest : IManifest
+    internal class Manifest : IManifest
     {
         /*********
         ** Accessors

@@ -186,7 +186,7 @@
     <Compile Include="Events\ItemStackChange.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="Framework\Monitor.cs" />
-    <Compile Include="Manifest.cs" />
+    <Compile Include="Framework\Manifest.cs" />
     <Compile Include="Mod.cs" />
     <Compile Include="Framework\ModHelper.cs" />
     <Compile Include="Program.cs" />

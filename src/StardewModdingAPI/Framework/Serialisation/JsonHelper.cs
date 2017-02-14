@@ -6,7 +6,7 @@ using StardewModdingAPI.Advanced;
 namespace StardewModdingAPI.Framework.Serialisation
 {
     /// <summary>Encapsulates SMAPI's JSON file parsing.</summary>
-    public class JsonHelper
+    internal class JsonHelper
     {
         /*********
         ** Accessors
