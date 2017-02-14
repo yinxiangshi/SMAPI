@@ -47,9 +47,6 @@ namespace StardewModdingAPI
         /// <summary>The directory path containing the current save's data (if a save is loaded and the directory exists).</summary>
         public static string CurrentSavePath => Constants.CurrentSavePathExists ? Constants.RawSavePath : "";
 
-        /// <summary>Whether a player save has been loaded.</summary>
-        public static bool PlayerNull => !Game1.hasLoadedGame || Game1.player == null || string.IsNullOrEmpty(Game1.player.name);
-
         /// <summary>The path to the current assembly being executing.</summary>
         public static string ExecutionPath => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
@@ -76,6 +73,9 @@ namespace StardewModdingAPI
 
         /// <summary>Whether the directory containing the current save's data exists on disk.</summary>
         internal static bool CurrentSavePathExists => Directory.Exists(Constants.RawSavePath);
+
+        /// <summary>Whether a player save has been loaded.</summary>
+        internal static bool PlayerNull => !Game1.hasLoadedGame || Game1.player == null || string.IsNullOrEmpty(Game1.player.name);
 
 
         /*********
