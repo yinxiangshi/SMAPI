@@ -25,20 +25,6 @@ This file contains advanced metadata for SMAPI. You shouldn't change this file.
     "UnofficialUpdateUrl": "http://community.playstarbound.com/threads/125031",
     "ForceCompatibleVersion": "^1.5-EntoPatch"
   },
-  {
-    "Name": "CJB Cheats Menu",
-    "ID": "CJBCheatsMenu",
-    "UpperVersion": "1.12",
-    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/4",
-    "ForceCompatibleVersion": "^1.12-EntoPatch"
-  },
-  {
-    "Name": "CJB Item Spawner",
-    "ID": "CJBItemSpawner",
-    "UpperVersion": "1.5",
-    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/93",
-    "ForceCompatibleVersion": "^1.5-EntoPatch"
-  },
 
   /* versions not compatible with Stardew Valley 1.2+ */
   {
@@ -73,6 +59,18 @@ This file contains advanced metadata for SMAPI. You shouldn't change this file.
     "ID": "CJBAutomation",
     "UpperVersion": "1.4",
     "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/211"
+  },
+  {
+    "Name": "CJB Cheats Menu",
+    "ID": "CJBCheatsMenu",
+    "UpperVersion": "1.13",
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/4"
+  },
+  {
+    "Name": "CJB Item Spawner",
+    "ID": "CJBItemSpawner",
+    "UpperVersion": "1.6",
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/93"
   },
   {
     "Name": "Enemy Health Bars",
@@ -139,5 +137,35 @@ This file contains advanced metadata for SMAPI. You shouldn't change this file.
     "ID": "StarDustCore",
     "UpperVersion": "1.0",
     "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/683"
+  },
+  {
+    "Name": "Zoryn's Better RNG",
+    "ID": "76b6d1e1-f7ba-4d72-8c32-5a1e6d2716f6",
+    "UpperVersion": "1.5",
+    "UpdateUrl": "http://community.playstarbound.com/threads/108756"
+  },
+  {
+    "Name": "Zoryn's Calendar Anywhere",
+    "ID": "a41c01cd-0437-43eb-944f-78cb5a53002a",
+    "UpperVersion": "1.5",
+    "UpdateUrl": "http://community.playstarbound.com/threads/108756"
+  },
+  {
+    "Name": "Zoryn's Health Bars",
+    "ID": "HealthBars.dll",
+    "UpperVersion": "1.5",
+    "UpdateUrl": "http://community.playstarbound.com/threads/108756"
+  },
+  {
+    "Name": "Zoryn's Movement Mod",
+    "ID": "8a632929-8335-484f-87dd-c29d2ba3215d",
+    "UpperVersion": "1.5",
+    "UpdateUrl": "http://community.playstarbound.com/threads/108756"
+  },
+  {
+    "Name": "Zoryn's Regen Mode",
+    "ID": "dfac4383-1b6b-4f33-ae4e-37fc23e5252e",
+    "UpperVersion": "1.5",
+    "UpdateUrl": "http://community.playstarbound.com/threads/108756"
   }
 ]
