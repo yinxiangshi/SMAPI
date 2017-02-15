@@ -35,6 +35,12 @@ This file contains advanced metadata for SMAPI. You shouldn't change this file.
     "UnofficialUpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/518"
   },
   {
+    "Name": "Almighty Tool",
+    "ID": "AlmightyTool.dll",
+    "UpperVersion": "1.1.1",
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/439"
+  },
+  {
     "Name": "Better Sprinklers",
     "ID": "SPDSprinklersMod",
     "UpperVersion": "2.1",
@@ -71,6 +77,12 @@ This file contains advanced metadata for SMAPI. You shouldn't change this file.
     "ID": "CJBItemSpawner",
     "UpperVersion": "1.6",
     "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/93"
+  },
+  {
+    "Name": "Cooking Skill",
+    "ID": "CookingSkill",
+    "UpperVersion": "1.0.3",
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/522"
   },
   {
     "Name": "Enemy Health Bars",
@@ -113,6 +125,12 @@ This file contains advanced metadata for SMAPI. You shouldn't change this file.
     "ID": "289dee03-5f38-4d8e-8ffc-e440198e8610",
     "UpperVersion": "0.5",
     "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/237"
+  },
+  {
+    "Name": "Point-and-Plant",
+    "ID": "PointAndPlant.dll",
+    "UpperVersion": "1.0.2",
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/572"
   },
   {
     "Name": "Reusable Wallpapers",
