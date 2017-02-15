@@ -59,21 +59,12 @@ namespace StardewModdingAPI
         /// <summary>Whether the game is currently running.</summary>
         private static bool ready;
 
-        /// <summary>The underlying game assembly.</summary>
-        private static Assembly StardewAssembly;
-
-        /// <summary>The underlying <see cref="StardewValley.Program"/> type.</summary>
-        private static Type StardewProgramType;
-
-        /// <summary>The field containing game's main instance.</summary>
-        private static FieldInfo StardewGameInfo;
-
 
         /*********
         ** Accessors
         *********/
         /// <summary>The underlying game instance.</summary>
-        internal static SGame gamePtr;
+        internal static SGame GameInstance;
 
         /// <summary>The number of mods currently loaded by SMAPI.</summary>
         internal static int ModsLoaded;
@@ -185,8 +176,8 @@ namespace StardewModdingAPI
             Program.CancellationTokenSource.Cancel();
             if (Program.ready)
             {
-                Program.gamePtr.Exiting += (sender, e) => Program.PressAnyKeyToExit();
-                Program.gamePtr.Exit();
+                Program.GameInstance.Exiting += (sender, e) => Program.PressAnyKeyToExit();
+                Program.GameInstance.Exit();
             }
         }
 
@@ -226,29 +217,31 @@ namespace StardewModdingAPI
         {
             try
             {
-                // load the game assembly
-                Program.Monitor.Log("Loading game...");
-                Program.StardewAssembly = Assembly.UnsafeLoadFrom(Program.GameExecutablePath);
-                Program.StardewProgramType = Program.StardewAssembly.GetType("StardewValley.Program", true);
-                Program.StardewGameInfo = Program.StardewProgramType.GetField("gamePtr");
-                Game1.version += $" | SMAPI {Constants.ApiVersion}";
-
-                // add error interceptors
+                // add error handlers
 #if SMAPI_FOR_WINDOWS
                 Application.ThreadException += (sender, e) => Program.Monitor.Log($"Critical thread exception: {e.Exception.GetLogSummary()}", LogLevel.Error);
                 Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
 #endif
                 AppDomain.CurrentDomain.UnhandledException += (sender, e) => Program.Monitor.Log($"Critical app domain exception: {e.ExceptionObject}", LogLevel.Error);
 
-                // initialise game instance
-                Program.gamePtr = new SGame(Program.Monitor) { IsMouseVisible = false };
-                Program.gamePtr.Exiting += (sender, e) => Program.ready = false;
-                Program.gamePtr.Window.ClientSizeChanged += (sender, e) => GraphicsEvents.InvokeResize(Program.Monitor, sender, e);
-                Program.gamePtr.Window.Title = $"Stardew Valley - Version {Game1.version}";
-                Program.StardewGameInfo.SetValue(Program.StardewProgramType, Program.gamePtr);
+                // initialise game
+                {
+                    // load assembly
+                    Program.Monitor.Log("Loading game...");
+                    Assembly gameAssembly = Assembly.UnsafeLoadFrom(Program.GameExecutablePath);
+                    Type gameProgramType = gameAssembly.GetType("StardewValley.Program", true);
 
-                // patch graphics
-                Game1.graphics.GraphicsProfile = GraphicsProfile.HiDef;
+                    // set Game1 instance
+                    Program.GameInstance = new SGame(Program.Monitor);
+                    Program.GameInstance.Exiting += (sender, e) => Program.ready = false;
+                    Program.GameInstance.Window.ClientSizeChanged += (sender, e) => GraphicsEvents.InvokeResize(Program.Monitor, sender, e);
+                    Program.GameInstance.Window.Title = $"Stardew Valley - Version {Game1.version}";
+                    gameProgramType.GetField("gamePtr").SetValue(gameProgramType, Program.GameInstance);
+
+                    // configure
+                    Game1.version += $" | SMAPI {Constants.ApiVersion}";
+                    Game1.graphics.GraphicsProfile = GraphicsProfile.HiDef;
+                }
 
                 // load mods
                 Program.LoadMods();
@@ -262,7 +255,8 @@ namespace StardewModdingAPI
                 new Thread(() =>
                 {
                     // wait for the game to load up
-                    while (!Program.ready) Thread.Sleep(1000);
+                    while (!Program.ready)
+                        Thread.Sleep(1000);
 
                     // register help command
                     Program.CommandManager.Add("SMAPI", "help", "Lists all commands | 'help <cmd>' returns command description", Program.HandleHelpCommand);
@@ -290,7 +284,7 @@ namespace StardewModdingAPI
                 try
                 {
                     Program.ready = true;
-                    Program.gamePtr.Run();
+                    Program.GameInstance.Run();
                 }
                 finally
                 {

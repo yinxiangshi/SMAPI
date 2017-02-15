@@ -82,7 +82,7 @@ namespace StardewModdingAPI.Framework
         public void ExitGameImmediately(string reason)
         {
             Program.ExitGameImmediately(this.Source, reason);
-            Program.gamePtr.Exit();
+            Program.GameInstance.Exit();
         }
 
         /// <summary>Log a fatal error message.</summary>
