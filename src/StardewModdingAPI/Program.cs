@@ -35,9 +35,6 @@ namespace StardewModdingAPI
         Platform.Mono;
 #endif
 
-        /// <summary>The full path to the Stardew Valley executable.</summary>
-        private readonly string GameExecutablePath;
-
         /// <summary>The full path to the folder containing mods.</summary>
         private readonly string ModPath = Path.Combine(Constants.ExecutionPath, "Mods");
 
@@ -93,7 +90,6 @@ namespace StardewModdingAPI
         /// <summary>Construct an instance.</summary>
         internal Program(bool writeToConsole)
         {
-            this.GameExecutablePath = Path.Combine(Constants.ExecutionPath, this.TargetPlatform == Platform.Windows ? "Stardew Valley.exe" : "StardewValley.exe");
             this.Monitor = new Monitor("SMAPI", this.ConsoleManager, this.LogFile, this.ExitGameImmediately) { WriteToConsole = writeToConsole };
             this.DeprecationManager = new DeprecationManager(this.Monitor, this.ModRegistry);
         }
@@ -156,20 +152,22 @@ namespace StardewModdingAPI
             try
             {
                 // verify version
-                if (String.Compare(Game1.version, Constants.MinimumGameVersion, StringComparison.InvariantCultureIgnoreCase) < 0)
+                if (string.Compare(Game1.version, Constants.MinimumGameVersion, StringComparison.InvariantCultureIgnoreCase) < 0)
                 {
                     this.Monitor.Log($"Oops! You're running Stardew Valley {Game1.version}, but the oldest supported version is {Constants.MinimumGameVersion}. Please update your game before using SMAPI. If you're on the Steam beta channel, note that the beta channel may not receive the latest updates.", LogLevel.Error);
                     return;
                 }
 
-                // initialise
+                // initialise folders
                 this.Monitor.Log("Loading SMAPI...");
-                Console.Title = $"Stardew Modding API Console - Version {Constants.ApiVersion}";
                 this.VerifyPath(this.ModPath);
                 this.VerifyPath(Constants.LogDir);
-                if (!File.Exists(this.GameExecutablePath))
+
+                // get executable path
+                string executablePath = Path.Combine(Constants.ExecutionPath, this.TargetPlatform == Platform.Windows ? "Stardew Valley.exe" : "StardewValley.exe");
+                if (!File.Exists(executablePath))
                 {
-                    this.Monitor.Log($"Couldn't find executable: {this.GameExecutablePath}", LogLevel.Error);
+                    this.Monitor.Log($"Couldn't find executable: {executablePath}", LogLevel.Error);
                     this.PressAnyKeyToExit();
                     return;
                 }
@@ -179,7 +177,7 @@ namespace StardewModdingAPI
                     GameEvents.GameLoaded += (sender, e) => this.CheckForUpdateAsync();
 
                 // launch game
-                this.StartGame();
+                this.StartGame(executablePath);
             }
             catch (Exception ex)
             {
@@ -234,7 +232,8 @@ namespace StardewModdingAPI
         }
 
         /// <summary>Hook into Stardew Valley and launch the game.</summary>
-        private void StartGame()
+        /// <param name="executablePath">The absolute path to the executable to launch.</param>
+        private void StartGame(string executablePath)
         {
             try
             {
@@ -249,7 +248,7 @@ namespace StardewModdingAPI
                 {
                     // load assembly
                     this.Monitor.Log("Loading game...");
-                    Assembly gameAssembly = Assembly.UnsafeLoadFrom(this.GameExecutablePath);
+                    Assembly gameAssembly = Assembly.UnsafeLoadFrom(executablePath);
                     Type gameProgramType = gameAssembly.GetType("StardewValley.Program", true);
 
                     // set Game1 instance
@@ -536,7 +535,6 @@ namespace StardewModdingAPI
                 catch (Exception ex)
                 {
                     this.Monitor.Log($"{errorPrefix}: an error occurred while loading the target DLL.\n{ex.GetLogSummary()}", LogLevel.Error);
-                    continue;
                 }
             }
 
