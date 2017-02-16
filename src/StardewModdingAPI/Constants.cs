@@ -59,9 +59,6 @@ namespace StardewModdingAPI
         /// <summary>The GitHub repository to check for updates.</summary>
         internal const string GitHubRepository = "Pathoschild/SMAPI";
 
-        /// <summary>The title of the SMAPI console window.</summary>
-        internal static string ConsoleTitle => $"Stardew Modding API Console - Version {Constants.ApiVersion} - Mods Loaded: {Program.ModsLoaded}";
-
         /// <summary>The file path for the SMAPI configuration file.</summary>
         internal static string ApiConfigPath => Path.Combine(Constants.ExecutionPath, $"{typeof(Program).Assembly.GetName().Name}.config.json");
 

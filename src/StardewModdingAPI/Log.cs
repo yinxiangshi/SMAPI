@@ -10,6 +10,13 @@ namespace StardewModdingAPI
     public static class Log
     {
         /*********
+        ** Properties
+        *********/
+        /// <summary>Manages deprecation warnings.</summary>
+        private static DeprecationManager DeprecationManager;
+
+
+        /*********
         ** Accessors
         *********/
         /// <summary>The underlying logger.</summary>
@@ -22,6 +29,13 @@ namespace StardewModdingAPI
         /*********
         ** Public methods
         *********/
+        /// <summary>Injects types required for backwards compatibility.</summary>
+        /// <param name="deprecationManager">Manages deprecation warnings.</param>
+        internal static void Shim(DeprecationManager deprecationManager)
+        {
+            Log.DeprecationManager = deprecationManager;
+        }
+
         /****
         ** Exceptions
         ****/
@@ -292,7 +306,7 @@ namespace StardewModdingAPI
         /// <summary>Raise a deprecation warning.</summary>
         private static void WarnDeprecated()
         {
-            Program.DeprecationManager.Warn($"the {nameof(Log)} class", "1.1", DeprecationLevel.Notice);
+            Log.DeprecationManager.Warn($"the {nameof(Log)} class", "1.1", DeprecationLevel.Notice);
         }
 
         /// <summary>Get the name of the mod logging a message from the stack.</summary>

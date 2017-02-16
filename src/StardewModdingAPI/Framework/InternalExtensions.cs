@@ -9,8 +9,22 @@ namespace StardewModdingAPI.Framework
     internal static class InternalExtensions
     {
         /*********
+        ** Properties
+        *********/
+        /// <summary>Tracks the installed mods.</summary>
+        private static ModRegistry ModRegistry;
+
+
+        /*********
         ** Public methods
         *********/
+        /// <summary>Injects types required for backwards compatibility.</summary>
+        /// <param name="modRegistry">Tracks the installed mods.</param>
+        internal static void Shim(ModRegistry modRegistry)
+        {
+            InternalExtensions.ModRegistry = modRegistry;
+        }
+
         /****
         ** IMonitor
         ****/
@@ -103,7 +117,7 @@ namespace StardewModdingAPI.Framework
 
             foreach (Delegate handler in handlers)
             {
-                string modName = Program.ModRegistry.GetModFrom(handler) ?? "an unknown mod"; // suppress stack trace for unknown mods, not helpful here
+                string modName = InternalExtensions.ModRegistry.GetModFrom(handler) ?? "an unknown mod"; // suppress stack trace for unknown mods, not helpful here
                 deprecationManager.Warn(modName, nounPhrase, version, severity);
             }
         }

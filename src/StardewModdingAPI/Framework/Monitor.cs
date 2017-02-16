@@ -34,6 +34,9 @@ namespace StardewModdingAPI.Framework
             [LogLevel.Alert] = ConsoleColor.Magenta
         };
 
+        /// <summary>A delegate which requests that SMAPI immediately exit the game. This should only be invoked when an irrecoverable fatal error happens that risks save corruption or game-breaking bugs.</summary>
+        private RequestExitDelegate RequestExit;
+
 
         /*********
         ** Accessors
@@ -55,7 +58,8 @@ namespace StardewModdingAPI.Framework
         /// <param name="source">The name of the module which logs messages using this instance.</param>
         /// <param name="consoleManager">Manages access to the console output.</param>
         /// <param name="logFile">The log file to which to write messages.</param>
-        public Monitor(string source, ConsoleInterceptionManager consoleManager, LogFileManager logFile)
+        /// <param name="requestExitDelegate">A delegate which requests that SMAPI immediately exit the game.</param>
+        public Monitor(string source, ConsoleInterceptionManager consoleManager, LogFileManager logFile, RequestExitDelegate requestExitDelegate)
         {
             // validate
             if (string.IsNullOrWhiteSpace(source))
@@ -81,8 +85,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="reason">The reason for the shutdown.</param>
         public void ExitGameImmediately(string reason)
         {
-            Program.ExitGameImmediately(this.Source, reason);
-            Program.GameInstance.Exit();
+            this.RequestExit(this.Source, reason);
         }
 
         /// <summary>Log a fatal error message.</summary>

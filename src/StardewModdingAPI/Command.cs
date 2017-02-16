@@ -12,12 +12,22 @@ namespace StardewModdingAPI
         /*********
         ** Properties
         *********/
-        /****
-        ** SMAPI
-        ****/
         /// <summary>The commands registered with SMAPI.</summary>
         private static readonly IDictionary<string, Command> LegacyCommands = new Dictionary<string, Command>(StringComparer.InvariantCultureIgnoreCase);
 
+        /// <summary>Manages console commands.</summary>
+        private static CommandManager CommandManager;
+
+        /// <summary>Manages deprecation warnings.</summary>
+        private static DeprecationManager DeprecationManager;
+
+        /// <summary>Tracks the installed mods.</summary>
+        private static ModRegistry ModRegistry;
+
+
+        /*********
+        ** Accessors
+        *********/
         /// <summary>The event raised when this command is submitted through the console.</summary>
         public event EventHandler<EventArgsCommand> CommandFired;
 
@@ -43,6 +53,17 @@ namespace StardewModdingAPI
         /****
         ** Command
         ****/
+        /// <summary>Injects types required for backwards compatibility.</summary>
+        /// <param name="commandManager">Manages console commands.</param>
+        /// <param name="deprecationManager">Manages deprecation warnings.</param>
+        /// <param name="modRegistry">Tracks the installed mods.</param>
+        internal static void Shim(CommandManager commandManager, DeprecationManager deprecationManager, ModRegistry modRegistry)
+        {
+            Command.CommandManager = commandManager;
+            Command.DeprecationManager = deprecationManager;
+            Command.ModRegistry = modRegistry;
+        }
+
         /// <summary>Construct an instance.</summary>
         /// <param name="name">The name of the command.</param>
         /// <param name="description">A human-readable description of what the command does.</param>
@@ -73,8 +94,8 @@ namespace StardewModdingAPI
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         public static void CallCommand(string input, IMonitor monitor)
         {
-            Program.DeprecationManager.Warn("Command.CallCommand", "1.9", DeprecationLevel.Notice);
-            Program.CommandManager.Trigger(input);
+            Command.DeprecationManager.Warn("Command.CallCommand", "1.9", DeprecationLevel.Notice);
+            Command.CommandManager.Trigger(input);
         }
 
         /// <summary>Register a command with SMAPI.</summary>
@@ -86,18 +107,18 @@ namespace StardewModdingAPI
             name = name?.Trim().ToLower();
 
             // raise deprecation warning
-            Program.DeprecationManager.Warn("Command.RegisterCommand", "1.9", DeprecationLevel.Notice);
+            Command.DeprecationManager.Warn("Command.RegisterCommand", "1.9", DeprecationLevel.Notice);
 
             // validate
             if (Command.LegacyCommands.ContainsKey(name))
                 throw new InvalidOperationException($"The '{name}' command is already registered!");
 
             // add command
-            string modName = Program.ModRegistry.GetModFromStack() ?? "<unknown mod>";
+            string modName = Command.ModRegistry.GetModFromStack() ?? "<unknown mod>";
             string documentation = args?.Length > 0
                 ? $"{description} - {string.Join(", ", args)}"
                 : description;
-            Program.CommandManager.Add(modName, name, documentation, Command.Fire);
+            Command.CommandManager.Add(modName, name, documentation, Command.Fire);
 
             // add legacy command
             Command command = new Command(name, description, args);
@@ -109,7 +130,7 @@ namespace StardewModdingAPI
         /// <param name="name">The command name to find.</param>
         public static Command FindCommand(string name)
         {
-            Program.DeprecationManager.Warn("Command.FindCommand", "1.9", DeprecationLevel.Notice);
+            Command.DeprecationManager.Warn("Command.FindCommand", "1.9", DeprecationLevel.Notice);
             if (name == null)
                 return null;
 

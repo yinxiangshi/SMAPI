@@ -11,6 +11,13 @@ namespace StardewModdingAPI.Events
     public static class PlayerEvents
     {
         /*********
+        ** Properties
+        *********/
+        /// <summary>Manages deprecation warnings.</summary>
+        private static DeprecationManager DeprecationManager;
+
+
+        /*********
         ** Events
         *********/
         /// <summary>Raised after the player loads a saved game.</summary>
@@ -31,6 +38,13 @@ namespace StardewModdingAPI.Events
         /*********
         ** Internal methods
         *********/
+        /// <summary>Injects types required for backwards compatibility.</summary>
+        /// <param name="deprecationManager">Manages deprecation warnings.</param>
+        internal static void Shim(DeprecationManager deprecationManager)
+        {
+            PlayerEvents.DeprecationManager = deprecationManager;
+        }
+
         /// <summary>Raise a <see cref="LoadedGame"/> event.</summary>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="loaded">Whether the save has been loaded. This is always true.</param>
@@ -42,7 +56,7 @@ namespace StardewModdingAPI.Events
             string name = $"{nameof(PlayerEvents)}.{nameof(PlayerEvents.LoadedGame)}";
             Delegate[] handlers = PlayerEvents.LoadedGame.GetInvocationList();
 
-            Program.DeprecationManager.WarnForEvent(handlers, name, "1.6", DeprecationLevel.Notice);
+            PlayerEvents.DeprecationManager.WarnForEvent(handlers, name, "1.6", DeprecationLevel.Notice);
             monitor.SafelyRaiseGenericEvent(name, handlers, null, loaded);
         }
 
@@ -58,7 +72,7 @@ namespace StardewModdingAPI.Events
             string name = $"{nameof(PlayerEvents)}.{nameof(PlayerEvents.FarmerChanged)}";
             Delegate[] handlers = PlayerEvents.FarmerChanged.GetInvocationList();
 
-            Program.DeprecationManager.WarnForEvent(handlers, name, "1.6", DeprecationLevel.Notice);
+            PlayerEvents.DeprecationManager.WarnForEvent(handlers, name, "1.6", DeprecationLevel.Notice);
             monitor.SafelyRaiseGenericEvent(name, handlers, null, new EventArgsFarmerChanged(priorFarmer, newFarmer));
         }
 

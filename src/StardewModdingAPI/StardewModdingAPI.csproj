@@ -151,6 +151,7 @@
     <Compile Include="Framework\Logging\InterceptingTextWriter.cs" />
     <Compile Include="Framework\CommandHelper.cs" />
     <Compile Include="Framework\Reflection\PrivateProperty.cs" />
+    <Compile Include="Framework\RequestExitDelegate.cs" />
     <Compile Include="Framework\Serialisation\JsonHelper.cs" />
     <Compile Include="Framework\Serialisation\SemanticVersionConverter.cs" />
     <Compile Include="ICommandHelper.cs" />

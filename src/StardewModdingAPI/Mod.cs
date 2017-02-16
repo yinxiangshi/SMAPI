@@ -10,6 +10,9 @@ namespace StardewModdingAPI
         /*********
         ** Properties
         *********/
+        /// <summary>Manages deprecation warnings.</summary>
+        private static DeprecationManager DeprecationManager;
+
         /// <summary>The backing field for <see cref="Mod.PathOnDisk"/>.</summary>
         private string _pathOnDisk;
 
@@ -32,7 +35,7 @@ namespace StardewModdingAPI
         {
             get
             {
-                Program.DeprecationManager.Warn($"{nameof(Mod)}.{nameof(Mod.PathOnDisk)}", "1.0", DeprecationLevel.Notice);
+                Mod.DeprecationManager.Warn($"{nameof(Mod)}.{nameof(Mod.PathOnDisk)}", "1.0", DeprecationLevel.Notice);
                 return this._pathOnDisk;
             }
             internal set { this._pathOnDisk = value; }
@@ -44,8 +47,8 @@ namespace StardewModdingAPI
         {
             get
             {
-                Program.DeprecationManager.Warn($"{nameof(Mod)}.{nameof(Mod.BaseConfigPath)}", "1.0", DeprecationLevel.Notice);
-                Program.DeprecationManager.MarkWarned($"{nameof(Mod)}.{nameof(Mod.PathOnDisk)}", "1.0"); // avoid redundant warnings
+                Mod.DeprecationManager.Warn($"{nameof(Mod)}.{nameof(Mod.BaseConfigPath)}", "1.0", DeprecationLevel.Notice);
+                Mod.DeprecationManager.MarkWarned($"{nameof(Mod)}.{nameof(Mod.PathOnDisk)}", "1.0"); // avoid redundant warnings
                 return Path.Combine(this.PathOnDisk, "config.json");
             }
         }
@@ -60,8 +63,8 @@ namespace StardewModdingAPI
         {
             get
             {
-                Program.DeprecationManager.Warn($"{nameof(Mod)}.{nameof(Mod.PerSaveConfigPath)}", "1.0", DeprecationLevel.Info);
-                Program.DeprecationManager.MarkWarned($"{nameof(Mod)}.{nameof(Mod.PerSaveConfigFolder)}", "1.0"); // avoid redundant warnings
+                Mod.DeprecationManager.Warn($"{nameof(Mod)}.{nameof(Mod.PerSaveConfigPath)}", "1.0", DeprecationLevel.Info);
+                Mod.DeprecationManager.MarkWarned($"{nameof(Mod)}.{nameof(Mod.PerSaveConfigFolder)}", "1.0"); // avoid redundant warnings
                 return Constants.CurrentSavePathExists ? Path.Combine(this.PerSaveConfigFolder, Constants.SaveFolderName + ".json") : "";
             }
         }
@@ -70,6 +73,13 @@ namespace StardewModdingAPI
         /*********
         ** Public methods
         *********/
+        /// <summary>Injects types required for backwards compatibility.</summary>
+        /// <param name="deprecationManager">Manages deprecation warnings.</param>
+        internal static void Shim(DeprecationManager deprecationManager)
+        {
+            Mod.DeprecationManager = deprecationManager;
+        }
+
         /// <summary>The mod entry point, called after the mod is first loaded.</summary>
         [Obsolete("This overload is obsolete since SMAPI 1.0.")]
         public virtual void Entry(params object[] objects) { }
@@ -86,8 +96,8 @@ namespace StardewModdingAPI
         [Obsolete]
         private string GetPerSaveConfigFolder()
         {
-            Program.DeprecationManager.Warn($"{nameof(Mod)}.{nameof(Mod.PerSaveConfigFolder)}", "1.0", DeprecationLevel.Notice);
-            Program.DeprecationManager.MarkWarned($"{nameof(Mod)}.{nameof(Mod.PathOnDisk)}", "1.0"); // avoid redundant warnings
+            Mod.DeprecationManager.Warn($"{nameof(Mod)}.{nameof(Mod.PerSaveConfigFolder)}", "1.0", DeprecationLevel.Notice);
+            Mod.DeprecationManager.MarkWarned($"{nameof(Mod)}.{nameof(Mod.PathOnDisk)}", "1.0"); // avoid redundant warnings
 
             if (!((Manifest)this.ModManifest).PerSaveConfigs)
             {

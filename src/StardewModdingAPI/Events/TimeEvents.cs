@@ -7,6 +7,13 @@ namespace StardewModdingAPI.Events
     public static class TimeEvents
     {
         /*********
+        ** Properties
+        *********/
+        /// <summary>Manages deprecation warnings.</summary>
+        private static DeprecationManager DeprecationManager;
+
+
+        /*********
         ** Events
         *********/
         /// <summary>Raised after the game begins a new day, including when loading a save.</summary>
@@ -32,6 +39,13 @@ namespace StardewModdingAPI.Events
         /*********
         ** Internal methods
         *********/
+        /// <summary>Injects types required for backwards compatibility.</summary>
+        /// <param name="deprecationManager">Manages deprecation warnings.</param>
+        internal static void Shim(DeprecationManager deprecationManager)
+        {
+            TimeEvents.DeprecationManager = deprecationManager;
+        }
+
         /// <summary>Raise an <see cref="AfterDayStarted"/> event.</summary>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         internal static void InvokeAfterDayStarted(IMonitor monitor)
@@ -88,7 +102,7 @@ namespace StardewModdingAPI.Events
             string name = $"{nameof(TimeEvents)}.{nameof(TimeEvents.OnNewDay)}";
             Delegate[] handlers = TimeEvents.OnNewDay.GetInvocationList();
 
-            Program.DeprecationManager.WarnForEvent(handlers, name, "1.6", DeprecationLevel.Notice);
+            TimeEvents.DeprecationManager.WarnForEvent(handlers, name, "1.6", DeprecationLevel.Notice);
             monitor.SafelyRaiseGenericEvent(name, handlers, null, new EventArgsNewDay(priorDay, newDay, isTransitioning));
         }
     }
