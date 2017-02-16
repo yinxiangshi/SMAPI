@@ -14,9 +14,9 @@ For mod developers:
 * Added `SaveEvents.AfterReturnToTitle` and `TimeEvents.AfterDayStarted` events.
 * Added a simpler API for console commands (see `helper.ConsoleCommands`).
 * Added `GetPrivateProperty` reflection helper.
-* Many deprecated APIs have been removed; see the
-  [deprecation guide](http://canimod.com/guides/updating-a-smapi-mod) for more information.
 * Log files now always use `\r\n` to simplify crossplatform viewing.
+* Several obsolete APIs have been removed (see [deprecation guide](http://canimod.com/guides/updating-a-smapi-mod)),
+  and all _notice_-level deprecations have been increased to _info_.
 
 For SMAPI developers:
 * Added support for debugging with Visual Studio for Mac.

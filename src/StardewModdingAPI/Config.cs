@@ -125,7 +125,7 @@ namespace StardewModdingAPI
         /// <summary>Construct an instance.</summary>
         protected Config()
         {
-            Config.DeprecationManager.Warn("the Config class", "1.0", DeprecationLevel.Notice);
+            Config.DeprecationManager.Warn("the Config class", "1.0", DeprecationLevel.Info);
             Config.DeprecationManager.MarkWarned($"{nameof(Mod)}.{nameof(Mod.BaseConfigPath)}", "1.0"); // typically used to construct config, avoid redundant warnings
         }
     }

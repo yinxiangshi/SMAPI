@@ -56,7 +56,7 @@ namespace StardewModdingAPI.Events
             string name = $"{nameof(PlayerEvents)}.{nameof(PlayerEvents.LoadedGame)}";
             Delegate[] handlers = PlayerEvents.LoadedGame.GetInvocationList();
 
-            PlayerEvents.DeprecationManager.WarnForEvent(handlers, name, "1.6", DeprecationLevel.Notice);
+            PlayerEvents.DeprecationManager.WarnForEvent(handlers, name, "1.6", DeprecationLevel.Info);
             monitor.SafelyRaiseGenericEvent(name, handlers, null, loaded);
         }
 
@@ -72,7 +72,7 @@ namespace StardewModdingAPI.Events
             string name = $"{nameof(PlayerEvents)}.{nameof(PlayerEvents.FarmerChanged)}";
             Delegate[] handlers = PlayerEvents.FarmerChanged.GetInvocationList();
 
-            PlayerEvents.DeprecationManager.WarnForEvent(handlers, name, "1.6", DeprecationLevel.Notice);
+            PlayerEvents.DeprecationManager.WarnForEvent(handlers, name, "1.6", DeprecationLevel.Info);
             monitor.SafelyRaiseGenericEvent(name, handlers, null, new EventArgsFarmerChanged(priorFarmer, newFarmer));
         }
 

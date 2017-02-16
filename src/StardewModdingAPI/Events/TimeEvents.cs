@@ -102,7 +102,7 @@ namespace StardewModdingAPI.Events
             string name = $"{nameof(TimeEvents)}.{nameof(TimeEvents.OnNewDay)}";
             Delegate[] handlers = TimeEvents.OnNewDay.GetInvocationList();
 
-            TimeEvents.DeprecationManager.WarnForEvent(handlers, name, "1.6", DeprecationLevel.Notice);
+            TimeEvents.DeprecationManager.WarnForEvent(handlers, name, "1.6", DeprecationLevel.Info);
             monitor.SafelyRaiseGenericEvent(name, handlers, null, new EventArgsNewDay(priorDay, newDay, isTransitioning));
         }
     }

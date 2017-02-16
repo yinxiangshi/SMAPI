@@ -70,7 +70,7 @@ namespace StardewModdingAPI.Framework
                     break;
 
                 case DeprecationLevel.Info:
-                    this.Monitor.Log(message, LogLevel.Info);
+                    this.Monitor.Log(message, LogLevel.Warn);
                     break;
 
                 case DeprecationLevel.PendingRemoval:
