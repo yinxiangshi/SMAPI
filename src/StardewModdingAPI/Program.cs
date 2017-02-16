@@ -63,9 +63,6 @@ namespace StardewModdingAPI
         /// <summary>The underlying game instance.</summary>
         internal SGame GameInstance;
 
-        /// <summary>The number of mods currently loaded by SMAPI.</summary>
-        internal int ModsLoaded;
-
         /// <summary>Tracks the installed mods.</summary>
         internal readonly ModRegistry ModRegistry = new ModRegistry();
 
@@ -359,6 +356,7 @@ namespace StardewModdingAPI
             }
 
             // load mod assemblies
+            int modsLoaded = 0;
             List<Action> deprecationWarnings = new List<Action>(); // queue up deprecation warnings to show after mod list
             foreach (string directoryPath in Directory.GetDirectories(this.ModPath))
             {
@@ -529,7 +527,7 @@ namespace StardewModdingAPI
 
                     // track mod
                     this.ModRegistry.Add(mod);
-                    this.ModsLoaded += 1;
+                    modsLoaded += 1;
                     this.Monitor.Log($"Loaded mod: {manifest.Name} by {manifest.Author}, v{manifest.Version} | {manifest.Description}", LogLevel.Info);
                 }
                 catch (Exception ex)
@@ -563,8 +561,8 @@ namespace StardewModdingAPI
             }
 
             // print result
-            this.Monitor.Log($"Loaded {this.ModsLoaded} mods.");
-            Console.Title = $"Stardew Modding API Console - Version {Constants.ApiVersion} - Mods Loaded: {this.ModsLoaded}";
+            this.Monitor.Log($"Loaded {modsLoaded} mods.");
+            Console.Title = $"Stardew Modding API Console - Version {Constants.ApiVersion} - Mods Loaded: {modsLoaded}";
         }
 
         // ReSharper disable once FunctionNeverReturns
