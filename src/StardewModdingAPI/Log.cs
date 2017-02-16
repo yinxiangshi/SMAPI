@@ -15,15 +15,11 @@ namespace StardewModdingAPI
         /// <summary>Manages deprecation warnings.</summary>
         private static DeprecationManager DeprecationManager;
 
-
-        /*********
-        ** Accessors
-        *********/
         /// <summary>The underlying logger.</summary>
-        internal static Monitor Monitor;
+        private static Monitor Monitor;
 
         /// <summary>Tracks the installed mods.</summary>
-        internal static ModRegistry ModRegistry;
+        private static ModRegistry ModRegistry;
 
 
         /*********
@@ -31,9 +27,13 @@ namespace StardewModdingAPI
         *********/
         /// <summary>Injects types required for backwards compatibility.</summary>
         /// <param name="deprecationManager">Manages deprecation warnings.</param>
-        internal static void Shim(DeprecationManager deprecationManager)
+        /// <param name="monitor">The underlying logger.</param>
+        /// <param name="modRegistry">Tracks the installed mods.</param>
+        internal static void Shim(DeprecationManager deprecationManager, Monitor monitor, ModRegistry modRegistry)
         {
             Log.DeprecationManager = deprecationManager;
+            Log.Monitor = monitor;
+            Log.ModRegistry = modRegistry;
         }
 
         /****

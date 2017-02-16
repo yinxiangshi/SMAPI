@@ -105,18 +105,7 @@ namespace StardewModdingAPI
             Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB"); // for consistent log formatting
             this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Game1.version} on {Environment.OSVersion}", LogLevel.Info);
 
-            // inject compatibility shims
-#pragma warning disable 618
-            Command.Shim(this.CommandManager, this.DeprecationManager, this.ModRegistry);
-            Config.Shim(this.DeprecationManager);
-            InternalExtensions.Shim(this.ModRegistry);
-            Log.Shim(this.DeprecationManager);
-            Mod.Shim(this.DeprecationManager);
-            PlayerEvents.Shim(this.DeprecationManager);
-            TimeEvents.Shim(this.DeprecationManager);
-#pragma warning restore 618
-
-            // read config
+            // read settings
             {
                 string settingsPath = Constants.ApiConfigPath;
                 if (File.Exists(settingsPath))
@@ -129,6 +118,17 @@ namespace StardewModdingAPI
 
                 File.WriteAllText(settingsPath, JsonConvert.SerializeObject(this.Settings, Formatting.Indented));
             }
+
+            // inject compatibility shims
+#pragma warning disable 618
+            Command.Shim(this.CommandManager, this.DeprecationManager, this.ModRegistry);
+            Config.Shim(this.DeprecationManager);
+            InternalExtensions.Shim(this.ModRegistry);
+            Log.Shim(this.DeprecationManager, this.GetSecondaryMonitor("legacy mod"), this.ModRegistry);
+            Mod.Shim(this.DeprecationManager);
+            PlayerEvents.Shim(this.DeprecationManager);
+            TimeEvents.Shim(this.DeprecationManager);
+#pragma warning restore 618
 
             // redirect direct console output
             {
@@ -151,10 +151,6 @@ namespace StardewModdingAPI
 
             // print file paths
             this.Monitor.Log($"Mods go here: {this.ModPath}");
-
-            // initialise legacy log
-            Log.Monitor = this.GetSecondaryMonitor("legacy mod");
-            Log.ModRegistry = this.ModRegistry;
 
             // hook into & launch the game
             try
