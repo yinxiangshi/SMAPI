@@ -61,7 +61,8 @@ namespace StardewModdingAPI.Framework
             AssemblyParseResult[] assemblies;
             {
                 AssemblyDefinitionResolver resolver = new AssemblyDefinitionResolver();
-                assemblies = this.GetReferencedLocalAssemblies(new FileInfo(assemblyPath), new HashSet<string>(), resolver).ToArray();
+                HashSet<string> visitedAssemblyNames = new HashSet<string>(AppDomain.CurrentDomain.GetAssemblies().Select(p => p.GetName().Name)); // don't try loading assemblies that are already loaded
+                assemblies = this.GetReferencedLocalAssemblies(new FileInfo(assemblyPath), visitedAssemblyNames, resolver).ToArray();
                 if (!assemblies.Any())
                     throw new InvalidOperationException($"Could not load '{assemblyPath}' because it doesn't exist.");
                 resolver.Add(assemblies.Select(p => p.Definition).ToArray());
@@ -118,18 +119,16 @@ namespace StardewModdingAPI.Framework
         ****/
         /// <summary>Get a list of referenced local assemblies starting from the mod assembly, ordered from leaf to root.</summary>
         /// <param name="file">The assembly file to load.</param>
-        /// <param name="visitedAssemblyPaths">The assembly paths that should be skipped.</param>
+        /// <param name="visitedAssemblyNames">The assembly names that should be skipped.</param>
+        /// <param name="assemblyResolver">A resolver which resolves references to known assemblies.</param>
         /// <returns>Returns the rewrite metadata for the preprocessed assembly.</returns>
-        private IEnumerable<AssemblyParseResult> GetReferencedLocalAssemblies(FileInfo file, HashSet<string> visitedAssemblyPaths, IAssemblyResolver assemblyResolver)
+        private IEnumerable<AssemblyParseResult> GetReferencedLocalAssemblies(FileInfo file, HashSet<string> visitedAssemblyNames, IAssemblyResolver assemblyResolver)
         {
             // validate
             if (file.Directory == null)
                 throw new InvalidOperationException($"Could not get directory from file path '{file.FullName}'.");
-            if (visitedAssemblyPaths.Contains(file.FullName))
-                yield break; // already visited
             if (!file.Exists)
                 yield break; // not a local assembly
-            visitedAssemblyPaths.Add(file.FullName);
 
             // read assembly
             byte[] assemblyBytes = File.ReadAllBytes(file.FullName);
@@ -137,11 +136,16 @@ namespace StardewModdingAPI.Framework
             using (Stream readStream = new MemoryStream(assemblyBytes))
                 assembly = AssemblyDefinition.ReadAssembly(readStream, new ReaderParameters(ReadingMode.Deferred) { AssemblyResolver = assemblyResolver });
 
+            // skip if already visited
+            if (visitedAssemblyNames.Contains(assembly.Name.Name))
+                yield break;
+            visitedAssemblyNames.Add(assembly.Name.Name);
+
             // yield referenced assemblies
             foreach (AssemblyNameReference dependency in assembly.MainModule.AssemblyReferences)
             {
                 FileInfo dependencyFile = new FileInfo(Path.Combine(file.Directory.FullName, $"{dependency.Name}.dll"));
-                foreach (AssemblyParseResult result in this.GetReferencedLocalAssemblies(dependencyFile, visitedAssemblyPaths, assemblyResolver))
+                foreach (AssemblyParseResult result in this.GetReferencedLocalAssemblies(dependencyFile, visitedAssemblyNames, assemblyResolver))
                     yield return result;
             }
 

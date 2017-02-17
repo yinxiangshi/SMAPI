@@ -9,6 +9,7 @@ For players:
 * Simple nested mod folders are now recognised by SMAPI (e.g. `ModName-1.0\ModName\manifest.json`).
 * Fixed game's debug output being shown in the console for all users.
 * Fixed installer errors for some players when deleting files.
+* Fixed rare issue where mod dependencies would override SMAPI dependencies and cause unpredictable bugs.
 
 For mod developers:
 * Added `SaveEvents.AfterReturnToTitle` and `TimeEvents.AfterDayStarted` events.
