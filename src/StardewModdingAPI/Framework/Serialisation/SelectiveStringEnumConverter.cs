@@ -29,7 +29,9 @@ namespace StardewModdingAPI.Framework.Serialisation
         /// <param name="type">The object type.</param>
         public override bool CanConvert(Type type)
         {
-            return base.CanConvert(type) && this.Types.Contains(type.FullName);
+            return
+                base.CanConvert(type)
+                && this.Types.Contains((Nullable.GetUnderlyingType(type) ?? type).FullName);
         }
     }
 }
