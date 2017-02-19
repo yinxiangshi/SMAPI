@@ -4,9 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-#if SMAPI_FOR_WINDOWS
 using Microsoft.Win32;
-#endif
 using StardewModdingApi.Installer.Enums;
 
 namespace StardewModdingApi.Installer
@@ -18,37 +16,43 @@ namespace StardewModdingApi.Installer
         ** Properties
         *********/
         /// <summary>The default file paths where Stardew Valley can be installed.</summary>
+        /// <param name="platform">The target platform.</param>
         /// <remarks>Derived from the crossplatform mod config: https://github.com/Pathoschild/Stardew.ModBuildConfig. </remarks>
-        private IEnumerable<string> DefaultInstallPaths
+        private IEnumerable<string> GetDefaultInstallPaths(Platform platform)
         {
-            get
+            switch (platform)
             {
-                // Linux
-                yield return $"{Environment.GetEnvironmentVariable("HOME")}/GOG Games/Stardew Valley/game";
-                yield return $"{Environment.GetEnvironmentVariable("HOME")}/.local/share/Steam/steamapps/common/Stardew Valley";
+                case Platform.Mono:
+                    // Linux
+                    yield return $"{Environment.GetEnvironmentVariable("HOME")}/GOG Games/Stardew Valley/game";
+                    yield return $"{Environment.GetEnvironmentVariable("HOME")}/.local/share/Steam/steamapps/common/Stardew Valley";
 
-                // Mac
-                yield return "/Applications/Stardew Valley.app/Contents/MacOS";
-                yield return $"{Environment.GetEnvironmentVariable("HOME")}/Library/Application Support/Steam/steamapps/common/Stardew Valley/Contents/MacOS";
+                    // Mac
+                    yield return "/Applications/Stardew Valley.app/Contents/MacOS";
+                    yield return $"{Environment.GetEnvironmentVariable("HOME")}/Library/Application Support/Steam/steamapps/common/Stardew Valley/Contents/MacOS";
+                    break;
 
-                // Windows
-                yield return @"C:\Program Files (x86)\GalaxyClient\Games\Stardew Valley";
-                yield return @"C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley";
+                case Platform.Windows:
+                    // Windows
+                    yield return @"C:\Program Files (x86)\GalaxyClient\Games\Stardew Valley";
+                    yield return @"C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley";
 
-                // Windows registry
-#if SMAPI_FOR_WINDOWS
-                IDictionary<string, string> registryKeys = new Dictionary<string, string>
-                {
-                    [@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 413150"] = "InstallLocation", // Steam
-                    [@"SOFTWARE\WOW6432Node\GOG.com\Games\1453375253"] = "PATH", // GOG on 64-bit Windows
-                };
-                foreach (var pair in registryKeys)
-                {
-                    string path = this.GetLocalMachineRegistryValue(pair.Key, pair.Value);
-                    if (!string.IsNullOrWhiteSpace(path))
-                        yield return path;
-                }
-#endif
+                    // Windows registry
+                    IDictionary<string, string> registryKeys = new Dictionary<string, string>
+                    {
+                        [@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 413150"] = "InstallLocation", // Steam
+                        [@"SOFTWARE\WOW6432Node\GOG.com\Games\1453375253"] = "PATH", // GOG on 64-bit Windows
+                    };
+                    foreach (var pair in registryKeys)
+                    {
+                        string path = this.GetLocalMachineRegistryValue(pair.Key, pair.Value);
+                        if (!string.IsNullOrWhiteSpace(path))
+                            yield return path;
+                    }
+                    break;
+
+                default:
+                    throw new InvalidOperationException($"Unknown platform '{platform}'.");
             }
         }
 
@@ -307,7 +311,6 @@ namespace StardewModdingApi.Installer
             }
         }
 
-#if SMAPI_FOR_WINDOWS
         /// <summary>Get the value of a key in the Windows registry.</summary>
         /// <param name="key">The full path of the registry key relative to HKLM.</param>
         /// <param name="name">The name of the value.</param>
@@ -320,7 +323,6 @@ namespace StardewModdingApi.Installer
             using (openKey)
                 return (string)openKey.GetValue(name);
         }
-#endif
 
         /// <summary>Print a debug message.</summary>
         /// <param name="text">The text to print.</param>
@@ -441,7 +443,7 @@ namespace StardewModdingApi.Installer
                 : "StardewValley.exe";
 
             // try default paths
-            foreach (string defaultPath in this.DefaultInstallPaths)
+            foreach (string defaultPath in this.GetDefaultInstallPaths(platform))
             {
                 DirectoryInfo dir = new DirectoryInfo(defaultPath);
                 if (dir.Exists && dir.EnumerateFiles(executableFilename).Any())
