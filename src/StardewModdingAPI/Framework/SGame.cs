@@ -987,13 +987,20 @@ namespace StardewModdingAPI.Framework
                             Game1.overlayMenu.draw(Game1.spriteBatch);
                             Game1.spriteBatch.End();
                         }
+
+                        if (GraphicsEvents.HasPostRenderListeners())
+                        {
+                            Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
+                            GraphicsEvents.InvokeOnPostRenderEvent(this.Monitor);
+                            Game1.spriteBatch.End();
+                        }
+
                         if ((double)Game1.options.zoomLevel == 1.0)
                             return;
                         this.GraphicsDevice.SetRenderTarget((RenderTarget2D)null);
                         this.GraphicsDevice.Clear(this.bgColor);
                         Game1.spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
                         Game1.spriteBatch.Draw((Texture2D)this.screenWrapper, Vector2.Zero, new Microsoft.Xna.Framework.Rectangle?(this.screenWrapper.Bounds), Color.White, 0.0f, Vector2.Zero, Game1.options.zoomLevel, SpriteEffects.None, 1f);
-                        GraphicsEvents.InvokeOnPostRenderEvent(this.Monitor);
                         Game1.spriteBatch.End();
                     }
                 }

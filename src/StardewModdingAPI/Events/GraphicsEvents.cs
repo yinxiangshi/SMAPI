@@ -75,6 +75,12 @@ namespace StardewModdingAPI.Events
             monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.OnPostRenderEvent)}", GraphicsEvents.OnPostRenderEvent?.GetInvocationList());
         }
 
+        /// <summary>Get whether there are any post-render event listeners.</summary>
+        internal static bool HasPostRenderListeners()
+        {
+            return GraphicsEvents.OnPostRenderEvent != null;
+        }
+
         /****
         ** GUI events
         ****/
