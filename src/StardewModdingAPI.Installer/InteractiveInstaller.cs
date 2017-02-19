@@ -435,10 +435,16 @@ namespace StardewModdingApi.Installer
         /// <param name="platform">The current platform.</param>
         private DirectoryInfo InteractivelyGetInstallPath(Platform platform)
         {
+            // get executable name
+            string executableFilename = platform == Platform.Windows
+                ? "Stardew Valley.exe"
+                : "StardewValley.exe";
+
             // try default paths
             foreach (string defaultPath in this.DefaultInstallPaths)
             {
-                if (Directory.Exists(defaultPath))
+                DirectoryInfo dir = new DirectoryInfo(defaultPath);
+                if (dir.Exists && dir.EnumerateFiles(executableFilename).Any())
                     return new DirectoryInfo(defaultPath);
             }
 
@@ -447,7 +453,7 @@ namespace StardewModdingApi.Installer
             while (true)
             {
                 // get path from user
-                Console.WriteLine($"Type the file path to the game directory (the one containing '{(platform == Platform.Mono ? "StardewValley.exe" : "Stardew Valley.exe")}'), then press enter.");
+                Console.WriteLine($"Type the file path to the game directory (the one containing '{executableFilename}'), then press enter.");
                 string path = Console.ReadLine()?.Trim();
                 if (string.IsNullOrWhiteSpace(path))
                 {
@@ -470,7 +476,7 @@ namespace StardewModdingApi.Installer
                     Console.WriteLine("   That directory doesn't seem to exist.");
                     continue;
                 }
-                if (!directory.EnumerateFiles("*.exe").Any(p => p.Name == "StardewValley.exe" || p.Name == "Stardew Valley.exe"))
+                if (!directory.EnumerateFiles(executableFilename).Any())
                 {
                     Console.WriteLine("   That directory doesn't contain a Stardew Valley executable.");
                     continue;
