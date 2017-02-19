@@ -463,9 +463,16 @@ namespace StardewModdingApi.Installer
                     continue;
                 }
 
-                // normalise on Windows
+                // normalise path
                 if (platform == Platform.Windows)
                     path = path.Replace("\"", ""); // in Windows, quotes are used to escape spaces and aren't part of the file path
+                if (platform == Platform.Mono)
+                    path = path.Replace("\\ ", " "); // in Linux/Mac, spaces in paths may be escaped if copied from the command line
+                if (path.StartsWith("~/"))
+                {
+                    string home = Environment.GetEnvironmentVariable("HOME") ?? Environment.GetEnvironmentVariable("USERPROFILE");
+                    path = Path.Combine(home, path.Substring(2));
+                }
 
                 // get directory
                 if (File.Exists(path))

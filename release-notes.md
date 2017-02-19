@@ -10,6 +10,7 @@ For players:
 * Fixed game's debug output being shown in the console for all users.
 * Fixed installer errors for some players when deleting files.
 * Fixed installer not ignoring potential game folders that don't contain a Stardew Valley exe.
+* Fixed installer not recognising Linux/Mac paths starting with `~/` or containing an escaped space.
 * Fixed rare issue where mod dependencies would override SMAPI dependencies and cause unpredictable bugs.
 
 For mod developers:
