@@ -418,11 +418,14 @@ namespace StardewModdingAPI
                 {
                     if (!compatibility.IsCompatible(manifest.Version))
                     {
-                        string reasonPhrase = compatibility.ReasonPhrase ?? "this version is not compatible with the latest version of the game";
-                        string warning = $"Skipped {compatibility.Name} {manifest.Version} because {reasonPhrase}. Please check for a newer version of the mod here:";
-                        if (!string.IsNullOrWhiteSpace(compatibility.UpdateUrl))
-                            warning += $"{Environment.NewLine}- official mod: {compatibility.UpdateUrl}";
-                        if (!string.IsNullOrWhiteSpace(compatibility.UnofficialUpdateUrl))
+                        bool hasOfficialUrl = !string.IsNullOrWhiteSpace(compatibility.UpdateUrl);
+                        bool hasUnofficialUrl = !string.IsNullOrWhiteSpace(compatibility.UnofficialUpdateUrl);
+
+                        string reasonPhrase = compatibility.ReasonPhrase ?? "it isn't compatible with the latest version of the game";
+                        string warning = $"Skipped {compatibility.Name} because {reasonPhrase}. Please check for a version newer than {compatibility.UpperVersion} here:";
+                        if (hasOfficialUrl)
+                            warning += !hasUnofficialUrl ? $" {compatibility.UpdateUrl}" : $"{Environment.NewLine}- official mod: {compatibility.UpdateUrl}";
+                        if (hasUnofficialUrl)
                             warning += $"{Environment.NewLine}- unofficial update: {compatibility.UnofficialUpdateUrl}";
 
                         this.Monitor.Log(warning, LogLevel.Error);
