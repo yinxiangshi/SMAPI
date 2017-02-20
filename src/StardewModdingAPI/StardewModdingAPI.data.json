@@ -121,6 +121,12 @@ This file contains advanced metadata for SMAPI. You shouldn't change this file.
     "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/541"
   },
   {
+    "Name": "Makeshift Multiplayer",
+    "ID": "StardewValleyMP",
+    "UpperVersion": "0.2.10",
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/501"
+  },
+  {
     "Name": "NoSoilDecay",
     "ID": "289dee03-5f38-4d8e-8ffc-e440198e8610",
     "UpperVersion": "0.5",
