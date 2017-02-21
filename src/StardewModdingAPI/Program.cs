@@ -575,7 +575,7 @@ namespace StardewModdingAPI
             while (true)
             {
                 string input = Console.ReadLine();
-                if (!this.CommandManager.Trigger(input))
+                if (!string.IsNullOrWhiteSpace(input) && !this.CommandManager.Trigger(input))
                     this.Monitor.Log("Unknown command; type 'help' for a list of available commands.", LogLevel.Error);
             }
         }
@@ -587,7 +587,6 @@ namespace StardewModdingAPI
         {
             if (arguments.Any())
             {
-
                 Framework.Command result = this.CommandManager.Get(arguments[0]);
                 if (result == null)
                     this.Monitor.Log("There's no command with that name.", LogLevel.Error);

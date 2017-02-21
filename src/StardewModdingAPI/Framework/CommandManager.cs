@@ -70,6 +70,9 @@ namespace StardewModdingAPI.Framework
         /// <returns>Returns whether a matching command was triggered.</returns>
         public bool Trigger(string input)
         {
+            if (string.IsNullOrWhiteSpace(input))
+                return false;
+
             string[] args = input.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             string name = args[0];
             args = args.Skip(1).ToArray();
