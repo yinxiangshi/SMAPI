@@ -97,6 +97,7 @@ namespace StardewModdingAPI
             // initialise logging
             Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB"); // for consistent log formatting
             this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Game1.version} on {Environment.OSVersion}", LogLevel.Info);
+            Console.Title = $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Game1.version}";
 
             // read settings
             {
@@ -252,11 +253,10 @@ namespace StardewModdingAPI
                     this.GameInstance = new SGame(this.Monitor);
                     this.GameInstance.Exiting += (sender, e) => this.IsGameRunning = false;
                     this.GameInstance.Window.ClientSizeChanged += (sender, e) => GraphicsEvents.InvokeResize(this.Monitor, sender, e);
-                    this.GameInstance.Window.Title = $"Stardew Valley - Version {Game1.version}";
+                    this.GameInstance.Window.Title = $"Stardew Valley {Game1.version}";
                     gameProgramType.GetField("gamePtr").SetValue(gameProgramType, this.GameInstance);
 
                     // configure
-                    Game1.version += $" | SMAPI {Constants.ApiVersion}";
                     Game1.graphics.GraphicsProfile = GraphicsProfile.HiDef;
                 }
 
@@ -565,7 +565,7 @@ namespace StardewModdingAPI
 
             // print result
             this.Monitor.Log($"Loaded {modsLoaded} mods.");
-            Console.Title = $"Stardew Modding API Console - Version {Constants.ApiVersion} - Mods Loaded: {modsLoaded}";
+            Console.Title = $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Game1.version} with {modsLoaded} mods";
         }
 
         // ReSharper disable once FunctionNeverReturns

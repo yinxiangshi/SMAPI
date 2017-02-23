@@ -923,7 +923,7 @@ namespace StardewModdingAPI.Framework
                         {
                             SpriteBatch spriteBatch = Game1.spriteBatch;
                             SpriteFont smallFont = Game1.smallFont;
-                            object[] objArray = new object[8];
+                            object[] objArray = new object[10];
                             int index1 = 0;
                             string str1;
                             if (!Game1.panMode)
@@ -938,20 +938,26 @@ namespace StardewModdingAPI.Framework
                             float cursorTransparency = Game1.mouseCursorTransparency;
                             objArray[index3] = (object)cursorTransparency;
                             int index4 = 3;
-                            string str3 = " wasMouseVisibleThisFrame: ";
+                            string str3 = " mousePosition: ";
                             objArray[index4] = (object)str3;
                             int index5 = 4;
-                            string str4 = Game1.wasMouseVisibleThisFrame.ToString();
-                            objArray[index5] = (object)str4;
+                            int mouseX = Game1.getMouseX();
+                            objArray[index5] = (object)mouseX;
                             int index6 = 5;
-                            string newLine = Environment.NewLine;
-                            objArray[index6] = (object)newLine;
+                            string str4 = ",";
+                            objArray[index6] = (object)str4;
                             int index7 = 6;
-                            string str5 = "debugOutput: ";
-                            objArray[index7] = (object)str5;
+                            int mouseY = Game1.getMouseY();
+                            objArray[index7] = (object)mouseY;
                             int index8 = 7;
+                            string newLine = Environment.NewLine;
+                            objArray[index8] = (object)newLine;
+                            int index9 = 8;
+                            string str5 = "debugOutput: ";
+                            objArray[index9] = (object)str5;
+                            int index10 = 9;
                             string debugOutput = Game1.debugOutput;
-                            objArray[index8] = (object)debugOutput;
+                            objArray[index10] = (object)debugOutput;
                             string text = string.Concat(objArray);
                             Vector2 position = new Vector2((float)this.GraphicsDevice.Viewport.TitleSafeArea.X, (float)this.GraphicsDevice.Viewport.TitleSafeArea.Y);
                             Color red = Color.Red;

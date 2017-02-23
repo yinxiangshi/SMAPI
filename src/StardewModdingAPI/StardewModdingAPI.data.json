@@ -66,6 +66,13 @@ This file contains advanced metadata for SMAPI. You shouldn't change this file.
     "Notes": "Crashes with 'Method not found: Void StardewValley.Menus.TextBox.set_Highlighted(Boolean)'."
   },
   {
+    "Name": "Chests Anywhere",
+    "ID": "Pathoschild.ChestsAnywhere",
+    "UpperVersion": "1.9-beta",
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/518",
+    "Notes": "ID changed in 1.9. Crashes with InvalidOperationException: 'The menu doesn't seem to have a player inventory'."
+  },
+  {
     "Name": "CJB Automation",
     "ID": "CJBAutomation",
     "UpperVersion": "1.4",
@@ -183,6 +190,13 @@ This file contains advanced metadata for SMAPI. You shouldn't change this file.
     "UpperVersion": "1.0",
     "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/683",
     "Notes": "Crashes with 'Method not found: Void StardewModdingAPI.Command.CallCommand(System.String)'."
+  },
+  {
+    "Name": "Teleporter",
+    "ID": "Teleporter",
+    "UpperVersion": "1.0.2",
+    "UpdateUrl": "http://community.playstarbound.com/resources/4374",
+    "Notes": "Crashes with 'InvalidOperationException: The StardewValley.Menus.MapPage object doesn't have a private 'points' instance field'."
   },
   {
     "Name": "Zoryn's Better RNG",

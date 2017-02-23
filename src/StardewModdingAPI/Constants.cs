@@ -33,7 +33,7 @@ namespace StardewModdingAPI
         public static ISemanticVersion ApiVersion => new SemanticVersion(1, 8, 0, null);
 
         /// <summary>The minimum supported version of Stardew Valley.</summary>
-        public const string MinimumGameVersion = "1.2";
+        public const string MinimumGameVersion = "1.2.9";
 
         /// <summary>The directory path containing Stardew Valley's app data.</summary>
         public static string DataPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley");
