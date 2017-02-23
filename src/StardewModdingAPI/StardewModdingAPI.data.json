@@ -32,13 +32,15 @@ This file contains advanced metadata for SMAPI. You shouldn't change this file.
     "ID": "AccessChestAnywhere",
     "UpperVersion": "1.1",
     "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/257",
-    "UnofficialUpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/518"
+    "UnofficialUpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/518",
+    "Notes": "Crashes with 'Method not found: Void StardewValley.Item.set_Name(System.String)'."
   },
   {
     "Name": "Almighty Tool",
     "ID": "AlmightyTool.dll",
     "UpperVersion": "1.1.1",
-    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/439"
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/439",
+    "Notes": "Uses obsolete StardewModdingAPI.Extensions."
   },
   {
     "Name": "Better Sprinklers",
@@ -46,150 +48,175 @@ This file contains advanced metadata for SMAPI. You shouldn't change this file.
     "UpperVersion": "2.1",
     "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/41",
     "UnofficialUpdateUrl": "http://community.playstarbound.com/threads/125031",
-    "ForceCompatibleVersion": "^2.1-EntoPatch.7"
+    "ForceCompatibleVersion": "^2.1-EntoPatch.7",
+    "Notes": "Uses obsolete StardewModdingAPI.Extensions."
   },
   {
     "Name": "Casks Anywhere",
     "ID": "CasksAnywhere",
     "UpperVersion": "1.1",
-    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/878"
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/878",
+    "Notes": "Uses obsolete StardewModdingAPI.Inheritance.ItemStackChange."
   },
   {
     "Name": "Chests Anywhere",
     "ID": "ChestsAnywhere",
     "UpperVersion": "1.8.2",
-    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/518"
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/518",
+    "Notes": "Crashes with 'Method not found: Void StardewValley.Menus.TextBox.set_Highlighted(Boolean)'."
   },
   {
     "Name": "CJB Automation",
     "ID": "CJBAutomation",
     "UpperVersion": "1.4",
-    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/211"
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/211",
+    "Notes": "Crashes with 'Method not found: Void StardewValley.Item.set_Name(System.String)'."
   },
   {
     "Name": "CJB Cheats Menu",
     "ID": "CJBCheatsMenu",
     "UpperVersion": "1.13",
-    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/4"
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/4",
+    "Notes": "Uses removed Game1.borderFont."
   },
   {
     "Name": "CJB Item Spawner",
     "ID": "CJBItemSpawner",
     "UpperVersion": "1.6",
-    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/93"
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/93",
+    "Notes": "Uses removed Game1.borderFont."
   },
   {
     "Name": "Cooking Skill",
     "ID": "CookingSkill",
     "UpperVersion": "1.0.3",
-    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/522"
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/522",
+    "Notes": "Crashes with 'Method not found: Void StardewValley.Buff..ctor(Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, System.String)'."
   },
   {
     "Name": "Enemy Health Bars",
     "ID": "SPDHealthBar",
     "UpperVersion": "1.7",
-    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/193"
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/193",
+    "Notes": "Uses obsolete GraphicsEvents.DrawTick."
   },
   {
     "Name": "Entoarox Framework",
     "ID": "eacdb74b-4080-4452-b16b-93773cda5cf9",
     "UpperVersion": "1.6.5",
-    "UpdateUrl": "http://community.playstarbound.com/resources/4228"
+    "UpdateUrl": "http://community.playstarbound.com/resources/4228",
+    "Notes": "Uses obsolete StardewModdingAPI.Inheritance.SObject until 1.6.1; then crashes until 1.6.4 ('Entoarox Framework requested an immediate game shutdown: Fatal error attempting to update player tick properties System.NullReferenceException: Object reference not set to an instance of an object. at Entoarox.Framework.PlayerHelper.Update(Object s, EventArgs e)')."
   },
   {
     "Name": "Extended Fridge",
     "ID": "Mystra007ExtendedFridge",
-    "UpperVersion": "1.0", // real latest version is 0.94, but mod incorrectly sets version to 1.0 in manifest
-    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/485"
+    "UpperVersion": "1.0",
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/485",
+    "Notes": "Actual upper version is 0.94, but mod incorrectly sets it to 1.0 in the manifest. Crashes with 'Field not found: StardewValley.Game1.mouseCursorTransparency'."
   },
   {
     "Name": "Get Dressed",
     "ID": "GetDressed.dll",
     "UpperVersion": "3.2",
-    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/331"
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/331",
+    "Notes": "Crashes with NullReferenceException in GameEvents.UpdateTick."
+  },
+  {
+    "Name": "Lookup Anything",
+    "ID": "LookupAnything",
+    "UpperVersion": "1.10",
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/541",
+    "Notes": "Crashes with FormatException when looking up NPCs."
   },
   {
     "Name": "Lookup Anything",
     "ID": "Pathoschild.LookupAnything",
     "UpperVersion": "1.10.1",
-    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/541"
-  },
-  {
-    "Name": "Lookup Anything",
-    "ID": "LookupAnything", // ID changed in latest version
-    "UpperVersion": "1.10.1",
-    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/541"
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/541",
+    "Notes": "ID changed in 1.10.1. Crashes with FormatException when looking up NPCs."
   },
   {
     "Name": "Makeshift Multiplayer",
     "ID": "StardewValleyMP",
     "UpperVersion": "0.2.10",
-    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/501"
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/501",
+    "Notes": "Uses obsolete GraphicsEvents.OnPreRenderHudEventNoCheck."
   },
   {
     "Name": "NoSoilDecay",
     "ID": "289dee03-5f38-4d8e-8ffc-e440198e8610",
     "UpperVersion": "0.5",
-    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/237"
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/237",
+    "Notes": "Uses Assembly.GetExecutingAssembly().Location."
   },
   {
     "Name": "Point-and-Plant",
     "ID": "PointAndPlant.dll",
     "UpperVersion": "1.0.2",
-    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/572"
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/572",
+    "Notes": "Uses obsolete StardewModdingAPI.Extensions."
   },
   {
     "Name": "Reusable Wallpapers",
     "ID": "dae1b553-2e39-43e7-8400-c7c5c836134b",
     "UpperVersion": "1.5",
-    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/356"
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/356",
+    "Notes": "Uses obsolete StardewModdingAPI.Inheritance.ItemStackChange."
   },
   {
-    "Name": "Save Anywhere", // depends on StarDustCore
+    "Name": "Save Anywhere",
     "ID": "SaveAnywhere",
     "UpperVersion": "2.0",
-    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/444"
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/444",
+    "Notes": "Depends on StarDustCore."
   },
   {
     "Name": "StackSplitX",
     "ID": "StackSplitX.dll",
     "UpperVersion": "1.0",
-    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/798"
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/798",
+    "Notes": "Uses SMAPI's internal SGame class."
   },
   {
     "Name": "StarDustCore",
     "ID": "StarDustCore",
     "UpperVersion": "1.0",
-    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/683"
+    "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/683",
+    "Notes": "Crashes with 'Method not found: Void StardewModdingAPI.Command.CallCommand(System.String)'."
   },
   {
     "Name": "Zoryn's Better RNG",
     "ID": "76b6d1e1-f7ba-4d72-8c32-5a1e6d2716f6",
     "UpperVersion": "1.5",
-    "UpdateUrl": "http://community.playstarbound.com/threads/108756"
+    "UpdateUrl": "http://community.playstarbound.com/threads/108756",
+    "Notes": "Uses SMAPI's internal SGame class."
   },
   {
     "Name": "Zoryn's Calendar Anywhere",
     "ID": "a41c01cd-0437-43eb-944f-78cb5a53002a",
     "UpperVersion": "1.5",
-    "UpdateUrl": "http://community.playstarbound.com/threads/108756"
+    "UpdateUrl": "http://community.playstarbound.com/threads/108756",
+    "Notes": "Uses SMAPI's internal SGame class."
   },
   {
     "Name": "Zoryn's Health Bars",
     "ID": "HealthBars.dll",
     "UpperVersion": "1.5",
-    "UpdateUrl": "http://community.playstarbound.com/threads/108756"
+    "UpdateUrl": "http://community.playstarbound.com/threads/108756",
+    "Notes": "Uses SMAPI's internal SGame class."
   },
   {
     "Name": "Zoryn's Movement Mod",
     "ID": "8a632929-8335-484f-87dd-c29d2ba3215d",
     "UpperVersion": "1.5",
-    "UpdateUrl": "http://community.playstarbound.com/threads/108756"
+    "UpdateUrl": "http://community.playstarbound.com/threads/108756",
+    "Notes": "Uses SMAPI's internal SGame class."
   },
   {
     "Name": "Zoryn's Regen Mod",
     "ID": "dfac4383-1b6b-4f33-ae4e-37fc23e5252e",
     "UpperVersion": "1.5",
-    "UpdateUrl": "http://community.playstarbound.com/threads/108756"
+    "UpdateUrl": "http://community.playstarbound.com/threads/108756",
+    "Notes": "Uses SMAPI's internal SGame class."
   }
 ]
