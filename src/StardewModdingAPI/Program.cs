@@ -355,7 +355,7 @@ namespace StardewModdingAPI
                     this.Monitor.Log($"Ignored folder \"{directory.Name}\" which doesn't have a manifest.json.", LogLevel.Warn);
                     continue;
                 }
-                string errorPrefix = $"Couldn't load mod for manifest '{manifestPath}'";
+                string errorPrefix = $"Couldn't load mod for '{manifestPath.Replace(this.ModPath, "").Trim('/', '\\')}'";
 
                 // read manifest
                 Manifest manifest;
