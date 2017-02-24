@@ -28,17 +28,6 @@ namespace StardewModdingAPI
         /*********
         ** Properties
         *********/
-        /// <summary>The target game platform.</summary>
-        private readonly Platform TargetPlatform =
-#if SMAPI_FOR_WINDOWS
-        Platform.Windows;
-#else
-        Platform.Mono;
-#endif
-
-        /// <summary>The full path to the folder containing mods.</summary>
-        private readonly string ModPath = Path.Combine(Constants.ExecutionPath, "Mods");
-
         /// <summary>The log file to which to write messages.</summary>
         private readonly LogFileManager LogFile = new LogFileManager(Constants.LogPath);
 
@@ -57,21 +46,17 @@ namespace StardewModdingAPI
         /// <summary>Whether the game is currently running.</summary>
         private bool IsGameRunning;
 
-
-        /*********
-        ** Accessors
-        *********/
         /// <summary>The underlying game instance.</summary>
-        internal SGame GameInstance;
+        private SGame GameInstance;
 
         /// <summary>Tracks the installed mods.</summary>
-        internal readonly ModRegistry ModRegistry;
+        private readonly ModRegistry ModRegistry;
 
         /// <summary>Manages deprecation warnings.</summary>
-        internal readonly DeprecationManager DeprecationManager;
+        private readonly DeprecationManager DeprecationManager;
 
         /// <summary>Manages console commands.</summary>
-        internal readonly CommandManager CommandManager = new CommandManager();
+        private readonly CommandManager CommandManager = new CommandManager();
 
 
         /*********
@@ -136,7 +121,7 @@ namespace StardewModdingAPI
                 this.Monitor.Log("Writing to the terminal is disabled because the --no-terminal argument was received. This usually means launching the terminal failed.", LogLevel.Warn);
 
             // print file paths
-            this.Monitor.Log($"Mods go here: {this.ModPath}");
+            this.Monitor.Log($"Mods go here: {Constants.ModPath}");
 
             // hook into & launch the game
             try
@@ -151,11 +136,11 @@ namespace StardewModdingAPI
 
                 // initialise folders
                 this.Monitor.Log("Loading SMAPI...");
-                this.VerifyPath(this.ModPath);
+                this.VerifyPath(Constants.ModPath);
                 this.VerifyPath(Constants.LogDir);
 
                 // get executable path
-                string executablePath = Path.Combine(Constants.ExecutionPath, this.TargetPlatform == Platform.Windows ? "Stardew Valley.exe" : "StardewValley.exe");
+                string executablePath = Path.Combine(Constants.ExecutionPath, Constants.TargetPlatform == Platform.Windows ? "Stardew Valley.exe" : "StardewValley.exe");
                 if (!File.Exists(executablePath))
                 {
                     this.Monitor.Log($"Couldn't find executable: {executablePath}", LogLevel.Error);
@@ -331,13 +316,13 @@ namespace StardewModdingAPI
             JsonHelper jsonHelper = new JsonHelper();
 
             // get assembly loader
-            AssemblyLoader modAssemblyLoader = new AssemblyLoader(this.TargetPlatform, this.Monitor);
+            AssemblyLoader modAssemblyLoader = new AssemblyLoader(Constants.TargetPlatform, this.Monitor);
             AppDomain.CurrentDomain.AssemblyResolve += (sender, e) => modAssemblyLoader.ResolveAssembly(e.Name);
 
             // load mod assemblies
             int modsLoaded = 0;
             List<Action> deprecationWarnings = new List<Action>(); // queue up deprecation warnings to show after mod list
-            foreach (string directoryPath in Directory.GetDirectories(this.ModPath))
+            foreach (string directoryPath in Directory.GetDirectories(Constants.ModPath))
             {
                 // passthrough empty directories
                 DirectoryInfo directory = new DirectoryInfo(directoryPath);
@@ -358,7 +343,7 @@ namespace StardewModdingAPI
                     this.Monitor.Log($"Ignored folder \"{directory.Name}\" which doesn't have a manifest.json.", LogLevel.Warn);
                     continue;
                 }
-                string skippedPrefix = $"Skipped {manifestPath.Replace(this.ModPath, "").Trim('/', '\\')}";
+                string skippedPrefix = $"Skipped {manifestPath.Replace(Constants.ModPath, "").Trim('/', '\\')}";
 
                 // read manifest
                 Manifest manifest;

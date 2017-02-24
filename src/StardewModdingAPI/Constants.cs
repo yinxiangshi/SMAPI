@@ -65,6 +65,9 @@ namespace StardewModdingAPI
         /// <summary>The file path to the log where the latest output should be saved.</summary>
         internal static string LogPath => Path.Combine(Constants.LogDir, "SMAPI-latest.txt");
 
+        /// <summary>The full path to the folder containing mods.</summary>
+        internal static string ModPath { get; } = Path.Combine(Constants.ExecutionPath, "Mods");
+
         /// <summary>Whether a player save has been loaded.</summary>
         internal static bool IsSaveLoaded => Game1.hasLoadedGame && !string.IsNullOrEmpty(Game1.player.name);
 
@@ -73,6 +76,14 @@ namespace StardewModdingAPI
 
         /// <summary>The game's current version as it should be displayed to players.</summary>
         internal static ISemanticVersion GameDisplayVersion { get; } = Constants.GetGameDisplayVersion(Constants.GameVersion);
+
+        /// <summary>The target game platform.</summary>
+        internal static Platform TargetPlatform { get; } =
+#if SMAPI_FOR_WINDOWS
+        Platform.Windows;
+#else
+        Platform.Mono;
+#endif
 
 
         /*********
