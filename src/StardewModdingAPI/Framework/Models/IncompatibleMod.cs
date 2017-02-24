@@ -1,4 +1,5 @@
-using System.Text.RegularExpressions;
+using System.Runtime.Serialization;
+using Newtonsoft.Json;
 
 namespace StardewModdingAPI.Framework.Models
 {
@@ -8,6 +9,9 @@ namespace StardewModdingAPI.Framework.Models
         /*********
         ** Accessors
         *********/
+        /****
+        ** From config
+        ****/
         /// <summary>The unique mod ID.</summary>
         public string ID { get; set; }
 
@@ -34,24 +38,28 @@ namespace StardewModdingAPI.Framework.Models
         public string ReasonPhrase { get; set; }
 
 
+        /****
+        ** Injected
+        ****/
+        /// <summary>The semantic version corresponding to <see cref="LowerVersion"/>.</summary>
+        [JsonIgnore]
+        public ISemanticVersion LowerSemanticVersion { get; set; }
+
+        /// <summary>The semantic version corresponding to <see cref="UpperVersion"/>.</summary>
+        [JsonIgnore]
+        public ISemanticVersion UpperSemanticVersion { get; set; }
+
+
         /*********
-        ** Public methods
+        ** Private methods
         *********/
-        /// <summary>Get whether the specified version is compatible according to this metadata.</summary>
-        /// <param name="version">The current version of the matching mod.</param>
-        public bool IsCompatible(ISemanticVersion version)
+        /// <summary>The method called when the model finishes deserialising.</summary>
+        /// <param name="context">The deserialisation context.</param>
+        [OnDeserialized]
+        private void OnDeserialized(StreamingContext context)
         {
-            ISemanticVersion lowerVersion = this.LowerVersion != null ? new SemanticVersion(this.LowerVersion) : null;
-            ISemanticVersion upperVersion = new SemanticVersion(this.UpperVersion);
-
-            // ignore versions not in range
-            if (lowerVersion != null && version.IsOlderThan(lowerVersion))
-                return true;
-            if (version.IsNewerThan(upperVersion))
-                return true;
-
-            // allow versions matching override
-            return !string.IsNullOrWhiteSpace(this.ForceCompatibleVersion) && Regex.IsMatch(version.ToString(), this.ForceCompatibleVersion, RegexOptions.IgnoreCase);
+            this.LowerSemanticVersion = this.LowerVersion != null ? new SemanticVersion(this.LowerVersion) : null;
+            this.UpperSemanticVersion = this.UpperVersion != null ? new SemanticVersion(this.UpperVersion) : null;
         }
     }
 }

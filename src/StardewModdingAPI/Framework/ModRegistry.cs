@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
+using StardewModdingAPI.Framework.Models;
 
 namespace StardewModdingAPI.Framework
 {
@@ -18,10 +20,21 @@ namespace StardewModdingAPI.Framework
         /// <summary>The friendly mod names treated as deprecation warning sources (assembly full name => mod name).</summary>
         private readonly IDictionary<string, string> ModNamesByAssembly = new Dictionary<string, string>();
 
+        /// <summary>The mod versions which should be disabled due to incompatibility.</summary>
+        private readonly IncompatibleMod[] IncompatibleMods;
+
 
         /*********
         ** Public methods
         *********/
+        /// <summary>Construct an instance.</summary>
+        /// <param name="incompatibleMods">The mod versions which should be disabled due to incompatibility.</param>
+        public ModRegistry(IEnumerable<IncompatibleMod> incompatibleMods)
+        {
+            this.IncompatibleMods = incompatibleMods.ToArray();
+        }
+
+
         /****
         ** IModRegistry
         ****/
@@ -112,6 +125,23 @@ namespace StardewModdingAPI.Framework
 
             // no known assembly found
             return null;
+        }
+
+        /// <summary>Get a record indicating why a mod is incompatible (if applicable).</summary>
+        /// <param name="manifest">The mod manifest.</param>
+        /// <returns>Returns the incompatibility record if applicable, else <c>null</c>.</returns>
+        internal IncompatibleMod GetIncompatibilityRecord(IManifest manifest)
+        {
+            string key = !string.IsNullOrWhiteSpace(manifest.UniqueID) ? manifest.UniqueID : manifest.EntryDll;
+            return (
+                from mod in this.IncompatibleMods
+                where
+                    mod.ID == key
+                    && (mod.LowerSemanticVersion == null || !manifest.Version.IsOlderThan(mod.LowerSemanticVersion))
+                    && !manifest.Version.IsNewerThan(mod.UpperSemanticVersion)
+                    && (string.IsNullOrWhiteSpace(mod.ForceCompatibleVersion) || !Regex.IsMatch(manifest.Version.ToString(), mod.ForceCompatibleVersion, RegexOptions.IgnoreCase))
+                select mod
+            ).FirstOrDefault();
         }
     }
 }

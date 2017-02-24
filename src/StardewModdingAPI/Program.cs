@@ -64,7 +64,7 @@ namespace StardewModdingAPI
         internal SGame GameInstance;
 
         /// <summary>Tracks the installed mods.</summary>
-        internal readonly ModRegistry ModRegistry = new ModRegistry();
+        internal readonly ModRegistry ModRegistry;
 
         /// <summary>Manages deprecation warnings.</summary>
         internal readonly DeprecationManager DeprecationManager;
@@ -92,6 +92,7 @@ namespace StardewModdingAPI
 
             // initialise
             this.Monitor = new Monitor("SMAPI", this.ConsoleManager, this.LogFile, this.ExitGameImmediately) { WriteToConsole = writeToConsole };
+            this.ModRegistry = new ModRegistry(this.Settings.IncompatibleMods);
             this.DeprecationManager = new DeprecationManager(this.Monitor, this.ModRegistry);
         }
 
@@ -388,28 +389,22 @@ namespace StardewModdingAPI
                     continue;
                 }
 
-                // validate known incompatible mods
+                // validate compatibility
+                IncompatibleMod compatibility = this.ModRegistry.GetIncompatibilityRecord(manifest);
+                if (compatibility != null)
                 {
-                    string modKey = !string.IsNullOrWhiteSpace(manifest.UniqueID) ? manifest.UniqueID : manifest.EntryDll;
-                    IncompatibleMod compatibility = this.Settings.IncompatibleMods.FirstOrDefault(p => p.ID == modKey);
-                    if(compatibility != null)
-                    {
-                        if (!compatibility.IsCompatible(manifest.Version))
-                        {
-                            bool hasOfficialUrl = !string.IsNullOrWhiteSpace(compatibility.UpdateUrl);
-                            bool hasUnofficialUrl = !string.IsNullOrWhiteSpace(compatibility.UnofficialUpdateUrl);
+                    bool hasOfficialUrl = !string.IsNullOrWhiteSpace(compatibility.UpdateUrl);
+                    bool hasUnofficialUrl = !string.IsNullOrWhiteSpace(compatibility.UnofficialUpdateUrl);
 
-                            string reasonPhrase = compatibility.ReasonPhrase ?? "it isn't compatible with the latest version of the game";
-                            string warning = $"Skipped {compatibility.Name} because {reasonPhrase}. Please check for a version newer than {compatibility.UpperVersion} here:";
-                            if (hasOfficialUrl)
-                                warning += !hasUnofficialUrl ? $" {compatibility.UpdateUrl}" : $"{Environment.NewLine}- official mod: {compatibility.UpdateUrl}";
-                            if (hasUnofficialUrl)
-                                warning += $"{Environment.NewLine}- unofficial update: {compatibility.UnofficialUpdateUrl}";
+                    string reasonPhrase = compatibility.ReasonPhrase ?? "it isn't compatible with the latest version of the game";
+                    string warning = $"Skipped {compatibility.Name} because {reasonPhrase}. Please check for a version newer than {compatibility.UpperVersion} here:";
+                    if (hasOfficialUrl)
+                        warning += !hasUnofficialUrl ? $" {compatibility.UpdateUrl}" : $"{Environment.NewLine}- official mod: {compatibility.UpdateUrl}";
+                    if (hasUnofficialUrl)
+                        warning += $"{Environment.NewLine}- unofficial update: {compatibility.UnofficialUpdateUrl}";
 
-                            this.Monitor.Log(warning, LogLevel.Error);
-                            continue;
-                        }
-                    }
+                    this.Monitor.Log(warning, LogLevel.Error);
+                    continue;
                 }
 
                 // validate SMAPI version
