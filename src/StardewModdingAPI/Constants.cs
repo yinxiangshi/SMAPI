@@ -16,11 +16,11 @@ namespace StardewModdingAPI
         /*********
         ** Properties
         *********/
-        /// <summary>The directory name containing the current save's data (if a save is loaded).</summary>
-        private static string RawSaveFolderName => Constants.PlayerNull ? string.Empty : Constants.GetSaveFolderName();
-
         /// <summary>The directory path containing the current save's data (if a save is loaded).</summary>
-        private static string RawSavePath => Constants.PlayerNull ? string.Empty : Path.Combine(Constants.SavesPath, Constants.RawSaveFolderName);
+        private static string RawSavePath => Constants.IsSaveLoaded ? Path.Combine(Constants.SavesPath, Constants.GetSaveFolderName()) : null;
+
+        /// <summary>Whether the directory containing the current save's data exists on disk.</summary>
+        private static bool SavePathReady => Constants.IsSaveLoaded && Directory.Exists(Constants.RawSavePath);
 
 
         /*********
@@ -30,28 +30,28 @@ namespace StardewModdingAPI
         ** Public
         ****/
         /// <summary>SMAPI's current semantic version.</summary>
-        public static ISemanticVersion ApiVersion => new SemanticVersion(1, 8, 0, null);
+        public static ISemanticVersion ApiVersion { get; } = new SemanticVersion(1, 8, 0);
 
         /// <summary>The minimum supported version of Stardew Valley.</summary>
-        public const string MinimumGameVersion = "1.2.9";
+        public static string MinimumGameVersion { get; } = "1.2.9";
+
+        /// <summary>The path to the game folder.</summary>
+        public static string ExecutionPath { get; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
         /// <summary>The directory path containing Stardew Valley's app data.</summary>
-        public static string DataPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley");
-
-        /// <summary>The directory path where all saves are stored.</summary>
-        public static string SavesPath => Path.Combine(Constants.DataPath, "Saves");
-
-        /// <summary>The directory name containing the current save's data (if a save is loaded and the directory exists).</summary>
-        public static string SaveFolderName => Constants.CurrentSavePathExists ? Constants.RawSaveFolderName : "";
-
-        /// <summary>The directory path containing the current save's data (if a save is loaded and the directory exists).</summary>
-        public static string CurrentSavePath => Constants.CurrentSavePathExists ? Constants.RawSavePath : "";
-
-        /// <summary>The path to the current assembly being executing.</summary>
-        public static string ExecutionPath => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        public static string DataPath { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley");
 
         /// <summary>The directory path in which error logs should be stored.</summary>
-        public static string LogDir => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley", "ErrorLogs");
+        public static string LogDir { get; } = Path.Combine(Constants.DataPath, "ErrorLogs");
+
+        /// <summary>The directory path where all saves are stored.</summary>
+        public static string SavesPath { get; } = Path.Combine(Constants.DataPath, "Saves");
+
+        /// <summary>The directory name containing the current save's data (if a save is loaded and the directory exists).</summary>
+        public static string SaveFolderName => Constants.SavePathReady ? Constants.GetSaveFolderName() : "";
+
+        /// <summary>The directory path containing the current save's data (if a save is loaded and the directory exists).</summary>
+        public static string CurrentSavePath => Constants.SavePathReady ? Path.Combine(Constants.SavesPath, Constants.GetSaveFolderName()) : "";
 
         /****
         ** Internal
@@ -65,24 +65,11 @@ namespace StardewModdingAPI
         /// <summary>The file path to the log where the latest output should be saved.</summary>
         internal static string LogPath => Path.Combine(Constants.LogDir, "SMAPI-latest.txt");
 
-        /// <summary>Whether the directory containing the current save's data exists on disk.</summary>
-        internal static bool CurrentSavePathExists => Directory.Exists(Constants.RawSavePath);
-
         /// <summary>Whether a player save has been loaded.</summary>
-        internal static bool PlayerNull => !Game1.hasLoadedGame || Game1.player == null || string.IsNullOrEmpty(Game1.player.name);
+        internal static bool IsSaveLoaded => Game1.hasLoadedGame && !string.IsNullOrEmpty(Game1.player.name);
 
-        /// <summary>The actual game version.</summary>
-        /// <remarks>This is necessary because <see cref="Game1.version"/> is a constant, so SMAPI's references to it are inlined at compile-time.</remarks>
-        internal static string GameVersion
-        {
-            get
-            {
-                FieldInfo field = typeof(Game1).GetField(nameof(Game1.version), BindingFlags.Public | BindingFlags.Static);
-                if (field == null)
-                    throw new InvalidOperationException($"The {nameof(Game1)}.{nameof(Game1.version)} field could not be found.");
-                return (string)field.GetValue(null);
-            }
-        }
+        /// <summary>The current game version.</summary>
+        internal static string GameVersion { get; } = Constants.GetGameVersion();
 
         /*********
         ** Protected methods
@@ -153,6 +140,16 @@ namespace StardewModdingAPI
         {
             string prefix = new string(Game1.player.name.Where(char.IsLetterOrDigit).ToArray());
             return $"{prefix}_{Game1.uniqueIDForThisGame}";
+        }
+
+        /// <summary>Get the actual game version.</summary>
+        /// <remarks>This uses reflection because <see cref="Game1.version"/> is a constant, so SMAPI's references to it are inlined at compile-time.</remarks>
+        private static string GetGameVersion()
+        {
+            FieldInfo field = typeof(Game1).GetField(nameof(Game1.version), BindingFlags.Public | BindingFlags.Static);
+            if (field == null)
+                throw new InvalidOperationException($"The {nameof(Game1)}.{nameof(Game1.version)} field could not be found.");
+            return (string)field.GetValue(null);
         }
     }
 }
