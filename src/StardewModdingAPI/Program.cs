@@ -142,9 +142,9 @@ namespace StardewModdingAPI
             try
             {
                 // verify version
-                if (string.Compare(Constants.GameVersion, Constants.MinimumGameVersion, StringComparison.InvariantCultureIgnoreCase) < 0)
+                if (Constants.GameVersion.IsOlderThan(Constants.MinimumGameVersion))
                 {
-                    this.Monitor.Log($"Oops! You're running Stardew Valley {Constants.GameVersion}, but the oldest supported version is {Constants.MinimumGameVersion}. Please update your game before using SMAPI. If you're on the Steam beta channel, note that the beta channel may not receive the latest updates.", LogLevel.Error);
+                    this.Monitor.Log($"Oops! You're running Stardew Valley {Constants.GameDisplayVersion}, but the oldest supported version is {Constants.MinimumGameVersion}. Please update your game before using SMAPI. If you're on the Steam beta channel, note that the beta channel may not receive the latest updates.", LogLevel.Error);
                     return;
                 }
 

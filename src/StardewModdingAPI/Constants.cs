@@ -33,7 +33,7 @@ namespace StardewModdingAPI
         public static ISemanticVersion ApiVersion { get; } = new SemanticVersion(1, 8, 0);
 
         /// <summary>The minimum supported version of Stardew Valley.</summary>
-        public static string MinimumGameVersion { get; } = "1.2.9";
+        public static ISemanticVersion MinimumGameVersion { get; } = new SemanticVersion("1.2.9");
 
         /// <summary>The path to the game folder.</summary>
         public static string ExecutionPath { get; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -68,8 +68,12 @@ namespace StardewModdingAPI
         /// <summary>Whether a player save has been loaded.</summary>
         internal static bool IsSaveLoaded => Game1.hasLoadedGame && !string.IsNullOrEmpty(Game1.player.name);
 
-        /// <summary>The current game version.</summary>
-        internal static string GameVersion { get; } = Constants.GetGameVersion();
+        /// <summary>The game's current semantic version.</summary>
+        internal static ISemanticVersion GameVersion { get; } = Constants.GetGameVersion();
+
+        /// <summary>The game's current version as it should be displayed to players.</summary>
+        internal static ISemanticVersion GameDisplayVersion { get; } = Constants.GetGameDisplayVersion(Constants.GameVersion);
+
 
         /*********
         ** Protected methods
@@ -142,14 +146,33 @@ namespace StardewModdingAPI
             return $"{prefix}_{Game1.uniqueIDForThisGame}";
         }
 
-        /// <summary>Get the actual game version.</summary>
-        /// <remarks>This uses reflection because <see cref="Game1.version"/> is a constant, so SMAPI's references to it are inlined at compile-time.</remarks>
-        private static string GetGameVersion()
+        /// <summary>Get the game's current semantic version.</summary>
+        private static ISemanticVersion GetGameVersion()
         {
+            // get raw version
+            // we need reflection because it's a constant, so SMAPI's references to it are inlined at compile-time
             FieldInfo field = typeof(Game1).GetField(nameof(Game1.version), BindingFlags.Public | BindingFlags.Static);
             if (field == null)
                 throw new InvalidOperationException($"The {nameof(Game1)}.{nameof(Game1.version)} field could not be found.");
-            return (string)field.GetValue(null);
+            string version = (string)field.GetValue(null);
+
+            // get semantic version
+            if (version == "1.11")
+                version = "1.1.1"; // The 1.1 patch was released as 1.11, which means it's out of order for semantic version checks
+            return new SemanticVersion(version);
+        }
+
+        /// <summary>Get game current version as it should be displayed to players.</summary>
+        /// <param name="version">The semantic game version.</param>
+        private static ISemanticVersion GetGameDisplayVersion(ISemanticVersion version)
+        {
+            switch (version.ToString())
+            {
+                case "1.1.1":
+                    return new SemanticVersion(1, 11, 0); // The 1.1 patch was released as 1.11
+                default:
+                    return version;
+            }
         }
     }
 }
