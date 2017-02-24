@@ -515,11 +515,6 @@ namespace StardewModdingAPI
                 }
             }
 
-            // log deprecation warnings
-            foreach (Action warning in deprecationWarnings)
-                warning();
-            deprecationWarnings = null;
-
             // initialise mods
             foreach (Mod mod in this.ModRegistry.GetMods())
             {
@@ -531,7 +526,7 @@ namespace StardewModdingAPI
 
                     // raise deprecation warning for old Entry() methods
                     if (this.DeprecationManager.IsVirtualMethodImplemented(mod.GetType(), typeof(Mod), nameof(Mod.Entry), new[] { typeof(object[]) }))
-                        this.DeprecationManager.Warn(mod.ModManifest.Name, $"{nameof(Mod)}.{nameof(Mod.Entry)}(object[]) instead of {nameof(Mod)}.{nameof(Mod.Entry)}({nameof(IModHelper)})", "1.0", DeprecationLevel.Info);
+                        deprecationWarnings.Add(() => this.DeprecationManager.Warn(mod.ModManifest.Name, $"{nameof(Mod)}.{nameof(Mod.Entry)}(object[]) instead of {nameof(Mod)}.{nameof(Mod.Entry)}({nameof(IModHelper)})", "1.0", DeprecationLevel.Info));
                 }
                 catch (Exception ex)
                 {
@@ -541,6 +536,8 @@ namespace StardewModdingAPI
 
             // print result
             this.Monitor.Log($"Loaded {modsLoaded} mods.");
+            foreach (Action warning in deprecationWarnings)
+                warning();
             Console.Title = $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Game1.version} with {modsLoaded} mods";
         }
 
