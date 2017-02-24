@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -388,7 +389,7 @@ namespace StardewModdingAPI
                     this.Monitor.Log($"{skippedPrefix} because manifest parsing failed.\n{ex.GetLogSummary()}", LogLevel.Error);
                     continue;
                 }
-                if(!string.IsNullOrWhiteSpace(manifest.Name))
+                if (!string.IsNullOrWhiteSpace(manifest.Name))
                     skippedPrefix = $"Skipped {manifest.Name}";
 
                 // validate compatibility
@@ -485,12 +486,11 @@ namespace StardewModdingAPI
                 }
 
                 // initialise mod
-                Mod mod;
                 try
                 {
                     // get implementation
                     TypeInfo modEntryType = modAssembly.DefinedTypes.First(x => x.BaseType == typeof(Mod));
-                    mod = (Mod)modAssembly.CreateInstance(modEntryType.ToString());
+                    Mod mod = (Mod)modAssembly.CreateInstance(modEntryType.ToString());
                     if (mod == null)
                     {
                         this.Monitor.Log($"{skippedPrefix} because its entry class couldn't be instantiated.");
@@ -544,8 +544,8 @@ namespace StardewModdingAPI
             Console.Title = $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Game1.version} with {modsLoaded} mods";
         }
 
-        // ReSharper disable once FunctionNeverReturns
         /// <summary>Run a loop handling console input.</summary>
+        [SuppressMessage("ReSharper", "FunctionNeverReturns", Justification = "The thread is aborted when the game exits.")]
         private void ConsoleInputLoop()
         {
             while (true)
