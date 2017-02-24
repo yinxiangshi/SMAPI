@@ -47,8 +47,8 @@ namespace StardewModdingAPI
         /// <summary>The core logger for SMAPI.</summary>
         private readonly Monitor Monitor;
 
-        /// <summary>The user settings for SMAPI.</summary>
-        private UserSettings Settings;
+        /// <summary>The SMAPI configuration settings.</summary>
+        private readonly SConfig Settings;
 
         /// <summary>Tracks whether the game should exit immediately and any pending initialisation should be cancelled.</summary>
         private readonly CancellationTokenSource CancellationTokenSource = new CancellationTokenSource();
@@ -87,6 +87,10 @@ namespace StardewModdingAPI
         /// <summary>Construct an instance.</summary>
         internal Program(bool writeToConsole)
         {
+            // load settings
+            this.Settings = JsonConvert.DeserializeObject<SConfig>(File.ReadAllText(Constants.ApiConfigPath));
+
+            // initialise
             this.Monitor = new Monitor("SMAPI", this.ConsoleManager, this.LogFile, this.ExitGameImmediately) { WriteToConsole = writeToConsole };
             this.DeprecationManager = new DeprecationManager(this.Monitor, this.ModRegistry);
         }
@@ -98,20 +102,6 @@ namespace StardewModdingAPI
             Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB"); // for consistent log formatting
             this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Game1.version} on {Environment.OSVersion}", LogLevel.Info);
             Console.Title = $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Game1.version}";
-
-            // read settings
-            {
-                string settingsPath = Constants.ApiConfigPath;
-                if (File.Exists(settingsPath))
-                {
-                    string json = File.ReadAllText(settingsPath);
-                    this.Settings = JsonConvert.DeserializeObject<UserSettings>(json);
-                }
-                else
-                    this.Settings = new UserSettings();
-
-                File.WriteAllText(settingsPath, JsonConvert.SerializeObject(this.Settings, Formatting.Indented));
-            }
 
             // inject compatibility shims
 #pragma warning disable 618
@@ -341,20 +331,6 @@ namespace StardewModdingAPI
             AssemblyLoader modAssemblyLoader = new AssemblyLoader(this.TargetPlatform, this.Monitor);
             AppDomain.CurrentDomain.AssemblyResolve += (sender, e) => modAssemblyLoader.ResolveAssembly(e.Name);
 
-            // get known incompatible mods
-            IDictionary<string, IncompatibleMod> incompatibleMods;
-            try
-            {
-                incompatibleMods = File.Exists(Constants.ApiModMetadataPath)
-                    ? JsonConvert.DeserializeObject<IncompatibleMod[]>(File.ReadAllText(Constants.ApiModMetadataPath)).ToDictionary(p => p.ID, p => p)
-                    : new Dictionary<string, IncompatibleMod>(0);
-            }
-            catch (Exception ex)
-            {
-                incompatibleMods = new Dictionary<string, IncompatibleMod>();
-                this.Monitor.Log($"Couldn't read metadata file at {Constants.ApiModMetadataPath}. SMAPI will still run, but some features may be disabled.\n{ex}", LogLevel.Warn);
-            }
-
             // load mod assemblies
             int modsLoaded = 0;
             List<Action> deprecationWarnings = new List<Action>(); // queue up deprecation warnings to show after mod list
@@ -413,23 +389,26 @@ namespace StardewModdingAPI
                 }
 
                 // validate known incompatible mods
-                IncompatibleMod compatibility;
-                if (incompatibleMods.TryGetValue(!string.IsNullOrWhiteSpace(manifest.UniqueID) ? manifest.UniqueID : manifest.EntryDll, out compatibility))
                 {
-                    if (!compatibility.IsCompatible(manifest.Version))
+                    string modKey = !string.IsNullOrWhiteSpace(manifest.UniqueID) ? manifest.UniqueID : manifest.EntryDll;
+                    IncompatibleMod compatibility = this.Settings.IncompatibleMods.FirstOrDefault(p => p.ID == modKey);
+                    if(compatibility != null)
                     {
-                        bool hasOfficialUrl = !string.IsNullOrWhiteSpace(compatibility.UpdateUrl);
-                        bool hasUnofficialUrl = !string.IsNullOrWhiteSpace(compatibility.UnofficialUpdateUrl);
+                        if (!compatibility.IsCompatible(manifest.Version))
+                        {
+                            bool hasOfficialUrl = !string.IsNullOrWhiteSpace(compatibility.UpdateUrl);
+                            bool hasUnofficialUrl = !string.IsNullOrWhiteSpace(compatibility.UnofficialUpdateUrl);
 
-                        string reasonPhrase = compatibility.ReasonPhrase ?? "it isn't compatible with the latest version of the game";
-                        string warning = $"Skipped {compatibility.Name} because {reasonPhrase}. Please check for a version newer than {compatibility.UpperVersion} here:";
-                        if (hasOfficialUrl)
-                            warning += !hasUnofficialUrl ? $" {compatibility.UpdateUrl}" : $"{Environment.NewLine}- official mod: {compatibility.UpdateUrl}";
-                        if (hasUnofficialUrl)
-                            warning += $"{Environment.NewLine}- unofficial update: {compatibility.UnofficialUpdateUrl}";
+                            string reasonPhrase = compatibility.ReasonPhrase ?? "it isn't compatible with the latest version of the game";
+                            string warning = $"Skipped {compatibility.Name} because {reasonPhrase}. Please check for a version newer than {compatibility.UpperVersion} here:";
+                            if (hasOfficialUrl)
+                                warning += !hasUnofficialUrl ? $" {compatibility.UpdateUrl}" : $"{Environment.NewLine}- official mod: {compatibility.UpdateUrl}";
+                            if (hasUnofficialUrl)
+                                warning += $"{Environment.NewLine}- unofficial update: {compatibility.UnofficialUpdateUrl}";
 
-                        this.Monitor.Log(warning, LogLevel.Error);
-                        continue;
+                            this.Monitor.Log(warning, LogLevel.Error);
+                            continue;
+                        }
                     }
                 }
 

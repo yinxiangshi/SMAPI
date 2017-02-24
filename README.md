@@ -85,7 +85,6 @@ folder containing `src`).
                StardewModdingAPI
                StardewModdingAPI.AssemblyRewriters.dll
                StardewModdingAPI.config.json
-               StardewModdingAPI.data.json
                StardewModdingAPI.exe
                StardewModdingAPI.exe.mdb
                steam_appid.txt
@@ -97,7 +96,6 @@ folder containing `src`).
                Newtonsoft.Json.dll
                StardewModdingAPI.AssemblyRewriters.dll
                StardewModdingAPI.config.json
-               StardewModdingAPI.data.json
                StardewModdingAPI.exe
                StardewModdingAPI.pdb
                StardewModdingAPI.xml
