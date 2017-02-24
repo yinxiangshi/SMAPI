@@ -71,6 +71,18 @@ namespace StardewModdingAPI
         /// <summary>Whether a player save has been loaded.</summary>
         internal static bool PlayerNull => !Game1.hasLoadedGame || Game1.player == null || string.IsNullOrEmpty(Game1.player.name);
 
+        /// <summary>The actual game version.</summary>
+        /// <remarks>This is necessary because <see cref="Game1.version"/> is a constant, so SMAPI's references to it are inlined at compile-time.</remarks>
+        internal static string GameVersion
+        {
+            get
+            {
+                FieldInfo field = typeof(Game1).GetField(nameof(Game1.version), BindingFlags.Public | BindingFlags.Static);
+                if (field == null)
+                    throw new InvalidOperationException($"The {nameof(Game1)}.{nameof(Game1.version)} field could not be found.");
+                return (string)field.GetValue(null);
+            }
+        }
 
         /*********
         ** Protected methods

@@ -102,8 +102,8 @@ namespace StardewModdingAPI
         {
             // initialise logging
             Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB"); // for consistent log formatting
-            this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Game1.version} on {Environment.OSVersion}", LogLevel.Info);
-            Console.Title = $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Game1.version}";
+            this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GameVersion} on {Environment.OSVersion}", LogLevel.Info);
+            Console.Title = $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion}";
 
             // inject compatibility shims
 #pragma warning disable 618
@@ -142,9 +142,9 @@ namespace StardewModdingAPI
             try
             {
                 // verify version
-                if (string.Compare(Game1.version, Constants.MinimumGameVersion, StringComparison.InvariantCultureIgnoreCase) < 0)
+                if (string.Compare(Constants.GameVersion, Constants.MinimumGameVersion, StringComparison.InvariantCultureIgnoreCase) < 0)
                 {
-                    this.Monitor.Log($"Oops! You're running Stardew Valley {Game1.version}, but the oldest supported version is {Constants.MinimumGameVersion}. Please update your game before using SMAPI. If you're on the Steam beta channel, note that the beta channel may not receive the latest updates.", LogLevel.Error);
+                    this.Monitor.Log($"Oops! You're running Stardew Valley {Constants.GameVersion}, but the oldest supported version is {Constants.MinimumGameVersion}. Please update your game before using SMAPI. If you're on the Steam beta channel, note that the beta channel may not receive the latest updates.", LogLevel.Error);
                     return;
                 }
 
@@ -245,7 +245,7 @@ namespace StardewModdingAPI
                     this.GameInstance = new SGame(this.Monitor);
                     this.GameInstance.Exiting += (sender, e) => this.IsGameRunning = false;
                     this.GameInstance.Window.ClientSizeChanged += (sender, e) => GraphicsEvents.InvokeResize(this.Monitor, sender, e);
-                    this.GameInstance.Window.Title = $"Stardew Valley {Game1.version}";
+                    this.GameInstance.Window.Title = $"Stardew Valley {Constants.GameVersion}";
                     gameProgramType.GetField("gamePtr").SetValue(gameProgramType, this.GameInstance);
 
                     // configure
@@ -538,7 +538,7 @@ namespace StardewModdingAPI
             this.Monitor.Log($"Loaded {modsLoaded} mods.");
             foreach (Action warning in deprecationWarnings)
                 warning();
-            Console.Title = $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Game1.version} with {modsLoaded} mods";
+            Console.Title = $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion} with {modsLoaded} mods";
         }
 
         /// <summary>Run a loop handling console input.</summary>
