@@ -288,7 +288,14 @@ namespace StardewModdingAPI.Framework
         /// <summary>The method called before XNA or MonoGame loads or reloads graphics resources.</summary>
         protected override void LoadContent()
         {
+            // override content manager
+            LocalizedContentManager contentManager = Game1.content;
+            Game1.content = new SContentManager(this.Content.ServiceProvider, this.Content.RootDirectory, this.Monitor);
+
+            // defer to game logic
             base.LoadContent();
+
+            // raise load content event
             GameEvents.InvokeLoadContent(this.Monitor);
         }
 
