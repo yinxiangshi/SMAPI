@@ -356,7 +356,7 @@ namespace StardewModdingAPI
                     this.Monitor.Log($"Ignored folder \"{directory.Name}\" which doesn't have a manifest.json.", LogLevel.Warn);
                     continue;
                 }
-                string errorPrefix = $"Couldn't load mod for '{manifestPath.Replace(this.ModPath, "").Trim('/', '\\')}'";
+                string skippedPrefix = $"Skipped {manifestPath.Replace(this.ModPath, "").Trim('/', '\\')}";
 
                 // read manifest
                 Manifest manifest;
@@ -366,7 +366,7 @@ namespace StardewModdingAPI
                     string json = File.ReadAllText(manifestPath);
                     if (string.IsNullOrEmpty(json))
                     {
-                        this.Monitor.Log($"{errorPrefix}: manifest is empty.", LogLevel.Error);
+                        this.Monitor.Log($"{skippedPrefix} because the manifest is empty.", LogLevel.Error);
                         continue;
                     }
 
@@ -374,20 +374,22 @@ namespace StardewModdingAPI
                     manifest = jsonHelper.ReadJsonFile<Manifest>(Path.Combine(directory.FullName, "manifest.json"), null);
                     if (manifest == null)
                     {
-                        this.Monitor.Log($"{errorPrefix}: the manifest file does not exist.", LogLevel.Error);
+                        this.Monitor.Log($"{skippedPrefix} because its manifest is invalid.", LogLevel.Error);
                         continue;
                     }
                     if (string.IsNullOrEmpty(manifest.EntryDll))
                     {
-                        this.Monitor.Log($"{errorPrefix}: manifest doesn't specify an entry DLL.", LogLevel.Error);
+                        this.Monitor.Log($"{skippedPrefix} because its manifest doesn't specify an entry DLL.", LogLevel.Error);
                         continue;
                     }
                 }
                 catch (Exception ex)
                 {
-                    this.Monitor.Log($"{errorPrefix}: manifest parsing failed.\n{ex.GetLogSummary()}", LogLevel.Error);
+                    this.Monitor.Log($"{skippedPrefix} because manifest parsing failed.\n{ex.GetLogSummary()}", LogLevel.Error);
                     continue;
                 }
+                if(!string.IsNullOrWhiteSpace(manifest.Name))
+                    skippedPrefix = $"Skipped {manifest.Name}";
 
                 // validate compatibility
                 IncompatibleMod compatibility = this.ModRegistry.GetIncompatibilityRecord(manifest);
@@ -396,8 +398,8 @@ namespace StardewModdingAPI
                     bool hasOfficialUrl = !string.IsNullOrWhiteSpace(compatibility.UpdateUrl);
                     bool hasUnofficialUrl = !string.IsNullOrWhiteSpace(compatibility.UnofficialUpdateUrl);
 
-                    string reasonPhrase = compatibility.ReasonPhrase ?? "it isn't compatible with the latest version of the game";
-                    string warning = $"Skipped {compatibility.Name} because {reasonPhrase}. Please check for a version newer than {compatibility.UpperVersion} here:";
+                    string reasonPhrase = compatibility.ReasonPhrase ?? "it's not compatible with the latest version of the game";
+                    string warning = $"{skippedPrefix} because {reasonPhrase}. Please check for a version newer than {compatibility.UpperVersion} here:";
                     if (hasOfficialUrl)
                         warning += !hasUnofficialUrl ? $" {compatibility.UpdateUrl}" : $"{Environment.NewLine}- official mod: {compatibility.UpdateUrl}";
                     if (hasUnofficialUrl)
@@ -415,13 +417,13 @@ namespace StardewModdingAPI
                         ISemanticVersion minVersion = new SemanticVersion(manifest.MinimumApiVersion);
                         if (minVersion.IsNewerThan(Constants.ApiVersion))
                         {
-                            this.Monitor.Log($"{errorPrefix}: this mod requires SMAPI {minVersion} or later. Please update SMAPI to the latest version to use this mod.", LogLevel.Error);
+                            this.Monitor.Log($"{skippedPrefix} because it needs SMAPI {minVersion} or later. Please update SMAPI to the latest version to use this mod.", LogLevel.Error);
                             continue;
                         }
                     }
                     catch (FormatException ex) when (ex.Message.Contains("not a valid semantic version"))
                     {
-                        this.Monitor.Log($"{errorPrefix}: the mod specified an invalid minimum SMAPI version '{manifest.MinimumApiVersion}'. This should be a semantic version number like {Constants.ApiVersion}.", LogLevel.Error);
+                        this.Monitor.Log($"{skippedPrefix} because it has an invalid minimum SMAPI version '{manifest.MinimumApiVersion}'. This should be a semantic version number like {Constants.ApiVersion}.", LogLevel.Error);
                         continue;
                     }
                 }
@@ -436,13 +438,13 @@ namespace StardewModdingAPI
                         Directory.CreateDirectory(psDir);
                         if (!Directory.Exists(psDir))
                         {
-                            this.Monitor.Log($"{errorPrefix}: couldn't create the per-save configuration directory ('psconfigs') requested by this mod. The failure reason is unknown.", LogLevel.Error);
+                            this.Monitor.Log($"{skippedPrefix} because it requires per-save configuration files ('psconfigs') which couldn't be created for some reason.", LogLevel.Error);
                             continue;
                         }
                     }
                     catch (Exception ex)
                     {
-                        this.Monitor.Log($"{errorPrefix}: couldn't create the per-save configuration directory ('psconfigs') requested by this mod.\n{ex.GetLogSummary()}", LogLevel.Error);
+                        this.Monitor.Log($"{skippedPrefix} because it requires per-save configuration files ('psconfigs') which couldn't be created:\n{ex.GetLogSummary()}", LogLevel.Error);
                         continue;
                     }
                 }
@@ -451,7 +453,7 @@ namespace StardewModdingAPI
                 string assemblyPath = Path.Combine(directory.FullName, manifest.EntryDll);
                 if (!File.Exists(assemblyPath))
                 {
-                    this.Monitor.Log($"{errorPrefix}: the entry DLL '{manifest.EntryDll}' does not exist.", LogLevel.Error);
+                    this.Monitor.Log($"{skippedPrefix} because its DLL '{manifest.EntryDll}' doesn't exist.", LogLevel.Error);
                     continue;
                 }
 
@@ -463,7 +465,7 @@ namespace StardewModdingAPI
                 }
                 catch (Exception ex)
                 {
-                    this.Monitor.Log($"{errorPrefix}: an error occurred while preprocessing '{manifest.EntryDll}'.\n{ex.GetLogSummary()}", LogLevel.Error);
+                    this.Monitor.Log($"{skippedPrefix} because its DLL '{manifest.EntryDll}' couldn't be loaded.\n{ex.GetLogSummary()}", LogLevel.Error);
                     continue;
                 }
 
@@ -472,13 +474,13 @@ namespace StardewModdingAPI
                 {
                     if (modAssembly.DefinedTypes.Count(x => x.BaseType == typeof(Mod)) == 0)
                     {
-                        this.Monitor.Log($"{errorPrefix}: the mod DLL does not contain an implementation of the 'Mod' class.", LogLevel.Error);
+                        this.Monitor.Log($"{skippedPrefix} because its DLL has no 'Mod' subclass.", LogLevel.Error);
                         continue;
                     }
                 }
                 catch (Exception ex)
                 {
-                    this.Monitor.Log($"{errorPrefix}: an error occurred while reading the mod DLL.\n{ex.GetLogSummary()}", LogLevel.Error);
+                    this.Monitor.Log($"{skippedPrefix} because its DLL couldn't be loaded.\n{ex.GetLogSummary()}", LogLevel.Error);
                     continue;
                 }
 
@@ -491,7 +493,7 @@ namespace StardewModdingAPI
                     mod = (Mod)modAssembly.CreateInstance(modEntryType.ToString());
                     if (mod == null)
                     {
-                        this.Monitor.Log($"{errorPrefix}: the mod's entry class could not be instantiated.");
+                        this.Monitor.Log($"{skippedPrefix} because its entry class couldn't be instantiated.");
                         continue;
                     }
 
@@ -505,11 +507,11 @@ namespace StardewModdingAPI
                     // track mod
                     this.ModRegistry.Add(mod);
                     modsLoaded += 1;
-                    this.Monitor.Log($"Loaded mod: {manifest.Name} by {manifest.Author}, v{manifest.Version} | {manifest.Description}", LogLevel.Info);
+                    this.Monitor.Log($"Loaded {manifest.Name} by {manifest.Author}, v{manifest.Version} | {manifest.Description}", LogLevel.Info);
                 }
                 catch (Exception ex)
                 {
-                    this.Monitor.Log($"{errorPrefix}: an error occurred while loading the target DLL.\n{ex.GetLogSummary()}", LogLevel.Error);
+                    this.Monitor.Log($"{skippedPrefix} because initialisation failed:\n{ex.GetLogSummary()}", LogLevel.Error);
                 }
             }
 

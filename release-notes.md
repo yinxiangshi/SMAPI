@@ -6,6 +6,7 @@ See [log](https://github.com/Pathoschild/SMAPI/compare/1.8...1.9).
 For players:
 * Updated for Stardew Valley 1.2. Most mods are now rewritten for compatibility; some mods require an update from their authors.
 * Simplified log filename.
+* Simplified error messages when a mod can't be loaded.
 * Simple nested mod folders are now recognised by SMAPI (e.g. `ModName-1.0\ModName\manifest.json`).
 * Fixed game's debug output being shown in the console for all users.
 * Fixed installer errors for some players when deleting files.
