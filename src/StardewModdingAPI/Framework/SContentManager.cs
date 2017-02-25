@@ -80,7 +80,7 @@ namespace StardewModdingAPI.Framework
 
             // intercept load
             T data = base.Load<T>(assetName);
-            IContentEventHelper helper = new ContentEventHelper(assetName, data, this.NormaliseAssetKey);
+            IContentEventHelper helper = new ContentEventHelper(key, data, this.NormaliseAssetKey);
             ContentEvents.InvokeAssetLoading(this.Monitor, helper);
             this.Cache[key] = helper.Data;
             return (T)helper.Data;
