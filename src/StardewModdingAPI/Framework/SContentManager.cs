@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
+using System.Linq;
 using System.Threading;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI.AssemblyRewriters;
@@ -16,14 +18,20 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Accessors
         *********/
+        /// <summary>The possible directory separator characters in an asset key.</summary>
+        private static readonly char[] PossiblePathSeparators = new[] { '/', '\\', Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }.Distinct().ToArray();
+
+        /// <summary>The preferred directory separator chaeacter in an asset key.</summary>
+        private static readonly string PreferredPathSeparator = Path.DirectorySeparatorChar.ToString();
+
         /// <summary>Encapsulates monitoring and logging.</summary>
         private readonly IMonitor Monitor;
 
         /// <summary>The underlying content manager's asset cache.</summary>
         private readonly IDictionary<string, object> Cache;
 
-        /// <summary>Normalises an asset key to match the cache key.</summary>
-        private readonly Func<string, string> NormaliseAssetKey;
+        /// <summary>Applies platform-specific asset key normalisation so it's consistent with the underlying cache.</summary>
+        private readonly Func<string, string> NormaliseKeyForPlatform;
 
 
         /*********
@@ -58,10 +66,10 @@ namespace StardewModdingAPI.Framework
             if (Constants.TargetPlatform == Platform.Windows)
             {
                 IPrivateMethod method = reflection.GetPrivateMethod(typeof(TitleContainer), "GetCleanPath");
-                this.NormaliseAssetKey = path => method.Invoke<string>(path);
+                this.NormaliseKeyForPlatform = path => method.Invoke<string>(path);
             }
             else
-                this.NormaliseAssetKey = this.NormaliseKeyForMono;
+                this.NormaliseKeyForPlatform = key => key.Replace('\\', '/'); // based on MonoGame's ContentManager.Load<T> logic
         }
 
         /// <summary>Load an asset that has been processed by the content pipeline.</summary>
@@ -69,20 +77,18 @@ namespace StardewModdingAPI.Framework
         /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
         public override T Load<T>(string assetName)
         {
-            // pass through if no event handlers
-            if (!ContentEvents.HasAssetLoadingListeners())
-                return base.Load<T>(assetName);
+            // normalise key so can override the cache value later
+            assetName = this.NormaliseKey(assetName);
 
-            // skip if already loaded
-            string key = this.NormaliseAssetKey(assetName);
-            if (this.Cache.ContainsKey(key))
+            // skip if no event handlers or already loaded
+            if (!ContentEvents.HasAssetLoadingListeners() || this.Cache.ContainsKey(assetName))
                 return base.Load<T>(assetName);
 
             // intercept load
             T data = base.Load<T>(assetName);
-            IContentEventHelper helper = new ContentEventHelper(key, data, this.NormaliseAssetKey);
+            IContentEventHelper helper = new ContentEventHelper(assetName, data, this.NormaliseKeyForPlatform);
             ContentEvents.InvokeAssetLoading(this.Monitor, helper);
-            this.Cache[key] = helper.Data;
+            this.Cache[assetName] = helper.Data;
             return (T)helper.Data;
         }
 
@@ -90,11 +96,16 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Private methods
         *********/
-        /// <summary>Normalise an asset key for Mono.</summary>
+        /// <summary>Normalise an asset key so it's consistent with the underlying cache.</summary>
         /// <param name="key">The asset key.</param>
-        private string NormaliseKeyForMono(string key)
+        private string NormaliseKey(string key)
         {
-            return key.Replace('\\', '/'); // based on MonoGame's ContentManager.Load<T> logic
+            // ensure key format is consistent
+            string[] parts = key.Split(SContentManager.PossiblePathSeparators, StringSplitOptions.RemoveEmptyEntries);
+            key = string.Join(SContentManager.PreferredPathSeparator, parts);
+
+            // apply platform normalisation logic
+            return this.NormaliseKeyForPlatform(key);
         }
     }
 }
