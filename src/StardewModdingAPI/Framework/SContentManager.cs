@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using Microsoft.Xna.Framework;
+using StardewModdingAPI.AssemblyRewriters;
 using StardewModdingAPI.Framework.Reflection;
 using StardewValley;
 
@@ -49,7 +50,9 @@ namespace StardewModdingAPI.Framework
             this.Cache = reflection
                 .GetPrivateField<Dictionary<string, object>>(this, "loadedAssets")
                 .GetValue();
-            this.NormaliseAssetKey = reflection.GetPrivateMethod(typeof(TitleContainer), "GetCleanPath");
+            this.NormaliseAssetKey = Constants.TargetPlatform == Platform.Windows
+                ? reflection.GetPrivateMethod(typeof(TitleContainer), "GetCleanPath")
+                : reflection.GetPrivateMethod(this, nameof(this.NormaliseKeyForMono));
         }
 
         /// <summary>Load an asset that has been processed by the Content Pipeline.</summary>
@@ -57,7 +60,19 @@ namespace StardewModdingAPI.Framework
         /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
         public override T Load<T>(string assetName)
         {
+            assetName = this.NormaliseAssetKey.Invoke<string>(assetName);
             return base.Load<T>(assetName);
+        }
+
+
+        /*********
+        ** Private methods
+        *********/
+        /// <summary>Normalise an asset key for Mono.</summary>
+        /// <param name="key">The asset key.</param>
+        private string NormaliseKeyForMono(string key)
+        {
+            return key.Replace('\\', '/'); // based on MonoGame's ContentManager.Load<T> logic
         }
     }
 }
