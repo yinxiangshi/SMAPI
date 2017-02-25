@@ -55,7 +55,7 @@ namespace StardewModdingAPI.Framework
                 : reflection.GetPrivateMethod(this, nameof(this.NormaliseKeyForMono));
         }
 
-        /// <summary>Load an asset that has been processed by the Content Pipeline.</summary>
+        /// <summary>Load an asset that has been processed by the content pipeline.</summary>
         /// <typeparam name="T">The type of asset to load.</typeparam>
         /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
         public override T Load<T>(string assetName)
