@@ -31,7 +31,10 @@ namespace StardewModdingAPI.Framework
         private readonly IDictionary<string, object> Cache;
 
         /// <summary>Applies platform-specific asset key normalisation so it's consistent with the underlying cache.</summary>
-        private readonly Func<string, string> NormaliseKeyForPlatform;
+        private readonly Func<string, string> NormaliseAssetNameForPlatform;
+
+        /// <summary>The private <see cref="LocalizedContentManager"/> method which generates the locale portion of an asset name.</summary>
+        private readonly IPrivateMethod GetKeyLocale;
 
 
         /*********
@@ -57,19 +60,18 @@ namespace StardewModdingAPI.Framework
             this.Monitor = monitor;
             IReflectionHelper reflection = new ReflectionHelper();
 
-            // get underlying asset cache
-            this.Cache = reflection
-                .GetPrivateField<Dictionary<string, object>>(this, "loadedAssets")
-                .GetValue();
+            // get underlying fields for interception
+            this.Cache = reflection.GetPrivateField<Dictionary<string, object>>(this, "loadedAssets").GetValue();
+            this.GetKeyLocale = reflection.GetPrivateMethod(this, "languageCode");
 
             // get asset key normalisation logic
             if (Constants.TargetPlatform == Platform.Windows)
             {
                 IPrivateMethod method = reflection.GetPrivateMethod(typeof(TitleContainer), "GetCleanPath");
-                this.NormaliseKeyForPlatform = path => method.Invoke<string>(path);
+                this.NormaliseAssetNameForPlatform = path => method.Invoke<string>(path);
             }
             else
-                this.NormaliseKeyForPlatform = key => key.Replace('\\', '/'); // based on MonoGame's ContentManager.Load<T> logic
+                this.NormaliseAssetNameForPlatform = key => key.Replace('\\', '/'); // based on MonoGame's ContentManager.Load<T> logic
         }
 
         /// <summary>Load an asset that has been processed by the content pipeline.</summary>
@@ -77,8 +79,8 @@ namespace StardewModdingAPI.Framework
         /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
         public override T Load<T>(string assetName)
         {
-            // normalise key so can override the cache value later
-            assetName = this.NormaliseKey(assetName);
+            // normalise asset name so can override the cache value later
+            assetName = this.NormaliseAssetName(assetName);
 
             // skip if no event handlers or already loaded
             if (!ContentEvents.HasAssetLoadingListeners() || this.Cache.ContainsKey(assetName))
@@ -86,7 +88,8 @@ namespace StardewModdingAPI.Framework
 
             // intercept load
             T data = base.Load<T>(assetName);
-            IContentEventHelper helper = new ContentEventHelper(assetName, data, this.NormaliseKeyForPlatform);
+            string cacheLocale = this.GetCacheLocale(assetName, this.Cache);
+            IContentEventHelper helper = new ContentEventHelper(cacheLocale, assetName, data, this.NormaliseAssetName);
             ContentEvents.InvokeAssetLoading(this.Monitor, helper);
             this.Cache[assetName] = helper.Data;
             return (T)helper.Data;
@@ -96,16 +99,27 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Private methods
         *********/
-        /// <summary>Normalise an asset key so it's consistent with the underlying cache.</summary>
-        /// <param name="key">The asset key.</param>
-        private string NormaliseKey(string key)
+        /// <summary>Normalise an asset name so it's consistent with the underlying cache.</summary>
+        /// <param name="assetName">The asset key.</param>
+        private string NormaliseAssetName(string assetName)
         {
-            // ensure key format is consistent
-            string[] parts = key.Split(SContentManager.PossiblePathSeparators, StringSplitOptions.RemoveEmptyEntries);
-            key = string.Join(SContentManager.PreferredPathSeparator, parts);
+            // ensure name format is consistent
+            string[] parts = assetName.Split(SContentManager.PossiblePathSeparators, StringSplitOptions.RemoveEmptyEntries);
+            assetName = string.Join(SContentManager.PreferredPathSeparator, parts);
 
             // apply platform normalisation logic
-            return this.NormaliseKeyForPlatform(key);
+            return this.NormaliseAssetNameForPlatform(assetName);
+        }
+
+        /// <summary>Get the locale for which the asset name was saved, if any.</summary>
+        /// <param name="normalisedAssetName">The normalised asset name.</param>
+        /// <param name="cache">The cache to search.</param>
+        private string GetCacheLocale(string normalisedAssetName, IDictionary<string, object> cache)
+        {
+            string locale = this.GetKeyLocale.Invoke<string>();
+            return this.Cache.ContainsKey($"{normalisedAssetName}.{this.GetKeyLocale.Invoke<string>()}")
+                ? locale
+                : null;
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace StardewModdingAPI.Framework
@@ -18,8 +17,11 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Accessors
         *********/
-        /// <summary>The normalised asset path being read. The format may change between platforms; see <see cref="IsPath"/> to compare with a known path.</summary>
-        public string Path { get; }
+        /// <summary>The content's locale code, if the content is localised.</summary>
+        public string Locale { get; }
+
+        /// <summary>The normalised asset name being read. The format may change between platforms; see <see cref="IsAssetName"/> to compare with a known path.</summary>
+        public string AssetName { get; }
 
         /// <summary>The content data being read.</summary>
         public object Data { get; private set; }
@@ -29,37 +31,24 @@ namespace StardewModdingAPI.Framework
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="path">The file path being read.</param>
+        /// <param name="locale">The content's locale code, if the content is localised.</param>
+        /// <param name="assetName">The normalised asset name being read.</param>
         /// <param name="data">The content data being read.</param>
         /// <param name="getNormalisedPath">Normalises an asset key to match the cache key.</param>
-        public ContentEventHelper(string path, object data, Func<string, string> getNormalisedPath)
+        public ContentEventHelper(string locale, string assetName, object data, Func<string, string> getNormalisedPath)
         {
-            this.Path = path;
+            this.Locale = locale;
+            this.AssetName = assetName;
             this.Data = data;
             this.GetNormalisedPath = getNormalisedPath;
         }
 
-        /// <summary>Get whether the asset path being loaded matches a given path after normalisation.</summary>
-        /// <param name="path">The expected asset path, relative to the game folder and without the .xnb extension (like 'Data\ObjectInformation').</param>
-        /// <param name="matchLocalisedVersion">Whether to match a localised version of the asset file (like 'Data\ObjectInformation.ja-JP').</param>
-        public bool IsPath(string path, bool matchLocalisedVersion = true)
+        /// <summary>Get whether the asset name being loaded matches a given name after normalisation.</summary>
+        /// <param name="path">The expected asset path, relative to the game's content folder and without the .xnb extension or locale suffix (like 'Data\ObjectInformation').</param>
+        public bool IsAssetName(string path)
         {
             path = this.GetNormalisedPath(path);
-
-            // equivalent
-            if (this.Path.Equals(path, StringComparison.InvariantCultureIgnoreCase))
-                return true;
-
-            // localised version
-            if (matchLocalisedVersion)
-            {
-                return
-                    this.Path.StartsWith($"{path}.", StringComparison.InvariantCultureIgnoreCase) // starts with given path
-                    && Regex.IsMatch(this.Path.Substring(path.Length + 1), "^[a-z]+-[A-Z]+$"); // ends with locale (e.g. pt-BR)
-            }
-
-            // no match
-            return false;
+            return this.AssetName.Equals(path, StringComparison.InvariantCultureIgnoreCase);
         }
 
         /// <summary>Get the data as a given type.</summary>

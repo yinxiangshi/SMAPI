@@ -8,8 +8,11 @@ namespace StardewModdingAPI
         /*********
         ** Accessors
         *********/
-        /// <summary>The normalised asset path being read. The format may change between platforms; see <see cref="IsPath"/> to compare with a known path.</summary>
-        string Path { get; }
+        /// <summary>The content's locale code, if the content is localised.</summary>
+        string Locale { get; }
+
+        /// <summary>The normalised asset name being read. The format may change between platforms; see <see cref="IsAssetName"/> to compare with a known path.</summary>
+        string AssetName { get; }
 
         /// <summary>The content data being read.</summary>
         object Data { get; }
@@ -18,10 +21,9 @@ namespace StardewModdingAPI
         /*********
         ** Public methods
         *********/
-        /// <summary>Get whether the asset path being loaded matches a given path after normalisation.</summary>
-        /// <param name="path">The expected asset path, relative to the game folder and without the .xnb extension (like 'Data\ObjectInformation').</param>
-        /// <param name="matchLocalisedVersion">Whether to match a localised version of the asset file (like 'Data\ObjectInformation.ja-JP').</param>
-        bool IsPath(string path, bool matchLocalisedVersion = true);
+        /// <summary>Get whether the asset name being loaded matches a given name after normalisation.</summary>
+        /// <param name="path">The expected asset path, relative to the game's content folder and without the .xnb extension or locale suffix (like 'Data\ObjectInformation').</param>
+        bool IsAssetName(string path);
 
         /// <summary>Get the data as a given type.</summary>
         /// <typeparam name="TData">The expected data type.</typeparam>
