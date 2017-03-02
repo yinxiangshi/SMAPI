@@ -535,8 +535,15 @@ namespace StardewModdingAPI
             while (true)
             {
                 string input = Console.ReadLine();
-                if (!string.IsNullOrWhiteSpace(input) && !this.CommandManager.Trigger(input))
-                    this.Monitor.Log("Unknown command; type 'help' for a list of available commands.", LogLevel.Error);
+                try
+                {
+                    if (!string.IsNullOrWhiteSpace(input) && !this.CommandManager.Trigger(input))
+                        this.Monitor.Log("Unknown command; type 'help' for a list of available commands.", LogLevel.Error);
+                }
+                catch (Exception ex)
+                {
+                    this.Monitor.Log($"The handler registered for that command failed:\n{ex.GetLogSummary()}", LogLevel.Error);
+                }
             }
         }
 

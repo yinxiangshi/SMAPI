@@ -15,6 +15,7 @@ For players:
 * Fixed installer not ignoring potential game folders that don't contain a Stardew Valley exe.
 * Fixed installer not recognising Linux/Mac paths starting with `~/` or containing an escaped space.
 * Fixed rare issue where mod dependencies would override SMAPI dependencies and cause unpredictable bugs.
+* Fixed errors in console command handlers causing the game to crash.
 
 For mod developers:
 * Added `SaveEvents.AfterReturnToTitle` and `TimeEvents.AfterDayStarted` events.
