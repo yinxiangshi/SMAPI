@@ -15,6 +15,7 @@ For players:
 * Fixed installer not ignoring potential game folders that don't contain a Stardew Valley exe.
 * Fixed installer not recognising Linux/Mac paths starting with `~/` or containing an escaped space.
 * Fixed TrainerMod letting you add invalid items which may crash the game.
+* Fixed TrainerMod's `world_downminelevel` command not working.
 * Fixed rare issue where mod dependencies would override SMAPI dependencies and cause unpredictable bugs.
 * Fixed errors in console command handlers causing the game to crash.
 

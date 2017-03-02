@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
+using StardewValley.Locations;
 using StardewValley.Menus;
 using StardewValley.Objects;
 using StardewValley.Tools;
@@ -655,18 +656,21 @@ namespace TrainerMod
                     break;
 
                 case "world_downminelevel":
-                    Game1.nextMineLevel();
-                    this.Monitor.Log("OK, warping you to the next mine level.", LogLevel.Info);
-                    break;
+                    {
+                        int level = (Game1.currentLocation as MineShaft)?.mineLevel ?? 0;
+                        this.Monitor.Log($"OK, warping you to mine level {level + 1}.", LogLevel.Info);
+                        Game1.enterMine(false, level + 1, "");
+                        break;
+                    }
 
                 case "world_setminelevel":
                     if (args.Any())
                     {
                         if (args[0].IsInt())
                         {
-                            int level = args[0].ToInt();
-                            Game1.enterMine(true, level, "");
+                            int level = Math.Max(1, args[0].ToInt());
                             this.Monitor.Log($"OK, warping you to mine level {level}.", LogLevel.Info);
+                            Game1.enterMine(true, level, "");
                         }
                         else
                             this.LogArgumentNotInt(command);
