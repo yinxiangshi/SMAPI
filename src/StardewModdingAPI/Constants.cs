@@ -33,7 +33,7 @@ namespace StardewModdingAPI
         public static ISemanticVersion ApiVersion { get; } = new SemanticVersion(1, 8, 0);
 
         /// <summary>The minimum supported version of Stardew Valley.</summary>
-        public static ISemanticVersion MinimumGameVersion { get; } = new SemanticVersion("1.2.9");
+        public static ISemanticVersion MinimumGameVersion { get; } = new SemanticVersion("1.2.13");
 
         /// <summary>The path to the game folder.</summary>
         public static string ExecutionPath { get; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
