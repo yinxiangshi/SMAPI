@@ -1,9 +1,11 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Newtonsoft.Json;
 
 namespace StardewModdingAPI.Advanced
 {
     /// <summary>Wraps a configuration file with IO methods for convenience.</summary>
+    [Obsolete]
     public abstract class ConfigFile : IConfigFile
     {
         /*********

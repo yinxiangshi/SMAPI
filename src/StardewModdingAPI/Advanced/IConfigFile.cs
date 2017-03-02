@@ -1,6 +1,9 @@
-﻿namespace StardewModdingAPI.Advanced
+﻿using System;
+
+namespace StardewModdingAPI.Advanced
 {
     /// <summary>Wraps a configuration file with IO methods for convenience.</summary>
+    [Obsolete]
     public interface IConfigFile
     {
         /*********

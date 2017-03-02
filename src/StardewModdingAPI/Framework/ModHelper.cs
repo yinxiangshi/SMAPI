@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using StardewModdingAPI.Advanced;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Serialisation;
 
@@ -13,6 +14,9 @@ namespace StardewModdingAPI.Framework
         *********/
         /// <summary>Encapsulates SMAPI's JSON file parsing.</summary>
         private readonly JsonHelper JsonHelper;
+
+        /// <summary>Manages deprecation warnings.</summary>
+        private static DeprecationManager DeprecationManager;
 
 
         /*********
@@ -61,6 +65,13 @@ namespace StardewModdingAPI.Framework
             this.ConsoleCommands = new CommandHelper(modName, commandManager);
         }
 
+        /// <summary>Injects types required for backwards compatibility.</summary>
+        /// <param name="deprecationManager">Manages deprecation warnings.</param>
+        internal static void Shim(DeprecationManager deprecationManager)
+        {
+            ModHelper.DeprecationManager = deprecationManager;
+        }
+
         /****
         ** Mod config file
         ****/
@@ -69,7 +80,9 @@ namespace StardewModdingAPI.Framework
         public TConfig ReadConfig<TConfig>()
             where TConfig : class, new()
         {
-            var config = this.ReadJsonFile<TConfig>("config.json") ?? new TConfig();
+            TConfig config = this.ReadJsonFile<TConfig>("config.json") ?? new TConfig();
+            if (config is IConfigFile)
+                ModHelper.DeprecationManager.Warn($"{nameof(IConfigFile)}", "1.9", DeprecationLevel.Info);
             this.WriteConfig(config); // create file or fill in missing fields
             return config;
         }
