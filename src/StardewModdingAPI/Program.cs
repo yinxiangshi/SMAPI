@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Management;
 using System.Reflection;
 using System.Threading;
 #if SMAPI_FOR_WINDOWS
@@ -87,7 +88,7 @@ namespace StardewModdingAPI
         {
             // initialise logging
             Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB"); // for consistent log formatting
-            this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GameVersion} on {Environment.OSVersion}", LogLevel.Info);
+            this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GameVersion} on {this.GetFriendlyPlatformName()}", LogLevel.Info);
             Console.Title = $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion}";
 
             // inject compatibility shims
@@ -581,6 +582,22 @@ namespace StardewModdingAPI
         private Monitor GetSecondaryMonitor(string name)
         {
             return new Monitor(name, this.ConsoleManager, this.LogFile, this.ExitGameImmediately) { WriteToConsole = this.Monitor.WriteToConsole, ShowTraceInConsole = this.Settings.DeveloperMode };
+        }
+
+        /// <summary>Get a human-readable name for the current platform.</summary>
+        private string GetFriendlyPlatformName()
+        {
+            try
+            {
+                return (
+                    from entry in new ManagementObjectSearcher("SELECT Caption FROM Win32_OperatingSystem").Get().Cast<ManagementObject>()
+                    select entry.GetPropertyValue("Caption").ToString()
+                ).FirstOrDefault();
+            }
+            catch
+            {
+                return Environment.OSVersion.ToString();
+            }
         }
     }
 }

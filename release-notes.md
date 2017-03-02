@@ -23,7 +23,8 @@ For mod developers:
 * Added a simpler API for console commands (see `helper.ConsoleCommands`).
 * Added `GetPrivateProperty` reflection helper.
 * SMAPI now writes XNA input enums (`Buttons` and `Keys`) to JSON as strings, so mods no longer need to add a `StringEnumConverter` themselves for those.
-* Log files now always use `\r\n` to simplify crossplatform viewing.
+* Logs now show the OS caption (like "Windows 10") instead of its internal version when available.
+* Logs now always use `\r\n` to simplify crossplatform viewing.
 * Several obsolete APIs have been removed (see [deprecation guide](http://canimod.com/guides/updating-a-smapi-mod)),
   and all _notice_-level deprecations have been increased to _info_.
 
