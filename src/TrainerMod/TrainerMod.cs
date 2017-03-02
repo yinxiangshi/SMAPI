@@ -81,7 +81,6 @@ namespace TrainerMod
         private void RegisterCommands(IModHelper helper)
         {
             helper.ConsoleCommands
-                .Add("types", "Lists all value types.", this.HandleCommand)
                 .Add("save", "Saves the game? Doesn't seem to work.", this.HandleCommand)
                 .Add("load", "Shows the load screen.", this.HandleCommand)
                 .Add("player_setname", "Sets the player's name.\n\nUsage: player_setname <target> <name>\n- target: what to rename (one of 'player' or 'farm').\n- name: the new name to set.", this.HandleCommand)
@@ -121,10 +120,6 @@ namespace TrainerMod
         {
             switch (command)
             {
-                case "type":
-                    this.Monitor.Log($"[Int32: {int.MinValue} - {int.MaxValue}], [Int64: {long.MinValue} - {long.MaxValue}], [String: \"raw text\"], [Color: r,g,b (EG: 128, 32, 255)]", LogLevel.Info);
-                    break;
-
                 case "save":
                     this.Monitor.Log("Saving the game...", LogLevel.Info);
                     SaveGame.Save();
