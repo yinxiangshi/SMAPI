@@ -583,8 +583,13 @@ namespace TrainerMod
                             }
 
                             var item = new Object(itemID, count) { quality = quality };
-                            Game1.player.addItemByMenuIfNecessary(item);
-                            this.Monitor.Log($"OK, added {item.Name} to your inventory.", LogLevel.Info);
+                            if (item.Name == "Error Item")
+                                this.Monitor.Log("There is no such item ID.", LogLevel.Error);
+                            else
+                            {
+                                Game1.player.addItemByMenuIfNecessary(item);
+                                this.Monitor.Log($"OK, added {item.Name} to your inventory.", LogLevel.Info);
+                            }
                         }
                         else
                             this.LogUsageError("The item ID must be an integer.", command);
@@ -599,8 +604,13 @@ namespace TrainerMod
                         if (args[0].IsInt())
                         {
                             MeleeWeapon weapon = new MeleeWeapon(args[0].ToInt());
-                            Game1.player.addItemByMenuIfNecessary(weapon);
-                            this.Monitor.Log($"OK, added {weapon.Name} to your inventory.", LogLevel.Info);
+                            if (weapon.Name == null)
+                                this.Monitor.Log("There is no such weapon ID.", LogLevel.Error);
+                            else
+                            {
+                                Game1.player.addItemByMenuIfNecessary(weapon);
+                                this.Monitor.Log($"OK, added {weapon.Name} to your inventory.", LogLevel.Info);
+                            }
                         }
                         else
                             this.LogUsageError("The weapon ID must be an integer.", command);
@@ -614,9 +624,15 @@ namespace TrainerMod
                     {
                         if (args[0].IsInt())
                         {
-                            Ring ring = new Ring(args[0].ToInt());
-                            Game1.player.addItemByMenuIfNecessary(ring);
-                            this.Monitor.Log($"OK, added {ring.Name} to your inventory.", LogLevel.Info);
+                            int ringID = args[0].ToInt();
+                            if (ringID < Ring.ringLowerIndexRange || ringID > Ring.ringUpperIndexRange)
+                                this.Monitor.Log($"There is no such ring ID (must be between {Ring.ringLowerIndexRange} and {Ring.ringUpperIndexRange}).", LogLevel.Error);
+                            else
+                            {
+                                Ring ring = new Ring(ringID);
+                                Game1.player.addItemByMenuIfNecessary(ring);
+                                this.Monitor.Log($"OK, added {ring.Name} to your inventory.", LogLevel.Info);
+                            }
                         }
                         else
                             this.Monitor.Log("<item> is invalid", LogLevel.Error);
