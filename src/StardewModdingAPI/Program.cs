@@ -554,7 +554,10 @@ namespace StardewModdingAPI
                     this.Monitor.Log($"{result.Name}: {result.Documentation}\n(Added by {result.ModName}.)", LogLevel.Info);
             }
             else
-                this.Monitor.Log("Commands: " + string.Join(", ", this.CommandManager.GetAll().Select(p => p.Name)), LogLevel.Info);
+            {
+                this.Monitor.Log("The following commands are registered: " + string.Join(", ", this.CommandManager.GetAll().Select(p => p.Name)) + ".", LogLevel.Info);
+                this.Monitor.Log("For more information about a command, type 'help command_name'.", LogLevel.Info);
+            }
         }
 
         /// <summary>Show a 'press any key to exit' message, and exit when they press a key.</summary>

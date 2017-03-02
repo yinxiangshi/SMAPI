@@ -94,7 +94,7 @@ namespace TrainerMod
 
                 .Add("player_setlevel", "Sets the player's specified skill to the specified value.\n\nUsage: player_setlevel <skill> <value>\n- skill: the skill to set (one of 'luck', 'mining', 'combat', 'farming', 'fishing', or 'foraging').\n- value: the target level (a number from 1 to 10).", this.HandleCommand)
                 .Add("player_setspeed", "Sets the player's speed to the specified value?\n\nUsage: player_setspeed <value>\n- value: an integer amount (0 is normal).", this.HandleCommand)
-                .Add("player_changecolour", "Sets the colour of a player feature.\n\nUsage: player_changecolor <target> <colour>\n- target: what to change (one of 'hair', 'eyes', or 'pants').\n- colour: a colour value in RGB format, like (255,255,255).", this.HandleCommand)
+                .Add("player_changecolor", "Sets the color of a player feature.\n\nUsage: player_changecolor <target> <color>\n- target: what to change (one of 'hair', 'eyes', or 'pants').\n- color: a color value in RGB format, like (255,255,255).", this.HandleCommand)
                 .Add("player_changestyle", "Sets the style of a player feature.\n\nUsage: player_changecolor <target> <value>.\n- target: what to change (one of 'hair', 'shirt', 'skin', 'acc', 'shoe', 'swim', or 'gender').\n- value: the integer style ID.", this.HandleCommand)
 
                 .Add("player_additem", $"Gives the player an item.\n\nUsage: player_additem <item> [count] [quality]\n- item: the item ID (use the 'list_items' command to see a list).\n- count (optional): how many of the item to give.\n- quality (optional): one of {Object.lowQuality} (normal), {Object.medQuality} (silver), {Object.highQuality} (gold), or {Object.bestQuality} (iridium).", this.HandleCommand)
@@ -104,7 +104,7 @@ namespace TrainerMod
                 .Add("list_items", "Lists and searches items in the game data.\n\nUsage: list_items [search]\n- search (optional): an arbitrary search string to filter by.", this.HandleCommand)
 
                 .Add("world_settime", "Sets the time to the specified value.\n\nUsage: world_settime <value>\n- value: the target time in military time (like 0600 for 6am and 1800 for 6pm)", this.HandleCommand)
-                .Add("world_freezetime", "Freezes or resumes time.\n\nUsage: world_freezetime [value]\n- value: one of 0 (resume), 1 (freeze) or blank (toggle).", this.HandleCommand)
+                .Add("world_freezetime", "Freezes or resumes time.\n\nUsage: world_freezetime [value]\n- value: one of 0 (resume), 1 (freeze), or blank (toggle).", this.HandleCommand)
                 .Add("world_setday", "Sets the day to the specified value.\n\nUsage: world_setday <value>.\n- value: the target day (a number from 1 to 28).", this.HandleCommand)
                 .Add("world_setseason", "Sets the season to the specified value.\n\nUsage: world_setseason <season>\n- value: the target season (one of 'spring', 'summer', 'fall', 'winter').", this.HandleCommand)
                 .Add("world_downminelevel", "Goes down one mine level?", this.HandleCommand)
@@ -115,21 +115,23 @@ namespace TrainerMod
         }
 
         /// <summary>Handle a TrainerMod command.</summary>
-        /// <param name="name">The command name.</param>
+        /// <param name="command">The command name.</param>
         /// <param name="args">The command arguments.</param>
-        private void HandleCommand(string name, string[] args)
+        private void HandleCommand(string command, string[] args)
         {
-            switch (name)
+            switch (command)
             {
                 case "type":
-                    this.Monitor.Log($"[Int32: {int.MinValue} - {int.MaxValue}], [Int64: {long.MinValue} - {long.MaxValue}], [String: \"raw text\"], [Colour: r,g,b (EG: 128, 32, 255)]", LogLevel.Info);
+                    this.Monitor.Log($"[Int32: {int.MinValue} - {int.MaxValue}], [Int64: {long.MinValue} - {long.MaxValue}], [String: \"raw text\"], [Color: r,g,b (EG: 128, 32, 255)]", LogLevel.Info);
                     break;
 
                 case "save":
+                    this.Monitor.Log("Saving the game...", LogLevel.Info);
                     SaveGame.Save();
                     break;
 
                 case "load":
+                    this.Monitor.Log("Triggering load menu...", LogLevel.Info);
                     Game1.hasLoadedGame = false;
                     Game1.activeClickableMenu = new LoadGameMenu();
                     break;
@@ -145,17 +147,19 @@ namespace TrainerMod
                             {
                                 case "player":
                                     Game1.player.Name = args[1];
+                                    this.Monitor.Log($"OK, your player's name is now {Game1.player.Name}.", LogLevel.Info);
                                     break;
                                 case "farm":
                                     Game1.player.farmName = args[1];
+                                    this.Monitor.Log($"OK, your farm's name is now {Game1.player.Name}.", LogLevel.Info);
                                     break;
                             }
                         }
                         else
-                            this.LogObjectInvalid();
+                            this.LogArgumentsInvalid(command);
                     }
                     else
-                        this.LogObjectValueNotSpecified();
+                        this.Monitor.Log($"Your name is currently '{Game1.player.Name}'. Type 'help player_setname' for usage.", LogLevel.Info);
                     break;
 
                 case "player_setmoney":
@@ -163,7 +167,10 @@ namespace TrainerMod
                     {
                         string amountStr = args[0];
                         if (amountStr == "inf")
+                        {
                             this.InfiniteMoney = true;
+                            this.Monitor.Log("OK, you now have infinite money.", LogLevel.Info);
+                        }
                         else
                         {
                             this.InfiniteMoney = false;
@@ -171,14 +178,14 @@ namespace TrainerMod
                             if (int.TryParse(amountStr, out amount))
                             {
                                 Game1.player.Money = amount;
-                                this.Monitor.Log($"Set {Game1.player.Name}'s money to {Game1.player.Money}", LogLevel.Info);
+                                this.Monitor.Log($"OK, you now have {Game1.player.Money} gold.", LogLevel.Info);
                             }
                             else
-                                this.LogValueNotInt32();
+                                this.LogArgumentNotInt(command);
                         }
                     }
                     else
-                        this.LogValueNotSpecified();
+                        this.Monitor.Log($"You currently have {(this.InfiniteMoney ? "infinite" : Game1.player.Money.ToString())} gold. Specify a value to change it.", LogLevel.Info);
                     break;
 
                 case "player_setstamina":
@@ -186,7 +193,10 @@ namespace TrainerMod
                     {
                         string amountStr = args[0];
                         if (amountStr == "inf")
+                        {
                             this.InfiniteStamina = true;
+                            this.Monitor.Log("OK, you now have infinite stamina.", LogLevel.Info);
+                        }
                         else
                         {
                             this.InfiniteStamina = false;
@@ -194,14 +204,14 @@ namespace TrainerMod
                             if (int.TryParse(amountStr, out amount))
                             {
                                 Game1.player.Stamina = amount;
-                                this.Monitor.Log($"Set {Game1.player.Name}'s stamina to {Game1.player.Stamina}", LogLevel.Info);
+                                this.Monitor.Log($"OK, you now have {Game1.player.Stamina} stamina.", LogLevel.Info);
                             }
                             else
-                                this.LogValueNotInt32();
+                                this.LogArgumentNotInt(command);
                         }
                     }
                     else
-                        this.Monitor.Log($"{Game1.player.Name}'s stamina is {Game1.player.Stamina}", LogLevel.Info);
+                        this.Monitor.Log($"You currently have {(this.InfiniteStamina ? "infinite" : Game1.player.Stamina.ToString())} stamina. Specify a value to change it.", LogLevel.Info);
                     break;
 
                 case "player_setmaxstamina":
@@ -211,13 +221,13 @@ namespace TrainerMod
                         if (int.TryParse(args[0], out amount))
                         {
                             Game1.player.MaxStamina = amount;
-                            this.Monitor.Log($"Set {Game1.player.Name}'s max stamina to {Game1.player.MaxStamina}", LogLevel.Info);
+                            this.Monitor.Log($"OK, you now have {Game1.player.MaxStamina} max stamina.", LogLevel.Info);
                         }
                         else
-                            this.LogValueNotInt32();
+                            this.LogArgumentNotInt(command);
                     }
                     else
-                        this.Monitor.Log($"{Game1.player.Name}'s maxstamina is {Game1.player.MaxStamina}", LogLevel.Info);
+                        this.Monitor.Log($"You currently have {Game1.player.MaxStamina} max stamina. Specify a value to change it.", LogLevel.Info);
                     break;
 
                 case "player_setlevel":
@@ -234,32 +244,38 @@ namespace TrainerMod
                                 {
                                     case "luck":
                                         Game1.player.LuckLevel = level;
+                                        this.Monitor.Log($"OK, your luck skill is now {Game1.player.LuckLevel}.", LogLevel.Info);
                                         break;
                                     case "mining":
                                         Game1.player.MiningLevel = level;
+                                        this.Monitor.Log($"OK, your mining skill is now {Game1.player.MiningLevel}.", LogLevel.Info);
                                         break;
                                     case "combat":
                                         Game1.player.CombatLevel = level;
+                                        this.Monitor.Log($"OK, your combat skill is now {Game1.player.CombatLevel}.", LogLevel.Info);
                                         break;
                                     case "farming":
                                         Game1.player.FarmingLevel = level;
+                                        this.Monitor.Log($"OK, your farming skill is now {Game1.player.FarmingLevel}.", LogLevel.Info);
                                         break;
                                     case "fishing":
                                         Game1.player.FishingLevel = level;
+                                        this.Monitor.Log($"OK, your fishing skill is now {Game1.player.FishingLevel}.", LogLevel.Info);
                                         break;
                                     case "foraging":
                                         Game1.player.ForagingLevel = level;
+                                        this.Monitor.Log($"OK, your foraging skill is now {Game1.player.ForagingLevel}.", LogLevel.Info);
                                         break;
                                 }
                             }
                             else
-                                this.LogValueNotInt32();
+                                this.LogArgumentNotInt(command);
                         }
                         else
-                            this.Monitor.Log("<skill> is invalid", LogLevel.Error);
+                            this.LogUsageError("That isn't a valid skill.", command);
                     }
                     else
-                        this.Monitor.Log("<skill> and <value> must be specified", LogLevel.Error);
+                        this.LogArgumentsInvalid(command);
                     break;
 
                 case "player_setspeed":
@@ -269,16 +285,16 @@ namespace TrainerMod
                         if (amountStr.IsInt())
                         {
                             Game1.player.addedSpeed = amountStr.ToInt();
-                            this.Monitor.Log($"Set {Game1.player.Name}'s added speed to {Game1.player.addedSpeed}", LogLevel.Info);
+                            this.Monitor.Log($"OK, your added speed is now {Game1.player.addedSpeed}.", LogLevel.Info);
                         }
                         else
-                            this.LogValueNotInt32();
+                            this.LogArgumentNotInt(command);
                     }
                     else
-                        this.LogValueNotSpecified();
+                        this.Monitor.Log($"You currently have {Game1.player.addedSpeed} added speed. Specify a value to change it.", LogLevel.Info);
                     break;
 
-                case "player_changecolour":
+                case "player_changecolor":
                     if (args.Length > 1)
                     {
                         string target = args[0];
@@ -293,23 +309,26 @@ namespace TrainerMod
                                 {
                                     case "hair":
                                         Game1.player.hairstyleColor = color;
+                                        this.Monitor.Log("OK, your hair color is updated.", LogLevel.Info);
                                         break;
                                     case "eyes":
                                         Game1.player.changeEyeColor(color);
+                                        this.Monitor.Log("OK, your eye color is updated.", LogLevel.Info);
                                         break;
                                     case "pants":
                                         Game1.player.pantsColor = color;
+                                        this.Monitor.Log("OK, your pants color is updated.", LogLevel.Info);
                                         break;
                                 }
                             }
                             else
-                                this.Monitor.Log("<colour> is invalid", LogLevel.Error);
+                                this.LogUsageError("The color should be an RBG value like '255,150,0'.", command);
                         }
                         else
-                            this.LogObjectInvalid();
+                            this.LogArgumentsInvalid(command);
                     }
                     else
-                        this.Monitor.Log("<object> and <colour> must be specified", LogLevel.Error);
+                        this.LogArgumentsInvalid(command);
                     break;
 
                 case "player_changestyle":
@@ -326,45 +345,66 @@ namespace TrainerMod
                                 {
                                     case "hair":
                                         Game1.player.changeHairStyle(styleID);
+                                        this.Monitor.Log("OK, your hair style is updated.", LogLevel.Info);
                                         break;
                                     case "shirt":
                                         Game1.player.changeShirt(styleID);
+                                        this.Monitor.Log("OK, your shirt style is updated.", LogLevel.Info);
                                         break;
                                     case "acc":
                                         Game1.player.changeAccessory(styleID);
+                                        this.Monitor.Log("OK, your accessory style is updated.", LogLevel.Info);
                                         break;
                                     case "skin":
                                         Game1.player.changeSkinColor(styleID);
+                                        this.Monitor.Log("OK, your skin color is updated.", LogLevel.Info);
                                         break;
                                     case "shoe":
                                         Game1.player.changeShoeColor(styleID);
+                                        this.Monitor.Log("OK, your shoe style is updated.", LogLevel.Info);
                                         break;
                                     case "swim":
-                                        if (styleID == 0)
-                                            Game1.player.changeOutOfSwimSuit();
-                                        else if (styleID == 1)
-                                            Game1.player.changeIntoSwimsuit();
-                                        else
-                                            this.Monitor.Log("<value> must be 0 or 1 for this <object>", LogLevel.Error);
+                                        switch (styleID)
+                                        {
+                                            case 0:
+                                                Game1.player.changeOutOfSwimSuit();
+                                                this.Monitor.Log("OK, you're no longer in your swimming suit.", LogLevel.Info);
+                                                break;
+                                            case 1:
+                                                Game1.player.changeIntoSwimsuit();
+                                                this.Monitor.Log("OK, you're now in your swimming suit.", LogLevel.Info);
+                                                break;
+                                            default:
+                                                this.LogUsageError("The swim value should be 0 (no swimming suit) or 1 (swimming suit).", command);
+                                                break;
+                                        }
                                         break;
                                     case "gender":
-                                        if (styleID == 0)
-                                            Game1.player.changeGender(true);
-                                        else if (styleID == 1)
-                                            Game1.player.changeGender(false);
-                                        else
-                                            this.Monitor.Log("<value> must be 0 or 1 for this <object>", LogLevel.Error);
+                                        switch (styleID)
+                                        {
+                                            case 0:
+                                                Game1.player.changeGender(true);
+                                                this.Monitor.Log("OK, you're now male.", LogLevel.Info);
+                                                break;
+                                            case 1:
+                                                Game1.player.changeGender(false);
+                                                this.Monitor.Log("OK, you're now female.", LogLevel.Info);
+                                                break;
+                                            default:
+                                                this.LogUsageError("The gender value should be 0 (male) or 1 (female).", command);
+                                                break;
+                                        }
                                         break;
                                 }
                             }
                             else
-                                this.LogValueInvalid();
+                                this.LogArgumentsInvalid(command);
                         }
                         else
-                            this.LogObjectInvalid();
+                            this.LogArgumentsInvalid(command);
                     }
                     else
-                        this.LogObjectValueNotSpecified();
+                        this.LogArgumentsInvalid(command);
                     break;
 
                 case "world_freezetime":
@@ -378,27 +418,20 @@ namespace TrainerMod
                             {
                                 this.FreezeTime = value == 1;
                                 this.FrozenTime = this.FreezeTime ? Game1.timeOfDay : 0;
-                                this.Monitor.Log("Time is now " + (this.FreezeTime ? "frozen" : "thawed"), LogLevel.Info);
+                                this.Monitor.Log($"OK, time is now {(this.FreezeTime ? "frozen" : "resumed")}.", LogLevel.Info);
                             }
                             else
-                                this.Monitor.Log("<value> should be 0, 1, or empty", LogLevel.Error);
+                                this.LogUsageError("The value should be 0 (not frozen), 1 (frozen), or empty (toggle).", command);
                         }
                         else
-                            this.LogValueNotInt32();
+                            this.LogArgumentNotInt(command);
                     }
                     else
-                        int valu = 1;
-                        if (this.FreezeTime == false)
-                        {
-                            valu = 1;
-                        }
-                        else
-                        {
-                            valu = 0;
-                        }
-                        this.FreezeTime = valu == 1;
+                    {
+                        this.FreezeTime = !this.FreezeTime;
                         this.FrozenTime = this.FreezeTime ? Game1.timeOfDay : 0;
-                        this.Monitor.Log("Time is now " + (this.FreezeTime ? "frozen" : "thawed"), LogLevel.Info);
+                        this.Monitor.Log($"OK, time is now {(this.FreezeTime ? "frozen" : "resumed")}.", LogLevel.Info);
+                    }
                     break;
 
                 case "world_settime":
@@ -413,16 +446,16 @@ namespace TrainerMod
                             {
                                 Game1.timeOfDay = args[0].ToInt();
                                 this.FrozenTime = this.FreezeTime ? Game1.timeOfDay : 0;
-                                this.Monitor.Log($"Time set to: {Game1.timeOfDay}", LogLevel.Info);
+                                this.Monitor.Log($"OK, the time is now {Game1.timeOfDay.ToString().PadLeft(4, '0')}.", LogLevel.Info);
                             }
                             else
-                                this.Monitor.Log("<value> should be between 600 and 2600 (06:00 AM - 02:00 AM [NEXT DAY])", LogLevel.Error);
+                                this.LogUsageError("That isn't a valid time.", command);
                         }
                         else
-                            this.LogValueNotInt32();
+                            this.LogArgumentNotInt(command);
                     }
                     else
-                        this.LogValueNotSpecified();
+                        this.Monitor.Log($"The current time is {Game1.timeOfDay}. Specify a value to change it.", LogLevel.Info);
                     break;
 
                 case "world_setday":
@@ -434,15 +467,18 @@ namespace TrainerMod
                         {
                             int day = dayStr.ToInt();
                             if (day <= 28 && day > 0)
+                            {
                                 Game1.dayOfMonth = day;
+                                this.Monitor.Log($"OK, the date is now {Game1.currentSeason} {Game1.dayOfMonth}.", LogLevel.Info);
+                            }
                             else
-                                this.Monitor.Log("<value> must be between 1 and 28", LogLevel.Error);
+                                this.LogUsageError("That isn't a valid day.", command);
                         }
                         else
-                            this.LogValueNotInt32();
+                            this.LogArgumentNotInt(command);
                     }
                     else
-                        this.LogValueNotSpecified();
+                        this.Monitor.Log($"The current date is {Game1.currentSeason} {Game1.dayOfMonth}. Specify a value to change the day.", LogLevel.Info);
                     break;
 
                 case "world_setseason":
@@ -451,12 +487,15 @@ namespace TrainerMod
                         string season = args[0];
                         string[] validSeasons = { "winter", "spring", "summer", "fall" };
                         if (validSeasons.Contains(season))
+                        {
                             Game1.currentSeason = season;
+                            this.Monitor.Log($"OK, the date is now {Game1.currentSeason} {Game1.dayOfMonth}.", LogLevel.Info);
+                        }
                         else
-                            this.LogValueInvalid();
+                            this.LogUsageError("That isn't a valid season name.", command);
                     }
                     else
-                        this.LogValueNotSpecified();
+                        this.Monitor.Log($"The current season is {Game1.currentSeason}. Specify a value to change it.", LogLevel.Info);
                     break;
 
                 case "player_sethealth":
@@ -465,18 +504,24 @@ namespace TrainerMod
                         string amountStr = args[0];
 
                         if (amountStr == "inf")
+                        {
                             this.InfiniteHealth = true;
+                            this.Monitor.Log("OK, you now have infinite health.", LogLevel.Info);
+                        }
                         else
                         {
                             this.InfiniteHealth = false;
                             if (amountStr.IsInt())
+                            {
                                 Game1.player.health = amountStr.ToInt();
+                                this.Monitor.Log($"OK, you now have {Game1.player.health} health.", LogLevel.Info);
+                            }
                             else
-                                this.LogValueNotInt32();
+                                this.LogArgumentNotInt(command);
                         }
                     }
                     else
-                        this.Monitor.Log($"Health is: {Game1.player.health}", LogLevel.Info);
+                        this.Monitor.Log($"You currently have {(this.InfiniteHealth ? "infinite" : Game1.player.health.ToString())} health. Specify a value to change it.", LogLevel.Info);
                     break;
 
                 case "player_setmaxhealth":
@@ -484,12 +529,15 @@ namespace TrainerMod
                     {
                         string amountStr = args[0];
                         if (amountStr.IsInt())
+                        {
                             Game1.player.maxHealth = amountStr.ToInt();
+                            this.Monitor.Log($"OK, you now have {Game1.player.maxHealth} max health.", LogLevel.Info);
+                        }
                         else
-                            this.LogValueNotInt32();
+                            this.LogArgumentNotInt(command);
                     }
                     else
-                        this.Monitor.Log($"MaxHealth is: {Game1.player.maxHealth}", LogLevel.Info);
+                        this.Monitor.Log($"You currently have {Game1.player.maxHealth} max health. Specify a value to change it.", LogLevel.Info);
                     break;
 
                 case "player_setimmunity":
@@ -497,12 +545,15 @@ namespace TrainerMod
                     {
                         string amountStr = args[0];
                         if (amountStr.IsInt())
+                        {
                             Game1.player.immunity = amountStr.ToInt();
+                            this.Monitor.Log($"OK, you now have {Game1.player.immunity} immunity.", LogLevel.Info);
+                        }
                         else
-                            this.LogValueNotInt32();
+                            this.LogArgumentNotInt(command);
                     }
                     else
-                        this.Monitor.Log($"Immunity is: {Game1.player.immunity}", LogLevel.Info);
+                        this.Monitor.Log($"You currently have {Game1.player.immunity} immunity. Specify a value to change it.", LogLevel.Info);
                     break;
 
                 case "player_additem":
@@ -520,7 +571,7 @@ namespace TrainerMod
                                     count = args[1].ToInt();
                                 else
                                 {
-                                    this.Monitor.Log("[count] is invalid", LogLevel.Error);
+                                    this.LogUsageError("The optional count is invalid.", command);
                                     return;
                                 }
 
@@ -530,21 +581,21 @@ namespace TrainerMod
                                         quality = args[2].ToInt();
                                     else
                                     {
-                                        this.Monitor.Log("[quality] is invalid", LogLevel.Error);
+                                        this.LogUsageError("The optional quality is invalid.", command);
                                         return;
                                     }
                                 }
                             }
 
                             var item = new Object(itemID, count) { quality = quality };
-
                             Game1.player.addItemByMenuIfNecessary(item);
+                            this.Monitor.Log($"OK, added {item.Name} to your inventory.", LogLevel.Info);
                         }
                         else
-                            this.Monitor.Log("<item> is invalid", LogLevel.Error);
+                            this.LogUsageError("The item ID must be an integer.", command);
                     }
                     else
-                        this.LogObjectValueNotSpecified();
+                        this.LogArgumentsInvalid(command);
                     break;
 
                 case "player_addmelee":
@@ -554,13 +605,13 @@ namespace TrainerMod
                         {
                             MeleeWeapon weapon = new MeleeWeapon(args[0].ToInt());
                             Game1.player.addItemByMenuIfNecessary(weapon);
-                            this.Monitor.Log($"Gave {weapon.Name} to {Game1.player.Name}", LogLevel.Info);
+                            this.Monitor.Log($"OK, added {weapon.Name} to your inventory.", LogLevel.Info);
                         }
                         else
-                            this.Monitor.Log("<item> is invalid", LogLevel.Error);
+                            this.LogUsageError("The weapon ID must be an integer.", command);
                     }
                     else
-                        this.LogObjectValueNotSpecified();
+                        this.LogArgumentsInvalid(command);
                     break;
 
                 case "player_addring":
@@ -570,13 +621,13 @@ namespace TrainerMod
                         {
                             Ring ring = new Ring(args[0].ToInt());
                             Game1.player.addItemByMenuIfNecessary(ring);
-                            this.Monitor.Log($"Gave {ring.Name} to {Game1.player.Name}", LogLevel.Info);
+                            this.Monitor.Log($"OK, added {ring.Name} to your inventory.", LogLevel.Info);
                         }
                         else
                             this.Monitor.Log("<item> is invalid", LogLevel.Error);
                     }
                     else
-                        this.LogObjectValueNotSpecified();
+                        this.LogArgumentsInvalid(command);
                     break;
 
                 case "list_items":
@@ -594,30 +645,37 @@ namespace TrainerMod
 
                 case "world_downminelevel":
                     Game1.nextMineLevel();
+                    this.Monitor.Log("OK, warping you to the next mine level.", LogLevel.Info);
                     break;
 
                 case "world_setminelevel":
                     if (args.Any())
                     {
                         if (args[0].IsInt())
-                            Game1.enterMine(true, args[0].ToInt(), "");
+                        {
+                            int level = args[0].ToInt();
+                            Game1.enterMine(true, level, "");
+                            this.Monitor.Log($"OK, warping you to mine level {level}.", LogLevel.Info);
+                        }
                         else
-                            this.LogValueNotInt32();
+                            this.LogArgumentNotInt(command);
                     }
                     else
-                        this.LogValueNotSpecified();
+                        this.LogArgumentsInvalid(command);
                     break;
 
                 case "show_game_files":
                     Process.Start(Constants.ExecutionPath);
+                    this.Monitor.Log($"OK, opening {Constants.ExecutionPath}.", LogLevel.Info);
                     break;
 
                 case "show_data_files":
                     Process.Start(Constants.DataPath);
+                    this.Monitor.Log($"OK, opening {Constants.DataPath}.", LogLevel.Info);
                     break;
 
                 default:
-                    throw new NotImplementedException($"TrainerMod received unknown command '{name}'.");
+                    throw new NotImplementedException($"TrainerMod received unknown command '{command}'.");
             }
         }
 
@@ -706,34 +764,26 @@ namespace TrainerMod
         /****
         ** Logging
         ****/
-        /// <summary>Log an error indicating a value must be specified.</summary>
-        public void LogValueNotSpecified()
+        /// <summary>Log an error indicating incorrect usage.</summary>
+        /// <param name="error">A sentence explaining the problem.</param>
+        /// <param name="command">The name of the command.</param>
+        private void LogUsageError(string error, string command)
         {
-            this.Monitor.Log("<value> must be specified", LogLevel.Error);
-        }
-
-        /// <summary>Log an error indicating a target and value must be specified.</summary>
-        public void LogObjectValueNotSpecified()
-        {
-            this.Monitor.Log("<object> and <value> must be specified", LogLevel.Error);
-        }
-
-        /// <summary>Log an error indicating a value is invalid.</summary>
-        public void LogValueInvalid()
-        {
-            this.Monitor.Log("<value> is invalid", LogLevel.Error);
-        }
-
-        /// <summary>Log an error indicating a target is invalid.</summary>
-        public void LogObjectInvalid()
-        {
-            this.Monitor.Log("<object> is invalid", LogLevel.Error);
+            this.Monitor.Log($"{error} Type 'help {command}' for usage.", LogLevel.Error);
         }
 
         /// <summary>Log an error indicating a value must be an integer.</summary>
-        public void LogValueNotInt32()
+        /// <param name="command">The name of the command.</param>
+        private void LogArgumentNotInt(string command)
         {
-            this.Monitor.Log("<value> must be a whole number (Int32)", LogLevel.Error);
+            this.LogUsageError("The value must be a whole number.", command);
+        }
+
+        /// <summary>Log an error indicating a value is invalid.</summary>
+        /// <param name="command">The name of the command.</param>
+        private void LogArgumentsInvalid(string command)
+        {
+            this.LogUsageError("The arguments are invalid.", command);
         }
     }
 }
