@@ -305,6 +305,22 @@ namespace StardewModdingAPI.Framework
         /// <param name="gameTime">A snapshot of the game timing state.</param>
         protected override void Update(GameTime gameTime)
         {
+            // While a background new-day task is in progress, the game skips its own update logic
+            // and defers to the XNA Update method. Running mod code in parallel to the background
+            // update is risky, because data changes can conflict (e.g. collection changed during
+            // enumeration errors) and data may change unexpectedly from one mod instruction to the
+            // next.
+            // 
+            // Therefore we can just run Game1.Update here without raising any SMAPI events. There's
+            // a small chance that the task will finish after we defer but before the game checks,
+            // which means technically events should be raised, but the effects of missing one
+            // update tick are neglible and not worth the complications of bypassing Game1.Update.
+            if (SGame._newDayTask != null)
+            {
+                base.Update(gameTime);
+                return;
+            }
+
             // raise game loaded
             if (this.FirstUpdate)
                 GameEvents.InvokeGameLoaded(this.Monitor);
@@ -361,7 +377,7 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>The method called to draw everything to the screen.</summary>
         /// <param name="gameTime">A snapshot of the game timing state.</param>
-        /// <remarks>This implementation is identical to <see cref="Game1.Draw"/>, except for try..catch around menu draw code, minor formatting, and added events.</remarks>
+        /// <remarks>This implementation is identical to <see cref="Game1.Draw"/>, except for try..catch around menu draw code, private field references replaced by wrappers, and added events.</remarks>
         [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator", Justification = "copied from game code as-is")]
         [SuppressMessage("ReSharper", "LocalVariableHidesMember", Justification = "copied from game code as-is")]
         [SuppressMessage("ReSharper", "PossibleLossOfFraction", Justification = "copied from game code as-is")]
