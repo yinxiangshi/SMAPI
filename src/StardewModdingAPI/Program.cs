@@ -4,10 +4,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Management;
 using System.Reflection;
 using System.Threading;
 #if SMAPI_FOR_WINDOWS
+using System.Management;
 using System.Windows.Forms;
 #endif
 using Microsoft.Xna.Framework.Graphics;
@@ -586,19 +586,21 @@ namespace StardewModdingAPI
         }
 
         /// <summary>Get a human-readable name for the current platform.</summary>
+        [SuppressMessage("ReSharper", "EmptyGeneralCatchClause", Justification = "Error suppressed deliberately to fallback to default behaviour.")]
         private string GetFriendlyPlatformName()
         {
+#if SMAPI_FOR_WINDOWS
             try
             {
-                return (
-                    from entry in new ManagementObjectSearcher("SELECT Caption FROM Win32_OperatingSystem").Get().Cast<ManagementObject>()
-                    select entry.GetPropertyValue("Caption").ToString()
-                ).FirstOrDefault();
+                return new ManagementObjectSearcher("SELECT Caption FROM Win32_OperatingSystem")
+                    .Get()
+                    .Cast<ManagementObject>()
+                    .Select(entry => entry.GetPropertyValue("Caption").ToString())
+                    .FirstOrDefault();
             }
-            catch
-            {
-                return Environment.OSVersion.ToString();
-            }
+            catch { }
+#endif
+            return Environment.OSVersion.ToString();
         }
     }
 }
