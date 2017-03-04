@@ -234,7 +234,7 @@ namespace StardewModdingAPI
                     this.GameInstance = new SGame(this.Monitor);
                     this.GameInstance.Exiting += (sender, e) => this.IsGameRunning = false;
                     this.GameInstance.Window.ClientSizeChanged += (sender, e) => GraphicsEvents.InvokeResize(this.Monitor, sender, e);
-                    this.GameInstance.Window.Title = $"Stardew Valley {Constants.GameVersion}";
+                    this.GameInstance.Window.Title = $"Stardew Valley {Constants.GameVersion} with SMAPI {Constants.ApiVersion}";
                     gameProgramType.GetField("gamePtr").SetValue(gameProgramType, this.GameInstance);
 
                     // configure
