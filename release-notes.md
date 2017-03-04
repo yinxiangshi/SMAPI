@@ -1,5 +1,14 @@
 ﻿# Release notes
 
+<!--
+## 2.0
+See [log](https://github.com/Pathoschild/SMAPI/compare/1.9...2.0).
+
+For mod developers:
+* Added content events and an API which let you intercept XNB content as it's loaded, then
+  dynamically replace data entries or patch images.
+-->
+
 ## 1.9
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.8...1.9).
 
