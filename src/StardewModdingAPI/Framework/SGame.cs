@@ -159,6 +159,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>The player character at last check.</summary>
         public SFarmer PreviousFarmer { get; private set; }
 
+        /// <summary>The previous content locale.</summary>
+        public LocalizedContentManager.LanguageCode? PreviousLocale { get; private set; }
+
         /// <summary>An index incremented on every tick and reset every 60th tick (0–59).</summary>
         public int CurrentUpdateTick { get; private set; }
 
@@ -1079,6 +1082,17 @@ namespace StardewModdingAPI.Framework
         /// <summary>Detect changes since the last update ticket and trigger mod events.</summary>
         private void UpdateEventCalls()
         {
+            // content locale changed event
+            if (this.PreviousLocale != LocalizedContentManager.CurrentLanguageCode)
+            {
+                var oldValue = this.PreviousLocale;
+                var newValue = LocalizedContentManager.CurrentLanguageCode;
+
+                if (oldValue != null)
+                    ContentEvents.InvokeAfterLocaleChanged(this.Monitor, oldValue.ToString(), newValue.ToString());
+                this.PreviousLocale = newValue;
+            }
+
             // save loaded event
             if (Game1.hasLoadedGame && !SaveGame.IsProcessing/*still loading save*/ && this.AfterLoadTimer >= 0)
             {

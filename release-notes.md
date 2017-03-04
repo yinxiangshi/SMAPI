@@ -5,8 +5,9 @@
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.9...2.0).
 
 For mod developers:
-* Added content events and an API which let you intercept XNB content as it's loaded, then
-  dynamically replace data entries or patch images.
+* Added `ContentEvents.AssetLoading` event with a helper which lets you intercept the XNB content
+  load, and dynamically adjust or replace the content being loaded (including support for patching
+  images).
 -->
 
 ## 1.9
@@ -29,7 +30,7 @@ For players:
 * Fixed errors in console command handlers causing the game to crash.
 
 For mod developers:
-* Added `SaveEvents.AfterReturnToTitle` and `TimeEvents.AfterDayStarted` events.
+* Added `SaveEvents.AfterReturnToTitle`, `TimeEvents.AfterDayStarted`, and `ContentEvents.AfterLocaleChanged` events.
 * Added a simpler API for console commands (see `helper.ConsoleCommands`).
 * Added `GetPrivateProperty` reflection helper.
 * SMAPI now writes XNA input enums (`Buttons` and `Keys`) to JSON as strings automatically, so mods no longer need to add a `StringEnumConverter` themselves for those.

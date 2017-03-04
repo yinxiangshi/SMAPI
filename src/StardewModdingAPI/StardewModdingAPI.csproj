@@ -119,6 +119,7 @@
     <Compile Include="Advanced\IConfigFile.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="Events\ContentEvents.cs" />
+    <Compile Include="Events\EventArgsValueChanged.cs" />
     <Compile Include="Framework\Command.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Constants.cs" />

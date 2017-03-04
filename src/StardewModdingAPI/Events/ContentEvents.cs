@@ -24,6 +24,9 @@ namespace StardewModdingAPI.Events
         /*********
         ** Events
         *********/
+        /// <summary>Raised after the content language changes.</summary>
+        public static event EventHandler<EventArgsValueChanged<string>> AfterLocaleChanged;
+
         /// <summary>Raised when an XNB file is being read into the cache. Mods can change the data here before it's cached.</summary>
         public static event EventHandler<IContentEventHelper> AssetLoading;
 
@@ -38,6 +41,15 @@ namespace StardewModdingAPI.Events
         {
             ContentEvents.ModRegistry = modRegistry;
             ContentEvents.Monitor = monitor;
+        }
+
+        /// <summary>Raise an <see cref="AfterLocaleChanged"/> event.</summary>
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
+        /// <param name="oldLocale">The previous locale.</param>
+        /// <param name="newLocale">The current locale.</param>
+        internal static void InvokeAfterLocaleChanged(IMonitor monitor, string oldLocale, string newLocale)
+        {
+            monitor.SafelyRaiseGenericEvent($"{nameof(ContentEvents)}.{nameof(ContentEvents.AfterLocaleChanged)}", ContentEvents.AfterLocaleChanged?.GetInvocationList(), null, new EventArgsValueChanged<string>(oldLocale, newLocale));
         }
 
         /// <summary>Raise an <see cref="AssetLoading"/> event.</summary>
