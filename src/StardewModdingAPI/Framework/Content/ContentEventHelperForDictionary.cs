@@ -18,25 +18,25 @@ namespace StardewModdingAPI.Framework.Content
         public ContentEventHelperForDictionary(string locale, string assetName, IDictionary<TKey, TValue> data, Func<string, string> getNormalisedPath)
             : base(locale, assetName, data, getNormalisedPath) { }
 
-        /// <summary>Add or replace an entry in the dictionary data.</summary>
+        /// <summary>Add or replace an entry in the dictionary.</summary>
         /// <param name="key">The entry key.</param>
         /// <param name="value">The entry value.</param>
-        public void SetEntry(TKey key, TValue value)
+        public void Set(TKey key, TValue value)
         {
             this.Data[key] = value;
         }
 
-        /// <summary>Add or replace an entry in the dictionary data.</summary>
+        /// <summary>Add or replace an entry in the dictionary.</summary>
         /// <param name="key">The entry key.</param>
         /// <param name="value">A callback which accepts the current value and returns the new value.</param>
-        public void SetEntry(TKey key, Func<TValue, TValue> value)
+        public void Set(TKey key, Func<TValue, TValue> value)
         {
             this.Data[key] = value(this.Data[key]);
         }
 
         /// <summary>Dynamically replace values in the dictionary.</summary>
         /// <param name="replacer">A lambda which takes the current key and value for an entry, and returns the new value.</param>
-        public void Replace(Func<TKey, TValue, TValue> replacer)
+        public void Set(Func<TKey, TValue, TValue> replacer)
         {
             foreach (var pair in this.Data.ToArray())
                 this.Data[pair.Key] = replacer(pair.Key, pair.Value);

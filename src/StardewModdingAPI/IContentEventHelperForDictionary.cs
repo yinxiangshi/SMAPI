@@ -26,19 +26,19 @@ namespace StardewModdingAPI
         /// <param name="path">The expected asset path, relative to the game's content folder and without the .xnb extension or locale suffix (like 'Data\ObjectInformation').</param>
         bool IsAssetName(string path);
 
-        /// <summary>Add or replace an entry in the dictionary data.</summary>
+        /// <summary>Add or replace an entry in the dictionary.</summary>
         /// <param name="key">The entry key.</param>
         /// <param name="value">The entry value.</param>
-        void SetEntry(TKey key, TValue value);
+        void Set(TKey key, TValue value);
 
-        /// <summary>Add or replace an entry in the dictionary data.</summary>
+        /// <summary>Add or replace an entry in the dictionary.</summary>
         /// <param name="key">The entry key.</param>
         /// <param name="value">A callback which accepts the current value and returns the new value.</param>
-        void SetEntry(TKey key, Func<TValue, TValue> value);
+        void Set(TKey key, Func<TValue, TValue> value);
 
         /// <summary>Dynamically replace values in the dictionary.</summary>
         /// <param name="replacer">A lambda which takes the current key and value for an entry, and returns the new value.</param>
-        void Replace(Func<TKey, TValue, TValue> replacer);
+        void Set(Func<TKey, TValue, TValue> replacer);
 
         /// <summary>Replace the entire content value with the given value. This is generally not recommended, since it may break compatibility with other mods or different versions of the game.</summary>
         /// <param name="value">The new content value.</param>
