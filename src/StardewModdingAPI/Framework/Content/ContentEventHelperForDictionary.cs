@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace StardewModdingAPI.Framework.Content
 {
@@ -31,6 +32,14 @@ namespace StardewModdingAPI.Framework.Content
         public void SetEntry(TKey key, Func<TValue, TValue> value)
         {
             this.Data[key] = value(this.Data[key]);
+        }
+
+        /// <summary>Dynamically replace values in the dictionary.</summary>
+        /// <param name="replacer">A lambda which takes the current key and value for an entry, and returns the new value.</param>
+        public void Replace(Func<TKey, TValue, TValue> replacer)
+        {
+            foreach (var pair in this.Data.ToArray())
+                this.Data[pair.Key] = replacer(pair.Key, pair.Value);
         }
     }
 }

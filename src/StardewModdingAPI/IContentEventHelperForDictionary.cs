@@ -36,6 +36,10 @@ namespace StardewModdingAPI
         /// <param name="value">A callback which accepts the current value and returns the new value.</param>
         void SetEntry(TKey key, Func<TValue, TValue> value);
 
+        /// <summary>Dynamically replace values in the dictionary.</summary>
+        /// <param name="replacer">A lambda which takes the current key and value for an entry, and returns the new value.</param>
+        void Replace(Func<TKey, TValue, TValue> replacer);
+
         /// <summary>Replace the entire content value with the given value. This is generally not recommended, since it may break compatibility with other mods or different versions of the game.</summary>
         /// <param name="value">The new content value.</param>
         /// <exception cref="ArgumentNullException">The <paramref name="value"/> is null.</exception>
