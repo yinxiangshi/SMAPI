@@ -7,6 +7,7 @@ using System.Threading;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI.AssemblyRewriters;
 using StardewModdingAPI.Events;
+using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.Reflection;
 using StardewValley;
 

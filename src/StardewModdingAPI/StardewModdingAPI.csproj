@@ -150,7 +150,10 @@
     <Compile Include="Framework\AssemblyDefinitionResolver.cs" />
     <Compile Include="Framework\AssemblyParseResult.cs" />
     <Compile Include="Framework\CommandManager.cs" />
-    <Compile Include="Framework\ContentEventHelper.cs" />
+    <Compile Include="Framework\Content\ContentEventBaseHelper.cs" />
+    <Compile Include="Framework\Content\ContentEventHelper.cs" />
+    <Compile Include="Framework\Content\ContentEventHelperForDictionary.cs" />
+    <Compile Include="Framework\Content\ContentEventHelperForImage.cs" />
     <Compile Include="Framework\Logging\ConsoleInterceptionManager.cs" />
     <Compile Include="Framework\Logging\InterceptingTextWriter.cs" />
     <Compile Include="Framework\CommandHelper.cs" />
@@ -163,6 +166,8 @@
     <Compile Include="Framework\Serialisation\SemanticVersionConverter.cs" />
     <Compile Include="ICommandHelper.cs" />
     <Compile Include="IContentEventHelper.cs" />
+    <Compile Include="IContentEventHelperForDictionary.cs" />
+    <Compile Include="IContentEventHelperForImage.cs" />
     <Compile Include="IModRegistry.cs" />
     <Compile Include="Events\LocationEvents.cs" />
     <Compile Include="Events\MenuEvents.cs" />
