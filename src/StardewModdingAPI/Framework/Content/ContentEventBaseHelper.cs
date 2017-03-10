@@ -6,7 +6,7 @@ namespace StardewModdingAPI.Framework.Content
 {
     /// <summary>Base implementation for a content helper which encapsulates access and changes to content being read from a data file.</summary>
     /// <typeparam name="TValue">The interface value type.</typeparam>
-    internal class ContentEventBaseHelper<TValue> : EventArgs
+    internal class ContentEventBaseHelper<TValue> : EventArgs, IContentEventData<TValue>
     {
         /*********
         ** Properties

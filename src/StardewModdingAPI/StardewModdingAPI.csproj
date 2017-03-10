@@ -168,6 +168,7 @@
     <Compile Include="IContentEventHelper.cs" />
     <Compile Include="IContentEventHelperForDictionary.cs" />
     <Compile Include="IContentEventHelperForImage.cs" />
+    <Compile Include="IContentEventData.cs" />
     <Compile Include="IModRegistry.cs" />
     <Compile Include="Events\LocationEvents.cs" />
     <Compile Include="Events\MenuEvents.cs" />
