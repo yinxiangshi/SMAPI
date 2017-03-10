@@ -18,6 +18,9 @@ namespace StardewModdingAPI
         /// <summary>The content data being read.</summary>
         TValue Data { get; }
 
+        /// <summary>The content data type.</summary>
+        Type DataType { get; }
+
 
         /*********
         ** Public methods

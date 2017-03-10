@@ -6,7 +6,7 @@ namespace StardewModdingAPI.Framework.Content
 {
     /// <summary>Base implementation for a content helper which encapsulates access and changes to content being read from a data file.</summary>
     /// <typeparam name="TValue">The interface value type.</typeparam>
-    internal class ContentEventBaseHelper<TValue> : EventArgs, IContentEventData<TValue>
+    internal class ContentEventData<TValue> : EventArgs, IContentEventData<TValue>
     {
         /*********
         ** Properties
@@ -27,6 +27,9 @@ namespace StardewModdingAPI.Framework.Content
         /// <summary>The content data being read.</summary>
         public TValue Data { get; protected set; }
 
+        /// <summary>The content data type.</summary>
+        public Type DataType { get; }
+
 
         /*********
         ** Public methods
@@ -36,11 +39,21 @@ namespace StardewModdingAPI.Framework.Content
         /// <param name="assetName">The normalised asset name being read.</param>
         /// <param name="data">The content data being read.</param>
         /// <param name="getNormalisedPath">Normalises an asset key to match the cache key.</param>
-        public ContentEventBaseHelper(string locale, string assetName, TValue data, Func<string, string> getNormalisedPath)
+        public ContentEventData(string locale, string assetName, TValue data, Func<string, string> getNormalisedPath)
+            : this(locale, assetName, data, data.GetType(), getNormalisedPath) { }
+
+        /// <summary>Construct an instance.</summary>
+        /// <param name="locale">The content's locale code, if the content is localised.</param>
+        /// <param name="assetName">The normalised asset name being read.</param>
+        /// <param name="data">The content data being read.</param>
+        /// <param name="dataType">The content data type being read.</param>
+        /// <param name="getNormalisedPath">Normalises an asset key to match the cache key.</param>
+        public ContentEventData(string locale, string assetName, TValue data, Type dataType, Func<string, string> getNormalisedPath)
         {
             this.Locale = locale;
             this.AssetName = assetName;
             this.Data = data;
+            this.DataType = dataType;
             this.GetNormalisedPath = getNormalisedPath;
         }
 
@@ -60,8 +73,8 @@ namespace StardewModdingAPI.Framework.Content
         {
             if (value == null)
                 throw new ArgumentNullException(nameof(value), "Can't set a loaded asset to a null value.");
-            if (!this.Data.GetType().IsInstanceOfType(value))
-                throw new InvalidCastException($"Can't replace loaded asset of type {this.GetFriendlyTypeName(this.Data.GetType())} with value of type {this.GetFriendlyTypeName(value.GetType())}. The new type must be compatible to prevent game errors.");
+            if (!this.DataType.IsInstanceOfType(value))
+                throw new InvalidCastException($"Can't replace loaded asset of type {this.GetFriendlyTypeName(this.DataType)} with value of type {this.GetFriendlyTypeName(value.GetType())}. The new type must be compatible to prevent game errors.");
 
             this.Data = value;
         }

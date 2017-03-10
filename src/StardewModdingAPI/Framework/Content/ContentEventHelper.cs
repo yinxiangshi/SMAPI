@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 namespace StardewModdingAPI.Framework.Content
 {
     /// <summary>Encapsulates access and changes to content being read from a data file.</summary>
-    internal class ContentEventHelper : ContentEventBaseHelper<object>, IContentEventHelper
+    internal class ContentEventHelper : ContentEventData<object>, IContentEventHelper
     {
         /*********
         ** Public methods

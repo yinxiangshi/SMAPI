@@ -5,7 +5,7 @@ using System.Linq;
 namespace StardewModdingAPI.Framework.Content
 {
     /// <summary>Encapsulates access and changes to dictionary content being read from a data file.</summary>
-    internal class ContentEventHelperForDictionary<TKey, TValue> : ContentEventBaseHelper<IDictionary<TKey, TValue>>, IContentEventHelperForDictionary<TKey, TValue>
+    internal class ContentEventHelperForDictionary<TKey, TValue> : ContentEventData<IDictionary<TKey, TValue>>, IContentEventHelperForDictionary<TKey, TValue>
     {
         /*********
         ** Public methods
