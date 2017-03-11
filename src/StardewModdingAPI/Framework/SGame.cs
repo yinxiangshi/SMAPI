@@ -1094,7 +1094,7 @@ namespace StardewModdingAPI.Framework
             }
 
             // save loaded event
-            if (Game1.hasLoadedGame && !SaveGame.IsProcessing/*still loading save*/ && this.AfterLoadTimer >= 0)
+            if (Constants.IsSaveLoaded && !SaveGame.IsProcessing/*still loading save*/ && this.AfterLoadTimer >= 0)
             {
                 if (this.AfterLoadTimer == 0)
                 {

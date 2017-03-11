@@ -36,6 +36,7 @@ For mod developers:
 * SMAPI now writes XNA input enums (`Buttons` and `Keys`) to JSON as strings automatically, so mods no longer need to add a `StringEnumConverter` themselves for those.
 * Logs now show the OS caption (like "Windows 10") instead of its internal version when available.
 * Logs now always use `\r\n` to simplify crossplatform viewing.
+* Fixed `SaveEvents.AfterLoad` being raised during the new-game intro before the player is initialised.
 * Several obsolete APIs have been removed (see [deprecation guide](http://canimod.com/guides/updating-a-smapi-mod)),
   and all _notice_-level deprecations have been increased to _info_.
 * Deprecated the experimental `IConfigFile`.
