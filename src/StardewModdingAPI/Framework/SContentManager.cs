@@ -80,18 +80,20 @@ namespace StardewModdingAPI.Framework
         /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
         public override T Load<T>(string assetName)
         {
-            // normalise asset name so can override the cache value later
+            // get normalised metadata
             assetName = this.NormaliseAssetName(assetName);
+            string cacheLocale = this.GetCacheLocale(assetName);
 
-            // skip if no event handlers or already loaded
-            if (!ContentEvents.HasAssetLoadingListeners() || this.Cache.ContainsKey(assetName))
+            // skip if already loaded
+            if (this.IsLoaded(assetName))
                 return base.Load<T>(assetName);
 
-            // intercept load
+            // load data
             T data = base.Load<T>(assetName);
-            string cacheLocale = this.GetCacheLocale(assetName, this.Cache);
+
+            // let mods intercept content
             IContentEventHelper helper = new ContentEventHelper(cacheLocale, assetName, data, this.NormaliseAssetName);
-            ContentEvents.InvokeAssetLoading(this.Monitor, helper);
+            ContentEvents.InvokeAfterAssetLoaded(this.Monitor, helper);
             this.Cache[assetName] = helper.Data;
             return (T)helper.Data;
         }
@@ -112,13 +114,19 @@ namespace StardewModdingAPI.Framework
             return this.NormaliseAssetNameForPlatform(assetName);
         }
 
+        /// <summary>Get whether an asset has already been loaded.</summary>
+        /// <param name="normalisedAssetName">The normalised asset name.</param>
+        private bool IsLoaded(string normalisedAssetName)
+        {
+            return this.Cache.ContainsKey(normalisedAssetName);
+        }
+
         /// <summary>Get the locale for which the asset name was saved, if any.</summary>
         /// <param name="normalisedAssetName">The normalised asset name.</param>
-        /// <param name="cache">The cache to search.</param>
-        private string GetCacheLocale(string normalisedAssetName, IDictionary<string, object> cache)
+        private string GetCacheLocale(string normalisedAssetName)
         {
             string locale = this.GetKeyLocale.Invoke<string>();
-            return this.Cache.ContainsKey($"{normalisedAssetName}.{this.GetKeyLocale.Invoke<string>()}")
+            return this.Cache.ContainsKey($"{normalisedAssetName}.{locale}")
                 ? locale
                 : null;
         }

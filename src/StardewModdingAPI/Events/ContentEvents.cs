@@ -28,7 +28,7 @@ namespace StardewModdingAPI.Events
         public static event EventHandler<EventArgsValueChanged<string>> AfterLocaleChanged;
 
         /// <summary>Raised when an XNB file is being read into the cache. Mods can change the data here before it's cached.</summary>
-        public static event EventHandler<IContentEventHelper> AssetLoading;
+        public static event EventHandler<IContentEventHelper> AfterAssetLoaded;
 
 
         /*********
@@ -52,13 +52,28 @@ namespace StardewModdingAPI.Events
             monitor.SafelyRaiseGenericEvent($"{nameof(ContentEvents)}.{nameof(ContentEvents.AfterLocaleChanged)}", ContentEvents.AfterLocaleChanged?.GetInvocationList(), null, new EventArgsValueChanged<string>(oldLocale, newLocale));
         }
 
-        /// <summary>Raise an <see cref="AssetLoading"/> event.</summary>
+        /// <summary>Raise an <see cref="AfterAssetLoaded"/> event.</summary>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="contentHelper">Encapsulates access and changes to content being read from a data file.</param>
-        internal static void InvokeAssetLoading(IMonitor monitor, IContentEventHelper contentHelper)
+        internal static void InvokeAfterAssetLoaded(IMonitor monitor, IContentEventHelper contentHelper)
         {
-            // raise warning about experimental API
-            foreach (Delegate handler in ContentEvents.AssetLoading.GetInvocationList())
+            if (ContentEvents.AfterAssetLoaded != null)
+            {
+                Delegate[] handlers = ContentEvents.AfterAssetLoaded.GetInvocationList();
+                ContentEvents.RaiseDeprecationWarning(handlers);
+                monitor.SafelyRaiseGenericEvent($"{nameof(ContentEvents)}.{nameof(ContentEvents.AfterAssetLoaded)}", handlers, null, contentHelper);
+            }
+        }
+
+
+        /*********
+        ** Private methods
+        *********/
+        /// <summary>Raise a 'experimental API' warning for each mod using the content API.</summary>
+        /// <param name="handlers">The event handlers.</param>
+        private static void RaiseDeprecationWarning(Delegate[] handlers)
+        {
+            foreach (Delegate handler in handlers)
             {
                 string modName = ContentEvents.ModRegistry.GetModFrom(handler) ?? "An unknown mod";
                 if (!ContentEvents.WarnedMods.Contains(modName))
@@ -67,15 +82,6 @@ namespace StardewModdingAPI.Events
                     ContentEvents.Monitor.Log($"{modName} used the undocumented and experimental content API, which may change or be removed without warning.", LogLevel.Warn);
                 }
             }
-
-            // raise event
-            monitor.SafelyRaiseGenericEvent($"{nameof(ContentEvents)}.{nameof(ContentEvents.AssetLoading)}", ContentEvents.AssetLoading?.GetInvocationList(), null, contentHelper);
-        }
-
-        /// <summary>Get whether there are any <see cref="AssetLoading"/> listeners.</summary>
-        internal static bool HasAssetLoadingListeners()
-        {
-            return ContentEvents.AssetLoading != null;
         }
     }
 }
