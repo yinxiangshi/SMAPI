@@ -118,7 +118,8 @@ namespace StardewModdingAPI.Framework
         /// <param name="normalisedAssetName">The normalised asset name.</param>
         private bool IsLoaded(string normalisedAssetName)
         {
-            return this.Cache.ContainsKey(normalisedAssetName);
+            return this.Cache.ContainsKey(normalisedAssetName)
+                || this.Cache.ContainsKey($"{normalisedAssetName}.{this.GetKeyLocale.Invoke<string>()}"); // translated asset
         }
 
         /// <summary>Get the locale for which the asset name was saved, if any.</summary>
