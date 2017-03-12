@@ -4,21 +4,11 @@ using Mono.Cecil.Cil;
 namespace StardewModdingAPI.AssemblyRewriters.Framework
 {
     /// <summary>Base class for a field rewriter.</summary>
-    public abstract class BaseFieldRewriter : IInstructionRewriter
+    public abstract class BaseFieldRewriter : BaseFieldFinder, IInstructionRewriter
     {
         /*********
         ** Public methods
         *********/
-        /// <summary>Get whether a CIL instruction should be rewritten.</summary>
-        /// <param name="instruction">The IL instruction.</param>
-        /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        public bool ShouldRewrite(Instruction instruction, bool platformChanged)
-        {
-            if (instruction.OpCode != OpCodes.Ldfld && instruction.OpCode != OpCodes.Ldsfld && instruction.OpCode != OpCodes.Stfld && instruction.OpCode != OpCodes.Stsfld)
-                return false; // not a field reference
-            return this.ShouldRewrite(instruction, (FieldReference)instruction.Operand, platformChanged);
-        }
-
         /// <summary>Rewrite a CIL instruction for compatibility.</summary>
         /// <param name="module">The module being rewritten.</param>
         /// <param name="cil">The CIL rewriter.</param>
@@ -34,12 +24,6 @@ namespace StardewModdingAPI.AssemblyRewriters.Framework
         /*********
         ** Protected methods
         *********/
-        /// <summary>Get whether a field reference should be rewritten.</summary>
-        /// <param name="instruction">The IL instruction.</param>
-        /// <param name="fieldRef">The field reference.</param>
-        /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        protected abstract bool ShouldRewrite(Instruction instruction, FieldReference fieldRef, bool platformChanged);
-
         /// <summary>Rewrite a method for compatibility.</summary>
         /// <param name="module">The module being rewritten.</param>
         /// <param name="cil">The CIL rewriter.</param>

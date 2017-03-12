@@ -193,7 +193,7 @@ namespace StardewModdingAPI.Framework
             foreach (MethodDefinition method in this.GetMethods(module))
             {
                 // skip methods with no rewritable instructions
-                bool canRewrite = method.Body.Instructions.Any(op => rewriters.Any(rewriter => rewriter.ShouldRewrite(op, platformChanged)));
+                bool canRewrite = method.Body.Instructions.Any(op => rewriters.Any(rewriter => rewriter.IsMatch(op, platformChanged)));
                 if (!canRewrite)
                     continue;
 
@@ -203,7 +203,7 @@ namespace StardewModdingAPI.Framework
                 // rewrite instructions
                 foreach (Instruction op in cil.Body.Instructions.ToArray())
                 {
-                    IInstructionRewriter rewriter = rewriters.FirstOrDefault(p => p.ShouldRewrite(op, platformChanged));
+                    IInstructionRewriter rewriter = rewriters.FirstOrDefault(p => p.IsMatch(op, platformChanged));
                     rewriter?.Rewrite(module, cil, op, this.AssemblyMap);
                 }
 

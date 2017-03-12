@@ -66,7 +66,10 @@
     <Compile Include="..\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Framework\BaseFieldFinder.cs" />
+    <Compile Include="Framework\BaseMethodFinder.cs" />
     <Compile Include="IInstructionRewriter.cs" />
+    <Compile Include="IInstructionFinder.cs" />
     <Compile Include="Platform.cs" />
     <Compile Include="PlatformAssemblyMap.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

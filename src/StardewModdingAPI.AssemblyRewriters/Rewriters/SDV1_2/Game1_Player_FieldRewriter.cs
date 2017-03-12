@@ -18,7 +18,7 @@ namespace StardewModdingAPI.AssemblyRewriters.Rewriters.SDV1_2
         /// <param name="instruction">The IL instruction.</param>
         /// <param name="fieldRef">The field reference.</param>
         /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        protected override bool ShouldRewrite(Instruction instruction, FieldReference fieldRef, bool platformChanged)
+        protected override bool IsMatch(Instruction instruction, FieldReference fieldRef, bool platformChanged)
         {
             return
                 (instruction.OpCode == OpCodes.Ldsfld || instruction.OpCode == OpCodes.Stsfld) // static field

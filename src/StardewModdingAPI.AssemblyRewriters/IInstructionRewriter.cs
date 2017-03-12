@@ -4,13 +4,8 @@ using Mono.Cecil.Cil;
 namespace StardewModdingAPI.AssemblyRewriters
 {
     /// <summary>Rewrites a CIL instruction for compatibility.</summary>
-    public interface IInstructionRewriter
+    public interface IInstructionRewriter : IInstructionFinder
     {
-        /// <summary>Get whether a CIL instruction should be rewritten.</summary>
-        /// <param name="instruction">The IL instruction.</param>
-        /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        bool ShouldRewrite(Instruction instruction, bool platformChanged);
-
         /// <summary>Rewrite a CIL instruction for compatibility.</summary>
         /// <param name="module">The module being rewritten.</param>
         /// <param name="cil">The CIL rewriter.</param>
