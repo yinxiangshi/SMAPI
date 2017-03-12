@@ -191,46 +191,29 @@ namespace StardewModdingAPI.Framework
                     this.ChangeTypeScope(type);
             }
 
-            // throw exception if assembly contains incompatible instructions can't be rewritten
-            {
-                IInstructionFinder[] finders = Constants.GetIncompatibilityFinders().ToArray();
-                foreach (MethodDefinition method in this.GetMethods(module))
-                {
-                    foreach (Instruction instruction in method.Body.Instructions)
-                    {
-                        foreach (IInstructionFinder finder in finders)
-                        {
-                            if (finder.IsMatch(instruction, platformChanged))
-                                throw new IncompatibleInstructionException(finder.NounPhrase, $"Found an incompatible CIL instruction ({finder.NounPhrase}) while loading assembly {assembly.Name.Name}.");
-                        }
-                    }
-                }
-            }
-
-            // rewrite incompatible instructions
+            // find incompatible instructions
             bool anyRewritten = false;
+            IInstructionFinder[] finders = Constants.GetIncompatibilityFinders().ToArray();
             IInstructionRewriter[] rewriters = Constants.GetRewriters().ToArray();
             foreach (MethodDefinition method in this.GetMethods(module))
             {
-                // skip methods with no rewritable instructions
-                bool canRewrite = method.Body.Instructions.Any(op => rewriters.Any(rewriter => rewriter.IsMatch(op, platformChanged)));
-                if (!canRewrite)
-                    continue;
-
-                // rewrite instructions
                 ILProcessor cil = method.Body.GetILProcessor();
-                foreach (Instruction op in cil.Body.Instructions.ToArray())
+                foreach (Instruction instruction in cil.Body.Instructions.ToArray())
                 {
-                    IInstructionRewriter rewriter = rewriters.FirstOrDefault(p => p.IsMatch(op, platformChanged));
+                    // throw exception if instruction is incompatible but can't be rewritten
+                    IInstructionFinder finder = finders.FirstOrDefault(p => p.IsMatch(instruction, platformChanged));
+                    if (finder != null)
+                        throw new IncompatibleInstructionException(finder.NounPhrase, $"Found an incompatible CIL instruction ({finder.NounPhrase}) while loading assembly {assembly.Name.Name}.");
+
+                    // rewrite instruction if needed
+                    IInstructionRewriter rewriter = rewriters.FirstOrDefault(p => p.IsMatch(instruction, platformChanged));
                     if (rewriter != null)
                     {
                         this.LogOnce(this.Monitor, loggedRewrites, $"Rewriting {assembly.Name.Name} to fix {rewriter.NounPhrase}...");
-                        rewriter.Rewrite(module, cil, op, this.AssemblyMap);
+                        rewriter.Rewrite(module, cil, instruction, this.AssemblyMap);
+                        anyRewritten = true;
                     }
                 }
-
-                // finalise method
-                anyRewritten = true;
             }
 
             return platformChanged || anyRewritten;
