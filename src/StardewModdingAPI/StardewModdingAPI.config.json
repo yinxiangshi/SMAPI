@@ -49,10 +49,9 @@ generally shouldn't change this file unless necessary.
     {
       "Name": "Better Sprinklers",
       "ID": "SPDSprinklersMod",
-      "UpperVersion": "2.1",
+      "UpperVersion": "2.3",
       "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/41",
       "UnofficialUpdateUrl": "http://community.playstarbound.com/threads/125031",
-      "ForceCompatibleVersion": "^2.1-EntoPatch.7",
       "Notes": "Uses obsolete StardewModdingAPI.Extensions."
     },
     {
