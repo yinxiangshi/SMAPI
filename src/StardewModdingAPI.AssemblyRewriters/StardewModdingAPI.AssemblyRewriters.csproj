@@ -67,6 +67,7 @@
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Finders\GenericFieldFinder.cs" />
+    <Compile Include="Finders\GenericEventFinder.cs" />
     <Compile Include="Finders\GenericMethodFinder.cs" />
     <Compile Include="Framework\BaseFieldFinder.cs" />
     <Compile Include="Framework\BaseMethodFinder.cs" />

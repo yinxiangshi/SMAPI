@@ -154,7 +154,13 @@ namespace StardewModdingAPI
                 new GenericTypeFinder("StardewModdingAPI.Inheritance.SObject"),
                 new GenericTypeFinder("StardewModdingAPI.LogWriter"),
                 new GenericTypeFinder("StardewModdingAPI.Manifest"),
-                new GenericTypeFinder("StardewModdingAPI.Version")
+                new GenericTypeFinder("StardewModdingAPI.Version"),
+                new GenericEventFinder("StardewModdingAPI.Events.GraphicsEvents", "DrawDebug"),
+                new GenericEventFinder("StardewModdingAPI.Events.GraphicsEvents", "DrawTick"),
+                new GenericEventFinder("StardewModdingAPI.Events.GraphicsEvents", "OnPostRenderHudEventNoCheck"),
+                new GenericEventFinder("StardewModdingAPI.Events.GraphicsEvents", "OnPostRenderGuiEventNoCheck"),
+                new GenericEventFinder("StardewModdingAPI.Events.GraphicsEvents", "OnPreRenderHudEventNoCheck"),
+                new GenericEventFinder("StardewModdingAPI.Events.GraphicsEvents", "OnPreRenderGuiEventNoCheck"),
             };
         }
 
