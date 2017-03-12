@@ -135,6 +135,14 @@ namespace StardewModdingAPI
             return new PlatformAssemblyMap(targetPlatform, removeAssemblyReferences, targetAssemblies);
         }
 
+        /// <summary>Get finders which match incompatible CIL instructions in mod assemblies.</summary>
+        internal static IEnumerable<IInstructionFinder> GetIncompatibilityFinders()
+        {
+            return new IInstructionFinder[]
+            {
+            };
+        }
+
         /// <summary>Get rewriters which fix incompatible CIL instructions in mod assemblies.</summary>
         internal static IEnumerable<IInstructionRewriter> GetRewriters()
         {

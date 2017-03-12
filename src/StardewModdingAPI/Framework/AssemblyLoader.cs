@@ -55,6 +55,7 @@ namespace StardewModdingAPI.Framework
         /// <summary>Preprocess and load an assembly.</summary>
         /// <param name="assemblyPath">The assembly file path.</param>
         /// <returns>Returns the rewrite metadata for the preprocessed assembly.</returns>
+        /// <exception cref="IncompatibleInstructionException">An incompatible CIL instruction was found while rewriting the assembly.</exception>
         public Assembly Load(string assemblyPath)
         {
             // get referenced local assemblies
@@ -159,6 +160,7 @@ namespace StardewModdingAPI.Framework
         /// <summary>Rewrite the types referenced by an assembly.</summary>
         /// <param name="assembly">The assembly to rewrite.</param>
         /// <returns>Returns whether the assembly was modified.</returns>
+        /// <exception cref="IncompatibleInstructionException">An incompatible CIL instruction was found while rewriting the assembly.</exception>
         private bool RewriteAssembly(AssemblyDefinition assembly)
         {
             ModuleDefinition module = assembly.MainModule;
@@ -187,6 +189,22 @@ namespace StardewModdingAPI.Framework
                 IEnumerable<TypeReference> typeReferences = module.GetTypeReferences().OrderBy(p => p.FullName);
                 foreach (TypeReference type in typeReferences)
                     this.ChangeTypeScope(type);
+            }
+
+            // throw exception if assembly contains incompatible instructions can't be rewritten
+            {
+                IInstructionFinder[] finders = Constants.GetIncompatibilityFinders().ToArray();
+                foreach (MethodDefinition method in this.GetMethods(module))
+                {
+                    foreach (Instruction instruction in method.Body.Instructions)
+                    {
+                        foreach (IInstructionFinder finder in finders)
+                        {
+                            if (finder.IsMatch(instruction, platformChanged))
+                                throw new IncompatibleInstructionException(finder.NounPhrase, $"Found an incompatible CIL instruction ({finder.NounPhrase}) while loading assembly {assembly.Name.Name}.");
+                        }
+                    }
+                }
             }
 
             // rewrite incompatible instructions

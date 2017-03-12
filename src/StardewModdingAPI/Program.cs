@@ -453,6 +453,11 @@ namespace StardewModdingAPI
                 {
                     modAssembly = modAssemblyLoader.Load(assemblyPath);
                 }
+                catch (IncompatibleInstructionException ex)
+                {
+                    this.Monitor.Log($"{skippedPrefix} because it's not compatible with the latest version of the game (detected {ex.NounPhrase}). Please check for a newer version of the mod (you have v{manifest.Version}).", LogLevel.Error);
+                    continue;
+                }
                 catch (Exception ex)
                 {
                     this.Monitor.Log($"{skippedPrefix} because its DLL '{manifest.EntryDll}' couldn't be loaded.\n{ex.GetLogSummary()}", LogLevel.Error);
