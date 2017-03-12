@@ -142,12 +142,12 @@ namespace StardewModdingAPI
             return new IInstructionFinder[]
             {
                 // changes in Stardew Valley 1.2
-                new Game1_borderFont_FieldFinder(),
-                new Game1_smoothFont_FieldFinder(),
+                new GenericFieldFinder("Game1", "borderFont", isStatic: true),
+                new GenericFieldFinder("Game1", "smoothFont", isStatic: true),
 
                 // APIs removed in SMAPI 1.9
-                new SMAPI_Extensions_MethodFinder(),
-                new GenericTypeFinder("StardewModdingAPI.Inheritance.SGame", "obsolete StardewModdingAPI.SGame class")
+                new GenericTypeFinder("StardewModdingAPI.Extensions"),
+                new GenericTypeFinder("StardewModdingAPI.Inheritance.SGame")
             };
         }
 
