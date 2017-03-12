@@ -141,13 +141,20 @@ namespace StardewModdingAPI
         {
             return new IInstructionFinder[]
             {
-                // changes in Stardew Valley 1.2
-                new GenericFieldFinder("Game1", "borderFont", isStatic: true),
-                new GenericFieldFinder("Game1", "smoothFont", isStatic: true),
+                // changes in Stardew Valley 1.2 (that don't have rewriters)
+                new GenericFieldFinder("StardewValley.Game1", "borderFont", isStatic: true),
+                new GenericFieldFinder("StardewValley.Game1", "smoothFont", isStatic: true),
+                new GenericFieldFinder("StardewValley.Item", "set_Name", isStatic: false),
 
                 // APIs removed in SMAPI 1.9
+                new GenericTypeFinder("StardewModdingAPI.Entities.SPlayer"),
                 new GenericTypeFinder("StardewModdingAPI.Extensions"),
-                new GenericTypeFinder("StardewModdingAPI.Inheritance.SGame")
+                new GenericTypeFinder("StardewModdingAPI.Inheritance.ItemStackChange"),
+                new GenericTypeFinder("StardewModdingAPI.Inheritance.SGame"),
+                new GenericTypeFinder("StardewModdingAPI.Inheritance.SObject"),
+                new GenericTypeFinder("StardewModdingAPI.LogWriter"),
+                new GenericTypeFinder("StardewModdingAPI.Manifest"),
+                new GenericTypeFinder("StardewModdingAPI.Version")
             };
         }
 
