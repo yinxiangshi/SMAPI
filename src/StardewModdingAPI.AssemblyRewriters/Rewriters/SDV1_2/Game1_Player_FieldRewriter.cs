@@ -28,7 +28,7 @@ namespace StardewModdingAPI.AssemblyRewriters.Rewriters.SDV1_2
         protected override bool IsMatch(Instruction instruction, FieldReference fieldRef, bool platformChanged)
         {
             return
-                (instruction.OpCode == OpCodes.Ldsfld || instruction.OpCode == OpCodes.Stsfld) // static field
+                this.IsStaticField(instruction)
                 && fieldRef.DeclaringType.FullName == typeof(Game1).FullName
                 && fieldRef.Name == nameof(Game1.player);
         }

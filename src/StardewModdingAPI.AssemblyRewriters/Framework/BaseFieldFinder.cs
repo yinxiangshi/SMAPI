@@ -35,5 +35,12 @@ namespace StardewModdingAPI.AssemblyRewriters.Framework
         /// <param name="fieldRef">The field reference.</param>
         /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
         protected abstract bool IsMatch(Instruction instruction, FieldReference fieldRef, bool platformChanged);
+
+        /// <summary>Whether an instruction is a static field reference.</summary>
+        /// <param name="instruction">The IL instruction.</param>
+        protected bool IsStaticField(Instruction instruction)
+        {
+            return instruction.OpCode == OpCodes.Ldsfld || instruction.OpCode == OpCodes.Stsfld;
+        }
     }
 }
