@@ -66,6 +66,7 @@
     <Compile Include="..\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Finders\SMAPI_Extensions_MethodFinder.cs" />
     <Compile Include="Framework\BaseFieldFinder.cs" />
     <Compile Include="Framework\BaseMethodFinder.cs" />
     <Compile Include="IInstructionRewriter.cs" />

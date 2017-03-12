@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using StardewModdingAPI.AssemblyRewriters;
+using StardewModdingAPI.AssemblyRewriters.Finders;
 using StardewModdingAPI.AssemblyRewriters.Rewriters.Crossplatform;
 using StardewModdingAPI.AssemblyRewriters.Rewriters.SDV1_2;
 using StardewValley;
@@ -140,6 +141,8 @@ namespace StardewModdingAPI
         {
             return new IInstructionFinder[]
             {
+                // APIs removed in SMAPI 1.9
+                new SMAPI_Extensions_MethodFinder()
             };
         }
 
