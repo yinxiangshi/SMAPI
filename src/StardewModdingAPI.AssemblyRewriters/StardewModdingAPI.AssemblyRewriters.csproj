@@ -69,8 +69,10 @@
     <Compile Include="Finders\Game1_smoothFont_FieldFinder.cs" />
     <Compile Include="Finders\Game1_borderFont_FieldFinder.cs" />
     <Compile Include="Finders\SMAPI_Extensions_MethodFinder.cs" />
+    <Compile Include="Framework\BaseTypeFinder.cs" />
     <Compile Include="Framework\BaseFieldFinder.cs" />
     <Compile Include="Framework\BaseMethodFinder.cs" />
+    <Compile Include="Finders\GenericTypeFinder.cs" />
     <Compile Include="IInstructionRewriter.cs" />
     <Compile Include="IInstructionFinder.cs" />
     <Compile Include="Platform.cs" />

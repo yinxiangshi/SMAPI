@@ -146,7 +146,8 @@ namespace StardewModdingAPI
                 new Game1_smoothFont_FieldFinder(),
 
                 // APIs removed in SMAPI 1.9
-                new SMAPI_Extensions_MethodFinder()
+                new SMAPI_Extensions_MethodFinder(),
+                new GenericTypeFinder("StardewModdingAPI.Inheritance.SGame", "obsolete StardewModdingAPI.SGame class")
             };
         }
 
