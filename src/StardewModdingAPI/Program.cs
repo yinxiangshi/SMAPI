@@ -12,7 +12,6 @@ using System.Windows.Forms;
 #endif
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
-using StardewModdingAPI.AssemblyRewriters;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.Logging;
@@ -142,21 +141,12 @@ namespace StardewModdingAPI
                 this.VerifyPath(Constants.ModPath);
                 this.VerifyPath(Constants.LogDir);
 
-                // get executable path
-                string executablePath = Path.Combine(Constants.ExecutionPath, Constants.TargetPlatform == Platform.Windows ? "Stardew Valley.exe" : "StardewValley.exe");
-                if (!File.Exists(executablePath))
-                {
-                    this.Monitor.Log($"Couldn't find executable: {executablePath}", LogLevel.Error);
-                    this.PressAnyKeyToExit();
-                    return;
-                }
-
                 // check for update when game loads
                 if (this.Settings.CheckForUpdates)
                     GameEvents.GameLoaded += (sender, e) => this.CheckForUpdateAsync();
 
                 // launch game
-                this.StartGame(executablePath);
+                this.StartGame();
             }
             catch (Exception ex)
             {
@@ -211,11 +201,12 @@ namespace StardewModdingAPI
         }
 
         /// <summary>Hook into Stardew Valley and launch the game.</summary>
-        /// <param name="executablePath">The absolute path to the executable to launch.</param>
-        private void StartGame(string executablePath)
+        private void StartGame()
         {
             try
             {
+                this.Monitor.Log("Loading game...");
+
                 // add error handlers
 #if SMAPI_FOR_WINDOWS
                 Application.ThreadException += (sender, e) => this.Monitor.Log($"Critical thread exception: {e.Exception.GetLogSummary()}", LogLevel.Error);
@@ -223,23 +214,15 @@ namespace StardewModdingAPI
 #endif
                 AppDomain.CurrentDomain.UnhandledException += (sender, e) => this.Monitor.Log($"Critical app domain exception: {e.ExceptionObject}", LogLevel.Error);
 
-                // initialise game
-                {
-                    // load assembly
-                    this.Monitor.Log("Loading game...");
-                    Assembly gameAssembly = Assembly.UnsafeLoadFrom(executablePath);
-                    Type gameProgramType = gameAssembly.GetType("StardewValley.Program", true);
+                // override Game1 instance
+                this.GameInstance = new SGame(this.Monitor);
+                this.GameInstance.Exiting += (sender, e) => this.IsGameRunning = false;
+                this.GameInstance.Window.ClientSizeChanged += (sender, e) => GraphicsEvents.InvokeResize(this.Monitor, sender, e);
+                this.GameInstance.Window.Title = $"Stardew Valley {Constants.GameVersion} with SMAPI {Constants.ApiVersion}";
+                StardewValley.Program.gamePtr = this.GameInstance;
 
-                    // set Game1 instance
-                    this.GameInstance = new SGame(this.Monitor);
-                    this.GameInstance.Exiting += (sender, e) => this.IsGameRunning = false;
-                    this.GameInstance.Window.ClientSizeChanged += (sender, e) => GraphicsEvents.InvokeResize(this.Monitor, sender, e);
-                    this.GameInstance.Window.Title = $"Stardew Valley {Constants.GameVersion} with SMAPI {Constants.ApiVersion}";
-                    gameProgramType.GetField("gamePtr").SetValue(gameProgramType, this.GameInstance);
-
-                    // configure
-                    Game1.graphics.GraphicsProfile = GraphicsProfile.HiDef;
-                }
+                // configure
+                Game1.graphics.GraphicsProfile = GraphicsProfile.HiDef;
 
                 // load mods
                 this.LoadMods();
