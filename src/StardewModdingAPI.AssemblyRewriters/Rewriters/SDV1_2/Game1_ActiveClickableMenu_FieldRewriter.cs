@@ -12,6 +12,13 @@ namespace StardewModdingAPI.AssemblyRewriters.Rewriters.SDV1_2
     public class Game1_ActiveClickableMenu_FieldRewriter : BaseFieldRewriter
     {
         /*********
+        ** Accessors
+        *********/
+        /// <summary>A brief noun phrase indicating what the instruction finder matches.</summary>
+        public override string NounPhrase { get; } = $"{nameof(Game1)}.{nameof(Game1.activeClickableMenu)} field";
+
+
+        /*********
         ** Protected methods
         *********/
         /// <summary>Get whether a field reference should be rewritten.</summary>

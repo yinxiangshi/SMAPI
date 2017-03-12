@@ -162,6 +162,7 @@ namespace StardewModdingAPI.Framework
         private bool RewriteAssembly(AssemblyDefinition assembly)
         {
             ModuleDefinition module = assembly.MainModule;
+            HashSet<string> loggedRewrites = new HashSet<string>();
 
             // swap assembly references if needed (e.g. XNA => MonoGame)
             bool platformChanged = false;
@@ -170,6 +171,7 @@ namespace StardewModdingAPI.Framework
                 // remove old assembly reference
                 if (this.AssemblyMap.RemoveNames.Any(name => module.AssemblyReferences[i].Name == name))
                 {
+                    this.LogOnce(this.Monitor, loggedRewrites, $"Rewriting {assembly.Name.Name} for OS...");
                     platformChanged = true;
                     module.AssemblyReferences.RemoveAt(i);
                     i--;
@@ -197,14 +199,16 @@ namespace StardewModdingAPI.Framework
                 if (!canRewrite)
                     continue;
 
-                // prepare method
-                ILProcessor cil = method.Body.GetILProcessor();
-
                 // rewrite instructions
+                ILProcessor cil = method.Body.GetILProcessor();
                 foreach (Instruction op in cil.Body.Instructions.ToArray())
                 {
                     IInstructionRewriter rewriter = rewriters.FirstOrDefault(p => p.IsMatch(op, platformChanged));
-                    rewriter?.Rewrite(module, cil, op, this.AssemblyMap);
+                    if (rewriter != null)
+                    {
+                        this.LogOnce(this.Monitor, loggedRewrites, $"Rewriting {assembly.Name.Name} to fix {rewriter.NounPhrase}...");
+                        rewriter.Rewrite(module, cil, op, this.AssemblyMap);
+                    }
                 }
 
                 // finalise method
@@ -243,6 +247,20 @@ namespace StardewModdingAPI.Framework
                 where method.HasBody
                 select method
             );
+        }
+
+        /// <summary>Log a message for the player or developer the first time it occurs.</summary>
+        /// <param name="monitor">The monitor through which to log the message.</param>
+        /// <param name="hash">The hash of logged messages.</param>
+        /// <param name="message">The message to log.</param>
+        /// <param name="level">The log severity level.</param>
+        private void LogOnce(IMonitor monitor, HashSet<string> hash, string message, LogLevel level = LogLevel.Trace)
+        {
+            if (!hash.Contains(message))
+            {
+                this.Monitor.Log(message, level);
+                hash.Add(message);
+            }
         }
     }
 }

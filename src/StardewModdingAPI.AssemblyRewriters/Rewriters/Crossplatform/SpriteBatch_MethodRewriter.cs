@@ -13,6 +13,13 @@ namespace StardewModdingAPI.AssemblyRewriters.Rewriters.Crossplatform
     public class SpriteBatch_MethodRewriter : BaseMethodRewriter
     {
         /*********
+        ** Accessors
+        *********/
+        /// <summary>A brief noun phrase indicating what the instruction finder matches.</summary>
+        public override string NounPhrase { get; } = $"{nameof(SpriteBatch)} methods";
+
+
+        /*********
         ** Protected methods
         *********/
         /// <summary>Get whether a method reference should be rewritten.</summary>

@@ -10,6 +10,13 @@ namespace StardewModdingAPI.AssemblyRewriters.Framework
     public abstract class BaseMethodFinder : IInstructionFinder
     {
         /*********
+        ** Accessors
+        *********/
+        /// <summary>A brief noun phrase indicating what the instruction finder matches.</summary>
+        public abstract string NounPhrase { get; }
+
+
+        /*********
         ** Public methods
         *********/
         /// <summary>Get whether a CIL instruction matches.</summary>
