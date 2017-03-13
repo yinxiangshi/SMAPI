@@ -103,22 +103,22 @@ folder containing `src`).
       ```
    4. Open a terminal in the `SMAPI <version>` folder and run `chmod 755 internal/Mono/StardewModdingAPI`.
    5. Copy & paste the `SMAPI <version>` folder as `SMAPI <version> for developers`.
-   6. In the `SMAPI <version>` folder, delete the following files:
-      * `internal/Mono/StardewModdingAPI.config.json`
-      * `internal/Windows/StardewModdingAPI.config.json`
-      * `internal/Windows/StardewModdingAPI.xml`
+   6. In the `SMAPI <version>` folder...
+      * edit `internal/Mono/StardewModdingAPI.config.json` and
+	    `internal/Windows/StardewModdingAPI.config.json` to disable developer mode;
+      * delete `internal/Windows/StardewModdingAPI.xml`.
    7. Compress the two folders into `SMAPI <version>.zip` and `SMAPI <version> for developers.zip`.
 
 ## Advanced usage
 ### Configuration file
 You can customise the SMAPI behaviour by editing the `StardewModdingAPI.config.json` file in your
-game folder. If it's missing, it'll be generated automatically next time SMAPI runs. It contains
-these fields:
+game folder. It contains these fields:
 
 field | purpose
 ----- | -------
 `DeveloperMode` | Default `false` (except in _SMAPI for developers_ releases). Whether to enable features intended for mod developers. Currently this only makes `TRACE`-level messages appear in the console.
 `CheckForUpdates` | Default `true`. Whether SMAPI should check for a newer version when you load the game. If a new version is available, a small message will appear in the console. This doesn't affect the load time even if your connection is offline or slow, because it happens in the background.
+`IncompatibleMods` | A list of mods SMAPI considers incompatible and will refuse to load. Changing this field is not recommended.
 
 ### Command-line arguments
 SMAPI recognises the following command-line arguments. These are intended for internal use and may
