@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using Microsoft.Xna.Framework.Input;
 using Newtonsoft.Json;
-using StardewModdingAPI.Advanced;
 
 namespace StardewModdingAPI.Framework.Serialisation
 {
@@ -31,9 +30,8 @@ namespace StardewModdingAPI.Framework.Serialisation
         /// <summary>Read a JSON file.</summary>
         /// <typeparam name="TModel">The model type.</typeparam>
         /// <param name="fullPath">The absolete file path.</param>
-        /// <param name="modHelper">The mod helper to inject for <see cref="IConfigFile"/> instances.</param>
         /// <returns>Returns the deserialised model, or <c>null</c> if the file doesn't exist or is empty.</returns>
-        public TModel ReadJsonFile<TModel>(string fullPath, IModHelper modHelper)
+        public TModel ReadJsonFile<TModel>(string fullPath)
             where TModel : class
         {
             // read file
@@ -48,15 +46,7 @@ namespace StardewModdingAPI.Framework.Serialisation
             }
 
             // deserialise model
-            TModel model = JsonConvert.DeserializeObject<TModel>(json, this.JsonSettings);
-            if (model is IConfigFile)
-            {
-                var wrapper = (IConfigFile)model;
-                wrapper.ModHelper = modHelper;
-                wrapper.FilePath = fullPath;
-            }
-
-            return model;
+            return JsonConvert.DeserializeObject<TModel>(json, this.JsonSettings);
         }
 
         /// <summary>Save to a JSON file.</summary>

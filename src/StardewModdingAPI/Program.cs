@@ -97,7 +97,6 @@ namespace StardewModdingAPI
             InternalExtensions.Shim(this.ModRegistry);
             Log.Shim(this.DeprecationManager, this.GetSecondaryMonitor("legacy mod"), this.ModRegistry);
             Mod.Shim(this.DeprecationManager);
-            ModHelper.Shim(this.DeprecationManager);
             ContentEvents.Shim(this.ModRegistry, this.Monitor);
             PlayerEvents.Shim(this.DeprecationManager);
             TimeEvents.Shim(this.DeprecationManager);
@@ -344,7 +343,7 @@ namespace StardewModdingAPI
                     }
 
                     // deserialise manifest
-                    manifest = jsonHelper.ReadJsonFile<Manifest>(Path.Combine(directory.FullName, "manifest.json"), null);
+                    manifest = jsonHelper.ReadJsonFile<Manifest>(Path.Combine(directory.FullName, "manifest.json"));
                     if (manifest == null)
                     {
                         this.Monitor.Log($"{skippedPrefix} because its manifest is invalid.", LogLevel.Error);

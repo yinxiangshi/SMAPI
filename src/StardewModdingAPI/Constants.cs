@@ -147,6 +147,8 @@ namespace StardewModdingAPI
                 new GenericFieldFinder("StardewValley.Item", "set_Name", isStatic: false),
 
                 // APIs removed in SMAPI 1.9
+                new GenericTypeFinder("StardewModdingAPI.Advanced.ConfigFile"),
+                new GenericTypeFinder("StardewModdingAPI.Advanced.IConfigFile"),
                 new GenericTypeFinder("StardewModdingAPI.Entities.SPlayer"),
                 new GenericTypeFinder("StardewModdingAPI.Extensions"),
                 new GenericTypeFinder("StardewModdingAPI.Inheritance.ItemStackChange"),
