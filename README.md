@@ -142,7 +142,7 @@ field | purpose
 ----- | -------
 `DeveloperMode` | Default `false` (except in _SMAPI for developers_ releases). Whether to enable features intended for mod developers. Currently this only makes `TRACE`-level messages appear in the console.
 `CheckForUpdates` | Default `true`. Whether SMAPI should check for a newer version when you load the game. If a new version is available, a small message will appear in the console. This doesn't affect the load time even if your connection is offline or slow, because it happens in the background.
-`IncompatibleMods` | A list of mods SMAPI considers incompatible and will refuse to load. Changing this field is not recommended.
+`IncompatibleMods` | A list of mod versions SMAPI considers incompatible and will refuse to load. Changing this field is not recommended.
 
 ### Command-line arguments
 SMAPI recognises the following command-line arguments. These are intended for internal use and may
