@@ -60,7 +60,7 @@ namespace StardewModdingAPI.Framework.Reflection
         {
             try
             {
-                return (TValue)this.PropertyInfo.GetValue(this.Parent, null);
+                return (TValue)this.PropertyInfo.GetValue(this.Parent);
             }
             catch (InvalidCastException)
             {
@@ -78,7 +78,7 @@ namespace StardewModdingAPI.Framework.Reflection
         {
             try
             {
-                this.PropertyInfo.SetValue(this.Parent, value, null);
+                this.PropertyInfo.SetValue(this.Parent, value);
             }
             catch (InvalidCastException)
             {

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using StardewModdingAPI.Events;
 
 namespace StardewModdingAPI.Framework
 {
@@ -60,36 +59,12 @@ namespace StardewModdingAPI.Framework
         /// <param name="handlers">The event handlers.</param>
         /// <param name="sender">The event sender.</param>
         /// <param name="args">The event arguments.</param>
-        public static void SafelyRaiseGenericEvent<TEventArgs>(this IMonitor monitor, string name, IEnumerable<Delegate> handlers, object sender, TEventArgs args) where TEventArgs : EventArgs
+        public static void SafelyRaiseGenericEvent<TEventArgs>(this IMonitor monitor, string name, IEnumerable<Delegate> handlers, object sender, TEventArgs args)
         {
             if (handlers == null)
                 return;
 
-            foreach (EventHandler<TEventArgs> handler in handlers.Cast<EventHandler<TEventArgs>>())
-            {
-                try
-                {
-                    handler.Invoke(sender, args);
-                }
-                catch (Exception ex)
-                {
-                    monitor.Log($"A mod failed handling the {name} event:\n{ex.GetLogSummary()}", LogLevel.Error);
-                }
-            }
-        }
-
-        /// <summary>Safely raise an <see cref="EventHandler{TEventArgs}"/> event, and intercept any exceptions thrown by its handlers.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        /// <param name="name">The event name for error messages.</param>
-        /// <param name="handlers">The event handlers.</param>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="args">The event arguments.</param>
-        public static void SafelyRaiseGenericEvent(this IMonitor monitor, string name, IEnumerable<Delegate> handlers, object sender, IContentEventHelper args)
-        {
-            if (handlers == null)
-                return;
-
-            foreach (ContentEventHandler handler in handlers.Cast<ContentEventHandler>())
+            foreach (EventHandler<TEventArgs> handler in Enumerable.Cast<EventHandler<TEventArgs>>(handlers))
             {
                 try
                 {

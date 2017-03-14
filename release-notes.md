@@ -20,7 +20,6 @@ For players:
 * Simplified error messages when a mod can't be loaded.
 * Simple nested mod folders are now recognised by SMAPI (e.g. `ModName-1.0\ModName\manifest.json`).
 * Improved TrainerMod command handling & feedback.
-* Reduced minimum .NET Framework version to 4.0 for improved compatibility on Windows 7–8.1.
 * Fixed game's debug output being shown in the console for all users.
 * Fixed the game-outdated error not pausing before exit.
 * Fixed installer errors for some players when deleting files.
