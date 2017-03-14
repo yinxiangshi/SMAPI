@@ -10,7 +10,6 @@ using StardewValley.Locations;
 using StardewValley.Menus;
 using StardewValley.Objects;
 using StardewValley.Tools;
-using TrainerMod.Framework;
 using TrainerMod.ItemData;
 using Object = StardewValley.Object;
 
@@ -277,10 +276,9 @@ namespace TrainerMod
                 case "player_setspeed":
                     if (args.Any())
                     {
-                        string amountStr = args[0];
-                        if (amountStr.IsInt())
+                        if (int.TryParse(args[0], out int addedSpeed))
                         {
-                            Game1.player.addedSpeed = amountStr.ToInt();
+                            Game1.player.addedSpeed = addedSpeed;
                             this.Monitor.Log($"OK, your added speed is now {Game1.player.addedSpeed}.", LogLevel.Info);
                         }
                         else
@@ -298,9 +296,9 @@ namespace TrainerMod
                         if (validTargets.Contains(target))
                         {
                             string[] colorHexes = args[1].Split(new[] { ',' }, 3);
-                            if (colorHexes[0].IsInt() && colorHexes[1].IsInt() && colorHexes[2].IsInt())
+                            if (int.TryParse(colorHexes[0], out int r) && int.TryParse(colorHexes[1], out int g) && int.TryParse(colorHexes[2], out int b))
                             {
-                                var color = new Color(colorHexes[0].ToInt(), colorHexes[1].ToInt(), colorHexes[2].ToInt());
+                                Color color = new Color(r, g, b);
                                 switch (target)
                                 {
                                     case "hair":
@@ -334,9 +332,8 @@ namespace TrainerMod
                         string[] validTargets = { "hair", "shirt", "skin", "acc", "shoe", "swim", "gender" };
                         if (validTargets.Contains(target))
                         {
-                            if (args[1].IsInt())
+                            if (int.TryParse(args[1], out int styleID))
                             {
-                                var styleID = args[1].ToInt();
                                 switch (target)
                                 {
                                     case "hair":
@@ -406,10 +403,8 @@ namespace TrainerMod
                 case "world_freezetime":
                     if (args.Any())
                     {
-                        string valueStr = args[0];
-                        if (valueStr.IsInt())
+                        if (int.TryParse(args[0], out int value))
                         {
-                            int value = valueStr.ToInt();
                             if (value == 0 || value == 1)
                             {
                                 this.FreezeTime = value == 1;
@@ -433,14 +428,11 @@ namespace TrainerMod
                 case "world_settime":
                     if (args.Any())
                     {
-                        string timeStr = args[0];
-                        if (timeStr.IsInt())
+                        if (int.TryParse(args[0], out int time))
                         {
-                            int time = timeStr.ToInt();
-
                             if (time <= 2600 && time >= 600)
                             {
-                                Game1.timeOfDay = args[0].ToInt();
+                                Game1.timeOfDay = time;
                                 this.FrozenTime = this.FreezeTime ? Game1.timeOfDay : 0;
                                 this.Monitor.Log($"OK, the time is now {Game1.timeOfDay.ToString().PadLeft(4, '0')}.", LogLevel.Info);
                             }
@@ -457,11 +449,8 @@ namespace TrainerMod
                 case "world_setday":
                     if (args.Any())
                     {
-                        string dayStr = args[0];
-
-                        if (dayStr.IsInt())
+                        if (int.TryParse(args[0], out int day))
                         {
-                            int day = dayStr.ToInt();
                             if (day <= 28 && day > 0)
                             {
                                 Game1.dayOfMonth = day;
@@ -507,9 +496,9 @@ namespace TrainerMod
                         else
                         {
                             this.InfiniteHealth = false;
-                            if (amountStr.IsInt())
+                            if (int.TryParse(amountStr, out int amount))
                             {
-                                Game1.player.health = amountStr.ToInt();
+                                Game1.player.health = amount;
                                 this.Monitor.Log($"OK, you now have {Game1.player.health} health.", LogLevel.Info);
                             }
                             else
@@ -523,10 +512,9 @@ namespace TrainerMod
                 case "player_setmaxhealth":
                     if (args.Any())
                     {
-                        string amountStr = args[0];
-                        if (amountStr.IsInt())
+                        if (int.TryParse(args[0], out int maxHealth))
                         {
-                            Game1.player.maxHealth = amountStr.ToInt();
+                            Game1.player.maxHealth = maxHealth;
                             this.Monitor.Log($"OK, you now have {Game1.player.maxHealth} max health.", LogLevel.Info);
                         }
                         else
@@ -539,10 +527,9 @@ namespace TrainerMod
                 case "player_setimmunity":
                     if (args.Any())
                     {
-                        string amountStr = args[0];
-                        if (amountStr.IsInt())
+                        if (int.TryParse(args[0], out int amount))
                         {
-                            Game1.player.immunity = amountStr.ToInt();
+                            Game1.player.immunity = amount;
                             this.Monitor.Log($"OK, you now have {Game1.player.immunity} immunity.", LogLevel.Info);
                         }
                         else
@@ -555,31 +542,22 @@ namespace TrainerMod
                 case "player_additem":
                     if (args.Any())
                     {
-                        string itemIdStr = args[0];
-                        if (itemIdStr.IsInt())
+                        if (int.TryParse(args[0], out int itemID))
                         {
-                            int itemID = itemIdStr.ToInt();
                             int count = 1;
                             int quality = 0;
                             if (args.Length > 1)
                             {
-                                if (args[1].IsInt())
-                                    count = args[1].ToInt();
-                                else
+                                if (!int.TryParse(args[1], out count))
                                 {
                                     this.LogUsageError("The optional count is invalid.", command);
                                     return;
                                 }
 
-                                if (args.Length > 2)
+                                if (args.Length > 2 && !int.TryParse(args[2], out quality))
                                 {
-                                    if (args[2].IsInt())
-                                        quality = args[2].ToInt();
-                                    else
-                                    {
-                                        this.LogUsageError("The optional quality is invalid.", command);
-                                        return;
-                                    }
+                                    this.LogUsageError("The optional quality is invalid.", command);
+                                    return;
                                 }
                             }
 
@@ -602,9 +580,9 @@ namespace TrainerMod
                 case "player_addmelee":
                     if (args.Any())
                     {
-                        if (args[0].IsInt())
+                        if (int.TryParse(args[0], out int weaponID))
                         {
-                            MeleeWeapon weapon = new MeleeWeapon(args[0].ToInt());
+                            MeleeWeapon weapon = new MeleeWeapon(weaponID);
                             if (weapon.Name == null)
                                 this.Monitor.Log("There is no such weapon ID.", LogLevel.Error);
                             else
@@ -623,9 +601,8 @@ namespace TrainerMod
                 case "player_addring":
                     if (args.Any())
                     {
-                        if (args[0].IsInt())
+                        if (int.TryParse(args[0], out int ringID))
                         {
-                            int ringID = args[0].ToInt();
                             if (ringID < Ring.ringLowerIndexRange || ringID > Ring.ringUpperIndexRange)
                                 this.Monitor.Log($"There is no such ring ID (must be between {Ring.ringLowerIndexRange} and {Ring.ringUpperIndexRange}).", LogLevel.Error);
                             else
@@ -666,9 +643,9 @@ namespace TrainerMod
                 case "world_setminelevel":
                     if (args.Any())
                     {
-                        if (args[0].IsInt())
+                        if (int.TryParse(args[0], out int level))
                         {
-                            int level = Math.Max(1, args[0].ToInt());
+                            level = Math.Max(1, level);
                             this.Monitor.Log($"OK, warping you to mine level {level}.", LogLevel.Info);
                             Game1.enterMine(true, level, "");
                         }
