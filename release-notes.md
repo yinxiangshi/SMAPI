@@ -15,7 +15,8 @@ See [log](https://github.com/Pathoschild/SMAPI/compare/1.8...1.9).
 
 For players:
 * Updated for Stardew Valley 1.2. Most mods are now rewritten for compatibility; some mods require an update from their authors.
-* Added automatic detection of incompatible mods so they're disabled before they cause problems.
+* SMAPI now automatically detects incompatible mods and disables them before they cause problems.
+* The installer now automatically detects if you need to update .NET Framework before SMAPI will work.
 * Simplified log filename.
 * Simplified error messages when a mod can't be loaded.
 * Simple nested mod folders are now recognised by SMAPI (e.g. `ModName-1.0\ModName\manifest.json`).

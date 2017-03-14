@@ -15,6 +15,9 @@ namespace StardewModdingApi.Installer
         /*********
         ** Properties
         *********/
+        /// <summary>The <see cref="Environment.OSVersion"/> value that represents Windows 7.</summary>
+        private readonly Version Windows7Version = new Version(6, 1);
+
         /// <summary>The default file paths where Stardew Valley can be installed.</summary>
         /// <param name="platform">The target platform.</param>
         /// <remarks>Derived from the crossplatform mod config: https://github.com/Pathoschild/Stardew.ModBuildConfig. </remarks>
@@ -152,6 +155,21 @@ namespace StardewModdingApi.Installer
                 Console.ReadLine();
                 return;
             }
+
+            /****
+            ** validate .NET Framework version
+            ****/
+            if (platform == Platform.Windows && !this.HasNetFramework45(platform))
+            {
+                this.PrintError(Environment.OSVersion.Version >= this.Windows7Version
+                    ? "Please install the latest version of .NET Framework before installing SMAPI." // Windows 7+
+                    : "Please install .NET Framework 4.5 before installing SMAPI." // Windows Vista or earlier
+                );
+                this.PrintError("See the download page at https://www.microsoft.com/net/download/framework for details.");
+                Console.ReadLine();
+                return;
+            }
+
             Console.WriteLine();
 
             /****
@@ -358,6 +376,22 @@ namespace StardewModdingApi.Installer
             }
             else
                 Console.WriteLine(text);
+        }
+
+        /// <summary>Get whether the current system has .NET Framework 4.5 or later installed.</summary>
+        /// <param name="platform">The current platform.</param>
+        /// <exception cref="NotSupportedException">The current platform is not Windows.</exception>
+        private bool HasNetFramework45(Platform platform)
+        {
+            switch (platform)
+            {
+                case Platform.Windows:
+                    using (RegistryKey versionKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32).OpenSubKey(@"SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full"))
+                        return versionKey?.GetValue("Release") != null; // .NET Framework 4.5+
+
+                default:
+                    throw new NotSupportedException("The installed .NET Framework version can only be checked on Windows.");
+            }
         }
 
         /// <summary>Interactively delete a file or folder path, and block until deletion completes.</summary>
