@@ -187,7 +187,7 @@ namespace StardewModdingAPI
             {
                 try
                 {
-                    GitRelease release = UpdateHelper.GetLatestVersionAsync(Constants.GitHubRepository).Result;
+                    GitRelease release = UpdateHelper.GetLatestVersion(Constants.GitHubRepository);
                     ISemanticVersion latestVersion = new SemanticVersion(release.Tag);
                     if (latestVersion.IsNewerThan(Constants.ApiVersion))
                         this.Monitor.Log($"You can update SMAPI from version {Constants.ApiVersion} to {latestVersion}", LogLevel.Alert);
@@ -446,26 +446,18 @@ namespace StardewModdingAPI
                     continue;
                 }
 
-                // validate assembly
-                try
-                {
-                    if (modAssembly.DefinedTypes.Count(x => x.BaseType == typeof(Mod)) == 0)
-                    {
-                        this.Monitor.Log($"{skippedPrefix} because its DLL has no 'Mod' subclass.", LogLevel.Error);
-                        continue;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    this.Monitor.Log($"{skippedPrefix} because its DLL couldn't be loaded.\n{ex.GetLogSummary()}", LogLevel.Error);
-                    continue;
-                }
-
                 // initialise mod
                 try
                 {
-                    // get implementation
-                    TypeInfo modEntryType = modAssembly.DefinedTypes.First(x => x.BaseType == typeof(Mod));
+                    // get mod entry type
+                    Type modEntryType = modAssembly.GetExportedTypes().FirstOrDefault(x => x.BaseType == typeof(Mod));
+                    if(modEntryType == null)
+                    {
+                        this.Monitor.Log($"{skippedPrefix} because its DLL has no {typeof(Mod).FullName} entry class.", LogLevel.Error);
+                        continue;
+                    }
+                    
+                    // get mod class
                     Mod mod = (Mod)modAssembly.CreateInstance(modEntryType.ToString());
                     if (mod == null)
                     {

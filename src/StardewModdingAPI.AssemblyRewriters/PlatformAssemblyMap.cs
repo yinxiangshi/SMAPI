@@ -49,7 +49,7 @@ namespace StardewModdingAPI.AssemblyRewriters
             // cache assembly metadata
             this.Targets = targetAssemblies;
             this.TargetReferences = this.Targets.ToDictionary(assembly => assembly, assembly => AssemblyNameReference.Parse(assembly.FullName));
-            this.TargetModules = this.Targets.ToDictionary(assembly => assembly, assembly => ModuleDefinition.ReadModule(assembly.Modules.Single().FullyQualifiedName));
+            this.TargetModules = this.Targets.ToDictionary(assembly => assembly, assembly => ModuleDefinition.ReadModule(assembly.GetModules().Single().FullyQualifiedName));
         }
     }
 }

@@ -28,7 +28,7 @@ namespace StardewModdingAPI.Events
         public static event EventHandler<EventArgsValueChanged<string>> AfterLocaleChanged;
 
         /// <summary>Raised when an XNB file is being read into the cache. Mods can change the data here before it's cached.</summary>
-        internal static event EventHandler<IContentEventHelper> AfterAssetLoaded;
+        internal static event ContentEventHandler AfterAssetLoaded;
 
 
         /*********
