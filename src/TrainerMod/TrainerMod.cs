@@ -276,7 +276,8 @@ namespace TrainerMod
                 case "player_setspeed":
                     if (args.Any())
                     {
-                        if (int.TryParse(args[0], out int addedSpeed))
+                        int addedSpeed;
+                        if (int.TryParse(args[0], out addedSpeed))
                         {
                             Game1.player.addedSpeed = addedSpeed;
                             this.Monitor.Log($"OK, your added speed is now {Game1.player.addedSpeed}.", LogLevel.Info);
@@ -296,7 +297,8 @@ namespace TrainerMod
                         if (validTargets.Contains(target))
                         {
                             string[] colorHexes = args[1].Split(new[] { ',' }, 3);
-                            if (int.TryParse(colorHexes[0], out int r) && int.TryParse(colorHexes[1], out int g) && int.TryParse(colorHexes[2], out int b))
+                            int r, g, b;
+                            if (int.TryParse(colorHexes[0], out r) && int.TryParse(colorHexes[1], out g) && int.TryParse(colorHexes[2], out b))
                             {
                                 Color color = new Color(r, g, b);
                                 switch (target)
@@ -332,7 +334,8 @@ namespace TrainerMod
                         string[] validTargets = { "hair", "shirt", "skin", "acc", "shoe", "swim", "gender" };
                         if (validTargets.Contains(target))
                         {
-                            if (int.TryParse(args[1], out int styleID))
+                            int styleID;
+                            if (int.TryParse(args[1], out styleID))
                             {
                                 switch (target)
                                 {
@@ -403,7 +406,8 @@ namespace TrainerMod
                 case "world_freezetime":
                     if (args.Any())
                     {
-                        if (int.TryParse(args[0], out int value))
+                        int value;
+                        if (int.TryParse(args[0], out value))
                         {
                             if (value == 0 || value == 1)
                             {
@@ -428,7 +432,8 @@ namespace TrainerMod
                 case "world_settime":
                     if (args.Any())
                     {
-                        if (int.TryParse(args[0], out int time))
+                        int time;
+                        if (int.TryParse(args[0], out time))
                         {
                             if (time <= 2600 && time >= 600)
                             {
@@ -449,7 +454,8 @@ namespace TrainerMod
                 case "world_setday":
                     if (args.Any())
                     {
-                        if (int.TryParse(args[0], out int day))
+                        int day;
+                        if (int.TryParse(args[0], out day))
                         {
                             if (day <= 28 && day > 0)
                             {
@@ -496,7 +502,8 @@ namespace TrainerMod
                         else
                         {
                             this.InfiniteHealth = false;
-                            if (int.TryParse(amountStr, out int amount))
+                            int amount;
+                            if (int.TryParse(amountStr, out amount))
                             {
                                 Game1.player.health = amount;
                                 this.Monitor.Log($"OK, you now have {Game1.player.health} health.", LogLevel.Info);
@@ -512,7 +519,8 @@ namespace TrainerMod
                 case "player_setmaxhealth":
                     if (args.Any())
                     {
-                        if (int.TryParse(args[0], out int maxHealth))
+                        int maxHealth;
+                        if (int.TryParse(args[0], out maxHealth))
                         {
                             Game1.player.maxHealth = maxHealth;
                             this.Monitor.Log($"OK, you now have {Game1.player.maxHealth} max health.", LogLevel.Info);
@@ -527,7 +535,8 @@ namespace TrainerMod
                 case "player_setimmunity":
                     if (args.Any())
                     {
-                        if (int.TryParse(args[0], out int amount))
+                        int amount;
+                        if (int.TryParse(args[0], out amount))
                         {
                             Game1.player.immunity = amount;
                             this.Monitor.Log($"OK, you now have {Game1.player.immunity} immunity.", LogLevel.Info);
@@ -542,7 +551,8 @@ namespace TrainerMod
                 case "player_additem":
                     if (args.Any())
                     {
-                        if (int.TryParse(args[0], out int itemID))
+                        int itemID;
+                        if (int.TryParse(args[0], out itemID))
                         {
                             int count = 1;
                             int quality = 0;
@@ -580,7 +590,8 @@ namespace TrainerMod
                 case "player_addmelee":
                     if (args.Any())
                     {
-                        if (int.TryParse(args[0], out int weaponID))
+                        int weaponID;
+                        if (int.TryParse(args[0], out weaponID))
                         {
                             MeleeWeapon weapon = new MeleeWeapon(weaponID);
                             if (weapon.Name == null)
@@ -601,7 +612,8 @@ namespace TrainerMod
                 case "player_addring":
                     if (args.Any())
                     {
-                        if (int.TryParse(args[0], out int ringID))
+                        int ringID;
+                        if (int.TryParse(args[0], out ringID))
                         {
                             if (ringID < Ring.ringLowerIndexRange || ringID > Ring.ringUpperIndexRange)
                                 this.Monitor.Log($"There is no such ring ID (must be between {Ring.ringLowerIndexRange} and {Ring.ringUpperIndexRange}).", LogLevel.Error);
@@ -643,7 +655,8 @@ namespace TrainerMod
                 case "world_setminelevel":
                     if (args.Any())
                     {
-                        if (int.TryParse(args[0], out int level))
+                        int level;
+                        if (int.TryParse(args[0], out level))
                         {
                             level = Math.Max(1, level);
                             this.Monitor.Log($"OK, warping you to mine level {level}.", LogLevel.Info);
