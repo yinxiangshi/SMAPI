@@ -25,9 +25,7 @@ generally shouldn't change this file unless necessary.
       "Name": "Chest Label System",
       "ID": "SPDChestLabel",
       "UpperVersion": "1.5",
-      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/242",
-      "UnofficialUpdateUrl": "http://community.playstarbound.com/threads/125031",
-      "ForceCompatibleVersion": "^1.5-EntoPatch"
+      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/242"
     },
 
     /* versions not compatible with Stardew Valley 1.2+ */
