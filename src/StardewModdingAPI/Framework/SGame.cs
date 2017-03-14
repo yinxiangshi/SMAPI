@@ -47,6 +47,108 @@ namespace StardewModdingAPI.Framework
         private readonly IMonitor Monitor;
 
         /****
+        ** Game state
+        ****/
+        /// <summary>Arrays of pressed controller buttons indexed by <see cref="PlayerIndex"/>.</summary>
+        private Buttons[][] PreviouslyPressedButtons;
+
+        /// <summary>A record of the keyboard state (i.e. the up/down state for each button) as of the latest tick.</summary>
+        private KeyboardState KStateNow;
+
+        /// <summary>A record of the keyboard state (i.e. the up/down state for each button) as of the previous tick.</summary>
+        private KeyboardState KStatePrior;
+
+        /// <summary>A record of the mouse state (i.e. the cursor position, scroll amount, and the up/down state for each button) as of the latest tick.</summary>
+        private MouseState MStateNow;
+
+        /// <summary>A record of the mouse state (i.e. the cursor position, scroll amount, and the up/down state for each button) as of the previous tick.</summary>
+        private MouseState MStatePrior;
+
+        /// <summary>The current mouse position on the screen adjusted for the zoom level.</summary>
+        private Point MPositionNow;
+
+        /// <summary>The previous mouse position on the screen adjusted for the zoom level.</summary>
+        private Point MPositionPrior;
+
+        /// <summary>The keys that were pressed as of the latest tick.</summary>
+        private Keys[] CurrentlyPressedKeys => this.KStateNow.GetPressedKeys();
+
+        /// <summary>The keys that were pressed as of the previous tick.</summary>
+        private Keys[] PreviouslyPressedKeys => this.KStatePrior.GetPressedKeys();
+
+        /// <summary>The keys that just entered the down state.</summary>
+        private Keys[] FramePressedKeys => this.CurrentlyPressedKeys.Except(this.PreviouslyPressedKeys).ToArray();
+
+        /// <summary>The keys that just entered the up state.</summary>
+        private Keys[] FrameReleasedKeys => this.PreviouslyPressedKeys.Except(this.CurrentlyPressedKeys).ToArray();
+
+        /// <summary>A hash of <see cref="Game1.locations"/> at last check.</summary>
+        private int PreviousGameLocations;
+
+        /// <summary>A hash of the current location's <see cref="GameLocation.objects"/> at last check.</summary>
+        private int PreviousLocationObjects;
+
+        /// <summary>The player's inventory at last check.</summary>
+        private IDictionary<Item, int> PreviousItems;
+
+        /// <summary>The player's combat skill level at last check.</summary>
+        private int PreviousCombatLevel;
+
+        /// <summary>The player's farming skill level at last check.</summary>
+        private int PreviousFarmingLevel;
+
+        /// <summary>The player's fishing skill level at last check.</summary>
+        private int PreviousFishingLevel;
+
+        /// <summary>The player's foraging skill level at last check.</summary>
+        private int PreviousForagingLevel;
+
+        /// <summary>The player's mining skill level at last check.</summary>
+        private int PreviousMiningLevel;
+
+        /// <summary>The player's luck skill level at last check.</summary>
+        private int PreviousLuckLevel;
+
+        /// <summary>The player's location at last check.</summary>
+        private GameLocation PreviousGameLocation;
+
+        /// <summary>The active game menu at last check.</summary>
+        private IClickableMenu PreviousActiveMenu;
+
+        /// <summary>The mine level at last check.</summary>
+        private int PreviousMineLevel;
+
+        /// <summary>The time of day (in 24-hour military format) at last check.</summary>
+        private int PreviousTime;
+
+        /// <summary>The day of month (1–28) at last check.</summary>
+        private int PreviousDay;
+
+        /// <summary>The season name (winter, spring, summer, or fall) at last check.</summary>
+        private string PreviousSeason;
+
+        /// <summary>The year number at last check.</summary>
+        private int PreviousYear;
+
+        /// <summary>Whether the game was transitioning to a new day at last check.</summary>
+        private bool PreviousIsNewDay;
+
+        /// <summary>The player character at last check.</summary>
+        private SFarmer PreviousFarmer;
+
+        /// <summary>The previous content locale.</summary>
+        private LocalizedContentManager.LanguageCode? PreviousLocale;
+
+        /// <summary>An index incremented on every tick and reset every 60th tick (0–59).</summary>
+        private int CurrentUpdateTick;
+
+        /// <summary>Whether this is the very first update tick since the game started.</summary>
+        private bool FirstUpdate;
+
+        /// <summary>The current game instance.</summary>
+        private static SGame Instance;
+
+        /****
         ** Private wrappers
         ****/
         // ReSharper disable ArrangeStaticMemberQualifier, ArrangeThisQualifier, InconsistentNaming
@@ -70,203 +172,6 @@ namespace StardewModdingAPI.Framework
 
 
         /*********
-        ** Accessors
-        *********/
-        /// <summary>Arrays of pressed controller buttons indexed by <see cref="PlayerIndex"/>.</summary>
-        public Buttons[][] PreviouslyPressedButtons;
-
-        /// <summary>A record of the keyboard state (i.e. the up/down state for each button) as of the latest tick.</summary>
-        public KeyboardState KStateNow { get; private set; }
-
-        /// <summary>A record of the keyboard state (i.e. the up/down state for each button) as of the previous tick.</summary>
-        public KeyboardState KStatePrior { get; private set; }
-
-        /// <summary>A record of the mouse state (i.e. the cursor position, scroll amount, and the up/down state for each button) as of the latest tick.</summary>
-        public MouseState MStateNow { get; private set; }
-
-        /// <summary>A record of the mouse state (i.e. the cursor position, scroll amount, and the up/down state for each button) as of the previous tick.</summary>
-        public MouseState MStatePrior { get; private set; }
-
-        /// <summary>The current mouse position on the screen adjusted for the zoom level.</summary>
-        public Point MPositionNow { get; private set; }
-
-        /// <summary>The previous mouse position on the screen adjusted for the zoom level.</summary>
-        public Point MPositionPrior { get; private set; }
-
-        /// <summary>The keys that were pressed as of the latest tick.</summary>
-        public Keys[] CurrentlyPressedKeys => this.KStateNow.GetPressedKeys();
-
-        /// <summary>The keys that were pressed as of the previous tick.</summary>
-        public Keys[] PreviouslyPressedKeys => this.KStatePrior.GetPressedKeys();
-
-        /// <summary>The keys that just entered the down state.</summary>
-        public Keys[] FramePressedKeys => this.CurrentlyPressedKeys.Except(this.PreviouslyPressedKeys).ToArray();
-
-        /// <summary>The keys that just entered the up state.</summary>
-        public Keys[] FrameReleasedKeys => this.PreviouslyPressedKeys.Except(this.CurrentlyPressedKeys).ToArray();
-
-        /// <summary>A hash of <see cref="Game1.locations"/> at last check.</summary>
-        public int PreviousGameLocations { get; private set; }
-
-        /// <summary>A hash of the current location's <see cref="GameLocation.objects"/> at last check.</summary>
-        public int PreviousLocationObjects { get; private set; }
-
-        /// <summary>The player's inventory at last check.</summary>
-        public Dictionary<Item, int> PreviousItems { get; private set; }
-
-        /// <summary>The player's combat skill level at last check.</summary>
-        public int PreviousCombatLevel { get; private set; }
-
-        /// <summary>The player's farming skill level at last check.</summary>
-        public int PreviousFarmingLevel { get; private set; }
-
-        /// <summary>The player's fishing skill level at last check.</summary>
-        public int PreviousFishingLevel { get; private set; }
-
-        /// <summary>The player's foraging skill level at last check.</summary>
-        public int PreviousForagingLevel { get; private set; }
-
-        /// <summary>The player's mining skill level at last check.</summary>
-        public int PreviousMiningLevel { get; private set; }
-
-        /// <summary>The player's luck skill level at last check.</summary>
-        public int PreviousLuckLevel { get; private set; }
-
-        /// <summary>The player's location at last check.</summary>
-        public GameLocation PreviousGameLocation { get; private set; }
-
-        /// <summary>The active game menu at last check.</summary>
-        public IClickableMenu PreviousActiveMenu { get; private set; }
-
-        /// <summary>The mine level at last check.</summary>
-        public int PreviousMineLevel { get; private set; }
-
-        /// <summary>The time of day (in 24-hour military format) at last check.</summary>
-        public int PreviousTimeOfDay { get; private set; }
-
-        /// <summary>The day of month (1–28) at last check.</summary>
-        public int PreviousDayOfMonth { get; private set; }
-
-        /// <summary>The season name (winter, spring, summer, or fall) at last check.</summary>
-        public string PreviousSeasonOfYear { get; private set; }
-
-        /// <summary>The year number at last check.</summary>
-        public int PreviousYearOfGame { get; private set; }
-
-        /// <summary>Whether the game was transitioning to a new day at last check.</summary>
-        public bool PreviousIsNewDay { get; private set; }
-
-        /// <summary>The player character at last check.</summary>
-        public SFarmer PreviousFarmer { get; private set; }
-
-        /// <summary>The previous content locale.</summary>
-        public LocalizedContentManager.LanguageCode? PreviousLocale { get; private set; }
-
-        /// <summary>An index incremented on every tick and reset every 60th tick (0–59).</summary>
-        public int CurrentUpdateTick { get; private set; }
-
-        /// <summary>Whether this is the very first update tick since the game started.</summary>
-        public bool FirstUpdate { get; private set; }
-
-        /// <summary>The current game instance.</summary>
-        public static SGame Instance { get; private set; }
-
-        /// <summary>Whether we're in pseudo-debug mode, which shows information like FPS.</summary>
-        public static bool Debug { get; private set; }
-
-
-        /*********
-        ** Public methods
-        *********/
-        /// <summary>Get the controller buttons which are currently pressed.</summary>
-        /// <param name="index">The controller to check.</param>
-        public Buttons[] GetButtonsDown(PlayerIndex index)
-        {
-            var state = GamePad.GetState(index);
-            var buttons = new List<Buttons>();
-            if (state.IsConnected)
-            {
-                if (state.Buttons.A == ButtonState.Pressed) buttons.Add(Buttons.A);
-                if (state.Buttons.B == ButtonState.Pressed) buttons.Add(Buttons.B);
-                if (state.Buttons.Back == ButtonState.Pressed) buttons.Add(Buttons.Back);
-                if (state.Buttons.BigButton == ButtonState.Pressed) buttons.Add(Buttons.BigButton);
-                if (state.Buttons.LeftShoulder == ButtonState.Pressed) buttons.Add(Buttons.LeftShoulder);
-                if (state.Buttons.LeftStick == ButtonState.Pressed) buttons.Add(Buttons.LeftStick);
-                if (state.Buttons.RightShoulder == ButtonState.Pressed) buttons.Add(Buttons.RightShoulder);
-                if (state.Buttons.RightStick == ButtonState.Pressed) buttons.Add(Buttons.RightStick);
-                if (state.Buttons.Start == ButtonState.Pressed) buttons.Add(Buttons.Start);
-                if (state.Buttons.X == ButtonState.Pressed) buttons.Add(Buttons.X);
-                if (state.Buttons.Y == ButtonState.Pressed) buttons.Add(Buttons.Y);
-                if (state.DPad.Up == ButtonState.Pressed) buttons.Add(Buttons.DPadUp);
-                if (state.DPad.Down == ButtonState.Pressed) buttons.Add(Buttons.DPadDown);
-                if (state.DPad.Left == ButtonState.Pressed) buttons.Add(Buttons.DPadLeft);
-                if (state.DPad.Right == ButtonState.Pressed) buttons.Add(Buttons.DPadRight);
-                if (state.Triggers.Left > 0.2f) buttons.Add(Buttons.LeftTrigger);
-                if (state.Triggers.Right > 0.2f) buttons.Add(Buttons.RightTrigger);
-            }
-            return buttons.ToArray();
-        }
-
-        /// <summary>Get the controller buttons which were pressed after the last update.</summary>
-        /// <param name="index">The controller to check.</param>
-        public Buttons[] GetFramePressedButtons(PlayerIndex index)
-        {
-            var state = GamePad.GetState(index);
-            var buttons = new List<Buttons>();
-            if (state.IsConnected)
-            {
-                if (this.WasButtonJustPressed(Buttons.A, state.Buttons.A, index)) buttons.Add(Buttons.A);
-                if (this.WasButtonJustPressed(Buttons.B, state.Buttons.B, index)) buttons.Add(Buttons.B);
-                if (this.WasButtonJustPressed(Buttons.Back, state.Buttons.Back, index)) buttons.Add(Buttons.Back);
-                if (this.WasButtonJustPressed(Buttons.BigButton, state.Buttons.BigButton, index)) buttons.Add(Buttons.BigButton);
-                if (this.WasButtonJustPressed(Buttons.LeftShoulder, state.Buttons.LeftShoulder, index)) buttons.Add(Buttons.LeftShoulder);
-                if (this.WasButtonJustPressed(Buttons.LeftStick, state.Buttons.LeftStick, index)) buttons.Add(Buttons.LeftStick);
-                if (this.WasButtonJustPressed(Buttons.RightShoulder, state.Buttons.RightShoulder, index)) buttons.Add(Buttons.RightShoulder);
-                if (this.WasButtonJustPressed(Buttons.RightStick, state.Buttons.RightStick, index)) buttons.Add(Buttons.RightStick);
-                if (this.WasButtonJustPressed(Buttons.Start, state.Buttons.Start, index)) buttons.Add(Buttons.Start);
-                if (this.WasButtonJustPressed(Buttons.X, state.Buttons.X, index)) buttons.Add(Buttons.X);
-                if (this.WasButtonJustPressed(Buttons.Y, state.Buttons.Y, index)) buttons.Add(Buttons.Y);
-                if (this.WasButtonJustPressed(Buttons.DPadUp, state.DPad.Up, index)) buttons.Add(Buttons.DPadUp);
-                if (this.WasButtonJustPressed(Buttons.DPadDown, state.DPad.Down, index)) buttons.Add(Buttons.DPadDown);
-                if (this.WasButtonJustPressed(Buttons.DPadLeft, state.DPad.Left, index)) buttons.Add(Buttons.DPadLeft);
-                if (this.WasButtonJustPressed(Buttons.DPadRight, state.DPad.Right, index)) buttons.Add(Buttons.DPadRight);
-                if (this.WasButtonJustPressed(Buttons.LeftTrigger, state.Triggers.Left, index)) buttons.Add(Buttons.LeftTrigger);
-                if (this.WasButtonJustPressed(Buttons.RightTrigger, state.Triggers.Right, index)) buttons.Add(Buttons.RightTrigger);
-            }
-            return buttons.ToArray();
-        }
-
-        /// <summary>Get the controller buttons which were released after the last update.</summary>
-        /// <param name="index">The controller to check.</param>
-        public Buttons[] GetFrameReleasedButtons(PlayerIndex index)
-        {
-            var state = GamePad.GetState(index);
-            var buttons = new List<Buttons>();
-            if (state.IsConnected)
-            {
-                if (this.WasButtonJustReleased(Buttons.A, state.Buttons.A, index)) buttons.Add(Buttons.A);
-                if (this.WasButtonJustReleased(Buttons.B, state.Buttons.B, index)) buttons.Add(Buttons.B);
-                if (this.WasButtonJustReleased(Buttons.Back, state.Buttons.Back, index)) buttons.Add(Buttons.Back);
-                if (this.WasButtonJustReleased(Buttons.BigButton, state.Buttons.BigButton, index)) buttons.Add(Buttons.BigButton);
-                if (this.WasButtonJustReleased(Buttons.LeftShoulder, state.Buttons.LeftShoulder, index)) buttons.Add(Buttons.LeftShoulder);
-                if (this.WasButtonJustReleased(Buttons.LeftStick, state.Buttons.LeftStick, index)) buttons.Add(Buttons.LeftStick);
-                if (this.WasButtonJustReleased(Buttons.RightShoulder, state.Buttons.RightShoulder, index)) buttons.Add(Buttons.RightShoulder);
-                if (this.WasButtonJustReleased(Buttons.RightStick, state.Buttons.RightStick, index)) buttons.Add(Buttons.RightStick);
-                if (this.WasButtonJustReleased(Buttons.Start, state.Buttons.Start, index)) buttons.Add(Buttons.Start);
-                if (this.WasButtonJustReleased(Buttons.X, state.Buttons.X, index)) buttons.Add(Buttons.X);
-                if (this.WasButtonJustReleased(Buttons.Y, state.Buttons.Y, index)) buttons.Add(Buttons.Y);
-                if (this.WasButtonJustReleased(Buttons.DPadUp, state.DPad.Up, index)) buttons.Add(Buttons.DPadUp);
-                if (this.WasButtonJustReleased(Buttons.DPadDown, state.DPad.Down, index)) buttons.Add(Buttons.DPadDown);
-                if (this.WasButtonJustReleased(Buttons.DPadLeft, state.DPad.Left, index)) buttons.Add(Buttons.DPadLeft);
-                if (this.WasButtonJustReleased(Buttons.DPadRight, state.DPad.Right, index)) buttons.Add(Buttons.DPadRight);
-                if (this.WasButtonJustReleased(Buttons.LeftTrigger, state.Triggers.Left, index)) buttons.Add(Buttons.LeftTrigger);
-                if (this.WasButtonJustReleased(Buttons.RightTrigger, state.Triggers.Right, index)) buttons.Add(Buttons.RightTrigger);
-            }
-            return buttons.ToArray();
-        }
-
-
-        /*********
         ** Protected methods
         *********/
         /// <summary>Construct an instance.</summary>
@@ -278,6 +183,9 @@ namespace StardewModdingAPI.Framework
             SGame.Instance = this;
         }
 
+        /****
+        ** Intercepted methods & events
+        ****/
         /// <summary>The method called during game launch after configuring XNA or MonoGame. The game window hasn't been opened by this point.</summary>
         protected override void Initialize()
         {
@@ -330,10 +238,6 @@ namespace StardewModdingAPI.Framework
 
             // update SMAPI events
             this.UpdateEventCalls();
-
-            // toggle debug output
-            if (this.FramePressedKeys.Contains(Keys.F3))
-                SGame.Debug = !SGame.Debug;
 
             // let game update
             try
@@ -1043,6 +947,96 @@ namespace StardewModdingAPI.Framework
             }
         }
 
+        /****
+        ** Methods
+        ****/
+        /// <summary>Get the controller buttons which are currently pressed.</summary>
+        /// <param name="index">The controller to check.</param>
+        private Buttons[] GetButtonsDown(PlayerIndex index)
+        {
+            var state = GamePad.GetState(index);
+            var buttons = new List<Buttons>();
+            if (state.IsConnected)
+            {
+                if (state.Buttons.A == ButtonState.Pressed) buttons.Add(Buttons.A);
+                if (state.Buttons.B == ButtonState.Pressed) buttons.Add(Buttons.B);
+                if (state.Buttons.Back == ButtonState.Pressed) buttons.Add(Buttons.Back);
+                if (state.Buttons.BigButton == ButtonState.Pressed) buttons.Add(Buttons.BigButton);
+                if (state.Buttons.LeftShoulder == ButtonState.Pressed) buttons.Add(Buttons.LeftShoulder);
+                if (state.Buttons.LeftStick == ButtonState.Pressed) buttons.Add(Buttons.LeftStick);
+                if (state.Buttons.RightShoulder == ButtonState.Pressed) buttons.Add(Buttons.RightShoulder);
+                if (state.Buttons.RightStick == ButtonState.Pressed) buttons.Add(Buttons.RightStick);
+                if (state.Buttons.Start == ButtonState.Pressed) buttons.Add(Buttons.Start);
+                if (state.Buttons.X == ButtonState.Pressed) buttons.Add(Buttons.X);
+                if (state.Buttons.Y == ButtonState.Pressed) buttons.Add(Buttons.Y);
+                if (state.DPad.Up == ButtonState.Pressed) buttons.Add(Buttons.DPadUp);
+                if (state.DPad.Down == ButtonState.Pressed) buttons.Add(Buttons.DPadDown);
+                if (state.DPad.Left == ButtonState.Pressed) buttons.Add(Buttons.DPadLeft);
+                if (state.DPad.Right == ButtonState.Pressed) buttons.Add(Buttons.DPadRight);
+                if (state.Triggers.Left > 0.2f) buttons.Add(Buttons.LeftTrigger);
+                if (state.Triggers.Right > 0.2f) buttons.Add(Buttons.RightTrigger);
+            }
+            return buttons.ToArray();
+        }
+
+        /// <summary>Get the controller buttons which were pressed after the last update.</summary>
+        /// <param name="index">The controller to check.</param>
+        private Buttons[] GetFramePressedButtons(PlayerIndex index)
+        {
+            var state = GamePad.GetState(index);
+            var buttons = new List<Buttons>();
+            if (state.IsConnected)
+            {
+                if (this.WasButtonJustPressed(Buttons.A, state.Buttons.A, index)) buttons.Add(Buttons.A);
+                if (this.WasButtonJustPressed(Buttons.B, state.Buttons.B, index)) buttons.Add(Buttons.B);
+                if (this.WasButtonJustPressed(Buttons.Back, state.Buttons.Back, index)) buttons.Add(Buttons.Back);
+                if (this.WasButtonJustPressed(Buttons.BigButton, state.Buttons.BigButton, index)) buttons.Add(Buttons.BigButton);
+                if (this.WasButtonJustPressed(Buttons.LeftShoulder, state.Buttons.LeftShoulder, index)) buttons.Add(Buttons.LeftShoulder);
+                if (this.WasButtonJustPressed(Buttons.LeftStick, state.Buttons.LeftStick, index)) buttons.Add(Buttons.LeftStick);
+                if (this.WasButtonJustPressed(Buttons.RightShoulder, state.Buttons.RightShoulder, index)) buttons.Add(Buttons.RightShoulder);
+                if (this.WasButtonJustPressed(Buttons.RightStick, state.Buttons.RightStick, index)) buttons.Add(Buttons.RightStick);
+                if (this.WasButtonJustPressed(Buttons.Start, state.Buttons.Start, index)) buttons.Add(Buttons.Start);
+                if (this.WasButtonJustPressed(Buttons.X, state.Buttons.X, index)) buttons.Add(Buttons.X);
+                if (this.WasButtonJustPressed(Buttons.Y, state.Buttons.Y, index)) buttons.Add(Buttons.Y);
+                if (this.WasButtonJustPressed(Buttons.DPadUp, state.DPad.Up, index)) buttons.Add(Buttons.DPadUp);
+                if (this.WasButtonJustPressed(Buttons.DPadDown, state.DPad.Down, index)) buttons.Add(Buttons.DPadDown);
+                if (this.WasButtonJustPressed(Buttons.DPadLeft, state.DPad.Left, index)) buttons.Add(Buttons.DPadLeft);
+                if (this.WasButtonJustPressed(Buttons.DPadRight, state.DPad.Right, index)) buttons.Add(Buttons.DPadRight);
+                if (this.WasButtonJustPressed(Buttons.LeftTrigger, state.Triggers.Left, index)) buttons.Add(Buttons.LeftTrigger);
+                if (this.WasButtonJustPressed(Buttons.RightTrigger, state.Triggers.Right, index)) buttons.Add(Buttons.RightTrigger);
+            }
+            return buttons.ToArray();
+        }
+
+        /// <summary>Get the controller buttons which were released after the last update.</summary>
+        /// <param name="index">The controller to check.</param>
+        private Buttons[] GetFrameReleasedButtons(PlayerIndex index)
+        {
+            var state = GamePad.GetState(index);
+            var buttons = new List<Buttons>();
+            if (state.IsConnected)
+            {
+                if (this.WasButtonJustReleased(Buttons.A, state.Buttons.A, index)) buttons.Add(Buttons.A);
+                if (this.WasButtonJustReleased(Buttons.B, state.Buttons.B, index)) buttons.Add(Buttons.B);
+                if (this.WasButtonJustReleased(Buttons.Back, state.Buttons.Back, index)) buttons.Add(Buttons.Back);
+                if (this.WasButtonJustReleased(Buttons.BigButton, state.Buttons.BigButton, index)) buttons.Add(Buttons.BigButton);
+                if (this.WasButtonJustReleased(Buttons.LeftShoulder, state.Buttons.LeftShoulder, index)) buttons.Add(Buttons.LeftShoulder);
+                if (this.WasButtonJustReleased(Buttons.LeftStick, state.Buttons.LeftStick, index)) buttons.Add(Buttons.LeftStick);
+                if (this.WasButtonJustReleased(Buttons.RightShoulder, state.Buttons.RightShoulder, index)) buttons.Add(Buttons.RightShoulder);
+                if (this.WasButtonJustReleased(Buttons.RightStick, state.Buttons.RightStick, index)) buttons.Add(Buttons.RightStick);
+                if (this.WasButtonJustReleased(Buttons.Start, state.Buttons.Start, index)) buttons.Add(Buttons.Start);
+                if (this.WasButtonJustReleased(Buttons.X, state.Buttons.X, index)) buttons.Add(Buttons.X);
+                if (this.WasButtonJustReleased(Buttons.Y, state.Buttons.Y, index)) buttons.Add(Buttons.Y);
+                if (this.WasButtonJustReleased(Buttons.DPadUp, state.DPad.Up, index)) buttons.Add(Buttons.DPadUp);
+                if (this.WasButtonJustReleased(Buttons.DPadDown, state.DPad.Down, index)) buttons.Add(Buttons.DPadDown);
+                if (this.WasButtonJustReleased(Buttons.DPadLeft, state.DPad.Left, index)) buttons.Add(Buttons.DPadLeft);
+                if (this.WasButtonJustReleased(Buttons.DPadRight, state.DPad.Right, index)) buttons.Add(Buttons.DPadRight);
+                if (this.WasButtonJustReleased(Buttons.LeftTrigger, state.Triggers.Left, index)) buttons.Add(Buttons.LeftTrigger);
+                if (this.WasButtonJustReleased(Buttons.RightTrigger, state.Triggers.Right, index)) buttons.Add(Buttons.RightTrigger);
+            }
+            return buttons.ToArray();
+        }
+
         /// <summary>Get whether a controller button was pressed since the last check.</summary>
         /// <param name="button">The controller button to check.</param>
         /// <param name="buttonState">The last known state.</param>
@@ -1272,25 +1266,25 @@ namespace StardewModdingAPI.Framework
                 }
 
                 // raise time changed
-                if (Game1.timeOfDay != this.PreviousTimeOfDay)
+                if (Game1.timeOfDay != this.PreviousTime)
                 {
-                    TimeEvents.InvokeTimeOfDayChanged(this.Monitor, this.PreviousTimeOfDay, Game1.timeOfDay);
-                    this.PreviousTimeOfDay = Game1.timeOfDay;
+                    TimeEvents.InvokeTimeOfDayChanged(this.Monitor, this.PreviousTime, Game1.timeOfDay);
+                    this.PreviousTime = Game1.timeOfDay;
                 }
-                if (Game1.dayOfMonth != this.PreviousDayOfMonth)
+                if (Game1.dayOfMonth != this.PreviousDay)
                 {
-                    TimeEvents.InvokeDayOfMonthChanged(this.Monitor, this.PreviousDayOfMonth, Game1.dayOfMonth);
-                    this.PreviousDayOfMonth = Game1.dayOfMonth;
+                    TimeEvents.InvokeDayOfMonthChanged(this.Monitor, this.PreviousDay, Game1.dayOfMonth);
+                    this.PreviousDay = Game1.dayOfMonth;
                 }
-                if (Game1.currentSeason != this.PreviousSeasonOfYear)
+                if (Game1.currentSeason != this.PreviousSeason)
                 {
-                    TimeEvents.InvokeSeasonOfYearChanged(this.Monitor, this.PreviousSeasonOfYear, Game1.currentSeason);
-                    this.PreviousSeasonOfYear = Game1.currentSeason;
+                    TimeEvents.InvokeSeasonOfYearChanged(this.Monitor, this.PreviousSeason, Game1.currentSeason);
+                    this.PreviousSeason = Game1.currentSeason;
                 }
-                if (Game1.year != this.PreviousYearOfGame)
+                if (Game1.year != this.PreviousYear)
                 {
-                    TimeEvents.InvokeYearOfGameChanged(this.Monitor, this.PreviousYearOfGame, Game1.year);
-                    this.PreviousYearOfGame = Game1.year;
+                    TimeEvents.InvokeYearOfGameChanged(this.Monitor, this.PreviousYear, Game1.year);
+                    this.PreviousYear = Game1.year;
                 }
 
                 // raise mine level changed
@@ -1304,7 +1298,7 @@ namespace StardewModdingAPI.Framework
             // raise game day transition event (obsolete)
             if (Game1.newDay != this.PreviousIsNewDay)
             {
-                TimeEvents.InvokeOnNewDay(this.Monitor, this.PreviousDayOfMonth, Game1.dayOfMonth, Game1.newDay);
+                TimeEvents.InvokeOnNewDay(this.Monitor, this.PreviousDay, Game1.dayOfMonth, Game1.newDay);
                 this.PreviousIsNewDay = Game1.newDay;
             }
         }
