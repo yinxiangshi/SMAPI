@@ -154,6 +154,7 @@
     <Compile Include="Framework\Logging\ConsoleInterceptionManager.cs" />
     <Compile Include="Framework\Logging\InterceptingTextWriter.cs" />
     <Compile Include="Framework\CommandHelper.cs" />
+    <Compile Include="Framework\Models\ModCompatibilityType.cs" />
     <Compile Include="Framework\Models\SConfig.cs" />
     <Compile Include="Framework\Reflection\PrivateProperty.cs" />
     <Compile Include="Framework\RequestExitDelegate.cs" />
@@ -176,7 +177,7 @@
     <Compile Include="Framework\DeprecationLevel.cs" />
     <Compile Include="Framework\DeprecationManager.cs" />
     <Compile Include="Framework\InternalExtensions.cs" />
-    <Compile Include="Framework\Models\IncompatibleMod.cs" />
+    <Compile Include="Framework\Models\ModCompatibility.cs" />
     <Compile Include="Framework\AssemblyLoader.cs" />
     <Compile Include="Framework\Reflection\CacheEntry.cs" />
     <Compile Include="Framework\Reflection\PrivateField.cs" />

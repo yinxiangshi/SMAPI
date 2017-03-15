@@ -3,8 +3,8 @@ using Newtonsoft.Json;
 
 namespace StardewModdingAPI.Framework.Models
 {
-    /// <summary>Contains abstract metadata about an incompatible mod.</summary>
-    internal class IncompatibleMod
+    /// <summary>Metadata about a mod version that SMAPI should assume is compatible or broken, regardless of whether it detects incompatible code.</summary>
+    internal class ModCompatibility
     {
         /*********
         ** Accessors
@@ -30,12 +30,12 @@ namespace StardewModdingAPI.Framework.Models
         /// <summary>The URL the user can check for an unofficial updated version.</summary>
         public string UnofficialUpdateUrl { get; set; }
 
-        /// <summary>A regular expression matching version strings to consider compatible, even if they technically precede <see cref="UpperVersion"/>.</summary>
-        public string ForceCompatibleVersion { get; set; }
-
         /// <summary>The reason phrase to show in the warning, or <c>null</c> to use the default value.</summary>
         /// <example>"this version is incompatible with the latest version of the game"</example>
         public string ReasonPhrase { get; set; }
+
+        /// <summary>Indicates how SMAPI should consider the mod.</summary>
+        public ModCompatibilityType Compatibility { get; set; }
 
 
         /****

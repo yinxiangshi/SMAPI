@@ -54,9 +54,10 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Preprocess and load an assembly.</summary>
         /// <param name="assemblyPath">The assembly file path.</param>
+        /// <param name="assumeCompatible">Assume the mod is compatible, even if incompatible code is detected.</param>
         /// <returns>Returns the rewrite metadata for the preprocessed assembly.</returns>
         /// <exception cref="IncompatibleInstructionException">An incompatible CIL instruction was found while rewriting the assembly.</exception>
-        public Assembly Load(string assemblyPath)
+        public Assembly Load(string assemblyPath, bool assumeCompatible)
         {
             // get referenced local assemblies
             AssemblyParseResult[] assemblies;
@@ -73,7 +74,7 @@ namespace StardewModdingAPI.Framework
             Assembly lastAssembly = null;
             foreach (AssemblyParseResult assembly in assemblies)
             {
-                bool changed = this.RewriteAssembly(assembly.Definition);
+                bool changed = this.RewriteAssembly(assembly.Definition, assumeCompatible);
                 if (changed)
                 {
                     this.Monitor.Log($"Loading {assembly.File.Name} (rewritten in memory)...", LogLevel.Trace);
@@ -159,12 +160,13 @@ namespace StardewModdingAPI.Framework
         ****/
         /// <summary>Rewrite the types referenced by an assembly.</summary>
         /// <param name="assembly">The assembly to rewrite.</param>
+        /// <param name="assumeCompatible">Assume the mod is compatible, even if incompatible code is detected.</param>
         /// <returns>Returns whether the assembly was modified.</returns>
         /// <exception cref="IncompatibleInstructionException">An incompatible CIL instruction was found while rewriting the assembly.</exception>
-        private bool RewriteAssembly(AssemblyDefinition assembly)
+        private bool RewriteAssembly(AssemblyDefinition assembly, bool assumeCompatible)
         {
             ModuleDefinition module = assembly.MainModule;
-            HashSet<string> loggedRewrites = new HashSet<string>();
+            HashSet<string> loggedMessages = new HashSet<string>();
 
             // swap assembly references if needed (e.g. XNA => MonoGame)
             bool platformChanged = false;
@@ -173,7 +175,7 @@ namespace StardewModdingAPI.Framework
                 // remove old assembly reference
                 if (this.AssemblyMap.RemoveNames.Any(name => module.AssemblyReferences[i].Name == name))
                 {
-                    this.LogOnce(this.Monitor, loggedRewrites, $"Rewriting {assembly.Name.Name} for OS...");
+                    this.LogOnce(this.Monitor, loggedMessages, $"Rewriting {assembly.Name.Name} for OS...");
                     platformChanged = true;
                     module.AssemblyReferences.RemoveAt(i);
                     i--;
@@ -203,13 +205,17 @@ namespace StardewModdingAPI.Framework
                     // throw exception if instruction is incompatible but can't be rewritten
                     IInstructionFinder finder = finders.FirstOrDefault(p => p.IsMatch(instruction, platformChanged));
                     if (finder != null)
-                        throw new IncompatibleInstructionException(finder.NounPhrase, $"Found an incompatible CIL instruction ({finder.NounPhrase}) while loading assembly {assembly.Name.Name}.");
+                    {
+                        if (!assumeCompatible)
+                            throw new IncompatibleInstructionException(finder.NounPhrase, $"Found an incompatible CIL instruction ({finder.NounPhrase}) while loading assembly {assembly.Name.Name}.");
+                        this.LogOnce(this.Monitor, loggedMessages, $"Found an incompatible CIL instruction ({finder.NounPhrase}) while loading assembly {assembly.Name.Name}, but SMAPI is configured to allow it anyway. The mod may crash or behave unexpectedly.", LogLevel.Warn);
+                    }
 
                     // rewrite instruction if needed
                     IInstructionRewriter rewriter = rewriters.FirstOrDefault(p => p.IsMatch(instruction, platformChanged));
                     if (rewriter != null)
                     {
-                        this.LogOnce(this.Monitor, loggedRewrites, $"Rewriting {assembly.Name.Name} to fix {rewriter.NounPhrase}...");
+                        this.LogOnce(this.Monitor, loggedMessages, $"Rewriting {assembly.Name.Name} to fix {rewriter.NounPhrase}...");
                         rewriter.Rewrite(module, cil, instruction, this.AssemblyMap);
                         anyRewritten = true;
                     }

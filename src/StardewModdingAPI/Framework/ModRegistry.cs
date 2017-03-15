@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using StardewModdingAPI.Framework.Models;
 
 namespace StardewModdingAPI.Framework
@@ -20,18 +19,18 @@ namespace StardewModdingAPI.Framework
         /// <summary>The friendly mod names treated as deprecation warning sources (assembly full name => mod name).</summary>
         private readonly IDictionary<string, string> ModNamesByAssembly = new Dictionary<string, string>();
 
-        /// <summary>The mod versions which should be disabled due to incompatibility.</summary>
-        private readonly IncompatibleMod[] IncompatibleMods;
+        /// <summary>Metadata about mods that SMAPI should assume is compatible or broken, regardless of whether it detects incompatible code.</summary>
+        private readonly ModCompatibility[] CompatibilityRecords;
 
 
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="incompatibleMods">The mod versions which should be disabled due to incompatibility.</param>
-        public ModRegistry(IEnumerable<IncompatibleMod> incompatibleMods)
+        /// <param name="compatibilityRecords">Metadata about mods that SMAPI should assume is compatible or broken, regardless of whether it detects incompatible code.</param>
+        public ModRegistry(IEnumerable<ModCompatibility> compatibilityRecords)
         {
-            this.IncompatibleMods = incompatibleMods.ToArray();
+            this.CompatibilityRecords = compatibilityRecords.ToArray();
         }
 
 
@@ -127,19 +126,18 @@ namespace StardewModdingAPI.Framework
             return null;
         }
 
-        /// <summary>Get a record indicating why a mod is incompatible (if applicable).</summary>
+        /// <summary>Get metadata that indicates whether SMAPI should assume the mod is compatible or broken, regardless of whether it detects incompatible code.</summary>
         /// <param name="manifest">The mod manifest.</param>
         /// <returns>Returns the incompatibility record if applicable, else <c>null</c>.</returns>
-        internal IncompatibleMod GetIncompatibilityRecord(IManifest manifest)
+        internal ModCompatibility GetCompatibilityRecord(IManifest manifest)
         {
             string key = !string.IsNullOrWhiteSpace(manifest.UniqueID) ? manifest.UniqueID : manifest.EntryDll;
             return (
-                from mod in this.IncompatibleMods
+                from mod in this.CompatibilityRecords
                 where
                     mod.ID == key
                     && (mod.LowerSemanticVersion == null || !manifest.Version.IsOlderThan(mod.LowerSemanticVersion))
                     && !manifest.Version.IsNewerThan(mod.UpperSemanticVersion)
-                    && (string.IsNullOrWhiteSpace(mod.ForceCompatibleVersion) || !Regex.IsMatch(manifest.Version.ToString(), mod.ForceCompatibleVersion, RegexOptions.IgnoreCase))
                 select mod
             ).FirstOrDefault();
         }

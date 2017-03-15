@@ -12,7 +12,7 @@
         /// <summary>Whether to check if a newer version of SMAPI is available on startup.</summary>
         public bool CheckForUpdates { get; set; } = true;
 
-        /// <summary>A list of mod versions which should be considered incompatible.</summary>
-        public IncompatibleMod[] IncompatibleMods { get; set; }
+        /// <summary>A list of mod versions which should be considered compatible or incompatible regardless of whether SMAPI detects incompatible code.</summary>
+        public ModCompatibility[] ModCompatibility { get; set; }
     }
 }

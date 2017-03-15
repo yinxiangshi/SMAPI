@@ -78,7 +78,7 @@ namespace StardewModdingAPI
 
             // initialise
             this.Monitor = new Monitor("SMAPI", this.ConsoleManager, this.LogFile, this.ExitGameImmediately) { WriteToConsole = writeToConsole };
-            this.ModRegistry = new ModRegistry(this.Settings.IncompatibleMods);
+            this.ModRegistry = new ModRegistry(this.Settings.ModCompatibility);
             this.DeprecationManager = new DeprecationManager(this.Monitor, this.ModRegistry);
         }
 
@@ -364,8 +364,8 @@ namespace StardewModdingAPI
                     skippedPrefix = $"Skipped {manifest.Name}";
 
                 // validate compatibility
-                IncompatibleMod compatibility = this.ModRegistry.GetIncompatibilityRecord(manifest);
-                if (compatibility != null)
+                ModCompatibility compatibility = this.ModRegistry.GetCompatibilityRecord(manifest);
+                if (compatibility?.Compatibility == ModCompatibilityType.AssumeBroken)
                 {
                     bool hasOfficialUrl = !string.IsNullOrWhiteSpace(compatibility.UpdateUrl);
                     bool hasUnofficialUrl = !string.IsNullOrWhiteSpace(compatibility.UnofficialUpdateUrl);
@@ -433,7 +433,7 @@ namespace StardewModdingAPI
                 Assembly modAssembly;
                 try
                 {
-                    modAssembly = modAssemblyLoader.Load(assemblyPath);
+                    modAssembly = modAssemblyLoader.Load(assemblyPath, assumeCompatible: compatibility?.Compatibility == ModCompatibilityType.AssumeCompatible);
                 }
                 catch (IncompatibleInstructionException ex)
                 {
