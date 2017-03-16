@@ -14,37 +14,40 @@ For mod developers:
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.8...1.9).
 
 For players:
-* Updated for Stardew Valley 1.2. Most mods are now rewritten for compatibility; some mods require an update from their authors.
-* SMAPI now automatically detects incompatible mods and disables them before they cause problems.
-* The installer now automatically detects if you need to update .NET Framework before SMAPI will work.
-* Simplified log filename.
-* Simplified error messages when a mod can't be loaded.
-* Simple nested mod folders are now recognised by SMAPI (e.g. `ModName-1.0\ModName\manifest.json`).
-* Improved TrainerMod command handling & feedback.
-* Fixed game's debug output being shown in the console for all users.
-* Fixed the game-outdated error not pausing before exit.
+* Updated for Stardew Valley 1.2.
+* SMAPI now rewrites many mods for compatibility with game updates, but some mods will need an update.
+* SMAPI now detects incompatible mods and disables them before they cause problems.
+* SMAPI now allows mods nested into an otherwise empty parent folder (like `Mods\ModName-1.0\ModName\manifest.json`), since that's a common default behaviour when unpacking mods.
+* The installer now detects if you need to update .NET Framework before installing SMAPI.
+* The console now has simpler error messages.
+* The console now has improved command handling & feedback.
+* The console no longer shows the game's debug output (unless you use a _SMAPI for developers_ build).
+* Fixed the game-needs-an-update error not pausing before exit.
 * Fixed installer errors for some players when deleting files.
 * Fixed installer not ignoring potential game folders that don't contain a Stardew Valley exe.
 * Fixed installer not recognising Linux/Mac paths starting with `~/` or containing an escaped space.
 * Fixed TrainerMod letting you add invalid items which may crash the game.
 * Fixed TrainerMod's `world_downminelevel` command not working.
 * Fixed rare issue where mod dependencies would override SMAPI dependencies and cause unpredictable bugs.
-* Fixed errors in console command handlers causing the game to crash.
+* Fixed errors in mods' console command handlers crashing the game.
 
 For mod developers:
-* Added `SaveEvents.AfterReturnToTitle`, `TimeEvents.AfterDayStarted`, and `ContentEvents.AfterLocaleChanged` events.
 * Added a simpler API for console commands (see `helper.ConsoleCommands`).
-* Added `GetPrivateProperty` reflection helper.
+* Added `SaveEvents.AfterReturnToTitle` event triggered when the player returns to the title screen.
+* Added `TimeEvents.AfterDayStarted` event triggered when a day starts. This happens no matter how the day started (including new game, loaded save, or player went to bed).
+* Added `ContentEvents.AfterLocaleChanged` event triggered when the player changes the content language.
+* Added `GetPrivateProperty` to the reflection helper.
 * SMAPI now writes XNA input enums (`Buttons` and `Keys`) to JSON as strings automatically, so mods no longer need to add a `StringEnumConverter` themselves for those.
-* Logs now show the OS caption (like "Windows 10") instead of its internal version when available.
-* Logs now always use `\r\n` to simplify crossplatform viewing.
+* The SMAPI log now has a simpler filename.
+* The SMAPI log now shows the OS caption (like "Windows 10") instead of its internal version when available.
+* The SMAPI log now always uses `\r\n` line endings to simplify crossplatform viewing.
 * Fixed `SaveEvents.AfterLoad` being raised during the new-game intro before the player is initialised.
 * Several obsolete APIs have been removed (see [deprecation guide](http://canimod.com/guides/updating-a-smapi-mod)),
   and all _notice_-level deprecations have been increased to _info_.
-* Deprecated the experimental `IConfigFile`.
+* Removed the experimental `IConfigFile`.
 
 For SMAPI developers:
-* Added support for debugging with Visual Studio for Mac.
+* Added support for debugging SMAPI on Linux/Mac if supported by the editor.
 
 ## 1.8
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.7...1.8).
