@@ -19,6 +19,7 @@ For players:
 * SMAPI now detects incompatible mods and disables them before they cause problems.
 * SMAPI now allows mods nested into an otherwise empty parent folder (like `Mods\ModName-1.0\ModName\manifest.json`), since that's a common default behaviour when unpacking mods.
 * The installer now detects if you need to update .NET Framework before installing SMAPI.
+* The installer now detects if you need to run the game at least once (to let it perform first-time setup) before installing SMAPI.
 * The console now has simpler error messages.
 * The console now has improved command handling & feedback.
 * The console no longer shows the game's debug output (unless you use a _SMAPI for developers_ build).

@@ -157,17 +157,27 @@ namespace StardewModdingApi.Installer
             }
 
             /****
-            ** validate .NET Framework version
+            ** validate Windows dependencies
             ****/
-            if (platform == Platform.Windows && !this.HasNetFramework45(platform))
+            if (platform == Platform.Windows)
             {
-                this.PrintError(Environment.OSVersion.Version >= this.Windows7Version
-                    ? "Please install the latest version of .NET Framework before installing SMAPI." // Windows 7+
-                    : "Please install .NET Framework 4.5 before installing SMAPI." // Windows Vista or earlier
-                );
-                this.PrintError("See the download page at https://www.microsoft.com/net/download/framework for details.");
-                Console.ReadLine();
-                return;
+                // .NET Framework 4.5+
+                if (!this.HasNetFramework45(platform))
+                {
+                    this.PrintError(Environment.OSVersion.Version >= this.Windows7Version
+                            ? "Please install the latest version of .NET Framework before installing SMAPI." // Windows 7+
+                            : "Please install .NET Framework 4.5 before installing SMAPI." // Windows Vista or earlier
+                    );
+                    this.PrintError("See the download page at https://www.microsoft.com/net/download/framework for details.");
+                    Console.ReadLine();
+                    return;
+                }
+                if (!this.HasXNA(platform))
+                {
+                    this.PrintError("You don't seem to have XNA Framework installed. Please run the game at least once before installing SMAPI, so it can perform its first-time setup.");
+                    Console.ReadLine();
+                    return;
+                }
             }
 
             Console.WriteLine();
@@ -378,7 +388,7 @@ namespace StardewModdingApi.Installer
                 Console.WriteLine(text);
         }
 
-        /// <summary>Get whether the current system has .NET Framework 4.5 or later installed.</summary>
+        /// <summary>Get whether the current system has .NET Framework 4.5 or later installed. This only applies on Windows.</summary>
         /// <param name="platform">The current platform.</param>
         /// <exception cref="NotSupportedException">The current platform is not Windows.</exception>
         private bool HasNetFramework45(Platform platform)
@@ -391,6 +401,22 @@ namespace StardewModdingApi.Installer
 
                 default:
                     throw new NotSupportedException("The installed .NET Framework version can only be checked on Windows.");
+            }
+        }
+
+        /// <summary>Get whether the current system has XNA Framework installed. This only applies on Windows.</summary>
+        /// <param name="platform">The current platform.</param>
+        /// <exception cref="NotSupportedException">The current platform is not Windows.</exception>
+        private bool HasXNA(Platform platform)
+        {
+            switch (platform)
+            {
+                case Platform.Windows:
+                    using (RegistryKey key = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32).OpenSubKey(@"SOFTWARE\Microsoft\XNA\Framework"))
+                        return key != null; // XNA Framework 4.0+
+
+                default:
+                    throw new NotSupportedException("The installed XNA Framework version can only be checked on Windows.");
             }
         }
 
