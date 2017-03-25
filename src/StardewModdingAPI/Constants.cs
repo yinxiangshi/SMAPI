@@ -143,8 +143,6 @@ namespace StardewModdingAPI
             return new IInstructionFinder[]
             {
                 // changes in Stardew Valley 1.2 (that don't have rewriters)
-                new FieldFinder("StardewValley.Game1", "borderFont", isStatic: true),
-                new FieldFinder("StardewValley.Game1", "smoothFont", isStatic: true),
                 new FieldFinder("StardewValley.Item", "set_Name", isStatic: false),
 
                 // APIs removed in SMAPI 1.9
@@ -178,7 +176,9 @@ namespace StardewModdingAPI
                 // Stardew Valley 1.2
                 new FieldToPropertyRewriter(typeof(Game1), nameof(Game1.activeClickableMenu)),
                 new FieldToPropertyRewriter(typeof(Game1), nameof(Game1.gameMode)),
-                new FieldToPropertyRewriter(typeof(Game1), nameof(Game1.player))
+                new FieldToPropertyRewriter(typeof(Game1), nameof(Game1.player)),
+                new FieldReplaceRewriter(typeof(Game1), "borderFont", nameof(Game1.smallFont)),
+                new FieldReplaceRewriter(typeof(Game1), "smoothFont", nameof(Game1.smallFont))
             };
         }
 

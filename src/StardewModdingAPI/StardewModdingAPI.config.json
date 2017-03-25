@@ -94,22 +94,6 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "Notes": "Crashes with 'Method not found: Void StardewValley.Item.set_Name(System.String)'."
     },
     {
-      "Name": "CJB Cheats Menu",
-      "ID": "CJBCheatsMenu",
-      "UpperVersion": "1.13",
-      "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/4",
-      "Notes": "Uses removed Game1.borderFont."
-    },
-    {
-      "Name": "CJB Item Spawner",
-      "ID": "CJBItemSpawner",
-      "UpperVersion": "1.6",
-      "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/93",
-      "Notes": "Uses removed Game1.borderFont."
-    },
-    {
       "Name": "Cooking Skill",
       "ID": "CookingSkill",
       "UpperVersion": "1.0.3",
