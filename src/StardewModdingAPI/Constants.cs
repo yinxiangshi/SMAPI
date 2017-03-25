@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.AssemblyRewriters;
 using StardewModdingAPI.AssemblyRewriters.Finders;
-using StardewModdingAPI.AssemblyRewriters.Rewriters.Crossplatform;
+using StardewModdingAPI.AssemblyRewriters.Rewriters;
 using StardewModdingAPI.AssemblyRewriters.Rewriters.SDV1_2;
+using StardewModdingAPI.AssemblyRewriters.Rewriters.Wrappers;
 using StardewValley;
 
 namespace StardewModdingAPI
@@ -172,7 +174,7 @@ namespace StardewModdingAPI
             return new IInstructionRewriter[]
             {
                 // crossplatform
-                new SpriteBatch_MethodRewriter(),
+                new GenericMethodMapper(typeof(SpriteBatch), typeof(SpriteBatchWrapper), $"{nameof(SpriteBatch)} methods", onlyIfPlatformChanged: true),
 
                 // Stardew Valley 1.2
                 new Game1_ActiveClickableMenu_FieldRewriter(),
