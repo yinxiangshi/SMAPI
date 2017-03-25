@@ -6,7 +6,7 @@ using StardewModdingAPI.AssemblyRewriters.Framework;
 namespace StardewModdingAPI.AssemblyRewriters.Rewriters
 {
     /// <summary>Rewrites field references into property references.</summary>
-    public class GenericFieldToPropertyRewriter : BaseFieldRewriter
+    public class FieldToPropertyRewriter : BaseFieldRewriter
     {
         /*********
         ** Properties
@@ -32,7 +32,7 @@ namespace StardewModdingAPI.AssemblyRewriters.Rewriters
         /// <param name="type">The type whose field to which references should be rewritten.</param>
         /// <param name="fieldName">The field name to rewrite.</param>
         /// <param name="nounPhrase">A brief noun phrase indicating what the instruction finder matches (or <c>null</c> to generate one).</param>
-        public GenericFieldToPropertyRewriter(Type type, string fieldName, string nounPhrase = null)
+        public FieldToPropertyRewriter(Type type, string fieldName, string nounPhrase = null)
         {
             this.Type = type;
             this.FieldName = fieldName;

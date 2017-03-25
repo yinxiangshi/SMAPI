@@ -5,7 +5,7 @@ using StardewModdingAPI.AssemblyRewriters.Framework;
 namespace StardewModdingAPI.AssemblyRewriters.Finders
 {
     /// <summary>Finds CIL instructions that reference a given method.</summary>
-    public sealed class GenericMethodFinder : BaseMethodFinder
+    public sealed class MethodFinder : BaseMethodFinder
     {
         /*********
         ** Properties
@@ -30,7 +30,7 @@ namespace StardewModdingAPI.AssemblyRewriters.Finders
         /// <summary>Construct an instance.</summary>
         /// <param name="fullTypeName">The full type name for which to find references.</param>
         /// <param name="methodName">The method name for which to find references.</param>
-        public GenericMethodFinder(string fullTypeName, string methodName)
+        public MethodFinder(string fullTypeName, string methodName)
         {
             this.FullTypeName = fullTypeName;
             this.MethodName = methodName;

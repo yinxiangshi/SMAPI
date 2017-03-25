@@ -143,27 +143,27 @@ namespace StardewModdingAPI
             return new IInstructionFinder[]
             {
                 // changes in Stardew Valley 1.2 (that don't have rewriters)
-                new GenericFieldFinder("StardewValley.Game1", "borderFont", isStatic: true),
-                new GenericFieldFinder("StardewValley.Game1", "smoothFont", isStatic: true),
-                new GenericFieldFinder("StardewValley.Item", "set_Name", isStatic: false),
+                new FieldFinder("StardewValley.Game1", "borderFont", isStatic: true),
+                new FieldFinder("StardewValley.Game1", "smoothFont", isStatic: true),
+                new FieldFinder("StardewValley.Item", "set_Name", isStatic: false),
 
                 // APIs removed in SMAPI 1.9
-                new GenericTypeFinder("StardewModdingAPI.Advanced.ConfigFile"),
-                new GenericTypeFinder("StardewModdingAPI.Advanced.IConfigFile"),
-                new GenericTypeFinder("StardewModdingAPI.Entities.SPlayer"),
-                new GenericTypeFinder("StardewModdingAPI.Extensions"),
-                new GenericTypeFinder("StardewModdingAPI.Inheritance.ItemStackChange"),
-                new GenericTypeFinder("StardewModdingAPI.Inheritance.SGame"),
-                new GenericTypeFinder("StardewModdingAPI.Inheritance.SObject"),
-                new GenericTypeFinder("StardewModdingAPI.LogWriter"),
-                new GenericTypeFinder("StardewModdingAPI.Manifest"),
-                new GenericTypeFinder("StardewModdingAPI.Version"),
-                new GenericEventFinder("StardewModdingAPI.Events.GraphicsEvents", "DrawDebug"),
-                new GenericEventFinder("StardewModdingAPI.Events.GraphicsEvents", "DrawTick"),
-                new GenericEventFinder("StardewModdingAPI.Events.GraphicsEvents", "OnPostRenderHudEventNoCheck"),
-                new GenericEventFinder("StardewModdingAPI.Events.GraphicsEvents", "OnPostRenderGuiEventNoCheck"),
-                new GenericEventFinder("StardewModdingAPI.Events.GraphicsEvents", "OnPreRenderHudEventNoCheck"),
-                new GenericEventFinder("StardewModdingAPI.Events.GraphicsEvents", "OnPreRenderGuiEventNoCheck")
+                new TypeFinder("StardewModdingAPI.Advanced.ConfigFile"),
+                new TypeFinder("StardewModdingAPI.Advanced.IConfigFile"),
+                new TypeFinder("StardewModdingAPI.Entities.SPlayer"),
+                new TypeFinder("StardewModdingAPI.Extensions"),
+                new TypeFinder("StardewModdingAPI.Inheritance.ItemStackChange"),
+                new TypeFinder("StardewModdingAPI.Inheritance.SGame"),
+                new TypeFinder("StardewModdingAPI.Inheritance.SObject"),
+                new TypeFinder("StardewModdingAPI.LogWriter"),
+                new TypeFinder("StardewModdingAPI.Manifest"),
+                new TypeFinder("StardewModdingAPI.Version"),
+                new EventFinder("StardewModdingAPI.Events.GraphicsEvents", "DrawDebug"),
+                new EventFinder("StardewModdingAPI.Events.GraphicsEvents", "DrawTick"),
+                new EventFinder("StardewModdingAPI.Events.GraphicsEvents", "OnPostRenderHudEventNoCheck"),
+                new EventFinder("StardewModdingAPI.Events.GraphicsEvents", "OnPostRenderGuiEventNoCheck"),
+                new EventFinder("StardewModdingAPI.Events.GraphicsEvents", "OnPreRenderHudEventNoCheck"),
+                new EventFinder("StardewModdingAPI.Events.GraphicsEvents", "OnPreRenderGuiEventNoCheck")
             };
         }
 
@@ -173,12 +173,12 @@ namespace StardewModdingAPI
             return new IInstructionRewriter[]
             {
                 // crossplatform
-                new GenericMethodMapper(typeof(SpriteBatch), typeof(SpriteBatchWrapper), onlyIfPlatformChanged: true),
+                new MethodParentRewriter(typeof(SpriteBatch), typeof(SpriteBatchWrapper), onlyIfPlatformChanged: true),
 
                 // Stardew Valley 1.2
-                new GenericFieldToPropertyRewriter(typeof(Game1), nameof(Game1.activeClickableMenu)),
-                new GenericFieldToPropertyRewriter(typeof(Game1), nameof(Game1.gameMode)),
-                new GenericFieldToPropertyRewriter(typeof(Game1), nameof(Game1.player))
+                new FieldToPropertyRewriter(typeof(Game1), nameof(Game1.activeClickableMenu)),
+                new FieldToPropertyRewriter(typeof(Game1), nameof(Game1.gameMode)),
+                new FieldToPropertyRewriter(typeof(Game1), nameof(Game1.player))
             };
         }
 

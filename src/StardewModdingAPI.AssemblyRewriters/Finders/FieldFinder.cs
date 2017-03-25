@@ -5,7 +5,7 @@ using StardewModdingAPI.AssemblyRewriters.Framework;
 namespace StardewModdingAPI.AssemblyRewriters.Finders
 {
     /// <summary>Finds CIL instructions that reference a given field.</summary>
-    public sealed class GenericFieldFinder : BaseFieldFinder
+    public sealed class FieldFinder : BaseFieldFinder
     {
         /*********
         ** Properties
@@ -34,7 +34,7 @@ namespace StardewModdingAPI.AssemblyRewriters.Finders
         /// <param name="fullTypeName">The full type name for which to find references.</param>
         /// <param name="fieldName">The field name for which to find references.</param>
         /// <param name="isStatic">Whether the field to match is static.</param>
-        public GenericFieldFinder(string fullTypeName, string fieldName, bool isStatic)
+        public FieldFinder(string fullTypeName, string fieldName, bool isStatic)
         {
             this.FullTypeName = fullTypeName;
             this.FieldName = fieldName;

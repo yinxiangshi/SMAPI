@@ -6,7 +6,7 @@ using StardewModdingAPI.AssemblyRewriters.Framework;
 namespace StardewModdingAPI.AssemblyRewriters.Rewriters
 {
     /// <summary>Rewrites method references from one parent type to another if the signatures match.</summary>
-    public class GenericMethodMapper : BaseMethodRewriter
+    public class MethodParentRewriter : BaseMethodRewriter
     {
         /*********
         ** Properties
@@ -36,7 +36,7 @@ namespace StardewModdingAPI.AssemblyRewriters.Rewriters
         /// <param name="toType">The type with methods to map to.</param>
         /// <param name="onlyIfPlatformChanged">Whether to only rewrite references if loading the assembly on a different platform than it was compiled on.</param>
         /// <param name="nounPhrase">A brief noun phrase indicating what the instruction finder matches (or <c>null</c> to generate one).</param>
-        public GenericMethodMapper(Type fromType, Type toType, bool onlyIfPlatformChanged = false, string nounPhrase = null)
+        public MethodParentRewriter(Type fromType, Type toType, bool onlyIfPlatformChanged = false, string nounPhrase = null)
         {
             this.FromType = fromType;
             this.ToType = toType;

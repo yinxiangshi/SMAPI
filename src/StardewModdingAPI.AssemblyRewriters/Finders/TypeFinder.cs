@@ -5,7 +5,7 @@ using Mono.Cecil.Cil;
 namespace StardewModdingAPI.AssemblyRewriters.Finders
 {
     /// <summary>Finds CIL instructions that reference a given type.</summary>
-    public sealed class GenericTypeFinder : IInstructionFinder
+    public sealed class TypeFinder : IInstructionFinder
     {
         /*********
         ** Accessors
@@ -26,7 +26,7 @@ namespace StardewModdingAPI.AssemblyRewriters.Finders
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="fullTypeName">The full type name to match.</param>
-        public GenericTypeFinder(string fullTypeName)
+        public TypeFinder(string fullTypeName)
         {
             this.FullTypeName = fullTypeName;
             this.NounPhrase = $"obsolete {fullTypeName} type";

@@ -5,7 +5,7 @@ using StardewModdingAPI.AssemblyRewriters.Framework;
 namespace StardewModdingAPI.AssemblyRewriters.Finders
 {
     /// <summary>Finds CIL instructions that reference a given event.</summary>
-    public sealed class GenericEventFinder : BaseMethodFinder
+    public sealed class EventFinder : BaseMethodFinder
     {
         /*********
         ** Properties
@@ -30,7 +30,7 @@ namespace StardewModdingAPI.AssemblyRewriters.Finders
         /// <summary>Construct an instance.</summary>
         /// <param name="fullTypeName">The full type name for which to find references.</param>
         /// <param name="eventName">The event name for which to find references.</param>
-        public GenericEventFinder(string fullTypeName, string eventName)
+        public EventFinder(string fullTypeName, string eventName)
         {
             this.FullTypeName = fullTypeName;
             this.EventName = eventName;
