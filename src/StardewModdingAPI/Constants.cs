@@ -7,7 +7,6 @@ using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.AssemblyRewriters;
 using StardewModdingAPI.AssemblyRewriters.Finders;
 using StardewModdingAPI.AssemblyRewriters.Rewriters;
-using StardewModdingAPI.AssemblyRewriters.Rewriters.SDV1_2;
 using StardewModdingAPI.AssemblyRewriters.Rewriters.Wrappers;
 using StardewValley;
 
@@ -174,12 +173,12 @@ namespace StardewModdingAPI
             return new IInstructionRewriter[]
             {
                 // crossplatform
-                new GenericMethodMapper(typeof(SpriteBatch), typeof(SpriteBatchWrapper), $"{nameof(SpriteBatch)} methods", onlyIfPlatformChanged: true),
+                new GenericMethodMapper(typeof(SpriteBatch), typeof(SpriteBatchWrapper), onlyIfPlatformChanged: true),
 
                 // Stardew Valley 1.2
-                new Game1_ActiveClickableMenu_FieldRewriter(),
-                new Game1_GameMode_FieldRewriter(),
-                new Game1_Player_FieldRewriter()
+                new GenericFieldToPropertyRewriter(typeof(Game1), nameof(Game1.activeClickableMenu)),
+                new GenericFieldToPropertyRewriter(typeof(Game1), nameof(Game1.gameMode)),
+                new GenericFieldToPropertyRewriter(typeof(Game1), nameof(Game1.player))
             };
         }
 

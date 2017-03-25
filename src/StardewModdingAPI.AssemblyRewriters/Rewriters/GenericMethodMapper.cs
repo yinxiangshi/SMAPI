@@ -34,13 +34,13 @@ namespace StardewModdingAPI.AssemblyRewriters.Rewriters
         /// <summary>Construct an instance.</summary>
         /// <param name="fromType">The type whose methods to remap.</param>
         /// <param name="toType">The type with methods to map to.</param>
-        /// <param name="nounPhrase">A brief noun phrase indicating what the instruction finder matches.</param>
         /// <param name="onlyIfPlatformChanged">Whether to only rewrite references if loading the assembly on a different platform than it was compiled on.</param>
-        public GenericMethodMapper(Type fromType, Type toType, string nounPhrase, bool onlyIfPlatformChanged = false)
+        /// <param name="nounPhrase">A brief noun phrase indicating what the instruction finder matches (or <c>null</c> to generate one).</param>
+        public GenericMethodMapper(Type fromType, Type toType, bool onlyIfPlatformChanged = false, string nounPhrase = null)
         {
             this.FromType = fromType;
             this.ToType = toType;
-            this.NounPhrase = nounPhrase;
+            this.NounPhrase = nounPhrase ?? $"{fromType.Name} methods";
             this.OnlyIfPlatformChanged = onlyIfPlatformChanged;
         }
 

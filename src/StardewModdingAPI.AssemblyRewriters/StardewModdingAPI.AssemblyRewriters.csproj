@@ -80,11 +80,9 @@
     <Compile Include="Framework\BaseFieldRewriter.cs" />
     <Compile Include="Framework\BaseMethodRewriter.cs" />
     <Compile Include="Framework\RewriteHelper.cs" />
-    <Compile Include="Rewriters\Wrappers\SpriteBatchWrapper.cs" />
+    <Compile Include="Rewriters\GenericFieldToPropertyRewriter.cs" />
     <Compile Include="Rewriters\GenericMethodMapper.cs" />
-    <Compile Include="Rewriters\SDV1_2\Game1_GameMode_FieldRewriter.cs" />
-    <Compile Include="Rewriters\SDV1_2\Game1_Player_FieldRewriter.cs" />
-    <Compile Include="Rewriters\SDV1_2\Game1_ActiveClickableMenu_FieldRewriter.cs" />
+    <Compile Include="Rewriters\Wrappers\SpriteBatchWrapper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
