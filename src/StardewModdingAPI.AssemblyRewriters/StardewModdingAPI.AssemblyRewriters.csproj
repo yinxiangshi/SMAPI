@@ -70,11 +70,7 @@
     <Compile Include="Finders\FieldFinder.cs" />
     <Compile Include="Finders\MethodFinder.cs" />
     <Compile Include="Finders\TypeFinder.cs" />
-    <Compile Include="Framework\BaseFieldFinder.cs" />
-    <Compile Include="Framework\BaseFieldRewriter.cs" />
-    <Compile Include="Framework\BaseMethodFinder.cs" />
-    <Compile Include="Framework\BaseMethodRewriter.cs" />
-    <Compile Include="Framework\RewriteHelper.cs" />
+    <Compile Include="RewriteHelper.cs" />
     <Compile Include="IInstructionFinder.cs" />
     <Compile Include="IInstructionRewriter.cs" />
     <Compile Include="Platform.cs" />

@@ -143,7 +143,7 @@ namespace StardewModdingAPI
             return new IInstructionFinder[]
             {
                 // changes in Stardew Valley 1.2 (that don't have rewriters)
-                new FieldFinder("StardewValley.Item", "set_Name", isStatic: false),
+                new FieldFinder("StardewValley.Item", "set_Name"),
 
                 // APIs removed in SMAPI 1.9
                 new TypeFinder("StardewModdingAPI.Advanced.ConfigFile"),

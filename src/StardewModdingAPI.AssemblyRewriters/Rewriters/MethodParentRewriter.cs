@@ -1,12 +1,11 @@
 using System;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using StardewModdingAPI.AssemblyRewriters.Framework;
 
 namespace StardewModdingAPI.AssemblyRewriters.Rewriters
 {
     /// <summary>Rewrites method references from one parent type to another if the signatures match.</summary>
-    public class MethodParentRewriter : BaseMethodRewriter
+    public class MethodParentRewriter : IInstructionRewriter
     {
         /*********
         ** Properties
@@ -25,7 +24,7 @@ namespace StardewModdingAPI.AssemblyRewriters.Rewriters
         ** Accessors
         *********/
         /// <summary>A brief noun phrase indicating what the instruction finder matches.</summary>
-        public override string NounPhrase { get; }
+        public string NounPhrase { get; }
 
 
         /*********
@@ -48,26 +47,27 @@ namespace StardewModdingAPI.AssemblyRewriters.Rewriters
         /*********
         ** Protected methods
         *********/
-        /// <summary>Get whether a method reference should be rewritten.</summary>
+        /// <summary>Get whether a CIL instruction matches.</summary>
         /// <param name="instruction">The IL instruction.</param>
-        /// <param name="methodRef">The method reference.</param>
         /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        protected override bool IsMatch(Instruction instruction, MethodReference methodRef, bool platformChanged)
+        public bool IsMatch(Instruction instruction, bool platformChanged)
         {
+            MethodReference methodRef = RewriteHelper.AsMethodReference(instruction);
             return
-                (!this.OnlyIfPlatformChanged || platformChanged)
+                methodRef != null
+                && (platformChanged || !this.OnlyIfPlatformChanged)
                 && methodRef.DeclaringType.FullName == this.FromType.FullName
-                && this.HasMatchingSignature(this.ToType, methodRef);
+                && RewriteHelper.HasMatchingSignature(this.ToType, methodRef);
         }
 
-        /// <summary>Rewrite a method for compatibility.</summary>
+        /// <summary>Rewrite a CIL instruction for compatibility.</summary>
         /// <param name="module">The module being rewritten.</param>
         /// <param name="cil">The CIL rewriter.</param>
-        /// <param name="instruction">The instruction which calls the method.</param>
-        /// <param name="methodRef">The method reference invoked by the <paramref name="instruction"/>.</param>
+        /// <param name="instruction">The instruction to rewrite.</param>
         /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
-        protected override void Rewrite(ModuleDefinition module, ILProcessor cil, Instruction instruction, MethodReference methodRef, PlatformAssemblyMap assemblyMap)
+        public void Rewrite(ModuleDefinition module, ILProcessor cil, Instruction instruction, PlatformAssemblyMap assemblyMap)
         {
+            MethodReference methodRef = (MethodReference)instruction.Operand;
             methodRef.DeclaringType = module.Import(this.ToType);
         }
     }
