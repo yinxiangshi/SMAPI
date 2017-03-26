@@ -212,9 +212,11 @@ namespace StardewModdingAPI.Framework
                     }
 
                     // rewrite instruction if needed
-                    IInstructionRewriter rewriter = rewriters.FirstOrDefault(p => p.IsMatch(instruction, platformChanged));
-                    if (rewriter != null)
+                    foreach (IInstructionRewriter rewriter in rewriters)
                     {
+                        if (!rewriter.IsMatch(instruction, platformChanged))
+                            continue;
+
                         this.LogOnce(this.Monitor, loggedMessages, $"Rewriting {assembly.Name.Name} to fix {rewriter.NounPhrase}...");
                         rewriter.Rewrite(module, cil, instruction, this.AssemblyMap);
                         anyRewritten = true;
