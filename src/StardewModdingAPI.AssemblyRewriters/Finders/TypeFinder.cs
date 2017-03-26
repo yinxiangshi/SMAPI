@@ -72,12 +72,12 @@ namespace StardewModdingAPI.AssemblyRewriters.Finders
         /// <param name="method">The method deifnition.</param>
         protected bool IsMatch(MethodDefinition method)
         {
-            if (method.ReturnType.FullName == this.FullTypeName)
+            if (this.IsMatch(method.ReturnType))
                 return true;
 
             foreach (VariableDefinition variable in method.Body.Variables)
             {
-                if (variable.VariableType.FullName == this.FullTypeName)
+                if (this.IsMatch(variable.VariableType))
                     return true;
             }
 
@@ -88,15 +88,13 @@ namespace StardewModdingAPI.AssemblyRewriters.Finders
         /// <param name="instruction">The IL instruction.</param>
         protected bool IsMatch(Instruction instruction)
         {
-            string fullName = this.FullTypeName;
-
             // field reference
             FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);
             if (fieldRef != null)
             {
                 return
-                    fieldRef.DeclaringType.FullName == fullName // field on target class
-                    || fieldRef.FieldType.FullName == fullName; // field value is target class
+                    this.IsMatch(fieldRef.DeclaringType) // field on target class
+                    || this.IsMatch(fieldRef.FieldType); // field value is target class
             }
 
             // method reference
@@ -104,10 +102,32 @@ namespace StardewModdingAPI.AssemblyRewriters.Finders
             if (methodRef != null)
             {
                 return
-                    methodRef.DeclaringType.FullName == fullName // method on target class
-                    || methodRef.ReturnType.FullName == fullName // method returns target class
-                    || methodRef.Parameters.Any(p => p.ParameterType.FullName == fullName); // method parameters
+                    this.IsMatch(methodRef.DeclaringType) // method on target class
+                    || this.IsMatch(methodRef.ReturnType) // method returns target class
+                    || methodRef.Parameters.Any(p => this.IsMatch(p.ParameterType)); // method parameters
             }
+
+            return false;
+        }
+
+        /// <summary>Get whether a type reference matches the expected type.</summary>
+        /// <param name="type">The type to check.</param>
+        protected bool IsMatch(TypeReference type)
+        {
+            // root type
+            if (type.FullName == this.FullTypeName)
+                return true;
+
+            // generic arguments
+            if (type is GenericInstanceType genericType)
+            {
+                if (genericType.GenericArguments.Any(this.IsMatch))
+                    return true;
+            }
+
+            // generic parameters (e.g. constraints)
+            if (type.GenericParameters.Any(this.IsMatch))
+                return true;
 
             return false;
         }
