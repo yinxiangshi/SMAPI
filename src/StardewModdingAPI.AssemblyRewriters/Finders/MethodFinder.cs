@@ -3,8 +3,8 @@ using Mono.Cecil.Cil;
 
 namespace StardewModdingAPI.AssemblyRewriters.Finders
 {
-    /// <summary>Finds CIL instructions that reference a given method.</summary>
-    public class MethodFinder : IInstructionFinder
+    /// <summary>Finds incompatible CIL instructions that reference a given method and throws an <see cref="IncompatibleInstructionException"/>.</summary>
+    public class MethodFinder : IInstructionRewriter
     {
         /*********
         ** Properties
@@ -37,6 +37,22 @@ namespace StardewModdingAPI.AssemblyRewriters.Finders
             this.NounPhrase = nounPhrase ?? $"{fullTypeName}.{methodName} method";
         }
 
+        /// <summary>Rewrite a CIL instruction for compatibility.</summary>
+        /// <param name="module">The module being rewritten.</param>
+        /// <param name="cil">The CIL rewriter.</param>
+        /// <param name="instruction">The instruction to rewrite.</param>
+        /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
+        /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
+        /// <returns>Returns whether the instruction was rewritten.</returns>
+        /// <exception cref="IncompatibleInstructionException">The CIL instruction is not compatible, and can't be rewritten.</exception>
+        public bool Rewrite(ModuleDefinition module, ILProcessor cil, Instruction instruction, PlatformAssemblyMap assemblyMap, bool platformChanged)
+        {
+            if (!this.IsMatch(instruction, platformChanged))
+                return false;
+
+            throw new IncompatibleInstructionException(this.NounPhrase);
+        }
+
 
         /*********
         ** Protected methods
@@ -44,7 +60,7 @@ namespace StardewModdingAPI.AssemblyRewriters.Finders
         /// <summary>Get whether a CIL instruction matches.</summary>
         /// <param name="instruction">The IL instruction.</param>
         /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        public bool IsMatch(Instruction instruction, bool platformChanged)
+        protected bool IsMatch(Instruction instruction, bool platformChanged)
         {
             MethodReference methodRef = RewriteHelper.AsMethodReference(instruction);
             return

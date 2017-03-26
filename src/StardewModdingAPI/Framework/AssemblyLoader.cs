@@ -193,33 +193,30 @@ namespace StardewModdingAPI.Framework
                     this.ChangeTypeScope(type);
             }
 
-            // find incompatible instructions
+            // find (and optionally rewrite) incompatible instructions
             bool anyRewritten = false;
-            IInstructionFinder[] finders = Constants.GetIncompatibilityFinders().ToArray();
             IInstructionRewriter[] rewriters = Constants.GetRewriters().ToArray();
             foreach (MethodDefinition method in this.GetMethods(module))
             {
                 ILProcessor cil = method.Body.GetILProcessor();
                 foreach (Instruction instruction in cil.Body.Instructions.ToArray())
                 {
-                    // throw exception if instruction is incompatible but can't be rewritten
-                    IInstructionFinder finder = finders.FirstOrDefault(p => p.IsMatch(instruction, platformChanged));
-                    if (finder != null)
-                    {
-                        if (!assumeCompatible)
-                            throw new IncompatibleInstructionException(finder.NounPhrase, $"Found an incompatible CIL instruction ({finder.NounPhrase}) while loading assembly {assembly.Name.Name}.");
-                        this.LogOnce(this.Monitor, loggedMessages, $"Found an incompatible CIL instruction ({finder.NounPhrase}) while loading assembly {assembly.Name.Name}, but SMAPI is configured to allow it anyway. The mod may crash or behave unexpectedly.", LogLevel.Warn);
-                    }
-
-                    // rewrite instruction if needed
                     foreach (IInstructionRewriter rewriter in rewriters)
                     {
-                        if (!rewriter.IsMatch(instruction, platformChanged))
-                            continue;
-
-                        this.LogOnce(this.Monitor, loggedMessages, $"Rewriting {assembly.Name.Name} to fix {rewriter.NounPhrase}...");
-                        rewriter.Rewrite(module, cil, instruction, this.AssemblyMap);
-                        anyRewritten = true;
+                        try
+                        {
+                            if (rewriter.Rewrite(module, cil, instruction, this.AssemblyMap, platformChanged))
+                            {
+                                this.LogOnce(this.Monitor, loggedMessages, $"Rewrote {assembly.Name.Name} to fix {rewriter.NounPhrase}...");
+                                anyRewritten = true;
+                            }
+                        }
+                        catch (IncompatibleInstructionException)
+                        {
+                            if (!assumeCompatible)
+                                throw new IncompatibleInstructionException(rewriter.NounPhrase, $"Found an incompatible CIL instruction ({rewriter.NounPhrase}) while loading assembly {assembly.Name.Name}.");
+                            this.LogOnce(this.Monitor, loggedMessages, $"Found an incompatible CIL instruction ({rewriter.NounPhrase}) while loading assembly {assembly.Name.Name}, but SMAPI is configured to allow it anyway. The mod may crash or behave unexpectedly.", LogLevel.Warn);
+                        }
                     }
                 }
             }

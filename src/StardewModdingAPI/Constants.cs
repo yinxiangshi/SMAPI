@@ -137,12 +137,15 @@ namespace StardewModdingAPI
             return new PlatformAssemblyMap(targetPlatform, removeAssemblyReferences, targetAssemblies);
         }
 
-        /// <summary>Get finders which match incompatible CIL instructions in mod assemblies.</summary>
-        internal static IEnumerable<IInstructionFinder> GetIncompatibilityFinders()
+        /// <summary>Get rewriters which detect or fix incompatible CIL instructions in mod assemblies.</summary>
+        internal static IEnumerable<IInstructionRewriter> GetRewriters()
         {
-            return new IInstructionFinder[]
+            return new IInstructionRewriter[]
             {
-                // changes in Stardew Valley 1.2 (that don't have rewriters)
+                /****
+                ** Finders throw an exception when incompatible code is found.
+                ****/
+                // changes in Stardew Valley 1.2 (with no rewriters)
                 new FieldFinder("StardewValley.Item", "set_Name"),
 
                 // APIs removed in SMAPI 1.9
@@ -161,15 +164,11 @@ namespace StardewModdingAPI
                 new EventFinder("StardewModdingAPI.Events.GraphicsEvents", "OnPostRenderHudEventNoCheck"),
                 new EventFinder("StardewModdingAPI.Events.GraphicsEvents", "OnPostRenderGuiEventNoCheck"),
                 new EventFinder("StardewModdingAPI.Events.GraphicsEvents", "OnPreRenderHudEventNoCheck"),
-                new EventFinder("StardewModdingAPI.Events.GraphicsEvents", "OnPreRenderGuiEventNoCheck")
-            };
-        }
+                new EventFinder("StardewModdingAPI.Events.GraphicsEvents", "OnPreRenderGuiEventNoCheck"),
 
-        /// <summary>Get rewriters which fix incompatible CIL instructions in mod assemblies.</summary>
-        internal static IEnumerable<IInstructionRewriter> GetRewriters()
-        {
-            return new IInstructionRewriter[]
-            {
+                /****
+                ** Rewriters change CIL as needed to fix incompatible code
+                ****/
                 // crossplatform
                 new MethodParentRewriter(typeof(SpriteBatch), typeof(SpriteBatchWrapper), onlyIfPlatformChanged: true),
 

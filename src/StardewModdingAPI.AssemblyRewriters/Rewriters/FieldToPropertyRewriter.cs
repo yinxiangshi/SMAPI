@@ -6,7 +6,7 @@ using StardewModdingAPI.AssemblyRewriters.Finders;
 namespace StardewModdingAPI.AssemblyRewriters.Rewriters
 {
     /// <summary>Rewrites field references into property references.</summary>
-    public class FieldToPropertyRewriter : FieldFinder, IInstructionRewriter
+    public class FieldToPropertyRewriter : FieldFinder
     {
         /*********
         ** Properties
@@ -37,11 +37,18 @@ namespace StardewModdingAPI.AssemblyRewriters.Rewriters
         /// <param name="cil">The CIL rewriter.</param>
         /// <param name="instruction">The instruction to rewrite.</param>
         /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
-        public void Rewrite(ModuleDefinition module, ILProcessor cil, Instruction instruction, PlatformAssemblyMap assemblyMap)
+        /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
+        /// <returns>Returns whether the instruction was rewritten.</returns>
+        /// <exception cref="IncompatibleInstructionException">The CIL instruction is not compatible, and can't be rewritten.</exception>
+        public override bool Rewrite(ModuleDefinition module, ILProcessor cil, Instruction instruction, PlatformAssemblyMap assemblyMap, bool platformChanged)
         {
+            if (!this.IsMatch(instruction, platformChanged))
+                return false;
+
             string methodPrefix = instruction.OpCode == OpCodes.Ldsfld || instruction.OpCode == OpCodes.Ldfld ? "get" : "set";
             MethodReference propertyRef = module.Import(this.Type.GetMethod($"{methodPrefix}_{this.FieldName}"));
             cil.Replace(instruction, cil.Create(OpCodes.Call, propertyRef));
+            return true;
         }
     }
 }

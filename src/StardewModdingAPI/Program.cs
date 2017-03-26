@@ -12,6 +12,7 @@ using System.Windows.Forms;
 #endif
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
+using StardewModdingAPI.AssemblyRewriters;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.Logging;

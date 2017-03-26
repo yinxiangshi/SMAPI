@@ -1,9 +1,9 @@
 ﻿using System;
 
-namespace StardewModdingAPI.Framework
+namespace StardewModdingAPI.AssemblyRewriters
 {
     /// <summary>An exception raised when an incompatible instruction is found while loading a mod assembly.</summary>
-    internal class IncompatibleInstructionException : Exception
+    public class IncompatibleInstructionException : Exception
     {
         /*********
         ** Accessors
@@ -15,6 +15,14 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Public methods
         *********/
+        /// <summary>Construct an instance.</summary>
+        /// <param name="nounPhrase">A brief noun phrase which describes the incompatible instruction that was found.</param>
+        public IncompatibleInstructionException(string nounPhrase)
+            : base($"Found an incompatible CIL instruction ({nounPhrase}).")
+        {
+            this.NounPhrase = nounPhrase;
+        }
+
         /// <summary>Construct an instance.</summary>
         /// <param name="nounPhrase">A brief noun phrase which describes the incompatible instruction that was found.</param>
         /// <param name="message">A message which describes the error.</param>

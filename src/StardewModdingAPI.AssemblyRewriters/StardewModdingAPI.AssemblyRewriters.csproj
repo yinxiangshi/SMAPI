@@ -70,8 +70,8 @@
     <Compile Include="Finders\FieldFinder.cs" />
     <Compile Include="Finders\MethodFinder.cs" />
     <Compile Include="Finders\TypeFinder.cs" />
+    <Compile Include="IncompatibleInstructionException.cs" />
     <Compile Include="RewriteHelper.cs" />
-    <Compile Include="IInstructionFinder.cs" />
     <Compile Include="IInstructionRewriter.cs" />
     <Compile Include="Platform.cs" />
     <Compile Include="PlatformAssemblyMap.cs" />
