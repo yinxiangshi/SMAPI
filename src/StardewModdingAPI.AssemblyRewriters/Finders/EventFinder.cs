@@ -29,11 +29,12 @@ namespace StardewModdingAPI.AssemblyRewriters.Finders
         /// <summary>Construct an instance.</summary>
         /// <param name="fullTypeName">The full type name for which to find references.</param>
         /// <param name="eventName">The event name for which to find references.</param>
-        public EventFinder(string fullTypeName, string eventName)
+        /// <param name="nounPhrase">A brief noun phrase indicating what the instruction finder matches (or <c>null</c> to generate one).</param>
+        public EventFinder(string fullTypeName, string eventName, string nounPhrase = null)
         {
             this.FullTypeName = fullTypeName;
             this.EventName = eventName;
-            this.NounPhrase = $"obsolete {fullTypeName}.{eventName} event";
+            this.NounPhrase = nounPhrase ?? $"{fullTypeName}.{eventName} event";
         }
 
 

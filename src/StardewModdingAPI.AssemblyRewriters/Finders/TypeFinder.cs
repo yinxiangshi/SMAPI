@@ -5,7 +5,7 @@ using Mono.Cecil.Cil;
 namespace StardewModdingAPI.AssemblyRewriters.Finders
 {
     /// <summary>Finds CIL instructions that reference a given type.</summary>
-    public sealed class TypeFinder : IInstructionFinder
+    public class TypeFinder : IInstructionFinder
     {
         /*********
         ** Accessors
@@ -26,10 +26,11 @@ namespace StardewModdingAPI.AssemblyRewriters.Finders
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="fullTypeName">The full type name to match.</param>
-        public TypeFinder(string fullTypeName)
+        /// <param name="nounPhrase">A brief noun phrase indicating what the instruction finder matches (or <c>null</c> to generate one).</param>
+        public TypeFinder(string fullTypeName, string nounPhrase = null)
         {
             this.FullTypeName = fullTypeName;
-            this.NounPhrase = $"obsolete {fullTypeName} type";
+            this.NounPhrase = nounPhrase ?? $"{fullTypeName} type";
         }
 
         /// <summary>Get whether a CIL instruction matches.</summary>
@@ -40,22 +41,22 @@ namespace StardewModdingAPI.AssemblyRewriters.Finders
             string fullName = this.FullTypeName;
 
             // field reference
-            if (instruction.OpCode == OpCodes.Ldfld || instruction.OpCode == OpCodes.Ldsfld || instruction.OpCode == OpCodes.Stfld || instruction.OpCode == OpCodes.Stsfld)
+            FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);
+            if (fieldRef != null)
             {
-                FieldReference field = (FieldReference)instruction.Operand;
                 return
-                    field.DeclaringType.FullName == fullName // field on target class
-                    || field.FieldType.FullName == fullName; // field value is target class
+                    fieldRef.DeclaringType.FullName == fullName // field on target class
+                    || fieldRef.FieldType.FullName == fullName; // field value is target class
             }
 
             // method reference
-            if (instruction.OpCode == OpCodes.Call || instruction.OpCode == OpCodes.Callvirt)
+            MethodReference methodRef = RewriteHelper.AsMethodReference(instruction);
+            if (methodRef != null)
             {
-                MethodReference method = (MethodReference)instruction.Operand;
                 return
-                    method.DeclaringType.FullName == fullName // method on target class
-                    || method.ReturnType.FullName == fullName // method returns target class
-                    || method.Parameters.Any(p => p.ParameterType.FullName == fullName); // method parameters
+                    methodRef.DeclaringType.FullName == fullName // method on target class
+                    || methodRef.ReturnType.FullName == fullName // method returns target class
+                    || methodRef.Parameters.Any(p => p.ParameterType.FullName == fullName); // method parameters
             }
 
             return false;

@@ -32,10 +32,6 @@ namespace StardewModdingAPI.AssemblyRewriters.Rewriters
             this.FieldName = fieldName;
         }
 
-
-        /*********
-        ** Protected methods
-        *********/
         /// <summary>Rewrite a CIL instruction for compatibility.</summary>
         /// <param name="module">The module being rewritten.</param>
         /// <param name="cil">The CIL rewriter.</param>

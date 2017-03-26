@@ -29,11 +29,12 @@ namespace StardewModdingAPI.AssemblyRewriters.Finders
         /// <summary>Construct an instance.</summary>
         /// <param name="fullTypeName">The full type name for which to find references.</param>
         /// <param name="methodName">The method name for which to find references.</param>
-        public MethodFinder(string fullTypeName, string methodName)
+        /// <param name="nounPhrase">A brief noun phrase indicating what the instruction finder matches (or <c>null</c> to generate one).</param>
+        public MethodFinder(string fullTypeName, string methodName, string nounPhrase = null)
         {
             this.FullTypeName = fullTypeName;
             this.MethodName = methodName;
-            this.NounPhrase = $"obsolete {fullTypeName}.{methodName} method";
+            this.NounPhrase = nounPhrase ?? $"{fullTypeName}.{methodName} method";
         }
 
 
