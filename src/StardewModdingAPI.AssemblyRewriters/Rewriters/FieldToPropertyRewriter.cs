@@ -42,7 +42,7 @@ namespace StardewModdingAPI.AssemblyRewriters.Rewriters
         /// <exception cref="IncompatibleInstructionException">The CIL instruction is not compatible, and can't be rewritten.</exception>
         public override bool Rewrite(ModuleDefinition module, ILProcessor cil, Instruction instruction, PlatformAssemblyMap assemblyMap, bool platformChanged)
         {
-            if (!this.IsMatch(instruction, platformChanged))
+            if (!this.IsMatch(instruction))
                 return false;
 
             string methodPrefix = instruction.OpCode == OpCodes.Ldsfld || instruction.OpCode == OpCodes.Ldfld ? "get" : "set";

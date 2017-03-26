@@ -43,6 +43,18 @@ namespace StardewModdingAPI.AssemblyRewriters.Rewriters
             this.OnlyIfPlatformChanged = onlyIfPlatformChanged;
         }
 
+        /// <summary>Rewrite a method definition for compatibility.</summary>
+        /// <param name="module">The module being rewritten.</param>
+        /// <param name="method">The method definition to rewrite.</param>
+        /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
+        /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
+        /// <returns>Returns whether the instruction was rewritten.</returns>
+        /// <exception cref="IncompatibleInstructionException">The CIL instruction is not compatible, and can't be rewritten.</exception>
+        public bool Rewrite(ModuleDefinition module, MethodDefinition method, PlatformAssemblyMap assemblyMap, bool platformChanged)
+        {
+            return false;
+        }
+
         /// <summary>Rewrite a CIL instruction for compatibility.</summary>
         /// <param name="module">The module being rewritten.</param>
         /// <param name="cil">The CIL rewriter.</param>

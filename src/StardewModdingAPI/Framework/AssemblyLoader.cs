@@ -198,6 +198,26 @@ namespace StardewModdingAPI.Framework
             IInstructionRewriter[] rewriters = Constants.GetRewriters().ToArray();
             foreach (MethodDefinition method in this.GetMethods(module))
             {
+                // check method definition
+                foreach (IInstructionRewriter rewriter in rewriters)
+                {
+                    try
+                    {
+                        if (rewriter.Rewrite(module, method, this.AssemblyMap, platformChanged))
+                        {
+                            this.LogOnce(this.Monitor, loggedMessages, $"Rewrote {assembly.Name.Name} to fix {rewriter.NounPhrase}...");
+                            anyRewritten = true;
+                        }
+                    }
+                    catch (IncompatibleInstructionException)
+                    {
+                        if (!assumeCompatible)
+                            throw new IncompatibleInstructionException(rewriter.NounPhrase, $"Found an incompatible CIL instruction ({rewriter.NounPhrase}) while loading assembly {assembly.Name.Name}.");
+                        this.LogOnce(this.Monitor, loggedMessages, $"Found an incompatible CIL instruction ({rewriter.NounPhrase}) while loading assembly {assembly.Name.Name}, but SMAPI is configured to allow it anyway. The mod may crash or behave unexpectedly.", LogLevel.Warn);
+                    }
+                }
+
+                // check CIL instructions
                 ILProcessor cil = method.Body.GetILProcessor();
                 foreach (Instruction instruction in cil.Body.Instructions.ToArray())
                 {
