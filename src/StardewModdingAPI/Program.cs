@@ -450,9 +450,15 @@ namespace StardewModdingAPI
                 // validate assembly
                 try
                 {
-                    if (modAssembly.DefinedTypes.Count(x => x.BaseType == typeof(Mod)) == 0)
+                    int modEntries = modAssembly.DefinedTypes.Count(type => typeof(Mod).IsAssignableFrom(type) && !type.IsAbstract);
+                    if(modEntries == 0)
                     {
-                        this.Monitor.Log($"{skippedPrefix} because its DLL has no 'Mod' subclass.", LogLevel.Error);
+                        this.Monitor.Log($"{skippedPrefix} because its DLL has no '{nameof(Mod)}' subclass.", LogLevel.Error);
+                        continue;
+                    }
+                    if (modEntries > 1)
+                    {
+                        this.Monitor.Log($"{skippedPrefix} because its DLL contains multiple '{nameof(Mod)}' subclasses.", LogLevel.Error);
                         continue;
                     }
                 }
@@ -466,7 +472,7 @@ namespace StardewModdingAPI
                 try
                 {
                     // get implementation
-                    TypeInfo modEntryType = modAssembly.DefinedTypes.First(x => x.BaseType == typeof(Mod));
+                    TypeInfo modEntryType = modAssembly.DefinedTypes.First(type => typeof(Mod).IsAssignableFrom(type) && !type.IsAbstract);
                     Mod mod = (Mod)modAssembly.CreateInstance(modEntryType.ToString());
                     if (mod == null)
                     {

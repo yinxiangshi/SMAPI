@@ -44,6 +44,7 @@ For mod developers:
 * The SMAPI log now shows the OS caption (like "Windows 10") instead of its internal version when available.
 * The SMAPI log now always uses `\r\n` line endings to simplify crossplatform viewing.
 * Fixed `SaveEvents.AfterLoad` being raised during the new-game intro before the player is initialised.
+* Fixed SMAPI not recognising `Mod` instances that don't subclass `Mod` directly.
 * Several obsolete APIs have been removed (see [deprecation guide](http://canimod.com/guides/updating-a-smapi-mod)),
   and all _notice_-level deprecations have been increased to _info_.
 * Removed the experimental `IConfigFile`.
