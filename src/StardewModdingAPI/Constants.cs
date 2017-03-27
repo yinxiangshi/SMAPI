@@ -8,6 +8,7 @@ using StardewModdingAPI.AssemblyRewriters;
 using StardewModdingAPI.AssemblyRewriters.Finders;
 using StardewModdingAPI.AssemblyRewriters.Rewriters;
 using StardewModdingAPI.AssemblyRewriters.Rewriters.Wrappers;
+using StardewModdingAPI.Events;
 using StardewValley;
 
 namespace StardewModdingAPI
@@ -153,7 +154,6 @@ namespace StardewModdingAPI
                 new TypeFinder("StardewModdingAPI.Advanced.IConfigFile"),
                 new TypeFinder("StardewModdingAPI.Entities.SPlayer"),
                 new TypeFinder("StardewModdingAPI.Extensions"),
-                new TypeFinder("StardewModdingAPI.Inheritance.ItemStackChange"),
                 new TypeFinder("StardewModdingAPI.Inheritance.SGame"),
                 new TypeFinder("StardewModdingAPI.Inheritance.SObject"),
                 new TypeFinder("StardewModdingAPI.LogWriter"),
@@ -177,7 +177,8 @@ namespace StardewModdingAPI
                 new FieldToPropertyRewriter(typeof(Game1), nameof(Game1.gameMode)),
                 new FieldToPropertyRewriter(typeof(Game1), nameof(Game1.player)),
                 new FieldReplaceRewriter(typeof(Game1), "borderFont", nameof(Game1.smallFont)),
-                new FieldReplaceRewriter(typeof(Game1), "smoothFont", nameof(Game1.smallFont))
+                new FieldReplaceRewriter(typeof(Game1), "smoothFont", nameof(Game1.smallFont)),
+                new TypeReferenceRewriter("StardewModdingAPI.Inheritance.ItemStackChange", typeof(ItemStackChange))
             };
         }
 

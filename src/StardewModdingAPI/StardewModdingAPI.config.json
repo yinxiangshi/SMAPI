@@ -54,14 +54,6 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "Notes": "Uses obsolete StardewModdingAPI.Extensions."
     },
     {
-      "Name": "Casks Anywhere",
-      "ID": "CasksAnywhere",
-      "Compatibility": "AssumeBroken",
-      "UpperVersion": "1.1",
-      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/878",
-      "Notes": "Uses obsolete StardewModdingAPI.Inheritance.ItemStackChange."
-    },
-    {
       "Name": "Chest Label System",
       "ID": "SPDChestLabel",
       "UpperVersion": "1.5",
@@ -181,14 +173,6 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "Compatibility": "AssumeBroken",
       "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/572",
       "Notes": "Uses obsolete StardewModdingAPI.Extensions."
-    },
-    {
-      "Name": "Reusable Wallpapers",
-      "ID": "dae1b553-2e39-43e7-8400-c7c5c836134b",
-      "UpperVersion": "1.5",
-      "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/356",
-      "Notes": "Uses obsolete StardewModdingAPI.Inheritance.ItemStackChange."
     },
     {
       "Name": "Save Anywhere",
