@@ -76,6 +76,7 @@
     <Compile Include="Platform.cs" />
     <Compile Include="PlatformAssemblyMap.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Rewriters\TypeReferenceRewriter.cs" />
     <Compile Include="Rewriters\FieldReplaceRewriter.cs" />
     <Compile Include="Rewriters\FieldToPropertyRewriter.cs" />
     <Compile Include="Rewriters\MethodParentRewriter.cs" />
