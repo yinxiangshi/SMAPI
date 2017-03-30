@@ -94,7 +94,7 @@ namespace StardewModdingApi.Installer
                 foreach (DirectoryInfo modDir in modsDir.EnumerateDirectories())
                     yield return Path.Combine(modDir.FullName, ".cache"); // 1.4–1.7
             }
-            yield return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley", "ErrorLogs", "MODDED_ProgramLog.Log_LATEST.txt"); // *–1.8
+            yield return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley", "ErrorLogs"); // remove old log files
         }
 
         /// <summary>Whether the current console supports color formatting.</summary>

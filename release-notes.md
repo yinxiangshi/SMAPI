@@ -24,6 +24,7 @@ For players:
 * The installer now detects if you need to update .NET Framework before installing SMAPI.
 * The installer now detects if you need to run the game at least once (to let it perform first-time setup) before installing SMAPI.
 * The installer on Linux now finds games installed to `~/.steam/steam/steamapps/common/Stardew Valley` too.
+* The installer now removes old SMAPI logs to prevent confusion.
 * The console now has simpler error messages.
 * The console now has improved command handling & feedback.
 * The console no longer shows the game's debug output (unless you use a _SMAPI for developers_ build).
