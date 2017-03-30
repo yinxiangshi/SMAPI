@@ -2,20 +2,23 @@
 
 <!--
 ## 2.0
-See [log](https://github.com/Pathoschild/SMAPI/compare/1.9...2.0).
+See [log](https://github.com/Pathoschild/SMAPI/compare/1.10...2.0).
 
 For mod developers:
 * Added `ContentEvents.AssetLoading` event with a helper which lets you intercept the XNB content
   load, and dynamically adjust or replace the content being loaded (including support for patching
   images).
+
+## 1.10
+See [log](https://github.com/Pathoschild/SMAPI/compare/1.9...1.10).
+* Updated for Stardew Valley 1.2.
+* SMAPI now rewrites many mods for compatibility with game updates, but some mods will need an update.
 -->
 
 ## 1.9
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.8...1.9).
 
 For players:
-* Updated for Stardew Valley 1.2.
-* SMAPI now rewrites many mods for compatibility with game updates, but some mods will need an update.
 * SMAPI now detects incompatible mods and disables them before they cause problems.
 * SMAPI now allows mods nested into an otherwise empty parent folder (like `Mods\ModName-1.0\ModName\manifest.json`), since that's a common default behaviour when unpacking mods.
 * The installer now detects if you need to update .NET Framework before installing SMAPI.
@@ -35,10 +38,10 @@ For players:
 
 For mod developers:
 * Added a simpler API for console commands (see `helper.ConsoleCommands`).
-* Added `SaveEvents.AfterReturnToTitle` event triggered when the player returns to the title screen.
 * Added `TimeEvents.AfterDayStarted` event triggered when a day starts. This happens no matter how the day started (including new game, loaded save, or player went to bed).
-* Added `ContentEvents.AfterLocaleChanged` event triggered when the player changes the content language.
-* Added `GetPrivateProperty` to the reflection helper.
+* Added `ContentEvents.AfterLocaleChanged` event triggered when the player changes the content language (for the upcoming Stardew Valley 1.2).
+* Added `SaveEvents.AfterReturnToTitle` event triggered when the player returns to the title screen (for the upcoming Stardew Valley 1.2).
+* Added `helper.Reflection.GetPrivateProperty` method.
 * SMAPI now writes XNA input enums (`Buttons` and `Keys`) to JSON as strings automatically, so mods no longer need to add a `StringEnumConverter` themselves for those.
 * The SMAPI log now has a simpler filename.
 * The SMAPI log now shows the OS caption (like "Windows 10") instead of its internal version when available.
