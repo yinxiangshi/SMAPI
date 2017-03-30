@@ -246,10 +246,7 @@ namespace StardewModdingAPI
                 this.GameInstance.Exiting += (sender, e) => this.IsGameRunning = false;
                 this.GameInstance.Window.ClientSizeChanged += (sender, e) => GraphicsEvents.InvokeResize(this.Monitor, sender, e);
                 this.GameInstance.Window.Title = $"Stardew Valley {Constants.GameVersion} with SMAPI {Constants.ApiVersion}";
-                {
-                    Type type = typeof(Game1).Assembly.GetType("StardewValley.Program", true);
-                    type.GetField("gamePtr").SetValue(null, this.GameInstance);
-                }
+                StardewValley.Program.gamePtr = this.GameInstance;
 
                 // configure
                 Game1.graphics.GraphicsProfile = GraphicsProfile.HiDef;
