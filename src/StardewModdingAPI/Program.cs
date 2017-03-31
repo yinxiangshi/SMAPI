@@ -88,8 +88,8 @@ namespace StardewModdingAPI
         {
             // initialise logging
             Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB"); // for consistent log formatting
-            this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GameVersion} on {this.GetFriendlyPlatformName()}", LogLevel.Info);
-            Console.Title = $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion}";
+            this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GetGameDisplayVersion(Constants.GameVersion)} on {this.GetFriendlyPlatformName()}", LogLevel.Info);
+            Console.Title = $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GetGameDisplayVersion(Constants.GameVersion)}";
 
             // inject compatibility shims
 #pragma warning disable 618
@@ -131,13 +131,13 @@ namespace StardewModdingAPI
                 // verify version
                 if (Constants.GameVersion.IsOlderThan(Constants.MinimumGameVersion))
                 {
-                    this.Monitor.Log($"Oops! You're running Stardew Valley {Constants.GameDisplayVersion}, but the oldest supported version is {Constants.MinimumGameVersion}. Please update your game before using SMAPI. If you have the beta version on Steam, you may need to opt out to get the latest non-beta updates.", LogLevel.Error);
+                    this.Monitor.Log($"Oops! You're running Stardew Valley {Constants.GetGameDisplayVersion(Constants.GameVersion)}, but the oldest supported version is {Constants.GetGameDisplayVersion(Constants.MinimumGameVersion)}. Please update your game before using SMAPI. If you have the beta version on Steam, you may need to opt out to get the latest non-beta updates.", LogLevel.Error);
                     this.PressAnyKeyToExit();
                     return;
                 }
                 if (Constants.MaximumGameVersion != null && Constants.GameVersion.IsNewerThan(Constants.MaximumGameVersion))
                 {
-                    this.Monitor.Log($"Oops! You're running Stardew Valley {Constants.GameDisplayVersion}, but this version of SMAPI is only compatible up to Stardew Valley {Constants.MaximumGameVersion}. Please check for a newer version of SMAPI.", LogLevel.Error);
+                    this.Monitor.Log($"Oops! You're running Stardew Valley {Constants.GetGameDisplayVersion(Constants.GameVersion)}, but this version of SMAPI is only compatible up to Stardew Valley {Constants.GetGameDisplayVersion(Constants.MaximumGameVersion)}. Please check for a newer version of SMAPI.", LogLevel.Error);
                     this.PressAnyKeyToExit();
                     return;
                 }
@@ -530,7 +530,7 @@ namespace StardewModdingAPI
             this.Monitor.Log($"Loaded {modsLoaded} mods.");
             foreach (Action warning in deprecationWarnings)
                 warning();
-            Console.Title = $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion} with {modsLoaded} mods";
+            Console.Title = $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GetGameDisplayVersion(Constants.GameVersion)} with {modsLoaded} mods";
         }
 
         /// <summary>Run a loop handling console input.</summary>

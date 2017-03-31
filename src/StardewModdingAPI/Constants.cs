@@ -80,9 +80,6 @@ namespace StardewModdingAPI
         /// <summary>The game's current semantic version.</summary>
         internal static ISemanticVersion GameVersion { get; } = Constants.GetGameVersion();
 
-        /// <summary>The game's current version as it should be displayed to players.</summary>
-        internal static ISemanticVersion GameDisplayVersion { get; } = Constants.GetGameDisplayVersion(Constants.GameVersion);
-
         /// <summary>The target game platform.</summary>
         internal static Platform TargetPlatform { get; } =
 #if SMAPI_FOR_WINDOWS
@@ -177,6 +174,19 @@ namespace StardewModdingAPI
             };
         }
 
+        /// <summary>Get game current version as it should be displayed to players.</summary>
+        /// <param name="version">The semantic game version.</param>
+        internal static ISemanticVersion GetGameDisplayVersion(ISemanticVersion version)
+        {
+            switch (version.ToString())
+            {
+                case "1.1.1":
+                    return new SemanticVersion(1, 11, 0); // The 1.1 patch was released as 1.11
+                default:
+                    return version;
+            }
+        }
+
         /// <summary>Get the name of a save directory for the current player.</summary>
         private static string GetSaveFolderName()
         {
@@ -198,19 +208,6 @@ namespace StardewModdingAPI
             if (version == "1.11")
                 version = "1.1.1"; // The 1.1 patch was released as 1.11, which means it's out of order for semantic version checks
             return new SemanticVersion(version);
-        }
-
-        /// <summary>Get game current version as it should be displayed to players.</summary>
-        /// <param name="version">The semantic game version.</param>
-        private static ISemanticVersion GetGameDisplayVersion(ISemanticVersion version)
-        {
-            switch (version.ToString())
-            {
-                case "1.1.1":
-                    return new SemanticVersion(1, 11, 0); // The 1.1 patch was released as 1.11
-                default:
-                    return version;
-            }
         }
     }
 }
