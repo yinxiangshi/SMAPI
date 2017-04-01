@@ -43,6 +43,7 @@ For mod developers:
 * Added `ContentEvents.AfterLocaleChanged` event triggered when the player changes the content language (for the upcoming Stardew Valley 1.2).
 * Added `SaveEvents.AfterReturnToTitle` event triggered when the player returns to the title screen (for the upcoming Stardew Valley 1.2).
 * Added `helper.Reflection.GetPrivateProperty` method.
+* Added a `--log-path` argument to specify the SMAPI log path during testing.
 * SMAPI now writes XNA input enums (`Buttons` and `Keys`) to JSON as strings automatically, so mods no longer need to add a `StringEnumConverter` themselves for those.
 * The SMAPI log now has a simpler filename.
 * The SMAPI log now shows the OS caption (like "Windows 10") instead of its internal version when available.

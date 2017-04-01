@@ -145,9 +145,10 @@ field | purpose
 `ModCompatibility` | A list of mod versions SMAPI should consider compatible or broken regardless of whether it detects incompatible code. Each record can be set to `AssumeCompatible` or `AssumeBroken`. Changing this field is not recommended and may destabilise your game.
 
 ### Command-line arguments
-SMAPI recognises the following command-line arguments. These are intended for internal use and may
-change without warning.
+SMAPI recognises the following command-line arguments. These are intended for internal use or
+testing and may change without warning.
 
 argument | purpose
 -------- | -------
+`--log path "path"` | The relative or absolute path of the log file SMAPI should write.
 `--no-terminal` | SMAPI won't write anything to the console window. (Messages will still be written to the log file.)

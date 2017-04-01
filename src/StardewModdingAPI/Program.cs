@@ -30,7 +30,7 @@ namespace StardewModdingAPI
         ** Properties
         *********/
         /// <summary>The log file to which to write messages.</summary>
-        private readonly LogFileManager LogFile = new LogFileManager(Constants.LogPath);
+        private readonly LogFileManager LogFile;
 
         /// <summary>Manages console output interception.</summary>
         private readonly ConsoleInterceptionManager ConsoleManager = new ConsoleInterceptionManager();
@@ -67,17 +67,38 @@ namespace StardewModdingAPI
         /// <param name="args">The command-line arguments.</param>
         private static void Main(string[] args)
         {
-            new Program(writeToConsole: !args.Contains("--no-terminal"))
+            // get flags from arguments
+            bool writeToConsole = !args.Contains("--no-terminal");
+
+            // get log path from arguments
+            string logPath = null;
+            {
+                int pathIndex = Array.LastIndexOf(args, "--log-path") + 1;
+                if (pathIndex >= 1 && args.Length >= pathIndex)
+                {
+                    logPath = args[pathIndex];
+                    if (!Path.IsPathRooted(logPath))
+                        logPath = Path.Combine(Constants.LogDir, logPath);
+                }
+            }
+            if (string.IsNullOrWhiteSpace(logPath))
+                logPath = Constants.DefaultLogPath;
+
+            // load SMAPI
+            new Program(writeToConsole, logPath)
                 .LaunchInteractively();
         }
 
         /// <summary>Construct an instance.</summary>
-        internal Program(bool writeToConsole)
+        /// <param name="writeToConsole">Whether to output log messages to the console.</param>
+        /// <param name="logPath">The full file path to which to write log messages.</param>
+        internal Program(bool writeToConsole, string logPath)
         {
             // load settings
             this.Settings = JsonConvert.DeserializeObject<SConfig>(File.ReadAllText(Constants.ApiConfigPath));
 
             // initialise
+            this.LogFile = new LogFileManager(logPath);
             this.Monitor = new Monitor("SMAPI", this.ConsoleManager, this.LogFile, this.ExitGameImmediately) { WriteToConsole = writeToConsole };
             this.ModRegistry = new ModRegistry(this.Settings.ModCompatibility);
             this.DeprecationManager = new DeprecationManager(this.Monitor, this.ModRegistry);
@@ -460,7 +481,7 @@ namespace StardewModdingAPI
                 try
                 {
                     int modEntries = modAssembly.DefinedTypes.Count(type => typeof(Mod).IsAssignableFrom(type) && !type.IsAbstract);
-                    if(modEntries == 0)
+                    if (modEntries == 0)
                     {
                         this.Monitor.Log($"{skippedPrefix} because its DLL has no '{nameof(Mod)}' subclass.", LogLevel.Error);
                         continue;

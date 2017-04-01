@@ -69,7 +69,7 @@ namespace StardewModdingAPI
         internal static string ApiConfigPath => Path.Combine(Constants.ExecutionPath, $"{typeof(Program).Assembly.GetName().Name}.config.json");
 
         /// <summary>The file path to the log where the latest output should be saved.</summary>
-        internal static string LogPath => Path.Combine(Constants.LogDir, "SMAPI-latest.txt");
+        internal static string DefaultLogPath => Path.Combine(Constants.LogDir, "SMAPI-latest.txt");
 
         /// <summary>The full path to the folder containing mods.</summary>
         internal static string ModPath { get; } = Path.Combine(Constants.ExecutionPath, "Mods");
