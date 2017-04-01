@@ -174,6 +174,7 @@ namespace StardewModdingAPI
 
                 // Stardew Valley 1.2
                 new FieldToPropertyRewriter(typeof(Game1), nameof(Game1.activeClickableMenu)),
+                new FieldToPropertyRewriter(typeof(Game1), nameof(Game1.currentMinigame)),
                 new FieldToPropertyRewriter(typeof(Game1), nameof(Game1.gameMode)),
                 new FieldToPropertyRewriter(typeof(Game1), nameof(Game1.player)),
                 new FieldReplaceRewriter(typeof(Game1), "borderFont", nameof(Game1.smallFont)),
