@@ -9,11 +9,10 @@ namespace StardewModdingAPI.Events
         ** Accessors
         *********/
         /// <summary>The previous value.</summary>
-        public int NewInt { get; }
-
-        /// <summary>The current value.</summary>
         public int PriorInt { get; }
 
+        /// <summary>The current value.</summary>
+        public int NewInt { get; }
 
         /*********
         ** Public methods

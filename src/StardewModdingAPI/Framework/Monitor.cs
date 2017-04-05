@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using StardewModdingAPI.Framework.Logging;
 
 namespace StardewModdingAPI.Framework
 {
@@ -12,6 +13,9 @@ namespace StardewModdingAPI.Framework
         *********/
         /// <summary>The name of the module which logs messages using this instance.</summary>
         private readonly string Source;
+
+        /// <summary>Manages access to the console output.</summary>
+        private readonly ConsoleInterceptionManager ConsoleManager;
 
         /// <summary>The log file to which to write messages.</summary>
         private readonly LogFileManager LogFile;
@@ -30,18 +34,21 @@ namespace StardewModdingAPI.Framework
             [LogLevel.Alert] = ConsoleColor.Magenta
         };
 
+        /// <summary>A delegate which requests that SMAPI immediately exit the game. This should only be invoked when an irrecoverable fatal error happens that risks save corruption or game-breaking bugs.</summary>
+        private RequestExitDelegate RequestExit;
+
 
         /*********
         ** Accessors
         *********/
-        /// <summary>Whether the current console supports color codes.</summary>
-        internal static readonly bool ConsoleSupportsColor = Monitor.GetConsoleSupportsColor();
-
         /// <summary>Whether to show trace messages in the console.</summary>
         internal bool ShowTraceInConsole { get; set; }
 
         /// <summary>Whether to write anything to the console. This should be disabled if no console is available.</summary>
         internal bool WriteToConsole { get; set; } = true;
+
+        /// <summary>Whether to write anything to the log file. This should almost always be enabled.</summary>
+        internal bool WriteToFile { get; set; } = true;
 
 
         /*********
@@ -49,8 +56,10 @@ namespace StardewModdingAPI.Framework
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="source">The name of the module which logs messages using this instance.</param>
+        /// <param name="consoleManager">Manages access to the console output.</param>
         /// <param name="logFile">The log file to which to write messages.</param>
-        public Monitor(string source, LogFileManager logFile)
+        /// <param name="requestExitDelegate">A delegate which requests that SMAPI immediately exit the game.</param>
+        public Monitor(string source, ConsoleInterceptionManager consoleManager, LogFileManager logFile, RequestExitDelegate requestExitDelegate)
         {
             // validate
             if (string.IsNullOrWhiteSpace(source))
@@ -61,6 +70,7 @@ namespace StardewModdingAPI.Framework
             // initialise
             this.Source = source;
             this.LogFile = logFile;
+            this.ConsoleManager = consoleManager;
         }
 
         /// <summary>Log a message for the player or developer.</summary>
@@ -68,23 +78,21 @@ namespace StardewModdingAPI.Framework
         /// <param name="level">The log severity level.</param>
         public void Log(string message, LogLevel level = LogLevel.Debug)
         {
-            this.LogImpl(this.Source, message, Monitor.Colors[level], level);
+            this.LogImpl(this.Source, message, level, Monitor.Colors[level]);
         }
 
         /// <summary>Immediately exit the game without saving. This should only be invoked when an irrecoverable fatal error happens that risks save corruption or game-breaking bugs.</summary>
         /// <param name="reason">The reason for the shutdown.</param>
         public void ExitGameImmediately(string reason)
         {
-            Program.ExitGameImmediately(this.Source, reason);
-            Program.gamePtr.Exit();
+            this.RequestExit(this.Source, reason);
         }
 
         /// <summary>Log a fatal error message.</summary>
         /// <param name="message">The message to log.</param>
         internal void LogFatal(string message)
         {
-            Console.BackgroundColor = ConsoleColor.Red;
-            this.LogImpl(this.Source, message, ConsoleColor.White, LogLevel.Error);
+            this.LogImpl(this.Source, message, LogLevel.Error, ConsoleColor.White, background: ConsoleColor.Red);
         }
 
         /// <summary>Log a message for the player or developer, using the specified console color.</summary>
@@ -95,7 +103,7 @@ namespace StardewModdingAPI.Framework
         [Obsolete("This method is provided for backwards compatibility and otherwise should not be used. Use " + nameof(Monitor) + "." + nameof(Monitor.Log) + " instead.")]
         internal void LegacyLog(string source, string message, ConsoleColor color, LogLevel level = LogLevel.Debug)
         {
-            this.LogImpl(source, message, color, level);
+            this.LogImpl(source, message, level, color);
         }
 
 
@@ -105,41 +113,34 @@ namespace StardewModdingAPI.Framework
         /// <summary>Write a message line to the log.</summary>
         /// <param name="source">The name of the mod logging the message.</param>
         /// <param name="message">The message to log.</param>
-        /// <param name="color">The console color.</param>
         /// <param name="level">The log level.</param>
-        private void LogImpl(string source, string message, ConsoleColor color, LogLevel level)
+        /// <param name="color">The console foreground color.</param>
+        /// <param name="background">The console background color (or <c>null</c> to leave it as-is).</param>
+        private void LogImpl(string source, string message, LogLevel level, ConsoleColor color, ConsoleColor? background = null)
         {
             // generate message
             string levelStr = level.ToString().ToUpper().PadRight(Monitor.MaxLevelLength);
             message = $"[{DateTime.Now:HH:mm:ss} {levelStr} {source}] {message}";
 
-            // log
+            // write to console
             if (this.WriteToConsole && (this.ShowTraceInConsole || level != LogLevel.Trace))
             {
-                if (Monitor.ConsoleSupportsColor)
+                this.ConsoleManager.ExclusiveWriteWithoutInterception(() =>
                 {
-                    Console.ForegroundColor = color;
-                    Console.WriteLine(message);
-                    Console.ResetColor();
-                }
-                else
-                    Console.WriteLine(message);
+                    if (this.ConsoleManager.SupportsColor)
+                    {
+                        Console.ForegroundColor = color;
+                        Console.WriteLine(message);
+                        Console.ResetColor();
+                    }
+                    else
+                        Console.WriteLine(message);
+                });
             }
-            this.LogFile.WriteLine(message);
-        }
 
-        /// <summary>Test whether the current console supports color formatting.</summary>
-        private static bool GetConsoleSupportsColor()
-        {
-            try
-            {
-                Console.ForegroundColor = Console.ForegroundColor;
-                return true;
-            }
-            catch (Exception)
-            {
-                return false; // Mono bug
-            }
+            // write to log file
+            if (this.WriteToFile)
+                this.LogFile.WriteLine(message);
         }
     }
 }

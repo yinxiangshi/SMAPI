@@ -12,6 +12,13 @@ namespace StardewModdingAPI
     public abstract class Config
     {
         /*********
+        ** Properties
+        *********/
+        /// <summary>Manages deprecation warnings.</summary>
+        private static DeprecationManager DeprecationManager;
+
+
+        /*********
         ** Accessors
         *********/
         /// <summary>The full path to the configuration file.</summary>
@@ -26,6 +33,13 @@ namespace StardewModdingAPI
         /*********
         ** Public methods
         *********/
+        /// <summary>Injects types required for backwards compatibility.</summary>
+        /// <param name="deprecationManager">Manages deprecation warnings.</param>
+        internal static void Shim(DeprecationManager deprecationManager)
+        {
+            Config.DeprecationManager = deprecationManager;
+        }
+
         /// <summary>Construct an instance of the config class.</summary>
         /// <typeparam name="T">The config class type.</typeparam>
         [Obsolete("This base class is obsolete since SMAPI 1.0. See the latest project README for details.")]
@@ -111,8 +125,8 @@ namespace StardewModdingAPI
         /// <summary>Construct an instance.</summary>
         protected Config()
         {
-            Program.DeprecationManager.Warn("the Config class", "1.0", DeprecationLevel.Notice);
-            Program.DeprecationManager.MarkWarned($"{nameof(Mod)}.{nameof(Mod.BaseConfigPath)}", "1.0"); // typically used to construct config, avoid redundant warnings
+            Config.DeprecationManager.Warn("the Config class", "1.0", DeprecationLevel.Info);
+            Config.DeprecationManager.MarkWarned($"{nameof(Mod)}.{nameof(Mod.BaseConfigPath)}", "1.0"); // typically used to construct config, avoid redundant warnings
         }
     }
 

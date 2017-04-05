@@ -2,14 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using StardewModdingAPI.Framework;
-using StardewModdingAPI.Inheritance;
 using StardewValley;
+using SFarmer = StardewValley.Farmer;
 
 namespace StardewModdingAPI.Events
 {
     /// <summary>Events raised when the player data changes.</summary>
     public static class PlayerEvents
     {
+        /*********
+        ** Properties
+        *********/
+        /// <summary>Manages deprecation warnings.</summary>
+        private static DeprecationManager DeprecationManager;
+
+
         /*********
         ** Events
         *********/
@@ -31,6 +38,13 @@ namespace StardewModdingAPI.Events
         /*********
         ** Internal methods
         *********/
+        /// <summary>Injects types required for backwards compatibility.</summary>
+        /// <param name="deprecationManager">Manages deprecation warnings.</param>
+        internal static void Shim(DeprecationManager deprecationManager)
+        {
+            PlayerEvents.DeprecationManager = deprecationManager;
+        }
+
         /// <summary>Raise a <see cref="LoadedGame"/> event.</summary>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="loaded">Whether the save has been loaded. This is always true.</param>
@@ -42,7 +56,7 @@ namespace StardewModdingAPI.Events
             string name = $"{nameof(PlayerEvents)}.{nameof(PlayerEvents.LoadedGame)}";
             Delegate[] handlers = PlayerEvents.LoadedGame.GetInvocationList();
 
-            Program.DeprecationManager.WarnForEvent(handlers, name, "1.6", DeprecationLevel.Notice);
+            PlayerEvents.DeprecationManager.WarnForEvent(handlers, name, "1.6", DeprecationLevel.Info);
             monitor.SafelyRaiseGenericEvent(name, handlers, null, loaded);
         }
 
@@ -50,7 +64,7 @@ namespace StardewModdingAPI.Events
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="priorFarmer">The previous player character.</param>
         /// <param name="newFarmer">The new player character.</param>
-        internal static void InvokeFarmerChanged(IMonitor monitor, Farmer priorFarmer, Farmer newFarmer)
+        internal static void InvokeFarmerChanged(IMonitor monitor, SFarmer priorFarmer, SFarmer newFarmer)
         {
             if (PlayerEvents.FarmerChanged == null)
                 return;
@@ -58,7 +72,7 @@ namespace StardewModdingAPI.Events
             string name = $"{nameof(PlayerEvents)}.{nameof(PlayerEvents.FarmerChanged)}";
             Delegate[] handlers = PlayerEvents.FarmerChanged.GetInvocationList();
 
-            Program.DeprecationManager.WarnForEvent(handlers, name, "1.6", DeprecationLevel.Notice);
+            PlayerEvents.DeprecationManager.WarnForEvent(handlers, name, "1.6", DeprecationLevel.Info);
             monitor.SafelyRaiseGenericEvent(name, handlers, null, new EventArgsFarmerChanged(priorFarmer, newFarmer));
         }
 

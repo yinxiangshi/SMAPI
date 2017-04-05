@@ -59,6 +59,41 @@ namespace StardewModdingAPI.Framework.Reflection
         }
 
         /****
+        ** Properties
+        ****/
+        /// <summary>Get a private instance property.</summary>
+        /// <typeparam name="TValue">The property type.</typeparam>
+        /// <param name="obj">The object which has the property.</param>
+        /// <param name="name">The property name.</param>
+        /// <param name="required">Whether to throw an exception if the private property is not found.</param>
+        public IPrivateProperty<TValue> GetPrivateProperty<TValue>(object obj, string name, bool required = true)
+        {
+            // validate
+            if (obj == null)
+                throw new ArgumentNullException(nameof(obj), "Can't get a private instance property from a null object.");
+
+            // get property from hierarchy
+            IPrivateProperty<TValue> property = this.GetPropertyFromHierarchy<TValue>(obj.GetType(), obj, name, BindingFlags.Instance | BindingFlags.NonPublic);
+            if (required && property == null)
+                throw new InvalidOperationException($"The {obj.GetType().FullName} object doesn't have a private '{name}' instance property.");
+            return property;
+        }
+
+        /// <summary>Get a private static property.</summary>
+        /// <typeparam name="TValue">The property type.</typeparam>
+        /// <param name="type">The type which has the property.</param>
+        /// <param name="name">The property name.</param>
+        /// <param name="required">Whether to throw an exception if the private property is not found.</param>
+        public IPrivateProperty<TValue> GetPrivateProperty<TValue>(Type type, string name, bool required = true)
+        {
+            // get field from hierarchy
+            IPrivateProperty<TValue> property = this.GetPropertyFromHierarchy<TValue>(type, null, name, BindingFlags.NonPublic | BindingFlags.Static);
+            if (required && property == null)
+                throw new InvalidOperationException($"The {type.FullName} object doesn't have a private '{name}' static property.");
+            return property;
+        }
+
+        /****
         ** Field values
         ** (shorthand since this is the most common case)
         ****/
@@ -189,6 +224,28 @@ namespace StardewModdingAPI.Framework.Reflection
 
             return field != null
                 ? new PrivateField<TValue>(type, obj, field, isStatic)
+                : null;
+        }
+
+        /// <summary>Get a property from the type hierarchy.</summary>
+        /// <typeparam name="TValue">The expected property type.</typeparam>
+        /// <param name="type">The type which has the property.</param>
+        /// <param name="obj">The object which has the property.</param>
+        /// <param name="name">The property name.</param>
+        /// <param name="bindingFlags">The reflection binding which flags which indicates what type of property to find.</param>
+        private IPrivateProperty<TValue> GetPropertyFromHierarchy<TValue>(Type type, object obj, string name, BindingFlags bindingFlags)
+        {
+            bool isStatic = bindingFlags.HasFlag(BindingFlags.Static);
+            PropertyInfo property = this.GetCached<PropertyInfo>($"property::{isStatic}::{type.FullName}::{name}", () =>
+            {
+                PropertyInfo propertyInfo = null;
+                for (; type != null && propertyInfo == null; type = type.BaseType)
+                    propertyInfo = type.GetProperty(name, bindingFlags);
+                return propertyInfo;
+            });
+
+            return property != null
+                ? new PrivateProperty<TValue>(type, obj, property, isStatic)
                 : null;
         }
 

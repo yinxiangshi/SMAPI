@@ -1,0 +1,93 @@
+﻿using System;
+using System.Reflection;
+
+namespace StardewModdingAPI.Framework.Reflection
+{
+    /// <summary>A private property obtained through reflection.</summary>
+    /// <typeparam name="TValue">The property value type.</typeparam>
+    internal class PrivateProperty<TValue> : IPrivateProperty<TValue>
+    {
+        /*********
+        ** Properties
+        *********/
+        /// <summary>The type that has the field.</summary>
+        private readonly Type ParentType;
+
+        /// <summary>The object that has the instance field (if applicable).</summary>
+        private readonly object Parent;
+
+        /// <summary>The display name shown in error messages.</summary>
+        private string DisplayName => $"{this.ParentType.FullName}::{this.PropertyInfo.Name}";
+
+
+        /*********
+        ** Accessors
+        *********/
+        /// <summary>The reflection metadata.</summary>
+        public PropertyInfo PropertyInfo { get; }
+
+
+        /*********
+        ** Public methods
+        *********/
+        /// <summary>Construct an instance.</summary>
+        /// <param name="parentType">The type that has the field.</param>
+        /// <param name="obj">The object that has the instance field (if applicable).</param>
+        /// <param name="property">The reflection metadata.</param>
+        /// <param name="isStatic">Whether the field is static.</param>
+        /// <exception cref="ArgumentNullException">The <paramref name="parentType"/> or <paramref name="property"/> is null.</exception>
+        /// <exception cref="ArgumentException">The <paramref name="obj"/> is null for a non-static field, or not null for a static field.</exception>
+        public PrivateProperty(Type parentType, object obj, PropertyInfo property, bool isStatic)
+        {
+            // validate
+            if (parentType == null)
+                throw new ArgumentNullException(nameof(parentType));
+            if (property == null)
+                throw new ArgumentNullException(nameof(property));
+            if (isStatic && obj != null)
+                throw new ArgumentException("A static property cannot have an object instance.");
+            if (!isStatic && obj == null)
+                throw new ArgumentException("A non-static property must have an object instance.");
+
+            // save
+            this.ParentType = parentType;
+            this.Parent = obj;
+            this.PropertyInfo = property;
+        }
+
+        /// <summary>Get the property value.</summary>
+        public TValue GetValue()
+        {
+            try
+            {
+                return (TValue)this.PropertyInfo.GetValue(this.Parent);
+            }
+            catch (InvalidCastException)
+            {
+                throw new InvalidCastException($"Can't convert the private {this.DisplayName} property from {this.PropertyInfo.PropertyType.FullName} to {typeof(TValue).FullName}.");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Couldn't get the value of the private {this.DisplayName} property", ex);
+            }
+        }
+
+        /// <summary>Set the property value.</summary>
+        //// <param name="value">The value to set.</param>
+        public void SetValue(TValue value)
+        {
+            try
+            {
+                this.PropertyInfo.SetValue(this.Parent, value);
+            }
+            catch (InvalidCastException)
+            {
+                throw new InvalidCastException($"Can't assign the private {this.DisplayName} property a {typeof(TValue).FullName} value, must be compatible with {this.PropertyInfo.PropertyType.FullName}.");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Couldn't set the value of the private {this.DisplayName} property", ex);
+            }
+        }
+    }
+}

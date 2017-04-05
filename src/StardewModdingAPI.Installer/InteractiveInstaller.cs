@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-#if SMAPI_FOR_WINDOWS
+using System.Threading;
 using Microsoft.Win32;
-#endif
 using StardewModdingApi.Installer.Enums;
 
 namespace StardewModdingApi.Installer
@@ -16,38 +15,48 @@ namespace StardewModdingApi.Installer
         /*********
         ** Properties
         *********/
+        /// <summary>The <see cref="Environment.OSVersion"/> value that represents Windows 7.</summary>
+        private readonly Version Windows7Version = new Version(6, 1);
+
         /// <summary>The default file paths where Stardew Valley can be installed.</summary>
+        /// <param name="platform">The target platform.</param>
         /// <remarks>Derived from the crossplatform mod config: https://github.com/Pathoschild/Stardew.ModBuildConfig. </remarks>
-        private IEnumerable<string> DefaultInstallPaths
+        private IEnumerable<string> GetDefaultInstallPaths(Platform platform)
         {
-            get
+            switch (platform)
             {
-                // Linux
-                yield return $"{Environment.GetEnvironmentVariable("HOME")}/GOG Games/Stardew Valley/game";
-                yield return $"{Environment.GetEnvironmentVariable("HOME")}/.local/share/Steam/steamapps/common/Stardew Valley";
+                case Platform.Mono:
+                    // Linux
+                    yield return $"{Environment.GetEnvironmentVariable("HOME")}/GOG Games/Stardew Valley/game";
+                    yield return $"{Environment.GetEnvironmentVariable("HOME")}/.local/share/Steam/steamapps/common/Stardew Valley";
+                    yield return $"{Environment.GetEnvironmentVariable("HOME")}/.steam/steam/steamapps/common/Stardew Valley";
 
-                // Mac
-                yield return "/Applications/Stardew Valley.app/Contents/MacOS";
-                yield return $"{Environment.GetEnvironmentVariable("HOME")}/Library/Application Support/Steam/steamapps/common/Stardew Valley/Contents/MacOS";
+                    // Mac
+                    yield return "/Applications/Stardew Valley.app/Contents/MacOS";
+                    yield return $"{Environment.GetEnvironmentVariable("HOME")}/Library/Application Support/Steam/steamapps/common/Stardew Valley/Contents/MacOS";
+                    break;
 
-                // Windows
-                yield return @"C:\Program Files (x86)\GalaxyClient\Games\Stardew Valley";
-                yield return @"C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley";
+                case Platform.Windows:
+                    // Windows
+                    yield return @"C:\Program Files (x86)\GalaxyClient\Games\Stardew Valley";
+                    yield return @"C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley";
 
-                // Windows registry
-#if SMAPI_FOR_WINDOWS
-                IDictionary<string, string> registryKeys = new Dictionary<string, string>
-                {
-                    [@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 413150"] = "InstallLocation", // Steam
-                    [@"SOFTWARE\WOW6432Node\GOG.com\Games\1453375253"] = "PATH", // GOG on 64-bit Windows
-                };
-                foreach (var pair in registryKeys)
-                {
-                    string path = this.GetLocalMachineRegistryValue(pair.Key, pair.Value);
-                    if (!string.IsNullOrWhiteSpace(path))
-                        yield return path;
-                }
-#endif
+                    // Windows registry
+                    IDictionary<string, string> registryKeys = new Dictionary<string, string>
+                    {
+                        [@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 413150"] = "InstallLocation", // Steam
+                        [@"SOFTWARE\WOW6432Node\GOG.com\Games\1453375253"] = "PATH", // GOG on 64-bit Windows
+                    };
+                    foreach (var pair in registryKeys)
+                    {
+                        string path = this.GetLocalMachineRegistryValue(pair.Key, pair.Value);
+                        if (!string.IsNullOrWhiteSpace(path))
+                            yield return path;
+                    }
+                    break;
+
+                default:
+                    throw new InvalidOperationException($"Unknown platform '{platform}'.");
             }
         }
 
@@ -59,6 +68,8 @@ namespace StardewModdingApi.Installer
             Func<string, string> installPath = path => Path.Combine(installDir.FullName, path);
 
             // common
+            yield return installPath("Mono.Cecil.dll");
+            yield return installPath("Newtonsoft.Json.dll");
             yield return installPath("StardewModdingAPI.exe");
             yield return installPath("StardewModdingAPI.config.json");
             yield return installPath("StardewModdingAPI.data.json");
@@ -66,9 +77,6 @@ namespace StardewModdingApi.Installer
             yield return installPath("steam_appid.txt");
 
             // Linux/Mac only
-            yield return installPath("Mono.Cecil.dll");
-            yield return installPath("Mono.Cecil.Rocks.dll");
-            yield return installPath("Newtonsoft.Json.dll");
             yield return installPath("StardewModdingAPI");
             yield return installPath("StardewModdingAPI.exe.mdb");
             yield return installPath("System.Numerics.dll");
@@ -79,9 +87,14 @@ namespace StardewModdingApi.Installer
 
             // obsolete
             yield return installPath("Mods/.cache"); // 1.3-1.4
+            yield return installPath("Mono.Cecil.Rocks.dll"); // 1.3–1.8
             yield return installPath("StardewModdingAPI-settings.json"); // 1.0-1.4
-            foreach (DirectoryInfo modDir in modsDir.EnumerateDirectories())
-                yield return Path.Combine(modDir.FullName, ".cache"); // 1.4–1.7
+            if (modsDir.Exists)
+            {
+                foreach (DirectoryInfo modDir in modsDir.EnumerateDirectories())
+                    yield return Path.Combine(modDir.FullName, ".cache"); // 1.4–1.7
+            }
+            yield return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley", "ErrorLogs"); // remove old log files
         }
 
         /// <summary>Whether the current console supports color formatting.</summary>
@@ -100,7 +113,7 @@ namespace StardewModdingApi.Installer
         /// 
         /// Uninstall logic:
         ///     1. On Linux/Mac: if a backup of the launcher exists, delete the launcher and restore the backup.
-        ///     2. Delete all files and folders in the game directory matching one of the <see cref="UninstallPaths"/>.
+        ///     2. Delete all files and folders in the game directory matching one of the values returned by <see cref="GetUninstallPaths"/>.
         /// 
         /// Install flow:
         ///     1. Run the uninstall flow.
@@ -133,14 +146,41 @@ namespace StardewModdingApi.Installer
             ****/
             if (!packageDir.Exists)
             {
-                this.ExitError($"The 'internal/{platform}' package folder is missing (should be at {packageDir}).");
+                this.PrintError($"The 'internal/{platform}' package folder is missing (should be at {packageDir}).");
+                Console.ReadLine();
                 return;
             }
             if (!File.Exists(paths.executable))
             {
-                this.ExitError("The detected game install path doesn't contain a Stardew Valley executable.");
+                this.PrintError("The detected game install path doesn't contain a Stardew Valley executable.");
+                Console.ReadLine();
                 return;
             }
+
+            /****
+            ** validate Windows dependencies
+            ****/
+            if (platform == Platform.Windows)
+            {
+                // .NET Framework 4.5+
+                if (!this.HasNetFramework45(platform))
+                {
+                    this.PrintError(Environment.OSVersion.Version >= this.Windows7Version
+                            ? "Please install the latest version of .NET Framework before installing SMAPI." // Windows 7+
+                            : "Please install .NET Framework 4.5 before installing SMAPI." // Windows Vista or earlier
+                    );
+                    this.PrintError("See the download page at https://www.microsoft.com/net/download/framework for details.");
+                    Console.ReadLine();
+                    return;
+                }
+                if (!this.HasXNA(platform))
+                {
+                    this.PrintError("You don't seem to have XNA Framework installed. Please run the game at least once before installing SMAPI, so it can perform its first-time setup.");
+                    Console.ReadLine();
+                    return;
+                }
+            }
+
             Console.WriteLine();
 
             /****
@@ -175,8 +215,7 @@ namespace StardewModdingApi.Installer
             if (platform == Platform.Mono && File.Exists(paths.unixLauncherBackup))
             {
                 this.PrintDebug("Removing SMAPI launcher...");
-                if (File.Exists(paths.unixLauncher))
-                    File.Delete(paths.unixLauncher);
+                this.InteractivelyDelete(paths.unixLauncher);
                 File.Move(paths.unixLauncherBackup, paths.unixLauncher);
             }
 
@@ -188,12 +227,7 @@ namespace StardewModdingApi.Installer
             {
                 this.PrintDebug(action == ScriptAction.Install ? "Removing previous SMAPI files..." : "Removing SMAPI files...");
                 foreach (string path in removePaths)
-                {
-                    if (Directory.Exists(path))
-                        Directory.Delete(path, recursive: true);
-                    else
-                        File.Delete(path);
-                }
+                    this.InteractivelyDelete(path);
             }
 
             /****
@@ -206,8 +240,7 @@ namespace StardewModdingApi.Installer
                 foreach (FileInfo sourceFile in packageDir.EnumerateFiles())
                 {
                     string targetPath = Path.Combine(installDir.FullName, sourceFile.Name);
-                    if (File.Exists(targetPath))
-                        File.Delete(targetPath);
+                    this.InteractivelyDelete(targetPath);
                     sourceFile.CopyTo(targetPath);
                 }
 
@@ -218,7 +251,7 @@ namespace StardewModdingApi.Installer
                     if (!File.Exists(paths.unixLauncherBackup))
                         File.Move(paths.unixLauncher, paths.unixLauncherBackup);
                     else if (File.Exists(paths.unixLauncher))
-                        File.Delete(paths.unixLauncher);
+                        this.InteractivelyDelete(paths.unixLauncher);
 
                     File.Move(paths.unixSmapiLauncher, paths.unixLauncher);
                 }
@@ -242,8 +275,7 @@ namespace StardewModdingApi.Installer
 
                         // initialise target dir
                         DirectoryInfo targetDir = new DirectoryInfo(Path.Combine(modsDir.FullName, sourceDir.Name));
-                        if (targetDir.Exists)
-                            targetDir.Delete(recursive: true);
+                        this.InteractivelyDelete(targetDir.FullName);
                         targetDir.Create();
 
                         // copy files
@@ -308,7 +340,6 @@ namespace StardewModdingApi.Installer
             }
         }
 
-#if SMAPI_FOR_WINDOWS
         /// <summary>Get the value of a key in the Windows registry.</summary>
         /// <param name="key">The full path of the registry key relative to HKLM.</param>
         /// <param name="name">The name of the value.</param>
@@ -321,7 +352,6 @@ namespace StardewModdingApi.Installer
             using (openKey)
                 return (string)openKey.GetValue(name);
         }
-#endif
 
         /// <summary>Print a debug message.</summary>
         /// <param name="text">The text to print.</param>
@@ -337,12 +367,11 @@ namespace StardewModdingApi.Installer
             this.PrintColor(text, ConsoleColor.DarkYellow);
         }
 
-        /// <summary>Print an error and pause the console if needed.</summary>
-        /// <param name="error">The error text.</param>
-        private void ExitError(string error)
+        /// <summary>Print a warning message.</summary>
+        /// <param name="text">The text to print.</param>
+        private void PrintError(string text)
         {
-            this.PrintColor(error, ConsoleColor.Red);
-            Console.ReadLine();
+            this.PrintColor(text, ConsoleColor.Red);
         }
 
         /// <summary>Print a message to the console.</summary>
@@ -358,6 +387,93 @@ namespace StardewModdingApi.Installer
             }
             else
                 Console.WriteLine(text);
+        }
+
+        /// <summary>Get whether the current system has .NET Framework 4.5 or later installed. This only applies on Windows.</summary>
+        /// <param name="platform">The current platform.</param>
+        /// <exception cref="NotSupportedException">The current platform is not Windows.</exception>
+        private bool HasNetFramework45(Platform platform)
+        {
+            switch (platform)
+            {
+                case Platform.Windows:
+                    using (RegistryKey versionKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32).OpenSubKey(@"SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full"))
+                        return versionKey?.GetValue("Release") != null; // .NET Framework 4.5+
+
+                default:
+                    throw new NotSupportedException("The installed .NET Framework version can only be checked on Windows.");
+            }
+        }
+
+        /// <summary>Get whether the current system has XNA Framework installed. This only applies on Windows.</summary>
+        /// <param name="platform">The current platform.</param>
+        /// <exception cref="NotSupportedException">The current platform is not Windows.</exception>
+        private bool HasXNA(Platform platform)
+        {
+            switch (platform)
+            {
+                case Platform.Windows:
+                    using (RegistryKey key = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32).OpenSubKey(@"SOFTWARE\Microsoft\XNA\Framework"))
+                        return key != null; // XNA Framework 4.0+
+
+                default:
+                    throw new NotSupportedException("The installed XNA Framework version can only be checked on Windows.");
+            }
+        }
+
+        /// <summary>Interactively delete a file or folder path, and block until deletion completes.</summary>
+        /// <param name="path">The file or folder path.</param>
+        private void InteractivelyDelete(string path)
+        {
+            while (true)
+            {
+                try
+                {
+                    this.ForceDelete(Directory.Exists(path) ? new DirectoryInfo(path) : (FileSystemInfo)new FileInfo(path));
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    this.PrintError($"Oops! The installer couldn't delete {path}: [{ex.GetType().Name}] {ex.Message}.");
+                    this.PrintError("Please delete it yourself, then press any key to retry.");
+                    Console.ReadKey();
+                }
+            }
+        }
+
+        /// <summary>Delete a file or folder regardless of file permissions, and block until deletion completes.</summary>
+        /// <param name="entry">The file or folder to reset.</param>
+        private void ForceDelete(FileSystemInfo entry)
+        {
+            // ignore if already deleted
+            entry.Refresh();
+            if (!entry.Exists)
+                return;
+
+            // delete children
+            var folder = entry as DirectoryInfo;
+            if (folder != null)
+            {
+                foreach (FileSystemInfo child in folder.GetFileSystemInfos())
+                    this.ForceDelete(child);
+            }
+
+            // reset permissions & delete
+            entry.Attributes = FileAttributes.Normal;
+            entry.Delete();
+
+            // wait for deletion to finish
+            for (int i = 0; i < 10; i++)
+            {
+                entry.Refresh();
+                if (entry.Exists)
+                    Thread.Sleep(500);
+            }
+
+            // throw exception if deletion didn't happen before timeout
+            entry.Refresh();
+            if (entry.Exists)
+                throw new IOException($"Timed out trying to delete {entry.FullName}");
         }
 
         /// <summary>Interactively ask the user to choose a value.</summary>
@@ -382,10 +498,16 @@ namespace StardewModdingApi.Installer
         /// <param name="platform">The current platform.</param>
         private DirectoryInfo InteractivelyGetInstallPath(Platform platform)
         {
+            // get executable name
+            string executableFilename = platform == Platform.Windows
+                ? "Stardew Valley.exe"
+                : "StardewValley.exe";
+
             // try default paths
-            foreach (string defaultPath in this.DefaultInstallPaths)
+            foreach (string defaultPath in this.GetDefaultInstallPaths(platform))
             {
-                if (Directory.Exists(defaultPath))
+                DirectoryInfo dir = new DirectoryInfo(defaultPath);
+                if (dir.Exists && dir.EnumerateFiles(executableFilename).Any())
                     return new DirectoryInfo(defaultPath);
             }
 
@@ -394,7 +516,7 @@ namespace StardewModdingApi.Installer
             while (true)
             {
                 // get path from user
-                Console.WriteLine($"Type the file path to the game directory (the one containing '{(platform == Platform.Mono ? "StardewValley.exe" : "Stardew Valley.exe")}'), then press enter.");
+                Console.WriteLine($"Type the file path to the game directory (the one containing '{executableFilename}'), then press enter.");
                 string path = Console.ReadLine()?.Trim();
                 if (string.IsNullOrWhiteSpace(path))
                 {
@@ -402,9 +524,16 @@ namespace StardewModdingApi.Installer
                     continue;
                 }
 
-                // normalise on Windows
+                // normalise path
                 if (platform == Platform.Windows)
                     path = path.Replace("\"", ""); // in Windows, quotes are used to escape spaces and aren't part of the file path
+                if (platform == Platform.Mono)
+                    path = path.Replace("\\ ", " "); // in Linux/Mac, spaces in paths may be escaped if copied from the command line
+                if (path.StartsWith("~/"))
+                {
+                    string home = Environment.GetEnvironmentVariable("HOME") ?? Environment.GetEnvironmentVariable("USERPROFILE");
+                    path = Path.Combine(home, path.Substring(2));
+                }
 
                 // get directory
                 if (File.Exists(path))
@@ -417,7 +546,7 @@ namespace StardewModdingApi.Installer
                     Console.WriteLine("   That directory doesn't seem to exist.");
                     continue;
                 }
-                if (!directory.EnumerateFiles("*.exe").Any(p => p.Name == "StardewValley.exe" || p.Name == "Stardew Valley.exe"))
+                if (!directory.EnumerateFiles(executableFilename).Any())
                 {
                     Console.WriteLine("   That directory doesn't contain a Stardew Valley executable.");
                     continue;

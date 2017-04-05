@@ -1,4 +1,198 @@
-﻿{
+﻿/*
+
+
+
+This file contains advanced configuration for SMAPI. You generally shouldn't change this file.
+
+
+
+*/
+{
+  /**
+   * Whether to enable features intended for mod developers. Currently this only makes TRACE-level
+   * messages appear in the console.
+   */
   "DeveloperMode": true,
-  "CheckForUpdates": true
+
+  /**
+   * Whether SMAPI should check for a newer version when you load the game. If a new version is
+   * available, a small message will appear in the console. This doesn't affect the load time even
+   * if your connection is offline or slow, because it happens in the background.
+   */
+  "CheckForUpdates": true,
+
+  /**
+   * A list of mod versions SMAPI should consider compatible or broken regardless of whether it
+   * detects incompatible code. Each record can be set to `AssumeCompatible` or `AssumeBroken`.
+   * Changing this field is not recommended and may destabilise your game.
+   */
+  "ModCompatibility": [
+    {
+      "Name": "Almighty Tool",
+      "ID": "AlmightyTool.dll",
+      "UpperVersion": "1.1.1",
+      "Compatibility": "AssumeBroken",
+      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/439",
+      "Notes": "Uses obsolete StardewModdingAPI.Extensions."
+    },
+    {
+      "Name": "Better Sprinklers",
+      "ID": "SPDSprinklersMod",
+      "UpperVersion": "2.3",
+      "Compatibility": "AssumeBroken",
+      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/41",
+      "Notes": "Uses obsolete StardewModdingAPI.Extensions."
+    },
+    {
+      "Name": "Better Sprinklers",
+      "ID": "Speeder.BetterSprinklers",
+      "UpperVersion": "2.3",
+      "Compatibility": "AssumeBroken",
+      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/41",
+      "Notes": "Uses obsolete StardewModdingAPI.Extensions."
+    },
+    {
+      "Name": "Chest Label System",
+      "ID": "SPDChestLabel",
+      "UpperVersion": "1.5",
+      "Compatibility": "AssumeBroken",
+      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/242",
+      "Notes": "Not compatible with Stardew Valley 1.1+"
+    },
+    {
+      "Name": "CJB Cheats Menu",
+      "ID": "CJBCheatsMenu",
+      "UpperVersion": "1.12",
+      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/4",
+      "Notes": "Not compatible with Stardew Valley 1.1+"
+    },
+    {
+      "Name": "CJB Item Spawner",
+      "ID": "CJBItemSpawner",
+      "UpperVersion": "1.5",
+      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/93",
+      "Notes": "Not compatible with Stardew Valley 1.1+"
+    },
+    {
+      "Name": "CJB Show Item Sell Price",
+      "ID": "CJBShowItemSellPrice",
+      "UpperVersion": "1.6",
+      "Compatibility": "AssumeBroken",
+      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/93",
+      "Notes": "Uses SMAPI's internal SGame class."
+    },
+    {
+      "Name": "Enemy Health Bars",
+      "ID": "SPDHealthBar",
+      "UpperVersion": "1.7",
+      "Compatibility": "AssumeBroken",
+      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/193",
+      "Notes": "Uses obsolete GraphicsEvents.DrawTick."
+    },
+    {
+      "Name": "Entoarox Framework",
+      "ID": "eacdb74b-4080-4452-b16b-93773cda5cf9",
+      "UpperVersion": "1.6.5",
+      "Compatibility": "AssumeBroken",
+      "UpdateUrl": "http://community.playstarbound.com/resources/4228",
+      "Notes": "Uses obsolete StardewModdingAPI.Inheritance.SObject until 1.6.1; then crashes until 1.6.4 ('Entoarox Framework requested an immediate game shutdown: Fatal error attempting to update player tick properties System.NullReferenceException: Object reference not set to an instance of an object. at Entoarox.Framework.PlayerHelper.Update(Object s, EventArgs e)')."
+    },
+    {
+      "Name": "Makeshift Multiplayer",
+      "ID": "StardewValleyMP",
+      "Compatibility": "AssumeBroken",
+      "UpperVersion": "0.2.10",
+      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/501",
+      "Notes": "Uses obsolete GraphicsEvents.OnPreRenderHudEventNoCheck."
+    },
+    {
+      "Name": "NoSoilDecay",
+      "ID": "289dee03-5f38-4d8e-8ffc-e440198e8610",
+      "UpperVersion": "0.5",
+      "Compatibility": "AssumeBroken",
+      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/237",
+      "Notes": "Uses obsolete StardewModdingAPI.Extensions."
+    },
+    {
+      "Name": "NPC Map Locations",
+      "ID": "NPCMapLocationsMod",
+      "LowerVersion": "1.42",
+      "UpperVersion": "1.43",
+      "Compatibility": "AssumeBroken",
+      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/239",
+      "ReasonPhrase": "this version has an update check error which crashes the game"
+    },
+    {
+      "Name": "Point-and-Plant",
+      "ID": "PointAndPlant.dll",
+      "UpperVersion": "1.0.2",
+      "Compatibility": "AssumeBroken",
+      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/572",
+      "Notes": "Uses obsolete StardewModdingAPI.Extensions."
+    },
+    {
+      "Name": "Save Anywhere",
+      "ID": "SaveAnywhere",
+      "UpperVersion": "2.0",
+      "Compatibility": "AssumeBroken",
+      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/444",
+      "Notes": "Depends on StarDustCore."
+    },
+    {
+      "Name": "StackSplitX",
+      "ID": "StackSplitX.dll",
+      "UpperVersion": "1.0",
+      "Compatibility": "AssumeBroken",
+      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/798",
+      "Notes": "Uses SMAPI's internal SGame class."
+    },
+    {
+      "Name": "StarDustCore",
+      "ID": "StarDustCore",
+      "UpperVersion": "1.0",
+      "Compatibility": "AssumeBroken",
+      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/683",
+      "Notes": "Crashes with 'Method not found: Void StardewModdingAPI.Command.CallCommand(System.String)'."
+    },
+    {
+      "Name": "Zoryn's Better RNG",
+      "ID": "76b6d1e1-f7ba-4d72-8c32-5a1e6d2716f6",
+      "UpperVersion": "1.5",
+      "Compatibility": "AssumeBroken",
+      "UpdateUrl": "http://community.playstarbound.com/threads/108756",
+      "Notes": "Uses SMAPI's internal SGame class."
+    },
+    {
+      "Name": "Zoryn's Calendar Anywhere",
+      "ID": "a41c01cd-0437-43eb-944f-78cb5a53002a",
+      "UpperVersion": "1.5",
+      "Compatibility": "AssumeBroken",
+      "UpdateUrl": "http://community.playstarbound.com/threads/108756",
+      "Notes": "Uses SMAPI's internal SGame class."
+    },
+    {
+      "Name": "Zoryn's Health Bars",
+      "ID": "HealthBars.dll",
+      "UpperVersion": "1.5",
+      "Compatibility": "AssumeBroken",
+      "UpdateUrl": "http://community.playstarbound.com/threads/108756",
+      "Notes": "Uses SMAPI's internal SGame class."
+    },
+    {
+      "Name": "Zoryn's Movement Mod",
+      "ID": "8a632929-8335-484f-87dd-c29d2ba3215d",
+      "UpperVersion": "1.5",
+      "Compatibility": "AssumeBroken",
+      "UpdateUrl": "http://community.playstarbound.com/threads/108756",
+      "Notes": "Uses SMAPI's internal SGame class."
+    },
+    {
+      "Name": "Zoryn's Regen Mod",
+      "ID": "dfac4383-1b6b-4f33-ae4e-37fc23e5252e",
+      "UpperVersion": "1.5",
+      "Compatibility": "AssumeBroken",
+      "UpdateUrl": "http://community.playstarbound.com/threads/108756",
+      "Notes": "Uses SMAPI's internal SGame class."
+    }
+  ]
 }

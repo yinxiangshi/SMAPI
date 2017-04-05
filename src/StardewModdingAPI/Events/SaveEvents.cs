@@ -18,6 +18,9 @@ namespace StardewModdingAPI.Events
         /// <summary>Raised after the player loads a save slot.</summary>
         public static event EventHandler AfterLoad;
 
+        /// <summary>Raised after the game returns to the title screen.</summary>
+        public static event EventHandler AfterReturnToTitle;
+
 
         /*********
         ** Internal methods
@@ -41,6 +44,13 @@ namespace StardewModdingAPI.Events
         internal static void InvokeAfterLoad(IMonitor monitor)
         {
             monitor.SafelyRaisePlainEvent($"{nameof(SaveEvents)}.{nameof(SaveEvents.AfterLoad)}", SaveEvents.AfterLoad?.GetInvocationList(), null, EventArgs.Empty);
+        }
+
+        /// <summary>Raise a <see cref="AfterReturnToTitle"/> event.</summary>
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
+        internal static void InvokeAfterReturnToTitle(IMonitor monitor)
+        {
+            monitor.SafelyRaisePlainEvent($"{nameof(SaveEvents)}.{nameof(SaveEvents.AfterReturnToTitle)}", SaveEvents.AfterReturnToTitle?.GetInvocationList(), null, EventArgs.Empty);
         }
     }
 }

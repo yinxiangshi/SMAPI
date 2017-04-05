@@ -22,6 +22,20 @@ namespace StardewModdingAPI
         /// <param name="required">Whether to throw an exception if the private field is not found.</param>
         IPrivateField<TValue> GetPrivateField<TValue>(Type type, string name, bool required = true);
 
+        /// <summary>Get a private instance property.</summary>
+        /// <typeparam name="TValue">The property type.</typeparam>
+        /// <param name="obj">The object which has the property.</param>
+        /// <param name="name">The property name.</param>
+        /// <param name="required">Whether to throw an exception if the private property is not found.</param>
+        IPrivateProperty<TValue> GetPrivateProperty<TValue>(object obj, string name, bool required = true);
+
+        /// <summary>Get a private static property.</summary>
+        /// <typeparam name="TValue">The property type.</typeparam>
+        /// <param name="type">The type which has the property.</param>
+        /// <param name="name">The property name.</param>
+        /// <param name="required">Whether to throw an exception if the private property is not found.</param>
+        IPrivateProperty<TValue> GetPrivateProperty<TValue>(Type type, string name, bool required = true);
+
         /// <summary>Get the value of a private instance field.</summary>
         /// <typeparam name="TValue">The field type.</typeparam>
         /// <param name="obj">The object which has the field.</param>

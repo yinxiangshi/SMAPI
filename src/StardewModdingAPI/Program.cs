@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 #if SMAPI_FOR_WINDOWS
+using System.Management;
 using System.Windows.Forms;
 #endif
 using Microsoft.Xna.Framework.Graphics;
@@ -13,76 +15,49 @@ using Newtonsoft.Json;
 using StardewModdingAPI.AssemblyRewriters;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework;
+using StardewModdingAPI.Framework.Logging;
 using StardewModdingAPI.Framework.Models;
-using StardewModdingAPI.Inheritance;
+using StardewModdingAPI.Framework.Serialisation;
 using StardewValley;
 using Monitor = StardewModdingAPI.Framework.Monitor;
 
 namespace StardewModdingAPI
 {
     /// <summary>The main entry point for SMAPI, responsible for hooking into and launching the game.</summary>
-    public class Program
+    internal class Program
     {
         /*********
         ** Properties
         *********/
-        /// <summary>The target game platform.</summary>
-        private static readonly Platform TargetPlatform =
-#if SMAPI_FOR_WINDOWS
-        Platform.Windows;
-#else
-        Platform.Mono;
-#endif
-
-        /// <summary>The full path to the Stardew Valley executable.</summary>
-        private static readonly string GameExecutablePath = Path.Combine(Constants.ExecutionPath, Program.TargetPlatform == Platform.Windows ? "Stardew Valley.exe" : "StardewValley.exe");
-
-        /// <summary>The full path to the folder containing mods.</summary>
-        private static readonly string ModPath = Path.Combine(Constants.ExecutionPath, "Mods");
-
         /// <summary>The log file to which to write messages.</summary>
-        private static readonly LogFileManager LogFile = new LogFileManager(Constants.LogPath);
+        private readonly LogFileManager LogFile;
+
+        /// <summary>Manages console output interception.</summary>
+        private readonly ConsoleInterceptionManager ConsoleManager = new ConsoleInterceptionManager();
 
         /// <summary>The core logger for SMAPI.</summary>
-        private static readonly Monitor Monitor = new Monitor("SMAPI", Program.LogFile);
+        private readonly Monitor Monitor;
 
-        /// <summary>The user settings for SMAPI.</summary>
-        private static UserSettings Settings;
+        /// <summary>The SMAPI configuration settings.</summary>
+        private readonly SConfig Settings;
 
         /// <summary>Tracks whether the game should exit immediately and any pending initialisation should be cancelled.</summary>
-        private static readonly CancellationTokenSource CancellationTokenSource = new CancellationTokenSource();
-
-
-        /*********
-        ** Accessors
-        *********/
-        /// <summary>The number of mods currently loaded by SMAPI.</summary>
-        public static int ModsLoaded;
-
-        /// <summary>The underlying game instance.</summary>
-        public static SGame gamePtr;
+        private readonly CancellationTokenSource CancellationTokenSource = new CancellationTokenSource();
 
         /// <summary>Whether the game is currently running.</summary>
-        public static bool ready;
+        private bool IsGameRunning;
 
-        /// <summary>The underlying game assembly.</summary>
-        public static Assembly StardewAssembly;
-
-        /// <summary>The underlying <see cref="StardewValley.Program"/> type.</summary>
-        public static Type StardewProgramType;
-
-        /// <summary>The field containing game's main instance.</summary>
-        public static FieldInfo StardewGameInfo;
-
-        // ReSharper disable once PossibleNullReferenceException
-        /// <summary>The game's build type (i.e. GOG vs Steam).</summary>
-        public static int BuildType => (int)Program.StardewProgramType.GetField("buildType", BindingFlags.Public | BindingFlags.Static).GetValue(null);
+        /// <summary>The underlying game instance.</summary>
+        private SGame GameInstance;
 
         /// <summary>Tracks the installed mods.</summary>
-        internal static readonly ModRegistry ModRegistry = new ModRegistry();
+        private readonly ModRegistry ModRegistry;
 
         /// <summary>Manages deprecation warnings.</summary>
-        internal static readonly DeprecationManager DeprecationManager = new DeprecationManager(Program.Monitor, Program.ModRegistry);
+        private readonly DeprecationManager DeprecationManager;
+
+        /// <summary>Manages console commands.</summary>
+        private readonly CommandManager CommandManager = new CommandManager();
 
 
         /*********
@@ -92,101 +67,141 @@ namespace StardewModdingAPI
         /// <param name="args">The command-line arguments.</param>
         private static void Main(string[] args)
         {
-            // set log options
-            Program.Monitor.WriteToConsole = !args.Contains("--no-terminal");
-            Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB"); // for consistent log formatting
+            // get flags from arguments
+            bool writeToConsole = !args.Contains("--no-terminal");
 
-            // add info header
-            Program.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Game1.version} on {Environment.OSVersion}", LogLevel.Info);
-
-            // initialise user settings
+            // get log path from arguments
+            string logPath = null;
             {
-                string settingsPath = Constants.ApiConfigPath;
-                if (File.Exists(settingsPath))
+                int pathIndex = Array.LastIndexOf(args, "--log-path") + 1;
+                if (pathIndex >= 1 && args.Length >= pathIndex)
                 {
-                    string json = File.ReadAllText(settingsPath);
-                    Program.Settings = JsonConvert.DeserializeObject<UserSettings>(json);
+                    logPath = args[pathIndex];
+                    if (!Path.IsPathRooted(logPath))
+                        logPath = Path.Combine(Constants.LogDir, logPath);
                 }
-                else
-                    Program.Settings = new UserSettings();
+            }
+            if (string.IsNullOrWhiteSpace(logPath))
+                logPath = Constants.DefaultLogPath;
 
-                File.WriteAllText(settingsPath, JsonConvert.SerializeObject(Program.Settings, Formatting.Indented));
+            // load SMAPI
+            new Program(writeToConsole, logPath)
+                .LaunchInteractively();
+        }
+
+        /// <summary>Construct an instance.</summary>
+        /// <param name="writeToConsole">Whether to output log messages to the console.</param>
+        /// <param name="logPath">The full file path to which to write log messages.</param>
+        internal Program(bool writeToConsole, string logPath)
+        {
+            // load settings
+            this.Settings = JsonConvert.DeserializeObject<SConfig>(File.ReadAllText(Constants.ApiConfigPath));
+
+            // initialise
+            this.LogFile = new LogFileManager(logPath);
+            this.Monitor = new Monitor("SMAPI", this.ConsoleManager, this.LogFile, this.ExitGameImmediately) { WriteToConsole = writeToConsole };
+            this.ModRegistry = new ModRegistry(this.Settings.ModCompatibility);
+            this.DeprecationManager = new DeprecationManager(this.Monitor, this.ModRegistry);
+        }
+
+        /// <summary>Launch SMAPI.</summary>
+        internal void LaunchInteractively()
+        {
+            // initialise logging
+            Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB"); // for consistent log formatting
+            this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GetGameDisplayVersion(Constants.GameVersion)} on {this.GetFriendlyPlatformName()}", LogLevel.Info);
+            Console.Title = $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GetGameDisplayVersion(Constants.GameVersion)}";
+
+            // inject compatibility shims
+#pragma warning disable 618
+            Command.Shim(this.CommandManager, this.DeprecationManager, this.ModRegistry);
+            Config.Shim(this.DeprecationManager);
+            InternalExtensions.Shim(this.ModRegistry);
+            Log.Shim(this.DeprecationManager, this.GetSecondaryMonitor("legacy mod"), this.ModRegistry);
+            Mod.Shim(this.DeprecationManager);
+            ContentEvents.Shim(this.ModRegistry, this.Monitor);
+            PlayerEvents.Shim(this.DeprecationManager);
+            TimeEvents.Shim(this.DeprecationManager);
+#pragma warning restore 618
+
+            // redirect direct console output
+            {
+                Monitor monitor = this.GetSecondaryMonitor("Console.Out");
+                monitor.WriteToFile = false; // not useful for troubleshooting mods per discussion
+                if (monitor.WriteToConsole)
+                    this.ConsoleManager.OnLineIntercepted += line => monitor.Log(line, LogLevel.Trace);
             }
 
             // add warning headers
-            if (Program.Settings.DeveloperMode)
+            if (this.Settings.DeveloperMode)
             {
-                Program.Monitor.ShowTraceInConsole = true;
-                Program.Monitor.Log($"You configured SMAPI to run in developer mode. The console may be much more verbose. You can disable developer mode by installing the non-developer version of SMAPI, or by editing or deleting {Constants.ApiConfigPath}.", LogLevel.Warn);
+                this.Monitor.ShowTraceInConsole = true;
+                this.Monitor.Log($"You configured SMAPI to run in developer mode. The console may be much more verbose. You can disable developer mode by installing the non-developer version of SMAPI, or by editing {Constants.ApiConfigPath}.", LogLevel.Warn);
             }
-            if (!Program.Settings.CheckForUpdates)
-                Program.Monitor.Log($"You configured SMAPI to not check for updates. Running an old version of SMAPI is not recommended. You can enable update checks by editing or deleting {Constants.ApiConfigPath}.", LogLevel.Warn);
-            if (!Program.Monitor.WriteToConsole)
-                Program.Monitor.Log("Writing to the terminal is disabled because the --no-terminal argument was received. This usually means launching the terminal failed.", LogLevel.Warn);
+            if (!this.Settings.CheckForUpdates)
+                this.Monitor.Log($"You configured SMAPI to not check for updates. Running an old version of SMAPI is not recommended. You can enable update checks by reinstalling SMAPI or editing {Constants.ApiConfigPath}.", LogLevel.Warn);
+            if (!this.Monitor.WriteToConsole)
+                this.Monitor.Log("Writing to the terminal is disabled because the --no-terminal argument was received. This usually means launching the terminal failed.", LogLevel.Warn);
 
             // print file paths
-            Program.Monitor.Log($"Mods go here: {Program.ModPath}");
-
-            // initialise legacy log
-            Log.Monitor = Program.GetSecondaryMonitor("legacy mod");
-            Log.ModRegistry = Program.ModRegistry;
+            this.Monitor.Log($"Mods go here: {Constants.ModPath}");
 
             // hook into & launch the game
             try
             {
                 // verify version
-                if (String.Compare(Game1.version, Constants.MinimumGameVersion, StringComparison.InvariantCultureIgnoreCase) < 0)
+                if (Constants.GameVersion.IsOlderThan(Constants.MinimumGameVersion))
                 {
-                    Program.Monitor.Log($"Oops! You're running Stardew Valley {Game1.version}, but the oldest supported version is {Constants.MinimumGameVersion}. Please update your game before using SMAPI. If you're on the Steam beta channel, note that the beta channel may not receive the latest updates.", LogLevel.Error);
+                    this.Monitor.Log($"Oops! You're running Stardew Valley {Constants.GetGameDisplayVersion(Constants.GameVersion)}, but the oldest supported version is {Constants.GetGameDisplayVersion(Constants.MinimumGameVersion)}. Please update your game before using SMAPI. If you have the beta version on Steam, you may need to opt out to get the latest non-beta updates.", LogLevel.Error);
+                    this.PressAnyKeyToExit();
+                    return;
+                }
+                if (Constants.MaximumGameVersion != null && Constants.GameVersion.IsNewerThan(Constants.MaximumGameVersion))
+                {
+                    this.Monitor.Log($"Oops! You're running Stardew Valley {Constants.GetGameDisplayVersion(Constants.GameVersion)}, but this version of SMAPI is only compatible up to Stardew Valley {Constants.GetGameDisplayVersion(Constants.MaximumGameVersion)}. Please check for a newer version of SMAPI.", LogLevel.Error);
+                    this.PressAnyKeyToExit();
                     return;
                 }
 
-                // initialise
-                Program.Monitor.Log("Loading SMAPI...");
-                Console.Title = Constants.ConsoleTitle;
-                Program.VerifyPath(Program.ModPath);
-                Program.VerifyPath(Constants.LogDir);
-                if (!File.Exists(Program.GameExecutablePath))
-                {
-                    Program.Monitor.Log($"Couldn't find executable: {Program.GameExecutablePath}", LogLevel.Error);
-                    Program.PressAnyKeyToExit();
-                    return;
-                }
+                // initialise folders
+                this.Monitor.Log("Loading SMAPI...");
+                this.VerifyPath(Constants.ModPath);
+                this.VerifyPath(Constants.LogDir);
 
                 // check for update when game loads
-                if (Program.Settings.CheckForUpdates)
-                    GameEvents.GameLoaded += (sender, e) => Program.CheckForUpdateAsync();
+                if (this.Settings.CheckForUpdates)
+                    GameEvents.GameLoaded += (sender, e) => this.CheckForUpdateAsync();
 
                 // launch game
-                Program.StartGame();
+                this.StartGame();
             }
             catch (Exception ex)
             {
-                Program.Monitor.Log($"Critical error: {ex.GetLogSummary()}", LogLevel.Error);
+                this.Monitor.Log($"Critical error: {ex.GetLogSummary()}", LogLevel.Error);
             }
-            Program.PressAnyKeyToExit();
+            this.PressAnyKeyToExit();
         }
 
         /// <summary>Immediately exit the game without saving. This should only be invoked when an irrecoverable fatal error happens that risks save corruption or game-breaking bugs.</summary>
         /// <param name="module">The module which requested an immediate exit.</param>
         /// <param name="reason">The reason provided for the shutdown.</param>
-        internal static void ExitGameImmediately(string module, string reason)
+        internal void ExitGameImmediately(string module, string reason)
         {
-            Program.Monitor.LogFatal($"{module} requested an immediate game shutdown: {reason}");
-            Program.CancellationTokenSource.Cancel();
-            if (Program.ready)
+            this.Monitor.LogFatal($"{module} requested an immediate game shutdown: {reason}");
+            this.CancellationTokenSource.Cancel();
+            if (this.IsGameRunning)
             {
-                Program.gamePtr.Exiting += (sender, e) => Program.PressAnyKeyToExit();
-                Program.gamePtr.Exit();
+                this.GameInstance.Exiting += (sender, e) => this.PressAnyKeyToExit();
+                this.GameInstance.Exit();
             }
         }
 
         /// <summary>Get a monitor for legacy code which doesn't have one passed in.</summary>
         [Obsolete("This method should only be used when needed for backwards compatibility.")]
-        internal static IMonitor GetLegacyMonitorForMod()
+        internal IMonitor GetLegacyMonitorForMod()
         {
-            string modName = Program.ModRegistry.GetModFromStack() ?? "unknown";
-            return Program.GetSecondaryMonitor(modName);
+            string modName = this.ModRegistry.GetModFromStack() ?? "unknown";
+            return this.GetSecondaryMonitor(modName);
         }
 
 
@@ -194,7 +209,7 @@ namespace StardewModdingAPI
         ** Private methods
         *********/
         /// <summary>Asynchronously check for a new version of SMAPI, and print a message to the console if an update is available.</summary>
-        private static void CheckForUpdateAsync()
+        private void CheckForUpdateAsync()
         {
             new Thread(() =>
             {
@@ -203,49 +218,47 @@ namespace StardewModdingAPI
                     GitRelease release = UpdateHelper.GetLatestVersionAsync(Constants.GitHubRepository).Result;
                     ISemanticVersion latestVersion = new SemanticVersion(release.Tag);
                     if (latestVersion.IsNewerThan(Constants.ApiVersion))
-                        Program.Monitor.Log($"You can update SMAPI from version {Constants.ApiVersion} to {latestVersion}", LogLevel.Alert);
+                        this.Monitor.Log($"You can update SMAPI from version {Constants.ApiVersion} to {latestVersion}", LogLevel.Alert);
                 }
                 catch (Exception ex)
                 {
-                    Program.Monitor.Log($"Couldn't check for a new version of SMAPI. This won't affect your game, but you may not be notified of new versions if this keeps happening.\n{ex.GetLogSummary()}");
+                    this.Monitor.Log($"Couldn't check for a new version of SMAPI. This won't affect your game, but you may not be notified of new versions if this keeps happening.\n{ex.GetLogSummary()}");
                 }
             }).Start();
         }
 
         /// <summary>Hook into Stardew Valley and launch the game.</summary>
-        private static void StartGame()
+        private void StartGame()
         {
             try
             {
-                // load the game assembly
-                Program.Monitor.Log("Loading game...");
-                Program.StardewAssembly = Assembly.UnsafeLoadFrom(Program.GameExecutablePath);
-                Program.StardewProgramType = Program.StardewAssembly.GetType("StardewValley.Program", true);
-                Program.StardewGameInfo = Program.StardewProgramType.GetField("gamePtr");
-                Game1.version += $" | SMAPI {Constants.ApiVersion}";
+                this.Monitor.Log("Loading game...");
 
-                // add error interceptors
+                // add error handlers
 #if SMAPI_FOR_WINDOWS
-                Application.ThreadException += (sender, e) => Program.Monitor.Log($"Critical thread exception: {e.Exception.GetLogSummary()}", LogLevel.Error);
+                Application.ThreadException += (sender, e) => this.Monitor.Log($"Critical thread exception: {e.Exception.GetLogSummary()}", LogLevel.Error);
                 Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
 #endif
-                AppDomain.CurrentDomain.UnhandledException += (sender, e) => Program.Monitor.Log($"Critical app domain exception: {e.ExceptionObject}", LogLevel.Error);
+                AppDomain.CurrentDomain.UnhandledException += (sender, e) => this.Monitor.Log($"Critical app domain exception: {e.ExceptionObject}", LogLevel.Error);
 
-                // initialise game instance
-                Program.gamePtr = new SGame(Program.Monitor) { IsMouseVisible = false };
-                Program.gamePtr.Exiting += (sender, e) => Program.ready = false;
-                Program.gamePtr.Window.ClientSizeChanged += (sender, e) => GraphicsEvents.InvokeResize(Program.Monitor, sender, e);
-                Program.gamePtr.Window.Title = $"Stardew Valley - Version {Game1.version}";
-                Program.StardewGameInfo.SetValue(Program.StardewProgramType, Program.gamePtr);
+                // override Game1 instance
+                this.GameInstance = new SGame(this.Monitor);
+                this.GameInstance.Exiting += (sender, e) => this.IsGameRunning = false;
+                this.GameInstance.Window.ClientSizeChanged += (sender, e) => GraphicsEvents.InvokeResize(this.Monitor, sender, e);
+                this.GameInstance.Window.Title = $"Stardew Valley {Constants.GameVersion} with SMAPI {Constants.ApiVersion}";
+                {
+                    Type type = typeof(Game1).Assembly.GetType("StardewValley.Program", true);
+                    type.GetField("gamePtr").SetValue(null, this.GameInstance);
+                }
 
-                // patch graphics
+                // configure
                 Game1.graphics.GraphicsProfile = GraphicsProfile.HiDef;
 
                 // load mods
-                Program.LoadMods();
-                if (Program.CancellationTokenSource.IsCancellationRequested)
+                this.LoadMods();
+                if (this.CancellationTokenSource.IsCancellationRequested)
                 {
-                    Program.Monitor.Log("Shutdown requested; interrupting initialisation.", LogLevel.Error);
+                    this.Monitor.Log("Shutdown requested; interrupting initialisation.", LogLevel.Error);
                     return;
                 }
 
@@ -253,17 +266,18 @@ namespace StardewModdingAPI
                 new Thread(() =>
                 {
                     // wait for the game to load up
-                    while (!Program.ready) Thread.Sleep(1000);
+                    while (!this.IsGameRunning)
+                        Thread.Sleep(1000);
 
                     // register help command
-                    Command.RegisterCommand("help", "Lists all commands | 'help <cmd>' returns command description").CommandFired += Program.help_CommandFired;
+                    this.CommandManager.Add("SMAPI", "help", "Lists all commands | 'help <cmd>' returns command description", this.HandleHelpCommand);
 
                     // listen for command line input
-                    Program.Monitor.Log("Starting console...");
-                    Program.Monitor.Log("Type 'help' for help, or 'help <cmd>' for a command's usage", LogLevel.Info);
-                    Thread consoleInputThread = new Thread(Program.ConsoleInputLoop);
+                    this.Monitor.Log("Starting console...");
+                    this.Monitor.Log("Type 'help' for help, or 'help <cmd>' for a command's usage", LogLevel.Info);
+                    Thread consoleInputThread = new Thread(this.ConsoleInputLoop);
                     consoleInputThread.Start();
-                    while (Program.ready)
+                    while (this.IsGameRunning)
                         Thread.Sleep(1000 / 10); // Check if the game is still running 10 times a second
 
                     // abort the console thread, we're closing
@@ -272,31 +286,31 @@ namespace StardewModdingAPI
                 }).Start();
 
                 // start game loop
-                Program.Monitor.Log("Starting game...");
-                if (Program.CancellationTokenSource.IsCancellationRequested)
+                this.Monitor.Log("Starting game...");
+                if (this.CancellationTokenSource.IsCancellationRequested)
                 {
-                    Program.Monitor.Log("Shutdown requested; interrupting initialisation.", LogLevel.Error);
+                    this.Monitor.Log("Shutdown requested; interrupting initialisation.", LogLevel.Error);
                     return;
                 }
                 try
                 {
-                    Program.ready = true;
-                    Program.gamePtr.Run();
+                    this.IsGameRunning = true;
+                    this.GameInstance.Run();
                 }
                 finally
                 {
-                    Program.ready = false;
+                    this.IsGameRunning = false;
                 }
             }
             catch (Exception ex)
             {
-                Program.Monitor.Log($"The game encountered a fatal error:\n{ex.GetLogSummary()}", LogLevel.Error);
+                this.Monitor.Log($"The game encountered a fatal error:\n{ex.GetLogSummary()}", LogLevel.Error);
             }
         }
 
         /// <summary>Create a directory path if it doesn't exist.</summary>
         /// <param name="path">The directory path.</param>
-        private static void VerifyPath(string path)
+        private void VerifyPath(string path)
         {
             try
             {
@@ -305,109 +319,97 @@ namespace StardewModdingAPI
             }
             catch (Exception ex)
             {
-                Program.Monitor.Log($"Couldn't create a path: {path}\n\n{ex.GetLogSummary()}", LogLevel.Error);
+                this.Monitor.Log($"Couldn't create a path: {path}\n\n{ex.GetLogSummary()}", LogLevel.Error);
             }
         }
 
         /// <summary>Load and hook up all mods in the mod directory.</summary>
-        private static void LoadMods()
+        private void LoadMods()
         {
-            Program.Monitor.Log("Loading mods...");
+            this.Monitor.Log("Loading mods...");
+
+            // get JSON helper
+            JsonHelper jsonHelper = new JsonHelper();
 
             // get assembly loader
-            AssemblyLoader modAssemblyLoader = new AssemblyLoader(Program.TargetPlatform, Program.Monitor);
+            AssemblyLoader modAssemblyLoader = new AssemblyLoader(Constants.TargetPlatform, this.Monitor);
             AppDomain.CurrentDomain.AssemblyResolve += (sender, e) => modAssemblyLoader.ResolveAssembly(e.Name);
 
-            // get known incompatible mods
-            IDictionary<string, IncompatibleMod> incompatibleMods;
-            try
-            {
-                incompatibleMods = File.Exists(Constants.ApiModMetadataPath)
-                    ? JsonConvert.DeserializeObject<IncompatibleMod[]>(File.ReadAllText(Constants.ApiModMetadataPath)).ToDictionary(p => p.ID, p => p)
-                    : new Dictionary<string, IncompatibleMod>(0);
-            }
-            catch (Exception ex)
-            {
-                incompatibleMods = new Dictionary<string, IncompatibleMod>();
-                Program.Monitor.Log($"Couldn't read metadata file at {Constants.ApiModMetadataPath}. SMAPI will still run, but some features may be disabled.\n{ex}", LogLevel.Warn);
-            }
-
             // load mod assemblies
+            int modsLoaded = 0;
             List<Action> deprecationWarnings = new List<Action>(); // queue up deprecation warnings to show after mod list
-            foreach (string directory in Directory.GetDirectories(Program.ModPath))
+            foreach (string directoryPath in Directory.GetDirectories(Constants.ModPath))
             {
-                string directoryName = new DirectoryInfo(directory).Name;
+                // passthrough empty directories
+                DirectoryInfo directory = new DirectoryInfo(directoryPath);
+                while (!directory.GetFiles().Any() && directory.GetDirectories().Length == 1)
+                    directory = directory.GetDirectories().First();
 
                 // check for cancellation
-                if (Program.CancellationTokenSource.IsCancellationRequested)
+                if (this.CancellationTokenSource.IsCancellationRequested)
                 {
-                    Program.Monitor.Log("Shutdown requested; interrupting mod loading.", LogLevel.Error);
+                    this.Monitor.Log("Shutdown requested; interrupting mod loading.", LogLevel.Error);
                     return;
                 }
 
-                // get helper
-                IModHelper helper = new ModHelper(directory, Program.ModRegistry);
-
                 // get manifest path
-                string manifestPath = Path.Combine(directory, "manifest.json");
+                string manifestPath = Path.Combine(directory.FullName, "manifest.json");
                 if (!File.Exists(manifestPath))
                 {
-                    Program.Monitor.Log($"Ignored folder \"{directoryName}\" which doesn't have a manifest.json.", LogLevel.Warn);
+                    this.Monitor.Log($"Ignored folder \"{directory.Name}\" which doesn't have a manifest.json.", LogLevel.Warn);
                     continue;
                 }
-                string errorPrefix = $"Couldn't load mod for manifest '{manifestPath}'";
+                string skippedPrefix = $"Skipped {manifestPath.Replace(Constants.ModPath, "").Trim('/', '\\')}";
 
                 // read manifest
-                ManifestImpl manifest;
+                Manifest manifest;
                 try
                 {
                     // read manifest text
                     string json = File.ReadAllText(manifestPath);
                     if (string.IsNullOrEmpty(json))
                     {
-                        Program.Monitor.Log($"{errorPrefix}: manifest is empty.", LogLevel.Error);
+                        this.Monitor.Log($"{skippedPrefix} because the manifest is empty.", LogLevel.Error);
                         continue;
                     }
 
                     // deserialise manifest
-                    manifest = helper.ReadJsonFile<ManifestImpl>("manifest.json");
+                    manifest = jsonHelper.ReadJsonFile<Manifest>(Path.Combine(directory.FullName, "manifest.json"));
                     if (manifest == null)
                     {
-                        Program.Monitor.Log($"{errorPrefix}: the manifest file does not exist.", LogLevel.Error);
+                        this.Monitor.Log($"{skippedPrefix} because its manifest is invalid.", LogLevel.Error);
                         continue;
                     }
                     if (string.IsNullOrEmpty(manifest.EntryDll))
                     {
-                        Program.Monitor.Log($"{errorPrefix}: manifest doesn't specify an entry DLL.", LogLevel.Error);
+                        this.Monitor.Log($"{skippedPrefix} because its manifest doesn't specify an entry DLL.", LogLevel.Error);
                         continue;
                     }
-
-                    // log deprecated fields
-                    if (manifest.UsedAuthourField)
-                        deprecationWarnings.Add(() => Program.DeprecationManager.Warn(manifest.Name, $"{nameof(Manifest)}.{nameof(Manifest.Authour)}", "1.0", DeprecationLevel.Notice));
                 }
                 catch (Exception ex)
                 {
-                    Program.Monitor.Log($"{errorPrefix}: manifest parsing failed.\n{ex.GetLogSummary()}", LogLevel.Error);
+                    this.Monitor.Log($"{skippedPrefix} because manifest parsing failed.\n{ex.GetLogSummary()}", LogLevel.Error);
                     continue;
                 }
+                if (!string.IsNullOrWhiteSpace(manifest.Name))
+                    skippedPrefix = $"Skipped {manifest.Name}";
 
-                // validate known incompatible mods
-                IncompatibleMod compatibility;
-                if (incompatibleMods.TryGetValue(manifest.UniqueID ?? $"{manifest.Name}|{manifest.Author}|{manifest.EntryDll}", out compatibility))
+                // validate compatibility
+                ModCompatibility compatibility = this.ModRegistry.GetCompatibilityRecord(manifest);
+                if (compatibility?.Compatibility == ModCompatibilityType.AssumeBroken)
                 {
-                    if (!compatibility.IsCompatible(manifest.Version))
-                    {
-                        string reasonPhrase = compatibility.ReasonPhrase ?? "this version is not compatible with the latest version of the game";
-                        string warning = $"Skipped {compatibility.Name} {manifest.Version} because {reasonPhrase}. Please check for a newer version of the mod here:";
-                        if (!string.IsNullOrWhiteSpace(compatibility.UpdateUrl))
-                            warning += $"{Environment.NewLine}- official mod: {compatibility.UpdateUrl}";
-                        if (!string.IsNullOrWhiteSpace(compatibility.UnofficialUpdateUrl))
-                            warning += $"{Environment.NewLine}- unofficial update: {compatibility.UnofficialUpdateUrl}";
+                    bool hasOfficialUrl = !string.IsNullOrWhiteSpace(compatibility.UpdateUrl);
+                    bool hasUnofficialUrl = !string.IsNullOrWhiteSpace(compatibility.UnofficialUpdateUrl);
 
-                        Program.Monitor.Log(warning, LogLevel.Error);
-                        continue;
-                    }
+                    string reasonPhrase = compatibility.ReasonPhrase ?? "it's not compatible with the latest version of the game";
+                    string warning = $"{skippedPrefix} because {reasonPhrase}. Please check for a version newer than {compatibility.UpperVersion} here:";
+                    if (hasOfficialUrl)
+                        warning += !hasUnofficialUrl ? $" {compatibility.UpdateUrl}" : $"{Environment.NewLine}- official mod: {compatibility.UpdateUrl}";
+                    if (hasUnofficialUrl)
+                        warning += $"{Environment.NewLine}- unofficial update: {compatibility.UnofficialUpdateUrl}";
+
+                    this.Monitor.Log(warning, LogLevel.Error);
+                    continue;
                 }
 
                 // validate SMAPI version
@@ -418,13 +420,13 @@ namespace StardewModdingAPI
                         ISemanticVersion minVersion = new SemanticVersion(manifest.MinimumApiVersion);
                         if (minVersion.IsNewerThan(Constants.ApiVersion))
                         {
-                            Program.Monitor.Log($"{errorPrefix}: this mod requires SMAPI {minVersion} or later. Please update SMAPI to the latest version to use this mod.", LogLevel.Error);
+                            this.Monitor.Log($"{skippedPrefix} because it needs SMAPI {minVersion} or later. Please update SMAPI to the latest version to use this mod.", LogLevel.Error);
                             continue;
                         }
                     }
                     catch (FormatException ex) when (ex.Message.Contains("not a valid semantic version"))
                     {
-                        Program.Monitor.Log($"{errorPrefix}: the mod specified an invalid minimum SMAPI version '{manifest.MinimumApiVersion}'. This should be a semantic version number like {Constants.Version}.", LogLevel.Error);
+                        this.Monitor.Log($"{skippedPrefix} because it has an invalid minimum SMAPI version '{manifest.MinimumApiVersion}'. This should be a semantic version number like {Constants.ApiVersion}.", LogLevel.Error);
                         continue;
                     }
                 }
@@ -432,29 +434,29 @@ namespace StardewModdingAPI
                 // create per-save directory
                 if (manifest.PerSaveConfigs)
                 {
-                    deprecationWarnings.Add(() => Program.DeprecationManager.Warn(manifest.Name, $"{nameof(Manifest)}.{nameof(Manifest.PerSaveConfigs)}", "1.0", DeprecationLevel.Info));
+                    deprecationWarnings.Add(() => this.DeprecationManager.Warn(manifest.Name, $"{nameof(Manifest)}.{nameof(Manifest.PerSaveConfigs)}", "1.0", DeprecationLevel.Info));
                     try
                     {
-                        string psDir = Path.Combine(directory, "psconfigs");
+                        string psDir = Path.Combine(directory.FullName, "psconfigs");
                         Directory.CreateDirectory(psDir);
                         if (!Directory.Exists(psDir))
                         {
-                            Program.Monitor.Log($"{errorPrefix}: couldn't create the per-save configuration directory ('psconfigs') requested by this mod. The failure reason is unknown.", LogLevel.Error);
+                            this.Monitor.Log($"{skippedPrefix} because it requires per-save configuration files ('psconfigs') which couldn't be created for some reason.", LogLevel.Error);
                             continue;
                         }
                     }
                     catch (Exception ex)
                     {
-                        Program.Monitor.Log($"{errorPrefix}: couldn't create the per-save configuration directory ('psconfigs') requested by this mod.\n{ex.GetLogSummary()}", LogLevel.Error);
+                        this.Monitor.Log($"{skippedPrefix} because it requires per-save configuration files ('psconfigs') which couldn't be created:\n{ex.GetLogSummary()}", LogLevel.Error);
                         continue;
                     }
                 }
 
                 // validate mod path to simplify errors
-                string assemblyPath = Path.Combine(directory, manifest.EntryDll);
+                string assemblyPath = Path.Combine(directory.FullName, manifest.EntryDll);
                 if (!File.Exists(assemblyPath))
                 {
-                    Program.Monitor.Log($"{errorPrefix}: the entry DLL '{manifest.EntryDll}' does not exist.", LogLevel.Error);
+                    this.Monitor.Log($"{skippedPrefix} because its DLL '{manifest.EntryDll}' doesn't exist.", LogLevel.Error);
                     continue;
                 }
 
@@ -462,121 +464,139 @@ namespace StardewModdingAPI
                 Assembly modAssembly;
                 try
                 {
-                    modAssembly = modAssemblyLoader.Load(assemblyPath);
+                    modAssembly = modAssemblyLoader.Load(assemblyPath, assumeCompatible: compatibility?.Compatibility == ModCompatibilityType.AssumeCompatible);
+                }
+                catch (IncompatibleInstructionException ex)
+                {
+                    this.Monitor.Log($"{skippedPrefix} because it's not compatible with the latest version of the game (detected {ex.NounPhrase}). Please check for a newer version of the mod (you have v{manifest.Version}).", LogLevel.Error);
+                    continue;
                 }
                 catch (Exception ex)
                 {
-                    Program.Monitor.Log($"{errorPrefix}: an error occurred while preprocessing '{manifest.EntryDll}'.\n{ex.GetLogSummary()}", LogLevel.Error);
+                    this.Monitor.Log($"{skippedPrefix} because its DLL '{manifest.EntryDll}' couldn't be loaded.\n{ex.GetLogSummary()}", LogLevel.Error);
                     continue;
                 }
 
                 // validate assembly
                 try
                 {
-                    if (modAssembly.DefinedTypes.Count(x => x.BaseType == typeof(Mod)) == 0)
+                    int modEntries = modAssembly.DefinedTypes.Count(type => typeof(Mod).IsAssignableFrom(type) && !type.IsAbstract);
+                    if (modEntries == 0)
                     {
-                        Program.Monitor.Log($"{errorPrefix}: the mod DLL does not contain an implementation of the 'Mod' class.", LogLevel.Error);
+                        this.Monitor.Log($"{skippedPrefix} because its DLL has no '{nameof(Mod)}' subclass.", LogLevel.Error);
+                        continue;
+                    }
+                    if (modEntries > 1)
+                    {
+                        this.Monitor.Log($"{skippedPrefix} because its DLL contains multiple '{nameof(Mod)}' subclasses.", LogLevel.Error);
                         continue;
                     }
                 }
                 catch (Exception ex)
                 {
-                    Program.Monitor.Log($"{errorPrefix}: an error occurred while reading the mod DLL.\n{ex.GetLogSummary()}", LogLevel.Error);
+                    this.Monitor.Log($"{skippedPrefix} because its DLL couldn't be loaded.\n{ex.GetLogSummary()}", LogLevel.Error);
                     continue;
                 }
 
                 // initialise mod
-                Mod mod;
                 try
                 {
                     // get implementation
-                    TypeInfo modEntryType = modAssembly.DefinedTypes.First(x => x.BaseType == typeof(Mod));
-                    mod = (Mod)modAssembly.CreateInstance(modEntryType.ToString());
+                    TypeInfo modEntryType = modAssembly.DefinedTypes.First(type => typeof(Mod).IsAssignableFrom(type) && !type.IsAbstract);
+                    Mod mod = (Mod)modAssembly.CreateInstance(modEntryType.ToString());
                     if (mod == null)
                     {
-                        Program.Monitor.Log($"{errorPrefix}: the mod's entry class could not be instantiated.");
+                        this.Monitor.Log($"{skippedPrefix} because its entry class couldn't be instantiated.");
                         continue;
                     }
 
                     // inject data
+                    // get helper
                     mod.ModManifest = manifest;
-                    mod.Helper = helper;
-                    mod.Monitor = Program.GetSecondaryMonitor(manifest.Name);
-                    mod.PathOnDisk = directory;
+                    mod.Helper = new ModHelper(manifest.Name, directory.FullName, jsonHelper, this.ModRegistry, this.CommandManager);
+                    mod.Monitor = this.GetSecondaryMonitor(manifest.Name);
+                    mod.PathOnDisk = directory.FullName;
 
                     // track mod
-                    Program.ModRegistry.Add(mod);
-                    Program.ModsLoaded += 1;
-                    Program.Monitor.Log($"Loaded mod: {manifest.Name} by {manifest.Author}, v{manifest.Version} | {manifest.Description}", LogLevel.Info);
+                    this.ModRegistry.Add(mod);
+                    modsLoaded += 1;
+                    this.Monitor.Log($"Loaded {manifest.Name} by {manifest.Author}, v{manifest.Version} | {manifest.Description}", LogLevel.Info);
                 }
                 catch (Exception ex)
                 {
-                    Program.Monitor.Log($"{errorPrefix}: an error occurred while loading the target DLL.\n{ex.GetLogSummary()}", LogLevel.Error);
-                    continue;
+                    this.Monitor.Log($"{skippedPrefix} because initialisation failed:\n{ex.GetLogSummary()}", LogLevel.Error);
                 }
             }
 
-            // log deprecation warnings
-            foreach (Action warning in deprecationWarnings)
-                warning();
-            deprecationWarnings = null;
-
             // initialise mods
-            foreach (Mod mod in Program.ModRegistry.GetMods())
+            foreach (Mod mod in this.ModRegistry.GetMods())
             {
                 try
                 {
                     // call entry methods
                     mod.Entry(); // deprecated since 1.0
-                    mod.Entry((ModHelper)mod.Helper); // deprecated since 1.1
                     mod.Entry(mod.Helper);
 
                     // raise deprecation warning for old Entry() methods
-                    if (Program.DeprecationManager.IsVirtualMethodImplemented(mod.GetType(), typeof(Mod), nameof(Mod.Entry), new[] { typeof(object[]) }))
-                        Program.DeprecationManager.Warn(mod.ModManifest.Name, $"{nameof(Mod)}.{nameof(Mod.Entry)}(object[]) instead of {nameof(Mod)}.{nameof(Mod.Entry)}({nameof(IModHelper)})", "1.0", DeprecationLevel.Notice);
-                    if (Program.DeprecationManager.IsVirtualMethodImplemented(mod.GetType(), typeof(Mod), nameof(Mod.Entry), new[] { typeof(ModHelper) }))
-                        Program.DeprecationManager.Warn(mod.ModManifest.Name, $"{nameof(Mod)}.{nameof(Mod.Entry)}({nameof(ModHelper)}) instead of {nameof(Mod)}.{nameof(Mod.Entry)}({nameof(IModHelper)})", "1.1", DeprecationLevel.PendingRemoval);
+                    if (this.DeprecationManager.IsVirtualMethodImplemented(mod.GetType(), typeof(Mod), nameof(Mod.Entry), new[] { typeof(object[]) }))
+                        deprecationWarnings.Add(() => this.DeprecationManager.Warn(mod.ModManifest.Name, $"{nameof(Mod)}.{nameof(Mod.Entry)}(object[]) instead of {nameof(Mod)}.{nameof(Mod.Entry)}({nameof(IModHelper)})", "1.0", DeprecationLevel.Info));
                 }
                 catch (Exception ex)
                 {
-                    Program.Monitor.Log($"The {mod.ModManifest.Name} mod failed on entry initialisation. It will still be loaded, but may not function correctly.\n{ex.GetLogSummary()}", LogLevel.Warn);
+                    this.Monitor.Log($"The {mod.ModManifest.Name} mod failed on entry initialisation. It will still be loaded, but may not function correctly.\n{ex.GetLogSummary()}", LogLevel.Warn);
                 }
             }
 
             // print result
-            Program.Monitor.Log($"Loaded {Program.ModsLoaded} mods.");
-            Console.Title = Constants.ConsoleTitle;
+            this.Monitor.Log($"Loaded {modsLoaded} mods.");
+            foreach (Action warning in deprecationWarnings)
+                warning();
+            Console.Title = $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GetGameDisplayVersion(Constants.GameVersion)} with {modsLoaded} mods";
         }
 
-        // ReSharper disable once FunctionNeverReturns
         /// <summary>Run a loop handling console input.</summary>
-        private static void ConsoleInputLoop()
+        [SuppressMessage("ReSharper", "FunctionNeverReturns", Justification = "The thread is aborted when the game exits.")]
+        private void ConsoleInputLoop()
         {
             while (true)
-                Command.CallCommand(Console.ReadLine(), Program.Monitor);
+            {
+                string input = Console.ReadLine();
+                try
+                {
+                    if (!string.IsNullOrWhiteSpace(input) && !this.CommandManager.Trigger(input))
+                        this.Monitor.Log("Unknown command; type 'help' for a list of available commands.", LogLevel.Error);
+                }
+                catch (Exception ex)
+                {
+                    this.Monitor.Log($"The handler registered for that command failed:\n{ex.GetLogSummary()}", LogLevel.Error);
+                }
+            }
         }
 
         /// <summary>The method called when the user submits the help command in the console.</summary>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="e">The event data.</param>
-        private static void help_CommandFired(object sender, EventArgsCommand e)
+        /// <param name="name">The command name.</param>
+        /// <param name="arguments">The command arguments.</param>
+        private void HandleHelpCommand(string name, string[] arguments)
         {
-            if (e.Command.CalledArgs.Length > 0)
+            if (arguments.Any())
             {
-                var command = Command.FindCommand(e.Command.CalledArgs[0]);
-                if (command == null)
-                    Program.Monitor.Log("The specified command could't be found", LogLevel.Error);
+                Framework.Command result = this.CommandManager.Get(arguments[0]);
+                if (result == null)
+                    this.Monitor.Log("There's no command with that name.", LogLevel.Error);
                 else
-                    Program.Monitor.Log(command.CommandArgs.Length > 0 ? $"{command.CommandName}: {command.CommandDesc} - {string.Join(", ", command.CommandArgs)}" : $"{command.CommandName}: {command.CommandDesc}", LogLevel.Info);
+                    this.Monitor.Log($"{result.Name}: {result.Documentation}\n(Added by {result.ModName}.)", LogLevel.Info);
             }
             else
-                Program.Monitor.Log("Commands: " + string.Join(", ", Command.RegisteredCommands.Select(x => x.CommandName)), LogLevel.Info);
+            {
+                this.Monitor.Log("The following commands are registered: " + string.Join(", ", this.CommandManager.GetAll().Select(p => p.Name)) + ".", LogLevel.Info);
+                this.Monitor.Log("For more information about a command, type 'help command_name'.", LogLevel.Info);
+            }
         }
 
         /// <summary>Show a 'press any key to exit' message, and exit when they press a key.</summary>
-        private static void PressAnyKeyToExit()
+        private void PressAnyKeyToExit()
         {
-            Program.Monitor.Log("Game has ended. Press any key to exit.", LogLevel.Info);
+            this.Monitor.Log("Game has ended. Press any key to exit.", LogLevel.Info);
             Thread.Sleep(100);
             Console.ReadKey();
             Environment.Exit(0);
@@ -584,9 +604,27 @@ namespace StardewModdingAPI
 
         /// <summary>Get a monitor instance derived from SMAPI's current settings.</summary>
         /// <param name="name">The name of the module which will log messages with this instance.</param>
-        private static Monitor GetSecondaryMonitor(string name)
+        private Monitor GetSecondaryMonitor(string name)
         {
-            return new Monitor(name, Program.LogFile) { WriteToConsole = Program.Monitor.WriteToConsole, ShowTraceInConsole = Program.Settings.DeveloperMode };
+            return new Monitor(name, this.ConsoleManager, this.LogFile, this.ExitGameImmediately) { WriteToConsole = this.Monitor.WriteToConsole, ShowTraceInConsole = this.Settings.DeveloperMode };
+        }
+
+        /// <summary>Get a human-readable name for the current platform.</summary>
+        [SuppressMessage("ReSharper", "EmptyGeneralCatchClause", Justification = "Error suppressed deliberately to fallback to default behaviour.")]
+        private string GetFriendlyPlatformName()
+        {
+#if SMAPI_FOR_WINDOWS
+            try
+            {
+                return new ManagementObjectSearcher("SELECT Caption FROM Win32_OperatingSystem")
+                    .Get()
+                    .Cast<ManagementObject>()
+                    .Select(entry => entry.GetPropertyValue("Caption").ToString())
+                    .FirstOrDefault();
+            }
+            catch { }
+#endif
+            return Environment.OSVersion.ToString();
         }
     }
 }

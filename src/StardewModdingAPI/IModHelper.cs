@@ -15,6 +15,9 @@
         /// <summary>Metadata about loaded mods.</summary>
         IModRegistry ModRegistry { get; }
 
+        /// <summary>An API for managing console commands.</summary>
+        ICommandHelper ConsoleCommands { get; }
+
 
         /*********
         ** Public methods

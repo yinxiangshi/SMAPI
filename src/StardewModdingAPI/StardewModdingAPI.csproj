@@ -60,7 +60,6 @@
     <OutputPath>$(SolutionDir)\..\bin\Debug\SMAPI</OutputPath>
     <DocumentationFile>$(SolutionDir)\..\bin\Debug\SMAPI\StardewModdingAPI.xml</DocumentationFile>
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-    <LangVersion>6</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <PlatformTarget>x86</PlatformTarget>
@@ -70,7 +69,6 @@
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-    <LangVersion>6</LangVersion>
     <DebugType>pdbonly</DebugType>
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
@@ -90,10 +88,6 @@
       <HintPath>..\packages\Mono.Cecil.0.9.6.4\lib\net45\Mono.Cecil.Pdb.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Mono.Cecil.Rocks, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <HintPath>..\packages\Mono.Cecil.0.9.6.4\lib\net45\Mono.Cecil.Rocks.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
@@ -101,6 +95,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Management" Condition="$(OS) == 'Windows_NT'" />
     <Reference Include="System.Numerics">
       <Private>True</Private>
     </Reference>
@@ -118,12 +113,12 @@
     <Compile Include="..\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Advanced\ConfigFile.cs" />
-    <Compile Include="Advanced\IConfigFile.cs" />
     <Compile Include="Command.cs" />
+    <Compile Include="Events\ContentEvents.cs" />
+    <Compile Include="Events\EventArgsValueChanged.cs" />
+    <Compile Include="Framework\Command.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Constants.cs" />
-    <Compile Include="Entities\SPlayer.cs" />
     <Compile Include="Events\ControlEvents.cs" />
     <Compile Include="Events\EventArgsCommand.cs" />
     <Compile Include="Events\EventArgsClickableMenuChanged.cs" />
@@ -150,6 +145,27 @@
     <Compile Include="Events\GraphicsEvents.cs" />
     <Compile Include="Framework\AssemblyDefinitionResolver.cs" />
     <Compile Include="Framework\AssemblyParseResult.cs" />
+    <Compile Include="Framework\CommandManager.cs" />
+    <Compile Include="Framework\Content\ContentEventData.cs" />
+    <Compile Include="Framework\Content\ContentEventHelper.cs" />
+    <Compile Include="Framework\Content\ContentEventHelperForDictionary.cs" />
+    <Compile Include="Framework\Content\ContentEventHelperForImage.cs" />
+    <Compile Include="Framework\Logging\ConsoleInterceptionManager.cs" />
+    <Compile Include="Framework\Logging\InterceptingTextWriter.cs" />
+    <Compile Include="Framework\CommandHelper.cs" />
+    <Compile Include="Framework\Models\ModCompatibilityType.cs" />
+    <Compile Include="Framework\Models\SConfig.cs" />
+    <Compile Include="Framework\Reflection\PrivateProperty.cs" />
+    <Compile Include="Framework\RequestExitDelegate.cs" />
+    <Compile Include="Framework\SContentManager.cs" />
+    <Compile Include="Framework\Serialisation\JsonHelper.cs" />
+    <Compile Include="Framework\Serialisation\SelectiveStringEnumConverter.cs" />
+    <Compile Include="Framework\Serialisation\SemanticVersionConverter.cs" />
+    <Compile Include="ICommandHelper.cs" />
+    <Compile Include="IContentEventData.cs" />
+    <Compile Include="IContentEventHelper.cs" />
+    <Compile Include="IContentEventHelperForDictionary.cs" />
+    <Compile Include="IContentEventHelperForImage.cs" />
     <Compile Include="IModRegistry.cs" />
     <Compile Include="Events\LocationEvents.cs" />
     <Compile Include="Events\MenuEvents.cs" />
@@ -157,11 +173,10 @@
     <Compile Include="Events\PlayerEvents.cs" />
     <Compile Include="Events\SaveEvents.cs" />
     <Compile Include="Events\TimeEvents.cs" />
-    <Compile Include="Extensions.cs" />
     <Compile Include="Framework\DeprecationLevel.cs" />
     <Compile Include="Framework\DeprecationManager.cs" />
     <Compile Include="Framework\InternalExtensions.cs" />
-    <Compile Include="Framework\Models\IncompatibleMod.cs" />
+    <Compile Include="Framework\Models\ModCompatibility.cs" />
     <Compile Include="Framework\AssemblyLoader.cs" />
     <Compile Include="Framework\Reflection\CacheEntry.cs" />
     <Compile Include="Framework\Reflection\PrivateField.cs" />
@@ -170,32 +185,29 @@
     <Compile Include="IManifest.cs" />
     <Compile Include="IMod.cs" />
     <Compile Include="IModHelper.cs" />
-    <Compile Include="Framework\LogFileManager.cs" />
+    <Compile Include="Framework\Logging\LogFileManager.cs" />
+    <Compile Include="IPrivateProperty.cs" />
     <Compile Include="ISemanticVersion.cs" />
     <Compile Include="LogLevel.cs" />
     <Compile Include="Framework\ModRegistry.cs" />
     <Compile Include="Framework\UpdateHelper.cs" />
     <Compile Include="Framework\Models\GitRelease.cs" />
-    <Compile Include="Framework\Models\UserSettings.cs" />
     <Compile Include="IMonitor.cs" />
-    <Compile Include="Inheritance\ChangeType.cs" />
-    <Compile Include="Inheritance\ItemStackChange.cs" />
-    <Compile Include="Inheritance\SObject.cs" />
+    <Compile Include="Events\ChangeType.cs" />
+    <Compile Include="Events\ItemStackChange.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="Framework\Monitor.cs" />
-    <Compile Include="LogInfo.cs" />
-    <Compile Include="LogWriter.cs" />
-    <Compile Include="Manifest.cs" />
+    <Compile Include="Framework\Manifest.cs" />
     <Compile Include="Mod.cs" />
-    <Compile Include="ModHelper.cs" />
+    <Compile Include="Framework\ModHelper.cs" />
+    <Compile Include="PatchMode.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Inheritance\SGame.cs" />
+    <Compile Include="Framework\SGame.cs" />
     <Compile Include="IPrivateField.cs" />
     <Compile Include="IPrivateMethod.cs" />
     <Compile Include="IReflectionHelper.cs" />
     <Compile Include="SemanticVersion.cs" />
-    <Compile Include="Version.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
@@ -205,9 +217,6 @@
       <SubType>Designer</SubType>
     </None>
     <Content Include="StardewModdingAPI.config.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="StardewModdingAPI.data.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="unix-launcher.sh">
@@ -248,22 +257,27 @@
   <Target Name="BeforeBuild">
     <Error Condition="!Exists('$(GamePath)')" Text="Failed to find the game install path automatically; edit the *.csproj file and manually add a &lt;GamePath&gt; setting with the full directory path containing the Stardew Valley executable." />
   </Target>
-  <!-- copy files into game directory and enable debugging (only in debug mode, and only in Windows because I haven't tried it with Linux/Mac) -->
-  <PropertyGroup Condition="$(Configuration) == 'Debug' AND $(OS) == 'Windows_NT'">
-    <StartAction>Program</StartAction>
-    <StartProgram>$(GamePath)\StardewModdingAPI.exe</StartProgram>
-    <StartWorkingDirectory>$(GamePath)</StartWorkingDirectory>
-  </PropertyGroup>
+
+  <!-- copy files into game directory and enable debugging (only in debug mode) -->
   <Target Name="AfterBuild" Condition="$(Configuration) == 'Debug'">
     <Copy SourceFiles="$(TargetDir)\$(TargetName).exe" DestinationFolder="$(GamePath)" />
     <Copy SourceFiles="$(TargetDir)\$(TargetName).config.json" DestinationFolder="$(GamePath)" />
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).data.json" DestinationFolder="$(GamePath)" />
     <Copy SourceFiles="$(TargetDir)\StardewModdingAPI.AssemblyRewriters.dll" DestinationFolder="$(GamePath)" />
     <Copy SourceFiles="$(TargetDir)\$(TargetName).exe.mdb" DestinationFolder="$(GamePath)" Condition="$(OS) != 'Windows_NT'" />
     <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)" Condition="$(OS) == 'Windows_NT'" />
     <Copy SourceFiles="$(TargetDir)\$(TargetName).xml" DestinationFolder="$(GamePath)" Condition="$(OS) == 'Windows_NT'" />
     <Copy SourceFiles="$(TargetDir)\Newtonsoft.Json.dll" DestinationFolder="$(GamePath)" />
     <Copy SourceFiles="$(TargetDir)\Mono.Cecil.dll" DestinationFolder="$(GamePath)" />
-    <Copy SourceFiles="$(TargetDir)\Mono.Cecil.Rocks.dll" DestinationFolder="$(GamePath)" />
   </Target>
+
+  <!-- launch SMAPI on debug -->
+  <PropertyGroup Condition="$(Configuration) == 'Debug'">
+    <StartAction>Program</StartAction>
+    <StartProgram>$(GamePath)\StardewModdingAPI.exe</StartProgram>
+    <StartWorkingDirectory>$(GamePath)</StartWorkingDirectory>
+  </PropertyGroup>
+  
+  <!-- Somehow this makes Visual Studio for Mac recognise the previous section. -->
+  <!-- Nobody knows why. -->
+  <PropertyGroup Condition="'$(RunConfiguration)' == 'Default'" />
 </Project>

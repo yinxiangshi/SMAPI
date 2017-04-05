@@ -3,8 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.AssemblyRewriters;
+using StardewModdingAPI.AssemblyRewriters.Finders;
 using StardewModdingAPI.AssemblyRewriters.Rewriters;
+using StardewModdingAPI.AssemblyRewriters.Rewriters.Wrappers;
+using StardewModdingAPI.Events;
 using StardewValley;
 
 namespace StardewModdingAPI
@@ -15,64 +19,74 @@ namespace StardewModdingAPI
         /*********
         ** Properties
         *********/
-        /// <summary>The directory name containing the current save's data (if a save is loaded).</summary>
-        private static string RawSaveFolderName => Constants.PlayerNull ? string.Empty : Constants.GetSaveFolderName();
-
         /// <summary>The directory path containing the current save's data (if a save is loaded).</summary>
-        private static string RawSavePath => Constants.PlayerNull ? string.Empty : Path.Combine(Constants.SavesPath, Constants.RawSaveFolderName);
+        private static string RawSavePath => Constants.IsSaveLoaded ? Path.Combine(Constants.SavesPath, Constants.GetSaveFolderName()) : null;
+
+        /// <summary>Whether the directory containing the current save's data exists on disk.</summary>
+        private static bool SavePathReady => Constants.IsSaveLoaded && Directory.Exists(Constants.RawSavePath);
 
 
         /*********
         ** Accessors
         *********/
+        /****
+        ** Public
+        ****/
         /// <summary>SMAPI's current semantic version.</summary>
-        [Obsolete("Use " + nameof(Constants) + "." + nameof(ApiVersion))]
-        public static readonly Version Version = (Version)Constants.ApiVersion;
-
-        /// <summary>SMAPI's current semantic version.</summary>
-        public static ISemanticVersion ApiVersion => new Version(1, 8, 0, null, suppressDeprecationWarning: true);
+        public static ISemanticVersion ApiVersion { get; } = new SemanticVersion(1, 9, 0);
 
         /// <summary>The minimum supported version of Stardew Valley.</summary>
-        public const string MinimumGameVersion = "1.1";
+        public static ISemanticVersion MinimumGameVersion { get; } = new SemanticVersion("1.1");
 
-        /// <summary>The GitHub repository to check for updates.</summary>
-        public const string GitHubRepository = "Pathoschild/SMAPI";
+        /// <summary>The maximum supported version of Stardew Valley.</summary>
+        public static ISemanticVersion MaximumGameVersion { get; } = new SemanticVersion("1.1.1");
+
+        /// <summary>The path to the game folder.</summary>
+        public static string ExecutionPath { get; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
         /// <summary>The directory path containing Stardew Valley's app data.</summary>
-        public static string DataPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley");
-
-        /// <summary>The directory path where all saves are stored.</summary>
-        public static string SavesPath => Path.Combine(Constants.DataPath, "Saves");
-
-        /// <summary>Whether the directory containing the current save's data exists on disk.</summary>
-        public static bool CurrentSavePathExists => Directory.Exists(Constants.RawSavePath);
-
-        /// <summary>The directory name containing the current save's data (if a save is loaded and the directory exists).</summary>
-        public static string SaveFolderName => Constants.CurrentSavePathExists ? Constants.RawSaveFolderName : "";
-
-        /// <summary>The directory path containing the current save's data (if a save is loaded and the directory exists).</summary>
-        public static string CurrentSavePath => Constants.CurrentSavePathExists ? Constants.RawSavePath : "";
-
-        /// <summary>Whether a player save has been loaded.</summary>
-        public static bool PlayerNull => !Game1.hasLoadedGame || Game1.player == null || string.IsNullOrEmpty(Game1.player.name);
-
-        /// <summary>The path to the current assembly being executing.</summary>
-        public static string ExecutionPath => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
-        /// <summary>The title of the SMAPI console window.</summary>
-        public static string ConsoleTitle => $"Stardew Modding API Console - Version {Constants.ApiVersion} - Mods Loaded: {Program.ModsLoaded}";
+        public static string DataPath { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley");
 
         /// <summary>The directory path in which error logs should be stored.</summary>
-        public static string LogDir => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley", "ErrorLogs");
+        public static string LogDir { get; } = Path.Combine(Constants.DataPath, "ErrorLogs");
 
-        /// <summary>The file path to the error log where the latest output should be saved.</summary>
-        public static string LogPath => Path.Combine(Constants.LogDir, "MODDED_ProgramLog.Log_LATEST.txt");
+        /// <summary>The directory path where all saves are stored.</summary>
+        public static string SavesPath { get; } = Path.Combine(Constants.DataPath, "Saves");
+
+        /// <summary>The directory name containing the current save's data (if a save is loaded and the directory exists).</summary>
+        public static string SaveFolderName => Constants.SavePathReady ? Constants.GetSaveFolderName() : "";
+
+        /// <summary>The directory path containing the current save's data (if a save is loaded and the directory exists).</summary>
+        public static string CurrentSavePath => Constants.SavePathReady ? Path.Combine(Constants.SavesPath, Constants.GetSaveFolderName()) : "";
+
+        /****
+        ** Internal
+        ****/
+        /// <summary>The GitHub repository to check for updates.</summary>
+        internal const string GitHubRepository = "Pathoschild/SMAPI";
 
         /// <summary>The file path for the SMAPI configuration file.</summary>
         internal static string ApiConfigPath => Path.Combine(Constants.ExecutionPath, $"{typeof(Program).Assembly.GetName().Name}.config.json");
 
-        /// <summary>The file path for the SMAPI data file containing metadata about known mods.</summary>
-        internal static string ApiModMetadataPath => Path.Combine(Constants.ExecutionPath, $"{typeof(Program).Assembly.GetName().Name}.data.json");
+        /// <summary>The file path to the log where the latest output should be saved.</summary>
+        internal static string DefaultLogPath => Path.Combine(Constants.LogDir, "SMAPI-latest.txt");
+
+        /// <summary>The full path to the folder containing mods.</summary>
+        internal static string ModPath { get; } = Path.Combine(Constants.ExecutionPath, "Mods");
+
+        /// <summary>Whether a player save has been loaded.</summary>
+        internal static bool IsSaveLoaded => Game1.hasLoadedGame && !string.IsNullOrEmpty(Game1.player.name);
+
+        /// <summary>The game's current semantic version.</summary>
+        internal static ISemanticVersion GameVersion { get; } = Constants.GetGameVersion();
+
+        /// <summary>The target game platform.</summary>
+        internal static Platform TargetPlatform { get; } =
+#if SMAPI_FOR_WINDOWS
+        Platform.Windows;
+#else
+        Platform.Mono;
+#endif
 
 
         /*********
@@ -124,13 +138,53 @@ namespace StardewModdingAPI
             return new PlatformAssemblyMap(targetPlatform, removeAssemblyReferences, targetAssemblies);
         }
 
-        /// <summary>Get method rewriters which fix incompatible method calls in mod assemblies.</summary>
-        internal static IEnumerable<IMethodRewriter> GetMethodRewriters()
+        /// <summary>Get rewriters which detect or fix incompatible CIL instructions in mod assemblies.</summary>
+        internal static IEnumerable<IInstructionRewriter> GetRewriters()
         {
-            return new[]
+            return new IInstructionRewriter[]
             {
-                new SpriteBatchRewriter()
+                /****
+                ** Finders throw an exception when incompatible code is found.
+                ****/
+                // APIs removed in SMAPI 1.9
+                new TypeFinder("StardewModdingAPI.Advanced.ConfigFile"),
+                new TypeFinder("StardewModdingAPI.Advanced.IConfigFile"),
+                new TypeFinder("StardewModdingAPI.Entities.SPlayer"),
+                new TypeFinder("StardewModdingAPI.Extensions"),
+                new TypeFinder("StardewModdingAPI.Inheritance.SGame"),
+                new TypeFinder("StardewModdingAPI.Inheritance.SObject"),
+                new TypeFinder("StardewModdingAPI.LogWriter"),
+                new TypeFinder("StardewModdingAPI.Manifest"),
+                new TypeFinder("StardewModdingAPI.Version"),
+                new EventFinder("StardewModdingAPI.Events.GraphicsEvents", "DrawDebug"),
+                new EventFinder("StardewModdingAPI.Events.GraphicsEvents", "DrawTick"),
+                new EventFinder("StardewModdingAPI.Events.GraphicsEvents", "OnPostRenderHudEventNoCheck"),
+                new EventFinder("StardewModdingAPI.Events.GraphicsEvents", "OnPostRenderGuiEventNoCheck"),
+                new EventFinder("StardewModdingAPI.Events.GraphicsEvents", "OnPreRenderHudEventNoCheck"),
+                new EventFinder("StardewModdingAPI.Events.GraphicsEvents", "OnPreRenderGuiEventNoCheck"),
+
+                /****
+                ** Rewriters change CIL as needed to fix incompatible code
+                ****/
+                // crossplatform
+                new MethodParentRewriter(typeof(SpriteBatch), typeof(SpriteBatchWrapper), onlyIfPlatformChanged: true),
+
+                // SMAPI 1.9
+                new TypeReferenceRewriter("StardewModdingAPI.Inheritance.ItemStackChange", typeof(ItemStackChange))
             };
+        }
+
+        /// <summary>Get game current version as it should be displayed to players.</summary>
+        /// <param name="version">The semantic game version.</param>
+        internal static ISemanticVersion GetGameDisplayVersion(ISemanticVersion version)
+        {
+            switch (version.ToString())
+            {
+                case "1.1.1":
+                    return new SemanticVersion(1, 11, 0); // The 1.1 patch was released as 1.11
+                default:
+                    return version;
+            }
         }
 
         /// <summary>Get the name of a save directory for the current player.</summary>
@@ -138,6 +192,22 @@ namespace StardewModdingAPI
         {
             string prefix = new string(Game1.player.name.Where(char.IsLetterOrDigit).ToArray());
             return $"{prefix}_{Game1.uniqueIDForThisGame}";
+        }
+
+        /// <summary>Get the game's current semantic version.</summary>
+        private static ISemanticVersion GetGameVersion()
+        {
+            // get raw version
+            // we need reflection because it's a constant, so SMAPI's references to it are inlined at compile-time
+            FieldInfo field = typeof(Game1).GetField(nameof(Game1.version), BindingFlags.Public | BindingFlags.Static);
+            if (field == null)
+                throw new InvalidOperationException($"The {nameof(Game1)}.{nameof(Game1.version)} field could not be found.");
+            string version = (string)field.GetValue(null);
+
+            // get semantic version
+            if (version == "1.11")
+                version = "1.1.1"; // The 1.1 patch was released as 1.11, which means it's out of order for semantic version checks
+            return new SemanticVersion(version);
         }
     }
 }

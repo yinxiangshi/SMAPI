@@ -15,24 +15,13 @@ namespace StardewModdingAPI.Events
         /// <summary>Raised after the game window is resized.</summary>
         public static event EventHandler Resize;
 
-        /// <summary>Raised when drawing debug information to the screen (when <see cref="StardewModdingAPI.Inheritance.SGame.Debug"/> is true). This is called after the sprite batch is begun. If you just want to add debug info, use <see cref="StardewModdingAPI.Inheritance.SGame.DebugMessageQueue" /> in your update loop.</summary>
-        public static event EventHandler DrawDebug;
-
-        /// <summary>Obsolete.</summary>
-        [Obsolete("Use the other Pre/Post render events instead.")]
-        public static event EventHandler DrawTick;
-
-        /// <summary>Obsolete.</summary>
-        [Obsolete("Use the other Pre/Post render events instead. All of them will automatically be drawn into the render target if needed.")]
-        public static event EventHandler DrawInRenderTargetTick;
-
         /****
         ** Main render events
         ****/
-        /// <summary>Raised before drawing everything to the screen during a draw loop.</summary>
+        /// <summary>Raised before drawing the world to the screen.</summary>
         public static event EventHandler OnPreRenderEvent;
 
-        /// <summary>Raised after drawing everything to the screen during a draw loop.</summary>
+        /// <summary>Raised after drawing the world to the screen.</summary>
         public static event EventHandler OnPostRenderEvent;
 
         /****
@@ -41,14 +30,8 @@ namespace StardewModdingAPI.Events
         /// <summary>Raised before drawing the HUD (item toolbar, clock, etc) to the screen. The HUD is available at this point, but not necessarily visible. (For example, the event is raised even if a menu is open.)</summary>
         public static event EventHandler OnPreRenderHudEvent;
 
-        /// <summary>Equivalent to <see cref="OnPreRenderHudEvent"/>, but invoked even if the HUD isn't available.</summary>
-        public static event EventHandler OnPreRenderHudEventNoCheck;
-
         /// <summary>Raised after drawing the HUD (item toolbar, clock, etc) to the screen. The HUD is available at this point, but not necessarily visible. (For example, the event is raised even if a menu is open.)</summary>
         public static event EventHandler OnPostRenderHudEvent;
-
-        /// <summary>Equivalent to <see cref="OnPostRenderHudEvent"/>, but invoked even if the HUD isn't available.</summary>
-        public static event EventHandler OnPostRenderHudEventNoCheck;
 
         /****
         ** GUI events
@@ -56,14 +39,8 @@ namespace StardewModdingAPI.Events
         /// <summary>Raised before drawing a menu to the screen during a draw loop. This includes the game's internal menus like the title screen.</summary>
         public static event EventHandler OnPreRenderGuiEvent;
 
-        /// <summary>Equivalent to <see cref="OnPreRenderGuiEvent"/>, but invoked even if there's no menu being drawn.</summary>
-        public static event EventHandler OnPreRenderGuiEventNoCheck;
-
         /// <summary>Raised after drawing a menu to the screen during a draw loop. This includes the game's internal menus like the title screen.</summary>
         public static event EventHandler OnPostRenderGuiEvent;
-
-        /// <summary>Equivalent to <see cref="OnPreRenderGuiEvent"/>, but invoked even if there's no menu being drawn.</summary>
-        public static event EventHandler OnPostRenderGuiEventNoCheck;
 
 
         /*********
@@ -79,29 +56,6 @@ namespace StardewModdingAPI.Events
         internal static void InvokeResize(IMonitor monitor, object sender, EventArgs e)
         {
             monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.Resize)}", GraphicsEvents.Resize?.GetInvocationList(), sender, e);
-        }
-
-        /// <summary>Raise a <see cref="DrawDebug"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        internal static void InvokeDrawDebug(IMonitor monitor)
-        {
-            monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.DrawDebug)}", GraphicsEvents.DrawDebug?.GetInvocationList());
-        }
-
-        /// <summary>Raise a <see cref="DrawTick"/> event.</summary>
-        /// <param name="monitor">Encapsulates logging and monitoring.</param>
-        [Obsolete("Should not be used.")]
-        public static void InvokeDrawTick(IMonitor monitor)
-        {
-            monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.DrawTick)}", GraphicsEvents.DrawTick?.GetInvocationList());
-        }
-
-        /// <summary>Raise a <see cref="DrawInRenderTargetTick"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        [Obsolete("Should not be used.")]
-        public static void InvokeDrawInRenderTargetTick(IMonitor monitor)
-        {
-            monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.DrawInRenderTargetTick)}", GraphicsEvents.DrawInRenderTargetTick?.GetInvocationList());
         }
 
         /****
@@ -121,21 +75,20 @@ namespace StardewModdingAPI.Events
             monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.OnPostRenderEvent)}", GraphicsEvents.OnPostRenderEvent?.GetInvocationList());
         }
 
+        /// <summary>Get whether there are any post-render event listeners.</summary>
+        internal static bool HasPostRenderListeners()
+        {
+            return GraphicsEvents.OnPostRenderEvent != null;
+        }
+
         /****
-        ** HUD events
+        ** GUI events
         ****/
         /// <summary>Raise an <see cref="OnPreRenderGuiEvent"/> event.</summary>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         internal static void InvokeOnPreRenderGuiEvent(IMonitor monitor)
         {
             monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.OnPreRenderGuiEvent)}", GraphicsEvents.OnPreRenderGuiEvent?.GetInvocationList());
-        }
-
-        /// <summary>Raise an <see cref="OnPreRenderGuiEventNoCheck"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        internal static void InvokeOnPreRenderGuiEventNoCheck(IMonitor monitor)
-        {
-            monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.OnPreRenderGuiEventNoCheck)}", GraphicsEvents.OnPreRenderGuiEventNoCheck?.GetInvocationList());
         }
 
         /// <summary>Raise an <see cref="OnPostRenderGuiEvent"/> event.</summary>
@@ -145,15 +98,8 @@ namespace StardewModdingAPI.Events
             monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.OnPostRenderGuiEvent)}", GraphicsEvents.OnPostRenderGuiEvent?.GetInvocationList());
         }
 
-        /// <summary>Raise an <see cref="OnPostRenderGuiEventNoCheck"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        internal static void InvokeOnPostRenderGuiEventNoCheck(IMonitor monitor)
-        {
-            monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.OnPostRenderGuiEventNoCheck)}", GraphicsEvents.OnPostRenderGuiEventNoCheck?.GetInvocationList());
-        }
-
         /****
-        ** GUI events
+        ** HUD events
         ****/
         /// <summary>Raise an <see cref="OnPreRenderHudEvent"/> event.</summary>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
@@ -162,25 +108,11 @@ namespace StardewModdingAPI.Events
             monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.OnPreRenderHudEvent)}", GraphicsEvents.OnPreRenderHudEvent?.GetInvocationList());
         }
 
-        /// <summary>Raise an <see cref="OnPreRenderHudEventNoCheck"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        internal static void InvokeOnPreRenderHudEventNoCheck(IMonitor monitor)
-        {
-            monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.OnPreRenderHudEventNoCheck)}", GraphicsEvents.OnPreRenderHudEventNoCheck?.GetInvocationList());
-        }
-
         /// <summary>Raise an <see cref="OnPostRenderHudEvent"/> event.</summary>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         internal static void InvokeOnPostRenderHudEvent(IMonitor monitor)
         {
             monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.OnPostRenderHudEvent)}", GraphicsEvents.OnPostRenderHudEvent?.GetInvocationList());
-        }
-
-        /// <summary>Raise an <see cref="OnPostRenderHudEventNoCheck"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        internal static void InvokeOnPostRenderHudEventNoCheck(IMonitor monitor)
-        {
-            monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.OnPostRenderHudEventNoCheck)}", GraphicsEvents.OnPostRenderHudEventNoCheck?.GetInvocationList());
         }
     }
 }

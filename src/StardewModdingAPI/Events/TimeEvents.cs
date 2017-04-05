@@ -7,12 +7,22 @@ namespace StardewModdingAPI.Events
     public static class TimeEvents
     {
         /*********
+        ** Properties
+        *********/
+        /// <summary>Manages deprecation warnings.</summary>
+        private static DeprecationManager DeprecationManager;
+
+
+        /*********
         ** Events
         *********/
+        /// <summary>Raised after the game begins a new day, including when loading a save.</summary>
+        public static event EventHandler AfterDayStarted;
+
         /// <summary>Raised after the in-game clock changes.</summary>
         public static event EventHandler<EventArgsIntChanged> TimeOfDayChanged;
 
-        /// <summary>Raised after the day-of-month value changes, including when loading a save (unlike <see cref="OnNewDay"/>).</summary>
+        /// <summary>Raised after the day-of-month value changes, including when loading a save. This may happen before save; in most cases you should use <see cref="AfterDayStarted"/> instead.</summary>
         public static event EventHandler<EventArgsIntChanged> DayOfMonthChanged;
 
         /// <summary>Raised after the year value changes.</summary>
@@ -22,13 +32,27 @@ namespace StardewModdingAPI.Events
         public static event EventHandler<EventArgsStringChanged> SeasonOfYearChanged;
 
         /// <summary>Raised when the player is transitioning to a new day and the game is performing its day update logic. This event is triggered twice: once after the game starts transitioning, and again after it finishes.</summary>
-        [Obsolete("Use " + nameof(TimeEvents) + "." + nameof(DayOfMonthChanged) + " or " + nameof(SaveEvents) + " instead")]
+        [Obsolete("Use " + nameof(TimeEvents) + "." + nameof(TimeEvents.AfterDayStarted) + " or " + nameof(SaveEvents) + " instead")]
         public static event EventHandler<EventArgsNewDay> OnNewDay;
 
 
         /*********
         ** Internal methods
         *********/
+        /// <summary>Injects types required for backwards compatibility.</summary>
+        /// <param name="deprecationManager">Manages deprecation warnings.</param>
+        internal static void Shim(DeprecationManager deprecationManager)
+        {
+            TimeEvents.DeprecationManager = deprecationManager;
+        }
+
+        /// <summary>Raise an <see cref="AfterDayStarted"/> event.</summary>
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
+        internal static void InvokeAfterDayStarted(IMonitor monitor)
+        {
+            monitor.SafelyRaisePlainEvent($"{nameof(TimeEvents)}.{nameof(TimeEvents.AfterDayStarted)}", TimeEvents.AfterDayStarted?.GetInvocationList(), null, EventArgs.Empty);
+        }
+
         /// <summary>Raise a <see cref="InvokeDayOfMonthChanged"/> event.</summary>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="priorTime">The previous time in military time format (e.g. 6:00pm is 1800).</param>
@@ -78,7 +102,7 @@ namespace StardewModdingAPI.Events
             string name = $"{nameof(TimeEvents)}.{nameof(TimeEvents.OnNewDay)}";
             Delegate[] handlers = TimeEvents.OnNewDay.GetInvocationList();
 
-            Program.DeprecationManager.WarnForEvent(handlers, name, "1.6", DeprecationLevel.Notice);
+            TimeEvents.DeprecationManager.WarnForEvent(handlers, name, "1.6", DeprecationLevel.Info);
             monitor.SafelyRaiseGenericEvent(name, handlers, null, new EventArgsNewDay(priorDay, newDay, isTransitioning));
         }
     }

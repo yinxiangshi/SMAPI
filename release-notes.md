@@ -1,5 +1,62 @@
 ﻿# Release notes
 
+<!--
+## 2.0
+See [log](https://github.com/Pathoschild/SMAPI/compare/1.10...2.0).
+
+For mod developers:
+* Added `ContentEvents.AssetLoading` event with a helper which lets you intercept the XNB content
+  load, and dynamically adjust or replace the content being loaded (including support for patching
+  images).
+
+## 1.10
+See [log](https://github.com/Pathoschild/SMAPI/compare/1.9...1.10).
+* Updated for Stardew Valley 1.2.
+* SMAPI now rewrites many mods for compatibility with game updates, but some mods will need an update.
+-->
+
+## 1.9
+See [log](https://github.com/Pathoschild/SMAPI/compare/1.8...1.9).
+
+For players:
+* SMAPI now detects incompatible mods and disables them before they cause problems.
+* SMAPI now allows mods nested into an otherwise empty parent folder (like `Mods\ModName-1.0\ModName\manifest.json`), since that's a common default behaviour when unpacking mods.
+* The installer now detects if you need to update .NET Framework before installing SMAPI.
+* The installer now detects if you need to run the game at least once (to let it perform first-time setup) before installing SMAPI.
+* The installer on Linux now finds games installed to `~/.steam/steam/steamapps/common/Stardew Valley` too.
+* The installer now removes old SMAPI logs to prevent confusion.
+* The console now has simpler error messages.
+* The console now has improved command handling & feedback.
+* The console no longer shows the game's debug output (unless you use a _SMAPI for developers_ build).
+* Fixed the game-needs-an-update error not pausing before exit.
+* Fixed installer errors for some players when deleting files.
+* Fixed installer not ignoring potential game folders that don't contain a Stardew Valley exe.
+* Fixed installer not recognising Linux/Mac paths starting with `~/` or containing an escaped space.
+* Fixed TrainerMod letting you add invalid items which may crash the game.
+* Fixed TrainerMod's `world_downminelevel` command not working.
+* Fixed rare issue where mod dependencies would override SMAPI dependencies and cause unpredictable bugs.
+* Fixed errors in mods' console command handlers crashing the game.
+
+For mod developers:
+* Added a simpler API for console commands (see `helper.ConsoleCommands`).
+* Added `TimeEvents.AfterDayStarted` event triggered when a day starts. This happens no matter how the day started (including new game, loaded save, or player went to bed).
+* Added `ContentEvents.AfterLocaleChanged` event triggered when the player changes the content language (for the upcoming Stardew Valley 1.2).
+* Added `SaveEvents.AfterReturnToTitle` event triggered when the player returns to the title screen (for the upcoming Stardew Valley 1.2).
+* Added `helper.Reflection.GetPrivateProperty` method.
+* Added a `--log-path` argument to specify the SMAPI log path during testing.
+* SMAPI now writes XNA input enums (`Buttons` and `Keys`) to JSON as strings automatically, so mods no longer need to add a `StringEnumConverter` themselves for those.
+* The SMAPI log now has a simpler filename.
+* The SMAPI log now shows the OS caption (like "Windows 10") instead of its internal version when available.
+* The SMAPI log now always uses `\r\n` line endings to simplify crossplatform viewing.
+* Fixed `SaveEvents.AfterLoad` being raised during the new-game intro before the player is initialised.
+* Fixed SMAPI not recognising `Mod` instances that don't subclass `Mod` directly.
+* Several obsolete APIs have been removed (see [deprecation guide](http://canimod.com/guides/updating-a-smapi-mod)),
+  and all _notice_-level deprecations have been increased to _info_.
+* Removed the experimental `IConfigFile`.
+
+For SMAPI developers:
+* Added support for debugging SMAPI on Linux/Mac if supported by the editor.
+
 ## 1.8
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.7...1.8).
 
