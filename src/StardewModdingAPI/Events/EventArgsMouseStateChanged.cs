@@ -11,16 +11,16 @@ namespace StardewModdingAPI.Events
         ** Accessors
         *********/
         /// <summary>The previous mouse state.</summary>
-        public MouseState PriorState { get; private set; }
+        public MouseState PriorState { get; }
 
         /// <summary>The current mouse state.</summary>
-        public MouseState NewState { get; private set; }
+        public MouseState NewState { get; }
 
         /// <summary>The previous mouse position on the screen adjusted for the zoom level.</summary>
-        public Point PriorPosition { get; private set; }
+        public Point PriorPosition { get; }
 
         /// <summary>The current mouse position on the screen adjusted for the zoom level.</summary>
-        public Point NewPosition { get; private set; }
+        public Point NewPosition { get; }
 
 
         /*********

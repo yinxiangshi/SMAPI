@@ -9,10 +9,10 @@ namespace StardewModdingAPI.Events
         ** Accessors
         *********/
         /// <summary>The player skill that leveled up.</summary>
-        public LevelType Type { get; private set; }
+        public LevelType Type { get; }
 
         /// <summary>The new skill level.</summary>
-        public int NewLevel { get; private set; }
+        public int NewLevel { get; }
 
         /// <summary>The player skill types.</summary>
         public enum LevelType

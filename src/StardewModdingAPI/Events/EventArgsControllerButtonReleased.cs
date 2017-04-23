@@ -11,10 +11,10 @@ namespace StardewModdingAPI.Events
         ** Accessors
         *********/
         /// <summary>The player who pressed the button.</summary>
-        public PlayerIndex PlayerIndex { get; private set; }
+        public PlayerIndex PlayerIndex { get; }
 
         /// <summary>The controller button that was pressed.</summary>
-        public Buttons ButtonReleased { get; private set; }
+        public Buttons ButtonReleased { get; }
 
 
         /*********

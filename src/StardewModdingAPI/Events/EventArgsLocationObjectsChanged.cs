@@ -12,7 +12,7 @@ namespace StardewModdingAPI.Events
         ** Accessors
         *********/
         /// <summary>The current list of objects in the current location.</summary>
-        public SerializableDictionary<Vector2, Object> NewObjects { get; private set; }
+        public SerializableDictionary<Vector2, Object> NewObjects { get; }
 
 
         /*********

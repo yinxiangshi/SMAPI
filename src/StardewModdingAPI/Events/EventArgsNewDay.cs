@@ -9,13 +9,13 @@ namespace StardewModdingAPI.Events
         ** Accessors
         *********/
         /// <summary>The previous day value.</summary>
-        public int PreviousDay { get; private set; }
+        public int PreviousDay { get; }
 
         /// <summary>The current day value.</summary>
-        public int CurrentDay { get; private set; }
+        public int CurrentDay { get; }
 
         /// <summary>Whether the game just started the transition (<c>true</c>) or finished it (<c>false</c>).</summary>
-        public bool IsNewDay { get; private set; }
+        public bool IsNewDay { get; }
 
 
         /*********

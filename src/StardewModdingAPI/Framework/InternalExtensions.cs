@@ -39,7 +39,7 @@ namespace StardewModdingAPI.Framework
             if (handlers == null)
                 return;
 
-            foreach (EventHandler handler in Enumerable.Cast<EventHandler>(handlers))
+            foreach (EventHandler handler in handlers.Cast<EventHandler>())
             {
                 try
                 {
@@ -64,7 +64,7 @@ namespace StardewModdingAPI.Framework
             if (handlers == null)
                 return;
 
-            foreach (EventHandler<TEventArgs> handler in Enumerable.Cast<EventHandler<TEventArgs>>(handlers))
+            foreach (EventHandler<TEventArgs> handler in handlers.Cast<EventHandler<TEventArgs>>())
             {
                 try
                 {
@@ -85,14 +85,14 @@ namespace StardewModdingAPI.Framework
         public static string GetLogSummary(this Exception exception)
         {
             // type load exception
-            if (exception is TypeLoadException)
-                return $"Failed loading type: {((TypeLoadException)exception).TypeName}: {exception}";
+            if (exception is TypeLoadException typeLoadEx)
+                return $"Failed loading type: {typeLoadEx.TypeName}: {exception}";
 
             // reflection type load exception
-            if (exception is ReflectionTypeLoadException)
+            if (exception is ReflectionTypeLoadException reflectionTypeLoadEx)
             {
                 string summary = exception.ToString();
-                foreach (Exception childEx in ((ReflectionTypeLoadException)exception).LoaderExceptions)
+                foreach (Exception childEx in reflectionTypeLoadEx.LoaderExceptions)
                     summary += $"\n\n{childEx.GetLogSummary()}";
                 return summary;
             }

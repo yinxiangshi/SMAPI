@@ -12,16 +12,16 @@ namespace StardewModdingAPI.Events
         ** Accessors
         *********/
         /// <summary>The player's inventory.</summary>
-        public List<Item> Inventory { get; private set; }
+        public List<Item> Inventory { get; }
 
         /// <summary>The added items.</summary>
-        public List<ItemStackChange> Added { get; private set; }
+        public List<ItemStackChange> Added { get; }
 
         /// <summary>The removed items.</summary>
-        public List<ItemStackChange> Removed { get; private set; }
+        public List<ItemStackChange> Removed { get; }
 
         /// <summary>The items whose stack sizes changed.</summary>
-        public List<ItemStackChange> QuantityChanged { get; private set; }
+        public List<ItemStackChange> QuantityChanged { get; }
 
 
         /*********

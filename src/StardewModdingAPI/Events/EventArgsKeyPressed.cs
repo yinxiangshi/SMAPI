@@ -10,7 +10,7 @@ namespace StardewModdingAPI.Events
         ** Accessors
         *********/
         /// <summary>The keyboard button that was pressed.</summary>
-        public Keys KeyPressed { get; private set; }
+        public Keys KeyPressed { get; }
 
 
         /*********

@@ -21,7 +21,7 @@ namespace StardewModdingAPI.Framework
         private readonly LogFileManager LogFile;
 
         /// <summary>The maximum length of the <see cref="LogLevel"/> values.</summary>
-        private static readonly int MaxLevelLength = (from level in Enumerable.Cast<LogLevel>(Enum.GetValues(typeof(LogLevel))) select level.ToString().Length).Max();
+        private static readonly int MaxLevelLength = (from level in Enum.GetValues(typeof(LogLevel)).Cast<LogLevel>() select level.ToString().Length).Max();
 
         /// <summary>The console text color for each log level.</summary>
         private static readonly Dictionary<LogLevel, ConsoleColor> Colors = new Dictionary<LogLevel, ConsoleColor>
