@@ -71,6 +71,7 @@ namespace StardewModdingAPI.Framework
             this.Source = source;
             this.LogFile = logFile;
             this.ConsoleManager = consoleManager;
+            this.RequestExit = requestExitDelegate;
         }
 
         /// <summary>Log a message for the player or developer.</summary>
@@ -129,6 +130,8 @@ namespace StardewModdingAPI.Framework
                 {
                     if (this.ConsoleManager.SupportsColor)
                     {
+                        if (background.HasValue)
+                            Console.BackgroundColor = background.Value;
                         Console.ForegroundColor = color;
                         Console.WriteLine(message);
                         Console.ResetColor();

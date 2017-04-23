@@ -15,11 +15,12 @@ See [log](https://github.com/Pathoschild/SMAPI/compare/1.9...1.10).
 * SMAPI now rewrites many mods for compatibility with game updates, but some mods will need an update.
 -->
 
-## 1.9.1
+## 1.10
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.9...1.9.1).
 
 For mod developers:
 * Fixed mouse-changed event never updating prior mouse position.
+* Fixed `monitor.ExitGameImmediately` not working correctly.
 
 ## 1.9
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.8...1.9).
