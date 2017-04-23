@@ -435,7 +435,7 @@ namespace StardewModdingApi.Installer
                 catch (Exception ex)
                 {
                     this.PrintError($"Oops! The installer couldn't delete {path}: [{ex.GetType().Name}] {ex.Message}.");
-                    this.PrintError("Please delete it yourself, then press any key to retry.");
+                    this.PrintError("Try rebooting your computer and then run the installer again. If that doesn't work, try deleting it yourself then press any key to retry.");
                     Console.ReadKey();
                 }
             }
