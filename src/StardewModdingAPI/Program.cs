@@ -120,6 +120,7 @@ namespace StardewModdingAPI
             Log.Shim(this.DeprecationManager, this.GetSecondaryMonitor("legacy mod"), this.ModRegistry);
             Mod.Shim(this.DeprecationManager);
             ContentEvents.Shim(this.ModRegistry, this.Monitor);
+            GameEvents.Shim(this.DeprecationManager);
             PlayerEvents.Shim(this.DeprecationManager);
             TimeEvents.Shim(this.DeprecationManager);
 #pragma warning restore 618

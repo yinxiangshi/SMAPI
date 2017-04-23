@@ -48,7 +48,7 @@ namespace StardewModdingAPI.Framework
         ** Game state
         ****/
         /// <summary>Arrays of pressed controller buttons indexed by <see cref="PlayerIndex"/>.</summary>
-        private Buttons[][] PreviouslyPressedButtons;
+        private readonly Buttons[][] PreviouslyPressedButtons = { new Buttons[0], new Buttons[0], new Buttons[0], new Buttons[0] };
 
         /// <summary>A record of the keyboard state (i.e. the up/down state for each button) as of the latest tick.</summary>
         private KeyboardState KStateNow;
@@ -173,31 +173,17 @@ namespace StardewModdingAPI.Framework
         /****
         ** Intercepted methods & events
         ****/
-        /// <summary>The method called during game launch after configuring XNA or MonoGame. The game window hasn't been opened by this point.</summary>
-        protected override void Initialize()
-        {
-            this.PreviouslyPressedButtons = new Buttons[4][];
-            for (var i = 0; i < 4; ++i)
-                this.PreviouslyPressedButtons[i] = new Buttons[0];
-
-            base.Initialize();
-            GameEvents.InvokeInitialize(this.Monitor);
-        }
-
-        /// <summary>The method called before XNA or MonoGame loads or reloads graphics resources.</summary>
-        protected override void LoadContent()
-        {
-            base.LoadContent();
-            GameEvents.InvokeLoadContent(this.Monitor);
-        }
-
         /// <summary>The method called when the game is updating its state. This happens roughly 60 times per second.</summary>
         /// <param name="gameTime">A snapshot of the game timing state.</param>
         protected override void Update(GameTime gameTime)
         {
             // raise game loaded
             if (this.FirstUpdate)
+            {
+                GameEvents.InvokeInitialize(this.Monitor);
+                GameEvents.InvokeLoadContent(this.Monitor);
                 GameEvents.InvokeGameLoaded(this.Monitor);
+            }
 
             // update SMAPI events
             this.UpdateEventCalls();
