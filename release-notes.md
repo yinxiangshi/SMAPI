@@ -8,12 +8,12 @@ For mod developers:
 * Added `ContentEvents.AssetLoading` event with a helper which lets you intercept the XNB content
   load, and dynamically adjust or replace the content being loaded (including support for patching
   images).
+-->
 
 ## 1.10
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.9...1.10).
 * Updated for Stardew Valley 1.2.
-* SMAPI now rewrites many mods for compatibility with game updates, but some mods will need an update.
--->
+* SMAPI now rewrites many mods for compatibility with game updates, but some mods may still need an update.
 
 ## 1.10
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.9...1.9.1).
