@@ -102,10 +102,11 @@ namespace TrainerMod
 
                 .Add("list_items", "Lists and searches items in the game data.\n\nUsage: list_items [search]\n- search (optional): an arbitrary search string to filter by.", this.HandleCommand)
 
-                .Add("world_settime", "Sets the time to the specified value.\n\nUsage: world_settime <value>\n- value: the target time in military time (like 0600 for 6am and 1800 for 6pm)", this.HandleCommand)
                 .Add("world_freezetime", "Freezes or resumes time.\n\nUsage: world_freezetime [value]\n- value: one of 0 (resume), 1 (freeze), or blank (toggle).", this.HandleCommand)
+                .Add("world_settime", "Sets the time to the specified value.\n\nUsage: world_settime <value>\n- value: the target time in military time (like 0600 for 6am and 1800 for 6pm)", this.HandleCommand)
                 .Add("world_setday", "Sets the day to the specified value.\n\nUsage: world_setday <value>.\n- value: the target day (a number from 1 to 28).", this.HandleCommand)
-                .Add("world_setseason", "Sets the season to the specified value.\n\nUsage: world_setseason <season>\n- value: the target season (one of 'spring', 'summer', 'fall', 'winter').", this.HandleCommand)
+                .Add("world_setseason", "Sets the season to the specified value.\n\nUsage: world_setseason <season>\n- season: the target season (one of 'spring', 'summer', 'fall', 'winter').", this.HandleCommand)
+                .Add("world_setyear", "Sets the year to the specified value.\n\nUsage: world_setyear <year>\n- year: the target year (a number starting from 1).", this.HandleCommand)
                 .Add("world_downminelevel", "Goes down one mine level?", this.HandleCommand)
                 .Add("world_setminelevel", "Sets the mine level?\n\nUsage: world_setminelevel <value>\n- value: The target level (a number between 1 and 120).", this.HandleCommand)
 
@@ -487,6 +488,27 @@ namespace TrainerMod
                     }
                     else
                         this.Monitor.Log($"The current season is {Game1.currentSeason}. Specify a value to change it.", LogLevel.Info);
+                    break;
+
+                case "world_setyear":
+                    if (args.Any())
+                    {
+                        int year;
+                        if (int.TryParse(args[0], out year))
+                        {
+                            if (year >= 1)
+                            {
+                                Game1.year = year;
+                                this.Monitor.Log($"OK, the year is now {Game1.year}.", LogLevel.Info);
+                            }
+                            else
+                                this.LogUsageError("That isn't a valid year.", command);
+                        }
+                        else
+                            this.LogArgumentNotInt(command);
+                    }
+                    else
+                        this.Monitor.Log($"The current year is {Game1.year}. Specify a value to change the year.", LogLevel.Info);
                     break;
 
                 case "player_sethealth":
