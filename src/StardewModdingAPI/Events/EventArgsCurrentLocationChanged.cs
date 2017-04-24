@@ -10,10 +10,10 @@ namespace StardewModdingAPI.Events
         ** Accessors
         *********/
         /// <summary>The player's current location.</summary>
-        public GameLocation NewLocation { get; private set; }
+        public GameLocation NewLocation { get; }
 
         /// <summary>The player's previous location.</summary>
-        public GameLocation PriorLocation { get; private set; }
+        public GameLocation PriorLocation { get; }
 
 
         /*********

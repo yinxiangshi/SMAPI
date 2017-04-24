@@ -11,7 +11,7 @@ namespace StardewModdingAPI.Events
         ** Accessors
         *********/
         /// <summary>The current list of game locations.</summary>
-        public List<GameLocation> NewLocations { get; private set; }
+        public List<GameLocation> NewLocations { get; }
 
 
         /*********

@@ -284,7 +284,7 @@ namespace StardewModdingAPI.Framework
         {
             if (!hash.Contains(message))
             {
-                this.Monitor.Log(message, level);
+                monitor.Log(message, level);
                 hash.Add(message);
             }
         }

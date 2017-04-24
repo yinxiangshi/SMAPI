@@ -97,15 +97,16 @@ namespace TrainerMod
                 .Add("player_changestyle", "Sets the style of a player feature.\n\nUsage: player_changecolor <target> <value>.\n- target: what to change (one of 'hair', 'shirt', 'skin', 'acc', 'shoe', 'swim', or 'gender').\n- value: the integer style ID.", this.HandleCommand)
 
                 .Add("player_additem", $"Gives the player an item.\n\nUsage: player_additem <item> [count] [quality]\n- item: the item ID (use the 'list_items' command to see a list).\n- count (optional): how many of the item to give.\n- quality (optional): one of {Object.lowQuality} (normal), {Object.medQuality} (silver), {Object.highQuality} (gold), or {Object.bestQuality} (iridium).", this.HandleCommand)
-                .Add("player_addmelee", "Gives the player a melee weapon.\n\nUsage: player_addmelee <item>\n- item: the melee weapon ID (use the 'list_items' command to see a list).", this.HandleCommand)
+                .Add("player_addweapon", "Gives the player a weapon.\n\nUsage: player_addweapon <item>\n- item: the weapon ID (use the 'list_items' command to see a list).", this.HandleCommand)
                 .Add("player_addring", "Gives the player a ring.\n\nUsage: player_addring <item>\n- item: the ring ID (use the 'list_items' command to see a list).", this.HandleCommand)
 
                 .Add("list_items", "Lists and searches items in the game data.\n\nUsage: list_items [search]\n- search (optional): an arbitrary search string to filter by.", this.HandleCommand)
 
-                .Add("world_settime", "Sets the time to the specified value.\n\nUsage: world_settime <value>\n- value: the target time in military time (like 0600 for 6am and 1800 for 6pm)", this.HandleCommand)
                 .Add("world_freezetime", "Freezes or resumes time.\n\nUsage: world_freezetime [value]\n- value: one of 0 (resume), 1 (freeze), or blank (toggle).", this.HandleCommand)
+                .Add("world_settime", "Sets the time to the specified value.\n\nUsage: world_settime <value>\n- value: the target time in military time (like 0600 for 6am and 1800 for 6pm)", this.HandleCommand)
                 .Add("world_setday", "Sets the day to the specified value.\n\nUsage: world_setday <value>.\n- value: the target day (a number from 1 to 28).", this.HandleCommand)
-                .Add("world_setseason", "Sets the season to the specified value.\n\nUsage: world_setseason <season>\n- value: the target season (one of 'spring', 'summer', 'fall', 'winter').", this.HandleCommand)
+                .Add("world_setseason", "Sets the season to the specified value.\n\nUsage: world_setseason <season>\n- season: the target season (one of 'spring', 'summer', 'fall', 'winter').", this.HandleCommand)
+                .Add("world_setyear", "Sets the year to the specified value.\n\nUsage: world_setyear <year>\n- year: the target year (a number starting from 1).", this.HandleCommand)
                 .Add("world_downminelevel", "Goes down one mine level?", this.HandleCommand)
                 .Add("world_setminelevel", "Sets the mine level?\n\nUsage: world_setminelevel <value>\n- value: The target level (a number between 1 and 120).", this.HandleCommand)
 
@@ -489,6 +490,27 @@ namespace TrainerMod
                         this.Monitor.Log($"The current season is {Game1.currentSeason}. Specify a value to change it.", LogLevel.Info);
                     break;
 
+                case "world_setyear":
+                    if (args.Any())
+                    {
+                        int year;
+                        if (int.TryParse(args[0], out year))
+                        {
+                            if (year >= 1)
+                            {
+                                Game1.year = year;
+                                this.Monitor.Log($"OK, the year is now {Game1.year}.", LogLevel.Info);
+                            }
+                            else
+                                this.LogUsageError("That isn't a valid year.", command);
+                        }
+                        else
+                            this.LogArgumentNotInt(command);
+                    }
+                    else
+                        this.Monitor.Log($"The current year is {Game1.year}. Specify a value to change the year.", LogLevel.Info);
+                    break;
+
                 case "player_sethealth":
                     if (args.Any())
                     {
@@ -587,20 +609,62 @@ namespace TrainerMod
                         this.LogArgumentsInvalid(command);
                     break;
 
-                case "player_addmelee":
+                case "player_addweapon":
                     if (args.Any())
                     {
                         int weaponID;
                         if (int.TryParse(args[0], out weaponID))
                         {
-                            MeleeWeapon weapon = new MeleeWeapon(weaponID);
-                            if (weapon.Name == null)
-                                this.Monitor.Log("There is no such weapon ID.", LogLevel.Error);
-                            else
+                            // get raw weapon data
+                            string data;
+                            if (!Game1.content.Load<Dictionary<int, string>>("Data\\weapons").TryGetValue(weaponID, out data))
                             {
-                                Game1.player.addItemByMenuIfNecessary(weapon);
-                                this.Monitor.Log($"OK, added {weapon.Name} to your inventory.", LogLevel.Info);
+                                this.Monitor.Log("There is no such weapon ID.", LogLevel.Error);
+                                return;
                             }
+
+                            // get raw weapon type
+                            int type;
+                            {
+                                string[] fields = data.Split('/');
+                                string typeStr = fields.Length > 8 ? fields[8] : null;
+                                if (!int.TryParse(typeStr, out type))
+                                {
+                                    this.Monitor.Log("Could not parse the data for the weapon with that ID.", LogLevel.Error);
+                                    return;
+                                }
+                            }
+
+                            // get weapon
+                            Tool weapon;
+                            switch (type)
+                            {
+                                case MeleeWeapon.stabbingSword:
+                                case MeleeWeapon.dagger:
+                                case MeleeWeapon.club:
+                                case MeleeWeapon.defenseSword:
+                                    weapon = new MeleeWeapon(weaponID);
+                                    break;
+
+                                case 4:
+                                    weapon = new Slingshot(weaponID);
+                                    break;
+
+                                default:
+                                    this.Monitor.Log($"The specified weapon has unknown type '{type}' in the game data.", LogLevel.Error);
+                                    return;
+                            }
+
+                            // validate
+                            if (weapon.Name == null)
+                            {
+                                this.Monitor.Log("That weapon doesn't seem to be valid.", LogLevel.Error);
+                                return;
+                            }
+
+                            // add weapon
+                            Game1.player.addItemByMenuIfNecessary(weapon);
+                            this.Monitor.Log($"OK, added {weapon.Name} to your inventory.", LogLevel.Info);
                         }
                         else
                             this.LogUsageError("The weapon ID must be an integer.", command);

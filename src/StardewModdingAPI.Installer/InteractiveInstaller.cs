@@ -65,30 +65,30 @@ namespace StardewModdingApi.Installer
         /// <param name="modsDir">The folder for SMAPI mods.</param>
         private IEnumerable<string> GetUninstallPaths(DirectoryInfo installDir, DirectoryInfo modsDir)
         {
-            Func<string, string> installPath = path => Path.Combine(installDir.FullName, path);
+            string GetInstallPath(string path) => Path.Combine(installDir.FullName, path);
 
             // common
-            yield return installPath("Mono.Cecil.dll");
-            yield return installPath("Newtonsoft.Json.dll");
-            yield return installPath("StardewModdingAPI.exe");
-            yield return installPath("StardewModdingAPI.config.json");
-            yield return installPath("StardewModdingAPI.data.json");
-            yield return installPath("StardewModdingAPI.AssemblyRewriters.dll");
-            yield return installPath("steam_appid.txt");
+            yield return GetInstallPath("Mono.Cecil.dll");
+            yield return GetInstallPath("Newtonsoft.Json.dll");
+            yield return GetInstallPath("StardewModdingAPI.exe");
+            yield return GetInstallPath("StardewModdingAPI.config.json");
+            yield return GetInstallPath("StardewModdingAPI.data.json");
+            yield return GetInstallPath("StardewModdingAPI.AssemblyRewriters.dll");
+            yield return GetInstallPath("steam_appid.txt");
 
             // Linux/Mac only
-            yield return installPath("StardewModdingAPI");
-            yield return installPath("StardewModdingAPI.exe.mdb");
-            yield return installPath("System.Numerics.dll");
-            yield return installPath("System.Runtime.Caching.dll");
+            yield return GetInstallPath("StardewModdingAPI");
+            yield return GetInstallPath("StardewModdingAPI.exe.mdb");
+            yield return GetInstallPath("System.Numerics.dll");
+            yield return GetInstallPath("System.Runtime.Caching.dll");
 
             // Windows only
-            yield return installPath("StardewModdingAPI.pdb");
+            yield return GetInstallPath("StardewModdingAPI.pdb");
 
             // obsolete
-            yield return installPath("Mods/.cache"); // 1.3-1.4
-            yield return installPath("Mono.Cecil.Rocks.dll"); // 1.3–1.8
-            yield return installPath("StardewModdingAPI-settings.json"); // 1.0-1.4
+            yield return GetInstallPath("Mods/.cache"); // 1.3-1.4
+            yield return GetInstallPath("Mono.Cecil.Rocks.dll"); // 1.3–1.8
+            yield return GetInstallPath("StardewModdingAPI-settings.json"); // 1.0-1.4
             if (modsDir.Exists)
             {
                 foreach (DirectoryInfo modDir in modsDir.EnumerateDirectories())
@@ -435,7 +435,7 @@ namespace StardewModdingApi.Installer
                 catch (Exception ex)
                 {
                     this.PrintError($"Oops! The installer couldn't delete {path}: [{ex.GetType().Name}] {ex.Message}.");
-                    this.PrintError("Please delete it yourself, then press any key to retry.");
+                    this.PrintError("Try rebooting your computer and then run the installer again. If that doesn't work, try deleting it yourself then press any key to retry.");
                     Console.ReadKey();
                 }
             }
@@ -592,7 +592,7 @@ namespace StardewModdingApi.Installer
                 if (isDir && packagedModNames.Contains(entry.Name, StringComparer.InvariantCultureIgnoreCase))
                 {
                     this.PrintDebug($"   Deleting {entry.Name} because it's bundled into SMAPI...");
-                    entry.Delete();
+                    this.InteractivelyDelete(entry.FullName);
                     continue;
                 }
 
@@ -626,9 +626,8 @@ namespace StardewModdingApi.Installer
         private void Move(FileSystemInfo entry, string newPath)
         {
             // file
-            if (entry is FileInfo)
+            if (entry is FileInfo file)
             {
-                FileInfo file = (FileInfo)entry;
                 file.CopyTo(newPath);
                 file.Delete();
             }

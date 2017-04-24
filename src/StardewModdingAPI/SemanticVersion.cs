@@ -67,7 +67,7 @@ namespace StardewModdingAPI
         /// <remarks>The implementation is defined by Semantic Version 2.0 (http://semver.org/).</remarks>
         public int CompareTo(ISemanticVersion other)
         {
-            if(other == null)
+            if (other == null)
                 throw new ArgumentNullException(nameof(other));
 
             const int same = 0;
@@ -127,11 +127,44 @@ namespace StardewModdingAPI
             return this.CompareTo(other) < 0;
         }
 
+        /// <summary>Get whether this version is older than the specified version.</summary>
+        /// <param name="other">The version to compare with this instance.</param>
+        /// <exception cref="FormatException">The specified version is not a valid semantic version.</exception>
+        public bool IsOlderThan(string other)
+        {
+            return this.IsOlderThan(new SemanticVersion(other));
+        }
+
         /// <summary>Get whether this version is newer than the specified version.</summary>
         /// <param name="other">The version to compare with this instance.</param>
         public bool IsNewerThan(ISemanticVersion other)
         {
             return this.CompareTo(other) > 0;
+        }
+
+        /// <summary>Get whether this version is newer than the specified version.</summary>
+        /// <param name="other">The version to compare with this instance.</param>
+        /// <exception cref="FormatException">The specified version is not a valid semantic version.</exception>
+        public bool IsNewerThan(string other)
+        {
+            return this.IsNewerThan(new SemanticVersion(other));
+        }
+
+        /// <summary>Get whether this version is between two specified versions (inclusively).</summary>
+        /// <param name="min">The minimum version.</param>
+        /// <param name="max">The maximum version.</param>
+        public bool IsBetween(ISemanticVersion min, ISemanticVersion max)
+        {
+            return this.CompareTo(min) >= 0 && this.CompareTo(max) <= 0;
+        }
+
+        /// <summary>Get whether this version is between two specified versions (inclusively).</summary>
+        /// <param name="min">The minimum version.</param>
+        /// <param name="max">The maximum version.</param>
+        /// <exception cref="FormatException">One of the specified versions is not a valid semantic version.</exception>
+        public bool IsBetween(string min, string max)
+        {
+            return this.IsBetween(new SemanticVersion(min), new SemanticVersion(max));
         }
 
         /// <summary>Get a string representation of the version.</summary>

@@ -8,12 +8,27 @@ For mod developers:
 * Added `ContentEvents.AssetLoading` event with a helper which lets you intercept the XNB content
   load, and dynamically adjust or replace the content being loaded (including support for patching
   images).
+-->
 
 ## 1.10
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.9...1.10).
-* Updated for Stardew Valley 1.2.
-* SMAPI now rewrites many mods for compatibility with game updates, but some mods will need an update.
--->
+
+For players:
+* Updated to Stardew Valley 1.2.
+* Added logic to rewrite many mods for compatibility with game updates, though some mods may still need an update.
+* Fixed `SEHException` errors affecting some players.
+* Fixed issue where SMAPI didn't unlock some files on exit.
+* Fixed rare issue where the installer would crash trying to delete a bundled mod from `%appdata%`.
+* Improved TrainerMod commands:
+  * Added `world_setyear` to change the current year.
+  * Replaced `player_addmelee` with `player_addweapon` with support for non-melee weapons.
+
+For mod developers:
+* Mods are now initialised after the `Initialize`/`LoadContent` phase, which means the `GameEvents.Initialize` and `GameEvents.LoadContent` events are deprecated. You can move any logic in those methods to your mod's `Entry` method.
+* Added `IsBetween` and string overloads to the `ISemanticVersion` methods.
+* Fixed mouse-changed event never updating prior mouse position.
+* Fixed `monitor.ExitGameImmediately` not working correctly.
+* Fixed `Constants.SaveFolderName` not set for a new game until the save is created.
 
 ## 1.9
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.8...1.9).

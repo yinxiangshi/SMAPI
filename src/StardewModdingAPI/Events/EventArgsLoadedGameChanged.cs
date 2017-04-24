@@ -9,7 +9,7 @@ namespace StardewModdingAPI.Events
         ** Accessors
         *********/
         /// <summary>Whether the save has been loaded. This is always true.</summary>
-        public bool LoadedGame { get; private set; }
+        public bool LoadedGame { get; }
 
 
         /*********

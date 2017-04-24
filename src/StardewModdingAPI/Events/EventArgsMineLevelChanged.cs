@@ -9,10 +9,10 @@ namespace StardewModdingAPI.Events
         ** Accessors
         *********/
         /// <summary>The previous mine level.</summary>
-        public int PreviousMineLevel { get; private set; }
+        public int PreviousMineLevel { get; }
 
         /// <summary>The current mine level.</summary>
-        public int CurrentMineLevel { get; private set; }
+        public int CurrentMineLevel { get; }
 
 
         /*********

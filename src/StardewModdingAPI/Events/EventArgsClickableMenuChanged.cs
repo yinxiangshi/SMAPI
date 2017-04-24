@@ -10,10 +10,10 @@ namespace StardewModdingAPI.Events
         ** Accessors
         *********/
         /// <summary>The previous menu.</summary>
-        public IClickableMenu NewMenu { get; private set; }
+        public IClickableMenu NewMenu { get; }
 
         /// <summary>The current menu.</summary>
-        public IClickableMenu PriorMenu { get; private set; }
+        public IClickableMenu PriorMenu { get; }
 
 
         /*********

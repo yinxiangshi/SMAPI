@@ -28,6 +28,15 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
    */
   "ModCompatibility": [
     {
+      "Name": "AccessChestAnywhere",
+      "ID": "AccessChestAnywhere",
+      "UpperVersion": "1.1",
+      "Compatibility": "AssumeBroken",
+      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/257",
+      "UnofficialUpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/518",
+      "Notes": "Crashes with 'Method not found: Void StardewValley.Item.set_Name(System.String)'."
+    },
+    {
       "Name": "Almighty Tool",
       "ID": "AlmightyTool.dll",
       "UpperVersion": "1.1.1",
@@ -49,7 +58,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "UpperVersion": "2.3",
       "Compatibility": "AssumeBroken",
       "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/41",
-      "Notes": "Uses obsolete StardewModdingAPI.Extensions."
+      "Notes": "ID changed in 2.3. Uses obsolete StardewModdingAPI.Extensions."
     },
     {
       "Name": "Chest Label System",
@@ -58,6 +67,30 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "Compatibility": "AssumeBroken",
       "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/242",
       "Notes": "Not compatible with Stardew Valley 1.1+"
+    },
+    {
+      "Name": "Chests Anywhere",
+      "ID": "ChestsAnywhere",
+      "UpperVersion": "1.8.2",
+      "Compatibility": "AssumeBroken",
+      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/518",
+      "Notes": "Crashes with 'Method not found: Void StardewValley.Menus.TextBox.set_Highlighted(Boolean)'."
+    },
+    {
+      "Name": "Chests Anywhere",
+      "ID": "Pathoschild.ChestsAnywhere",
+      "UpperVersion": "1.9-beta",
+      "Compatibility": "AssumeBroken",
+      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/518",
+      "Notes": "ID changed in 1.9. Crashes with InvalidOperationException: 'The menu doesn't seem to have a player inventory'."
+    },
+    {
+      "Name": "CJB Automation",
+      "ID": "CJBAutomation",
+      "UpperVersion": "1.4",
+      "Compatibility": "AssumeBroken",
+      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/211",
+      "Notes": "Crashes with 'Method not found: Void StardewValley.Item.set_Name(System.String)'."
     },
     {
       "Name": "CJB Cheats Menu",
@@ -82,6 +115,14 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "Notes": "Uses SMAPI's internal SGame class."
     },
     {
+      "Name": "Cooking Skill",
+      "ID": "CookingSkill",
+      "UpperVersion": "1.0.3",
+      "Compatibility": "AssumeBroken",
+      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/522",
+      "Notes": "Crashes with 'Method not found: Void StardewValley.Buff..ctor(Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, System.String)'."
+    },
+    {
       "Name": "Enemy Health Bars",
       "ID": "SPDHealthBar",
       "UpperVersion": "1.7",
@@ -98,6 +139,38 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "Notes": "Uses obsolete StardewModdingAPI.Inheritance.SObject until 1.6.1; then crashes until 1.6.4 ('Entoarox Framework requested an immediate game shutdown: Fatal error attempting to update player tick properties System.NullReferenceException: Object reference not set to an instance of an object. at Entoarox.Framework.PlayerHelper.Update(Object s, EventArgs e)')."
     },
     {
+      "Name": "Extended Fridge",
+      "ID": "Mystra007ExtendedFridge",
+      "UpperVersion": "1.0",
+      "Compatibility": "AssumeBroken",
+      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/485",
+      "Notes": "Actual upper version is 0.94, but mod incorrectly sets it to 1.0 in the manifest. Crashes with 'Field not found: StardewValley.Game1.mouseCursorTransparency'."
+    },
+    {
+      "Name": "Get Dressed",
+      "ID": "GetDressed.dll",
+      "UpperVersion": "3.2",
+      "Compatibility": "AssumeBroken",
+      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/331",
+      "Notes": "Crashes with NullReferenceException in GameEvents.UpdateTick."
+    },
+    {
+      "Name": "Lookup Anything",
+      "ID": "LookupAnything",
+      "UpperVersion": "1.10",
+      "Compatibility": "AssumeBroken",
+      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/541",
+      "Notes": "Crashes with FormatException when looking up NPCs."
+    },
+    {
+      "Name": "Lookup Anything",
+      "ID": "Pathoschild.LookupAnything",
+      "UpperVersion": "1.10.1",
+      "Compatibility": "AssumeBroken",
+      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/541",
+      "Notes": "ID changed in 1.10.1. Crashes with FormatException when looking up NPCs."
+    },
+    {
       "Name": "Makeshift Multiplayer",
       "ID": "StardewValleyMP",
       "Compatibility": "AssumeBroken",
@@ -111,7 +184,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "UpperVersion": "0.5",
       "Compatibility": "AssumeBroken",
       "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/237",
-      "Notes": "Uses obsolete StardewModdingAPI.Extensions."
+      "Notes": "Uses obsolete StardewModdingAPI.Extensions and Assembly.GetExecutingAssembly().Location."
     },
     {
       "Name": "NPC Map Locations",
@@ -153,6 +226,14 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "Compatibility": "AssumeBroken",
       "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/683",
       "Notes": "Crashes with 'Method not found: Void StardewModdingAPI.Command.CallCommand(System.String)'."
+    },
+    {
+      "Name": "Teleporter",
+      "ID": "Teleporter",
+      "UpperVersion": "1.0.2",
+      "Compatibility": "AssumeBroken",
+      "UpdateUrl": "http://community.playstarbound.com/resources/4374",
+      "Notes": "Crashes with 'InvalidOperationException: The StardewValley.Menus.MapPage object doesn't have a private 'points' instance field'."
     },
     {
       "Name": "Zoryn's Better RNG",

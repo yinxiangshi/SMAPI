@@ -7,16 +7,28 @@ namespace StardewModdingAPI.Events
     public static class GameEvents
     {
         /*********
+        ** Properties
+        *********/
+        /// <summary>Manages deprecation warnings.</summary>
+        private static DeprecationManager DeprecationManager;
+
+
+        /*********
         ** Events
         *********/
-        /// <summary>Raised during launch after configuring XNA or MonoGame. The game window hasn't been opened by this point. Called during <see cref="Microsoft.Xna.Framework.Game.Initialize"/>.</summary>
+        /// <summary>Raised during launch after configuring XNA or MonoGame. The game window hasn't been opened by this point. Called after <see cref="Microsoft.Xna.Framework.Game.Initialize"/>.</summary>
+        internal static event EventHandler InitializeInternal;
+
+        /// <summary>Raised during launch after configuring XNA or MonoGame. The game window hasn't been opened by this point. Called after <see cref="Microsoft.Xna.Framework.Game.Initialize"/>.</summary>
+        [Obsolete("The " + nameof(Mod) + "." + nameof(Mod.Entry) + " method is now called after the " + nameof(GameEvents.Initialize) + " event, so any contained logic can be done directly in " + nameof(Mod.Entry) + ".")]
         public static event EventHandler Initialize;
+
+        /// <summary>Raised before XNA loads or reloads graphics resources. Called during <see cref="Microsoft.Xna.Framework.Game.LoadContent"/>.</summary>
+        [Obsolete("The " + nameof(Mod) + "." + nameof(Mod.Entry) + " method is now called after the " + nameof(GameEvents.LoadContent) + " event, so any contained logic can be done directly in " + nameof(Mod.Entry) + ".")]
+        public static event EventHandler LoadContent;
 
         /// <summary>Raised during launch after configuring Stardew Valley, loading it into memory, and opening the game window. The window is still blank by this point.</summary>
         public static event EventHandler GameLoaded;
-
-        /// <summary>Raised before XNA loads or reloads graphics resources. Called during <see cref="Microsoft.Xna.Framework.Game.LoadContent"/>.</summary>
-        public static event EventHandler LoadContent;
 
         /// <summary>Raised during the first game update tick.</summary>
         public static event EventHandler FirstUpdateTick;
@@ -46,25 +58,48 @@ namespace StardewModdingAPI.Events
         /*********
         ** Internal methods
         *********/
-        /// <summary>Raise a <see cref="GameLoaded"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        internal static void InvokeGameLoaded(IMonitor monitor)
+        /// <summary>Injects types required for backwards compatibility.</summary>
+        /// <param name="deprecationManager">Manages deprecation warnings.</param>
+        internal static void Shim(DeprecationManager deprecationManager)
         {
-            monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.GameLoaded)}", GameEvents.GameLoaded?.GetInvocationList());
+            GameEvents.DeprecationManager = deprecationManager;
         }
 
         /// <summary>Raise an <see cref="Initialize"/> event.</summary>
         /// <param name="monitor">Encapsulates logging and monitoring.</param>
         internal static void InvokeInitialize(IMonitor monitor)
         {
-            monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.Initialize)}", GameEvents.Initialize?.GetInvocationList());
+            // notify SMAPI
+            monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.InitializeInternal)}", GameEvents.InitializeInternal?.GetInvocationList());
+
+            // notify mods
+            if (GameEvents.Initialize == null)
+                return;
+            string name = $"{nameof(GameEvents)}.{nameof(GameEvents.Initialize)}";
+            Delegate[] handlers = GameEvents.Initialize.GetInvocationList();
+            GameEvents.DeprecationManager.WarnForEvent(handlers, name, "1.10", DeprecationLevel.Info);
+            monitor.SafelyRaisePlainEvent(name, handlers);
         }
 
         /// <summary>Raise a <see cref="LoadContent"/> event.</summary>
         /// <param name="monitor">Encapsulates logging and monitoring.</param>
         internal static void InvokeLoadContent(IMonitor monitor)
         {
-            monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.LoadContent)}", GameEvents.LoadContent?.GetInvocationList());
+            if (GameEvents.LoadContent == null)
+                return;
+
+            string name = $"{nameof(GameEvents)}.{nameof(GameEvents.LoadContent)}";
+            Delegate[] handlers = GameEvents.LoadContent.GetInvocationList();
+
+            GameEvents.DeprecationManager.WarnForEvent(handlers, name, "1.10", DeprecationLevel.Info);
+            monitor.SafelyRaisePlainEvent(name, handlers);
+        }
+
+        /// <summary>Raise a <see cref="GameLoaded"/> event.</summary>
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
+        internal static void InvokeGameLoaded(IMonitor monitor)
+        {
+            monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.GameLoaded)}", GameEvents.GameLoaded?.GetInvocationList());
         }
 
         /// <summary>Raise an <see cref="UpdateTick"/> event.</summary>

@@ -10,7 +10,7 @@ namespace StardewModdingAPI.Events
         ** Accessors
         *********/
         /// <summary>The menu that was closed.</summary>
-        public IClickableMenu PriorMenu { get; private set; }
+        public IClickableMenu PriorMenu { get; }
 
 
         /*********

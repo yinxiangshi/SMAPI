@@ -10,7 +10,7 @@ namespace StardewModdingAPI.Events
         ** Accessors
         *********/
         /// <summary>The triggered command.</summary>
-        public Command Command { get; private set; }
+        public Command Command { get; }
 
 
         /*********

@@ -10,10 +10,10 @@ namespace StardewModdingAPI.Events
         ** Accessors
         *********/
         /// <summary>The previous keyboard state.</summary>
-        public KeyboardState NewState { get; private set; }
+        public KeyboardState NewState { get; }
 
         /// <summary>The current keyboard state.</summary>
-        public KeyboardState PriorState { get; private set; }
+        public KeyboardState PriorState { get; }
 
 
         /*********

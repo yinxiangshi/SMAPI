@@ -21,7 +21,7 @@ namespace StardewModdingAPI.Framework
         private readonly LogFileManager LogFile;
 
         /// <summary>The maximum length of the <see cref="LogLevel"/> values.</summary>
-        private static readonly int MaxLevelLength = (from level in Enumerable.Cast<LogLevel>(Enum.GetValues(typeof(LogLevel))) select level.ToString().Length).Max();
+        private static readonly int MaxLevelLength = (from level in Enum.GetValues(typeof(LogLevel)).Cast<LogLevel>() select level.ToString().Length).Max();
 
         /// <summary>The console text color for each log level.</summary>
         private static readonly Dictionary<LogLevel, ConsoleColor> Colors = new Dictionary<LogLevel, ConsoleColor>
@@ -35,7 +35,7 @@ namespace StardewModdingAPI.Framework
         };
 
         /// <summary>A delegate which requests that SMAPI immediately exit the game. This should only be invoked when an irrecoverable fatal error happens that risks save corruption or game-breaking bugs.</summary>
-        private RequestExitDelegate RequestExit;
+        private readonly RequestExitDelegate RequestExit;
 
 
         /*********
@@ -71,6 +71,7 @@ namespace StardewModdingAPI.Framework
             this.Source = source;
             this.LogFile = logFile;
             this.ConsoleManager = consoleManager;
+            this.RequestExit = requestExitDelegate;
         }
 
         /// <summary>Log a message for the player or developer.</summary>
@@ -129,6 +130,8 @@ namespace StardewModdingAPI.Framework
                 {
                     if (this.ConsoleManager.SupportsColor)
                     {
+                        if (background.HasValue)
+                            Console.BackgroundColor = background.Value;
                         Console.ForegroundColor = color;
                         Console.WriteLine(message);
                         Console.ResetColor();
