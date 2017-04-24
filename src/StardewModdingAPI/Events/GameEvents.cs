@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using StardewModdingAPI.Framework;
 
 namespace StardewModdingAPI.Events
@@ -16,7 +17,10 @@ namespace StardewModdingAPI.Events
         /*********
         ** Events
         *********/
-        /// <summary>Raised during launch after configuring XNA or MonoGame. The game window hasn't been opened by this point. Called during <see cref="Microsoft.Xna.Framework.Game.Initialize"/>.</summary>
+        /// <summary>Raised during launch after configuring XNA or MonoGame. The game window hasn't been opened by this point. Called after <see cref="Microsoft.Xna.Framework.Game.Initialize"/>.</summary>
+        internal static event EventHandler InitializeInternal;
+
+        /// <summary>Raised during launch after configuring XNA or MonoGame. The game window hasn't been opened by this point. Called after <see cref="Microsoft.Xna.Framework.Game.Initialize"/>.</summary>
         [Obsolete("The " + nameof(Mod) + "." + nameof(Mod.Entry) + " method is now called after the " + nameof(Initialize) + " event, so any contained logic can be done directly in " + nameof(Mod.Entry) + ".")]
         public static event EventHandler Initialize;
 
@@ -66,12 +70,14 @@ namespace StardewModdingAPI.Events
         /// <param name="monitor">Encapsulates logging and monitoring.</param>
         internal static void InvokeInitialize(IMonitor monitor)
         {
+            // notify SMAPI
+            monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.InitializeInternal)}", GameEvents.InitializeInternal?.GetInvocationList());
+
+            // notify mods
             if (GameEvents.Initialize == null)
                 return;
-
             string name = $"{nameof(GameEvents)}.{nameof(GameEvents.Initialize)}";
             Delegate[] handlers = GameEvents.Initialize.GetInvocationList();
-
             GameEvents.DeprecationManager.WarnForEvent(handlers, name, "1.10", DeprecationLevel.Info);
             monitor.SafelyRaisePlainEvent(name, handlers);
         }

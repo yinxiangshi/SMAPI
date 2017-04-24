@@ -15,12 +15,14 @@ See [log](https://github.com/Pathoschild/SMAPI/compare/1.9...1.10).
 
 For players:
 * Added support for Stardew Valley 1.2 beta.
-* SMAPI now rewrites many mods for compatibility with game updates, but some mods may still need an update.
+* Added logic to rewrite many mods for compatibility with game updates, though some mods may still need an update.
+* Fixed some players getting `SEHException` errors.
 
 For mod developers:
 * Fixed mouse-changed event never updating prior mouse position.
 * Fixed `monitor.ExitGameImmediately` not working correctly.
 * Mods can now specify a minimum game version in their `manifest.json`.
+* Mods are now initialised after the `Initialize`/`LoadContent` phase, which means the `GameEvents.Initialize` and `GameEvents.LoadContent` events are deprecated. You can move any logic in those methods to your mod's `Entry` method.
 
 ## 1.9
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.8...1.9).

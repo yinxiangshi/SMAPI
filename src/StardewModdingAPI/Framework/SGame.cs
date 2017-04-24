@@ -196,6 +196,8 @@ namespace StardewModdingAPI.Framework
             this.Monitor = monitor;
             this.FirstUpdate = true;
             SGame.Instance = this;
+
+            Game1.graphics.GraphicsProfile = GraphicsProfile.HiDef; // required by Stardew Valley
         }
 
         /****

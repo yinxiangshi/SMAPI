@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -10,7 +9,6 @@ using System.Threading;
 using System.Management;
 using System.Windows.Forms;
 #endif
-using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 using StardewModdingAPI.AssemblyRewriters;
 using StardewModdingAPI.Events;
@@ -38,26 +36,30 @@ namespace StardewModdingAPI
         /// <summary>The core logger for SMAPI.</summary>
         private readonly Monitor Monitor;
 
-        /// <summary>The SMAPI configuration settings.</summary>
-        private readonly SConfig Settings;
-
         /// <summary>Tracks whether the game should exit immediately and any pending initialisation should be cancelled.</summary>
         private readonly CancellationTokenSource CancellationTokenSource = new CancellationTokenSource();
-
-        /// <summary>Whether the game is currently running.</summary>
-        private bool IsGameRunning;
 
         /// <summary>The underlying game instance.</summary>
         private SGame GameInstance;
 
+        /// <summary>The SMAPI configuration settings.</summary>
+        /// <remarks>This is initialised after the game starts.</remarks>
+        private SConfig Settings;
+
         /// <summary>Tracks the installed mods.</summary>
-        private readonly ModRegistry ModRegistry;
+        /// <remarks>This is initialised after the game starts.</remarks>
+        private ModRegistry ModRegistry;
 
         /// <summary>Manages deprecation warnings.</summary>
-        private readonly DeprecationManager DeprecationManager;
+        /// <remarks>This is initialised after the game starts.</remarks>
+        private DeprecationManager DeprecationManager;
 
         /// <summary>Manages console commands.</summary>
-        private readonly CommandManager CommandManager = new CommandManager();
+        /// <remarks>This is initialised after the game starts.</remarks>
+        private CommandManager CommandManager;
+
+        /// <summary>Whether the game is currently running.</summary>
+        private bool IsGameRunning;
 
 
         /*********
@@ -65,7 +67,7 @@ namespace StardewModdingAPI
         *********/
         /// <summary>The main entry point which hooks into and launches the game.</summary>
         /// <param name="args">The command-line arguments.</param>
-        private static void Main(string[] args)
+        public static void Main(string[] args)
         {
             // get flags from arguments
             bool writeToConsole = !args.Contains("--no-terminal");
@@ -92,25 +94,130 @@ namespace StardewModdingAPI
         /// <summary>Construct an instance.</summary>
         /// <param name="writeToConsole">Whether to output log messages to the console.</param>
         /// <param name="logPath">The full file path to which to write log messages.</param>
-        internal Program(bool writeToConsole, string logPath)
+        public Program(bool writeToConsole, string logPath)
+        {
+            this.LogFile = new LogFileManager(logPath);
+            this.Monitor = new Monitor("SMAPI", this.ConsoleManager, this.LogFile, this.ExitGameImmediately) { WriteToConsole = writeToConsole };
+        }
+
+        /// <summary>Launch SMAPI.</summary>
+        public void LaunchInteractively()
+        {
+            // initialise SMAPI
+            try
+            {
+                // init logging
+                this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GetGameDisplayVersion(Constants.GameVersion)} on {this.GetFriendlyPlatformName()}", LogLevel.Info);
+                this.Monitor.Log($"Mods go here: {Constants.ModPath}");
+                this.Monitor.Log("Preparing SMAPI...");
+
+                // validate paths
+                this.VerifyPath(Constants.ModPath);
+                this.VerifyPath(Constants.LogDir);
+
+                // validate game version
+                if (Constants.GameVersion.IsOlderThan(Constants.MinimumGameVersion))
+                {
+                    this.Monitor.Log($"Oops! You're running Stardew Valley {Constants.GetGameDisplayVersion(Constants.GameVersion)}, but the oldest supported version is {Constants.GetGameDisplayVersion(Constants.MinimumGameVersion)}. Please update your game before using SMAPI. If you have the beta version on Steam, you may need to opt out to get the latest non-beta updates.", LogLevel.Error);
+                    this.PressAnyKeyToExit();
+                    return;
+                }
+                if (Constants.MaximumGameVersion != null && Constants.GameVersion.IsNewerThan(Constants.MaximumGameVersion))
+                {
+                    this.Monitor.Log($"Oops! You're running Stardew Valley {Constants.GetGameDisplayVersion(Constants.GameVersion)}, but this version of SMAPI is only compatible up to Stardew Valley {Constants.GetGameDisplayVersion(Constants.MaximumGameVersion)}. Please check for a newer version of SMAPI.", LogLevel.Error);
+                    this.PressAnyKeyToExit();
+                    return;
+                }
+
+                // add error handlers
+#if SMAPI_FOR_WINDOWS
+                Application.ThreadException += (sender, e) => this.Monitor.Log($"Critical thread exception: {e.Exception.GetLogSummary()}", LogLevel.Error);
+                Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+#endif
+                AppDomain.CurrentDomain.UnhandledException += (sender, e) => this.Monitor.Log($"Critical app domain exception: {e.ExceptionObject}", LogLevel.Error);
+
+                // override game & hook events
+                this.GameInstance = new SGame(this.Monitor);
+#if SDV_1_2
+                StardewValley.Program.gamePtr = this.GameInstance;
+#else
+                {
+                    Type type = typeof(Game1).Assembly.GetType("StardewValley.Program", true);
+                    type.GetField("gamePtr").SetValue(null, this.GameInstance);
+                }
+#endif
+
+                // hook into game events
+                this.GameInstance.Exiting += (sender, e) => this.IsGameRunning = false;
+                this.GameInstance.Window.ClientSizeChanged += (sender, e) => GraphicsEvents.InvokeResize(this.Monitor, sender, e);
+                GameEvents.InitializeInternal += (sender, e) => this.InitialiseAfterGameStart();
+                GameEvents.GameLoaded += (sender, e) => this.CheckForUpdateAsync();
+
+                // set window titles
+                this.GameInstance.Window.Title = $"Stardew Valley {Constants.GetGameDisplayVersion(Constants.GameVersion)} - running SMAPI {Constants.ApiVersion}";
+                Console.Title = $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GetGameDisplayVersion(Constants.GameVersion)}";
+            }
+            catch (Exception ex)
+            {
+                this.Monitor.Log($"SMAPI failed to initialise: {ex.GetLogSummary()}", LogLevel.Error);
+                this.PressAnyKeyToExit();
+                return;
+            }
+
+            // start game
+            this.Monitor.Log("Starting game...");
+            try
+            {
+                this.IsGameRunning = true;
+                this.GameInstance.Run();
+            }
+            catch (Exception ex)
+            {
+                this.Monitor.Log($"The game failed unexpectedly: {ex.GetLogSummary()}", LogLevel.Error);
+                this.PressAnyKeyToExit();
+            }
+            finally
+            {
+                this.IsGameRunning = false;
+            }
+        }
+
+        /// <summary>Immediately exit the game without saving. This should only be invoked when an irrecoverable fatal error happens that risks save corruption or game-breaking bugs.</summary>
+        /// <param name="module">The module which requested an immediate exit.</param>
+        /// <param name="reason">The reason provided for the shutdown.</param>
+        public void ExitGameImmediately(string module, string reason)
+        {
+            this.Monitor.LogFatal($"{module} requested an immediate game shutdown: {reason}");
+            this.CancellationTokenSource.Cancel();
+            if (this.IsGameRunning)
+            {
+                this.GameInstance.Exiting += (sender, e) => this.PressAnyKeyToExit();
+                this.GameInstance.Exit();
+            }
+        }
+
+        /// <summary>Get a monitor for legacy code which doesn't have one passed in.</summary>
+        [Obsolete("This method should only be used when needed for backwards compatibility.")]
+        internal IMonitor GetLegacyMonitorForMod()
+        {
+            string modName = this.ModRegistry.GetModFromStack() ?? "unknown";
+            return this.GetSecondaryMonitor(modName);
+        }
+
+
+        /*********
+        ** Private methods
+        *********/
+        /// <summary>Initialise SMAPI and mods after the game starts.</summary>
+        private void InitialiseAfterGameStart()
         {
             // load settings
             this.Settings = JsonConvert.DeserializeObject<SConfig>(File.ReadAllText(Constants.ApiConfigPath));
 
-            // initialise
-            this.LogFile = new LogFileManager(logPath);
-            this.Monitor = new Monitor("SMAPI", this.ConsoleManager, this.LogFile, this.ExitGameImmediately) { WriteToConsole = writeToConsole };
+            // load core components
             this.ModRegistry = new ModRegistry(this.Settings.ModCompatibility);
             this.DeprecationManager = new DeprecationManager(this.Monitor, this.ModRegistry);
-        }
-
-        /// <summary>Launch SMAPI.</summary>
-        internal void LaunchInteractively()
-        {
-            // initialise logging
-            Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB"); // for consistent log formatting
-            this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GetGameDisplayVersion(Constants.GameVersion)} on {this.GetFriendlyPlatformName()}", LogLevel.Info);
-            Console.Title = $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GetGameDisplayVersion(Constants.GameVersion)}";
+            this.CommandManager = new CommandManager();
 
             // inject compatibility shims
 #pragma warning disable 618
@@ -144,74 +251,63 @@ namespace StardewModdingAPI
             if (!this.Monitor.WriteToConsole)
                 this.Monitor.Log("Writing to the terminal is disabled because the --no-terminal argument was received. This usually means launching the terminal failed.", LogLevel.Warn);
 
-            // print file paths
-            this.Monitor.Log($"Mods go here: {Constants.ModPath}");
-
-            // hook into & launch the game
-            try
+            // load mods
+            int modsLoaded = this.LoadMods();
+            if (this.CancellationTokenSource.IsCancellationRequested)
             {
-                // verify version
-                if (Constants.GameVersion.IsOlderThan(Constants.MinimumGameVersion))
-                {
-                    this.Monitor.Log($"Oops! You're running Stardew Valley {Constants.GetGameDisplayVersion(Constants.GameVersion)}, but the oldest supported version is {Constants.GetGameDisplayVersion(Constants.MinimumGameVersion)}. Please update your game before using SMAPI. If you have the beta version on Steam, you may need to opt out to get the latest non-beta updates.", LogLevel.Error);
-                    this.PressAnyKeyToExit();
-                    return;
-                }
-                if (Constants.MaximumGameVersion != null && Constants.GameVersion.IsNewerThan(Constants.MaximumGameVersion))
-                {
-                    this.Monitor.Log($"Oops! You're running Stardew Valley {Constants.GetGameDisplayVersion(Constants.GameVersion)}, but this version of SMAPI is only compatible up to Stardew Valley {Constants.GetGameDisplayVersion(Constants.MaximumGameVersion)}. Please check for a newer version of SMAPI.", LogLevel.Error);
-                    this.PressAnyKeyToExit();
-                    return;
-                }
-
-                // initialise folders
-                this.Monitor.Log("Loading SMAPI...");
-                this.VerifyPath(Constants.ModPath);
-                this.VerifyPath(Constants.LogDir);
-
-                // check for update when game loads
-                if (this.Settings.CheckForUpdates)
-                    GameEvents.GameLoaded += (sender, e) => this.CheckForUpdateAsync();
-
-                // launch game
-                this.StartGame();
+                this.Monitor.Log("Shutdown requested; interrupting initialisation.", LogLevel.Error);
+                return;
             }
-            catch (Exception ex)
-            {
-                this.Monitor.Log($"Critical error: {ex.GetLogSummary()}", LogLevel.Error);
-            }
-            this.PressAnyKeyToExit();
+
+            // update window titles
+            this.GameInstance.Window.Title = $"Stardew Valley {Constants.GetGameDisplayVersion(Constants.GameVersion)} - running SMAPI {Constants.ApiVersion} with {modsLoaded} mods";
+            Console.Title = $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GetGameDisplayVersion(Constants.GameVersion)} with {modsLoaded} mods";
+
+            // start SMAPI console
+            new Thread(this.RunConsoleLoop).Start();
         }
 
-        /// <summary>Immediately exit the game without saving. This should only be invoked when an irrecoverable fatal error happens that risks save corruption or game-breaking bugs.</summary>
-        /// <param name="module">The module which requested an immediate exit.</param>
-        /// <param name="reason">The reason provided for the shutdown.</param>
-        internal void ExitGameImmediately(string module, string reason)
+        /// <summary>Run a loop handling console input.</summary>
+        [SuppressMessage("ReSharper", "FunctionNeverReturns", Justification = "The thread is aborted when the game exits.")]
+        private void RunConsoleLoop()
         {
-            this.Monitor.LogFatal($"{module} requested an immediate game shutdown: {reason}");
-            this.CancellationTokenSource.Cancel();
-            if (this.IsGameRunning)
+            // prepare help command
+            this.Monitor.Log("Starting console...");
+            this.Monitor.Log("Type 'help' for help, or 'help <cmd>' for a command's usage", LogLevel.Info);
+            this.CommandManager.Add("SMAPI", "help", "Lists all commands | 'help <cmd>' returns command description", this.HandleHelpCommand);
+
+            // start handling command line input
+            Thread inputThread = new Thread(() =>
             {
-                this.GameInstance.Exiting += (sender, e) => this.PressAnyKeyToExit();
-                this.GameInstance.Exit();
-            }
+                while (true)
+                {
+                    string input = Console.ReadLine();
+                    try
+                    {
+                        if (!string.IsNullOrWhiteSpace(input) && !this.CommandManager.Trigger(input))
+                            this.Monitor.Log("Unknown command; type 'help' for a list of available commands.", LogLevel.Error);
+                    }
+                    catch (Exception ex)
+                    {
+                        this.Monitor.Log($"The handler registered for that command failed:\n{ex.GetLogSummary()}", LogLevel.Error);
+                    }
+                }
+            });
+            inputThread.Start();
+
+            // keep console thread alive while the game is running
+            while (this.IsGameRunning)
+                Thread.Sleep(1000 / 10);
+            if (inputThread.ThreadState == ThreadState.Running)
+                inputThread.Abort();
         }
 
-        /// <summary>Get a monitor for legacy code which doesn't have one passed in.</summary>
-        [Obsolete("This method should only be used when needed for backwards compatibility.")]
-        internal IMonitor GetLegacyMonitorForMod()
-        {
-            string modName = this.ModRegistry.GetModFromStack() ?? "unknown";
-            return this.GetSecondaryMonitor(modName);
-        }
-
-
-        /*********
-        ** Private methods
-        *********/
         /// <summary>Asynchronously check for a new version of SMAPI, and print a message to the console if an update is available.</summary>
         private void CheckForUpdateAsync()
         {
+            if (!this.Settings.CheckForUpdates)
+                return;
+
             new Thread(() =>
             {
                 try
@@ -226,91 +322,6 @@ namespace StardewModdingAPI
                     this.Monitor.Log($"Couldn't check for a new version of SMAPI. This won't affect your game, but you may not be notified of new versions if this keeps happening.\n{ex.GetLogSummary()}");
                 }
             }).Start();
-        }
-
-        /// <summary>Hook into Stardew Valley and launch the game.</summary>
-        private void StartGame()
-        {
-            try
-            {
-                this.Monitor.Log("Loading game...");
-
-                // add error handlers
-#if SMAPI_FOR_WINDOWS
-                Application.ThreadException += (sender, e) => this.Monitor.Log($"Critical thread exception: {e.Exception.GetLogSummary()}", LogLevel.Error);
-                Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
-#endif
-                AppDomain.CurrentDomain.UnhandledException += (sender, e) => this.Monitor.Log($"Critical app domain exception: {e.ExceptionObject}", LogLevel.Error);
-
-                // override Game1 instance
-                this.GameInstance = new SGame(this.Monitor);
-                this.GameInstance.Exiting += (sender, e) => this.IsGameRunning = false;
-                this.GameInstance.Window.ClientSizeChanged += (sender, e) => GraphicsEvents.InvokeResize(this.Monitor, sender, e);
-                this.GameInstance.Window.Title = $"Stardew Valley {Constants.GameVersion} with SMAPI {Constants.ApiVersion}";
-#if SDV_1_2
-                StardewValley.Program.gamePtr = this.GameInstance;
-#else
-                {
-                    Type type = typeof(Game1).Assembly.GetType("StardewValley.Program", true);
-                    type.GetField("gamePtr").SetValue(null, this.GameInstance);
-                }
-#endif
-
-                // configure
-                Game1.graphics.GraphicsProfile = GraphicsProfile.HiDef;
-
-                // load mods
-                this.LoadMods();
-                if (this.CancellationTokenSource.IsCancellationRequested)
-                {
-                    this.Monitor.Log("Shutdown requested; interrupting initialisation.", LogLevel.Error);
-                    return;
-                }
-
-                // initialise console after game launches
-                new Thread(() =>
-                {
-                    // wait for the game to load up
-                    while (!this.IsGameRunning)
-                        Thread.Sleep(1000);
-
-                    // register help command
-                    this.CommandManager.Add("SMAPI", "help", "Lists all commands | 'help <cmd>' returns command description", this.HandleHelpCommand);
-
-                    // listen for command line input
-                    this.Monitor.Log("Starting console...");
-                    this.Monitor.Log("Type 'help' for help, or 'help <cmd>' for a command's usage", LogLevel.Info);
-                    Thread consoleInputThread = new Thread(this.ConsoleInputLoop);
-                    consoleInputThread.Start();
-                    while (this.IsGameRunning)
-                        Thread.Sleep(1000 / 10); // Check if the game is still running 10 times a second
-
-                    // abort the console thread, we're closing
-                    if (consoleInputThread.ThreadState == ThreadState.Running)
-                        consoleInputThread.Abort();
-                }).Start();
-
-                // start game loop
-                this.Monitor.Log("Starting game...");
-                if (this.CancellationTokenSource.IsCancellationRequested)
-                {
-                    this.Monitor.Log("Shutdown requested; interrupting initialisation.", LogLevel.Error);
-                    return;
-                }
-                try
-                {
-                    this.IsGameRunning = true;
-                    this.GameInstance.Run();
-                }
-                finally
-                {
-                    this.IsGameRunning = false;
-                }
-            }
-            catch (Exception ex)
-            {
-                this.Monitor.Log($"The game encountered a fatal error:\n{ex.GetLogSummary()}", LogLevel.Error);
-            }
         }
 
         /// <summary>Create a directory path if it doesn't exist.</summary>
@@ -329,7 +340,8 @@ namespace StardewModdingAPI
         }
 
         /// <summary>Load and hook up all mods in the mod directory.</summary>
-        private void LoadMods()
+        /// <returns>Returns the number of mods loaded.</returns>
+        private int LoadMods()
         {
             this.Monitor.Log("Loading mods...");
 
@@ -354,7 +366,7 @@ namespace StardewModdingAPI
                 if (this.CancellationTokenSource.IsCancellationRequested)
                 {
                     this.Monitor.Log("Shutdown requested; interrupting mod loading.", LogLevel.Error);
-                    return;
+                    return modsLoaded;
                 }
 
                 // get manifest path
@@ -553,12 +565,12 @@ namespace StardewModdingAPI
             }
 
             // initialise mods
-            foreach (Mod mod in this.ModRegistry.GetMods())
+            foreach (IMod mod in this.ModRegistry.GetMods())
             {
                 try
                 {
                     // call entry methods
-                    mod.Entry(); // deprecated since 1.0
+                    (mod as Mod)?.Entry(); // deprecated since 1.0
                     mod.Entry(mod.Helper);
 
                     // raise deprecation warning for old Entry() methods
@@ -575,26 +587,8 @@ namespace StardewModdingAPI
             this.Monitor.Log($"Loaded {modsLoaded} mods.");
             foreach (Action warning in deprecationWarnings)
                 warning();
-            Console.Title = $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GetGameDisplayVersion(Constants.GameVersion)} with {modsLoaded} mods";
-        }
 
-        /// <summary>Run a loop handling console input.</summary>
-        [SuppressMessage("ReSharper", "FunctionNeverReturns", Justification = "The thread is aborted when the game exits.")]
-        private void ConsoleInputLoop()
-        {
-            while (true)
-            {
-                string input = Console.ReadLine();
-                try
-                {
-                    if (!string.IsNullOrWhiteSpace(input) && !this.CommandManager.Trigger(input))
-                        this.Monitor.Log("Unknown command; type 'help' for a list of available commands.", LogLevel.Error);
-                }
-                catch (Exception ex)
-                {
-                    this.Monitor.Log($"The handler registered for that command failed:\n{ex.GetLogSummary()}", LogLevel.Error);
-                }
-            }
+            return modsLoaded;
         }
 
         /// <summary>The method called when the user submits the help command in the console.</summary>
