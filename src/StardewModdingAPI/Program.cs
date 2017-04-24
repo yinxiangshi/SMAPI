@@ -22,7 +22,7 @@ using Monitor = StardewModdingAPI.Framework.Monitor;
 namespace StardewModdingAPI
 {
     /// <summary>The main entry point for SMAPI, responsible for hooking into and launching the game.</summary>
-    internal class Program
+    internal class Program : IDisposable
     {
         /*********
         ** Properties
@@ -87,8 +87,8 @@ namespace StardewModdingAPI
                 logPath = Constants.DefaultLogPath;
 
             // load SMAPI
-            new Program(writeToConsole, logPath)
-                .LaunchInteractively();
+            using (Program program = new Program(writeToConsole, logPath))
+                program.RunInteractively();
         }
 
         /// <summary>Construct an instance.</summary>
@@ -101,7 +101,7 @@ namespace StardewModdingAPI
         }
 
         /// <summary>Launch SMAPI.</summary>
-        public void LaunchInteractively()
+        public void RunInteractively()
         {
             // initialise SMAPI
             try
@@ -202,6 +202,15 @@ namespace StardewModdingAPI
         {
             string modName = this.ModRegistry.GetModFromStack() ?? "unknown";
             return this.GetSecondaryMonitor(modName);
+        }
+
+        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
+        public void Dispose()
+        {
+            this.LogFile?.Dispose();
+            this.ConsoleManager?.Dispose();
+            this.CancellationTokenSource?.Dispose();
+            this.GameInstance?.Dispose();
         }
 
 

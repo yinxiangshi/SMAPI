@@ -16,7 +16,8 @@ See [log](https://github.com/Pathoschild/SMAPI/compare/1.9...1.10).
 For players:
 * Added support for Stardew Valley 1.2 beta.
 * Added logic to rewrite many mods for compatibility with game updates, though some mods may still need an update.
-* Fixed some players getting `SEHException` errors.
+* Fixed `SEHException` errors affecting some players.
+* Fixed issue where SMAPI didn't unlock some files on exit.
 * Fixed rare issue where the installer would crash trying to delete a bundled mod from `%appdata%`.
 * Improved TrainerMod commands:
   * Added `world_setyear` to change the current year.
