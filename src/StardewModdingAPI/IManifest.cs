@@ -18,9 +18,6 @@
         /// <summary>The minimum SMAPI version required by this mod, if any.</summary>
         string MinimumApiVersion { get; set; }
 
-        /// <summary>The minimum game version required by this mod, if any.</summary>
-        string MinimumGameVersion { get; set; }
-
         /// <summary>The unique mod ID.</summary>
         string UniqueID { get; set; }
 

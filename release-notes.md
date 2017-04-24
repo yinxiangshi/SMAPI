@@ -25,7 +25,6 @@ For players:
 
 For mod developers:
 * Mods are now initialised after the `Initialize`/`LoadContent` phase, which means the `GameEvents.Initialize` and `GameEvents.LoadContent` events are deprecated. You can move any logic in those methods to your mod's `Entry` method.
-* Mods can now specify a minimum game version in their `manifest.json`.
 * Added `IsBetween` and string overloads to the `ISemanticVersion` methods.
 * Fixed mouse-changed event never updating prior mouse position.
 * Fixed `monitor.ExitGameImmediately` not working correctly.
