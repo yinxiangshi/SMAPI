@@ -17,6 +17,7 @@ For players:
 * Added support for Stardew Valley 1.2 beta.
 * Added logic to rewrite many mods for compatibility with game updates, though some mods may still need an update.
 * Fixed some players getting `SEHException` errors.
+* Fixed rare issue where the installer would crash trying to delete a bundled mod from `%appdata%`.
 
 For mod developers:
 * Fixed mouse-changed event never updating prior mouse position.

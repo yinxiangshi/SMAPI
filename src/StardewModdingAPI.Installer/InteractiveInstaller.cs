@@ -592,7 +592,7 @@ namespace StardewModdingApi.Installer
                 if (isDir && packagedModNames.Contains(entry.Name, StringComparer.InvariantCultureIgnoreCase))
                 {
                     this.PrintDebug($"   Deleting {entry.Name} because it's bundled into SMAPI...");
-                    entry.Delete();
+                    this.InteractivelyDelete(entry.FullName);
                     continue;
                 }
 
