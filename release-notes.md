@@ -20,10 +20,11 @@ For players:
 * Fixed rare issue where the installer would crash trying to delete a bundled mod from `%appdata%`.
 
 For mod developers:
+* Mods are now initialised after the `Initialize`/`LoadContent` phase, which means the `GameEvents.Initialize` and `GameEvents.LoadContent` events are deprecated. You can move any logic in those methods to your mod's `Entry` method.
+* Mods can now specify a minimum game version in their `manifest.json`.
+* Added `IsBetween` and string overloads to the `ISemanticVersion` methods.
 * Fixed mouse-changed event never updating prior mouse position.
 * Fixed `monitor.ExitGameImmediately` not working correctly.
-* Mods can now specify a minimum game version in their `manifest.json`.
-* Mods are now initialised after the `Initialize`/`LoadContent` phase, which means the `GameEvents.Initialize` and `GameEvents.LoadContent` events are deprecated. You can move any logic in those methods to your mod's `Entry` method.
 
 ## 1.9
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.8...1.9).
