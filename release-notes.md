@@ -12,11 +12,10 @@ For mod developers:
 
 ## 1.10
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.9...1.10).
-* Updated for Stardew Valley 1.2.
-* SMAPI now rewrites many mods for compatibility with game updates, but some mods may still need an update.
 
-## 1.10
-See [log](https://github.com/Pathoschild/SMAPI/compare/1.9...1.9.1).
+For players:
+* Added support for Stardew Valley 1.2 beta.
+* SMAPI now rewrites many mods for compatibility with game updates, but some mods may still need an update.
 
 For mod developers:
 * Fixed mouse-changed event never updating prior mouse position.

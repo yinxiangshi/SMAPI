@@ -138,6 +138,9 @@ namespace StardewModdingAPI.Framework
                     mod.ID == key
                     && (mod.LowerSemanticVersion == null || !manifest.Version.IsOlderThan(mod.LowerSemanticVersion))
                     && !manifest.Version.IsNewerThan(mod.UpperSemanticVersion)
+#if !SDV_1_2
+                    && !mod.OnlyStardewValleyBeta
+#endif
                 select mod
             ).FirstOrDefault();
         }
