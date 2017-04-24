@@ -134,6 +134,14 @@ namespace StardewModdingAPI
             return this.CompareTo(other) > 0;
         }
 
+        /// <summary>Get whether this version is between two specified versions (inclusively).</summary>
+        /// <param name="min">The minimum version.</param>
+        /// <param name="max">The maximum version.</param>
+        public bool IsBetween(ISemanticVersion min, ISemanticVersion max)
+        {
+            return this.CompareTo(min) >= 0 && this.CompareTo(max) <= 0;
+        }
+
         /// <summary>Get a string representation of the version.</summary>
         public override string ToString()
         {
