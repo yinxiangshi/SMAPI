@@ -16,9 +16,11 @@ See [log](https://github.com/Pathoschild/SMAPI/compare/1.9...1.10).
 For players:
 * Added support for Stardew Valley 1.2 beta.
 * Added logic to rewrite many mods for compatibility with game updates, though some mods may still need an update.
-* Added `world_setyear` console command to TrainerMod.
 * Fixed some players getting `SEHException` errors.
 * Fixed rare issue where the installer would crash trying to delete a bundled mod from `%appdata%`.
+* Improved TrainerMod commands:
+  * Added `world_setyear` to change the current year.
+  * Replaced `player_addmelee` with `player_addweapon` with support for non-melee weapons.
 
 For mod developers:
 * Mods are now initialised after the `Initialize`/`LoadContent` phase, which means the `GameEvents.Initialize` and `GameEvents.LoadContent` events are deprecated. You can move any logic in those methods to your mod's `Entry` method.

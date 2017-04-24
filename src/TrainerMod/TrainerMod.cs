@@ -97,7 +97,7 @@ namespace TrainerMod
                 .Add("player_changestyle", "Sets the style of a player feature.\n\nUsage: player_changecolor <target> <value>.\n- target: what to change (one of 'hair', 'shirt', 'skin', 'acc', 'shoe', 'swim', or 'gender').\n- value: the integer style ID.", this.HandleCommand)
 
                 .Add("player_additem", $"Gives the player an item.\n\nUsage: player_additem <item> [count] [quality]\n- item: the item ID (use the 'list_items' command to see a list).\n- count (optional): how many of the item to give.\n- quality (optional): one of {Object.lowQuality} (normal), {Object.medQuality} (silver), {Object.highQuality} (gold), or {Object.bestQuality} (iridium).", this.HandleCommand)
-                .Add("player_addmelee", "Gives the player a melee weapon.\n\nUsage: player_addmelee <item>\n- item: the melee weapon ID (use the 'list_items' command to see a list).", this.HandleCommand)
+                .Add("player_addweapon", "Gives the player a weapon.\n\nUsage: player_addweapon <item>\n- item: the weapon ID (use the 'list_items' command to see a list).", this.HandleCommand)
                 .Add("player_addring", "Gives the player a ring.\n\nUsage: player_addring <item>\n- item: the ring ID (use the 'list_items' command to see a list).", this.HandleCommand)
 
                 .Add("list_items", "Lists and searches items in the game data.\n\nUsage: list_items [search]\n- search (optional): an arbitrary search string to filter by.", this.HandleCommand)
@@ -609,20 +609,62 @@ namespace TrainerMod
                         this.LogArgumentsInvalid(command);
                     break;
 
-                case "player_addmelee":
+                case "player_addweapon":
                     if (args.Any())
                     {
                         int weaponID;
                         if (int.TryParse(args[0], out weaponID))
                         {
-                            MeleeWeapon weapon = new MeleeWeapon(weaponID);
-                            if (weapon.Name == null)
-                                this.Monitor.Log("There is no such weapon ID.", LogLevel.Error);
-                            else
+                            // get raw weapon data
+                            string data;
+                            if (!Game1.content.Load<Dictionary<int, string>>("Data\\weapons").TryGetValue(weaponID, out data))
                             {
-                                Game1.player.addItemByMenuIfNecessary(weapon);
-                                this.Monitor.Log($"OK, added {weapon.Name} to your inventory.", LogLevel.Info);
+                                this.Monitor.Log("There is no such weapon ID.", LogLevel.Error);
+                                return;
                             }
+
+                            // get raw weapon type
+                            int type;
+                            {
+                                string[] fields = data.Split('/');
+                                string typeStr = fields.Length > 8 ? fields[8] : null;
+                                if (!int.TryParse(typeStr, out type))
+                                {
+                                    this.Monitor.Log("Could not parse the data for the weapon with that ID.", LogLevel.Error);
+                                    return;
+                                }
+                            }
+
+                            // get weapon
+                            Tool weapon;
+                            switch (type)
+                            {
+                                case MeleeWeapon.stabbingSword:
+                                case MeleeWeapon.dagger:
+                                case MeleeWeapon.club:
+                                case MeleeWeapon.defenseSword:
+                                    weapon = new MeleeWeapon(weaponID);
+                                    break;
+
+                                case 4:
+                                    weapon = new Slingshot(weaponID);
+                                    break;
+
+                                default:
+                                    this.Monitor.Log($"The specified weapon has unknown type '{type}' in the game data.", LogLevel.Error);
+                                    return;
+                            }
+
+                            // validate
+                            if (weapon.Name == null)
+                            {
+                                this.Monitor.Log("That weapon doesn't seem to be valid.", LogLevel.Error);
+                                return;
+                            }
+
+                            // add weapon
+                            Game1.player.addItemByMenuIfNecessary(weapon);
+                            this.Monitor.Log($"OK, added {weapon.Name} to your inventory.", LogLevel.Info);
                         }
                         else
                             this.LogUsageError("The weapon ID must be an integer.", command);
