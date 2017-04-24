@@ -436,6 +436,25 @@ namespace StardewModdingAPI
                     }
                 }
 
+                // validate game version
+                if (!string.IsNullOrWhiteSpace(manifest.MinimumGameVersion))
+                {
+                    try
+                    {
+                        ISemanticVersion minVersion = new SemanticVersion(manifest.MinimumGameVersion);
+                        if (minVersion.IsNewerThan(Constants.GameVersion))
+                        {
+                            this.Monitor.Log($"{skippedPrefix} because it needs Stardew Valley {minVersion} or later. Please update Stardew Valley to the latest version to use this mod.", LogLevel.Error);
+                            continue;
+                        }
+                    }
+                    catch (FormatException ex) when (ex.Message.Contains("not a valid semantic version"))
+                    {
+                        this.Monitor.Log($"{skippedPrefix} because it has an invalid minimum game version '{manifest.MinimumApiVersion}'. This should be a semantic version number like {Constants.GameVersion}.", LogLevel.Error);
+                        continue;
+                    }
+                }
+
                 // create per-save directory
                 if (manifest.PerSaveConfigs)
                 {

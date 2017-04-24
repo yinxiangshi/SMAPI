@@ -26,6 +26,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>The minimum SMAPI version required by this mod, if any.</summary>
         public string MinimumApiVersion { get; set; }
 
+        /// <summary>The minimum game version required by this mod, if any.</summary>
+        public string MinimumGameVersion { get; set; }
+
         /// <summary>The name of the DLL in the directory that has the <see cref="Mod.Entry"/> method.</summary>
         public string EntryDll { get; set; }
 

@@ -20,6 +20,7 @@ For players:
 For mod developers:
 * Fixed mouse-changed event never updating prior mouse position.
 * Fixed `monitor.ExitGameImmediately` not working correctly.
+* Mods can now specify a minimum game version in their `manifest.json`.
 
 ## 1.9
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.8...1.9).
