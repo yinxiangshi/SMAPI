@@ -36,20 +36,10 @@ namespace StardewModdingAPI
         public static ISemanticVersion ApiVersion { get; } = new SemanticVersion(1, 10, 0);
 
         /// <summary>The minimum supported version of Stardew Valley.</summary>
-        public static ISemanticVersion MinimumGameVersion { get; } =
-#if SDV_1_2
-            new SemanticVersion("1.2.15");
-#else
-            new SemanticVersion("1.1");
-#endif
+        public static ISemanticVersion MinimumGameVersion { get; } = new SemanticVersion("1.2.15");
 
         /// <summary>The maximum supported version of Stardew Valley.</summary>
-        public static ISemanticVersion MaximumGameVersion { get; } =
-#if SDV_1_2
-            null;
-#else
-            new SemanticVersion("1.1.1");
-#endif
+        public static ISemanticVersion MaximumGameVersion { get; } = null;
 
         /// <summary>The path to the game folder.</summary>
         public static string ExecutionPath { get; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -156,10 +146,8 @@ namespace StardewModdingAPI
                 /****
                 ** Finders throw an exception when incompatible code is found.
                 ****/
-#if SDV_1_2
                 // changes in Stardew Valley 1.2 (with no rewriters)
                 new FieldFinder("StardewValley.Item", "set_Name"),
-#endif
 
                 // APIs removed in SMAPI 1.9
                 new TypeFinder("StardewModdingAPI.Advanced.ConfigFile"),
@@ -184,7 +172,6 @@ namespace StardewModdingAPI
                 // crossplatform
                 new MethodParentRewriter(typeof(SpriteBatch), typeof(SpriteBatchWrapper), onlyIfPlatformChanged: true),
 
-#if SDV_1_2
                 // Stardew Valley 1.2
                 new FieldToPropertyRewriter(typeof(Game1), nameof(Game1.activeClickableMenu)),
                 new FieldToPropertyRewriter(typeof(Game1), nameof(Game1.currentMinigame)),
@@ -192,7 +179,6 @@ namespace StardewModdingAPI
                 new FieldToPropertyRewriter(typeof(Game1), nameof(Game1.player)),
                 new FieldReplaceRewriter(typeof(Game1), "borderFont", nameof(Game1.smallFont)),
                 new FieldReplaceRewriter(typeof(Game1), "smoothFont", nameof(Game1.smallFont)),
-#endif
 
                 // SMAPI 1.9
                 new TypeReferenceRewriter("StardewModdingAPI.Inheritance.ItemStackChange", typeof(ItemStackChange))

@@ -5,7 +5,6 @@ using StardewModdingAPI.Framework;
 namespace StardewModdingAPI.Events
 {
     /// <summary>Events raised when the game loads content.</summary>
-    [Obsolete("This is an undocumented experimental API and may change without warning.")]
     public static class ContentEvents
     {
         /*********

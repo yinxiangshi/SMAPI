@@ -14,7 +14,7 @@ For mod developers:
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.9...1.10).
 
 For players:
-* Added support for Stardew Valley 1.2 beta.
+* Updated to Stardew Valley 1.2.
 * Added logic to rewrite many mods for compatibility with game updates, though some mods may still need an update.
 * Fixed `SEHException` errors affecting some players.
 * Fixed issue where SMAPI didn't unlock some files on exit.

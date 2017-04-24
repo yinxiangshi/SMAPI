@@ -37,9 +37,6 @@ namespace StardewModdingAPI.Framework.Models
         /// <summary>Indicates how SMAPI should consider the mod.</summary>
         public ModCompatibilityType Compatibility { get; set; }
 
-        /// <summary>Whether this record only applies to the Stardew Valley 1.2 beta.</summary>
-        public bool OnlyStardewValleyBeta { get; set; }
-
 
         /****
         ** Injected

@@ -16,7 +16,6 @@ using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.Logging;
 using StardewModdingAPI.Framework.Models;
 using StardewModdingAPI.Framework.Serialisation;
-using StardewValley;
 using Monitor = StardewModdingAPI.Framework.Monitor;
 
 namespace StardewModdingAPI
@@ -141,14 +140,7 @@ namespace StardewModdingAPI
 
                 // override game
                 this.GameInstance = new SGame(this.Monitor);
-#if SDV_1_2
                 StardewValley.Program.gamePtr = this.GameInstance;
-#else
-                {
-                    Type type = typeof(Game1).Assembly.GetType("StardewValley.Program", true);
-                    type.GetField("gamePtr").SetValue(null, this.GameInstance);
-                }
-#endif
 
                 // hook into game events
 #if SMAPI_FOR_WINDOWS
