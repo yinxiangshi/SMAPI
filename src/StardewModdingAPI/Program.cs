@@ -61,6 +61,9 @@ namespace StardewModdingAPI
         /// <summary>Whether the game is currently running.</summary>
         private bool IsGameRunning;
 
+        /// <summary>Whether the program has been disposed.</summary>
+        private bool IsDisposed;
+
 
         /*********
         ** Public methods
@@ -136,7 +139,7 @@ namespace StardewModdingAPI
 #endif
                 AppDomain.CurrentDomain.UnhandledException += (sender, e) => this.Monitor.Log($"Critical app domain exception: {e.ExceptionObject}", LogLevel.Error);
 
-                // override game & hook events
+                // override game
                 this.GameInstance = new SGame(this.Monitor);
 #if SDV_1_2
                 StardewValley.Program.gamePtr = this.GameInstance;
@@ -148,7 +151,10 @@ namespace StardewModdingAPI
 #endif
 
                 // hook into game events
-                this.GameInstance.Exiting += (sender, e) => this.IsGameRunning = false;
+#if SMAPI_FOR_WINDOWS
+                ((Form)Control.FromHandle(this.GameInstance.Window.Handle)).FormClosing += (sender, args) => this.Dispose();
+#endif
+                this.GameInstance.Exiting += (sender, e) => this.Dispose();
                 this.GameInstance.Window.ClientSizeChanged += (sender, e) => GraphicsEvents.InvokeResize(this.Monitor, sender, e);
                 GameEvents.InitializeInternal += (sender, e) => this.InitialiseAfterGameStart();
                 GameEvents.GameLoaded += (sender, e) => this.CheckForUpdateAsync();
@@ -178,7 +184,7 @@ namespace StardewModdingAPI
             }
             finally
             {
-                this.IsGameRunning = false;
+                this.Dispose();
             }
         }
 
@@ -207,6 +213,11 @@ namespace StardewModdingAPI
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
         public void Dispose()
         {
+            if (this.IsDisposed)
+                return;
+            this.IsDisposed = true;
+
+            this.IsGameRunning = false;
             this.LogFile?.Dispose();
             this.ConsoleManager?.Dispose();
             this.CancellationTokenSource?.Dispose();
