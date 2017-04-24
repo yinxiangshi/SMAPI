@@ -626,9 +626,8 @@ namespace StardewModdingApi.Installer
         private void Move(FileSystemInfo entry, string newPath)
         {
             // file
-            if (entry is FileInfo)
+            if (entry is FileInfo file)
             {
-                FileInfo file = (FileInfo)entry;
                 file.CopyTo(newPath);
                 file.Delete();
             }

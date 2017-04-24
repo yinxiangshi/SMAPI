@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using StardewModdingAPI.Framework;
 
 namespace StardewModdingAPI.Events
@@ -21,11 +20,11 @@ namespace StardewModdingAPI.Events
         internal static event EventHandler InitializeInternal;
 
         /// <summary>Raised during launch after configuring XNA or MonoGame. The game window hasn't been opened by this point. Called after <see cref="Microsoft.Xna.Framework.Game.Initialize"/>.</summary>
-        [Obsolete("The " + nameof(Mod) + "." + nameof(Mod.Entry) + " method is now called after the " + nameof(Initialize) + " event, so any contained logic can be done directly in " + nameof(Mod.Entry) + ".")]
+        [Obsolete("The " + nameof(Mod) + "." + nameof(Mod.Entry) + " method is now called after the " + nameof(GameEvents.Initialize) + " event, so any contained logic can be done directly in " + nameof(Mod.Entry) + ".")]
         public static event EventHandler Initialize;
 
         /// <summary>Raised before XNA loads or reloads graphics resources. Called during <see cref="Microsoft.Xna.Framework.Game.LoadContent"/>.</summary>
-        [Obsolete("The " + nameof(Mod) + "." + nameof(Mod.Entry) + " method is now called after the " + nameof(LoadContent) + " event, so any contained logic can be done directly in " + nameof(Mod.Entry) + ".")]
+        [Obsolete("The " + nameof(Mod) + "." + nameof(Mod.Entry) + " method is now called after the " + nameof(GameEvents.LoadContent) + " event, so any contained logic can be done directly in " + nameof(Mod.Entry) + ".")]
         public static event EventHandler LoadContent;
 
         /// <summary>Raised during launch after configuring Stardew Valley, loading it into memory, and opening the game window. The window is still blank by this point.</summary>

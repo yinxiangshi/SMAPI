@@ -35,7 +35,7 @@ namespace StardewModdingAPI.Framework
         };
 
         /// <summary>A delegate which requests that SMAPI immediately exit the game. This should only be invoked when an irrecoverable fatal error happens that risks save corruption or game-breaking bugs.</summary>
-        private RequestExitDelegate RequestExit;
+        private readonly RequestExitDelegate RequestExit;
 
 
         /*********
