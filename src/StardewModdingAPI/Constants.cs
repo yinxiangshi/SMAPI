@@ -64,7 +64,7 @@ namespace StardewModdingAPI
         public static string SavesPath { get; } = Path.Combine(Constants.DataPath, "Saves");
 
         /// <summary>The directory name containing the current save's data (if a save is loaded and the directory exists).</summary>
-        public static string SaveFolderName => Constants.SavePathReady ? Constants.GetSaveFolderName() : "";
+        public static string SaveFolderName => Constants.IsSaveLoaded ? Constants.GetSaveFolderName() : "";
 
         /// <summary>The directory path containing the current save's data (if a save is loaded and the directory exists).</summary>
         public static string CurrentSavePath => Constants.SavePathReady ? Path.Combine(Constants.SavesPath, Constants.GetSaveFolderName()) : "";

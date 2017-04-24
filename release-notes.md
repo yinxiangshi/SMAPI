@@ -29,6 +29,7 @@ For mod developers:
 * Added `IsBetween` and string overloads to the `ISemanticVersion` methods.
 * Fixed mouse-changed event never updating prior mouse position.
 * Fixed `monitor.ExitGameImmediately` not working correctly.
+* Fixed `Constants.SaveFolderName` not set for a new game until the save is created.
 
 ## 1.9
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.8...1.9).
