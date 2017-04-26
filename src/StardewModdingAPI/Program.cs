@@ -248,7 +248,7 @@ namespace StardewModdingAPI
             {
                 Monitor monitor = this.GetSecondaryMonitor("Console.Out");
                 if (monitor.WriteToConsole)
-                    this.ConsoleManager.OnMessageIntercepted += line => monitor.Log(line, LogLevel.Trace);
+                    this.ConsoleManager.OnMessageIntercepted += message => this.HandleConsoleMessage(monitor, message);
             }
 
             // add warning headers
@@ -601,6 +601,15 @@ namespace StardewModdingAPI
                 this.Monitor.Log("The following commands are registered: " + string.Join(", ", this.CommandManager.GetAll().Select(p => p.Name)) + ".", LogLevel.Info);
                 this.Monitor.Log("For more information about a command, type 'help command_name'.", LogLevel.Info);
             }
+        }
+
+        /// <summary>Redirect messages logged directly to the console to the given monitor.</summary>
+        /// <param name="monitor">The monitor with which to log messages.</param>
+        /// <param name="message">The message to log.</param>
+        private void HandleConsoleMessage(IMonitor monitor, string message)
+        {
+            LogLevel level = message.Contains("Exception") ? LogLevel.Error : LogLevel.Trace; // intercept potential exceptions
+            monitor.Log(message, level);
         }
 
         /// <summary>Show a 'press any key to exit' message, and exit when they press a key.</summary>

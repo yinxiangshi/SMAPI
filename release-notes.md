@@ -15,9 +15,10 @@ See [log](https://github.com/Pathoschild/SMAPI/compare/1.10...1.11).
 
 For players:
 * Optimised console logging.
+* Errors when loading a save are now shown in the SMAPI console.
 
 For mod developers:
-* `Console.Out` messages are now written to the log file.  
+* `Console.Out` messages are now written to the log file.
 
 ## 1.10
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.9...1.10).
