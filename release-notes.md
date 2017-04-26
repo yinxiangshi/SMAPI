@@ -10,6 +10,12 @@ For mod developers:
   images).
 -->
 
+## 1.11
+See [log](https://github.com/Pathoschild/SMAPI/compare/1.10...1.11).
+
+For players:
+* Optimised console logging.
+
 ## 1.10
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.9...1.10).
 

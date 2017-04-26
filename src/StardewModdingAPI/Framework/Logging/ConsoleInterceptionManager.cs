@@ -18,8 +18,8 @@ namespace StardewModdingAPI.Framework.Logging
         /// <summary>Whether the current console supports color formatting.</summary>
         public bool SupportsColor { get; }
 
-        /// <summary>The event raised when something writes a line to the console directly.</summary>
-        public event Action<string> OnLineIntercepted;
+        /// <summary>The event raised when a message is written to the console directly.</summary>
+        public event Action<string> OnMessageIntercepted;
 
 
         /*********
@@ -30,7 +30,7 @@ namespace StardewModdingAPI.Framework.Logging
         {
             // redirect output through interceptor
             this.Output = new InterceptingTextWriter(Console.Out);
-            this.Output.OnLineIntercepted += line => this.OnLineIntercepted?.Invoke(line);
+            this.Output.OnMessageIntercepted += line => this.OnMessageIntercepted?.Invoke(line);
             Console.SetOut(this.Output);
 
             // test color support

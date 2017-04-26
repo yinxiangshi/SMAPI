@@ -249,7 +249,7 @@ namespace StardewModdingAPI
                 Monitor monitor = this.GetSecondaryMonitor("Console.Out");
                 monitor.WriteToFile = false; // not useful for troubleshooting mods per discussion
                 if (monitor.WriteToConsole)
-                    this.ConsoleManager.OnLineIntercepted += line => monitor.Log(line, LogLevel.Trace);
+                    this.ConsoleManager.OnMessageIntercepted += line => monitor.Log(line, LogLevel.Trace);
             }
 
             // add warning headers
