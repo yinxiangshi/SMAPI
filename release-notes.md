@@ -19,6 +19,7 @@ For players:
 
 For mod developers:
 * `Console.Out` messages are now written to the log file.
+* `Monitor.ExitGameImmediately` now aborts SMAPI initialisation and events more quickly.
 
 ## 1.10
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.9...1.10).

@@ -32,7 +32,7 @@ namespace StardewModdingAPI
         /// <summary>Manages console output interception.</summary>
         private readonly ConsoleInterceptionManager ConsoleManager = new ConsoleInterceptionManager();
 
-        /// <summary>The core logger for SMAPI.</summary>
+        /// <summary>The core logger and monitor for SMAPI.</summary>
         private readonly Monitor Monitor;
 
         /// <summary>Tracks whether the game should exit immediately and any pending initialisation should be cancelled.</summary>
@@ -99,7 +99,7 @@ namespace StardewModdingAPI
         public Program(bool writeToConsole, string logPath)
         {
             this.LogFile = new LogFileManager(logPath);
-            this.Monitor = new Monitor("SMAPI", this.ConsoleManager, this.LogFile, this.ExitGameImmediately) { WriteToConsole = writeToConsole };
+            this.Monitor = new Monitor("SMAPI", this.ConsoleManager, this.LogFile, this.CancellationTokenSource) { WriteToConsole = writeToConsole };
         }
 
         /// <summary>Launch SMAPI.</summary>
@@ -142,6 +142,17 @@ namespace StardewModdingAPI
                 this.GameInstance = new SGame(this.Monitor);
                 StardewValley.Program.gamePtr = this.GameInstance;
 
+                // add exit handler
+                new Thread(() =>
+                {
+                    this.CancellationTokenSource.Token.WaitHandle.WaitOne();
+                    if (this.IsGameRunning)
+                    {
+                        this.GameInstance.Exiting += (sender, e) => this.PressAnyKeyToExit();
+                        this.GameInstance.Exit();
+                    }
+                }).Start();
+
                 // hook into game events
 #if SMAPI_FOR_WINDOWS
                 ((Form)Control.FromHandle(this.GameInstance.Window.Handle)).FormClosing += (sender, args) => this.Dispose();
@@ -177,20 +188,6 @@ namespace StardewModdingAPI
             finally
             {
                 this.Dispose();
-            }
-        }
-
-        /// <summary>Immediately exit the game without saving. This should only be invoked when an irrecoverable fatal error happens that risks save corruption or game-breaking bugs.</summary>
-        /// <param name="module">The module which requested an immediate exit.</param>
-        /// <param name="reason">The reason provided for the shutdown.</param>
-        public void ExitGameImmediately(string module, string reason)
-        {
-            this.Monitor.LogFatal($"{module} requested an immediate game shutdown: {reason}");
-            this.CancellationTokenSource.Cancel();
-            if (this.IsGameRunning)
-            {
-                this.GameInstance.Exiting += (sender, e) => this.PressAnyKeyToExit();
-                this.GameInstance.Exit();
             }
         }
 
@@ -264,9 +261,9 @@ namespace StardewModdingAPI
 
             // load mods
             int modsLoaded = this.LoadMods();
-            if (this.CancellationTokenSource.IsCancellationRequested)
+            if (this.Monitor.IsExiting)
             {
-                this.Monitor.Log("Shutdown requested; interrupting initialisation.", LogLevel.Error);
+                this.Monitor.Log("SMAPI shutting down: aborting initialisation.", LogLevel.Warn);
                 return;
             }
 
@@ -307,7 +304,7 @@ namespace StardewModdingAPI
             inputThread.Start();
 
             // keep console thread alive while the game is running
-            while (this.IsGameRunning)
+            while (this.IsGameRunning && !this.Monitor.IsExiting)
                 Thread.Sleep(1000 / 10);
             if (inputThread.ThreadState == ThreadState.Running)
                 inputThread.Abort();
@@ -368,17 +365,16 @@ namespace StardewModdingAPI
             List<Action> deprecationWarnings = new List<Action>(); // queue up deprecation warnings to show after mod list
             foreach (string directoryPath in Directory.GetDirectories(Constants.ModPath))
             {
+                if (this.Monitor.IsExiting)
+                {
+                    this.Monitor.Log("SMAPI shutting down: aborting mod scan.", LogLevel.Warn);
+                    return modsLoaded;
+                }
+
                 // passthrough empty directories
                 DirectoryInfo directory = new DirectoryInfo(directoryPath);
                 while (!directory.GetFiles().Any() && directory.GetDirectories().Length == 1)
                     directory = directory.GetDirectories().First();
-
-                // check for cancellation
-                if (this.CancellationTokenSource.IsCancellationRequested)
-                {
-                    this.Monitor.Log("Shutdown requested; interrupting mod loading.", LogLevel.Error);
-                    return modsLoaded;
-                }
 
                 // get manifest path
                 string manifestPath = Path.Combine(directory.FullName, "manifest.json");
@@ -625,7 +621,7 @@ namespace StardewModdingAPI
         /// <param name="name">The name of the module which will log messages with this instance.</param>
         private Monitor GetSecondaryMonitor(string name)
         {
-            return new Monitor(name, this.ConsoleManager, this.LogFile, this.ExitGameImmediately) { WriteToConsole = this.Monitor.WriteToConsole, ShowTraceInConsole = this.Settings.DeveloperMode };
+            return new Monitor(name, this.ConsoleManager, this.LogFile, this.CancellationTokenSource) { WriteToConsole = this.Monitor.WriteToConsole, ShowTraceInConsole = this.Settings.DeveloperMode };
         }
 
         /// <summary>Get a human-readable name for the current platform.</summary>

@@ -200,6 +200,13 @@ namespace StardewModdingAPI.Framework
         /// <param name="gameTime">A snapshot of the game timing state.</param>
         protected override void Update(GameTime gameTime)
         {
+            // SMAPI exiting, stop processing game updates
+            if (this.Monitor.IsExiting)
+            {
+                this.Monitor.Log("SMAPI shutting down: aborting update.", LogLevel.Trace);
+                return;
+            }
+
             // While a background new-day task is in progress, the game skips its own update logic
             // and defers to the XNA Update method. Running mod code in parallel to the background
             // update is risky, because data changes can conflict (e.g. collection changed during

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using StardewModdingAPI.Framework.Logging;
 
 namespace StardewModdingAPI.Framework
@@ -34,13 +35,16 @@ namespace StardewModdingAPI.Framework
             [LogLevel.Alert] = ConsoleColor.Magenta
         };
 
-        /// <summary>A delegate which requests that SMAPI immediately exit the game. This should only be invoked when an irrecoverable fatal error happens that risks save corruption or game-breaking bugs.</summary>
-        private readonly RequestExitDelegate RequestExit;
+        /// <summary>Propagates notification that SMAPI should exit.</summary>
+        private readonly CancellationTokenSource ExitTokenSource;
 
 
         /*********
         ** Accessors
         *********/
+        /// <summary>Whether SMAPI is aborting. Mods don't need to worry about this unless they have background tasks.</summary>
+        public bool IsExiting => this.ExitTokenSource.IsCancellationRequested;
+
         /// <summary>Whether to show trace messages in the console.</summary>
         internal bool ShowTraceInConsole { get; set; }
 
@@ -58,8 +62,8 @@ namespace StardewModdingAPI.Framework
         /// <param name="source">The name of the module which logs messages using this instance.</param>
         /// <param name="consoleManager">Manages access to the console output.</param>
         /// <param name="logFile">The log file to which to write messages.</param>
-        /// <param name="requestExitDelegate">A delegate which requests that SMAPI immediately exit the game.</param>
-        public Monitor(string source, ConsoleInterceptionManager consoleManager, LogFileManager logFile, RequestExitDelegate requestExitDelegate)
+        /// <param name="exitTokenSource">Propagates notification that SMAPI should exit.</param>
+        public Monitor(string source, ConsoleInterceptionManager consoleManager, LogFileManager logFile, CancellationTokenSource exitTokenSource)
         {
             // validate
             if (string.IsNullOrWhiteSpace(source))
@@ -69,7 +73,7 @@ namespace StardewModdingAPI.Framework
             this.Source = source;
             this.LogFile = logFile ?? throw new ArgumentNullException(nameof(logFile), "The log file manager cannot be null.");
             this.ConsoleManager = consoleManager;
-            this.RequestExit = requestExitDelegate;
+            this.ExitTokenSource = exitTokenSource;
         }
 
         /// <summary>Log a message for the player or developer.</summary>
@@ -84,14 +88,8 @@ namespace StardewModdingAPI.Framework
         /// <param name="reason">The reason for the shutdown.</param>
         public void ExitGameImmediately(string reason)
         {
-            this.RequestExit(this.Source, reason);
-        }
-
-        /// <summary>Log a fatal error message.</summary>
-        /// <param name="message">The message to log.</param>
-        internal void LogFatal(string message)
-        {
-            this.LogImpl(this.Source, message, LogLevel.Error, ConsoleColor.White, background: ConsoleColor.Red);
+            this.LogFatal($"{this.Source} requested an immediate game shutdown: {reason}");
+            this.ExitTokenSource.Cancel();
         }
 
         /// <summary>Log a message for the player or developer, using the specified console color.</summary>
@@ -109,6 +107,13 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Private methods
         *********/
+        /// <summary>Log a fatal error message.</summary>
+        /// <param name="message">The message to log.</param>
+        private void LogFatal(string message)
+        {
+            this.LogImpl(this.Source, message, LogLevel.Error, ConsoleColor.White, background: ConsoleColor.Red);
+        }
+
         /// <summary>Write a message line to the log.</summary>
         /// <param name="source">The name of the mod logging the message.</param>
         /// <param name="message">The message to log.</param>

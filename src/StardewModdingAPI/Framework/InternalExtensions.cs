@@ -41,6 +41,14 @@ namespace StardewModdingAPI.Framework
 
             foreach (EventHandler handler in handlers.Cast<EventHandler>())
             {
+                // handle SMAPI exiting
+                if (monitor.IsExiting)
+                {
+                    monitor.Log($"SMAPI shutting down: aborting {name} event.", LogLevel.Warn);
+                    return;
+                }
+
+                // raise event
                 try
                 {
                     handler.Invoke(sender, args ?? EventArgs.Empty);
