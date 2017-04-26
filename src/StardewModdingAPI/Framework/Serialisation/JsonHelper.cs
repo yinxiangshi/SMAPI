@@ -31,9 +31,14 @@ namespace StardewModdingAPI.Framework.Serialisation
         /// <typeparam name="TModel">The model type.</typeparam>
         /// <param name="fullPath">The absolete file path.</param>
         /// <returns>Returns the deserialised model, or <c>null</c> if the file doesn't exist or is empty.</returns>
+        /// <exception cref="InvalidOperationException">The given path is empty or invalid.</exception>
         public TModel ReadJsonFile<TModel>(string fullPath)
             where TModel : class
         {
+            // validate
+            if (string.IsNullOrWhiteSpace(fullPath))
+                throw new ArgumentException("The file path is empty or invalid.", nameof(fullPath));
+
             // read file
             string json;
             try
@@ -53,11 +58,18 @@ namespace StardewModdingAPI.Framework.Serialisation
         /// <typeparam name="TModel">The model type.</typeparam>
         /// <param name="fullPath">The absolete file path.</param>
         /// <param name="model">The model to save.</param>
+        /// <exception cref="InvalidOperationException">The given path is empty or invalid.</exception>
         public void WriteJsonFile<TModel>(string fullPath, TModel model)
             where TModel : class
         {
+            // validate
+            if (string.IsNullOrWhiteSpace(fullPath))
+                throw new ArgumentException("The file path is empty or invalid.", nameof(fullPath));
+
             // create directory if needed
             string dir = Path.GetDirectoryName(fullPath);
+            if (dir == null)
+                throw new ArgumentException("The file path is invalid.", nameof(fullPath));
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
 
