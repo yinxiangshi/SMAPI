@@ -247,7 +247,6 @@ namespace StardewModdingAPI
             // redirect direct console output
             {
                 Monitor monitor = this.GetSecondaryMonitor("Console.Out");
-                monitor.WriteToFile = false; // not useful for troubleshooting mods per discussion
                 if (monitor.WriteToConsole)
                     this.ConsoleManager.OnMessageIntercepted += line => monitor.Log(line, LogLevel.Trace);
             }
