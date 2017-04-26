@@ -64,12 +64,10 @@ namespace StardewModdingAPI.Framework
             // validate
             if (string.IsNullOrWhiteSpace(source))
                 throw new ArgumentException("The log source cannot be empty.");
-            if (logFile == null)
-                throw new ArgumentNullException(nameof(logFile), "The log file manager cannot be null.");
 
             // initialise
             this.Source = source;
-            this.LogFile = logFile;
+            this.LogFile = logFile ?? throw new ArgumentNullException(nameof(logFile), "The log file manager cannot be null.");
             this.ConsoleManager = consoleManager;
             this.RequestExit = requestExitDelegate;
         }
