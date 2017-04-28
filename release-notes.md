@@ -14,8 +14,9 @@ For mod developers:
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.10...1.11).
 
 For players:
-* Optimised console logging.
+* SMAPI now detects issues in `ObjectInformation.xnb` files caused by outdated XNB mods.
 * Errors when loading a save are now shown in the SMAPI console.
+* Improved console logging performance.
 
 For mod developers:
 * `Console.Out` messages are now written to the log file.

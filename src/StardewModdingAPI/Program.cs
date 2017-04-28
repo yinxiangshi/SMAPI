@@ -16,7 +16,9 @@ using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.Logging;
 using StardewModdingAPI.Framework.Models;
 using StardewModdingAPI.Framework.Serialisation;
+using StardewValley;
 using Monitor = StardewModdingAPI.Framework.Monitor;
+using SObject = StardewValley.Object;
 
 namespace StardewModdingAPI
 {
@@ -248,16 +250,20 @@ namespace StardewModdingAPI
                     this.ConsoleManager.OnMessageIntercepted += message => this.HandleConsoleMessage(monitor, message);
             }
 
-            // add warning headers
+            // add headers
             if (this.Settings.DeveloperMode)
             {
                 this.Monitor.ShowTraceInConsole = true;
-                this.Monitor.Log($"You configured SMAPI to run in developer mode. The console may be much more verbose. You can disable developer mode by installing the non-developer version of SMAPI, or by editing {Constants.ApiConfigPath}.", LogLevel.Warn);
+                this.Monitor.Log($"You configured SMAPI to run in developer mode. The console may be much more verbose. You can disable developer mode by installing the non-developer version of SMAPI, or by editing {Constants.ApiConfigPath}.", LogLevel.Info);
             }
             if (!this.Settings.CheckForUpdates)
                 this.Monitor.Log($"You configured SMAPI to not check for updates. Running an old version of SMAPI is not recommended. You can enable update checks by reinstalling SMAPI or editing {Constants.ApiConfigPath}.", LogLevel.Warn);
             if (!this.Monitor.WriteToConsole)
                 this.Monitor.Log("Writing to the terminal is disabled because the --no-terminal argument was received. This usually means launching the terminal failed.", LogLevel.Warn);
+
+            // validate XNB integrity
+            if (!this.ValidateContentIntegrity())
+                this.Monitor.Log("SMAPI found problems in the game's XNB files which may cause errors or crashes while you're playing. Consider uninstalling XNB mods or reinstalling the game.", LogLevel.Warn);
 
             // load mods
             int modsLoaded = this.LoadMods();
@@ -308,6 +314,53 @@ namespace StardewModdingAPI
                 Thread.Sleep(1000 / 10);
             if (inputThread.ThreadState == ThreadState.Running)
                 inputThread.Abort();
+        }
+
+        /// <summary>Look for common issues with the game's XNB content, and log warnings if anything looks broken or outdated.</summary>
+        /// <returns>Returns whether all integrity checks passed.</returns>
+        private bool ValidateContentIntegrity()
+        {
+            this.Monitor.Log("Detecting common issues...");
+            bool issuesFound = false;
+
+
+            // object format (commonly broken by outdated files)
+            {
+                void LogIssue(int id, string issue) => this.Monitor.Log($"Detected issue: item #{id} in Content\\Data\\ObjectInformation is invalid ({issue}).", LogLevel.Warn);
+                foreach (KeyValuePair<int, string> entry in Game1.objectInformation)
+                {
+                    // must not be empty
+                    if (string.IsNullOrWhiteSpace(entry.Value))
+                    {
+                        LogIssue(entry.Key, "entry is empty");
+                        issuesFound = true;
+                        continue;
+                    }
+
+                    // require core fields
+                    string[] fields = entry.Value.Split('/');
+                    if (fields.Length < SObject.objectInfoDescriptionIndex + 1)
+                    {
+                        LogIssue(entry.Key, $"too few fields for an object");
+                        issuesFound = true;
+                        continue;
+                    }
+
+                    // check min length for specific types
+                    switch (fields[SObject.objectInfoTypeIndex].Split(new[] { ' ' }, 2)[0])
+                    {
+                        case "Cooking":
+                            if (fields.Length < SObject.objectInfoBuffDurationIndex + 1)
+                            {
+                                LogIssue(entry.Key, "too few fields for a cooking item");
+                                issuesFound = true;
+                            }
+                            break;
+                    }
+                }
+            }
+
+            return !issuesFound;
         }
 
         /// <summary>Asynchronously check for a new version of SMAPI, and print a message to the console if an update is available.</summary>
