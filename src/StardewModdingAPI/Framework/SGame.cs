@@ -242,7 +242,6 @@ namespace StardewModdingAPI.Framework
             catch (Exception ex)
             {
                 this.Monitor.Log($"An error occured in the base update loop: {ex.GetLogSummary()}", LogLevel.Error);
-                Console.ReadKey();
             }
 
             // raise update events

@@ -17,6 +17,7 @@ For players:
 * SMAPI now detects issues in `ObjectInformation.xnb` files caused by outdated XNB mods.
 * Errors when loading a save are now shown in the SMAPI console.
 * Improved console logging performance.
+* Fixed errors during game update causing the game to hang.
 
 For mod developers:
 * `Console.Out` messages are now written to the log file.
