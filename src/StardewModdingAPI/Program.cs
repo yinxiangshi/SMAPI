@@ -204,10 +204,16 @@ namespace StardewModdingAPI
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
         public void Dispose()
         {
+            // skip if already disposed
             if (this.IsDisposed)
                 return;
             this.IsDisposed = true;
 
+            // dispose mod helpers
+            foreach (var mod in this.ModRegistry.GetMods())
+                (mod.Helper as IDisposable)?.Dispose();
+
+            // dispose core components
             this.IsGameRunning = false;
             this.LogFile?.Dispose();
             this.ConsoleManager?.Dispose();

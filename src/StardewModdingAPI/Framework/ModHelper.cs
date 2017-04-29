@@ -6,7 +6,7 @@ using StardewModdingAPI.Framework.Serialisation;
 namespace StardewModdingAPI.Framework
 {
     /// <summary>Provides simplified APIs for writing mods.</summary>
-    internal class ModHelper : IModHelper
+    internal class ModHelper : IModHelper, IDisposable
     {
         /*********
         ** Properties
@@ -106,6 +106,15 @@ namespace StardewModdingAPI.Framework
         {
             path = Path.Combine(this.DirectoryPath, path);
             this.JsonHelper.WriteJsonFile(path, model);
+        }
+
+        /****
+        ** Disposal
+        ****/
+        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
+        public void Dispose()
+        {
+            // nothing to dispose yet
         }
     }
 }
