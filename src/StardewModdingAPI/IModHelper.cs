@@ -6,8 +6,11 @@
         /*********
         ** Accessors
         *********/
-        /// <summary>The mod directory path.</summary>
+        /// <summary>The full path to the mod's folder.</summary>
         string DirectoryPath { get; }
+
+        /// <summary>An API for loading content assets.</summary>
+        IContentHelper Content { get; }
 
         /// <summary>Simplifies access to private game code.</summary>
         IReflectionHelper Reflection { get; }

@@ -18,8 +18,11 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Accessors
         *********/
-        /// <summary>The mod directory path.</summary>
+        /// <summary>The full path to the mod's folder.</summary>
         public string DirectoryPath { get; }
+
+        /// <summary>An API for loading content assets.</summary>
+        public IContentHelper Content { get; }
 
         /// <summary>Simplifies access to private game code.</summary>
         public IReflectionHelper Reflection { get; } = new ReflectionHelper();
@@ -35,14 +38,15 @@ namespace StardewModdingAPI.Framework
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="modName">The friendly mod name.</param>
-        /// <param name="modDirectory">The mod directory path.</param>
+        /// <param name="manifest">The manifest for the associated mod.</param>
+        /// <param name="modDirectory">The full path to the mod's folder.</param>
         /// <param name="jsonHelper">Encapsulate SMAPI's JSON parsing.</param>
         /// <param name="modRegistry">Metadata about loaded mods.</param>
         /// <param name="commandManager">Manages console commands.</param>
+        /// <param name="contentManager">The content manager which loads content assets.</param>
         /// <exception cref="ArgumentNullException">An argument is null or empty.</exception>
         /// <exception cref="InvalidOperationException">The <paramref name="modDirectory"/> path does not exist on disk.</exception>
-        public ModHelper(string modName, string modDirectory, JsonHelper jsonHelper, IModRegistry modRegistry, CommandManager commandManager)
+        public ModHelper(IManifest manifest, string modDirectory, JsonHelper jsonHelper, IModRegistry modRegistry, CommandManager commandManager, SContentManager contentManager)
         {
             // validate
             if (string.IsNullOrWhiteSpace(modDirectory))
@@ -55,10 +59,11 @@ namespace StardewModdingAPI.Framework
                 throw new InvalidOperationException("The specified mod directory does not exist.");
 
             // initialise
-            this.JsonHelper = jsonHelper;
             this.DirectoryPath = modDirectory;
+            this.JsonHelper = jsonHelper;
+            this.Content = new ContentHelper(contentManager, modDirectory, manifest.Name);
             this.ModRegistry = modRegistry;
-            this.ConsoleCommands = new CommandHelper(modName, commandManager);
+            this.ConsoleCommands = new CommandHelper(manifest.Name, commandManager);
         }
 
         /****

@@ -596,7 +596,7 @@ namespace StardewModdingAPI
                     // inject data
                     // get helper
                     mod.ModManifest = manifest;
-                    mod.Helper = new ModHelper(manifest.Name, directory.FullName, jsonHelper, this.ModRegistry, this.CommandManager);
+                    mod.Helper = new ModHelper(manifest, directory.FullName, jsonHelper, this.ModRegistry, this.CommandManager, (SContentManager)Game1.content);
                     mod.Monitor = this.GetSecondaryMonitor(manifest.Name);
                     mod.PathOnDisk = directory.FullName;
 
