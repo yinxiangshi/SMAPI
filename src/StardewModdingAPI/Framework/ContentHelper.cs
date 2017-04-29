@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
@@ -41,7 +42,7 @@ namespace StardewModdingAPI.Framework
             this.RelativeContentFolder = this.GetRelativePath(contentManager.FullRootDirectory, modFolderPath);
         }
 
-        /// <summary>Fetch and cache content from the game content or mod folder (if not already cached), and return it.</summary>
+        /// <summary>Load content from the game folder or mod folder (if not already cached), and return it. When loading a <c>.png</c> file, this must be called outside the game's draw loop.</summary>
         /// <typeparam name="T">The expected data type. The main supported types are <see cref="Texture2D"/> and dictionaries; other types may be supported by the game's content pipeline.</typeparam>
         /// <param name="key">The asset key to fetch (if the <paramref name="source"/> is <see cref="ContentSource.GameContent"/>), or the local path to an XNB file relative to the mod folder.</param>
         /// <param name="source">Where to search for a matching content asset.</param>
@@ -56,53 +57,61 @@ namespace StardewModdingAPI.Framework
                 throw new ArgumentException("The asset key or local path contains invalid characters.");
 
             // load content
-            switch (source)
+            try
             {
-                case ContentSource.GameContent:
-                    return this.LoadFromGameContent<T>(key, key, source);
+                switch (source)
+                {
+                    case ContentSource.GameContent:
+                        return this.ContentManager.Load<T>(key);
 
-                case ContentSource.ModFolder:
-                    // find content file
-                    FileInfo file = new FileInfo(Path.Combine(this.ModFolderPath, key));
-                    if (!file.Exists && file.Extension == "")
-                        file = new FileInfo(Path.Combine(this.ModFolderPath, key + ".xnb"));
-                    if (!file.Exists)
-                        throw new ContentLoadException($"There is no file at path '{file.FullName}'.");
+                    case ContentSource.ModFolder:
+                        // find content file
+                        FileInfo file = new FileInfo(Path.Combine(this.ModFolderPath, key));
+                        if (!file.Exists && file.Extension == "")
+                            file = new FileInfo(Path.Combine(this.ModFolderPath, key + ".xnb"));
+                        if (!file.Exists)
+                            throw new ContentLoadException($"There is no file at path '{file.FullName}'.");
 
-                    // get content-relative path
-                    string contentPath = Path.Combine(this.RelativeContentFolder, key);
-                    if (contentPath.EndsWith(".xnb"))
-                        contentPath = contentPath.Substring(0, contentPath.Length - 4);
+                        // get content-relative path
+                        string contentPath = Path.Combine(this.RelativeContentFolder, key);
+                        if (contentPath.EndsWith(".xnb"))
+                            contentPath = contentPath.Substring(0, contentPath.Length - 4);
 
-                    // load content
-                    switch (file.Extension.ToLower())
-                    {
-                        case ".xnb":
-                            return this.LoadFromGameContent<T>(contentPath, key, source);
+                        // load content
+                        switch (file.Extension.ToLower())
+                        {
+                            case ".xnb":
+                                return this.ContentManager.Load<T>(contentPath);
 
-                        case ".png":
-                            // validate
-                            if (typeof(T) != typeof(Texture2D))
-                                throw new ContentLoadException($"Can't read file with extension '{file.Extension}' as type '{typeof(T)}'; must be type '{typeof(Texture2D)}'.");
+                            case ".png":
+                                // validate
+                                if (typeof(T) != typeof(Texture2D))
+                                    throw new ContentLoadException($"Can't read file with extension '{file.Extension}' as type '{typeof(T)}'; must be type '{typeof(Texture2D)}'.");
 
-                            // try cache
-                            if (this.ContentManager.IsLoaded(contentPath))
-                                return this.LoadFromGameContent<T>(contentPath, key, source);
+                                // try cache
+                                if (this.ContentManager.IsLoaded(contentPath))
+                                    return this.ContentManager.Load<T>(contentPath);
 
-                            // fetch & cache
-                            using (FileStream stream = File.OpenRead(file.FullName))
-                            {
-                                Texture2D texture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, stream);
-                                this.ContentManager.Inject(contentPath, texture);
-                                return (T)(object)texture;
-                            }
+                                // fetch & cache
+                                using (FileStream stream = File.OpenRead(file.FullName))
+                                {
+                                    var texture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, stream);
+                                    texture = this.PremultiplyTransparency(texture);
+                                    this.ContentManager.Inject(contentPath, texture);
+                                    return (T)(object)texture;
+                                }
 
-                        default:
-                            throw new ContentLoadException($"Unknown file extension '{file.Extension}'; must be '.xnb' or '.png'.");
-                    }
+                            default:
+                                throw new ContentLoadException($"Unknown file extension '{file.Extension}'; must be '.xnb' or '.png'.");
+                        }
 
-                default:
-                    throw new NotSupportedException($"Unknown content source '{source}'.");
+                    default:
+                        throw new NotSupportedException($"Unknown content source '{source}'.");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new ContentLoadException($"{this.ModName} failed loading content asset '{key}' from {source}.", ex);
             }
         }
 
@@ -110,24 +119,6 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Private methods
         *********/
-        /// <summary>Load a content asset through the underlying content manager, and throw a friendly error if it fails.</summary>
-        /// <typeparam name="T">The expected data type.</typeparam>
-        /// <param name="assetKey">The content key.</param>
-        /// <param name="friendlyKey">The friendly content key to show in errors.</param>
-        /// <param name="source">The content source for use in errors.</param>
-        /// <exception cref="ContentLoadException">The content couldn't be loaded.</exception>
-        private T LoadFromGameContent<T>(string assetKey, string friendlyKey, ContentSource source)
-        {
-            try
-            {
-                return this.ContentManager.Load<T>(assetKey);
-            }
-            catch (Exception ex)
-            {
-                throw new ContentLoadException($"{this.ModName} failed loading content asset '{friendlyKey}' from {source}.", ex);
-            }
-        }
-
         /// <summary>Get a directory path relative to a given root.</summary>
         /// <param name="rootPath">The root path from which the path should be relative.</param>
         /// <param name="targetPath">The target file path.</param>
@@ -142,6 +133,64 @@ namespace StardewModdingAPI.Framework
             // get relative path
             return Uri.UnescapeDataString(from.MakeRelativeUri(to).ToString())
                 .Replace(Path.DirectorySeparatorChar == '/' ? '\\' : '/', Path.DirectorySeparatorChar); // use correct separator for platform
+        }
+
+        /// <summary>Premultiply a texture's alpha values to avoid transparency issues in the game. This is only possible if the game isn't currently drawing.</summary>
+        /// <param name="texture">The texture to premultiply.</param>
+        /// <returns>Returns a premultiplied texture.</returns>
+        /// <remarks>Based on <a href="https://gist.github.com/Layoric/6255384">code by Layoric</a>.</remarks>
+        private Texture2D PremultiplyTransparency(Texture2D texture)
+        {
+            if (Game1.graphics.GraphicsDevice.GetRenderTargets().Any()) // TODO: use a more robust check to detect if the game is drawing
+                throw new NotSupportedException("Can't load a PNG file while the game is drawing to the screen. Make sure you load content outside the draw loop.");
+
+            using (RenderTarget2D renderTarget = new RenderTarget2D(Game1.graphics.GraphicsDevice, texture.Width, texture.Height))
+            using (SpriteBatch spriteBatch = new SpriteBatch(Game1.graphics.GraphicsDevice))
+            {
+                //Viewport originalViewport = Game1.graphics.GraphicsDevice.Viewport;
+
+                // create blank slate in render target
+                Game1.graphics.GraphicsDevice.SetRenderTarget(renderTarget);
+                Game1.graphics.GraphicsDevice.Clear(Color.Black);
+
+                // multiply each color by the source alpha, and write just the color values into the final texture
+                spriteBatch.Begin(SpriteSortMode.Immediate, new BlendState
+                {
+                    ColorDestinationBlend = Blend.Zero,
+                    ColorWriteChannels = ColorWriteChannels.Red | ColorWriteChannels.Green | ColorWriteChannels.Blue,
+                    AlphaDestinationBlend = Blend.Zero,
+                    AlphaSourceBlend = Blend.SourceAlpha,
+                    ColorSourceBlend = Blend.SourceAlpha
+                });
+                spriteBatch.Draw(texture, texture.Bounds, Color.White);
+                spriteBatch.End();
+
+                // copy the alpha values from the source texture into the final one without multiplying them
+                spriteBatch.Begin(SpriteSortMode.Immediate, new BlendState
+                {
+                    ColorWriteChannels = ColorWriteChannels.Alpha,
+                    AlphaDestinationBlend = Blend.Zero,
+                    ColorDestinationBlend = Blend.Zero,
+                    AlphaSourceBlend = Blend.One,
+                    ColorSourceBlend = Blend.One
+                });
+                spriteBatch.Draw(texture, texture.Bounds, Color.White);
+                spriteBatch.End();
+
+                // release the GPU
+                Game1.graphics.GraphicsDevice.SetRenderTarget(null);
+                //Game1.graphics.GraphicsDevice.Viewport = originalViewport;
+
+                // store data from render target because the RenderTarget2D is volatile
+                var data = new Color[texture.Width * texture.Height];
+                renderTarget.GetData(data);
+
+                // unset texture from graphic device and set modified data back to it
+                Game1.graphics.GraphicsDevice.Textures[0] = null;
+                texture.SetData(data);
+            }
+
+            return texture;
         }
     }
 }
