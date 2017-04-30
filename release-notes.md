@@ -18,6 +18,7 @@ For players:
 * Errors when loading a save are now shown in the SMAPI console.
 * Improved console logging performance.
 * Fixed errors during game update causing the game to hang.
+* Fixed errors due to mod events triggering during game save in Stardew Valley 1.2.
 
 For mod developers:
 * `Console.Out` messages are now written to the log file.

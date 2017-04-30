@@ -223,6 +223,16 @@ namespace StardewModdingAPI.Framework
                 return;
             }
 
+            // While the game is writing to the save file in the background, mods can unexpectedly
+            // fail since they don't have exclusive access to resources (e.g. collection changed
+            // during enumeration errors). To avoid problems, events are not invoked while a save
+            // is in progress.
+            if (Context.IsSaving)
+            {
+                base.Update(gameTime);
+                return;
+            }
+
             // raise game loaded
             if (this.FirstUpdate)
             {
