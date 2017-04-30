@@ -83,6 +83,26 @@ namespace StardewModdingAPI.Framework
                 this.NormaliseAssetNameForPlatform = key => key.Replace('\\', '/'); // based on MonoGame's ContentManager.Load<T> logic
         }
 
+        /// <summary>Normalise an asset name so it's consistent with the underlying cache.</summary>
+        /// <param name="assetName">The asset key.</param>
+        public string NormaliseAssetName(string assetName)
+        {
+            // ensure name format is consistent
+            string[] parts = assetName.Split(SContentManager.PossiblePathSeparators, StringSplitOptions.RemoveEmptyEntries);
+            assetName = string.Join(SContentManager.PreferredPathSeparator, parts);
+
+            // apply platform normalisation logic
+            return this.NormaliseAssetNameForPlatform(assetName);
+        }
+
+        /// <summary>Get whether the content manager has already loaded and cached the given asset.</summary>
+        /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
+        public bool IsLoaded(string assetName)
+        {
+            assetName = this.NormaliseAssetName(assetName);
+            return this.IsNormalisedKeyLoaded(assetName);
+        }
+
         /// <summary>Load an asset that has been processed by the content pipeline.</summary>
         /// <typeparam name="T">The type of asset to load.</typeparam>
         /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
@@ -116,31 +136,9 @@ namespace StardewModdingAPI.Framework
             this.Cache[assetName] = value;
         }
 
-        /// <summary>Get whether the content manager has already loaded and cached the given asset.</summary>
-        /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
-        public bool IsLoaded(string assetName)
-        {
-            assetName = this.NormaliseAssetName(assetName);
-            return this.IsNormalisedKeyLoaded(assetName);
-
-        }
-
-
         /*********
         ** Private methods
         *********/
-        /// <summary>Normalise an asset name so it's consistent with the underlying cache.</summary>
-        /// <param name="assetName">The asset key.</param>
-        private string NormaliseAssetName(string assetName)
-        {
-            // ensure name format is consistent
-            string[] parts = assetName.Split(SContentManager.PossiblePathSeparators, StringSplitOptions.RemoveEmptyEntries);
-            assetName = string.Join(SContentManager.PreferredPathSeparator, parts);
-
-            // apply platform normalisation logic
-            return this.NormaliseAssetNameForPlatform(assetName);
-        }
-
         /// <summary>Get whether an asset has already been loaded.</summary>
         /// <param name="normalisedAssetName">The normalised asset name.</param>
         private bool IsNormalisedKeyLoaded(string normalisedAssetName)

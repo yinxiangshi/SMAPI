@@ -14,5 +14,11 @@ namespace StardewModdingAPI
         /// <exception cref="ArgumentException">The <paramref name="key"/> is empty or contains invalid characters.</exception>
         /// <exception cref="ContentLoadException">The content asset couldn't be loaded (e.g. because it doesn't exist).</exception>
         T Load<T>(string key, ContentSource source);
+
+        /// <summary>Get the underlying key in the game's content cache for an asset. This can be used to load custom map tilesheets, but should be avoided when you can use the content API instead. This does not validate whether the asset exists.</summary>
+        /// <param name="key">The asset key to fetch (if the <paramref name="source"/> is <see cref="ContentSource.GameContent"/>), or the local path to an XNB file relative to the mod folder.</param>
+        /// <param name="source">Where to search for a matching content asset.</param>
+        /// <exception cref="ArgumentException">The <paramref name="key"/> is empty or contains invalid characters.</exception>
+        string GetActualAssetKey(string key, ContentSource source);
     }
 }
