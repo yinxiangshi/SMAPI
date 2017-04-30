@@ -57,7 +57,7 @@ namespace StardewModdingAPI.Framework
                 switch (source)
                 {
                     case ContentSource.GameContent:
-                        return this.ContentManager.Load<T>(key);
+                        return this.ContentManager.Load<T>(this.StripXnbExtension(key));
 
                     case ContentSource.ModFolder:
                         // find content file
@@ -117,13 +117,11 @@ namespace StardewModdingAPI.Framework
             switch (source)
             {
                 case ContentSource.GameContent:
-                    return this.ContentManager.NormaliseAssetName(key);
+                    return this.ContentManager.NormaliseAssetName(this.StripXnbExtension(key));
 
                 case ContentSource.ModFolder:
                     string contentPath = Path.Combine(this.ModFolderPathFromContent, key);
-                    if (contentPath.EndsWith(".xnb"))
-                        contentPath = contentPath.Substring(0, contentPath.Length - 4);
-                    return this.ContentManager.NormaliseAssetName(contentPath);
+                    return this.ContentManager.NormaliseAssetName(this.StripXnbExtension(contentPath));
 
                 default:
                     throw new NotSupportedException($"Unknown content source '{source}'.");
@@ -144,6 +142,15 @@ namespace StardewModdingAPI.Framework
                 throw new ArgumentException("The asset key or local path is empty.");
             if (key.Intersect(Path.GetInvalidPathChars()).Any())
                 throw new ArgumentException("The asset key or local path contains invalid characters.");
+        }
+
+        /// <summary>Strip the .xnb extension from an asset key, since it's assumed by the underlying content manager.</summary>
+        /// <param name="key">The asset key.</param>
+        private string StripXnbExtension(string key)
+        {
+            if (key.EndsWith(".xnb", StringComparison.InvariantCultureIgnoreCase))
+                return key.Substring(0, key.Length - 4);
+            return key;
         }
 
         /// <summary>Get a directory path relative to a given root.</summary>
