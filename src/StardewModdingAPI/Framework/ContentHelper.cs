@@ -61,6 +61,7 @@ namespace StardewModdingAPI.Framework
 
                     case ContentSource.ModFolder:
                         // find content file
+                        key = this.ContentManager.NormalisePathSeparators(key);
                         FileInfo file = new FileInfo(Path.Combine(this.ModFolderPath, key));
                         if (!file.Exists && file.Extension == "")
                             file = new FileInfo(Path.Combine(this.ModFolderPath, key + ".xnb"));

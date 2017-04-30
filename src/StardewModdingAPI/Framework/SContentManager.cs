@@ -83,15 +83,22 @@ namespace StardewModdingAPI.Framework
                 this.NormaliseAssetNameForPlatform = key => key.Replace('\\', '/'); // based on MonoGame's ContentManager.Load<T> logic
         }
 
+        /// <summary>Normalise path separators in a file path. For asset keys, see <see cref="NormaliseAssetName"/> instead.</summary>
+        /// <param name="path">The file path to normalise.</param>
+        public string NormalisePathSeparators(string path)
+        {
+            string[] parts = path.Split(SContentManager.PossiblePathSeparators, StringSplitOptions.RemoveEmptyEntries);
+            string normalised = string.Join(SContentManager.PreferredPathSeparator, parts);
+            if (path.StartsWith(SContentManager.PreferredPathSeparator))
+                normalised = SContentManager.PreferredPathSeparator + normalised; // keep root slash
+            return normalised;
+        }
+
         /// <summary>Normalise an asset name so it's consistent with the underlying cache.</summary>
         /// <param name="assetName">The asset key.</param>
         public string NormaliseAssetName(string assetName)
         {
-            // ensure name format is consistent
-            string[] parts = assetName.Split(SContentManager.PossiblePathSeparators, StringSplitOptions.RemoveEmptyEntries);
-            assetName = string.Join(SContentManager.PreferredPathSeparator, parts);
-
-            // apply platform normalisation logic
+            assetName = this.NormalisePathSeparators(assetName);
             return this.NormaliseAssetNameForPlatform(assetName);
         }
 
