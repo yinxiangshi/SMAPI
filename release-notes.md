@@ -10,6 +10,21 @@ For mod developers:
   images).
 -->
 
+## 1.11
+See [log](https://github.com/Pathoschild/SMAPI/compare/1.10...1.11).
+
+For players:
+* SMAPI now detects issues in `ObjectInformation.xnb` files caused by outdated XNB mods.
+* Errors when loading a save are now shown in the SMAPI console.
+* Improved console logging performance.
+* Fixed errors during game update causing the game to hang.
+* Fixed errors due to mod events triggering during game save in Stardew Valley 1.2.
+
+For mod developers:
+* Added a content API which loads custom textures/maps/data from the mod's folder (`.xnb` or `.png` format) or game content.
+* `Console.Out` messages are now written to the log file.
+* `Monitor.ExitGameImmediately` now aborts SMAPI initialisation and events more quickly.
+
 ## 1.10
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.9...1.10).
 

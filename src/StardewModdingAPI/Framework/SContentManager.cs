@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using StardewModdingAPI.AssemblyRewriters;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.Content;
@@ -17,7 +18,7 @@ namespace StardewModdingAPI.Framework
     internal class SContentManager : LocalizedContentManager
     {
         /*********
-        ** Accessors
+        ** Properties
         *********/
         /// <summary>The possible directory separator characters in an asset key.</summary>
         private static readonly char[] PossiblePathSeparators = new[] { '/', '\\', Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }.Distinct().ToArray();
@@ -36,6 +37,13 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>The private <see cref="LocalizedContentManager"/> method which generates the locale portion of an asset name.</summary>
         private readonly IPrivateMethod GetKeyLocale;
+
+
+        /*********
+        ** Accessors
+        *********/
+        /// <summary>The absolute path to the <see cref="ContentManager.RootDirectory"/>.</summary>
+        public string FullRootDirectory => Path.Combine(Constants.ExecutionPath, this.RootDirectory);
 
 
         /*********
@@ -75,6 +83,33 @@ namespace StardewModdingAPI.Framework
                 this.NormaliseAssetNameForPlatform = key => key.Replace('\\', '/'); // based on MonoGame's ContentManager.Load<T> logic
         }
 
+        /// <summary>Normalise path separators in a file path. For asset keys, see <see cref="NormaliseAssetName"/> instead.</summary>
+        /// <param name="path">The file path to normalise.</param>
+        public string NormalisePathSeparators(string path)
+        {
+            string[] parts = path.Split(SContentManager.PossiblePathSeparators, StringSplitOptions.RemoveEmptyEntries);
+            string normalised = string.Join(SContentManager.PreferredPathSeparator, parts);
+            if (path.StartsWith(SContentManager.PreferredPathSeparator))
+                normalised = SContentManager.PreferredPathSeparator + normalised; // keep root slash
+            return normalised;
+        }
+
+        /// <summary>Normalise an asset name so it's consistent with the underlying cache.</summary>
+        /// <param name="assetName">The asset key.</param>
+        public string NormaliseAssetName(string assetName)
+        {
+            assetName = this.NormalisePathSeparators(assetName);
+            return this.NormaliseAssetNameForPlatform(assetName);
+        }
+
+        /// <summary>Get whether the content manager has already loaded and cached the given asset.</summary>
+        /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
+        public bool IsLoaded(string assetName)
+        {
+            assetName = this.NormaliseAssetName(assetName);
+            return this.IsNormalisedKeyLoaded(assetName);
+        }
+
         /// <summary>Load an asset that has been processed by the content pipeline.</summary>
         /// <typeparam name="T">The type of asset to load.</typeparam>
         /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
@@ -85,7 +120,7 @@ namespace StardewModdingAPI.Framework
             string cacheLocale = this.GetCacheLocale(assetName);
 
             // skip if already loaded
-            if (this.IsLoaded(assetName))
+            if (this.IsNormalisedKeyLoaded(assetName))
                 return base.Load<T>(assetName);
 
             // load data
@@ -98,25 +133,22 @@ namespace StardewModdingAPI.Framework
             return (T)helper.Data;
         }
 
+        /// <summary>Inject an asset into the cache.</summary>
+        /// <typeparam name="T">The type of asset to inject.</typeparam>
+        /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
+        /// <param name="value">The asset value.</param>
+        public void Inject<T>(string assetName, T value)
+        {
+            assetName = this.NormaliseAssetName(assetName);
+            this.Cache[assetName] = value;
+        }
 
         /*********
         ** Private methods
         *********/
-        /// <summary>Normalise an asset name so it's consistent with the underlying cache.</summary>
-        /// <param name="assetName">The asset key.</param>
-        private string NormaliseAssetName(string assetName)
-        {
-            // ensure name format is consistent
-            string[] parts = assetName.Split(SContentManager.PossiblePathSeparators, StringSplitOptions.RemoveEmptyEntries);
-            assetName = string.Join(SContentManager.PreferredPathSeparator, parts);
-
-            // apply platform normalisation logic
-            return this.NormaliseAssetNameForPlatform(assetName);
-        }
-
         /// <summary>Get whether an asset has already been loaded.</summary>
         /// <param name="normalisedAssetName">The normalised asset name.</param>
-        private bool IsLoaded(string normalisedAssetName)
+        private bool IsNormalisedKeyLoaded(string normalisedAssetName)
         {
             return this.Cache.ContainsKey(normalisedAssetName)
                 || this.Cache.ContainsKey($"{normalisedAssetName}.{this.GetKeyLocale.Invoke<string>()}"); // translated asset

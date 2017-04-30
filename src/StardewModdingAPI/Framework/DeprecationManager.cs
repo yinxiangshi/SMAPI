@@ -78,7 +78,7 @@ namespace StardewModdingAPI.Framework
                     break;
 
                 default:
-                    throw new NotImplementedException($"Unknown deprecation level '{severity}'");
+                    throw new NotSupportedException($"Unknown deprecation level '{severity}'");
             }
         }
 

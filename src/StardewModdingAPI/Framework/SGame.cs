@@ -200,6 +200,13 @@ namespace StardewModdingAPI.Framework
         /// <param name="gameTime">A snapshot of the game timing state.</param>
         protected override void Update(GameTime gameTime)
         {
+            // SMAPI exiting, stop processing game updates
+            if (this.Monitor.IsExiting)
+            {
+                this.Monitor.Log("SMAPI shutting down: aborting update.", LogLevel.Trace);
+                return;
+            }
+
             // While a background new-day task is in progress, the game skips its own update logic
             // and defers to the XNA Update method. Running mod code in parallel to the background
             // update is risky, because data changes can conflict (e.g. collection changed during
@@ -211,6 +218,16 @@ namespace StardewModdingAPI.Framework
             // which means technically events should be raised, but the effects of missing one
             // update tick are neglible and not worth the complications of bypassing Game1.Update.
             if (SGame._newDayTask != null)
+            {
+                base.Update(gameTime);
+                return;
+            }
+
+            // While the game is writing to the save file in the background, mods can unexpectedly
+            // fail since they don't have exclusive access to resources (e.g. collection changed
+            // during enumeration errors). To avoid problems, events are not invoked while a save
+            // is in progress.
+            if (Context.IsSaving)
             {
                 base.Update(gameTime);
                 return;
@@ -235,7 +252,6 @@ namespace StardewModdingAPI.Framework
             catch (Exception ex)
             {
                 this.Monitor.Log($"An error occured in the base update loop: {ex.GetLogSummary()}", LogLevel.Error);
-                Console.ReadKey();
             }
 
             // raise update events
@@ -281,6 +297,7 @@ namespace StardewModdingAPI.Framework
         [SuppressMessage("ReSharper", "RedundantTypeArgumentsOfMethod", Justification = "copied from game code as-is")]
         protected override void Draw(GameTime gameTime)
         {
+            Context.IsInDrawLoop = true;
             try
             {
                 if (Game1.debugMode)
@@ -932,6 +949,7 @@ namespace StardewModdingAPI.Framework
             {
                 this.Monitor.Log($"An error occured in the overridden draw loop: {ex.GetLogSummary()}", LogLevel.Error);
             }
+            Context.IsInDrawLoop = false;
         }
 
         /****
@@ -1075,7 +1093,7 @@ namespace StardewModdingAPI.Framework
             }
 
             // save loaded event
-            if (Constants.IsSaveLoaded && !SaveGame.IsProcessing/*still loading save*/ && this.AfterLoadTimer >= 0)
+            if (Context.IsSaveLoaded && !SaveGame.IsProcessing/*still loading save*/ && this.AfterLoadTimer >= 0)
             {
                 if (this.AfterLoadTimer == 0)
                 {

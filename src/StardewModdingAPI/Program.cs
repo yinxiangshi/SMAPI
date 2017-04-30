@@ -16,7 +16,9 @@ using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.Logging;
 using StardewModdingAPI.Framework.Models;
 using StardewModdingAPI.Framework.Serialisation;
+using StardewValley;
 using Monitor = StardewModdingAPI.Framework.Monitor;
+using SObject = StardewValley.Object;
 
 namespace StardewModdingAPI
 {
@@ -32,7 +34,7 @@ namespace StardewModdingAPI
         /// <summary>Manages console output interception.</summary>
         private readonly ConsoleInterceptionManager ConsoleManager = new ConsoleInterceptionManager();
 
-        /// <summary>The core logger for SMAPI.</summary>
+        /// <summary>The core logger and monitor for SMAPI.</summary>
         private readonly Monitor Monitor;
 
         /// <summary>Tracks whether the game should exit immediately and any pending initialisation should be cancelled.</summary>
@@ -99,7 +101,7 @@ namespace StardewModdingAPI
         public Program(bool writeToConsole, string logPath)
         {
             this.LogFile = new LogFileManager(logPath);
-            this.Monitor = new Monitor("SMAPI", this.ConsoleManager, this.LogFile, this.ExitGameImmediately) { WriteToConsole = writeToConsole };
+            this.Monitor = new Monitor("SMAPI", this.ConsoleManager, this.LogFile, this.CancellationTokenSource) { WriteToConsole = writeToConsole };
         }
 
         /// <summary>Launch SMAPI.</summary>
@@ -142,6 +144,17 @@ namespace StardewModdingAPI
                 this.GameInstance = new SGame(this.Monitor);
                 StardewValley.Program.gamePtr = this.GameInstance;
 
+                // add exit handler
+                new Thread(() =>
+                {
+                    this.CancellationTokenSource.Token.WaitHandle.WaitOne();
+                    if (this.IsGameRunning)
+                    {
+                        this.GameInstance.Exiting += (sender, e) => this.PressAnyKeyToExit();
+                        this.GameInstance.Exit();
+                    }
+                }).Start();
+
                 // hook into game events
 #if SMAPI_FOR_WINDOWS
                 ((Form)Control.FromHandle(this.GameInstance.Window.Handle)).FormClosing += (sender, args) => this.Dispose();
@@ -180,20 +193,6 @@ namespace StardewModdingAPI
             }
         }
 
-        /// <summary>Immediately exit the game without saving. This should only be invoked when an irrecoverable fatal error happens that risks save corruption or game-breaking bugs.</summary>
-        /// <param name="module">The module which requested an immediate exit.</param>
-        /// <param name="reason">The reason provided for the shutdown.</param>
-        public void ExitGameImmediately(string module, string reason)
-        {
-            this.Monitor.LogFatal($"{module} requested an immediate game shutdown: {reason}");
-            this.CancellationTokenSource.Cancel();
-            if (this.IsGameRunning)
-            {
-                this.GameInstance.Exiting += (sender, e) => this.PressAnyKeyToExit();
-                this.GameInstance.Exit();
-            }
-        }
-
         /// <summary>Get a monitor for legacy code which doesn't have one passed in.</summary>
         [Obsolete("This method should only be used when needed for backwards compatibility.")]
         internal IMonitor GetLegacyMonitorForMod()
@@ -205,10 +204,16 @@ namespace StardewModdingAPI
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
         public void Dispose()
         {
+            // skip if already disposed
             if (this.IsDisposed)
                 return;
             this.IsDisposed = true;
 
+            // dispose mod helpers
+            foreach (var mod in this.ModRegistry.GetMods())
+                (mod.Helper as IDisposable)?.Dispose();
+
+            // dispose core components
             this.IsGameRunning = false;
             this.LogFile?.Dispose();
             this.ConsoleManager?.Dispose();
@@ -247,27 +252,30 @@ namespace StardewModdingAPI
             // redirect direct console output
             {
                 Monitor monitor = this.GetSecondaryMonitor("Console.Out");
-                monitor.WriteToFile = false; // not useful for troubleshooting mods per discussion
                 if (monitor.WriteToConsole)
-                    this.ConsoleManager.OnLineIntercepted += line => monitor.Log(line, LogLevel.Trace);
+                    this.ConsoleManager.OnMessageIntercepted += message => this.HandleConsoleMessage(monitor, message);
             }
 
-            // add warning headers
+            // add headers
             if (this.Settings.DeveloperMode)
             {
                 this.Monitor.ShowTraceInConsole = true;
-                this.Monitor.Log($"You configured SMAPI to run in developer mode. The console may be much more verbose. You can disable developer mode by installing the non-developer version of SMAPI, or by editing {Constants.ApiConfigPath}.", LogLevel.Warn);
+                this.Monitor.Log($"You configured SMAPI to run in developer mode. The console may be much more verbose. You can disable developer mode by installing the non-developer version of SMAPI, or by editing {Constants.ApiConfigPath}.", LogLevel.Info);
             }
             if (!this.Settings.CheckForUpdates)
                 this.Monitor.Log($"You configured SMAPI to not check for updates. Running an old version of SMAPI is not recommended. You can enable update checks by reinstalling SMAPI or editing {Constants.ApiConfigPath}.", LogLevel.Warn);
             if (!this.Monitor.WriteToConsole)
                 this.Monitor.Log("Writing to the terminal is disabled because the --no-terminal argument was received. This usually means launching the terminal failed.", LogLevel.Warn);
 
+            // validate XNB integrity
+            if (!this.ValidateContentIntegrity())
+                this.Monitor.Log("SMAPI found problems in the game's XNB files which may cause errors or crashes while you're playing. Consider uninstalling XNB mods or reinstalling the game.", LogLevel.Warn);
+
             // load mods
             int modsLoaded = this.LoadMods();
-            if (this.CancellationTokenSource.IsCancellationRequested)
+            if (this.Monitor.IsExiting)
             {
-                this.Monitor.Log("Shutdown requested; interrupting initialisation.", LogLevel.Error);
+                this.Monitor.Log("SMAPI shutting down: aborting initialisation.", LogLevel.Warn);
                 return;
             }
 
@@ -308,10 +316,57 @@ namespace StardewModdingAPI
             inputThread.Start();
 
             // keep console thread alive while the game is running
-            while (this.IsGameRunning)
+            while (this.IsGameRunning && !this.Monitor.IsExiting)
                 Thread.Sleep(1000 / 10);
             if (inputThread.ThreadState == ThreadState.Running)
                 inputThread.Abort();
+        }
+
+        /// <summary>Look for common issues with the game's XNB content, and log warnings if anything looks broken or outdated.</summary>
+        /// <returns>Returns whether all integrity checks passed.</returns>
+        private bool ValidateContentIntegrity()
+        {
+            this.Monitor.Log("Detecting common issues...");
+            bool issuesFound = false;
+
+
+            // object format (commonly broken by outdated files)
+            {
+                void LogIssue(int id, string issue) => this.Monitor.Log($"Detected issue: item #{id} in Content\\Data\\ObjectInformation is invalid ({issue}).", LogLevel.Warn);
+                foreach (KeyValuePair<int, string> entry in Game1.objectInformation)
+                {
+                    // must not be empty
+                    if (string.IsNullOrWhiteSpace(entry.Value))
+                    {
+                        LogIssue(entry.Key, "entry is empty");
+                        issuesFound = true;
+                        continue;
+                    }
+
+                    // require core fields
+                    string[] fields = entry.Value.Split('/');
+                    if (fields.Length < SObject.objectInfoDescriptionIndex + 1)
+                    {
+                        LogIssue(entry.Key, $"too few fields for an object");
+                        issuesFound = true;
+                        continue;
+                    }
+
+                    // check min length for specific types
+                    switch (fields[SObject.objectInfoTypeIndex].Split(new[] { ' ' }, 2)[0])
+                    {
+                        case "Cooking":
+                            if (fields.Length < SObject.objectInfoBuffDurationIndex + 1)
+                            {
+                                LogIssue(entry.Key, "too few fields for a cooking item");
+                                issuesFound = true;
+                            }
+                            break;
+                    }
+                }
+            }
+
+            return !issuesFound;
         }
 
         /// <summary>Asynchronously check for a new version of SMAPI, and print a message to the console if an update is available.</summary>
@@ -369,17 +424,16 @@ namespace StardewModdingAPI
             List<Action> deprecationWarnings = new List<Action>(); // queue up deprecation warnings to show after mod list
             foreach (string directoryPath in Directory.GetDirectories(Constants.ModPath))
             {
+                if (this.Monitor.IsExiting)
+                {
+                    this.Monitor.Log("SMAPI shutting down: aborting mod scan.", LogLevel.Warn);
+                    return modsLoaded;
+                }
+
                 // passthrough empty directories
                 DirectoryInfo directory = new DirectoryInfo(directoryPath);
                 while (!directory.GetFiles().Any() && directory.GetDirectories().Length == 1)
                     directory = directory.GetDirectories().First();
-
-                // check for cancellation
-                if (this.CancellationTokenSource.IsCancellationRequested)
-                {
-                    this.Monitor.Log("Shutdown requested; interrupting mod loading.", LogLevel.Error);
-                    return modsLoaded;
-                }
 
                 // get manifest path
                 string manifestPath = Path.Combine(directory.FullName, "manifest.json");
@@ -542,7 +596,7 @@ namespace StardewModdingAPI
                     // inject data
                     // get helper
                     mod.ModManifest = manifest;
-                    mod.Helper = new ModHelper(manifest.Name, directory.FullName, jsonHelper, this.ModRegistry, this.CommandManager);
+                    mod.Helper = new ModHelper(manifest, directory.FullName, jsonHelper, this.ModRegistry, this.CommandManager, (SContentManager)Game1.content);
                     mod.Monitor = this.GetSecondaryMonitor(manifest.Name);
                     mod.PathOnDisk = directory.FullName;
 
@@ -604,6 +658,15 @@ namespace StardewModdingAPI
             }
         }
 
+        /// <summary>Redirect messages logged directly to the console to the given monitor.</summary>
+        /// <param name="monitor">The monitor with which to log messages.</param>
+        /// <param name="message">The message to log.</param>
+        private void HandleConsoleMessage(IMonitor monitor, string message)
+        {
+            LogLevel level = message.Contains("Exception") ? LogLevel.Error : LogLevel.Trace; // intercept potential exceptions
+            monitor.Log(message, level);
+        }
+
         /// <summary>Show a 'press any key to exit' message, and exit when they press a key.</summary>
         private void PressAnyKeyToExit()
         {
@@ -617,7 +680,7 @@ namespace StardewModdingAPI
         /// <param name="name">The name of the module which will log messages with this instance.</param>
         private Monitor GetSecondaryMonitor(string name)
         {
-            return new Monitor(name, this.ConsoleManager, this.LogFile, this.ExitGameImmediately) { WriteToConsole = this.Monitor.WriteToConsole, ShowTraceInConsole = this.Settings.DeveloperMode };
+            return new Monitor(name, this.ConsoleManager, this.LogFile, this.CancellationTokenSource) { WriteToConsole = this.Monitor.WriteToConsole, ShowTraceInConsole = this.Settings.DeveloperMode };
         }
 
         /// <summary>Get a human-readable name for the current platform.</summary>

@@ -4,6 +4,13 @@
     public interface IMonitor
     {
         /*********
+        ** Accessors
+        *********/
+        /// <summary>Whether SMAPI is aborting. Mods don't need to worry about this unless they have background tasks.</summary>
+        bool IsExiting { get; }
+
+
+        /*********
         ** Methods
         *********/
         /// <summary>Log a message for the player or developer.</summary>
