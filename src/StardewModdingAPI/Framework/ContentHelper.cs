@@ -141,9 +141,11 @@ namespace StardewModdingAPI.Framework
         /// <remarks>Based on <a href="https://gist.github.com/Layoric/6255384">code by Layoric</a>.</remarks>
         private Texture2D PremultiplyTransparency(Texture2D texture)
         {
-            if (Game1.graphics.GraphicsDevice.GetRenderTargets().Any()) // TODO: use a more robust check to detect if the game is drawing
+            // validate
+            if (Context.IsInDrawLoop)
                 throw new NotSupportedException("Can't load a PNG file while the game is drawing to the screen. Make sure you load content outside the draw loop.");
 
+            // process texture
             using (RenderTarget2D renderTarget = new RenderTarget2D(Game1.graphics.GraphicsDevice, texture.Width, texture.Height))
             using (SpriteBatch spriteBatch = new SpriteBatch(Game1.graphics.GraphicsDevice))
             {

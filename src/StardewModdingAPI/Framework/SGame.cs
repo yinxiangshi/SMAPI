@@ -287,6 +287,7 @@ namespace StardewModdingAPI.Framework
         [SuppressMessage("ReSharper", "RedundantTypeArgumentsOfMethod", Justification = "copied from game code as-is")]
         protected override void Draw(GameTime gameTime)
         {
+            Context.IsInDrawLoop = true;
             try
             {
                 if (Game1.debugMode)
@@ -938,6 +939,7 @@ namespace StardewModdingAPI.Framework
             {
                 this.Monitor.Log($"An error occured in the overridden draw loop: {ex.GetLogSummary()}", LogLevel.Error);
             }
+            Context.IsInDrawLoop = false;
         }
 
         /****
@@ -1081,7 +1083,7 @@ namespace StardewModdingAPI.Framework
             }
 
             // save loaded event
-            if (Constants.IsSaveLoaded && !SaveGame.IsProcessing/*still loading save*/ && this.AfterLoadTimer >= 0)
+            if (Context.IsSaveLoaded && !SaveGame.IsProcessing/*still loading save*/ && this.AfterLoadTimer >= 0)
             {
                 if (this.AfterLoadTimer == 0)
                 {

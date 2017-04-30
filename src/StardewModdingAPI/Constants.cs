@@ -20,10 +20,10 @@ namespace StardewModdingAPI
         ** Properties
         *********/
         /// <summary>The directory path containing the current save's data (if a save is loaded).</summary>
-        private static string RawSavePath => Constants.IsSaveLoaded ? Path.Combine(Constants.SavesPath, Constants.GetSaveFolderName()) : null;
+        private static string RawSavePath => Context.IsSaveLoaded ? Path.Combine(Constants.SavesPath, Constants.GetSaveFolderName()) : null;
 
         /// <summary>Whether the directory containing the current save's data exists on disk.</summary>
-        private static bool SavePathReady => Constants.IsSaveLoaded && Directory.Exists(Constants.RawSavePath);
+        private static bool SavePathReady => Context.IsSaveLoaded && Directory.Exists(Constants.RawSavePath);
 
 
         /*********
@@ -54,7 +54,7 @@ namespace StardewModdingAPI
         public static string SavesPath { get; } = Path.Combine(Constants.DataPath, "Saves");
 
         /// <summary>The directory name containing the current save's data (if a save is loaded and the directory exists).</summary>
-        public static string SaveFolderName => Constants.IsSaveLoaded ? Constants.GetSaveFolderName() : "";
+        public static string SaveFolderName => Context.IsSaveLoaded ? Constants.GetSaveFolderName() : "";
 
         /// <summary>The directory path containing the current save's data (if a save is loaded and the directory exists).</summary>
         public static string CurrentSavePath => Constants.SavePathReady ? Path.Combine(Constants.SavesPath, Constants.GetSaveFolderName()) : "";
@@ -73,9 +73,6 @@ namespace StardewModdingAPI
 
         /// <summary>The full path to the folder containing mods.</summary>
         internal static string ModPath { get; } = Path.Combine(Constants.ExecutionPath, "Mods");
-
-        /// <summary>Whether a player save has been loaded.</summary>
-        internal static bool IsSaveLoaded => Game1.hasLoadedGame && !string.IsNullOrEmpty(Game1.player.name);
 
         /// <summary>The game's current semantic version.</summary>
         internal static ISemanticVersion GameVersion { get; } = Constants.GetGameVersion();

@@ -152,6 +152,7 @@
     <Compile Include="Framework\Content\ContentEventHelper.cs" />
     <Compile Include="Framework\Content\ContentEventHelperForDictionary.cs" />
     <Compile Include="Framework\Content\ContentEventHelperForImage.cs" />
+    <Compile Include="Context.cs" />
     <Compile Include="Framework\Logging\ConsoleInterceptionManager.cs" />
     <Compile Include="Framework\Logging\InterceptingTextWriter.cs" />
     <Compile Include="Framework\CommandHelper.cs" />
