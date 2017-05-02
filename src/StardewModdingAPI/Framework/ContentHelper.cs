@@ -181,14 +181,13 @@ namespace StardewModdingAPI.Framework
                 throw new NotSupportedException("Can't load a PNG file while the game is drawing to the screen. Make sure you load content outside the draw loop.");
 
             // process texture
+            SpriteBatch spriteBatch = Game1.spriteBatch;
+            GraphicsDevice gpu = Game1.graphics.GraphicsDevice;
             using (RenderTarget2D renderTarget = new RenderTarget2D(Game1.graphics.GraphicsDevice, texture.Width, texture.Height))
-            using (SpriteBatch spriteBatch = new SpriteBatch(Game1.graphics.GraphicsDevice))
             {
-                //Viewport originalViewport = Game1.graphics.GraphicsDevice.Viewport;
-
-                // create blank slate in render target
-                Game1.graphics.GraphicsDevice.SetRenderTarget(renderTarget);
-                Game1.graphics.GraphicsDevice.Clear(Color.Black);
+                // create blank render target to premultiply
+                gpu.SetRenderTarget(renderTarget);
+                gpu.Clear(Color.Black);
 
                 // multiply each color by the source alpha, and write just the color values into the final texture
                 spriteBatch.Begin(SpriteSortMode.Immediate, new BlendState
@@ -214,16 +213,17 @@ namespace StardewModdingAPI.Framework
                 spriteBatch.Draw(texture, texture.Bounds, Color.White);
                 spriteBatch.End();
 
-                // release the GPU
-                Game1.graphics.GraphicsDevice.SetRenderTarget(null);
-                //Game1.graphics.GraphicsDevice.Viewport = originalViewport;
+                // release GPU
+                gpu.SetRenderTarget(null);
 
-                // store data from render target because the RenderTarget2D is volatile
+                // extract premultiplied data
                 Color[] data = new Color[texture.Width * texture.Height];
                 renderTarget.GetData(data);
 
-                // unset texture from graphic device and set modified data back to it
-                Game1.graphics.GraphicsDevice.Textures[0] = null;
+                // unset texture from GPU to regain control
+                gpu.Textures[0] = null;
+
+                // update texture with premultiplied data
                 texture.SetData(data);
             }
 

@@ -10,6 +10,12 @@ For mod developers:
   images).
 -->
 
+## 1.12
+See [log](https://github.com/Pathoschild/SMAPI/compare/1.11...1.12).
+
+For mod developers:
+* Fixed error when using content API to load a PNG during early game init (e.g. in mod's `Entry`).
+
 ## 1.11
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.10...1.11).
 
