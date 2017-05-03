@@ -49,7 +49,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="source">Where to search for a matching content asset.</param>
         /// <exception cref="ArgumentException">The <paramref name="key"/> is empty or contains invalid characters.</exception>
         /// <exception cref="ContentLoadException">The content asset couldn't be loaded (e.g. because it doesn't exist).</exception>
-        public T Load<T>(string key, ContentSource source)
+        public T Load<T>(string key, ContentSource source = ContentSource.ModFolder)
         {
             this.AssertValidAssetKeyFormat(key);
             try
@@ -110,7 +110,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="key">The asset key to fetch (if the <paramref name="source"/> is <see cref="ContentSource.GameContent"/>), or the local path to a content file relative to the mod folder.</param>
         /// <param name="source">Where to search for a matching content asset.</param>
         /// <exception cref="ArgumentException">The <paramref name="key"/> is empty or contains invalid characters.</exception>
-        public string GetActualAssetKey(string key, ContentSource source)
+        public string GetActualAssetKey(string key, ContentSource source = ContentSource.ModFolder)
         {
             switch (source)
             {
