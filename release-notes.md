@@ -15,6 +15,7 @@ See [log](https://github.com/Pathoschild/SMAPI/compare/1.11...1.12).
 
 For players:
 * The installer now lets you choose the install path if you have multiple copies of the game, instead of using the first path found.
+* Fixed an issue where mods on Linux/Mac stopped working after the game saves.
 
 For mod developers:
 * Unknown mod manifest fields are now stored in `IManifest::ExtraFields`.
