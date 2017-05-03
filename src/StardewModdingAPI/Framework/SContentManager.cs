@@ -99,6 +99,8 @@ namespace StardewModdingAPI.Framework
         public string NormaliseAssetName(string assetName)
         {
             assetName = this.NormalisePathSeparators(assetName);
+            if (assetName.EndsWith(".xnb", StringComparison.InvariantCultureIgnoreCase))
+                return assetName.Substring(0, assetName.Length - 4);
             return this.NormaliseAssetNameForPlatform(assetName);
         }
 

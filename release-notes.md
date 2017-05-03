@@ -14,7 +14,8 @@ For mod developers:
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.11...1.12).
 
 For mod developers:
-* Fixed error when using content API to load a PNG during early game init (e.g. in mod's `Entry`).
+* Fixed content API error when loading a PNG during early game init (e.g. in mod's `Entry`).
+* Fixed content API error when loading an XNB from the mod folder on Mac.
 
 ## 1.11
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.10...1.11).
