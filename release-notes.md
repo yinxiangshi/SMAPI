@@ -14,6 +14,7 @@ For mod developers:
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.11...1.12).
 
 For players:
+* SMAPI now recovers the game from mod draw errors to prevent a game crash.
 * The installer now lets you choose the install path if you have multiple copies of the game, instead of using the first path found.
 * Fixed an issue where mods on Linux/Mac stopped working after the game saves.
 
