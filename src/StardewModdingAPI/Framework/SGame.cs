@@ -1366,8 +1366,8 @@ namespace StardewModdingAPI.Framework
         /// <param name="enumerable">The enumeration of items to hash.</param>
         private int GetHash(IEnumerable enumerable)
         {
-            var hash = 0;
-            foreach (var v in enumerable)
+            int hash = 0;
+            foreach (object v in enumerable)
                 hash ^= v.GetHashCode();
             return hash;
         }
