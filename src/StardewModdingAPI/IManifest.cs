@@ -1,4 +1,6 @@
-﻿namespace StardewModdingAPI
+﻿using System.Collections.Generic;
+
+namespace StardewModdingAPI
 {
     /// <summary>A manifest which describes a mod for SMAPI.</summary>
     public interface IManifest
@@ -23,5 +25,8 @@
 
         /// <summary>The name of the DLL in the directory that has the <see cref="Mod.Entry"/> method.</summary>
         string EntryDll { get; set; }
+
+        /// <summary>Any manifest fields which didn't match a valid field.</summary>
+        IDictionary<string, object> ExtraFields { get; set; }
     }
 }

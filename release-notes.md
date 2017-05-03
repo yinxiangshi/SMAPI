@@ -10,6 +10,22 @@ For mod developers:
   images).
 -->
 
+## 1.12
+See [log](https://github.com/Pathoschild/SMAPI/compare/1.11...1.12).
+
+For players:
+* The installer now lets you choose the install path if you have multiple copies of the game, instead of using the first path found.
+* Fixed mod draw errors breaking the game.
+* Fixed mods on Linux/Mac no longer working after the game saves.
+* Fixed libgdiplus DLL-not-found errors on Linux/Mac when mods read PNG files.
+* Adopted pufferchick.
+
+For mod developers:
+* Unknown mod manifest fields are now stored in `IManifest::ExtraFields`.
+* The content API now defaults to `ContentSource.ModFolder`.
+* Fixed content API error when loading a PNG during early game init (e.g. in mod's `Entry`).
+* Fixed content API error when loading an XNB from the mod folder on Mac.
+
 ## 1.11
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.10...1.11).
 

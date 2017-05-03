@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -128,7 +129,11 @@ namespace StardewModdingApi.Installer
             /****
             ** collect details
             ****/
+            // get platform
             Platform platform = this.DetectPlatform();
+            this.PrintDebug($"Platform: {(platform == Platform.Windows ? "Windows" : "Linux or Mac")}.");
+
+            // get folders
             DirectoryInfo packageDir = new DirectoryInfo(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "internal", platform.ToString()));
             DirectoryInfo installDir = this.InteractivelyGetInstallPath(platform);
             DirectoryInfo modsDir = new DirectoryInfo(Path.Combine(installDir.FullName, "Mods"));
@@ -139,7 +144,7 @@ namespace StardewModdingApi.Installer
                 unixLauncher = Path.Combine(installDir.FullName, "StardewValley"),
                 unixLauncherBackup = Path.Combine(installDir.FullName, "StardewValley-original")
             };
-            this.PrintDebug($"Detected {(platform == Platform.Windows ? "Windows" : "Linux or Mac")} with game in {installDir}.");
+            this.PrintDebug($"Install path: {installDir}.");
 
             /****
             ** validate assumptions
@@ -494,7 +499,7 @@ namespace StardewModdingApi.Installer
             }
         }
 
-        /// <summary>Interactively locate the game's install path.</summary>
+        /// <summary>Interactively locate the game install path to update.</summary>
         /// <param name="platform">The current platform.</param>
         private DirectoryInfo InteractivelyGetInstallPath(Platform platform)
         {
@@ -503,12 +508,34 @@ namespace StardewModdingApi.Installer
                 ? "Stardew Valley.exe"
                 : "StardewValley.exe";
 
-            // try default paths
-            foreach (string defaultPath in this.GetDefaultInstallPaths(platform))
+            // get installed paths
+            DirectoryInfo[] defaultPaths =
+                (
+                    from path in this.GetDefaultInstallPaths(platform).Distinct()
+                    let dir = new DirectoryInfo(path)
+                    where dir.Exists && dir.EnumerateFiles(executableFilename).Any()
+                    select dir
+                )
+                .ToArray();
+
+            // choose where to install
+            if (defaultPaths.Any())
             {
-                DirectoryInfo dir = new DirectoryInfo(defaultPath);
-                if (dir.Exists && dir.EnumerateFiles(executableFilename).Any())
-                    return new DirectoryInfo(defaultPath);
+                // only one path
+                if (defaultPaths.Length == 1)
+                    return defaultPaths.First();
+
+                // let user choose path
+                Console.WriteLine();
+                Console.WriteLine("Found multiple copies of the game:");
+                for (int i = 0; i < defaultPaths.Length; i++)
+                    Console.WriteLine($"[{i + 1}] {defaultPaths[i].FullName}");
+                Console.WriteLine();
+
+                string[] validOptions = Enumerable.Range(1, defaultPaths.Length).Select(p => p.ToString(CultureInfo.InvariantCulture)).ToArray();
+                string choice = this.InteractivelyChoose("Where do you want to add/remove SMAPI? Type the number next to your choice, then press enter.", validOptions);
+                int index = int.Parse(choice, CultureInfo.InvariantCulture) - 1;
+                return defaultPaths[index];
             }
 
             // ask user

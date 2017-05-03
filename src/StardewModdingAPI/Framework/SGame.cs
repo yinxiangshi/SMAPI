@@ -947,7 +947,28 @@ namespace StardewModdingAPI.Framework
             }
             catch (Exception ex)
             {
+                // log error
                 this.Monitor.Log($"An error occured in the overridden draw loop: {ex.GetLogSummary()}", LogLevel.Error);
+
+                // fix sprite batch
+                try
+                {
+                    bool isSpriteBatchOpen =
+#if SMAPI_FOR_WINDOWS
+                        SGame.Reflection.GetPrivateValue<bool>(Game1.spriteBatch, "inBeginEndPair");
+#else
+                        SGame.Reflection.GetPrivateValue<bool>(Game1.spriteBatch, "_beginCalled");
+#endif
+                    if (isSpriteBatchOpen)
+                    {
+                        this.Monitor.Log("Recovering sprite batch from error...", LogLevel.Trace);
+                        Game1.spriteBatch.End();
+                    }
+                }
+                catch (Exception innerEx)
+                {
+                    this.Monitor.Log($"Could not recover sprite batch state: {innerEx.GetLogSummary()}", LogLevel.Error);
+                }
             }
             Context.IsInDrawLoop = false;
         }
@@ -1345,8 +1366,8 @@ namespace StardewModdingAPI.Framework
         /// <param name="enumerable">The enumeration of items to hash.</param>
         private int GetHash(IEnumerable enumerable)
         {
-            var hash = 0;
-            foreach (var v in enumerable)
+            int hash = 0;
+            foreach (object v in enumerable)
                 hash ^= v.GetHashCode();
             return hash;
         }
