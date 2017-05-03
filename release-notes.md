@@ -17,6 +17,7 @@ For players:
 * SMAPI now recovers the game from mod draw errors to prevent a game crash.
 * The installer now lets you choose the install path if you have multiple copies of the game, instead of using the first path found.
 * Fixed an issue where mods on Linux/Mac stopped working after the game saves.
+* Adopted pufferchick.
 
 For mod developers:
 * Unknown mod manifest fields are now stored in `IManifest::ExtraFields`.
