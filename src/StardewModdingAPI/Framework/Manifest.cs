@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using StardewModdingAPI.Framework.Serialisation;
 
 namespace StardewModdingAPI.Framework
@@ -35,5 +37,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>Whether the mod uses per-save config files.</summary>
         [Obsolete("Use " + nameof(Mod) + "." + nameof(Mod.Helper) + "." + nameof(IModHelper.ReadConfig) + " instead")]
         public bool PerSaveConfigs { get; set; }
+
+        /// <summary>Any manifest fields which didn't match a valid field.</summary>
+        [JsonExtensionData]
+        public IDictionary<string, object> ExtraFields { get; set; }
     }
 }

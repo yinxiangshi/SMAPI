@@ -14,6 +14,7 @@ For mod developers:
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.11...1.12).
 
 For mod developers:
+* Unknown mod manifest fields are now stored in `IManifest::ExtraFields`.
 * The content API now defaults to `ContentSource.ModFolder`.
 * Fixed content API error when loading a PNG during early game init (e.g. in mod's `Entry`).
 * Fixed content API error when loading an XNB from the mod folder on Mac.
