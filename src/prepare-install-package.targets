@@ -33,6 +33,9 @@
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\unix-launcher.sh" DestinationFiles="$(PackageInternalPath)\Mono\StardewModdingAPI" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\steam_appid.txt" DestinationFolder="$(PackageInternalPath)\Mono" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="@(CompiledMods)" DestinationFolder="$(PackageInternalPath)\Mono\Mods\%(RecursiveDir)" />
+
+    <!--copy Mono files needed by SMAPI on Linux/Mac -->
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(SolutionDir)\..\lib\libgdiplus.dylib" DestinationFolder="$(PackageInternalPath)\Mono" />
     
     <!-- copy SMAPI files for Windows -->
     <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\Mono.Cecil.dll" DestinationFolder="$(PackageInternalPath)\Windows" />
