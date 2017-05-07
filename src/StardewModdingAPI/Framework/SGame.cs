@@ -34,6 +34,12 @@ namespace StardewModdingAPI.Framework
         /// <remarks>Skipping a few frames ensures the game finishes initialising the world before mods try to change it.</remarks>
         private int AfterLoadTimer = 5;
 
+        /// <summary>The maximum number of consecutive attempts SMAPI should make to recover from a draw error.</summary>
+        private readonly int MaxFailedDraws = 120; // roughly two seconds
+
+        /// <summary>The number of consecutive failed draws.</summary>
+        private int FailedDraws = 0;
+
         /// <summary>Whether the player has loaded a save and the world has finished initialising.</summary>
         private bool IsWorldReady => this.AfterLoadTimer < 0;
 
@@ -944,9 +950,20 @@ namespace StardewModdingAPI.Framework
                         }
                     }
                 }
+
+                // reset failed draw count
+                this.FailedDraws = 0;
             }
             catch (Exception ex)
             {
+                // exit if irrecoverable
+                if (this.FailedDraws >= this.MaxFailedDraws)
+                {
+                    this.Monitor.ExitGameImmediately("the game crashed when drawing, and SMAPI was unable to recover the game.");
+                    return;
+                }
+                this.FailedDraws++;
+
                 // log error
                 this.Monitor.Log($"An error occured in the overridden draw loop: {ex.GetLogSummary()}", LogLevel.Error);
 
