@@ -1118,6 +1118,8 @@ namespace StardewModdingAPI.Framework
             {
                 if (this.AfterLoadTimer == 0)
                 {
+                    this.Monitor.Log($"Context: loaded saved game '{Constants.SaveFolderName}'.", LogLevel.Trace);
+
                     SaveEvents.InvokeAfterLoad(this.Monitor);
                     PlayerEvents.InvokeLoadedGame(this.Monitor, new EventArgsLoadedGameChanged(Game1.hasLoadedGame));
                     TimeEvents.InvokeAfterDayStarted(this.Monitor);
@@ -1132,6 +1134,7 @@ namespace StardewModdingAPI.Framework
             // after exit to title
             if (this.IsWorldReady && this.IsExiting && Game1.activeClickableMenu is TitleMenu)
             {
+                this.Monitor.Log("Context: returned to title", LogLevel.Trace);
                 SaveEvents.InvokeAfterReturnToTitle(this.Monitor);
                 this.AfterLoadTimer = 5;
                 this.IsExiting = false;
@@ -1199,9 +1202,13 @@ namespace StardewModdingAPI.Framework
                 // raise save events
                 // (saving is performed by SaveGameMenu; on days when the player shipping something, ShippingMenu wraps SaveGameMenu)
                 if (newMenu is SaveGameMenu || newMenu is ShippingMenu)
+                {
+                    this.Monitor.Log("Context: before save.", LogLevel.Trace);
                     SaveEvents.InvokeBeforeSave(this.Monitor);
+                }
                 else if (previousMenu is SaveGameMenu || previousMenu is ShippingMenu)
                 {
+                    this.Monitor.Log("Context: after save, starting new day.", LogLevel.Trace);
                     SaveEvents.InvokeAfterSave(this.Monitor);
                     TimeEvents.InvokeAfterDayStarted(this.Monitor);
                 }
