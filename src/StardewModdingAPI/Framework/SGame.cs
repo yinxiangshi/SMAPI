@@ -38,7 +38,7 @@ namespace StardewModdingAPI.Framework
         private readonly int MaxFailedDraws = 120; // roughly two seconds
 
         /// <summary>The number of consecutive failed draws.</summary>
-        private int FailedDraws = 0;
+        private int FailedDraws;
 
         /// <summary>Whether the player has loaded a save and the world has finished initialising.</summary>
         private bool IsWorldReady => this.AfterLoadTimer < 0;
@@ -956,6 +956,9 @@ namespace StardewModdingAPI.Framework
             }
             catch (Exception ex)
             {
+                // log error
+                this.Monitor.Log($"An error occured in the overridden draw loop: {ex.GetLogSummary()}", LogLevel.Error);
+
                 // exit if irrecoverable
                 if (this.FailedDraws >= this.MaxFailedDraws)
                 {
@@ -964,22 +967,20 @@ namespace StardewModdingAPI.Framework
                 }
                 this.FailedDraws++;
 
-                // log error
-                this.Monitor.Log($"An error occured in the overridden draw loop: {ex.GetLogSummary()}", LogLevel.Error);
-
-                // fix sprite batch
+                // recover sprite batch
                 try
                 {
-                    bool isSpriteBatchOpen =
-#if SMAPI_FOR_WINDOWS
-                        SGame.Reflection.GetPrivateValue<bool>(Game1.spriteBatch, "inBeginEndPair");
-#else
-                        SGame.Reflection.GetPrivateValue<bool>(Game1.spriteBatch, "_beginCalled");
-#endif
-                    if (isSpriteBatchOpen)
+                    if (Game1.spriteBatch.IsOpen(SGame.Reflection))
                     {
                         this.Monitor.Log("Recovering sprite batch from error...", LogLevel.Trace);
-                        Game1.spriteBatch.End();
+                        try
+                        {
+                            Game1.spriteBatch.End();
+                        }
+                        catch
+                        {
+                            Game1.spriteBatch = new SpriteBatch(this.GraphicsDevice); // sprite batch is broken, try replacing it
+                        }
                     }
                 }
                 catch (Exception innerEx)
