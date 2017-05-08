@@ -30,12 +30,12 @@ namespace StardewModdingAPI.Framework
         /****
         ** SMAPI state
         ****/
+        /// <summary>The maximum number of consecutive attempts SMAPI should make to recover from a draw error.</summary>
+        private readonly int MaxFailedDraws = 120; // roughly two seconds
+
         /// <summary>The number of ticks until SMAPI should notify mods that the game has loaded.</summary>
         /// <remarks>Skipping a few frames ensures the game finishes initialising the world before mods try to change it.</remarks>
         private int AfterLoadTimer = 5;
-
-        /// <summary>The maximum number of consecutive attempts SMAPI should make to recover from a draw error.</summary>
-        private readonly int MaxFailedDraws = 120; // roughly two seconds
 
         /// <summary>The number of consecutive failed draws.</summary>
         private int FailedDraws;
@@ -175,6 +175,12 @@ namespace StardewModdingAPI.Framework
         private readonly Action drawDialogueBox = () => SGame.Reflection.GetPrivateMethod(SGame.Instance, nameof(drawDialogueBox)).Invoke(new object[0]);
         private readonly Action renderScreenBuffer = () => SGame.Reflection.GetPrivateMethod(SGame.Instance, nameof(renderScreenBuffer)).Invoke(new object[0]);
         // ReSharper restore ArrangeStaticMemberQualifier, ArrangeThisQualifier, InconsistentNaming
+
+        /*********
+        ** Accessors
+        *********/
+        /// <summary>Whether SMAPI should log more information about the game context.</summary>
+        public bool VerboseLogging { get; set; }
 
 
         /*********
@@ -1133,6 +1139,9 @@ namespace StardewModdingAPI.Framework
                 var oldValue = this.PreviousLocale;
                 var newValue = LocalizedContentManager.CurrentLanguageCode;
 
+                if (this.VerboseLogging)
+                    this.Monitor.Log($"Context: locale set to {newValue}.", LogLevel.Trace);
+
                 if (oldValue != null)
                     ContentEvents.InvokeAfterLocaleChanged(this.Monitor, oldValue.ToString(), newValue.ToString());
                 this.PreviousLocale = newValue;
@@ -1143,7 +1152,7 @@ namespace StardewModdingAPI.Framework
             {
                 if (this.AfterLoadTimer == 0)
                 {
-                    this.Monitor.Log($"Context: loaded saved game '{Constants.SaveFolderName}'.", LogLevel.Trace);
+                    this.Monitor.Log($"Context: loaded saved game '{Constants.SaveFolderName}', starting {Game1.currentSeason} {Game1.dayOfMonth} Y{Game1.year}.", LogLevel.Trace);
 
                     SaveEvents.InvokeAfterLoad(this.Monitor);
                     PlayerEvents.InvokeLoadedGame(this.Monitor, new EventArgsLoadedGameChanged(Game1.hasLoadedGame));
@@ -1224,6 +1233,17 @@ namespace StardewModdingAPI.Framework
                 IClickableMenu previousMenu = this.PreviousActiveMenu;
                 IClickableMenu newMenu = Game1.activeClickableMenu;
 
+                // log context
+                if (this.VerboseLogging)
+                {
+                    if (previousMenu == null)
+                        this.Monitor.Log($"Context: opened menu {newMenu?.GetType().FullName ?? "(none)"}.", LogLevel.Trace);
+                    else if (newMenu == null)
+                        this.Monitor.Log($"Context: closed menu {previousMenu.GetType().FullName}.", LogLevel.Trace);
+                    else
+                        this.Monitor.Log($"Context: changed menu from {previousMenu.GetType().FullName} to {newMenu.GetType().FullName}.", LogLevel.Trace);
+                }
+
                 // raise save events
                 // (saving is performed by SaveGameMenu; on days when the player shipping something, ShippingMenu wraps SaveGameMenu)
                 if (newMenu is SaveGameMenu || newMenu is ShippingMenu)
@@ -1233,7 +1253,7 @@ namespace StardewModdingAPI.Framework
                 }
                 else if (previousMenu is SaveGameMenu || previousMenu is ShippingMenu)
                 {
-                    this.Monitor.Log("Context: after save, starting new day.", LogLevel.Trace);
+                    this.Monitor.Log($"Context: after save, starting {Game1.currentSeason} {Game1.dayOfMonth} Y{Game1.year}.", LogLevel.Trace);
                     SaveEvents.InvokeAfterSave(this.Monitor);
                     TimeEvents.InvokeAfterDayStarted(this.Monitor);
                 }
@@ -1262,6 +1282,8 @@ namespace StardewModdingAPI.Framework
                 // raise current location changed
                 if (Game1.currentLocation != this.PreviousGameLocation)
                 {
+                    if (this.VerboseLogging)
+                        this.Monitor.Log($"Context: set location to {Game1.currentLocation?.Name ?? "(none)"}.", LogLevel.Trace);
                     LocationEvents.InvokeCurrentLocationChanged(this.Monitor, this.PreviousGameLocation, Game1.currentLocation);
                     this.PreviousGameLocation = Game1.currentLocation;
                 }

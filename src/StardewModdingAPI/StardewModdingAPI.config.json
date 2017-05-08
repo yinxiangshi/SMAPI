@@ -22,6 +22,11 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
   "CheckForUpdates": true,
 
   /**
+   * Whether SMAPI should log more information about the game context.
+   */
+  "VerboseLogging": false,
+
+  /**
    * A list of mod versions SMAPI should consider compatible or broken regardless of whether it
    * detects incompatible code. Each record can be set to `AssumeCompatible` or `AssumeBroken`.
    * Changing this field is not recommended and may destabilise your game.

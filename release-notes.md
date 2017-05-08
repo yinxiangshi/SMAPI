@@ -17,7 +17,7 @@ For players:
 * SMAPI now has better draw error recovery and detects when the error is irrecoverable.
 
 For mod developers:
-* SMAPI now logs basic context info to simplify troubleshooting.
+* SMAPI now logs basic context info to simplify troubleshooting, and more detailed logging can be enabled by setting `VerboseLogging: true` in `StardewModdingAPI.config.json`.
 
 ## 1.12
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.11...1.12).
