@@ -967,6 +967,13 @@ namespace StardewModdingAPI.Framework
                 }
                 this.FailedDraws++;
 
+                // abort in known unrecoverable cases
+                if (Game1.toolSpriteSheet?.IsDisposed == true)
+                {
+                    this.Monitor.ExitGameImmediately("the game unexpectedly disposed the tool spritesheet, so it crashed trying to draw a tool. This is a known bug in Stardew Valley 1.2.29, and there's no way to recover from it.");
+                    return;
+                }
+
                 // recover sprite batch
                 try
                 {

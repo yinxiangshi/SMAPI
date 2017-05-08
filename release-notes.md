@@ -10,6 +10,15 @@ For mod developers:
   images).
 -->
 
+## 1.13
+See [log](https://github.com/Pathoschild/SMAPI/compare/1.12...1.13).
+
+For players:
+* SMAPI now has better draw error recovery and detects when the error is irrecoverable.
+
+For mod developers:
+* SMAPI now logs basic context info to simplify troubleshooting.
+
 ## 1.12
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.11...1.12).
 
