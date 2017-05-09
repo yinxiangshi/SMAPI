@@ -9,7 +9,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using StardewModdingAPI.Events;
-using StardewModdingAPI.Framework.Reflection;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
 using StardewValley.Locations;
@@ -157,9 +156,11 @@ namespace StardewModdingAPI.Framework
         /****
         ** Private wrappers
         ****/
+        /// <summary>Simplifies access to private game code.</summary>
+        private static IReflectionHelper Reflection;
+
         // ReSharper disable ArrangeStaticMemberQualifier, ArrangeThisQualifier, InconsistentNaming
         /// <summary>Used to access private fields and methods.</summary>
-        private static readonly IReflectionHelper Reflection = new ReflectionHelper();
         private static List<float> _fpsList => SGame.Reflection.GetPrivateField<List<float>>(typeof(Game1), nameof(_fpsList)).GetValue();
         private static Stopwatch _fpsStopwatch => SGame.Reflection.GetPrivateField<Stopwatch>(typeof(Game1), nameof(SGame._fpsStopwatch)).GetValue();
         private static float _fps
@@ -176,6 +177,7 @@ namespace StardewModdingAPI.Framework
         private readonly Action renderScreenBuffer = () => SGame.Reflection.GetPrivateMethod(SGame.Instance, nameof(renderScreenBuffer)).Invoke(new object[0]);
         // ReSharper restore ArrangeStaticMemberQualifier, ArrangeThisQualifier, InconsistentNaming
 
+
         /*********
         ** Accessors
         *********/
@@ -188,11 +190,13 @@ namespace StardewModdingAPI.Framework
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        internal SGame(IMonitor monitor)
+        /// <param name="reflection">Simplifies access to private game code.</param>
+        internal SGame(IMonitor monitor, IReflectionHelper reflection)
         {
             this.Monitor = monitor;
             this.FirstUpdate = true;
             SGame.Instance = this;
+            SGame.Reflection = reflection;
 
             Game1.graphics.GraphicsProfile = GraphicsProfile.HiDef; // required by Stardew Valley
         }

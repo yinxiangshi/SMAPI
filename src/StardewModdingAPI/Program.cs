@@ -15,6 +15,7 @@ using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.Logging;
 using StardewModdingAPI.Framework.Models;
+using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Serialisation;
 using StardewValley;
 using Monitor = StardewModdingAPI.Framework.Monitor;
@@ -39,6 +40,9 @@ namespace StardewModdingAPI
 
         /// <summary>Tracks whether the game should exit immediately and any pending initialisation should be cancelled.</summary>
         private readonly CancellationTokenSource CancellationTokenSource = new CancellationTokenSource();
+
+        /// <summary>Simplifies access to private game code.</summary>
+        private readonly IReflectionHelper Reflection = new ReflectionHelper();
 
         /// <summary>The underlying game instance.</summary>
         private SGame GameInstance;
@@ -141,7 +145,7 @@ namespace StardewModdingAPI
                 AppDomain.CurrentDomain.UnhandledException += (sender, e) => this.Monitor.Log($"Critical app domain exception: {e.ExceptionObject}", LogLevel.Error);
 
                 // override game
-                this.GameInstance = new SGame(this.Monitor);
+                this.GameInstance = new SGame(this.Monitor, this.Reflection);
                 StardewValley.Program.gamePtr = this.GameInstance;
 
                 // add exit handler
@@ -599,7 +603,7 @@ namespace StardewModdingAPI
                     // inject data
                     // get helper
                     mod.ModManifest = manifest;
-                    mod.Helper = new ModHelper(manifest, directory.FullName, jsonHelper, this.ModRegistry, this.CommandManager, (SContentManager)Game1.content);
+                    mod.Helper = new ModHelper(manifest, directory.FullName, jsonHelper, this.ModRegistry, this.CommandManager, (SContentManager)Game1.content, this.Reflection);
                     mod.Monitor = this.GetSecondaryMonitor(manifest.Name);
                     mod.PathOnDisk = directory.FullName;
 
