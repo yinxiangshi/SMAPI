@@ -154,7 +154,16 @@ namespace StardewModdingAPI
                     this.CancellationTokenSource.Token.WaitHandle.WaitOne();
                     if (this.IsGameRunning)
                     {
-                        this.GameInstance.Exiting += (sender, e) => this.PressAnyKeyToExit();
+                        try
+                        {
+                            File.WriteAllText(Constants.FatalCrashMarker, string.Empty);
+                            File.Copy(Constants.DefaultLogPath, Constants.FatalCrashLog, overwrite: true);
+                        }
+                        catch (Exception ex)
+                        {
+                            this.Monitor.Log($"SMAPI failed trying to track the crash details: {ex.GetLogSummary()}");
+                        }
+
                         this.GameInstance.Exit();
                     }
                 }).Start();
@@ -177,6 +186,17 @@ namespace StardewModdingAPI
                 this.Monitor.Log($"SMAPI failed to initialise: {ex.GetLogSummary()}", LogLevel.Error);
                 this.PressAnyKeyToExit();
                 return;
+            }
+
+            // show details if game crashed during last session
+            if (File.Exists(Constants.FatalCrashMarker))
+            {
+                this.Monitor.Log("The game crashed last time you played. That can be due to bugs in the game, but if it happens repeatedly you can ask for help here: http://community.playstarbound.com/threads/108375/.", LogLevel.Error);
+                this.Monitor.Log($"If you ask for help, make sure to attach this file: {Constants.FatalCrashLog}", LogLevel.Error);
+                this.Monitor.Log("Press any key to delete the crash data and continue playing.", LogLevel.Info);
+                Console.ReadKey();
+                File.Delete(Constants.FatalCrashLog);
+                File.Delete(Constants.FatalCrashMarker);
             }
 
             // start game

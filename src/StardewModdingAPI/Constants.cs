@@ -71,6 +71,12 @@ namespace StardewModdingAPI
         /// <summary>The file path to the log where the latest output should be saved.</summary>
         internal static string DefaultLogPath => Path.Combine(Constants.LogDir, "SMAPI-latest.txt");
 
+        /// <summary>A copy of the log leading up to the previous fatal crash, if any.</summary>
+        internal static string FatalCrashLog => Path.Combine(Constants.LogDir, "SMAPI-crash.txt");
+
+        /// <summary>The file path which stores a fatal crash message for the next run.</summary>
+        internal static string FatalCrashMarker => Path.Combine(Constants.ExecutionPath, "StardewModdingAPI.crash.marker");
+
         /// <summary>The full path to the folder containing mods.</summary>
         internal static string ModPath { get; } = Path.Combine(Constants.ExecutionPath, "Mods");
 
