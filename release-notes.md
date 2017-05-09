@@ -18,7 +18,8 @@ For players:
 * SMAPI now remembers if your game crashed and offers help next time you relaunch.
 
 For mod developers:
-* SMAPI now logs basic context info to simplify troubleshooting, and more detailed logging can be enabled by setting `VerboseLogging: true` in `StardewModdingAPI.config.json`.
+* Added log entries for basic context changes (e.g. loaded save) to simplify troubleshooting. More detailed logging can be enabled by setting `VerboseLogging: true` in `StardewModdingAPI.config.json`.
+* Added `debug` console command to TrainerMod which lets you pass debug commands to the game (e.g. `debug warp FarmHouse 1 1` warps the player to the farmhouse).
 
 ## 1.12
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.11...1.12).
