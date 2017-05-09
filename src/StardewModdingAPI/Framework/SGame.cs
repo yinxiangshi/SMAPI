@@ -30,7 +30,7 @@ namespace StardewModdingAPI.Framework
         ** SMAPI state
         ****/
         /// <summary>The maximum number of consecutive attempts SMAPI should make to recover from a draw error.</summary>
-        private readonly int MaxFailedDraws = 120; // roughly two seconds
+        private readonly int MaxFailedDraws = 60; // roughly one second
 
         /// <summary>The number of ticks until SMAPI should notify mods that the game has loaded.</summary>
         /// <remarks>Skipping a few frames ensures the game finishes initialising the world before mods try to change it.</remarks>
