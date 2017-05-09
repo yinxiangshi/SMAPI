@@ -990,14 +990,7 @@ namespace StardewModdingAPI.Framework
                     if (Game1.spriteBatch.IsOpen(SGame.Reflection))
                     {
                         this.Monitor.Log("Recovering sprite batch from error...", LogLevel.Trace);
-                        try
-                        {
-                            Game1.spriteBatch.End();
-                        }
-                        catch
-                        {
-                            Game1.spriteBatch = new SpriteBatch(this.GraphicsDevice); // sprite batch is broken, try replacing it
-                        }
+                        Game1.spriteBatch.End();
                     }
                 }
                 catch (Exception innerEx)
