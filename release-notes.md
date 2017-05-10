@@ -20,6 +20,7 @@ For players:
 For mod developers:
 * Added log entries for basic context changes (e.g. loaded save) to simplify troubleshooting. More detailed logging can be enabled by setting `VerboseLogging: true` in `StardewModdingAPI.config.json`.
 * Added `debug` console command to TrainerMod which lets you pass debug commands to the game (e.g. `debug warp FarmHouse 1 1` warps the player to the farmhouse).
+* Mods now implement `IDisposable` to let them release any unmanaged resources.
 
 ## 1.12
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.11...1.12).
