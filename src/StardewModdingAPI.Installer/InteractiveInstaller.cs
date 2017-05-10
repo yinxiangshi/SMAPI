@@ -30,7 +30,6 @@ namespace StardewModdingApi.Installer
                     // Linux
                     yield return $"{Environment.GetEnvironmentVariable("HOME")}/GOG Games/Stardew Valley/game";
                     yield return $"{Environment.GetEnvironmentVariable("HOME")}/.local/share/Steam/steamapps/common/Stardew Valley";
-                    yield return $"{Environment.GetEnvironmentVariable("HOME")}/.steam/steam/steamapps/common/Stardew Valley";
 
                     // Mac
                     yield return "/Applications/Stardew Valley.app/Contents/MacOS";
