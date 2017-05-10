@@ -501,11 +501,15 @@ namespace StardewModdingAPI
                         this.Monitor.Log($"{skippedPrefix} because its manifest is invalid.", LogLevel.Error);
                         continue;
                     }
-                    if (string.IsNullOrEmpty(manifest.EntryDll))
+
+                    // validate manifest
+                    if (string.IsNullOrWhiteSpace(manifest.EntryDll))
                     {
                         this.Monitor.Log($"{skippedPrefix} because its manifest doesn't specify an entry DLL.", LogLevel.Error);
                         continue;
                     }
+                    if (string.IsNullOrWhiteSpace(manifest.UniqueID))
+                        deprecationWarnings.Add(() => this.Monitor.Log($"{manifest.Name} doesn't have a {nameof(IManifest.UniqueID)} in its manifest. This will be required in an upcoming SMAPI release.", LogLevel.Warn));
                 }
                 catch (Exception ex)
                 {
