@@ -1136,8 +1136,7 @@ namespace StardewModdingAPI.Framework
                 var oldValue = this.PreviousLocale;
                 var newValue = LocalizedContentManager.CurrentLanguageCode;
 
-                if (this.VerboseLogging)
-                    this.Monitor.Log($"Context: locale set to {newValue}.", LogLevel.Trace);
+                this.Monitor.Log($"Context: locale set to {newValue}.", LogLevel.Trace);
 
                 if (oldValue != null)
                     ContentEvents.InvokeAfterLocaleChanged(this.Monitor, oldValue.ToString(), newValue.ToString());
