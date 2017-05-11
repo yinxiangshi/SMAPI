@@ -23,6 +23,7 @@ For mod developers:
 * Added `debug` console command to TrainerMod which lets you pass debug commands to the game (e.g. `debug warp FarmHouse 1 1` warps the player to the farmhouse).
 * Added a warning for mods that don't set the `UniqueID` manifest field, which will be required in SMAPI 2.0.
 * Mods now implement `IDisposable` to let them release any unmanaged resources.
+* Deprecated `GameEvents.GameLoaded` and `GameEvents.FirstUpdateTick`, since any logic in the mod's `Entry` method will happen after the game is loaded.
 
 ## 1.12
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.11...1.12).
