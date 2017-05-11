@@ -45,6 +45,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>Whether the game is returning to the menu.</summary>
         private bool IsExiting;
 
+        /// <summary>Whether the game is saving and SMAPI has already raised <see cref="SaveEvents.BeforeSave"/>.</summary>
+        private bool IsBetweenSaveEvents;
+
         /// <summary>Whether the game's zoom level is at 100% (i.e. nothing should be scaled).</summary>
         public bool ZoomLevelIsOne => Game1.options.zoomLevel.Equals(1.0f);
 
@@ -216,6 +219,9 @@ namespace StardewModdingAPI.Framework
         /// <param name="gameTime">A snapshot of the game timing state.</param>
         protected override void Update(GameTime gameTime)
         {
+            /*********
+            ** Skip conditions
+            *********/
             // SMAPI exiting, stop processing game updates
             if (this.Monitor.IsExiting)
             {
@@ -242,14 +248,34 @@ namespace StardewModdingAPI.Framework
             // While the game is writing to the save file in the background, mods can unexpectedly
             // fail since they don't have exclusive access to resources (e.g. collection changed
             // during enumeration errors). To avoid problems, events are not invoked while a save
-            // is in progress.
+            // is in progress. It's safe to raise SaveEvents.BeforeSave as soon as the menu is
+            // opened (since the save hasn't started yet), but all other events should be suppressed.
             if (Context.IsSaving)
             {
+                // raise before-save
+                if (!this.IsBetweenSaveEvents)
+                {
+                    this.IsBetweenSaveEvents = true;
+                    this.Monitor.Log("Context: before save.", LogLevel.Trace);
+                    SaveEvents.InvokeBeforeSave(this.Monitor);
+                }
+
+                // suppress non-save events
                 base.Update(gameTime);
                 return;
             }
+            if(this.IsBetweenSaveEvents)
+            {
+                // raise after-save
+                this.IsBetweenSaveEvents = false;
+                this.Monitor.Log($"Context: after save, starting {Game1.currentSeason} {Game1.dayOfMonth} Y{Game1.year}.", LogLevel.Trace);
+                SaveEvents.InvokeAfterSave(this.Monitor);
+                TimeEvents.InvokeAfterDayStarted(this.Monitor);
+            }
 
-            // raise game loaded
+            /*********
+            ** Game loaded events
+            *********/
             if (this.FirstUpdate)
             {
                 GameEvents.InvokeInitialize(this.Monitor);
@@ -257,7 +283,9 @@ namespace StardewModdingAPI.Framework
                 GameEvents.InvokeGameLoaded(this.Monitor);
             }
 
-            // content locale changed event
+            /*********
+            ** Locale changed events
+            *********/
             if (this.PreviousLocale != LocalizedContentManager.CurrentLanguageCode)
             {
                 var oldValue = this.PreviousLocale;
@@ -270,7 +298,9 @@ namespace StardewModdingAPI.Framework
                 this.PreviousLocale = newValue;
             }
 
-            // save loaded event
+            /*********
+            ** After load events
+            *********/
             if (Context.IsSaveLoaded && !SaveGame.IsProcessing/*still loading save*/ && this.AfterLoadTimer >= 0)
             {
                 if (this.AfterLoadTimer == 0)
@@ -284,6 +314,9 @@ namespace StardewModdingAPI.Framework
                 this.AfterLoadTimer--;
             }
 
+            /*********
+            ** Exit to title events
+            *********/
             // before exit to title
             if (Game1.exitToTitle)
                 this.IsExiting = true;
@@ -297,7 +330,9 @@ namespace StardewModdingAPI.Framework
                 this.IsExiting = false;
             }
 
-            // input events
+            /*********
+            ** Input events
+            *********/
             {
                 // get latest state
                 this.KStateNow = Keyboard.GetState();
@@ -350,7 +385,9 @@ namespace StardewModdingAPI.Framework
                 }
             }
 
-            // menu events
+            /*********
+            ** Menu events
+            *********/
             if (Game1.activeClickableMenu != this.PreviousActiveMenu)
             {
                 IClickableMenu previousMenu = this.PreviousActiveMenu;
@@ -367,20 +404,6 @@ namespace StardewModdingAPI.Framework
                         this.Monitor.Log($"Context: changed menu from {previousMenu.GetType().FullName} to {newMenu.GetType().FullName}.", LogLevel.Trace);
                 }
 
-                // raise save events
-                // (saving is performed by SaveGameMenu; on days when the player shipping something, ShippingMenu wraps SaveGameMenu)
-                if (newMenu is SaveGameMenu || newMenu is ShippingMenu)
-                {
-                    this.Monitor.Log("Context: before save.", LogLevel.Trace);
-                    SaveEvents.InvokeBeforeSave(this.Monitor);
-                }
-                else if (previousMenu is SaveGameMenu || previousMenu is ShippingMenu)
-                {
-                    this.Monitor.Log($"Context: after save, starting {Game1.currentSeason} {Game1.dayOfMonth} Y{Game1.year}.", LogLevel.Trace);
-                    SaveEvents.InvokeAfterSave(this.Monitor);
-                    TimeEvents.InvokeAfterDayStarted(this.Monitor);
-                }
-
                 // raise menu events
                 if (newMenu != null)
                     MenuEvents.InvokeMenuChanged(this.Monitor, previousMenu, newMenu);
@@ -392,7 +415,9 @@ namespace StardewModdingAPI.Framework
                 this.PreviousActiveMenu = newMenu;
             }
 
-            // world & player events
+            /*********
+            ** World & player events
+            *********/
             if (this.IsWorldReady)
             {
                 // raise location list changed
@@ -498,14 +523,18 @@ namespace StardewModdingAPI.Framework
                 }
             }
 
-            // raise game day transition event (obsolete)
+            /*********
+            ** Game day transition event (obsolete)
+            *********/
             if (Game1.newDay != this.PreviousIsNewDay)
             {
                 TimeEvents.InvokeOnNewDay(this.Monitor, this.PreviousDay, Game1.dayOfMonth, Game1.newDay);
                 this.PreviousIsNewDay = Game1.newDay;
             }
 
-            // let game update
+            /*********
+            ** Game update
+            *********/
             try
             {
                 base.Update(gameTime);
@@ -514,8 +543,10 @@ namespace StardewModdingAPI.Framework
             {
                 this.Monitor.Log($"An error occured in the base update loop: {ex.GetLogSummary()}", LogLevel.Error);
             }
-
-            // raise update events
+            
+            /*********
+            ** Update events
+            *********/
             GameEvents.InvokeUpdateTick(this.Monitor);
             if (this.FirstUpdate)
             {
@@ -538,11 +569,11 @@ namespace StardewModdingAPI.Framework
             if (this.CurrentUpdateTick >= 60)
                 this.CurrentUpdateTick = 0;
 
-            // track keyboard state
+            /*********
+            ** Update input state
+            *********/
             this.KStatePrior = this.KStateNow;
-
-            // track controller button state
-            for (var i = PlayerIndex.One; i <= PlayerIndex.Four; i++)
+            for (PlayerIndex i = PlayerIndex.One; i <= PlayerIndex.Four; i++)
                 this.PreviouslyPressedButtons[(int)i] = this.GetButtonsDown(i);
         }
 

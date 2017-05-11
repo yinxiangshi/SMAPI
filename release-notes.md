@@ -17,6 +17,7 @@ For players:
 * SMAPI now has better draw error recovery and detects when the error is irrecoverable.
 * SMAPI now remembers if your game crashed and offers help next time you relaunch.
 * Fixed installer finding redundant game paths on Linux.
+* Fixed save events not being raised after the first day on Linux/Mac.
 
 For mod developers:
 * Added log entries for basic context changes (e.g. loaded save) to simplify troubleshooting. More detailed logging can be enabled by setting `VerboseLogging: true` in `StardewModdingAPI.config.json`.
