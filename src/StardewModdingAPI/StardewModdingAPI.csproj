@@ -158,6 +158,7 @@
     <Compile Include="Framework\CommandHelper.cs" />
     <Compile Include="Framework\Models\ModCompatibilityType.cs" />
     <Compile Include="Framework\Models\SConfig.cs" />
+    <Compile Include="Framework\ModMetadata.cs" />
     <Compile Include="Framework\Reflection\PrivateProperty.cs" />
     <Compile Include="Framework\RequestExitDelegate.cs" />
     <Compile Include="Framework\SContentManager.cs" />
