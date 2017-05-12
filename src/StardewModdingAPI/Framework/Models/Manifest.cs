@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using StardewModdingAPI.Framework.Serialisation;
 
-namespace StardewModdingAPI.Framework
+namespace StardewModdingAPI.Framework.Models
 {
     /// <summary>A manifest which describes a mod for SMAPI.</summary>
     internal class Manifest : IManifest

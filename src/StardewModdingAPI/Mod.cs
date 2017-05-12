@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using StardewModdingAPI.Framework;
+using StardewModdingAPI.Framework.Models;
 
 namespace StardewModdingAPI
 {

@@ -1,7 +1,7 @@
 using System.IO;
 using Mono.Cecil;
 
-namespace StardewModdingAPI.Framework
+namespace StardewModdingAPI.Framework.ModLoading
 {
     /// <summary>Metadata about a parsed assembly definition.</summary>
     internal class AssemblyParseResult

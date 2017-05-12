@@ -1,6 +1,6 @@
 ﻿using StardewModdingAPI.Framework.Models;
 
-namespace StardewModdingAPI.Framework
+namespace StardewModdingAPI.Framework.ModLoading
 {
     /// <summary>Metadata for a mod.</summary>
     internal class ModMetadata

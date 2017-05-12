@@ -144,8 +144,8 @@
     <Compile Include="Events\EventArgsStringChanged.cs" />
     <Compile Include="Events\GameEvents.cs" />
     <Compile Include="Events\GraphicsEvents.cs" />
-    <Compile Include="Framework\AssemblyDefinitionResolver.cs" />
-    <Compile Include="Framework\AssemblyParseResult.cs" />
+    <Compile Include="Framework\ModLoading\AssemblyDefinitionResolver.cs" />
+    <Compile Include="Framework\ModLoading\AssemblyParseResult.cs" />
     <Compile Include="Framework\CommandManager.cs" />
     <Compile Include="Framework\ContentHelper.cs" />
     <Compile Include="Framework\Content\ContentEventData.cs" />
@@ -158,7 +158,7 @@
     <Compile Include="Framework\CommandHelper.cs" />
     <Compile Include="Framework\Models\ModCompatibilityType.cs" />
     <Compile Include="Framework\Models\SConfig.cs" />
-    <Compile Include="Framework\ModMetadata.cs" />
+    <Compile Include="Framework\ModLoading\ModMetadata.cs" />
     <Compile Include="Framework\Reflection\PrivateProperty.cs" />
     <Compile Include="Framework\RequestExitDelegate.cs" />
     <Compile Include="Framework\SContentManager.cs" />
@@ -182,7 +182,7 @@
     <Compile Include="Framework\DeprecationManager.cs" />
     <Compile Include="Framework\InternalExtensions.cs" />
     <Compile Include="Framework\Models\ModCompatibility.cs" />
-    <Compile Include="Framework\AssemblyLoader.cs" />
+    <Compile Include="Framework\ModLoading\AssemblyLoader.cs" />
     <Compile Include="Framework\Reflection\CacheEntry.cs" />
     <Compile Include="Framework\Reflection\PrivateField.cs" />
     <Compile Include="Framework\Reflection\PrivateMethod.cs" />
@@ -202,7 +202,7 @@
     <Compile Include="Events\ItemStackChange.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="Framework\Monitor.cs" />
-    <Compile Include="Framework\Manifest.cs" />
+    <Compile Include="Framework\Models\Manifest.cs" />
     <Compile Include="Mod.cs" />
     <Compile Include="Framework\ModHelper.cs" />
     <Compile Include="PatchMode.cs" />
