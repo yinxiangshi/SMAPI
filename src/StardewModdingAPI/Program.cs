@@ -176,7 +176,7 @@ namespace StardewModdingAPI
                 this.GameInstance.Exiting += (sender, e) => this.Dispose();
                 this.GameInstance.Window.ClientSizeChanged += (sender, e) => GraphicsEvents.InvokeResize(this.Monitor, sender, e);
                 GameEvents.InitializeInternal += (sender, e) => this.InitialiseAfterGameStart();
-                GameEvents.GameLoaded += (sender, e) => this.CheckForUpdateAsync();
+                GameEvents.GameLoadedInternal += (sender, e) => this.CheckForUpdateAsync();
 
                 // set window titles
                 this.GameInstance.Window.Title = $"Stardew Valley {Constants.GetGameDisplayVersion(Constants.GameVersion)} - running SMAPI {Constants.ApiVersion}";

@@ -19,6 +19,9 @@ namespace StardewModdingAPI.Events
         /// <summary>Raised during launch after configuring XNA or MonoGame. The game window hasn't been opened by this point. Called after <see cref="Microsoft.Xna.Framework.Game.Initialize"/>.</summary>
         internal static event EventHandler InitializeInternal;
 
+        /// <summary>Raised during launch after configuring Stardew Valley, loading it into memory, and opening the game window. The window is still blank by this point.</summary>
+        internal static event EventHandler GameLoadedInternal;
+
         /// <summary>Raised during launch after configuring XNA or MonoGame. The game window hasn't been opened by this point. Called after <see cref="Microsoft.Xna.Framework.Game.Initialize"/>.</summary>
         [Obsolete("The " + nameof(Mod) + "." + nameof(Mod.Entry) + " method is now called after the " + nameof(GameEvents.Initialize) + " event, so any contained logic can be done directly in " + nameof(Mod.Entry) + ".")]
         public static event EventHandler Initialize;
@@ -101,6 +104,10 @@ namespace StardewModdingAPI.Events
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         internal static void InvokeGameLoaded(IMonitor monitor)
         {
+            // notify SMAPI
+            monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.GameLoadedInternal)}", GameEvents.GameLoadedInternal?.GetInvocationList());
+
+            // notify mods
             if (GameEvents.GameLoaded == null)
                 return;
 
