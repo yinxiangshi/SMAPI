@@ -15,16 +15,16 @@ See [log](https://github.com/Pathoschild/SMAPI/compare/1.12...1.13).
 
 For players:
 * SMAPI now has better draw error recovery and detects when the error is irrecoverable.
-* SMAPI now remembers if your game crashed and offers help next time you relaunch.
+* SMAPI now remembers if your game crashed and offers help next time you launch it.
 * Fixed installer finding redundant game paths on Linux.
 * Fixed save events not being raised after the first day on Linux/Mac.
-* Fixed error on Linux/Mac when a mod tries to load content immediately after the save is loaded.
+* Fixed error on Linux/Mac when a mod loads a PNG immediately after the save is loaded.
 
 For mod developers:
-* Added log entries for basic context changes (e.g. loaded save) to simplify troubleshooting. More detailed logging can be enabled by setting `VerboseLogging: true` in `StardewModdingAPI.config.json`.
-* Added `debug` console command to TrainerMod which lets you pass debug commands to the game (e.g. `debug warp FarmHouse 1 1` warps the player to the farmhouse).
-* Added a warning for mods that don't set the `UniqueID` manifest field, which will be required in SMAPI 2.0.
-* Mods now implement `IDisposable` to let them release any unmanaged resources.
+* Added log entries for basic context changes (e.g. loaded save) to simplify troubleshooting.
+* Added a `debug` console command to TrainerMod which lets you pass debug commands to the game (e.g. `debug warp FarmHouse 1 1` warps the player to the farmhouse).
+* Added a deprecation warning for mods that don't set the `UniqueID` manifest field, which will be required in SMAPI 2.0.
+* Mods can now override `Dispose` if they need to release unmanaged resources.
 * Deprecated `GameEvents.GameLoaded` and `GameEvents.FirstUpdateTick`, since any logic in the mod's `Entry` method will happen after the game is loaded.
 
 ## 1.12
