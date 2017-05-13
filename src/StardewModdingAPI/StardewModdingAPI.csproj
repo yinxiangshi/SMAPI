@@ -121,6 +121,7 @@
     <Compile Include="Events\EventArgsStringChanged.cs" />
     <Compile Include="Events\GameEvents.cs" />
     <Compile Include="Events\GraphicsEvents.cs" />
+    <Compile Include="Framework\ModLoading\ModResolver.cs" />
     <Compile Include="Framework\ModLoading\AssemblyDefinitionResolver.cs" />
     <Compile Include="Framework\ModLoading\AssemblyParseResult.cs" />
     <Compile Include="Framework\CommandManager.cs" />
