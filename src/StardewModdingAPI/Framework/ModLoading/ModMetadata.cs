@@ -36,7 +36,6 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="manifest">The mod manifest.</param>
         /// <param name="compatibility">Optional metadata about a mod version that SMAPI should assume is compatible or broken, regardless of whether it detects incompatible code.</param>
         public ModMetadata(string displayName, string directoryPath, IManifest manifest, ModCompatibility compatibility)
-            : this(displayName, directoryPath, manifest, compatibility, ModMetadataStatus.Found, null)
         {
             this.DisplayName = displayName;
             this.DirectoryPath = directoryPath;
@@ -44,21 +43,15 @@ namespace StardewModdingAPI.Framework.ModLoading
             this.Compatibility = compatibility;
         }
 
-        /// <summary>Construct an instance.</summary>
-        /// <param name="displayName">The mod's display name.</param>
-        /// <param name="directoryPath">The mod's full directory path.</param>
-        /// <param name="manifest">The mod manifest.</param>
-        /// <param name="compatibility">Optional metadata about a mod version that SMAPI should assume is compatible or broken, regardless of whether it detects incompatible code.</param>
+        /// <summary>Set the mod status.</summary>
         /// <param name="status">The metadata resolution status.</param>
         /// <param name="error">The reason the metadata is invalid, if any.</param>
-        public ModMetadata(string displayName, string directoryPath, IManifest manifest, ModCompatibility compatibility, ModMetadataStatus status, string error)
+        /// <returns>Return the instance for chaining.</returns>
+        public ModMetadata SetStatus(ModMetadataStatus status, string error = null)
         {
-            this.DisplayName = displayName;
-            this.DirectoryPath = directoryPath;
-            this.Manifest = manifest;
-            this.Compatibility = compatibility;
             this.Status = status;
             this.Error = error;
+            return this;
         }
     }
 

@@ -313,12 +313,12 @@ namespace StardewModdingAPI
             // load mods
             int modsLoaded;
             {
-                // get mod metadata (in dependency order)
                 this.Monitor.Log("Loading mod metadata...");
-                JsonHelper jsonHelper = new JsonHelper();
-                ModMetadata[] mods = new ModResolver(this.Settings.ModCompatibility)
-                    .GetMods(Constants.ModPath, new JsonHelper())
-                    .ToArray();
+                ModResolver resolver = new ModResolver();
+
+                // load manifests
+                ModMetadata[] mods = resolver.ReadManifests(Constants.ModPath, new JsonHelper(), this.Settings.ModCompatibility).ToArray();
+                resolver.ValidateManifests(mods);
 
                 // check for deprecated metadata
                 IList<Action> deprecationWarnings = new List<Action>();
@@ -326,7 +326,7 @@ namespace StardewModdingAPI
                 {
                     // missing unique ID
                     if (string.IsNullOrWhiteSpace(mod.Manifest.UniqueID))
-                      deprecationWarnings.Add(() => this.Monitor.Log($"{mod.DisplayName} doesn't have specify a {nameof(IManifest.UniqueID)} field in its manifest. This will be required in an upcoming SMAPI release.", LogLevel.Warn));
+                        deprecationWarnings.Add(() => this.Monitor.Log($"{mod.DisplayName} doesn't have specify a {nameof(IManifest.UniqueID)} field in its manifest. This will be required in an upcoming SMAPI release.", LogLevel.Warn));
 
                     // per-save directories
                     if ((mod.Manifest as Manifest)?.PerSaveConfigs == true)
@@ -350,8 +350,11 @@ namespace StardewModdingAPI
                     }
                 }
 
+                // process dependencies
+                mods = resolver.ProcessDependencies(mods).ToArray();
+
                 // load mods
-                modsLoaded = this.LoadMods(mods, jsonHelper, (SContentManager)Game1.content, deprecationWarnings);
+                modsLoaded = this.LoadMods(mods, new JsonHelper(), (SContentManager)Game1.content, deprecationWarnings);
                 foreach (Action warning in deprecationWarnings)
                     warning();
             }
@@ -515,7 +518,7 @@ namespace StardewModdingAPI
                 // get basic info
                 IManifest manifest = metadata.Manifest;
                 string assemblyPath = Path.Combine(metadata.DirectoryPath, metadata.Manifest.EntryDll);
-                
+
                 // preprocess & load mod assembly
                 Assembly modAssembly;
                 try

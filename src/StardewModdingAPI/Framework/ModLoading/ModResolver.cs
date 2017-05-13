@@ -11,98 +11,123 @@ namespace StardewModdingAPI.Framework.ModLoading
     internal class ModResolver
     {
         /*********
-        ** Properties
-        *********/
-        /// <summary>Metadata about mods that SMAPI should assume is compatible or broken, regardless of whether it detects incompatible code.</summary>
-        private readonly ModCompatibility[] CompatibilityRecords;
-
-
-        /*********
         ** Public methods
         *********/
-        /// <summary>Construct an instance.</summary>
-        /// <param name="compatibilityRecords">Metadata about mods that SMAPI should assume is compatible or broken, regardless of whether it detects incompatible code.</param>
-        public ModResolver(IEnumerable<ModCompatibility> compatibilityRecords)
-        {
-            this.CompatibilityRecords = compatibilityRecords.ToArray();
-        }
-
-        /// <summary>Read mod metadata from the given folder in dependency order.</summary>
+        /// <summary>Get manifest metadata for each folder in the given root path.</summary>
         /// <param name="rootPath">The root path to search for mods.</param>
         /// <param name="jsonHelper">The JSON helper with which to read manifests.</param>
-        public IEnumerable<ModMetadata> GetMods(string rootPath, JsonHelper jsonHelper)
+        /// <param name="compatibilityRecords">Metadata about mods that SMAPI should assume is compatible or broken, regardless of whether it detects incompatible code.</param>
+        /// <returns>Returns the manifests by relative folder.</returns>
+        public IEnumerable<ModMetadata> ReadManifests(string rootPath, JsonHelper jsonHelper, IEnumerable<ModCompatibility> compatibilityRecords)
         {
-            ModMetadata[] mods = this.GetDataFromFolder(rootPath, jsonHelper).ToArray();
-            mods = this.ProcessDependencies(mods.ToArray());
-            return mods;
-        }
-
-
-        /*********
-        ** Private methods
-        *********/
-        /// <summary>Find all mods in the given folder.</summary>
-        /// <param name="rootPath">The root mod path to search.</param>
-        /// <param name="jsonHelper">The JSON helper with which to read the manifest file.</param>
-        private IEnumerable<ModMetadata> GetDataFromFolder(string rootPath, JsonHelper jsonHelper)
-        {
-            // load mod metadata
+            compatibilityRecords = compatibilityRecords.ToArray();
             foreach (DirectoryInfo modDir in this.GetModFolders(rootPath))
             {
-                string displayName = modDir.FullName.Replace(rootPath, "").Trim('/', '\\');
-
-                // read manifest
-                Manifest manifest;
+                // read file
+                Manifest manifest = null;
+                string path = Path.Combine(modDir.FullName, "manifest.json");
+                string error = null;
+                try
                 {
-                    string manifestPath = Path.Combine(modDir.FullName, "manifest.json");
-                    if (!this.TryReadManifest(manifestPath, jsonHelper, out manifest, out string error))
-                        yield return new ModMetadata(displayName, modDir.FullName, null, null, ModMetadataStatus.Failed, error);
+                    // read manifest
+                    manifest = jsonHelper.ReadJsonFile<Manifest>(path);
+
+                    // validate
+                    if (manifest == null)
+                    {
+                        error = File.Exists(path)
+                            ? "its manifest is invalid."
+                            : "it doesn't have a manifest.";
+                    }
+                    else if (string.IsNullOrWhiteSpace(manifest.EntryDll))
+                        error = "its manifest doesn't set an entry DLL.";
                 }
-                if (!string.IsNullOrWhiteSpace(manifest.Name))
-                    displayName = manifest.Name;
-
-                // validate compatibility
-                ModCompatibility compatibility = this.GetCompatibilityRecord(manifest);
-                if (compatibility?.Compatibility == ModCompatibilityType.AssumeBroken)
+                catch (Exception ex)
                 {
-                    bool hasOfficialUrl = !string.IsNullOrWhiteSpace(compatibility.UpdateUrl);
-                    bool hasUnofficialUrl = !string.IsNullOrWhiteSpace(compatibility.UnofficialUpdateUrl);
-
-                    string reasonPhrase = compatibility.ReasonPhrase ?? "it's not compatible with the latest version of the game";
-                    string error = $"{reasonPhrase}. Please check for a version newer than {compatibility.UpperVersion} here:";
-                    if (hasOfficialUrl)
-                        error += !hasUnofficialUrl ? $" {compatibility.UpdateUrl}" : $"{Environment.NewLine}- official mod: {compatibility.UpdateUrl}";
-                    if (hasUnofficialUrl)
-                        error += $"{Environment.NewLine}- unofficial update: {compatibility.UnofficialUpdateUrl}";
-
-                    yield return new ModMetadata(displayName, modDir.FullName, manifest, compatibility, ModMetadataStatus.Failed, error);
+                    error = $"parsing its manifest failed:\n{ex.GetLogSummary()}";
                 }
 
-                // validate SMAPI version
-                if (!string.IsNullOrWhiteSpace(manifest.MinimumApiVersion))
+                // get compatibility record
+                ModCompatibility compatibility = null;
+                if(manifest != null)
                 {
-                    if (!SemanticVersion.TryParse(manifest.MinimumApiVersion, out ISemanticVersion minVersion))
-                        yield return new ModMetadata(displayName, modDir.FullName, manifest, compatibility, ModMetadataStatus.Failed, $"it has an invalid minimum SMAPI version '{manifest.MinimumApiVersion}'. This should be a semantic version number like {Constants.ApiVersion}.");
-                    if (minVersion.IsNewerThan(Constants.ApiVersion))
-                        yield return new ModMetadata(displayName, modDir.FullName, manifest, compatibility, ModMetadataStatus.Failed, $"it needs SMAPI {minVersion} or later. Please update SMAPI to the latest version to use this mod.");
+                    string key = !string.IsNullOrWhiteSpace(manifest.UniqueID) ? manifest.UniqueID : manifest.EntryDll;
+                    compatibility = (
+                        from mod in compatibilityRecords
+                        where
+                            mod.ID == key
+                            && (mod.LowerSemanticVersion == null || !manifest.Version.IsOlderThan(mod.LowerSemanticVersion))
+                            && !manifest.Version.IsNewerThan(mod.UpperSemanticVersion)
+                        select mod
+                    ).FirstOrDefault();
                 }
+                // build metadata
+                string displayName = !string.IsNullOrWhiteSpace(manifest?.Name)
+                    ? manifest.Name
+                    : modDir.FullName.Replace(rootPath, "").Trim('/', '\\');
+                ModMetadataStatus status = error == null
+                    ? ModMetadataStatus.Found
+                    : ModMetadataStatus.Failed;
 
-                // validate DLL path
-                string assemblyPath = Path.Combine(modDir.FullName, manifest.EntryDll);
-                if (!File.Exists(assemblyPath))
-                {
-                    yield return new ModMetadata(displayName, modDir.FullName, manifest, compatibility, ModMetadataStatus.Failed, $"its DLL '{manifest.EntryDll}' doesn't exist.");
-                    continue;
-                }
-
-                // add mod metadata
-                yield return new ModMetadata(displayName, modDir.FullName, manifest, compatibility);
+                yield return new ModMetadata(displayName, modDir.FullName, manifest, compatibility).SetStatus(status, error);
             }
         }
 
-        /// <summary>Sort a set of mods by the order they should be loaded, and remove any mods that can't be loaded due to missing or conflicting dependencies.</summary>
+        /// <summary>Validate manifest metadata.</summary>
+        /// <param name="mods">The mod manifests to validate.</param>
+        public void ValidateManifests(IEnumerable<ModMetadata> mods)
+        {
+            foreach (ModMetadata mod in mods)
+            {
+                // skip if already failed
+                if (mod.Status == ModMetadataStatus.Failed)
+                    continue;
+
+                // validate compatibility
+                {
+                    ModCompatibility compatibility = mod.Compatibility;
+                    if (compatibility?.Compatibility == ModCompatibilityType.AssumeBroken)
+                    {
+                        bool hasOfficialUrl = !string.IsNullOrWhiteSpace(mod.Compatibility.UpdateUrl);
+                        bool hasUnofficialUrl = !string.IsNullOrWhiteSpace(mod.Compatibility.UnofficialUpdateUrl);
+
+                        string reasonPhrase = compatibility.ReasonPhrase ?? "it's not compatible with the latest version of the game";
+                        string error = $"{reasonPhrase}. Please check for a version newer than {compatibility.UpperVersion} here:";
+                        if (hasOfficialUrl)
+                            error += !hasUnofficialUrl ? $" {compatibility.UpdateUrl}" : $"{Environment.NewLine}- official mod: {compatibility.UpdateUrl}";
+                        if (hasUnofficialUrl)
+                            error += $"{Environment.NewLine}- unofficial update: {compatibility.UnofficialUpdateUrl}";
+
+                        mod.SetStatus(ModMetadataStatus.Failed, error);
+                        continue;
+                    }
+                }
+
+                // validate SMAPI version
+                if (!string.IsNullOrWhiteSpace(mod.Manifest.MinimumApiVersion))
+                {
+                    if (!SemanticVersion.TryParse(mod.Manifest.MinimumApiVersion, out ISemanticVersion minVersion))
+                    {
+                        mod.SetStatus(ModMetadataStatus.Failed, $"it has an invalid minimum SMAPI version '{mod.Manifest.MinimumApiVersion}'. This should be a semantic version number like {Constants.ApiVersion}.");
+                        continue;
+                    }
+                    if (minVersion.IsNewerThan(Constants.ApiVersion))
+                    {
+                        mod.SetStatus(ModMetadataStatus.Failed, $"it needs SMAPI {minVersion} or later. Please update SMAPI to the latest version to use this mod.");
+                        continue;
+                    }
+                }
+
+                // validate DLL path
+                string assemblyPath = Path.Combine(mod.DirectoryPath, mod.Manifest.EntryDll);
+                if (!File.Exists(assemblyPath))
+                    mod.SetStatus(ModMetadataStatus.Failed, $"its DLL '{mod.Manifest.EntryDll}' doesn't exist.");
+            }
+        }
+
+        /// <summary>Sort the given mods by the order they should be loaded.</summary>
         /// <param name="mods">The mods to process.</param>
-        private ModMetadata[] ProcessDependencies(ModMetadata[] mods)
+        public IEnumerable<ModMetadata> ProcessDependencies(IEnumerable<ModMetadata> mods)
         {
             var unsortedMods = mods.ToList();
             var sortedMods = new Stack<ModMetadata>();
@@ -126,6 +151,10 @@ namespace StardewModdingAPI.Framework.ModLoading
             return sortedMods.Reverse().ToArray();
         }
 
+
+        /*********
+        ** Private methods
+        *********/
         /// <summary>Sort a mod's dependencies by the order they should be loaded, and remove any mods that can't be loaded due to missing or conflicting dependencies.</summary>
         /// <param name="modIndex">The index of the mod being processed in the <paramref name="unsortedMods"/>.</param>
         /// <param name="visitedMods">The mods which have been processed.</param>
@@ -214,66 +243,6 @@ namespace StardewModdingAPI.Framework.ModLoading
 
                 yield return directory;
             }
-        }
-
-        /// <summary>Read a manifest file if it's valid, else set a relevant error phrase.</summary>
-        /// <param name="path">The absolute path to the manifest file.</param>
-        /// <param name="jsonHelper">The JSON helper with which to read the manifest file.</param>
-        /// <param name="manifest">The loaded manifest, if reading succeeded.</param>
-        /// <param name="errorPhrase">The read error, if reading failed.</param>
-        /// <returns>Returns whether the manifest was read successfully.</returns>
-        private bool TryReadManifest(string path, JsonHelper jsonHelper, out Manifest manifest, out string errorPhrase)
-        {
-            try
-            {
-                // validate path
-                if (!File.Exists(path))
-                {
-                    manifest = null;
-                    errorPhrase = "it doesn't have a manifest.";
-                    return false;
-                }
-
-                // parse manifest
-                manifest = jsonHelper.ReadJsonFile<Manifest>(path);
-                if (manifest == null)
-                {
-                    errorPhrase = "its manifest is invalid.";
-                    return false;
-                }
-
-                // validate manifest
-                if (string.IsNullOrWhiteSpace(manifest.EntryDll))
-                {
-                    errorPhrase = "its manifest doesn't set an entry DLL.";
-                    return false;
-                }
-
-                errorPhrase = null;
-                return true;
-            }
-            catch (Exception ex)
-            {
-                manifest = null;
-                errorPhrase = $"parsing its manifest failed:\n{ex.GetLogSummary()}";
-                return false;
-            }
-        }
-
-        /// <summary>Get metadata that indicates whether SMAPI should assume the mod is compatible or broken, regardless of whether it detects incompatible code.</summary>
-        /// <param name="manifest">The mod manifest.</param>
-        /// <returns>Returns the incompatibility record if applicable, else <c>null</c>.</returns>
-        private ModCompatibility GetCompatibilityRecord(IManifest manifest)
-        {
-            string key = !string.IsNullOrWhiteSpace(manifest.UniqueID) ? manifest.UniqueID : manifest.EntryDll;
-            return (
-                from mod in this.CompatibilityRecords
-                where
-                mod.ID == key
-                && (mod.LowerSemanticVersion == null || !manifest.Version.IsOlderThan(mod.LowerSemanticVersion))
-                && !manifest.Version.IsNewerThan(mod.UpperSemanticVersion)
-                select mod
-            ).FirstOrDefault();
         }
     }
 }
