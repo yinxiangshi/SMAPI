@@ -342,6 +342,7 @@ namespace StardewModdingAPI
         /// <param name="mods">The mods to process.</param>
         private ModMetadata[] HandleModDependencies(ModMetadata[] mods)
         {
+            this.Monitor.Log("Checking mod dependencies...");
             var unsortedMods = mods.ToList();
             var sortedMods = new Stack<ModMetadata>();
             var visitedMods = new bool[unsortedMods.Count];
@@ -380,54 +381,58 @@ namespace StardewModdingAPI
             ModMetadata mod = unsortedMods[modIndex];
             visitedMods[modIndex] = true;
 
-            // validate required dependencies are present
+            // process dependencies
+            bool success = true;
+            if (mod.Manifest.Dependencies != null && mod.Manifest.Dependencies.Any())
             {
-                string missingMods = null;
-                foreach (IManifestDependency dependency in mod.Manifest.Dependencies)
+                // validate required dependencies are present
                 {
-                    if (!unsortedMods.Any(m => m.Manifest.UniqueID.Equals(dependency.UniqueID)))
-                        missingMods += $"{dependency.UniqueID}, ";
+                    string missingMods = null;
+                    foreach (IManifestDependency dependency in mod.Manifest.Dependencies)
+                    {
+                        if (!unsortedMods.Any(m => m.Manifest.UniqueID.Equals(dependency.UniqueID)))
+                            missingMods += $"{dependency.UniqueID}, ";
+                    }
+                    if (missingMods != null)
+                    {
+                        this.Monitor.Log($"Skipped {mod.DisplayName} because it requires mods which aren't installed ({missingMods.Substring(0, missingMods.Length - 2)}).", LogLevel.Error);
+                        return false;
+                    }
                 }
-                if (missingMods != null)
+
+                // get mods which should be loaded before this one
+                ModMetadata[] modsToLoadFirst =
+                    (
+                        from unsorted in unsortedMods
+                        where mod.Manifest.Dependencies.Any(required => required.UniqueID == unsorted.Manifest.UniqueID)
+                        select unsorted
+                    )
+                    .ToArray();
+
+                // detect circular references
+                ModMetadata circularReferenceMod = currentChain.FirstOrDefault(modsToLoadFirst.Contains);
+                if (circularReferenceMod != null)
                 {
-                    this.Monitor.Log($"Skipped {mod.DisplayName} because it requires mods which aren't installed ({missingMods.Substring(0, missingMods.Length - 2)}).", LogLevel.Error);
+                    this.Monitor.Log($"Skipped {mod.DisplayName} because its dependencies have a circular reference: {string.Join(" => ", currentChain.Select(p => p.DisplayName))} => {circularReferenceMod.DisplayName}).", LogLevel.Error);
+                    string chain = $"{mod.Manifest.UniqueID} -> {circularReferenceMod.Manifest.UniqueID}";
+                    for (int i = currentChain.Count - 1; i >= 0; i--)
+                    {
+                        chain = $"{currentChain[i].Manifest.UniqueID} -> " + chain;
+                        if (currentChain[i].Manifest.UniqueID.Equals(mod.Manifest.UniqueID)) break;
+                    }
+                    this.Monitor.Log(chain, LogLevel.Error);
                     return false;
                 }
-            }
+                currentChain.Add(mod);
 
-            // get mods which should be loaded before this one
-            ModMetadata[] modsToLoadFirst =
-                (
-                    from unsorted in unsortedMods
-                    where mod.Manifest.Dependencies.Any(required => required.UniqueID == unsorted.Manifest.UniqueID)
-                    select unsorted
-                )
-                .ToArray();
-
-            // detect circular references
-            ModMetadata circularReferenceMod = currentChain.FirstOrDefault(modsToLoadFirst.Contains);
-            if (circularReferenceMod != null)
-            {
-                this.Monitor.Log($"Skipped {mod.DisplayName} because its dependencies have a circular reference: {string.Join(" => ", currentChain.Select(p => p.DisplayName))} => {circularReferenceMod.DisplayName}).", LogLevel.Error);
-                string chain = $"{mod.Manifest.UniqueID} -> {circularReferenceMod.Manifest.UniqueID}";
-                for (int i = currentChain.Count - 1; i >= 0; i--)
+                // recursively sort dependencies
+                foreach (ModMetadata requiredMod in modsToLoadFirst)
                 {
-                    chain = $"{currentChain[i].Manifest.UniqueID} -> " + chain;
-                    if (currentChain[i].Manifest.UniqueID.Equals(mod.Manifest.UniqueID)) break;
+                    int index = unsortedMods.IndexOf(requiredMod);
+                    success = this.HandleModDependencies(index, visitedMods, sortedMods, currentChain, unsortedMods);
+                    if (!success)
+                        break;
                 }
-                this.Monitor.Log(chain, LogLevel.Error);
-                return false;
-            }
-            currentChain.Add(mod);
-
-            // recursively sort dependencies
-            bool success = true;
-            foreach (ModMetadata requiredMod in modsToLoadFirst)
-            {
-                int index = unsortedMods.IndexOf(requiredMod);
-                success = this.HandleModDependencies(index, visitedMods, sortedMods, currentChain, unsortedMods);
-                if (!success)
-                    break;
             }
 
             // mark mod sorted
