@@ -317,7 +317,7 @@ namespace StardewModdingAPI
                 JsonHelper jsonHelper = new JsonHelper();
                 IList<Action> deprecationWarnings = new List<Action>();
                 ModMetadata[] mods = this.FindMods(Constants.ModPath, new JsonHelper(), deprecationWarnings);
-                mods = SortByDependencies(mods);
+                mods = this.HandleModDependencies(mods);
                 modsLoaded = this.LoadMods(mods, jsonHelper, (SContentManager)Game1.content, deprecationWarnings);
 
                 // log deprecation warnings together
@@ -338,7 +338,9 @@ namespace StardewModdingAPI
             new Thread(this.RunConsoleLoop).Start();
         }
 
-        private ModMetadata[] SortByDependencies(ModMetadata[] mods)
+        /// <summary>Sort a set of mods by the order they should be loaded, and remove any mods that can't be loaded due to missing or conflicting dependencies.</summary>
+        /// <param name="mods">The mods to process.</param>
+        private ModMetadata[] HandleModDependencies(ModMetadata[] mods)
         {
             var unsortedMods = mods.ToList();
             var sortedMods = new Stack<ModMetadata>();
@@ -346,13 +348,11 @@ namespace StardewModdingAPI
             var currentChain = new List<ModMetadata>();
             bool success = true;
 
-            for (int modIndex = 0; modIndex < unsortedMods.Count; modIndex++)
+            for (int index = 0; index < unsortedMods.Count; index++)
             {
-                if (visitedMods[modIndex] == false)
-                {
-                    success = SortByDependencies(modIndex, visitedMods, sortedMods, currentChain, unsortedMods);
-                }
-                if (!success) break;
+                success = this.HandleModDependencies(index, visitedMods, sortedMods, currentChain, unsortedMods);
+                if (!success)
+                    break;
             }
 
             if (!success)
@@ -365,33 +365,50 @@ namespace StardewModdingAPI
             return sortedMods.Reverse().ToArray();
         }
 
-        private bool SortByDependencies(int modIndex, bool[] visitedMods, Stack<ModMetadata> sortedMods, List<ModMetadata> currentChain, List<ModMetadata> unsortedMods)
+        /// <summary>Sort a mod's dependencies by the order they should be loaded, and remove any mods that can't be loaded due to missing or conflicting dependencies.</summary>
+        /// <param name="modIndex">The index of the mod being processed in the <paramref name="unsortedMods"/>.</param>
+        /// <param name="visitedMods">The mods which have been processed.</param>
+        /// <param name="sortedMods">The list in which to save mods sorted by dependency order.</param>
+        /// <param name="currentChain">The current change of mod dependencies.</param>
+        /// <param name="unsortedMods">The mods remaining to sort.</param>
+        /// <returns>Returns whether the mod can be loaded.</returns>
+        private bool HandleModDependencies(int modIndex, bool[] visitedMods, Stack<ModMetadata> sortedMods, List<ModMetadata> currentChain, List<ModMetadata> unsortedMods)
         {
+            // visit mod
+            if (visitedMods[modIndex])
+                return true; // already sorted
+            ModMetadata mod = unsortedMods[modIndex];
             visitedMods[modIndex] = true;
-            var mod = unsortedMods[modIndex];
 
-            string missingMods = string.Empty;
-            foreach (var m in mod.Manifest.Dependencies)
+            // validate required dependencies are present
             {
-                if (!unsortedMods.Any(x => x.Manifest.UniqueID.Equals(m.UniqueID)))
+                string missingMods = null;
+                foreach (IManifestDependency dependency in mod.Manifest.Dependencies)
                 {
-                    missingMods += $",{m.UniqueID}";
+                    if (!unsortedMods.Any(m => m.Manifest.UniqueID.Equals(dependency.UniqueID)))
+                        missingMods += $"{dependency.UniqueID}, ";
+                }
+                if (missingMods != null)
+                {
+                    this.Monitor.Log($"Skipped {mod.DisplayName} because it requires mods which aren't installed ({missingMods.Substring(0, missingMods.Length - 2)}).", LogLevel.Error);
+                    return false;
                 }
             }
-            if (!string.IsNullOrEmpty(missingMods))
-            {
-                this.Monitor.Log($"Mod {mod.Manifest.UniqueID} is missing dependencies; {missingMods.TrimStart(',')}", LogLevel.Error);
-                return false;
-            }
 
-            var modsToLoadFirst = unsortedMods.Where(x =>
-                mod.Manifest.Dependencies.Any(y => y.UniqueID == x.Manifest.UniqueID)
-            ).ToList();
+            // get mods which should be loaded before this one
+            ModMetadata[] modsToLoadFirst =
+                (
+                    from unsorted in unsortedMods
+                    where mod.Manifest.Dependencies.Any(required => required.UniqueID == unsorted.Manifest.UniqueID)
+                    select unsorted
+                )
+                .ToArray();
 
-            var circularReferenceMod = currentChain.FirstOrDefault(x => modsToLoadFirst.Contains(x));
+            // detect circular references
+            ModMetadata circularReferenceMod = currentChain.FirstOrDefault(modsToLoadFirst.Contains);
             if (circularReferenceMod != null)
             {
-                this.Monitor.Log($"Circular reference found when loading Mod dependencies.", LogLevel.Error);
+                this.Monitor.Log($"Skipped {mod.DisplayName} because its dependencies have a circular reference: {string.Join(" => ", currentChain.Select(p => p.DisplayName))} => {circularReferenceMod.DisplayName}).", LogLevel.Error);
                 string chain = $"{mod.Manifest.UniqueID} -> {circularReferenceMod.Manifest.UniqueID}";
                 for (int i = currentChain.Count - 1; i >= 0; i--)
                 {
@@ -401,20 +418,19 @@ namespace StardewModdingAPI
                 this.Monitor.Log(chain, LogLevel.Error);
                 return false;
             }
-
             currentChain.Add(mod);
 
+            // recursively sort dependencies
             bool success = true;
-            foreach (var requiredMod in modsToLoadFirst)
+            foreach (ModMetadata requiredMod in modsToLoadFirst)
             {
                 int index = unsortedMods.IndexOf(requiredMod);
-                if (!visitedMods[index])
-                {
-                    success = SortByDependencies(index, visitedMods, sortedMods, currentChain, unsortedMods);
-                }
-                if (!success) break;
+                success = this.HandleModDependencies(index, visitedMods, sortedMods, currentChain, unsortedMods);
+                if (!success)
+                    break;
             }
 
+            // mark mod sorted
             sortedMods.Push(mod);
             currentChain.Remove(mod);
             return success;
