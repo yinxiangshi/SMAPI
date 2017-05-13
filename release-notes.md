@@ -18,6 +18,7 @@ For players:
 * SMAPI now remembers if your game crashed and offers help next time you relaunch.
 * Fixed installer finding redundant game paths on Linux.
 * Fixed save events not being raised after the first day on Linux/Mac.
+* Fixed error on Linux/Mac when a mod tries to load content immediately after the save is loaded.
 
 For mod developers:
 * Added log entries for basic context changes (e.g. loaded save) to simplify troubleshooting. More detailed logging can be enabled by setting `VerboseLogging: true` in `StardewModdingAPI.config.json`.
