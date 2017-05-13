@@ -313,14 +313,45 @@ namespace StardewModdingAPI
             // load mods
             int modsLoaded;
             {
-                // load mods
+                // get mod metadata (in dependency order)
+                this.Monitor.Log("Loading mod metadata...");
                 JsonHelper jsonHelper = new JsonHelper();
-                IList<Action> deprecationWarnings = new List<Action>();
-                ModMetadata[] mods = new ModResolver(this.Monitor, this.DeprecationManager, this.Settings.ModCompatibility)
-                    .FindMods(Constants.ModPath, new JsonHelper(), deprecationWarnings);
-                modsLoaded = this.LoadMods(mods, jsonHelper, (SContentManager)Game1.content, deprecationWarnings);
+                ModMetadata[] mods = new ModResolver(this.Settings.ModCompatibility)
+                    .GetMods(Constants.ModPath, new JsonHelper())
+                    .ToArray();
 
-                // log deprecation warnings together
+                // check for deprecated metadata
+                IList<Action> deprecationWarnings = new List<Action>();
+                foreach (ModMetadata mod in mods)
+                {
+                    // missing unique ID
+                    if (string.IsNullOrWhiteSpace(mod.Manifest.UniqueID))
+                      deprecationWarnings.Add(() => this.Monitor.Log($"{mod.DisplayName} doesn't have specify a {nameof(IManifest.UniqueID)} field in its manifest. This will be required in an upcoming SMAPI release.", LogLevel.Warn));
+
+                    // per-save directories
+                    if ((mod.Manifest as Manifest)?.PerSaveConfigs == true)
+                    {
+                        deprecationWarnings.Add(() => this.DeprecationManager.Warn(mod.DisplayName, $"{nameof(Manifest)}.{nameof(Manifest.PerSaveConfigs)}", "1.0", DeprecationLevel.Info));
+                        try
+                        {
+                            string psDir = Path.Combine(mod.DirectoryPath, "psconfigs");
+                            Directory.CreateDirectory(psDir);
+                            if (!Directory.Exists(psDir))
+                            {
+                                mod.Status = ModMetadataStatus.Failed;
+                                mod.Error = "it requires per-save configuration files ('psconfigs') which couldn't be created for some reason.";
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            mod.Status = ModMetadataStatus.Failed;
+                            mod.Error = $"it requires per-save configuration files ('psconfigs') which couldn't be created: {ex.GetLogSummary()}";
+                        }
+                    }
+                }
+
+                // load mods
+                modsLoaded = this.LoadMods(mods, jsonHelper, (SContentManager)Game1.content, deprecationWarnings);
                 foreach (Action warning in deprecationWarnings)
                     warning();
             }
@@ -474,9 +505,17 @@ namespace StardewModdingAPI
             AppDomain.CurrentDomain.AssemblyResolve += (sender, e) => modAssemblyLoader.ResolveAssembly(e.Name);
             foreach (ModMetadata metadata in mods)
             {
+                // validate status
+                if (metadata.Status == ModMetadataStatus.Failed)
+                {
+                    LogSkip(metadata, metadata.Error);
+                    continue;
+                }
+
+                // get basic info
                 IManifest manifest = metadata.Manifest;
                 string assemblyPath = Path.Combine(metadata.DirectoryPath, metadata.Manifest.EntryDll);
-
+                
                 // preprocess & load mod assembly
                 Assembly modAssembly;
                 try
