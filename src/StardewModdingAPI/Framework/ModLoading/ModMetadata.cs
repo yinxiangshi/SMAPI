@@ -3,7 +3,7 @@
 namespace StardewModdingAPI.Framework.ModLoading
 {
     /// <summary>Metadata for a mod.</summary>
-    internal class ModMetadata
+    internal class ModMetadata : IModMetadata
     {
         /*********
         ** Accessors
@@ -47,21 +47,11 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="status">The metadata resolution status.</param>
         /// <param name="error">The reason the metadata is invalid, if any.</param>
         /// <returns>Return the instance for chaining.</returns>
-        public ModMetadata SetStatus(ModMetadataStatus status, string error = null)
+        public IModMetadata SetStatus(ModMetadataStatus status, string error = null)
         {
             this.Status = status;
             this.Error = error;
             return this;
         }
-    }
-
-    /// <summary>Indicates the status of a mod's metadata resolution.</summary>
-    internal enum ModMetadataStatus
-    {
-        /// <summary>The mod has been found, but hasn't been processed yet.</summary>
-        Found,
-
-        /// <summary>The mod cannot be loaded.</summary>
-        Failed
     }
 }

@@ -317,12 +317,12 @@ namespace StardewModdingAPI
                 ModResolver resolver = new ModResolver();
 
                 // load manifests
-                ModMetadata[] mods = resolver.ReadManifests(Constants.ModPath, new JsonHelper(), this.Settings.ModCompatibility).ToArray();
+                IModMetadata[] mods = resolver.ReadManifests(Constants.ModPath, new JsonHelper(), this.Settings.ModCompatibility).ToArray();
                 resolver.ValidateManifests(mods);
 
                 // check for deprecated metadata
                 IList<Action> deprecationWarnings = new List<Action>();
-                foreach (ModMetadata mod in mods)
+                foreach (IModMetadata mod in mods)
                 {
                     // missing unique ID
                     if (string.IsNullOrWhiteSpace(mod.Manifest.UniqueID))
@@ -428,7 +428,7 @@ namespace StardewModdingAPI
                     string[] fields = entry.Value.Split('/');
                     if (fields.Length < SObject.objectInfoDescriptionIndex + 1)
                     {
-                        LogIssue(entry.Key, $"too few fields for an object");
+                        LogIssue(entry.Key, "too few fields for an object");
                         issuesFound = true;
                         continue;
                     }
@@ -493,16 +493,16 @@ namespace StardewModdingAPI
         /// <param name="contentManager">The content manager to use for mod content.</param>
         /// <param name="deprecationWarnings">A list to populate with any deprecation warnings.</param>
         /// <returns>Returns the number of mods successfully loaded.</returns>
-        private int LoadMods(ModMetadata[] mods, JsonHelper jsonHelper, SContentManager contentManager, IList<Action> deprecationWarnings)
+        private int LoadMods(IModMetadata[] mods, JsonHelper jsonHelper, SContentManager contentManager, IList<Action> deprecationWarnings)
         {
             this.Monitor.Log("Loading mods...");
-            void LogSkip(ModMetadata mod, string reasonPhrase, LogLevel level = LogLevel.Error) => this.Monitor.Log($"Skipped {mod.DisplayName} because {reasonPhrase}", level);
+            void LogSkip(IModMetadata mod, string reasonPhrase, LogLevel level = LogLevel.Error) => this.Monitor.Log($"Skipped {mod.DisplayName} because {reasonPhrase}", level);
 
             // load mod assemblies
             int modsLoaded = 0;
             AssemblyLoader modAssemblyLoader = new AssemblyLoader(Constants.TargetPlatform, this.Monitor);
             AppDomain.CurrentDomain.AssemblyResolve += (sender, e) => modAssemblyLoader.ResolveAssembly(e.Name);
-            foreach (ModMetadata metadata in mods)
+            foreach (IModMetadata metadata in mods)
             {
                 // validate status
                 if (metadata.Status == ModMetadataStatus.Failed)

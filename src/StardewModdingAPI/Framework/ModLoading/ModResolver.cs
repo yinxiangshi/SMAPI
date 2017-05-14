@@ -18,7 +18,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="jsonHelper">The JSON helper with which to read manifests.</param>
         /// <param name="compatibilityRecords">Metadata about mods that SMAPI should assume is compatible or broken, regardless of whether it detects incompatible code.</param>
         /// <returns>Returns the manifests by relative folder.</returns>
-        public IEnumerable<ModMetadata> ReadManifests(string rootPath, JsonHelper jsonHelper, IEnumerable<ModCompatibility> compatibilityRecords)
+        public IEnumerable<IModMetadata> ReadManifests(string rootPath, JsonHelper jsonHelper, IEnumerable<ModCompatibility> compatibilityRecords)
         {
             compatibilityRecords = compatibilityRecords.ToArray();
             foreach (DirectoryInfo modDir in this.GetModFolders(rootPath))
@@ -75,9 +75,9 @@ namespace StardewModdingAPI.Framework.ModLoading
 
         /// <summary>Validate manifest metadata.</summary>
         /// <param name="mods">The mod manifests to validate.</param>
-        public void ValidateManifests(IEnumerable<ModMetadata> mods)
+        public void ValidateManifests(IEnumerable<IModMetadata> mods)
         {
-            foreach (ModMetadata mod in mods)
+            foreach (IModMetadata mod in mods)
             {
                 // skip if already failed
                 if (mod.Status == ModMetadataStatus.Failed)
@@ -127,12 +127,12 @@ namespace StardewModdingAPI.Framework.ModLoading
 
         /// <summary>Sort the given mods by the order they should be loaded.</summary>
         /// <param name="mods">The mods to process.</param>
-        public IEnumerable<ModMetadata> ProcessDependencies(IEnumerable<ModMetadata> mods)
+        public IEnumerable<IModMetadata> ProcessDependencies(IEnumerable<IModMetadata> mods)
         {
             var unsortedMods = mods.ToList();
-            var sortedMods = new Stack<ModMetadata>();
+            var sortedMods = new Stack<IModMetadata>();
             var visitedMods = new bool[unsortedMods.Count];
-            var currentChain = new List<ModMetadata>();
+            var currentChain = new List<IModMetadata>();
             bool success = true;
 
             for (int index = 0; index < unsortedMods.Count; index++)
@@ -162,7 +162,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="currentChain">The current change of mod dependencies.</param>
         /// <param name="unsortedMods">The mods remaining to sort.</param>
         /// <returns>Returns whether the mod can be loaded.</returns>
-        private bool ProcessDependencies(int modIndex, bool[] visitedMods, Stack<ModMetadata> sortedMods, List<ModMetadata> currentChain, List<ModMetadata> unsortedMods)
+        private bool ProcessDependencies(int modIndex, bool[] visitedMods, Stack<IModMetadata> sortedMods, List<IModMetadata> currentChain, List<IModMetadata> unsortedMods)
         {
             // visit mod
             if (visitedMods[modIndex])
@@ -170,7 +170,7 @@ namespace StardewModdingAPI.Framework.ModLoading
             visitedMods[modIndex] = true;
 
             // mod already failed
-            ModMetadata mod = unsortedMods[modIndex];
+            IModMetadata mod = unsortedMods[modIndex];
             if (mod.Status == ModMetadataStatus.Failed)
                 return false;
 
@@ -194,7 +194,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 }
 
                 // get mods which should be loaded before this one
-                ModMetadata[] modsToLoadFirst =
+                IModMetadata[] modsToLoadFirst =
                     (
                         from unsorted in unsortedMods
                         where mod.Manifest.Dependencies.Any(required => required.UniqueID == unsorted.Manifest.UniqueID)
@@ -203,7 +203,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                     .ToArray();
 
                 // detect circular references
-                ModMetadata circularReferenceMod = currentChain.FirstOrDefault(modsToLoadFirst.Contains);
+                IModMetadata circularReferenceMod = currentChain.FirstOrDefault(modsToLoadFirst.Contains);
                 if (circularReferenceMod != null)
                 {
                     mod.SetStatus(ModMetadataStatus.Failed, $"its dependencies have a circular reference: {string.Join(" => ", currentChain.Select(p => p.DisplayName))} => {circularReferenceMod.DisplayName}).");
@@ -212,7 +212,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 currentChain.Add(mod);
 
                 // recursively sort dependencies
-                foreach (ModMetadata requiredMod in modsToLoadFirst)
+                foreach (IModMetadata requiredMod in modsToLoadFirst)
                 {
                     int index = unsortedMods.IndexOf(requiredMod);
                     success = this.ProcessDependencies(index, visitedMods, sortedMods, currentChain, unsortedMods);
