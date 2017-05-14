@@ -18,6 +18,9 @@ namespace StardewModdingAPI.Tests
         /*********
         ** Unit tests
         *********/
+        /****
+        ** ReadManifests
+        ****/
         [Test(Description = "Assert that the resolver correctly returns an empty list if there are no mods installed.")]
         public void ReadBasicManifest_NoMods_ReturnsEmptyList()
         {
@@ -84,7 +87,7 @@ namespace StardewModdingAPI.Tests
             IModMetadata mod = mods.FirstOrDefault();
 
             // assert
-            Assert.AreEqual(1, mods.Length, 0, $"Expected to find one manifest, found {mods.Length} instead.");
+            Assert.AreEqual(1, mods.Length, 0, "Expected to find one manifest.");
             Assert.IsNotNull(mod, "The loaded manifest shouldn't be null.");
             Assert.AreEqual(null, mod.Compatibility, "The compatibility record should be null since we didn't provide one.");
             Assert.AreEqual(modFolder, mod.DirectoryPath, "The directory path doesn't match.");
@@ -109,6 +112,9 @@ namespace StardewModdingAPI.Tests
             Assert.AreEqual(originalDependency[nameof(IManifestDependency.UniqueID)], mod.Manifest.Dependencies[0].UniqueID, "The first dependency's unique ID doesn't match.");
         }
 
+        /****
+        ** ValidateManifests
+        ****/
         [Test(Description = "Assert that validation doesn't fail if there are no mods installed.")]
         public void ValidateManifests_NoMods_DoesNothing()
         {
@@ -152,7 +158,7 @@ namespace StardewModdingAPI.Tests
             Mock<IModMetadata> mock = new Mock<IModMetadata>(MockBehavior.Strict);
             mock.Setup(p => p.Status).Returns(ModMetadataStatus.Found);
             mock.Setup(p => p.Compatibility).Returns(() => null);
-            mock.Setup(p => p.Manifest).Returns(this.GetRandomManifest("1.1"));
+            mock.Setup(p => p.Manifest).Returns(this.GetRandomManifest(m => m.MinimumApiVersion = "1.1"));
             mock.Setup(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>())).Returns(() => mock.Object);
 
             // act
@@ -205,24 +211,146 @@ namespace StardewModdingAPI.Tests
             // if Moq doesn't throw a method-not-setup exception, the validation didn't override the status.
         }
 
+        /****
+        ** ProcessDependencies
+        ****/
+        [Test(Description = "Assert that processing dependencies doesn't fail if there are no mods installed.")]
+        public void ProcessDependencies_NoMods_DoesNothing()
+        {
+            // act
+            IModMetadata[] mods = new ModResolver().ProcessDependencies(new IModMetadata[0]).ToArray();
+
+            // assert
+            Assert.AreEqual(0, mods.Length, 0, "Expected to get an empty list of mods.");
+        }
+
+        [Test(Description = "Assert that processing dependencies doesn't change the order if there are no mod dependencies.")]
+        public void ProcessDependencies_NoDependencies_DoesNothing()
+        {
+            // arrange
+            // A B C
+            Mock<IModMetadata> modA = this.GetMetadataForDependencyTest("Mod A");
+            Mock<IModMetadata> modB = this.GetMetadataForDependencyTest("Mod B");
+            Mock<IModMetadata> modC = this.GetMetadataForDependencyTest("Mod C");
+
+            // act
+            IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modA.Object, modB.Object, modC.Object }).ToArray();
+
+            // assert
+            Assert.AreEqual(3, mods.Length, 0, "Expected to get the same number of mods input.");
+            Assert.AreSame(modA.Object, mods[0], "The load order unexpectedly changed with no dependencies.");
+            Assert.AreSame(modB.Object, mods[1], "The load order unexpectedly changed with no dependencies.");
+            Assert.AreSame(modC.Object, mods[2], "The load order unexpectedly changed with no dependencies.");
+        }
+
+        [Test(Description = "Assert that simple dependencies are reordered correctly.")]
+        public void ProcessDependencies_Reorders_SimpleDependencies()
+        {
+            // arrange
+            // A ◀── B
+            // ▲     ▲
+            // │     │
+            // └─ C ─┘
+            Mock<IModMetadata> modA = this.GetMetadataForDependencyTest("Mod A");
+            Mock<IModMetadata> modB = this.GetMetadataForDependencyTest("Mod B", modA);
+            Mock<IModMetadata> modC = this.GetMetadataForDependencyTest("Mod C", modA, modB);
+
+            // act
+            IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modC.Object, modA.Object, modB.Object }).ToArray();
+
+            // assert
+            Assert.AreEqual(3, mods.Length, 0, "Expected to get the same number of mods input.");
+            Assert.AreSame(modA.Object, mods[0], "The load order is incorrect: mod A should be first since the other mods depend on it.");
+            Assert.AreSame(modB.Object, mods[1], "The load order is incorrect: mod B should be second since it needs mod A, and is needed by mod C.");
+            Assert.AreSame(modC.Object, mods[2], "The load order is incorrect: mod C should be third since it needs both mod A and mod B.");
+        }
+
+        [Test(Description = "Assert that simple dependency chains are reordered correctly.")]
+        public void ProcessDependencies_Reorders_DependencyChain()
+        {
+            // arrange
+            // A ◀── B ◀── C ◀── D
+            Mock<IModMetadata> modA = this.GetMetadataForDependencyTest("Mod A");
+            Mock<IModMetadata> modB = this.GetMetadataForDependencyTest("Mod B", modA);
+            Mock<IModMetadata> modC = this.GetMetadataForDependencyTest("Mod C", modB);
+            Mock<IModMetadata> modD = this.GetMetadataForDependencyTest("Mod D", modC);
+
+            // act
+            IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modC.Object, modA.Object, modB.Object, modD.Object }).ToArray();
+
+            // assert
+            Assert.AreEqual(4, mods.Length, 0, "Expected to get the same number of mods input.");
+            Assert.AreSame(modA.Object, mods[0], "The load order is incorrect: mod A should be first since it's needed by mod B.");
+            Assert.AreSame(modB.Object, mods[1], "The load order is incorrect: mod B should be second since it needs mod A, and is needed by mod C.");
+            Assert.AreSame(modC.Object, mods[2], "The load order is incorrect: mod C should be third since it needs mod B, and is needed by mod D.");
+            Assert.AreSame(modD.Object, mods[3], "The load order is incorrect: mod D should be fourth since it needs mod C.");
+        }
+
+        [Test(Description = "Assert that overlapping dependency chains are reordered correctly.")]
+        public void ProcessDependencies_Reorders_OverlappingDependencyChain()
+        {
+            // arrange
+            // A ◀── B ◀── C ◀── D
+            //       ▲     ▲
+            //       │     │
+            //       E ◀── F
+            Mock<IModMetadata> modA = this.GetMetadataForDependencyTest("Mod A");
+            Mock<IModMetadata> modB = this.GetMetadataForDependencyTest("Mod B", modA);
+            Mock<IModMetadata> modC = this.GetMetadataForDependencyTest("Mod C", modB);
+            Mock<IModMetadata> modD = this.GetMetadataForDependencyTest("Mod D", modC);
+            Mock<IModMetadata> modE = this.GetMetadataForDependencyTest("Mod E", modB);
+            Mock<IModMetadata> modF = this.GetMetadataForDependencyTest("Mod F", modC, modE);
+
+            // act
+            IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modC.Object, modA.Object, modB.Object, modD.Object, modF.Object, modE.Object }).ToArray();
+
+            // assert
+            Assert.AreEqual(6, mods.Length, 0, "Expected to get the same number of mods input.");
+            Assert.AreSame(modA.Object, mods[0], "The load order is incorrect: mod A should be first since it's needed by mod B.");
+            Assert.AreSame(modB.Object, mods[1], "The load order is incorrect: mod B should be second since it needs mod A, and is needed by mod C.");
+            Assert.AreSame(modC.Object, mods[2], "The load order is incorrect: mod C should be third since it needs mod B, and is needed by mod D.");
+            Assert.AreSame(modD.Object, mods[3], "The load order is incorrect: mod D should be fourth since it needs mod C.");
+            Assert.AreSame(modE.Object, mods[4], "The load order is incorrect: mod E should be fifth since it needs mod B, but is specified after C which also needs mod B.");
+            Assert.AreSame(modF.Object, mods[5], "The load order is incorrect: mod F should be last since it needs mods E and C.");
+        }
+
 
         /*********
         ** Private methods
         *********/
         /// <summary>Get a randomised basic manifest.</summary>
-        /// <param name="minVersion">The minimum API version.</param>
-        private Manifest GetRandomManifest(string minVersion = null)
+        /// <param name="adjust">Adjust the generated manifest.</param>
+        private Manifest GetRandomManifest(Action<Manifest> adjust = null)
         {
-            return new Manifest
+            Manifest manifest = new Manifest
             {
                 Name = Sample.String(),
                 Author = Sample.String(),
                 Version = new SemanticVersion(Sample.Int(), Sample.Int(), Sample.Int(), Sample.String()),
                 Description = Sample.String(),
                 UniqueID = $"{Sample.String()}.{Sample.String()}",
-                EntryDll = $"{Sample.String()}.dll",
-                MinimumApiVersion = minVersion
+                EntryDll = $"{Sample.String()}.dll"
             };
+            adjust?.Invoke(manifest);
+            return manifest;
+        }
+
+        /// <summary>Get a randomised basic manifest.</summary>
+        /// <param name="uniqueID">The mod's name and unique ID.</param>
+        /// <param name="dependencies">The dependencies this mod requires.</param>
+        private Mock<IModMetadata> GetMetadataForDependencyTest(string uniqueID, params Mock<IModMetadata>[] dependencies)
+        {
+            Mock<IModMetadata> mod = new Mock<IModMetadata>(MockBehavior.Strict);
+            mod.Setup(p => p.Status).Returns(ModMetadataStatus.Found);
+            mod.Setup(p => p.Manifest).Returns(
+                this.GetRandomManifest(manifest =>
+                {
+                    manifest.Name = uniqueID;
+                    manifest.UniqueID = uniqueID;
+                    manifest.Dependencies = dependencies.Select(p => (IManifestDependency)new ManifestDependency(p.Object.Manifest.UniqueID)).ToArray();
+                })
+            );
+            return mod;
         }
     }
 }
