@@ -75,7 +75,8 @@ namespace StardewModdingAPI.Framework.ModLoading
 
         /// <summary>Validate manifest metadata.</summary>
         /// <param name="mods">The mod manifests to validate.</param>
-        public void ValidateManifests(IEnumerable<IModMetadata> mods)
+        /// <param name="apiVersion">The current SMAPI version.</param>
+        public void ValidateManifests(IEnumerable<IModMetadata> mods, ISemanticVersion apiVersion)
         {
             foreach (IModMetadata mod in mods)
             {
@@ -108,10 +109,10 @@ namespace StardewModdingAPI.Framework.ModLoading
                 {
                     if (!SemanticVersion.TryParse(mod.Manifest.MinimumApiVersion, out ISemanticVersion minVersion))
                     {
-                        mod.SetStatus(ModMetadataStatus.Failed, $"it has an invalid minimum SMAPI version '{mod.Manifest.MinimumApiVersion}'. This should be a semantic version number like {Constants.ApiVersion}.");
+                        mod.SetStatus(ModMetadataStatus.Failed, $"it has an invalid minimum SMAPI version '{mod.Manifest.MinimumApiVersion}'. This should be a semantic version number like {apiVersion}.");
                         continue;
                     }
-                    if (minVersion.IsNewerThan(Constants.ApiVersion))
+                    if (minVersion.IsNewerThan(apiVersion))
                     {
                         mod.SetStatus(ModMetadataStatus.Failed, $"it needs SMAPI {minVersion} or later. Please update SMAPI to the latest version to use this mod.");
                         continue;

@@ -318,7 +318,7 @@ namespace StardewModdingAPI
 
                 // load manifests
                 IModMetadata[] mods = resolver.ReadManifests(Constants.ModPath, new JsonHelper(), this.Settings.ModCompatibility).ToArray();
-                resolver.ValidateManifests(mods);
+                resolver.ValidateManifests(mods, Constants.ApiVersion);
 
                 // check for deprecated metadata
                 IList<Action> deprecationWarnings = new List<Action>();
