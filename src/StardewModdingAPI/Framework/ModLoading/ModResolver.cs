@@ -49,7 +49,7 @@ namespace StardewModdingAPI.Framework.ModLoading
 
                 // get compatibility record
                 ModCompatibility compatibility = null;
-                if(manifest != null)
+                if (manifest != null)
                 {
                     string key = !string.IsNullOrWhiteSpace(manifest.UniqueID) ? manifest.UniqueID : manifest.EntryDll;
                     compatibility = (
@@ -132,16 +132,16 @@ namespace StardewModdingAPI.Framework.ModLoading
         {
             var unsortedMods = mods.ToList();
             var sortedMods = new Stack<IModMetadata>();
-            var visitedMods = new bool[unsortedMods.Count];
+            var visitedMods = new HashSet<IModMetadata>();
             var currentChain = new List<IModMetadata>();
             bool success = true;
 
-            for (int index = 0; index < unsortedMods.Count; index++)
+            foreach (IModMetadata mod in unsortedMods)
             {
-                if (unsortedMods[index].Status == ModMetadataStatus.Failed)
+                if (mod.Status == ModMetadataStatus.Failed)
                     continue;
 
-                success = this.ProcessDependencies(index, visitedMods, sortedMods, currentChain, unsortedMods);
+                success = this.ProcessDependencies(mod, visitedMods, sortedMods, currentChain, unsortedMods);
                 if (!success)
                     break;
             }
@@ -157,21 +157,20 @@ namespace StardewModdingAPI.Framework.ModLoading
         ** Private methods
         *********/
         /// <summary>Sort a mod's dependencies by the order they should be loaded, and remove any mods that can't be loaded due to missing or conflicting dependencies.</summary>
-        /// <param name="modIndex">The index of the mod being processed in the <paramref name="unsortedMods"/>.</param>
-        /// <param name="visitedMods">The mods which have been processed.</param>
+        /// <param name="mod">The mod whose dependencies to process.</param>
+        /// <param name="visited">The mods which have been visited.</param>
         /// <param name="sortedMods">The list in which to save mods sorted by dependency order.</param>
         /// <param name="currentChain">The current change of mod dependencies.</param>
         /// <param name="unsortedMods">The mods remaining to sort.</param>
         /// <returns>Returns whether the mod can be loaded.</returns>
-        private bool ProcessDependencies(int modIndex, bool[] visitedMods, Stack<IModMetadata> sortedMods, List<IModMetadata> currentChain, List<IModMetadata> unsortedMods)
+        private bool ProcessDependencies(IModMetadata mod, HashSet<IModMetadata> visited, Stack<IModMetadata> sortedMods, List<IModMetadata> currentChain, List<IModMetadata> unsortedMods)
         {
             // visit mod
-            if (visitedMods[modIndex])
+            if (visited.Contains(mod))
                 return true; // already sorted
-            visitedMods[modIndex] = true;
+            visited.Add(mod);
 
             // mod already failed
-            IModMetadata mod = unsortedMods[modIndex];
             if (mod.Status == ModMetadataStatus.Failed)
                 return false;
 
@@ -215,8 +214,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 // recursively sort dependencies
                 foreach (IModMetadata requiredMod in modsToLoadFirst)
                 {
-                    int index = unsortedMods.IndexOf(requiredMod);
-                    success = this.ProcessDependencies(index, visitedMods, sortedMods, currentChain, unsortedMods);
+                    success = this.ProcessDependencies(requiredMod, visited, sortedMods, currentChain, unsortedMods);
                     if (!success)
                         break;
                 }
