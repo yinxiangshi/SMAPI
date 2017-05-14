@@ -18,8 +18,40 @@ namespace StardewModdingAPI.Tests
         /*********
         ** Unit tests
         *********/
+        [Test(Description = "Assert that the resolver correctly returns an empty list if there are no mods installed.")]
+        public void ReadBasicManifest_NoMods_ReturnsEmptyList()
+        {
+            // arrange
+            string rootFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(rootFolder);
+
+            // act
+            IModMetadata[] mods = new ModResolver().ReadManifests(rootFolder, new JsonHelper(), new ModCompatibility[0]).ToArray();
+
+            // assert
+            Assert.AreEqual(0, mods.Length, 0, $"Expected to find zero manifests, found {mods.Length} instead.");
+        }
+
+        [Test(Description = "Assert that the resolver correctly returns a failed metadata if there's an empty mod folder.")]
+        public void ReadBasicManifest_EmptyModFolder_ReturnsFailedManifest()
+        {
+            // arrange
+            string rootFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+            string modFolder = Path.Combine(rootFolder, Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(modFolder);
+
+            // act
+            IModMetadata[] mods = new ModResolver().ReadManifests(rootFolder, new JsonHelper(), new ModCompatibility[0]).ToArray();
+            IModMetadata mod = mods.FirstOrDefault();
+
+            // assert
+            Assert.AreEqual(1, mods.Length, 0, $"Expected to find one manifest, found {mods.Length} instead.");
+            Assert.AreEqual(ModMetadataStatus.Failed, mod.Status, "The mod metadata was not marked failed.");
+            Assert.IsNotNull(mod.Error, "The mod metadata did not have an error message set.");
+        }
+
         [Test(Description = "Assert that the resolver correctly reads manifest data from a randomised file.")]
-        public void ReadBasicManifest()
+        public void ReadBasicManifest_CanReadFile()
         {
             // create manifest data
             IDictionary<string, object> originalDependency = new Dictionary<string, object>
@@ -77,8 +109,14 @@ namespace StardewModdingAPI.Tests
             Assert.AreEqual(originalDependency[nameof(IManifestDependency.UniqueID)], mod.Manifest.Dependencies[0].UniqueID, "The first dependency's unique ID doesn't match.");
         }
 
+        [Test(Description = "Assert that validation doesn't fail if there are no mods installed.")]
+        public void ValidateManifests_NoMods_DoesNothing()
+        {
+            new ModResolver().ValidateManifests(new ModMetadata[0], apiVersion: new SemanticVersion("1.0"));
+        }
+
         [Test(Description = "Assert that validation skips manifests that have already failed without calling any other properties.")]
-        public void ValidateManifest_Skips_Failed()
+        public void ValidateManifests_Skips_Failed()
         {
             // arrange
             Mock<IModMetadata> mock = new Mock<IModMetadata>(MockBehavior.Strict);
@@ -92,7 +130,7 @@ namespace StardewModdingAPI.Tests
         }
 
         [Test(Description = "Assert that validation fails if the mod has 'assume broken' compatibility.")]
-        public void ValidateManifest_ModCompatibility_AssumeBroken_Fails()
+        public void ValidateManifests_ModCompatibility_AssumeBroken_Fails()
         {
             // arrange
             Mock<IModMetadata> mock = new Mock<IModMetadata>(MockBehavior.Strict);
@@ -108,7 +146,7 @@ namespace StardewModdingAPI.Tests
         }
 
         [Test(Description = "Assert that validation fails when the minimum API version is higher than the current SMAPI version.")]
-        public void ValidateManifest_MinimumApiVersion_Fails()
+        public void ValidateManifests_MinimumApiVersion_Fails()
         {
             // arrange
             Mock<IModMetadata> mock = new Mock<IModMetadata>(MockBehavior.Strict);
@@ -125,7 +163,7 @@ namespace StardewModdingAPI.Tests
         }
 
         [Test(Description = "Assert that validation fails when the manifest references a DLL that does not exist.")]
-        public void ValidateManifest_MissingEntryDLL_Fails()
+        public void ValidateManifests_MissingEntryDLL_Fails()
         {
             // arrange
             Mock<IModMetadata> mock = new Mock<IModMetadata>(MockBehavior.Strict);
@@ -143,7 +181,7 @@ namespace StardewModdingAPI.Tests
         }
 
         [Test(Description = "Assert that validation fails when the manifest references a DLL that does not exist.")]
-        public void ValidateManifest_Valid_Passes()
+        public void ValidateManifests_Valid_Passes()
         {
             // set up manifest
             IManifest manifest = this.GetRandomManifest();
@@ -166,7 +204,6 @@ namespace StardewModdingAPI.Tests
             // assert
             // if Moq doesn't throw a method-not-setup exception, the validation didn't override the status.
         }
-
 
 
         /*********
