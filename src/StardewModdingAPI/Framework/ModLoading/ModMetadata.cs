@@ -21,10 +21,10 @@ namespace StardewModdingAPI.Framework.ModLoading
         public ModCompatibility Compatibility { get; }
 
         /// <summary>The metadata resolution status.</summary>
-        public ModMetadataStatus Status { get; set; }
+        public ModMetadataStatus Status { get; private set; }
 
         /// <summary>The reason the metadata is invalid, if any.</summary>
-        public string Error { get; set; }
+        public string Error { get; private set; }
 
 
         /*********

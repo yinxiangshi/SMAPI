@@ -188,8 +188,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                     }
                     if (missingMods != null)
                     {
-                        mod.Status = ModMetadataStatus.Failed;
-                        mod.Error = $"it requires mods which aren't installed ({missingMods.Substring(0, missingMods.Length - 2)}).";
+                        mod.SetStatus(ModMetadataStatus.Failed, $"it requires mods which aren't installed ({missingMods.Substring(0, missingMods.Length - 2)}).");
                         return false;
                     }
                 }
@@ -207,8 +206,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 ModMetadata circularReferenceMod = currentChain.FirstOrDefault(modsToLoadFirst.Contains);
                 if (circularReferenceMod != null)
                 {
-                    mod.Status = ModMetadataStatus.Failed;
-                    mod.Error = $"its dependencies have a circular reference: {string.Join(" => ", currentChain.Select(p => p.DisplayName))} => {circularReferenceMod.DisplayName}).";
+                    mod.SetStatus(ModMetadataStatus.Failed, $"its dependencies have a circular reference: {string.Join(" => ", currentChain.Select(p => p.DisplayName))} => {circularReferenceMod.DisplayName}).");
                     return false;
                 }
                 currentChain.Add(mod);

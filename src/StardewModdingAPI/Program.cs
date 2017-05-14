@@ -337,15 +337,11 @@ namespace StardewModdingAPI
                             string psDir = Path.Combine(mod.DirectoryPath, "psconfigs");
                             Directory.CreateDirectory(psDir);
                             if (!Directory.Exists(psDir))
-                            {
-                                mod.Status = ModMetadataStatus.Failed;
-                                mod.Error = "it requires per-save configuration files ('psconfigs') which couldn't be created for some reason.";
-                            }
+                                mod.SetStatus(ModMetadataStatus.Failed, "it requires per-save configuration files ('psconfigs') which couldn't be created for some reason.");
                         }
                         catch (Exception ex)
                         {
-                            mod.Status = ModMetadataStatus.Failed;
-                            mod.Error = $"it requires per-save configuration files ('psconfigs') which couldn't be created: {ex.GetLogSummary()}";
+                            mod.SetStatus(ModMetadataStatus.Failed, $"it requires per-save configuration files ('psconfigs') which couldn't be created: {ex.GetLogSummary()}");
                         }
                     }
                 }
