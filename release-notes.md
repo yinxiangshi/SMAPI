@@ -57,6 +57,7 @@ For mod developers:
 * Added a content API which loads custom textures/maps/data from the mod's folder (`.xnb` or `.png` format) or game content.
 * `Console.Out` messages are now written to the log file.
 * `Monitor.ExitGameImmediately` now aborts SMAPI initialisation and events more quickly.
+* Fixed value-changed events being raised when the player loads a save due to values being initialised.
 
 ## 1.10
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.9...1.10).

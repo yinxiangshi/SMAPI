@@ -90,6 +90,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>The keys that just entered the up state.</summary>
         private Keys[] FrameReleasedKeys => this.PreviouslyPressedKeys.Except(this.CurrentlyPressedKeys).ToArray();
 
+        /// <summary>The previous save ID at last check.</summary>
+        private ulong PreviousSaveID;
+
         /// <summary>A hash of <see cref="Game1.locations"/> at last check.</summary>
         private int PreviousGameLocations;
 
@@ -420,107 +423,81 @@ namespace StardewModdingAPI.Framework
             *********/
             if (this.IsWorldReady)
             {
-                // raise location list changed
-                if (this.GetHash(Game1.locations) != this.PreviousGameLocations)
+                // raise events (only when something changes, not on the initial load)
+                if (Game1.uniqueIDForThisGame == this.PreviousSaveID)
                 {
-                    LocationEvents.InvokeLocationsChanged(this.Monitor, Game1.locations);
-                    this.PreviousGameLocations = this.GetHash(Game1.locations);
-                }
+                    // raise location list changed
+                    if (this.GetHash(Game1.locations) != this.PreviousGameLocations)
+                        LocationEvents.InvokeLocationsChanged(this.Monitor, Game1.locations);
 
-                // raise current location changed
-                if (Game1.currentLocation != this.PreviousGameLocation)
-                {
-                    if (this.VerboseLogging)
-                        this.Monitor.Log($"Context: set location to {Game1.currentLocation?.Name ?? "(none)"}.", LogLevel.Trace);
-                    LocationEvents.InvokeCurrentLocationChanged(this.Monitor, this.PreviousGameLocation, Game1.currentLocation);
-                    this.PreviousGameLocation = Game1.currentLocation;
-                }
-
-                // raise player changed
-                if (Game1.player != this.PreviousFarmer)
-                {
-                    PlayerEvents.InvokeFarmerChanged(this.Monitor, this.PreviousFarmer, Game1.player);
-                    this.PreviousFarmer = Game1.player;
-                }
-
-                // raise player leveled up a skill
-                if (Game1.player.combatLevel != this.PreviousCombatLevel)
-                {
-                    PlayerEvents.InvokeLeveledUp(this.Monitor, EventArgsLevelUp.LevelType.Combat, Game1.player.combatLevel);
-                    this.PreviousCombatLevel = Game1.player.combatLevel;
-                }
-                if (Game1.player.farmingLevel != this.PreviousFarmingLevel)
-                {
-                    PlayerEvents.InvokeLeveledUp(this.Monitor, EventArgsLevelUp.LevelType.Farming, Game1.player.farmingLevel);
-                    this.PreviousFarmingLevel = Game1.player.farmingLevel;
-                }
-                if (Game1.player.fishingLevel != this.PreviousFishingLevel)
-                {
-                    PlayerEvents.InvokeLeveledUp(this.Monitor, EventArgsLevelUp.LevelType.Fishing, Game1.player.fishingLevel);
-                    this.PreviousFishingLevel = Game1.player.fishingLevel;
-                }
-                if (Game1.player.foragingLevel != this.PreviousForagingLevel)
-                {
-                    PlayerEvents.InvokeLeveledUp(this.Monitor, EventArgsLevelUp.LevelType.Foraging, Game1.player.foragingLevel);
-                    this.PreviousForagingLevel = Game1.player.foragingLevel;
-                }
-                if (Game1.player.miningLevel != this.PreviousMiningLevel)
-                {
-                    PlayerEvents.InvokeLeveledUp(this.Monitor, EventArgsLevelUp.LevelType.Mining, Game1.player.miningLevel);
-                    this.PreviousMiningLevel = Game1.player.miningLevel;
-                }
-                if (Game1.player.luckLevel != this.PreviousLuckLevel)
-                {
-                    PlayerEvents.InvokeLeveledUp(this.Monitor, EventArgsLevelUp.LevelType.Luck, Game1.player.luckLevel);
-                    this.PreviousLuckLevel = Game1.player.luckLevel;
-                }
-
-                // raise player inventory changed
-                ItemStackChange[] changedItems = this.GetInventoryChanges(Game1.player.items, this.PreviousItems).ToArray();
-                if (changedItems.Any())
-                {
-                    PlayerEvents.InvokeInventoryChanged(this.Monitor, Game1.player.items, changedItems);
-                    this.PreviousItems = Game1.player.items.Where(n => n != null).ToDictionary(n => n, n => n.Stack);
-                }
-
-                // raise current location's object list changed
-                {
-                    int? objectHash = Game1.currentLocation?.objects != null ? this.GetHash(Game1.currentLocation.objects) : (int?)null;
-                    if (objectHash != null && this.PreviousLocationObjects != objectHash)
+                    // raise current location changed
+                    if (Game1.currentLocation != this.PreviousGameLocation)
                     {
-                        LocationEvents.InvokeOnNewLocationObject(this.Monitor, Game1.currentLocation.objects);
-                        this.PreviousLocationObjects = objectHash.Value;
+                        if (this.VerboseLogging)
+                            this.Monitor.Log($"Context: set location to {Game1.currentLocation?.Name ?? "(none)"}.", LogLevel.Trace);
+                        LocationEvents.InvokeCurrentLocationChanged(this.Monitor, this.PreviousGameLocation, Game1.currentLocation);
                     }
+
+                    // raise player changed
+                    if (Game1.player != this.PreviousFarmer)
+                        PlayerEvents.InvokeFarmerChanged(this.Monitor, this.PreviousFarmer, Game1.player);
+
+                    // raise player leveled up a skill
+                    if (Game1.player.combatLevel != this.PreviousCombatLevel)
+                        PlayerEvents.InvokeLeveledUp(this.Monitor, EventArgsLevelUp.LevelType.Combat, Game1.player.combatLevel);
+                    if (Game1.player.farmingLevel != this.PreviousFarmingLevel)
+                        PlayerEvents.InvokeLeveledUp(this.Monitor, EventArgsLevelUp.LevelType.Farming, Game1.player.farmingLevel);
+                    if (Game1.player.fishingLevel != this.PreviousFishingLevel)
+                        PlayerEvents.InvokeLeveledUp(this.Monitor, EventArgsLevelUp.LevelType.Fishing, Game1.player.fishingLevel);
+                    if (Game1.player.foragingLevel != this.PreviousForagingLevel)
+                        PlayerEvents.InvokeLeveledUp(this.Monitor, EventArgsLevelUp.LevelType.Foraging, Game1.player.foragingLevel);
+                    if (Game1.player.miningLevel != this.PreviousMiningLevel)
+                        PlayerEvents.InvokeLeveledUp(this.Monitor, EventArgsLevelUp.LevelType.Mining, Game1.player.miningLevel);
+                    if (Game1.player.luckLevel != this.PreviousLuckLevel)
+                        PlayerEvents.InvokeLeveledUp(this.Monitor, EventArgsLevelUp.LevelType.Luck, Game1.player.luckLevel);
+
+                    // raise player inventory changed
+                    ItemStackChange[] changedItems = this.GetInventoryChanges(Game1.player.items, this.PreviousItems).ToArray();
+                    if (changedItems.Any())
+                        PlayerEvents.InvokeInventoryChanged(this.Monitor, Game1.player.items, changedItems);
+
+                    // raise current location's object list changed
+                    if (this.GetHash(Game1.currentLocation.objects) != this.PreviousLocationObjects)
+                        LocationEvents.InvokeOnNewLocationObject(this.Monitor, Game1.currentLocation.objects);
+
+                    // raise time changed
+                    if (Game1.timeOfDay != this.PreviousTime)
+                        TimeEvents.InvokeTimeOfDayChanged(this.Monitor, this.PreviousTime, Game1.timeOfDay);
+                    if (Game1.dayOfMonth != this.PreviousDay)
+                        TimeEvents.InvokeDayOfMonthChanged(this.Monitor, this.PreviousDay, Game1.dayOfMonth);
+                    if (Game1.currentSeason != this.PreviousSeason)
+                        TimeEvents.InvokeSeasonOfYearChanged(this.Monitor, this.PreviousSeason, Game1.currentSeason);
+                    if (Game1.year != this.PreviousYear)
+                        TimeEvents.InvokeYearOfGameChanged(this.Monitor, this.PreviousYear, Game1.year);
+
+                    // raise mine level changed
+                    if (Game1.mine != null && Game1.mine.mineLevel != this.PreviousMineLevel)
+                        MineEvents.InvokeMineLevelChanged(this.Monitor, this.PreviousMineLevel, Game1.mine.mineLevel);
                 }
 
-                // raise time changed
-                if (Game1.timeOfDay != this.PreviousTime)
-                {
-                    TimeEvents.InvokeTimeOfDayChanged(this.Monitor, this.PreviousTime, Game1.timeOfDay);
-                    this.PreviousTime = Game1.timeOfDay;
-                }
-                if (Game1.dayOfMonth != this.PreviousDay)
-                {
-                    TimeEvents.InvokeDayOfMonthChanged(this.Monitor, this.PreviousDay, Game1.dayOfMonth);
-                    this.PreviousDay = Game1.dayOfMonth;
-                }
-                if (Game1.currentSeason != this.PreviousSeason)
-                {
-                    TimeEvents.InvokeSeasonOfYearChanged(this.Monitor, this.PreviousSeason, Game1.currentSeason);
-                    this.PreviousSeason = Game1.currentSeason;
-                }
-                if (Game1.year != this.PreviousYear)
-                {
-                    TimeEvents.InvokeYearOfGameChanged(this.Monitor, this.PreviousYear, Game1.year);
-                    this.PreviousYear = Game1.year;
-                }
-
-                // raise mine level changed
-                if (Game1.mine != null && Game1.mine.mineLevel != this.PreviousMineLevel)
-                {
-                    MineEvents.InvokeMineLevelChanged(this.Monitor, this.PreviousMineLevel, Game1.mine.mineLevel);
-                    this.PreviousMineLevel = Game1.mine.mineLevel;
-                }
+                // update state
+                this.PreviousGameLocations = this.GetHash(Game1.locations);
+                this.PreviousGameLocation = Game1.currentLocation;
+                this.PreviousFarmer = Game1.player;
+                this.PreviousCombatLevel = Game1.player.combatLevel;
+                this.PreviousFarmingLevel = Game1.player.farmingLevel;
+                this.PreviousFishingLevel = Game1.player.fishingLevel;
+                this.PreviousForagingLevel = Game1.player.foragingLevel;
+                this.PreviousMiningLevel = Game1.player.miningLevel;
+                this.PreviousLuckLevel = Game1.player.luckLevel;
+                this.PreviousItems = Game1.player.items.Where(n => n != null).ToDictionary(n => n, n => n.Stack);
+                this.PreviousLocationObjects = this.GetHash(Game1.currentLocation.objects);
+                this.PreviousTime = Game1.timeOfDay;
+                this.PreviousDay = Game1.dayOfMonth;
+                this.PreviousSeason = Game1.currentSeason;
+                this.PreviousYear = Game1.year;
+                this.PreviousMineLevel = Game1.mine.mineLevel;
+                this.PreviousSaveID = Game1.uniqueIDForThisGame;
             }
 
             /*********
