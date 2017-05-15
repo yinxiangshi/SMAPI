@@ -130,26 +130,13 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="mods">The mods to process.</param>
         public IEnumerable<IModMetadata> ProcessDependencies(IEnumerable<IModMetadata> mods)
         {
-            var unsortedMods = mods.ToList();
+            mods = mods.ToArray();
             var sortedMods = new Stack<IModMetadata>();
-            var visitedMods = new HashSet<IModMetadata>();
-            var currentChain = new List<IModMetadata>();
-            bool success = true;
+            var states = mods.ToDictionary(mod => mod, mod => ModDependencyStatus.Queued);
+            foreach (IModMetadata mod in mods)
+                this.ProcessDependencies(mods.ToArray(), mod, states, sortedMods, new List<IModMetadata>());
 
-            foreach (IModMetadata mod in unsortedMods)
-            {
-                if (mod.Status == ModMetadataStatus.Failed)
-                    continue;
-
-                success = this.ProcessDependencies(mod, visitedMods, sortedMods, currentChain, unsortedMods);
-                if (!success)
-                    break;
-            }
-
-            if (!success)
-                return new ModMetadata[0];
-
-            return sortedMods.Reverse().ToArray();
+            return sortedMods.Reverse();
         }
 
 
@@ -157,73 +144,118 @@ namespace StardewModdingAPI.Framework.ModLoading
         ** Private methods
         *********/
         /// <summary>Sort a mod's dependencies by the order they should be loaded, and remove any mods that can't be loaded due to missing or conflicting dependencies.</summary>
+        /// <param name="mods">The full list of mods being validated.</param>
         /// <param name="mod">The mod whose dependencies to process.</param>
-        /// <param name="visited">The mods which have been visited.</param>
+        /// <param name="states">The dependency state for each mod.</param>
         /// <param name="sortedMods">The list in which to save mods sorted by dependency order.</param>
         /// <param name="currentChain">The current change of mod dependencies.</param>
-        /// <param name="unsortedMods">The mods remaining to sort.</param>
-        /// <returns>Returns whether the mod can be loaded.</returns>
-        private bool ProcessDependencies(IModMetadata mod, HashSet<IModMetadata> visited, Stack<IModMetadata> sortedMods, List<IModMetadata> currentChain, List<IModMetadata> unsortedMods)
+        /// <returns>Returns the mod dependency status.</returns>
+        private ModDependencyStatus ProcessDependencies(IModMetadata[] mods, IModMetadata mod, IDictionary<IModMetadata, ModDependencyStatus> states, Stack<IModMetadata> sortedMods, ICollection<IModMetadata> currentChain)
         {
-            // visit mod
-            if (visited.Contains(mod))
-                return true; // already sorted
-            visited.Add(mod);
-
-            // mod already failed
-            if (mod.Status == ModMetadataStatus.Failed)
-                return false;
-
-            // process dependencies
-            bool success = true;
-            if (mod.Manifest.Dependencies != null && mod.Manifest.Dependencies.Any())
+            // check if already visited
+            switch (states[mod])
             {
-                // validate required dependencies are present
-                {
-                    string missingMods = null;
-                    foreach (IManifestDependency dependency in mod.Manifest.Dependencies)
-                    {
-                        if (!unsortedMods.Any(m => m.Manifest.UniqueID.Equals(dependency.UniqueID)))
-                            missingMods += $"{dependency.UniqueID}, ";
-                    }
-                    if (missingMods != null)
-                    {
-                        mod.SetStatus(ModMetadataStatus.Failed, $"it requires mods which aren't installed ({missingMods.Substring(0, missingMods.Length - 2)}).");
-                        return false;
-                    }
-                }
+                // already sorted or failed
+                case ModDependencyStatus.Sorted:
+                case ModDependencyStatus.Failed:
+                    return states[mod];
 
-                // get mods which should be loaded before this one
-                IModMetadata[] modsToLoadFirst =
+                // dependency loop
+                case ModDependencyStatus.Checking:
+                    // This should never happen. The higher-level mod checks if the dependency is
+                    // already being checked, so it can fail without visiting a mod twice. If this
+                    // case is hit, that logic didn't catch the dependency loop for some reason.
+                    throw new InvalidModStateException($"A dependency loop was not caught by the calling iteration ({string.Join(" => ", currentChain.Select(p => p.DisplayName))} => {mod.DisplayName})).");
+
+                // not visited yet, start processing
+                case ModDependencyStatus.Queued:
+                    break;
+
+                // sanity check
+                default:
+                    throw new InvalidModStateException($"Unknown dependency status '{states[mod]}'.");
+            }
+
+            // no dependencies, mark sorted
+            if (mod.Manifest.Dependencies == null || !mod.Manifest.Dependencies.Any())
+            {
+                sortedMods.Push(mod);
+                return states[mod] = ModDependencyStatus.Sorted;
+            }
+
+            // missing required dependencies, mark failed
+            {
+                string[] missingModIDs =
                     (
-                        from unsorted in unsortedMods
-                        where mod.Manifest.Dependencies.Any(required => required.UniqueID == unsorted.Manifest.UniqueID)
-                        select unsorted
+                        from dependency in mod.Manifest.Dependencies
+                        where mods.All(m => m.Manifest.UniqueID != dependency.UniqueID)
+                        orderby dependency.UniqueID
+                        select dependency.UniqueID
                     )
                     .ToArray();
-
-                // detect circular references
-                IModMetadata circularReferenceMod = currentChain.FirstOrDefault(modsToLoadFirst.Contains);
-                if (circularReferenceMod != null)
+                if (missingModIDs.Any())
                 {
-                    mod.SetStatus(ModMetadataStatus.Failed, $"its dependencies have a circular reference: {string.Join(" => ", currentChain.Select(p => p.DisplayName))} => {circularReferenceMod.DisplayName}).");
-                    return false;
+                    sortedMods.Push(mod);
+                    mod.SetStatus(ModMetadataStatus.Failed, $"it requires mods which aren't installed ({string.Join(", ", missingModIDs)}).");
+                    return states[mod] = ModDependencyStatus.Failed;
                 }
-                currentChain.Add(mod);
+            }
+
+            // process dependencies
+            {
+                states[mod] = ModDependencyStatus.Checking;
+
+                // get mods to load first
+                IModMetadata[] modsToLoadFirst =
+                    (
+                        from other in mods
+                        where mod.Manifest.Dependencies.Any(required => required.UniqueID == other.Manifest.UniqueID)
+                        select other
+                    )
+                    .ToArray();
 
                 // recursively sort dependencies
                 foreach (IModMetadata requiredMod in modsToLoadFirst)
                 {
-                    success = this.ProcessDependencies(requiredMod, visited, sortedMods, currentChain, unsortedMods);
-                    if (!success)
-                        break;
-                }
-            }
+                    var subchain = new List<IModMetadata>(currentChain) { mod };
 
-            // mark mod sorted
-            sortedMods.Push(mod);
-            currentChain.Remove(mod);
-            return success;
+                    // detect dependency loop
+                    if (states[requiredMod] == ModDependencyStatus.Checking)
+                    {
+                        sortedMods.Push(mod);
+                        mod.SetStatus(ModMetadataStatus.Failed, $"its dependencies have a circular reference: {string.Join(" => ", subchain.Select(p => p.DisplayName))} => {requiredMod.DisplayName}).");
+                        return states[mod] = ModDependencyStatus.Failed;
+                    }
+
+                    // recursively process each dependency
+                    var substatus = this.ProcessDependencies(mods, requiredMod, states, sortedMods, subchain);
+                    switch (substatus)
+                    {
+                        // sorted successfully
+                        case ModDependencyStatus.Sorted:
+                            break;
+
+                        // failed, which means this mod can't be loaded either
+                        case ModDependencyStatus.Failed:
+                            sortedMods.Push(mod);
+                            mod.SetStatus(ModMetadataStatus.Failed, $"it needs the '{requiredMod.DisplayName}' mod, which couldn't be loaded.");
+                            return states[mod] = ModDependencyStatus.Failed;
+
+                        // unexpected status
+                        case ModDependencyStatus.Queued:
+                        case ModDependencyStatus.Checking:
+                            throw new InvalidModStateException($"Something went wrong sorting dependencies: mod '{requiredMod.DisplayName}' unexpectedly stayed in the '{substatus}' status.");
+
+                        // sanity check
+                        default:
+                            throw new InvalidModStateException($"Unknown dependency status '{states[mod]}'.");
+                    }
+                }
+
+                // all requirements sorted successfully
+                sortedMods.Push(mod);
+                return states[mod] = ModDependencyStatus.Sorted;
+            }
         }
 
         /// <summary>Get all mod folders in a root folder, passing through empty folders as needed.</summary>
