@@ -514,8 +514,23 @@ namespace StardewModdingAPI
                         LogSkip(displayName, "its manifest doesn't set an entry DLL.");
                         continue;
                     }
-                    if (string.IsNullOrWhiteSpace(manifest.UniqueID))
-                        deprecationWarnings.Add(() => this.Monitor.Log($"{manifest.Name} doesn't have a {nameof(IManifest.UniqueID)} in its manifest. This will be required in an upcoming SMAPI release.", LogLevel.Warn));
+
+                    // log warnings for missing fields that will be required in SMAPI 2.0
+                    {
+                        List<string> missingFields = new List<string>(3);
+
+                        if (string.IsNullOrWhiteSpace(manifest.Name))
+                            missingFields.Add(nameof(IManifest.Name));
+                        if (manifest.Version.ToString() == "0.0")
+                            missingFields.Add(nameof(IManifest.Version));
+                        if (string.IsNullOrWhiteSpace(manifest.UniqueID))
+                            missingFields.Add(nameof(IManifest.UniqueID));
+
+                        if (missingFields.Any())
+                            deprecationWarnings.Add(() => this.Monitor.Log($"{manifest.Name} is missing some manifest fields ({string.Join(", ", missingFields)}) which will be required in an upcoming SMAPI version.", LogLevel.Warn));
+                    }
+
+
                 }
                 catch (Exception ex)
                 {
