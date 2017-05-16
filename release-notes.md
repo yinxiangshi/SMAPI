@@ -22,6 +22,8 @@ For players:
 * Updated mod compatibility list for Stardew Valley 1.2.
 
 For mod developers:
+* Added a `Context.IsWorldReady` flag.  
+  _<small>This is set to `true` when the player has loaded a save and the world is finished initialising. This is set at the same point that `SaveEvents.AfterLoad` and `TimeEvents.AfterDayStarted` are raised, and is mainly useful with events which can be raised before the world is loaded.</small>_
 * Added log entries for basic context changes (e.g. loaded save) to simplify troubleshooting.
 * Added a `debug` console command to TrainerMod which lets you pass debug commands to the game (e.g. `debug warp FarmHouse 1 1` warps the player to the farmhouse).
 * Added a deprecation warning for mods that don't set the `UniqueID` manifest field, which will be required in SMAPI 2.0.

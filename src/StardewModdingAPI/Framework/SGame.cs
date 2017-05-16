@@ -39,9 +39,6 @@ namespace StardewModdingAPI.Framework
         /// <summary>The number of consecutive failed draws.</summary>
         private int FailedDraws;
 
-        /// <summary>Whether the player has loaded a save and the world has finished initialising.</summary>
-        private bool IsWorldReady => this.AfterLoadTimer < 0;
-
         /// <summary>Whether the game is returning to the menu.</summary>
         private bool IsExiting;
 
@@ -309,6 +306,7 @@ namespace StardewModdingAPI.Framework
                 if (this.AfterLoadTimer == 0)
                 {
                     this.Monitor.Log($"Context: loaded saved game '{Constants.SaveFolderName}', starting {Game1.currentSeason} {Game1.dayOfMonth} Y{Game1.year}.", LogLevel.Trace);
+                    Context.IsWorldReady = true;
 
                     SaveEvents.InvokeAfterLoad(this.Monitor);
                     PlayerEvents.InvokeLoadedGame(this.Monitor, new EventArgsLoadedGameChanged(Game1.hasLoadedGame));
@@ -325,9 +323,11 @@ namespace StardewModdingAPI.Framework
                 this.IsExiting = true;
 
             // after exit to title
-            if (this.IsWorldReady && this.IsExiting && Game1.activeClickableMenu is TitleMenu)
+            if (Context.IsWorldReady && this.IsExiting && Game1.activeClickableMenu is TitleMenu)
             {
                 this.Monitor.Log("Context: returned to title", LogLevel.Trace);
+                Context.IsWorldReady = false;
+
                 SaveEvents.InvokeAfterReturnToTitle(this.Monitor);
                 this.AfterLoadTimer = 5;
                 this.IsExiting = false;
@@ -421,7 +421,7 @@ namespace StardewModdingAPI.Framework
             /*********
             ** World & player events
             *********/
-            if (this.IsWorldReady)
+            if (Context.IsWorldReady)
             {
                 // raise events (only when something changes, not on the initial load)
                 if (Game1.uniqueIDForThisGame == this.PreviousSaveID)
