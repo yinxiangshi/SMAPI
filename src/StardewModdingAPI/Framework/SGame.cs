@@ -168,7 +168,7 @@ namespace StardewModdingAPI.Framework
         private static Stopwatch _fpsStopwatch => SGame.Reflection.GetPrivateField<Stopwatch>(typeof(Game1), nameof(SGame._fpsStopwatch)).GetValue();
         private static float _fps
         {
-            set { SGame.Reflection.GetPrivateField<float>(typeof(Game1), nameof(_fps)).SetValue(value); }
+            set => SGame.Reflection.GetPrivateField<float>(typeof(Game1), nameof(_fps)).SetValue(value);
         }
         private static Task _newDayTask => SGame.Reflection.GetPrivateField<Task>(typeof(Game1), nameof(_newDayTask)).GetValue();
         private Color bgColor => SGame.Reflection.GetPrivateField<Color>(this, nameof(bgColor)).GetValue();
@@ -202,6 +202,15 @@ namespace StardewModdingAPI.Framework
             SGame.Reflection = reflection;
 
             Game1.graphics.GraphicsProfile = GraphicsProfile.HiDef; // required by Stardew Valley
+
+            // The game uses the default content manager instead of Game1.CreateContentManager in
+            // several cases (See http://community.playstarbound.com/threads/130058/page-27#post-3159274).
+            // The workaround is...
+            //   1. Override the default content manager.
+            //   2. Since Game1.content isn't initialised yet, and we need one main instance to
+            //      support custom map tilesheets, detect when Game1.content is being initialised
+            //      and use the same instance.
+            this.Content = new SContentManager(this.Content.ServiceProvider, this.Content.RootDirectory, this.Monitor);
         }
 
         /****
@@ -212,6 +221,12 @@ namespace StardewModdingAPI.Framework
         /// <param name="rootDirectory">The root directory to search for content.</param>
         protected override LocalizedContentManager CreateContentManager(IServiceProvider serviceProvider, string rootDirectory)
         {
+            // When Game1.content is being initialised, use SMAPI's main content manager instance.
+            // See comment in SGame constructor.
+            if (Game1.content == null && this.Content is SContentManager mainContentManager)
+                return mainContentManager;
+
+            // build new instance
             return new SContentManager(this.Content.ServiceProvider, this.Content.RootDirectory, this.Monitor);
         }
 
