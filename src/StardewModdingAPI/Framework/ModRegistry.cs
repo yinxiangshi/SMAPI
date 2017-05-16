@@ -135,7 +135,7 @@ namespace StardewModdingAPI.Framework
             return (
                 from mod in this.CompatibilityRecords
                 where
-                    mod.ID == key
+                    mod.ID.Contains(key, StringComparer.InvariantCultureIgnoreCase)
                     && (mod.LowerSemanticVersion == null || !manifest.Version.IsOlderThan(mod.LowerSemanticVersion))
                     && !manifest.Version.IsNewerThan(mod.UpperSemanticVersion)
                 select mod

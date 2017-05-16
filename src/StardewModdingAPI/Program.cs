@@ -533,7 +533,7 @@ namespace StardewModdingAPI
                     bool hasUnofficialUrl = !string.IsNullOrWhiteSpace(compatibility.UnofficialUpdateUrl);
 
                     string reasonPhrase = compatibility.ReasonPhrase ?? "it's not compatible with the latest version of the game";
-                    string error = $"{reasonPhrase}. Please check for a version newer than {compatibility.UpperVersion} here:";
+                    string error = $"{reasonPhrase}. Please check for a version newer than {compatibility.UpperVersionLabel ?? compatibility.UpperVersion} here:";
                     if (hasOfficialUrl)
                         error += !hasUnofficialUrl ? $" {compatibility.UpdateUrl}" : $"{Environment.NewLine}- official mod: {compatibility.UpdateUrl}";
                     if (hasUnofficialUrl)

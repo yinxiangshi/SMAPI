@@ -19,6 +19,7 @@ For players:
 * Fixed installer finding redundant game paths on Linux.
 * Fixed save events not being raised after the first day on Linux/Mac.
 * Fixed error on Linux/Mac when a mod loads a PNG immediately after the save is loaded.
+* Updated mod compatibility list for Stardew Valley 1.2.
 
 For mod developers:
 * Added log entries for basic context changes (e.g. loaded save) to simplify troubleshooting.

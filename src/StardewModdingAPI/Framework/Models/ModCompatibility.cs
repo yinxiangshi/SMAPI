@@ -12,8 +12,8 @@ namespace StardewModdingAPI.Framework.Models
         /****
         ** From config
         ****/
-        /// <summary>The unique mod ID.</summary>
-        public string ID { get; set; }
+        /// <summary>The unique mod IDs.</summary>
+        public string[] ID { get; set; }
 
         /// <summary>The mod name.</summary>
         public string Name { get; set; }
@@ -23,6 +23,9 @@ namespace StardewModdingAPI.Framework.Models
 
         /// <summary>The most recent incompatible mod version.</summary>
         public string UpperVersion { get; set; }
+
+        /// <summary>A label to show to the user instead of <see cref="UpperVersion"/>, when the manifest version differs from the user-facing version.</summary>
+        public string UpperVersionLabel { get; set; }
 
         /// <summary>The URL the user can check for an official updated version.</summary>
         public string UpdateUrl { get; set; }
