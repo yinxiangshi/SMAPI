@@ -116,7 +116,7 @@ namespace StardewModdingAPI
             return Path.Combine(this.PathOnDisk, "psconfigs");
         }
 
-        /// <summary>Release or reset unmanaged resources.</summary>
+        /// <summary>Release or reset unmanaged resources when the game exits. There's no guarantee this will be called on every exit.</summary>
         /// <param name="disposing">Whether the instance is being disposed explicitly rather than finalised. If this is false, the instance shouldn't dispose other objects since they may already be finalised.</param>
         protected virtual void Dispose(bool disposing) { }
 

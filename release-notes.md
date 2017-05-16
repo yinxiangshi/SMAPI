@@ -14,7 +14,7 @@ For mod developers:
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.12...1.13).
 
 For players:
-* SMAPI now has better draw error recovery and detects when the error is irrecoverable.
+* SMAPI now recovers better from mod draw errors and detects when the error is irrecoverable.
 * SMAPI now remembers if your game crashed and offers help next time you launch it.
 * Fixed installer finding redundant game paths on Linux.
 * Fixed save events not being raised after the first day on Linux/Mac.
@@ -22,13 +22,13 @@ For players:
 * Updated mod compatibility list for Stardew Valley 1.2.
 
 For mod developers:
-* SMAPI now logs basic context info to simplify troubleshooting.
-* Added a `Context.IsWorldReady` flag.  
-  _<small>This flag is true when a save is loaded and the world is finished initialising, which starts at the same point that `SaveEvents.AfterLoad` and `TimeEvents.AfterDayStarted` are raised. This is mainly useful with events which can be raised before the world is loaded (like update tick).</small>_
-* Added a `debug` console command to TrainerMod which lets you pass debug commands to the game (e.g. `debug warp FarmHouse 1 1` warps the player to the farmhouse).
-* Added a deprecation warning for mods that don't set the `Name`, `Version`, or `UniqueID` manifest fields. These will be required in SMAPI 2.0.
-* Mods can now override `Dispose` if they need to release unmanaged resources.
-* Deprecated `GameEvents.GameLoaded` and `GameEvents.FirstUpdateTick`, since any logic in the mod's `Entry` method will happen after the game is loaded.
+* Added a `Context.IsWorldReady` flag for mods to use.  
+  _<small>This indicates whether a save is loaded and the world is finished initialising, which starts at the same point that `SaveEvents.AfterLoad` and `TimeEvents.AfterDayStarted` are raised. This is mainly useful for events which can be raised before the world is loaded (like update tick).</small>_
+* Added a `debug` console command which lets you run the game's debug commands (e.g. `debug warp FarmHouse 1 1` warps you to the farmhouse).
+* Added basic context info to logs to simplify troubleshooting.
+* Added a `Mod.Dispose` method which can be overriden to clean up before exit. This method isn't guaranteed to be called on every exit.
+* Deprecated mods that don't have a `Name`, `Version`, or `UniqueID` in their manifest. These will be required in SMAPI 2.0.
+* Deprecated `GameEvents.GameLoaded` and `GameEvents.FirstUpdateTick`. You can move any affected code into your mod's `Entry` method.
 * Fixed maps not recognising custom tilesheets added through the SMAPI content API.
 
 ## 1.12
