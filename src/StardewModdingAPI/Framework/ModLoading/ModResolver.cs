@@ -131,9 +131,19 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="mods">The mods to process.</param>
         public IEnumerable<IModMetadata> ProcessDependencies(IEnumerable<IModMetadata> mods)
         {
+            // initialise metadata
             mods = mods.ToArray();
             var sortedMods = new Stack<IModMetadata>();
             var states = mods.ToDictionary(mod => mod, mod => ModDependencyStatus.Queued);
+
+            // handle failed mods
+            foreach (IModMetadata mod in mods.Where(m => m.Status == ModMetadataStatus.Failed))
+            {
+                states[mod] = ModDependencyStatus.Failed;
+                sortedMods.Push(mod);
+            }
+            
+            // sort mods
             foreach (IModMetadata mod in mods)
                 this.ProcessDependencies(mods.ToArray(), mod, states, sortedMods, new List<IModMetadata>());
 

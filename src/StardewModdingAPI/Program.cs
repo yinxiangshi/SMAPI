@@ -322,7 +322,7 @@ namespace StardewModdingAPI
 
                 // check for deprecated metadata
                 IList<Action> deprecationWarnings = new List<Action>();
-                foreach (IModMetadata mod in mods)
+                foreach (IModMetadata mod in mods.Where(m => m.Status != ModMetadataStatus.Failed))
                 {
                     // missing fields that will be required in SMAPI 2.0
                     {
