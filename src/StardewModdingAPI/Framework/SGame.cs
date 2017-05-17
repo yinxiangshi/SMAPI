@@ -40,7 +40,7 @@ namespace StardewModdingAPI.Framework
         private int AfterLoadTimer = 5;
 
         /// <summary>Whether the game is returning to the menu.</summary>
-        private bool IsExiting;
+        private bool IsExitingToTitle;
 
         /// <summary>Whether the game is saving and SMAPI has already raised <see cref="SaveEvents.BeforeSave"/>.</summary>
         private bool IsBetweenSaveEvents;
@@ -337,17 +337,16 @@ namespace StardewModdingAPI.Framework
                 *********/
                 // before exit to title
                 if (Game1.exitToTitle)
-                    this.IsExiting = true;
+                    this.IsExitingToTitle = true;
 
                 // after exit to title
-                if (Context.IsWorldReady && this.IsExiting && Game1.activeClickableMenu is TitleMenu)
+                if (Context.IsWorldReady && this.IsExitingToTitle && Game1.activeClickableMenu is TitleMenu)
                 {
                     this.Monitor.Log("Context: returned to title", LogLevel.Trace);
-                    Context.IsWorldReady = false;
 
+                    this.IsExitingToTitle = false;
+                    this.CleanupAfterReturnToTitle();
                     SaveEvents.InvokeAfterReturnToTitle(this.Monitor);
-                    this.AfterLoadTimer = 5;
-                    this.IsExiting = false;
                 }
 
                 /*********
@@ -1290,6 +1289,14 @@ namespace StardewModdingAPI.Framework
         /****
         ** Methods
         ****/
+        /// <summary>Perform any cleanup needed when the player unloads a save and returns to the title screen.</summary>
+        private void CleanupAfterReturnToTitle()
+        {
+            Context.IsWorldReady = false;
+            this.AfterLoadTimer = 5;
+            this.PreviousSaveID = 0;
+        }
+
         /// <summary>Get the controller buttons which are currently pressed.</summary>
         /// <param name="index">The controller to check.</param>
         private Buttons[] GetButtonsDown(PlayerIndex index)
