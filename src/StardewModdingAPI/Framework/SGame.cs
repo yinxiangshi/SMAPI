@@ -30,14 +30,14 @@ namespace StardewModdingAPI.Framework
         ** SMAPI state
         ****/
         /// <summary>The maximum number of consecutive attempts SMAPI should make to recover from a draw error.</summary>
-        private readonly int MaxFailedDraws = 60; // roughly one second
+        private readonly Countdown DrawCrashTimer = new Countdown(60); // 60 ticks = roughly one second
+
+        /// <summary>The maximum number of consecutive attempts SMAPI should make to recover from an update error.</summary>
+        private readonly Countdown UpdateCrashTimer = new Countdown(60); // 60 ticks = roughly one second
 
         /// <summary>The number of ticks until SMAPI should notify mods that the game has loaded.</summary>
         /// <remarks>Skipping a few frames ensures the game finishes initialising the world before mods try to change it.</remarks>
         private int AfterLoadTimer = 5;
-
-        /// <summary>The number of consecutive failed draws.</summary>
-        private int FailedDraws;
 
         /// <summary>Whether the game is returning to the menu.</summary>
         private bool IsExiting;
@@ -234,339 +234,353 @@ namespace StardewModdingAPI.Framework
         /// <param name="gameTime">A snapshot of the game timing state.</param>
         protected override void Update(GameTime gameTime)
         {
-            /*********
-            ** Skip conditions
-            *********/
-            // SMAPI exiting, stop processing game updates
-            if (this.Monitor.IsExiting)
-            {
-                this.Monitor.Log("SMAPI shutting down: aborting update.", LogLevel.Trace);
-                return;
-            }
-
-            // While a background new-day task is in progress, the game skips its own update logic
-            // and defers to the XNA Update method. Running mod code in parallel to the background
-            // update is risky, because data changes can conflict (e.g. collection changed during
-            // enumeration errors) and data may change unexpectedly from one mod instruction to the
-            // next.
-            // 
-            // Therefore we can just run Game1.Update here without raising any SMAPI events. There's
-            // a small chance that the task will finish after we defer but before the game checks,
-            // which means technically events should be raised, but the effects of missing one
-            // update tick are neglible and not worth the complications of bypassing Game1.Update.
-            if (SGame._newDayTask != null)
-            {
-                base.Update(gameTime);
-                return;
-            }
-
-            // While the game is writing to the save file in the background, mods can unexpectedly
-            // fail since they don't have exclusive access to resources (e.g. collection changed
-            // during enumeration errors). To avoid problems, events are not invoked while a save
-            // is in progress. It's safe to raise SaveEvents.BeforeSave as soon as the menu is
-            // opened (since the save hasn't started yet), but all other events should be suppressed.
-            if (Context.IsSaving)
-            {
-                // raise before-save
-                if (!this.IsBetweenSaveEvents)
-                {
-                    this.IsBetweenSaveEvents = true;
-                    this.Monitor.Log("Context: before save.", LogLevel.Trace);
-                    SaveEvents.InvokeBeforeSave(this.Monitor);
-                }
-
-                // suppress non-save events
-                base.Update(gameTime);
-                return;
-            }
-            if (this.IsBetweenSaveEvents)
-            {
-                // raise after-save
-                this.IsBetweenSaveEvents = false;
-                this.Monitor.Log($"Context: after save, starting {Game1.currentSeason} {Game1.dayOfMonth} Y{Game1.year}.", LogLevel.Trace);
-                SaveEvents.InvokeAfterSave(this.Monitor);
-                TimeEvents.InvokeAfterDayStarted(this.Monitor);
-            }
-
-            /*********
-            ** Game loaded events
-            *********/
-            if (this.FirstUpdate)
-            {
-                GameEvents.InvokeInitialize(this.Monitor);
-                GameEvents.InvokeLoadContent(this.Monitor);
-                GameEvents.InvokeGameLoaded(this.Monitor);
-            }
-
-            /*********
-            ** Locale changed events
-            *********/
-            if (this.PreviousLocale != LocalizedContentManager.CurrentLanguageCode)
-            {
-                var oldValue = this.PreviousLocale;
-                var newValue = LocalizedContentManager.CurrentLanguageCode;
-
-                this.Monitor.Log($"Context: locale set to {newValue}.", LogLevel.Trace);
-
-                if (oldValue != null)
-                    ContentEvents.InvokeAfterLocaleChanged(this.Monitor, oldValue.ToString(), newValue.ToString());
-                this.PreviousLocale = newValue;
-            }
-
-            /*********
-            ** After load events
-            *********/
-            if (Context.IsSaveLoaded && !SaveGame.IsProcessing/*still loading save*/ && this.AfterLoadTimer >= 0)
-            {
-                if (this.AfterLoadTimer == 0)
-                {
-                    this.Monitor.Log($"Context: loaded saved game '{Constants.SaveFolderName}', starting {Game1.currentSeason} {Game1.dayOfMonth} Y{Game1.year}.", LogLevel.Trace);
-                    Context.IsWorldReady = true;
-
-                    SaveEvents.InvokeAfterLoad(this.Monitor);
-                    PlayerEvents.InvokeLoadedGame(this.Monitor, new EventArgsLoadedGameChanged(Game1.hasLoadedGame));
-                    TimeEvents.InvokeAfterDayStarted(this.Monitor);
-                }
-                this.AfterLoadTimer--;
-            }
-
-            /*********
-            ** Exit to title events
-            *********/
-            // before exit to title
-            if (Game1.exitToTitle)
-                this.IsExiting = true;
-
-            // after exit to title
-            if (Context.IsWorldReady && this.IsExiting && Game1.activeClickableMenu is TitleMenu)
-            {
-                this.Monitor.Log("Context: returned to title", LogLevel.Trace);
-                Context.IsWorldReady = false;
-
-                SaveEvents.InvokeAfterReturnToTitle(this.Monitor);
-                this.AfterLoadTimer = 5;
-                this.IsExiting = false;
-            }
-
-            /*********
-            ** Input events
-            *********/
-            {
-                // get latest state
-                this.KStateNow = Keyboard.GetState();
-                this.MStateNow = Mouse.GetState();
-                this.MPositionNow = new Point(Game1.getMouseX(), Game1.getMouseY());
-
-                // raise key pressed
-                foreach (var key in this.FramePressedKeys)
-                    ControlEvents.InvokeKeyPressed(this.Monitor, key);
-
-                // raise key released
-                foreach (var key in this.FrameReleasedKeys)
-                    ControlEvents.InvokeKeyReleased(this.Monitor, key);
-
-                // raise controller button pressed
-                for (var i = PlayerIndex.One; i <= PlayerIndex.Four; i++)
-                {
-                    var buttons = this.GetFramePressedButtons(i);
-                    foreach (var button in buttons)
-                    {
-                        if (button == Buttons.LeftTrigger || button == Buttons.RightTrigger)
-                            ControlEvents.InvokeTriggerPressed(this.Monitor, i, button, button == Buttons.LeftTrigger ? GamePad.GetState(i).Triggers.Left : GamePad.GetState(i).Triggers.Right);
-                        else
-                            ControlEvents.InvokeButtonPressed(this.Monitor, i, button);
-                    }
-                }
-
-                // raise controller button released
-                for (var i = PlayerIndex.One; i <= PlayerIndex.Four; i++)
-                {
-                    foreach (var button in this.GetFrameReleasedButtons(i))
-                    {
-                        if (button == Buttons.LeftTrigger || button == Buttons.RightTrigger)
-                            ControlEvents.InvokeTriggerReleased(this.Monitor, i, button, button == Buttons.LeftTrigger ? GamePad.GetState(i).Triggers.Left : GamePad.GetState(i).Triggers.Right);
-                        else
-                            ControlEvents.InvokeButtonReleased(this.Monitor, i, button);
-                    }
-                }
-
-                // raise keyboard state changed
-                if (this.KStateNow != this.KStatePrior)
-                    ControlEvents.InvokeKeyboardChanged(this.Monitor, this.KStatePrior, this.KStateNow);
-
-                // raise mouse state changed
-                if (this.MStateNow != this.MStatePrior)
-                {
-                    ControlEvents.InvokeMouseChanged(this.Monitor, this.MStatePrior, this.MStateNow, this.MPositionPrior, this.MPositionNow);
-                    this.MStatePrior = this.MStateNow;
-                    this.MPositionPrior = this.MPositionNow;
-                }
-            }
-
-            /*********
-            ** Menu events
-            *********/
-            if (Game1.activeClickableMenu != this.PreviousActiveMenu)
-            {
-                IClickableMenu previousMenu = this.PreviousActiveMenu;
-                IClickableMenu newMenu = Game1.activeClickableMenu;
-
-                // log context
-                if (this.VerboseLogging)
-                {
-                    if (previousMenu == null)
-                        this.Monitor.Log($"Context: opened menu {newMenu?.GetType().FullName ?? "(none)"}.", LogLevel.Trace);
-                    else if (newMenu == null)
-                        this.Monitor.Log($"Context: closed menu {previousMenu.GetType().FullName}.", LogLevel.Trace);
-                    else
-                        this.Monitor.Log($"Context: changed menu from {previousMenu.GetType().FullName} to {newMenu.GetType().FullName}.", LogLevel.Trace);
-                }
-
-                // raise menu events
-                if (newMenu != null)
-                    MenuEvents.InvokeMenuChanged(this.Monitor, previousMenu, newMenu);
-                else
-                    MenuEvents.InvokeMenuClosed(this.Monitor, previousMenu);
-
-                // update previous menu
-                // (if the menu was changed in one of the handlers, deliberately defer detection until the next update so mods can be notified of the new menu change)
-                this.PreviousActiveMenu = newMenu;
-            }
-
-            /*********
-            ** World & player events
-            *********/
-            if (Context.IsWorldReady)
-            {
-                // raise events (only when something changes, not on the initial load)
-                if (Game1.uniqueIDForThisGame == this.PreviousSaveID)
-                {
-                    // raise location list changed
-                    if (this.GetHash(Game1.locations) != this.PreviousGameLocations)
-                        LocationEvents.InvokeLocationsChanged(this.Monitor, Game1.locations);
-
-                    // raise current location changed
-                    if (Game1.currentLocation != this.PreviousGameLocation)
-                    {
-                        if (this.VerboseLogging)
-                            this.Monitor.Log($"Context: set location to {Game1.currentLocation?.Name ?? "(none)"}.", LogLevel.Trace);
-                        LocationEvents.InvokeCurrentLocationChanged(this.Monitor, this.PreviousGameLocation, Game1.currentLocation);
-                    }
-
-                    // raise player changed
-                    if (Game1.player != this.PreviousFarmer)
-                        PlayerEvents.InvokeFarmerChanged(this.Monitor, this.PreviousFarmer, Game1.player);
-
-                    // raise player leveled up a skill
-                    if (Game1.player.combatLevel != this.PreviousCombatLevel)
-                        PlayerEvents.InvokeLeveledUp(this.Monitor, EventArgsLevelUp.LevelType.Combat, Game1.player.combatLevel);
-                    if (Game1.player.farmingLevel != this.PreviousFarmingLevel)
-                        PlayerEvents.InvokeLeveledUp(this.Monitor, EventArgsLevelUp.LevelType.Farming, Game1.player.farmingLevel);
-                    if (Game1.player.fishingLevel != this.PreviousFishingLevel)
-                        PlayerEvents.InvokeLeveledUp(this.Monitor, EventArgsLevelUp.LevelType.Fishing, Game1.player.fishingLevel);
-                    if (Game1.player.foragingLevel != this.PreviousForagingLevel)
-                        PlayerEvents.InvokeLeveledUp(this.Monitor, EventArgsLevelUp.LevelType.Foraging, Game1.player.foragingLevel);
-                    if (Game1.player.miningLevel != this.PreviousMiningLevel)
-                        PlayerEvents.InvokeLeveledUp(this.Monitor, EventArgsLevelUp.LevelType.Mining, Game1.player.miningLevel);
-                    if (Game1.player.luckLevel != this.PreviousLuckLevel)
-                        PlayerEvents.InvokeLeveledUp(this.Monitor, EventArgsLevelUp.LevelType.Luck, Game1.player.luckLevel);
-
-                    // raise player inventory changed
-                    ItemStackChange[] changedItems = this.GetInventoryChanges(Game1.player.items, this.PreviousItems).ToArray();
-                    if (changedItems.Any())
-                        PlayerEvents.InvokeInventoryChanged(this.Monitor, Game1.player.items, changedItems);
-
-                    // raise current location's object list changed
-                    if (this.GetHash(Game1.currentLocation.objects) != this.PreviousLocationObjects)
-                        LocationEvents.InvokeOnNewLocationObject(this.Monitor, Game1.currentLocation.objects);
-
-                    // raise time changed
-                    if (Game1.timeOfDay != this.PreviousTime)
-                        TimeEvents.InvokeTimeOfDayChanged(this.Monitor, this.PreviousTime, Game1.timeOfDay);
-                    if (Game1.dayOfMonth != this.PreviousDay)
-                        TimeEvents.InvokeDayOfMonthChanged(this.Monitor, this.PreviousDay, Game1.dayOfMonth);
-                    if (Game1.currentSeason != this.PreviousSeason)
-                        TimeEvents.InvokeSeasonOfYearChanged(this.Monitor, this.PreviousSeason, Game1.currentSeason);
-                    if (Game1.year != this.PreviousYear)
-                        TimeEvents.InvokeYearOfGameChanged(this.Monitor, this.PreviousYear, Game1.year);
-
-                    // raise mine level changed
-                    if (Game1.mine != null && Game1.mine.mineLevel != this.PreviousMineLevel)
-                        MineEvents.InvokeMineLevelChanged(this.Monitor, this.PreviousMineLevel, Game1.mine.mineLevel);
-                }
-
-                // update state
-                this.PreviousGameLocations = this.GetHash(Game1.locations);
-                this.PreviousGameLocation = Game1.currentLocation;
-                this.PreviousFarmer = Game1.player;
-                this.PreviousCombatLevel = Game1.player.combatLevel;
-                this.PreviousFarmingLevel = Game1.player.farmingLevel;
-                this.PreviousFishingLevel = Game1.player.fishingLevel;
-                this.PreviousForagingLevel = Game1.player.foragingLevel;
-                this.PreviousMiningLevel = Game1.player.miningLevel;
-                this.PreviousLuckLevel = Game1.player.luckLevel;
-                this.PreviousItems = Game1.player.items.Where(n => n != null).ToDictionary(n => n, n => n.Stack);
-                this.PreviousLocationObjects = this.GetHash(Game1.currentLocation.objects);
-                this.PreviousTime = Game1.timeOfDay;
-                this.PreviousDay = Game1.dayOfMonth;
-                this.PreviousSeason = Game1.currentSeason;
-                this.PreviousYear = Game1.year;
-                this.PreviousMineLevel = Game1.mine.mineLevel;
-                this.PreviousSaveID = Game1.uniqueIDForThisGame;
-            }
-
-            /*********
-            ** Game day transition event (obsolete)
-            *********/
-            if (Game1.newDay != this.PreviousIsNewDay)
-            {
-                TimeEvents.InvokeOnNewDay(this.Monitor, this.PreviousDay, Game1.dayOfMonth, Game1.newDay);
-                this.PreviousIsNewDay = Game1.newDay;
-            }
-
-            /*********
-            ** Game update
-            *********/
             try
             {
-                base.Update(gameTime);
+                /*********
+                ** Skip conditions
+                *********/
+                // SMAPI exiting, stop processing game updates
+                if (this.Monitor.IsExiting)
+                {
+                    this.Monitor.Log("SMAPI shutting down: aborting update.", LogLevel.Trace);
+                    return;
+                }
+
+                // While a background new-day task is in progress, the game skips its own update logic
+                // and defers to the XNA Update method. Running mod code in parallel to the background
+                // update is risky, because data changes can conflict (e.g. collection changed during
+                // enumeration errors) and data may change unexpectedly from one mod instruction to the
+                // next.
+                // 
+                // Therefore we can just run Game1.Update here without raising any SMAPI events. There's
+                // a small chance that the task will finish after we defer but before the game checks,
+                // which means technically events should be raised, but the effects of missing one
+                // update tick are neglible and not worth the complications of bypassing Game1.Update.
+                if (SGame._newDayTask != null)
+                {
+                    base.Update(gameTime);
+                    return;
+                }
+
+                // While the game is writing to the save file in the background, mods can unexpectedly
+                // fail since they don't have exclusive access to resources (e.g. collection changed
+                // during enumeration errors). To avoid problems, events are not invoked while a save
+                // is in progress. It's safe to raise SaveEvents.BeforeSave as soon as the menu is
+                // opened (since the save hasn't started yet), but all other events should be suppressed.
+                if (Context.IsSaving)
+                {
+                    // raise before-save
+                    if (!this.IsBetweenSaveEvents)
+                    {
+                        this.IsBetweenSaveEvents = true;
+                        this.Monitor.Log("Context: before save.", LogLevel.Trace);
+                        SaveEvents.InvokeBeforeSave(this.Monitor);
+                    }
+
+                    // suppress non-save events
+                    base.Update(gameTime);
+                    return;
+                }
+                if (this.IsBetweenSaveEvents)
+                {
+                    // raise after-save
+                    this.IsBetweenSaveEvents = false;
+                    this.Monitor.Log($"Context: after save, starting {Game1.currentSeason} {Game1.dayOfMonth} Y{Game1.year}.", LogLevel.Trace);
+                    SaveEvents.InvokeAfterSave(this.Monitor);
+                    TimeEvents.InvokeAfterDayStarted(this.Monitor);
+                }
+
+                /*********
+                ** Game loaded events
+                *********/
+                if (this.FirstUpdate)
+                {
+                    GameEvents.InvokeInitialize(this.Monitor);
+                    GameEvents.InvokeLoadContent(this.Monitor);
+                    GameEvents.InvokeGameLoaded(this.Monitor);
+                }
+
+                /*********
+                ** Locale changed events
+                *********/
+                if (this.PreviousLocale != LocalizedContentManager.CurrentLanguageCode)
+                {
+                    var oldValue = this.PreviousLocale;
+                    var newValue = LocalizedContentManager.CurrentLanguageCode;
+
+                    this.Monitor.Log($"Context: locale set to {newValue}.", LogLevel.Trace);
+
+                    if (oldValue != null)
+                        ContentEvents.InvokeAfterLocaleChanged(this.Monitor, oldValue.ToString(), newValue.ToString());
+                    this.PreviousLocale = newValue;
+                }
+
+                /*********
+                ** After load events
+                *********/
+                if (Context.IsSaveLoaded && !SaveGame.IsProcessing /*still loading save*/ && this.AfterLoadTimer >= 0)
+                {
+                    if (this.AfterLoadTimer == 0)
+                    {
+                        this.Monitor.Log($"Context: loaded saved game '{Constants.SaveFolderName}', starting {Game1.currentSeason} {Game1.dayOfMonth} Y{Game1.year}.", LogLevel.Trace);
+                        Context.IsWorldReady = true;
+
+                        SaveEvents.InvokeAfterLoad(this.Monitor);
+                        PlayerEvents.InvokeLoadedGame(this.Monitor, new EventArgsLoadedGameChanged(Game1.hasLoadedGame));
+                        TimeEvents.InvokeAfterDayStarted(this.Monitor);
+                    }
+                    this.AfterLoadTimer--;
+                }
+
+                /*********
+                ** Exit to title events
+                *********/
+                // before exit to title
+                if (Game1.exitToTitle)
+                    this.IsExiting = true;
+
+                // after exit to title
+                if (Context.IsWorldReady && this.IsExiting && Game1.activeClickableMenu is TitleMenu)
+                {
+                    this.Monitor.Log("Context: returned to title", LogLevel.Trace);
+                    Context.IsWorldReady = false;
+
+                    SaveEvents.InvokeAfterReturnToTitle(this.Monitor);
+                    this.AfterLoadTimer = 5;
+                    this.IsExiting = false;
+                }
+
+                /*********
+                ** Input events
+                *********/
+                {
+                    // get latest state
+                    this.KStateNow = Keyboard.GetState();
+                    this.MStateNow = Mouse.GetState();
+                    this.MPositionNow = new Point(Game1.getMouseX(), Game1.getMouseY());
+
+                    // raise key pressed
+                    foreach (var key in this.FramePressedKeys)
+                        ControlEvents.InvokeKeyPressed(this.Monitor, key);
+
+                    // raise key released
+                    foreach (var key in this.FrameReleasedKeys)
+                        ControlEvents.InvokeKeyReleased(this.Monitor, key);
+
+                    // raise controller button pressed
+                    for (var i = PlayerIndex.One; i <= PlayerIndex.Four; i++)
+                    {
+                        var buttons = this.GetFramePressedButtons(i);
+                        foreach (var button in buttons)
+                        {
+                            if (button == Buttons.LeftTrigger || button == Buttons.RightTrigger)
+                                ControlEvents.InvokeTriggerPressed(this.Monitor, i, button, button == Buttons.LeftTrigger ? GamePad.GetState(i).Triggers.Left : GamePad.GetState(i).Triggers.Right);
+                            else
+                                ControlEvents.InvokeButtonPressed(this.Monitor, i, button);
+                        }
+                    }
+
+                    // raise controller button released
+                    for (var i = PlayerIndex.One; i <= PlayerIndex.Four; i++)
+                    {
+                        foreach (var button in this.GetFrameReleasedButtons(i))
+                        {
+                            if (button == Buttons.LeftTrigger || button == Buttons.RightTrigger)
+                                ControlEvents.InvokeTriggerReleased(this.Monitor, i, button, button == Buttons.LeftTrigger ? GamePad.GetState(i).Triggers.Left : GamePad.GetState(i).Triggers.Right);
+                            else
+                                ControlEvents.InvokeButtonReleased(this.Monitor, i, button);
+                        }
+                    }
+
+                    // raise keyboard state changed
+                    if (this.KStateNow != this.KStatePrior)
+                        ControlEvents.InvokeKeyboardChanged(this.Monitor, this.KStatePrior, this.KStateNow);
+
+                    // raise mouse state changed
+                    if (this.MStateNow != this.MStatePrior)
+                    {
+                        ControlEvents.InvokeMouseChanged(this.Monitor, this.MStatePrior, this.MStateNow, this.MPositionPrior, this.MPositionNow);
+                        this.MStatePrior = this.MStateNow;
+                        this.MPositionPrior = this.MPositionNow;
+                    }
+                }
+
+                /*********
+                ** Menu events
+                *********/
+                if (Game1.activeClickableMenu != this.PreviousActiveMenu)
+                {
+                    IClickableMenu previousMenu = this.PreviousActiveMenu;
+                    IClickableMenu newMenu = Game1.activeClickableMenu;
+
+                    // log context
+                    if (this.VerboseLogging)
+                    {
+                        if (previousMenu == null)
+                            this.Monitor.Log($"Context: opened menu {newMenu?.GetType().FullName ?? "(none)"}.", LogLevel.Trace);
+                        else if (newMenu == null)
+                            this.Monitor.Log($"Context: closed menu {previousMenu.GetType().FullName}.", LogLevel.Trace);
+                        else
+                            this.Monitor.Log($"Context: changed menu from {previousMenu.GetType().FullName} to {newMenu.GetType().FullName}.", LogLevel.Trace);
+                    }
+
+                    // raise menu events
+                    if (newMenu != null)
+                        MenuEvents.InvokeMenuChanged(this.Monitor, previousMenu, newMenu);
+                    else
+                        MenuEvents.InvokeMenuClosed(this.Monitor, previousMenu);
+
+                    // update previous menu
+                    // (if the menu was changed in one of the handlers, deliberately defer detection until the next update so mods can be notified of the new menu change)
+                    this.PreviousActiveMenu = newMenu;
+                }
+
+                /*********
+                ** World & player events
+                *********/
+                if (Context.IsWorldReady)
+                {
+                    // raise events (only when something changes, not on the initial load)
+                    if (Game1.uniqueIDForThisGame == this.PreviousSaveID)
+                    {
+                        // raise location list changed
+                        if (this.GetHash(Game1.locations) != this.PreviousGameLocations)
+                            LocationEvents.InvokeLocationsChanged(this.Monitor, Game1.locations);
+
+                        // raise current location changed
+                        if (Game1.currentLocation != this.PreviousGameLocation)
+                        {
+                            if (this.VerboseLogging)
+                                this.Monitor.Log($"Context: set location to {Game1.currentLocation?.Name ?? "(none)"}.", LogLevel.Trace);
+                            LocationEvents.InvokeCurrentLocationChanged(this.Monitor, this.PreviousGameLocation, Game1.currentLocation);
+                        }
+
+                        // raise player changed
+                        if (Game1.player != this.PreviousFarmer)
+                            PlayerEvents.InvokeFarmerChanged(this.Monitor, this.PreviousFarmer, Game1.player);
+
+                        // raise player leveled up a skill
+                        if (Game1.player.combatLevel != this.PreviousCombatLevel)
+                            PlayerEvents.InvokeLeveledUp(this.Monitor, EventArgsLevelUp.LevelType.Combat, Game1.player.combatLevel);
+                        if (Game1.player.farmingLevel != this.PreviousFarmingLevel)
+                            PlayerEvents.InvokeLeveledUp(this.Monitor, EventArgsLevelUp.LevelType.Farming, Game1.player.farmingLevel);
+                        if (Game1.player.fishingLevel != this.PreviousFishingLevel)
+                            PlayerEvents.InvokeLeveledUp(this.Monitor, EventArgsLevelUp.LevelType.Fishing, Game1.player.fishingLevel);
+                        if (Game1.player.foragingLevel != this.PreviousForagingLevel)
+                            PlayerEvents.InvokeLeveledUp(this.Monitor, EventArgsLevelUp.LevelType.Foraging, Game1.player.foragingLevel);
+                        if (Game1.player.miningLevel != this.PreviousMiningLevel)
+                            PlayerEvents.InvokeLeveledUp(this.Monitor, EventArgsLevelUp.LevelType.Mining, Game1.player.miningLevel);
+                        if (Game1.player.luckLevel != this.PreviousLuckLevel)
+                            PlayerEvents.InvokeLeveledUp(this.Monitor, EventArgsLevelUp.LevelType.Luck, Game1.player.luckLevel);
+
+                        // raise player inventory changed
+                        ItemStackChange[] changedItems = this.GetInventoryChanges(Game1.player.items, this.PreviousItems).ToArray();
+                        if (changedItems.Any())
+                            PlayerEvents.InvokeInventoryChanged(this.Monitor, Game1.player.items, changedItems);
+
+                        // raise current location's object list changed
+                        if (this.GetHash(Game1.currentLocation.objects) != this.PreviousLocationObjects)
+                            LocationEvents.InvokeOnNewLocationObject(this.Monitor, Game1.currentLocation.objects);
+
+                        // raise time changed
+                        if (Game1.timeOfDay != this.PreviousTime)
+                            TimeEvents.InvokeTimeOfDayChanged(this.Monitor, this.PreviousTime, Game1.timeOfDay);
+                        if (Game1.dayOfMonth != this.PreviousDay)
+                            TimeEvents.InvokeDayOfMonthChanged(this.Monitor, this.PreviousDay, Game1.dayOfMonth);
+                        if (Game1.currentSeason != this.PreviousSeason)
+                            TimeEvents.InvokeSeasonOfYearChanged(this.Monitor, this.PreviousSeason, Game1.currentSeason);
+                        if (Game1.year != this.PreviousYear)
+                            TimeEvents.InvokeYearOfGameChanged(this.Monitor, this.PreviousYear, Game1.year);
+
+                        // raise mine level changed
+                        if (Game1.mine != null && Game1.mine.mineLevel != this.PreviousMineLevel)
+                            MineEvents.InvokeMineLevelChanged(this.Monitor, this.PreviousMineLevel, Game1.mine.mineLevel);
+                    }
+
+                    // update state
+                    this.PreviousGameLocations = this.GetHash(Game1.locations);
+                    this.PreviousGameLocation = Game1.currentLocation;
+                    this.PreviousFarmer = Game1.player;
+                    this.PreviousCombatLevel = Game1.player.combatLevel;
+                    this.PreviousFarmingLevel = Game1.player.farmingLevel;
+                    this.PreviousFishingLevel = Game1.player.fishingLevel;
+                    this.PreviousForagingLevel = Game1.player.foragingLevel;
+                    this.PreviousMiningLevel = Game1.player.miningLevel;
+                    this.PreviousLuckLevel = Game1.player.luckLevel;
+                    this.PreviousItems = Game1.player.items.Where(n => n != null).ToDictionary(n => n, n => n.Stack);
+                    this.PreviousLocationObjects = this.GetHash(Game1.currentLocation.objects);
+                    this.PreviousTime = Game1.timeOfDay;
+                    this.PreviousDay = Game1.dayOfMonth;
+                    this.PreviousSeason = Game1.currentSeason;
+                    this.PreviousYear = Game1.year;
+                    this.PreviousMineLevel = Game1.mine.mineLevel;
+                    this.PreviousSaveID = Game1.uniqueIDForThisGame;
+                }
+
+                /*********
+                ** Game day transition event (obsolete)
+                *********/
+                if (Game1.newDay != this.PreviousIsNewDay)
+                {
+                    TimeEvents.InvokeOnNewDay(this.Monitor, this.PreviousDay, Game1.dayOfMonth, Game1.newDay);
+                    this.PreviousIsNewDay = Game1.newDay;
+                }
+
+                /*********
+                ** Game update
+                *********/
+                try
+                {
+                    base.Update(gameTime);
+                }
+                catch (Exception ex)
+                {
+                    this.Monitor.Log($"An error occured in the base update loop: {ex.GetLogSummary()}", LogLevel.Error);
+                }
+
+                /*********
+                ** Update events
+                *********/
+                GameEvents.InvokeUpdateTick(this.Monitor);
+                if (this.FirstUpdate)
+                {
+                    GameEvents.InvokeFirstUpdateTick(this.Monitor);
+                    this.FirstUpdate = false;
+                }
+                if (this.CurrentUpdateTick % 2 == 0)
+                    GameEvents.InvokeSecondUpdateTick(this.Monitor);
+                if (this.CurrentUpdateTick % 4 == 0)
+                    GameEvents.InvokeFourthUpdateTick(this.Monitor);
+                if (this.CurrentUpdateTick % 8 == 0)
+                    GameEvents.InvokeEighthUpdateTick(this.Monitor);
+                if (this.CurrentUpdateTick % 15 == 0)
+                    GameEvents.InvokeQuarterSecondTick(this.Monitor);
+                if (this.CurrentUpdateTick % 30 == 0)
+                    GameEvents.InvokeHalfSecondTick(this.Monitor);
+                if (this.CurrentUpdateTick % 60 == 0)
+                    GameEvents.InvokeOneSecondTick(this.Monitor);
+                this.CurrentUpdateTick += 1;
+                if (this.CurrentUpdateTick >= 60)
+                    this.CurrentUpdateTick = 0;
+
+                /*********
+                ** Update input state
+                *********/
+                this.KStatePrior = this.KStateNow;
+                for (PlayerIndex i = PlayerIndex.One; i <= PlayerIndex.Four; i++)
+                    this.PreviouslyPressedButtons[(int)i] = this.GetButtonsDown(i);
+
+                this.UpdateCrashTimer.Reset();
             }
             catch (Exception ex)
             {
-                this.Monitor.Log($"An error occured in the base update loop: {ex.GetLogSummary()}", LogLevel.Error);
-            }
+                // log error
+                this.Monitor.Log($"An error occured in the overridden update loop: {ex.GetLogSummary()}", LogLevel.Error);
 
-            /*********
-            ** Update events
-            *********/
-            GameEvents.InvokeUpdateTick(this.Monitor);
-            if (this.FirstUpdate)
-            {
-                GameEvents.InvokeFirstUpdateTick(this.Monitor);
-                this.FirstUpdate = false;
+                // exit if irrecoverable
+                if (!this.UpdateCrashTimer.Decrement())
+                    this.Monitor.ExitGameImmediately("the game crashed when updating, and SMAPI was unable to recover the game.");
             }
-            if (this.CurrentUpdateTick % 2 == 0)
-                GameEvents.InvokeSecondUpdateTick(this.Monitor);
-            if (this.CurrentUpdateTick % 4 == 0)
-                GameEvents.InvokeFourthUpdateTick(this.Monitor);
-            if (this.CurrentUpdateTick % 8 == 0)
-                GameEvents.InvokeEighthUpdateTick(this.Monitor);
-            if (this.CurrentUpdateTick % 15 == 0)
-                GameEvents.InvokeQuarterSecondTick(this.Monitor);
-            if (this.CurrentUpdateTick % 30 == 0)
-                GameEvents.InvokeHalfSecondTick(this.Monitor);
-            if (this.CurrentUpdateTick % 60 == 0)
-                GameEvents.InvokeOneSecondTick(this.Monitor);
-            this.CurrentUpdateTick += 1;
-            if (this.CurrentUpdateTick >= 60)
-                this.CurrentUpdateTick = 0;
-
-            /*********
-            ** Update input state
-            *********/
-            this.KStatePrior = this.KStateNow;
-            for (PlayerIndex i = PlayerIndex.One; i <= PlayerIndex.Four; i++)
-                this.PreviouslyPressedButtons[(int)i] = this.GetButtonsDown(i);
         }
 
         /// <summary>The method called to draw everything to the screen.</summary>
@@ -577,7 +591,7 @@ namespace StardewModdingAPI.Framework
             try
             {
                 this.DrawImpl(gameTime);
-                this.FailedDraws = 0;
+                this.DrawCrashTimer.Reset();
             }
             catch (Exception ex)
             {
@@ -585,12 +599,11 @@ namespace StardewModdingAPI.Framework
                 this.Monitor.Log($"An error occured in the overridden draw loop: {ex.GetLogSummary()}", LogLevel.Error);
 
                 // exit if irrecoverable
-                if (this.FailedDraws >= this.MaxFailedDraws)
+                if (!this.DrawCrashTimer.Decrement())
                 {
                     this.Monitor.ExitGameImmediately("the game crashed when drawing, and SMAPI was unable to recover the game.");
                     return;
                 }
-                this.FailedDraws++;
 
                 // abort in known unrecoverable cases
                 if (Game1.toolSpriteSheet?.IsDisposed == true)

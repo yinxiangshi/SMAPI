@@ -15,6 +15,7 @@ See [log](https://github.com/Pathoschild/SMAPI/compare/1.12...1.13).
 
 For players:
 * SMAPI now recovers better from mod draw errors and detects when the error is irrecoverable.
+* SMAPI now recovers automatically from update errors if possible.
 * SMAPI now remembers if your game crashed and offers help next time you launch it.
 * Fixed installer finding redundant game paths on Linux.
 * Fixed save events not being raised after the first day on Linux/Mac.
