@@ -157,3 +157,13 @@ argument | purpose
 -------- | -------
 `--log-path "path"` | The relative or absolute path of the log file SMAPI should write.
 `--no-terminal` | SMAPI won't write anything to the console window. (Messages will still be written to the log file.)
+
+### Compile flags
+SMAPI uses a small number of conditional compilation constants, which you can set by editing the
+`<DefineConstants>` element in `StardewModdingAPI.csproj`. Supported constants:
+
+flag | purpose
+---- | -------
+`EXPERIMENTAL` | Enables preview features that aren't officially released yet.
+`SMAPI_FOR_WINDOWS` | Indicates that SMAPI is being compiled on Windows for players on Windows. Set automatically in `crossplatform.targets`.
+
