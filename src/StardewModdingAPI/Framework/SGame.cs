@@ -438,24 +438,24 @@ namespace StardewModdingAPI.Framework
                 *********/
                 if (Context.IsWorldReady)
                 {
-                    // raise events (only when something changes, not on the initial load)
+                    // raise current location changed
+                    if (Game1.currentLocation != this.PreviousGameLocation)
+                    {
+                        if (this.VerboseLogging)
+                            this.Monitor.Log($"Context: set location to {Game1.currentLocation?.Name ?? "(none)"}.", LogLevel.Trace);
+                        LocationEvents.InvokeCurrentLocationChanged(this.Monitor, this.PreviousGameLocation, Game1.currentLocation);
+                    }
+
+                    // raise player changed
+                    if (Game1.player != this.PreviousFarmer)
+                        PlayerEvents.InvokeFarmerChanged(this.Monitor, this.PreviousFarmer, Game1.player);
+
+                    // raise events that shouldn't be triggered on initial load
                     if (Game1.uniqueIDForThisGame == this.PreviousSaveID)
                     {
                         // raise location list changed
                         if (this.GetHash(Game1.locations) != this.PreviousGameLocations)
                             LocationEvents.InvokeLocationsChanged(this.Monitor, Game1.locations);
-
-                        // raise current location changed
-                        if (Game1.currentLocation != this.PreviousGameLocation)
-                        {
-                            if (this.VerboseLogging)
-                                this.Monitor.Log($"Context: set location to {Game1.currentLocation?.Name ?? "(none)"}.", LogLevel.Trace);
-                            LocationEvents.InvokeCurrentLocationChanged(this.Monitor, this.PreviousGameLocation, Game1.currentLocation);
-                        }
-
-                        // raise player changed
-                        if (Game1.player != this.PreviousFarmer)
-                            PlayerEvents.InvokeFarmerChanged(this.Monitor, this.PreviousFarmer, Game1.player);
 
                         // raise player leveled up a skill
                         if (Game1.player.combatLevel != this.PreviousCombatLevel)
