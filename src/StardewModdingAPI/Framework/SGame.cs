@@ -55,7 +55,7 @@ namespace StardewModdingAPI.Framework
         ** Game state
         ****/
         /// <summary>Arrays of pressed controller buttons indexed by <see cref="PlayerIndex"/>.</summary>
-        private readonly Buttons[][] PreviouslyPressedButtons = { new Buttons[0], new Buttons[0], new Buttons[0], new Buttons[0] };
+        private Buttons[] PreviouslyPressedButtons = new Buttons[0];
 
         /// <summary>A record of the keyboard state (i.e. the up/down state for each button) as of the latest tick.</summary>
         private KeyboardState KStateNow;
@@ -359,36 +359,35 @@ namespace StardewModdingAPI.Framework
                     this.MPositionNow = new Point(Game1.getMouseX(), Game1.getMouseY());
 
                     // raise key pressed
-                    foreach (var key in this.FramePressedKeys)
+                    foreach (Keys key in this.FramePressedKeys)
                         ControlEvents.InvokeKeyPressed(this.Monitor, key);
 
                     // raise key released
-                    foreach (var key in this.FrameReleasedKeys)
+                    foreach (Keys key in this.FrameReleasedKeys)
                         ControlEvents.InvokeKeyReleased(this.Monitor, key);
 
                     // raise controller button pressed
-                    for (var i = PlayerIndex.One; i <= PlayerIndex.Four; i++)
+                    foreach (Buttons button in this.GetFramePressedButtons())
                     {
-                        var buttons = this.GetFramePressedButtons(i);
-                        foreach (var button in buttons)
+                        if (button == Buttons.LeftTrigger || button == Buttons.RightTrigger)
                         {
-                            if (button == Buttons.LeftTrigger || button == Buttons.RightTrigger)
-                                ControlEvents.InvokeTriggerPressed(this.Monitor, i, button, button == Buttons.LeftTrigger ? GamePad.GetState(i).Triggers.Left : GamePad.GetState(i).Triggers.Right);
-                            else
-                                ControlEvents.InvokeButtonPressed(this.Monitor, i, button);
+                            var triggers = GamePad.GetState(PlayerIndex.One).Triggers;
+                            ControlEvents.InvokeTriggerPressed(this.Monitor, button, button == Buttons.LeftTrigger ? triggers.Left : triggers.Right);
                         }
+                        else
+                            ControlEvents.InvokeButtonPressed(this.Monitor, button);
                     }
 
                     // raise controller button released
-                    for (var i = PlayerIndex.One; i <= PlayerIndex.Four; i++)
+                    foreach (Buttons button in this.GetFrameReleasedButtons())
                     {
-                        foreach (var button in this.GetFrameReleasedButtons(i))
+                        if (button == Buttons.LeftTrigger || button == Buttons.RightTrigger)
                         {
-                            if (button == Buttons.LeftTrigger || button == Buttons.RightTrigger)
-                                ControlEvents.InvokeTriggerReleased(this.Monitor, i, button, button == Buttons.LeftTrigger ? GamePad.GetState(i).Triggers.Left : GamePad.GetState(i).Triggers.Right);
-                            else
-                                ControlEvents.InvokeButtonReleased(this.Monitor, i, button);
+                            var triggers = GamePad.GetState(PlayerIndex.One).Triggers;
+                            ControlEvents.InvokeTriggerReleased(this.Monitor, button, button == Buttons.LeftTrigger ? triggers.Left : triggers.Right);
                         }
+                        else
+                            ControlEvents.InvokeButtonReleased(this.Monitor, button);
                     }
 
                     // raise keyboard state changed
@@ -566,8 +565,7 @@ namespace StardewModdingAPI.Framework
                 ** Update input state
                 *********/
                 this.KStatePrior = this.KStateNow;
-                for (PlayerIndex i = PlayerIndex.One; i <= PlayerIndex.Four; i++)
-                    this.PreviouslyPressedButtons[(int)i] = this.GetButtonsDown(i);
+                this.PreviouslyPressedButtons = this.GetButtonsDown();
 
                 this.UpdateCrashTimer.Reset();
             }
@@ -1298,10 +1296,9 @@ namespace StardewModdingAPI.Framework
         }
 
         /// <summary>Get the controller buttons which are currently pressed.</summary>
-        /// <param name="index">The controller to check.</param>
-        private Buttons[] GetButtonsDown(PlayerIndex index)
+        private Buttons[] GetButtonsDown()
         {
-            var state = GamePad.GetState(index);
+            var state = GamePad.GetState(PlayerIndex.One);
             var buttons = new List<Buttons>();
             if (state.IsConnected)
             {
@@ -1327,59 +1324,57 @@ namespace StardewModdingAPI.Framework
         }
 
         /// <summary>Get the controller buttons which were pressed after the last update.</summary>
-        /// <param name="index">The controller to check.</param>
-        private Buttons[] GetFramePressedButtons(PlayerIndex index)
+        private Buttons[] GetFramePressedButtons()
         {
-            var state = GamePad.GetState(index);
+            var state = GamePad.GetState(PlayerIndex.One);
             var buttons = new List<Buttons>();
             if (state.IsConnected)
             {
-                if (this.WasButtonJustPressed(Buttons.A, state.Buttons.A, index)) buttons.Add(Buttons.A);
-                if (this.WasButtonJustPressed(Buttons.B, state.Buttons.B, index)) buttons.Add(Buttons.B);
-                if (this.WasButtonJustPressed(Buttons.Back, state.Buttons.Back, index)) buttons.Add(Buttons.Back);
-                if (this.WasButtonJustPressed(Buttons.BigButton, state.Buttons.BigButton, index)) buttons.Add(Buttons.BigButton);
-                if (this.WasButtonJustPressed(Buttons.LeftShoulder, state.Buttons.LeftShoulder, index)) buttons.Add(Buttons.LeftShoulder);
-                if (this.WasButtonJustPressed(Buttons.LeftStick, state.Buttons.LeftStick, index)) buttons.Add(Buttons.LeftStick);
-                if (this.WasButtonJustPressed(Buttons.RightShoulder, state.Buttons.RightShoulder, index)) buttons.Add(Buttons.RightShoulder);
-                if (this.WasButtonJustPressed(Buttons.RightStick, state.Buttons.RightStick, index)) buttons.Add(Buttons.RightStick);
-                if (this.WasButtonJustPressed(Buttons.Start, state.Buttons.Start, index)) buttons.Add(Buttons.Start);
-                if (this.WasButtonJustPressed(Buttons.X, state.Buttons.X, index)) buttons.Add(Buttons.X);
-                if (this.WasButtonJustPressed(Buttons.Y, state.Buttons.Y, index)) buttons.Add(Buttons.Y);
-                if (this.WasButtonJustPressed(Buttons.DPadUp, state.DPad.Up, index)) buttons.Add(Buttons.DPadUp);
-                if (this.WasButtonJustPressed(Buttons.DPadDown, state.DPad.Down, index)) buttons.Add(Buttons.DPadDown);
-                if (this.WasButtonJustPressed(Buttons.DPadLeft, state.DPad.Left, index)) buttons.Add(Buttons.DPadLeft);
-                if (this.WasButtonJustPressed(Buttons.DPadRight, state.DPad.Right, index)) buttons.Add(Buttons.DPadRight);
-                if (this.WasButtonJustPressed(Buttons.LeftTrigger, state.Triggers.Left, index)) buttons.Add(Buttons.LeftTrigger);
-                if (this.WasButtonJustPressed(Buttons.RightTrigger, state.Triggers.Right, index)) buttons.Add(Buttons.RightTrigger);
+                if (this.WasButtonJustPressed(Buttons.A, state.Buttons.A)) buttons.Add(Buttons.A);
+                if (this.WasButtonJustPressed(Buttons.B, state.Buttons.B)) buttons.Add(Buttons.B);
+                if (this.WasButtonJustPressed(Buttons.Back, state.Buttons.Back)) buttons.Add(Buttons.Back);
+                if (this.WasButtonJustPressed(Buttons.BigButton, state.Buttons.BigButton)) buttons.Add(Buttons.BigButton);
+                if (this.WasButtonJustPressed(Buttons.LeftShoulder, state.Buttons.LeftShoulder)) buttons.Add(Buttons.LeftShoulder);
+                if (this.WasButtonJustPressed(Buttons.LeftStick, state.Buttons.LeftStick)) buttons.Add(Buttons.LeftStick);
+                if (this.WasButtonJustPressed(Buttons.RightShoulder, state.Buttons.RightShoulder)) buttons.Add(Buttons.RightShoulder);
+                if (this.WasButtonJustPressed(Buttons.RightStick, state.Buttons.RightStick)) buttons.Add(Buttons.RightStick);
+                if (this.WasButtonJustPressed(Buttons.Start, state.Buttons.Start)) buttons.Add(Buttons.Start);
+                if (this.WasButtonJustPressed(Buttons.X, state.Buttons.X)) buttons.Add(Buttons.X);
+                if (this.WasButtonJustPressed(Buttons.Y, state.Buttons.Y)) buttons.Add(Buttons.Y);
+                if (this.WasButtonJustPressed(Buttons.DPadUp, state.DPad.Up)) buttons.Add(Buttons.DPadUp);
+                if (this.WasButtonJustPressed(Buttons.DPadDown, state.DPad.Down)) buttons.Add(Buttons.DPadDown);
+                if (this.WasButtonJustPressed(Buttons.DPadLeft, state.DPad.Left)) buttons.Add(Buttons.DPadLeft);
+                if (this.WasButtonJustPressed(Buttons.DPadRight, state.DPad.Right)) buttons.Add(Buttons.DPadRight);
+                if (this.WasButtonJustPressed(Buttons.LeftTrigger, state.Triggers.Left)) buttons.Add(Buttons.LeftTrigger);
+                if (this.WasButtonJustPressed(Buttons.RightTrigger, state.Triggers.Right)) buttons.Add(Buttons.RightTrigger);
             }
             return buttons.ToArray();
         }
 
         /// <summary>Get the controller buttons which were released after the last update.</summary>
-        /// <param name="index">The controller to check.</param>
-        private Buttons[] GetFrameReleasedButtons(PlayerIndex index)
+        private Buttons[] GetFrameReleasedButtons()
         {
-            var state = GamePad.GetState(index);
+            var state = GamePad.GetState(PlayerIndex.One);
             var buttons = new List<Buttons>();
             if (state.IsConnected)
             {
-                if (this.WasButtonJustReleased(Buttons.A, state.Buttons.A, index)) buttons.Add(Buttons.A);
-                if (this.WasButtonJustReleased(Buttons.B, state.Buttons.B, index)) buttons.Add(Buttons.B);
-                if (this.WasButtonJustReleased(Buttons.Back, state.Buttons.Back, index)) buttons.Add(Buttons.Back);
-                if (this.WasButtonJustReleased(Buttons.BigButton, state.Buttons.BigButton, index)) buttons.Add(Buttons.BigButton);
-                if (this.WasButtonJustReleased(Buttons.LeftShoulder, state.Buttons.LeftShoulder, index)) buttons.Add(Buttons.LeftShoulder);
-                if (this.WasButtonJustReleased(Buttons.LeftStick, state.Buttons.LeftStick, index)) buttons.Add(Buttons.LeftStick);
-                if (this.WasButtonJustReleased(Buttons.RightShoulder, state.Buttons.RightShoulder, index)) buttons.Add(Buttons.RightShoulder);
-                if (this.WasButtonJustReleased(Buttons.RightStick, state.Buttons.RightStick, index)) buttons.Add(Buttons.RightStick);
-                if (this.WasButtonJustReleased(Buttons.Start, state.Buttons.Start, index)) buttons.Add(Buttons.Start);
-                if (this.WasButtonJustReleased(Buttons.X, state.Buttons.X, index)) buttons.Add(Buttons.X);
-                if (this.WasButtonJustReleased(Buttons.Y, state.Buttons.Y, index)) buttons.Add(Buttons.Y);
-                if (this.WasButtonJustReleased(Buttons.DPadUp, state.DPad.Up, index)) buttons.Add(Buttons.DPadUp);
-                if (this.WasButtonJustReleased(Buttons.DPadDown, state.DPad.Down, index)) buttons.Add(Buttons.DPadDown);
-                if (this.WasButtonJustReleased(Buttons.DPadLeft, state.DPad.Left, index)) buttons.Add(Buttons.DPadLeft);
-                if (this.WasButtonJustReleased(Buttons.DPadRight, state.DPad.Right, index)) buttons.Add(Buttons.DPadRight);
-                if (this.WasButtonJustReleased(Buttons.LeftTrigger, state.Triggers.Left, index)) buttons.Add(Buttons.LeftTrigger);
-                if (this.WasButtonJustReleased(Buttons.RightTrigger, state.Triggers.Right, index)) buttons.Add(Buttons.RightTrigger);
+                if (this.WasButtonJustReleased(Buttons.A, state.Buttons.A)) buttons.Add(Buttons.A);
+                if (this.WasButtonJustReleased(Buttons.B, state.Buttons.B)) buttons.Add(Buttons.B);
+                if (this.WasButtonJustReleased(Buttons.Back, state.Buttons.Back)) buttons.Add(Buttons.Back);
+                if (this.WasButtonJustReleased(Buttons.BigButton, state.Buttons.BigButton)) buttons.Add(Buttons.BigButton);
+                if (this.WasButtonJustReleased(Buttons.LeftShoulder, state.Buttons.LeftShoulder)) buttons.Add(Buttons.LeftShoulder);
+                if (this.WasButtonJustReleased(Buttons.LeftStick, state.Buttons.LeftStick)) buttons.Add(Buttons.LeftStick);
+                if (this.WasButtonJustReleased(Buttons.RightShoulder, state.Buttons.RightShoulder)) buttons.Add(Buttons.RightShoulder);
+                if (this.WasButtonJustReleased(Buttons.RightStick, state.Buttons.RightStick)) buttons.Add(Buttons.RightStick);
+                if (this.WasButtonJustReleased(Buttons.Start, state.Buttons.Start)) buttons.Add(Buttons.Start);
+                if (this.WasButtonJustReleased(Buttons.X, state.Buttons.X)) buttons.Add(Buttons.X);
+                if (this.WasButtonJustReleased(Buttons.Y, state.Buttons.Y)) buttons.Add(Buttons.Y);
+                if (this.WasButtonJustReleased(Buttons.DPadUp, state.DPad.Up)) buttons.Add(Buttons.DPadUp);
+                if (this.WasButtonJustReleased(Buttons.DPadDown, state.DPad.Down)) buttons.Add(Buttons.DPadDown);
+                if (this.WasButtonJustReleased(Buttons.DPadLeft, state.DPad.Left)) buttons.Add(Buttons.DPadLeft);
+                if (this.WasButtonJustReleased(Buttons.DPadRight, state.DPad.Right)) buttons.Add(Buttons.DPadRight);
+                if (this.WasButtonJustReleased(Buttons.LeftTrigger, state.Triggers.Left)) buttons.Add(Buttons.LeftTrigger);
+                if (this.WasButtonJustReleased(Buttons.RightTrigger, state.Triggers.Right)) buttons.Add(Buttons.RightTrigger);
             }
             return buttons.ToArray();
         }
@@ -1387,37 +1382,33 @@ namespace StardewModdingAPI.Framework
         /// <summary>Get whether a controller button was pressed since the last check.</summary>
         /// <param name="button">The controller button to check.</param>
         /// <param name="buttonState">The last known state.</param>
-        /// <param name="stateIndex">The player whose controller to check.</param>
-        private bool WasButtonJustPressed(Buttons button, ButtonState buttonState, PlayerIndex stateIndex)
+        private bool WasButtonJustPressed(Buttons button, ButtonState buttonState)
         {
-            return buttonState == ButtonState.Pressed && !this.PreviouslyPressedButtons[(int)stateIndex].Contains(button);
+            return buttonState == ButtonState.Pressed && !this.PreviouslyPressedButtons.Contains(button);
         }
 
         /// <summary>Get whether a controller button was released since the last check.</summary>
         /// <param name="button">The controller button to check.</param>
         /// <param name="buttonState">The last known state.</param>
-        /// <param name="stateIndex">The player whose controller to check.</param>
-        private bool WasButtonJustReleased(Buttons button, ButtonState buttonState, PlayerIndex stateIndex)
+        private bool WasButtonJustReleased(Buttons button, ButtonState buttonState)
         {
-            return buttonState == ButtonState.Released && this.PreviouslyPressedButtons[(int)stateIndex].Contains(button);
+            return buttonState == ButtonState.Released && this.PreviouslyPressedButtons.Contains(button);
         }
 
         /// <summary>Get whether an analogue controller button was pressed since the last check.</summary>
         /// <param name="button">The controller button to check.</param>
         /// <param name="value">The last known value.</param>
-        /// <param name="stateIndex">The player whose controller to check.</param>
-        private bool WasButtonJustPressed(Buttons button, float value, PlayerIndex stateIndex)
+        private bool WasButtonJustPressed(Buttons button, float value)
         {
-            return this.WasButtonJustPressed(button, value > 0.2f ? ButtonState.Pressed : ButtonState.Released, stateIndex);
+            return this.WasButtonJustPressed(button, value > 0.2f ? ButtonState.Pressed : ButtonState.Released);
         }
 
         /// <summary>Get whether an analogue controller button was released since the last check.</summary>
         /// <param name="button">The controller button to check.</param>
         /// <param name="value">The last known value.</param>
-        /// <param name="stateIndex">The player whose controller to check.</param>
-        private bool WasButtonJustReleased(Buttons button, float value, PlayerIndex stateIndex)
+        private bool WasButtonJustReleased(Buttons button, float value)
         {
-            return this.WasButtonJustReleased(button, value > 0.2f ? ButtonState.Pressed : ButtonState.Released, stateIndex);
+            return this.WasButtonJustReleased(button, value > 0.2f ? ButtonState.Pressed : ButtonState.Released);
         }
 
         /// <summary>Get the player inventory changes between two states.</summary>
