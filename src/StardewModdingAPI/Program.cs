@@ -357,8 +357,10 @@ namespace StardewModdingAPI
                     }
                 }
 
+#if EXPERIMENTAL
                 // process dependencies
                 mods = resolver.ProcessDependencies(mods).ToArray();
+#endif
 
                 // load mods
                 modsLoaded = this.LoadMods(mods, new JsonHelper(), (SContentManager)Game1.content, deprecationWarnings);

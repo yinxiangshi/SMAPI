@@ -126,6 +126,7 @@ namespace StardewModdingAPI.Framework.ModLoading
             }
         }
 
+#if EXPERIMENTAL
         /// <summary>Sort the given mods by the order they should be loaded.</summary>
         /// <param name="mods">The mods to process.</param>
         public IEnumerable<IModMetadata> ProcessDependencies(IEnumerable<IModMetadata> mods)
@@ -138,11 +139,13 @@ namespace StardewModdingAPI.Framework.ModLoading
 
             return sortedMods.Reverse();
         }
+#endif
 
 
         /*********
         ** Private methods
         *********/
+#if EXPERIMENTAL
         /// <summary>Sort a mod's dependencies by the order they should be loaded, and remove any mods that can't be loaded due to missing or conflicting dependencies.</summary>
         /// <param name="mods">The full list of mods being validated.</param>
         /// <param name="mod">The mod whose dependencies to process.</param>
@@ -257,6 +260,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 return states[mod] = ModDependencyStatus.Sorted;
             }
         }
+#endif
 
         /// <summary>Get all mod folders in a root folder, passing through empty folders as needed.</summary>
         /// <param name="rootPath">The root folder path to search.</param>
