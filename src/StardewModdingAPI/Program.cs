@@ -269,7 +269,7 @@ namespace StardewModdingAPI
             this.GameInstance.VerboseLogging = this.Settings.VerboseLogging;
 
             // load core components
-            this.ModRegistry = new ModRegistry(this.Settings.ModCompatibility);
+            this.ModRegistry = new ModRegistry();
             this.DeprecationManager = new DeprecationManager(this.Monitor, this.ModRegistry);
             this.CommandManager = new CommandManager();
 
@@ -313,13 +313,55 @@ namespace StardewModdingAPI
             // load mods
             int modsLoaded;
             {
-                // load mods
-                JsonHelper jsonHelper = new JsonHelper();
-                IList<Action> deprecationWarnings = new List<Action>();
-                ModMetadata[] mods = this.FindMods(Constants.ModPath, new JsonHelper(), deprecationWarnings);
-                modsLoaded = this.LoadMods(mods, jsonHelper, (SContentManager)Game1.content, deprecationWarnings);
+                this.Monitor.Log("Loading mod metadata...");
+                ModResolver resolver = new ModResolver();
 
-                // log deprecation warnings together
+                // load manifests
+                IModMetadata[] mods = resolver.ReadManifests(Constants.ModPath, new JsonHelper(), this.Settings.ModCompatibility).ToArray();
+                resolver.ValidateManifests(mods, Constants.ApiVersion);
+
+                // check for deprecated metadata
+                IList<Action> deprecationWarnings = new List<Action>();
+                foreach (IModMetadata mod in mods)
+                {
+                    // missing fields that will be required in SMAPI 2.0
+                    {
+                        List<string> missingFields = new List<string>(3);
+
+                        if (string.IsNullOrWhiteSpace(mod.Manifest.Name))
+                            missingFields.Add(nameof(IManifest.Name));
+                        if (mod.Manifest.Version.ToString() == "0.0")
+                            missingFields.Add(nameof(IManifest.Version));
+                        if (string.IsNullOrWhiteSpace(mod.Manifest.UniqueID))
+                            missingFields.Add(nameof(IManifest.UniqueID));
+
+                        if (missingFields.Any())
+                            deprecationWarnings.Add(() => this.Monitor.Log($"{mod.Manifest.Name} is missing some manifest fields ({string.Join(", ", missingFields)}) which will be required in an upcoming SMAPI version.", LogLevel.Warn));
+                    }
+
+                    // per-save directories
+                    if ((mod.Manifest as Manifest)?.PerSaveConfigs == true)
+                    {
+                        deprecationWarnings.Add(() => this.DeprecationManager.Warn(mod.DisplayName, $"{nameof(Manifest)}.{nameof(Manifest.PerSaveConfigs)}", "1.0", DeprecationLevel.Info));
+                        try
+                        {
+                            string psDir = Path.Combine(mod.DirectoryPath, "psconfigs");
+                            Directory.CreateDirectory(psDir);
+                            if (!Directory.Exists(psDir))
+                                mod.SetStatus(ModMetadataStatus.Failed, "it requires per-save configuration files ('psconfigs') which couldn't be created for some reason.");
+                        }
+                        catch (Exception ex)
+                        {
+                            mod.SetStatus(ModMetadataStatus.Failed, $"it requires per-save configuration files ('psconfigs') which couldn't be created: {ex.GetLogSummary()}");
+                        }
+                    }
+                }
+
+                // process dependencies
+                mods = resolver.ProcessDependencies(mods).ToArray();
+
+                // load mods
+                modsLoaded = this.LoadMods(mods, new JsonHelper(), (SContentManager)Game1.content, deprecationWarnings);
                 foreach (Action warning in deprecationWarnings)
                     warning();
             }
@@ -397,7 +439,7 @@ namespace StardewModdingAPI
                     string[] fields = entry.Value.Split('/');
                     if (fields.Length < SObject.objectInfoDescriptionIndex + 1)
                     {
-                        LogIssue(entry.Key, $"too few fields for an object");
+                        LogIssue(entry.Key, "too few fields for an object");
                         issuesFound = true;
                         continue;
                     }
@@ -456,179 +498,31 @@ namespace StardewModdingAPI
             }
         }
 
-        /// <summary>Find all mods in the given folder.</summary>
-        /// <param name="rootPath">The root mod path to search.</param>
-        /// <param name="jsonHelper">The JSON helper with which to read the manifest file.</param>
-        /// <param name="deprecationWarnings">A list to populate with any deprecation warnings.</param>
-        private ModMetadata[] FindMods(string rootPath, JsonHelper jsonHelper, IList<Action> deprecationWarnings)
-        {
-            this.Monitor.Log("Finding mods...");
-            void LogSkip(string displayName, string reasonPhrase, LogLevel level = LogLevel.Error) => this.Monitor.Log($"Skipped {displayName} because {reasonPhrase}", level);
-
-            // load mod metadata
-            List<ModMetadata> mods = new List<ModMetadata>();
-            foreach (string modRootPath in Directory.GetDirectories(rootPath))
-            {
-                if (this.Monitor.IsExiting)
-                    return new ModMetadata[0]; // exit in progress
-
-                // init metadata
-                string displayName = modRootPath.Replace(rootPath, "").Trim('/', '\\');
-
-                // passthrough empty directories
-                DirectoryInfo directory = new DirectoryInfo(modRootPath);
-                while (!directory.GetFiles().Any() && directory.GetDirectories().Length == 1)
-                    directory = directory.GetDirectories().First();
-
-                // get manifest path
-                string manifestPath = Path.Combine(directory.FullName, "manifest.json");
-                if (!File.Exists(manifestPath))
-                {
-                    LogSkip(displayName, "it doesn't have a manifest.", LogLevel.Warn);
-                    continue;
-                }
-
-                // read manifest
-                Manifest manifest;
-                try
-                {
-                    // read manifest file
-                    string json = File.ReadAllText(manifestPath);
-                    if (string.IsNullOrEmpty(json))
-                    {
-                        LogSkip(displayName, "its manifest is empty.");
-                        continue;
-                    }
-
-                    // parse manifest
-                    manifest = jsonHelper.ReadJsonFile<Manifest>(Path.Combine(directory.FullName, "manifest.json"));
-                    if (manifest == null)
-                    {
-                        LogSkip(displayName, "its manifest is invalid.");
-                        continue;
-                    }
-
-                    // validate manifest
-                    if (string.IsNullOrWhiteSpace(manifest.EntryDll))
-                    {
-                        LogSkip(displayName, "its manifest doesn't set an entry DLL.");
-                        continue;
-                    }
-
-                    // log warnings for missing fields that will be required in SMAPI 2.0
-                    {
-                        List<string> missingFields = new List<string>(3);
-
-                        if (string.IsNullOrWhiteSpace(manifest.Name))
-                            missingFields.Add(nameof(IManifest.Name));
-                        if (manifest.Version.ToString() == "0.0")
-                            missingFields.Add(nameof(IManifest.Version));
-                        if (string.IsNullOrWhiteSpace(manifest.UniqueID))
-                            missingFields.Add(nameof(IManifest.UniqueID));
-
-                        if (missingFields.Any())
-                            deprecationWarnings.Add(() => this.Monitor.Log($"{manifest.Name} is missing some manifest fields ({string.Join(", ", missingFields)}) which will be required in an upcoming SMAPI version.", LogLevel.Warn));
-                    }
-
-
-                }
-                catch (Exception ex)
-                {
-                    LogSkip(displayName, $"parsing its manifest failed:\n{ex.GetLogSummary()}");
-                    continue;
-                }
-                if (!string.IsNullOrWhiteSpace(manifest.Name))
-                    displayName = manifest.Name;
-
-                // validate compatibility
-                ModCompatibility compatibility = this.ModRegistry.GetCompatibilityRecord(manifest);
-                if (compatibility?.Compatibility == ModCompatibilityType.AssumeBroken)
-                {
-                    bool hasOfficialUrl = !string.IsNullOrWhiteSpace(compatibility.UpdateUrl);
-                    bool hasUnofficialUrl = !string.IsNullOrWhiteSpace(compatibility.UnofficialUpdateUrl);
-
-                    string reasonPhrase = compatibility.ReasonPhrase ?? "it's not compatible with the latest version of the game";
-                    string error = $"{reasonPhrase}. Please check for a version newer than {compatibility.UpperVersionLabel ?? compatibility.UpperVersion} here:";
-                    if (hasOfficialUrl)
-                        error += !hasUnofficialUrl ? $" {compatibility.UpdateUrl}" : $"{Environment.NewLine}- official mod: {compatibility.UpdateUrl}";
-                    if (hasUnofficialUrl)
-                        error += $"{Environment.NewLine}- unofficial update: {compatibility.UnofficialUpdateUrl}";
-
-                    LogSkip(displayName, error);
-                }
-
-                // validate SMAPI version
-                if (!string.IsNullOrWhiteSpace(manifest.MinimumApiVersion))
-                {
-                    try
-                    {
-                        ISemanticVersion minVersion = new SemanticVersion(manifest.MinimumApiVersion);
-                        if (minVersion.IsNewerThan(Constants.ApiVersion))
-                        {
-                            LogSkip(displayName, $"it needs SMAPI {minVersion} or later. Please update SMAPI to the latest version to use this mod.");
-                            continue;
-                        }
-                    }
-                    catch (FormatException ex) when (ex.Message.Contains("not a valid semantic version"))
-                    {
-                        LogSkip(displayName, $"it has an invalid minimum SMAPI version '{manifest.MinimumApiVersion}'. This should be a semantic version number like {Constants.ApiVersion}.");
-                        continue;
-                    }
-                }
-
-                // create per-save directory
-                if (manifest.PerSaveConfigs)
-                {
-                    deprecationWarnings.Add(() => this.DeprecationManager.Warn(manifest.Name, $"{nameof(Manifest)}.{nameof(Manifest.PerSaveConfigs)}", "1.0", DeprecationLevel.Info));
-                    try
-                    {
-                        string psDir = Path.Combine(directory.FullName, "psconfigs");
-                        Directory.CreateDirectory(psDir);
-                        if (!Directory.Exists(psDir))
-                        {
-                            LogSkip(displayName, "it requires per-save configuration files ('psconfigs') which couldn't be created for some reason.");
-                            continue;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        LogSkip(displayName, $"it requires per-save configuration files ('psconfigs') which couldn't be created: {ex.GetLogSummary()}");
-                        continue;
-                    }
-                }
-
-                // validate DLL path
-                string assemblyPath = Path.Combine(directory.FullName, manifest.EntryDll);
-                if (!File.Exists(assemblyPath))
-                {
-                    LogSkip(displayName, $"its DLL '{manifest.EntryDll}' doesn't exist.");
-                    continue;
-                }
-
-                // add mod metadata
-                mods.Add(new ModMetadata(displayName, directory.FullName, manifest, compatibility));
-            }
-
-            return mods.ToArray();
-        }
-
         /// <summary>Load and hook up the given mods.</summary>
         /// <param name="mods">The mods to load.</param>
         /// <param name="jsonHelper">The JSON helper with which to read mods' JSON files.</param>
         /// <param name="contentManager">The content manager to use for mod content.</param>
         /// <param name="deprecationWarnings">A list to populate with any deprecation warnings.</param>
         /// <returns>Returns the number of mods successfully loaded.</returns>
-        private int LoadMods(ModMetadata[] mods, JsonHelper jsonHelper, SContentManager contentManager, IList<Action> deprecationWarnings)
+        private int LoadMods(IModMetadata[] mods, JsonHelper jsonHelper, SContentManager contentManager, IList<Action> deprecationWarnings)
         {
             this.Monitor.Log("Loading mods...");
-            void LogSkip(ModMetadata mod, string reasonPhrase, LogLevel level = LogLevel.Error) => this.Monitor.Log($"Skipped {mod.DisplayName} because {reasonPhrase}", level);
+            void LogSkip(IModMetadata mod, string reasonPhrase, LogLevel level = LogLevel.Error) => this.Monitor.Log($"Skipped {mod.DisplayName} because {reasonPhrase}", level);
 
             // load mod assemblies
             int modsLoaded = 0;
             AssemblyLoader modAssemblyLoader = new AssemblyLoader(Constants.TargetPlatform, this.Monitor);
             AppDomain.CurrentDomain.AssemblyResolve += (sender, e) => modAssemblyLoader.ResolveAssembly(e.Name);
-            foreach (ModMetadata metadata in mods)
+            foreach (IModMetadata metadata in mods)
             {
+                // validate status
+                if (metadata.Status == ModMetadataStatus.Failed)
+                {
+                    LogSkip(metadata, metadata.Error);
+                    continue;
+                }
+
+                // get basic info
                 IManifest manifest = metadata.Manifest;
                 string assemblyPath = Path.Combine(metadata.DirectoryPath, metadata.Manifest.EntryDll);
 

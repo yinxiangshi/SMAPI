@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using StardewModdingAPI.Framework.Models;
 
 namespace StardewModdingAPI.Framework
 {
@@ -19,21 +18,10 @@ namespace StardewModdingAPI.Framework
         /// <summary>The friendly mod names treated as deprecation warning sources (assembly full name => mod name).</summary>
         private readonly IDictionary<string, string> ModNamesByAssembly = new Dictionary<string, string>();
 
-        /// <summary>Metadata about mods that SMAPI should assume is compatible or broken, regardless of whether it detects incompatible code.</summary>
-        private readonly ModCompatibility[] CompatibilityRecords;
-
 
         /*********
         ** Public methods
         *********/
-        /// <summary>Construct an instance.</summary>
-        /// <param name="compatibilityRecords">Metadata about mods that SMAPI should assume is compatible or broken, regardless of whether it detects incompatible code.</param>
-        public ModRegistry(IEnumerable<ModCompatibility> compatibilityRecords)
-        {
-            this.CompatibilityRecords = compatibilityRecords.ToArray();
-        }
-
-
         /****
         ** IModRegistry
         ****/
@@ -124,22 +112,6 @@ namespace StardewModdingAPI.Framework
 
             // no known assembly found
             return null;
-        }
-
-        /// <summary>Get metadata that indicates whether SMAPI should assume the mod is compatible or broken, regardless of whether it detects incompatible code.</summary>
-        /// <param name="manifest">The mod manifest.</param>
-        /// <returns>Returns the incompatibility record if applicable, else <c>null</c>.</returns>
-        internal ModCompatibility GetCompatibilityRecord(IManifest manifest)
-        {
-            string key = !string.IsNullOrWhiteSpace(manifest.UniqueID) ? manifest.UniqueID : manifest.EntryDll;
-            return (
-                from mod in this.CompatibilityRecords
-                where
-                    mod.ID.Contains(key, StringComparer.InvariantCultureIgnoreCase)
-                    && (mod.LowerSemanticVersion == null || !manifest.Version.IsOlderThan(mod.LowerSemanticVersion))
-                    && !manifest.Version.IsNewerThan(mod.UpperSemanticVersion)
-                select mod
-            ).FirstOrDefault();
         }
     }
 }

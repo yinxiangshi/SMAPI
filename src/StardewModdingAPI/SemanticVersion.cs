@@ -182,6 +182,23 @@ namespace StardewModdingAPI
             return result;
         }
 
+        /// <summary>Parse a version string without throwing an exception if it fails.</summary>
+        /// <param name="version">The version string.</param>
+        /// <param name="parsed">The parsed representation.</param>
+        /// <returns>Returns whether parsing the version succeeded.</returns>
+        internal static bool TryParse(string version, out ISemanticVersion parsed)
+        {
+            try
+            {
+                parsed = new SemanticVersion(version);
+                return true;
+            }
+            catch
+            {
+                parsed = null;
+                return false;
+            }
+        }
 
         /*********
         ** Private methods
