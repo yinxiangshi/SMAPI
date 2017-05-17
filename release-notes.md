@@ -30,6 +30,7 @@ For mod developers:
 * Deprecated mods that don't have a `Name`, `Version`, or `UniqueID` in their manifest. These will be required in SMAPI 2.0.
 * Deprecated `GameEvents.GameLoaded` and `GameEvents.FirstUpdateTick`. You can move any affected code into your mod's `Entry` method.
 * Fixed maps not recognising custom tilesheets added through the SMAPI content API.
+* Internal refactoring for upcoming features.
 
 ## 1.12
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.11...1.12).
