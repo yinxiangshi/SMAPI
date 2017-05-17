@@ -512,7 +512,7 @@ namespace StardewModdingAPI.Framework
                     this.PreviousDay = Game1.dayOfMonth;
                     this.PreviousSeason = Game1.currentSeason;
                     this.PreviousYear = Game1.year;
-                    this.PreviousMineLevel = Game1.mine.mineLevel;
+                    this.PreviousMineLevel = Game1.mine?.mineLevel ?? 0;
                     this.PreviousSaveID = Game1.uniqueIDForThisGame;
                 }
 
