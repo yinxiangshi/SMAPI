@@ -80,8 +80,7 @@
   </PropertyGroup>
   <Target Name="AfterBuild" Condition="$(Configuration) == 'Debug'">
     <Copy SourceFiles="$(TargetDir)\$(TargetName).dll" DestinationFolder="$(GamePath)\Mods\TrainerMod" />
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).dll.mdb" DestinationFolder="$(GamePath)\Mods\TrainerMod" Condition="$(OS) != 'Windows_NT'" />
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)\Mods\TrainerMod" Condition="$(OS) == 'Windows_NT'" />
+    <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)\Mods\TrainerMod" Condition="Exists('$(TargetDir)\$(TargetName).pdb')" />
     <Copy SourceFiles="$(TargetDir)\manifest.json" DestinationFolder="$(GamePath)\Mods\TrainerMod" />
   </Target>
 </Project>
