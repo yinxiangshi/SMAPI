@@ -27,31 +27,39 @@ namespace StardewModdingApi.Installer
             switch (platform)
             {
                 case Platform.Mono:
-                    // Linux
-                    yield return $"{Environment.GetEnvironmentVariable("HOME")}/GOG Games/Stardew Valley/game";
-                    yield return $"{Environment.GetEnvironmentVariable("HOME")}/.local/share/Steam/steamapps/common/Stardew Valley";
+                    {
+                        string home = Environment.GetEnvironmentVariable("HOME");
 
-                    // Mac
-                    yield return "/Applications/Stardew Valley.app/Contents/MacOS";
-                    yield return $"{Environment.GetEnvironmentVariable("HOME")}/Library/Application Support/Steam/steamapps/common/Stardew Valley/Contents/MacOS";
+                        // Linux
+                        yield return $"{home}/GOG Games/Stardew Valley/game";
+                        yield return Directory.Exists($"{home}/.steam/steam/steamapps/common/Stardew Valley")
+                            ? $"{home}/.steam/steam/steamapps/common/Stardew Valley"
+                            : $"{home}/.local/share/Steam/steamapps/common/Stardew Valley";
+
+                        // Mac
+                        yield return "/Applications/Stardew Valley.app/Contents/MacOS";
+                        yield return $"{home}/Library/Application Support/Steam/steamapps/common/Stardew Valley/Contents/MacOS";
+                    }
                     break;
 
                 case Platform.Windows:
-                    // Windows
-                    yield return @"C:\Program Files (x86)\GalaxyClient\Games\Stardew Valley";
-                    yield return @"C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley";
+                    {
+                        // Windows
+                        yield return @"C:\Program Files (x86)\GalaxyClient\Games\Stardew Valley";
+                        yield return @"C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley";
 
-                    // Windows registry
-                    IDictionary<string, string> registryKeys = new Dictionary<string, string>
-                    {
-                        [@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 413150"] = "InstallLocation", // Steam
-                        [@"SOFTWARE\WOW6432Node\GOG.com\Games\1453375253"] = "PATH", // GOG on 64-bit Windows
-                    };
-                    foreach (var pair in registryKeys)
-                    {
-                        string path = this.GetLocalMachineRegistryValue(pair.Key, pair.Value);
-                        if (!string.IsNullOrWhiteSpace(path))
-                            yield return path;
+                        // Windows registry
+                        IDictionary<string, string> registryKeys = new Dictionary<string, string>
+                        {
+                            [@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 413150"] = "InstallLocation", // Steam
+                            [@"SOFTWARE\WOW6432Node\GOG.com\Games\1453375253"] = "PATH", // GOG on 64-bit Windows
+                        };
+                        foreach (var pair in registryKeys)
+                        {
+                            string path = this.GetLocalMachineRegistryValue(pair.Key, pair.Value);
+                            if (!string.IsNullOrWhiteSpace(path))
+                                yield return path;
+                        }
                     }
                     break;
 
@@ -510,7 +518,7 @@ namespace StardewModdingApi.Installer
             // get installed paths
             DirectoryInfo[] defaultPaths =
                 (
-                    from path in this.GetDefaultInstallPaths(platform).Distinct()
+                    from path in this.GetDefaultInstallPaths(platform).Distinct(StringComparer.InvariantCultureIgnoreCase)
                     let dir = new DirectoryInfo(path)
                     where dir.Exists && dir.EnumerateFiles(executableFilename).Any()
                     select dir

@@ -17,7 +17,7 @@ For players:
 * SMAPI now recovers better from mod draw errors and detects when the error is irrecoverable.
 * SMAPI now recovers automatically from errors in the game loop when possible.
 * SMAPI now remembers if your game crashed and offers help next time you launch it.
-* Fixed installer finding redundant game paths on Linux.
+* Fixed installer sometimes finding redundant game paths.
 * Fixed save events not being raised after the first day on Linux/Mac.
 * Fixed error on Linux/Mac when a mod loads a PNG immediately after the save is loaded.
 * Updated mod compatibility list for Stardew Valley 1.2.
