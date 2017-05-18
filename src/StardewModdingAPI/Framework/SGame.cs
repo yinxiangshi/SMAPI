@@ -446,6 +446,10 @@ namespace StardewModdingAPI.Framework
                         LocationEvents.InvokeCurrentLocationChanged(this.Monitor, this.PreviousGameLocation, Game1.currentLocation);
                     }
 
+                    // raise location list changed
+                    if (this.GetHash(Game1.locations) != this.PreviousGameLocations)
+                        LocationEvents.InvokeLocationsChanged(this.Monitor, Game1.locations);
+
                     // raise player changed
                     if (Game1.player != this.PreviousFarmer)
                         PlayerEvents.InvokeFarmerChanged(this.Monitor, this.PreviousFarmer, Game1.player);
@@ -453,10 +457,6 @@ namespace StardewModdingAPI.Framework
                     // raise events that shouldn't be triggered on initial load
                     if (Game1.uniqueIDForThisGame == this.PreviousSaveID)
                     {
-                        // raise location list changed
-                        if (this.GetHash(Game1.locations) != this.PreviousGameLocations)
-                            LocationEvents.InvokeLocationsChanged(this.Monitor, Game1.locations);
-
                         // raise player leveled up a skill
                         if (Game1.player.combatLevel != this.PreviousCombatLevel)
                             PlayerEvents.InvokeLeveledUp(this.Monitor, EventArgsLevelUp.LevelType.Combat, Game1.player.combatLevel);
