@@ -1,11 +1,12 @@
 ﻿using System;
 using System.IO;
 using StardewModdingAPI.Framework;
+using StardewModdingAPI.Framework.Models;
 
 namespace StardewModdingAPI
 {
     /// <summary>The base class for a mod.</summary>
-    public class Mod : IMod
+    public class Mod : IMod, IDisposable
     {
         /*********
         ** Properties
@@ -88,6 +89,14 @@ namespace StardewModdingAPI
         /// <param name="helper">Provides simplified APIs for writing mods.</param>
         public virtual void Entry(IModHelper helper) { }
 
+        /// <summary>Release or reset unmanaged resources.</summary>
+        public void Dispose()
+        {
+            (this.Helper as IDisposable)?.Dispose(); // deliberate do this outside overridable dispose method so mods don't accidentally suppress it
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
 
         /*********
         ** Private methods
@@ -105,6 +114,16 @@ namespace StardewModdingAPI
                 return "";
             }
             return Path.Combine(this.PathOnDisk, "psconfigs");
+        }
+
+        /// <summary>Release or reset unmanaged resources when the game exits. There's no guarantee this will be called on every exit.</summary>
+        /// <param name="disposing">Whether the instance is being disposed explicitly rather than finalised. If this is false, the instance shouldn't dispose other objects since they may already be finalised.</param>
+        protected virtual void Dispose(bool disposing) { }
+
+        /// <summary>Destruct the instance.</summary>
+        ~Mod()
+        {
+            this.Dispose(false);
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Serialisation;
 
 namespace StardewModdingAPI.Framework
@@ -25,7 +24,7 @@ namespace StardewModdingAPI.Framework
         public IContentHelper Content { get; }
 
         /// <summary>Simplifies access to private game code.</summary>
-        public IReflectionHelper Reflection { get; } = new ReflectionHelper();
+        public IReflectionHelper Reflection { get; }
 
         /// <summary>Metadata about loaded mods.</summary>
         public IModRegistry ModRegistry { get; }
@@ -44,9 +43,10 @@ namespace StardewModdingAPI.Framework
         /// <param name="modRegistry">Metadata about loaded mods.</param>
         /// <param name="commandManager">Manages console commands.</param>
         /// <param name="contentManager">The content manager which loads content assets.</param>
+        /// <param name="reflection">Simplifies access to private game code.</param>
         /// <exception cref="ArgumentNullException">An argument is null or empty.</exception>
         /// <exception cref="InvalidOperationException">The <paramref name="modDirectory"/> path does not exist on disk.</exception>
-        public ModHelper(IManifest manifest, string modDirectory, JsonHelper jsonHelper, IModRegistry modRegistry, CommandManager commandManager, SContentManager contentManager)
+        public ModHelper(IManifest manifest, string modDirectory, JsonHelper jsonHelper, IModRegistry modRegistry, CommandManager commandManager, SContentManager contentManager, IReflectionHelper reflection)
         {
             // validate
             if (string.IsNullOrWhiteSpace(modDirectory))
@@ -64,6 +64,7 @@ namespace StardewModdingAPI.Framework
             this.Content = new ContentHelper(contentManager, modDirectory, manifest.Name);
             this.ModRegistry = modRegistry;
             this.ConsoleCommands = new CommandHelper(manifest.Name, commandManager);
+            this.Reflection = reflection;
         }
 
         /****

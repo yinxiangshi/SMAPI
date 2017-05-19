@@ -77,40 +77,36 @@ namespace StardewModdingAPI.Events
 
         /// <summary>Raise a <see cref="ControllerButtonPressed"/> event.</summary>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        /// <param name="playerIndex">The player who pressed the button.</param>
         /// <param name="button">The controller button that was pressed.</param>
-        internal static void InvokeButtonPressed(IMonitor monitor, PlayerIndex playerIndex, Buttons button)
+        internal static void InvokeButtonPressed(IMonitor monitor, Buttons button)
         {
-            monitor.SafelyRaiseGenericEvent($"{nameof(ControlEvents)}.{nameof(ControlEvents.ControllerButtonPressed)}", ControlEvents.ControllerButtonPressed?.GetInvocationList(), null, new EventArgsControllerButtonPressed(playerIndex, button));
+            monitor.SafelyRaiseGenericEvent($"{nameof(ControlEvents)}.{nameof(ControlEvents.ControllerButtonPressed)}", ControlEvents.ControllerButtonPressed?.GetInvocationList(), null, new EventArgsControllerButtonPressed(PlayerIndex.One, button));
         }
 
         /// <summary>Raise a <see cref="ControllerButtonReleased"/> event.</summary>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        /// <param name="playerIndex">The player who released the button.</param>
         /// <param name="button">The controller button that was released.</param>
-        internal static void InvokeButtonReleased(IMonitor monitor, PlayerIndex playerIndex, Buttons button)
+        internal static void InvokeButtonReleased(IMonitor monitor, Buttons button)
         {
-            monitor.SafelyRaiseGenericEvent($"{nameof(ControlEvents)}.{nameof(ControlEvents.ControllerButtonReleased)}", ControlEvents.ControllerButtonReleased?.GetInvocationList(), null, new EventArgsControllerButtonReleased(playerIndex, button));
+            monitor.SafelyRaiseGenericEvent($"{nameof(ControlEvents)}.{nameof(ControlEvents.ControllerButtonReleased)}", ControlEvents.ControllerButtonReleased?.GetInvocationList(), null, new EventArgsControllerButtonReleased(PlayerIndex.One, button));
         }
 
         /// <summary>Raise a <see cref="ControllerTriggerPressed"/> event.</summary>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        /// <param name="playerIndex">The player who pressed the trigger button.</param>
         /// <param name="button">The trigger button that was pressed.</param>
         /// <param name="value">The current trigger value.</param>
-        internal static void InvokeTriggerPressed(IMonitor monitor, PlayerIndex playerIndex, Buttons button, float value)
+        internal static void InvokeTriggerPressed(IMonitor monitor, Buttons button, float value)
         {
-            monitor.SafelyRaiseGenericEvent($"{nameof(ControlEvents)}.{nameof(ControlEvents.ControllerTriggerPressed)}", ControlEvents.ControllerTriggerPressed?.GetInvocationList(), null, new EventArgsControllerTriggerPressed(playerIndex, button, value));
+            monitor.SafelyRaiseGenericEvent($"{nameof(ControlEvents)}.{nameof(ControlEvents.ControllerTriggerPressed)}", ControlEvents.ControllerTriggerPressed?.GetInvocationList(), null, new EventArgsControllerTriggerPressed(PlayerIndex.One, button, value));
         }
 
         /// <summary>Raise a <see cref="ControllerTriggerReleased"/> event.</summary>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        /// <param name="playerIndex">The player who pressed the trigger button.</param>
         /// <param name="button">The trigger button that was pressed.</param>
         /// <param name="value">The current trigger value.</param>
-        internal static void InvokeTriggerReleased(IMonitor monitor, PlayerIndex playerIndex, Buttons button, float value)
+        internal static void InvokeTriggerReleased(IMonitor monitor, Buttons button, float value)
         {
-            monitor.SafelyRaiseGenericEvent($"{nameof(ControlEvents)}.{nameof(ControlEvents.ControllerTriggerReleased)}", ControlEvents.ControllerTriggerReleased?.GetInvocationList(), null, new EventArgsControllerTriggerReleased(playerIndex, button, value));
+            monitor.SafelyRaiseGenericEvent($"{nameof(ControlEvents)}.{nameof(ControlEvents.ControllerTriggerReleased)}", ControlEvents.ControllerTriggerReleased?.GetInvocationList(), null, new EventArgsControllerTriggerReleased(PlayerIndex.One, button, value));
         }
     }
 }

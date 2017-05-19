@@ -3,7 +3,7 @@
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProjectGuid>{F1A573B0-F436-472C-AE29-0B91EA6B9F8F}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -27,29 +27,6 @@
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>$(SolutionDir)\..\bin\Debug\SMAPI</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>$(SolutionDir)\..\bin\Release\SMAPI</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <PlatformTarget>x86</PlatformTarget>
@@ -144,8 +121,14 @@
     <Compile Include="Events\EventArgsStringChanged.cs" />
     <Compile Include="Events\GameEvents.cs" />
     <Compile Include="Events\GraphicsEvents.cs" />
-    <Compile Include="Framework\AssemblyDefinitionResolver.cs" />
-    <Compile Include="Framework\AssemblyParseResult.cs" />
+    <Compile Include="Framework\Countdown.cs" />
+    <Compile Include="Framework\ModLoading\IModMetadata.cs" />
+    <Compile Include="Framework\ModLoading\InvalidModStateException.cs" />
+    <Compile Include="Framework\ModLoading\ModDependencyStatus.cs" />
+    <Compile Include="Framework\ModLoading\ModMetadataStatus.cs" />
+    <Compile Include="Framework\ModLoading\ModResolver.cs" />
+    <Compile Include="Framework\ModLoading\AssemblyDefinitionResolver.cs" />
+    <Compile Include="Framework\ModLoading\AssemblyParseResult.cs" />
     <Compile Include="Framework\CommandManager.cs" />
     <Compile Include="Framework\ContentHelper.cs" />
     <Compile Include="Framework\Content\ContentEventData.cs" />
@@ -156,20 +139,23 @@
     <Compile Include="Framework\Logging\ConsoleInterceptionManager.cs" />
     <Compile Include="Framework\Logging\InterceptingTextWriter.cs" />
     <Compile Include="Framework\CommandHelper.cs" />
+    <Compile Include="Framework\Models\ManifestDependency.cs" />
     <Compile Include="Framework\Models\ModCompatibilityType.cs" />
     <Compile Include="Framework\Models\SConfig.cs" />
+    <Compile Include="Framework\ModLoading\ModMetadata.cs" />
     <Compile Include="Framework\Reflection\PrivateProperty.cs" />
     <Compile Include="Framework\RequestExitDelegate.cs" />
     <Compile Include="Framework\SContentManager.cs" />
     <Compile Include="Framework\Serialisation\JsonHelper.cs" />
     <Compile Include="Framework\Serialisation\SelectiveStringEnumConverter.cs" />
-    <Compile Include="Framework\Serialisation\SemanticVersionConverter.cs" />
+    <Compile Include="Framework\Serialisation\ManifestFieldConverter.cs" />
     <Compile Include="ICommandHelper.cs" />
     <Compile Include="IContentEventData.cs" />
     <Compile Include="IContentEventHelper.cs" />
     <Compile Include="IContentEventHelperForDictionary.cs" />
     <Compile Include="IContentEventHelperForImage.cs" />
     <Compile Include="IContentHelper.cs" />
+    <Compile Include="IManifestDependency.cs" />
     <Compile Include="IModRegistry.cs" />
     <Compile Include="Events\LocationEvents.cs" />
     <Compile Include="Events\MenuEvents.cs" />
@@ -181,7 +167,7 @@
     <Compile Include="Framework\DeprecationManager.cs" />
     <Compile Include="Framework\InternalExtensions.cs" />
     <Compile Include="Framework\Models\ModCompatibility.cs" />
-    <Compile Include="Framework\AssemblyLoader.cs" />
+    <Compile Include="Framework\ModLoading\AssemblyLoader.cs" />
     <Compile Include="Framework\Reflection\CacheEntry.cs" />
     <Compile Include="Framework\Reflection\PrivateField.cs" />
     <Compile Include="Framework\Reflection\PrivateMethod.cs" />
@@ -201,7 +187,7 @@
     <Compile Include="Events\ItemStackChange.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="Framework\Monitor.cs" />
-    <Compile Include="Framework\Manifest.cs" />
+    <Compile Include="Framework\Models\Manifest.cs" />
     <Compile Include="Mod.cs" />
     <Compile Include="Framework\ModHelper.cs" />
     <Compile Include="PatchMode.cs" />
@@ -267,9 +253,8 @@
     <Copy SourceFiles="$(TargetDir)\$(TargetName).exe" DestinationFolder="$(GamePath)" />
     <Copy SourceFiles="$(TargetDir)\$(TargetName).config.json" DestinationFolder="$(GamePath)" />
     <Copy SourceFiles="$(TargetDir)\StardewModdingAPI.AssemblyRewriters.dll" DestinationFolder="$(GamePath)" />
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).exe.mdb" DestinationFolder="$(GamePath)" Condition="$(OS) != 'Windows_NT'" />
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)" Condition="$(OS) == 'Windows_NT'" />
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).xml" DestinationFolder="$(GamePath)" Condition="$(OS) == 'Windows_NT'" />
+    <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)" />
+    <Copy SourceFiles="$(TargetDir)\$(TargetName).xml" DestinationFolder="$(GamePath)" />
     <Copy SourceFiles="$(TargetDir)\Newtonsoft.Json.dll" DestinationFolder="$(GamePath)" />
     <Copy SourceFiles="$(TargetDir)\Mono.Cecil.dll" DestinationFolder="$(GamePath)" />
   </Target>

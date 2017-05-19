@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Mono.Cecil;
 
-namespace StardewModdingAPI.Framework
+namespace StardewModdingAPI.Framework.ModLoading
 {
     /// <summary>A minimal assembly definition resolver which resolves references to known assemblies.</summary>
     internal class AssemblyDefinitionResolver : DefaultAssemblyResolver

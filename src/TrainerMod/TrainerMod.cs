@@ -111,7 +111,9 @@ namespace TrainerMod
                 .Add("world_setminelevel", "Sets the mine level?\n\nUsage: world_setminelevel <value>\n- value: The target level (a number between 1 and 120).", this.HandleCommand)
 
                 .Add("show_game_files", "Opens the game folder.", this.HandleCommand)
-                .Add("show_data_files", "Opens the folder containing the save and log files.", this.HandleCommand);
+                .Add("show_data_files", "Opens the folder containing the save and log files.", this.HandleCommand)
+
+                .Add("debug", "Run one of the game's debug commands; for example, 'debug warp FarmHouse 1 1' warps the player to the farmhouse.", this.HandleCommand);
         }
 
         /// <summary>Handle a TrainerMod command.</summary>
@@ -121,6 +123,12 @@ namespace TrainerMod
         {
             switch (command)
             {
+                case "debug":
+                    string debugCommand = string.Join(" ", args);
+                    this.Monitor.Log($"Sending debug command to the game: {debugCommand}...", LogLevel.Info);
+                    Game1.game1.parseDebugInput(debugCommand);
+                    break;
+
                 case "save":
                     this.Monitor.Log("Saving the game...", LogLevel.Info);
                     SaveGame.Save();

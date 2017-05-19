@@ -7,7 +7,7 @@ using Mono.Cecil;
 using Mono.Cecil.Cil;
 using StardewModdingAPI.AssemblyRewriters;
 
-namespace StardewModdingAPI.Framework
+namespace StardewModdingAPI.Framework.ModLoading
 {
     /// <summary>Preprocesses and loads mod assemblies.</summary>
     internal class AssemblyLoader

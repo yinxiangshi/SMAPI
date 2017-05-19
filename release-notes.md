@@ -10,6 +10,29 @@ For mod developers:
   images).
 -->
 
+## 1.13
+See [log](https://github.com/Pathoschild/SMAPI/compare/1.12...1.13).
+
+For players:
+* SMAPI now recovers better from mod draw errors and detects when the error is irrecoverable.
+* SMAPI now recovers automatically from errors in the game loop when possible.
+* SMAPI now remembers if your game crashed and offers help next time you launch it.
+* Fixed installer sometimes finding redundant game paths.
+* Fixed save events not being raised after the first day on Linux/Mac.
+* Fixed error on Linux/Mac when a mod loads a PNG immediately after the save is loaded.
+* Updated mod compatibility list for Stardew Valley 1.2.
+
+For mod developers:
+* Added a `Context.IsWorldReady` flag for mods to use.  
+  _<small>This indicates whether a save is loaded and the world is finished initialising, which starts at the same point that `SaveEvents.AfterLoad` and `TimeEvents.AfterDayStarted` are raised. This is mainly useful for events which can be raised before the world is loaded (like update tick).</small>_
+* Added a `debug` console command which lets you run the game's debug commands (e.g. `debug warp FarmHouse 1 1` warps you to the farmhouse).
+* Added basic context info to logs to simplify troubleshooting.
+* Added a `Mod.Dispose` method which can be overriden to clean up before exit. This method isn't guaranteed to be called on every exit.
+* Deprecated mods that don't have a `Name`, `Version`, or `UniqueID` in their manifest. These will be required in SMAPI 2.0.
+* Deprecated `GameEvents.GameLoaded` and `GameEvents.FirstUpdateTick`. You can move any affected code into your mod's `Entry` method.
+* Fixed maps not recognising custom tilesheets added through the SMAPI content API.
+* Internal refactoring for upcoming features.
+
 ## 1.12
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.11...1.12).
 
@@ -40,6 +63,7 @@ For mod developers:
 * Added a content API which loads custom textures/maps/data from the mod's folder (`.xnb` or `.png` format) or game content.
 * `Console.Out` messages are now written to the log file.
 * `Monitor.ExitGameImmediately` now aborts SMAPI initialisation and events more quickly.
+* Fixed value-changed events being raised when the player loads a save due to values being initialised.
 
 ## 1.10
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.9...1.10).
