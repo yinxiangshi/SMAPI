@@ -330,13 +330,13 @@ namespace StardewModdingAPI
 
                         if (string.IsNullOrWhiteSpace(mod.Manifest.Name))
                             missingFields.Add(nameof(IManifest.Name));
-                        if (mod.Manifest.Version.ToString() == "0.0")
+                        if (mod.Manifest.Version == null || mod.Manifest.Version.ToString() == "0.0")
                             missingFields.Add(nameof(IManifest.Version));
                         if (string.IsNullOrWhiteSpace(mod.Manifest.UniqueID))
                             missingFields.Add(nameof(IManifest.UniqueID));
 
                         if (missingFields.Any())
-                            deprecationWarnings.Add(() => this.Monitor.Log($"{mod.Manifest.Name} is missing some manifest fields ({string.Join(", ", missingFields)}) which will be required in an upcoming SMAPI version.", LogLevel.Warn));
+                            deprecationWarnings.Add(() => this.Monitor.Log($"{mod.DisplayName} is missing some manifest fields ({string.Join(", ", missingFields)}) which will be required in an upcoming SMAPI version.", LogLevel.Warn));
                     }
 
                     // per-save directories
