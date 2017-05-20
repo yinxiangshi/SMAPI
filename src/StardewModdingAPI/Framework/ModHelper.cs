@@ -37,6 +37,7 @@ namespace StardewModdingAPI.Framework
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
+        /// <param name="displayName">The mod's display name.</param>
         /// <param name="manifest">The manifest for the associated mod.</param>
         /// <param name="modDirectory">The full path to the mod's folder.</param>
         /// <param name="jsonHelper">Encapsulate SMAPI's JSON parsing.</param>
@@ -46,7 +47,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="reflection">Simplifies access to private game code.</param>
         /// <exception cref="ArgumentNullException">An argument is null or empty.</exception>
         /// <exception cref="InvalidOperationException">The <paramref name="modDirectory"/> path does not exist on disk.</exception>
-        public ModHelper(IManifest manifest, string modDirectory, JsonHelper jsonHelper, IModRegistry modRegistry, CommandManager commandManager, SContentManager contentManager, IReflectionHelper reflection)
+        public ModHelper(string displayName, IManifest manifest, string modDirectory, JsonHelper jsonHelper, IModRegistry modRegistry, CommandManager commandManager, SContentManager contentManager, IReflectionHelper reflection)
         {
             // validate
             if (string.IsNullOrWhiteSpace(modDirectory))
@@ -61,9 +62,9 @@ namespace StardewModdingAPI.Framework
             // initialise
             this.DirectoryPath = modDirectory;
             this.JsonHelper = jsonHelper;
-            this.Content = new ContentHelper(contentManager, modDirectory, manifest.Name);
+            this.Content = new ContentHelper(contentManager, modDirectory, displayName);
             this.ModRegistry = modRegistry;
-            this.ConsoleCommands = new CommandHelper(manifest.Name, commandManager);
+            this.ConsoleCommands = new CommandHelper(displayName, commandManager);
             this.Reflection = reflection;
         }
 

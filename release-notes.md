@@ -14,7 +14,8 @@ For mod developers:
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.13...1.13.1).
 
 For players:
-* Fixed error when loading a mod with no version.
+* Fixed errors when loading a mod with no name or version.
+* Fixed mods with no manifest `Name` field having no name (SMAPI will now shows their filename).
 
 ## 1.13
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.12...1.13).
