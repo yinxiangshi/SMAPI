@@ -1,6 +1,7 @@
 ﻿using StardewModdingAPI.Framework.Models;
+using StardewModdingAPI.Framework.ModLoading;
 
-namespace StardewModdingAPI.Framework.ModLoading
+namespace StardewModdingAPI.Framework
 {
     /// <summary>Metadata for a mod.</summary>
     internal interface IModMetadata
@@ -26,6 +27,9 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>The reason the metadata is invalid, if any.</summary>
         string Error { get; }
 
+        /// <summary>The mod instance (if it was loaded).</summary>
+        IMod Mod { get; }
+
 
         /*********
         ** Public methods
@@ -35,5 +39,9 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="error">The reason the metadata is invalid, if any.</param>
         /// <returns>Return the instance for chaining.</returns>
         IModMetadata SetStatus(ModMetadataStatus status, string error = null);
+
+        /// <summary>Set the mod instance.</summary>
+        /// <param name="mod">The mod instance to set.</param>
+        IModMetadata SetMod(IMod mod);
     }
 }

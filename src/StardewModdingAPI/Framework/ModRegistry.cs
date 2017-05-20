@@ -13,7 +13,7 @@ namespace StardewModdingAPI.Framework
         ** Properties
         *********/
         /// <summary>The registered mod data.</summary>
-        private readonly List<IMod> Mods = new List<IMod>();
+        private readonly List<IModMetadata> Mods = new List<IModMetadata>();
 
         /// <summary>The friendly mod names treated as deprecation warning sources (assembly full name => mod name).</summary>
         private readonly IDictionary<string, string> ModNamesByAssembly = new Dictionary<string, string>();
@@ -28,7 +28,7 @@ namespace StardewModdingAPI.Framework
         /// <summary>Get metadata for all loaded mods.</summary>
         public IEnumerable<IManifest> GetAll()
         {
-            return this.Mods.Select(p => p.ModManifest);
+            return this.Mods.Select(p => p.Manifest);
         }
 
         /// <summary>Get metadata for a loaded mod.</summary>
@@ -50,15 +50,15 @@ namespace StardewModdingAPI.Framework
         ** Internal methods
         ****/
         /// <summary>Register a mod as a possible source of deprecation warnings.</summary>
-        /// <param name="mod">The mod instance.</param>
-        public void Add(IMod mod)
+        /// <param name="metadata">The mod metadata.</param>
+        public void Add(IModMetadata metadata)
         {
-            this.Mods.Add(mod);
-            this.ModNamesByAssembly[mod.GetType().Assembly.FullName] = mod.ModManifest.Name;
+            this.Mods.Add(metadata);
+            this.ModNamesByAssembly[metadata.Mod.GetType().Assembly.FullName] = metadata.DisplayName;
         }
 
         /// <summary>Get all enabled mods.</summary>
-        public IEnumerable<IMod> GetMods()
+        public IEnumerable<IModMetadata> GetMods()
         {
             return (from mod in this.Mods select mod);
         }

@@ -237,15 +237,15 @@ namespace StardewModdingAPI
             this.IsDisposed = true;
 
             // dispose mod data
-            foreach (IMod mod in this.ModRegistry.GetMods())
+            foreach (IModMetadata mod in this.ModRegistry.GetMods())
             {
                 try
                 {
-                    (mod as IDisposable)?.Dispose();
+                    (mod.Mod as IDisposable)?.Dispose();
                 }
                 catch (Exception ex)
                 {
-                    this.Monitor.Log($"The {mod.ModManifest.Name} mod failed during disposal: {ex.GetLogSummary()}.", LogLevel.Warn);
+                    this.Monitor.Log($"The {mod.DisplayName} mod failed during disposal: {ex.GetLogSummary()}.", LogLevel.Warn);
                 }
             }
 
@@ -330,13 +330,13 @@ namespace StardewModdingAPI
 
                         if (string.IsNullOrWhiteSpace(mod.Manifest.Name))
                             missingFields.Add(nameof(IManifest.Name));
-                        if (mod.Manifest.Version.ToString() == "0.0")
+                        if (mod.Manifest.Version == null || mod.Manifest.Version.ToString() == "0.0")
                             missingFields.Add(nameof(IManifest.Version));
                         if (string.IsNullOrWhiteSpace(mod.Manifest.UniqueID))
                             missingFields.Add(nameof(IManifest.UniqueID));
 
                         if (missingFields.Any())
-                            deprecationWarnings.Add(() => this.Monitor.Log($"{mod.Manifest.Name} is missing some manifest fields ({string.Join(", ", missingFields)}) which will be required in an upcoming SMAPI version.", LogLevel.Warn));
+                            deprecationWarnings.Add(() => this.Monitor.Log($"{mod.DisplayName} is missing some manifest fields ({string.Join(", ", missingFields)}) which will be required in an upcoming SMAPI version.", LogLevel.Warn));
                     }
 
                     // per-save directories
@@ -580,14 +580,15 @@ namespace StardewModdingAPI
 
                     // inject data
                     mod.ModManifest = manifest;
-                    mod.Helper = new ModHelper(manifest, metadata.DirectoryPath, jsonHelper, this.ModRegistry, this.CommandManager, contentManager, this.Reflection);
-                    mod.Monitor = this.GetSecondaryMonitor(manifest.Name);
+                    mod.Helper = new ModHelper(metadata.DisplayName, manifest, metadata.DirectoryPath, jsonHelper, this.ModRegistry, this.CommandManager, contentManager, this.Reflection);
+                    mod.Monitor = this.GetSecondaryMonitor(metadata.DisplayName);
                     mod.PathOnDisk = metadata.DirectoryPath;
 
                     // track mod
-                    this.ModRegistry.Add(mod);
+                    metadata.SetMod(mod);
+                    this.ModRegistry.Add(metadata);
                     modsLoaded += 1;
-                    this.Monitor.Log($"Loaded {manifest.Name} by {manifest.Author}, v{manifest.Version} | {manifest.Description}", LogLevel.Info);
+                    this.Monitor.Log($"Loaded {metadata.DisplayName} by {manifest.Author}, v{manifest.Version} | {manifest.Description}", LogLevel.Info);
                 }
                 catch (Exception ex)
                 {
@@ -596,21 +597,23 @@ namespace StardewModdingAPI
             }
 
             // initialise loaded mods
-            foreach (IMod mod in this.ModRegistry.GetMods())
+            foreach (IModMetadata metadata in this.ModRegistry.GetMods())
             {
                 try
                 {
+                    IMod mod = metadata.Mod;
+
                     // call entry methods
                     (mod as Mod)?.Entry(); // deprecated since 1.0
                     mod.Entry(mod.Helper);
 
                     // raise deprecation warning for old Entry() methods
                     if (this.DeprecationManager.IsVirtualMethodImplemented(mod.GetType(), typeof(Mod), nameof(Mod.Entry), new[] { typeof(object[]) }))
-                        deprecationWarnings.Add(() => this.DeprecationManager.Warn(mod.ModManifest.Name, $"{nameof(Mod)}.{nameof(Mod.Entry)}(object[]) instead of {nameof(Mod)}.{nameof(Mod.Entry)}({nameof(IModHelper)})", "1.0", DeprecationLevel.Info));
+                        deprecationWarnings.Add(() => this.DeprecationManager.Warn(metadata.DisplayName, $"{nameof(Mod)}.{nameof(Mod.Entry)}(object[]) instead of {nameof(Mod)}.{nameof(Mod.Entry)}({nameof(IModHelper)})", "1.0", DeprecationLevel.Info));
                 }
                 catch (Exception ex)
                 {
-                    this.Monitor.Log($"The {mod.ModManifest.Name} mod failed on entry initialisation. It will still be loaded, but may not function correctly.\n{ex.GetLogSummary()}", LogLevel.Warn);
+                    this.Monitor.Log($"The {metadata.DisplayName} mod failed on entry initialisation. It will still be loaded, but may not function correctly.\n{ex.GetLogSummary()}", LogLevel.Warn);
                 }
             }
 

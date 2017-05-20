@@ -5,6 +5,7 @@ using System.Linq;
 using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
+using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.Models;
 using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Framework.Serialisation;

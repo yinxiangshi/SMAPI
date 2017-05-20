@@ -122,7 +122,7 @@
     <Compile Include="Events\GameEvents.cs" />
     <Compile Include="Events\GraphicsEvents.cs" />
     <Compile Include="Framework\Countdown.cs" />
-    <Compile Include="Framework\ModLoading\IModMetadata.cs" />
+    <Compile Include="Framework\IModMetadata.cs" />
     <Compile Include="Framework\ModLoading\InvalidModStateException.cs" />
     <Compile Include="Framework\ModLoading\ModDependencyStatus.cs" />
     <Compile Include="Framework\ModLoading\ModMetadataStatus.cs" />

@@ -26,6 +26,9 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>The reason the metadata is invalid, if any.</summary>
         public string Error { get; private set; }
 
+        /// <summary>The mod instance (if it was loaded).</summary>
+        public IMod Mod { get; private set; }
+
 
         /*********
         ** Public methods
@@ -51,6 +54,14 @@ namespace StardewModdingAPI.Framework.ModLoading
         {
             this.Status = status;
             this.Error = error;
+            return this;
+        }
+
+        /// <summary>Set the mod instance.</summary>
+        /// <param name="mod">The mod instance to set.</param>
+        public IModMetadata SetMod(IMod mod)
+        {
+            this.Mod = mod;
             return this;
         }
     }
