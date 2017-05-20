@@ -10,6 +10,13 @@ For mod developers:
   images).
 -->
 
+## 1.14
+See [log](https://github.com/Pathoschild/SMAPI/compare/1.13.1...1.14).
+
+For players:
+* SMAPI now shows a friendly message when it can't detect the game.
+* SMAPI now shows a friendly message when you have Stardew Valley 1.11 or earlier (which aren't compatible).
+
 ## 1.13.1
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.13...1.13.1).
 

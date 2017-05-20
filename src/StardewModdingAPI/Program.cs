@@ -78,6 +78,8 @@ namespace StardewModdingAPI
         /// <param name="args">The command-line arguments.</param>
         public static void Main(string[] args)
         {
+            Program.AssertMinimumCompatibility();
+
             // get flags from arguments
             bool writeToConsole = !args.Contains("--no-terminal");
 
@@ -261,6 +263,49 @@ namespace StardewModdingAPI
         /*********
         ** Private methods
         *********/
+        /// <summary>Assert that the minimum conditions are present to initialise SMAPI without type load exceptions.</summary>
+        /// <returns>Returns whether the minimum conditions are met.</returns>
+        private static void AssertMinimumCompatibility()
+        {
+            void PrintErrorAndExit(string message)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(message);
+                Console.ResetColor();
+                Program.PressAnyKeyToExit(showMessage: true);
+            }
+
+            // get game assembly name
+            const string gameAssemblyName =
+#if SMAPI_FOR_WINDOWS
+                "Stardew Valley";
+#else
+                "StardewValley";
+#endif
+
+            // game not present
+            if (Type.GetType($"StardewValley.Game1, {gameAssemblyName}", throwOnError: false) == null)
+            {
+                PrintErrorAndExit(
+                    "Oops! SMAPI can't find the game. "
+                    + (Assembly.GetCallingAssembly().Location?.Contains(Path.Combine("internal", "Windows")) == true || Assembly.GetCallingAssembly().Location?.Contains(Path.Combine("internal", "Mono")) == true
+                        ? "It looks like you're running SMAPI from the download package, but you need to run the installed version instead. "
+                        : "Make sure you're running StardewModdingAPI.exe in your game folder. "
+                    )
+                    + "See the readme.txt file for details."
+                );
+            }
+
+            // Stardew Valley 1.2 types not present
+            if (Type.GetType($"StardewValley.LocalizedContentManager+LanguageCode, {gameAssemblyName}", throwOnError: false) == null)
+            {
+                PrintErrorAndExit(Constants.GameVersion.IsOlderThan(Constants.MinimumGameVersion)
+                    ? $"Oops! You're running Stardew Valley {Constants.GetGameDisplayVersion(Constants.GameVersion)}, but the oldest supported version is {Constants.GetGameDisplayVersion(Constants.MinimumGameVersion)}. Please update your game before using SMAPI."
+                    : "Oops! SMAPI doesn't seem to be compatible with your game. Make sure you're running the latest version of Stardew Valley and SMAPI."
+                );
+            }
+        }
+
         /// <summary>Initialise SMAPI and mods after the game starts.</summary>
         private void InitialiseAfterGameStart()
         {
@@ -655,6 +700,15 @@ namespace StardewModdingAPI
         private void PressAnyKeyToExit()
         {
             this.Monitor.Log("Game has ended. Press any key to exit.", LogLevel.Info);
+            Program.PressAnyKeyToExit(showMessage: false);
+        }
+
+        /// <summary>Show a 'press any key to exit' message, and exit when they press a key.</summary>
+        /// <param name="showMessage">Whether to print a 'press any key to exit' message to the console.</param>
+        private static void PressAnyKeyToExit(bool showMessage)
+        {
+            if (showMessage)
+                Console.WriteLine("Game has ended. Press any key to exit.");
             Thread.Sleep(100);
             Console.ReadKey();
             Environment.Exit(0);
