@@ -160,7 +160,7 @@ namespace StardewModdingAPI
                         try
                         {
                             File.WriteAllText(Constants.FatalCrashMarker, string.Empty);
-                            File.Copy(Constants.DefaultLogPath, Constants.FatalCrashLog, overwrite: true);
+                            File.Copy(this.LogFile.Path, Constants.FatalCrashLog, overwrite: true);
                         }
                         catch (Exception ex)
                         {

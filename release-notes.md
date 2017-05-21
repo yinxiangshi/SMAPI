@@ -20,6 +20,7 @@ For players:
 
 For modders:
 * You can now list mod dependencies in the `manifest.json`. SMAPI will make sure your dependencies are loaded before your mod, and will show a friendly error if a dependency is missing.
+* Fixed `smapi-crash.txt` being copied from the default log even if a different path is specified with `--log-path`.
 
 ## 1.13.1
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.13...1.13.1).
