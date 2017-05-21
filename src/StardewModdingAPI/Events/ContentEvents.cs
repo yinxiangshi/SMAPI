@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using StardewModdingAPI.Framework;
 
 namespace StardewModdingAPI.Events
@@ -19,6 +20,9 @@ namespace StardewModdingAPI.Events
         /// <summary>The mods using the experimental API for which a warning has been raised.</summary>
         private static readonly HashSet<string> WarnedMods = new HashSet<string>();
 
+        /// <summary>The backing field for <see cref="AfterAssetLoaded"/>.</summary>
+        [SuppressMessage("ReSharper", "InconsistentNaming")]
+        private static event EventHandler<IContentEventHelper> _AfterAssetLoaded;
 
         /*********
         ** Events
@@ -32,7 +36,15 @@ namespace StardewModdingAPI.Events
 #else
         internal
 #endif
-            static event EventHandler<IContentEventHelper> AfterAssetLoaded;
+            static event EventHandler<IContentEventHelper> AfterAssetLoaded
+        {
+            add
+            {
+                ContentEvents.RaiseContentExperimentalWarning();
+                ContentEvents._AfterAssetLoaded += value;
+            }
+            remove => ContentEvents._AfterAssetLoaded -= value;
+        }
 
 
         /*********
@@ -61,30 +73,21 @@ namespace StardewModdingAPI.Events
         /// <param name="contentHelper">Encapsulates access and changes to content being read from a data file.</param>
         internal static void InvokeAfterAssetLoaded(IMonitor monitor, IContentEventHelper contentHelper)
         {
-            if (ContentEvents.AfterAssetLoaded != null)
-            {
-                Delegate[] handlers = ContentEvents.AfterAssetLoaded.GetInvocationList();
-                ContentEvents.RaiseDeprecationWarning(handlers);
-                monitor.SafelyRaiseGenericEvent($"{nameof(ContentEvents)}.{nameof(ContentEvents.AfterAssetLoaded)}", handlers, null, contentHelper);
-            }
+            monitor.SafelyRaiseGenericEvent($"{nameof(ContentEvents)}.{nameof(ContentEvents.AfterAssetLoaded)}", ContentEvents._AfterAssetLoaded?.GetInvocationList(), null, contentHelper);
         }
 
 
         /*********
         ** Private methods
         *********/
-        /// <summary>Raise a 'experimental API' warning for each mod using the content API.</summary>
-        /// <param name="handlers">The event handlers.</param>
-        private static void RaiseDeprecationWarning(Delegate[] handlers)
+        /// <summary>Raise an 'experimental API' warning for a mod using the content API.</summary>
+        private static void RaiseContentExperimentalWarning()
         {
-            foreach (Delegate handler in handlers)
+            string modName = ContentEvents.ModRegistry.GetModFromStack() ?? "An unknown mod";
+            if (!ContentEvents.WarnedMods.Contains(modName))
             {
-                string modName = ContentEvents.ModRegistry.GetModFrom(handler) ?? "An unknown mod";
-                if (!ContentEvents.WarnedMods.Contains(modName))
-                {
-                    ContentEvents.WarnedMods.Add(modName);
-                    ContentEvents.Monitor.Log($"{modName} used the undocumented and experimental content API, which may change or be removed without warning.", LogLevel.Warn);
-                }
+                ContentEvents.WarnedMods.Add(modName);
+                ContentEvents.Monitor.Log($"{modName} used the undocumented and experimental content API, which may change or be removed without warning.", LogLevel.Warn);
             }
         }
     }

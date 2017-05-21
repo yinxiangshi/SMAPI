@@ -63,16 +63,6 @@ namespace StardewModdingAPI.Framework
             return (from mod in this.Mods select mod);
         }
 
-        /// <summary>Get the friendly mod name which handles a delegate.</summary>
-        /// <param name="delegate">The delegate to follow.</param>
-        /// <returns>Returns the mod name, or <c>null</c> if the delegate isn't implemented by a known mod.</returns>
-        public string GetModFrom(Delegate @delegate)
-        {
-            return @delegate?.Target != null
-                ? this.GetModFrom(@delegate.Target.GetType())
-                : null;
-        }
-
         /// <summary>Get the friendly mod name which defines a type.</summary>
         /// <param name="type">The type to check.</param>
         /// <returns>Returns the mod name, or <c>null</c> if the type isn't part of a known mod.</returns>

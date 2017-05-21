@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using StardewModdingAPI.Framework;
 
+#pragma warning disable 618 // Suppress obsolete-symbol errors in this file. Since several events are marked obsolete, this produces unnecessary warnings.
 namespace StardewModdingAPI.Events
 {
     /// <summary>Events raised when the in-game date or time changes.</summary>
@@ -11,6 +13,10 @@ namespace StardewModdingAPI.Events
         *********/
         /// <summary>Manages deprecation warnings.</summary>
         private static DeprecationManager DeprecationManager;
+
+        /// <summary>The backing field for <see cref="OnNewDay"/>.</summary>
+        [SuppressMessage("ReSharper", "InconsistentNaming")]
+        private static event EventHandler<EventArgsNewDay> _OnNewDay;
 
 
         /*********
@@ -33,7 +39,15 @@ namespace StardewModdingAPI.Events
 
         /// <summary>Raised when the player is transitioning to a new day and the game is performing its day update logic. This event is triggered twice: once after the game starts transitioning, and again after it finishes.</summary>
         [Obsolete("Use " + nameof(TimeEvents) + "." + nameof(TimeEvents.AfterDayStarted) + " or " + nameof(SaveEvents) + " instead")]
-        public static event EventHandler<EventArgsNewDay> OnNewDay;
+        public static event EventHandler<EventArgsNewDay> OnNewDay
+        {
+            add
+            {
+                TimeEvents.DeprecationManager.Warn($"{nameof(TimeEvents)}.{nameof(TimeEvents.OnNewDay)}", "1.6", DeprecationLevel.Info);
+                TimeEvents._OnNewDay += value;
+            }
+            remove => TimeEvents._OnNewDay -= value;
+        }
 
 
         /*********
@@ -96,14 +110,7 @@ namespace StardewModdingAPI.Events
         /// <param name="isTransitioning">Whether the game just started the transition (<c>true</c>) or finished it (<c>false</c>).</param>
         internal static void InvokeOnNewDay(IMonitor monitor, int priorDay, int newDay, bool isTransitioning)
         {
-            if (TimeEvents.OnNewDay == null)
-                return;
-
-            string name = $"{nameof(TimeEvents)}.{nameof(TimeEvents.OnNewDay)}";
-            Delegate[] handlers = TimeEvents.OnNewDay.GetInvocationList();
-
-            TimeEvents.DeprecationManager.WarnForEvent(handlers, name, "1.6", DeprecationLevel.Info);
-            monitor.SafelyRaiseGenericEvent(name, handlers, null, new EventArgsNewDay(priorDay, newDay, isTransitioning));
+            monitor.SafelyRaiseGenericEvent($"{nameof(TimeEvents)}.{nameof(TimeEvents.OnNewDay)}", TimeEvents._OnNewDay?.GetInvocationList(), null, new EventArgsNewDay(priorDay, newDay, isTransitioning));
         }
     }
 }

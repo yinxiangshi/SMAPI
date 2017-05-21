@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using StardewModdingAPI.Framework;
 
+#pragma warning disable 618 // Suppress obsolete-symbol errors in this file. Since several events are marked obsolete, this produces unnecessary warnings.
 namespace StardewModdingAPI.Events
 {
     /// <summary>Events raised when the game changes state.</summary>
@@ -11,6 +13,22 @@ namespace StardewModdingAPI.Events
         *********/
         /// <summary>Manages deprecation warnings.</summary>
         private static DeprecationManager DeprecationManager;
+
+        /// <summary>The backing field for <see cref="Initialize"/>.</summary>
+        [SuppressMessage("ReSharper", "InconsistentNaming")]
+        private static event EventHandler _Initialize;
+
+        /// <summary>The backing field for <see cref="LoadContent"/>.</summary>
+        [SuppressMessage("ReSharper", "InconsistentNaming")]
+        private static event EventHandler _LoadContent;
+
+        /// <summary>The backing field for <see cref="GameLoaded"/>.</summary>
+        [SuppressMessage("ReSharper", "InconsistentNaming")]
+        private static event EventHandler _GameLoaded;
+
+        /// <summary>The backing field for <see cref="FirstUpdateTick"/>.</summary>
+        [SuppressMessage("ReSharper", "InconsistentNaming")]
+        private static event EventHandler _FirstUpdateTick;
 
 
         /*********
@@ -24,19 +42,51 @@ namespace StardewModdingAPI.Events
 
         /// <summary>Raised during launch after configuring XNA or MonoGame. The game window hasn't been opened by this point. Called after <see cref="Microsoft.Xna.Framework.Game.Initialize"/>.</summary>
         [Obsolete("The " + nameof(Mod) + "." + nameof(Mod.Entry) + " method is now called after the " + nameof(GameEvents.Initialize) + " event, so any contained logic can be done directly in " + nameof(Mod.Entry) + ".")]
-        public static event EventHandler Initialize;
+        public static event EventHandler Initialize
+        {
+            add
+            {
+                GameEvents.DeprecationManager.Warn($"{nameof(GameEvents)}.{nameof(GameEvents.Initialize)}", "1.10", DeprecationLevel.Info);
+                GameEvents._Initialize += value;
+            }
+            remove => GameEvents._Initialize -= value;
+        }
 
         /// <summary>Raised before XNA loads or reloads graphics resources. Called during <see cref="Microsoft.Xna.Framework.Game.LoadContent"/>.</summary>
         [Obsolete("The " + nameof(Mod) + "." + nameof(Mod.Entry) + " method is now called after the " + nameof(GameEvents.LoadContent) + " event, so any contained logic can be done directly in " + nameof(Mod.Entry) + ".")]
-        public static event EventHandler LoadContent;
+        public static event EventHandler LoadContent
+        {
+            add
+            {
+                GameEvents.DeprecationManager.Warn($"{nameof(GameEvents)}.{nameof(GameEvents.LoadContent)}", "1.10", DeprecationLevel.Info);
+                GameEvents._LoadContent += value;
+            }
+            remove => GameEvents._LoadContent -= value;
+        }
 
         /// <summary>Raised during launch after configuring Stardew Valley, loading it into memory, and opening the game window. The window is still blank by this point.</summary>
         [Obsolete("The " + nameof(Mod) + "." + nameof(Mod.Entry) + " method is now called after the game loads, so any contained logic can be done directly in " + nameof(Mod.Entry) + ".")]
-        public static event EventHandler GameLoaded;
+        public static event EventHandler GameLoaded
+        {
+            add
+            {
+                GameEvents.DeprecationManager.Warn($"{nameof(GameEvents)}.{nameof(GameEvents.GameLoaded)}", "1.12", DeprecationLevel.Info);
+                GameEvents._GameLoaded += value;
+            }
+            remove => GameEvents._GameLoaded -= value;
+        }
 
         /// <summary>Raised during the first game update tick.</summary>
         [Obsolete("The " + nameof(Mod) + "." + nameof(Mod.Entry) + " method is now called after the game loads, so any contained logic can be done directly in " + nameof(Mod.Entry) + ".")]
-        public static event EventHandler FirstUpdateTick;
+        public static event EventHandler FirstUpdateTick
+        {
+            add
+            {
+                GameEvents.DeprecationManager.Warn($"{nameof(GameEvents)}.{nameof(GameEvents.FirstUpdateTick)}", "1.12", DeprecationLevel.Info);
+                GameEvents._FirstUpdateTick += value;
+            }
+            remove => GameEvents._FirstUpdateTick -= value;
+        }
 
         /// <summary>Raised when the game updates its state (≈60 times per second).</summary>
         public static event EventHandler UpdateTick;
@@ -74,62 +124,30 @@ namespace StardewModdingAPI.Events
         /// <param name="monitor">Encapsulates logging and monitoring.</param>
         internal static void InvokeInitialize(IMonitor monitor)
         {
-            // notify SMAPI
             monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.InitializeInternal)}", GameEvents.InitializeInternal?.GetInvocationList());
-
-            // notify mods
-            if (GameEvents.Initialize == null)
-                return;
-            string name = $"{nameof(GameEvents)}.{nameof(GameEvents.Initialize)}";
-            Delegate[] handlers = GameEvents.Initialize.GetInvocationList();
-            GameEvents.DeprecationManager.WarnForEvent(handlers, name, "1.10", DeprecationLevel.Info);
-            monitor.SafelyRaisePlainEvent(name, handlers);
+            monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.Initialize)}", GameEvents._Initialize?.GetInvocationList());
         }
 
         /// <summary>Raise a <see cref="LoadContent"/> event.</summary>
         /// <param name="monitor">Encapsulates logging and monitoring.</param>
         internal static void InvokeLoadContent(IMonitor monitor)
         {
-            if (GameEvents.LoadContent == null)
-                return;
-
-            string name = $"{nameof(GameEvents)}.{nameof(GameEvents.LoadContent)}";
-            Delegate[] handlers = GameEvents.LoadContent.GetInvocationList();
-
-            GameEvents.DeprecationManager.WarnForEvent(handlers, name, "1.10", DeprecationLevel.Info);
-            monitor.SafelyRaisePlainEvent(name, handlers);
+            monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.LoadContent)}", GameEvents._LoadContent?.GetInvocationList());
         }
 
         /// <summary>Raise a <see cref="GameLoaded"/> event.</summary>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         internal static void InvokeGameLoaded(IMonitor monitor)
         {
-            // notify SMAPI
             monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.GameLoadedInternal)}", GameEvents.GameLoadedInternal?.GetInvocationList());
-
-            // notify mods
-            if (GameEvents.GameLoaded == null)
-                return;
-
-            string name = $"{nameof(GameEvents)}.{nameof(GameEvents.GameLoaded)}";
-            Delegate[] handlers = GameEvents.GameLoaded.GetInvocationList();
-
-            GameEvents.DeprecationManager.WarnForEvent(handlers, name, "1.12", DeprecationLevel.Info);
-            monitor.SafelyRaisePlainEvent(name, handlers);
+            monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.GameLoaded)}", GameEvents._GameLoaded?.GetInvocationList());
         }
 
         /// <summary>Raise a <see cref="FirstUpdateTick"/> event.</summary>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         internal static void InvokeFirstUpdateTick(IMonitor monitor)
         {
-            if (GameEvents.FirstUpdateTick == null)
-                return;
-
-            string name = $"{nameof(GameEvents)}.{nameof(GameEvents.FirstUpdateTick)}";
-            Delegate[] handlers = GameEvents.FirstUpdateTick.GetInvocationList();
-
-            GameEvents.DeprecationManager.WarnForEvent(handlers, name, "1.12", DeprecationLevel.Info);
-            monitor.SafelyRaisePlainEvent(name, handlers);
+            monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.FirstUpdateTick)}", GameEvents._FirstUpdateTick?.GetInvocationList());
         }
 
         /// <summary>Raise an <see cref="UpdateTick"/> event.</summary>

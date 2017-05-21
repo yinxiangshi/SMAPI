@@ -322,7 +322,6 @@ namespace StardewModdingAPI
 #pragma warning disable 618
             Command.Shim(this.CommandManager, this.DeprecationManager, this.ModRegistry);
             Config.Shim(this.DeprecationManager);
-            InternalExtensions.Shim(this.ModRegistry);
             Log.Shim(this.DeprecationManager, this.GetSecondaryMonitor("legacy mod"), this.ModRegistry);
             Mod.Shim(this.DeprecationManager);
             ContentEvents.Shim(this.ModRegistry, this.Monitor);

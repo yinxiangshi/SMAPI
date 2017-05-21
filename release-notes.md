@@ -17,6 +17,7 @@ For players:
 * SMAPI now shows a friendly error when it can't detect the game.
 * SMAPI now shows a friendly error when you have Stardew Valley 1.11 or earlier (which aren't compatible).
 * SMAPI now shows a friendly error if a mod dependency is missing (if it's listed in the mod's manifest).
+* Fixed "unknown mod" deprecation warnings by improving how SMAPI detects the mod using the event.
 
 For modders:
 * You can now list mod dependencies in the `manifest.json`. SMAPI will make sure your dependencies are loaded before your mod, and will show a friendly error if a dependency is missing.
