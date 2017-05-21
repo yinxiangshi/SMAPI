@@ -14,8 +14,12 @@ For mod developers:
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.13.1...1.14).
 
 For players:
-* SMAPI now shows a friendly message when it can't detect the game.
-* SMAPI now shows a friendly message when you have Stardew Valley 1.11 or earlier (which aren't compatible).
+* SMAPI now shows a friendly error when it can't detect the game.
+* SMAPI now shows a friendly error when you have Stardew Valley 1.11 or earlier (which aren't compatible).
+* SMAPI now shows a friendly error if a mod dependency is missing (if it's listed in the mod's manifest).
+
+For modders:
+* You can now list mod dependencies in the `manifest.json`. SMAPI will make sure your dependencies are loaded before your mod, and will show a friendly error if a dependency is missing.
 
 ## 1.13.1
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.13...1.13.1).

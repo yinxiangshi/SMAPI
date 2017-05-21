@@ -71,9 +71,7 @@ namespace StardewModdingAPI.Tests
                 [nameof(IManifest.UniqueID)] = $"{Sample.String()}.{Sample.String()}",
                 [nameof(IManifest.EntryDll)] = $"{Sample.String()}.dll",
                 [nameof(IManifest.MinimumApiVersion)] = $"{Sample.Int()}.{Sample.Int()}-{Sample.String()}",
-#if EXPERIMENTAL
                 [nameof(IManifest.Dependencies)] = new[] { originalDependency },
-#endif
                 ["ExtraString"] = Sample.String(),
                 ["ExtraInt"] = Sample.Int()
             };
@@ -110,11 +108,9 @@ namespace StardewModdingAPI.Tests
             Assert.AreEqual(original["ExtraString"], mod.Manifest.ExtraFields["ExtraString"], "The manifest's extra fields should contain an 'ExtraString' value.");
             Assert.AreEqual(original["ExtraInt"], mod.Manifest.ExtraFields["ExtraInt"], "The manifest's extra fields should contain an 'ExtraInt' value.");
 
-#if EXPERIMENTAL
             Assert.IsNotNull(mod.Manifest.Dependencies, "The dependencies field should not be null.");
             Assert.AreEqual(1, mod.Manifest.Dependencies.Length, "The dependencies field should contain one value.");
             Assert.AreEqual(originalDependency[nameof(IManifestDependency.UniqueID)], mod.Manifest.Dependencies[0].UniqueID, "The first dependency's unique ID doesn't match.");
-#endif
         }
 
         /****
@@ -216,7 +212,6 @@ namespace StardewModdingAPI.Tests
             // if Moq doesn't throw a method-not-setup exception, the validation didn't override the status.
         }
 
-#if EXPERIMENTAL
         /****
         ** ProcessDependencies
         ****/
@@ -345,7 +340,6 @@ namespace StardewModdingAPI.Tests
             modD.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>()), Times.Once, "Mod D was expected to fail since it's part of a dependency loop.");
             modE.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>()), Times.Once, "Mod E was expected to fail since it's part of a dependency loop.");
         }
-#endif
 
 
         /*********
@@ -368,7 +362,6 @@ namespace StardewModdingAPI.Tests
             return manifest;
         }
 
-#if EXPERIMENTAL
         /// <summary>Get a randomised basic manifest.</summary>
         /// <param name="uniqueID">The mod's name and unique ID.</param>
         /// <param name="dependencies">The dependencies this mod requires.</param>
@@ -395,6 +388,5 @@ namespace StardewModdingAPI.Tests
             }
             return mod;
         }
-#endif
     }
 }

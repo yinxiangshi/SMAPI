@@ -29,10 +29,8 @@ namespace StardewModdingAPI
         /// <summary>The name of the DLL in the directory that has the <see cref="Mod.Entry"/> method.</summary>
         string EntryDll { get; }
 
-#if EXPERIMENTAL
         /// <summary>The other mods that must be loaded before this mod.</summary>
         IManifestDependency[] Dependencies { get; }
-#endif
 
         /// <summary>Any manifest fields which didn't match a valid field.</summary>
         IDictionary<string, object> ExtraFields { get; }
