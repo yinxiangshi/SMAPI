@@ -158,7 +158,10 @@ namespace StardewModdingApi.Installer
             ****/
             if (!packageDir.Exists)
             {
-                this.PrintError($"The 'internal/{platform}' package folder is missing (should be at {packageDir}).");
+                this.PrintError(platform == Platform.Windows && packageDir.FullName.Contains(Path.GetTempPath()) && packageDir.FullName.Contains(".zip")
+                    ? "The installer is missing some files. It looks like you're running the installer from inside the downloaded zip; make sure you unzip the downloaded file first, then run the installer from the unzipped folder."
+                    : $"The 'internal/{platform}' package folder is missing (should be at {packageDir})."
+                );
                 Console.ReadLine();
                 return;
             }
