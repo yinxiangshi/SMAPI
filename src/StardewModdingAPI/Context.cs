@@ -1,4 +1,5 @@
-﻿using StardewValley;
+﻿using StardewModdingAPI.Events;
+using StardewValley;
 using StardewValley.Menus;
 
 namespace StardewModdingAPI
@@ -15,6 +16,9 @@ namespace StardewModdingAPI
         /// <summary>Whether the player has loaded a save and the world has finished initialising.</summary>
         public static bool IsWorldReady { get; internal set; }
 
+        /// <summary>Whether the game is currently running the draw loop. This isn't relevant to most mods, since you should use <see cref="GraphicsEvents.OnPostRenderEvent"/> to draw to the screen.</summary>
+        public static bool IsInDrawLoop { get; set; }
+
         /****
         ** Internal
         ****/
@@ -23,8 +27,5 @@ namespace StardewModdingAPI
 
         /// <summary>Whether the game is currently writing to the save file.</summary>
         internal static bool IsSaving => Game1.activeClickableMenu is SaveGameMenu || Game1.activeClickableMenu is ShippingMenu; // saving is performed by SaveGameMenu, but it's wrapped by ShippingMenu on days when the player shipping something
-
-        /// <summary>Whether the game is currently running the draw loop.</summary>
-        internal static bool IsInDrawLoop { get; set; }
     }
 }

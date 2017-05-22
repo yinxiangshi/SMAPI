@@ -20,6 +20,7 @@ For players:
 * Fixed "unknown mod" deprecation warnings by improving how SMAPI detects the mod using the event.
 
 For modders:
+* Added `Context.IsInDrawLoop` for specialised mods.
 * You can now list mod dependencies in the `manifest.json`. SMAPI will make sure your dependencies are loaded before your mod, and will show a friendly error if a dependency is missing.
 * Fixed `smapi-crash.txt` being copied from the default log even if a different path is specified with `--log-path`.
 
