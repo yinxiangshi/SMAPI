@@ -350,8 +350,9 @@ namespace StardewModdingAPI.Framework
                 }
 
                 /*********
-                ** Input events
+                ** Input events (if window has focus)
                 *********/
+                if (Game1.game1.IsActive)
                 {
                     // get latest state
                     this.KStateNow = Keyboard.GetState();
