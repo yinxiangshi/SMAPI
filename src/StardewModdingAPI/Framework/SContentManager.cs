@@ -145,6 +145,12 @@ namespace StardewModdingAPI.Framework
             this.Cache[assetName] = value;
         }
 
+        /// <summary>Get the current content locale.</summary>
+        public string GetLocale()
+        {
+            return this.GetKeyLocale.Invoke<string>();
+        }
+
         /*********
         ** Private methods
         *********/

@@ -32,22 +32,25 @@ namespace StardewModdingAPI.Framework
         /// <summary>An API for managing console commands.</summary>
         public ICommandHelper ConsoleCommands { get; }
 
+        /// <summary>Provides translations stored in the mod's <c>i18n</c> folder, with one file per locale (like <c>en.json</c>) containing a flat key => value structure. Translations are fetched with locale fallback, so missing translations are filled in from broader locales (like <c>pt-BR.json</c> &lt; <c>pt.json</c> &lt; <c>default.json</c>).</summary>
+        public ITranslationHelper Translation { get; }
+
 
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="displayName">The mod's display name.</param>
-        /// <param name="manifest">The manifest for the associated mod.</param>
         /// <param name="modDirectory">The full path to the mod's folder.</param>
         /// <param name="jsonHelper">Encapsulate SMAPI's JSON parsing.</param>
         /// <param name="modRegistry">Metadata about loaded mods.</param>
         /// <param name="commandManager">Manages console commands.</param>
         /// <param name="contentManager">The content manager which loads content assets.</param>
         /// <param name="reflection">Simplifies access to private game code.</param>
+        /// <param name="translations">Provides translations stored in the mod folder.</param>
         /// <exception cref="ArgumentNullException">An argument is null or empty.</exception>
         /// <exception cref="InvalidOperationException">The <paramref name="modDirectory"/> path does not exist on disk.</exception>
-        public ModHelper(string displayName, IManifest manifest, string modDirectory, JsonHelper jsonHelper, IModRegistry modRegistry, CommandManager commandManager, SContentManager contentManager, IReflectionHelper reflection)
+        public ModHelper(string displayName, string modDirectory, JsonHelper jsonHelper, IModRegistry modRegistry, CommandManager commandManager, SContentManager contentManager, IReflectionHelper reflection, ITranslationHelper translations)
         {
             // validate
             if (string.IsNullOrWhiteSpace(modDirectory))
@@ -66,6 +69,7 @@ namespace StardewModdingAPI.Framework
             this.ModRegistry = modRegistry;
             this.ConsoleCommands = new CommandHelper(displayName, commandManager);
             this.Reflection = reflection;
+            this.Translation = translations;
         }
 
         /****
@@ -113,6 +117,17 @@ namespace StardewModdingAPI.Framework
         {
             path = Path.Combine(this.DirectoryPath, path);
             this.JsonHelper.WriteJsonFile(path, model);
+        }
+
+
+        /****
+        ** Translation
+        ****/
+        /// <summary>Get a translation for the current locale. This is a convenience shortcut for <see cref="IModHelper.Translation"/>.</summary>
+        /// <param name="key">The translation key.</param>
+        public Translation Translate(string key)
+        {
+            return this.Translation.Translate(key);
         }
 
         /****

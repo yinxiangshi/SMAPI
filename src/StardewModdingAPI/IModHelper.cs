@@ -21,6 +21,9 @@
         /// <summary>An API for managing console commands.</summary>
         ICommandHelper ConsoleCommands { get; }
 
+        /// <summary>Provides translations stored in the mod's <c>i18n</c> folder, with one file per locale (like <c>en.json</c>) containing a flat key => value structure. Translations are fetched with locale fallback, so missing translations are filled in from broader locales (like <c>pt-BR.json</c> &lt; <c>pt.json</c> &lt; <c>default.json</c>).</summary>
+        ITranslationHelper Translation { get; }
+
 
         /*********
         ** Public methods
@@ -51,5 +54,12 @@
         /// <param name="path">The file path relative to the mod directory.</param>
         /// <param name="model">The model to save.</param>
         void WriteJsonFile<TModel>(string path, TModel model) where TModel : class;
+
+        /****
+        ** Translations
+        ****/
+        /// <summary>Get a translation for the current locale. This is a convenience shortcut for <see cref="IModHelper.Translation"/>.</summary>
+        /// <param name="key">The translation key.</param>
+        Translation Translate(string key);
     }
 }

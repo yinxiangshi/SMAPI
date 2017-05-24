@@ -48,6 +48,9 @@ namespace StardewModdingAPI
         /// <summary>The underlying game instance.</summary>
         private SGame GameInstance;
 
+        /// <summary>The underlying content manager.</summary>
+        private SContentManager ContentManager => (SContentManager)this.GameInstance.Content;
+
         /// <summary>The SMAPI configuration settings.</summary>
         /// <remarks>This is initialised after the game starts.</remarks>
         private SConfig Settings;
@@ -179,6 +182,7 @@ namespace StardewModdingAPI
                 this.GameInstance.Window.ClientSizeChanged += (sender, e) => GraphicsEvents.InvokeResize(this.Monitor, sender, e);
                 GameEvents.InitializeInternal += (sender, e) => this.InitialiseAfterGameStart();
                 GameEvents.GameLoadedInternal += (sender, e) => this.CheckForUpdateAsync();
+                ContentEvents.AfterLocaleChanged += (sender, e) => this.OnLocaleChanged();
 
                 // set window titles
                 this.GameInstance.Window.Title = $"Stardew Valley {Constants.GetGameDisplayVersion(Constants.GameVersion)} - running SMAPI {Constants.ApiVersion}";
@@ -405,7 +409,7 @@ namespace StardewModdingAPI
                 mods = resolver.ProcessDependencies(mods).ToArray();
 
                 // load mods
-                modsLoaded = this.LoadMods(mods, new JsonHelper(), (SContentManager)Game1.content, deprecationWarnings);
+                modsLoaded = this.LoadMods(mods, new JsonHelper(), this.ContentManager, deprecationWarnings);
                 foreach (Action warning in deprecationWarnings)
                     warning();
             }
@@ -421,6 +425,18 @@ namespace StardewModdingAPI
 
             // start SMAPI console
             new Thread(this.RunConsoleLoop).Start();
+        }
+
+        /// <summary>Handle the game changing locale.</summary>
+        private void OnLocaleChanged()
+        {
+            // get locale
+            string locale = this.ContentManager.GetLocale();
+            LocalizedContentManager.LanguageCode languageCode = this.ContentManager.GetCurrentLanguage();
+
+            // update mod translation helpers
+            foreach (IModMetadata mod in this.ModRegistry.GetMods())
+                (mod.Mod.Helper.Translation as TranslationHelper)?.SetLocale(locale, languageCode);
         }
 
         /// <summary>Run a loop handling console input.</summary>
@@ -620,16 +636,43 @@ namespace StardewModdingAPI
                         continue;
                     }
 
+                    // get translations
+                    TranslationHelper translations;
+                    {
+                        IDictionary<string, IDictionary<string, string>> translationValues = new Dictionary<string, IDictionary<string, string>>();
+
+                        // read translation files
+                        DirectoryInfo translationsDir = new DirectoryInfo(Path.Combine(metadata.DirectoryPath, "i18n"));
+                        if (translationsDir.Exists)
+                        {
+                            foreach (FileInfo file in translationsDir.EnumerateFiles("*.json"))
+                            {
+                                string locale = Path.GetFileNameWithoutExtension(file.Name.ToLower().Trim());
+                                try
+                                {
+                                    translationValues[locale] = jsonHelper.ReadJsonFile<IDictionary<string, string>>(file.FullName);
+                                }
+                                catch (Exception ex)
+                                {
+                                    this.Monitor.Log($"Couldn't read {metadata.DisplayName}'s i18n/{locale}.json file: {ex.GetLogSummary()}");
+                                }
+                            }
+                        }
+
+                        // create translation helper
+                        translations = new TranslationHelper(metadata.DisplayName, contentManager.GetLocale(), contentManager.GetCurrentLanguage(), translationValues);
+                    }
+
                     // inject data
                     mod.ModManifest = manifest;
-                    mod.Helper = new ModHelper(metadata.DisplayName, manifest, metadata.DirectoryPath, jsonHelper, this.ModRegistry, this.CommandManager, contentManager, this.Reflection);
+                    mod.Helper = new ModHelper(metadata.DisplayName, metadata.DirectoryPath, jsonHelper, this.ModRegistry, this.CommandManager, contentManager, this.Reflection, translations);
                     mod.Monitor = this.GetSecondaryMonitor(metadata.DisplayName);
                     mod.PathOnDisk = metadata.DirectoryPath;
 
                     // track mod
                     metadata.SetMod(mod);
                     this.ModRegistry.Add(metadata);
-                    modsLoaded += 1;
+                    modsLoaded++;
                     this.Monitor.Log($"Loaded {metadata.DisplayName} by {manifest.Author}, v{manifest.Version} | {manifest.Description}", LogLevel.Info);
                 }
                 catch (Exception ex)
