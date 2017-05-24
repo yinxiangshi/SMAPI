@@ -13,6 +13,7 @@ using StardewModdingAPI.Tests.Framework;
 
 namespace StardewModdingAPI.Tests
 {
+    /// <summary>Unit tests for <see cref="ModResolver"/>.</summary>
     [TestFixture]
     public class ModResolverTests
     {

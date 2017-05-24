@@ -11,6 +11,9 @@ namespace StardewModdingAPI
         /*********
         ** Properties
         *********/
+        /// <summary>The placeholder text when the translation is <c>null</c> or empty, where <c>{0}</c> is the translation key.</summary>
+        internal const string PlaceholderText = "(no translation:{0})";
+
         /// <summary>The name of the relevant mod for error messages.</summary>
         private readonly string ModName;
 
@@ -36,7 +39,7 @@ namespace StardewModdingAPI
         /// <param name="key">The translation key.</param>
         /// <param name="text">The underlying translation text.</param>
         internal Translation(string modName, string locale, string key, string text)
-            : this(modName, locale, key, text, $"(no translation:{key})") { }
+            : this(modName, locale, key, text, string.Format(Translation.PlaceholderText, key)) { }
 
         /// <summary>Construct an isntance.</summary>
         /// <param name="modName">The name of the relevant mod for error messages.</param>
@@ -75,7 +78,7 @@ namespace StardewModdingAPI
         /// <param name="use">Whether to return a placeholder.</param>
         public Translation UsePlaceholder(bool use)
         {
-            return new Translation(this.ModName, this.Locale, this.Key, this.Text, use ? $"(no translation:{this.Key})" : null);
+            return new Translation(this.ModName, this.Locale, this.Key, this.Text, use ? string.Format(Translation.PlaceholderText, this.Key) : null);
         }
 
         /// <summary>Replace tokens in the text like <c>{{value}}</c> with the given values. Returns a new instance.</summary>

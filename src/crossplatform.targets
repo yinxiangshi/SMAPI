@@ -33,7 +33,6 @@
         </Reference>
         <Reference Include="Stardew Valley">
           <HintPath>$(GamePath)\Stardew Valley.exe</HintPath>
-          <Private>False</Private>
         </Reference>
         <Reference Include="xTile, Version=2.0.4.0, Culture=neutral, processorArchitecture=x86">
           <HintPath>$(GamePath)\xTile.dll</HintPath>
