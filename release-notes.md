@@ -20,7 +20,7 @@ For players:
   * you have Stardew Valley 1.11 or earlier (which aren't compatible);
   * you run `install.exe` from within the downloaded zip file.
 * Fixed "unknown mod" deprecation warnings by improving how SMAPI detects the mod using the event.
-* Fixed rare crash when window loses focuses for a few players.
+* Fixed rare crash when window loses focus for a few players.
 
 For modders:
 * Added `Context.IsInDrawLoop` for specialised mods.

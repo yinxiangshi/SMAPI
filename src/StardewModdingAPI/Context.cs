@@ -17,7 +17,7 @@ namespace StardewModdingAPI
         public static bool IsWorldReady { get; internal set; }
 
         /// <summary>Whether the game is currently running the draw loop. This isn't relevant to most mods, since you should use <see cref="GraphicsEvents.OnPostRenderEvent"/> to draw to the screen.</summary>
-        public static bool IsInDrawLoop { get; set; }
+        public static bool IsInDrawLoop { get; internal set; }
 
         /****
         ** Internal
