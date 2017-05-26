@@ -23,8 +23,12 @@ For players:
 * Fixed rare crash when window loses focus for a few players.
 
 For modders:
+* You can now add dependencies to `manifest.json`.  
+  <small>_SMAPI will make sure your dependencies are loaded before your mod, and will show a friendly error if a dependency is missing._</small>
+* You can now load unpacked `.tbin` files from your mod folder through the content API.  
+* SMAPI now automatically fixes tilesheet references for maps loaded from the mod folder.  
+  <small>_When loading a map from the mod folder, SMAPI will automatically use tilesheets relative to the map file if they exists. Otherwise it will default to tilesheets in the game content._</small>
 * Added `Context.IsInDrawLoop` for specialised mods.
-* You can now list mod dependencies in the `manifest.json`. SMAPI will make sure your dependencies are loaded before your mod, and will show a friendly error if a dependency is missing.
 * Fixed `smapi-crash.txt` being copied from the default log even if a different path is specified with `--log-path`.
 
 ## 1.13.1
@@ -48,7 +52,7 @@ For players:
 
 For mod developers:
 * Added a `Context.IsWorldReady` flag for mods to use.  
-  _<small>This indicates whether a save is loaded and the world is finished initialising, which starts at the same point that `SaveEvents.AfterLoad` and `TimeEvents.AfterDayStarted` are raised. This is mainly useful for events which can be raised before the world is loaded (like update tick).</small>_
+  <small>_This indicates whether a save is loaded and the world is finished initialising, which starts at the same point that `SaveEvents.AfterLoad` and `TimeEvents.AfterDayStarted` are raised. This is mainly useful for events which can be raised before the world is loaded (like update tick)._</small>
 * Added a `debug` console command which lets you run the game's debug commands (e.g. `debug warp FarmHouse 1 1` warps you to the farmhouse).
 * Added basic context info to logs to simplify troubleshooting.
 * Added a `Mod.Dispose` method which can be overriden to clean up before exit. This method isn't guaranteed to be called on every exit.
