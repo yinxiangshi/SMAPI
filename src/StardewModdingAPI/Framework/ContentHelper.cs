@@ -71,37 +71,36 @@ namespace StardewModdingAPI.Framework
                         // get asset path
                         string assetPath = this.GetModAssetPath(key, file.FullName);
 
+                        // try cache
+                        if (this.ContentManager.IsLoaded(assetPath))
+                            return this.ContentManager.Load<T>(assetPath);
+
                         // load content
                         switch (file.Extension.ToLower())
                         {
+                            // XNB file
                             case ".xnb":
                                 return this.ContentManager.Load<T>(assetPath);
 
+                            // unpacked map
                             case ".tbin":
                                 // validate
                                 if (typeof(T) != typeof(Map))
                                     throw new ContentLoadException($"Can't read file with extension '{file.Extension}' as type '{typeof(T)}'; must be type '{typeof(Map)}'.");
-                                
-                                // try cache
-                                if (this.ContentManager.IsLoaded(assetPath))
-                                    return this.ContentManager.Load<T>(assetPath);
 
                                 // fetch & cache
                                 FormatManager formatManager = FormatManager.Instance;
                                 Map map = formatManager.LoadMap(file.FullName);
-                                foreach (TileSheet t in map.TileSheets)
-                                    t.ImageSource = t.ImageSource.Replace(".png", "");
+                                foreach (TileSheet tilesheet in map.TileSheets)
+                                    tilesheet.ImageSource = tilesheet.ImageSource.Replace(".png", "");
                                 this.ContentManager.Inject(assetPath, map);
                                 return (T)(object)map;
-                            
+
+                            // unpacked image
                             case ".png":
                                 // validate
                                 if (typeof(T) != typeof(Texture2D))
                                     throw new ContentLoadException($"Can't read file with extension '{file.Extension}' as type '{typeof(T)}'; must be type '{typeof(Texture2D)}'.");
-
-                                // try cache
-                                if (this.ContentManager.IsLoaded(assetPath))
-                                    return this.ContentManager.Load<T>(assetPath);
 
                                 // fetch & cache
                                 using (FileStream stream = File.OpenRead(file.FullName))
@@ -111,10 +110,6 @@ namespace StardewModdingAPI.Framework
                                     this.ContentManager.Inject(assetPath, texture);
                                     return (T)(object)texture;
                                 }
-                                
-
-                            
-
 
                             default:
                                 throw new ContentLoadException($"Unknown file extension '{file.Extension}'; must be '.xnb' or '.png'.");

@@ -268,7 +268,6 @@ namespace StardewModdingAPI
         ** Private methods
         *********/
         /// <summary>Assert that the minimum conditions are present to initialise SMAPI without type load exceptions.</summary>
-        /// <returns>Returns whether the minimum conditions are met.</returns>
         private static void AssertMinimumCompatibility()
         {
             void PrintErrorAndExit(string message)
