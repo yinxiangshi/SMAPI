@@ -141,7 +141,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 states[mod] = ModDependencyStatus.Failed;
                 sortedMods.Push(mod);
             }
-            
+
             // sort mods
             foreach (IModMetadata mod in mods)
                 this.ProcessDependencies(mods.ToArray(), mod, states, sortedMods, new List<IModMetadata>());
@@ -198,7 +198,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 string[] missingModIDs =
                     (
                         from dependency in mod.Manifest.Dependencies
-                        where mods.All(m => m.Manifest.UniqueID != dependency.UniqueID)
+                        where mods.All(m => m.Manifest?.UniqueID != dependency.UniqueID)
                         orderby dependency.UniqueID
                         select dependency.UniqueID
                     )
@@ -219,7 +219,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 IModMetadata[] modsToLoadFirst =
                     (
                         from other in mods
-                        where mod.Manifest.Dependencies.Any(required => required.UniqueID == other.Manifest.UniqueID)
+                        where mod.Manifest.Dependencies.Any(required => required.UniqueID == other.Manifest?.UniqueID)
                         select other
                     )
                     .ToArray();

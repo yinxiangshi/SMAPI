@@ -245,6 +245,20 @@ namespace StardewModdingAPI.Tests
             Assert.AreSame(modC.Object, mods[2], "The load order unexpectedly changed with no dependencies.");
         }
 
+        [Test(Description = "Assert that processing dependencies skips mods that have already failed without calling any other properties.")]
+        public void ProcessDependencies_Skips_Failed()
+        {
+            // arrange
+            Mock<IModMetadata> mock = new Mock<IModMetadata>(MockBehavior.Strict);
+            mock.Setup(p => p.Status).Returns(ModMetadataStatus.Failed);
+
+            // act
+            new ModResolver().ProcessDependencies(new[] { mock.Object });
+
+            // assert
+            mock.VerifyGet(p => p.Status, Times.Once, "The validation did not check the manifest status.");
+        }
+
         [Test(Description = "Assert that simple dependencies are reordered correctly.")]
         public void ProcessDependencies_Reorders_SimpleDependencies()
         {
@@ -342,6 +356,28 @@ namespace StardewModdingAPI.Tests
             modE.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>()), Times.Once, "Mod E was expected to fail since it's part of a dependency loop.");
         }
 
+        [Test(Description = "Assert that dependencies are sorted correctly even if some of the mods failed during metadata loading.")]
+        public void ProcessDependencies_WithSomeFailedMods_Succeeds()
+        {
+            // arrange
+            // A ◀── B ◀── C   D (failed)
+            Mock<IModMetadata> modA = this.GetMetadataForDependencyTest("Mod A");
+            Mock<IModMetadata> modB = this.GetMetadataForDependencyTest("Mod B", dependencies: new[] { "Mod A" });
+            Mock<IModMetadata> modC = this.GetMetadataForDependencyTest("Mod C", dependencies: new[] { "Mod B" }, allowStatusChange: true);
+            Mock<IModMetadata> modD = new Mock<IModMetadata>(MockBehavior.Strict);
+            modD.Setup(p => p.Manifest).Returns<IManifest>(null);
+            modD.Setup(p => p.Status).Returns(ModMetadataStatus.Failed);
+
+            // act
+            IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modC.Object, modA.Object, modB.Object, modD.Object }).ToArray();
+
+            // assert
+            Assert.AreEqual(4, mods.Length, 0, "Expected to get the same number of mods input.");
+            Assert.AreSame(modD.Object, mods[0], "The load order is incorrect: mod D should be first since it was already failed.");
+            Assert.AreSame(modA.Object, mods[1], "The load order is incorrect: mod A should be second since it's needed by mod B.");
+            Assert.AreSame(modB.Object, mods[2], "The load order is incorrect: mod B should be third since it needs mod A, and is needed by mod C.");
+            Assert.AreSame(modC.Object, mods[3], "The load order is incorrect: mod C should be fourth since it needs mod B, and is needed by mod D.");
+        }
 
         /*********
         ** Private methods
