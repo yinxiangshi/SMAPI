@@ -91,8 +91,47 @@ namespace StardewModdingAPI.Framework
                                 // fetch & cache
                                 FormatManager formatManager = FormatManager.Instance;
                                 Map map = formatManager.LoadMap(file.FullName);
-                                foreach (TileSheet tilesheet in map.TileSheets)
-                                    tilesheet.ImageSource = tilesheet.ImageSource.Replace(".png", "");
+                                if (map.TileSheets.Any())
+                                {
+                                    string relativeMapFolder = Path.GetDirectoryName(key) ?? ""; // folder path containing the map, relative to the mod folder
+                                    foreach (TileSheet tilesheet in map.TileSheets)
+                                    {
+                                        // check for tilesheet relative to map
+                                        {
+                                            string localKey = Path.Combine(relativeMapFolder, tilesheet.ImageSource);
+                                            FileInfo localFile = this.GetModFile(localKey);
+                                            if (localFile.Exists)
+                                            {
+                                                try
+                                                {
+                                                    this.Load<Texture2D>(localKey);
+                                                }
+                                                catch (Exception ex)
+                                                {
+                                                    throw new ContentLoadException($"{this.ModName} failed loading map '{key}' from {source} because the local '{tilesheet.ImageSource}' tilesheet couldn't be loaded.", ex);
+                                                }
+                                                tilesheet.ImageSource = this.GetActualAssetKey(localKey);
+                                                continue;
+                                            }
+                                        }
+
+                                        // fallback to game content
+                                        string contentKey = tilesheet.ImageSource;
+                                        if (contentKey.EndsWith(".png"))
+                                            contentKey = contentKey.Substring(0, contentKey.Length - 4);
+                                        try
+                                        {
+                                            this.ContentManager.Load<Texture2D>(contentKey);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            throw new ContentLoadException($"{this.ModName} failed loading map '{key}' from {source} because the '{tilesheet.ImageSource}' tilesheet couldn't be found relative to either map file or the game's content folder.", ex);
+                                        }
+                                        tilesheet.ImageSource = contentKey;
+                                    }
+                                }
+
+                                // inject map
                                 this.ContentManager.Inject(assetPath, map);
                                 return (T)(object)map;
 
