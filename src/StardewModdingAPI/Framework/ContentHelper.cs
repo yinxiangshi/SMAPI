@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI.Framework.Exceptions;
 using StardewValley;
 using xTile;
 using xTile.Format;
@@ -54,6 +55,8 @@ namespace StardewModdingAPI.Framework
         /// <exception cref="ContentLoadException">The content asset couldn't be loaded (e.g. because it doesn't exist).</exception>
         public T Load<T>(string key, ContentSource source = ContentSource.ModFolder)
         {
+            SContentLoadException GetContentError(string reasonPhrase) => new SContentLoadException($"{this.ModName} failed loading content asset '{key}' from {source}: {reasonPhrase}.");
+
             this.AssertValidAssetKeyFormat(key);
             try
             {
@@ -66,7 +69,7 @@ namespace StardewModdingAPI.Framework
                         // get file
                         FileInfo file = this.GetModFile(key);
                         if (!file.Exists)
-                            throw new ContentLoadException($"There is no file at path '{file.FullName}'.");
+                            throw GetContentError($"there's no matching file at path '{file.FullName}'.");
 
                         // get asset path
                         string assetPath = this.GetModAssetPath(key, file.FullName);
@@ -92,7 +95,7 @@ namespace StardewModdingAPI.Framework
                                 {
                                     // validate
                                     if (typeof(T) != typeof(Map))
-                                        throw new ContentLoadException($"Can't read file with extension '{file.Extension}' as type '{typeof(T)}'; must be type '{typeof(Map)}'.");
+                                        throw GetContentError($"can't read file with extension '{file.Extension}' as type '{typeof(T)}'; must be type '{typeof(Map)}'.");
 
                                     // fetch & cache
                                     FormatManager formatManager = FormatManager.Instance;
@@ -108,7 +111,7 @@ namespace StardewModdingAPI.Framework
                             case ".png":
                                 // validate
                                 if (typeof(T) != typeof(Texture2D))
-                                    throw new ContentLoadException($"Can't read file with extension '{file.Extension}' as type '{typeof(T)}'; must be type '{typeof(Texture2D)}'.");
+                                    throw GetContentError($"can't read file with extension '{file.Extension}' as type '{typeof(T)}'; must be type '{typeof(Texture2D)}'.");
 
                                 // fetch & cache
                                 using (FileStream stream = File.OpenRead(file.FullName))
@@ -120,16 +123,16 @@ namespace StardewModdingAPI.Framework
                                 }
 
                             default:
-                                throw new ContentLoadException($"Unknown file extension '{file.Extension}'; must be '.xnb' or '.png'.");
+                                throw GetContentError($"unknown file extension '{file.Extension}'; must be one of '.png', '.tbin', or '.xnb'.");
                         }
 
                     default:
-                        throw new NotSupportedException($"Unknown content source '{source}'.");
+                        throw GetContentError($"unknown content source '{source}'.");
                 }
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!(ex is SContentLoadException))
             {
-                throw new ContentLoadException($"{this.ModName} failed loading content asset '{key}' from {source}.", ex);
+                throw new SContentLoadException($"{this.ModName} failed loading content asset '{key}' from {source}.", ex);
             }
         }
 
@@ -181,7 +184,7 @@ namespace StardewModdingAPI.Framework
                         }
                         catch (Exception ex)
                         {
-                            throw new ContentLoadException($"{this.ModName} failed loading map '{mapKey}' from {ContentSource.ModFolder} because the local '{tilesheet.ImageSource}' tilesheet couldn't be loaded.", ex);
+                            throw new ContentLoadException($"The local '{tilesheet.ImageSource}' tilesheet couldn't be loaded.", ex);
                         }
                         tilesheet.ImageSource = this.GetActualAssetKey(localKey);
                         continue;
@@ -199,7 +202,7 @@ namespace StardewModdingAPI.Framework
                     }
                     catch (Exception ex)
                     {
-                        throw new ContentLoadException($"{this.ModName} failed loading map '{mapKey}' from {ContentSource.ModFolder} because the '{tilesheet.ImageSource}' tilesheet couldn't be found relative to either map file or the game's content folder.", ex);
+                        throw new ContentLoadException($"The '{tilesheet.ImageSource}' tilesheet couldn't be loaded relative to either map file or the game's content folder.", ex);
                     }
                     tilesheet.ImageSource = contentKey;
                 }

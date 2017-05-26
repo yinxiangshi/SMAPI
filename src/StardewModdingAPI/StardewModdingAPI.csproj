@@ -94,6 +94,7 @@
     <Compile Include="ContentSource.cs" />
     <Compile Include="Events\ContentEvents.cs" />
     <Compile Include="Events\EventArgsValueChanged.cs" />
+    <Compile Include="Framework\Exceptions\SContentLoadException.cs" />
     <Compile Include="Framework\Command.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Constants.cs" />
