@@ -26,7 +26,18 @@ if [ "$UNAME" == "Darwin" ]; then
         export DYLD_INSERT_LIBRARIES="$STEAM_DYLD_INSERT_LIBRARIES"
     fi
 
+    # this was here before
     ln -sf mcs.bin.osx mcs
+
+    # fix "DllNotFoundException: libgdiplus.dylib" errors when loading images in SMAPI
+    if [ -f libgdiplus.dylib ]; then
+        rm libgdiplus.dylib
+    fi
+    if [ -f /Library/Frameworks/Mono.framework/Versions/Current/lib/libgdiplus.dylib ]; then
+        ln -s /Library/Frameworks/Mono.framework/Versions/Current/lib/libgdiplus.dylib libgdiplus.dylib
+    fi
+
+    # launch SMAPI
     cp StardewValley.bin.osx StardewModdingAPI.bin.osx
     open -a Terminal ./StardewModdingAPI.bin.osx $@
 else

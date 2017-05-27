@@ -20,6 +20,7 @@ For players:
   * you have Stardew Valley 1.11 or earlier (which aren't compatible);
   * you run `install.exe` from within the downloaded zip file.
 * Fixed "unknown mod" deprecation warnings by improving how SMAPI detects the mod using the event.
+* Fixed `libgdiplus.dylib` errors for some players on Mac.
 * Fixed rare crash when window loses focus for a few players.
 
 For modders:
@@ -68,7 +69,7 @@ For players:
 * The installer now lets you choose the install path if you have multiple copies of the game, instead of using the first path found.
 * Fixed mod draw errors breaking the game.
 * Fixed mods on Linux/Mac no longer working after the game saves.
-* Fixed libgdiplus DLL-not-found errors on Linux/Mac when mods read PNG files.
+* Fixed `libgdiplus.dylib` errors on Mac when mods read PNG files.
 * Adopted pufferchick.
 
 For mod developers:

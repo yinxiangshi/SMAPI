@@ -85,6 +85,7 @@ namespace StardewModdingApi.Installer
             yield return GetInstallPath("steam_appid.txt");
 
             // Linux/Mac only
+            yield return GetInstallPath("libgdiplus.dylib");
             yield return GetInstallPath("StardewModdingAPI");
             yield return GetInstallPath("StardewModdingAPI.exe.mdb");
             yield return GetInstallPath("System.Numerics.dll");
