@@ -225,10 +225,18 @@ namespace StardewModdingAPI.Framework
         /// <param name="path">The asset path relative to the mod folder.</param>
         private FileInfo GetModFile(string path)
         {
+            // try exact match
             path = Path.Combine(this.ModFolderPath, this.ContentManager.NormalisePathSeparators(path));
             FileInfo file = new FileInfo(path);
-            if (!file.Exists && file.Extension == "")
-                file = new FileInfo(Path.Combine(this.ModFolderPath, path + ".xnb"));
+
+            // try with default extension
+            if (!file.Exists && file.Extension.ToLower() != ".xnb")
+            {
+                FileInfo result = new FileInfo(path + ".xnb");
+                if (result.Exists)
+                    file = result;
+            }
+
             return file;
         }
 
