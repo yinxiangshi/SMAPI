@@ -41,7 +41,7 @@ namespace StardewModdingAPI.Tests
 
             // act
             ITranslationHelper helper = new TranslationHelper("ModName", "en", LocalizedContentManager.LanguageCode.en).SetTranslations(data);
-            Translation translation = helper.Translate("key");
+            Translation translation = helper.Get("key");
 
             // assert
             Assert.AreEqual("en", helper.Locale, "The locale doesn't match the input value.");
@@ -78,7 +78,7 @@ namespace StardewModdingAPI.Tests
         }
 
         [Test(Description = "Assert that the translations returned by the helper has the expected text.")]
-        public void Helper_Translate_ReturnsExpectedText()
+        public void Helper_Get_ReturnsExpectedText()
         {
             // arrange
             var data = this.GetSampleData();
@@ -92,7 +92,7 @@ namespace StardewModdingAPI.Tests
                 this.AssertSetLocale(helper, locale, LocalizedContentManager.LanguageCode.en);
                 actual[locale] = new Dictionary<string, string>();
                 foreach (string key in expected[locale].Keys)
-                    actual[locale][key] = helper.Translate(key);
+                    actual[locale][key] = helper.Get(key);
             }
 
             // assert

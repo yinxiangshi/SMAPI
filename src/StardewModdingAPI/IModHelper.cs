@@ -54,12 +54,5 @@
         /// <param name="path">The file path relative to the mod directory.</param>
         /// <param name="model">The model to save.</param>
         void WriteJsonFile<TModel>(string path, TModel model) where TModel : class;
-
-        /****
-        ** Translations
-        ****/
-        /// <summary>Get a translation for the current locale. This is a convenience shortcut for <see cref="IModHelper.Translation"/>.</summary>
-        /// <param name="key">The translation key.</param>
-        Translation Translate(string key);
     }
 }

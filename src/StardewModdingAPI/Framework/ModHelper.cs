@@ -120,16 +120,6 @@ namespace StardewModdingAPI.Framework
 
 
         /****
-        ** Translation
-        ****/
-        /// <summary>Get a translation for the current locale. This is a convenience shortcut for <see cref="IModHelper.Translation"/>.</summary>
-        /// <param name="key">The translation key.</param>
-        public Translation Translate(string key)
-        {
-            return this.Translation.Translate(key);
-        }
-
-        /****
         ** Disposal
         ****/
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
