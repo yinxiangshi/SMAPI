@@ -452,10 +452,15 @@ namespace StardewModdingAPI
             {
                 while (true)
                 {
+                    // get input
                     string input = Console.ReadLine();
+                    if (string.IsNullOrWhiteSpace(input))
+                        continue;
+
+                    // parse input
                     try
                     {
-                        if (!string.IsNullOrWhiteSpace(input) && !this.CommandManager.Trigger(input))
+                        if (!this.CommandManager.Trigger(input))
                             this.Monitor.Log("Unknown command; type 'help' for a list of available commands.", LogLevel.Error);
                     }
                     catch (Exception ex)
