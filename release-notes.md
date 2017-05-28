@@ -29,6 +29,7 @@ For modders:
 * You can now load unpacked `.tbin` files from your mod folder through the content API.  
 * SMAPI now automatically fixes tilesheet references for maps loaded from the mod folder.  
   <small>_When loading a map from the mod folder, SMAPI will automatically use tilesheets relative to the map file if they exists. Otherwise it will default to tilesheets in the game content._</small>
+* Added `Context.IsPlayerFree` for mods that need to check if the player can act (i.e. save is loaded, no menu is displayed, no cutscene is in progress, etc).
 * Added `Context.IsInDrawLoop` for specialised mods.
 * Fixed `smapi-crash.txt` being copied from the default log even if a different path is specified with `--log-path`.
 * Fixed the content API not matching XNB filenames with two dots (like `a.b.xnb`) if you don't specify the `.xnb` extension.

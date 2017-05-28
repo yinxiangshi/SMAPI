@@ -16,6 +16,9 @@ namespace StardewModdingAPI
         /// <summary>Whether the player has loaded a save and the world has finished initialising.</summary>
         public static bool IsWorldReady { get; internal set; }
 
+        /// <summary>Whether the player is free to move around (e.g. save is loaded, no menu is displayed, no cutscene is in progress, etc).</summary>
+        public static bool IsPlayerFree => Context.IsWorldReady && Game1.activeClickableMenu == null && Game1.player.CanMove && !Game1.dialogueUp && !Game1.eventUp;
+
         /// <summary>Whether the game is currently running the draw loop. This isn't relevant to most mods, since you should use <see cref="GraphicsEvents.OnPostRenderEvent"/> to draw to the screen.</summary>
         public static bool IsInDrawLoop { get; internal set; }
 
