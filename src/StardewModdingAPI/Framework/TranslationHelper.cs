@@ -29,6 +29,10 @@ namespace StardewModdingAPI.Framework
         /// <summary>The game's current language code.</summary>
         public LocalizedContentManager.LanguageCode LocaleEnum { get; private set; }
 
+        /// <summary>Get a translation for the current locale. This is a convenience shortcut for <see cref="ITranslationHelper.Translate"/>.</summary>
+        /// <param name="key">The translation key.</param>
+        public Translation this[string key] => this.Translate(key);
+
 
         /*********
         ** Public methods
