@@ -442,10 +442,11 @@ namespace StardewModdingAPI
         [SuppressMessage("ReSharper", "FunctionNeverReturns", Justification = "The thread is aborted when the game exits.")]
         private void RunConsoleLoop()
         {
-            // prepare help command
+            // prepare console
             this.Monitor.Log("Starting console...");
             this.Monitor.Log("Type 'help' for help, or 'help <cmd>' for a command's usage", LogLevel.Info);
-            this.CommandManager.Add("SMAPI", "help", "Lists all commands | 'help <cmd>' returns command description", this.HandleHelpCommand);
+            this.CommandManager.Add("SMAPI", "help", "Lists command documentation.\n\nUsage: help\nLists all available commands.\n\nUsage: help <cmd>\n- cmd: The name of a command whose documentation to display.", this.HandleCommand);
+            this.CommandManager.Add("SMAPI", "reload_i18n", "Reloads translation files for all mods.\n\nUsage: reload_i18n", this.HandleCommand);
 
             // start handling command line input
             Thread inputThread = new Thread(() =>
@@ -718,23 +719,36 @@ namespace StardewModdingAPI
             }
         }
 
-        /// <summary>The method called when the user submits the help command in the console.</summary>
+        /// <summary>The method called when the user submits a core SMAPI command in the console.</summary>
         /// <param name="name">The command name.</param>
         /// <param name="arguments">The command arguments.</param>
-        private void HandleHelpCommand(string name, string[] arguments)
+        private void HandleCommand(string name, string[] arguments)
         {
-            if (arguments.Any())
+            switch (name)
             {
-                Framework.Command result = this.CommandManager.Get(arguments[0]);
-                if (result == null)
-                    this.Monitor.Log("There's no command with that name.", LogLevel.Error);
-                else
-                    this.Monitor.Log($"{result.Name}: {result.Documentation}\n(Added by {result.ModName}.)", LogLevel.Info);
-            }
-            else
-            {
-                this.Monitor.Log("The following commands are registered: " + string.Join(", ", this.CommandManager.GetAll().Select(p => p.Name)) + ".", LogLevel.Info);
-                this.Monitor.Log("For more information about a command, type 'help command_name'.", LogLevel.Info);
+                case "help":
+                    if (arguments.Any())
+                    {
+                        Framework.Command result = this.CommandManager.Get(arguments[0]);
+                        if (result == null)
+                            this.Monitor.Log("There's no command with that name.", LogLevel.Error);
+                        else
+                            this.Monitor.Log($"{result.Name}: {result.Documentation}\n(Added by {result.ModName}.)", LogLevel.Info);
+                    }
+                    else
+                    {
+                        this.Monitor.Log("The following commands are registered: " + string.Join(", ", this.CommandManager.GetAll().Select(p => p.Name)) + ".", LogLevel.Info);
+                        this.Monitor.Log("For more information about a command, type 'help command_name'.", LogLevel.Info);
+                    }
+                    break;
+
+                case "reload_i18n":
+                    this.ReloadTranslations();
+                    this.Monitor.Log("Reloaded translation files for all mods. This only affects new translations the mods fetch; if they cached some text, it may not be updated.", LogLevel.Info);
+                    break;
+
+                default:
+                    throw new NotSupportedException($"Unrecognise core SMAPI command '{name}'.");
             }
         }
 
