@@ -16,19 +16,6 @@ namespace StardewModdingAPI.Tests
         /// <summary>Sample translation text for unit tests.</summary>
         public static string[] Samples = { null, "", "  ", "boop", "  boop  " };
 
-        /// <summary>A token structure type.</summary>
-        public enum TokenType
-        {
-            /// <summary>The tokens are passed in a string/object dictionary.</summary>
-            DictionaryStringObject,
-
-            /// <summary>The tokens are passed in a string/string dictionary.</summary>
-            DictionaryStringString,
-
-            /// <summary>The tokens are passed in an anonymous object.</summary>
-            AnonymousObject
-        }
-
 
         /*********
         ** Unit tests
@@ -193,7 +180,7 @@ namespace StardewModdingAPI.Tests
         ** Translation tokens
         ****/
         [Test(Description = "Assert that multiple translation tokens are replaced correctly regardless of the token structure.")]
-        public void Translation_Tokens([Values(TokenType.AnonymousObject, TokenType.DictionaryStringObject, TokenType.DictionaryStringString)] TokenType tokenType)
+        public void Translation_Tokens([Values("anonymous object", "IDictionary<string, object>", "IDictionary<string, string>")] string structure)
         {
             // arrange
             string start = Guid.NewGuid().ToString("N");
@@ -204,22 +191,22 @@ namespace StardewModdingAPI.Tests
 
             // act
             Translation translation = new Translation("ModName", "pt-BR", "key", input);
-            switch (tokenType)
+            switch (structure)
             {
-                case TokenType.AnonymousObject:
+                case "anonymous object":
                     translation = translation.Tokens(new { start, middle, end });
                     break;
 
-                case TokenType.DictionaryStringObject:
+                case "IDictionary<string, object>":
                     translation = translation.Tokens(new Dictionary<string, object> { ["start"] = start, ["middle"] = middle, ["end"] = end });
                     break;
 
-                case TokenType.DictionaryStringString:
+                case "IDictionary<string, string>":
                     translation = translation.Tokens(new Dictionary<string, string> { ["start"] = start, ["middle"] = middle, ["end"] = end });
                     break;
 
                 default:
-                    throw new NotSupportedException($"Unknown token type {tokenType}.");
+                    throw new NotSupportedException($"Unknown structure '{structure}'.");
             }
 
             // assert
