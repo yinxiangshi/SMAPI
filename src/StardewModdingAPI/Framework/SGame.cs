@@ -55,37 +55,16 @@ namespace StardewModdingAPI.Framework
         ** Game state
         ****/
         /// <summary>Arrays of pressed controller buttons indexed by <see cref="PlayerIndex"/>.</summary>
-        private Buttons[] PreviouslyPressedButtons = new Buttons[0];
-
-        /// <summary>A record of the keyboard state (i.e. the up/down state for each button) as of the latest tick.</summary>
-        private KeyboardState KStateNow;
+        private Buttons[] PreviousPressedButtons = new Buttons[0];
 
         /// <summary>A record of the keyboard state (i.e. the up/down state for each button) as of the previous tick.</summary>
-        private KeyboardState KStatePrior;
-
-        /// <summary>A record of the mouse state (i.e. the cursor position, scroll amount, and the up/down state for each button) as of the latest tick.</summary>
-        private MouseState MStateNow;
+        private KeyboardState PreviousKeyState;
 
         /// <summary>A record of the mouse state (i.e. the cursor position, scroll amount, and the up/down state for each button) as of the previous tick.</summary>
-        private MouseState MStatePrior;
-
-        /// <summary>The current mouse position on the screen adjusted for the zoom level.</summary>
-        private Point MPositionNow;
+        private MouseState PreviousMouseState;
 
         /// <summary>The previous mouse position on the screen adjusted for the zoom level.</summary>
-        private Point MPositionPrior;
-
-        /// <summary>The keys that were pressed as of the latest tick.</summary>
-        private Keys[] CurrentlyPressedKeys => this.KStateNow.GetPressedKeys();
-
-        /// <summary>The keys that were pressed as of the previous tick.</summary>
-        private Keys[] PreviouslyPressedKeys => this.KStatePrior.GetPressedKeys();
-
-        /// <summary>The keys that just entered the down state.</summary>
-        private Keys[] FramePressedKeys => this.CurrentlyPressedKeys.Except(this.PreviouslyPressedKeys).ToArray();
-
-        /// <summary>The keys that just entered the up state.</summary>
-        private Keys[] FrameReleasedKeys => this.PreviouslyPressedKeys.Except(this.CurrentlyPressedKeys).ToArray();
+        private Point PreviousMousePosition;
 
         /// <summary>The previous save ID at last check.</summary>
         private ulong PreviousSaveID;
@@ -355,16 +334,22 @@ namespace StardewModdingAPI.Framework
                 if (Game1.game1.IsActive)
                 {
                     // get latest state
-                    this.KStateNow = Keyboard.GetState();
-                    this.MStateNow = Mouse.GetState();
-                    this.MPositionNow = new Point(Game1.getMouseX(), Game1.getMouseY());
+                    KeyboardState keyState = Keyboard.GetState();
+                    MouseState mouseState = Mouse.GetState();
+                    Point mousePosition = new Point(Game1.getMouseX(), Game1.getMouseY());
+
+                    // analyse state
+                    Keys[] currentlyPressedKeys = keyState.GetPressedKeys();
+                    Keys[] previousPressedKeys = this.PreviousKeyState.GetPressedKeys();
+                    Keys[] framePressedKeys = currentlyPressedKeys.Except(previousPressedKeys).ToArray();
+                    Keys[] frameReleasedKeys = previousPressedKeys.Except(currentlyPressedKeys).ToArray();
 
                     // raise key pressed
-                    foreach (Keys key in this.FramePressedKeys)
+                    foreach (Keys key in framePressedKeys)
                         ControlEvents.InvokeKeyPressed(this.Monitor, key);
 
                     // raise key released
-                    foreach (Keys key in this.FrameReleasedKeys)
+                    foreach (Keys key in frameReleasedKeys)
                         ControlEvents.InvokeKeyReleased(this.Monitor, key);
 
                     // raise controller button pressed
@@ -392,16 +377,18 @@ namespace StardewModdingAPI.Framework
                     }
 
                     // raise keyboard state changed
-                    if (this.KStateNow != this.KStatePrior)
-                        ControlEvents.InvokeKeyboardChanged(this.Monitor, this.KStatePrior, this.KStateNow);
+                    if (keyState != this.PreviousKeyState)
+                        ControlEvents.InvokeKeyboardChanged(this.Monitor, this.PreviousKeyState, keyState);
 
                     // raise mouse state changed
-                    if (this.MStateNow != this.MStatePrior)
-                    {
-                        ControlEvents.InvokeMouseChanged(this.Monitor, this.MStatePrior, this.MStateNow, this.MPositionPrior, this.MPositionNow);
-                        this.MStatePrior = this.MStateNow;
-                        this.MPositionPrior = this.MPositionNow;
-                    }
+                    if (mouseState != this.PreviousMouseState)
+                        ControlEvents.InvokeMouseChanged(this.Monitor, this.PreviousMouseState, mouseState, this.PreviousMousePosition, mousePosition);
+
+                    // track state
+                    this.PreviousMouseState = mouseState;
+                    this.PreviousMousePosition = mousePosition;
+                    this.PreviousKeyState = keyState;
+                    this.PreviousPressedButtons = this.GetButtonsDown();
                 }
 
                 /*********
@@ -561,12 +548,6 @@ namespace StardewModdingAPI.Framework
                 this.CurrentUpdateTick += 1;
                 if (this.CurrentUpdateTick >= 60)
                     this.CurrentUpdateTick = 0;
-
-                /*********
-                ** Update input state
-                *********/
-                this.KStatePrior = this.KStateNow;
-                this.PreviouslyPressedButtons = this.GetButtonsDown();
 
                 this.UpdateCrashTimer.Reset();
             }
@@ -1385,7 +1366,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="buttonState">The last known state.</param>
         private bool WasButtonJustPressed(Buttons button, ButtonState buttonState)
         {
-            return buttonState == ButtonState.Pressed && !this.PreviouslyPressedButtons.Contains(button);
+            return buttonState == ButtonState.Pressed && !this.PreviousPressedButtons.Contains(button);
         }
 
         /// <summary>Get whether a controller button was released since the last check.</summary>
@@ -1393,7 +1374,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="buttonState">The last known state.</param>
         private bool WasButtonJustReleased(Buttons button, ButtonState buttonState)
         {
-            return buttonState == ButtonState.Released && this.PreviouslyPressedButtons.Contains(button);
+            return buttonState == ButtonState.Released && this.PreviousPressedButtons.Contains(button);
         }
 
         /// <summary>Get whether an analogue controller button was pressed since the last check.</summary>
