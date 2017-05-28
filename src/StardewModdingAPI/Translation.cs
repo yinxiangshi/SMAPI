@@ -1,6 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace StardewModdingAPI
@@ -82,37 +83,41 @@ namespace StardewModdingAPI
         }
 
         /// <summary>Replace tokens in the text like <c>{{value}}</c> with the given values. Returns a new instance.</summary>
-        /// <param name="tokens">An anonymous object containing token key/value pairs, like <c>new { value = 42, name = "Cranberries" }</c>.</param>
+        /// <param name="tokens">An object containing token key/value pairs. This can be an anonymous object (like <c>new { value = 42, name = "Cranberries" }</c>) or a dictionary of token values.</param>
         /// <exception cref="ArgumentNullException">The <paramref name="tokens"/> argument is <c>null</c>.</exception>
         public Translation Tokens(object tokens)
         {
             if (tokens == null)
                 throw new ArgumentNullException(nameof(tokens));
 
-            IDictionary<string, object> dictionary = tokens
-                .GetType()
-                .GetProperties()
-                .ToDictionary(
-                    p => p.Name,
-                    p => p.GetValue(tokens)
-                );
-            return this.Tokens(dictionary);
-        }
+            // get dictionary of tokens
+            IDictionary<string, string> tokenLookup = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+            {
+                // from dictionary
+                if (tokens is IDictionary inputLookup)
+                {
+                    foreach (DictionaryEntry entry in inputLookup)
+                    {
+                        string key = entry.Key?.ToString().Trim();
+                        if (key != null)
+                            tokenLookup[key] = entry.Value?.ToString();
+                    }
+                }
 
-        /// <summary>Replace tokens in the text like <c>{{value}}</c> with the given values. Returns a new instance.</summary>
-        /// <param name="tokens">A dictionary containing token key/value pairs.</param>
-        /// <exception cref="ArgumentNullException">The <paramref name="tokens"/> argument is <c>null</c>.</exception>
-        public Translation Tokens(IDictionary<string, object> tokens)
-        {
-            if (tokens == null)
-                throw new ArgumentNullException(nameof(tokens));
+                // from object properties
+                else
+                {
+                    foreach (PropertyInfo prop in tokens.GetType().GetProperties())
+                        tokenLookup[prop.Name] = prop.GetValue(tokens)?.ToString();
+                }
+            }
 
-            tokens = tokens.ToDictionary(p => p.Key.Trim(), p => p.Value, StringComparer.InvariantCultureIgnoreCase);
+            // format translation
             string text = Regex.Replace(this.Text, @"{{([ \w\.\-]+)}}", match =>
             {
                 string key = match.Groups[1].Value.Trim();
-                return tokens.TryGetValue(key, out object value)
-                    ? value?.ToString()
+                return tokenLookup.TryGetValue(key, out string value)
+                    ? value
                     : match.Value;
             });
             return new Translation(this.ModName, this.Locale, this.Key, text);

@@ -19,8 +19,11 @@ namespace StardewModdingAPI.Tests
         /// <summary>A token structure type.</summary>
         public enum TokenType
         {
-            /// <summary>The tokens are passed in a dictionary.</summary>
-            Dictionary,
+            /// <summary>The tokens are passed in a string/object dictionary.</summary>
+            DictionaryStringObject,
+
+            /// <summary>The tokens are passed in a string/string dictionary.</summary>
+            DictionaryStringString,
 
             /// <summary>The tokens are passed in an anonymous object.</summary>
             AnonymousObject
@@ -190,7 +193,7 @@ namespace StardewModdingAPI.Tests
         ** Translation tokens
         ****/
         [Test(Description = "Assert that multiple translation tokens are replaced correctly regardless of the token structure.")]
-        public void Translation_Tokens([Values(TokenType.AnonymousObject, TokenType.Dictionary)] TokenType tokenType)
+        public void Translation_Tokens([Values(TokenType.AnonymousObject, TokenType.DictionaryStringObject, TokenType.DictionaryStringString)] TokenType tokenType)
         {
             // arrange
             string start = Guid.NewGuid().ToString("N");
@@ -207,8 +210,12 @@ namespace StardewModdingAPI.Tests
                     translation = translation.Tokens(new { start, middle, end });
                     break;
 
-                case TokenType.Dictionary:
+                case TokenType.DictionaryStringObject:
                     translation = translation.Tokens(new Dictionary<string, object> { ["start"] = start, ["middle"] = middle, ["end"] = end });
+                    break;
+
+                case TokenType.DictionaryStringString:
+                    translation = translation.Tokens(new Dictionary<string, string> { ["start"] = start, ["middle"] = middle, ["end"] = end });
                     break;
 
                 default:
