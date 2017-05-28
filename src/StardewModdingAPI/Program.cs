@@ -640,36 +640,9 @@ namespace StardewModdingAPI
                         continue;
                     }
 
-                    // get translations
-                    TranslationHelper translations;
-                    {
-                        IDictionary<string, IDictionary<string, string>> translationValues = new Dictionary<string, IDictionary<string, string>>();
-
-                        // read translation files
-                        DirectoryInfo translationsDir = new DirectoryInfo(Path.Combine(metadata.DirectoryPath, "i18n"));
-                        if (translationsDir.Exists)
-                        {
-                            foreach (FileInfo file in translationsDir.EnumerateFiles("*.json"))
-                            {
-                                string locale = Path.GetFileNameWithoutExtension(file.Name.ToLower().Trim());
-                                try
-                                {
-                                    translationValues[locale] = jsonHelper.ReadJsonFile<IDictionary<string, string>>(file.FullName);
-                                }
-                                catch (Exception ex)
-                                {
-                                    this.Monitor.Log($"Couldn't read {metadata.DisplayName}'s i18n/{locale}.json file: {ex.GetLogSummary()}");
-                                }
-                            }
-                        }
-
-                        // create translation helper
-                        translations = new TranslationHelper(metadata.DisplayName, contentManager.GetLocale(), contentManager.GetCurrentLanguage(), translationValues);
-                    }
-
                     // inject data
                     mod.ModManifest = manifest;
-                    mod.Helper = new ModHelper(metadata.DisplayName, metadata.DirectoryPath, jsonHelper, this.ModRegistry, this.CommandManager, contentManager, this.Reflection, translations);
+                    mod.Helper = new ModHelper(metadata.DisplayName, metadata.DirectoryPath, jsonHelper, this.ModRegistry, this.CommandManager, contentManager, this.Reflection);
                     mod.Monitor = this.GetSecondaryMonitor(metadata.DisplayName);
                     mod.PathOnDisk = metadata.DirectoryPath;
 
@@ -684,6 +657,9 @@ namespace StardewModdingAPI
                     LogSkip(metadata, $"initialisation failed:\n{ex.GetLogSummary()}");
                 }
             }
+
+            // initialise translations
+            this.ReloadTranslations();
 
             // initialise loaded mods
             foreach (IModMetadata metadata in this.ModRegistry.GetMods())
@@ -709,6 +685,37 @@ namespace StardewModdingAPI
             // print result
             this.Monitor.Log($"Loaded {modsLoaded} mods.");
             return modsLoaded;
+        }
+
+        /// <summary>Reload translations for all mods.</summary>
+        private void ReloadTranslations()
+        {
+            JsonHelper jsonHelper = new JsonHelper();
+            foreach (IModMetadata metadata in this.ModRegistry.GetMods())
+            {
+                // read translation files
+                IDictionary<string, IDictionary<string, string>> translations = new Dictionary<string, IDictionary<string, string>>();
+                DirectoryInfo translationsDir = new DirectoryInfo(Path.Combine(metadata.DirectoryPath, "i18n"));
+                if (translationsDir.Exists)
+                {
+                    foreach (FileInfo file in translationsDir.EnumerateFiles("*.json"))
+                    {
+                        string locale = Path.GetFileNameWithoutExtension(file.Name.ToLower().Trim());
+                        try
+                        {
+                            translations[locale] = jsonHelper.ReadJsonFile<IDictionary<string, string>>(file.FullName);
+                        }
+                        catch (Exception ex)
+                        {
+                            this.Monitor.Log($"Couldn't read {metadata.DisplayName}'s i18n/{locale}.json file: {ex.GetLogSummary()}");
+                        }
+                    }
+                }
+
+                // update translation
+                TranslationHelper translationHelper = (TranslationHelper)metadata.Mod.Helper.Translation;
+                translationHelper.SetTranslations(translations);
+            }
         }
 
         /// <summary>The method called when the user submits the help command in the console.</summary>

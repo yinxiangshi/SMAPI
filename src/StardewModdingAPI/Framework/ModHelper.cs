@@ -47,10 +47,9 @@ namespace StardewModdingAPI.Framework
         /// <param name="commandManager">Manages console commands.</param>
         /// <param name="contentManager">The content manager which loads content assets.</param>
         /// <param name="reflection">Simplifies access to private game code.</param>
-        /// <param name="translations">Provides translations stored in the mod folder.</param>
         /// <exception cref="ArgumentNullException">An argument is null or empty.</exception>
         /// <exception cref="InvalidOperationException">The <paramref name="modDirectory"/> path does not exist on disk.</exception>
-        public ModHelper(string displayName, string modDirectory, JsonHelper jsonHelper, IModRegistry modRegistry, CommandManager commandManager, SContentManager contentManager, IReflectionHelper reflection, ITranslationHelper translations)
+        public ModHelper(string displayName, string modDirectory, JsonHelper jsonHelper, IModRegistry modRegistry, CommandManager commandManager, SContentManager contentManager, IReflectionHelper reflection)
         {
             // validate
             if (string.IsNullOrWhiteSpace(modDirectory))
@@ -69,7 +68,7 @@ namespace StardewModdingAPI.Framework
             this.ModRegistry = modRegistry;
             this.ConsoleCommands = new CommandHelper(displayName, commandManager);
             this.Reflection = reflection;
-            this.Translation = translations;
+            this.Translation = new TranslationHelper(displayName, contentManager.GetLocale(), contentManager.GetCurrentLanguage());
         }
 
         /****

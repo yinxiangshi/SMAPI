@@ -40,7 +40,7 @@ namespace StardewModdingAPI.Tests
             var data = new Dictionary<string, IDictionary<string, string>>();
 
             // act
-            ITranslationHelper helper = new TranslationHelper("ModName", "en", LocalizedContentManager.LanguageCode.en, data);
+            ITranslationHelper helper = new TranslationHelper("ModName", "en", LocalizedContentManager.LanguageCode.en).SetTranslations(data);
             Translation translation = helper.Translate("key");
 
             // assert
@@ -62,7 +62,7 @@ namespace StardewModdingAPI.Tests
 
             // act
             var actual = new Dictionary<string, IDictionary<string, string>>();
-            TranslationHelper helper = new TranslationHelper("ModName", "en", LocalizedContentManager.LanguageCode.en, data);
+            TranslationHelper helper = new TranslationHelper("ModName", "en", LocalizedContentManager.LanguageCode.en).SetTranslations(data);
             foreach (string locale in expected.Keys)
             {
                 this.AssertSetLocale(helper, locale, LocalizedContentManager.LanguageCode.en);
@@ -86,7 +86,7 @@ namespace StardewModdingAPI.Tests
 
             // act
             var actual = new Dictionary<string, IDictionary<string, string>>();
-            TranslationHelper helper = new TranslationHelper("ModName", "en", LocalizedContentManager.LanguageCode.en, data);
+            TranslationHelper helper = new TranslationHelper("ModName", "en", LocalizedContentManager.LanguageCode.en).SetTranslations(data);
             foreach (string locale in expected.Keys)
             {
                 this.AssertSetLocale(helper, locale, LocalizedContentManager.LanguageCode.en);

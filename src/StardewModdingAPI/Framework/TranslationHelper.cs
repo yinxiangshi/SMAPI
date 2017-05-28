@@ -41,13 +41,10 @@ namespace StardewModdingAPI.Framework
         /// <param name="modName">The name of the relevant mod for error messages.</param>
         /// <param name="locale">The initial locale.</param>
         /// <param name="languageCode">The game's current language code.</param>
-        /// <param name="translations">The translations for each locale.</param>
-        public TranslationHelper(string modName, string locale, LocalizedContentManager.LanguageCode languageCode, IDictionary<string, IDictionary<string, string>> translations)
+        public TranslationHelper(string modName, string locale, LocalizedContentManager.LanguageCode languageCode)
         {
             // save data
             this.ModName = modName;
-            foreach (var pair in translations)
-                this.All[pair.Key] = new Dictionary<string, string>(pair.Value, StringComparer.InvariantCultureIgnoreCase);
 
             // set locale
             this.SetLocale(locale, languageCode);
@@ -65,6 +62,21 @@ namespace StardewModdingAPI.Framework
         {
             this.ForLocale.TryGetValue(key, out string text);
             return new Translation(this.ModName, this.Locale, key, text);
+        }
+
+        /// <summary>Set the translations to use.</summary>
+        /// <param name="translations">The translations to use.</param>
+        internal TranslationHelper SetTranslations(IDictionary<string, IDictionary<string, string>> translations)
+        {
+            // reset translations
+            this.All.Clear();
+            foreach (var pair in translations)
+                this.All[pair.Key] = new Dictionary<string, string>(pair.Value, StringComparer.InvariantCultureIgnoreCase);
+
+            // rebuild cache
+            this.SetLocale(this.Locale, this.LocaleEnum);
+
+            return this;
         }
 
         /// <summary>Set the current locale and precache translations.</summary>
