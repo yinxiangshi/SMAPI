@@ -83,12 +83,12 @@ namespace StardewModdingAPI
         }
 
         /// <summary>Replace tokens in the text like <c>{{value}}</c> with the given values. Returns a new instance.</summary>
-        /// <param name="tokens">An object containing token key/value pairs. This can be an anonymous object (like <c>new { value = 42, name = "Cranberries" }</c>) or a dictionary of token values.</param>
+        /// <param name="tokens">An object containing token key/value pairs. This can be an anonymous object (like <c>new { value = 42, name = "Cranberries" }</c>), a dictionary, or a class instance.</param>
         /// <exception cref="ArgumentNullException">The <paramref name="tokens"/> argument is <c>null</c>.</exception>
         public Translation Tokens(object tokens)
         {
             if (tokens == null)
-                throw new ArgumentNullException(nameof(tokens));
+                return this;
 
             // get dictionary of tokens
             IDictionary<string, string> tokenLookup = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);

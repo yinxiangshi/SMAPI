@@ -25,5 +25,10 @@ namespace StardewModdingAPI
         /// <summary>Get a translation for the current locale.</summary>
         /// <param name="key">The translation key.</param>
         Translation Get(string key);
+
+        /// <summary>Get a translation for the current locale.</summary>
+        /// <param name="key">The translation key.</param>
+        /// <param name="tokens">An object containing token key/value pairs. This can be an anonymous object (like <c>new { value = 42, name = "Cranberries" }</c>), a dictionary, or a class instance.</param>
+        Translation Get(string key, object tokens);
     }
 }
