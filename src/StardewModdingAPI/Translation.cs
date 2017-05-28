@@ -107,8 +107,11 @@ namespace StardewModdingAPI
                 // from object properties
                 else
                 {
-                    foreach (PropertyInfo prop in tokens.GetType().GetProperties())
+                    Type type = tokens.GetType();
+                    foreach (PropertyInfo prop in type.GetProperties())
                         tokenLookup[prop.Name] = prop.GetValue(tokens)?.ToString();
+                    foreach (FieldInfo field in type.GetFields())
+                        tokenLookup[field.Name] = field.GetValue(tokens)?.ToString();
                 }
             }
 

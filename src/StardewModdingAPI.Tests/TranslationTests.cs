@@ -180,7 +180,7 @@ namespace StardewModdingAPI.Tests
         ** Translation tokens
         ****/
         [Test(Description = "Assert that multiple translation tokens are replaced correctly regardless of the token structure.")]
-        public void Translation_Tokens([Values("anonymous object", "IDictionary<string, object>", "IDictionary<string, string>")] string structure)
+        public void Translation_Tokens([Values("anonymous object", "class", "IDictionary<string, object>", "IDictionary<string, string>")] string structure)
         {
             // arrange
             string start = Guid.NewGuid().ToString("N");
@@ -195,6 +195,10 @@ namespace StardewModdingAPI.Tests
             {
                 case "anonymous object":
                     translation = translation.Tokens(new { start, middle, end });
+                    break;
+
+                case "class":
+                    translation = translation.Tokens(new TokenModel { Start = start, Middle = middle, End = end });
                     break;
 
                 case "IDictionary<string, object>":
@@ -322,6 +326,23 @@ namespace StardewModdingAPI.Tests
         private string GetPlaceholderText(string key)
         {
             return string.Format(Translation.PlaceholderText, key);
+        }
+
+
+        /*********
+        ** Test models
+        *********/
+        /// <summary>A model used to test token support.</summary>
+        private class TokenModel
+        {
+            /// <summary>A sample token property.</summary>
+            public string Start { get; set; }
+
+            /// <summary>A sample token property.</summary>
+            public string Middle { get; set; }
+
+            /// <summary>A sample token field.</summary>
+            public string End;
         }
     }
 }
