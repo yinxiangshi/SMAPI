@@ -33,6 +33,7 @@ For modders:
 * Added `Context.IsInDrawLoop` for specialised mods.
 * Fixed `smapi-crash.txt` being copied from the default log even if a different path is specified with `--log-path`.
 * Fixed the content API not matching XNB filenames with two dots (like `a.b.xnb`) if you don't specify the `.xnb` extension.
+* Fixed `debug` command output not printed to console.
 
 ## 1.13.1
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.13...1.13.1).
