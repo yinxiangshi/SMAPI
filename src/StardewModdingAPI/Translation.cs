@@ -87,7 +87,7 @@ namespace StardewModdingAPI
         /// <exception cref="ArgumentNullException">The <paramref name="tokens"/> argument is <c>null</c>.</exception>
         public Translation Tokens(object tokens)
         {
-            if (tokens == null)
+            if (string.IsNullOrWhiteSpace(this.Text) || tokens == null)
                 return this;
 
             // get dictionary of tokens
