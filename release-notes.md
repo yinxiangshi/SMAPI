@@ -23,6 +23,7 @@ For players:
 * Fixed `libgdiplus.dylib` errors for some players on Mac.
 * Fixed rare crash when window loses focus for a few players.
 * Bumped minimum game version to 1.2.30.
+* Updated mod compatibility list.
 
 For modders:
 * You can now add dependencies to `manifest.json`.  
