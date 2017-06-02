@@ -52,7 +52,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     {
       "Name": "Better Sprinklers",
       "ID": [ "SPDSprinklersMod", /*since 2.3*/ "Speeder.BetterSprinklers" ],
-      "UpperVersion": "2.3",
+      "UpperVersion": "2.3.1-pathoschild-update",
       "Compatibility": "AssumeBroken",
       "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/41",
       "UnofficialUpdateUrl": "http://community.playstarbound.com/threads/132096",
