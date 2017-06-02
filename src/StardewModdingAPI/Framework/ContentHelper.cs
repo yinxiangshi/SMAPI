@@ -5,7 +5,11 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI.Framework.Exceptions;
 using StardewValley;
+using xTile;
+using xTile.Format;
+using xTile.Tiles;
 
 namespace StardewModdingAPI.Framework
 {
@@ -51,6 +55,8 @@ namespace StardewModdingAPI.Framework
         /// <exception cref="ContentLoadException">The content asset couldn't be loaded (e.g. because it doesn't exist).</exception>
         public T Load<T>(string key, ContentSource source = ContentSource.ModFolder)
         {
+            SContentLoadException GetContentError(string reasonPhrase) => new SContentLoadException($"{this.ModName} failed loading content asset '{key}' from {source}: {reasonPhrase}.");
+
             this.AssertValidAssetKeyFormat(key);
             try
             {
@@ -63,25 +69,49 @@ namespace StardewModdingAPI.Framework
                         // get file
                         FileInfo file = this.GetModFile(key);
                         if (!file.Exists)
-                            throw new ContentLoadException($"There is no file at path '{file.FullName}'.");
+                            throw GetContentError($"there's no matching file at path '{file.FullName}'.");
 
                         // get asset path
                         string assetPath = this.GetModAssetPath(key, file.FullName);
 
+                        // try cache
+                        if (this.ContentManager.IsLoaded(assetPath))
+                            return this.ContentManager.Load<T>(assetPath);
+
                         // load content
                         switch (file.Extension.ToLower())
                         {
+                            // XNB file
                             case ".xnb":
-                                return this.ContentManager.Load<T>(assetPath);
+                                {
+                                    T asset = this.ContentManager.Load<T>(assetPath);
+                                    if (asset is Map)
+                                        this.FixLocalMapTilesheets(asset as Map, key);
+                                    return asset;
+                                }
 
+                            // unpacked map
+                            case ".tbin":
+                                {
+                                    // validate
+                                    if (typeof(T) != typeof(Map))
+                                        throw GetContentError($"can't read file with extension '{file.Extension}' as type '{typeof(T)}'; must be type '{typeof(Map)}'.");
+
+                                    // fetch & cache
+                                    FormatManager formatManager = FormatManager.Instance;
+                                    Map map = formatManager.LoadMap(file.FullName);
+                                    this.FixLocalMapTilesheets(map, key);
+
+                                    // inject map
+                                    this.ContentManager.Inject(assetPath, map);
+                                    return (T)(object)map;
+                                }
+
+                            // unpacked image
                             case ".png":
                                 // validate
                                 if (typeof(T) != typeof(Texture2D))
-                                    throw new ContentLoadException($"Can't read file with extension '{file.Extension}' as type '{typeof(T)}'; must be type '{typeof(Texture2D)}'.");
-
-                                // try cache
-                                if (this.ContentManager.IsLoaded(assetPath))
-                                    return this.ContentManager.Load<T>(assetPath);
+                                    throw GetContentError($"can't read file with extension '{file.Extension}' as type '{typeof(T)}'; must be type '{typeof(Texture2D)}'.");
 
                                 // fetch & cache
                                 using (FileStream stream = File.OpenRead(file.FullName))
@@ -93,16 +123,16 @@ namespace StardewModdingAPI.Framework
                                 }
 
                             default:
-                                throw new ContentLoadException($"Unknown file extension '{file.Extension}'; must be '.xnb' or '.png'.");
+                                throw GetContentError($"unknown file extension '{file.Extension}'; must be one of '.png', '.tbin', or '.xnb'.");
                         }
 
                     default:
-                        throw new NotSupportedException($"Unknown content source '{source}'.");
+                        throw GetContentError($"unknown content source '{source}'.");
                 }
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!(ex is SContentLoadException))
             {
-                throw new ContentLoadException($"{this.ModName} failed loading content asset '{key}' from {source}.", ex);
+                throw new SContentLoadException($"{this.ModName} failed loading content asset '{key}' from {source}.", ex);
             }
         }
 
@@ -130,6 +160,55 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Private methods
         *********/
+        /// <summary>Fix the tilesheets for a map loaded from the mod folder.</summary>
+        /// <param name="map">The map whose tilesheets to fix.</param>
+        /// <param name="mapKey">The map asset key within the mod folder.</param>
+        /// <exception cref="ContentLoadException">The map tilesheets could not be loaded.</exception>
+        private void FixLocalMapTilesheets(Map map, string mapKey)
+        {
+            if (!map.TileSheets.Any())
+                return;
+
+            string relativeMapFolder = Path.GetDirectoryName(mapKey) ?? ""; // folder path containing the map, relative to the mod folder
+            foreach (TileSheet tilesheet in map.TileSheets)
+            {
+                // check for tilesheet relative to map
+                {
+                    string localKey = Path.Combine(relativeMapFolder, tilesheet.ImageSource);
+                    FileInfo localFile = this.GetModFile(localKey);
+                    if (localFile.Exists)
+                    {
+                        try
+                        {
+                            this.Load<Texture2D>(localKey);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new ContentLoadException($"The local '{tilesheet.ImageSource}' tilesheet couldn't be loaded.", ex);
+                        }
+                        tilesheet.ImageSource = this.GetActualAssetKey(localKey);
+                        continue;
+                    }
+                }
+
+                // fallback to game content
+                {
+                    string contentKey = tilesheet.ImageSource;
+                    if (contentKey.EndsWith(".png"))
+                        contentKey = contentKey.Substring(0, contentKey.Length - 4);
+                    try
+                    {
+                        this.ContentManager.Load<Texture2D>(contentKey);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new ContentLoadException($"The '{tilesheet.ImageSource}' tilesheet couldn't be loaded relative to either map file or the game's content folder.", ex);
+                    }
+                    tilesheet.ImageSource = contentKey;
+                }
+            }
+        }
+
         /// <summary>Assert that the given key has a valid format.</summary>
         /// <param name="key">The asset key to check.</param>
         /// <exception cref="ArgumentException">The asset key is empty or contains invalid characters.</exception>
@@ -146,10 +225,18 @@ namespace StardewModdingAPI.Framework
         /// <param name="path">The asset path relative to the mod folder.</param>
         private FileInfo GetModFile(string path)
         {
+            // try exact match
             path = Path.Combine(this.ModFolderPath, this.ContentManager.NormalisePathSeparators(path));
             FileInfo file = new FileInfo(path);
-            if (!file.Exists && file.Extension == "")
-                file = new FileInfo(Path.Combine(this.ModFolderPath, path + ".xnb"));
+
+            // try with default extension
+            if (!file.Exists && file.Extension.ToLower() != ".xnb")
+            {
+                FileInfo result = new FileInfo(path + ".xnb");
+                if (result.Exists)
+                    file = result;
+            }
+
             return file;
         }
 

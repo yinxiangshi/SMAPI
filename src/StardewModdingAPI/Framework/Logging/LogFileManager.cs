@@ -14,14 +14,23 @@ namespace StardewModdingAPI.Framework.Logging
 
 
         /*********
+        ** Accessors
+        *********/
+        /// <summary>The full path to the log file being written.</summary>
+        public string Path { get; }
+
+
+        /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="path">The log file to write.</param>
         public LogFileManager(string path)
         {
+            this.Path = path;
+
             // create log directory if needed
-            string logDir = Path.GetDirectoryName(path);
+            string logDir = System.IO.Path.GetDirectoryName(path);
             if (logDir == null)
                 throw new ArgumentException($"The log path '{path}' is not valid.");
             Directory.CreateDirectory(logDir);

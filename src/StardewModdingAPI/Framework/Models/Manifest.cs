@@ -30,11 +30,9 @@ namespace StardewModdingAPI.Framework.Models
         /// <summary>The name of the DLL in the directory that has the <see cref="Mod.Entry"/> method.</summary>
         public string EntryDll { get; set; }
 
-#if EXPERIMENTAL
         /// <summary>The other mods that must be loaded before this mod.</summary>
         [JsonConverter(typeof(ManifestFieldConverter))]
         public IManifestDependency[] Dependencies { get; set; }
-#endif
 
         /// <summary>The unique mod ID.</summary>
         public string UniqueID { get; set; }

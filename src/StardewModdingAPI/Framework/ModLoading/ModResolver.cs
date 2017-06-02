@@ -126,7 +126,6 @@ namespace StardewModdingAPI.Framework.ModLoading
             }
         }
 
-#if EXPERIMENTAL
         /// <summary>Sort the given mods by the order they should be loaded.</summary>
         /// <param name="mods">The mods to process.</param>
         public IEnumerable<IModMetadata> ProcessDependencies(IEnumerable<IModMetadata> mods)
@@ -142,20 +141,18 @@ namespace StardewModdingAPI.Framework.ModLoading
                 states[mod] = ModDependencyStatus.Failed;
                 sortedMods.Push(mod);
             }
-            
+
             // sort mods
             foreach (IModMetadata mod in mods)
                 this.ProcessDependencies(mods.ToArray(), mod, states, sortedMods, new List<IModMetadata>());
 
             return sortedMods.Reverse();
         }
-#endif
 
 
         /*********
         ** Private methods
         *********/
-#if EXPERIMENTAL
         /// <summary>Sort a mod's dependencies by the order they should be loaded, and remove any mods that can't be loaded due to missing or conflicting dependencies.</summary>
         /// <param name="mods">The full list of mods being validated.</param>
         /// <param name="mod">The mod whose dependencies to process.</param>
@@ -201,7 +198,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 string[] missingModIDs =
                     (
                         from dependency in mod.Manifest.Dependencies
-                        where mods.All(m => m.Manifest.UniqueID != dependency.UniqueID)
+                        where mods.All(m => m.Manifest?.UniqueID != dependency.UniqueID)
                         orderby dependency.UniqueID
                         select dependency.UniqueID
                     )
@@ -222,7 +219,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 IModMetadata[] modsToLoadFirst =
                     (
                         from other in mods
-                        where mod.Manifest.Dependencies.Any(required => required.UniqueID == other.Manifest.UniqueID)
+                        where mod.Manifest.Dependencies.Any(required => required.UniqueID == other.Manifest?.UniqueID)
                         select other
                     )
                     .ToArray();
@@ -270,7 +267,6 @@ namespace StardewModdingAPI.Framework.ModLoading
                 return states[mod] = ModDependencyStatus.Sorted;
             }
         }
-#endif
 
         /// <summary>Get all mod folders in a root folder, passing through empty folders as needed.</summary>
         /// <param name="rootPath">The root folder path to search.</param>

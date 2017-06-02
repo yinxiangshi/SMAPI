@@ -85,6 +85,7 @@ namespace StardewModdingApi.Installer
             yield return GetInstallPath("steam_appid.txt");
 
             // Linux/Mac only
+            yield return GetInstallPath("libgdiplus.dylib");
             yield return GetInstallPath("StardewModdingAPI");
             yield return GetInstallPath("StardewModdingAPI.exe.mdb");
             yield return GetInstallPath("System.Numerics.dll");
@@ -158,7 +159,10 @@ namespace StardewModdingApi.Installer
             ****/
             if (!packageDir.Exists)
             {
-                this.PrintError($"The 'internal/{platform}' package folder is missing (should be at {packageDir}).");
+                this.PrintError(platform == Platform.Windows && packageDir.FullName.Contains(Path.GetTempPath()) && packageDir.FullName.Contains(".zip")
+                    ? "The installer is missing some files. It looks like you're running the installer from inside the downloaded zip; make sure you unzip the downloaded file first, then run the installer from the unzipped folder."
+                    : $"The 'internal/{platform}' package folder is missing (should be at {packageDir})."
+                );
                 Console.ReadLine();
                 return;
             }

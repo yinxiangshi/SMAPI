@@ -10,23 +10,6 @@ namespace StardewModdingAPI.Framework
     /// <summary>Provides extension methods for SMAPI's internal use.</summary>
     internal static class InternalExtensions
     {
-        /*********
-        ** Properties
-        *********/
-        /// <summary>Tracks the installed mods.</summary>
-        private static ModRegistry ModRegistry;
-
-
-        /*********
-        ** Public methods
-        *********/
-        /// <summary>Injects types required for backwards compatibility.</summary>
-        /// <param name="modRegistry">Tracks the installed mods.</param>
-        internal static void Shim(ModRegistry modRegistry)
-        {
-            InternalExtensions.ModRegistry = modRegistry;
-        }
-
         /****
         ** IMonitor
         ****/
@@ -107,27 +90,6 @@ namespace StardewModdingAPI.Framework
 
                 default:
                     return exception.ToString();
-            }
-        }
-
-        /****
-        ** Deprecation
-        ****/
-        /// <summary>Log a deprecation warning for mods using an event.</summary>
-        /// <param name="deprecationManager">The deprecation manager to extend.</param>
-        /// <param name="handlers">The event handlers.</param>
-        /// <param name="nounPhrase">A noun phrase describing what is deprecated.</param>
-        /// <param name="version">The SMAPI version which deprecated it.</param>
-        /// <param name="severity">How deprecated the code is.</param>
-        public static void WarnForEvent(this DeprecationManager deprecationManager, Delegate[] handlers, string nounPhrase, string version, DeprecationLevel severity)
-        {
-            if (handlers == null || !handlers.Any())
-                return;
-
-            foreach (Delegate handler in handlers)
-            {
-                string modName = InternalExtensions.ModRegistry.GetModFrom(handler) ?? "an unknown mod"; // suppress stack trace for unknown mods, not helpful here
-                deprecationManager.Warn(modName, nounPhrase, version, severity);
             }
         }
 

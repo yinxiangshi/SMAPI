@@ -124,9 +124,15 @@ namespace TrainerMod
             switch (command)
             {
                 case "debug":
+                    // submit command
                     string debugCommand = string.Join(" ", args);
-                    this.Monitor.Log($"Sending debug command to the game: {debugCommand}...", LogLevel.Info);
+                    string oldOutput = Game1.debugOutput;
                     Game1.game1.parseDebugInput(debugCommand);
+
+                    // show result
+                    this.Monitor.Log(Game1.debugOutput != oldOutput
+                        ? $"> {Game1.debugOutput}"
+                        : "Sent debug command to the game, but there was no output.", LogLevel.Info);
                     break;
 
                 case "save":

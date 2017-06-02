@@ -48,6 +48,9 @@ namespace StardewModdingAPI
         /// <summary>The underlying game instance.</summary>
         private SGame GameInstance;
 
+        /// <summary>The underlying content manager.</summary>
+        private SContentManager ContentManager => (SContentManager)this.GameInstance.Content;
+
         /// <summary>The SMAPI configuration settings.</summary>
         /// <remarks>This is initialised after the game starts.</remarks>
         private SConfig Settings;
@@ -78,6 +81,8 @@ namespace StardewModdingAPI
         /// <param name="args">The command-line arguments.</param>
         public static void Main(string[] args)
         {
+            Program.AssertMinimumCompatibility();
+
             // get flags from arguments
             bool writeToConsole = !args.Contains("--no-terminal");
 
@@ -158,7 +163,7 @@ namespace StardewModdingAPI
                         try
                         {
                             File.WriteAllText(Constants.FatalCrashMarker, string.Empty);
-                            File.Copy(Constants.DefaultLogPath, Constants.FatalCrashLog, overwrite: true);
+                            File.Copy(this.LogFile.Path, Constants.FatalCrashLog, overwrite: true);
                         }
                         catch (Exception ex)
                         {
@@ -177,6 +182,7 @@ namespace StardewModdingAPI
                 this.GameInstance.Window.ClientSizeChanged += (sender, e) => GraphicsEvents.InvokeResize(this.Monitor, sender, e);
                 GameEvents.InitializeInternal += (sender, e) => this.InitialiseAfterGameStart();
                 GameEvents.GameLoadedInternal += (sender, e) => this.CheckForUpdateAsync();
+                ContentEvents.AfterLocaleChanged += (sender, e) => this.OnLocaleChanged();
 
                 // set window titles
                 this.GameInstance.Window.Title = $"Stardew Valley {Constants.GetGameDisplayVersion(Constants.GameVersion)} - running SMAPI {Constants.ApiVersion}";
@@ -261,6 +267,48 @@ namespace StardewModdingAPI
         /*********
         ** Private methods
         *********/
+        /// <summary>Assert that the minimum conditions are present to initialise SMAPI without type load exceptions.</summary>
+        private static void AssertMinimumCompatibility()
+        {
+            void PrintErrorAndExit(string message)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(message);
+                Console.ResetColor();
+                Program.PressAnyKeyToExit(showMessage: true);
+            }
+
+            // get game assembly name
+            const string gameAssemblyName =
+#if SMAPI_FOR_WINDOWS
+                "Stardew Valley";
+#else
+                "StardewValley";
+#endif
+
+            // game not present
+            if (Type.GetType($"StardewValley.Game1, {gameAssemblyName}", throwOnError: false) == null)
+            {
+                PrintErrorAndExit(
+                    "Oops! SMAPI can't find the game. "
+                    + (Assembly.GetCallingAssembly().Location?.Contains(Path.Combine("internal", "Windows")) == true || Assembly.GetCallingAssembly().Location?.Contains(Path.Combine("internal", "Mono")) == true
+                        ? "It looks like you're running SMAPI from the download package, but you need to run the installed version instead. "
+                        : "Make sure you're running StardewModdingAPI.exe in your game folder. "
+                    )
+                    + "See the readme.txt file for details."
+                );
+            }
+
+            // Stardew Valley 1.2 types not present
+            if (Type.GetType($"StardewValley.LocalizedContentManager+LanguageCode, {gameAssemblyName}", throwOnError: false) == null)
+            {
+                PrintErrorAndExit(Constants.GameVersion.IsOlderThan(Constants.MinimumGameVersion)
+                    ? $"Oops! You're running Stardew Valley {Constants.GetGameDisplayVersion(Constants.GameVersion)}, but the oldest supported version is {Constants.GetGameDisplayVersion(Constants.MinimumGameVersion)}. Please update your game before using SMAPI."
+                    : "Oops! SMAPI doesn't seem to be compatible with your game. Make sure you're running the latest version of Stardew Valley and SMAPI."
+                );
+            }
+        }
+
         /// <summary>Initialise SMAPI and mods after the game starts.</summary>
         private void InitialiseAfterGameStart()
         {
@@ -277,7 +325,6 @@ namespace StardewModdingAPI
 #pragma warning disable 618
             Command.Shim(this.CommandManager, this.DeprecationManager, this.ModRegistry);
             Config.Shim(this.DeprecationManager);
-            InternalExtensions.Shim(this.ModRegistry);
             Log.Shim(this.DeprecationManager, this.GetSecondaryMonitor("legacy mod"), this.ModRegistry);
             Mod.Shim(this.DeprecationManager);
             ContentEvents.Shim(this.ModRegistry, this.Monitor);
@@ -357,13 +404,11 @@ namespace StardewModdingAPI
                     }
                 }
 
-#if EXPERIMENTAL
                 // process dependencies
                 mods = resolver.ProcessDependencies(mods).ToArray();
-#endif
 
                 // load mods
-                modsLoaded = this.LoadMods(mods, new JsonHelper(), (SContentManager)Game1.content, deprecationWarnings);
+                modsLoaded = this.LoadMods(mods, new JsonHelper(), this.ContentManager, deprecationWarnings);
                 foreach (Action warning in deprecationWarnings)
                     warning();
             }
@@ -381,24 +426,42 @@ namespace StardewModdingAPI
             new Thread(this.RunConsoleLoop).Start();
         }
 
+        /// <summary>Handle the game changing locale.</summary>
+        private void OnLocaleChanged()
+        {
+            // get locale
+            string locale = this.ContentManager.GetLocale();
+            LocalizedContentManager.LanguageCode languageCode = this.ContentManager.GetCurrentLanguage();
+
+            // update mod translation helpers
+            foreach (IModMetadata mod in this.ModRegistry.GetMods())
+                (mod.Mod.Helper.Translation as TranslationHelper)?.SetLocale(locale, languageCode);
+        }
+
         /// <summary>Run a loop handling console input.</summary>
         [SuppressMessage("ReSharper", "FunctionNeverReturns", Justification = "The thread is aborted when the game exits.")]
         private void RunConsoleLoop()
         {
-            // prepare help command
+            // prepare console
             this.Monitor.Log("Starting console...");
             this.Monitor.Log("Type 'help' for help, or 'help <cmd>' for a command's usage", LogLevel.Info);
-            this.CommandManager.Add("SMAPI", "help", "Lists all commands | 'help <cmd>' returns command description", this.HandleHelpCommand);
+            this.CommandManager.Add("SMAPI", "help", "Lists command documentation.\n\nUsage: help\nLists all available commands.\n\nUsage: help <cmd>\n- cmd: The name of a command whose documentation to display.", this.HandleCommand);
+            this.CommandManager.Add("SMAPI", "reload_i18n", "Reloads translation files for all mods.\n\nUsage: reload_i18n", this.HandleCommand);
 
             // start handling command line input
             Thread inputThread = new Thread(() =>
             {
                 while (true)
                 {
+                    // get input
                     string input = Console.ReadLine();
+                    if (string.IsNullOrWhiteSpace(input))
+                        continue;
+
+                    // parse input
                     try
                     {
-                        if (!string.IsNullOrWhiteSpace(input) && !this.CommandManager.Trigger(input))
+                        if (!this.CommandManager.Trigger(input))
                             this.Monitor.Log("Unknown command; type 'help' for a list of available commands.", LogLevel.Error);
                     }
                     catch (Exception ex)
@@ -580,14 +643,14 @@ namespace StardewModdingAPI
 
                     // inject data
                     mod.ModManifest = manifest;
-                    mod.Helper = new ModHelper(metadata.DisplayName, manifest, metadata.DirectoryPath, jsonHelper, this.ModRegistry, this.CommandManager, contentManager, this.Reflection);
+                    mod.Helper = new ModHelper(metadata.DisplayName, metadata.DirectoryPath, jsonHelper, this.ModRegistry, this.CommandManager, contentManager, this.Reflection);
                     mod.Monitor = this.GetSecondaryMonitor(metadata.DisplayName);
                     mod.PathOnDisk = metadata.DirectoryPath;
 
                     // track mod
                     metadata.SetMod(mod);
                     this.ModRegistry.Add(metadata);
-                    modsLoaded += 1;
+                    modsLoaded++;
                     this.Monitor.Log($"Loaded {metadata.DisplayName} by {manifest.Author}, v{manifest.Version} | {manifest.Description}", LogLevel.Info);
                 }
                 catch (Exception ex)
@@ -595,6 +658,9 @@ namespace StardewModdingAPI
                     LogSkip(metadata, $"initialisation failed:\n{ex.GetLogSummary()}");
                 }
             }
+
+            // initialise translations
+            this.ReloadTranslations();
 
             // initialise loaded mods
             foreach (IModMetadata metadata in this.ModRegistry.GetMods())
@@ -622,23 +688,67 @@ namespace StardewModdingAPI
             return modsLoaded;
         }
 
-        /// <summary>The method called when the user submits the help command in the console.</summary>
+        /// <summary>Reload translations for all mods.</summary>
+        private void ReloadTranslations()
+        {
+            JsonHelper jsonHelper = new JsonHelper();
+            foreach (IModMetadata metadata in this.ModRegistry.GetMods())
+            {
+                // read translation files
+                IDictionary<string, IDictionary<string, string>> translations = new Dictionary<string, IDictionary<string, string>>();
+                DirectoryInfo translationsDir = new DirectoryInfo(Path.Combine(metadata.DirectoryPath, "i18n"));
+                if (translationsDir.Exists)
+                {
+                    foreach (FileInfo file in translationsDir.EnumerateFiles("*.json"))
+                    {
+                        string locale = Path.GetFileNameWithoutExtension(file.Name.ToLower().Trim());
+                        try
+                        {
+                            translations[locale] = jsonHelper.ReadJsonFile<IDictionary<string, string>>(file.FullName);
+                        }
+                        catch (Exception ex)
+                        {
+                            this.Monitor.Log($"Couldn't read {metadata.DisplayName}'s i18n/{locale}.json file: {ex.GetLogSummary()}");
+                        }
+                    }
+                }
+
+                // update translation
+                TranslationHelper translationHelper = (TranslationHelper)metadata.Mod.Helper.Translation;
+                translationHelper.SetTranslations(translations);
+            }
+        }
+
+        /// <summary>The method called when the user submits a core SMAPI command in the console.</summary>
         /// <param name="name">The command name.</param>
         /// <param name="arguments">The command arguments.</param>
-        private void HandleHelpCommand(string name, string[] arguments)
+        private void HandleCommand(string name, string[] arguments)
         {
-            if (arguments.Any())
+            switch (name)
             {
-                Framework.Command result = this.CommandManager.Get(arguments[0]);
-                if (result == null)
-                    this.Monitor.Log("There's no command with that name.", LogLevel.Error);
-                else
-                    this.Monitor.Log($"{result.Name}: {result.Documentation}\n(Added by {result.ModName}.)", LogLevel.Info);
-            }
-            else
-            {
-                this.Monitor.Log("The following commands are registered: " + string.Join(", ", this.CommandManager.GetAll().Select(p => p.Name)) + ".", LogLevel.Info);
-                this.Monitor.Log("For more information about a command, type 'help command_name'.", LogLevel.Info);
+                case "help":
+                    if (arguments.Any())
+                    {
+                        Framework.Command result = this.CommandManager.Get(arguments[0]);
+                        if (result == null)
+                            this.Monitor.Log("There's no command with that name.", LogLevel.Error);
+                        else
+                            this.Monitor.Log($"{result.Name}: {result.Documentation}\n(Added by {result.ModName}.)", LogLevel.Info);
+                    }
+                    else
+                    {
+                        this.Monitor.Log("The following commands are registered: " + string.Join(", ", this.CommandManager.GetAll().Select(p => p.Name)) + ".", LogLevel.Info);
+                        this.Monitor.Log("For more information about a command, type 'help command_name'.", LogLevel.Info);
+                    }
+                    break;
+
+                case "reload_i18n":
+                    this.ReloadTranslations();
+                    this.Monitor.Log("Reloaded translation files for all mods. This only affects new translations the mods fetch; if they cached some text, it may not be updated.", LogLevel.Info);
+                    break;
+
+                default:
+                    throw new NotSupportedException($"Unrecognise core SMAPI command '{name}'.");
             }
         }
 
@@ -655,6 +765,15 @@ namespace StardewModdingAPI
         private void PressAnyKeyToExit()
         {
             this.Monitor.Log("Game has ended. Press any key to exit.", LogLevel.Info);
+            Program.PressAnyKeyToExit(showMessage: false);
+        }
+
+        /// <summary>Show a 'press any key to exit' message, and exit when they press a key.</summary>
+        /// <param name="showMessage">Whether to print a 'press any key to exit' message to the console.</param>
+        private static void PressAnyKeyToExit(bool showMessage)
+        {
+            if (showMessage)
+                Console.WriteLine("Game has ended. Press any key to exit.");
             Thread.Sleep(100);
             Console.ReadKey();
             Environment.Exit(0);

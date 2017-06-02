@@ -13,6 +13,7 @@ using StardewModdingAPI.Tests.Framework;
 
 namespace StardewModdingAPI.Tests
 {
+    /// <summary>Unit tests for <see cref="ModResolver"/>.</summary>
     [TestFixture]
     public class ModResolverTests
     {
@@ -71,9 +72,7 @@ namespace StardewModdingAPI.Tests
                 [nameof(IManifest.UniqueID)] = $"{Sample.String()}.{Sample.String()}",
                 [nameof(IManifest.EntryDll)] = $"{Sample.String()}.dll",
                 [nameof(IManifest.MinimumApiVersion)] = $"{Sample.Int()}.{Sample.Int()}-{Sample.String()}",
-#if EXPERIMENTAL
                 [nameof(IManifest.Dependencies)] = new[] { originalDependency },
-#endif
                 ["ExtraString"] = Sample.String(),
                 ["ExtraInt"] = Sample.Int()
             };
@@ -110,11 +109,9 @@ namespace StardewModdingAPI.Tests
             Assert.AreEqual(original["ExtraString"], mod.Manifest.ExtraFields["ExtraString"], "The manifest's extra fields should contain an 'ExtraString' value.");
             Assert.AreEqual(original["ExtraInt"], mod.Manifest.ExtraFields["ExtraInt"], "The manifest's extra fields should contain an 'ExtraInt' value.");
 
-#if EXPERIMENTAL
             Assert.IsNotNull(mod.Manifest.Dependencies, "The dependencies field should not be null.");
             Assert.AreEqual(1, mod.Manifest.Dependencies.Length, "The dependencies field should contain one value.");
             Assert.AreEqual(originalDependency[nameof(IManifestDependency.UniqueID)], mod.Manifest.Dependencies[0].UniqueID, "The first dependency's unique ID doesn't match.");
-#endif
         }
 
         /****
@@ -216,7 +213,6 @@ namespace StardewModdingAPI.Tests
             // if Moq doesn't throw a method-not-setup exception, the validation didn't override the status.
         }
 
-#if EXPERIMENTAL
         /****
         ** ProcessDependencies
         ****/
@@ -247,6 +243,20 @@ namespace StardewModdingAPI.Tests
             Assert.AreSame(modA.Object, mods[0], "The load order unexpectedly changed with no dependencies.");
             Assert.AreSame(modB.Object, mods[1], "The load order unexpectedly changed with no dependencies.");
             Assert.AreSame(modC.Object, mods[2], "The load order unexpectedly changed with no dependencies.");
+        }
+
+        [Test(Description = "Assert that processing dependencies skips mods that have already failed without calling any other properties.")]
+        public void ProcessDependencies_Skips_Failed()
+        {
+            // arrange
+            Mock<IModMetadata> mock = new Mock<IModMetadata>(MockBehavior.Strict);
+            mock.Setup(p => p.Status).Returns(ModMetadataStatus.Failed);
+
+            // act
+            new ModResolver().ProcessDependencies(new[] { mock.Object });
+
+            // assert
+            mock.VerifyGet(p => p.Status, Times.Once, "The validation did not check the manifest status.");
         }
 
         [Test(Description = "Assert that simple dependencies are reordered correctly.")]
@@ -345,8 +355,29 @@ namespace StardewModdingAPI.Tests
             modD.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>()), Times.Once, "Mod D was expected to fail since it's part of a dependency loop.");
             modE.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>()), Times.Once, "Mod E was expected to fail since it's part of a dependency loop.");
         }
-#endif
 
+        [Test(Description = "Assert that dependencies are sorted correctly even if some of the mods failed during metadata loading.")]
+        public void ProcessDependencies_WithSomeFailedMods_Succeeds()
+        {
+            // arrange
+            // A ◀── B ◀── C   D (failed)
+            Mock<IModMetadata> modA = this.GetMetadataForDependencyTest("Mod A");
+            Mock<IModMetadata> modB = this.GetMetadataForDependencyTest("Mod B", dependencies: new[] { "Mod A" });
+            Mock<IModMetadata> modC = this.GetMetadataForDependencyTest("Mod C", dependencies: new[] { "Mod B" }, allowStatusChange: true);
+            Mock<IModMetadata> modD = new Mock<IModMetadata>(MockBehavior.Strict);
+            modD.Setup(p => p.Manifest).Returns<IManifest>(null);
+            modD.Setup(p => p.Status).Returns(ModMetadataStatus.Failed);
+
+            // act
+            IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modC.Object, modA.Object, modB.Object, modD.Object }).ToArray();
+
+            // assert
+            Assert.AreEqual(4, mods.Length, 0, "Expected to get the same number of mods input.");
+            Assert.AreSame(modD.Object, mods[0], "The load order is incorrect: mod D should be first since it was already failed.");
+            Assert.AreSame(modA.Object, mods[1], "The load order is incorrect: mod A should be second since it's needed by mod B.");
+            Assert.AreSame(modB.Object, mods[2], "The load order is incorrect: mod B should be third since it needs mod A, and is needed by mod C.");
+            Assert.AreSame(modC.Object, mods[3], "The load order is incorrect: mod C should be fourth since it needs mod B, and is needed by mod D.");
+        }
 
         /*********
         ** Private methods
@@ -368,7 +399,6 @@ namespace StardewModdingAPI.Tests
             return manifest;
         }
 
-#if EXPERIMENTAL
         /// <summary>Get a randomised basic manifest.</summary>
         /// <param name="uniqueID">The mod's name and unique ID.</param>
         /// <param name="dependencies">The dependencies this mod requires.</param>
@@ -395,6 +425,5 @@ namespace StardewModdingAPI.Tests
             }
             return mod;
         }
-#endif
     }
 }

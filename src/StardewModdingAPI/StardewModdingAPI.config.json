@@ -52,11 +52,11 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     {
       "Name": "Better Sprinklers",
       "ID": [ "SPDSprinklersMod", /*since 2.3*/ "Speeder.BetterSprinklers" ],
-      "UpperVersion": "2.3",
+      "UpperVersion": "2.3.1-pathoschild-update",
       "Compatibility": "AssumeBroken",
       "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/41",
       "UnofficialUpdateUrl": "http://community.playstarbound.com/threads/132096",
-      "Notes": "Needs update for SDV 1.2."
+      "Notes": "Needs update for SDV 1.2 and to migrate broken TimeEvents.AfterDayOfMonthChanged."
     },
     {
       "Name": "Birthday Mail",
@@ -330,6 +330,14 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "Compatibility": "AssumeBroken",
       "UpdateUrl": "http://community.playstarbound.com/resources/4374",
       "Notes": "Needs update for SDV 1.2."
+    },
+    {
+      "Name": "TimeSpeed",
+      "ID": [ "TimeSpeed.dll", /* since 2.0.3 */ "4108e859-333c-4fec-a1a7-d2e18c1019fe", /*since 2.1*/ "community.TimeSpeed" ],
+      "UpperVersion": "2.2",
+      "Compatibility": "AssumeBroken",
+      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/169",
+      "Notes": "Needs update for SDV 1.2 and to migrate broken TimeEvents.AfterDayOfMonthChanged."
     },
     {
       "Name": "UiModSuite",

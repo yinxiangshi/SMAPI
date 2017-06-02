@@ -94,6 +94,7 @@
     <Compile Include="ContentSource.cs" />
     <Compile Include="Events\ContentEvents.cs" />
     <Compile Include="Events\EventArgsValueChanged.cs" />
+    <Compile Include="Framework\Exceptions\SContentLoadException.cs" />
     <Compile Include="Framework\Command.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Constants.cs" />
@@ -149,6 +150,7 @@
     <Compile Include="Framework\Serialisation\JsonHelper.cs" />
     <Compile Include="Framework\Serialisation\SelectiveStringEnumConverter.cs" />
     <Compile Include="Framework\Serialisation\ManifestFieldConverter.cs" />
+    <Compile Include="Framework\TranslationHelper.cs" />
     <Compile Include="ICommandHelper.cs" />
     <Compile Include="IContentEventData.cs" />
     <Compile Include="IContentEventHelper.cs" />
@@ -178,6 +180,7 @@
     <Compile Include="Framework\Logging\LogFileManager.cs" />
     <Compile Include="IPrivateProperty.cs" />
     <Compile Include="ISemanticVersion.cs" />
+    <Compile Include="ITranslationHelper.cs" />
     <Compile Include="LogLevel.cs" />
     <Compile Include="Framework\ModRegistry.cs" />
     <Compile Include="Framework\UpdateHelper.cs" />
@@ -198,6 +201,7 @@
     <Compile Include="IPrivateMethod.cs" />
     <Compile Include="IReflectionHelper.cs" />
     <Compile Include="SemanticVersion.cs" />
+    <Compile Include="Translation.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

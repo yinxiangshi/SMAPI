@@ -10,6 +10,34 @@ For mod developers:
   images).
 -->
 
+## 1.14
+See [log](https://github.com/Pathoschild/SMAPI/compare/1.13.1...1.14).
+
+For players:
+* SMAPI now shows friendly errors when...
+  * it can't detect the game;
+  * a mod dependency is missing (if it's listed in the mod manifest);
+  * you have Stardew Valley 1.11 or earlier (which aren't compatible);
+  * you run `install.exe` from within the downloaded zip file.
+* Fixed "unknown mod" deprecation warnings by improving how SMAPI detects the mod using the event.
+* Fixed `libgdiplus.dylib` errors for some players on Mac.
+* Fixed rare crash when window loses focus for a few players.
+* Bumped minimum game version to 1.2.30.
+* Updated mod compatibility list.
+
+For modders:
+* You can now add dependencies to `manifest.json`.  
+  <small>_SMAPI will make sure your dependencies are loaded before your mod, and will show a friendly error if a dependency is missing._</small>
+* You can now load unpacked `.tbin` files from your mod folder through the content API.  
+* SMAPI now automatically fixes tilesheet references for maps loaded from the mod folder.  
+  <small>_When loading a map from the mod folder, SMAPI will automatically use tilesheets relative to the map file if they exists. Otherwise it will default to tilesheets in the game content._</small>
+* Added `Context.IsPlayerFree` for mods that need to check if the player can act (i.e. save is loaded, no menu is displayed, no cutscene is in progress, etc).
+* Added `Context.IsInDrawLoop` for specialised mods.
+* Fixed `smapi-crash.txt` being copied from the default log even if a different path is specified with `--log-path`.
+* Fixed the content API not matching XNB filenames with two dots (like `a.b.xnb`) if you don't specify the `.xnb` extension.
+* Fixed `debug` command output not printed to console.
+* Deprecated `TimeEvents.DayOfMonthChanged`, `SeasonOfYearChanged`, and `YearOfGameChanged`. These don't do what most modders think they do and aren't very reliable, since they depend on the SMAPI/game lifecycle which can change. You should use `TimeEvents.AfterDayStarted` or `SaveEvents.BeforeSave` instead.
+
 ## 1.13.1
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.13...1.13.1).
 
@@ -31,7 +59,7 @@ For players:
 
 For mod developers:
 * Added a `Context.IsWorldReady` flag for mods to use.  
-  _<small>This indicates whether a save is loaded and the world is finished initialising, which starts at the same point that `SaveEvents.AfterLoad` and `TimeEvents.AfterDayStarted` are raised. This is mainly useful for events which can be raised before the world is loaded (like update tick).</small>_
+  <small>_This indicates whether a save is loaded and the world is finished initialising, which starts at the same point that `SaveEvents.AfterLoad` and `TimeEvents.AfterDayStarted` are raised. This is mainly useful for events which can be raised before the world is loaded (like update tick)._</small>
 * Added a `debug` console command which lets you run the game's debug commands (e.g. `debug warp FarmHouse 1 1` warps you to the farmhouse).
 * Added basic context info to logs to simplify troubleshooting.
 * Added a `Mod.Dispose` method which can be overriden to clean up before exit. This method isn't guaranteed to be called on every exit.
@@ -47,7 +75,7 @@ For players:
 * The installer now lets you choose the install path if you have multiple copies of the game, instead of using the first path found.
 * Fixed mod draw errors breaking the game.
 * Fixed mods on Linux/Mac no longer working after the game saves.
-* Fixed libgdiplus DLL-not-found errors on Linux/Mac when mods read PNG files.
+* Fixed `libgdiplus.dylib` errors on Mac when mods read PNG files.
 * Adopted pufferchick.
 
 For mod developers:
