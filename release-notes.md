@@ -26,8 +26,8 @@ For players:
 * Updated mod compatibility list.
 
 For modders:
-* You can now add dependencies to `manifest.json`.  
-  <small>_SMAPI will make sure your dependencies are loaded before your mod, and will show a friendly error if a dependency is missing._</small>
+* You can now add dependencies to `manifest.json` (see [API reference](http://stardewvalleywiki.com/Modding:SMAPI_APIs#Manifest)).
+* You can now translate your mod (see [API reference](http://stardewvalleywiki.com/Modding:SMAPI_APIs#Translation)).
 * You can now load unpacked `.tbin` files from your mod folder through the content API.  
 * SMAPI now automatically fixes tilesheet references for maps loaded from the mod folder.  
   <small>_When loading a map from the mod folder, SMAPI will automatically use tilesheets relative to the map file if they exists. Otherwise it will default to tilesheets in the game content._</small>
