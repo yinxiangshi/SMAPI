@@ -11,7 +11,7 @@ For mod developers:
 -->
 
 ## 1.14
-See [log](https://github.com/Pathoschild/SMAPI/compare/1.13.1...1.14).
+See [log](https://github.com/Pathoschild/SMAPI/compare/1.13...1.14).
 
 For players:
 * SMAPI now shows friendly errors when...
@@ -39,8 +39,6 @@ For modders:
 * Deprecated `TimeEvents.DayOfMonthChanged`, `SeasonOfYearChanged`, and `YearOfGameChanged`. These don't do what most modders think they do and aren't very reliable, since they depend on the SMAPI/game lifecycle which can change. You should use `TimeEvents.AfterDayStarted` or `SaveEvents.BeforeSave` instead.
 
 ## 1.13.1
-See [log](https://github.com/Pathoschild/SMAPI/compare/1.13...1.13.1).
-
 For players:
 * Fixed errors when loading a mod with no name or version.
 * Fixed mods with no manifest `Name` field having no name (SMAPI will now shows their filename).
