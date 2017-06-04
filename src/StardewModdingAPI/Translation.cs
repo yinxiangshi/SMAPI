@@ -21,14 +21,18 @@ namespace StardewModdingAPI
         /// <summary>The locale for which the translation was fetched.</summary>
         private readonly string Locale;
 
-        /// <summary>The translation key.</summary>
-        private readonly string Key;
-
         /// <summary>The underlying translation text.</summary>
         private readonly string Text;
 
         /// <summary>The value to return if the translations is undefined.</summary>
         private readonly string Placeholder;
+
+
+        /*********
+        ** Accessors
+        *********/
+        /// <summary>The original translation key.</summary>
+        public string Key { get; }
 
 
         /*********

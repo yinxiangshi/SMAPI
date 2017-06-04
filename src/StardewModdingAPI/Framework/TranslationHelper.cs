@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using StardewValley;
 
 namespace StardewModdingAPI.Framework
@@ -17,7 +18,7 @@ namespace StardewModdingAPI.Framework
         private readonly IDictionary<string, IDictionary<string, string>> All = new Dictionary<string, IDictionary<string, string>>(StringComparer.InvariantCultureIgnoreCase);
 
         /// <summary>The translations for the current locale, with locale fallback taken into account.</summary>
-        private IDictionary<string, string> ForLocale;
+        private IDictionary<string, Translation> ForLocale;
 
 
         /*********
@@ -47,17 +48,17 @@ namespace StardewModdingAPI.Framework
         }
 
         /// <summary>Get all translations for the current locale.</summary>
-        public IDictionary<string, string> GetTranslations()
+        public IEnumerable<Translation> GetTranslations()
         {
-            return new Dictionary<string, string>(this.ForLocale, StringComparer.InvariantCultureIgnoreCase);
+            return this.ForLocale.Values.ToArray();
         }
 
         /// <summary>Get a translation for the current locale.</summary>
         /// <param name="key">The translation key.</param>
         public Translation Get(string key)
         {
-            this.ForLocale.TryGetValue(key, out string text);
-            return new Translation(this.ModName, this.Locale, key, text);
+            this.ForLocale.TryGetValue(key, out Translation translation);
+            return translation ?? new Translation(this.ModName, this.Locale, key, null);
         }
 
         /// <summary>Get a translation for the current locale.</summary>
@@ -91,7 +92,7 @@ namespace StardewModdingAPI.Framework
             this.Locale = locale.ToLower().Trim();
             this.LocaleEnum = localeEnum;
 
-            this.ForLocale = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+            this.ForLocale = new Dictionary<string, Translation>(StringComparer.InvariantCultureIgnoreCase);
             foreach (string next in this.GetRelevantLocales(this.Locale))
             {
                 // skip if locale not defined
@@ -102,7 +103,7 @@ namespace StardewModdingAPI.Framework
                 foreach (var pair in translations)
                 {
                     if (!this.ForLocale.ContainsKey(pair.Key))
-                        this.ForLocale.Add(pair);
+                        this.ForLocale.Add(pair.Key, new Translation(this.ModName, this.Locale, pair.Key, pair.Value));
                 }
             }
         }

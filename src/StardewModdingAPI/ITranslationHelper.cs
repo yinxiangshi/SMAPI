@@ -20,7 +20,7 @@ namespace StardewModdingAPI
         ** Public methods
         *********/
         /// <summary>Get all translations for the current locale.</summary>
-        IDictionary<string, string> GetTranslations();
+        IEnumerable<Translation> GetTranslations();
 
         /// <summary>Get a translation for the current locale.</summary>
         /// <param name="key">The translation key.</param>

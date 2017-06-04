@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using StardewModdingAPI.Framework;
 using StardewValley;
@@ -32,12 +33,13 @@ namespace StardewModdingAPI.Tests
             // act
             ITranslationHelper helper = new TranslationHelper("ModName", "en", LocalizedContentManager.LanguageCode.en).SetTranslations(data);
             Translation translation = helper.Get("key");
+            Translation[] translationList = helper.GetTranslations()?.ToArray();
 
             // assert
             Assert.AreEqual("en", helper.Locale, "The locale doesn't match the input value.");
             Assert.AreEqual(LocalizedContentManager.LanguageCode.en, helper.LocaleEnum, "The locale enum doesn't match the input value.");
-            Assert.IsNotNull(helper.GetTranslations(), "The full list of translations is unexpectedly null.");
-            Assert.AreEqual(0, helper.GetTranslations().Count, "The full list of translations is unexpectedly not empty.");
+            Assert.IsNotNull(translationList, "The full list of translations is unexpectedly null.");
+            Assert.AreEqual(0, translationList.Length, "The full list of translations is unexpectedly not empty.");
 
             Assert.IsNotNull(translation, "The translation helper unexpectedly returned a null translation.");
             Assert.AreEqual(this.GetPlaceholderText("key"), translation.ToString(), "The translation returned an unexpected value.");
@@ -51,19 +53,19 @@ namespace StardewModdingAPI.Tests
             var expected = this.GetExpectedTranslations();
 
             // act
-            var actual = new Dictionary<string, IDictionary<string, string>>();
+            var actual = new Dictionary<string, Translation[]>();
             TranslationHelper helper = new TranslationHelper("ModName", "en", LocalizedContentManager.LanguageCode.en).SetTranslations(data);
             foreach (string locale in expected.Keys)
             {
                 this.AssertSetLocale(helper, locale, LocalizedContentManager.LanguageCode.en);
-                actual[locale] = helper.GetTranslations();
+                actual[locale] = helper.GetTranslations()?.ToArray();
             }
 
             // assert
             foreach (string locale in expected.Keys)
             {
                 Assert.IsNotNull(actual[locale], $"The translations for {locale} is unexpectedly null.");
-                Assert.That(actual[locale], Is.EquivalentTo(expected[locale]), $"The translations for {locale} don't match the expected values.");
+                Assert.That(actual[locale], Is.EquivalentTo(expected[locale]).Using<Translation, Translation>(this.CompareEquality), $"The translations for {locale} don't match the expected values.");
             }
         }
 
@@ -75,21 +77,23 @@ namespace StardewModdingAPI.Tests
             var expected = this.GetExpectedTranslations();
 
             // act
-            var actual = new Dictionary<string, IDictionary<string, string>>();
+            var actual = new Dictionary<string, Translation[]>();
             TranslationHelper helper = new TranslationHelper("ModName", "en", LocalizedContentManager.LanguageCode.en).SetTranslations(data);
             foreach (string locale in expected.Keys)
             {
                 this.AssertSetLocale(helper, locale, LocalizedContentManager.LanguageCode.en);
-                actual[locale] = new Dictionary<string, string>();
-                foreach (string key in expected[locale].Keys)
-                    actual[locale][key] = helper.Get(key);
+
+                List<Translation> translations = new List<Translation>();
+                foreach (Translation translation in expected[locale])
+                    translations.Add(helper.Get(translation.Key));
+                actual[locale] = translations.ToArray();
             }
 
             // assert
             foreach (string locale in expected.Keys)
             {
                 Assert.IsNotNull(actual[locale], $"The translations for {locale} is unexpectedly null.");
-                Assert.That(actual[locale], Is.EquivalentTo(expected[locale]), $"The translations for {locale} don't match the expected values.");
+                Assert.That(actual[locale], Is.EquivalentTo(expected[locale]).Using<Translation, Translation>(this.CompareEquality), $"The translations for {locale} don't match the expected values.");
             }
         }
 
@@ -292,33 +296,37 @@ namespace StardewModdingAPI.Tests
         }
 
         /// <summary>Get the expected translation output given <see cref="TranslationTests.GetSampleData"/>, based on the expected locale fallback.</summary>
-        private IDictionary<string, IDictionary<string, string>> GetExpectedTranslations()
+        private IDictionary<string, Translation[]> GetExpectedTranslations()
         {
-            return new Dictionary<string, IDictionary<string, string>>
+            var expected = new Dictionary<string, Translation[]>
             {
-                ["default"] = new Dictionary<string, string>
+                ["default"] = new[]
                 {
-                    ["key A"] = "default A",
-                    ["key C"] = "default C"
+                    new Translation(string.Empty, "default", "key A", "default A"),
+                    new Translation(string.Empty, "default", "key C", "default C")
                 },
-                ["en"] = new Dictionary<string, string>
+                ["en"] = new[]
                 {
-                    ["key A"] = "en A",
-                    ["key B"] = "en B",
-                    ["key C"] = "default C"
+                    new Translation(string.Empty, "en", "key A", "en A"),
+                    new Translation(string.Empty, "en", "key B", "en B"),
+                    new Translation(string.Empty, "en", "key C", "default C")
                 },
-                ["en-us"] = new Dictionary<string, string>
+                ["zzz"] = new[]
                 {
-                    ["key A"] = "en A",
-                    ["key B"] = "en B",
-                    ["key C"] = "default C"
-                },
-                ["zzz"] = new Dictionary<string, string>
-                {
-                    ["key A"] = "zzz A",
-                    ["key C"] = "default C"
+                    new Translation(string.Empty, "zzz", "key A", "zzz A"),
+                    new Translation(string.Empty, "zzz", "key C", "default C")
                 }
             };
+            expected["en-us"] = expected["en"].ToArray();
+            return expected;
+        }
+
+        /// <summary>Get whether two translations have the same public values.</summary>
+        /// <param name="a">The first translation to compare.</param>
+        /// <param name="b">The second translation to compare.</param>
+        private bool CompareEquality(Translation a, Translation b)
+        {
+            return a.Key == b.Key && a.ToString() == b.ToString();
         }
 
         /// <summary>Get the default placeholder text when a translation is missing.</summary>
