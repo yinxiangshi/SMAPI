@@ -48,6 +48,7 @@
     <Compile Include="..\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="SDateTests.cs" />
     <Compile Include="TranslationTests.cs" />
     <Compile Include="ModResolverTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
