@@ -111,28 +111,16 @@ namespace StardewModdingAPI.Framework
         /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
         public override T Load<T>(string assetName)
         {
-            // get normalised metadata
             assetName = this.NormaliseAssetName(assetName);
-            string cacheLocale = this.GetCacheLocale(assetName);
 
             // skip if already loaded
             if (this.IsNormalisedKeyLoaded(assetName))
                 return base.Load<T>(assetName);
 
-            // let mods intercept content
-            IAssetInfo info = new AssetInfo(cacheLocale, assetName, typeof(T), this.NormaliseAssetName);
-            Lazy<IAssetData> data = new Lazy<IAssetData>(() => new AssetDataForObject(info.Locale, info.AssetName, base.Load<T>(assetName), this.NormaliseAssetName));
-            if (this.TryOverrideAssetLoad(info, data, out T result))
-            {
-                if (result == null)
-                    throw new InvalidCastException($"Can't override asset '{assetName}' with a null value.");
-
-                this.Cache[assetName] = result;
-                return result;
-            }
-
-            // fallback to default behavior
-            return base.Load<T>(assetName);
+            // load asset
+            T asset = this.GetAssetWithInterceptors(this.GetLocale(), assetName, () => base.Load<T>(assetName));
+            this.Cache[assetName] = asset;
+            return asset;
         }
 
         /// <summary>Inject an asset into the cache.</summary>
@@ -162,27 +150,21 @@ namespace StardewModdingAPI.Framework
                 || this.Cache.ContainsKey($"{normalisedAssetName}.{this.GetKeyLocale.Invoke<string>()}"); // translated asset
         }
 
-        /// <summary>Get the locale for which the asset name was saved, if any.</summary>
-        /// <param name="normalisedAssetName">The normalised asset name.</param>
-        private string GetCacheLocale(string normalisedAssetName)
-        {
-            string locale = this.GetKeyLocale.Invoke<string>();
-            return this.Cache.ContainsKey($"{normalisedAssetName}.{locale}")
-                ? locale
-                : null;
-        }
-
-        /// <summary>Try to override an asset being loaded.</summary>
+        /// <summary>Read an asset with support for asset interceptors.</summary>
         /// <typeparam name="T">The asset type.</typeparam>
-        /// <param name="info">The asset metadata.</param>
-        /// <param name="data">The loaded asset data.</param>
-        /// <param name="result">The asset to use instead.</param>
-        /// <returns>Returns whether the asset should be overridden by <paramref name="result"/>.</returns>
-        private bool TryOverrideAssetLoad<T>(IAssetInfo info, Lazy<IAssetData> data, out T result)
+        /// <param name="locale">The current content locale.</param>
+        /// <param name="normalisedKey">The normalised asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
+        /// <param name="getData">Get the asset from the underlying content manager.</param>
+        private T GetAssetWithInterceptors<T>(string locale, string normalisedKey, Func<T> getData)
         {
-            bool edited = false;
+            // get metadata
+            IAssetInfo info = new AssetInfo(locale, normalisedKey, typeof(T), this.NormaliseAssetName);
 
-            // apply editors
+            // load asset
+            T asset = getData();
+
+            // edit asset
+            IAssetData data = new AssetDataForObject(info.Locale, info.AssetName, asset, this.NormaliseAssetName);
             foreach (var modEditors in this.Editors)
             {
                 IModMetadata mod = modEditors.Key;
@@ -192,14 +174,16 @@ namespace StardewModdingAPI.Framework
                         continue;
 
                     this.Monitor.Log($"{mod.DisplayName} intercepted {info.AssetName}.", LogLevel.Trace);
-                    editor.Edit<T>(data.Value);
-                    edited = true;
+                    editor.Edit<T>(data);
+                    if (data.Data == null)
+                        throw new InvalidOperationException($"{mod.DisplayName} incorrectly set asset '{normalisedKey}' to a null value.");
+                    if (!(data.Data is T))
+                        throw new InvalidOperationException($"{mod.DisplayName} incorrectly set asset '{normalisedKey}' to incompatible type '{data.Data.GetType()}', expected '{typeof(T)}'.");
                 }
             }
 
             // return result
-            result = edited ? (T)data.Value.Data : default(T);
-            return edited;
+            return (T)data.Data;
         }
     }
 }
