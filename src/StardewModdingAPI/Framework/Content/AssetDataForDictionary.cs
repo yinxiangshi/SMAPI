@@ -5,7 +5,7 @@ using System.Linq;
 namespace StardewModdingAPI.Framework.Content
 {
     /// <summary>Encapsulates access and changes to dictionary content being read from a data file.</summary>
-    internal class ContentEventHelperForDictionary<TKey, TValue> : ContentEventData<IDictionary<TKey, TValue>>, IContentEventHelperForDictionary<TKey, TValue>
+    internal class AssetDataForDictionary<TKey, TValue> : AssetData<IDictionary<TKey, TValue>>, IAssetDataForDictionary<TKey, TValue>
     {
         /*********
         ** Public methods
@@ -15,7 +15,7 @@ namespace StardewModdingAPI.Framework.Content
         /// <param name="assetName">The normalised asset name being read.</param>
         /// <param name="data">The content data being read.</param>
         /// <param name="getNormalisedPath">Normalises an asset key to match the cache key.</param>
-        public ContentEventHelperForDictionary(string locale, string assetName, IDictionary<TKey, TValue> data, Func<string, string> getNormalisedPath)
+        public AssetDataForDictionary(string locale, string assetName, IDictionary<TKey, TValue> data, Func<string, string> getNormalisedPath)
             : base(locale, assetName, data, getNormalisedPath) { }
 
         /// <summary>Add or replace an entry in the dictionary.</summary>

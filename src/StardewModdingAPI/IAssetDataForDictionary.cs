@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace StardewModdingAPI
 {
     /// <summary>Encapsulates access and changes to dictionary content being read from a data file.</summary>
-    public interface IContentEventHelperForDictionary<TKey, TValue> : IContentEventData<IDictionary<TKey, TValue>>
+    public interface IAssetDataForDictionary<TKey, TValue> : IAssetData<IDictionary<TKey, TValue>>
     {
         /*********
         ** Public methods

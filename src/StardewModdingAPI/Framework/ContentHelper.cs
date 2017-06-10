@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -30,6 +31,13 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>The friendly mod name for use in errors.</summary>
         private readonly string ModName;
+
+
+        /*********
+        ** Accessors
+        *********/
+        /// <summary>Editors which change content assets after they're loaded.</summary>
+        internal IList<IAssetEditor> AssetEditors { get; } = new List<IAssetEditor>();
 
 
         /*********

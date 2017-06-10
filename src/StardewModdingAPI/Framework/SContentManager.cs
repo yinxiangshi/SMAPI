@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using StardewModdingAPI.AssemblyRewriters;
-using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.Reflection;
 using StardewValley;
@@ -42,6 +40,9 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Accessors
         *********/
+        /// <summary>Implementations which change assets after they're loaded.</summary>
+        internal IDictionary<IModMetadata, IList<IAssetEditor>> Editors { get; } = new Dictionary<IModMetadata, IList<IAssetEditor>>();
+
         /// <summary>The absolute path to the <see cref="ContentManager.RootDirectory"/>.</summary>
         public string FullRootDirectory => Path.Combine(Constants.ExecutionPath, this.RootDirectory);
 
@@ -52,13 +53,6 @@ namespace StardewModdingAPI.Framework
         /// <summary>Construct an instance.</summary>
         /// <param name="serviceProvider">The service provider to use to locate services.</param>
         /// <param name="rootDirectory">The root directory to search for content.</param>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        public SContentManager(IServiceProvider serviceProvider, string rootDirectory, IMonitor monitor)
-            : this(serviceProvider, rootDirectory, Thread.CurrentThread.CurrentUICulture, null, monitor) { }
-
-        /// <summary>Construct an instance.</summary>
-        /// <param name="serviceProvider">The service provider to use to locate services.</param>
-        /// <param name="rootDirectory">The root directory to search for content.</param>
         /// <param name="currentCulture">The current culture for which to localise content.</param>
         /// <param name="languageCodeOverride">The current language code for which to localise content.</param>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
@@ -66,8 +60,8 @@ namespace StardewModdingAPI.Framework
             : base(serviceProvider, rootDirectory, currentCulture, languageCodeOverride)
         {
             // initialise
-            this.Monitor = monitor;
             IReflectionHelper reflection = new ReflectionHelper();
+            this.Monitor = monitor;
 
             // get underlying fields for interception
             this.Cache = reflection.GetPrivateField<Dictionary<string, object>>(this, "loadedAssets").GetValue();
@@ -125,14 +119,20 @@ namespace StardewModdingAPI.Framework
             if (this.IsNormalisedKeyLoaded(assetName))
                 return base.Load<T>(assetName);
 
-            // load data
-            T data = base.Load<T>(assetName);
-
             // let mods intercept content
-            IContentEventHelper helper = new ContentEventHelper(cacheLocale, assetName, data, this.NormaliseAssetName);
-            ContentEvents.InvokeAfterAssetLoaded(this.Monitor, helper);
-            this.Cache[assetName] = helper.Data;
-            return (T)helper.Data;
+            IAssetInfo info = new AssetInfo(cacheLocale, assetName, typeof(T), this.NormaliseAssetName);
+            Lazy<IAssetData> data = new Lazy<IAssetData>(() => new AssetDataForObject(info.Locale, info.AssetName, base.Load<T>(assetName), this.NormaliseAssetName));
+            if (this.TryOverrideAssetLoad(info, data, out T result))
+            {
+                if (result == null)
+                    throw new InvalidCastException($"Can't override asset '{assetName}' with a null value.");
+
+                this.Cache[assetName] = result;
+                return result;
+            }
+
+            // fallback to default behavior
+            return base.Load<T>(assetName);
         }
 
         /// <summary>Inject an asset into the cache.</summary>
@@ -170,6 +170,36 @@ namespace StardewModdingAPI.Framework
             return this.Cache.ContainsKey($"{normalisedAssetName}.{locale}")
                 ? locale
                 : null;
+        }
+
+        /// <summary>Try to override an asset being loaded.</summary>
+        /// <typeparam name="T">The asset type.</typeparam>
+        /// <param name="info">The asset metadata.</param>
+        /// <param name="data">The loaded asset data.</param>
+        /// <param name="result">The asset to use instead.</param>
+        /// <returns>Returns whether the asset should be overridden by <paramref name="result"/>.</returns>
+        private bool TryOverrideAssetLoad<T>(IAssetInfo info, Lazy<IAssetData> data, out T result)
+        {
+            bool edited = false;
+
+            // apply editors
+            foreach (var modEditors in this.Editors)
+            {
+                IModMetadata mod = modEditors.Key;
+                foreach (IAssetEditor editor in modEditors.Value)
+                {
+                    if (!editor.CanEdit<T>(info))
+                        continue;
+
+                    this.Monitor.Log($"{mod.DisplayName} intercepted {info.AssetName}.", LogLevel.Trace);
+                    editor.Edit<T>(data.Value);
+                    edited = true;
+                }
+            }
+
+            // return result
+            result = edited ? (T)data.Value.Data : default(T);
+            return edited;
         }
     }
 }

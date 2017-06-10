@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 namespace StardewModdingAPI
 {
     /// <summary>Encapsulates access and changes to dictionary content being read from a data file.</summary>
-    public interface IContentEventHelperForImage : IContentEventData<Texture2D>
+    public interface IAssetDataForImage : IAssetData<Texture2D>
     {
         /*********
         ** Public methods

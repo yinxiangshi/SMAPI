@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 namespace StardewModdingAPI.Framework.Content
 {
     /// <summary>Encapsulates access and changes to content being read from a data file.</summary>
-    internal class ContentEventHelper : ContentEventData<object>, IContentEventHelper
+    internal class AssetDataForObject : AssetData<object>, IAssetData
     {
         /*********
         ** Public methods
@@ -15,23 +15,23 @@ namespace StardewModdingAPI.Framework.Content
         /// <param name="assetName">The normalised asset name being read.</param>
         /// <param name="data">The content data being read.</param>
         /// <param name="getNormalisedPath">Normalises an asset key to match the cache key.</param>
-        public ContentEventHelper(string locale, string assetName, object data, Func<string, string> getNormalisedPath)
+        public AssetDataForObject(string locale, string assetName, object data, Func<string, string> getNormalisedPath)
             : base(locale, assetName, data, getNormalisedPath) { }
 
         /// <summary>Get a helper to manipulate the data as a dictionary.</summary>
         /// <typeparam name="TKey">The expected dictionary key.</typeparam>
         /// <typeparam name="TValue">The expected dictionary balue.</typeparam>
         /// <exception cref="InvalidOperationException">The content being read isn't a dictionary.</exception>
-        public IContentEventHelperForDictionary<TKey, TValue> AsDictionary<TKey, TValue>()
+        public IAssetDataForDictionary<TKey, TValue> AsDictionary<TKey, TValue>()
         {
-            return new ContentEventHelperForDictionary<TKey, TValue>(this.Locale, this.AssetName, this.GetData<IDictionary<TKey, TValue>>(), this.GetNormalisedPath);
+            return new AssetDataForDictionary<TKey, TValue>(this.Locale, this.AssetName, this.GetData<IDictionary<TKey, TValue>>(), this.GetNormalisedPath);
         }
 
         /// <summary>Get a helper to manipulate the data as an image.</summary>
         /// <exception cref="InvalidOperationException">The content being read isn't an image.</exception>
-        public IContentEventHelperForImage AsImage()
+        public IAssetDataForImage AsImage()
         {
-            return new ContentEventHelperForImage(this.Locale, this.AssetName, this.GetData<Texture2D>(), this.GetNormalisedPath);
+            return new AssetDataForImage(this.Locale, this.AssetName, this.GetData<Texture2D>(), this.GetNormalisedPath);
         }
 
         /// <summary>Get the data as a given type.</summary>

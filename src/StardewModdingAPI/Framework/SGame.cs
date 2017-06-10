@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -29,6 +30,9 @@ namespace StardewModdingAPI.Framework
         /****
         ** SMAPI state
         ****/
+        /// <summary>Encapsulates monitoring and logging.</summary>
+        private readonly IMonitor Monitor;
+
         /// <summary>The maximum number of consecutive attempts SMAPI should make to recover from a draw error.</summary>
         private readonly Countdown DrawCrashTimer = new Countdown(60); // 60 ticks = roughly one second
 
@@ -48,8 +52,6 @@ namespace StardewModdingAPI.Framework
         /// <summary>Whether the game's zoom level is at 100% (i.e. nothing should be scaled).</summary>
         public bool ZoomLevelIsOne => Game1.options.zoomLevel.Equals(1.0f);
 
-        /// <summary>Encapsulates monitoring and logging.</summary>
-        private readonly IMonitor Monitor;
 
         /****
         ** Game state
@@ -189,7 +191,7 @@ namespace StardewModdingAPI.Framework
             //   2. Since Game1.content isn't initialised yet, and we need one main instance to
             //      support custom map tilesheets, detect when Game1.content is being initialised
             //      and use the same instance.
-            this.Content = new SContentManager(this.Content.ServiceProvider, this.Content.RootDirectory, this.Monitor);
+            this.Content = new SContentManager(this.Content.ServiceProvider, this.Content.RootDirectory, Thread.CurrentThread.CurrentUICulture, null, this.Monitor);
         }
 
         /****
@@ -206,7 +208,7 @@ namespace StardewModdingAPI.Framework
                 return mainContentManager;
 
             // build new instance
-            return new SContentManager(this.Content.ServiceProvider, this.Content.RootDirectory, this.Monitor);
+            return new SContentManager(this.Content.ServiceProvider, this.Content.RootDirectory, Thread.CurrentThread.CurrentUICulture, null, this.Monitor);
         }
 
         /// <summary>The method called when the game is updating its state. This happens roughly 60 times per second.</summary>

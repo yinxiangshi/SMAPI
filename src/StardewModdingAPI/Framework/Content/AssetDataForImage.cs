@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 namespace StardewModdingAPI.Framework.Content
 {
     /// <summary>Encapsulates access and changes to dictionary content being read from a data file.</summary>
-    internal class ContentEventHelperForImage : ContentEventData<Texture2D>, IContentEventHelperForImage
+    internal class AssetDataForImage : AssetData<Texture2D>, IAssetDataForImage
     {
         /*********
         ** Public methods
@@ -15,7 +15,7 @@ namespace StardewModdingAPI.Framework.Content
         /// <param name="assetName">The normalised asset name being read.</param>
         /// <param name="data">The content data being read.</param>
         /// <param name="getNormalisedPath">Normalises an asset key to match the cache key.</param>
-        public ContentEventHelperForImage(string locale, string assetName, Texture2D data, Func<string, string> getNormalisedPath)
+        public AssetDataForImage(string locale, string assetName, Texture2D data, Func<string, string> getNormalisedPath)
             : base(locale, assetName, data, getNormalisedPath) { }
 
         /// <summary>Overwrite part of the image.</summary>

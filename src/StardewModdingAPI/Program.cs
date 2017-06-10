@@ -330,7 +330,6 @@ namespace StardewModdingAPI
             Config.Shim(this.DeprecationManager);
             Log.Shim(this.DeprecationManager, this.GetSecondaryMonitor("legacy mod"), this.ModRegistry);
             Mod.Shim(this.DeprecationManager);
-            ContentEvents.Shim(this.ModRegistry, this.Monitor);
             GameEvents.Shim(this.DeprecationManager);
             PlayerEvents.Shim(this.DeprecationManager);
             TimeEvents.Shim(this.DeprecationManager);
@@ -489,7 +488,8 @@ namespace StardewModdingAPI
             this.Monitor.Log("Detecting common issues...", LogLevel.Trace);
             bool issuesFound = false;
 
-            // object format (commonly broken by outdated mods)
+
+            // object format (commonly broken by outdated files)
             {
                 // detect issues
                 bool hasObjectIssues = false;
@@ -689,11 +689,14 @@ namespace StardewModdingAPI
             // initialise loaded mods
             foreach (IModMetadata metadata in this.ModRegistry.GetMods())
             {
+                // add interceptors
+                if (metadata.Mod.Helper.Content is ContentHelper helper)
+                    this.ContentManager.Editors[metadata] = helper.AssetEditors;
+
+                // call entry method
                 try
                 {
                     IMod mod = metadata.Mod;
-
-                    // call entry methods
                     (mod as Mod)?.Entry(); // deprecated since 1.0
                     mod.Entry(mod.Helper);
 
