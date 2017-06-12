@@ -32,6 +32,11 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
    */
   "DisabledMods": [
     {
+      "Name": "Modder Serialization Utility",
+      "ID": [ "SerializerUtils-0-1" ],
+      "ReasonPhrase": "it's no longer used by any mods, and is no longer maintained."
+    },
+    {
       "Name": "StarDustCore",
       "ID": [ "StarDustCore" ],
       "ReasonPhrase": "it was only used by earlier versions of Save Anywhere (which no longer uses it), and is no longer maintained."
