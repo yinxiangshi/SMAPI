@@ -10,6 +10,12 @@ For mod developers:
   images).
 -->
 
+## 1.15
+See [log](https://github.com/Pathoschild/SMAPI/compare/1.14...1.15).
+
+For players:
+* SMAPI will no longer load mods known to be obsolete or unneeded.
+
 ## 1.14
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.13...1.14).
 

@@ -31,7 +31,7 @@ namespace StardewModdingAPI.Tests
             Directory.CreateDirectory(rootFolder);
 
             // act
-            IModMetadata[] mods = new ModResolver().ReadManifests(rootFolder, new JsonHelper(), new ModCompatibility[0]).ToArray();
+            IModMetadata[] mods = new ModResolver().ReadManifests(rootFolder, new JsonHelper(), new ModCompatibility[0], new DisabledMod[0]).ToArray();
 
             // assert
             Assert.AreEqual(0, mods.Length, 0, $"Expected to find zero manifests, found {mods.Length} instead.");
@@ -46,7 +46,7 @@ namespace StardewModdingAPI.Tests
             Directory.CreateDirectory(modFolder);
 
             // act
-            IModMetadata[] mods = new ModResolver().ReadManifests(rootFolder, new JsonHelper(), new ModCompatibility[0]).ToArray();
+            IModMetadata[] mods = new ModResolver().ReadManifests(rootFolder, new JsonHelper(), new ModCompatibility[0], new DisabledMod[0]).ToArray();
             IModMetadata mod = mods.FirstOrDefault();
 
             // assert
@@ -85,7 +85,7 @@ namespace StardewModdingAPI.Tests
             File.WriteAllText(filename, JsonConvert.SerializeObject(original));
 
             // act
-            IModMetadata[] mods = new ModResolver().ReadManifests(rootFolder, new JsonHelper(), new ModCompatibility[0]).ToArray();
+            IModMetadata[] mods = new ModResolver().ReadManifests(rootFolder, new JsonHelper(), new ModCompatibility[0], new DisabledMod[0]).ToArray();
             IModMetadata mod = mods.FirstOrDefault();
 
             // assert

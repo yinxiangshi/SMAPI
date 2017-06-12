@@ -17,10 +17,13 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="rootPath">The root path to search for mods.</param>
         /// <param name="jsonHelper">The JSON helper with which to read manifests.</param>
         /// <param name="compatibilityRecords">Metadata about mods that SMAPI should assume is compatible or broken, regardless of whether it detects incompatible code.</param>
+        /// <param name="disabledMods">Metadata about mods that SMAPI should consider obsolete and not load.</param>
         /// <returns>Returns the manifests by relative folder.</returns>
-        public IEnumerable<IModMetadata> ReadManifests(string rootPath, JsonHelper jsonHelper, IEnumerable<ModCompatibility> compatibilityRecords)
+        public IEnumerable<IModMetadata> ReadManifests(string rootPath, JsonHelper jsonHelper, IEnumerable<ModCompatibility> compatibilityRecords, IEnumerable<DisabledMod> disabledMods)
         {
             compatibilityRecords = compatibilityRecords.ToArray();
+            disabledMods = disabledMods.ToArray();
+
             foreach (DirectoryInfo modDir in this.GetModFolders(rootPath))
             {
                 // read file
@@ -47,20 +50,29 @@ namespace StardewModdingAPI.Framework.ModLoading
                     error = $"parsing its manifest failed:\n{ex.GetLogSummary()}";
                 }
 
-                // get compatibility record
+                // validate metadata
                 ModCompatibility compatibility = null;
                 if (manifest != null)
                 {
+                    // get unique key for lookups
                     string key = !string.IsNullOrWhiteSpace(manifest.UniqueID) ? manifest.UniqueID : manifest.EntryDll;
+
+                    // check if mod should be disabled
+                    DisabledMod disabledMod = disabledMods.FirstOrDefault(mod => mod.ID.Contains(key, StringComparer.InvariantCultureIgnoreCase));
+                    if (disabledMod != null)
+                        error = $"it's obsolete: {disabledMod.ReasonPhrase}";
+
+                    // get compatibility record
                     compatibility = (
                         from mod in compatibilityRecords
                         where
-                            mod.ID.Contains(key, StringComparer.InvariantCultureIgnoreCase)
-                            && (mod.LowerSemanticVersion == null || !manifest.Version.IsOlderThan(mod.LowerSemanticVersion))
-                            && !manifest.Version.IsNewerThan(mod.UpperSemanticVersion)
+                        mod.ID.Contains(key, StringComparer.InvariantCultureIgnoreCase)
+                        && (mod.LowerSemanticVersion == null || !manifest.Version.IsOlderThan(mod.LowerSemanticVersion))
+                        && !manifest.Version.IsNewerThan(mod.UpperSemanticVersion)
                         select mod
                     ).FirstOrDefault();
                 }
+
                 // build metadata
                 string displayName = !string.IsNullOrWhiteSpace(manifest?.Name)
                     ? manifest.Name
