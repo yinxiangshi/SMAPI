@@ -16,6 +16,9 @@ See [log](https://github.com/Pathoschild/SMAPI/compare/1.14...1.15).
 For players:
 * SMAPI will no longer load mods known to be obsolete or unneeded.
 
+For modders:
+* Added `System.ValueTuple.dll` to the SMAPI install package so mods can use [C# 7 value tuples](https://docs.microsoft.com/en-us/dotnet/csharp/tuples).
+
 ## 1.14
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.13...1.14).
 

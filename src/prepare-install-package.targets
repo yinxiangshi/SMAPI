@@ -31,6 +31,7 @@
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.config.json" DestinationFolder="$(PackageInternalPath)\Mono" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\System.Numerics.dll" DestinationFolder="$(PackageInternalPath)\Mono" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\System.Runtime.Caching.dll" DestinationFolder="$(PackageInternalPath)\Mono" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\System.ValueTuple.dll" DestinationFolder="$(PackageInternalPath)\Mono" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\unix-launcher.sh" DestinationFiles="$(PackageInternalPath)\Mono\StardewModdingAPI" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\steam_appid.txt" DestinationFolder="$(PackageInternalPath)\Mono" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="@(CompiledMods)" DestinationFolder="$(PackageInternalPath)\Mono\Mods\%(RecursiveDir)" />
@@ -43,6 +44,7 @@
     <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.xml" DestinationFolder="$(PackageInternalPath)\Windows" />
     <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.AssemblyRewriters.dll" DestinationFolder="$(PackageInternalPath)\Windows" />
     <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.config.json" DestinationFolder="$(PackageInternalPath)\Windows" />
+    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\System.ValueTuple.dll" DestinationFolder="$(PackageInternalPath)\Windows" />
     <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\steam_appid.txt" DestinationFolder="$(PackageInternalPath)\Windows" />
     <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="@(CompiledMods)" DestinationFolder="$(PackageInternalPath)\Windows\Mods\%(RecursiveDir)" />
   </Target>

@@ -79,6 +79,9 @@
     <Reference Include="System.Runtime.Caching">
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.3.1\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Windows.Forms" Condition="$(OS) == 'Windows_NT'" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -263,6 +266,7 @@
     <Copy SourceFiles="$(TargetDir)\$(TargetName).xml" DestinationFolder="$(GamePath)" />
     <Copy SourceFiles="$(TargetDir)\Newtonsoft.Json.dll" DestinationFolder="$(GamePath)" />
     <Copy SourceFiles="$(TargetDir)\Mono.Cecil.dll" DestinationFolder="$(GamePath)" />
+    <Copy SourceFiles="$(TargetDir)\System.ValueTuple.dll" DestinationFolder="$(GamePath)" />
   </Target>
 
   <!-- launch SMAPI on debug -->
