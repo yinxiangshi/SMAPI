@@ -17,6 +17,7 @@ For players:
 * SMAPI will no longer load mods known to be obsolete or unneeded.
 
 For modders:
+* You can now specify minimum dependency versions in `manifest.json`.
 * Added `System.ValueTuple.dll` to the SMAPI install package so mods can use [C# 7 value tuples](https://docs.microsoft.com/en-us/dotnet/csharp/tuples).
 
 ## 1.14

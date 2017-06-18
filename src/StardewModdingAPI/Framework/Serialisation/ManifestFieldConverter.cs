@@ -51,7 +51,8 @@ namespace StardewModdingAPI.Framework.Serialisation
                 foreach (JObject obj in JArray.Load(reader).Children<JObject>())
                 {
                     string uniqueID = obj.Value<string>(nameof(IManifestDependency.UniqueID));
-                    result.Add(new ManifestDependency(uniqueID));
+                    string minVersion = obj.Value<string>(nameof(IManifestDependency.MinimumVersion));
+                    result.Add(new ManifestDependency(uniqueID, minVersion));
                 }
                 return result.ToArray();
             }

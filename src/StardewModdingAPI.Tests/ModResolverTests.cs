@@ -160,7 +160,7 @@ namespace StardewModdingAPI.Tests
             Mock<IModMetadata> mock = new Mock<IModMetadata>(MockBehavior.Strict);
             mock.Setup(p => p.Status).Returns(ModMetadataStatus.Found);
             mock.Setup(p => p.Compatibility).Returns(() => null);
-            mock.Setup(p => p.Manifest).Returns(this.GetRandomManifest(m => m.MinimumApiVersion = "1.1"));
+            mock.Setup(p => p.Manifest).Returns(this.GetManifest(m => m.MinimumApiVersion = "1.1"));
             mock.Setup(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>())).Returns(() => mock.Object);
 
             // act
@@ -177,7 +177,7 @@ namespace StardewModdingAPI.Tests
             Mock<IModMetadata> mock = new Mock<IModMetadata>(MockBehavior.Strict);
             mock.Setup(p => p.Status).Returns(ModMetadataStatus.Found);
             mock.Setup(p => p.Compatibility).Returns(() => null);
-            mock.Setup(p => p.Manifest).Returns(this.GetRandomManifest());
+            mock.Setup(p => p.Manifest).Returns(this.GetManifest());
             mock.Setup(p => p.DirectoryPath).Returns(Path.GetTempPath());
             mock.Setup(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>())).Returns(() => mock.Object);
 
@@ -192,7 +192,7 @@ namespace StardewModdingAPI.Tests
         public void ValidateManifests_Valid_Passes()
         {
             // set up manifest
-            IManifest manifest = this.GetRandomManifest();
+            IManifest manifest = this.GetManifest();
 
             // create DLL
             string modFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
@@ -231,9 +231,9 @@ namespace StardewModdingAPI.Tests
         {
             // arrange
             // A B C
-            Mock<IModMetadata> modA = this.GetMetadataForDependencyTest("Mod A");
-            Mock<IModMetadata> modB = this.GetMetadataForDependencyTest("Mod B");
-            Mock<IModMetadata> modC = this.GetMetadataForDependencyTest("Mod C");
+            Mock<IModMetadata> modA = this.GetMetadata("Mod A");
+            Mock<IModMetadata> modB = this.GetMetadata("Mod B");
+            Mock<IModMetadata> modC = this.GetMetadata("Mod C");
 
             // act
             IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modA.Object, modB.Object, modC.Object }).ToArray();
@@ -267,9 +267,9 @@ namespace StardewModdingAPI.Tests
             // ▲     ▲
             // │     │
             // └─ C ─┘
-            Mock<IModMetadata> modA = this.GetMetadataForDependencyTest("Mod A");
-            Mock<IModMetadata> modB = this.GetMetadataForDependencyTest("Mod B", dependencies: new[] { "Mod A" });
-            Mock<IModMetadata> modC = this.GetMetadataForDependencyTest("Mod C", dependencies: new[] { "Mod A", "Mod B" });
+            Mock<IModMetadata> modA = this.GetMetadata("Mod A");
+            Mock<IModMetadata> modB = this.GetMetadata("Mod B", dependencies: new[] { "Mod A" });
+            Mock<IModMetadata> modC = this.GetMetadata("Mod C", dependencies: new[] { "Mod A", "Mod B" });
 
             // act
             IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modC.Object, modA.Object, modB.Object }).ToArray();
@@ -286,10 +286,10 @@ namespace StardewModdingAPI.Tests
         {
             // arrange
             // A ◀── B ◀── C ◀── D
-            Mock<IModMetadata> modA = this.GetMetadataForDependencyTest("Mod A");
-            Mock<IModMetadata> modB = this.GetMetadataForDependencyTest("Mod B", dependencies: new[] { "Mod A" });
-            Mock<IModMetadata> modC = this.GetMetadataForDependencyTest("Mod C", dependencies: new[] { "Mod B" });
-            Mock<IModMetadata> modD = this.GetMetadataForDependencyTest("Mod D", dependencies: new[] { "Mod C" });
+            Mock<IModMetadata> modA = this.GetMetadata("Mod A");
+            Mock<IModMetadata> modB = this.GetMetadata("Mod B", dependencies: new[] { "Mod A" });
+            Mock<IModMetadata> modC = this.GetMetadata("Mod C", dependencies: new[] { "Mod B" });
+            Mock<IModMetadata> modD = this.GetMetadata("Mod D", dependencies: new[] { "Mod C" });
 
             // act
             IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modC.Object, modA.Object, modB.Object, modD.Object }).ToArray();
@@ -310,12 +310,12 @@ namespace StardewModdingAPI.Tests
             //       ▲     ▲
             //       │     │
             //       E ◀── F
-            Mock<IModMetadata> modA = this.GetMetadataForDependencyTest("Mod A");
-            Mock<IModMetadata> modB = this.GetMetadataForDependencyTest("Mod B", dependencies: new[] { "Mod A" });
-            Mock<IModMetadata> modC = this.GetMetadataForDependencyTest("Mod C", dependencies: new[] { "Mod B" });
-            Mock<IModMetadata> modD = this.GetMetadataForDependencyTest("Mod D", dependencies: new[] { "Mod C" });
-            Mock<IModMetadata> modE = this.GetMetadataForDependencyTest("Mod E", dependencies: new[] { "Mod B" });
-            Mock<IModMetadata> modF = this.GetMetadataForDependencyTest("Mod F", dependencies: new[] { "Mod C", "Mod E" });
+            Mock<IModMetadata> modA = this.GetMetadata("Mod A");
+            Mock<IModMetadata> modB = this.GetMetadata("Mod B", dependencies: new[] { "Mod A" });
+            Mock<IModMetadata> modC = this.GetMetadata("Mod C", dependencies: new[] { "Mod B" });
+            Mock<IModMetadata> modD = this.GetMetadata("Mod D", dependencies: new[] { "Mod C" });
+            Mock<IModMetadata> modE = this.GetMetadata("Mod E", dependencies: new[] { "Mod B" });
+            Mock<IModMetadata> modF = this.GetMetadata("Mod F", dependencies: new[] { "Mod C", "Mod E" });
 
             // act
             IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modC.Object, modA.Object, modB.Object, modD.Object, modF.Object, modE.Object }).ToArray();
@@ -338,11 +338,11 @@ namespace StardewModdingAPI.Tests
             //             ▲     │
             //             │     ▼
             //             └──── E
-            Mock<IModMetadata> modA = this.GetMetadataForDependencyTest("Mod A");
-            Mock<IModMetadata> modB = this.GetMetadataForDependencyTest("Mod B", dependencies: new[] { "Mod A" });
-            Mock<IModMetadata> modC = this.GetMetadataForDependencyTest("Mod C", dependencies: new[] { "Mod B", "Mod D" }, allowStatusChange: true);
-            Mock<IModMetadata> modD = this.GetMetadataForDependencyTest("Mod D", dependencies: new[] { "Mod E" }, allowStatusChange: true);
-            Mock<IModMetadata> modE = this.GetMetadataForDependencyTest("Mod E", dependencies: new[] { "Mod C" }, allowStatusChange: true);
+            Mock<IModMetadata> modA = this.GetMetadata("Mod A");
+            Mock<IModMetadata> modB = this.GetMetadata("Mod B", dependencies: new[] { "Mod A" });
+            Mock<IModMetadata> modC = this.GetMetadata("Mod C", dependencies: new[] { "Mod B", "Mod D" }, allowStatusChange: true);
+            Mock<IModMetadata> modD = this.GetMetadata("Mod D", dependencies: new[] { "Mod E" }, allowStatusChange: true);
+            Mock<IModMetadata> modE = this.GetMetadata("Mod E", dependencies: new[] { "Mod C" }, allowStatusChange: true);
 
             // act
             IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modC.Object, modA.Object, modB.Object, modD.Object, modE.Object }).ToArray();
@@ -361,9 +361,9 @@ namespace StardewModdingAPI.Tests
         {
             // arrange
             // A ◀── B ◀── C   D (failed)
-            Mock<IModMetadata> modA = this.GetMetadataForDependencyTest("Mod A");
-            Mock<IModMetadata> modB = this.GetMetadataForDependencyTest("Mod B", dependencies: new[] { "Mod A" });
-            Mock<IModMetadata> modC = this.GetMetadataForDependencyTest("Mod C", dependencies: new[] { "Mod B" }, allowStatusChange: true);
+            Mock<IModMetadata> modA = this.GetMetadata("Mod A");
+            Mock<IModMetadata> modB = this.GetMetadata("Mod B", dependencies: new[] { "Mod A" });
+            Mock<IModMetadata> modC = this.GetMetadata("Mod C", dependencies: new[] { "Mod B" }, allowStatusChange: true);
             Mock<IModMetadata> modD = new Mock<IModMetadata>(MockBehavior.Strict);
             modD.Setup(p => p.Manifest).Returns<IManifest>(null);
             modD.Setup(p => p.Status).Returns(ModMetadataStatus.Failed);
@@ -378,13 +378,47 @@ namespace StardewModdingAPI.Tests
             Assert.AreSame(modB.Object, mods[2], "The load order is incorrect: mod B should be third since it needs mod A, and is needed by mod C.");
             Assert.AreSame(modC.Object, mods[3], "The load order is incorrect: mod C should be fourth since it needs mod B, and is needed by mod D.");
         }
+        
+        [Test(Description = "Assert that dependencies are failed if they don't meet the minimum version.")]
+        public void ProcessDependencies_WithMinVersions_FailsIfNotMet()
+        {
+            // arrange
+            // A 1.0 ◀── B (need A 1.1)
+            Mock<IModMetadata> modA = this.GetMetadata(this.GetManifest("Mod A", "1.0"));
+            Mock<IModMetadata> modB = this.GetMetadata(this.GetManifest("Mod B", "1.0", new ManifestDependency("Mod A", "1.1")), allowStatusChange: true);
+
+            // act
+            IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modA.Object, modB.Object }).ToArray();
+
+            // assert
+            Assert.AreEqual(2, mods.Length, 0, "Expected to get the same number of mods input.");
+            modB.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>()), Times.Once, "Mod B unexpectedly didn't fail even though it needs a newer version of Mod A.");
+        }
+
+        [Test(Description = "Assert that dependencies are accepted if they meet the minimum version.")]
+        public void ProcessDependencies_WithMinVersions_SucceedsIfMet()
+        {
+            // arrange
+            // A 1.0 ◀── B (need A 1.0-beta)
+            Mock<IModMetadata> modA = this.GetMetadata(this.GetManifest("Mod A", "1.0"));
+            Mock<IModMetadata> modB = this.GetMetadata(this.GetManifest("Mod B", "1.0", new ManifestDependency("Mod A", "1.0-beta")), allowStatusChange: false);
+
+            // act
+            IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modA.Object, modB.Object }).ToArray();
+
+            // assert
+            Assert.AreEqual(2, mods.Length, 0, "Expected to get the same number of mods input.");
+            Assert.AreSame(modA.Object, mods[0], "The load order is incorrect: mod A should be first since it's needed by mod B.");
+            Assert.AreSame(modB.Object, mods[1], "The load order is incorrect: mod B should be second since it needs mod A.");
+        }
+
 
         /*********
         ** Private methods
         *********/
         /// <summary>Get a randomised basic manifest.</summary>
         /// <param name="adjust">Adjust the generated manifest.</param>
-        private Manifest GetRandomManifest(Action<Manifest> adjust = null)
+        private Manifest GetManifest(Action<Manifest> adjust = null)
         {
             Manifest manifest = new Manifest
             {
@@ -401,26 +435,50 @@ namespace StardewModdingAPI.Tests
 
         /// <summary>Get a randomised basic manifest.</summary>
         /// <param name="uniqueID">The mod's name and unique ID.</param>
+        /// <param name="version">The mod version.</param>
+        /// <param name="dependencies">The dependencies this mod requires.</param>
+        private IManifest GetManifest(string uniqueID, string version, params IManifestDependency[] dependencies)
+        {
+            return this.GetManifest(manifest =>
+            {
+                manifest.Name = uniqueID;
+                manifest.UniqueID = uniqueID;
+                manifest.Version = new SemanticVersion(version);
+                manifest.Dependencies = dependencies;
+            });
+        }
+
+        /// <summary>Get a randomised basic manifest.</summary>
+        /// <param name="uniqueID">The mod's name and unique ID.</param>
+        private Mock<IModMetadata> GetMetadata(string uniqueID)
+        {
+            return this.GetMetadata(this.GetManifest(uniqueID, "1.0"));
+        }
+
+        /// <summary>Get a randomised basic manifest.</summary>
+        /// <param name="uniqueID">The mod's name and unique ID.</param>
         /// <param name="dependencies">The dependencies this mod requires.</param>
         /// <param name="allowStatusChange">Whether the code being tested is allowed to change the mod status.</param>
-        private Mock<IModMetadata> GetMetadataForDependencyTest(string uniqueID, string[] dependencies = null, bool allowStatusChange = false)
+        private Mock<IModMetadata> GetMetadata(string uniqueID, string[] dependencies, bool allowStatusChange = false)
+        {
+            IManifest manifest = this.GetManifest(uniqueID, "1.0", dependencies?.Select(dependencyID => (IManifestDependency)new ManifestDependency(dependencyID, null)).ToArray());
+            return this.GetMetadata(manifest, allowStatusChange);
+        }
+
+        /// <summary>Get a randomised basic manifest.</summary>
+        /// <param name="manifest">The mod manifest.</param>
+        /// <param name="allowStatusChange">Whether the code being tested is allowed to change the mod status.</param>
+        private Mock<IModMetadata> GetMetadata(IManifest manifest, bool allowStatusChange = false)
         {
             Mock<IModMetadata> mod = new Mock<IModMetadata>(MockBehavior.Strict);
             mod.Setup(p => p.Status).Returns(ModMetadataStatus.Found);
-            mod.Setup(p => p.DisplayName).Returns(uniqueID);
-            mod.Setup(p => p.Manifest).Returns(
-                this.GetRandomManifest(manifest =>
-                {
-                    manifest.Name = uniqueID;
-                    manifest.UniqueID = uniqueID;
-                    manifest.Dependencies = dependencies?.Select(dependencyID => (IManifestDependency)new ManifestDependency(dependencyID)).ToArray();
-                })
-            );
+            mod.Setup(p => p.DisplayName).Returns(manifest.UniqueID);
+            mod.Setup(p => p.Manifest).Returns(manifest);
             if (allowStatusChange)
             {
                 mod
                     .Setup(p => p.SetStatus(It.IsAny<ModMetadataStatus>(), It.IsAny<string>()))
-                    .Callback<ModMetadataStatus, string>((status, message) => Console.WriteLine($"<{uniqueID} changed status: [{status}] {message}"))
+                    .Callback<ModMetadataStatus, string>((status, message) => Console.WriteLine($"<{manifest.UniqueID} changed status: [{status}] {message}"))
                     .Returns(mod.Object);
             }
             return mod;

@@ -205,20 +205,40 @@ namespace StardewModdingAPI.Framework.ModLoading
                 return states[mod] = ModDependencyStatus.Sorted;
             }
 
+            // get dependencies
+            var dependencies =
+                (
+                    from entry in mod.Manifest.Dependencies
+                    let dependencyMod = mods.FirstOrDefault(m => string.Equals(m.Manifest?.UniqueID, entry.UniqueID, StringComparison.InvariantCultureIgnoreCase))
+                    orderby entry.UniqueID
+                    select (ID: entry.UniqueID, MinVersion: entry.MinimumVersion, Mod: dependencyMod)
+                )
+                .ToArray();
+
             // missing required dependencies, mark failed
             {
-                string[] missingModIDs =
-                    (
-                        from dependency in mod.Manifest.Dependencies
-                        where mods.All(m => m.Manifest?.UniqueID != dependency.UniqueID)
-                        orderby dependency.UniqueID
-                        select dependency.UniqueID
-                    )
-                    .ToArray();
-                if (missingModIDs.Any())
+                string[] failedIDs = (from entry in dependencies where entry.Mod == null select entry.ID).ToArray();
+                if (failedIDs.Any())
                 {
                     sortedMods.Push(mod);
-                    mod.SetStatus(ModMetadataStatus.Failed, $"it requires mods which aren't installed ({string.Join(", ", missingModIDs)}).");
+                    mod.SetStatus(ModMetadataStatus.Failed, $"it requires mods which aren't installed ({string.Join(", ", failedIDs)}).");
+                    return states[mod] = ModDependencyStatus.Failed;
+                }
+            }
+
+            // dependency min version not met, mark failed
+            {
+                string[] failedLabels =
+                    (
+                        from entry in dependencies
+                        where entry.MinVersion != null && entry.MinVersion.IsNewerThan(entry.Mod.Manifest.Version)
+                        select $"{entry.Mod.DisplayName} (needs {entry.MinVersion} or later)"
+                    )
+                    .ToArray();
+                if (failedLabels.Any())
+                {
+                    sortedMods.Push(mod);
+                    mod.SetStatus(ModMetadataStatus.Failed, $"it needs newer versions of some mods: {string.Join(", ", failedLabels)}.");
                     return states[mod] = ModDependencyStatus.Failed;
                 }
             }
@@ -227,16 +247,8 @@ namespace StardewModdingAPI.Framework.ModLoading
             {
                 states[mod] = ModDependencyStatus.Checking;
 
-                // get mods to load first
-                IModMetadata[] modsToLoadFirst =
-                    (
-                        from other in mods
-                        where mod.Manifest.Dependencies.Any(required => required.UniqueID == other.Manifest?.UniqueID)
-                        select other
-                    )
-                    .ToArray();
-
                 // recursively sort dependencies
+                IModMetadata[] modsToLoadFirst = dependencies.Select(p => p.Mod).ToArray();
                 foreach (IModMetadata requiredMod in modsToLoadFirst)
                 {
                     var subchain = new List<IModMetadata>(currentChain) { mod };

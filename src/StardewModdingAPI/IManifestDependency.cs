@@ -8,5 +8,8 @@
         *********/
         /// <summary>The unique mod ID to require.</summary>
         string UniqueID { get; }
+
+        /// <summary>The minimum required version (if any).</summary>
+        ISemanticVersion MinimumVersion { get; }
     }
 }
