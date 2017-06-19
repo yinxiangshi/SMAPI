@@ -36,12 +36,25 @@ namespace StardewModdingAPI.Framework.Serialisation
             // semantic version
             if (objectType == typeof(ISemanticVersion))
             {
-                JObject obj = JObject.Load(reader);
-                int major = obj.Value<int>(nameof(ISemanticVersion.MajorVersion));
-                int minor = obj.Value<int>(nameof(ISemanticVersion.MinorVersion));
-                int patch = obj.Value<int>(nameof(ISemanticVersion.PatchVersion));
-                string build = obj.Value<string>(nameof(ISemanticVersion.Build));
-                return new SemanticVersion(major, minor, patch, build);
+                JToken token = JToken.Load(reader);
+                switch (token.Type)
+                {
+                    case JTokenType.Object:
+                        {
+                            JObject obj = (JObject)token;
+                            int major = obj.Value<int>(nameof(ISemanticVersion.MajorVersion));
+                            int minor = obj.Value<int>(nameof(ISemanticVersion.MinorVersion));
+                            int patch = obj.Value<int>(nameof(ISemanticVersion.PatchVersion));
+                            string build = obj.Value<string>(nameof(ISemanticVersion.Build));
+                            return new SemanticVersion(major, minor, patch, build);
+                        }
+
+                    case JTokenType.String:
+                        return new SemanticVersion(token.Value<string>());
+
+                    default:
+                        throw new FormatException($"Can't parse {token.Type} token as a semantic version, must be an object or string.");
+                }
             }
 
             // manifest dependency

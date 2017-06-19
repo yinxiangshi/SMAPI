@@ -5,6 +5,7 @@
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.10...2.0).
 
 For mod developers:
+* The manifest.json version can now be specified as a string.
 * Added `ContentEvents.AssetLoading` event with a helper which lets you intercept the XNB content
   load, and dynamically adjust or replace the content being loaded (including support for patching
   images).
