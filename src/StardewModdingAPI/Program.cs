@@ -355,7 +355,7 @@ namespace StardewModdingAPI
 
             // validate XNB integrity
             if (!this.ValidateContentIntegrity())
-                this.Monitor.Log("SMAPI found problems in the game's XNB files which may cause errors or crashes while you're playing. Consider uninstalling XNB mods or reinstalling the game.", LogLevel.Warn);
+                this.Monitor.Log("SMAPI found problems in your game's content files which are likely to cause errors or crashes. Consider uninstalling XNB mods or reinstalling the game.", LogLevel.Error);
 
             // load mods
             int modsLoaded;
@@ -486,17 +486,18 @@ namespace StardewModdingAPI
             this.Monitor.Log("Detecting common issues...");
             bool issuesFound = false;
 
-
-            // object format (commonly broken by outdated files)
+            // object format (commonly broken by outdated mods)
             {
-                void LogIssue(int id, string issue) => this.Monitor.Log($"Detected issue: item #{id} in Content\\Data\\ObjectInformation is invalid ({issue}).", LogLevel.Warn);
+                // detect issues
+                bool hasObjectIssues = false;
+                void LogIssue(int id, string issue) => this.Monitor.Log($@"Detected issue: item #{id} in Content\Data\ObjectInformation.xnb is invalid ({issue}).", LogLevel.Trace);
                 foreach (KeyValuePair<int, string> entry in Game1.objectInformation)
                 {
                     // must not be empty
                     if (string.IsNullOrWhiteSpace(entry.Value))
                     {
                         LogIssue(entry.Key, "entry is empty");
-                        issuesFound = true;
+                        hasObjectIssues = true;
                         continue;
                     }
 
@@ -505,7 +506,7 @@ namespace StardewModdingAPI
                     if (fields.Length < SObject.objectInfoDescriptionIndex + 1)
                     {
                         LogIssue(entry.Key, "too few fields for an object");
-                        issuesFound = true;
+                        hasObjectIssues = true;
                         continue;
                     }
 
@@ -516,10 +517,17 @@ namespace StardewModdingAPI
                             if (fields.Length < SObject.objectInfoBuffDurationIndex + 1)
                             {
                                 LogIssue(entry.Key, "too few fields for a cooking item");
-                                issuesFound = true;
+                                hasObjectIssues = true;
                             }
                             break;
                     }
+                }
+
+                // log error
+                if (hasObjectIssues)
+                {
+                    issuesFound = true;
+                    this.Monitor.Log(@"Your Content\Data\ObjectInformation.xnb file seems to be broken or outdated.", LogLevel.Warn);
                 }
             }
 
