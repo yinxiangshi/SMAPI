@@ -151,6 +151,7 @@
     <Compile Include="Framework\Reflection\PrivateProperty.cs" />
     <Compile Include="Framework\RequestExitDelegate.cs" />
     <Compile Include="Framework\SContentManager.cs" />
+    <Compile Include="Framework\Exceptions\SParseException.cs" />
     <Compile Include="Framework\Serialisation\JsonHelper.cs" />
     <Compile Include="Framework\Serialisation\SelectiveStringEnumConverter.cs" />
     <Compile Include="Framework\Serialisation\ManifestFieldConverter.cs" />

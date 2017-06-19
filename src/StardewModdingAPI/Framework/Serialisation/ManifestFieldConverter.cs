@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.Models;
 
 namespace StardewModdingAPI.Framework.Serialisation
@@ -50,10 +51,17 @@ namespace StardewModdingAPI.Framework.Serialisation
                         }
 
                     case JTokenType.String:
-                        return new SemanticVersion(token.Value<string>());
+                        {
+                            string str = token.Value<string>();
+                            if (string.IsNullOrWhiteSpace(str))
+                                return null;
+                            if (!SemanticVersion.TryParse(str, out ISemanticVersion version))
+                                throw new SParseException($"Can't parse semantic version from invalid value '{str}', should be formatted like 1.2, 1.2.30, or 1.2.30-beta.");
+                            return version;
+                        }
 
                     default:
-                        throw new FormatException($"Can't parse {token.Type} token as a semantic version, must be an object or string.");
+                        throw new SParseException($"Can't parse semantic version from {token.Type}, must be an object or string.");
                 }
             }
 

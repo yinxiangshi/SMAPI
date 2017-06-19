@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.Models;
 using StardewModdingAPI.Framework.Serialisation;
 
@@ -44,6 +45,10 @@ namespace StardewModdingAPI.Framework.ModLoading
                     }
                     else if (string.IsNullOrWhiteSpace(manifest.EntryDll))
                         error = "its manifest doesn't set an entry DLL.";
+                }
+                catch (SParseException ex)
+                {
+                    error = $"parsing its manifest failed: {ex.Message}";
                 }
                 catch (Exception ex)
                 {
