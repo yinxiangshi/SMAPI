@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -15,10 +16,35 @@ namespace StardewModdingAPI.Tests
         ** Properties
         *********/
         /// <summary>All valid seasons.</summary>
-        private static string[] ValidSeasons = { "spring", "summer", "fall", "winter" };
+        private static readonly string[] ValidSeasons = { "spring", "summer", "fall", "winter" };
 
         /// <summary>All valid days of a month.</summary>
-        private static int[] ValidDays = Enumerable.Range(1, 28).ToArray();
+        private static readonly int[] ValidDays = Enumerable.Range(1, 28).ToArray();
+
+        /// <summary>Sample relative dates for test cases.</summary>
+        private static class Dates
+        {
+            /// <summary>The base date to which other dates are relative.</summary>
+            public const string Now = "02 summer Y2";
+
+            /// <summary>The day before <see cref="Now"/>.</summary>
+            public const string PrevDay = "01 summer Y2";
+
+            /// <summary>The month before <see cref="Now"/>.</summary>
+            public const string PrevMonth = "02 spring Y2";
+
+            /// <summary>The year before <see cref="Now"/>.</summary>
+            public const string PrevYear = "02 summer Y1";
+
+            /// <summary>The day after <see cref="Now"/>.</summary>
+            public const string NextDay = "03 summer Y2";
+
+            /// <summary>The month after <see cref="Now"/>.</summary>
+            public const string NextMonth = "02 fall Y2";
+
+            /// <summary>The year after <see cref="Now"/>.</summary>
+            public const string NextYear = "02 summer Y3";
+        }
 
 
         /*********
@@ -63,7 +89,7 @@ namespace StardewModdingAPI.Tests
         [TestCase("01 winter Y1", ExpectedResult = "01 winter Y1")]
         public string ToString(string dateStr)
         {
-            return this.ParseDate(dateStr).ToString();
+            return this.GetDate(dateStr).ToString();
         }
 
         /****
@@ -80,58 +106,132 @@ namespace StardewModdingAPI.Tests
         [TestCase("01 spring Y3", -(28 * 7 + 17), ExpectedResult = "12 spring Y1")] // negative year transition
         public string AddDays(string dateStr, int addDays)
         {
-            return this.ParseDate(dateStr).AddDays(addDays).ToString();
+            return this.GetDate(dateStr).AddDays(addDays).ToString();
         }
 
-        [Test(Description = "Assert that the equality operators work as expected")]
-        public void EqualityOperators()
+        /****
+        ** GetHashCode
+        ****/
+        [Test(Description = "Assert that GetHashCode returns a unique ordered value for every date.")]
+        public void GetHashCode_ReturnsUniqueOrderedValue()
         {
-            SDate s1 = new SDate(1, "spring", 2);
-            SDate s2 = new SDate(1, "spring", 2);
-            SDate s3 = new SDate(1, "spring", 3);
-            SDate s4 = new SDate(12, "spring", 2);
-            SDate s5 = new SDate(1, "summer", 2);
+            IDictionary<int, SDate> hashes = new Dictionary<int, SDate>();
+            int lastHash = int.MinValue;
+            for (int year = 1; year <= 4; year++)
+            {
+                foreach (string season in SDateTests.ValidSeasons)
+                {
+                    foreach (int day in SDateTests.ValidDays)
+                    {
+                        SDate date = new SDate(day, season, year);
+                        int hash = date.GetHashCode();
+                        if (hashes.TryGetValue(hash, out SDate otherDate))
+                            Assert.Fail($"Received identical hash code {hash} for dates {otherDate} and {date}.");
+                        if (hash < lastHash)
+                            Assert.Fail($"Received smaller hash code for date {date} ({hash}) relative to {hashes[lastHash]} ({lastHash}).");
 
-            Assert.AreEqual(true, s1 == s2);
-            Assert.AreNotEqual(true, s1 == s3);
-            Assert.AreNotEqual(true, s1 == s4);
-            Assert.AreNotEqual(true, s1 == s5);
+                        lastHash = hash;
+                        hashes[hash] = date;
+                    }
+                }
+            }
         }
 
-        [Test(Description = "Assert that the comparison operators work as expected")]
-        public void ComparisonOperators()
+        [Test(Description = "Assert that the == operator returns the expected values. We only need a few test cases, since it's based on GetHashCode which is tested more thoroughly.")]
+        [TestCase(Dates.Now, null, ExpectedResult = false)]
+        [TestCase(Dates.Now, Dates.PrevDay, ExpectedResult = false)]
+        [TestCase(Dates.Now, Dates.PrevMonth, ExpectedResult = false)]
+        [TestCase(Dates.Now, Dates.PrevYear, ExpectedResult = false)]
+        [TestCase(Dates.Now, Dates.Now, ExpectedResult = true)]
+        [TestCase(Dates.Now, Dates.NextDay, ExpectedResult = false)]
+        [TestCase(Dates.Now, Dates.NextMonth, ExpectedResult = false)]
+        [TestCase(Dates.Now, Dates.NextYear, ExpectedResult = false)]
+        public bool Operators_Equals(string now, string other)
         {
-            SDate s1 = new SDate(1, "spring", 2);
-            SDate s2 = new SDate(1, "spring", 2);
-            SDate s3 = new SDate(1, "spring", 3);
-            SDate s4 = new SDate(12, "spring", 2);
-            SDate s5 = new SDate(1, "summer", 2);
-            SDate s6 = new SDate(1, "winter", 1);
-            SDate s7 = new SDate(13, "fall", 1);
-
-            Assert.AreEqual(true, s1 <= s2);
-            Assert.AreEqual(true, s1 >= s2);
-            Assert.AreEqual(true, s1 < s4);
-            Assert.AreEqual(true, s1 <= s4);
-            Assert.AreEqual(true, s4 > s1);
-            Assert.AreEqual(true, s4 >= s1);
-            Assert.AreEqual(true, s5 > s7);
-            Assert.AreEqual(true, s5 >= s7);
-            Assert.AreEqual(true, s6 < s5);
-            Assert.AreEqual(true, s6 <= s5);
-            Assert.AreEqual(true, s1 < s5);
-            Assert.AreEqual(true, s1 <= s5);
-            Assert.AreEqual(true, s5 > s1);
-            Assert.AreEqual(true, s5 >= s1);
+            return this.GetDate(now) == this.GetDate(other);
         }
+
+        [Test(Description = "Assert that the != operator returns the expected values. We only need a few test cases, since it's based on GetHashCode which is tested more thoroughly.")]
+        [TestCase(Dates.Now, null, ExpectedResult = true)]
+        [TestCase(Dates.Now, Dates.PrevDay, ExpectedResult = true)]
+        [TestCase(Dates.Now, Dates.PrevMonth, ExpectedResult = true)]
+        [TestCase(Dates.Now, Dates.PrevYear, ExpectedResult = true)]
+        [TestCase(Dates.Now, Dates.Now, ExpectedResult = false)]
+        [TestCase(Dates.Now, Dates.NextDay, ExpectedResult = true)]
+        [TestCase(Dates.Now, Dates.NextMonth, ExpectedResult = true)]
+        [TestCase(Dates.Now, Dates.NextYear, ExpectedResult = true)]
+        public bool Operators_NotEquals(string now, string other)
+        {
+            return this.GetDate(now) != this.GetDate(other);
+        }
+
+        [Test(Description = "Assert that the < operator returns the expected values. We only need a few test cases, since it's based on GetHashCode which is tested more thoroughly.")]
+        [TestCase(Dates.Now, null, ExpectedResult = false)]
+        [TestCase(Dates.Now, Dates.PrevDay, ExpectedResult = false)]
+        [TestCase(Dates.Now, Dates.PrevMonth, ExpectedResult = false)]
+        [TestCase(Dates.Now, Dates.PrevYear, ExpectedResult = false)]
+        [TestCase(Dates.Now, Dates.Now, ExpectedResult = false)]
+        [TestCase(Dates.Now, Dates.NextDay, ExpectedResult = true)]
+        [TestCase(Dates.Now, Dates.NextMonth, ExpectedResult = true)]
+        [TestCase(Dates.Now, Dates.NextYear, ExpectedResult = true)]
+        public bool Operators_LessThan(string now, string other)
+        {
+            return this.GetDate(now) < this.GetDate(other);
+        }
+
+        [Test(Description = "Assert that the <= operator returns the expected values. We only need a few test cases, since it's based on GetHashCode which is tested more thoroughly.")]
+        [TestCase(Dates.Now, null, ExpectedResult = false)]
+        [TestCase(Dates.Now, Dates.PrevDay, ExpectedResult = false)]
+        [TestCase(Dates.Now, Dates.PrevMonth, ExpectedResult = false)]
+        [TestCase(Dates.Now, Dates.PrevYear, ExpectedResult = false)]
+        [TestCase(Dates.Now, Dates.Now, ExpectedResult = true)]
+        [TestCase(Dates.Now, Dates.NextDay, ExpectedResult = true)]
+        [TestCase(Dates.Now, Dates.NextMonth, ExpectedResult = true)]
+        [TestCase(Dates.Now, Dates.NextYear, ExpectedResult = true)]
+        public bool Operators_LessThanOrEqual(string now, string other)
+        {
+            return this.GetDate(now) <= this.GetDate(other);
+        }
+
+        [Test(Description = "Assert that the > operator returns the expected values. We only need a few test cases, since it's based on GetHashCode which is tested more thoroughly.")]
+        [TestCase(Dates.Now, null, ExpectedResult = false)]
+        [TestCase(Dates.Now, Dates.PrevDay, ExpectedResult = true)]
+        [TestCase(Dates.Now, Dates.PrevMonth, ExpectedResult = true)]
+        [TestCase(Dates.Now, Dates.PrevYear, ExpectedResult = true)]
+        [TestCase(Dates.Now, Dates.Now, ExpectedResult = false)]
+        [TestCase(Dates.Now, Dates.NextDay, ExpectedResult = false)]
+        [TestCase(Dates.Now, Dates.NextMonth, ExpectedResult = false)]
+        [TestCase(Dates.Now, Dates.NextYear, ExpectedResult = false)]
+        public bool Operators_MoreThan(string now, string other)
+        {
+            return this.GetDate(now) > this.GetDate(other);
+        }
+
+        [Test(Description = "Assert that the > operator returns the expected values. We only need a few test cases, since it's based on GetHashCode which is tested more thoroughly.")]
+        [TestCase(Dates.Now, null, ExpectedResult = false)]
+        [TestCase(Dates.Now, Dates.PrevDay, ExpectedResult = true)]
+        [TestCase(Dates.Now, Dates.PrevMonth, ExpectedResult = true)]
+        [TestCase(Dates.Now, Dates.PrevYear, ExpectedResult = true)]
+        [TestCase(Dates.Now, Dates.Now, ExpectedResult = false)]
+        [TestCase(Dates.Now, Dates.NextDay, ExpectedResult = false)]
+        [TestCase(Dates.Now, Dates.NextMonth, ExpectedResult = false)]
+        [TestCase(Dates.Now, Dates.NextYear, ExpectedResult = false)]
+        public bool Operators_MoreThanOrEqual(string now, string other)
+        {
+            return this.GetDate(now) > this.GetDate(other);
+        }
+
 
         /*********
         ** Private methods
         *********/
         /// <summary>Convert a string date into a game date, to make unit tests easier to read.</summary>
         /// <param name="dateStr">The date string like "dd MMMM yy".</param>
-        private SDate ParseDate(string dateStr)
+        private SDate GetDate(string dateStr)
         {
+            if (dateStr == null)
+                return null;
+
             void Fail(string reason) => throw new AssertionException($"Couldn't parse date '{dateStr}' because {reason}.");
 
             // parse
