@@ -73,19 +73,138 @@ namespace StardewModdingAPI.Tests.Utilities
                 this.AssertAndLogException<FormatException>(() => new SemanticVersion(input));
         }
 
-        //[Test(Description = "Assert that the constructor throws an exception if the values are invalid.")]
-        //[TestCase(01, "Spring", 1)] // seasons are case-sensitive
-        //[TestCase(01, "springs", 1)] // invalid season name
-        //[TestCase(-1, "spring", 1)] // day < 0
-        //[TestCase(29, "spring", 1)] // day > 28
-        //[TestCase(01, "spring", -1)] // year < 1
-        //[TestCase(01, "spring", 0)] // year < 1
-        //[SuppressMessage("ReSharper", "AssignmentIsFullyDiscarded", Justification = "Deliberate for unit test.")]
-        //public void Constructor_RejectsInvalidValues(int day, string season, int year)
-        //{
-        //    // act & assert
-        //    Assert.Throws<ArgumentException>(() => _ = new SDate(day, season, year), "Constructing the invalid date didn't throw the expected exception.");
-        //}
+        /****
+        ** CompareTo
+        ****/
+        [Test(Description = "Assert that version.CompareTo returns the expected value.")]
+        // equal
+        [TestCase("0.5.7", "0.5.7", ExpectedResult = 0)]
+        [TestCase("1.0", "1.0", ExpectedResult = 0)]
+        [TestCase("1.0-beta", "1.0-beta", ExpectedResult = 0)]
+        [TestCase("1.0-beta.10", "1.0-beta.10", ExpectedResult = 0)]
+        [TestCase("1.0-beta", "1.0-beta   ", ExpectedResult = 0)]
+
+        // less than
+        [TestCase("0.5.7", "0.5.8", ExpectedResult = -1)]
+        [TestCase("1.0", "1.1", ExpectedResult = -1)]
+        [TestCase("1.0-beta", "1.0", ExpectedResult = -1)]
+        [TestCase("1.0-beta", "1.0-beta.2", ExpectedResult = -1)]
+        [TestCase("1.0-beta.1", "1.0-beta.2", ExpectedResult = -1)]
+        [TestCase("1.0-beta.2", "1.0-beta.10", ExpectedResult = -1)]
+        [TestCase("1.0-beta-2", "1.0-beta-10", ExpectedResult = -1)]
+
+        // more than
+        [TestCase("0.5.8", "0.5.7", ExpectedResult = 1)]
+        [TestCase("1.1", "1.0", ExpectedResult = 1)]
+        [TestCase("1.0", "1.0-beta", ExpectedResult = 1)]
+        [TestCase("1.0-beta.2", "1.0-beta", ExpectedResult = 1)]
+        [TestCase("1.0-beta.2", "1.0-beta.1", ExpectedResult = 1)]
+        [TestCase("1.0-beta.10", "1.0-beta.2", ExpectedResult = 1)]
+        [TestCase("1.0-beta-10", "1.0-beta-2", ExpectedResult = 1)]
+        public int CompareTo(string versionStrA, string versionStrB)
+        {
+            ISemanticVersion versionA = new SemanticVersion(versionStrA);
+            ISemanticVersion versionB = new SemanticVersion(versionStrB);
+            return versionA.CompareTo(versionB);
+        }
+
+        /****
+        ** IsOlderThan
+        ****/
+        [Test(Description = "Assert that version.IsOlderThan returns the expected value.")]
+        // keep test cases in sync with CompareTo for simplicity.
+        // equal
+        [TestCase("0.5.7", "0.5.7", ExpectedResult = false)]
+        [TestCase("1.0", "1.0", ExpectedResult = false)]
+        [TestCase("1.0-beta", "1.0-beta", ExpectedResult = false)]
+        [TestCase("1.0-beta.10", "1.0-beta.10", ExpectedResult = false)]
+        [TestCase("1.0-beta", "1.0-beta   ", ExpectedResult = false)]
+
+        // less than
+        [TestCase("0.5.7", "0.5.8", ExpectedResult = true)]
+        [TestCase("1.0", "1.1", ExpectedResult = true)]
+        [TestCase("1.0-beta", "1.0", ExpectedResult = true)]
+        [TestCase("1.0-beta", "1.0-beta.2", ExpectedResult = true)]
+        [TestCase("1.0-beta.1", "1.0-beta.2", ExpectedResult = true)]
+        [TestCase("1.0-beta.2", "1.0-beta.10", ExpectedResult = true)]
+        [TestCase("1.0-beta-2", "1.0-beta-10", ExpectedResult = true)]
+
+        // more than
+        [TestCase("0.5.8", "0.5.7", ExpectedResult = false)]
+        [TestCase("1.1", "1.0", ExpectedResult = false)]
+        [TestCase("1.0", "1.0-beta", ExpectedResult = false)]
+        [TestCase("1.0-beta.2", "1.0-beta", ExpectedResult = false)]
+        [TestCase("1.0-beta.2", "1.0-beta.1", ExpectedResult = false)]
+        [TestCase("1.0-beta.10", "1.0-beta.2", ExpectedResult = false)]
+        [TestCase("1.0-beta-10", "1.0-beta-2", ExpectedResult = false)]
+        public bool IsOlderThan(string versionStrA, string versionStrB)
+        {
+            ISemanticVersion versionA = new SemanticVersion(versionStrA);
+            ISemanticVersion versionB = new SemanticVersion(versionStrB);
+            return versionA.IsOlderThan(versionB);
+        }
+
+        /****
+        ** IsNewerThan
+        ****/
+        [Test(Description = "Assert that version.IsNewerThan returns the expected value.")]
+        // keep test cases in sync with CompareTo for simplicity.
+        // equal
+        [TestCase("0.5.7", "0.5.7", ExpectedResult = false)]
+        [TestCase("1.0", "1.0", ExpectedResult = false)]
+        [TestCase("1.0-beta", "1.0-beta", ExpectedResult = false)]
+        [TestCase("1.0-beta.10", "1.0-beta.10", ExpectedResult = false)]
+        [TestCase("1.0-beta", "1.0-beta   ", ExpectedResult = false)]
+
+        // less than
+        [TestCase("0.5.7", "0.5.8", ExpectedResult = false)]
+        [TestCase("1.0", "1.1", ExpectedResult = false)]
+        [TestCase("1.0-beta", "1.0", ExpectedResult = false)]
+        [TestCase("1.0-beta", "1.0-beta.2", ExpectedResult = false)]
+        [TestCase("1.0-beta.1", "1.0-beta.2", ExpectedResult = false)]
+        [TestCase("1.0-beta.2", "1.0-beta.10", ExpectedResult = false)]
+        [TestCase("1.0-beta-2", "1.0-beta-10", ExpectedResult = false)]
+
+        // more than
+        [TestCase("0.5.8", "0.5.7", ExpectedResult = true)]
+        [TestCase("1.1", "1.0", ExpectedResult = true)]
+        [TestCase("1.0", "1.0-beta", ExpectedResult = true)]
+        [TestCase("1.0-beta.2", "1.0-beta", ExpectedResult = true)]
+        [TestCase("1.0-beta.2", "1.0-beta.1", ExpectedResult = true)]
+        [TestCase("1.0-beta.10", "1.0-beta.2", ExpectedResult = true)]
+        [TestCase("1.0-beta-10", "1.0-beta-2", ExpectedResult = true)]
+        public bool IsNewerThan(string versionStrA, string versionStrB)
+        {
+            ISemanticVersion versionA = new SemanticVersion(versionStrA);
+            ISemanticVersion versionB = new SemanticVersion(versionStrB);
+            return versionA.IsNewerThan(versionB);
+        }
+
+        /****
+        ** IsBetween
+        ****/
+        [Test(Description = "Assert that version.IsNewerThan returns the expected value.")]
+        // is between
+        [TestCase("0.5.7-beta.3", "0.5.7-beta.3", "0.5.7-beta.3", ExpectedResult = true)]
+        [TestCase("1.0", "1.0", "1.1", ExpectedResult = true)]
+        [TestCase("1.0", "1.0-beta", "1.1", ExpectedResult = true)]
+        [TestCase("1.0", "0.5", "1.1", ExpectedResult = true)]
+        [TestCase("1.0-beta.2", "1.0-beta.1", "1.0-beta.3", ExpectedResult = true)]
+        [TestCase("1.0-beta-2", "1.0-beta-1", "1.0-beta-3", ExpectedResult = true)]
+
+        // is not between
+        [TestCase("1.0-beta", "1.0", "1.1", ExpectedResult = false)]
+        [TestCase("1.0", "1.1", "1.0", ExpectedResult = false)]
+        [TestCase("1.0-beta.2", "1.1", "1.0", ExpectedResult = false)]
+        [TestCase("1.0-beta.2", "1.0-beta.10", "1.0-beta.3", ExpectedResult = false)]
+        [TestCase("1.0-beta-2", "1.0-beta-10", "1.0-beta-3", ExpectedResult = false)]
+        public bool IsBetween(string versionStr, string lowerStr, string upperStr)
+        {
+            ISemanticVersion lower = new SemanticVersion(lowerStr);
+            ISemanticVersion upper = new SemanticVersion(upperStr);
+            ISemanticVersion version = new SemanticVersion(versionStr);
+            return version.IsBetween(lower, upper);
+        }
 
 
         /*********
