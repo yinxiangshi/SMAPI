@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace StardewModdingAPI.Tests.Framework
+namespace StardewModdingAPI.Tests
 {
     /// <summary>Provides sample values for unit testing.</summary>
     internal static class Sample

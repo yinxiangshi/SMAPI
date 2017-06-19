@@ -5,7 +5,7 @@ using NUnit.Framework;
 using StardewModdingAPI.Framework;
 using StardewValley;
 
-namespace StardewModdingAPI.Tests
+namespace StardewModdingAPI.Tests.Core
 {
     /// <summary>Unit tests for <see cref="TranslationHelper"/> and <see cref="Translation"/>.</summary>
     [TestFixture]

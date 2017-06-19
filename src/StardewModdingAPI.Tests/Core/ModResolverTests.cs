@@ -9,9 +9,8 @@ using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.Models;
 using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Framework.Serialisation;
-using StardewModdingAPI.Tests.Framework;
 
-namespace StardewModdingAPI.Tests
+namespace StardewModdingAPI.Tests.Core
 {
     /// <summary>Unit tests for <see cref="ModResolver"/>.</summary>
     [TestFixture]
@@ -378,7 +377,7 @@ namespace StardewModdingAPI.Tests
             Assert.AreSame(modB.Object, mods[2], "The load order is incorrect: mod B should be third since it needs mod A, and is needed by mod C.");
             Assert.AreSame(modC.Object, mods[3], "The load order is incorrect: mod C should be fourth since it needs mod B, and is needed by mod D.");
         }
-        
+
         [Test(Description = "Assert that dependencies are failed if they don't meet the minimum version.")]
         public void ProcessDependencies_WithMinVersions_FailsIfNotMet()
         {
