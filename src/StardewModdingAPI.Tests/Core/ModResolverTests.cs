@@ -100,7 +100,7 @@ namespace StardewModdingAPI.Tests.Core
             Assert.AreEqual(original[nameof(IManifest.Author)], mod.Manifest.Author, "The manifest's author doesn't match.");
             Assert.AreEqual(original[nameof(IManifest.Description)], mod.Manifest.Description, "The manifest's description doesn't match.");
             Assert.AreEqual(original[nameof(IManifest.EntryDll)], mod.Manifest.EntryDll, "The manifest's entry DLL doesn't match.");
-            Assert.AreEqual(original[nameof(IManifest.MinimumApiVersion)], mod.Manifest.MinimumApiVersion, "The manifest's minimum API version doesn't match.");
+            Assert.AreEqual(original[nameof(IManifest.MinimumApiVersion)], mod.Manifest.MinimumApiVersion?.ToString(), "The manifest's minimum API version doesn't match.");
             Assert.AreEqual(original[nameof(IManifest.Version)]?.ToString(), mod.Manifest.Version?.ToString(), "The manifest's version doesn't match.");
 
             Assert.IsNotNull(mod.Manifest.ExtraFields, "The extra fields should not be null.");
@@ -159,7 +159,7 @@ namespace StardewModdingAPI.Tests.Core
             Mock<IModMetadata> mock = new Mock<IModMetadata>(MockBehavior.Strict);
             mock.Setup(p => p.Status).Returns(ModMetadataStatus.Found);
             mock.Setup(p => p.Compatibility).Returns(() => null);
-            mock.Setup(p => p.Manifest).Returns(this.GetManifest(m => m.MinimumApiVersion = "1.1"));
+            mock.Setup(p => p.Manifest).Returns(this.GetManifest(m => m.MinimumApiVersion = new SemanticVersion("1.1")));
             mock.Setup(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>())).Returns(() => mock.Object);
 
             // act

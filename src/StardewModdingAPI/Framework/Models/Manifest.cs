@@ -25,7 +25,8 @@ namespace StardewModdingAPI.Framework.Models
         public ISemanticVersion Version { get; set; }
 
         /// <summary>The minimum SMAPI version required by this mod, if any.</summary>
-        public string MinimumApiVersion { get; set; }
+        [JsonConverter(typeof(ManifestFieldConverter))]
+        public ISemanticVersion MinimumApiVersion { get; set; }
 
         /// <summary>The name of the DLL in the directory that has the <see cref="Mod.Entry"/> method.</summary>
         public string EntryDll { get; set; }

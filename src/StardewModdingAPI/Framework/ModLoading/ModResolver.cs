@@ -122,18 +122,10 @@ namespace StardewModdingAPI.Framework.ModLoading
                 }
 
                 // validate SMAPI version
-                if (!string.IsNullOrWhiteSpace(mod.Manifest.MinimumApiVersion))
+                if (mod.Manifest.MinimumApiVersion?.IsNewerThan(apiVersion) == true)
                 {
-                    if (!SemanticVersion.TryParse(mod.Manifest.MinimumApiVersion, out ISemanticVersion minVersion))
-                    {
-                        mod.SetStatus(ModMetadataStatus.Failed, $"it has an invalid minimum SMAPI version '{mod.Manifest.MinimumApiVersion}'. This should be a semantic version number like {apiVersion}.");
-                        continue;
-                    }
-                    if (minVersion.IsNewerThan(apiVersion))
-                    {
-                        mod.SetStatus(ModMetadataStatus.Failed, $"it needs SMAPI {minVersion} or later. Please update SMAPI to the latest version to use this mod.");
-                        continue;
-                    }
+                    mod.SetStatus(ModMetadataStatus.Failed, $"it needs SMAPI {mod.Manifest.MinimumApiVersion} or later. Please update SMAPI to the latest version to use this mod.");
+                    continue;
                 }
 
                 // validate DLL path
