@@ -17,10 +17,12 @@ See [log](https://github.com/Pathoschild/SMAPI/compare/1.14...1.15).
 For players:
 * SMAPI will no longer load mods known to be obsolete or unneeded.
 * When the `ObjectInformation.xnb` is broken, SMAPI will now print one error to the console instead of a warning flood. (The individual issues are still listed in the log file if needed.)
+* Mods are now listed in alphabetical order in the log.
 
 For modders:
 * You can now specify minimum dependency versions in `manifest.json`.
 * Added `System.ValueTuple.dll` to the SMAPI install package so mods can use [C# 7 value tuples](https://docs.microsoft.com/en-us/dotnet/csharp/tuples).
+* Improved trace logging when SMAPI loads mods.
 * Fixed `SemanticVersion` parsing some invalid versions into close approximations (like `1.apple` &rarr; `1.0-apple`).
 * Fixed `SemanticVersion` not treating hyphens as separators when comparing prerelease tags.  
   <small>_(While that was technically correct, it leads to unintuitive behaviour like sorting `-alpha-2` _after_ `-alpha-10`, even though `-alpha.2` sorts before `-alpha.10`.)_</small>

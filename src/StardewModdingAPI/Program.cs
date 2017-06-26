@@ -483,7 +483,7 @@ namespace StardewModdingAPI
         /// <returns>Returns whether all integrity checks passed.</returns>
         private bool ValidateContentIntegrity()
         {
-            this.Monitor.Log("Detecting common issues...");
+            this.Monitor.Log("Detecting common issues...", LogLevel.Trace);
             bool issuesFound = false;
 
             // object format (commonly broken by outdated mods)
@@ -603,6 +603,7 @@ namespace StardewModdingAPI
                 Assembly modAssembly;
                 try
                 {
+                    this.Monitor.Log($"Loading {metadata.DisplayName} from {assemblyPath.Replace(Constants.ModPath, "").TrimStart(Path.DirectorySeparatorChar)}...", LogLevel.Trace);
                     modAssembly = modAssemblyLoader.Load(assemblyPath, assumeCompatible: metadata.Compatibility?.Compatibility == ModCompatibilityType.AssumeCompatible);
                 }
                 catch (IncompatibleInstructionException ex)
@@ -659,12 +660,18 @@ namespace StardewModdingAPI
                     metadata.SetMod(mod);
                     this.ModRegistry.Add(metadata);
                     modsLoaded++;
-                    this.Monitor.Log($"Loaded {metadata.DisplayName} by {manifest.Author}, v{manifest.Version} | {manifest.Description}", LogLevel.Info);
                 }
                 catch (Exception ex)
                 {
                     LogSkip(metadata, $"initialisation failed:\n{ex.GetLogSummary()}");
                 }
+            }
+
+            // log mods
+            foreach (var metadata in this.ModRegistry.GetMods().OrderBy(p => p.DisplayName))
+            {
+                IManifest manifest = metadata.Manifest;
+                this.Monitor.Log($"Loaded {metadata.DisplayName} by {manifest.Author}, v{manifest.Version} | {manifest.Description}", LogLevel.Info);
             }
 
             // initialise translations
