@@ -4,6 +4,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
+using System.Security;
 using System.Threading;
 #if SMAPI_FOR_WINDOWS
 using System.Management;
@@ -115,6 +117,7 @@ namespace StardewModdingAPI
         }
 
         /// <summary>Launch SMAPI.</summary>
+        [HandleProcessCorruptedStateExceptions, SecurityCritical] // let try..catch handle corrupted state exceptions
         public void RunInteractively()
         {
             // initialise SMAPI
