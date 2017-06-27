@@ -668,10 +668,16 @@ namespace StardewModdingAPI
             }
 
             // log mods
+            this.Monitor.Log($"Loaded {modsLoaded} mods" + (modsLoaded > 0 ? ":" : "."), LogLevel.Info);
             foreach (var metadata in this.ModRegistry.GetMods().OrderBy(p => p.DisplayName))
             {
                 IManifest manifest = metadata.Manifest;
-                this.Monitor.Log($"Loaded {metadata.DisplayName} by {manifest.Author}, v{manifest.Version} | {manifest.Description}", LogLevel.Info);
+                this.Monitor.Log(
+                    $"   {metadata.DisplayName} {manifest.Version}"
+                        + (!string.IsNullOrWhiteSpace(manifest.Author) ? $" by {manifest.Author}" : "")
+                        + (!string.IsNullOrWhiteSpace(manifest.Description) ? $" | {manifest.Description}" : ""),
+                    LogLevel.Info
+                );
             }
 
             // initialise translations
@@ -699,7 +705,6 @@ namespace StardewModdingAPI
             }
 
             // print result
-            this.Monitor.Log($"Loaded {modsLoaded} mods.");
             return modsLoaded;
         }
 
