@@ -41,14 +41,14 @@ doesn't change any of your game files. It serves five main purposes:
    otherwise show a generic 'program has stopped working' type of message._
 
 ## For players
-* [How to install SMAPI & use mods](http://canimod.com/guides/using-mods#installing-smapi)
+* [Intro & FAQs](http://stardewvalleywiki.com/Modding:Player_FAQs)
+* [Installing SMAPI](http://stardewvalleywiki.com/Modding:Installing_SMAPI)
 * [Release notes](release-notes.md#release-notes)
 * Need help? Come [chat on Discord](https://discord.gg/KCJHWhX) or [post in the support forums](http://community.playstarbound.com/threads/smapi-stardew-modding-api.108375/).  
   _Please don't submit issues on GitHub for support questions._
 
 ## For mod developers
-* [How to develop mods](http://canimod.com/guides/creating-a-smapi-mod)
-* [How to update mods](http://canimod.com/guides/updating-a-smapi-mod)
+* [Modding documentation](http://stardewvalleywiki.com/Modding:Index)
 * [Release notes](release-notes.md#release-notes)
 * [Chat on Discord](https://discord.gg/KCJHWhX) with SMAPI developers and other modders
 
@@ -118,6 +118,7 @@ on the wiki for the first-time setup.
                steam_appid.txt
                System.Numerics.dll
                System.Runtime.Caching.dll
+               System.ValueTuple.dll
             Windows/
                Mods/*
                Mono.Cecil.dll
@@ -127,6 +128,7 @@ on the wiki for the first-time setup.
                StardewModdingAPI.exe
                StardewModdingAPI.pdb
                StardewModdingAPI.xml
+               System.ValueTuple.dll
                steam_appid.txt
       ```
    4. Open a terminal in the `SMAPI <version>` folder and run `chmod 755 internal/Mono/StardewModdingAPI`.
@@ -164,6 +166,5 @@ SMAPI uses a small number of conditional compilation constants, which you can se
 
 flag | purpose
 ---- | -------
-`EXPERIMENTAL` | Enables preview features that aren't officially released yet.
 `SMAPI_FOR_WINDOWS` | Indicates that SMAPI is being compiled on Windows for players on Windows. Set automatically in `crossplatform.targets`.
 
