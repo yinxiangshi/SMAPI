@@ -15,9 +15,9 @@ For mod developers:
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.14...1.15).
 
 For players:
-* SMAPI will no longer load mods known to be obsolete or unneeded.
-* When the `ObjectInformation.xnb` is broken, SMAPI will now print one error to the console instead of a warning flood. (The individual issues are still listed in the log file if needed.)
-* Cleaned up & sorted mod list in console log.
+* SMAPI no longer loads mods known to be obsolete or unneeded.
+* SMAPI now lists mods in an easier-to-read format in the console.
+* When the `ObjectInformation.xnb` is broken, SMAPI now prints one error to the console instead of a warning flood. (The individual issues are still listed in the log file if needed.)
 
 For modders:
 * You can now specify minimum dependency versions in `manifest.json`.

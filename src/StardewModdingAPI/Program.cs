@@ -488,7 +488,6 @@ namespace StardewModdingAPI
             this.Monitor.Log("Detecting common issues...", LogLevel.Trace);
             bool issuesFound = false;
 
-
             // object format (commonly broken by outdated files)
             {
                 // detect issues
@@ -583,7 +582,10 @@ namespace StardewModdingAPI
         private int LoadMods(IModMetadata[] mods, JsonHelper jsonHelper, SContentManager contentManager, IList<Action> deprecationWarnings)
         {
             this.Monitor.Log("Loading mods...");
-            void LogSkip(IModMetadata mod, string reasonPhrase, LogLevel level = LogLevel.Error) => this.Monitor.Log($"Skipped {mod.DisplayName} because {reasonPhrase}", level);
+
+            // keep track of skipped mods
+            IDictionary<IModMetadata, string> skippedMods = new Dictionary<IModMetadata, string>();
+            void TrackSkip(IModMetadata mod, string reasonPhrase) => skippedMods[mod] = reasonPhrase;
 
             // load mod assemblies
             int modsLoaded = 0;
@@ -594,7 +596,8 @@ namespace StardewModdingAPI
                 // validate status
                 if (metadata.Status == ModMetadataStatus.Failed)
                 {
-                    LogSkip(metadata, metadata.Error);
+                    this.Monitor.Log($"Skipped {metadata.DisplayName}...", LogLevel.Trace);
+                    TrackSkip(metadata, metadata.Error);
                     continue;
                 }
 
@@ -611,12 +614,12 @@ namespace StardewModdingAPI
                 }
                 catch (IncompatibleInstructionException ex)
                 {
-                    LogSkip(metadata, $"it's not compatible with the latest version of the game (detected {ex.NounPhrase}). Please check for a newer version of the mod (you have v{manifest.Version}).");
+                    TrackSkip(metadata, $"it's not compatible with the latest version of the game (detected {ex.NounPhrase}). Please check for a newer version of the mod (you have v{manifest.Version}).");
                     continue;
                 }
                 catch (Exception ex)
                 {
-                    LogSkip(metadata, $"its DLL '{manifest.EntryDll}' couldn't be loaded:\n{ex.GetLogSummary()}");
+                    TrackSkip(metadata, $"its DLL '{manifest.EntryDll}' couldn't be loaded:\n{ex.GetLogSummary()}");
                     continue;
                 }
 
@@ -626,18 +629,18 @@ namespace StardewModdingAPI
                     int modEntries = modAssembly.DefinedTypes.Count(type => typeof(Mod).IsAssignableFrom(type) && !type.IsAbstract);
                     if (modEntries == 0)
                     {
-                        LogSkip(metadata, $"its DLL has no '{nameof(Mod)}' subclass.");
+                        TrackSkip(metadata, $"its DLL has no '{nameof(Mod)}' subclass.");
                         continue;
                     }
                     if (modEntries > 1)
                     {
-                        LogSkip(metadata, $"its DLL contains multiple '{nameof(Mod)}' subclasses.");
+                        TrackSkip(metadata, $"its DLL contains multiple '{nameof(Mod)}' subclasses.");
                         continue;
                     }
                 }
                 catch (Exception ex)
                 {
-                    LogSkip(metadata, $"its DLL couldn't be loaded:\n{ex.GetLogSummary()}");
+                    TrackSkip(metadata, $"its DLL couldn't be loaded:\n{ex.GetLogSummary()}");
                     continue;
                 }
 
@@ -649,7 +652,7 @@ namespace StardewModdingAPI
                     Mod mod = (Mod)modAssembly.CreateInstance(modEntryType.ToString());
                     if (mod == null)
                     {
-                        LogSkip(metadata, "its entry class couldn't be instantiated.");
+                        TrackSkip(metadata, "its entry class couldn't be instantiated.");
                         continue;
                     }
 
@@ -666,11 +669,24 @@ namespace StardewModdingAPI
                 }
                 catch (Exception ex)
                 {
-                    LogSkip(metadata, $"initialisation failed:\n{ex.GetLogSummary()}");
+                    TrackSkip(metadata, $"initialisation failed:\n{ex.GetLogSummary()}");
                 }
             }
 
-            // log mods
+            // log skipped mods
+            if (skippedMods.Any())
+            {
+                this.Monitor.Log($"Skipped {skippedMods.Count} mods:", LogLevel.Error);
+                foreach (var pair in skippedMods.OrderBy(p => p.Key.DisplayName))
+                {
+                    IModMetadata mod = pair.Key;
+                    string reason = pair.Value;
+
+                    this.Monitor.Log($"   {mod.DisplayName} {mod.Manifest.Version} because {reason}", LogLevel.Error);
+                }
+            }
+
+            // log loaded mods
             this.Monitor.Log($"Loaded {modsLoaded} mods" + (modsLoaded > 0 ? ":" : "."), LogLevel.Info);
             foreach (var metadata in this.ModRegistry.GetMods().OrderBy(p => p.DisplayName))
             {
