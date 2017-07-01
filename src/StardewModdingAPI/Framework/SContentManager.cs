@@ -5,10 +5,14 @@ using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.AssemblyRewriters;
 using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.Reflection;
 using StardewValley;
+using StardewValley.BellsAndWhistles;
+using StardewValley.Objects;
+using StardewValley.Projectiles;
 
 namespace StardewModdingAPI.Framework
 {
@@ -59,6 +63,10 @@ namespace StardewModdingAPI.Framework
         public SContentManager(IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, string languageCodeOverride, IMonitor monitor)
             : base(serviceProvider, rootDirectory, currentCulture, languageCodeOverride)
         {
+            // validate
+            if (monitor == null)
+                throw new ArgumentNullException(nameof(monitor));
+
             // initialise
             IReflectionHelper reflection = new ReflectionHelper();
             this.Monitor = monitor;
@@ -130,6 +138,7 @@ namespace StardewModdingAPI.Framework
         public void Inject<T>(string assetName, T value)
         {
             assetName = this.NormaliseAssetName(assetName);
+
             this.Cache[assetName] = value;
         }
 
@@ -137,6 +146,56 @@ namespace StardewModdingAPI.Framework
         public string GetLocale()
         {
             return this.GetKeyLocale.Invoke<string>();
+        }
+
+        /// <summary>Reset the asset cache and reload the game's static assets.</summary>
+        /// <remarks>This implementation is derived from <see cref="Game1.LoadContent"/>.</remarks>
+        public void Reset()
+        {
+            this.Monitor.Log("Resetting asset cache...", LogLevel.Trace);
+            this.Cache.Clear();
+
+            // from Game1.LoadContent
+            Game1.daybg = this.Load<Texture2D>("LooseSprites\\daybg");
+            Game1.nightbg = this.Load<Texture2D>("LooseSprites\\nightbg");
+            Game1.menuTexture = this.Load<Texture2D>("Maps\\MenuTiles");
+            Game1.lantern = this.Load<Texture2D>("LooseSprites\\Lighting\\lantern");
+            Game1.windowLight = this.Load<Texture2D>("LooseSprites\\Lighting\\windowLight");
+            Game1.sconceLight = this.Load<Texture2D>("LooseSprites\\Lighting\\sconceLight");
+            Game1.cauldronLight = this.Load<Texture2D>("LooseSprites\\Lighting\\greenLight");
+            Game1.indoorWindowLight = this.Load<Texture2D>("LooseSprites\\Lighting\\indoorWindowLight");
+            Game1.shadowTexture = this.Load<Texture2D>("LooseSprites\\shadow");
+            Game1.mouseCursors = this.Load<Texture2D>("LooseSprites\\Cursors");
+            Game1.controllerMaps = this.Load<Texture2D>("LooseSprites\\ControllerMaps");
+            Game1.animations = this.Load<Texture2D>("TileSheets\\animations");
+            Game1.achievements = this.Load<Dictionary<int, string>>("Data\\Achievements");
+            Game1.NPCGiftTastes = this.Load<Dictionary<string, string>>("Data\\NPCGiftTastes");
+            Game1.dialogueFont = this.Load<SpriteFont>("Fonts\\SpriteFont1");
+            Game1.smallFont = this.Load<SpriteFont>("Fonts\\SmallFont");
+            Game1.tinyFont = this.Load<SpriteFont>("Fonts\\tinyFont");
+            Game1.tinyFontBorder = this.Load<SpriteFont>("Fonts\\tinyFontBorder");
+            Game1.objectSpriteSheet = this.Load<Texture2D>("Maps\\springobjects");
+            Game1.cropSpriteSheet = this.Load<Texture2D>("TileSheets\\crops");
+            Game1.emoteSpriteSheet = this.Load<Texture2D>("TileSheets\\emotes");
+            Game1.debrisSpriteSheet = this.Load<Texture2D>("TileSheets\\debris");
+            Game1.bigCraftableSpriteSheet = this.Load<Texture2D>("TileSheets\\Craftables");
+            Game1.rainTexture = this.Load<Texture2D>("TileSheets\\rain");
+            Game1.buffsIcons = this.Load<Texture2D>("TileSheets\\BuffsIcons");
+            Game1.objectInformation = this.Load<Dictionary<int, string>>("Data\\ObjectInformation");
+            Game1.bigCraftablesInformation = this.Load<Dictionary<int, string>>("Data\\BigCraftablesInformation");
+            FarmerRenderer.hairStylesTexture = this.Load<Texture2D>("Characters\\Farmer\\hairstyles");
+            FarmerRenderer.shirtsTexture = this.Load<Texture2D>("Characters\\Farmer\\shirts");
+            FarmerRenderer.hatsTexture = this.Load<Texture2D>("Characters\\Farmer\\hats");
+            FarmerRenderer.accessoriesTexture = this.Load<Texture2D>("Characters\\Farmer\\accessories");
+            Furniture.furnitureTexture = this.Load<Texture2D>("TileSheets\\furniture");
+            SpriteText.spriteTexture = this.Load<Texture2D>("LooseSprites\\font_bold");
+            SpriteText.coloredTexture = this.Load<Texture2D>("LooseSprites\\font_colored");
+            Tool.weaponsTexture = this.Load<Texture2D>("TileSheets\\weapons");
+            Projectile.projectileSheet = this.Load<Texture2D>("TileSheets\\Projectiles");
+
+            // from Farmer constructor
+            if (Game1.player != null)
+                Game1.player.FarmerRenderer = new FarmerRenderer(this.Load<Texture2D>($"Characters\\Farmer\\farmer_" + (Game1.player.isMale ? "" : "girl_") + "base"));
         }
 
         /*********

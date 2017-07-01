@@ -708,7 +708,7 @@ namespace StardewModdingAPI
             {
                 // add interceptors
                 if (metadata.Mod.Helper.Content is ContentHelper helper)
-                    this.ContentManager.Editors[metadata] = helper.AssetEditors;
+                    this.ContentManager.Editors[metadata] = helper.ObservableAssetEditors;
 
                 // call entry method
                 try
@@ -727,6 +727,20 @@ namespace StardewModdingAPI
                 }
             }
 
+            // reset cache when needed
+            // only register listeners after Entry to avoid repeatedly reloading assets during load
+            foreach (IModMetadata metadata in loadedMods)
+            {
+                if (metadata.Mod.Helper.Content is ContentHelper helper)
+                {
+                    helper.ObservableAssetEditors.CollectionChanged += (sender, e) =>
+                    {
+                        if (e.NewItems.Count > 0)
+                            this.ContentManager.Reset();
+                    };
+                }
+            }
+            this.ContentManager.Reset();
         }
 
         /// <summary>Reload translations for all mods.</summary>

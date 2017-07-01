@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -36,8 +37,11 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Accessors
         *********/
+        /// <summary>The observable implementation of <see cref="AssetEditors"/>.</summary>
+        internal ObservableCollection<IAssetEditor> ObservableAssetEditors { get; } = new ObservableCollection<IAssetEditor>();
+
         /// <summary>Editors which change content assets after they're loaded.</summary>
-        internal IList<IAssetEditor> AssetEditors { get; } = new List<IAssetEditor>();
+        internal IList<IAssetEditor> AssetEditors => this.ObservableAssetEditors;
 
 
         /*********
