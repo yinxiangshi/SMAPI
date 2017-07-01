@@ -360,7 +360,6 @@ namespace StardewModdingAPI
                 this.Monitor.Log("SMAPI found problems in your game's content files which are likely to cause errors or crashes. Consider uninstalling XNB mods or reinstalling the game.", LogLevel.Error);
 
             // load mods
-            int modsLoaded;
             {
                 this.Monitor.Log("Loading mod metadata...");
                 ModResolver resolver = new ModResolver();
@@ -410,7 +409,7 @@ namespace StardewModdingAPI
                 mods = resolver.ProcessDependencies(mods).ToArray();
 
                 // load mods
-                modsLoaded = this.LoadMods(mods, new JsonHelper(), this.ContentManager, deprecationWarnings);
+                this.LoadMods(mods, new JsonHelper(), this.ContentManager, deprecationWarnings);
                 foreach (Action warning in deprecationWarnings)
                     warning();
             }
@@ -421,6 +420,7 @@ namespace StardewModdingAPI
             }
 
             // update window titles
+            int modsLoaded = this.ModRegistry.GetMods().Count();
             this.GameInstance.Window.Title = $"Stardew Valley {Constants.GetGameDisplayVersion(Constants.GameVersion)} - running SMAPI {Constants.ApiVersion} with {modsLoaded} mods";
             Console.Title = $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GetGameDisplayVersion(Constants.GameVersion)} with {modsLoaded} mods";
 
@@ -578,100 +578,101 @@ namespace StardewModdingAPI
         /// <param name="jsonHelper">The JSON helper with which to read mods' JSON files.</param>
         /// <param name="contentManager">The content manager to use for mod content.</param>
         /// <param name="deprecationWarnings">A list to populate with any deprecation warnings.</param>
-        /// <returns>Returns the number of mods successfully loaded.</returns>
-        private int LoadMods(IModMetadata[] mods, JsonHelper jsonHelper, SContentManager contentManager, IList<Action> deprecationWarnings)
+        private void LoadMods(IModMetadata[] mods, JsonHelper jsonHelper, SContentManager contentManager, IList<Action> deprecationWarnings)
         {
             this.Monitor.Log("Loading mods...");
 
-            // keep track of skipped mods
-            IDictionary<IModMetadata, string> skippedMods = new Dictionary<IModMetadata, string>();
-            void TrackSkip(IModMetadata mod, string reasonPhrase) => skippedMods[mod] = reasonPhrase;
-
             // load mod assemblies
-            int modsLoaded = 0;
-            AssemblyLoader modAssemblyLoader = new AssemblyLoader(Constants.TargetPlatform, this.Monitor);
-            AppDomain.CurrentDomain.AssemblyResolve += (sender, e) => modAssemblyLoader.ResolveAssembly(e.Name);
-            foreach (IModMetadata metadata in mods)
+            IDictionary<IModMetadata, string> skippedMods = new Dictionary<IModMetadata, string>();
             {
-                // validate status
-                if (metadata.Status == ModMetadataStatus.Failed)
-                {
-                    this.Monitor.Log($"Skipped {metadata.DisplayName}...", LogLevel.Trace);
-                    TrackSkip(metadata, metadata.Error);
-                    continue;
-                }
+                void TrackSkip(IModMetadata mod, string reasonPhrase) => skippedMods[mod] = reasonPhrase;
 
-                // get basic info
-                IManifest manifest = metadata.Manifest;
-                string assemblyPath = Path.Combine(metadata.DirectoryPath, metadata.Manifest.EntryDll);
-
-                // preprocess & load mod assembly
-                Assembly modAssembly;
-                try
+                int modsLoaded = 0;
+                AssemblyLoader modAssemblyLoader = new AssemblyLoader(Constants.TargetPlatform, this.Monitor);
+                AppDomain.CurrentDomain.AssemblyResolve += (sender, e) => modAssemblyLoader.ResolveAssembly(e.Name);
+                foreach (IModMetadata metadata in mods)
                 {
-                    this.Monitor.Log($"Loading {metadata.DisplayName} from {assemblyPath.Replace(Constants.ModPath, "").TrimStart(Path.DirectorySeparatorChar)}...", LogLevel.Trace);
-                    modAssembly = modAssemblyLoader.Load(assemblyPath, assumeCompatible: metadata.Compatibility?.Compatibility == ModCompatibilityType.AssumeCompatible);
-                }
-                catch (IncompatibleInstructionException ex)
-                {
-                    TrackSkip(metadata, $"it's not compatible with the latest version of the game (detected {ex.NounPhrase}). Please check for a newer version of the mod (you have v{manifest.Version}).");
-                    continue;
-                }
-                catch (Exception ex)
-                {
-                    TrackSkip(metadata, $"its DLL '{manifest.EntryDll}' couldn't be loaded:\n{ex.GetLogSummary()}");
-                    continue;
-                }
-
-                // validate assembly
-                try
-                {
-                    int modEntries = modAssembly.DefinedTypes.Count(type => typeof(Mod).IsAssignableFrom(type) && !type.IsAbstract);
-                    if (modEntries == 0)
+                    // validate status
+                    if (metadata.Status == ModMetadataStatus.Failed)
                     {
-                        TrackSkip(metadata, $"its DLL has no '{nameof(Mod)}' subclass.");
-                        continue;
-                    }
-                    if (modEntries > 1)
-                    {
-                        TrackSkip(metadata, $"its DLL contains multiple '{nameof(Mod)}' subclasses.");
-                        continue;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    TrackSkip(metadata, $"its DLL couldn't be loaded:\n{ex.GetLogSummary()}");
-                    continue;
-                }
-
-                // initialise mod
-                try
-                {
-                    // get implementation
-                    TypeInfo modEntryType = modAssembly.DefinedTypes.First(type => typeof(Mod).IsAssignableFrom(type) && !type.IsAbstract);
-                    Mod mod = (Mod)modAssembly.CreateInstance(modEntryType.ToString());
-                    if (mod == null)
-                    {
-                        TrackSkip(metadata, "its entry class couldn't be instantiated.");
+                        this.Monitor.Log($"Skipped {metadata.DisplayName}...", LogLevel.Trace);
+                        TrackSkip(metadata, metadata.Error);
                         continue;
                     }
 
-                    // inject data
-                    mod.ModManifest = manifest;
-                    mod.Helper = new ModHelper(metadata.DisplayName, metadata.DirectoryPath, jsonHelper, this.ModRegistry, this.CommandManager, contentManager, this.Reflection);
-                    mod.Monitor = this.GetSecondaryMonitor(metadata.DisplayName);
-                    mod.PathOnDisk = metadata.DirectoryPath;
+                    // get basic info
+                    IManifest manifest = metadata.Manifest;
+                    string assemblyPath = Path.Combine(metadata.DirectoryPath, metadata.Manifest.EntryDll);
 
-                    // track mod
-                    metadata.SetMod(mod);
-                    this.ModRegistry.Add(metadata);
-                    modsLoaded++;
-                }
-                catch (Exception ex)
-                {
-                    TrackSkip(metadata, $"initialisation failed:\n{ex.GetLogSummary()}");
+                    // preprocess & load mod assembly
+                    Assembly modAssembly;
+                    try
+                    {
+                        this.Monitor.Log($"Loading {metadata.DisplayName} from {assemblyPath.Replace(Constants.ModPath, "").TrimStart(Path.DirectorySeparatorChar)}...", LogLevel.Trace);
+                        modAssembly = modAssemblyLoader.Load(assemblyPath, assumeCompatible: metadata.Compatibility?.Compatibility == ModCompatibilityType.AssumeCompatible);
+                    }
+                    catch (IncompatibleInstructionException ex)
+                    {
+                        TrackSkip(metadata, $"it's not compatible with the latest version of the game (detected {ex.NounPhrase}). Please check for a newer version of the mod (you have v{manifest.Version}).");
+                        continue;
+                    }
+                    catch (Exception ex)
+                    {
+                        TrackSkip(metadata, $"its DLL '{manifest.EntryDll}' couldn't be loaded:\n{ex.GetLogSummary()}");
+                        continue;
+                    }
+
+                    // validate assembly
+                    try
+                    {
+                        int modEntries = modAssembly.DefinedTypes.Count(type => typeof(Mod).IsAssignableFrom(type) && !type.IsAbstract);
+                        if (modEntries == 0)
+                        {
+                            TrackSkip(metadata, $"its DLL has no '{nameof(Mod)}' subclass.");
+                            continue;
+                        }
+                        if (modEntries > 1)
+                        {
+                            TrackSkip(metadata, $"its DLL contains multiple '{nameof(Mod)}' subclasses.");
+                            continue;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        TrackSkip(metadata, $"its DLL couldn't be loaded:\n{ex.GetLogSummary()}");
+                        continue;
+                    }
+
+                    // initialise mod
+                    try
+                    {
+                        // get implementation
+                        TypeInfo modEntryType = modAssembly.DefinedTypes.First(type => typeof(Mod).IsAssignableFrom(type) && !type.IsAbstract);
+                        Mod mod = (Mod)modAssembly.CreateInstance(modEntryType.ToString());
+                        if (mod == null)
+                        {
+                            TrackSkip(metadata, "its entry class couldn't be instantiated.");
+                            continue;
+                        }
+
+                        // inject data
+                        mod.ModManifest = manifest;
+                        mod.Helper = new ModHelper(metadata.DisplayName, metadata.DirectoryPath, jsonHelper, this.ModRegistry, this.CommandManager, contentManager, this.Reflection);
+                        mod.Monitor = this.GetSecondaryMonitor(metadata.DisplayName);
+                        mod.PathOnDisk = metadata.DirectoryPath;
+
+                        // track mod
+                        metadata.SetMod(mod);
+                        this.ModRegistry.Add(metadata);
+                        modsLoaded++;
+                    }
+                    catch (Exception ex)
+                    {
+                        TrackSkip(metadata, $"initialisation failed:\n{ex.GetLogSummary()}");
+                    }
                 }
             }
+            IModMetadata[] loadedMods = this.ModRegistry.GetMods().ToArray();
 
             // log skipped mods
             if (skippedMods.Any())
@@ -687,8 +688,8 @@ namespace StardewModdingAPI
             }
 
             // log loaded mods
-            this.Monitor.Log($"Loaded {modsLoaded} mods" + (modsLoaded > 0 ? ":" : "."), LogLevel.Info);
-            foreach (var metadata in this.ModRegistry.GetMods().OrderBy(p => p.DisplayName))
+            this.Monitor.Log($"Loaded {loadedMods.Length} mods" + (loadedMods.Length > 0 ? ":" : "."), LogLevel.Info);
+            foreach (IModMetadata metadata in loadedMods.OrderBy(p => p.DisplayName))
             {
                 IManifest manifest = metadata.Manifest;
                 this.Monitor.Log(
@@ -703,7 +704,7 @@ namespace StardewModdingAPI
             this.ReloadTranslations();
 
             // initialise loaded mods
-            foreach (IModMetadata metadata in this.ModRegistry.GetMods())
+            foreach (IModMetadata metadata in loadedMods)
             {
                 // add interceptors
                 if (metadata.Mod.Helper.Content is ContentHelper helper)
@@ -726,8 +727,6 @@ namespace StardewModdingAPI
                 }
             }
 
-            // print result
-            return modsLoaded;
         }
 
         /// <summary>Reload translations for all mods.</summary>
