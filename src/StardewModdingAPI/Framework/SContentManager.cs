@@ -224,25 +224,43 @@ namespace StardewModdingAPI.Framework
 
             // edit asset
             IAssetData data = new AssetDataForObject(info.Locale, info.AssetName, asset, this.NormaliseAssetName);
-            foreach (var modEditors in this.Editors)
+            foreach (var entry in this.GetAssetEditors())
             {
-                IModMetadata mod = modEditors.Key;
-                foreach (IAssetEditor editor in modEditors.Value)
-                {
-                    if (!editor.CanEdit<T>(info))
-                        continue;
+                IModMetadata mod = entry.Mod;
+                IAssetEditor editor = entry.Editor;
 
-                    this.Monitor.Log($"{mod.DisplayName} intercepted {info.AssetName}.", LogLevel.Trace);
-                    editor.Edit<T>(data);
-                    if (data.Data == null)
-                        throw new InvalidOperationException($"{mod.DisplayName} incorrectly set asset '{normalisedKey}' to a null value.");
-                    if (!(data.Data is T))
-                        throw new InvalidOperationException($"{mod.DisplayName} incorrectly set asset '{normalisedKey}' to incompatible type '{data.Data.GetType()}', expected '{typeof(T)}'.");
-                }
+                if (!editor.CanEdit<T>(info))
+                    continue;
+
+                this.Monitor.Log($"{mod.DisplayName} intercepted {info.AssetName}.", LogLevel.Trace);
+                editor.Edit<T>(data);
+                if (data.Data == null)
+                    throw new InvalidOperationException($"{mod.DisplayName} incorrectly set asset '{normalisedKey}' to a null value.");
+                if (!(data.Data is T))
+                    throw new InvalidOperationException($"{mod.DisplayName} incorrectly set asset '{normalisedKey}' to incompatible type '{data.Data.GetType()}', expected '{typeof(T)}'.");
             }
 
             // return result
             return (T)data.Data;
+        }
+
+        /// <summary>Get all registered asset editors.</summary>
+        private IEnumerable<(IModMetadata Mod, IAssetEditor Editor)> GetAssetEditors()
+        {
+            foreach (var entry in this.Editors)
+            {
+                IModMetadata metadata = entry.Key;
+                IList<IAssetEditor> editors = entry.Value;
+
+                // special case if mod implements interface
+                // ReSharper disable once SuspiciousTypeConversion.Global
+                if (metadata.Mod is IAssetEditor modAsEditor)
+                    yield return (metadata, modAsEditor);
+
+                // registered editors
+                foreach (IAssetEditor editor in editors)
+                    yield return (metadata, editor);
+            }
         }
     }
 }
