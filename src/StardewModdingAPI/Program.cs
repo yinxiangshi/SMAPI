@@ -587,28 +587,31 @@ namespace StardewModdingAPI
             {
                 void TrackSkip(IModMetadata mod, string reasonPhrase) => skippedMods[mod] = reasonPhrase;
 
-                int modsLoaded = 0;
                 AssemblyLoader modAssemblyLoader = new AssemblyLoader(Constants.TargetPlatform, this.Monitor);
                 AppDomain.CurrentDomain.AssemblyResolve += (sender, e) => modAssemblyLoader.ResolveAssembly(e.Name);
                 foreach (IModMetadata metadata in mods)
                 {
+                    // get basic info
+                    IManifest manifest = metadata.Manifest;
+                    string assemblyPath = metadata.Manifest.EntryDll != null
+                        ? Path.Combine(metadata.DirectoryPath, metadata.Manifest.EntryDll)
+                        : null;
+                    this.Monitor.Log(assemblyPath != null
+                        ? $"Loading {metadata.DisplayName} from {assemblyPath.Replace(Constants.ModPath, "").TrimStart(Path.DirectorySeparatorChar)}..."
+                        : $"Loading {metadata.DisplayName}...", LogLevel.Trace);
+
                     // validate status
                     if (metadata.Status == ModMetadataStatus.Failed)
                     {
-                        this.Monitor.Log($"Skipped {metadata.DisplayName}...", LogLevel.Trace);
+                        this.Monitor.Log($"   Failed: {metadata.Error}", LogLevel.Trace);
                         TrackSkip(metadata, metadata.Error);
                         continue;
                     }
-
-                    // get basic info
-                    IManifest manifest = metadata.Manifest;
-                    string assemblyPath = Path.Combine(metadata.DirectoryPath, metadata.Manifest.EntryDll);
 
                     // preprocess & load mod assembly
                     Assembly modAssembly;
                     try
                     {
-                        this.Monitor.Log($"Loading {metadata.DisplayName} from {assemblyPath.Replace(Constants.ModPath, "").TrimStart(Path.DirectorySeparatorChar)}...", LogLevel.Trace);
                         modAssembly = modAssemblyLoader.Load(assemblyPath, assumeCompatible: metadata.Compatibility?.Compatibility == ModCompatibilityType.AssumeCompatible);
                     }
                     catch (IncompatibleInstructionException ex)
@@ -672,7 +675,6 @@ namespace StardewModdingAPI
                         // track mod
                         metadata.SetMod(mod);
                         this.ModRegistry.Add(metadata);
-                        modsLoaded++;
                     }
                     catch (Exception ex)
                     {
