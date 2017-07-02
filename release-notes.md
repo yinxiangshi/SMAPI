@@ -22,6 +22,7 @@ For players:
   * `list_items` now also matches translated item names when playing in another language.
   * `list_item_types` is a new command to see a list of item types.
 * Added clearer error when a `config.json` is invalid.
+* Fixed rare crash when window loses focus for a few players (further to fix in 1.14).
 
 For modders:
 * You can now specify minimum dependency versions in `manifest.json`.

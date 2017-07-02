@@ -344,9 +344,21 @@ namespace StardewModdingAPI.Framework
                 if (Game1.game1.IsActive)
                 {
                     // get latest state
-                    KeyboardState keyState = Keyboard.GetState();
-                    MouseState mouseState = Mouse.GetState();
-                    Point mousePosition = new Point(Game1.getMouseX(), Game1.getMouseY());
+                    KeyboardState keyState;
+                    MouseState mouseState;
+                    Point mousePosition;
+                    try
+                    {
+                        keyState = Keyboard.GetState();
+                        mouseState = Mouse.GetState();
+                        mousePosition = new Point(Game1.getMouseX(), Game1.getMouseY());
+                    }
+                    catch (InvalidOperationException) // GetState() may crash for some players if window doesn't have focus but game1.IsActive == true
+                    {
+                        keyState = this.PreviousKeyState;
+                        mouseState = this.PreviousMouseState;
+                        mousePosition = this.PreviousMousePosition;
+                    }
 
                     // analyse state
                     Keys[] currentlyPressedKeys = keyState.GetPressedKeys();
