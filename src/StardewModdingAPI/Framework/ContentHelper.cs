@@ -40,7 +40,13 @@ namespace StardewModdingAPI.Framework
         /// <summary>The observable implementation of <see cref="AssetEditors"/>.</summary>
         internal ObservableCollection<IAssetEditor> ObservableAssetEditors { get; } = new ObservableCollection<IAssetEditor>();
 
-        /// <summary>Editors which change content assets after they're loaded.</summary>
+        /// <summary>The observable implementation of <see cref="AssetLoaders"/>.</summary>
+        internal ObservableCollection<IAssetLoader> ObservableAssetLoaders { get; } = new ObservableCollection<IAssetLoader>();
+
+        /// <summary>Interceptors which provide the initial versions of matching content assets.</summary>
+        internal IList<IAssetLoader> AssetLoaders => this.ObservableAssetLoaders;
+
+        /// <summary>Interceptors which edit matching content assets after they're loaded.</summary>
         internal IList<IAssetEditor> AssetEditors => this.ObservableAssetEditors;
 
 

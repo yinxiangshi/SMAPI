@@ -159,6 +159,7 @@
     <Compile Include="Framework\TranslationHelper.cs" />
     <Compile Include="IAssetEditor.cs" />
     <Compile Include="IAssetInfo.cs" />
+    <Compile Include="IAssetLoader.cs" />
     <Compile Include="ICommandHelper.cs" />
     <Compile Include="IAssetData.cs" />
     <Compile Include="IAssetDataForDictionary.cs" />

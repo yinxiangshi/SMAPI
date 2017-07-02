@@ -1,6 +1,6 @@
 ﻿namespace StardewModdingAPI
 {
-    /// <summary>Edits a loaded content asset.</summary>
+    /// <summary>Edits matching content assets.</summary>
     public interface IAssetEditor
     {
         /*********

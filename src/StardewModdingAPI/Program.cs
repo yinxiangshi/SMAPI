@@ -708,7 +708,10 @@ namespace StardewModdingAPI
             {
                 // add interceptors
                 if (metadata.Mod.Helper.Content is ContentHelper helper)
+                {
                     this.ContentManager.Editors[metadata] = helper.ObservableAssetEditors;
+                    this.ContentManager.Loaders[metadata] = helper.ObservableAssetLoaders;
+                }
 
                 // call entry method
                 try
@@ -734,6 +737,11 @@ namespace StardewModdingAPI
                 if (metadata.Mod.Helper.Content is ContentHelper helper)
                 {
                     helper.ObservableAssetEditors.CollectionChanged += (sender, e) =>
+                    {
+                        if (e.NewItems.Count > 0)
+                            this.ContentManager.Reset();
+                    };
+                    helper.ObservableAssetLoaders.CollectionChanged += (sender, e) =>
                     {
                         if (e.NewItems.Count > 0)
                             this.ContentManager.Reset();

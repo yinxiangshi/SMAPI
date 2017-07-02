@@ -18,6 +18,13 @@ namespace StardewModdingAPI.Framework.Content
         public AssetDataForObject(string locale, string assetName, object data, Func<string, string> getNormalisedPath)
             : base(locale, assetName, data, getNormalisedPath) { }
 
+        /// <summary>Construct an instance.</summary>
+        /// <param name="info">The asset metadata.</param>
+        /// <param name="data">The content data being read.</param>
+        /// <param name="getNormalisedPath">Normalises an asset key to match the cache key.</param>
+        public AssetDataForObject(IAssetInfo info, object data, Func<string, string> getNormalisedPath)
+            : this(info.Locale, info.AssetName, data, getNormalisedPath) { }
+
         /// <summary>Get a helper to manipulate the data as a dictionary.</summary>
         /// <typeparam name="TKey">The expected dictionary key.</typeparam>
         /// <typeparam name="TValue">The expected dictionary balue.</typeparam>

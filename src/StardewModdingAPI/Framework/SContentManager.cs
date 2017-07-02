@@ -44,7 +44,10 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Accessors
         *********/
-        /// <summary>Implementations which change assets after they're loaded.</summary>
+        /// <summary>Interceptors which provide the initial versions of matching assets.</summary>
+        internal IDictionary<IModMetadata, IList<IAssetLoader>> Loaders { get; } = new Dictionary<IModMetadata, IList<IAssetLoader>>();
+
+        /// <summary>Interceptors which edit matching assets after they're loaded.</summary>
         internal IDictionary<IModMetadata, IList<IAssetEditor>> Editors { get; } = new Dictionary<IModMetadata, IList<IAssetEditor>>();
 
         /// <summary>The absolute path to the <see cref="ContentManager.RootDirectory"/>.</summary>
@@ -126,9 +129,17 @@ namespace StardewModdingAPI.Framework
                 return base.Load<T>(assetName);
 
             // load asset
-            T asset = this.GetAssetWithInterceptors(this.GetLocale(), assetName, () => base.Load<T>(assetName));
-            this.Cache[assetName] = asset;
-            return asset;
+            T data;
+            {
+                IAssetInfo info = new AssetInfo(this.GetLocale(), assetName, typeof(T), this.NormaliseAssetName);
+                IAssetData asset = this.ApplyLoader<T>(info) ?? new AssetDataForObject(info, base.Load<T>(assetName), this.NormaliseAssetName);
+                asset = this.ApplyEditors<T>(info, asset);
+                data = (T)asset.Data;
+            }
+
+            // update cache & return data
+            this.Cache[assetName] = data;
+            return data;
         }
 
         /// <summary>Inject an asset into the cache.</summary>
@@ -198,6 +209,7 @@ namespace StardewModdingAPI.Framework
                 Game1.player.FarmerRenderer = new FarmerRenderer(this.Load<Texture2D>($"Characters\\Farmer\\farmer_" + (Game1.player.isMale ? "" : "girl_") + "base"));
         }
 
+
         /*********
         ** Private methods
         *********/
@@ -209,73 +221,132 @@ namespace StardewModdingAPI.Framework
                 || this.Cache.ContainsKey($"{normalisedAssetName}.{this.GetKeyLocale.Invoke<string>()}"); // translated asset
         }
 
-        /// <summary>Read an asset with support for asset interceptors.</summary>
-        /// <typeparam name="T">The asset type.</typeparam>
-        /// <param name="locale">The current content locale.</param>
-        /// <param name="normalisedKey">The normalised asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
-        /// <param name="getData">Get the asset from the underlying content manager.</param>
-        private T GetAssetWithInterceptors<T>(string locale, string normalisedKey, Func<T> getData)
+        /// <summary>Load the initial asset from the registered <see cref="Loaders"/>.</summary>
+        /// <param name="info">The basic asset metadata.</param>
+        /// <returns>Returns the loaded asset metadata, or <c>null</c> if no loader matched.</returns>
+        private IAssetData ApplyLoader<T>(IAssetInfo info)
         {
-            // get metadata
-            IAssetInfo info = new AssetInfo(locale, normalisedKey, typeof(T), this.NormaliseAssetName);
+            // find matching loaders
+            var loaders = this.GetInterceptors(this.Loaders)
+                .Where(entry =>
+                {
+                    try
+                    {
+                        return entry.Interceptor.CanLoad<T>(info);
+                    }
+                    catch (Exception ex)
+                    {
+                        this.Monitor.Log($"{entry.Mod.DisplayName} crashed when checking whether it could load asset '{info.AssetName}', and will be ignored. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
+                        return false;
+                    }
+                })
+                .ToArray();
 
+            // validate loaders
+            if (!loaders.Any())
+                return null;
+            if (loaders.Length > 1)
+            {
+                string[] loaderNames = loaders.Select(p => p.Mod.DisplayName).ToArray();
+                this.Monitor.Log($"Multiple mods want to provide the '{info.AssetName}' asset ({string.Join(", ", loaderNames)}), but an asset can't be loaded multiple times. SMAPI will use the default asset instead; uninstall one of the mods to fix this. (Message for modders: you should usually use {typeof(IAssetEditor)} instead to avoid conflicts.)", LogLevel.Warn);
+                return null;
+            }
+
+            // fetch asset from loader
+            IModMetadata mod = loaders[0].Mod;
+            IAssetLoader loader = loaders[0].Interceptor;
+            T data;
+            try
+            {
+                data = loader.Load<T>(info);
+                this.Monitor.Log($"{mod.DisplayName} loaded asset '{info.AssetName}'.", LogLevel.Trace);
+            }
+            catch (Exception ex)
+            {
+                this.Monitor.Log($"{mod.DisplayName} crashed when loading asset '{info.AssetName}'. SMAPI will use the default asset instead. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
+                return null;
+            }
+
+            // validate asset
+            if (data == null)
+            {
+                this.Monitor.Log($"{mod.DisplayName} incorrectly set asset '{info.AssetName}' to a null value; ignoring override.", LogLevel.Error);
+                return null;
+            }
+
+            // return matched asset
+            return new AssetDataForObject(info, data, this.NormaliseAssetName);
+        }
+
+        /// <summary>Apply any <see cref="Editors"/> to a loaded asset.</summary>
+        /// <typeparam name="T">The asset type.</typeparam>
+        /// <param name="info">The basic asset metadata.</param>
+        /// <param name="asset">The loaded asset.</param>
+        private IAssetData ApplyEditors<T>(IAssetInfo info, IAssetData asset)
+        {
+            IAssetData GetNewData(object data) => new AssetDataForObject(info, data, this.NormaliseAssetName);
 
             // edit asset
-            IAssetData data = this.GetAssetData(info, getData());
-            foreach (var entry in this.GetAssetEditors())
+            foreach (var entry in this.GetInterceptors(this.Editors))
             {
                 // check for match
                 IModMetadata mod = entry.Mod;
-                IAssetEditor editor = entry.Editor;
-                if (!editor.CanEdit<T>(info))
+                IAssetEditor editor = entry.Interceptor;
+                try
+                {
+                    if (!editor.CanEdit<T>(info))
+                        continue;
+                }
+                catch (Exception ex)
+                {
+                    this.Monitor.Log($"{entry.Mod.DisplayName} crashed when checking whether it could edit asset '{info.AssetName}', and will be ignored. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
                     continue;
+                }
 
                 // try edit
-                this.Monitor.Log($"{mod.DisplayName} intercepted {info.AssetName}.", LogLevel.Trace);
-                object prevAsset = data.Data;
-                editor.Edit<T>(data);
+                object prevAsset = asset.Data;
+                try
+                {
+                    editor.Edit<T>(asset);
+                    this.Monitor.Log($"{mod.DisplayName} intercepted {info.AssetName}.", LogLevel.Trace);
+                }
+                catch (Exception ex)
+                {
+                    this.Monitor.Log($"{entry.Mod.DisplayName} crashed when editing asset '{info.AssetName}', which may cause errors in-game. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
+                }
 
                 // validate edit
-                if (data.Data == null)
+                if (asset.Data == null)
                 {
-                    data = this.GetAssetData(info, prevAsset);
-                    this.Monitor.Log($"{mod.DisplayName} incorrectly set asset '{normalisedKey}' to a null value; ignoring override.", LogLevel.Warn);
+                    this.Monitor.Log($"{mod.DisplayName} incorrectly set asset '{info.AssetName}' to a null value; ignoring override.", LogLevel.Warn);
+                    asset = GetNewData(prevAsset);
                 }
-                else if (!(data.Data is T))
+                else if (!(asset.Data is T))
                 {
-                    data = this.GetAssetData(info, prevAsset);
-                    this.Monitor.Log($"{mod.DisplayName} incorrectly set asset '{normalisedKey}' to incompatible type '{data.Data.GetType()}', expected '{typeof(T)}'; ignoring override.", LogLevel.Warn);
+                    this.Monitor.Log($"{mod.DisplayName} incorrectly set asset '{asset.AssetName}' to incompatible type '{asset.Data.GetType()}', expected '{typeof(T)}'; ignoring override.", LogLevel.Warn);
+                    asset = GetNewData(prevAsset);
                 }
             }
 
             // return result
-            return (T)data.Data;
+            return asset;
         }
 
-        /// <summary>Get an asset edit helper.</summary>
-        /// <param name="info">The asset info.</param>
-        /// <param name="asset">The loaded asset data.</param>
-        private IAssetData GetAssetData(IAssetInfo info, object asset)
+        /// <summary>Get all registered interceptors from a list.</summary>
+        private IEnumerable<(IModMetadata Mod, T Interceptor)> GetInterceptors<T>(IDictionary<IModMetadata, IList<T>> entries)
         {
-            return new AssetDataForObject(info.Locale, info.AssetName, asset, this.NormaliseAssetName);
-        }
-
-        /// <summary>Get all registered asset editors.</summary>
-        private IEnumerable<(IModMetadata Mod, IAssetEditor Editor)> GetAssetEditors()
-        {
-            foreach (var entry in this.Editors)
+            foreach (var entry in entries)
             {
                 IModMetadata metadata = entry.Key;
-                IList<IAssetEditor> editors = entry.Value;
+                IList<T> interceptors = entry.Value;
 
-                // special case if mod implements interface
-                // ReSharper disable once SuspiciousTypeConversion.Global
-                if (metadata.Mod is IAssetEditor modAsEditor)
-                    yield return (metadata, modAsEditor);
+                // special case if mod is an interceptor
+                if (metadata.Mod is T modAsInterceptor)
+                    yield return (metadata, modAsInterceptor);
 
                 // registered editors
-                foreach (IAssetEditor editor in editors)
-                    yield return (metadata, editor);
+                foreach (T interceptor in interceptors)
+                    yield return (metadata, interceptor);
             }
         }
     }
