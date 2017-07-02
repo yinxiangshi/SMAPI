@@ -219,29 +219,45 @@ namespace StardewModdingAPI.Framework
             // get metadata
             IAssetInfo info = new AssetInfo(locale, normalisedKey, typeof(T), this.NormaliseAssetName);
 
-            // load asset
-            T asset = getData();
 
             // edit asset
-            IAssetData data = new AssetDataForObject(info.Locale, info.AssetName, asset, this.NormaliseAssetName);
+            IAssetData data = this.GetAssetData(info, getData());
             foreach (var entry in this.GetAssetEditors())
             {
+                // check for match
                 IModMetadata mod = entry.Mod;
                 IAssetEditor editor = entry.Editor;
-
                 if (!editor.CanEdit<T>(info))
                     continue;
 
+                // try edit
                 this.Monitor.Log($"{mod.DisplayName} intercepted {info.AssetName}.", LogLevel.Trace);
+                object prevAsset = data.Data;
                 editor.Edit<T>(data);
+
+                // validate edit
                 if (data.Data == null)
-                    throw new InvalidOperationException($"{mod.DisplayName} incorrectly set asset '{normalisedKey}' to a null value.");
-                if (!(data.Data is T))
-                    throw new InvalidOperationException($"{mod.DisplayName} incorrectly set asset '{normalisedKey}' to incompatible type '{data.Data.GetType()}', expected '{typeof(T)}'.");
+                {
+                    data = this.GetAssetData(info, prevAsset);
+                    this.Monitor.Log($"{mod.DisplayName} incorrectly set asset '{normalisedKey}' to a null value; ignoring override.", LogLevel.Warn);
+                }
+                else if (!(data.Data is T))
+                {
+                    data = this.GetAssetData(info, prevAsset);
+                    this.Monitor.Log($"{mod.DisplayName} incorrectly set asset '{normalisedKey}' to incompatible type '{data.Data.GetType()}', expected '{typeof(T)}'; ignoring override.", LogLevel.Warn);
+                }
             }
 
             // return result
             return (T)data.Data;
+        }
+
+        /// <summary>Get an asset edit helper.</summary>
+        /// <param name="info">The asset info.</param>
+        /// <param name="asset">The loaded asset data.</param>
+        private IAssetData GetAssetData(IAssetInfo info, object asset)
+        {
+            return new AssetDataForObject(info.Locale, info.AssetName, asset, this.NormaliseAssetName);
         }
 
         /// <summary>Get all registered asset editors.</summary>
