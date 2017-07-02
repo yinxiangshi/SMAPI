@@ -1,43 +1,43 @@
-using StardewValley.Tools;
+using StardewValley;
 
-namespace TrainerMod.ItemData
+namespace TrainerMod.Framework.ItemData
 {
-    /// <summary>A weapon that can be searched and added to the player's inventory through the console.</summary>
-    internal class SearchableWeapon : ISearchItem
+    /// <summary>An object that can be searched and added to the player's inventory through the console.</summary>
+    internal class SearchableObject : ISearchItem
     {
         /*********
         ** Properties
         *********/
         /// <summary>The underlying item.</summary>
-        private readonly MeleeWeapon Weapon;
+        private readonly Item Item;
 
 
         /*********
         ** Accessors
         *********/
         /// <summary>Whether the item is valid.</summary>
-        public bool IsValid => this.Weapon != null;
+        public bool IsValid => this.Item != null && this.Item.Name != "Broken Item";
 
         /// <summary>The item ID.</summary>
-        public int ID => this.Weapon.initialParentTileIndex;
+        public int ID => this.Item.parentSheetIndex;
 
         /// <summary>The item name.</summary>
-        public string Name => this.Weapon.Name;
+        public string Name => this.Item.Name;
 
         /// <summary>The item type.</summary>
-        public ItemType Type => ItemType.Weapon;
+        public ItemType Type => ItemType.Object;
 
 
         /*********
         ** Accessors
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="id">The weapon ID.</param>
-        public SearchableWeapon(int id)
+        /// <param name="id">The item ID.</param>
+        public SearchableObject(int id)
         {
             try
             {
-                this.Weapon = new MeleeWeapon(id);
+                this.Item = new Object(id, 1);
             }
             catch
             {

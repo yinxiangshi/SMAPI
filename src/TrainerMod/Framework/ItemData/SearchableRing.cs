@@ -1,43 +1,43 @@
-using StardewValley;
+using StardewValley.Objects;
 
-namespace TrainerMod.ItemData
+namespace TrainerMod.Framework.ItemData
 {
-    /// <summary>An object that can be searched and added to the player's inventory through the console.</summary>
-    internal class SearchableObject : ISearchItem
+    /// <summary>A ring that can be searched and added to the player's inventory through the console.</summary>
+    internal class SearchableRing : ISearchItem
     {
         /*********
         ** Properties
         *********/
         /// <summary>The underlying item.</summary>
-        private readonly Item Item;
+        private readonly Ring Ring;
 
 
         /*********
         ** Accessors
         *********/
         /// <summary>Whether the item is valid.</summary>
-        public bool IsValid => this.Item != null && this.Item.Name != "Broken Item";
+        public bool IsValid => this.Ring != null;
 
         /// <summary>The item ID.</summary>
-        public int ID => this.Item.parentSheetIndex;
+        public int ID => this.Ring.parentSheetIndex;
 
         /// <summary>The item name.</summary>
-        public string Name => this.Item.Name;
+        public string Name => this.Ring.Name;
 
         /// <summary>The item type.</summary>
-        public ItemType Type => ItemType.Object;
+        public ItemType Type => ItemType.Ring;
 
 
         /*********
         ** Accessors
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="id">The item ID.</param>
-        public SearchableObject(int id)
+        /// <param name="id">The ring ID.</param>
+        public SearchableRing(int id)
         {
             try
             {
-                this.Item = new Object(id, 1);
+                this.Ring = new Ring(id);
             }
             catch
             {

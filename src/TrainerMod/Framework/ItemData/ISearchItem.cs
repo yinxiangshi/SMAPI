@@ -1,4 +1,4 @@
-namespace TrainerMod.ItemData
+namespace TrainerMod.Framework.ItemData
 {
     /// <summary>An item that can be searched and added to the player's inventory through the console.</summary>
     internal interface ISearchItem
