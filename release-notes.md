@@ -21,6 +21,7 @@ For players:
   * `list_items` now shows all items in the game. You can search by item type like `list_items weapon`, or search by item name like `list_items galaxy sword`.
   * `list_items` now also matches translated item names when playing in another language.
   * `list_item_types` is a new command to see a list of item types.
+* Added clearer error when a `config.json` is invalid.
 
 For modders:
 * You can now specify minimum dependency versions in `manifest.json`.
