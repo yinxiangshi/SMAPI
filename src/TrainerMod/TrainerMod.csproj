@@ -55,6 +55,7 @@
     <Compile Include="Framework\Commands\Other\ShowDataFilesCommand.cs" />
     <Compile Include="Framework\Commands\Other\ShowGameFilesCommand.cs" />
     <Compile Include="Framework\Commands\Other\DebugCommand.cs" />
+    <Compile Include="Framework\Commands\Player\ListItemTypesCommand.cs" />
     <Compile Include="Framework\Commands\Player\ListItemsCommand.cs" />
     <Compile Include="Framework\Commands\Player\AddWallpaperCommand.cs" />
     <Compile Include="Framework\Commands\Player\AddFlooringCommand.cs" />

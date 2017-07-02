@@ -77,44 +77,5 @@ namespace TrainerMod.Framework.Commands.Player
                     yield return weapon;
             }
         }
-
-        /// <summary>Get an ASCII table for a set of tabular data.</summary>
-        /// <typeparam name="T">The data type.</typeparam>
-        /// <param name="data">The data to display.</param>
-        /// <param name="header">The table header.</param>
-        /// <param name="getRow">Returns a set of fields for a data value.</param>
-        private string GetTableString<T>(IEnumerable<T> data, string[] header, Func<T, string[]> getRow)
-        {
-            // get table data
-            int[] widths = header.Select(p => p.Length).ToArray();
-            string[][] rows = data
-                .Select(item =>
-                {
-                    string[] fields = getRow(item);
-                    if (fields.Length != widths.Length)
-                        throw new InvalidOperationException($"Expected {widths.Length} columns, but found {fields.Length}: {string.Join(", ", fields)}");
-
-                    for (int i = 0; i < fields.Length; i++)
-                        widths[i] = Math.Max(widths[i], fields[i].Length);
-
-                    return fields;
-                })
-                .ToArray();
-
-            // render fields
-            List<string[]> lines = new List<string[]>(rows.Length + 2)
-            {
-                header,
-                header.Select((value, i) => "".PadRight(widths[i], '-')).ToArray()
-            };
-            lines.AddRange(rows);
-
-            return string.Join(
-                Environment.NewLine,
-                lines.Select(line => string.Join(" | ",
-                    line.Select((field, i) => field.PadRight(widths[i], ' ')).ToArray())
-                )
-            );
-        }
     }
 }
