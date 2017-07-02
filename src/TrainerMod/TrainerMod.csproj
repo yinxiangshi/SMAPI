@@ -83,11 +83,7 @@
     <Compile Include="Framework\Commands\World\SetDayCommand.cs" />
     <Compile Include="Framework\Commands\World\SetTimeCommand.cs" />
     <Compile Include="Framework\Commands\World\FreezeTimeCommand.cs" />
-    <Compile Include="Framework\ItemData\ISearchItem.cs" />
     <Compile Include="Framework\ItemData\ItemType.cs" />
-    <Compile Include="Framework\ItemData\SearchableObject.cs" />
-    <Compile Include="Framework\ItemData\SearchableRing.cs" />
-    <Compile Include="Framework\ItemData\SearchableWeapon.cs" />
     <Compile Include="Framework\Commands\ITrainerCommand.cs" />
     <Compile Include="Framework\ItemData\SearchableItem.cs" />
     <Compile Include="Framework\ItemRepository.cs" />

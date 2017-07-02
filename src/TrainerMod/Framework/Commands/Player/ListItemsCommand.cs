@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using StardewModdingAPI;
-using StardewValley;
-using StardewValley.Objects;
 using TrainerMod.Framework.ItemData;
 
 namespace TrainerMod.Framework.Commands.Player
@@ -11,6 +9,13 @@ namespace TrainerMod.Framework.Commands.Player
     /// <summary>A command which list items available to spawn.</summary>
     internal class ListItemsCommand : TrainerCommand
     {
+        /*********
+        ** Properties
+        *********/
+        /// <summary>Provides methods for searching and constructing items.</summary>
+        private readonly ItemRepository Items = new ItemRepository();
+
+
         /*********
         ** Public methods
         *********/
@@ -24,12 +29,24 @@ namespace TrainerMod.Framework.Commands.Player
         /// <param name="args">The command arguments.</param>
         public override void Handle(IMonitor monitor, string command, ArgumentParser args)
         {
-            var matches = this.GetItems(args.ToArray()).ToArray();
+            // validate
+            if (!Context.IsWorldReady)
+            {
+                monitor.Log("You need to load a save to use this command.", LogLevel.Error);
+                return;
+            }
 
-            // show matches
+            // handle
+            SearchableItem[] matches =
+                (
+                    from item in this.GetItems(args.ToArray())
+                    orderby item.Type.ToString(), item.Name
+                    select item
+                )
+                .ToArray();
             string summary = "Searching...\n";
             if (matches.Any())
-                monitor.Log(summary + this.GetTableString(matches, new[] { "type", "id", "name" }, val => new[] { val.Type.ToString(), val.ID.ToString(), val.Name }), LogLevel.Info);
+                monitor.Log(summary + this.GetTableString(matches, new[] { "type", "name", "id" }, val => new[] { val.Type.ToString(), val.Name, val.ID.ToString() }), LogLevel.Info);
             else
                 monitor.Log(summary + "No items found", LogLevel.Info);
         }
@@ -40,7 +57,7 @@ namespace TrainerMod.Framework.Commands.Player
         *********/
         /// <summary>Get all items which can be searched and added to the player's inventory through the console.</summary>
         /// <param name="searchWords">The search string to find.</param>
-        private IEnumerable<ISearchItem> GetItems(string[] searchWords)
+        private IEnumerable<SearchableItem> GetItems(string[] searchWords)
         {
             // normalise search term
             searchWords = searchWords?.Where(word => !string.IsNullOrWhiteSpace(word)).ToArray();
@@ -49,33 +66,11 @@ namespace TrainerMod.Framework.Commands.Player
 
             // find matches
             return (
-                from item in this.GetItems()
-                let term = $"{item.ID}|{item.Type}|{item.Name}"
+                from item in this.Items.GetAll()
+                let term = $"{item.ID}|{item.Type}|{item.Name}|{item.DisplayName}"
                 where searchWords == null || searchWords.All(word => term.IndexOf(word, StringComparison.CurrentCultureIgnoreCase) != -1)
                 select item
             );
-        }
-
-        /// <summary>Get all items which can be searched and added to the player's inventory through the console.</summary>
-        private IEnumerable<ISearchItem> GetItems()
-        {
-            // objects
-            foreach (int id in Game1.objectInformation.Keys)
-            {
-                ISearchItem obj = id >= Ring.ringLowerIndexRange && id <= Ring.ringUpperIndexRange
-                    ? new SearchableRing(id)
-                    : (ISearchItem)new SearchableObject(id);
-                if (obj.IsValid)
-                    yield return obj;
-            }
-
-            // weapons
-            foreach (int id in Game1.content.Load<Dictionary<int, string>>("Data\\weapons").Keys)
-            {
-                ISearchItem weapon = new SearchableWeapon(id);
-                if (weapon.IsValid)
-                    yield return weapon;
-            }
         }
     }
 }
