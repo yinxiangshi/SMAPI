@@ -88,6 +88,8 @@
     <Compile Include="Framework\ItemData\SearchableRing.cs" />
     <Compile Include="Framework\ItemData\SearchableWeapon.cs" />
     <Compile Include="Framework\Commands\ITrainerCommand.cs" />
+    <Compile Include="Framework\ItemData\SearchableItem.cs" />
+    <Compile Include="Framework\ItemRepository.cs" />
     <Compile Include="TrainerMod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
