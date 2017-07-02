@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using StardewModdingAPI;
@@ -58,7 +59,7 @@ namespace TrainerMod.Framework.Commands
         /// <param name="name">The argument name for error messages.</param>
         /// <param name="value">The parsed value.</param>
         /// <param name="required">Whether to show an error if the argument is missing.</param>
-        /// <param name="oneOf">Require that the argument match one of the given values.</param>
+        /// <param name="oneOf">Require that the argument match one of the given values (case-insensitive).</param>
         public bool TryGet(int index, string name, out string value, bool required = true, string[] oneOf = null)
         {
             value = null;
@@ -70,7 +71,7 @@ namespace TrainerMod.Framework.Commands
                     this.LogError($"Argument {index} ({name}) is required.");
                 return false;
             }
-            if (oneOf?.Any() == true && !oneOf.Contains(this.Args[index]))
+            if (oneOf?.Any() == true && !oneOf.Contains(this.Args[index], StringComparer.InvariantCultureIgnoreCase))
             {
                 this.LogError($"Argument {index} ({name}) must be one of {string.Join(", ", oneOf)}.");
                 return false;

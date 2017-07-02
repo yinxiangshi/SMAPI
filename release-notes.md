@@ -16,8 +16,11 @@ For players:
 * SMAPI no longer loads mods known to be obsolete or unneeded.
 * SMAPI now lists mods in an easier-to-read format in the console.
 * When the `ObjectInformation.xnb` is broken, SMAPI now prints one error to the console instead of a warning flood. (The individual issues are still listed in the log file if needed.)
-* TrainerMod's `list_items` command now shows all item types in the game. You can search specific item types like `list_items weapons`, and use `list_item_types` to see a list of types.
-* TrainerMod's `list_items` with search keywords now also searches items' translated names.
+* Revamped TrainerMod's item commands:
+  * `player_add` is a new command which lets you add any game item to your inventory (including tools, weapons, equipment, craftables, wallpaper, etc). This replaces the former `player_additem`, `player_addring`, and `player_addweapon`.
+  * `list_items` now shows all items in the game. You can search by item type like `list_items weapon`, or search by item name like `list_items galaxy sword`.
+  * `list_items` now also matches translated item names when playing in another language.
+  * `list_item_types` is a new command to see a list of item types.
 
 For modders:
 * You can now specify minimum dependency versions in `manifest.json`.

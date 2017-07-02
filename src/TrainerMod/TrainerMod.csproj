@@ -57,11 +57,7 @@
     <Compile Include="Framework\Commands\Other\DebugCommand.cs" />
     <Compile Include="Framework\Commands\Player\ListItemTypesCommand.cs" />
     <Compile Include="Framework\Commands\Player\ListItemsCommand.cs" />
-    <Compile Include="Framework\Commands\Player\AddWallpaperCommand.cs" />
-    <Compile Include="Framework\Commands\Player\AddFlooringCommand.cs" />
-    <Compile Include="Framework\Commands\Player\AddRingCommand.cs" />
-    <Compile Include="Framework\Commands\Player\AddWeaponCommand.cs" />
-    <Compile Include="Framework\Commands\Player\AddItemCommand.cs" />
+    <Compile Include="Framework\Commands\Player\AddCommand.cs" />
     <Compile Include="Framework\Commands\Player\SetStyleCommand.cs" />
     <Compile Include="Framework\Commands\Player\SetColorCommand.cs" />
     <Compile Include="Framework\Commands\Player\SetSpeedCommand.cs" />
