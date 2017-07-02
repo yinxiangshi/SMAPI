@@ -6,9 +6,7 @@ See [log](https://github.com/Pathoschild/SMAPI/compare/1.10...2.0).
 
 For mod developers:
 * The manifest.json version can now be specified as a string.
-* Added `ContentEvents.AssetLoading` event with a helper which lets you intercept the XNB content
-  load, and dynamically adjust or replace the content being loaded (including support for patching
-  images).
+* SMAPI mods can now intercept and edit XNB images and data loaded by the game (see [API reference](http://stardewvalleywiki.com/Modding:SMAPI_APIs#Content)).
 -->
 
 ## 1.15
