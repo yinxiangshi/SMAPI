@@ -655,6 +655,14 @@ namespace StardewModdingAPI
                             continue;
                         }
 
+                        // prevent mods from using SMAPI 2.0 content interception before release
+                        // ReSharper disable SuspiciousTypeConversion.Global
+                        if (mod is IAssetEditor || mod is IAssetLoader)
+                        {
+                            TrackSkip(metadata, $"its entry class implements {nameof(IAssetEditor)} or {nameof(IAssetLoader)}. These are part of a prototype API that isn't available for mods to use yet.");
+                        }
+                        // ReSharper restore SuspiciousTypeConversion.Global
+
                         // inject data
                         mod.ModManifest = manifest;
                         mod.Helper = new ModHelper(metadata.DisplayName, metadata.DirectoryPath, jsonHelper, this.ModRegistry, this.CommandManager, contentManager, this.Reflection);
