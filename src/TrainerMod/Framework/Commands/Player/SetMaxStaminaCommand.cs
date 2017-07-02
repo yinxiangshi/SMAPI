@@ -18,7 +18,7 @@ namespace TrainerMod.Framework.Commands.Player
         /// <param name="monitor">Writes messages to the console and log file.</param>
         /// <param name="command">The command name.</param>
         /// <param name="args">The command arguments.</param>
-        public override void Handle(IMonitor monitor, string command, string[] args)
+        public override void Handle(IMonitor monitor, string command, ArgumentParser args)
         {
             // validate
             if (!args.Any())
@@ -28,13 +28,11 @@ namespace TrainerMod.Framework.Commands.Player
             }
 
             // handle
-            if (int.TryParse(args[0], out int amount))
+            if (args.TryGetInt(0, "amount", out int amount, min: 1))
             {
                 Game1.player.MaxStamina = amount;
                 monitor.Log($"OK, you now have {Game1.player.MaxStamina} max stamina.", LogLevel.Info);
             }
-            else
-                this.LogArgumentNotInt(monitor, command);
         }
     }
 }

@@ -17,22 +17,16 @@ namespace TrainerMod.Framework.Commands.Player
         /// <param name="monitor">Writes messages to the console and log file.</param>
         /// <param name="command">The command name.</param>
         /// <param name="args">The command arguments.</param>
-        public override void Handle(IMonitor monitor, string command, string[] args)
+        public override void Handle(IMonitor monitor, string command, ArgumentParser args)
         {
-            // validate
-            if (args.Length <= 1)
-            {
-                this.LogArgumentsInvalid(monitor, command);
+            // parse arguments
+            if (!args.TryGet(0, "target", out string target, oneOf: new[] { "hair", "shirt", "acc", "skin", "shoe", "swim", "gender" }))
                 return;
-            }
-            if (!int.TryParse(args[1], out int styleID))
-            {
-                this.LogArgumentsInvalid(monitor, command);
+            if (!args.TryGetInt(1, "style ID", out int styleID))
                 return;
-            }
 
             // handle
-            switch (args[0])
+            switch (target)
             {
                 case "hair":
                     Game1.player.changeHairStyle(styleID);
@@ -71,7 +65,7 @@ namespace TrainerMod.Framework.Commands.Player
                             monitor.Log("OK, you're now in your swimming suit.", LogLevel.Info);
                             break;
                         default:
-                            this.LogUsageError(monitor, "The swim value should be 0 (no swimming suit) or 1 (swimming suit).", command);
+                            this.LogUsageError(monitor, "The swim value should be 0 (no swimming suit) or 1 (swimming suit).");
                             break;
                     }
                     break;
@@ -88,13 +82,9 @@ namespace TrainerMod.Framework.Commands.Player
                             monitor.Log("OK, you're now female.", LogLevel.Info);
                             break;
                         default:
-                            this.LogUsageError(monitor, "The gender value should be 0 (male) or 1 (female).", command);
+                            this.LogUsageError(monitor, "The gender value should be 0 (male) or 1 (female).");
                             break;
                     }
-                    break;
-
-                default:
-                    this.LogArgumentsInvalid(monitor, command);
                     break;
             }
         }

@@ -22,9 +22,9 @@ namespace TrainerMod.Framework.Commands.Player
         /// <param name="monitor">Writes messages to the console and log file.</param>
         /// <param name="command">The command name.</param>
         /// <param name="args">The command arguments.</param>
-        public override void Handle(IMonitor monitor, string command, string[] args)
+        public override void Handle(IMonitor monitor, string command, ArgumentParser args)
         {
-            var matches = this.GetItems(args).ToArray();
+            var matches = this.GetItems(args.ToArray()).ToArray();
 
             // show matches
             string summary = "Searching...\n";

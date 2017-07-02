@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using StardewModdingAPI;
 using StardewValley;
 
@@ -19,19 +18,11 @@ namespace TrainerMod.Framework.Commands.World
         /// <param name="monitor">Writes messages to the console and log file.</param>
         /// <param name="command">The command name.</param>
         /// <param name="args">The command arguments.</param>
-        public override void Handle(IMonitor monitor, string command, string[] args)
+        public override void Handle(IMonitor monitor, string command, ArgumentParser args)
         {
-            // validate
-            if (!args.Any())
-            {
-                this.LogArgumentsInvalid(monitor, command);
+            // parse arguments
+            if (!args.TryGetInt(0, "mine level", out int level, min: 1))
                 return;
-            }
-            if (!int.TryParse(args[0], out int level))
-            {
-                this.LogArgumentNotInt(monitor, command);
-                return;
-            }
 
             // handle
             level = Math.Max(1, level);

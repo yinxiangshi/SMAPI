@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Tools;
@@ -20,19 +19,11 @@ namespace TrainerMod.Framework.Commands.Player
         /// <param name="monitor">Writes messages to the console and log file.</param>
         /// <param name="command">The command name.</param>
         /// <param name="args">The command arguments.</param>
-        public override void Handle(IMonitor monitor, string command, string[] args)
+        public override void Handle(IMonitor monitor, string command, ArgumentParser args)
         {
-            // validate
-            if (!args.Any())
-            {
-                this.LogArgumentsInvalid(monitor, command);
+            // parse arguments
+            if (!args.TryGetInt(0, "weapon ID", out int weaponID, min: 0))
                 return;
-            }
-            if (!int.TryParse(args[0], out int weaponID))
-            {
-                this.LogUsageError(monitor, "The weapon ID must be an integer.", command);
-                return;
-            }
 
             // get raw weapon data
             if (!Game1.content.Load<Dictionary<int, string>>("Data\\weapons").TryGetValue(weaponID, out string data))

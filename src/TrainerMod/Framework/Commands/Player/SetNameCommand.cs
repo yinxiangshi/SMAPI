@@ -17,29 +17,34 @@ namespace TrainerMod.Framework.Commands.Player
         /// <param name="monitor">Writes messages to the console and log file.</param>
         /// <param name="command">The command name.</param>
         /// <param name="args">The command arguments.</param>
-        public override void Handle(IMonitor monitor, string command, string[] args)
+        public override void Handle(IMonitor monitor, string command, ArgumentParser args)
         {
-            // validate
-            if (args.Length <= 1)
-            {
-                monitor.Log($"Your name is currently '{Game1.player.Name}'. Type 'help player_setname' for usage.", LogLevel.Info);
+            // parse arguments
+            if (!args.TryGet(0, "target", out string target, oneOf: new[] { "player", "farm" }))
                 return;
-            }
+            args.TryGet(1, "name", out string name, required: false);
 
             // handle
-            string target = args[0];
             switch (target)
             {
                 case "player":
-                    Game1.player.Name = args[1];
-                    monitor.Log($"OK, your player's name is now {Game1.player.Name}.", LogLevel.Info);
+                    if (!string.IsNullOrWhiteSpace(name))
+                    {
+                        Game1.player.Name = args[1];
+                        monitor.Log($"OK, your name is now {Game1.player.Name}.", LogLevel.Info);
+                    }
+                    else
+                        monitor.Log($"Your name is currently '{Game1.player.Name}'. Type 'help player_setname' for usage.", LogLevel.Info);
                     break;
+
                 case "farm":
-                    Game1.player.farmName = args[1];
-                    monitor.Log($"OK, your farm's name is now {Game1.player.Name}.", LogLevel.Info);
-                    break;
-                default:
-                    this.LogArgumentsInvalid(monitor, command);
+                    if (!string.IsNullOrWhiteSpace(name))
+                    {
+                        Game1.player.farmName = args[1];
+                        monitor.Log($"OK, your farm's name is now {Game1.player.farmName}.", LogLevel.Info);
+                    }
+                    else
+                        monitor.Log($"Your farm's name is currently '{Game1.player.farmName}'. Type 'help player_setname' for usage.", LogLevel.Info);
                     break;
             }
         }

@@ -35,23 +35,18 @@ namespace TrainerMod.Framework.Commands.World
         /// <param name="monitor">Writes messages to the console and log file.</param>
         /// <param name="command">The command name.</param>
         /// <param name="args">The command arguments.</param>
-        public override void Handle(IMonitor monitor, string command, string[] args)
+        public override void Handle(IMonitor monitor, string command, ArgumentParser args)
         {
             if (args.Any())
             {
-                if (int.TryParse(args[0], out int value))
-                {
-                    if (value == 0 || value == 1)
-                    {
-                        this.FreezeTime = value == 1;
-                        FreezeTimeCommand.FrozenTime = Game1.timeOfDay;
-                        monitor.Log($"OK, time is now {(this.FreezeTime ? "frozen" : "resumed")}.", LogLevel.Info);
-                    }
-                    else
-                        this.LogUsageError(monitor, "The value should be 0 (not frozen), 1 (frozen), or empty (toggle).", command);
-                }
-                else
-                    this.LogArgumentNotInt(monitor, command);
+                // parse arguments
+                if (!args.TryGetInt(0, "value", out int value, min: 0, max: 1))
+                    return;
+
+                // handle
+                this.FreezeTime = value == 1;
+                FreezeTimeCommand.FrozenTime = Game1.timeOfDay;
+                monitor.Log($"OK, time is now {(this.FreezeTime ? "frozen" : "resumed")}.", LogLevel.Info);
             }
             else
             {

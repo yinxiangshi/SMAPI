@@ -18,22 +18,23 @@ namespace TrainerMod.Framework.Commands.Player
         /// <param name="monitor">Writes messages to the console and log file.</param>
         /// <param name="command">The command name.</param>
         /// <param name="args">The command arguments.</param>
-        public override void Handle(IMonitor monitor, string command, string[] args)
+        public override void Handle(IMonitor monitor, string command, ArgumentParser args)
         {
-            // validate
-            if (args.Length <= 2)
-            {
-                this.LogArgumentsInvalid(monitor, command);
+            // parse arguments
+            if (!args.TryGet(0, "target", out string target, oneOf: new[] { "hair", "eyes", "pants" }))
                 return;
-            }
-            if (!this.TryParseColor(args[1], out Color color))
+            if (!args.TryGet(1, "color", out string rawColor))
+                return;
+
+            // parse color
+            if (!this.TryParseColor(rawColor, out Color color))
             {
-                this.LogUsageError(monitor, "The color should be an RBG value like '255,150,0'.", command);
+                this.LogUsageError(monitor, "Argument 1 (color) must be an RBG value like '255,150,0'.");
                 return;
             }
 
             // handle
-            switch (args[0])
+            switch (target)
             {
                 case "hair":
                     Game1.player.hairstyleColor = color;
@@ -48,10 +49,6 @@ namespace TrainerMod.Framework.Commands.Player
                 case "pants":
                     Game1.player.pantsColor = color;
                     monitor.Log("OK, your pants color is updated.", LogLevel.Info);
-                    break;
-
-                default:
-                    this.LogArgumentsInvalid(monitor, command);
                     break;
             }
         }

@@ -25,7 +25,7 @@ namespace TrainerMod.Framework.Commands
         /// <param name="monitor">Writes messages to the console and log file.</param>
         /// <param name="command">The command name.</param>
         /// <param name="args">The command arguments.</param>
-        public abstract void Handle(IMonitor monitor, string command, string[] args);
+        public abstract void Handle(IMonitor monitor, string command, ArgumentParser args);
 
         /// <summary>Perform any logic needed on update tick.</summary>
         /// <param name="monitor">Writes messages to the console and log file.</param>
@@ -47,26 +47,16 @@ namespace TrainerMod.Framework.Commands
         /// <summary>Log an error indicating incorrect usage.</summary>
         /// <param name="monitor">Writes messages to the console and log file.</param>
         /// <param name="error">A sentence explaining the problem.</param>
-        /// <param name="command">The name of the command.</param>
-        protected void LogUsageError(IMonitor monitor, string error, string command)
+        protected void LogUsageError(IMonitor monitor, string error)
         {
-            monitor.Log($"{error} Type 'help {command}' for usage.", LogLevel.Error);
+            monitor.Log($"{error} Type 'help {this.Name}' for usage.", LogLevel.Error);
         }
 
         /// <summary>Log an error indicating a value must be an integer.</summary>
         /// <param name="monitor">Writes messages to the console and log file.</param>
-        /// <param name="command">The name of the command.</param>
-        protected void LogArgumentNotInt(IMonitor monitor, string command)
+        protected void LogArgumentNotInt(IMonitor monitor)
         {
-            this.LogUsageError(monitor, "The value must be a whole number.", command);
-        }
-
-        /// <summary>Log an error indicating a value is invalid.</summary>
-        /// <param name="monitor">Writes messages to the console and log file.</param>
-        /// <param name="command">The name of the command.</param>
-        protected void LogArgumentsInvalid(IMonitor monitor, string command)
-        {
-            this.LogUsageError(monitor, "The arguments are invalid.", command);
+            this.LogUsageError(monitor, "The value must be a whole number.");
         }
     }
 }

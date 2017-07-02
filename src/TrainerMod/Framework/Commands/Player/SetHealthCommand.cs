@@ -32,9 +32,9 @@ namespace TrainerMod.Framework.Commands.Player
         /// <param name="monitor">Writes messages to the console and log file.</param>
         /// <param name="command">The command name.</param>
         /// <param name="args">The command arguments.</param>
-        public override void Handle(IMonitor monitor, string command, string[] args)
+        public override void Handle(IMonitor monitor, string command, ArgumentParser args)
         {
-            // validate
+            // no-argument mode
             if (!args.Any())
             {
                 monitor.Log($"You currently have {(this.InfiniteHealth ? "infinite" : Game1.player.health.ToString())} health. Specify a value to change it.", LogLevel.Info);
@@ -57,7 +57,7 @@ namespace TrainerMod.Framework.Commands.Player
                     monitor.Log($"OK, you now have {Game1.player.health} health.", LogLevel.Info);
                 }
                 else
-                    this.LogArgumentNotInt(monitor, command);
+                    this.LogArgumentNotInt(monitor);
             }
         }
 

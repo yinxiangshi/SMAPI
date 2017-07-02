@@ -17,7 +17,7 @@ namespace TrainerMod.Framework.Commands.Other
         /// <param name="monitor">Writes messages to the console and log file.</param>
         /// <param name="command">The command name.</param>
         /// <param name="args">The command arguments.</param>
-        public override void Handle(IMonitor monitor, string command, string[] args)
+        public override void Handle(IMonitor monitor, string command, ArgumentParser args)
         {
             // submit command
             string debugCommand = string.Join(" ", args);

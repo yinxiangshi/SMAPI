@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using StardewModdingAPI;
+﻿using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Objects;
 
@@ -19,24 +18,11 @@ namespace TrainerMod.Framework.Commands.Player
         /// <param name="monitor">Writes messages to the console and log file.</param>
         /// <param name="command">The command name.</param>
         /// <param name="args">The command arguments.</param>
-        public override void Handle(IMonitor monitor, string command, string[] args)
+        public override void Handle(IMonitor monitor, string command, ArgumentParser args)
         {
-            // validate
-            if (!args.Any())
-            {
-                this.LogArgumentsInvalid(monitor, command);
+            // read arguments
+            if (!args.TryGetInt(0, "floor ID", out int floorID, min: 0, max: 39))
                 return;
-            }
-            if (!int.TryParse(args[0], out int floorID))
-            {
-                this.LogArgumentNotInt(monitor, command);
-                return;
-            }
-            if (floorID < 0 || floorID > 39)
-            {
-                monitor.Log("There is no such flooring ID (must be between 0 and 39).", LogLevel.Error);
-                return;
-            }
 
             // handle
             Wallpaper wallpaper = new Wallpaper(floorID, isFloor: true);

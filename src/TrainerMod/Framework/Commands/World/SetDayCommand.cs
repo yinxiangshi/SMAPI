@@ -18,24 +18,18 @@ namespace TrainerMod.Framework.Commands.World
         /// <param name="monitor">Writes messages to the console and log file.</param>
         /// <param name="command">The command name.</param>
         /// <param name="args">The command arguments.</param>
-        public override void Handle(IMonitor monitor, string command, string[] args)
+        public override void Handle(IMonitor monitor, string command, ArgumentParser args)
         {
-            // validate
+            // no-argument mode
             if (!args.Any())
             {
                 monitor.Log($"The current date is {Game1.currentSeason} {Game1.dayOfMonth}. Specify a value to change the day.", LogLevel.Info);
                 return;
             }
-            if (!int.TryParse(args[0], out int day))
-            {
-                this.LogArgumentNotInt(monitor, command);
+
+            // parse arguments
+            if (!args.TryGetInt(0, "day", out int day, min: 1, max: 28))
                 return;
-            }
-            if (day > 28 || day <= 0)
-            {
-                this.LogUsageError(monitor, "That isn't a valid day.", command);
-                return;
-            }
 
             // handle
             Game1.dayOfMonth = day;

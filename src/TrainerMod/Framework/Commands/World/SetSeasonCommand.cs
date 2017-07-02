@@ -25,22 +25,21 @@ namespace TrainerMod.Framework.Commands.World
         /// <param name="monitor">Writes messages to the console and log file.</param>
         /// <param name="command">The command name.</param>
         /// <param name="args">The command arguments.</param>
-        public override void Handle(IMonitor monitor, string command, string[] args)
+        public override void Handle(IMonitor monitor, string command, ArgumentParser args)
         {
-            // validate
+            // no-argument mode
             if (!args.Any())
             {
                 monitor.Log($"The current season is {Game1.currentSeason}. Specify a value to change it.", LogLevel.Info);
                 return;
             }
-            if (!this.ValidSeasons.Contains(args[0]))
-            {
-                this.LogUsageError(monitor, "That isn't a valid season name.", command);
+
+            // parse arguments
+            if (!args.TryGet(0, "season", out string season, oneOf: this.ValidSeasons))
                 return;
-            }
 
             // handle
-            Game1.currentSeason = args[0];
+            Game1.currentSeason = season;
             monitor.Log($"OK, the date is now {Game1.currentSeason} {Game1.dayOfMonth}.", LogLevel.Info);
         }
     }

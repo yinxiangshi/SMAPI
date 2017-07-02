@@ -18,24 +18,18 @@ namespace TrainerMod.Framework.Commands.World
         /// <param name="monitor">Writes messages to the console and log file.</param>
         /// <param name="command">The command name.</param>
         /// <param name="args">The command arguments.</param>
-        public override void Handle(IMonitor monitor, string command, string[] args)
+        public override void Handle(IMonitor monitor, string command, ArgumentParser args)
         {
-            // validate
+            // no-argument mode
             if (!args.Any())
             {
                 monitor.Log($"The current year is {Game1.year}. Specify a value to change the year.", LogLevel.Info);
                 return;
             }
-            if (!int.TryParse(args[0], out int year))
-            {
-                this.LogArgumentNotInt(monitor, command);
+
+            // parse arguments
+            if (!args.TryGetInt(0, "year", out int year, min: 1))
                 return;
-            }
-            if (year < 1)
-            {
-                this.LogUsageError(monitor, "That isn't a valid year.", command);
-                return;
-            }
 
             // handle
             Game1.year = year;

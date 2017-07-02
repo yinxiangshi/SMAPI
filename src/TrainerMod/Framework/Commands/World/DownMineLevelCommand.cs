@@ -18,7 +18,7 @@ namespace TrainerMod.Framework.Commands.World
         /// <param name="monitor">Writes messages to the console and log file.</param>
         /// <param name="command">The command name.</param>
         /// <param name="args">The command arguments.</param>
-        public override void Handle(IMonitor monitor, string command, string[] args)
+        public override void Handle(IMonitor monitor, string command, ArgumentParser args)
         {
             int level = (Game1.currentLocation as MineShaft)?.mineLevel ?? 0;
             monitor.Log($"OK, warping you to mine level {level + 1}.", LogLevel.Info);

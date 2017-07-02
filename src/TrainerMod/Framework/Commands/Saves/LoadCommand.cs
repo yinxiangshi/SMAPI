@@ -18,7 +18,7 @@ namespace TrainerMod.Framework.Commands.Saves
         /// <param name="monitor">Writes messages to the console and log file.</param>
         /// <param name="command">The command name.</param>
         /// <param name="args">The command arguments.</param>
-        public override void Handle(IMonitor monitor, string command, string[] args)
+        public override void Handle(IMonitor monitor, string command, ArgumentParser args)
         {
             monitor.Log("Triggering load menu...", LogLevel.Info);
             Game1.hasLoadedGame = false;

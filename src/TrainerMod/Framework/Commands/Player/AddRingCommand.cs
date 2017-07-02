@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using StardewModdingAPI;
+﻿using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Objects;
 
@@ -19,24 +18,11 @@ namespace TrainerMod.Framework.Commands.Player
         /// <param name="monitor">Writes messages to the console and log file.</param>
         /// <param name="command">The command name.</param>
         /// <param name="args">The command arguments.</param>
-        public override void Handle(IMonitor monitor, string command, string[] args)
+        public override void Handle(IMonitor monitor, string command, ArgumentParser args)
         {
-            // validate
-            if (!args.Any())
-            {
-                this.LogArgumentsInvalid(monitor, command);
+            // parse arguments
+            if (!args.TryGetInt(0, "ring ID", out int ringID, min: Ring.ringLowerIndexRange, max: Ring.ringUpperIndexRange))
                 return;
-            }
-            if (!int.TryParse(args[0], out int ringID))
-            {
-                monitor.Log("<item> is invalid", LogLevel.Error);
-                return;
-            }
-            if (ringID < Ring.ringLowerIndexRange || ringID > Ring.ringUpperIndexRange)
-            {
-                monitor.Log($"There is no such ring ID (must be between {Ring.ringLowerIndexRange} and {Ring.ringUpperIndexRange}).", LogLevel.Error);
-                return;
-            }
 
             // handle
             Ring ring = new Ring(ringID);

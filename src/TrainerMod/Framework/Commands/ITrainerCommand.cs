@@ -25,7 +25,7 @@ namespace TrainerMod.Framework.Commands
         /// <param name="monitor">Writes messages to the console and log file.</param>
         /// <param name="command">The command name.</param>
         /// <param name="args">The command arguments.</param>
-        void Handle(IMonitor monitor, string command, string[] args);
+        void Handle(IMonitor monitor, string command, ArgumentParser args);
 
         /// <summary>Perform any logic needed on update tick.</summary>
         /// <param name="monitor">Writes messages to the console and log file.</param>

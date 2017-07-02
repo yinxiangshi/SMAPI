@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using StardewModdingAPI;
+﻿using StardewModdingAPI;
 using StardewValley;
 
 namespace TrainerMod.Framework.Commands.Player
@@ -18,39 +17,15 @@ namespace TrainerMod.Framework.Commands.Player
         /// <param name="monitor">Writes messages to the console and log file.</param>
         /// <param name="command">The command name.</param>
         /// <param name="args">The command arguments.</param>
-        public override void Handle(IMonitor monitor, string command, string[] args)
+        public override void Handle(IMonitor monitor, string command, ArgumentParser args)
         {
-            // validate
-            if (!args.Any())
-            {
-                this.LogArgumentsInvalid(monitor, command);
+            // read arguments
+            if (!args.TryGetInt(0, "item ID", out int itemID, min: 0))
                 return;
-            }
-            if (!int.TryParse(args[0], out int itemID))
-            {
-                this.LogUsageError(monitor, "The item ID must be an integer.", command);
-                return;
-            }
-
-            // parse arguments
-            int count = 1;
-            int quality = 0;
-            if (args.Length > 1)
-            {
-                if (!int.TryParse(args[1], out count))
-                {
-                    this.LogUsageError(monitor, "The optional count is invalid.", command);
-                    return;
-                }
-            }
-            if (args.Length > 2)
-            {
-                if (!int.TryParse(args[2], out quality))
-                {
-                    this.LogUsageError(monitor, "The optional quality is invalid.", command);
-                    return;
-                }
-            }
+            if (!args.TryGetInt(1, "count", out int count, min: 1, required: false))
+                count = 1;
+            if (!args.TryGetInt(2, "quality", out int quality, min: Object.lowQuality, max: Object.bestQuality, required: false))
+                quality = Object.lowQuality;
 
             // spawn item
             var item = new Object(itemID, count) { quality = quality };

@@ -58,7 +58,8 @@ namespace TrainerMod
         /// <param name="args">The command arguments.</param>
         private void HandleCommand(ITrainerCommand command, string commandName, string[] args)
         {
-            command.Handle(this.Monitor, commandName, args);
+            ArgumentParser argParser = new ArgumentParser(commandName, args, this.Monitor);
+            command.Handle(this.Monitor, commandName, argParser);
         }
 
         /// <summary>Find all commands in the assembly.</summary>

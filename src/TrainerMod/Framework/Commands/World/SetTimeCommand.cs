@@ -18,24 +18,18 @@ namespace TrainerMod.Framework.Commands.World
         /// <param name="monitor">Writes messages to the console and log file.</param>
         /// <param name="command">The command name.</param>
         /// <param name="args">The command arguments.</param>
-        public override void Handle(IMonitor monitor, string command, string[] args)
+        public override void Handle(IMonitor monitor, string command, ArgumentParser args)
         {
-            // validate
+            // no-argument mode
             if (!args.Any())
             {
                 monitor.Log($"The current time is {Game1.timeOfDay}. Specify a value to change it.", LogLevel.Info);
                 return;
             }
-            if (!int.TryParse(args[0], out int time))
-            {
-                this.LogArgumentNotInt(monitor, command);
+
+            // parse arguments
+            if (!args.TryGetInt(0, "time", out int time, min: 600, max: 2600))
                 return;
-            }
-            if (time > 2600 || time < 600)
-            {
-                this.LogUsageError(monitor, "That isn't a valid time.", command);
-                return;
-            }
 
             // handle
             Game1.timeOfDay = time;

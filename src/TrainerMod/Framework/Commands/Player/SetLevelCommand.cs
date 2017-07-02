@@ -17,22 +17,16 @@ namespace TrainerMod.Framework.Commands.Player
         /// <param name="monitor">Writes messages to the console and log file.</param>
         /// <param name="command">The command name.</param>
         /// <param name="args">The command arguments.</param>
-        public override void Handle(IMonitor monitor, string command, string[] args)
+        public override void Handle(IMonitor monitor, string command, ArgumentParser args)
         {
             // validate
-            if (args.Length <= 2)
-            {
-                this.LogArgumentsInvalid(monitor, command);
+            if (!args.TryGet(0, "skill", out string skill, oneOf: new[] { "luck", "mining", "combat", "farming", "fishing", "foraging" }))
                 return;
-            }
-            if (!int.TryParse(args[1], out int level))
-            {
-                this.LogArgumentNotInt(monitor, command);
+            if (!args.TryGetInt(1, "level", out int level, min: 0, max: 10))
                 return;
-            }
 
             // handle
-            switch (args[0])
+            switch (skill)
             {
                 case "luck":
                     Game1.player.LuckLevel = level;
@@ -62,10 +56,6 @@ namespace TrainerMod.Framework.Commands.Player
                 case "foraging":
                     Game1.player.ForagingLevel = level;
                     monitor.Log($"OK, your foraging skill is now {Game1.player.ForagingLevel}.", LogLevel.Info);
-                    break;
-
-                default:
-                    this.LogUsageError(monitor, "That isn't a valid skill.", command);
                     break;
             }
         }
