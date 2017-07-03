@@ -35,5 +35,10 @@ If you really want to install SMAPI manually, here's how.
 3. Copy the files from the "internal/Windows" folder (on Windows) or "internal/Mono" folder (on
    Linux/Mac) into your game folder. The `StardewModdingAPI.exe` file should be right next to the
    game's executable.
-4. If you use Steam, see the install guide above to enable achievements and overlay. Otherwise,
-   just run StardewModdingAPI.exe in your game folder to play with mods.
+4.
+  - Windows only: if you use Steam, see the install guide above to enable achievements and
+    overlay. Otherwise, just run StardewModdingAPI.exe in your game folder to play with mods.
+
+  - Linux/Mac only: rename the "StardewValley" file (no extension) to "StardewValley-original", and
+    "StardewModdingAPI" (no extension) to "StardewValley". Now just launch the game as usual to
+    play with mods.
