@@ -349,5 +349,23 @@ namespace StardewModdingAPI.Framework
                     yield return new KeyValuePair<IModMetadata, T>(metadata, interceptor);
             }
         }
+
+        /// <summary>Dispose all game resources.</summary>
+        /// <param name="disposing">Whether the content manager is disposing (rather than finalising).</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (!disposing)
+                return;
+
+            // Clear cache & reload all assets. While that may seem perverse during disposal, it's
+            // necessary due to limitations in the way SMAPI currently intercepts content assets.
+            // 
+            // The game uses multiple content managers while SMAPI needs one and only one. The game
+            // only disposes some of its content managers when returning to title, which means SMAPI
+            // can't know which assets are meant to be disposed. Here we remove current assets from
+            // the cache, but don't dispose them to avoid crashing any code that still references
+            // them. The garbage collector will eventually clean up any unused assets.
+            this.Reset();
+        }
     }
 }
