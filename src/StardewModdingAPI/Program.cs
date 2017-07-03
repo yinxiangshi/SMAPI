@@ -126,6 +126,9 @@ namespace StardewModdingAPI
                 // init logging
                 this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GetGameDisplayVersion(Constants.GameVersion)} on {this.GetFriendlyPlatformName()}", LogLevel.Info);
                 this.Monitor.Log($"Mods go here: {Constants.ModPath}");
+#if !SMAPI_2_0
+                this.Monitor.Log("Preparing SMAPI...");
+#endif
 
                 // validate paths
                 this.VerifyPath(Constants.ModPath);
@@ -209,7 +212,11 @@ namespace StardewModdingAPI
             }
 
             // start game
+#if SMAPI_2_0
             this.Monitor.Log("Starting game...", LogLevel.Trace);
+#else
+            this.Monitor.Log("Starting game...");
+#endif
             try
             {
                 this.IsGameRunning = true;
@@ -349,7 +356,9 @@ namespace StardewModdingAPI
             if (this.Settings.DeveloperMode)
             {
                 this.Monitor.ShowTraceInConsole = true;
+#if SMAPI_2_0
                 this.Monitor.ShowFullStampInConsole = true;
+#endif
                 this.Monitor.Log($"You configured SMAPI to run in developer mode. The console may be much more verbose. You can disable developer mode by installing the non-developer version of SMAPI, or by editing {Constants.ApiConfigPath}.", LogLevel.Info);
             }
             if (!this.Settings.CheckForUpdates)
@@ -365,7 +374,11 @@ namespace StardewModdingAPI
 
             // load mods
             {
+#if SMAPI_2_0
                 this.Monitor.Log("Loading mod metadata...", LogLevel.Trace);
+#else
+                this.Monitor.Log("Loading mod metadata...");
+#endif
                 ModResolver resolver = new ModResolver();
 
                 // load manifests
@@ -455,6 +468,9 @@ namespace StardewModdingAPI
         private void RunConsoleLoop()
         {
             // prepare console
+#if !SMAPI_2_0
+            this.Monitor.Log("Starting console...");
+#endif
             this.Monitor.Log("Type 'help' for help, or 'help <cmd>' for a command's usage", LogLevel.Info);
             this.CommandManager.Add("SMAPI", "help", "Lists command documentation.\n\nUsage: help\nLists all available commands.\n\nUsage: help <cmd>\n- cmd: The name of a command whose documentation to display.", this.HandleCommand);
             this.CommandManager.Add("SMAPI", "reload_i18n", "Reloads translation files for all mods.\n\nUsage: reload_i18n", this.HandleCommand);
@@ -593,8 +609,11 @@ namespace StardewModdingAPI
         private void LoadMods(IModMetadata[] mods, JsonHelper jsonHelper, SContentManager contentManager)
 #endif
         {
+#if SMAPI_2_0
             this.Monitor.Log("Loading mods...", LogLevel.Trace);
-
+#else
+            this.Monitor.Log("Loading mods...");
+#endif
             // load mod assemblies
             IDictionary<IModMetadata, string> skippedMods = new Dictionary<IModMetadata, string>();
             {
@@ -702,7 +721,9 @@ namespace StardewModdingAPI
             IModMetadata[] loadedMods = this.ModRegistry.GetMods().ToArray();
 
             // log skipped mods
+#if SMAPI_2_0
             this.Monitor.Newline();
+#endif
             if (skippedMods.Any())
             {
                 this.Monitor.Log($"Skipped {skippedMods.Count} mods:", LogLevel.Error);
@@ -716,7 +737,9 @@ namespace StardewModdingAPI
                     else
                         this.Monitor.Log($"   {mod.DisplayName} because {reason}", LogLevel.Error);
                 }
+#if SMAPI_2_0
                 this.Monitor.Newline();
+#endif
             }
 
             // log loaded mods
@@ -731,7 +754,9 @@ namespace StardewModdingAPI
                     LogLevel.Info
                 );
             }
+#if SMAPI_2_0
             this.Monitor.Newline();
+#endif
 
             // initialise translations
             this.ReloadTranslations();
@@ -835,6 +860,7 @@ namespace StardewModdingAPI
                     }
                     else
                     {
+#if SMAPI_2_0
                         string message = "The following commands are registered:\n";
                         IGrouping<string, string>[] groups = (from command in this.CommandManager.GetAll() orderby command.ModName, command.Name group command.Name by command.ModName).ToArray();
                         foreach (var group in groups)
@@ -846,6 +872,10 @@ namespace StardewModdingAPI
                         message += "For more information about a command, type 'help command_name'.";
 
                         this.Monitor.Log(message, LogLevel.Info);
+#else
+                        this.Monitor.Log("The following commands are registered: " + string.Join(", ", this.CommandManager.GetAll().Select(p => p.Name)) + ".", LogLevel.Info);
+                        this.Monitor.Log("For more information about a command, type 'help command_name'.", LogLevel.Info);
+#endif
                     }
                     break;
 
@@ -894,7 +924,9 @@ namespace StardewModdingAPI
             {
                 WriteToConsole = this.Monitor.WriteToConsole,
                 ShowTraceInConsole = this.Settings.DeveloperMode,
+#if SMAPI_2_0
                 ShowFullStampInConsole = this.Settings.DeveloperMode
+#endif
             };
         }
 
