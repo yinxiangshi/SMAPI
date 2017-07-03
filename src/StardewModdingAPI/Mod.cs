@@ -40,7 +40,7 @@ namespace StardewModdingAPI
         {
             get
             {
-                Mod.DeprecationManager.Warn($"{nameof(Mod)}.{nameof(Mod.PathOnDisk)}", "1.0", DeprecationLevel.Info);
+                Mod.DeprecationManager.Warn($"{nameof(Mod)}.{nameof(Mod.PathOnDisk)}", "1.0", DeprecationLevel.PendingRemoval);
                 return this._pathOnDisk;
             }
             internal set { this._pathOnDisk = value; }
@@ -52,7 +52,7 @@ namespace StardewModdingAPI
         {
             get
             {
-                Mod.DeprecationManager.Warn($"{nameof(Mod)}.{nameof(Mod.BaseConfigPath)}", "1.0", DeprecationLevel.Info);
+                Mod.DeprecationManager.Warn($"{nameof(Mod)}.{nameof(Mod.BaseConfigPath)}", "1.0", DeprecationLevel.PendingRemoval);
                 Mod.DeprecationManager.MarkWarned($"{nameof(Mod)}.{nameof(Mod.PathOnDisk)}", "1.0"); // avoid redundant warnings
                 return Path.Combine(this.PathOnDisk, "config.json");
             }
@@ -68,7 +68,7 @@ namespace StardewModdingAPI
         {
             get
             {
-                Mod.DeprecationManager.Warn($"{nameof(Mod)}.{nameof(Mod.PerSaveConfigPath)}", "1.0", DeprecationLevel.Info);
+                Mod.DeprecationManager.Warn($"{nameof(Mod)}.{nameof(Mod.PerSaveConfigPath)}", "1.0", DeprecationLevel.PendingRemoval);
                 Mod.DeprecationManager.MarkWarned($"{nameof(Mod)}.{nameof(Mod.PerSaveConfigFolder)}", "1.0"); // avoid redundant warnings
                 return Context.IsSaveLoaded ? Path.Combine(this.PerSaveConfigFolder, $"{Constants.SaveFolderName}.json") : "";
             }
@@ -113,7 +113,7 @@ namespace StardewModdingAPI
         [Obsolete]
         private string GetPerSaveConfigFolder()
         {
-            Mod.DeprecationManager.Warn($"{nameof(Mod)}.{nameof(Mod.PerSaveConfigFolder)}", "1.0", DeprecationLevel.Info);
+            Mod.DeprecationManager.Warn($"{nameof(Mod)}.{nameof(Mod.PerSaveConfigFolder)}", "1.0", DeprecationLevel.PendingRemoval);
             Mod.DeprecationManager.MarkWarned($"{nameof(Mod)}.{nameof(Mod.PathOnDisk)}", "1.0"); // avoid redundant warnings
 
             if (!((Manifest)this.ModManifest).PerSaveConfigs)

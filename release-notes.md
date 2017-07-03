@@ -33,6 +33,7 @@ For modders:
 * Fixed `SemanticVersion` not treating hyphens as separators when comparing prerelease tags.  
   <small>_(While that was technically correct, it leads to unintuitive behaviour like sorting `-alpha-2` _after_ `-alpha-10`, even though `-alpha.2` sorts before `-alpha.10`.)_</small>
 * Fixed corrupted state exceptions not being logged by SMAPI.
+* Increased all deprecations to _pending removal_.
 
 For SMAPI developers:
 * Added SMAPI 2.0 compile mode, for testing how mods will work with SMAPI 2.0.

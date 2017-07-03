@@ -95,7 +95,7 @@ namespace StardewModdingAPI
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         public static void CallCommand(string input, IMonitor monitor)
         {
-            Command.DeprecationManager.Warn("Command.CallCommand", "1.9", DeprecationLevel.Info);
+            Command.DeprecationManager.Warn("Command.CallCommand", "1.9", DeprecationLevel.PendingRemoval);
             Command.CommandManager.Trigger(input);
         }
 
@@ -108,7 +108,7 @@ namespace StardewModdingAPI
             name = name?.Trim().ToLower();
 
             // raise deprecation warning
-            Command.DeprecationManager.Warn("Command.RegisterCommand", "1.9", DeprecationLevel.Info);
+            Command.DeprecationManager.Warn("Command.RegisterCommand", "1.9", DeprecationLevel.PendingRemoval);
 
             // validate
             if (Command.LegacyCommands.ContainsKey(name))
@@ -131,7 +131,7 @@ namespace StardewModdingAPI
         /// <param name="name">The command name to find.</param>
         public static Command FindCommand(string name)
         {
-            Command.DeprecationManager.Warn("Command.FindCommand", "1.9", DeprecationLevel.Info);
+            Command.DeprecationManager.Warn("Command.FindCommand", "1.9", DeprecationLevel.PendingRemoval);
             if (name == null)
                 return null;
 

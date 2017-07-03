@@ -49,7 +49,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                GameEvents.DeprecationManager.Warn($"{nameof(GameEvents)}.{nameof(GameEvents.Initialize)}", "1.10", DeprecationLevel.Info);
+                GameEvents.DeprecationManager.Warn($"{nameof(GameEvents)}.{nameof(GameEvents.Initialize)}", "1.10", DeprecationLevel.PendingRemoval);
                 GameEvents._Initialize += value;
             }
             remove => GameEvents._Initialize -= value;
@@ -61,7 +61,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                GameEvents.DeprecationManager.Warn($"{nameof(GameEvents)}.{nameof(GameEvents.LoadContent)}", "1.10", DeprecationLevel.Info);
+                GameEvents.DeprecationManager.Warn($"{nameof(GameEvents)}.{nameof(GameEvents.LoadContent)}", "1.10", DeprecationLevel.PendingRemoval);
                 GameEvents._LoadContent += value;
             }
             remove => GameEvents._LoadContent -= value;
@@ -73,7 +73,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                GameEvents.DeprecationManager.Warn($"{nameof(GameEvents)}.{nameof(GameEvents.GameLoaded)}", "1.12", DeprecationLevel.Info);
+                GameEvents.DeprecationManager.Warn($"{nameof(GameEvents)}.{nameof(GameEvents.GameLoaded)}", "1.12", DeprecationLevel.PendingRemoval);
                 GameEvents._GameLoaded += value;
             }
             remove => GameEvents._GameLoaded -= value;
@@ -85,7 +85,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                GameEvents.DeprecationManager.Warn($"{nameof(GameEvents)}.{nameof(GameEvents.FirstUpdateTick)}", "1.12", DeprecationLevel.Info);
+                GameEvents.DeprecationManager.Warn($"{nameof(GameEvents)}.{nameof(GameEvents.FirstUpdateTick)}", "1.12", DeprecationLevel.PendingRemoval);
                 GameEvents._FirstUpdateTick += value;
             }
             remove => GameEvents._FirstUpdateTick -= value;

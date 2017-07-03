@@ -39,7 +39,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                PlayerEvents.DeprecationManager.Warn($"{nameof(PlayerEvents)}.{nameof(PlayerEvents.LoadedGame)}", "1.6", DeprecationLevel.Info);
+                PlayerEvents.DeprecationManager.Warn($"{nameof(PlayerEvents)}.{nameof(PlayerEvents.LoadedGame)}", "1.6", DeprecationLevel.PendingRemoval);
                 PlayerEvents._LoadedGame += value;
             }
             remove => PlayerEvents._LoadedGame -= value;
@@ -51,7 +51,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                PlayerEvents.DeprecationManager.Warn($"{nameof(PlayerEvents)}.{nameof(PlayerEvents.FarmerChanged)}", "1.6", DeprecationLevel.Info);
+                PlayerEvents.DeprecationManager.Warn($"{nameof(PlayerEvents)}.{nameof(PlayerEvents.FarmerChanged)}", "1.6", DeprecationLevel.PendingRemoval);
                 PlayerEvents._FarmerChanged += value;
             }
             remove => PlayerEvents._FarmerChanged -= value;

@@ -307,7 +307,7 @@ namespace StardewModdingAPI
         /// <summary>Raise a deprecation warning.</summary>
         private static void WarnDeprecated()
         {
-            Log.DeprecationManager.Warn($"the {nameof(Log)} class", "1.1", DeprecationLevel.Info);
+            Log.DeprecationManager.Warn($"the {nameof(Log)} class", "1.1", DeprecationLevel.PendingRemoval);
         }
 
         /// <summary>Get the name of the mod logging a message from the stack.</summary>

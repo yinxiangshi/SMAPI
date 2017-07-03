@@ -49,7 +49,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                TimeEvents.DeprecationManager.Warn($"{nameof(TimeEvents)}.{nameof(TimeEvents.DayOfMonthChanged)}", "1.14", DeprecationLevel.Info);
+                TimeEvents.DeprecationManager.Warn($"{nameof(TimeEvents)}.{nameof(TimeEvents.DayOfMonthChanged)}", "1.14", DeprecationLevel.PendingRemoval);
                 TimeEvents._DayOfMonthChanged += value;
             }
             remove => TimeEvents._DayOfMonthChanged -= value;
@@ -61,7 +61,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                TimeEvents.DeprecationManager.Warn($"{nameof(TimeEvents)}.{nameof(TimeEvents.YearOfGameChanged)}", "1.14", DeprecationLevel.Info);
+                TimeEvents.DeprecationManager.Warn($"{nameof(TimeEvents)}.{nameof(TimeEvents.YearOfGameChanged)}", "1.14", DeprecationLevel.PendingRemoval);
                 TimeEvents._YearOfGameChanged += value;
             }
             remove => TimeEvents._YearOfGameChanged -= value;
@@ -73,7 +73,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                TimeEvents.DeprecationManager.Warn($"{nameof(TimeEvents)}.{nameof(TimeEvents.SeasonOfYearChanged)}", "1.14", DeprecationLevel.Info);
+                TimeEvents.DeprecationManager.Warn($"{nameof(TimeEvents)}.{nameof(TimeEvents.SeasonOfYearChanged)}", "1.14", DeprecationLevel.PendingRemoval);
                 TimeEvents._SeasonOfYearChanged += value;
             }
             remove => TimeEvents._SeasonOfYearChanged -= value;
@@ -85,7 +85,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                TimeEvents.DeprecationManager.Warn($"{nameof(TimeEvents)}.{nameof(TimeEvents.OnNewDay)}", "1.6", DeprecationLevel.Info);
+                TimeEvents.DeprecationManager.Warn($"{nameof(TimeEvents)}.{nameof(TimeEvents.OnNewDay)}", "1.6", DeprecationLevel.PendingRemoval);
                 TimeEvents._OnNewDay += value;
             }
             remove => TimeEvents._OnNewDay -= value;
