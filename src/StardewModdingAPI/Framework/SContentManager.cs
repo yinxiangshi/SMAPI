@@ -232,11 +232,11 @@ namespace StardewModdingAPI.Framework
                 {
                     try
                     {
-                        return entry.Interceptor.CanLoad<T>(info);
+                        return entry.Value.CanLoad<T>(info);
                     }
                     catch (Exception ex)
                     {
-                        this.Monitor.Log($"{entry.Mod.DisplayName} crashed when checking whether it could load asset '{info.AssetName}', and will be ignored. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
+                        this.Monitor.Log($"{entry.Key.DisplayName} crashed when checking whether it could load asset '{info.AssetName}', and will be ignored. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
                         return false;
                     }
                 })
@@ -247,14 +247,14 @@ namespace StardewModdingAPI.Framework
                 return null;
             if (loaders.Length > 1)
             {
-                string[] loaderNames = loaders.Select(p => p.Mod.DisplayName).ToArray();
+                string[] loaderNames = loaders.Select(p => p.Key.DisplayName).ToArray();
                 this.Monitor.Log($"Multiple mods want to provide the '{info.AssetName}' asset ({string.Join(", ", loaderNames)}), but an asset can't be loaded multiple times. SMAPI will use the default asset instead; uninstall one of the mods to fix this. (Message for modders: you should usually use {typeof(IAssetEditor)} instead to avoid conflicts.)", LogLevel.Warn);
                 return null;
             }
 
             // fetch asset from loader
-            IModMetadata mod = loaders[0].Mod;
-            IAssetLoader loader = loaders[0].Interceptor;
+            IModMetadata mod = loaders[0].Key;
+            IAssetLoader loader = loaders[0].Value;
             T data;
             try
             {
@@ -290,8 +290,8 @@ namespace StardewModdingAPI.Framework
             foreach (var entry in this.GetInterceptors(this.Editors))
             {
                 // check for match
-                IModMetadata mod = entry.Mod;
-                IAssetEditor editor = entry.Interceptor;
+                IModMetadata mod = entry.Key;
+                IAssetEditor editor = entry.Value;
                 try
                 {
                     if (!editor.CanEdit<T>(info))
@@ -299,7 +299,7 @@ namespace StardewModdingAPI.Framework
                 }
                 catch (Exception ex)
                 {
-                    this.Monitor.Log($"{entry.Mod.DisplayName} crashed when checking whether it could edit asset '{info.AssetName}', and will be ignored. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
+                    this.Monitor.Log($"{mod.DisplayName} crashed when checking whether it could edit asset '{info.AssetName}', and will be ignored. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
                     continue;
                 }
 
@@ -312,7 +312,7 @@ namespace StardewModdingAPI.Framework
                 }
                 catch (Exception ex)
                 {
-                    this.Monitor.Log($"{entry.Mod.DisplayName} crashed when editing asset '{info.AssetName}', which may cause errors in-game. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
+                    this.Monitor.Log($"{mod.DisplayName} crashed when editing asset '{info.AssetName}', which may cause errors in-game. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
                 }
 
                 // validate edit
@@ -333,7 +333,7 @@ namespace StardewModdingAPI.Framework
         }
 
         /// <summary>Get all registered interceptors from a list.</summary>
-        private IEnumerable<(IModMetadata Mod, T Interceptor)> GetInterceptors<T>(IDictionary<IModMetadata, IList<T>> entries)
+        private IEnumerable<KeyValuePair<IModMetadata, T>> GetInterceptors<T>(IDictionary<IModMetadata, IList<T>> entries)
         {
             foreach (var entry in entries)
             {
@@ -342,11 +342,11 @@ namespace StardewModdingAPI.Framework
 
                 // special case if mod is an interceptor
                 if (metadata.Mod is T modAsInterceptor)
-                    yield return (metadata, modAsInterceptor);
+                    yield return new KeyValuePair<IModMetadata, T>(metadata, modAsInterceptor);
 
                 // registered editors
                 foreach (T interceptor in interceptors)
-                    yield return (metadata, interceptor);
+                    yield return new KeyValuePair<IModMetadata, T>(metadata, interceptor);
             }
         }
     }

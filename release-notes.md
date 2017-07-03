@@ -27,7 +27,6 @@ For players:
 For modders:
 * Added `SDate` utility for in-game date calculations (see [API reference](http://stardewvalleywiki.com/Modding:SMAPI_APIs#Dates)).
 * Added support for minimum dependency versions in `manifest.json` (see [API reference](http://stardewvalleywiki.com/Modding:SMAPI_APIs#Manifest)).
-* Added `System.ValueTuple.dll` to the SMAPI install package so mods can use [C# 7 value tuples](https://docs.microsoft.com/en-us/dotnet/csharp/tuples).
 * Added more useful logging when loading mods.
 * Changed `manifest.MinimumApiVersion` from string to `ISemanticVersion`. This shouldn't affect mods unless they referenced that field in code.
 * Fixed `SemanticVersion` parsing some invalid versions into close approximations (like `1.apple` &rarr; `1.0-apple`).

@@ -228,7 +228,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                     from entry in mod.Manifest.Dependencies
                     let dependencyMod = mods.FirstOrDefault(m => string.Equals(m.Manifest?.UniqueID, entry.UniqueID, StringComparison.InvariantCultureIgnoreCase))
                     orderby entry.UniqueID
-                    select (ID: entry.UniqueID, MinVersion: entry.MinimumVersion, Mod: dependencyMod)
+                    select new { ID = entry.UniqueID, MinVersion = entry.MinimumVersion, Mod = dependencyMod }
                 )
                 .ToArray();
 
