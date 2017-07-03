@@ -52,13 +52,12 @@ namespace StardewModdingAPI.Framework
             if (!this.MarkWarned(source ?? "<unknown>", nounPhrase, version))
                 return;
 
+            // show SMAPI 2.0 meta-warning
+            if(this.MarkWarned("SMAPI", "SMAPI 2.0 meta-warning", "2.0"))
+                this.Monitor.Log("Some of your mods will break in the upcoming SMAPI 2.0 release because they use obsolete APIs. Please check for a newer version of any mod showing 'may break' warnings, or let the author know about this message. For more information, see http://community.playstarbound.com/threads/135000.", LogLevel.Warn);
+
             // build message
-            string message = source != null
-                ? $"{source} used {nounPhrase}, which is deprecated since SMAPI {version}."
-                : $"An unknown mod used {nounPhrase}, which is deprecated since SMAPI {version}.";
-            message += severity != DeprecationLevel.PendingRemoval
-                ? " This will break in a future version of SMAPI."
-                : " It will be removed soon, so the mod will break if it's not updated.";
+            string message = $"{source ?? "An unknown mod"} may break in the upcoming SMAPI 2.0 release (detected {nounPhrase}).";
             if (source == null)
                 message += $"{Environment.NewLine}{Environment.StackTrace}";
 
@@ -70,7 +69,7 @@ namespace StardewModdingAPI.Framework
                     break;
 
                 case DeprecationLevel.Info:
-                    this.Monitor.Log(message, LogLevel.Warn);
+                    this.Monitor.Log(message, LogLevel.Debug);
                     break;
 
                 case DeprecationLevel.PendingRemoval:
