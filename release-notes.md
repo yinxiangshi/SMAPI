@@ -6,7 +6,7 @@ See [log](https://github.com/Pathoschild/SMAPI/compare/1.10...2.0).
 
 For mod developers:
 * The manifest.json version can now be specified as a string.
-* SMAPI mods can now intercept and edit XNB images and data loaded by the game (see [API reference](http://stardewvalleywiki.com/Modding:SMAPI_APIs#Content)).
+* SMAPI mods can now edit XNB images and data loaded by the game (see [API reference](http://stardewvalleywiki.com/Modding:SMAPI_APIs#Content)).
 -->
 
 ## 1.15
@@ -15,24 +15,29 @@ See [log](https://github.com/Pathoschild/SMAPI/compare/1.14...1.15).
 For players:
 * Several changes to the SMAPI console to make it simpler for players.
 * Revamped TrainerMod's item commands:
-  * `player_add` is a new command which lets you add any game item to your inventory (including tools, weapons, equipment, craftables, wallpaper, etc). This replaces the former `player_additem`, `player_addring`, and `player_addweapon`.
+  * `player_add` is a new command to add any item to your inventory (including tools, weapons, equipment, craftables, wallpaper, etc). This replaces the former `player_additem`, `player_addring`, and `player_addweapon`.
   * `list_items` now shows all items in the game. You can search by item type like `list_items weapon`, or search by item name like `list_items galaxy sword`.
   * `list_items` now also matches translated item names when playing in another language.
   * `list_item_types` is a new command to see a list of item types.
-* Added clearer error when a `config.json` is invalid.
+* Fixed unhelpful error when a `config.json` is invalid.
 * Fixed rare crash when window loses focus for a few players (further to fix in 1.14).
 * Fixed invalid `ObjectInformation.xnb` causing a flood of warnings; SMAPI now shows one error instead.
 * Updated mod compatibility list.
 
 For modders:
-* You can now specify minimum dependency versions in `manifest.json`.
+* Added `SDate` utility for in-game date calculations (see [API reference](http://stardewvalleywiki.com/Modding:SMAPI_APIs#Dates)).
+* Added support for minimum dependency versions in `manifest.json` (see [API reference](http://stardewvalleywiki.com/Modding:SMAPI_APIs#Manifest)).
 * Added `System.ValueTuple.dll` to the SMAPI install package so mods can use [C# 7 value tuples](https://docs.microsoft.com/en-us/dotnet/csharp/tuples).
-* Added more useful trace logging when loading mods.
-* Changed `manifest.MinimumApiVersion` from string to `ISemanticVersion`.
+* Added more useful logging when loading mods.
+* Changed `manifest.MinimumApiVersion` from string to `ISemanticVersion`. This shouldn't affect mods unless they referenced that field in code.
 * Fixed `SemanticVersion` parsing some invalid versions into close approximations (like `1.apple` &rarr; `1.0-apple`).
 * Fixed `SemanticVersion` not treating hyphens as separators when comparing prerelease tags.  
   <small>_(While that was technically correct, it leads to unintuitive behaviour like sorting `-alpha-2` _after_ `-alpha-10`, even though `-alpha.2` sorts before `-alpha.10`.)_</small>
 * Fixed corrupted state exceptions not being logged by SMAPI.
+
+For SMAPI developers:
+* Added prototype SMAPI 2.0 feature to override XNB files (not enabled for mods yet).
+* Added prototype SMAPI 2.0 support for version strings in `manifest.json` (not recommended for mods yet).
 
 ## 1.14
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.13...1.14).
