@@ -126,7 +126,6 @@ namespace StardewModdingAPI
                 // init logging
                 this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GetGameDisplayVersion(Constants.GameVersion)} on {this.GetFriendlyPlatformName()}", LogLevel.Info);
                 this.Monitor.Log($"Mods go here: {Constants.ModPath}");
-                this.Monitor.Log("Starting SMAPI...");
 
                 // validate paths
                 this.VerifyPath(Constants.ModPath);
@@ -210,7 +209,7 @@ namespace StardewModdingAPI
             }
 
             // start game
-            this.Monitor.Log("Starting game...");
+            this.Monitor.Log("Starting game...", LogLevel.Trace);
             try
             {
                 this.IsGameRunning = true;
@@ -685,6 +684,7 @@ namespace StardewModdingAPI
             IModMetadata[] loadedMods = this.ModRegistry.GetMods().ToArray();
 
             // log skipped mods
+            this.Monitor.Newline();
             if (skippedMods.Any())
             {
                 this.Monitor.Log($"Skipped {skippedMods.Count} mods:", LogLevel.Error);
@@ -695,6 +695,7 @@ namespace StardewModdingAPI
 
                     this.Monitor.Log($"   {mod.DisplayName} {mod.Manifest.Version} because {reason}", LogLevel.Error);
                 }
+                this.Monitor.Newline();
             }
 
             // log loaded mods
@@ -709,6 +710,7 @@ namespace StardewModdingAPI
                     LogLevel.Info
                 );
             }
+            this.Monitor.Newline();
 
             // initialise translations
             this.ReloadTranslations();

@@ -95,6 +95,15 @@ namespace StardewModdingAPI.Framework
             this.ExitTokenSource.Cancel();
         }
 
+        /// <summary>Write a newline to the console and log file.</summary>
+        internal void Newline()
+        {
+            if (this.WriteToConsole)
+                this.ConsoleManager.ExclusiveWriteWithoutInterception(Console.WriteLine);
+            if (this.WriteToFile)
+                this.LogFile.WriteLine("");
+        }
+
         /// <summary>Log a message for the player or developer, using the specified console color.</summary>
         /// <param name="source">The name of the mod logging the message.</param>
         /// <param name="message">The message to log.</param>
