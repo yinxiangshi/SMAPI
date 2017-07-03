@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !SMAPI_2_0
+using System;
 using System.Collections.Generic;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework;
@@ -155,3 +156,4 @@ namespace StardewModdingAPI
         }
     }
 }
+#endif

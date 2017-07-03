@@ -1,3 +1,4 @@
+#if !SMAPI_2_0
 using System;
 using System.Threading;
 using StardewModdingAPI.Framework;
@@ -316,3 +317,4 @@ namespace StardewModdingAPI
         }
     }
 }
+#endif

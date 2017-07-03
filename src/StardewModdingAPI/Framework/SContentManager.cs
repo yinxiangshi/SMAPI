@@ -206,7 +206,7 @@ namespace StardewModdingAPI.Framework
 
             // from Farmer constructor
             if (Game1.player != null)
-                Game1.player.FarmerRenderer = new FarmerRenderer(this.Load<Texture2D>($"Characters\\Farmer\\farmer_" + (Game1.player.isMale ? "" : "girl_") + "base"));
+                Game1.player.FarmerRenderer = new FarmerRenderer(this.Load<Texture2D>("Characters\\Farmer\\farmer_" + (Game1.player.isMale ? "" : "girl_") + "base"));
         }
 
 

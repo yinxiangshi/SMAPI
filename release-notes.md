@@ -36,6 +36,7 @@ For modders:
 * Fixed corrupted state exceptions not being logged by SMAPI.
 
 For SMAPI developers:
+* Added SMAPI 2.0 compile mode, for testing how mods will work with SMAPI 2.0.
 * Added prototype SMAPI 2.0 feature to override XNB files (not enabled for mods yet).
 * Added prototype SMAPI 2.0 support for version strings in `manifest.json` (not recommended for mods yet).
 

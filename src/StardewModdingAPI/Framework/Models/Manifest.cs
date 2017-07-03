@@ -38,9 +38,11 @@ namespace StardewModdingAPI.Framework.Models
         /// <summary>The unique mod ID.</summary>
         public string UniqueID { get; set; }
 
+#if !SMAPI_2_0
         /// <summary>Whether the mod uses per-save config files.</summary>
         [Obsolete("Use " + nameof(Mod) + "." + nameof(Mod.Helper) + "." + nameof(IModHelper.ReadConfig) + " instead")]
         public bool PerSaveConfigs { get; set; }
+#endif
 
         /// <summary>Any manifest fields which didn't match a valid field.</summary>
         [JsonExtensionData]

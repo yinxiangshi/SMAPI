@@ -109,7 +109,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                         bool hasOfficialUrl = !string.IsNullOrWhiteSpace(mod.Compatibility.UpdateUrl);
                         bool hasUnofficialUrl = !string.IsNullOrWhiteSpace(mod.Compatibility.UnofficialUpdateUrl);
 
-                        string reasonPhrase = compatibility.ReasonPhrase ?? "it's not compatible with the latest version of the game";
+                        string reasonPhrase = compatibility.ReasonPhrase ?? "it's not compatible with the latest version of the game or SMAPI";
                         string error = $"{reasonPhrase}. Please check for a version newer than {compatibility.UpperVersionLabel ?? compatibility.UpperVersion} here:";
                         if (hasOfficialUrl)
                             error += !hasUnofficialUrl ? $" {compatibility.UpdateUrl}" : $"{Environment.NewLine}- official mod: {compatibility.UpdateUrl}";
@@ -131,7 +131,27 @@ namespace StardewModdingAPI.Framework.ModLoading
                 // validate DLL path
                 string assemblyPath = Path.Combine(mod.DirectoryPath, mod.Manifest.EntryDll);
                 if (!File.Exists(assemblyPath))
+                {
                     mod.SetStatus(ModMetadataStatus.Failed, $"its DLL '{mod.Manifest.EntryDll}' doesn't exist.");
+                    continue;
+                }
+
+                // validate required fields
+#if SMAPI_2_0
+                {
+                    List<string> missingFields = new List<string>(3);
+
+                    if (string.IsNullOrWhiteSpace(mod.Manifest.Name))
+                        missingFields.Add(nameof(IManifest.Name));
+                    if (mod.Manifest.Version == null || mod.Manifest.Version.ToString() == "0.0")
+                        missingFields.Add(nameof(IManifest.Version));
+                    if (string.IsNullOrWhiteSpace(mod.Manifest.UniqueID))
+                        missingFields.Add(nameof(IManifest.UniqueID));
+
+                    if (missingFields.Any())
+                        mod.SetStatus(ModMetadataStatus.Failed, $"its manifest is missing required fields ({string.Join(", ", missingFields)}).");
+                }
+#endif
             }
         }
 

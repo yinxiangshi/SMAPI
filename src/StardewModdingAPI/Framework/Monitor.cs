@@ -104,6 +104,7 @@ namespace StardewModdingAPI.Framework
                 this.LogFile.WriteLine("");
         }
 
+#if !SMAPI_2_0
         /// <summary>Log a message for the player or developer, using the specified console color.</summary>
         /// <param name="source">The name of the mod logging the message.</param>
         /// <param name="message">The message to log.</param>
@@ -114,6 +115,7 @@ namespace StardewModdingAPI.Framework
         {
             this.LogImpl(source, message, level, color);
         }
+#endif
 
 
         /*********

@@ -226,6 +226,7 @@ namespace StardewModdingAPI
             }
         }
 
+#if !SMAPI_2_0
         /// <summary>Get a monitor for legacy code which doesn't have one passed in.</summary>
         [Obsolete("This method should only be used when needed for backwards compatibility.")]
         internal IMonitor GetLegacyMonitorForMod()
@@ -233,6 +234,7 @@ namespace StardewModdingAPI
             string modName = this.ModRegistry.GetModFromStack() ?? "unknown";
             return this.GetSecondaryMonitor(modName);
         }
+#endif
 
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
         public void Dispose()
@@ -323,6 +325,7 @@ namespace StardewModdingAPI
             this.DeprecationManager = new DeprecationManager(this.Monitor, this.ModRegistry);
             this.CommandManager = new CommandManager();
 
+#if !SMAPI_2_0
             // inject compatibility shims
 #pragma warning disable 618
             Command.Shim(this.CommandManager, this.DeprecationManager, this.ModRegistry);
@@ -333,6 +336,7 @@ namespace StardewModdingAPI
             PlayerEvents.Shim(this.DeprecationManager);
             TimeEvents.Shim(this.DeprecationManager);
 #pragma warning restore 618
+#endif
 
             // redirect direct console output
             {
@@ -369,6 +373,7 @@ namespace StardewModdingAPI
                 resolver.ValidateManifests(mods, Constants.ApiVersion);
 
                 // check for deprecated metadata
+#if !SMAPI_2_0
                 IList<Action> deprecationWarnings = new List<Action>();
                 foreach (IModMetadata mod in mods.Where(m => m.Status != ModMetadataStatus.Failed))
                 {
@@ -403,15 +408,20 @@ namespace StardewModdingAPI
                             mod.SetStatus(ModMetadataStatus.Failed, $"it requires per-save configuration files ('psconfigs') which couldn't be created: {ex.GetLogSummary()}");
                         }
                     }
-                }
+            }
+#endif
 
                 // process dependencies
                 mods = resolver.ProcessDependencies(mods).ToArray();
 
                 // load mods
+#if SMAPI_2_0
+                this.LoadMods(mods, new JsonHelper(), this.ContentManager);
+#else
                 this.LoadMods(mods, new JsonHelper(), this.ContentManager, deprecationWarnings);
                 foreach (Action warning in deprecationWarnings)
                     warning();
+#endif
             }
             if (this.Monitor.IsExiting)
             {
@@ -576,8 +586,12 @@ namespace StardewModdingAPI
         /// <param name="mods">The mods to load.</param>
         /// <param name="jsonHelper">The JSON helper with which to read mods' JSON files.</param>
         /// <param name="contentManager">The content manager to use for mod content.</param>
-        /// <param name="deprecationWarnings">A list to populate with any deprecation warnings.</param>
+#if !SMAPI_2_0
+/// <param name="deprecationWarnings">A list to populate with any deprecation warnings.</param>
         private void LoadMods(IModMetadata[] mods, JsonHelper jsonHelper, SContentManager contentManager, IList<Action> deprecationWarnings)
+#else
+        private void LoadMods(IModMetadata[] mods, JsonHelper jsonHelper, SContentManager contentManager)
+#endif
         {
             this.Monitor.Log("Loading mods...", LogLevel.Trace);
 
@@ -615,7 +629,7 @@ namespace StardewModdingAPI
                     }
                     catch (IncompatibleInstructionException ex)
                     {
-                        TrackSkip(metadata, $"it's not compatible with the latest version of the game (detected {ex.NounPhrase}). Please check for a newer version of the mod (you have v{manifest.Version}).");
+                        TrackSkip(metadata, $"it's not compatible with the latest version of the game or SMAPI (detected {ex.NounPhrase}). Please check for a newer version of the mod.");
                         continue;
                     }
                     catch (Exception ex)
@@ -657,6 +671,7 @@ namespace StardewModdingAPI
                             continue;
                         }
 
+#if !SMAPI_2_0
                         // prevent mods from using SMAPI 2.0 content interception before release
                         // ReSharper disable SuspiciousTypeConversion.Global
                         if (mod is IAssetEditor || mod is IAssetLoader)
@@ -664,12 +679,15 @@ namespace StardewModdingAPI
                             TrackSkip(metadata, $"its entry class implements {nameof(IAssetEditor)} or {nameof(IAssetLoader)}. These are part of a prototype API that isn't available for mods to use yet.");
                         }
                         // ReSharper restore SuspiciousTypeConversion.Global
+#endif
 
                         // inject data
                         mod.ModManifest = manifest;
                         mod.Helper = new ModHelper(metadata.DisplayName, metadata.DirectoryPath, jsonHelper, this.ModRegistry, this.CommandManager, contentManager, this.Reflection);
                         mod.Monitor = this.GetSecondaryMonitor(metadata.DisplayName);
+#if !SMAPI_2_0
                         mod.PathOnDisk = metadata.DirectoryPath;
+#endif
 
                         // track mod
                         metadata.SetMod(mod);
@@ -729,12 +747,14 @@ namespace StardewModdingAPI
                 try
                 {
                     IMod mod = metadata.Mod;
-                    (mod as Mod)?.Entry(); // deprecated since 1.0
                     mod.Entry(mod.Helper);
+#if !SMAPI_2_0
+                    (mod as Mod)?.Entry(); // deprecated since 1.0
 
                     // raise deprecation warning for old Entry() methods
                     if (this.DeprecationManager.IsVirtualMethodImplemented(mod.GetType(), typeof(Mod), nameof(Mod.Entry), new[] { typeof(object[]) }))
                         deprecationWarnings.Add(() => this.DeprecationManager.Warn(metadata.DisplayName, $"{nameof(Mod)}.{nameof(Mod.Entry)}(object[]) instead of {nameof(Mod)}.{nameof(Mod.Entry)}({nameof(IModHelper)})", "1.0", DeprecationLevel.Info));
+#endif
                 }
                 catch (Exception ex)
                 {

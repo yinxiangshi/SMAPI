@@ -34,7 +34,7 @@ namespace StardewModdingAPI.Framework
         private readonly IMonitor Monitor;
 
         /// <summary>SMAPI's content manager.</summary>
-        private SContentManager SContentManager;
+        private readonly SContentManager SContentManager;
 
         /// <summary>The maximum number of consecutive attempts SMAPI should make to recover from a draw error.</summary>
         private readonly Countdown DrawCrashTimer = new Countdown(60); // 60 ticks = roughly one second
@@ -113,6 +113,7 @@ namespace StardewModdingAPI.Framework
         /// <summary>The time of day (in 24-hour military format) at last check.</summary>
         private int PreviousTime;
 
+#if !SMAPI_2_0
         /// <summary>The day of month (1–28) at last check.</summary>
         private int PreviousDay;
 
@@ -127,6 +128,7 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>The player character at last check.</summary>
         private SFarmer PreviousFarmer;
+#endif
 
         /// <summary>The previous content locale.</summary>
         private LocalizedContentManager.LanguageCode? PreviousLocale;
@@ -285,7 +287,9 @@ namespace StardewModdingAPI.Framework
                 if (this.FirstUpdate)
                 {
                     GameEvents.InvokeInitialize(this.Monitor);
+#if !SMAPI_2_0
                     GameEvents.InvokeLoadContent(this.Monitor);
+#endif
                     GameEvents.InvokeGameLoaded(this.Monitor);
                 }
 
@@ -315,7 +319,9 @@ namespace StardewModdingAPI.Framework
                         Context.IsWorldReady = true;
 
                         SaveEvents.InvokeAfterLoad(this.Monitor);
+#if !SMAPI_2_0
                         PlayerEvents.InvokeLoadedGame(this.Monitor, new EventArgsLoadedGameChanged(Game1.hasLoadedGame));
+#endif
                         TimeEvents.InvokeAfterDayStarted(this.Monitor);
                     }
                     this.AfterLoadTimer--;
@@ -460,9 +466,11 @@ namespace StardewModdingAPI.Framework
                     if (this.GetHash(Game1.locations) != this.PreviousGameLocations)
                         LocationEvents.InvokeLocationsChanged(this.Monitor, Game1.locations);
 
+#if !SMAPI_2_0
                     // raise player changed
                     if (Game1.player != this.PreviousFarmer)
                         PlayerEvents.InvokeFarmerChanged(this.Monitor, this.PreviousFarmer, Game1.player);
+#endif
 
                     // raise events that shouldn't be triggered on initial load
                     if (Game1.uniqueIDForThisGame == this.PreviousSaveID)
@@ -493,12 +501,14 @@ namespace StardewModdingAPI.Framework
                         // raise time changed
                         if (Game1.timeOfDay != this.PreviousTime)
                             TimeEvents.InvokeTimeOfDayChanged(this.Monitor, this.PreviousTime, Game1.timeOfDay);
+#if !SMAPI_2_0
                         if (Game1.dayOfMonth != this.PreviousDay)
                             TimeEvents.InvokeDayOfMonthChanged(this.Monitor, this.PreviousDay, Game1.dayOfMonth);
                         if (Game1.currentSeason != this.PreviousSeason)
                             TimeEvents.InvokeSeasonOfYearChanged(this.Monitor, this.PreviousSeason, Game1.currentSeason);
                         if (Game1.year != this.PreviousYear)
                             TimeEvents.InvokeYearOfGameChanged(this.Monitor, this.PreviousYear, Game1.year);
+#endif
 
                         // raise mine level changed
                         if (Game1.mine != null && Game1.mine.mineLevel != this.PreviousMineLevel)
@@ -508,7 +518,6 @@ namespace StardewModdingAPI.Framework
                     // update state
                     this.PreviousGameLocations = this.GetHash(Game1.locations);
                     this.PreviousGameLocation = Game1.currentLocation;
-                    this.PreviousFarmer = Game1.player;
                     this.PreviousCombatLevel = Game1.player.combatLevel;
                     this.PreviousFarmingLevel = Game1.player.farmingLevel;
                     this.PreviousFishingLevel = Game1.player.fishingLevel;
@@ -518,21 +527,26 @@ namespace StardewModdingAPI.Framework
                     this.PreviousItems = Game1.player.items.Where(n => n != null).ToDictionary(n => n, n => n.Stack);
                     this.PreviousLocationObjects = this.GetHash(Game1.currentLocation.objects);
                     this.PreviousTime = Game1.timeOfDay;
+                    this.PreviousMineLevel = Game1.mine?.mineLevel ?? 0;
+                    this.PreviousSaveID = Game1.uniqueIDForThisGame;
+#if !SMAPI_2_0
+                    this.PreviousFarmer = Game1.player;
                     this.PreviousDay = Game1.dayOfMonth;
                     this.PreviousSeason = Game1.currentSeason;
                     this.PreviousYear = Game1.year;
-                    this.PreviousMineLevel = Game1.mine?.mineLevel ?? 0;
-                    this.PreviousSaveID = Game1.uniqueIDForThisGame;
+#endif
                 }
 
                 /*********
                 ** Game day transition event (obsolete)
                 *********/
+#if !SMAPI_2_0
                 if (Game1.newDay != this.PreviousIsNewDay)
                 {
                     TimeEvents.InvokeOnNewDay(this.Monitor, this.PreviousDay, Game1.dayOfMonth, Game1.newDay);
                     this.PreviousIsNewDay = Game1.newDay;
                 }
+#endif
 
                 /*********
                 ** Game update
@@ -552,7 +566,9 @@ namespace StardewModdingAPI.Framework
                 GameEvents.InvokeUpdateTick(this.Monitor);
                 if (this.FirstUpdate)
                 {
+#if !SMAPI_2_0
                     GameEvents.InvokeFirstUpdateTick(this.Monitor);
+#endif
                     this.FirstUpdate = false;
                 }
                 if (this.CurrentUpdateTick % 2 == 0)

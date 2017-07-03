@@ -11,6 +11,7 @@ namespace StardewModdingAPI.Events
         /*********
         ** Properties
         *********/
+#if !SMAPI_2_0
         /// <summary>Manages deprecation warnings.</summary>
         private static DeprecationManager DeprecationManager;
 
@@ -29,6 +30,8 @@ namespace StardewModdingAPI.Events
         /// <summary>The backing field for <see cref="YearOfGameChanged"/>.</summary>
         [SuppressMessage("ReSharper", "InconsistentNaming")]
         private static event EventHandler<EventArgsIntChanged> _YearOfGameChanged;
+#endif
+
 
         /*********
         ** Events
@@ -39,6 +42,7 @@ namespace StardewModdingAPI.Events
         /// <summary>Raised after the in-game clock changes.</summary>
         public static event EventHandler<EventArgsIntChanged> TimeOfDayChanged;
 
+#if !SMAPI_2_0
         /// <summary>Raised after the day-of-month value changes, including when loading a save. This may happen before save; in most cases you should use <see cref="AfterDayStarted"/> instead.</summary>
         [Obsolete("Use " + nameof(TimeEvents) + "." + nameof(TimeEvents.AfterDayStarted) + " or " + nameof(SaveEvents) + " instead")]
         public static event EventHandler<EventArgsIntChanged> DayOfMonthChanged
@@ -86,17 +90,20 @@ namespace StardewModdingAPI.Events
             }
             remove => TimeEvents._OnNewDay -= value;
         }
+#endif
 
 
         /*********
         ** Internal methods
         *********/
+#if !SMAPI_2_0
         /// <summary>Injects types required for backwards compatibility.</summary>
         /// <param name="deprecationManager">Manages deprecation warnings.</param>
         internal static void Shim(DeprecationManager deprecationManager)
         {
             TimeEvents.DeprecationManager = deprecationManager;
         }
+#endif
 
         /// <summary>Raise an <see cref="AfterDayStarted"/> event.</summary>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
@@ -105,7 +112,7 @@ namespace StardewModdingAPI.Events
             monitor.SafelyRaisePlainEvent($"{nameof(TimeEvents)}.{nameof(TimeEvents.AfterDayStarted)}", TimeEvents.AfterDayStarted?.GetInvocationList(), null, EventArgs.Empty);
         }
 
-        /// <summary>Raise a <see cref="InvokeDayOfMonthChanged"/> event.</summary>
+        /// <summary>Raise a <see cref="TimeOfDayChanged"/> event.</summary>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="priorTime">The previous time in military time format (e.g. 6:00pm is 1800).</param>
         /// <param name="newTime">The current time in military time format (e.g. 6:10pm is 1810).</param>
@@ -114,6 +121,7 @@ namespace StardewModdingAPI.Events
             monitor.SafelyRaiseGenericEvent($"{nameof(TimeEvents)}.{nameof(TimeEvents.TimeOfDayChanged)}", TimeEvents.TimeOfDayChanged?.GetInvocationList(), null, new EventArgsIntChanged(priorTime, newTime));
         }
 
+#if !SMAPI_2_0
         /// <summary>Raise a <see cref="DayOfMonthChanged"/> event.</summary>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="priorDay">The previous day value.</param>
@@ -150,5 +158,6 @@ namespace StardewModdingAPI.Events
         {
             monitor.SafelyRaiseGenericEvent($"{nameof(TimeEvents)}.{nameof(TimeEvents.OnNewDay)}", TimeEvents._OnNewDay?.GetInvocationList(), null, new EventArgsNewDay(priorDay, newDay, isTransitioning));
         }
+#endif
     }
 }

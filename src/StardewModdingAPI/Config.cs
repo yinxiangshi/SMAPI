@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !SMAPI_2_0
+using System;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
@@ -184,3 +185,4 @@ namespace StardewModdingAPI
         }
     }
 }
+#endif
