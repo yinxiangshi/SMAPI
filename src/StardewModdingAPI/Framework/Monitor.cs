@@ -45,6 +45,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>Whether SMAPI is aborting. Mods don't need to worry about this unless they have background tasks.</summary>
         public bool IsExiting => this.ExitTokenSource.IsCancellationRequested;
 
+        /// <summary>Whether to show the full log stamps (with time/level/logger) in the console. If false, shows a simplified stamp with only the logger.</summary>
+        internal bool ShowFullStampInConsole { get; set; }
+
         /// <summary>Whether to show trace messages in the console.</summary>
         internal bool ShowTraceInConsole { get; set; }
 
@@ -124,7 +127,9 @@ namespace StardewModdingAPI.Framework
         {
             // generate message
             string levelStr = level.ToString().ToUpper().PadRight(Monitor.MaxLevelLength);
-            message = $"[{DateTime.Now:HH:mm:ss} {levelStr} {source}] {message}";
+
+            string fullMessage = $"[{DateTime.Now:HH:mm:ss} {levelStr} {source}] {message}";
+            string consoleMessage = this.ShowFullStampInConsole ? fullMessage : $"[{source}] {message}";
 
             // write to console
             if (this.WriteToConsole && (this.ShowTraceInConsole || level != LogLevel.Trace))
@@ -136,17 +141,17 @@ namespace StardewModdingAPI.Framework
                         if (background.HasValue)
                             Console.BackgroundColor = background.Value;
                         Console.ForegroundColor = color;
-                        Console.WriteLine(message);
+                        Console.WriteLine(consoleMessage);
                         Console.ResetColor();
                     }
                     else
-                        Console.WriteLine(message);
+                        Console.WriteLine(consoleMessage);
                 });
             }
 
             // write to log file
             if (this.WriteToFile)
-                this.LogFile.WriteLine(message);
+                this.LogFile.WriteLine(fullMessage);
         }
     }
 }

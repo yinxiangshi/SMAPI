@@ -346,6 +346,7 @@ namespace StardewModdingAPI
             if (this.Settings.DeveloperMode)
             {
                 this.Monitor.ShowTraceInConsole = true;
+                this.Monitor.ShowFullStampInConsole = true;
                 this.Monitor.Log($"You configured SMAPI to run in developer mode. The console may be much more verbose. You can disable developer mode by installing the non-developer version of SMAPI, or by editing {Constants.ApiConfigPath}.", LogLevel.Info);
             }
             if (!this.Settings.CheckForUpdates)
@@ -864,7 +865,12 @@ namespace StardewModdingAPI
         /// <param name="name">The name of the module which will log messages with this instance.</param>
         private Monitor GetSecondaryMonitor(string name)
         {
-            return new Monitor(name, this.ConsoleManager, this.LogFile, this.CancellationTokenSource) { WriteToConsole = this.Monitor.WriteToConsole, ShowTraceInConsole = this.Settings.DeveloperMode };
+            return new Monitor(name, this.ConsoleManager, this.LogFile, this.CancellationTokenSource)
+            {
+                WriteToConsole = this.Monitor.WriteToConsole,
+                ShowTraceInConsole = this.Settings.DeveloperMode,
+                ShowFullStampInConsole = this.Settings.DeveloperMode
+            };
         }
 
         /// <summary>Get a human-readable name for the current platform.</summary>

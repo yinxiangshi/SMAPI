@@ -13,7 +13,7 @@ For mod developers:
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.14...1.15).
 
 For players:
-* Many changes to the SMAPI console to make it simpler for players.
+* Several changes to the SMAPI console to make it simpler for players.
 * Revamped TrainerMod's item commands:
   * `player_add` is a new command which lets you add any game item to your inventory (including tools, weapons, equipment, craftables, wallpaper, etc). This replaces the former `player_additem`, `player_addring`, and `player_addweapon`.
   * `list_items` now shows all items in the game. You can search by item type like `list_items weapon`, or search by item name like `list_items galaxy sword`.
