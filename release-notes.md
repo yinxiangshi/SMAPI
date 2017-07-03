@@ -1,16 +1,14 @@
 ﻿# Release notes
-
-<!--
-## 2.0
-See [log](https://github.com/Pathoschild/SMAPI/compare/1.10...2.0).
+## 2.0 (upcoming)
+<!--See [log](https://github.com/Pathoschild/SMAPI/compare/1.10...2.0).-->
 
 For players:
-* The SMAPI console is now cleaner and simpler.
+* The SMAPI console is now much simpler and easier-to-read.
 
 For mod developers:
-* SMAPI mods can now edit XNB images and data loaded by the game (see [API reference](http://stardewvalleywiki.com/Modding:SMAPI_APIs#Content)).
-* The manifest.json version can now be specified as a string.
--->
+* SMAPI mods can now edit XNB images & data loaded by the game (see [API reference](http://stardewvalleywiki.com/Modding:SMAPI_APIs#Content)).
+* SMAPI mods can now inject new XNB images & data (see [API reference](http://stardewvalleywiki.com/Modding:SMAPI_APIs#Content)).
+* The `manifest.json` version can now be specified as a string.
 
 ## 1.15
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.14...1.15).
