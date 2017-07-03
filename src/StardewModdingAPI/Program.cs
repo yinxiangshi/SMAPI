@@ -606,7 +606,7 @@ namespace StardewModdingAPI
                 {
                     // get basic info
                     IManifest manifest = metadata.Manifest;
-                    string assemblyPath = metadata.Manifest.EntryDll != null
+                    string assemblyPath = metadata.Manifest?.EntryDll != null
                         ? Path.Combine(metadata.DirectoryPath, metadata.Manifest.EntryDll)
                         : null;
                     this.Monitor.Log(assemblyPath != null
@@ -711,7 +711,10 @@ namespace StardewModdingAPI
                     IModMetadata mod = pair.Key;
                     string reason = pair.Value;
 
-                    this.Monitor.Log($"   {mod.DisplayName} {mod.Manifest.Version} because {reason}", LogLevel.Error);
+                    if (mod.Manifest?.Version != null)
+                        this.Monitor.Log($"   {mod.DisplayName} {mod.Manifest.Version} because {reason}", LogLevel.Error);
+                    else
+                        this.Monitor.Log($"   {mod.DisplayName} because {reason}", LogLevel.Error);
                 }
                 this.Monitor.Newline();
             }
