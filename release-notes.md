@@ -13,9 +13,7 @@ For mod developers:
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.14...1.15).
 
 For players:
-* SMAPI no longer loads mods known to be obsolete or unneeded.
-* SMAPI now lists mods in an easier-to-read format in the console.
-* When the `ObjectInformation.xnb` is broken, SMAPI now prints one error to the console instead of a warning flood. (The individual issues are still listed in the log file if needed.)
+* Many changes to the SMAPI console to make it simpler for players.
 * Revamped TrainerMod's item commands:
   * `player_add` is a new command which lets you add any game item to your inventory (including tools, weapons, equipment, craftables, wallpaper, etc). This replaces the former `player_additem`, `player_addring`, and `player_addweapon`.
   * `list_items` now shows all items in the game. You can search by item type like `list_items weapon`, or search by item name like `list_items galaxy sword`.
@@ -23,11 +21,13 @@ For players:
   * `list_item_types` is a new command to see a list of item types.
 * Added clearer error when a `config.json` is invalid.
 * Fixed rare crash when window loses focus for a few players (further to fix in 1.14).
+* Fixed invalid `ObjectInformation.xnb` causing a flood of warnings; SMAPI now shows one error instead.
+* Updated mod compatibility list.
 
 For modders:
 * You can now specify minimum dependency versions in `manifest.json`.
 * Added `System.ValueTuple.dll` to the SMAPI install package so mods can use [C# 7 value tuples](https://docs.microsoft.com/en-us/dotnet/csharp/tuples).
-* Cleaned up SMAPI logging when loading mods.
+* Added more useful trace logging when loading mods.
 * Changed `manifest.MinimumApiVersion` from string to `ISemanticVersion`.
 * Fixed `SemanticVersion` parsing some invalid versions into close approximations (like `1.apple` &rarr; `1.0-apple`).
 * Fixed `SemanticVersion` not treating hyphens as separators when comparing prerelease tags.  

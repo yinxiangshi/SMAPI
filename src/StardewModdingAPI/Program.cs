@@ -126,7 +126,7 @@ namespace StardewModdingAPI
                 // init logging
                 this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GetGameDisplayVersion(Constants.GameVersion)} on {this.GetFriendlyPlatformName()}", LogLevel.Info);
                 this.Monitor.Log($"Mods go here: {Constants.ModPath}");
-                this.Monitor.Log("Preparing SMAPI...");
+                this.Monitor.Log("Starting SMAPI...");
 
                 // validate paths
                 this.VerifyPath(Constants.ModPath);
@@ -361,7 +361,7 @@ namespace StardewModdingAPI
 
             // load mods
             {
-                this.Monitor.Log("Loading mod metadata...");
+                this.Monitor.Log("Loading mod metadata...", LogLevel.Trace);
                 ModResolver resolver = new ModResolver();
 
                 // load manifests
@@ -445,7 +445,6 @@ namespace StardewModdingAPI
         private void RunConsoleLoop()
         {
             // prepare console
-            this.Monitor.Log("Starting console...");
             this.Monitor.Log("Type 'help' for help, or 'help <cmd>' for a command's usage", LogLevel.Info);
             this.CommandManager.Add("SMAPI", "help", "Lists command documentation.\n\nUsage: help\nLists all available commands.\n\nUsage: help <cmd>\n- cmd: The name of a command whose documentation to display.", this.HandleCommand);
             this.CommandManager.Add("SMAPI", "reload_i18n", "Reloads translation files for all mods.\n\nUsage: reload_i18n", this.HandleCommand);
@@ -580,7 +579,7 @@ namespace StardewModdingAPI
         /// <param name="deprecationWarnings">A list to populate with any deprecation warnings.</param>
         private void LoadMods(IModMetadata[] mods, JsonHelper jsonHelper, SContentManager contentManager, IList<Action> deprecationWarnings)
         {
-            this.Monitor.Log("Loading mods...");
+            this.Monitor.Log("Loading mods...", LogLevel.Trace);
 
             // load mod assemblies
             IDictionary<IModMetadata, string> skippedMods = new Dictionary<IModMetadata, string>();
@@ -810,8 +809,17 @@ namespace StardewModdingAPI
                     }
                     else
                     {
-                        this.Monitor.Log("The following commands are registered: " + string.Join(", ", this.CommandManager.GetAll().Select(p => p.Name)) + ".", LogLevel.Info);
-                        this.Monitor.Log("For more information about a command, type 'help command_name'.", LogLevel.Info);
+                        string message = "The following commands are registered:\n";
+                        IGrouping<string, string>[] groups = (from command in this.CommandManager.GetAll() orderby command.ModName, command.Name group command.Name by command.ModName).ToArray();
+                        foreach (var group in groups)
+                        {
+                            string modName = group.Key;
+                            string[] commandNames = group.ToArray();
+                            message += $"{modName}:\n  {string.Join("\n  ", commandNames)}\n\n";
+                        }
+                        message += "For more information about a command, type 'help command_name'.";
+
+                        this.Monitor.Log(message, LogLevel.Info);
                     }
                     break;
 
