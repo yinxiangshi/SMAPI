@@ -11,7 +11,7 @@ namespace StardewModdingAPI
         /// <summary>The content's locale code, if the content is localised.</summary>
         string Locale { get; }
 
-        /// <summary>The normalised asset name being read. The format may change between platforms; see <see cref="IsAssetName"/> to compare with a known path.</summary>
+        /// <summary>The normalised asset name being read. The format may change between platforms; see <see cref="AssetNameEquals"/> to compare with a known path.</summary>
         string AssetName { get; }
 
         /// <summary>The content data type.</summary>
@@ -23,6 +23,6 @@ namespace StardewModdingAPI
         *********/
         /// <summary>Get whether the asset name being loaded matches a given name after normalisation.</summary>
         /// <param name="path">The expected asset path, relative to the game's content folder and without the .xnb extension or locale suffix (like 'Data\ObjectInformation').</param>
-        bool IsAssetName(string path);
+        bool AssetNameEquals(string path);
     }
 }
