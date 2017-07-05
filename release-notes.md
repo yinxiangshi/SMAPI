@@ -6,8 +6,10 @@ For players:
 * The SMAPI console is now much simpler and easier-to-read.
 
 For mod developers:
-* SMAPI mods can now edit XNB images & data loaded by the game (see [API reference](http://stardewvalleywiki.com/Modding:SMAPI_APIs#Content)).
-* SMAPI mods can now inject new XNB images & data (see [API reference](http://stardewvalleywiki.com/Modding:SMAPI_APIs#Content)).
+* Added API to edit XNB images & data loaded by the game (see [API reference](http://stardewvalleywiki.com/Modding:SMAPI_APIs#Content)).
+* Added API to inject new XNB images & data (see [API reference](http://stardewvalleywiki.com/Modding:SMAPI_APIs#Content)).
+* Added `InputEvents` which unify keyboard, mouse, and controller input for much simpler input handling (see [API reference](http://stardewvalleywiki.com/Modding:SMAPI_APIs#Input_events)).
+* Added useful `InputEvents` metadata like the cursor position, grab tile, etc.
 * The `manifest.json` version can now be specified as a string.
 
 ## 1.15

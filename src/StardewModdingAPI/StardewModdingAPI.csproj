@@ -93,7 +93,9 @@
     <Compile Include="Command.cs" />
     <Compile Include="ContentSource.cs" />
     <Compile Include="Events\ContentEvents.cs" />
+    <Compile Include="Events\EventArgsInput.cs" />
     <Compile Include="Events\EventArgsValueChanged.cs" />
+    <Compile Include="Events\InputEvents.cs" />
     <Compile Include="Framework\Content\AssetInfo.cs" />
     <Compile Include="Framework\Exceptions\SContentLoadException.cs" />
     <Compile Include="Framework\Command.cs" />
@@ -207,7 +209,10 @@
     <Compile Include="IReflectionHelper.cs" />
     <Compile Include="SemanticVersion.cs" />
     <Compile Include="Translation.cs" />
+    <Compile Include="ICursorPosition.cs" />
     <Compile Include="Utilities\SDate.cs" />
+    <Compile Include="Utilities\SButton.cs" />
+    <Compile Include="Framework\CursorPosition.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
