@@ -10,7 +10,9 @@ For mod developers:
 * Added API to inject new XNB images & data (see [API reference](http://stardewvalleywiki.com/Modding:SMAPI_APIs#Content)).
 * Added `InputEvents` which unify keyboard, mouse, and controller input for much simpler input handling (see [API reference](http://stardewvalleywiki.com/Modding:SMAPI_APIs#Input_events)).
 * Added useful `InputEvents` metadata like the cursor position, grab tile, etc.
+* Added ability to prevent the game from handling a button press via `InputEvents`.
 * The `manifest.json` version can now be specified as a string.
+* Removed all deprecated code.
 
 ## 1.15
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.14...1.15).
