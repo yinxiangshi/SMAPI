@@ -228,13 +228,24 @@ namespace StardewModdingAPI.Framework.ModLoading
                     from entry in mod.Manifest.Dependencies
                     let dependencyMod = mods.FirstOrDefault(m => string.Equals(m.Manifest?.UniqueID, entry.UniqueID, StringComparison.InvariantCultureIgnoreCase))
                     orderby entry.UniqueID
-                    select new { ID = entry.UniqueID, MinVersion = entry.MinimumVersion, Mod = dependencyMod }
+                    select new
+                    {
+                        ID = entry.UniqueID,
+                        MinVersion = entry.MinimumVersion,
+                        Mod = dependencyMod,
+                        IsRequired =
+#if SMAPI_2_0
+                            entry.IsRequired
+#else
+                            true
+#endif
+                    }
                 )
                 .ToArray();
 
             // missing required dependencies, mark failed
             {
-                string[] failedIDs = (from entry in dependencies where entry.Mod == null select entry.ID).ToArray();
+                string[] failedIDs = (from entry in dependencies where entry.IsRequired && entry.Mod == null select entry.ID).ToArray();
                 if (failedIDs.Any())
                 {
                     sortedMods.Push(mod);
@@ -248,7 +259,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 string[] failedLabels =
                     (
                         from entry in dependencies
-                        where entry.MinVersion != null && entry.MinVersion.IsNewerThan(entry.Mod.Manifest.Version)
+                        where entry.Mod != null && entry.MinVersion != null && entry.MinVersion.IsNewerThan(entry.Mod.Manifest.Version)
                         select $"{entry.Mod.DisplayName} (needs {entry.MinVersion} or later)"
                     )
                     .ToArray();
@@ -265,10 +276,14 @@ namespace StardewModdingAPI.Framework.ModLoading
                 states[mod] = ModDependencyStatus.Checking;
 
                 // recursively sort dependencies
-                IModMetadata[] modsToLoadFirst = dependencies.Select(p => p.Mod).ToArray();
-                foreach (IModMetadata requiredMod in modsToLoadFirst)
+                foreach (var dependency in dependencies)
                 {
+                    IModMetadata requiredMod = dependency.Mod;
                     var subchain = new List<IModMetadata>(currentChain) { mod };
+
+                    // ignore missing optional dependency
+                    if (!dependency.IsRequired && requiredMod == null)
+                        continue;
 
                     // detect dependency loop
                     if (states[requiredMod] == ModDependencyStatus.Checking)

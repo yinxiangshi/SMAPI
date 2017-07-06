@@ -12,6 +12,10 @@
         /// <summary>The minimum required version (if any).</summary>
         public ISemanticVersion MinimumVersion { get; set; }
 
+#if SMAPI_2_0
+        /// <summary>Whether the dependency must be installed to use the mod.</summary>
+        public bool IsRequired { get; set; }
+#endif
 
         /*********
         ** Public methods
@@ -19,12 +23,20 @@
         /// <summary>Construct an instance.</summary>
         /// <param name="uniqueID">The unique mod ID to require.</param>
         /// <param name="minimumVersion">The minimum required version (if any).</param>
-        public ManifestDependency(string uniqueID, string minimumVersion)
+        /// <param name="required">Whether the dependency must be installed to use the mod.</param>
+        public ManifestDependency(string uniqueID, string minimumVersion
+#if SMAPI_2_0
+            , bool required = true
+#endif
+            )
         {
             this.UniqueID = uniqueID;
             this.MinimumVersion = !string.IsNullOrWhiteSpace(minimumVersion)
                 ? new SemanticVersion(minimumVersion)
                 : null;
+#if SMAPI_2_0
+            this.IsRequired = required;
+#endif
         }
     }
 }

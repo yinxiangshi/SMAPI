@@ -11,5 +11,10 @@
 
         /// <summary>The minimum required version (if any).</summary>
         ISemanticVersion MinimumVersion { get; }
+
+#if SMAPI_2_0
+        /// <summary>Whether the dependency must be installed to use the mod.</summary>
+        bool IsRequired { get; }
+#endif
     }
 }

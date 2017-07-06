@@ -73,7 +73,12 @@ namespace StardewModdingAPI.Framework.Serialisation
                 {
                     string uniqueID = obj.Value<string>(nameof(IManifestDependency.UniqueID));
                     string minVersion = obj.Value<string>(nameof(IManifestDependency.MinimumVersion));
+#if SMAPI_2_0
+                    bool required = obj.Value<bool?>(nameof(IManifestDependency.IsRequired)) ?? true;
+                    result.Add(new ManifestDependency(uniqueID, minVersion, required));
+#else
                     result.Add(new ManifestDependency(uniqueID, minVersion));
+#endif
                 }
                 return result.ToArray();
             }

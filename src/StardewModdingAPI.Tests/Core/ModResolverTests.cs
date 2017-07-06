@@ -411,6 +411,40 @@ namespace StardewModdingAPI.Tests.Core
             Assert.AreSame(modB.Object, mods[1], "The load order is incorrect: mod B should be second since it needs mod A.");
         }
 
+#if SMAPI_2_0
+        [Test(Description = "Assert that optional dependencies are sorted correctly if present.")]
+        public void ProcessDependencies_IfOptional()
+        {
+            // arrange
+            // A ◀── B
+            Mock<IModMetadata> modA = this.GetMetadata(this.GetManifest("Mod A", "1.0"));
+            Mock<IModMetadata> modB = this.GetMetadata(this.GetManifest("Mod B", "1.0", new ManifestDependency("Mod A", "1.0", required: false)), allowStatusChange: false);
+
+            // act
+            IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modB.Object, modA.Object }).ToArray();
+
+            // assert
+            Assert.AreEqual(2, mods.Length, 0, "Expected to get the same number of mods input.");
+            Assert.AreSame(modA.Object, mods[0], "The load order is incorrect: mod A should be first since it's needed by mod B.");
+            Assert.AreSame(modB.Object, mods[1], "The load order is incorrect: mod B should be second since it needs mod A.");
+        }
+
+        [Test(Description = "Assert that optional dependencies are accepted if they're missing.")]
+        public void ProcessDependencies_IfOptional_SucceedsIfMissing()
+        {
+            // arrange
+            // A ◀── B where A doesn't exist
+            Mock<IModMetadata> modB = this.GetMetadata(this.GetManifest("Mod B", "1.0", new ManifestDependency("Mod A", "1.0", required: false)), allowStatusChange: false);
+
+            // act
+            IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modB.Object }).ToArray();
+
+            // assert
+            Assert.AreEqual(1, mods.Length, 0, "Expected to get the same number of mods input.");
+            Assert.AreSame(modB.Object, mods[0], "The load order is incorrect: mod B should be first since it's the only mod.");
+        }
+#endif
+
 
         /*********
         ** Private methods

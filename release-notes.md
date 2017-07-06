@@ -11,7 +11,9 @@ For mod developers:
 * Added `InputEvents` which unify keyboard, mouse, and controller input for much simpler input handling (see [API reference](http://stardewvalleywiki.com/Modding:SMAPI_APIs#Input_events)).
 * Added useful `InputEvents` metadata like the cursor position, grab tile, etc.
 * Added ability to prevent the game from handling a button press via `InputEvents`.
-* The `manifest.json` version can now be specified as a string.
+* In `manifest.json`:
+  * Dependencies can now be optional.
+  * The version can now be a string like `"1.0-alpha"` instead of a structure.
 * Removed all deprecated code.
 
 ## 1.15
