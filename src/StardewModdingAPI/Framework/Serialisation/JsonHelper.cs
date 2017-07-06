@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Microsoft.Xna.Framework.Input;
 using Newtonsoft.Json;
+using StardewModdingAPI.Utilities;
 
 namespace StardewModdingAPI.Framework.Serialisation
 {
@@ -19,7 +20,7 @@ namespace StardewModdingAPI.Framework.Serialisation
             ObjectCreationHandling = ObjectCreationHandling.Replace, // avoid issue where default ICollection<T> values are duplicated each time the config is loaded
             Converters = new List<JsonConverter>
             {
-                new SelectiveStringEnumConverter(typeof(Buttons), typeof(Keys))
+                new SelectiveStringEnumConverter(typeof(Buttons), typeof(Keys), typeof(SButton))
             }
         };
 
