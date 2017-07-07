@@ -3,7 +3,7 @@ using System;
 namespace StardewModdingAPI.Framework.ModHelpers
 {
     /// <summary>Provides an API for managing console commands.</summary>
-    internal class CommandHelper : ICommandHelper
+    internal class CommandHelper : BaseHelper, ICommandHelper
     {
         /*********
         ** Accessors
@@ -19,9 +19,11 @@ namespace StardewModdingAPI.Framework.ModHelpers
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
+        /// <param name="modID">The unique ID of the relevant mod.</param>
         /// <param name="modName">The friendly mod name for this instance.</param>
         /// <param name="commandManager">Manages console commands.</param>
-        public CommandHelper(string modName, CommandManager commandManager)
+        public CommandHelper(string modID, string modName, CommandManager commandManager)
+            : base(modID)
         {
             this.ModName = modName;
             this.CommandManager = commandManager;

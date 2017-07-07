@@ -16,7 +16,7 @@ using xTile.Tiles;
 namespace StardewModdingAPI.Framework.ModHelpers
 {
     /// <summary>Provides an API for loading content assets.</summary>
-    internal class ContentHelper : IContentHelper
+    internal class ContentHelper : BaseHelper, IContentHelper
     {
         /*********
         ** Properties
@@ -56,8 +56,10 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <summary>Construct an instance.</summary>
         /// <param name="contentManager">SMAPI's underlying content manager.</param>
         /// <param name="modFolderPath">The absolute path to the mod folder.</param>
+        /// <param name="modID">The unique ID of the relevant mod.</param>
         /// <param name="modName">The friendly mod name for use in errors.</param>
-        public ContentHelper(SContentManager contentManager, string modFolderPath, string modName)
+        public ContentHelper(SContentManager contentManager, string modFolderPath, string modID, string modName)
+            : base(modID)
         {
             this.ContentManager = contentManager;
             this.ModFolderPath = modFolderPath;

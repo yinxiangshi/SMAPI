@@ -128,6 +128,7 @@
     <Compile Include="Framework\Countdown.cs" />
     <Compile Include="Framework\IModMetadata.cs" />
     <Compile Include="Framework\Models\DisabledMod.cs" />
+    <Compile Include="Framework\ModHelpers\BaseHelper.cs" />
     <Compile Include="Framework\ModHelpers\CommandHelper.cs" />
     <Compile Include="Framework\ModHelpers\ContentHelper.cs" />
     <Compile Include="Framework\ModHelpers\ModHelper.cs" />
@@ -186,6 +187,7 @@
     <Compile Include="IManifest.cs" />
     <Compile Include="IMod.cs" />
     <Compile Include="IModHelper.cs" />
+    <Compile Include="IModLinked.cs" />
     <Compile Include="Framework\Logging\LogFileManager.cs" />
     <Compile Include="IPrivateProperty.cs" />
     <Compile Include="ISemanticVersion.cs" />

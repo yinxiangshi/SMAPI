@@ -703,8 +703,8 @@ namespace StardewModdingAPI
 
                         // inject data
                         mod.ModManifest = manifest;
-                        var reflectionHelper = new ReflectionHelper(this.Reflection);
-                        mod.Helper = new ModHelper(metadata.DisplayName, metadata.DirectoryPath, jsonHelper, this.ModRegistry, this.CommandManager, contentManager, reflectionHelper);
+                        var reflectionHelper = new ReflectionHelper(manifest.UniqueID, this.Reflection);
+                        mod.Helper = new ModHelper(manifest.UniqueID, metadata.DisplayName, metadata.DirectoryPath, jsonHelper, this.ModRegistry, this.CommandManager, contentManager, reflectionHelper);
                         mod.Monitor = this.GetSecondaryMonitor(metadata.DisplayName);
 #if !SMAPI_2_0
                         mod.PathOnDisk = metadata.DirectoryPath;

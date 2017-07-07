@@ -5,7 +5,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
 {
     /// <summary>Provides helper methods for accessing private game code.</summary>
     /// <remarks>This implementation searches up the type hierarchy, and caches the reflected fields and methods with a sliding expiry (to optimise performance without unnecessary memory usage).</remarks>
-    internal class ReflectionHelper : IReflectionHelper
+    internal class ReflectionHelper : BaseHelper, IReflectionHelper
     {
         /*********
         ** Properties
@@ -18,8 +18,10 @@ namespace StardewModdingAPI.Framework.ModHelpers
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
+        /// <param name="modID">The unique ID of the relevant mod.</param>
         /// <param name="reflector">The underlying reflection helper.</param>
-        public ReflectionHelper(Reflector reflector)
+        public ReflectionHelper(string modID, Reflector reflector)
+            : base(modID)
         {
             this.Reflector = reflector;
         }

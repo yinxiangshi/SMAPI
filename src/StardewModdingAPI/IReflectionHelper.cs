@@ -3,7 +3,7 @@
 namespace StardewModdingAPI
 {
     /// <summary>Simplifies access to private game code.</summary>
-    public interface IReflectionHelper
+    public interface IReflectionHelper : IModLinked
     {
         /*********
         ** Public methods

@@ -5,7 +5,7 @@ using StardewModdingAPI.Framework.Serialisation;
 namespace StardewModdingAPI.Framework.ModHelpers
 {
     /// <summary>Provides simplified APIs for writing mods.</summary>
-    internal class ModHelper : IModHelper, IDisposable
+    internal class ModHelper : BaseHelper, IModHelper, IDisposable
     {
         /*********
         ** Properties
@@ -40,6 +40,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
+        /// <param name="modID">The mod's unique ID.</param>
         /// <param name="displayName">The mod's display name.</param>
         /// <param name="modDirectory">The full path to the mod's folder.</param>
         /// <param name="jsonHelper">Encapsulate SMAPI's JSON parsing.</param>
@@ -49,7 +50,8 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="reflection">Simplifies access to private game code.</param>
         /// <exception cref="ArgumentNullException">An argument is null or empty.</exception>
         /// <exception cref="InvalidOperationException">The <paramref name="modDirectory"/> path does not exist on disk.</exception>
-        public ModHelper(string displayName, string modDirectory, JsonHelper jsonHelper, IModRegistry modRegistry, CommandManager commandManager, SContentManager contentManager, IReflectionHelper reflection)
+        public ModHelper(string modID, string displayName, string modDirectory, JsonHelper jsonHelper, IModRegistry modRegistry, CommandManager commandManager, SContentManager contentManager, IReflectionHelper reflection)
+            : base(modID)
         {
             // validate
             if (string.IsNullOrWhiteSpace(modDirectory))
@@ -64,11 +66,11 @@ namespace StardewModdingAPI.Framework.ModHelpers
             // initialise
             this.DirectoryPath = modDirectory;
             this.JsonHelper = jsonHelper;
-            this.Content = new ContentHelper(contentManager, modDirectory, displayName);
+            this.Content = new ContentHelper(contentManager, modDirectory, modID, displayName);
             this.ModRegistry = modRegistry;
-            this.ConsoleCommands = new CommandHelper(displayName, commandManager);
+            this.ConsoleCommands = new CommandHelper(modID, displayName, commandManager);
             this.Reflection = reflection;
-            this.Translation = new TranslationHelper(displayName, contentManager.GetLocale(), contentManager.GetCurrentLanguage());
+            this.Translation = new TranslationHelper(modID, displayName, contentManager.GetLocale(), contentManager.GetCurrentLanguage());
         }
 
         /****

@@ -6,7 +6,7 @@ using StardewValley;
 namespace StardewModdingAPI.Framework.ModHelpers
 {
     /// <summary>Provides translations stored in the mod's <c>i18n</c> folder, with one file per locale (like <c>en.json</c>) containing a flat key => value structure. Translations are fetched with locale fallback, so missing translations are filled in from broader locales (like <c>pt-BR.json</c> &lt; <c>pt.json</c> &lt; <c>default.json</c>).</summary>
-    internal class TranslationHelper : ITranslationHelper
+    internal class TranslationHelper : BaseHelper, ITranslationHelper
     {
         /*********
         ** Properties
@@ -35,10 +35,12 @@ namespace StardewModdingAPI.Framework.ModHelpers
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
+        /// <param name="modID">The unique ID of the relevant mod.</param>
         /// <param name="modName">The name of the relevant mod for error messages.</param>
         /// <param name="locale">The initial locale.</param>
         /// <param name="languageCode">The game's current language code.</param>
-        public TranslationHelper(string modName, string locale, LocalizedContentManager.LanguageCode languageCode)
+        public TranslationHelper(string modID, string modName, string locale, LocalizedContentManager.LanguageCode languageCode)
+            : base(modID)
         {
             // save data
             this.ModName = modName;
