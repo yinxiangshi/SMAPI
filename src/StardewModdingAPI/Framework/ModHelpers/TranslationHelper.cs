@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using StardewValley;
 
-namespace StardewModdingAPI.Framework
+namespace StardewModdingAPI.Framework.ModHelpers
 {
     /// <summary>Provides translations stored in the mod's <c>i18n</c> folder, with one file per locale (like <c>en.json</c>) containing a flat key => value structure. Translations are fetched with locale fallback, so missing translations are filled in from broader locales (like <c>pt-BR.json</c> &lt; <c>pt.json</c> &lt; <c>default.json</c>).</summary>
     internal class TranslationHelper : ITranslationHelper

@@ -1,7 +1,7 @@
 using System;
 using StardewModdingAPI.Framework.Reflection;
 
-namespace StardewModdingAPI
+namespace StardewModdingAPI.Framework.ModHelpers
 {
     /// <summary>Provides helper methods for accessing private game code.</summary>
     /// <remarks>This implementation searches up the type hierarchy, and caches the reflected fields and methods with a sliding expiry (to optimise performance without unnecessary memory usage).</remarks>

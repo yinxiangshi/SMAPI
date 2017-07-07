@@ -2,7 +2,7 @@
 using System.IO;
 using StardewModdingAPI.Framework.Serialisation;
 
-namespace StardewModdingAPI.Framework
+namespace StardewModdingAPI.Framework.ModHelpers
 {
     /// <summary>Provides simplified APIs for writing mods.</summary>
     internal class ModHelper : IModHelper, IDisposable

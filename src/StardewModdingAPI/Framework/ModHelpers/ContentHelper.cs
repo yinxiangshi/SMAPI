@@ -13,7 +13,7 @@ using xTile;
 using xTile.Format;
 using xTile.Tiles;
 
-namespace StardewModdingAPI.Framework
+namespace StardewModdingAPI.Framework.ModHelpers
 {
     /// <summary>Provides an API for loading content assets.</summary>
     internal class ContentHelper : IContentHelper

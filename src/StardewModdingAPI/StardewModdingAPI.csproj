@@ -128,6 +128,11 @@
     <Compile Include="Framework\Countdown.cs" />
     <Compile Include="Framework\IModMetadata.cs" />
     <Compile Include="Framework\Models\DisabledMod.cs" />
+    <Compile Include="Framework\ModHelpers\CommandHelper.cs" />
+    <Compile Include="Framework\ModHelpers\ContentHelper.cs" />
+    <Compile Include="Framework\ModHelpers\ModHelper.cs" />
+    <Compile Include="Framework\ModHelpers\ReflectionHelper.cs" />
+    <Compile Include="Framework\ModHelpers\TranslationHelper.cs" />
     <Compile Include="Framework\ModLoading\InvalidModStateException.cs" />
     <Compile Include="Framework\ModLoading\ModDependencyStatus.cs" />
     <Compile Include="Framework\ModLoading\ModMetadataStatus.cs" />
@@ -135,7 +140,6 @@
     <Compile Include="Framework\ModLoading\AssemblyDefinitionResolver.cs" />
     <Compile Include="Framework\ModLoading\AssemblyParseResult.cs" />
     <Compile Include="Framework\CommandManager.cs" />
-    <Compile Include="Framework\ContentHelper.cs" />
     <Compile Include="Framework\Content\AssetData.cs" />
     <Compile Include="Framework\Content\AssetDataForObject.cs" />
     <Compile Include="Framework\Content\AssetDataForDictionary.cs" />
@@ -143,20 +147,17 @@
     <Compile Include="Context.cs" />
     <Compile Include="Framework\Logging\ConsoleInterceptionManager.cs" />
     <Compile Include="Framework\Logging\InterceptingTextWriter.cs" />
-    <Compile Include="Framework\CommandHelper.cs" />
     <Compile Include="Framework\Models\ManifestDependency.cs" />
     <Compile Include="Framework\Models\ModCompatibilityType.cs" />
     <Compile Include="Framework\Models\SConfig.cs" />
     <Compile Include="Framework\ModLoading\ModMetadata.cs" />
     <Compile Include="Framework\Reflection\PrivateProperty.cs" />
-    <Compile Include="ReflectionHelper.cs" />
     <Compile Include="Framework\RequestExitDelegate.cs" />
     <Compile Include="Framework\SContentManager.cs" />
     <Compile Include="Framework\Exceptions\SParseException.cs" />
     <Compile Include="Framework\Serialisation\JsonHelper.cs" />
     <Compile Include="Framework\Serialisation\SelectiveStringEnumConverter.cs" />
     <Compile Include="Framework\Serialisation\ManifestFieldConverter.cs" />
-    <Compile Include="Framework\TranslationHelper.cs" />
     <Compile Include="IAssetEditor.cs" />
     <Compile Include="IAssetInfo.cs" />
     <Compile Include="IAssetLoader.cs" />
@@ -200,7 +201,6 @@
     <Compile Include="Framework\Monitor.cs" />
     <Compile Include="Framework\Models\Manifest.cs" />
     <Compile Include="Mod.cs" />
-    <Compile Include="Framework\ModHelper.cs" />
     <Compile Include="PatchMode.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -282,7 +282,7 @@
     <StartProgram>$(GamePath)\StardewModdingAPI.exe</StartProgram>
     <StartWorkingDirectory>$(GamePath)</StartWorkingDirectory>
   </PropertyGroup>
-  
+
   <!-- Somehow this makes Visual Studio for Mac recognise the previous section. -->
   <!-- Nobody knows why. -->
   <PropertyGroup Condition="'$(RunConfiguration)' == 'Default'" />

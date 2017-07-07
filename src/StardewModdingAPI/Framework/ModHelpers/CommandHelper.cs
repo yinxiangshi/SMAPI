@@ -1,6 +1,6 @@
 using System;
 
-namespace StardewModdingAPI.Framework
+namespace StardewModdingAPI.Framework.ModHelpers
 {
     /// <summary>Provides an API for managing console commands.</summary>
     internal class CommandHelper : ICommandHelper
@@ -13,7 +13,6 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Manages console commands.</summary>
         private readonly CommandManager CommandManager;
-
 
 
         /*********
