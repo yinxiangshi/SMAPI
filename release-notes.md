@@ -47,6 +47,7 @@ For SMAPI developers:
 * Added SMAPI 2.0 compile mode, for testing how mods will work with SMAPI 2.0.
 * Added prototype SMAPI 2.0 feature to override XNB files (not enabled for mods yet).
 * Added prototype SMAPI 2.0 support for version strings in `manifest.json` (not recommended for mods yet).
+* Compiling SMAPI now uses your `~/stardewvalley.targets` file if present.
 
 ## 1.14
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.13...1.14).
