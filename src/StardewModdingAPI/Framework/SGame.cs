@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using StardewModdingAPI.Events;
+using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
@@ -150,7 +151,7 @@ namespace StardewModdingAPI.Framework
         ** Private wrappers
         ****/
         /// <summary>Simplifies access to private game code.</summary>
-        private static IReflectionHelper Reflection;
+        private static Reflector Reflection;
 
         // ReSharper disable ArrangeStaticMemberQualifier, ArrangeThisQualifier, InconsistentNaming
         /// <summary>Used to access private fields and methods.</summary>
@@ -184,7 +185,7 @@ namespace StardewModdingAPI.Framework
         /// <summary>Construct an instance.</summary>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="reflection">Simplifies access to private game code.</param>
-        internal SGame(IMonitor monitor, IReflectionHelper reflection)
+        internal SGame(IMonitor monitor, Reflector reflection)
         {
             // initialise
             this.Monitor = monitor;

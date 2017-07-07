@@ -71,7 +71,7 @@ namespace StardewModdingAPI.Framework
                 throw new ArgumentNullException(nameof(monitor));
 
             // initialise
-            IReflectionHelper reflection = new ReflectionHelper();
+            var reflection = new Reflector();
             this.Monitor = monitor;
 
             // get underlying fields for interception

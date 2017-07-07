@@ -7,13 +7,13 @@ namespace StardewModdingAPI.Framework.Reflection
 {
     /// <summary>Provides helper methods for accessing private game code.</summary>
     /// <remarks>This implementation searches up the type hierarchy, and caches the reflected fields and methods with a sliding expiry (to optimise performance without unnecessary memory usage).</remarks>
-    internal class ReflectionHelper : IReflectionHelper
+    internal class Reflector
     {
         /*********
         ** Properties
         *********/
         /// <summary>The cached fields and methods found via reflection.</summary>
-        private readonly MemoryCache Cache = new MemoryCache(typeof(ReflectionHelper).FullName);
+        private readonly MemoryCache Cache = new MemoryCache(typeof(Reflector).FullName);
 
         /// <summary>The sliding cache expiration time.</summary>
         private readonly TimeSpan SlidingCacheExpiry = TimeSpan.FromMinutes(5);
@@ -91,46 +91,6 @@ namespace StardewModdingAPI.Framework.Reflection
             if (required && property == null)
                 throw new InvalidOperationException($"The {type.FullName} object doesn't have a private '{name}' static property.");
             return property;
-        }
-
-        /****
-        ** Field values
-        ** (shorthand since this is the most common case)
-        ****/
-        /// <summary>Get the value of a private instance field.</summary>
-        /// <typeparam name="TValue">The field type.</typeparam>
-        /// <param name="obj">The object which has the field.</param>
-        /// <param name="name">The field name.</param>
-        /// <param name="required">Whether to throw an exception if the private field is not found.</param>
-        /// <returns>Returns the field value, or the default value for <typeparamref name="TValue"/> if the field wasn't found and <paramref name="required"/> is false.</returns>
-        /// <remarks>
-        /// This is a shortcut for <see cref="GetPrivateField{TValue}(object,string,bool)"/> followed by <see cref="IPrivateField{TValue}.GetValue"/>.
-        /// When <paramref name="required" /> is false, this will return the default value if reflection fails. If you need to check whether the field exists, use <see cref="GetPrivateField{TValue}(object,string,bool)" /> instead.
-        /// </remarks>
-        public TValue GetPrivateValue<TValue>(object obj, string name, bool required = true)
-        {
-            IPrivateField<TValue> field = this.GetPrivateField<TValue>(obj, name, required);
-            return field != null
-                ? field.GetValue()
-                : default(TValue);
-        }
-
-        /// <summary>Get the value of a private static field.</summary>
-        /// <typeparam name="TValue">The field type.</typeparam>
-        /// <param name="type">The type which has the field.</param>
-        /// <param name="name">The field name.</param>
-        /// <param name="required">Whether to throw an exception if the private field is not found.</param>
-        /// <returns>Returns the field value, or the default value for <typeparamref name="TValue"/> if the field wasn't found and <paramref name="required"/> is false.</returns>
-        /// <remarks>
-        /// This is a shortcut for <see cref="GetPrivateField{TValue}(Type,string,bool)"/> followed by <see cref="IPrivateField{TValue}.GetValue"/>.
-        /// When <paramref name="required" /> is false, this will return the default value if reflection fails. If you need to check whether the field exists, use <see cref="GetPrivateField{TValue}(Type,string,bool)" /> instead.
-        /// </remarks>
-        public TValue GetPrivateValue<TValue>(Type type, string name, bool required = true)
-        {
-            IPrivateField<TValue> field = this.GetPrivateField<TValue>(type, name, required);
-            return field != null
-                ? field.GetValue()
-                : default(TValue);
         }
 
         /****

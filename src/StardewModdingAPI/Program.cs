@@ -45,7 +45,7 @@ namespace StardewModdingAPI
         private readonly CancellationTokenSource CancellationTokenSource = new CancellationTokenSource();
 
         /// <summary>Simplifies access to private game code.</summary>
-        private readonly IReflectionHelper Reflection = new ReflectionHelper();
+        private readonly Reflector Reflection = new Reflector();
 
         /// <summary>The underlying game instance.</summary>
         private SGame GameInstance;
@@ -702,7 +702,8 @@ namespace StardewModdingAPI
 
                         // inject data
                         mod.ModManifest = manifest;
-                        mod.Helper = new ModHelper(metadata.DisplayName, metadata.DirectoryPath, jsonHelper, this.ModRegistry, this.CommandManager, contentManager, this.Reflection);
+                        var reflectionHelper = new ReflectionHelper(this.Reflection);
+                        mod.Helper = new ModHelper(metadata.DisplayName, metadata.DirectoryPath, jsonHelper, this.ModRegistry, this.CommandManager, contentManager, reflectionHelper);
                         mod.Monitor = this.GetSecondaryMonitor(metadata.DisplayName);
 #if !SMAPI_2_0
                         mod.PathOnDisk = metadata.DirectoryPath;
