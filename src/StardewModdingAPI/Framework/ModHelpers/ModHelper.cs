@@ -23,16 +23,16 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <summary>An API for loading content assets.</summary>
         public IContentHelper Content { get; }
 
-        /// <summary>Simplifies access to private game code.</summary>
+        /// <summary>An API for accessing private game code.</summary>
         public IReflectionHelper Reflection { get; }
 
-        /// <summary>Metadata about loaded mods.</summary>
+        /// <summary>an API for fetching metadata about loaded mods.</summary>
         public IModRegistry ModRegistry { get; }
 
         /// <summary>An API for managing console commands.</summary>
         public ICommandHelper ConsoleCommands { get; }
 
-        /// <summary>Provides translations stored in the mod's <c>i18n</c> folder, with one file per locale (like <c>en.json</c>) containing a flat key => value structure. Translations are fetched with locale fallback, so missing translations are filled in from broader locales (like <c>pt-BR.json</c> &lt; <c>pt.json</c> &lt; <c>default.json</c>).</summary>
+        /// <summary>An API for reading translations stored in the mod's <c>i18n</c> folder, with one file per locale (like <c>en.json</c>) containing a flat key => value structure. Translations are fetched with locale fallback, so missing translations are filled in from broader locales (like <c>pt-BR.json</c> &lt; <c>pt.json</c> &lt; <c>default.json</c>).</summary>
         public ITranslationHelper Translation { get; }
 
 
@@ -41,36 +41,32 @@ namespace StardewModdingAPI.Framework.ModHelpers
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="modID">The mod's unique ID.</param>
-        /// <param name="displayName">The mod's display name.</param>
         /// <param name="modDirectory">The full path to the mod's folder.</param>
         /// <param name="jsonHelper">Encapsulate SMAPI's JSON parsing.</param>
-        /// <param name="modRegistry">Metadata about loaded mods.</param>
-        /// <param name="commandManager">Manages console commands.</param>
-        /// <param name="contentManager">The content manager which loads content assets.</param>
-        /// <param name="reflection">Simplifies access to private game code.</param>
+        /// <param name="contentHelper">An API for loading content assets.</param>
+        /// <param name="commandHelper">An API for managing console commands.</param>
+        /// <param name="modRegistry">an API for fetching metadata about loaded mods.</param>
+        /// <param name="reflectionHelper">An API for accessing private game code.</param>
+        /// <param name="translationHelper">An API for reading translations stored in the mod's <c>i18n</c> folder.</param>
         /// <exception cref="ArgumentNullException">An argument is null or empty.</exception>
         /// <exception cref="InvalidOperationException">The <paramref name="modDirectory"/> path does not exist on disk.</exception>
-        public ModHelper(string modID, string displayName, string modDirectory, JsonHelper jsonHelper, IModRegistry modRegistry, CommandManager commandManager, SContentManager contentManager, IReflectionHelper reflection)
+        public ModHelper(string modID, string modDirectory, JsonHelper jsonHelper, IContentHelper contentHelper, ICommandHelper commandHelper, IModRegistry modRegistry, IReflectionHelper reflectionHelper, ITranslationHelper translationHelper)
             : base(modID)
         {
-            // validate
+            // validate directory
             if (string.IsNullOrWhiteSpace(modDirectory))
                 throw new ArgumentNullException(nameof(modDirectory));
-            if (jsonHelper == null)
-                throw new ArgumentNullException(nameof(jsonHelper));
-            if (modRegistry == null)
-                throw new ArgumentNullException(nameof(modRegistry));
             if (!Directory.Exists(modDirectory))
                 throw new InvalidOperationException("The specified mod directory does not exist.");
 
             // initialise
             this.DirectoryPath = modDirectory;
-            this.JsonHelper = jsonHelper;
-            this.Content = new ContentHelper(contentManager, modDirectory, modID, displayName);
-            this.ModRegistry = modRegistry;
-            this.ConsoleCommands = new CommandHelper(modID, displayName, commandManager);
-            this.Reflection = reflection;
-            this.Translation = new TranslationHelper(modID, displayName, contentManager.GetLocale(), contentManager.GetCurrentLanguage());
+            this.JsonHelper = jsonHelper ?? throw new ArgumentNullException(nameof(jsonHelper));
+            this.Content = contentHelper ?? throw new ArgumentNullException(nameof(contentHelper));
+            this.ModRegistry = modRegistry ?? throw new ArgumentNullException(nameof(modRegistry));
+            this.ConsoleCommands = commandHelper ?? throw new ArgumentNullException(nameof(commandHelper));
+            this.Reflection = reflectionHelper ?? throw new ArgumentNullException(nameof(reflectionHelper));
+            this.Translation = translationHelper ?? throw new ArgumentNullException(nameof(translationHelper));
         }
 
         /****

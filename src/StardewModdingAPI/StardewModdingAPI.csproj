@@ -132,6 +132,7 @@
     <Compile Include="Framework\ModHelpers\CommandHelper.cs" />
     <Compile Include="Framework\ModHelpers\ContentHelper.cs" />
     <Compile Include="Framework\ModHelpers\ModHelper.cs" />
+    <Compile Include="Framework\ModHelpers\ModRegistryHelper.cs" />
     <Compile Include="Framework\ModHelpers\ReflectionHelper.cs" />
     <Compile Include="Framework\ModHelpers\TranslationHelper.cs" />
     <Compile Include="Framework\ModLoading\InvalidModStateException.cs" />

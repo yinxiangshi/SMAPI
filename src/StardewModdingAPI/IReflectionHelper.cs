@@ -2,7 +2,7 @@
 
 namespace StardewModdingAPI
 {
-    /// <summary>Simplifies access to private game code.</summary>
+    /// <summary>Provides an API for accessing private game code.</summary>
     public interface IReflectionHelper : IModLinked
     {
         /*********

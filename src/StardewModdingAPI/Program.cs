@@ -422,7 +422,7 @@ namespace StardewModdingAPI
                             mod.SetStatus(ModMetadataStatus.Failed, $"it requires per-save configuration files ('psconfigs') which couldn't be created: {ex.GetLogSummary()}");
                         }
                     }
-            }
+                }
 #endif
 
                 // process dependencies
@@ -604,7 +604,7 @@ namespace StardewModdingAPI
         /// <param name="jsonHelper">The JSON helper with which to read mods' JSON files.</param>
         /// <param name="contentManager">The content manager to use for mod content.</param>
 #if !SMAPI_2_0
-/// <param name="deprecationWarnings">A list to populate with any deprecation warnings.</param>
+        /// <param name="deprecationWarnings">A list to populate with any deprecation warnings.</param>
         private void LoadMods(IModMetadata[] mods, JsonHelper jsonHelper, SContentManager contentManager, IList<Action> deprecationWarnings)
 #else
         private void LoadMods(IModMetadata[] mods, JsonHelper jsonHelper, SContentManager contentManager)
@@ -702,13 +702,20 @@ namespace StardewModdingAPI
 #endif
 
                         // inject data
-                        mod.ModManifest = manifest;
-                        var reflectionHelper = new ReflectionHelper(manifest.UniqueID, this.Reflection);
-                        mod.Helper = new ModHelper(manifest.UniqueID, metadata.DisplayName, metadata.DirectoryPath, jsonHelper, this.ModRegistry, this.CommandManager, contentManager, reflectionHelper);
-                        mod.Monitor = this.GetSecondaryMonitor(metadata.DisplayName);
+                        {
+                            ICommandHelper commandHelper = new CommandHelper(manifest.UniqueID, metadata.DisplayName, this.CommandManager);
+                            IContentHelper contentHelper = new ContentHelper(contentManager, metadata.DirectoryPath, manifest.UniqueID, metadata.DisplayName);
+                            IReflectionHelper reflectionHelper = new ReflectionHelper(manifest.UniqueID, this.Reflection);
+                            IModRegistry modRegistryHelper = new ModRegistryHelper(manifest.UniqueID, this.ModRegistry);
+                            ITranslationHelper translationHelper = new TranslationHelper(manifest.UniqueID, manifest.Name, contentManager.GetLocale(), contentManager.GetCurrentLanguage());
+
+                            mod.ModManifest = manifest;
+                            mod.Helper = new ModHelper(manifest.UniqueID, metadata.DirectoryPath, jsonHelper, contentHelper, commandHelper, modRegistryHelper, reflectionHelper, translationHelper);
+                            mod.Monitor = this.GetSecondaryMonitor(metadata.DisplayName);
 #if !SMAPI_2_0
-                        mod.PathOnDisk = metadata.DirectoryPath;
+                            mod.PathOnDisk = metadata.DirectoryPath;
 #endif
+                        }
 
                         // track mod
                         metadata.SetMod(mod);
