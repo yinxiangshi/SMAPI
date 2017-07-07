@@ -20,12 +20,12 @@ For mod developers:
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.14...1.15).
 
 For players:
+* Cleaned up SMAPI console a bit.
 * Revamped TrainerMod's item commands:
   * `player_add` is a new command to add any item to your inventory (including tools, weapons, equipment, craftables, wallpaper, etc). This replaces the former `player_additem`, `player_addring`, and `player_addweapon`.
   * `list_items` now shows all items in the game. You can search by item type like `list_items weapon`, or search by item name like `list_items galaxy sword`.
   * `list_items` now also matches translated item names when playing in another language.
   * `list_item_types` is a new command to see a list of item types.
-* Cleaned up SMAPI console a bit.
 * Fixed unhelpful error when a `config.json` is invalid.
 * Fixed rare crash when window loses focus for a few players (further to fix in 1.14).
 * Fixed invalid `ObjectInformation.xnb` causing a flood of warnings; SMAPI now shows one error instead.
