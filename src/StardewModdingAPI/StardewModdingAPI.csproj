@@ -276,7 +276,6 @@
     <Copy SourceFiles="$(TargetDir)\$(TargetName).xml" DestinationFolder="$(GamePath)" />
     <Copy SourceFiles="$(TargetDir)\Newtonsoft.Json.dll" DestinationFolder="$(GamePath)" />
     <Copy SourceFiles="$(TargetDir)\Mono.Cecil.dll" DestinationFolder="$(GamePath)" />
-    <Copy SourceFiles="$(TargetDir)\System.ValueTuple.dll" DestinationFolder="$(GamePath)" />
   </Target>
 
   <!-- launch SMAPI on debug -->
