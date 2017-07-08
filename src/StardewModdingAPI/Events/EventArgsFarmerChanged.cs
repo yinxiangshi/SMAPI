@@ -1,3 +1,4 @@
+#if !SMAPI_2_0
 using System;
 using SFarmer = StardewValley.Farmer;
 
@@ -29,3 +30,4 @@ namespace StardewModdingAPI.Events
         }
     }
 }
+#endif

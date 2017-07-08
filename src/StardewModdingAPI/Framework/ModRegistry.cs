@@ -7,7 +7,7 @@ using System.Reflection;
 namespace StardewModdingAPI.Framework
 {
     /// <summary>Tracks the installed mods.</summary>
-    internal class ModRegistry : IModRegistry
+    internal class ModRegistry
     {
         /*********
         ** Properties
@@ -23,7 +23,7 @@ namespace StardewModdingAPI.Framework
         ** Public methods
         *********/
         /****
-        ** IModRegistry
+        ** Basic metadata
         ****/
         /// <summary>Get metadata for all loaded mods.</summary>
         public IEnumerable<IManifest> GetAll()
@@ -47,7 +47,7 @@ namespace StardewModdingAPI.Framework
         }
 
         /****
-        ** Internal methods
+        ** Mod data
         ****/
         /// <summary>Register a mod as a possible source of deprecation warnings.</summary>
         /// <param name="metadata">The mod metadata.</param>

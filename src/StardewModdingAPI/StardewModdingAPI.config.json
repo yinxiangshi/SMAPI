@@ -27,6 +27,23 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
   "VerboseLogging": false,
 
   /**
+   * A list of mods SMAPI should consider obsolete and not load. Changing this field is not
+   * recommended and may destabilise your game.
+   */
+  "DisabledMods": [
+    {
+      "Name": "Modder Serialization Utility",
+      "ID": [ "SerializerUtils-0-1" ],
+      "ReasonPhrase": "it's no longer used by any mods, and is no longer maintained."
+    },
+    {
+      "Name": "StarDustCore",
+      "ID": [ "StarDustCore" ],
+      "ReasonPhrase": "it was only used by earlier versions of Save Anywhere (which no longer uses it), and is no longer maintained."
+    }
+  ],
+
+  /**
    * A list of mod versions SMAPI should consider compatible or broken regardless of whether it
    * detects incompatible code. Each record can be set to `AssumeCompatible` or `AssumeBroken`.
    * Changing this field is not recommended and may destabilise your game.
@@ -314,14 +331,6 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "Compatibility": "AssumeBroken",
       "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/798",
       "Notes": "Needs update for SDV 1.2."
-    },
-    {
-      "Name": "StarDustCore",
-      "ID": [ "StarDustCore" ],
-      "UpperVersion": "1.0",
-      "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/683",
-      "Notes": "Obsolete (originally needed by Save Anywhere); broken in SDV 1.2."
     },
     {
       "Name": "Teleporter",
