@@ -11,7 +11,7 @@ namespace StardewModdingAPI.Events
         /*********
         ** Properties
         *********/
-#if !SMAPI_2_0
+#if SMAPI_1_x
         /// <summary>Manages deprecation warnings.</summary>
         private static DeprecationManager DeprecationManager;
 
@@ -42,7 +42,7 @@ namespace StardewModdingAPI.Events
         /// <summary>Raised during launch after configuring Stardew Valley, loading it into memory, and opening the game window. The window is still blank by this point.</summary>
         internal static event EventHandler GameLoadedInternal;
 
-#if !SMAPI_2_0
+#if SMAPI_1_x
         /// <summary>Raised during launch after configuring XNA or MonoGame. The game window hasn't been opened by this point. Called after <see cref="Microsoft.Xna.Framework.Game.Initialize"/>.</summary>
         [Obsolete("The " + nameof(Mod) + "." + nameof(Mod.Entry) + " method is now called after the " + nameof(GameEvents.Initialize) + " event, so any contained logic can be done directly in " + nameof(Mod.Entry) + ".")]
         public static event EventHandler Initialize
@@ -117,7 +117,7 @@ namespace StardewModdingAPI.Events
         /*********
         ** Internal methods
         *********/
-#if !SMAPI_2_0
+#if SMAPI_1_x
         /// <summary>Injects types required for backwards compatibility.</summary>
         /// <param name="deprecationManager">Manages deprecation warnings.</param>
         internal static void Shim(DeprecationManager deprecationManager)
@@ -126,17 +126,17 @@ namespace StardewModdingAPI.Events
         }
 #endif
 
-    /// <summary>Raise an <see cref="InitializeInternal"/> event.</summary>
-    /// <param name="monitor">Encapsulates logging and monitoring.</param>
-    internal static void InvokeInitialize(IMonitor monitor)
+        /// <summary>Raise an <see cref="InitializeInternal"/> event.</summary>
+        /// <param name="monitor">Encapsulates logging and monitoring.</param>
+        internal static void InvokeInitialize(IMonitor monitor)
         {
             monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.InitializeInternal)}", GameEvents.InitializeInternal?.GetInvocationList());
-#if !SMAPI_2_0
+#if SMAPI_1_x
             monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.Initialize)}", GameEvents._Initialize?.GetInvocationList());
 #endif
         }
 
-#if !SMAPI_2_0
+#if SMAPI_1_x
         /// <summary>Raise a <see cref="LoadContent"/> event.</summary>
         /// <param name="monitor">Encapsulates logging and monitoring.</param>
         internal static void InvokeLoadContent(IMonitor monitor)
@@ -150,12 +150,12 @@ namespace StardewModdingAPI.Events
         internal static void InvokeGameLoaded(IMonitor monitor)
         {
             monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.GameLoadedInternal)}", GameEvents.GameLoadedInternal?.GetInvocationList());
-#if !SMAPI_2_0
+#if SMAPI_1_x
             monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.GameLoaded)}", GameEvents._GameLoaded?.GetInvocationList());
 #endif
         }
 
-#if !SMAPI_2_0
+#if SMAPI_1_x
         /// <summary>Raise a <see cref="FirstUpdateTick"/> event.</summary>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         internal static void InvokeFirstUpdateTick(IMonitor monitor)

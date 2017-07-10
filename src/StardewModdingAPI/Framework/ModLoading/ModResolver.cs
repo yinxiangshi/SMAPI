@@ -140,7 +140,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 }
 
                 // validate required fields
-#if SMAPI_2_0
+#if !SMAPI_1_x
                 {
                     List<string> missingFields = new List<string>(3);
 
@@ -158,7 +158,7 @@ namespace StardewModdingAPI.Framework.ModLoading
             }
 
             // validate IDs are unique
-#if SMAPI_2_0
+#if !SMAPI_1_x
             {
                 var duplicatesByID = mods
                     .GroupBy(mod => mod.Manifest.UniqueID?.Trim(), mod => mod, StringComparer.InvariantCultureIgnoreCase)
@@ -255,10 +255,10 @@ namespace StardewModdingAPI.Framework.ModLoading
                         MinVersion = entry.MinimumVersion,
                         Mod = dependencyMod,
                         IsRequired =
-#if SMAPI_2_0
-                            entry.IsRequired
-#else
+#if SMAPI_1_x
                             true
+#else
+                        entry.IsRequired
 #endif
                     }
                 )

@@ -167,4 +167,4 @@ SMAPI uses a small number of conditional compilation constants, which you can se
 flag | purpose
 ---- | -------
 `SMAPI_FOR_WINDOWS` | Indicates that SMAPI is being compiled on Windows for players on Windows. Set automatically in `crossplatform.targets`.
-`SMAPI_2_0` | Sets SMAPI 2.0 mode, which enables features planned for SMAPI 2.0 and removes all deprecated code. This helps test how mods will work when SMAPI 2.0 is released.
+`SMAPI_1_x` | Sets legacy SMAPI 1._x_ mode, disables SMAPI 2.0 features, and enables deprecated code. This will be removed when SMAPI 2.0 is released.

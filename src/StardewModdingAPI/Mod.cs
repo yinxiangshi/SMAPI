@@ -11,7 +11,7 @@ namespace StardewModdingAPI
         /*********
         ** Properties
         *********/
-#if !SMAPI_2_0
+#if SMAPI_1_x
         /// <summary>Manages deprecation warnings.</summary>
         private static DeprecationManager DeprecationManager;
 
@@ -33,7 +33,7 @@ namespace StardewModdingAPI
         /// <summary>The mod's manifest.</summary>
         public IManifest ModManifest { get; internal set; }
 
-#if !SMAPI_2_0
+#if SMAPI_1_x
         /// <summary>The full path to the mod's directory on the disk.</summary>
         [Obsolete("Use " + nameof(Mod.Helper) + "." + nameof(IModHelper.DirectoryPath) + " instead")]
         public string PathOnDisk
@@ -79,7 +79,7 @@ namespace StardewModdingAPI
         /*********
         ** Public methods
         *********/
-#if !SMAPI_2_0
+#if SMAPI_1_x
         /// <summary>Injects types required for backwards compatibility.</summary>
         /// <param name="deprecationManager">Manages deprecation warnings.</param>
         internal static void Shim(DeprecationManager deprecationManager)
@@ -108,7 +108,7 @@ namespace StardewModdingAPI
         /*********
         ** Private methods
         *********/
-#if !SMAPI_2_0
+#if SMAPI_1_x
         /// <summary>Get the full path to the per-save configuration file for the current save (if <see cref="Manifest.PerSaveConfigs"/> is <c>true</c>).</summary>
         [Obsolete]
         private string GetPerSaveConfigFolder()

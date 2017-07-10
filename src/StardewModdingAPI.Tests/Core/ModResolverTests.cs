@@ -179,7 +179,7 @@ namespace StardewModdingAPI.Tests.Core
             mock.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>()), Times.Once, "The validation did not fail the metadata.");
         }
 
-#if SMAPI_2_0
+#if !SMAPI_1_x
         [Test(Description = "Assert that validation fails when multiple mods have the same unique ID.")]
         public void ValidateManifests_DuplicateUniqueID_Fails()
         {
@@ -423,7 +423,7 @@ namespace StardewModdingAPI.Tests.Core
             Assert.AreSame(modB.Object, mods[1], "The load order is incorrect: mod B should be second since it needs mod A.");
         }
 
-#if SMAPI_2_0
+#if !SMAPI_1_x
         [Test(Description = "Assert that optional dependencies are sorted correctly if present.")]
         public void ProcessDependencies_IfOptional()
         {

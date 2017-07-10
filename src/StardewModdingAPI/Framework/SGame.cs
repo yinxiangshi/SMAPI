@@ -118,7 +118,7 @@ namespace StardewModdingAPI.Framework
         /// <summary>The time of day (in 24-hour military format) at last check.</summary>
         private int PreviousTime;
 
-#if !SMAPI_2_0
+#if SMAPI_1_x
         /// <summary>The day of month (1–28) at last check.</summary>
         private int PreviousDay;
 
@@ -292,7 +292,7 @@ namespace StardewModdingAPI.Framework
                 if (this.FirstUpdate)
                 {
                     GameEvents.InvokeInitialize(this.Monitor);
-#if !SMAPI_2_0
+#if SMAPI_1_x
                     GameEvents.InvokeLoadContent(this.Monitor);
 #endif
                     GameEvents.InvokeGameLoaded(this.Monitor);
@@ -324,7 +324,7 @@ namespace StardewModdingAPI.Framework
                         Context.IsWorldReady = true;
 
                         SaveEvents.InvokeAfterLoad(this.Monitor);
-#if !SMAPI_2_0
+#if SMAPI_1_x
                         PlayerEvents.InvokeLoadedGame(this.Monitor, new EventArgsLoadedGameChanged(Game1.hasLoadedGame));
 #endif
                         TimeEvents.InvokeAfterDayStarted(this.Monitor);
@@ -382,7 +382,7 @@ namespace StardewModdingAPI.Framework
                     bool isClick = framePressedKeys.Contains(SButton.MouseLeft) || (framePressedKeys.Contains(SButton.ControllerA) && !currentlyPressedKeys.Contains(SButton.ControllerX));
 
                     // get cursor position
-#if SMAPI_2_0
+#if !SMAPI_1_x
                     ICursorPosition cursor;
                     {
                         // cursor position
@@ -398,7 +398,7 @@ namespace StardewModdingAPI.Framework
                     // raise button pressed
                     foreach (SButton button in framePressedKeys)
                     {
-#if SMAPI_2_0
+#if !SMAPI_1_x
                         InputEvents.InvokeButtonPressed(this.Monitor, button, cursor, isClick);
 #endif
 
@@ -420,7 +420,7 @@ namespace StardewModdingAPI.Framework
                     // raise button released
                     foreach (SButton button in frameReleasedKeys)
                     {
-#if SMAPI_2_0
+#if !SMAPI_1_x
                         bool wasClick =
                             (button == SButton.MouseLeft && previousPressedKeys.Contains(SButton.MouseLeft)) // released left click
                             || (button == SButton.ControllerA && previousPressedKeys.Contains(SButton.ControllerA) && !previousPressedKeys.Contains(SButton.ControllerX));
@@ -503,7 +503,7 @@ namespace StardewModdingAPI.Framework
                     if (this.GetHash(Game1.locations) != this.PreviousGameLocations)
                         LocationEvents.InvokeLocationsChanged(this.Monitor, Game1.locations);
 
-#if !SMAPI_2_0
+#if SMAPI_1_x
                     // raise player changed
                     if (Game1.player != this.PreviousFarmer)
                         PlayerEvents.InvokeFarmerChanged(this.Monitor, this.PreviousFarmer, Game1.player);
@@ -538,7 +538,7 @@ namespace StardewModdingAPI.Framework
                         // raise time changed
                         if (Game1.timeOfDay != this.PreviousTime)
                             TimeEvents.InvokeTimeOfDayChanged(this.Monitor, this.PreviousTime, Game1.timeOfDay);
-#if !SMAPI_2_0
+#if SMAPI_1_x
                         if (Game1.dayOfMonth != this.PreviousDay)
                             TimeEvents.InvokeDayOfMonthChanged(this.Monitor, this.PreviousDay, Game1.dayOfMonth);
                         if (Game1.currentSeason != this.PreviousSeason)
@@ -566,7 +566,7 @@ namespace StardewModdingAPI.Framework
                     this.PreviousTime = Game1.timeOfDay;
                     this.PreviousMineLevel = Game1.mine?.mineLevel ?? 0;
                     this.PreviousSaveID = Game1.uniqueIDForThisGame;
-#if !SMAPI_2_0
+#if SMAPI_1_x
                     this.PreviousFarmer = Game1.player;
                     this.PreviousDay = Game1.dayOfMonth;
                     this.PreviousSeason = Game1.currentSeason;
@@ -577,7 +577,7 @@ namespace StardewModdingAPI.Framework
                 /*********
                 ** Game day transition event (obsolete)
                 *********/
-#if !SMAPI_2_0
+#if SMAPI_1_x
                 if (Game1.newDay != this.PreviousIsNewDay)
                 {
                     TimeEvents.InvokeOnNewDay(this.Monitor, this.PreviousDay, Game1.dayOfMonth, Game1.newDay);
@@ -603,7 +603,7 @@ namespace StardewModdingAPI.Framework
                 GameEvents.InvokeUpdateTick(this.Monitor);
                 if (this.FirstUpdate)
                 {
-#if !SMAPI_2_0
+#if SMAPI_1_x
                     GameEvents.InvokeFirstUpdateTick(this.Monitor);
 #endif
                     this.FirstUpdate = false;
