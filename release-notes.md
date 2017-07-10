@@ -16,6 +16,9 @@ For mod developers:
   * The version can now be a string like `"1.0-alpha"` instead of a structure.
 * Removed all deprecated code.
 
+For SMAPI developers:
+* Fixed `Stardew Valley.exe` being packaged with TrainerMod.
+
 ## 1.15
 See [log](https://github.com/Pathoschild/SMAPI/compare/1.14...1.15).
 
