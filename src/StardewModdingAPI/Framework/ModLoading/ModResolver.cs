@@ -95,6 +95,9 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="apiVersion">The current SMAPI version.</param>
         public void ValidateManifests(IEnumerable<IModMetadata> mods, ISemanticVersion apiVersion)
         {
+            mods = mods.ToArray();
+
+            // validate each manifest
             foreach (IModMetadata mod in mods)
             {
                 // skip if already failed
@@ -153,6 +156,24 @@ namespace StardewModdingAPI.Framework.ModLoading
                 }
 #endif
             }
+
+            // validate IDs are unique
+#if SMAPI_2_0
+            {
+                var duplicatesByID = mods
+                    .GroupBy(mod => mod.Manifest.UniqueID?.Trim(), mod => mod, StringComparer.InvariantCultureIgnoreCase)
+                    .Where(p => p.Count() > 1);
+                foreach (var group in duplicatesByID)
+                {
+                    foreach (IModMetadata mod in group)
+                    {
+                        if (mod.Status == ModMetadataStatus.Failed)
+                            continue; // don't replace metadata error
+                        mod.SetStatus(ModMetadataStatus.Failed, $"its unique ID '{mod.Manifest.UniqueID}' is used by multiple mods ({string.Join(", ", group.Select(p => p.DisplayName))}).");
+                    }
+                }
+            }
+#endif
         }
 
         /// <summary>Sort the given mods by the order they should be loaded.</summary>

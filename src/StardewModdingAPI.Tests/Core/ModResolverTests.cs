@@ -179,6 +179,26 @@ namespace StardewModdingAPI.Tests.Core
             mock.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>()), Times.Once, "The validation did not fail the metadata.");
         }
 
+#if SMAPI_2_0
+        [Test(Description = "Assert that validation fails when multiple mods have the same unique ID.")]
+        public void ValidateManifests_DuplicateUniqueID_Fails()
+        {
+            // arrange
+            Mock<IModMetadata> modA = this.GetMetadata("Mod A", new string[0], allowStatusChange: true);
+            Mock<IModMetadata> modB = this.GetMetadata(this.GetManifest("Mod A", "1.0", manifest => manifest.Name = "Mod B"), allowStatusChange: true);
+            Mock<IModMetadata> modC = this.GetMetadata("Mod C", new string[0], allowStatusChange: false);
+            foreach (Mock<IModMetadata> mod in new[] { modA, modB, modC })
+                this.SetupMetadataForValidation(mod);
+
+            // act
+            new ModResolver().ValidateManifests(new[] { modA.Object, modB.Object }, apiVersion: new SemanticVersion("1.0"));
+
+            // assert
+            modA.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>()), Times.Once, "The validation did not fail the first mod with a unique ID.");
+            modB.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>()), Times.Once, "The validation did not fail the second mod with a unique ID.");
+        }
+#endif
+
         [Test(Description = "Assert that validation fails when the manifest references a DLL that does not exist.")]
         public void ValidateManifests_Valid_Passes()
         {
