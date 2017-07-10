@@ -14,6 +14,9 @@ For mod developers:
 * In `manifest.json`:
   * Dependencies can now be optional.
   * The version can now be a string like `"1.0-alpha"` instead of a structure.
+  * The `Name`, `Version,` and `UniqueID` fields are no longer optional.
+  * The `UniqueID` field must now be unique (case-insensitive). If two installed mods have the same ID, SMAPI will show an error and load neither.
+* The mod registry now matches unique IDs case-insensitively.
 * Removed all deprecated code.
 
 For SMAPI developers:
