@@ -1,4 +1,4 @@
-﻿#if !SMAPI_2_0
+﻿#if SMAPI_1_x
 using System;
 using System.IO;
 using System.Linq;

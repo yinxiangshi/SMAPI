@@ -15,7 +15,7 @@ namespace StardewModdingAPI.Events
         /*********
         ** Properties
         *********/
-#if !SMAPI_2_0
+#if SMAPI_1_x
         /// <summary>Manages deprecation warnings.</summary>
         private static DeprecationManager DeprecationManager;
 
@@ -32,7 +32,7 @@ namespace StardewModdingAPI.Events
         /*********
         ** Events
         *********/
-#if !SMAPI_2_0
+#if SMAPI_1_x
         /// <summary>Raised after the player loads a saved game.</summary>
         [Obsolete("Use " + nameof(SaveEvents) + "." + nameof(SaveEvents.AfterLoad) + " instead")]
         public static event EventHandler<EventArgsLoadedGameChanged> LoadedGame
@@ -68,7 +68,7 @@ namespace StardewModdingAPI.Events
         /*********
         ** Internal methods
         *********/
-#if !SMAPI_2_0
+#if SMAPI_1_x
         /// <summary>Injects types required for backwards compatibility.</summary>
         /// <param name="deprecationManager">Manages deprecation warnings.</param>
         internal static void Shim(DeprecationManager deprecationManager)

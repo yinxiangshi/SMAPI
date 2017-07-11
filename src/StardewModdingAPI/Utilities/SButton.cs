@@ -1,16 +1,16 @@
-using System;
+﻿using System;
 using Microsoft.Xna.Framework.Input;
 
 namespace StardewModdingAPI.Utilities
 {
     /// <summary>A unified button constant which includes all controller, keyboard, and mouse buttons.</summary>
     /// <remarks>Derived from <see cref="Keys"/>, <see cref="Buttons"/>, and <see cref="System.Windows.Forms.MouseButtons"/>.</remarks>
-#if SMAPI_2_0
-    public
-#else
+#if SMAPI_1_x
     internal
+#else
+    public
 #endif
-        enum SButton
+    enum SButton
     {
         /// <summary>No valid key.</summary>
         None = 0,
@@ -593,10 +593,10 @@ namespace StardewModdingAPI.Utilities
     }
 
     /// <summary>Provides extension methods for <see cref="SButton"/>.</summary>
-#if SMAPI_2_0
-    public
-#else
+#if SMAPI_1_x
     internal
+#else
+    public
 #endif
     static class SButtonExtensions
     {
@@ -646,7 +646,7 @@ namespace StardewModdingAPI.Utilities
         /// <returns>Returns whether the value was converted successfully.</returns>
         public static bool TryGetController(this SButton input, out Buttons button)
         {
-            if (Enum.IsDefined(typeof(Keys), (int)input - SButtonExtensions.ControllerOffset))
+            if (Enum.IsDefined(typeof(Buttons), (int)input - SButtonExtensions.ControllerOffset))
             {
                 button = (Buttons)(input - SButtonExtensions.ControllerOffset);
                 return true;

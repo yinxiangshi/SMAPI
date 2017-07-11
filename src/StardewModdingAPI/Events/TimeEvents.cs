@@ -11,7 +11,7 @@ namespace StardewModdingAPI.Events
         /*********
         ** Properties
         *********/
-#if !SMAPI_2_0
+#if SMAPI_1_x
         /// <summary>Manages deprecation warnings.</summary>
         private static DeprecationManager DeprecationManager;
 
@@ -42,7 +42,7 @@ namespace StardewModdingAPI.Events
         /// <summary>Raised after the in-game clock changes.</summary>
         public static event EventHandler<EventArgsIntChanged> TimeOfDayChanged;
 
-#if !SMAPI_2_0
+#if SMAPI_1_x
         /// <summary>Raised after the day-of-month value changes, including when loading a save. This may happen before save; in most cases you should use <see cref="AfterDayStarted"/> instead.</summary>
         [Obsolete("Use " + nameof(TimeEvents) + "." + nameof(TimeEvents.AfterDayStarted) + " or " + nameof(SaveEvents) + " instead")]
         public static event EventHandler<EventArgsIntChanged> DayOfMonthChanged
@@ -96,7 +96,7 @@ namespace StardewModdingAPI.Events
         /*********
         ** Internal methods
         *********/
-#if !SMAPI_2_0
+#if SMAPI_1_x
         /// <summary>Injects types required for backwards compatibility.</summary>
         /// <param name="deprecationManager">Manages deprecation warnings.</param>
         internal static void Shim(DeprecationManager deprecationManager)
@@ -121,7 +121,7 @@ namespace StardewModdingAPI.Events
             monitor.SafelyRaiseGenericEvent($"{nameof(TimeEvents)}.{nameof(TimeEvents.TimeOfDayChanged)}", TimeEvents.TimeOfDayChanged?.GetInvocationList(), null, new EventArgsIntChanged(priorTime, newTime));
         }
 
-#if !SMAPI_2_0
+#if SMAPI_1_x
         /// <summary>Raise a <see cref="DayOfMonthChanged"/> event.</summary>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="priorDay">The previous day value.</param>

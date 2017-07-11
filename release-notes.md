@@ -14,11 +14,19 @@ For mod developers:
 * In `manifest.json`:
   * Dependencies can now be optional.
   * The version can now be a string like `"1.0-alpha"` instead of a structure.
+  * The `Name`, `Version,` and `UniqueID` fields are no longer optional.
+  * The `UniqueID` field must now be unique (case-insensitive). If two installed mods have the same ID, SMAPI will show an error and load neither.
 * Removed all deprecated code.
 
-## 1.15
-See [log](https://github.com/Pathoschild/SMAPI/compare/1.14...1.15).
+## 1.15.1
+For players:
+* Fixed controller mod input broken in 1.15.
+* Fixed TrainerMod packaging unneeded files.
 
+For modders:
+* Fixed mod registry lookups by unique ID not being case-insensitive.
+
+## 1.15
 For players:
 * Cleaned up SMAPI console a bit.
 * Revamped TrainerMod's item commands:
