@@ -35,7 +35,7 @@ namespace StardewModdingAPI
         /// <summary>SMAPI's current semantic version.</summary>
         public static ISemanticVersion ApiVersion { get; } =
 #if SMAPI_1_x
-            new SemanticVersion(1, 15, 0); // alpha-{DateTime.UtcNow:yyyyMMddHHmm}
+            new SemanticVersion(1, 15, 1); // alpha-{DateTime.UtcNow:yyyyMMddHHmm}
 #else
             new SemanticVersion(2, 0, 0, $"alpha-{DateTime.UtcNow:yyyyMMddHHmm}");
 #endif
