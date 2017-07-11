@@ -646,7 +646,7 @@ namespace StardewModdingAPI.Utilities
         /// <returns>Returns whether the value was converted successfully.</returns>
         public static bool TryGetController(this SButton input, out Buttons button)
         {
-            if (Enum.IsDefined(typeof(Keys), (int)input - SButtonExtensions.ControllerOffset))
+            if (Enum.IsDefined(typeof(Buttons), (int)input - SButtonExtensions.ControllerOffset))
             {
                 button = (Buttons)(input - SButtonExtensions.ControllerOffset);
                 return true;
