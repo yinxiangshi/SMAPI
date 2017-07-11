@@ -16,15 +16,17 @@ For mod developers:
   * The version can now be a string like `"1.0-alpha"` instead of a structure.
   * The `Name`, `Version,` and `UniqueID` fields are no longer optional.
   * The `UniqueID` field must now be unique (case-insensitive). If two installed mods have the same ID, SMAPI will show an error and load neither.
-* The mod registry now matches unique IDs case-insensitively.
 * Removed all deprecated code.
 
-For SMAPI developers:
+## 1.15.1
+For players:
+* Fixed controller input broken in 1.15.
 * Fixed `Stardew Valley.exe` being packaged with TrainerMod.
 
-## 1.15
-See [log](https://github.com/Pathoschild/SMAPI/compare/1.14...1.15).
+For modders:
+* Fixed mod registry lookups by unique ID not being case-insensitive.
 
+## 1.15
 For players:
 * Cleaned up SMAPI console a bit.
 * Revamped TrainerMod's item commands:
