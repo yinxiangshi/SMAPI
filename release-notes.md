@@ -20,8 +20,8 @@ For mod developers:
 
 ## 1.15.1
 For players:
-* Fixed controller input broken in 1.15.
-* Fixed `Stardew Valley.exe` being packaged with TrainerMod.
+* Fixed controller mod input broken in 1.15.
+* Fixed TrainerMod packaging unneeded files.
 
 For modders:
 * Fixed mod registry lookups by unique ID not being case-insensitive.
