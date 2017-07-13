@@ -4,6 +4,7 @@
 
 For players:
 * The SMAPI console is now much simpler and easier-to-read.
+* The SMAPI console now uses more readable colors in terminals with a light background.
 
 For mod developers:
 * Added API to edit XNB images & data loaded by the game (see [API reference](http://stardewvalleywiki.com/Modding:SMAPI_APIs#Content)).
