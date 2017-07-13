@@ -161,7 +161,7 @@ namespace StardewModdingAPI.Framework.ModLoading
 #if !SMAPI_1_x
             {
                 var duplicatesByID = mods
-                    .GroupBy(mod => mod.Manifest.UniqueID?.Trim(), mod => mod, StringComparer.InvariantCultureIgnoreCase)
+                    .GroupBy(mod => mod.Manifest?.UniqueID?.Trim(), mod => mod, StringComparer.InvariantCultureIgnoreCase)
                     .Where(p => p.Count() > 1);
                 foreach (var group in duplicatesByID)
                 {
