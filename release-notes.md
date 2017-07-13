@@ -7,17 +7,13 @@ For players:
 * The SMAPI console now uses more readable colors in terminals with a light background.
 
 For mod developers:
-* Added API to edit XNB images & data loaded by the game (see [API reference](http://stardewvalleywiki.com/Modding:SMAPI_APIs#Content)).
-* Added API to inject new XNB images & data (see [API reference](http://stardewvalleywiki.com/Modding:SMAPI_APIs#Content)).
-* Added `InputEvents` which unify keyboard, mouse, and controller input for much simpler input handling (see [API reference](http://stardewvalleywiki.com/Modding:SMAPI_APIs#Input_events)).
-* Added useful `InputEvents` metadata like the cursor position, grab tile, etc.
-* Added ability to prevent the game from handling a button press via `InputEvents`.
-* In `manifest.json`:
-  * Dependencies can now be optional.
-  * The version can now be a string like `"1.0-alpha"` instead of a structure.
-  * The `Name`, `Version,` and `UniqueID` fields are no longer optional.
-  * The `UniqueID` field must now be unique (case-insensitive). If two installed mods have the same ID, SMAPI will show an error and load neither.
+* Added APIs to edit or inject XNBs loaded by the game at runtime, which let mods do anything previously only possible with XNB mods.
+* Added `InputEvents` which combine keyboard + mouse + controller input for simpler input handling; add metadata like the cursor position and grab tile for simpler click handling; and add an option to suppress input from the game.
+* Added support for optional dependencies.
+* Added support for string versions (like `"1.0-alpha"`) in `manifest.json`.
 * Removed all deprecated code.
+* Removed support for mods with no `Name`, `Version`, or `UniqueID` in their manifest.
+* Removed support for mods with a non-unique `UniqueID` value in their manifest.
 
 ## 1.15.1
 For players:
