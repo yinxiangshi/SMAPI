@@ -5,6 +5,7 @@
 For players:
 * The SMAPI console is now much simpler and easier-to-read.
 * The SMAPI console now uses more readable colors in terminals with a light background.
+* Updated compatibility list.
 
 For mod developers:
 * Added APIs to edit or inject XNBs loaded by the game at runtime, which let mods do anything previously only possible with XNB mods.
@@ -16,6 +17,10 @@ For mod developers:
 * Removed support for mods with no `Name`, `Version`, or `UniqueID` in their manifest.
 * Removed support for mods with a non-unique `UniqueID` value in their manifest.
 * Removed the TrainerMod `save` and `load` commands.
+
+## 1.15.2
+For players:
+* Updated compatibility list.
 
 ## 1.15.1
 For players:
