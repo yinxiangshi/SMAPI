@@ -649,7 +649,11 @@ namespace StardewModdingAPI
                     }
                     catch (IncompatibleInstructionException ex)
                     {
+#if SMAPI_1_x
                         TrackSkip(metadata, $"it's not compatible with the latest version of the game or SMAPI (detected {ex.NounPhrase}). Please check for a newer version of the mod.");
+#else
+                        TrackSkip(metadata, $"it's no longer compatible (detected {ex.NounPhrase}). Please check for a newer version of the mod.");
+#endif
                         continue;
                     }
                     catch (Exception ex)
@@ -791,6 +795,9 @@ namespace StardewModdingAPI
                     // raise deprecation warning for old Entry() methods
                     if (this.DeprecationManager.IsVirtualMethodImplemented(mod.GetType(), typeof(Mod), nameof(Mod.Entry), new[] { typeof(object[]) }))
                         deprecationWarnings.Add(() => this.DeprecationManager.Warn(metadata.DisplayName, $"{nameof(Mod)}.{nameof(Mod.Entry)}(object[]) instead of {nameof(Mod)}.{nameof(Mod.Entry)}({nameof(IModHelper)})", "1.0", DeprecationLevel.PendingRemoval));
+#else
+                    if (!this.DeprecationManager.IsVirtualMethodImplemented(mod.GetType(), typeof(Mod), nameof(Mod.Entry), new[] {typeof(IModHelper)}))
+                        this.Monitor.Log($"{metadata.DisplayName} doesn't implement Entry() and may not work correctly.", LogLevel.Error);
 #endif
                 }
                 catch (Exception ex)
