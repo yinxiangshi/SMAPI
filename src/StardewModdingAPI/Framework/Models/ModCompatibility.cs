@@ -37,6 +37,6 @@ namespace StardewModdingAPI.Framework.Models
         public string ReasonPhrase { get; set; }
 
         /// <summary>Indicates how SMAPI should consider the mod.</summary>
-        public ModCompatibilityType Compatibility { get; set; }
+        public ModCompatibilityType Compatibility { get; set; } = ModCompatibilityType.AssumeBroken;
     }
 }
