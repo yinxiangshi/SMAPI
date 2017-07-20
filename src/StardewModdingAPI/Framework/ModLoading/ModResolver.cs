@@ -109,15 +109,25 @@ namespace StardewModdingAPI.Framework.ModLoading
                     ModCompatibility compatibility = mod.Compatibility;
                     if (compatibility?.Compatibility == ModCompatibilityType.AssumeBroken)
                     {
-                        bool hasOfficialUrl = !string.IsNullOrWhiteSpace(mod.Compatibility.UpdateUrl);
-                        bool hasUnofficialUrl = !string.IsNullOrWhiteSpace(mod.Compatibility.UnofficialUpdateUrl);
+#if SMAPI_1_x
+                        bool hasOfficialUrl = mod.Compatibility.UpdateUrls.Length > 0;
+                        bool hasUnofficialUrl = mod.Compatibility.UpdateUrls.Length > 1;
 
                         string reasonPhrase = compatibility.ReasonPhrase ?? "it's not compatible with the latest version of the game or SMAPI";
                         string error = $"{reasonPhrase}. Please check for a version newer than {compatibility.UpperVersionLabel ?? compatibility.UpperVersion.ToString()} here:";
                         if (hasOfficialUrl)
-                            error += !hasUnofficialUrl ? $" {compatibility.UpdateUrl}" : $"{Environment.NewLine}- official mod: {compatibility.UpdateUrl}";
+                            error += !hasUnofficialUrl ? $" {compatibility.UpdateUrls[0]}" : $"{Environment.NewLine}- official mod: {compatibility.UpdateUrls[0]}";
                         if (hasUnofficialUrl)
-                            error += $"{Environment.NewLine}- unofficial update: {compatibility.UnofficialUpdateUrl}";
+                            error += $"{Environment.NewLine}- unofficial update: {compatibility.UpdateUrls[1]}";
+#else
+                        string reasonPhrase = compatibility.ReasonPhrase ?? "it's no longer compatible";
+                        string error = $"{reasonPhrase}. Please check for a ";
+                        if (mod.Manifest.Version.Equals(compatibility.UpperVersion) && compatibility.UpperVersionLabel == null)
+                            error += "newer version";
+                        else
+                            error += $"version newer than {compatibility.UpperVersionLabel ?? compatibility.UpperVersion.ToString()}";
+                        error += " at " + string.Join(" or ", compatibility.UpdateUrls);
+#endif
 
                         mod.SetStatus(ModMetadataStatus.Failed, error);
                         continue;

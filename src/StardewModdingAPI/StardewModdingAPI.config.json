@@ -54,8 +54,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "AccessChestAnywhere" ],
       "UpperVersion": "1.1",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/257",
-      "UnofficialUpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/518",
+      "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/257", "http://www.nexusmods.com/stardewvalley/mods/518" ],
       "Notes": "Needs update for SDV 1.1."
     },
     {
@@ -63,7 +62,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "AlmightyTool.dll" ],
       "UpperVersion": "1.1.1",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/439",
+      "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/439" ],
       "Notes": "Needs update for SDV 1.2."
     },
     {
@@ -71,8 +70,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "SPDSprinklersMod", /*since 2.3*/ "Speeder.BetterSprinklers" ],
       "UpperVersion": "2.3.1-pathoschild-update",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/41",
-      "UnofficialUpdateUrl": "http://community.playstarbound.com/threads/132096",
+      "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/41", "http://community.playstarbound.com/threads/132096" ],
       "Notes": "Needs update for SDV 1.2 and to migrate broken TimeEvents.AfterDayOfMonthChanged."
     },
     {
@@ -80,8 +78,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "005e02dc-d900-425c-9c68-1ff55c5a295d" ],
       "UpperVersion": "1.2.2",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/276",
-      "UnofficialUpdateUrl": "http://community.playstarbound.com/threads/132096",
+      "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/276", "http://community.playstarbound.com/threads/132096" ],
       "Notes": "Needs update for SDV 1.2."
     },
     {
@@ -89,8 +86,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "SPDChestLabel" ],
       "UpperVersion": "1.6",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/242",
-      "UnofficialUpdateUrl": "http://community.playstarbound.com/threads/132096",
+      "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/242", "http://community.playstarbound.com/threads/132096" ],
       "Notes": "Needs update for SDV 1.1."
     },
     {
@@ -98,7 +94,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "ChestPooling.dll" ],
       "UpperVersion": "1.2",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://community.playstarbound.com/threads/111988",
+      "UpdateUrls": [ "http://community.playstarbound.com/threads/111988" ],
       "Notes": "Needs update for SDV 1.2."
     },
     {
@@ -106,7 +102,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "ChestsAnywhere", /*since 1.9*/ "Pathoschild.ChestsAnywhere" ],
       "UpperVersion": "1.9-beta",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/518",
+      "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/518" ],
       "Notes": "Needs update for SDV 1.2."
     },
     {
@@ -114,22 +110,21 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "CJBAutomation" ],
       "UpperVersion": "1.4",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/211",
-      "UnofficialUpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/1063",
+      "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/211", "http://www.nexusmods.com/stardewvalley/mods/1063" ],
       "Notes": "Needs update for SDV 1.2."
     },
     {
       "Name": "CJB Cheats Menu",
       "ID": [ "CJBCheatsMenu" ],
       "UpperVersion": "1.12",
-      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/4",
+      "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/4" ],
       "Notes": "Needs update for SDV 1.1."
     },
     {
       "Name": "CJB Item Spawner",
       "ID": [ "CJBItemSpawner" ],
       "UpperVersion": "1.5",
-      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/93",
+      "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/93" ],
       "Notes": "Needs update for SDV 1.1."
     },
     {
@@ -137,7 +132,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "CJBShowItemSellPrice" ],
       "UpperVersion": "1.6",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/93",
+      "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/93" ],
       "Notes": "Needs update for SDV 1.2."
     },
     {
@@ -145,7 +140,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "CookingSkill" ],
       "UpperVersion": "1.0.3",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/522",
+      "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/522" ],
       "Notes": "Needs update for SDV 1.2."
     },
     {
@@ -153,8 +148,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "20d6b8a3-b6e7-460b-a6e4-07c2b0cb6c63" ],
       "UpperVersion": "1.0.4",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/569",
-      "UnofficialUpdateUrl": "http://community.playstarbound.com/threads/132096",
+      "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/569", "http://community.playstarbound.com/threads/132096" ],
       "Notes": "Needs update for SDV 1.2."
     },
     {
@@ -162,8 +156,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "SPDHealthBar" ],
       "UpperVersion": "1.7",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/193",
-      "UnofficialUrl": "http://community.playstarbound.com/threads/132096",
+      "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/193", "http://community.playstarbound.com/threads/132096" ],
       "Notes": "Needs update for SDV 1.2."
     },
     {
@@ -171,7 +164,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "eacdb74b-4080-4452-b16b-93773cda5cf9", /*since ???*/ "Entoarox.EntoaroxFramework" ],
       "UpperVersion": "1.7.5",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://community.playstarbound.com/resources/4228",
+      "UpdateUrls": [ "http://community.playstarbound.com/resources/4228" ],
       "Notes": "Needs update for SDV 1.2."
     },
     {
@@ -180,7 +173,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "UpperVersion": "1.0",
       "UpperVersionLabel": "0.94",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/485",
+      "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/485" ],
       "Notes": "Needs update for SDV 1.2. Actual upper version is 0.94, but mod incorrectly sets it to 1.0 in the manifest."
     },
     {
@@ -188,7 +181,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "FarmAutomation.ItemCollector.dll", /*since 0.4*/ "Maddy99.FarmAutomation.ItemCollector" ],
       "UpperVersion": "0.4",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://community.playstarbound.com/threads/125172",
+      "UpdateUrls": [ "http://community.playstarbound.com/threads/125172" ],
       "Notes": "Needs update for SDV 1.2."
     },
     {
@@ -196,8 +189,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "InstantGeode" ],
       "UpperVersion": "1.12",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://community.playstarbound.com/threads/109038",
-      "UnofficialUpdateUrl": "http://community.playstarbound.com/threads/132096",
+      "UpdateUrls": [ "http://community.playstarbound.com/threads/109038", "http://community.playstarbound.com/threads/132096" ],
       "Notes": "Needs update for SDV 1.2."
     },
     {
@@ -205,7 +197,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "GateOpener.dll", /*since 1.1*/ "mralbobo.GateOpener" ],
       "UpperVersion": "1.0.1",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://community.playstarbound.com/threads/111988",
+      "UpdateUrls": [ "http://community.playstarbound.com/threads/111988" ],
       "Notes": "Needs update for SDV 1.2."
     },
     {
@@ -213,7 +205,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "GetDressed.dll", /*since 3.3*/ "Advize.GetDressed" ],
       "UpperVersion": "3.3",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/331",
+      "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/331" ],
       "Notes": "Needs update for SDV 1.2."
     },
     {
@@ -221,7 +213,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "8008db57-fa67-4730-978e-34b37ef191d6" ],
       "UpperVersion": "2.3.1",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/229",
+      "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/229" ],
       "Notes": "Needs update for SDV 1.2."
     },
     {
@@ -229,7 +221,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "LookupAnything", /*since 1.10.1*/ "Pathoschild.LookupAnything" ],
       "UpperVersion": "1.10.1",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/541",
+      "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/541" ],
       "Notes": "Needs update for SDV 1.2."
     },
     {
@@ -237,7 +229,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "StardewValleyMP", /*since 0.3*/ "spacechase0.StardewValleyMP" ],
       "Compatibility": "AssumeBroken",
       "UpperVersion": "0.3.3",
-      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/501",
+      "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/501" ],
       "Notes": "Needs update for SDV 1.2."
     },
     {
@@ -245,8 +237,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "289dee03-5f38-4d8e-8ffc-e440198e8610" ],
       "UpperVersion": "0.5",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/237",
-      "UnofficialUpdateUrl": "http://community.playstarbound.com/threads/132096",
+      "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/237", "http://community.playstarbound.com/threads/132096" ],
       "Notes": "Needs update for SDV 1.2, and uses Assembly.GetExecutingAssembly().Location."
     },
     {
@@ -255,7 +246,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "LowerVersion": "1.42",
       "UpperVersion": "1.43",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/239",
+      "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/239" ],
       "ReasonPhrase": "These versions have an update check error which crash the game."
     },
     {
@@ -263,7 +254,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "SB_PotC" ],
       "UpperVersion": "1.0.8",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/923",
+      "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/923" ],
       "ReasonPhrase": "Needs update for SDV 1.2."
     },
     {
@@ -271,7 +262,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "PointAndPlant.dll" ],
       "UpperVersion": "1.0.2",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/572",
+      "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/572" ],
       "Notes": "Needs update for SDV 1.2."
     },
     {
@@ -279,8 +270,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "PrairieKingMadeEasy.dll" ],
       "UpperVersion": "1.0.0",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://community.playstarbound.com/resources/3594",
-      "UnofficialUpdateUrl": "http://community.playstarbound.com/threads/132096",
+      "UpdateUrls": [ "http://community.playstarbound.com/resources/3594", "http://community.playstarbound.com/threads/132096" ],
       "Notes": "Needs update for SDV 1.2."
     },
     {
@@ -288,7 +278,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "RushOrders", /*since 1.1*/ "spacechase0.RushOrders" ],
       "UpperVersion": "1.1",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/605",
+      "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/605" ],
       "Notes": "Needs update for SDV 1.2."
     },
     {
@@ -296,7 +286,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "SaveAnywhere" ],
       "UpperVersion": "2.3",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/444",
+      "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/444" ],
       "Notes": "Needs update for SDV 1.2."
     },
     {
@@ -304,7 +294,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "SimpleSprinkler.dll" ],
       "UpperVersion": "1.4",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/76",
+      "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/76" ],
       "Notes": "Needs update for SDV 1.2."
     },
     {
@@ -312,8 +302,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "SPDSprintAndDash" ],
       "UpperVersion": "1.0",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://community.playstarbound.com/resources/3531",
-      "UnofficialUpdateUrl": "http://community.playstarbound.com/resources/4201",
+      "UpdateUrls": [ "http://community.playstarbound.com/resources/3531", "http://community.playstarbound.com/resources/4201" ],
       "Notes": "Needs update for SDV 1.2."
     },
     {
@@ -321,7 +310,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "SPDSprintAndDash" ],
       "UpperVersion": "1.2",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://community.playstarbound.com/resources/4201",
+      "UpdateUrls": [ "http://community.playstarbound.com/resources/4201" ],
       "Notes": "Needs update for SDV 1.2."
     },
     {
@@ -329,7 +318,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "StackSplitX.dll" ],
       "UpperVersion": "1.2",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/798",
+      "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/798" ],
       "Notes": "Needs update for SDV 1.2."
     },
     {
@@ -337,7 +326,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "Teleporter" ],
       "UpperVersion": "1.0.2",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://community.playstarbound.com/resources/4374",
+      "UpdateUrls": [ "http://community.playstarbound.com/resources/4374" ],
       "Notes": "Needs update for SDV 1.2."
     },
     {
@@ -345,7 +334,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "TimeSpeed.dll", /* since 2.0.3 */ "4108e859-333c-4fec-a1a7-d2e18c1019fe", /*since 2.1*/ "community.TimeSpeed" ],
       "UpperVersion": "2.2",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/169",
+      "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/169" ],
       "Notes": "Needs update for SDV 1.2 and to migrate broken TimeEvents.AfterDayOfMonthChanged."
     },
     {
@@ -354,7 +343,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "UpperVersion": "0.5",
       "UpperVersionLabel": "1.0",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://www.nexusmods.com/stardewvalley/mods/1023",
+      "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/1023" ],
       "Notes": "Needs update for SDV 1.2. Actual upper version is 1.0, but mod incorrectly sets it to 0.5 in the manifest."
     },
     {
@@ -362,8 +351,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "WeatherController.dll" ],
       "UpperVersion": "1.0.2",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://community.playstarbound.com/threads/111526",
-      "UnofficialUpdateUrl": "http://community.playstarbound.com/threads/132096",
+      "UpdateUrls": [ "http://community.playstarbound.com/threads/111526", "http://community.playstarbound.com/threads/132096" ],
       "Notes": "Needs update for SDV 1.2."
     },
     {
@@ -371,7 +359,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "zdailyincrease" ],
       "UpperVersion": "1.2",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://community.playstarbound.com/resources/4247",
+      "UpdateUrls": [ "http://community.playstarbound.com/resources/4247" ],
       "Notes": "Needs update for SDV 1.2."
     },
     {
@@ -379,7 +367,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "ZoomMod" ],
       "UpperVersion": "0.1",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "http://community.playstarbound.com/threads/115028",
+      "UpdateUrls": [ "http://community.playstarbound.com/threads/115028" ],
       "Notes": "Needs update for SDV 1.2."
     },
     {
@@ -387,7 +375,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "76b6d1e1-f7ba-4d72-8c32-5a1e6d2716f6", /*since 1.6*/ "Zoryn.BetterRNG" ],
       "UpperVersion": "1.6",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "https://github.com/Zoryn4163/SMAPI-Mods/releases",
+      "UpdateUrls": [ "https://github.com/Zoryn4163/SMAPI-Mods/releases" ],
       "Notes": "Needs update for SDV 1.2."
     },
     {
@@ -395,7 +383,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "a41c01cd-0437-43eb-944f-78cb5a53002a", /*since 1.6*/ "Zoryn.CalendarAnywhere" ],
       "UpperVersion": "1.6",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "https://github.com/Zoryn4163/SMAPI-Mods/releases",
+      "UpdateUrls": [ "https://github.com/Zoryn4163/SMAPI-Mods/releases" ],
       "Notes": "Needs update for SDV 1.2."
     },
     {
@@ -403,7 +391,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "HealthBars.dll", /*since 1.6*/ "Zoryn.HealthBars" ],
       "UpperVersion": "1.6",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "https://github.com/Zoryn4163/SMAPI-Mods/releases",
+      "UpdateUrls": [ "https://github.com/Zoryn4163/SMAPI-Mods/releases" ],
       "Notes": "Needs update for SDV 1.2."
     },
     {
@@ -411,7 +399,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "f93a4fe8-cade-4146-9335-b5f82fbbf7bc", /*since 1.6*/ "Zoryn.JunimoDepositAnywhere" ],
       "UpperVersion": "1.7",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "https://github.com/Zoryn4163/SMAPI-Mods/releases",
+      "UpdateUrls": [ "https://github.com/Zoryn4163/SMAPI-Mods/releases" ],
       "Notes": "Needs update for SDV 1.2."
     },
     {
@@ -419,7 +407,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "8a632929-8335-484f-87dd-c29d2ba3215d", /*since 1.6*/ "Zoryn.MovementModifier" ],
       "UpperVersion": "1.6",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "https://github.com/Zoryn4163/SMAPI-Mods/releases",
+      "UpdateUrls": [ "https://github.com/Zoryn4163/SMAPI-Mods/releases" ],
       "Notes": "Needs update for SDV 1.2."
     },
     {
@@ -427,7 +415,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": [ "dfac4383-1b6b-4f33-ae4e-37fc23e5252e", /*since 1.6*/ "Zoryn.RegenMod" ],
       "UpperVersion": "1.6",
       "Compatibility": "AssumeBroken",
-      "UpdateUrl": "https://github.com/Zoryn4163/SMAPI-Mods/releases",
+      "UpdateUrls": [ "https://github.com/Zoryn4163/SMAPI-Mods/releases" ],
       "Notes": "Needs update for SDV 1.2."
     }
   ]

@@ -29,11 +29,8 @@ namespace StardewModdingAPI.Framework.Models
         /// <summary>A label to show to the user instead of <see cref="UpperVersion"/>, when the manifest version differs from the user-facing version.</summary>
         public string UpperVersionLabel { get; set; }
 
-        /// <summary>The URL the user can check for an official updated version.</summary>
-        public string UpdateUrl { get; set; }
-
-        /// <summary>The URL the user can check for an unofficial updated version.</summary>
-        public string UnofficialUpdateUrl { get; set; }
+        /// <summary>The URLs the user can check for a newer version.</summary>
+        public string[] UpdateUrls { get; set; }
 
         /// <summary>The reason phrase to show in the warning, or <c>null</c> to use the default value.</summary>
         /// <example>"this version is incompatible with the latest version of the game"</example>
