@@ -1,5 +1,5 @@
-using System.Runtime.Serialization;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using StardewModdingAPI.Framework.Serialisation;
 
 namespace StardewModdingAPI.Framework.Models
 {
@@ -19,10 +19,12 @@ namespace StardewModdingAPI.Framework.Models
         public string Name { get; set; }
 
         /// <summary>The oldest incompatible mod version, or <c>null</c> for all past versions.</summary>
-        public string LowerVersion { get; set; }
+        [JsonConverter(typeof(SFieldConverter))]
+        public ISemanticVersion LowerVersion { get; set; }
 
         /// <summary>The most recent incompatible mod version.</summary>
-        public string UpperVersion { get; set; }
+        [JsonConverter(typeof(SFieldConverter))]
+        public ISemanticVersion UpperVersion { get; set; }
 
         /// <summary>A label to show to the user instead of <see cref="UpperVersion"/>, when the manifest version differs from the user-facing version.</summary>
         public string UpperVersionLabel { get; set; }
@@ -39,30 +41,5 @@ namespace StardewModdingAPI.Framework.Models
 
         /// <summary>Indicates how SMAPI should consider the mod.</summary>
         public ModCompatibilityType Compatibility { get; set; }
-
-
-        /****
-        ** Injected
-        ****/
-        /// <summary>The semantic version corresponding to <see cref="LowerVersion"/>.</summary>
-        [JsonIgnore]
-        public ISemanticVersion LowerSemanticVersion { get; set; }
-
-        /// <summary>The semantic version corresponding to <see cref="UpperVersion"/>.</summary>
-        [JsonIgnore]
-        public ISemanticVersion UpperSemanticVersion { get; set; }
-
-
-        /*********
-        ** Private methods
-        *********/
-        /// <summary>The method called when the model finishes deserialising.</summary>
-        /// <param name="context">The deserialisation context.</param>
-        [OnDeserialized]
-        private void OnDeserialized(StreamingContext context)
-        {
-            this.LowerSemanticVersion = this.LowerVersion != null ? new SemanticVersion(this.LowerVersion) : null;
-            this.UpperSemanticVersion = this.UpperVersion != null ? new SemanticVersion(this.UpperVersion) : null;
-        }
     }
 }

@@ -72,8 +72,8 @@ namespace StardewModdingAPI.Framework.ModLoading
                         from mod in compatibilityRecords
                         where
                         mod.ID.Contains(key, StringComparer.InvariantCultureIgnoreCase)
-                        && (mod.LowerSemanticVersion == null || !manifest.Version.IsOlderThan(mod.LowerSemanticVersion))
-                        && !manifest.Version.IsNewerThan(mod.UpperSemanticVersion)
+                        && (mod.LowerVersion == null || !manifest.Version.IsOlderThan(mod.LowerVersion))
+                        && !manifest.Version.IsNewerThan(mod.UpperVersion)
                         select mod
                     ).FirstOrDefault();
                 }
@@ -113,7 +113,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                         bool hasUnofficialUrl = !string.IsNullOrWhiteSpace(mod.Compatibility.UnofficialUpdateUrl);
 
                         string reasonPhrase = compatibility.ReasonPhrase ?? "it's not compatible with the latest version of the game or SMAPI";
-                        string error = $"{reasonPhrase}. Please check for a version newer than {compatibility.UpperVersionLabel ?? compatibility.UpperVersion} here:";
+                        string error = $"{reasonPhrase}. Please check for a version newer than {compatibility.UpperVersionLabel ?? compatibility.UpperVersion.ToString()} here:";
                         if (hasOfficialUrl)
                             error += !hasUnofficialUrl ? $" {compatibility.UpdateUrl}" : $"{Environment.NewLine}- official mod: {compatibility.UpdateUrl}";
                         if (hasUnofficialUrl)
