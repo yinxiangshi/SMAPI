@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Text.RegularExpressions;
 
 namespace StardewModdingAPI
@@ -177,6 +177,16 @@ namespace StardewModdingAPI
         {
             return this.IsBetween(new SemanticVersion(min), new SemanticVersion(max));
         }
+
+#if !SMAPI_1_x
+        /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
+        /// <returns>true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.</returns>
+        /// <param name="other">An object to compare with this object.</param>
+        public bool Equals(ISemanticVersion other)
+        {
+            return other != null && this.CompareTo(other) == 0;
+        }
+#endif
 
         /// <summary>Get a string representation of the version.</summary>
         public override string ToString()
