@@ -159,7 +159,7 @@
     <Compile Include="Framework\Exceptions\SParseException.cs" />
     <Compile Include="Framework\Serialisation\JsonHelper.cs" />
     <Compile Include="Framework\Serialisation\SelectiveStringEnumConverter.cs" />
-    <Compile Include="Framework\Serialisation\ManifestFieldConverter.cs" />
+    <Compile Include="Framework\Serialisation\SFieldConverter.cs" />
     <Compile Include="IAssetEditor.cs" />
     <Compile Include="IAssetInfo.cs" />
     <Compile Include="IAssetLoader.cs" />
