@@ -24,7 +24,10 @@ namespace StardewModdingAPI.Framework.Serialisation
         /// <param name="objectType">The object type.</param>
         public override bool CanConvert(Type objectType)
         {
-            return objectType == typeof(ISemanticVersion) || objectType == typeof(IManifestDependency[]);
+            return
+                objectType == typeof(ISemanticVersion)
+                || objectType == typeof(IManifestDependency[])
+                || objectType == typeof(ModCompatibilityID[]);
         }
 
         /// <summary>Reads the JSON representation of the object.</summary>
@@ -79,6 +82,20 @@ namespace StardewModdingAPI.Framework.Serialisation
                     bool required = obj.Value<bool?>(nameof(IManifestDependency.IsRequired)) ?? true;
                     result.Add(new ManifestDependency(uniqueID, minVersion, required));
 #endif
+                }
+                return result.ToArray();
+            }
+
+            // mod compatibility ID
+            if (objectType == typeof(ModCompatibilityID[]))
+            {
+                List<ModCompatibilityID> result = new List<ModCompatibilityID>();
+                foreach (JToken child in JArray.Load(reader).Children())
+                {
+                    result.Add(child is JValue value
+                        ? new ModCompatibilityID(value.Value<string>())
+                        : child.ToObject<ModCompatibilityID>()
+                    );
                 }
                 return result.ToArray();
             }

@@ -71,9 +71,9 @@ namespace StardewModdingAPI.Framework.ModLoading
                     compatibility = (
                         from mod in compatibilityRecords
                         where
-                        mod.ID.Contains(key, StringComparer.InvariantCultureIgnoreCase)
-                        && (mod.LowerVersion == null || !manifest.Version.IsOlderThan(mod.LowerVersion))
-                        && !manifest.Version.IsNewerThan(mod.UpperVersion)
+                            mod.ID.Any(p => p.Matches(key, manifest))
+                            && (mod.LowerVersion == null || !manifest.Version.IsOlderThan(mod.LowerVersion))
+                            && !manifest.Version.IsNewerThan(mod.UpperVersion)
                         select mod
                     ).FirstOrDefault();
                 }
