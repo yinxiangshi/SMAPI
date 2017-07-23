@@ -138,7 +138,7 @@ namespace StardewModdingAPI
                 // validate game version
                 if (Constants.GameVersion.IsOlderThan(Constants.MinimumGameVersion))
                 {
-                    this.Monitor.Log($"Oops! You're running Stardew Valley {Constants.GameVersion}, but the oldest supported version is {Constants.MinimumGameVersion}. Please update your game before using SMAPI. If you have the beta version on Steam, you may need to opt out to get the latest non-beta updates.", LogLevel.Error);
+                    this.Monitor.Log($"Oops! You're running Stardew Valley {Constants.GameVersion}, but the oldest supported version is {Constants.MinimumGameVersion}. Please update your game before using SMAPI.", LogLevel.Error);
                     this.PressAnyKeyToExit();
                     return;
                 }
