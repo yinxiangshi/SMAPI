@@ -20,7 +20,11 @@ For mod developers:
 
 ## 1.15.2
 For players:
+* Improved error when using very old versions of Stardew Valley.
 * Updated compatibility list.
+
+For SMAPI developers:
+* Internal changes to support the upcoming SMAPI 2.0 release.
 
 ## 1.15.1
 For players:
