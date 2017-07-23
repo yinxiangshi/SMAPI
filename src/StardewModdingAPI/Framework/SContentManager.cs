@@ -220,8 +220,9 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Reset the asset cache and reload the game's static assets.</summary>
         /// <param name="predicate">Matches the asset keys to invalidate.</param>
+        /// <returns>Returns whether any cache entries were invalidated.</returns>
         /// <remarks>This implementation is derived from <see cref="Game1.LoadContent"/>.</remarks>
-        public void InvalidateCache(Func<string, bool> predicate)
+        public bool InvalidateCache(Func<string, Type, bool> predicate)
         {
             // find matching asset keys
             HashSet<string> purgeCacheKeys = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
@@ -229,7 +230,8 @@ namespace StardewModdingAPI.Framework
             foreach (string cacheKey in this.Cache.Keys)
             {
                 this.ParseCacheKey(cacheKey, out string assetKey, out string localeCode);
-                if (predicate(assetKey))
+                Type type = this.Cache[cacheKey].GetType();
+                if (predicate(assetKey, type))
                 {
                     purgeAssetKeys.Add(assetKey);
                     purgeCacheKeys.Add(cacheKey);
@@ -251,7 +253,14 @@ namespace StardewModdingAPI.Framework
                 }
             }
 
-            this.Monitor.Log($"Invalidated {purgeCacheKeys.Count} cache entries for {purgeAssetKeys.Count} asset keys: {string.Join(", ", purgeCacheKeys.OrderBy(p => p, StringComparer.InvariantCultureIgnoreCase))}. Reloaded {reloaded} core assets.", LogLevel.Trace);
+            // report result
+            if (purgeCacheKeys.Any())
+            {
+                this.Monitor.Log($"Invalidated {purgeCacheKeys.Count} cache entries for {purgeAssetKeys.Count} asset keys: {string.Join(", ", purgeCacheKeys.OrderBy(p => p, StringComparer.InvariantCultureIgnoreCase))}. Reloaded {reloaded} core assets.", LogLevel.Trace);
+                return true;
+            }
+            this.Monitor.Log("Invalidated 0 cache entries.", LogLevel.Trace);
+            return false;
         }
 
 
@@ -438,7 +447,7 @@ namespace StardewModdingAPI.Framework
             // the cache, but don't dispose them to avoid crashing any code that still references
             // them. The garbage collector will eventually clean up any unused assets.
             this.Monitor.Log("Content manager disposed, resetting cache.", LogLevel.Trace);
-            this.InvalidateCache(p => true);
+            this.InvalidateCache((key, type) => true);
         }
     }
 }
