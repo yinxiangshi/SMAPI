@@ -9,6 +9,7 @@ using StardewModdingAPI.AssemblyRewriters.Finders;
 using StardewModdingAPI.AssemblyRewriters.Rewriters;
 using StardewModdingAPI.AssemblyRewriters.Rewriters.Wrappers;
 using StardewModdingAPI.Events;
+using StardewModdingAPI.Framework;
 using StardewValley;
 
 namespace StardewModdingAPI
@@ -86,7 +87,7 @@ namespace StardewModdingAPI
         internal static string ModPath { get; } = Path.Combine(Constants.ExecutionPath, "Mods");
 
         /// <summary>The game's current semantic version.</summary>
-        internal static ISemanticVersion GameVersion { get; } = Constants.GetGameVersion();
+        internal static ISemanticVersion GameVersion { get; } = new GameVersion(Constants.GetGameVersion());
 
         /// <summary>The target game platform.</summary>
         internal static Platform TargetPlatform { get; } =
@@ -219,19 +220,6 @@ namespace StardewModdingAPI
             };
         }
 
-        /// <summary>Get game current version as it should be displayed to players.</summary>
-        /// <param name="version">The semantic game version.</param>
-        internal static ISemanticVersion GetGameDisplayVersion(ISemanticVersion version)
-        {
-            switch (version.ToString())
-            {
-                case "1.1.1":
-                    return new SemanticVersion(1, 11, 0); // The 1.1 patch was released as 1.11
-                default:
-                    return version;
-            }
-        }
-
         /// <summary>Get the name of a save directory for the current player.</summary>
         private static string GetSaveFolderName()
         {
@@ -239,20 +227,14 @@ namespace StardewModdingAPI
             return $"{prefix}_{Game1.uniqueIDForThisGame}";
         }
 
-        /// <summary>Get the game's current semantic version.</summary>
-        private static ISemanticVersion GetGameVersion()
+        /// <summary>Get the game's current version string.</summary>
+        private static string GetGameVersion()
         {
-            // get raw version
             // we need reflection because it's a constant, so SMAPI's references to it are inlined at compile-time
             FieldInfo field = typeof(Game1).GetField(nameof(Game1.version), BindingFlags.Public | BindingFlags.Static);
             if (field == null)
                 throw new InvalidOperationException($"The {nameof(Game1)}.{nameof(Game1.version)} field could not be found.");
-            string version = (string)field.GetValue(null);
-
-            // get semantic version
-            if (version == "1.11")
-                version = "1.1.1"; // The 1.1 patch was released as 1.11, which means it's out of order for semantic version checks
-            return new SemanticVersion(version);
+            return (string)field.GetValue(null);
         }
     }
 }

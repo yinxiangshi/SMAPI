@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using NUnit.Framework;
+using StardewModdingAPI.Framework;
 
 namespace StardewModdingAPI.Tests.Utilities
 {
@@ -204,6 +205,35 @@ namespace StardewModdingAPI.Tests.Utilities
             ISemanticVersion upper = new SemanticVersion(upperStr);
             ISemanticVersion version = new SemanticVersion(versionStr);
             return version.IsBetween(lower, upper);
+        }
+
+        /****
+        ** GameVersion
+        ****/
+        [Test(Description = "Assert that the GameVersion subclass correctly parses legacy game versions.")]
+        [TestCase("1.0")]
+        [TestCase("1.01")]
+        [TestCase("1.02")]
+        [TestCase("1.03")]
+        [TestCase("1.04")]
+        [TestCase("1.05")]
+        [TestCase("1.051")]
+        [TestCase("1.051b")]
+        [TestCase("1.06")]
+        [TestCase("1.07")]
+        [TestCase("1.07a")]
+        [TestCase("1.1")]
+        [TestCase("1.11")]
+        [TestCase("1.2")]
+        [TestCase("1.2.15")]
+        public void GameVersion(string versionStr)
+        {
+            // act
+            GameVersion version = new GameVersion(versionStr);
+
+            // assert
+            Assert.AreEqual(versionStr, version.ToString(), "The game version did not round-trip to the same value.");
+            Assert.IsTrue(version.IsOlderThan(new SemanticVersion("1.2.30")), "The game version should be considered older than the later semantic versions.");
         }
 
 

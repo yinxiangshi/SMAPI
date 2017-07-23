@@ -117,8 +117,7 @@ namespace StardewModdingAPI
                 {
                     // compare numerically if possible
                     {
-                        int curNum, otherNum;
-                        if (int.TryParse(curParts[i], out curNum) && int.TryParse(otherParts[i], out otherNum))
+                        if (int.TryParse(curParts[i], out int curNum) && int.TryParse(otherParts[i], out int otherNum))
                             return curNum.CompareTo(otherNum);
                     }
 
