@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.Content;
 using StardewModdingAPI.AssemblyRewriters;
 using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.Reflection;
+using StardewModdingAPI.Metadata;
 using StardewValley;
 
 namespace StardewModdingAPI.Framework
@@ -37,10 +38,10 @@ namespace StardewModdingAPI.Framework
         private readonly IPrivateMethod GetKeyLocale;
 
         /// <summary>The language codes used in asset keys.</summary>
-        private IDictionary<string, LanguageCode> KeyLocales;
+        private readonly IDictionary<string, LanguageCode> KeyLocales;
 
-        /// <summary>The game's static asset setters by normalised asset name.</summary>
-        private readonly IDictionary<string, Action> CoreAssetSetters;
+        /// <summary>Provides metadata for core game assets.</summary>
+        private readonly CoreAssets CoreAssets;
 
 
         /*********
@@ -89,20 +90,10 @@ namespace StardewModdingAPI.Framework
             else
                 this.NormaliseAssetNameForPlatform = key => key.Replace('\\', '/'); // based on MonoGame's ContentManager.Load<T> logic
 
-            // get asset key locales
+            // get asset data
+            this.CoreAssets = new CoreAssets(this.NormaliseAssetName);
             this.KeyLocales = this.GetKeyLocales(reflection);
-            this.CoreAssetSetters = this.GetCoreAssetSetters();
 
-        }
-
-        /// <summary>Get methods to reload core game assets by normalised key.</summary>
-        private IDictionary<string, Action> GetCoreAssetSetters()
-        {
-            return Constants.GetCoreAssetSetters()
-                .ToDictionary<KeyValuePair<string, Action<SContentManager, string>>, string, Action>(
-                    p => this.NormaliseAssetName(p.Key),
-                    p => () => p.Value(this, p.Key)
-                );
         }
 
         /// <summary>Get the locale codes (like <c>ja-JP</c>) used in asset keys.</summary>
@@ -246,11 +237,8 @@ namespace StardewModdingAPI.Framework
             int reloaded = 0;
             foreach (string key in purgeAssetKeys)
             {
-                if (this.CoreAssetSetters.TryGetValue(key, out Action reloadAsset))
-                {
-                    reloadAsset();
+                if(this.CoreAssets.ReloadForKey(this, key))
                     reloaded++;
-                }
             }
 
             // report result
