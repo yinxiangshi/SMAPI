@@ -8,8 +8,12 @@ For players:
 * Updated compatibility list.
 
 For mod developers:
-* Added APIs to edit or inject XNBs loaded by the game at runtime, which let mods do anything previously only possible with XNB mods.
-* Added `InputEvents` which combine keyboard + mouse + controller input for simpler input handling; add metadata like the cursor position and grab tile for simpler click handling; and add an option to suppress input from the game.
+* Added APIs to edit or inject XNBs loaded by the game at runtime.  
+  <small>_This let mods do anything previously only possible with XNB mods._</small>
+* Added APIs to invalidate cached XNBs.  
+  <small>_Game textures are automatically reloaded when invalidated. This enables new mod scenarios (e.g. seasonal textures, NPC ponchos when it's raining and they're outside, etc)._</small>
+* Added new `InputEvents`.  
+  <small>_These combine keyboard + mouse + controller input for simpler input handling; add metadata like the cursor position and grab tile for simpler click handling; and add an option to suppress input from the game._</small>
 * Added support for optional dependencies.
 * Added support for string versions (like `"1.0-alpha"`) in `manifest.json`.
 * Added `IEquatable<ISemanticVersion>` to `ISemanticVersion`.
