@@ -33,6 +33,9 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <summary>The friendly mod name for use in errors.</summary>
         private readonly string ModName;
 
+        /// <summary>Encapsulates monitoring and logging for a given module.</summary>
+        private readonly IMonitor Monitor;
+
 
         /*********
         ** Accessors
@@ -58,13 +61,15 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="modFolderPath">The absolute path to the mod folder.</param>
         /// <param name="modID">The unique ID of the relevant mod.</param>
         /// <param name="modName">The friendly mod name for use in errors.</param>
-        public ContentHelper(SContentManager contentManager, string modFolderPath, string modID, string modName)
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
+        public ContentHelper(SContentManager contentManager, string modFolderPath, string modID, string modName, IMonitor monitor)
             : base(modID)
         {
             this.ContentManager = contentManager;
             this.ModFolderPath = modFolderPath;
             this.ModName = modName;
             this.ModFolderPathFromContent = this.GetRelativePath(contentManager.FullRootDirectory, modFolderPath);
+            this.Monitor = monitor;
         }
 
         /// <summary>Load content from the game folder or mod folder (if not already cached), and return it. When loading a <c>.png</c> file, this must be called outside the game's draw loop.</summary>
@@ -176,6 +181,26 @@ namespace StardewModdingAPI.Framework.ModHelpers
             }
         }
 
+        /// <summary>Remove an asset from the content cache so it's reloaded on the next request. This will reload core game assets if needed, but references to the former asset will still show the previous content.</summary>
+        /// <param name="key">The asset key to fetch (if the <paramref name="source"/> is <see cref="ContentSource.GameContent"/>), or the local path to a content file relative to the mod folder.</param>
+        /// <param name="source">Where to search for a matching content asset.</param>
+        /// <exception cref="ArgumentException">The <paramref name="key"/> is empty or contains invalid characters.</exception>
+        /// <returns>Returns whether the given asset key was cached.</returns>
+        public bool InvalidateCache(string key, ContentSource source = ContentSource.ModFolder)
+        {
+            this.Monitor.Log($"Requested cache invalidation for '{key}' in {source}.", LogLevel.Trace);
+            string actualKey = this.GetActualAssetKey(key, source);
+            return this.ContentManager.InvalidateCache((otherKey, type) => otherKey.Equals(actualKey, StringComparison.InvariantCultureIgnoreCase));
+        }
+
+        /// <summary>Remove all assets of the given type from the cache so they're reloaded on the next request. <b>This can be a very expensive operation and should only be used in very specific cases.</b> This will reload core game assets if needed, but references to the former assets will still show the previous content.</summary>
+        /// <typeparam name="T">The asset type to remove from the cache.</typeparam>
+        /// <returns>Returns whether any assets were invalidated.</returns>
+        public bool InvalidateCache<T>()
+        {
+            this.Monitor.Log($"Requested cache invalidation for all assets of type {typeof(T)}. This is an expensive operation and should be avoided if possible.", LogLevel.Trace);
+            return this.ContentManager.InvalidateCache((key, type) => typeof(T).IsAssignableFrom(type));
+        }
 
         /*********
         ** Private methods

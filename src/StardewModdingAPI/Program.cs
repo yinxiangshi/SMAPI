@@ -707,15 +707,16 @@ namespace StardewModdingAPI
 
                         // inject data
                         {
+                            IMonitor monitor = this.GetSecondaryMonitor(metadata.DisplayName);
                             ICommandHelper commandHelper = new CommandHelper(manifest.UniqueID, metadata.DisplayName, this.CommandManager);
-                            IContentHelper contentHelper = new ContentHelper(contentManager, metadata.DirectoryPath, manifest.UniqueID, metadata.DisplayName);
+                            IContentHelper contentHelper = new ContentHelper(contentManager, metadata.DirectoryPath, manifest.UniqueID, metadata.DisplayName, monitor);
                             IReflectionHelper reflectionHelper = new ReflectionHelper(manifest.UniqueID, this.Reflection);
                             IModRegistry modRegistryHelper = new ModRegistryHelper(manifest.UniqueID, this.ModRegistry);
                             ITranslationHelper translationHelper = new TranslationHelper(manifest.UniqueID, manifest.Name, contentManager.GetLocale(), contentManager.GetCurrentLanguage());
 
                             mod.ModManifest = manifest;
                             mod.Helper = new ModHelper(manifest.UniqueID, metadata.DirectoryPath, jsonHelper, contentHelper, commandHelper, modRegistryHelper, reflectionHelper, translationHelper);
-                            mod.Monitor = this.GetSecondaryMonitor(metadata.DisplayName);
+                            mod.Monitor = monitor;
 #if SMAPI_1_x
                             mod.PathOnDisk = metadata.DirectoryPath;
 #endif
@@ -796,7 +797,7 @@ namespace StardewModdingAPI
                     if (this.DeprecationManager.IsVirtualMethodImplemented(mod.GetType(), typeof(Mod), nameof(Mod.Entry), new[] { typeof(object[]) }))
                         deprecationWarnings.Add(() => this.DeprecationManager.Warn(metadata.DisplayName, $"{nameof(Mod)}.{nameof(Mod.Entry)}(object[]) instead of {nameof(Mod)}.{nameof(Mod.Entry)}({nameof(IModHelper)})", "1.0", DeprecationLevel.PendingRemoval));
 #else
-                    if (!this.DeprecationManager.IsVirtualMethodImplemented(mod.GetType(), typeof(Mod), nameof(Mod.Entry), new[] {typeof(IModHelper)}))
+                    if (!this.DeprecationManager.IsVirtualMethodImplemented(mod.GetType(), typeof(Mod), nameof(Mod.Entry), new[] { typeof(IModHelper) }))
                         this.Monitor.Log($"{metadata.DisplayName} doesn't implement Entry() and may not work correctly.", LogLevel.Error);
 #endif
                 }
@@ -812,19 +813,27 @@ namespace StardewModdingAPI
             {
                 if (metadata.Mod.Helper.Content is ContentHelper helper)
                 {
+                    // TODO: optimise by only reloading assets the new editors/loaders can intercept
                     helper.ObservableAssetEditors.CollectionChanged += (sender, e) =>
                     {
                         if (e.NewItems.Count > 0)
-                            this.ContentManager.Reset();
+                        {
+                            this.Monitor.Log("Detected new asset editor, resetting cache...", LogLevel.Trace);
+                            this.ContentManager.InvalidateCache((key, type) => true);
+                        }
                     };
                     helper.ObservableAssetLoaders.CollectionChanged += (sender, e) =>
                     {
                         if (e.NewItems.Count > 0)
-                            this.ContentManager.Reset();
+                        {
+                            this.Monitor.Log("Detected new asset loader, resetting cache...", LogLevel.Trace);
+                            this.ContentManager.InvalidateCache((key, type) => true);
+                        }
                     };
                 }
             }
-            this.ContentManager.Reset();
+            this.Monitor.Log("Resetting cache to enable interception...", LogLevel.Trace);
+            this.ContentManager.InvalidateCache((key, type) => true);
         }
 
         /// <summary>Reload translations for all mods.</summary>

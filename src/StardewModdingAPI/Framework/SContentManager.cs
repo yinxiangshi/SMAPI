@@ -5,14 +5,11 @@ using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.AssemblyRewriters;
 using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.Reflection;
+using StardewModdingAPI.Metadata;
 using StardewValley;
-using StardewValley.BellsAndWhistles;
-using StardewValley.Objects;
-using StardewValley.Projectiles;
 
 namespace StardewModdingAPI.Framework
 {
@@ -39,6 +36,12 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>The private <see cref="LocalizedContentManager"/> method which generates the locale portion of an asset name.</summary>
         private readonly IPrivateMethod GetKeyLocale;
+
+        /// <summary>The language codes used in asset keys.</summary>
+        private readonly IDictionary<string, LanguageCode> KeyLocales;
+
+        /// <summary>Provides metadata for core game assets.</summary>
+        private readonly CoreAssets CoreAssets;
 
 
         /*********
@@ -86,6 +89,38 @@ namespace StardewModdingAPI.Framework
             }
             else
                 this.NormaliseAssetNameForPlatform = key => key.Replace('\\', '/'); // based on MonoGame's ContentManager.Load<T> logic
+
+            // get asset data
+            this.CoreAssets = new CoreAssets(this.NormaliseAssetName);
+            this.KeyLocales = this.GetKeyLocales(reflection);
+
+        }
+
+        /// <summary>Get the locale codes (like <c>ja-JP</c>) used in asset keys.</summary>
+        /// <param name="reflection">Simplifies access to private game code.</param>
+        private IDictionary<string, LanguageCode> GetKeyLocales(Reflector reflection)
+        {
+            // get the private code field directly to avoid changed-code logic
+            IPrivateField<LanguageCode> codeField = reflection.GetPrivateField<LanguageCode>(typeof(LocalizedContentManager), "_currentLangCode");
+
+            // remember previous settings
+            LanguageCode previousCode = codeField.GetValue();
+            string previousOverride = this.LanguageCodeOverride;
+
+            // create locale => code map
+            IDictionary<string, LanguageCode> map = new Dictionary<string, LanguageCode>(StringComparer.InvariantCultureIgnoreCase);
+            this.LanguageCodeOverride = null;
+            foreach (LanguageCode code in Enum.GetValues(typeof(LanguageCode)))
+            {
+                codeField.SetValue(code);
+                map[this.GetKeyLocale.Invoke<string>()] = code;
+            }
+
+            // restore previous settings
+            codeField.SetValue(previousCode);
+            this.LanguageCodeOverride = previousOverride;
+
+            return map;
         }
 
         /// <summary>Normalise path separators in a file path. For asset keys, see <see cref="NormaliseAssetName"/> instead.</summary>
@@ -159,54 +194,61 @@ namespace StardewModdingAPI.Framework
             return this.GetKeyLocale.Invoke<string>();
         }
 
-        /// <summary>Reset the asset cache and reload the game's static assets.</summary>
-        /// <remarks>This implementation is derived from <see cref="Game1.LoadContent"/>.</remarks>
-        public void Reset()
+        /// <summary>Get the cached asset keys.</summary>
+        public IEnumerable<string> GetAssetKeys()
         {
-            this.Monitor.Log("Resetting asset cache...", LogLevel.Trace);
-            this.Cache.Clear();
+            IEnumerable<string> GetAllAssetKeys()
+            {
+                foreach (string cacheKey in this.Cache.Keys)
+                {
+                    this.ParseCacheKey(cacheKey, out string assetKey, out string _);
+                    yield return assetKey;
+                }
+            }
 
-            // from Game1.LoadContent
-            Game1.daybg = this.Load<Texture2D>("LooseSprites\\daybg");
-            Game1.nightbg = this.Load<Texture2D>("LooseSprites\\nightbg");
-            Game1.menuTexture = this.Load<Texture2D>("Maps\\MenuTiles");
-            Game1.lantern = this.Load<Texture2D>("LooseSprites\\Lighting\\lantern");
-            Game1.windowLight = this.Load<Texture2D>("LooseSprites\\Lighting\\windowLight");
-            Game1.sconceLight = this.Load<Texture2D>("LooseSprites\\Lighting\\sconceLight");
-            Game1.cauldronLight = this.Load<Texture2D>("LooseSprites\\Lighting\\greenLight");
-            Game1.indoorWindowLight = this.Load<Texture2D>("LooseSprites\\Lighting\\indoorWindowLight");
-            Game1.shadowTexture = this.Load<Texture2D>("LooseSprites\\shadow");
-            Game1.mouseCursors = this.Load<Texture2D>("LooseSprites\\Cursors");
-            Game1.controllerMaps = this.Load<Texture2D>("LooseSprites\\ControllerMaps");
-            Game1.animations = this.Load<Texture2D>("TileSheets\\animations");
-            Game1.achievements = this.Load<Dictionary<int, string>>("Data\\Achievements");
-            Game1.NPCGiftTastes = this.Load<Dictionary<string, string>>("Data\\NPCGiftTastes");
-            Game1.dialogueFont = this.Load<SpriteFont>("Fonts\\SpriteFont1");
-            Game1.smallFont = this.Load<SpriteFont>("Fonts\\SmallFont");
-            Game1.tinyFont = this.Load<SpriteFont>("Fonts\\tinyFont");
-            Game1.tinyFontBorder = this.Load<SpriteFont>("Fonts\\tinyFontBorder");
-            Game1.objectSpriteSheet = this.Load<Texture2D>("Maps\\springobjects");
-            Game1.cropSpriteSheet = this.Load<Texture2D>("TileSheets\\crops");
-            Game1.emoteSpriteSheet = this.Load<Texture2D>("TileSheets\\emotes");
-            Game1.debrisSpriteSheet = this.Load<Texture2D>("TileSheets\\debris");
-            Game1.bigCraftableSpriteSheet = this.Load<Texture2D>("TileSheets\\Craftables");
-            Game1.rainTexture = this.Load<Texture2D>("TileSheets\\rain");
-            Game1.buffsIcons = this.Load<Texture2D>("TileSheets\\BuffsIcons");
-            Game1.objectInformation = this.Load<Dictionary<int, string>>("Data\\ObjectInformation");
-            Game1.bigCraftablesInformation = this.Load<Dictionary<int, string>>("Data\\BigCraftablesInformation");
-            FarmerRenderer.hairStylesTexture = this.Load<Texture2D>("Characters\\Farmer\\hairstyles");
-            FarmerRenderer.shirtsTexture = this.Load<Texture2D>("Characters\\Farmer\\shirts");
-            FarmerRenderer.hatsTexture = this.Load<Texture2D>("Characters\\Farmer\\hats");
-            FarmerRenderer.accessoriesTexture = this.Load<Texture2D>("Characters\\Farmer\\accessories");
-            Furniture.furnitureTexture = this.Load<Texture2D>("TileSheets\\furniture");
-            SpriteText.spriteTexture = this.Load<Texture2D>("LooseSprites\\font_bold");
-            SpriteText.coloredTexture = this.Load<Texture2D>("LooseSprites\\font_colored");
-            Tool.weaponsTexture = this.Load<Texture2D>("TileSheets\\weapons");
-            Projectile.projectileSheet = this.Load<Texture2D>("TileSheets\\Projectiles");
+            return GetAllAssetKeys().Distinct();
+        }
 
-            // from Farmer constructor
-            if (Game1.player != null)
-                Game1.player.FarmerRenderer = new FarmerRenderer(this.Load<Texture2D>("Characters\\Farmer\\farmer_" + (Game1.player.isMale ? "" : "girl_") + "base"));
+        /// <summary>Reset the asset cache and reload the game's static assets.</summary>
+        /// <param name="predicate">Matches the asset keys to invalidate.</param>
+        /// <returns>Returns whether any cache entries were invalidated.</returns>
+        /// <remarks>This implementation is derived from <see cref="Game1.LoadContent"/>.</remarks>
+        public bool InvalidateCache(Func<string, Type, bool> predicate)
+        {
+            // find matching asset keys
+            HashSet<string> purgeCacheKeys = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+            HashSet<string> purgeAssetKeys = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+            foreach (string cacheKey in this.Cache.Keys)
+            {
+                this.ParseCacheKey(cacheKey, out string assetKey, out string localeCode);
+                Type type = this.Cache[cacheKey].GetType();
+                if (predicate(assetKey, type))
+                {
+                    purgeAssetKeys.Add(assetKey);
+                    purgeCacheKeys.Add(cacheKey);
+                }
+            }
+
+            // purge from cache
+            foreach (string key in purgeCacheKeys)
+                this.Cache.Remove(key);
+
+            // reload core game assets
+            int reloaded = 0;
+            foreach (string key in purgeAssetKeys)
+            {
+                if(this.CoreAssets.ReloadForKey(this, key))
+                    reloaded++;
+            }
+
+            // report result
+            if (purgeCacheKeys.Any())
+            {
+                this.Monitor.Log($"Invalidated {purgeCacheKeys.Count} cache entries for {purgeAssetKeys.Count} asset keys: {string.Join(", ", purgeCacheKeys.OrderBy(p => p, StringComparer.InvariantCultureIgnoreCase))}. Reloaded {reloaded} core assets.", LogLevel.Trace);
+                return true;
+            }
+            this.Monitor.Log("Invalidated 0 cache entries.", LogLevel.Trace);
+            return false;
         }
 
 
@@ -219,6 +261,33 @@ namespace StardewModdingAPI.Framework
         {
             return this.Cache.ContainsKey(normalisedAssetName)
                 || this.Cache.ContainsKey($"{normalisedAssetName}.{this.GetKeyLocale.Invoke<string>()}"); // translated asset
+        }
+
+        /// <summary>Parse a cache key into its component parts.</summary>
+        /// <param name="cacheKey">The input cache key.</param>
+        /// <param name="assetKey">The original asset key.</param>
+        /// <param name="localeCode">The asset locale code (or <c>null</c> if not localised).</param>
+        private void ParseCacheKey(string cacheKey, out string assetKey, out string localeCode)
+        {
+            // handle localised key
+            if (!string.IsNullOrWhiteSpace(cacheKey))
+            {
+                int lastSepIndex = cacheKey.LastIndexOf(".", StringComparison.InvariantCulture);
+                if (lastSepIndex >= 0)
+                {
+                    string suffix = cacheKey.Substring(lastSepIndex + 1, cacheKey.Length - lastSepIndex - 1);
+                    if (this.KeyLocales.ContainsKey(suffix))
+                    {
+                        assetKey = cacheKey.Substring(0, lastSepIndex);
+                        localeCode = cacheKey.Substring(lastSepIndex + 1, cacheKey.Length - lastSepIndex - 1);
+                        return;
+                    }
+                }
+            }
+
+            // handle simple key
+            assetKey = cacheKey;
+            localeCode = null;
         }
 
         /// <summary>Load the initial asset from the registered <see cref="Loaders"/>.</summary>
@@ -365,7 +434,8 @@ namespace StardewModdingAPI.Framework
             // can't know which assets are meant to be disposed. Here we remove current assets from
             // the cache, but don't dispose them to avoid crashing any code that still references
             // them. The garbage collector will eventually clean up any unused assets.
-            this.Reset();
+            this.Monitor.Log("Content manager disposed, resetting cache.", LogLevel.Trace);
+            this.InvalidateCache((key, type) => true);
         }
     }
 }

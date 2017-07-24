@@ -99,7 +99,7 @@ namespace StardewModdingAPI
 
 
         /*********
-        ** Protected methods
+        ** Internal methods
         *********/
         /// <summary>Get metadata for mapping assemblies to the current platform.</summary>
         /// <param name="targetPlatform">The target game platform.</param>
@@ -220,6 +220,10 @@ namespace StardewModdingAPI
             };
         }
 
+
+        /*********
+        ** Private methods
+        *********/
         /// <summary>Get the name of a save directory for the current player.</summary>
         private static string GetSaveFolderName()
         {

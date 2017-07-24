@@ -91,6 +91,7 @@
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Command.cs" />
+    <Compile Include="Metadata\CoreAssets.cs" />
     <Compile Include="ContentSource.cs" />
     <Compile Include="Events\ContentEvents.cs" />
     <Compile Include="Events\EventArgsInput.cs" />
