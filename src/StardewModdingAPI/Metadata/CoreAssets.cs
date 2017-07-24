@@ -9,6 +9,7 @@ using StardewValley.Buildings;
 using StardewValley.Locations;
 using StardewValley.Objects;
 using StardewValley.Projectiles;
+using StardewValley.TerrainFeatures;
 
 namespace StardewModdingAPI.Metadata
 {
@@ -21,8 +22,8 @@ namespace StardewModdingAPI.Metadata
         /// <summary>Normalises an asset key to match the cache key.</summary>
         protected readonly Func<string, string> GetNormalisedPath;
 
-        /// <summary>The static asset setters.</summary>
-        private readonly IDictionary<string, Action<SContentManager, string>> StaticSetters;
+        /// <summary>Setters which update static or singleton texture fields indexed by normalised asset key.</summary>
+        private readonly IDictionary<string, Action<SContentManager, string>> SingletonSetters;
 
 
         /*********
@@ -33,11 +34,10 @@ namespace StardewModdingAPI.Metadata
         public CoreAssets(Func<string, string> getNormalisedPath)
         {
             this.GetNormalisedPath = getNormalisedPath;
-            this.StaticSetters =
+            this.SingletonSetters =
                 new Dictionary<string, Action<SContentManager, string>>
                 {
                     // from Game1.loadContent
-                    ["LooseSprites\\daybg"] = (content, key) => Game1.daybg = content.Load<Texture2D>(key),
                     ["LooseSprites\\daybg"] = (content, key) => Game1.daybg = content.Load<Texture2D>(key),
                     ["LooseSprites\\nightbg"] = (content, key) => Game1.nightbg = content.Load<Texture2D>(key),
                     ["Maps\\MenuTiles"] = (content, key) => Game1.menuTexture = content.Load<Texture2D>(key),
@@ -75,7 +75,21 @@ namespace StardewModdingAPI.Metadata
                     ["TileSheets\\weapons"] = (content, key) => Tool.weaponsTexture = content.Load<Texture2D>(key),
                     ["TileSheets\\Projectiles"] = (content, key) => Projectile.projectileSheet = content.Load<Texture2D>(key),
 
-                    // from Farmer constructor
+                    // from Bush
+                    ["TileSheets\\bushes"] = (content, key) => Bush.texture = content.Load<Texture2D>(key),
+
+                    // from Critter
+                    ["TileSheets\\critters"] = (content, key) => Critter.critterTexture = content.Load<Texture2D>(key),
+
+                    // from Farm
+                    ["Buildings\\houses"] = (content, key) =>
+                    {
+                        Farm farm = Game1.getFarm();
+                        if (farm != null)
+                            farm.houseTextures = content.Load<Texture2D>(key);
+                    },
+
+                    // from Farmer
                     ["Characters\\Farmer\\farmer_base"] = (content, key) =>
                     {
                         if (Game1.player != null && Game1.player.isMale)
@@ -87,7 +101,18 @@ namespace StardewModdingAPI.Metadata
                             Game1.player.FarmerRenderer = new FarmerRenderer(content.Load<Texture2D>(key));
                     },
 
-                    // from Wallpaper constructor
+                    // from Flooring
+                    ["TerrainFeatures\\Flooring"] = (content, key) => Flooring.floorsTexture = content.Load<Texture2D>(key),
+
+                    // from FruitTree
+                    ["TileSheets\\fruitTrees"] = (content, key) => FruitTree.texture = content.Load<Texture2D>(key),
+
+                    // from HoeDirt
+                    ["TerrainFeatures\\hoeDirt"] = (content, key) => HoeDirt.lightTexture = content.Load<Texture2D>(key),
+                    ["TerrainFeatures\\hoeDirtDark"] = (content, key) => HoeDirt.darkTexture = content.Load<Texture2D>(key),
+                    ["TerrainFeatures\\hoeDirtSnow"] = (content, key) => HoeDirt.snowTexture = content.Load<Texture2D>(key),
+
+                    // from Wallpaper
                     ["Maps\\walls_and_floors"] = (content, key) => Wallpaper.wallpaperTexture = content.Load<Texture2D>(key)
                 }
                 .ToDictionary(p => getNormalisedPath(p.Key), p => p.Value);
@@ -100,7 +125,7 @@ namespace StardewModdingAPI.Metadata
         public bool ReloadForKey(SContentManager content, string key)
         {
             // static assets
-            if (this.StaticSetters.TryGetValue(key, out Action<SContentManager, string> reload))
+            if (this.SingletonSetters.TryGetValue(key, out Action<SContentManager, string> reload))
             {
                 reload(content, key);
                 return true;
