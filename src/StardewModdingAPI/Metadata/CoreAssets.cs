@@ -5,6 +5,8 @@ using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Framework;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
+using StardewValley.Buildings;
+using StardewValley.Locations;
 using StardewValley.Objects;
 using StardewValley.Projectiles;
 
@@ -83,7 +85,10 @@ namespace StardewModdingAPI.Metadata
                     {
                         if (Game1.player != null && !Game1.player.isMale)
                             Game1.player.FarmerRenderer = new FarmerRenderer(content.Load<Texture2D>(key));
-                    }
+                    },
+
+                    // from Wallpaper constructor
+                    ["Maps\\walls_and_floors"] = (content, key) => Wallpaper.wallpaperTexture = content.Load<Texture2D>(key)
                 }
                 .ToDictionary(p => getNormalisedPath(p.Key), p => p.Value);
         }
@@ -101,7 +106,33 @@ namespace StardewModdingAPI.Metadata
                 return true;
             }
 
+            // building textures
+            if (key.StartsWith(this.GetNormalisedPath("Buildings\\")))
+            {
+                Building[] buildings = this.GetAllBuildings().Where(p => key == this.GetNormalisedPath($"Buildings\\{p.buildingType}")).ToArray();
+                if (buildings.Any())
+                {
+                    Texture2D texture = content.Load<Texture2D>(key);
+                    foreach (Building building in buildings)
+                        building.texture = texture;
+                    return true;
+                }
+                return false;
+            }
+
             return false;
+        }
+
+
+        /*********
+        ** Private methods
+        *********/
+        /// <summary>Get all player-constructed buildings in the world.</summary>
+        private IEnumerable<Building> GetAllBuildings()
+        {
+            return Game1.locations
+                .OfType<BuildableGameLocation>()
+                .SelectMany(p => p.buildings);
         }
     }
 }
