@@ -185,7 +185,6 @@ namespace StardewModdingAPI
                 ((Form)Control.FromHandle(this.GameInstance.Window.Handle)).FormClosing += (sender, args) => this.Dispose();
 #endif
                 this.GameInstance.Exiting += (sender, e) => this.Dispose();
-                this.GameInstance.Window.ClientSizeChanged += (sender, e) => GraphicsEvents.InvokeResize(this.Monitor, sender, e);
                 GameEvents.InitializeInternal += (sender, e) => this.InitialiseAfterGameStart();
                 GameEvents.GameLoadedInternal += (sender, e) => this.CheckForUpdateAsync();
                 ContentEvents.AfterLocaleChanged += (sender, e) => this.OnLocaleChanged();

@@ -22,7 +22,8 @@ For mod developers:
 * Removed support for mods with no `Name`, `Version`, or `UniqueID` in their manifest.
 * Removed support for mods with a non-unique `UniqueID` value in their manifest.
 * Restrict mods from accessing SMAPI internals using its reflection helper, to discourage fragile mods.
-* Fixed issue where `TimeEvents.AfterDayStarted` was raised during the new-game intro.
+* Fixed `GraphicsEvents.Resize` being raised before the game updates its window data.
+* Fixed `TimeEvents.AfterDayStarted` being raised during the new-game intro.
 
 ## 1.15.2
 For players:

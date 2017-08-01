@@ -51,11 +51,9 @@ namespace StardewModdingAPI.Events
         ****/
         /// <summary>Raise a <see cref="Resize"/> event.</summary>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        /// <param name="sender">The object which raised the event.</param>
-        /// <param name="e">The event arguments.</param>
-        internal static void InvokeResize(IMonitor monitor, object sender, EventArgs e)
+        internal static void InvokeResize(IMonitor monitor)
         {
-            monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.Resize)}", GraphicsEvents.Resize?.GetInvocationList(), sender, e);
+            monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.Resize)}", GraphicsEvents.Resize?.GetInvocationList());
         }
 
         /****
