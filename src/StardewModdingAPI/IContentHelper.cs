@@ -23,11 +23,10 @@ namespace StardewModdingAPI
 
 #if !SMAPI_1_x
         /// <summary>Remove an asset from the content cache so it's reloaded on the next request. This will reload core game assets if needed, but references to the former asset will still show the previous content.</summary>
-        /// <param name="key">The asset key to fetch (if the <paramref name="source"/> is <see cref="ContentSource.GameContent"/>), or the local path to a content file relative to the mod folder.</param>
-        /// <param name="source">Where to search for a matching content asset.</param>
+        /// <param name="key">The asset key to invalidate in the content folder.</param>
         /// <exception cref="ArgumentException">The <paramref name="key"/> is empty or contains invalid characters.</exception>
         /// <returns>Returns whether the given asset key was cached.</returns>
-        bool InvalidateCache(string key, ContentSource source = ContentSource.ModFolder);
+        bool InvalidateCache(string key);
 
         /// <summary>Remove all assets of the given type from the cache so they're reloaded on the next request. <b>This can be a very expensive operation and should only be used in very specific cases.</b> This will reload core game assets if needed, but references to the former assets will still show the previous content.</summary>
         /// <typeparam name="T">The asset type to remove from the cache.</typeparam>

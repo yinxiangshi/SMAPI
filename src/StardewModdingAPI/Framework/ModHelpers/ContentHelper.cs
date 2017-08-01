@@ -182,14 +182,13 @@ namespace StardewModdingAPI.Framework.ModHelpers
         }
 
         /// <summary>Remove an asset from the content cache so it's reloaded on the next request. This will reload core game assets if needed, but references to the former asset will still show the previous content.</summary>
-        /// <param name="key">The asset key to fetch (if the <paramref name="source"/> is <see cref="ContentSource.GameContent"/>), or the local path to a content file relative to the mod folder.</param>
-        /// <param name="source">Where to search for a matching content asset.</param>
+        /// <param name="key">The asset key to invalidate in the content folder.</param>
         /// <exception cref="ArgumentException">The <paramref name="key"/> is empty or contains invalid characters.</exception>
         /// <returns>Returns whether the given asset key was cached.</returns>
-        public bool InvalidateCache(string key, ContentSource source = ContentSource.ModFolder)
+        public bool InvalidateCache(string key)
         {
-            this.Monitor.Log($"Requested cache invalidation for '{key}' in {source}.", LogLevel.Trace);
-            string actualKey = this.GetActualAssetKey(key, source);
+            this.Monitor.Log($"Requested cache invalidation for '{key}'.", LogLevel.Trace);
+            string actualKey = this.GetActualAssetKey(key, ContentSource.GameContent);
             return this.ContentManager.InvalidateCache((otherKey, type) => otherKey.Equals(actualKey, StringComparison.InvariantCultureIgnoreCase));
         }
 
