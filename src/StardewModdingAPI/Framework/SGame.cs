@@ -19,7 +19,6 @@ using StardewValley.Menus;
 using StardewValley.Tools;
 using xTile.Dimensions;
 using xTile.Layers;
-using SFarmer = StardewValley.Farmer;
 
 namespace StardewModdingAPI.Framework
 {
@@ -318,6 +317,11 @@ namespace StardewModdingAPI.Framework
                 *********/
                 if (Context.IsSaveLoaded && !SaveGame.IsProcessing /*still loading save*/ && this.AfterLoadTimer >= 0)
                 {
+#if !SMAPI_1_x
+                    if (Game1.dayOfMonth != 0) // wait until new-game intro finishes (world not fully initialised yet)
+#endif
+                        this.AfterLoadTimer--;
+
                     if (this.AfterLoadTimer == 0)
                     {
                         this.Monitor.Log($"Context: loaded saved game '{Constants.SaveFolderName}', starting {Game1.currentSeason} {Game1.dayOfMonth} Y{Game1.year}.", LogLevel.Trace);
@@ -329,7 +333,6 @@ namespace StardewModdingAPI.Framework
 #endif
                         TimeEvents.InvokeAfterDayStarted(this.Monitor);
                     }
-                    this.AfterLoadTimer--;
                 }
 
                 /*********
