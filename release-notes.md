@@ -17,6 +17,7 @@ For mod developers:
 * Added support for optional dependencies.
 * Added support for string versions (like `"1.0-alpha"`) in `manifest.json`.
 * Added `IEquatable<ISemanticVersion>` to `ISemanticVersion`.
+* Added `SDate.DayOfWeek` field.
 * Removed the TrainerMod `save` and `load` commands.
 * Removed all deprecated code.
 * Removed support for mods with no `Name`, `Version`, or `UniqueID` in their manifest.

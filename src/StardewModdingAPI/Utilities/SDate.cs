@@ -19,8 +19,6 @@ namespace StardewModdingAPI.Utilities
         /// <summary>The number of days in a season.</summary>
         private readonly int DaysInSeason = 28;
 
-        /// <summary>The Day of the Week this date has</summary>
-        public DayOfWeek Weekday;
 
         /*********
         ** Accessors
@@ -33,6 +31,12 @@ namespace StardewModdingAPI.Utilities
 
         /// <summary>The year.</summary>
         public int Year { get; }
+
+#if !SMAPI_1_x
+        /// <summary>The day of week.</summary>
+        public DayOfWeek DayOfWeek { get; }
+#endif
+
 
         /*********
         ** Public methods
@@ -65,8 +69,7 @@ namespace StardewModdingAPI.Utilities
             this.Day = day;
             this.Season = season;
             this.Year = year;
-
-            this.Weekday = GetDayOfWeek();
+            this.DayOfWeek = this.GetDayOfWeek();
         }
 
         /// <summary>Get the current in-game date.</summary>
@@ -115,33 +118,6 @@ namespace StardewModdingAPI.Utilities
         public override string ToString()
         {
             return $"{this.Day:00} {this.Season} Y{this.Year}";
-        }
-
-        /// <summary>
-        /// This gets the day of the week from the date
-        /// </summary>
-        /// <returns>A constant describing the day</returns>
-        private DayOfWeek GetDayOfWeek()
-        {
-            switch (this.Day % 7)
-            {
-                case 0:
-                    return DayOfWeek.Sunday;
-                case 1:
-                    return DayOfWeek.Monday;
-                case 2:
-                    return DayOfWeek.Tuesday;
-                case 3:
-                    return DayOfWeek.Wednesday;
-                case 4:
-                    return DayOfWeek.Thursday;
-                case 5:
-                    return DayOfWeek.Friday;
-                case 6:
-                    return DayOfWeek.Saturday;
-                default:
-                    return 0;
-            }
         }
 
         /****
@@ -228,6 +204,30 @@ namespace StardewModdingAPI.Utilities
         /*********
         ** Private methods
         *********/
+        /// <summary>Get the day of week for the current date.</summary>
+        private DayOfWeek GetDayOfWeek()
+        {
+            switch (this.Day % 7)
+            {
+                case 0:
+                    return DayOfWeek.Sunday;
+                case 1:
+                    return DayOfWeek.Monday;
+                case 2:
+                    return DayOfWeek.Tuesday;
+                case 3:
+                    return DayOfWeek.Wednesday;
+                case 4:
+                    return DayOfWeek.Thursday;
+                case 5:
+                    return DayOfWeek.Friday;
+                case 6:
+                    return DayOfWeek.Saturday;
+                default:
+                    return 0;
+            }
+        }
+
         /// <summary>Get the current season index.</summary>
         /// <exception cref="InvalidOperationException">The current season wasn't recognised.</exception>
         private int GetSeasonIndex()
