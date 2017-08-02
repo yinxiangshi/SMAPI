@@ -3,26 +3,25 @@
 <!--See [log](https://github.com/Pathoschild/SMAPI/compare/1.10...2.0).-->
 
 For players:
-* The SMAPI console is now much simpler and easier-to-read.
-* The SMAPI console now uses more readable colors in terminals with a light background.
+* The SMAPI console is now much simpler and easier to read.
+* The SMAPI console now adjusts its colors when you have a light terminal background.
 * Updated compatibility list.
 
 For mod developers:
-* Added APIs to edit or inject XNBs loaded by the game at runtime.  
-  <small>_This let mods do anything previously only possible with XNB mods._</small>
-* Added APIs to invalidate cached XNBs.  
-  <small>_Game textures are automatically reloaded when invalidated. This enables new mod scenarios (e.g. seasonal textures, NPC ponchos when it's raining and they're outside, etc)._</small>
-* Added new `InputEvents`.  
-  <small>_These combine keyboard + mouse + controller input for simpler input handling; add metadata like the cursor position and grab tile for simpler click handling; and add an option to suppress input from the game._</small>
+* Added new APIs to edit, inject, and reload XNB assets loaded by the game at any time.  
+  <small>_This let mods do anything previously only possible with XNB mods, plus enables new mod scenarios (e.g. seasonal textures, NPC clothing that depend on the weather or location, etc)._</small>
+* Added new input events.  
+  <small>_The new `InputEvents` combine keyboard + mouse + controller input into one event for easy handling, add metadata like the cursor position and grab tile to support click handling, and add an option to suppress input from the game to enable new scenarios like action highjacking and UI overlays._</small>
 * Added support for optional dependencies.
 * Added support for string versions (like `"1.0-alpha"`) in `manifest.json`.
 * Added `IEquatable<ISemanticVersion>` to `ISemanticVersion`.
-* Added `SDate.DayOfWeek` field.
-* Removed the TrainerMod `save` and `load` commands.
+* Added `Context.CanPlayerMove` value for mod convenience.
+* Added day of week to `SDate` instances.
+* Removed the TrainerMod's `save` and `load` commands.
 * Removed all deprecated code.
 * Removed support for mods with no `Name`, `Version`, or `UniqueID` in their manifest.
 * Removed support for mods with a non-unique `UniqueID` value in their manifest.
-* Restrict mods from accessing SMAPI internals using its reflection helper, to discourage fragile mods.
+* Removed access to SMAPI internals through the reflection helper, to discourage fragile mods.
 * Fixed `GraphicsEvents.Resize` being raised before the game updates its window data.
 * Fixed `TimeEvents.AfterDayStarted` being raised during the new-game intro.
 * Fixed `Context.IsPlayerFree` being incorrectly false in some cases (e.g. when using a tool).
