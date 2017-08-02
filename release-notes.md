@@ -25,6 +25,7 @@ For mod developers:
 * Restrict mods from accessing SMAPI internals using its reflection helper, to discourage fragile mods.
 * Fixed `GraphicsEvents.Resize` being raised before the game updates its window data.
 * Fixed `TimeEvents.AfterDayStarted` being raised during the new-game intro.
+* Fixed `Context.IsPlayerFree` being incorrectly false in some cases (e.g. when using a tool).
 
 ## 1.15.2
 For players:
