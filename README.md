@@ -160,8 +160,16 @@ field | purpose
 `ModCompatibility` | A list of mod versions SMAPI should consider compatible or broken regardless of whether it detects incompatible code. This can be used to force SMAPI to load an incompatible mod, though that isn't recommended.
 
 ### Command-line arguments
-SMAPI recognises the following command-line arguments. These are intended for internal use or
-testing and may change without warning.
+The SMAPI installer recognises three command-line arguments:
+
+argument | purpose
+-------- | -------
+`--install` | Preselects the install action, skipping the prompt asking what the user wants to do.
+`--uninstall` | Preselects the uninstall action, skipping the prompt asking what the user wants to do.
+`--game-path "path"` | Specifies the full path to the folder containing the Stardew Valley executable, skipping automatic detection and any prompt to choose a path. If the path is not valid, the installer displays an error.
+
+SMAPI itself recognises two arguments, but these are intended for internal use or testing and may
+change without warning.
 
 argument | purpose
 -------- | -------

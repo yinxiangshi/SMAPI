@@ -26,6 +26,9 @@ For mod developers:
 * Fixed `TimeEvents.AfterDayStarted` being raised during the new-game intro.
 * Fixed `Context.IsPlayerFree` being incorrectly false in some cases (e.g. when using a tool).
 
+For power users:
+* Added command-line arguments to the SMAPI installer so it can be scripted.
+
 ## 1.15.2
 For players:
 * Improved error when using very old versions of Stardew Valley.
