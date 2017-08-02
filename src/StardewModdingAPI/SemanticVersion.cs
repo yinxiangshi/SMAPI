@@ -17,7 +17,7 @@ namespace StardewModdingAPI
         /// - allows hyphens in prerelease tags as synonyms for dots (like "-unofficial-update.3");
         /// - doesn't allow '+build' suffixes.
         /// </remarks>
-        private static readonly Regex Regex = new Regex(@"^(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)(?:\.(?<patch>0|[1-9]\d*))?(?:-(?<prerelease>(?:[a-z0-9]+[\-\.]?)+))?$", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+        private static readonly Regex Regex = new Regex(@"^(?>(?<major>0|[1-9]\d*))\.(?>(?<minor>0|[1-9]\d*))(?>(?:\.(?<patch>0|[1-9]\d*))?)(?:-(?<prerelease>(?>[a-z0-9]+[\-\.]?)+))?$", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
 
         /*********
