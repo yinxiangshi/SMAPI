@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -7,6 +8,21 @@ namespace StardewModdingAPI
     /// <summary>Provides an API for loading content assets.</summary>
     public interface IContentHelper : IModLinked
     {
+        /*********
+        ** Accessors
+        *********/
+#if !SMAPI_1_x
+        /// <summary>Interceptors which provide the initial versions of matching content assets.</summary>
+        IList<IAssetLoader> AssetLoaders { get; }
+
+        /// <summary>Interceptors which edit matching content assets after they're loaded.</summary>
+        IList<IAssetEditor> AssetEditors { get; }
+#endif
+
+
+        /*********
+        ** Public methods
+        *********/
         /// <summary>Load content from the game folder or mod folder (if not already cached), and return it. When loading a <c>.png</c> file, this must be called outside the game's draw loop.</summary>
         /// <typeparam name="T">The expected data type. The main supported types are <see cref="Texture2D"/> and dictionaries; other types may be supported by the game's content pipeline.</typeparam>
         /// <param name="key">The asset key to fetch (if the <paramref name="source"/> is <see cref="ContentSource.GameContent"/>), or the local path to a content file relative to the mod folder.</param>

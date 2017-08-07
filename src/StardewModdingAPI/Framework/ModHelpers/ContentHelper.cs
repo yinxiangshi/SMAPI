@@ -47,10 +47,10 @@ namespace StardewModdingAPI.Framework.ModHelpers
         internal ObservableCollection<IAssetLoader> ObservableAssetLoaders { get; } = new ObservableCollection<IAssetLoader>();
 
         /// <summary>Interceptors which provide the initial versions of matching content assets.</summary>
-        internal IList<IAssetLoader> AssetLoaders => this.ObservableAssetLoaders;
+        public IList<IAssetLoader> AssetLoaders => this.ObservableAssetLoaders;
 
         /// <summary>Interceptors which edit matching content assets after they're loaded.</summary>
-        internal IList<IAssetEditor> AssetEditors => this.ObservableAssetEditors;
+        public IList<IAssetEditor> AssetEditors => this.ObservableAssetEditors;
 
 
         /*********
