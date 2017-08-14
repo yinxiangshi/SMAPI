@@ -33,6 +33,7 @@ For players:
 
 For mod developers:
 * Added `Context.CanPlayerMove` value for mod convenience.
+* Added `helper.Content` properties for the current language.
 * Fixed `GraphicsEvents.Resize` being raised before the game updates its window data.
 * Fixed `Context.IsPlayerFree` being incorrectly false in some cases (e.g. when using a tool).
 

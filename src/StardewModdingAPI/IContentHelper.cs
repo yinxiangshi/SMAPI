@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using StardewValley;
 
 namespace StardewModdingAPI
 {
@@ -18,6 +19,12 @@ namespace StardewModdingAPI
         /// <summary>Interceptors which edit matching content assets after they're loaded.</summary>
         IList<IAssetEditor> AssetEditors { get; }
 #endif
+
+        /// <summary>The game's current locale code (like <c>pt-BR</c>).</summary>
+        string CurrentLocale { get; }
+
+        /// <summary>The game's current locale as an enum value.</summary>
+        LocalizedContentManager.LanguageCode CurrentLocaleConstant { get; }
 
 
         /*********

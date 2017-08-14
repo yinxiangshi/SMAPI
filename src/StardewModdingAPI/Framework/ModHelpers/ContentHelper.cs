@@ -40,6 +40,12 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /*********
         ** Accessors
         *********/
+        /// <summary>The game's current locale code (like <c>pt-BR</c>).</summary>
+        public string CurrentLocale => this.ContentManager.GetLocale();
+
+        /// <summary>The game's current locale as an enum value.</summary>
+        public LocalizedContentManager.LanguageCode CurrentLocaleConstant => this.ContentManager.GetCurrentLanguage();
+
         /// <summary>The observable implementation of <see cref="AssetEditors"/>.</summary>
         internal ObservableCollection<IAssetEditor> ObservableAssetEditors { get; } = new ObservableCollection<IAssetEditor>();
 
