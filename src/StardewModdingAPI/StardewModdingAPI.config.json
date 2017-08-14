@@ -73,6 +73,13 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "Notes": "Needs update for SDV 1.1."
     },
     {
+      "Name": "Advanced Location Loader",
+      "ID": [ "Entoarox.AdvancedLocationLoader" ],
+      "UpperVersion": "1.2.10",
+      "UpdateUrls": [ "http://community.playstarbound.com/resources/3619" ],
+      "Notes": "Overhauled for SMAPI 1.11+ compatibility."
+    },
+    {
       "Name": "Almighty Tool",
       "ID": [ "AlmightyTool.dll" ],
       "UpperVersion": "1.1.1",
@@ -166,9 +173,9 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     {
       "Name": "Entoarox Framework",
       "ID": [ "eacdb74b-4080-4452-b16b-93773cda5cf9", /*since ???*/ "Entoarox.EntoaroxFramework" ],
-      "UpperVersion": "1.7.5",
+      "UpperVersion": "1.7.10",
       "UpdateUrls": [ "http://community.playstarbound.com/resources/4228" ],
-      "Notes": "Needs update for SDV 1.2."
+      "Notes": "Overhauled for SMAPI 1.11+ compatibility."
     },
     {
       "Name": "Extended Fridge",
@@ -228,6 +235,13 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "Notes": "Needs update for SDV 1.2."
     },
     {
+      "Name": "More Pets",
+      "ID": [ "821ce8f6-e629-41ad-9fde-03b54f68b0b6MOREPETS", /* since 1.3 */ "Entoarox.MorePets" ],
+      "UpperVersion": "1.3.2",
+      "UpdateUrls": [ "http://community.playstarbound.com/resources/4288" ],
+      "Notes": "Overhauled for SMAPI 1.11+ compatibility."
+    },
+    {
       "Name": "NoSoilDecay",
       "ID": [ "289dee03-5f38-4d8e-8ffc-e440198e8610" ],
       "UpperVersion": "0.5",
@@ -276,6 +290,20 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "UpperVersion": "2.3",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/444" ],
       "Notes": "Needs update for SDV 1.2."
+    },
+    {
+      "Name": "Seasonal Immersion",
+      "ID": [ "EntoaroxSeasonalHouse", /*since 1.1.0*/ "EntoaroxSeasonalBuildings", /* since 1.6 or earlier*/ "EntoaroxSeasonalImmersion", /*since 1.7*/ "Entoarox.SeasonalImmersion" ],
+      "UpperVersion": "1.8.2",
+      "UpdateUrls": [ "http://community.playstarbound.com/resources/4262" ],
+      "Notes": "Overhauled for SMAPI 1.11+ compatibility."
+    },
+    {
+      "Name": "Shop Expander",
+      "ID": [ /*since at least 1.4*/ "821ce8f6-e629-41ad-9fde-03b54f68b0b6", /*since 1.5*/ "EntoaroxShopExpander", /*since 1.5.2*/ "Entoarox.ShopExpander" ],
+      "UpperVersion": "1.5.3",
+      "UpdateUrls": [ "http://community.playstarbound.com/resources/4381" ],
+      "Notes": "Overhauled for SMAPI 1.11+ compatibility."
     },
     {
       "Name": "Simple Sprinklers",
@@ -333,6 +361,13 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "UpperVersion": "1.0.2",
       "UpdateUrls": [ "http://community.playstarbound.com/threads/111526", "http://community.playstarbound.com/threads/132096" ],
       "Notes": "Needs update for SDV 1.2."
+    },
+    {
+      "Name": "Xnb Loader",
+      "ID": [ "Entoarox.XnbLoader" ],
+      "UpperVersion": "1.0.6",
+      "UpdateUrls": [ "http://community.playstarbound.com/resources/4506" ],
+      "Notes": "Overhauled for SMAPI 1.11+ compatibility."
     },
     {
       "Name": "zDailyIncrease",
