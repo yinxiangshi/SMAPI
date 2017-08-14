@@ -135,6 +135,11 @@ namespace StardewModdingApi.Installer
         /// </remarks>
         public void Run(string[] args)
         {
+#if SMAPI_1_x
+            bool installArg = false;
+            bool uninstallArg = false;
+            string gamePathArg = null;
+#else
             /****
             ** read command-line arguments
             ****/
@@ -155,6 +160,7 @@ namespace StardewModdingApi.Installer
                 if (pathIndex >= 1 && args.Length >= pathIndex)
                     gamePathArg = args[pathIndex];
             }
+#endif
 
             /****
             ** collect details
