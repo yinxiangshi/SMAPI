@@ -15,16 +15,13 @@ For mod developers:
 * Added support for optional dependencies.
 * Added support for string versions (like `"1.0-alpha"`) in `manifest.json`.
 * Added `IEquatable<ISemanticVersion>` to `ISemanticVersion`.
-* Added `Context.CanPlayerMove` value for mod convenience.
 * Added day of week to `SDate` instances.
 * Removed the TrainerMod's `save` and `load` commands.
 * Removed all deprecated code.
 * Removed support for mods with no `Name`, `Version`, or `UniqueID` in their manifest.
 * Removed support for mods with a non-unique `UniqueID` value in their manifest.
 * Removed access to SMAPI internals through the reflection helper, to discourage fragile mods.
-* Fixed `GraphicsEvents.Resize` being raised before the game updates its window data.
 * Fixed `TimeEvents.AfterDayStarted` being raised during the new-game intro.
-* Fixed `Context.IsPlayerFree` being incorrectly false in some cases (e.g. when using a tool).
 
 For power users:
 * Added command-line arguments to the SMAPI installer so it can be scripted.
@@ -33,6 +30,11 @@ For power users:
 For players:
 * Improved error when using very old versions of Stardew Valley.
 * Updated compatibility list.
+
+For mod developers:
+* Added `Context.CanPlayerMove` value for mod convenience.
+* Fixed `GraphicsEvents.Resize` being raised before the game updates its window data.
+* Fixed `Context.IsPlayerFree` being incorrectly false in some cases (e.g. when using a tool).
 
 For SMAPI developers:
 * Internal changes to support the upcoming SMAPI 2.0 release.
