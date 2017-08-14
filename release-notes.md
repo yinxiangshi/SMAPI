@@ -32,10 +32,11 @@ For players:
 * Updated compatibility list.
 
 For mod developers:
-* Added `Context.CanPlayerMove` value for mod convenience.
-* Added `helper.Content` properties for the current language.
+* Added `Context.CanPlayerMove` property for mod convenience.
+* Added content helper properties for the game's current language.
+* Fixed `Context.IsPlayerFree` being false if the player is performing an action.
 * Fixed `GraphicsEvents.Resize` being raised before the game updates its window data.
-* Fixed `Context.IsPlayerFree` being incorrectly false in some cases (e.g. when using a tool).
+* Fixed `SemanticVersion` not being deserialisable through Json.NET.
 
 For SMAPI developers:
 * Internal changes to support the upcoming SMAPI 2.0 release.

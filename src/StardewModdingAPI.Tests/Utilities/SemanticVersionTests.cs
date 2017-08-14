@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using StardewModdingAPI.Framework;
 
@@ -205,6 +206,22 @@ namespace StardewModdingAPI.Tests.Utilities
             ISemanticVersion upper = new SemanticVersion(upperStr);
             ISemanticVersion version = new SemanticVersion(versionStr);
             return version.IsBetween(lower, upper);
+        }
+
+        /****
+        ** Serialisable
+        ****/
+        [Test(Description = "Assert that SemanticVersion can be round-tripped through JSON with no special configuration.")]
+        [TestCase("1.0")]
+        public void Serialisable(string versionStr)
+        {
+            // act
+            string json = JsonConvert.SerializeObject(new SemanticVersion(versionStr));
+            SemanticVersion after = JsonConvert.DeserializeObject<SemanticVersion>(json);
+
+            // assert
+            Assert.IsNotNull(after, "The semantic version after deserialisation is unexpectedly null.");
+            Assert.AreEqual(versionStr, after.ToString(), "The semantic version after deserialisation doesn't match the input version.");
         }
 
         /****

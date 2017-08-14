@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 
 namespace StardewModdingAPI
 {
@@ -40,15 +41,16 @@ namespace StardewModdingAPI
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="major">The major version incremented for major API changes.</param>
-        /// <param name="minor">The minor version incremented for backwards-compatible changes.</param>
-        /// <param name="patch">The patch version for backwards-compatible bug fixes.</param>
+        /// <param name="majorVersion">The major version incremented for major API changes.</param>
+        /// <param name="minorVersion">The minor version incremented for backwards-compatible changes.</param>
+        /// <param name="patchVersion">The patch version for backwards-compatible bug fixes.</param>
         /// <param name="build">An optional build tag.</param>
-        public SemanticVersion(int major, int minor, int patch, string build = null)
+        [JsonConstructor]
+        public SemanticVersion(int majorVersion, int minorVersion, int patchVersion, string build = null)
         {
-            this.MajorVersion = major;
-            this.MinorVersion = minor;
-            this.PatchVersion = patch;
+            this.MajorVersion = majorVersion;
+            this.MinorVersion = minorVersion;
+            this.PatchVersion = patchVersion;
             this.Build = this.GetNormalisedTag(build);
         }
 
