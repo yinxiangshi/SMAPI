@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
@@ -74,6 +74,9 @@ namespace StardewModdingAPI.Metadata
                     ["LooseSprites\\font_colored"] = (content, key) => SpriteText.coloredTexture = content.Load<Texture2D>(key),
                     ["TileSheets\\weapons"] = (content, key) => Tool.weaponsTexture = content.Load<Texture2D>(key),
                     ["TileSheets\\Projectiles"] = (content, key) => Projectile.projectileSheet = content.Load<Texture2D>(key),
+
+                    // from Game1.ResetToolSpriteSheet
+                    ["TileSheets\\tools"] = (content, key) => Game1.ResetToolSpriteSheet(),
 
                     // from Bush
                     ["TileSheets\\bushes"] = (content, key) => Bush.texture = content.Load<Texture2D>(key),
