@@ -1,4 +1,4 @@
-﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <!-- load dev settings -->
   <Import Condition="$(OS) != 'Windows_NT' AND Exists('$(HOME)\stardewvalley.targets')" Project="$(HOME)\stardewvalley.targets" />
   <Import Condition="$(OS) == 'Windows_NT' AND Exists('$(USERPROFILE)\stardewvalley.targets')" Project="$(USERPROFILE)\stardewvalley.targets" />
@@ -77,7 +77,10 @@
   </Target>
 
   <!-- copy files into game directory and enable debugging (only in debug mode) -->
-  <Target Name="AfterBuild" Condition="'$(MSBuildProjectName)' == 'StardewModdingAPI' AND '$(Configuration)' == 'Debug'">
+  <Target Name="AfterBuild">
+    <CallTarget Targets="CopySMAPI;CopyTrainerMod" Condition="'$(Configuration)' == 'Debug'" />
+  </Target>
+  <Target Name="CopySMAPI" Condition="'$(MSBuildProjectName)' == 'StardewModdingAPI'">
     <Copy SourceFiles="$(TargetDir)\$(TargetName).exe" DestinationFolder="$(GamePath)" />
     <Copy SourceFiles="$(TargetDir)\$(TargetName).config.json" DestinationFolder="$(GamePath)" />
     <Copy SourceFiles="$(TargetDir)\StardewModdingAPI.AssemblyRewriters.dll" DestinationFolder="$(GamePath)" />
@@ -86,7 +89,7 @@
     <Copy SourceFiles="$(TargetDir)\Newtonsoft.Json.dll" DestinationFolder="$(GamePath)" />
     <Copy SourceFiles="$(TargetDir)\Mono.Cecil.dll" DestinationFolder="$(GamePath)" />
   </Target>
-  <Target Name="AfterBuild" Condition="'$(MSBuildProjectName)' == 'TrainerMod' AND '$(Configuration)' == 'Debug'">
+  <Target Name="CopyTrainerMod" Condition="'$(MSBuildProjectName)' == 'TrainerMod'">
     <Copy SourceFiles="$(TargetDir)\$(TargetName).dll" DestinationFolder="$(GamePath)\Mods\TrainerMod" />
     <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)\Mods\TrainerMod" Condition="Exists('$(TargetDir)\$(TargetName).pdb')" />
     <Copy SourceFiles="$(TargetDir)\manifest.json" DestinationFolder="$(GamePath)\Mods\TrainerMod" />
@@ -101,5 +104,4 @@
 
   <!-- Somehow this makes Visual Studio for Mac recognise the previous section. Nobody knows why. -->
   <PropertyGroup Condition="'$(RunConfiguration)' == 'Default'" />
-
 </Project>
