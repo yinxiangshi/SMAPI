@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -806,33 +806,39 @@ namespace StardewModdingAPI
                 }
             }
 
-            // reset cache when needed
-            // only register listeners after Entry to avoid repeatedly reloading assets during load
+            // invalidate cache entries when needed
+            // (These listeners are registered after Entry to avoid repeatedly reloading assets as mods initialise.)
             foreach (IModMetadata metadata in loadedMods)
             {
                 if (metadata.Mod.Helper.Content is ContentHelper helper)
                 {
-                    // TODO: optimise by only reloading assets the new editors/loaders can intercept
                     helper.ObservableAssetEditors.CollectionChanged += (sender, e) =>
                     {
                         if (e.NewItems.Count > 0)
                         {
-                            this.Monitor.Log("Detected new asset editor, resetting cache...", LogLevel.Trace);
-                            this.ContentManager.InvalidateCache((key, type) => true);
+                            this.Monitor.Log("Invalidating cache entries for new asset editors...", LogLevel.Trace);
+                            this.ContentManager.InvalidateCacheFor(e.NewItems.Cast<IAssetEditor>().ToArray(), new IAssetLoader[0]);
                         }
                     };
                     helper.ObservableAssetLoaders.CollectionChanged += (sender, e) =>
                     {
                         if (e.NewItems.Count > 0)
                         {
-                            this.Monitor.Log("Detected new asset loader, resetting cache...", LogLevel.Trace);
-                            this.ContentManager.InvalidateCache((key, type) => true);
+                            this.Monitor.Log("Invalidating cache entries for new asset loaders...", LogLevel.Trace);
+                            this.ContentManager.InvalidateCacheFor(new IAssetEditor[0], e.NewItems.Cast<IAssetLoader>().ToArray());
                         }
                     };
                 }
             }
-            this.Monitor.Log("Resetting cache to enable interception...", LogLevel.Trace);
-            this.ContentManager.InvalidateCache((key, type) => true);
+
+            // reset cache now if any editors or loaders were added during entry
+            IAssetEditor[] editors = loadedMods.SelectMany(p => p.Mod.Helper.Content.AssetEditors).ToArray();
+            IAssetLoader[] loaders = loadedMods.SelectMany(p => p.Mod.Helper.Content.AssetLoaders).ToArray();
+            if (editors.Any() || loaders.Any())
+            {
+                this.Monitor.Log("Invalidating cached assets for new editors & loaders...", LogLevel.Trace);
+                this.ContentManager.InvalidateCacheFor(editors, loaders);
+            }
         }
 
         /// <summary>Reload translations for all mods.</summary>

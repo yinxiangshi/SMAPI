@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using StardewModdingAPI.AssemblyRewriters;
@@ -96,33 +97,6 @@ namespace StardewModdingAPI.Framework
 
         }
 
-        /// <summary>Get the locale codes (like <c>ja-JP</c>) used in asset keys.</summary>
-        /// <param name="reflection">Simplifies access to private game code.</param>
-        private IDictionary<string, LanguageCode> GetKeyLocales(Reflector reflection)
-        {
-            // get the private code field directly to avoid changed-code logic
-            IPrivateField<LanguageCode> codeField = reflection.GetPrivateField<LanguageCode>(typeof(LocalizedContentManager), "_currentLangCode");
-
-            // remember previous settings
-            LanguageCode previousCode = codeField.GetValue();
-            string previousOverride = this.LanguageCodeOverride;
-
-            // create locale => code map
-            IDictionary<string, LanguageCode> map = new Dictionary<string, LanguageCode>(StringComparer.InvariantCultureIgnoreCase);
-            this.LanguageCodeOverride = null;
-            foreach (LanguageCode code in Enum.GetValues(typeof(LanguageCode)))
-            {
-                codeField.SetValue(code);
-                map[this.GetKeyLocale.Invoke<string>()] = code;
-            }
-
-            // restore previous settings
-            codeField.SetValue(previousCode);
-            this.LanguageCodeOverride = previousOverride;
-
-            return map;
-        }
-
         /// <summary>Normalise path separators in a file path. For asset keys, see <see cref="NormaliseAssetName"/> instead.</summary>
         /// <param name="path">The file path to normalise.</param>
         public string NormalisePathSeparators(string path)
@@ -209,10 +183,39 @@ namespace StardewModdingAPI.Framework
             return GetAllAssetKeys().Distinct();
         }
 
-        /// <summary>Reset the asset cache and reload the game's static assets.</summary>
+        /// <summary>Purge assets from the cache that match one of the interceptors.</summary>
+        /// <param name="editors">The asset editors for which to purge matching assets.</param>
+        /// <param name="loaders">The asset loaders for which to purge matching assets.</param>
+        /// <returns>Returns whether any cache entries were invalidated.</returns>
+        public bool InvalidateCacheFor(IAssetEditor[] editors, IAssetLoader[] loaders)
+        {
+            if (!editors.Any() && !loaders.Any())
+                return false;
+
+            // get CanEdit/Load methods
+            MethodInfo canEdit = typeof(IAssetEditor).GetMethod(nameof(IAssetEditor.CanEdit));
+            MethodInfo canLoad = typeof(IAssetLoader).GetMethod(nameof(IAssetLoader.CanLoad));
+
+            // invalidate matching keys
+            return this.InvalidateCache((assetName, assetType) =>
+            {
+                // get asset metadata
+                IAssetInfo info = new AssetInfo(this.GetLocale(), assetName, assetType, this.NormaliseAssetName);
+
+                // check loaders
+                MethodInfo canLoadGeneric = canLoad.MakeGenericMethod(assetType);
+                if (loaders.Any(loader => (bool)canLoadGeneric.Invoke(loader, new object[] { info })))
+                    return true;
+
+                // check editors
+                MethodInfo canEditGeneric = canEdit.MakeGenericMethod(assetType);
+                return editors.Any(editor => (bool)canEditGeneric.Invoke(editor, new object[] { info }));
+            });
+        }
+
+        /// <summary>Purge matched assets from the cache.</summary>
         /// <param name="predicate">Matches the asset keys to invalidate.</param>
         /// <returns>Returns whether any cache entries were invalidated.</returns>
-        /// <remarks>This implementation is derived from <see cref="Game1.LoadContent"/>.</remarks>
         public bool InvalidateCache(Func<string, Type, bool> predicate)
         {
             // find matching asset keys
@@ -220,7 +223,7 @@ namespace StardewModdingAPI.Framework
             HashSet<string> purgeAssetKeys = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
             foreach (string cacheKey in this.Cache.Keys)
             {
-                this.ParseCacheKey(cacheKey, out string assetKey, out string localeCode);
+                this.ParseCacheKey(cacheKey, out string assetKey, out _);
                 Type type = this.Cache[cacheKey].GetType();
                 if (predicate(assetKey, type))
                 {
@@ -237,7 +240,7 @@ namespace StardewModdingAPI.Framework
             int reloaded = 0;
             foreach (string key in purgeAssetKeys)
             {
-                if(this.CoreAssets.ReloadForKey(this, key))
+                if (this.CoreAssets.ReloadForKey(this, key))
                     reloaded++;
             }
 
@@ -261,6 +264,33 @@ namespace StardewModdingAPI.Framework
         {
             return this.Cache.ContainsKey(normalisedAssetName)
                 || this.Cache.ContainsKey($"{normalisedAssetName}.{this.GetKeyLocale.Invoke<string>()}"); // translated asset
+        }
+
+        /// <summary>Get the locale codes (like <c>ja-JP</c>) used in asset keys.</summary>
+        /// <param name="reflection">Simplifies access to private game code.</param>
+        private IDictionary<string, LanguageCode> GetKeyLocales(Reflector reflection)
+        {
+            // get the private code field directly to avoid changed-code logic
+            IPrivateField<LanguageCode> codeField = reflection.GetPrivateField<LanguageCode>(typeof(LocalizedContentManager), "_currentLangCode");
+
+            // remember previous settings
+            LanguageCode previousCode = codeField.GetValue();
+            string previousOverride = this.LanguageCodeOverride;
+
+            // create locale => code map
+            IDictionary<string, LanguageCode> map = new Dictionary<string, LanguageCode>(StringComparer.InvariantCultureIgnoreCase);
+            this.LanguageCodeOverride = null;
+            foreach (LanguageCode code in Enum.GetValues(typeof(LanguageCode)))
+            {
+                codeField.SetValue(code);
+                map[this.GetKeyLocale.Invoke<string>()] = code;
+            }
+
+            // restore previous settings
+            codeField.SetValue(previousCode);
+            this.LanguageCodeOverride = previousOverride;
+
+            return map;
         }
 
         /// <summary>Parse a cache key into its component parts.</summary>
