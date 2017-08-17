@@ -37,6 +37,7 @@ For mod developers:
 * Fixed `Context.IsPlayerFree` being false if the player is performing an action.
 * Fixed `GraphicsEvents.Resize` being raised before the game updates its window data.
 * Fixed `SemanticVersion` not being deserialisable through Json.NET.
+* Fixed terminal not launching on Xfce Linux.
 
 For SMAPI developers:
 * Internal changes to support the upcoming SMAPI 2.0 release.
