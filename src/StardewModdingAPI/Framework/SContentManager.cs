@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Content;
 using StardewModdingAPI.AssemblyRewriters;
 using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.Reflection;
+using StardewModdingAPI.Framework.Utilities;
 using StardewModdingAPI.Metadata;
 using StardewValley;
 
@@ -43,6 +44,9 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Provides metadata for core game assets.</summary>
         private readonly CoreAssets CoreAssets;
+
+        /// <summary>The assets currently being intercepted by <see cref="IAssetLoader"/> instances. This is used to prevent infinite loops when a loader loads a new asset.</summary>
+        private readonly ContextHash<string> AssetsBeingLoaded = new ContextHash<string>();
 
 
         /*********
@@ -139,11 +143,21 @@ namespace StardewModdingAPI.Framework
 
             // load asset
             T data;
+            if (this.AssetsBeingLoaded.Contains(assetName))
             {
-                IAssetInfo info = new AssetInfo(this.GetLocale(), assetName, typeof(T), this.NormaliseAssetName);
-                IAssetData asset = this.ApplyLoader<T>(info) ?? new AssetDataForObject(info, base.Load<T>(assetName), this.NormaliseAssetName);
-                asset = this.ApplyEditors<T>(info, asset);
-                data = (T)asset.Data;
+                this.Monitor.Log($"Broke loop while loading asset '{assetName}'.", LogLevel.Warn);
+                this.Monitor.Log($"Bypassing mod loaders for this asset. Stack trace:\n{Environment.StackTrace}", LogLevel.Trace);
+                data = base.Load<T>(assetName);
+            }
+            else
+            {
+                data = this.AssetsBeingLoaded.Track(assetName, () =>
+                {
+                    IAssetInfo info = new AssetInfo(this.GetLocale(), assetName, typeof(T), this.NormaliseAssetName);
+                    IAssetData asset = this.ApplyLoader<T>(info) ?? new AssetDataForObject(info, base.Load<T>(assetName), this.NormaliseAssetName);
+                    asset = this.ApplyEditors<T>(info, asset);
+                    return (T)asset.Data;
+                });
             }
 
             // update cache & return data

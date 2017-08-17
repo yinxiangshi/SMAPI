@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,6 +11,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.Reflection;
+using StardewModdingAPI.Framework.Utilities;
 using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
@@ -322,7 +323,7 @@ namespace StardewModdingAPI.Framework
 #if !SMAPI_1_x
                     if (Game1.dayOfMonth != 0) // wait until new-game intro finishes (world not fully initialised yet)
 #endif
-                        this.AfterLoadTimer--;
+                    this.AfterLoadTimer--;
 
                     if (this.AfterLoadTimer == 0)
                     {

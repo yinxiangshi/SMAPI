@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -91,6 +91,7 @@
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Command.cs" />
+    <Compile Include="Framework\Utilities\ContextHash.cs" />
     <Compile Include="Metadata\CoreAssets.cs" />
     <Compile Include="ContentSource.cs" />
     <Compile Include="Events\ContentEvents.cs" />
@@ -126,7 +127,7 @@
     <Compile Include="Events\EventArgsStringChanged.cs" />
     <Compile Include="Events\GameEvents.cs" />
     <Compile Include="Events\GraphicsEvents.cs" />
-    <Compile Include="Framework\Countdown.cs" />
+    <Compile Include="Framework\Utilities\Countdown.cs" />
     <Compile Include="Framework\GameVersion.cs" />
     <Compile Include="Framework\IModMetadata.cs" />
     <Compile Include="Framework\Models\DisabledMod.cs" />
