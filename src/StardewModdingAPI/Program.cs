@@ -832,8 +832,8 @@ namespace StardewModdingAPI
             }
 
             // reset cache now if any editors or loaders were added during entry
-            IAssetEditor[] editors = loadedMods.SelectMany(p => p.Mod.Helper.Content.AssetEditors).ToArray();
-            IAssetLoader[] loaders = loadedMods.SelectMany(p => p.Mod.Helper.Content.AssetLoaders).ToArray();
+            IAssetEditor[] editors = loadedMods.SelectMany(p => ((ContentHelper)p.Mod.Helper.Content).AssetEditors).ToArray();
+            IAssetLoader[] loaders = loadedMods.SelectMany(p => ((ContentHelper)p.Mod.Helper.Content).AssetLoaders).ToArray();
             if (editors.Any() || loaders.Any())
             {
                 this.Monitor.Log("Invalidating cached assets for new editors & loaders...", LogLevel.Trace);
