@@ -142,18 +142,34 @@ on the wiki for the first-time setup.
 ## Advanced usage
 ### Configuration file
 You can customise the SMAPI behaviour by editing the `StardewModdingAPI.config.json` file in your
-game folder. It contains these fields:
+game folder.
+
+Basic fields:
 
 field | purpose
 ----- | -------
 `DeveloperMode` | Default `false` (except in _SMAPI for developers_ releases). Whether to enable features intended for mod developers (mainly more detailed console logging).
 `CheckForUpdates` | Default `true`. Whether SMAPI should check for a newer version when you load the game. If a new version is available, a small message will appear in the console. This doesn't affect the load time even if your connection is offline or slow, because it happens in the background.
-`ModCompatibility` | A list of mod versions SMAPI should consider compatible or broken regardless of whether it detects incompatible code. Each record can be set to `AssumeCompatible` or `AssumeBroken`. Changing this field is not recommended and may destabilise your game.
-`VerboseLogging` | Whether SMAPI should log more information about the game context.
+`VerboseLogging` | Default `false`. Whether SMAPI should log more information about the game context.
+
+Advanced fields (changing these isn't recommended and may destabilise your game):
+
+field | purpose
+----- | -------
+`DisabledMods` | A list of mods to consider obsolete and not load.
+`ModCompatibility` | A list of mod versions SMAPI should consider compatible or broken regardless of whether it detects incompatible code. This can be used to force SMAPI to load an incompatible mod, though that isn't recommended.
 
 ### Command-line arguments
-SMAPI recognises the following command-line arguments. These are intended for internal use or
-testing and may change without warning.
+The SMAPI installer recognises three command-line arguments:
+
+argument | purpose
+-------- | -------
+`--install` | Preselects the install action, skipping the prompt asking what the user wants to do.
+`--uninstall` | Preselects the uninstall action, skipping the prompt asking what the user wants to do.
+`--game-path "path"` | Specifies the full path to the folder containing the Stardew Valley executable, skipping automatic detection and any prompt to choose a path. If the path is not valid, the installer displays an error.
+
+SMAPI itself recognises two arguments, but these are intended for internal use or testing and may
+change without warning.
 
 argument | purpose
 -------- | -------

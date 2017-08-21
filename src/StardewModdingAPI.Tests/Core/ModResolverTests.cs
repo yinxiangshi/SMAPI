@@ -141,7 +141,7 @@ namespace StardewModdingAPI.Tests.Core
         {
             // arrange
             Mock<IModMetadata> mock = this.GetMetadata("Mod A", new string[0], allowStatusChange: true);
-            this.SetupMetadataForValidation(mock, new ModCompatibility { Compatibility = ModCompatibilityType.AssumeBroken });
+            this.SetupMetadataForValidation(mock, new ModCompatibility { Compatibility = ModCompatibilityType.AssumeBroken, UpperVersion = new SemanticVersion("1.0"), UpdateUrls = new[] { "http://example.org" }});
 
             // act
             new ModResolver().ValidateManifests(new[] { mock.Object }, apiVersion: new SemanticVersion("1.0"));

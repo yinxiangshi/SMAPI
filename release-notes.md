@@ -3,20 +3,45 @@
 <!--See [log](https://github.com/Pathoschild/SMAPI/compare/1.10...2.0).-->
 
 For players:
-* The SMAPI console is now much simpler and easier-to-read.
+* The SMAPI console is now much simpler and easier to read.
+* The SMAPI console now adjusts its colors when you have a light terminal background.
+* Updated compatibility list.
 
 For mod developers:
-* Added API to edit XNB images & data loaded by the game (see [API reference](http://stardewvalleywiki.com/Modding:SMAPI_APIs#Content)).
-* Added API to inject new XNB images & data (see [API reference](http://stardewvalleywiki.com/Modding:SMAPI_APIs#Content)).
-* Added `InputEvents` which unify keyboard, mouse, and controller input for much simpler input handling (see [API reference](http://stardewvalleywiki.com/Modding:SMAPI_APIs#Input_events)).
-* Added useful `InputEvents` metadata like the cursor position, grab tile, etc.
-* Added ability to prevent the game from handling a button press via `InputEvents`.
-* In `manifest.json`:
-  * Dependencies can now be optional.
-  * The version can now be a string like `"1.0-alpha"` instead of a structure.
-  * The `Name`, `Version,` and `UniqueID` fields are no longer optional.
-  * The `UniqueID` field must now be unique (case-insensitive). If two installed mods have the same ID, SMAPI will show an error and load neither.
+* Added new APIs to edit, inject, and reload XNB assets loaded by the game at any time.  
+  <small>_This let mods do anything previously only possible with XNB mods, plus enables new mod scenarios (e.g. seasonal textures, NPC clothing that depend on the weather or location, etc)._</small>
+* Added new input events.  
+  <small>_The new `InputEvents` combine keyboard + mouse + controller input into one event for easy handling, add metadata like the cursor position and grab tile to support click handling, and add an option to suppress input from the game to enable new scenarios like action highjacking and UI overlays._</small>
+* Added support for optional dependencies.
+* Added support for string versions (like `"1.0-alpha"`) in `manifest.json`.
+* Added `IEquatable<ISemanticVersion>` to `ISemanticVersion`.
+* Added day of week to `SDate` instances.
+* Removed the TrainerMod's `save` and `load` commands.
 * Removed all deprecated code.
+* Removed support for mods with no `Name`, `Version`, or `UniqueID` in their manifest.
+* Removed support for mods with a non-unique `UniqueID` value in their manifest.
+* Removed access to SMAPI internals through the reflection helper, to discourage fragile mods.
+* Fixed `TimeEvents.AfterDayStarted` being raised during the new-game intro.
+
+For power users:
+* Added command-line arguments to the SMAPI installer so it can be scripted.
+
+## 1.15.2
+For players:
+* Improved errors when a mod DLL can't be loaded.
+* Improved errors when using very old versions of Stardew Valley.
+* Updated compatibility list.
+
+For mod developers:
+* Added `Context.CanPlayerMove` property for mod convenience.
+* Added content helper properties for the game's current language.
+* Fixed `Context.IsPlayerFree` being false if the player is performing an action.
+* Fixed `GraphicsEvents.Resize` being raised before the game updates its window data.
+* Fixed `SemanticVersion` not being deserialisable through Json.NET.
+* Fixed terminal not launching on Xfce Linux.
+
+For SMAPI developers:
+* Internal changes to support the upcoming SMAPI 2.0 release.
 
 ## 1.15.1
 For players:

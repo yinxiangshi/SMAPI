@@ -1,5 +1,6 @@
-using System;
+﻿using System;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 
 namespace StardewModdingAPI
 {
@@ -17,7 +18,7 @@ namespace StardewModdingAPI
         /// - allows hyphens in prerelease tags as synonyms for dots (like "-unofficial-update.3");
         /// - doesn't allow '+build' suffixes.
         /// </remarks>
-        private static readonly Regex Regex = new Regex(@"^(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)(\.(?<patch>0|[1-9]\d*))?(?:-(?<prerelease>([a-z0-9]+[\-\.]?)+))?$", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+        private static readonly Regex Regex = new Regex(@"^(?>(?<major>0|[1-9]\d*))\.(?>(?<minor>0|[1-9]\d*))(?>(?:\.(?<patch>0|[1-9]\d*))?)(?:-(?<prerelease>(?>[a-z0-9]+[\-\.]?)+))?$", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
 
         /*********
@@ -40,15 +41,16 @@ namespace StardewModdingAPI
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="major">The major version incremented for major API changes.</param>
-        /// <param name="minor">The minor version incremented for backwards-compatible changes.</param>
-        /// <param name="patch">The patch version for backwards-compatible bug fixes.</param>
+        /// <param name="majorVersion">The major version incremented for major API changes.</param>
+        /// <param name="minorVersion">The minor version incremented for backwards-compatible changes.</param>
+        /// <param name="patchVersion">The patch version for backwards-compatible bug fixes.</param>
         /// <param name="build">An optional build tag.</param>
-        public SemanticVersion(int major, int minor, int patch, string build = null)
+        [JsonConstructor]
+        public SemanticVersion(int majorVersion, int minorVersion, int patchVersion, string build = null)
         {
-            this.MajorVersion = major;
-            this.MinorVersion = minor;
-            this.PatchVersion = patch;
+            this.MajorVersion = majorVersion;
+            this.MinorVersion = minorVersion;
+            this.PatchVersion = patchVersion;
             this.Build = this.GetNormalisedTag(build);
         }
 
@@ -117,8 +119,7 @@ namespace StardewModdingAPI
                 {
                     // compare numerically if possible
                     {
-                        int curNum, otherNum;
-                        if (int.TryParse(curParts[i], out curNum) && int.TryParse(otherParts[i], out otherNum))
+                        if (int.TryParse(curParts[i], out int curNum) && int.TryParse(otherParts[i], out int otherNum))
                             return curNum.CompareTo(otherNum);
                     }
 
@@ -177,6 +178,16 @@ namespace StardewModdingAPI
         {
             return this.IsBetween(new SemanticVersion(min), new SemanticVersion(max));
         }
+
+#if !SMAPI_1_x
+        /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
+        /// <returns>true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.</returns>
+        /// <param name="other">An object to compare with this object.</param>
+        public bool Equals(ISemanticVersion other)
+        {
+            return other != null && this.CompareTo(other) == 0;
+        }
+#endif
 
         /// <summary>Get a string representation of the version.</summary>
         public override string ToString()

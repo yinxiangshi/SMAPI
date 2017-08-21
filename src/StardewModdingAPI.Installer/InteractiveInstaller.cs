@@ -135,6 +135,33 @@ namespace StardewModdingApi.Installer
         /// </remarks>
         public void Run(string[] args)
         {
+#if SMAPI_1_x
+            bool installArg = false;
+            bool uninstallArg = false;
+            string gamePathArg = null;
+#else
+            /****
+            ** read command-line arguments
+            ****/
+            // get action from CLI
+            bool installArg = args.Contains("--install");
+            bool uninstallArg = args.Contains("--uninstall");
+            if (installArg && uninstallArg)
+            {
+                this.PrintError("You can't specify both --install and --uninstall command-line flags.");
+                Console.ReadLine();
+                return;
+            }
+
+            // get game path from CLI
+            string gamePathArg = null;
+            {
+                int pathIndex = Array.LastIndexOf(args, "--game-path") + 1;
+                if (pathIndex >= 1 && args.Length >= pathIndex)
+                    gamePathArg = args[pathIndex];
+            }
+#endif
+
             /****
             ** collect details
             ****/
@@ -142,9 +169,17 @@ namespace StardewModdingApi.Installer
             Platform platform = this.DetectPlatform();
             this.PrintDebug($"Platform: {(platform == Platform.Windows ? "Windows" : "Linux or Mac")}.");
 
+            // get game path
+            DirectoryInfo installDir = this.InteractivelyGetInstallPath(platform, gamePathArg);
+            if (installDir == null)
+            {
+                this.PrintError("Failed finding your game path.");
+                Console.ReadLine();
+                return;
+            }
+
             // get folders
             DirectoryInfo packageDir = new DirectoryInfo(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "internal", platform.ToString()));
-            DirectoryInfo installDir = this.InteractivelyGetInstallPath(platform);
             DirectoryInfo modsDir = new DirectoryInfo(Path.Combine(installDir.FullName, "Mods"));
             var paths = new
             {
@@ -203,13 +238,19 @@ namespace StardewModdingApi.Installer
             /****
             ** ask user what to do
             ****/
-            Console.WriteLine("You can....");
-            Console.WriteLine("[1] Install SMAPI.");
-            Console.WriteLine("[2] Uninstall SMAPI.");
-            Console.WriteLine();
-
             ScriptAction action;
+
+            if (installArg)
+                action = ScriptAction.Install;
+            else if (uninstallArg)
+                action = ScriptAction.Uninstall;
+            else
             {
+                Console.WriteLine("You can....");
+                Console.WriteLine("[1] Install SMAPI.");
+                Console.WriteLine("[2] Uninstall SMAPI.");
+                Console.WriteLine();
+
                 string choice = this.InteractivelyChoose("What do you want to do? Type 1 or 2, then press enter.", "1", "2");
                 switch (choice)
                 {
@@ -222,8 +263,8 @@ namespace StardewModdingApi.Installer
                     default:
                         throw new InvalidOperationException($"Unexpected action key '{choice}'.");
                 }
+                Console.WriteLine();
             }
-            Console.WriteLine();
 
             /****
             ** Always uninstall old files
@@ -513,12 +554,30 @@ namespace StardewModdingApi.Installer
 
         /// <summary>Interactively locate the game install path to update.</summary>
         /// <param name="platform">The current platform.</param>
-        private DirectoryInfo InteractivelyGetInstallPath(Platform platform)
+        /// <param name="specifiedPath">The path specified as a command-line argument (if any), which should override automatic path detection.</param>
+        private DirectoryInfo InteractivelyGetInstallPath(Platform platform, string specifiedPath)
         {
             // get executable name
             string executableFilename = platform == Platform.Windows
                 ? "Stardew Valley.exe"
                 : "StardewValley.exe";
+
+            // validate specified path
+            if (specifiedPath != null)
+            {
+                var dir = new DirectoryInfo(specifiedPath);
+                if (!dir.Exists)
+                {
+                    this.PrintError($"You specified --game-path \"{specifiedPath}\", but that folder doesn't exist.");
+                    return null;
+                }
+                if (!dir.EnumerateFiles(executableFilename).Any())
+                {
+                    this.PrintError($"You specified --game-path \"{specifiedPath}\", but that folder doesn't contain the Stardew Valley executable.");
+                    return null;
+                }
+                return dir;
+            }
 
             // get installed paths
             DirectoryInfo[] defaultPaths =

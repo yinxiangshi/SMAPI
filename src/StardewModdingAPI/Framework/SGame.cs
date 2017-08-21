@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,6 +11,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.Reflection;
+using StardewModdingAPI.Framework.Utilities;
 using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
@@ -19,7 +20,9 @@ using StardewValley.Menus;
 using StardewValley.Tools;
 using xTile.Dimensions;
 using xTile.Layers;
+#if SMAPI_1_x
 using SFarmer = StardewValley.Farmer;
+#endif
 
 namespace StardewModdingAPI.Framework
 {
@@ -54,10 +57,6 @@ namespace StardewModdingAPI.Framework
         /// <summary>Whether the game is saving and SMAPI has already raised <see cref="SaveEvents.BeforeSave"/>.</summary>
         private bool IsBetweenSaveEvents;
 
-        /// <summary>Whether the game's zoom level is at 100% (i.e. nothing should be scaled).</summary>
-        public bool ZoomLevelIsOne => Game1.options.zoomLevel.Equals(1.0f);
-
-
         /****
         ** Game state
         ****/
@@ -76,7 +75,10 @@ namespace StardewModdingAPI.Framework
         /// <summary>The previous mouse position on the screen adjusted for the zoom level.</summary>
         private Point PreviousMousePosition;
 
-        /// <summary>The previous save ID at last check.</summary>
+        /// <summary>The window size value at last check.</summary>
+        private Point PreviousWindowSize;
+
+        /// <summary>The save ID at last check.</summary>
         private ulong PreviousSaveID;
 
         /// <summary>A hash of <see cref="Game1.locations"/> at last check.</summary>
@@ -318,6 +320,11 @@ namespace StardewModdingAPI.Framework
                 *********/
                 if (Context.IsSaveLoaded && !SaveGame.IsProcessing /*still loading save*/ && this.AfterLoadTimer >= 0)
                 {
+#if !SMAPI_1_x
+                    if (Game1.dayOfMonth != 0) // wait until new-game intro finishes (world not fully initialised yet)
+#endif
+                    this.AfterLoadTimer--;
+
                     if (this.AfterLoadTimer == 0)
                     {
                         this.Monitor.Log($"Context: loaded saved game '{Constants.SaveFolderName}', starting {Game1.currentSeason} {Game1.dayOfMonth} Y{Game1.year}.", LogLevel.Trace);
@@ -329,7 +336,6 @@ namespace StardewModdingAPI.Framework
 #endif
                         TimeEvents.InvokeAfterDayStarted(this.Monitor);
                     }
-                    this.AfterLoadTimer--;
                 }
 
                 /*********
@@ -347,6 +353,20 @@ namespace StardewModdingAPI.Framework
                     this.IsExitingToTitle = false;
                     this.CleanupAfterReturnToTitle();
                     SaveEvents.InvokeAfterReturnToTitle(this.Monitor);
+                }
+
+                /*********
+                ** Window events
+                *********/
+                // Here we depend on the game's viewport instead of listening to the Window.Resize
+                // event because we need to notify mods after the game handles the resize, so the
+                // game's metadata (like Game1.viewport) are updated. That's a bit complicated
+                // since the game adds & removes its own handler on the fly.
+                if (Game1.viewport.Width != this.PreviousWindowSize.X || Game1.viewport.Height != this.PreviousWindowSize.Y)
+                {
+                    Point size = new Point(Game1.viewport.Width, Game1.viewport.Height);
+                    GraphicsEvents.InvokeResize(this.Monitor);
+                    this.PreviousWindowSize = size;
                 }
 
                 /*********
