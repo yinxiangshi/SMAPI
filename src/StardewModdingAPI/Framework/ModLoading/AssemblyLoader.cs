@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,6 +6,7 @@ using System.Reflection;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using StardewModdingAPI.AssemblyRewriters;
+using StardewModdingAPI.Framework.Exceptions;
 
 namespace StardewModdingAPI.Framework.ModLoading
 {
@@ -65,16 +66,27 @@ namespace StardewModdingAPI.Framework.ModLoading
                 AssemblyDefinitionResolver resolver = new AssemblyDefinitionResolver();
                 HashSet<string> visitedAssemblyNames = new HashSet<string>(AppDomain.CurrentDomain.GetAssemblies().Select(p => p.GetName().Name)); // don't try loading assemblies that are already loaded
                 assemblies = this.GetReferencedLocalAssemblies(new FileInfo(assemblyPath), visitedAssemblyNames, resolver).ToArray();
-                if (!assemblies.Any())
-                    throw new InvalidOperationException($"Could not load '{assemblyPath}' because it doesn't exist.");
-                resolver.Add(assemblies.Select(p => p.Definition).ToArray());
             }
+
+            // validate load
+            if (!assemblies.Any() || assemblies[0].Status == AssemblyLoadStatus.Failed)
+            {
+                throw new SAssemblyLoadFailedException(!File.Exists(assemblyPath)
+                    ? $"Could not load '{assemblyPath}' because it doesn't exist."
+                    : $"Could not load '{assemblyPath}'."
+                );
+            }
+            if (assemblies[0].Status == AssemblyLoadStatus.AlreadyLoaded)
+                throw new SAssemblyLoadFailedException($"Could not load '{assemblyPath}' because it was already loaded. Do you have two copies of this mod?");
 
             // rewrite & load assemblies in leaf-to-root order
             bool oneAssembly = assemblies.Length == 1;
             Assembly lastAssembly = null;
             foreach (AssemblyParseResult assembly in assemblies)
             {
+                if (assembly.Status == AssemblyLoadStatus.AlreadyLoaded)
+                    continue;
+
                 bool changed = this.RewriteAssembly(assembly.Definition, assumeCompatible, logPrefix: "   ");
                 if (changed)
                 {
@@ -143,7 +155,7 @@ namespace StardewModdingAPI.Framework.ModLoading
 
             // skip if already visited
             if (visitedAssemblyNames.Contains(assembly.Name.Name))
-                yield break;
+                yield return new AssemblyParseResult(file, null, AssemblyLoadStatus.AlreadyLoaded);
             visitedAssemblyNames.Add(assembly.Name.Name);
 
             // yield referenced assemblies
@@ -155,7 +167,7 @@ namespace StardewModdingAPI.Framework.ModLoading
             }
 
             // yield assembly
-            yield return new AssemblyParseResult(file, assembly);
+            yield return new AssemblyParseResult(file, assembly, AssemblyLoadStatus.Okay);
         }
 
         /****

@@ -15,6 +15,9 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>The assembly definition.</summary>
         public readonly AssemblyDefinition Definition;
 
+        /// <summary>The result of the assembly load.</summary>
+        public AssemblyLoadStatus Status;
+
 
         /*********
         ** Public methods
@@ -22,10 +25,12 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>Construct an instance.</summary>
         /// <param name="file">The original assembly file.</param>
         /// <param name="assembly">The assembly definition.</param>
-        public AssemblyParseResult(FileInfo file, AssemblyDefinition assembly)
+        /// <param name="status">The result of the assembly load.</param>
+        public AssemblyParseResult(FileInfo file, AssemblyDefinition assembly, AssemblyLoadStatus status)
         {
             this.File = file;
             this.Definition = assembly;
+            this.Status = status;
         }
     }
 }

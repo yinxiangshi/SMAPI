@@ -15,6 +15,7 @@ using Newtonsoft.Json;
 using StardewModdingAPI.AssemblyRewriters;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework;
+using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.Logging;
 using StardewModdingAPI.Framework.Models;
 using StardewModdingAPI.Framework.ModHelpers;
@@ -653,6 +654,11 @@ namespace StardewModdingAPI
 #else
                         TrackSkip(metadata, $"it's no longer compatible (detected {ex.NounPhrase}). Please check for a newer version of the mod.");
 #endif
+                        continue;
+                    }
+                    catch (SAssemblyLoadFailedException ex)
+                    {
+                        TrackSkip(metadata, $"its DLL '{manifest.EntryDll}' couldn't be loaded: {ex.Message}");
                         continue;
                     }
                     catch (Exception ex)
