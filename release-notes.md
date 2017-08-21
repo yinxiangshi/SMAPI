@@ -6,7 +6,6 @@ For players:
 * The SMAPI console is now much simpler and easier to read.
 * The SMAPI console now adjusts its colors when you have a light terminal background.
 * Updated compatibility list.
-* Improved errors when a mod DLL can't be loaded.
 
 For mod developers:
 * Added new APIs to edit, inject, and reload XNB assets loaded by the game at any time.  
@@ -29,7 +28,8 @@ For power users:
 
 ## 1.15.2
 For players:
-* Improved error when using very old versions of Stardew Valley.
+* Improved errors when a mod DLL can't be loaded.
+* Improved errors when using very old versions of Stardew Valley.
 * Updated compatibility list.
 
 For mod developers:
