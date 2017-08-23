@@ -76,7 +76,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                     : $"Could not load '{assemblyPath}'."
                 );
             }
-            if (assemblies[0].Status == AssemblyLoadStatus.AlreadyLoaded)
+            if (assemblies.Last().Status == AssemblyLoadStatus.AlreadyLoaded) // mod assembly is last in dependency order
                 throw new SAssemblyLoadFailedException($"Could not load '{assemblyPath}' because it was already loaded. Do you have two copies of this mod?");
 
             // rewrite & load assemblies in leaf-to-root order
