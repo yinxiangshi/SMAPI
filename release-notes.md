@@ -26,6 +26,10 @@ For mod developers:
 For power users:
 * Added command-line arguments to the SMAPI installer so it can be scripted.
 
+## 1.15.3
+For players:
+* Fixed mods being marked as duplicate incorrectly in some cases.
+
 ## 1.15.2
 For players:
 * Improved errors when a mod DLL can't be loaded.
