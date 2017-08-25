@@ -203,6 +203,7 @@ namespace StardewModdingAPI.Framework
             this.SContentManager = new SContentManager(this.Content.ServiceProvider, this.Content.RootDirectory, Thread.CurrentThread.CurrentUICulture, null, this.Monitor);
             this.Content = this.SContentManager;
             Game1.content = this.SContentManager;
+            reflection.GetPrivateField<LocalizedContentManager>(typeof(Game1), "_temporaryContent").SetValue(null); // regenerate value with new content manager
         }
 
         /****
