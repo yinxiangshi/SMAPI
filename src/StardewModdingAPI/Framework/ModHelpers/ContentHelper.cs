@@ -216,47 +216,99 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <exception cref="ContentLoadException">The map tilesheets could not be loaded.</exception>
         private void FixLocalMapTilesheets(Map map, string mapKey)
         {
+            // check map info
             if (!map.TileSheets.Any())
                 return;
-
             string relativeMapFolder = Path.GetDirectoryName(mapKey) ?? ""; // folder path containing the map, relative to the mod folder
+
+            // fix tilesheets
             foreach (TileSheet tilesheet in map.TileSheets)
             {
-                // check for tilesheet relative to map
+                string imageSource = tilesheet.ImageSource;
+
+                // get seasonal name (if applicable)
+                string seasonalImageSource = null;
+                if(Game1.currentSeason != null && Game1.currentSeason != "spring")
                 {
-                    string localKey = Path.Combine(relativeMapFolder, tilesheet.ImageSource);
-                    FileInfo localFile = this.GetModFile(localKey);
-                    if (localFile.Exists)
+                    string filename = Path.GetFileName(imageSource);
+                    string dirPath = imageSource.Substring(0, imageSource.LastIndexOf(filename));
+                    if (filename.StartsWith("spring_"))
+                        seasonalImageSource = dirPath + Game1.currentSeason + "_" + filename.Substring("spring_".Length);
+                }
+
+                // load best match
+                try
+                {
+                    string key =
+                        this.TryLoadTilesheetImageSource(relativeMapFolder, seasonalImageSource)
+                        ?? this.TryLoadTilesheetImageSource(relativeMapFolder, imageSource);
+                    if (key != null)
                     {
-                        try
-                        {
-                            this.Load<Texture2D>(localKey);
-                        }
-                        catch (Exception ex)
-                        {
-                            throw new ContentLoadException($"The local '{tilesheet.ImageSource}' tilesheet couldn't be loaded.", ex);
-                        }
-                        tilesheet.ImageSource = this.GetActualAssetKey(localKey);
+                        tilesheet.ImageSource = key;
                         continue;
                     }
                 }
-
-                // fallback to game content
+                catch (Exception ex)
                 {
-                    string contentKey = tilesheet.ImageSource;
-                    if (contentKey.EndsWith(".png"))
-                        contentKey = contentKey.Substring(0, contentKey.Length - 4);
+                    throw new ContentLoadException($"The '{imageSource}' tilesheet couldn't be loaded relative to either map file or the game's content folder.", ex);
+                }
+
+                // none found
+                throw new ContentLoadException($"The '{imageSource}' tilesheet couldn't be loaded relative to either map file or the game's content folder.");
+            }
+        }
+
+        /// <summary>Load a tilesheet image source if the file exists.</summary>
+        /// <param name="relativeMapFolder">The folder path containing the map, relative to the mod folder.</param>
+        /// <param name="imageSource">The tilesheet image source to load.</param>
+        /// <returns>Returns the loaded asset key (if it was loaded successfully).</returns>
+        private string TryLoadTilesheetImageSource(string relativeMapFolder, string imageSource)
+        {
+            if (imageSource == null)
+                return null;
+
+            // check for tilesheet relative to map
+            {
+                string localKey = Path.Combine(relativeMapFolder, imageSource);
+                FileInfo localFile = this.GetModFile(localKey);
+                if (localFile.Exists)
+                {
+                    try
+                    {
+                        this.Load<Texture2D>(localKey);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new ContentLoadException($"The local '{imageSource}' tilesheet couldn't be loaded.", ex);
+                    }
+
+                    return this.GetActualAssetKey(localKey);
+                }
+            }
+
+            // fallback to game content
+            {
+                string contentKey = imageSource.EndsWith(".png")
+                    ? imageSource.Substring(0, imageSource.Length - 4)
+                    : imageSource;
+
+                FileInfo file = new FileInfo(Path.Combine(this.ContentManager.FullRootDirectory, contentKey + ".xnb"));
+                if (file.Exists)
+                {
                     try
                     {
                         this.ContentManager.Load<Texture2D>(contentKey);
                     }
                     catch (Exception ex)
                     {
-                        throw new ContentLoadException($"The '{tilesheet.ImageSource}' tilesheet couldn't be loaded relative to either map file or the game's content folder.", ex);
+                        throw new ContentLoadException($"The '{imageSource}' tilesheet couldn't be loaded relative to either map file or the game's content folder.", ex);
                     }
-                    tilesheet.ImageSource = contentKey;
+                    return contentKey;
                 }
             }
+
+            // not found
+            return null;
         }
 
         /// <summary>Assert that the given key has a valid format.</summary>

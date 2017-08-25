@@ -26,6 +26,10 @@ For mod developers:
 For power users:
 * Added command-line arguments to the SMAPI installer so it can be scripted.
 
+## 1.15.4
+For players:
+* Internal fixes to support Entoarox Framework and the upcoming SMAPI 2.0 release.
+
 ## 1.15.3
 For players:
 * Fixed mods being marked as duplicate incorrectly in some cases.
