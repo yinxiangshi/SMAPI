@@ -246,7 +246,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="predicate">Matches the asset keys to invalidate.</param>
         /// <param name="dispose">Whether to dispose invalidated assets. This should only be <c>true</c> when they're being invalidated as part of a dispose, to avoid crashing the game.</param>
         /// <returns>Returns whether any cache entries were invalidated.</returns>
-        public bool InvalidateCache(Func<string, Type, bool> predicate, bool dispose = true)
+        public bool InvalidateCache(Func<string, Type, bool> predicate, bool dispose = false)
         {
             // find matching asset keys
             HashSet<string> purgeCacheKeys = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
@@ -294,12 +294,10 @@ namespace StardewModdingAPI.Framework
         internal void DisposeFor(ContentManagerShim shim)
         {
             this.Monitor.Log($"Content manager '{shim.Name}' disposed, disposing assets that aren't needed by any other asset loader.", LogLevel.Trace);
-            HashSet<string> keys = new HashSet<string>(
-                from entry in this.AssetLoaders
-                where entry.Value.Count == 1 && entry.Value.First() == shim
-                select entry.Key
-            );
-            this.InvalidateCache((key, type) => keys.Contains(key));
+
+            foreach (var entry in this.AssetLoaders)
+                entry.Value.Remove(shim);
+            this.InvalidateCache((key, type) => !this.AssetLoaders[key].Any(), dispose: true);
         }
 
 
