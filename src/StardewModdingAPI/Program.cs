@@ -53,7 +53,7 @@ namespace StardewModdingAPI
         private SGame GameInstance;
 
         /// <summary>The underlying content manager.</summary>
-        private SContentManager ContentManager => (SContentManager)this.GameInstance.Content;
+        private SContentManager ContentManager => this.GameInstance.SContentManager;
 
         /// <summary>The SMAPI configuration settings.</summary>
         /// <remarks>This is initialised after the game starts.</remarks>

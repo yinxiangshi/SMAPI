@@ -38,9 +38,6 @@ namespace StardewModdingAPI.Framework
         /// <summary>Encapsulates monitoring and logging.</summary>
         private readonly IMonitor Monitor;
 
-        /// <summary>SMAPI's content manager.</summary>
-        private readonly SContentManager SContentManager;
-
         /// <summary>The maximum number of consecutive attempts SMAPI should make to recover from a draw error.</summary>
         private readonly Countdown DrawCrashTimer = new Countdown(60); // 60 ticks = roughly one second
 
@@ -177,6 +174,9 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Accessors
         *********/
+        /// <summary>SMAPI's content manager.</summary>
+        public SContentManager SContentManager { get; }
+
         /// <summary>Whether SMAPI should log more information about the game context.</summary>
         public bool VerboseLogging { get; set; }
 
@@ -201,9 +201,9 @@ namespace StardewModdingAPI.Framework
             // override content manager
             this.Monitor?.Log("Overriding content manager...", LogLevel.Trace);
             this.SContentManager = new SContentManager(this.Content.ServiceProvider, this.Content.RootDirectory, Thread.CurrentThread.CurrentUICulture, null, this.Monitor);
-            this.Content = this.SContentManager;
-            Game1.content = this.SContentManager;
-            reflection.GetPrivateField<LocalizedContentManager>(typeof(Game1), "_temporaryContent").SetValue(null); // regenerate value with new content manager
+            this.Content = new ContentManagerShim(this.SContentManager, "SGame.Content");
+            Game1.content = new ContentManagerShim(this.SContentManager, "Game1.content");
+            reflection.GetPrivateField<LocalizedContentManager>(typeof(Game1), "_temporaryContent").SetValue(new ContentManagerShim(this.SContentManager, "Game1._temporaryContent")); // regenerate value with new content manager
         }
 
         /****
@@ -226,7 +226,7 @@ namespace StardewModdingAPI.Framework
                 throw new InvalidOperationException("SMAPI uses a single content manager internally. You can't get a new content manager with a different service provider.");
             if (rootDirectory != this.Content.RootDirectory)
                 throw new InvalidOperationException($"SMAPI uses a single content manager internally. You can't get a new content manager with a different root directory (current is {this.Content.RootDirectory}, requested {rootDirectory}).");
-            return this.SContentManager;
+            return new ContentManagerShim(this.SContentManager, "(generated instance)");
         }
 
         /// <summary>The method called when the game is updating its state. This happens roughly 60 times per second.</summary>
