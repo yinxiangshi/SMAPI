@@ -228,7 +228,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
 
                 // get seasonal name (if applicable)
                 string seasonalImageSource = null;
-                if(Game1.currentSeason != null && Game1.currentSeason != "spring")
+                if (Game1.currentSeason != null && Game1.currentSeason != "spring")
                 {
                     string filename = Path.GetFileName(imageSource);
                     string dirPath = imageSource.Substring(0, imageSource.LastIndexOf(filename));
@@ -292,18 +292,22 @@ namespace StardewModdingAPI.Framework.ModHelpers
                     ? imageSource.Substring(0, imageSource.Length - 4)
                     : imageSource;
 
-                FileInfo file = new FileInfo(Path.Combine(this.ContentManager.FullRootDirectory, contentKey + ".xnb"));
-                if (file.Exists)
+                try
                 {
-                    try
-                    {
-                        this.ContentManager.Load<Texture2D>(contentKey);
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new ContentLoadException($"The '{imageSource}' tilesheet couldn't be loaded relative to either map file or the game's content folder.", ex);
-                    }
+                    this.Load<Texture2D>(contentKey, ContentSource.GameContent);
                     return contentKey;
+                }
+                catch
+                {
+                    // ignore file-not-found errors
+                    // TODO: while it's useful to suppress a asset-not-found error here to avoid
+                    // confusion, this is a pretty naive approach. Even if the file doesn't exist,
+                    // the file may have been loaded through an IAssetLoader which failed. So even
+                    // if the content file doesn't exist, that doesn't mean the error here is a
+                    // content-not-found error. Unfortunately XNA doesn't provide a good way to
+                    // detect the error type.
+                    if (this.GetContentFolderFile(contentKey).Exists)
+                        throw;
                 }
             }
 
@@ -340,6 +344,19 @@ namespace StardewModdingAPI.Framework.ModHelpers
             }
 
             return file;
+        }
+
+        /// <summary>Get a file from the game's content folder.</summary>
+        /// <param name="key">The asset key.</param>
+        private FileInfo GetContentFolderFile(string key)
+        {
+            // get file path
+            string path = Path.Combine(this.ContentManager.FullRootDirectory, key);
+            if (!path.EndsWith(".xnb"))
+                path += ".xnb";
+
+            // get file
+            return new FileInfo(path);
         }
 
         /// <summary>Get the asset path which loads a mod folder through a content manager.</summary>
