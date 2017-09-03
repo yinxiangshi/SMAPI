@@ -91,7 +91,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 if (changed)
                 {
                     if (!oneAssembly)
-                        this.Monitor.Log($"   Loading {assembly.File.Name}.dll (rewritten in memory)...", LogLevel.Trace);
+                        this.Monitor.Log($"   Loading {assembly.File.Name} (rewritten in memory)...", LogLevel.Trace);
                     using (MemoryStream outStream = new MemoryStream())
                     {
                         assembly.Definition.Write(outStream);
@@ -102,7 +102,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 else
                 {
                     if (!oneAssembly)
-                        this.Monitor.Log($"   Loading {assembly.File.Name}.dll...", LogLevel.Trace);
+                        this.Monitor.Log($"   Loading {assembly.File.Name}...", LogLevel.Trace);
                     lastAssembly = Assembly.UnsafeLoadFrom(assembly.File.FullName);
                 }
             }
