@@ -214,6 +214,18 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="map">The map whose tilesheets to fix.</param>
         /// <param name="mapKey">The map asset key within the mod folder.</param>
         /// <exception cref="ContentLoadException">The map tilesheets could not be loaded.</exception>
+        /// <remarks>
+        /// The game's logic for tilesheets in <see cref="Game1.setGraphicsForSeason"/> is a bit specialised. It boils down to this:
+        ///  * If the location is indoors or the desert, or the image source contains 'path' or 'object', it's loaded as-is relative to the <c>Content</c> folder.
+        ///  * Else it's loaded from <c>Content\Maps</c> with a seasonal prefix.
+        /// 
+        /// That logic doesn't work well in our case, mainly because we have no location metadata at this point.
+        /// Instead we use a more heuristic approach: check relative to the map file first, then relative to
+        /// <c>Content\Maps</c>, then <c>Content</c>. If the image source filename contains a seasonal prefix, we try
+        /// for a seasonal variation and then an exact match.
+        /// 
+        /// While that doesn't exactly match the game logic, it's close enough that it's unlikely to make a difference.
+        /// </remarks>
         private void FixLocalMapTilesheets(Map map, string mapKey)
         {
             // check map info
@@ -262,12 +274,13 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="relativeMapFolder">The folder path containing the map, relative to the mod folder.</param>
         /// <param name="imageSource">The tilesheet image source to load.</param>
         /// <returns>Returns the loaded asset key (if it was loaded successfully).</returns>
+        /// <remarks>See remarks on <see cref="FixLocalMapTilesheets"/>.</remarks>
         private string TryLoadTilesheetImageSource(string relativeMapFolder, string imageSource)
         {
             if (imageSource == null)
                 return null;
 
-            // check for tilesheet relative to map
+            // check relative to map file
             {
                 string localKey = Path.Combine(relativeMapFolder, imageSource);
                 FileInfo localFile = this.GetModFile(localKey);
@@ -286,28 +299,31 @@ namespace StardewModdingAPI.Framework.ModHelpers
                 }
             }
 
-            // fallback to game content
+            // check relative to content folder
             {
-                string contentKey = imageSource.EndsWith(".png")
-                    ? imageSource.Substring(0, imageSource.Length - 4)
-                    : imageSource;
+                foreach (string candidateKey in new[] { imageSource, $@"Maps\{imageSource}" })
+                {
+                    string contentKey = candidateKey.EndsWith(".png")
+                        ? candidateKey.Substring(0, imageSource.Length - 4)
+                        : candidateKey;
 
-                try
-                {
-                    this.Load<Texture2D>(contentKey, ContentSource.GameContent);
-                    return contentKey;
-                }
-                catch
-                {
-                    // ignore file-not-found errors
-                    // TODO: while it's useful to suppress a asset-not-found error here to avoid
-                    // confusion, this is a pretty naive approach. Even if the file doesn't exist,
-                    // the file may have been loaded through an IAssetLoader which failed. So even
-                    // if the content file doesn't exist, that doesn't mean the error here is a
-                    // content-not-found error. Unfortunately XNA doesn't provide a good way to
-                    // detect the error type.
-                    if (this.GetContentFolderFile(contentKey).Exists)
-                        throw;
+                    try
+                    {
+                        this.Load<Texture2D>(contentKey, ContentSource.GameContent);
+                        return contentKey;
+                    }
+                    catch
+                    {
+                        // ignore file-not-found errors
+                        // TODO: while it's useful to suppress a asset-not-found error here to avoid
+                        // confusion, this is a pretty naive approach. Even if the file doesn't exist,
+                        // the file may have been loaded through an IAssetLoader which failed. So even
+                        // if the content file doesn't exist, that doesn't mean the error here is a
+                        // content-not-found error. Unfortunately XNA doesn't provide a good way to
+                        // detect the error type.
+                        if (this.GetContentFolderFile(contentKey).Exists)
+                            throw;
+                    }
                 }
             }
 
