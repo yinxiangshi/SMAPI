@@ -240,12 +240,19 @@ namespace StardewModdingAPI.Framework.ModHelpers
 
                 // get seasonal name (if applicable)
                 string seasonalImageSource = null;
-                if (Game1.currentSeason != null && Game1.currentSeason != "spring")
+                if (Game1.currentSeason != null)
                 {
                     string filename = Path.GetFileName(imageSource);
-                    string dirPath = imageSource.Substring(0, imageSource.LastIndexOf(filename));
-                    if (filename.StartsWith("spring_"))
-                        seasonalImageSource = dirPath + Game1.currentSeason + "_" + filename.Substring("spring_".Length);
+                    bool hasSeasonalPrefix =
+                        filename.StartsWith("spring_", StringComparison.CurrentCultureIgnoreCase)
+                        || filename.StartsWith("summer_", StringComparison.CurrentCultureIgnoreCase)
+                        || filename.StartsWith("fall_", StringComparison.CurrentCultureIgnoreCase)
+                        || filename.StartsWith("winter_", StringComparison.CurrentCultureIgnoreCase);
+                    if (hasSeasonalPrefix && !filename.StartsWith(Game1.currentSeason + "_"))
+                    {
+                        string dirPath = imageSource.Substring(0, imageSource.LastIndexOf(filename, StringComparison.CurrentCultureIgnoreCase));
+                        seasonalImageSource = $"{dirPath}{Game1.currentSeason}_{filename.Substring(filename.IndexOf("_", StringComparison.CurrentCultureIgnoreCase) + 1)}";
+                    }
                 }
 
                 // load best match
