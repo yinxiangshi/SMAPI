@@ -128,6 +128,7 @@ namespace StardewModdingAPI
                 // init logging
                 this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GameVersion} on {this.GetFriendlyPlatformName()}", LogLevel.Info);
                 this.Monitor.Log($"Mods go here: {Constants.ModPath}");
+                this.Monitor.Log($"Log started at {DateTime.UtcNow:s} UTC", LogLevel.Trace);
 #if SMAPI_1_x
                 this.Monitor.Log("Preparing SMAPI...");
 #endif

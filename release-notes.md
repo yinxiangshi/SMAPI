@@ -32,6 +32,7 @@ For players:
 
 For modders:
 * Fixed edge cases in `SDate.AddDays(…)` calculations.
+* Added UTC timestamp to logs.
 
 ## 1.15.3
 For players:
