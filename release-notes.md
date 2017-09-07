@@ -28,11 +28,14 @@ For power users:
 
 ## 1.15.4
 For players:
-* Internal fixes to support Entoarox Framework and the upcoming SMAPI 2.0 release.
+* Fixed issues with maps loaded through Entoarox Framework.
+
+For modders:
+* Fixed edge cases in `SDate.AddDays(…)` calculations.
 
 ## 1.15.3
 For players:
-* Fixed mods being marked as duplicate incorrectly in some cases.
+* Fixed mods being wrongly marked as duplicate in some cases.
 
 ## 1.15.2
 For players:
