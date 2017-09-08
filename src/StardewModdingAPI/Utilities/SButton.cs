@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using Microsoft.Xna.Framework.Input;
+using StardewValley;
 
 namespace StardewModdingAPI.Utilities
 {
@@ -653,6 +654,31 @@ namespace StardewModdingAPI.Utilities
             }
 
             button = 0;
+            return false;
+        }
+
+        /// <summary>Get the <see cref="InputButton"/> equivalent for the given button.</summary>
+        /// <param name="input">The button to convert.</param>
+        /// <param name="button">The Stardew Valley input button equivalent.</param>
+        /// <returns>Returns whether the value was converted successfully.</returns>
+        public static bool TryGetStardewInput(this SButton input, out InputButton button)
+        {
+            // keyboard
+            if (input.TryGetKeyboard(out Keys key))
+            {
+                button = new InputButton(key);
+                return true;
+            }
+
+            // mouse
+            if (input == SButton.MouseLeft || input == SButton.MouseRight)
+            {
+                button = new InputButton(mouseLeft: input == SButton.MouseLeft);
+                return true;
+            }
+
+            // not valid
+            button = default(InputButton);
             return false;
         }
     }

@@ -26,9 +26,20 @@ For mod developers:
 For power users:
 * Added command-line arguments to the SMAPI installer so it can be scripted.
 
+## 1.15.4
+For players:
+* Fixed errors when loading some custom maps on Linux/Mac or using XNB Loader.
+* Fixed errors in rare cases when a mod calculates an in-game date.
+
+For modders:
+* Added UTC timestamp to log file.
+
+For SMAPI developers:
+* Internal changes to support the upcoming SMAPI 2.0 release.
+
 ## 1.15.3
 For players:
-* Fixed mods being marked as duplicate incorrectly in some cases.
+* Fixed mods being wrongly marked as duplicate in some cases.
 
 ## 1.15.2
 For players:

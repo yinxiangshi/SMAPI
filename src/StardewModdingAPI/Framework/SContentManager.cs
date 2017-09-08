@@ -48,6 +48,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>The assets currently being intercepted by <see cref="IAssetLoader"/> instances. This is used to prevent infinite loops when a loader loads a new asset.</summary>
         private readonly ContextHash<string> AssetsBeingLoaded = new ContextHash<string>();
 
+        /// <summary>A lookup of the content managers which loaded each asset.</summary>
+        private readonly IDictionary<string, HashSet<ContentManager>> AssetLoaders = new Dictionary<string, HashSet<ContentManager>>();
+
 
         /*********
         ** Accessors
@@ -98,7 +101,6 @@ namespace StardewModdingAPI.Framework
             // get asset data
             this.CoreAssets = new CoreAssets(this.NormaliseAssetName);
             this.KeyLocales = this.GetKeyLocales(reflection);
-
         }
 
         /// <summary>Normalise path separators in a file path. For asset keys, see <see cref="NormaliseAssetName"/> instead.</summary>
@@ -135,11 +137,23 @@ namespace StardewModdingAPI.Framework
         /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
         public override T Load<T>(string assetName)
         {
+            return this.LoadFor<T>(assetName, this);
+        }
+
+        /// <summary>Load an asset that has been processed by the content pipeline.</summary>
+        /// <typeparam name="T">The type of asset to load.</typeparam>
+        /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
+        /// <param name="instance">The content manager instance for which to load the asset.</param>
+        public T LoadFor<T>(string assetName, ContentManager instance)
+        {
             assetName = this.NormaliseAssetName(assetName);
 
             // skip if already loaded
             if (this.IsNormalisedKeyLoaded(assetName))
+            {
+                this.TrackAssetLoader(assetName, instance);
                 return base.Load<T>(assetName);
+            }
 
             // load asset
             T data;
@@ -162,6 +176,7 @@ namespace StardewModdingAPI.Framework
 
             // update cache & return data
             this.Cache[assetName] = data;
+            this.TrackAssetLoader(assetName, instance);
             return data;
         }
 
@@ -172,8 +187,8 @@ namespace StardewModdingAPI.Framework
         public void Inject<T>(string assetName, T value)
         {
             assetName = this.NormaliseAssetName(assetName);
-
             this.Cache[assetName] = value;
+            this.TrackAssetLoader(assetName, this);
         }
 
         /// <summary>Get the current content locale.</summary>
@@ -229,8 +244,9 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Purge matched assets from the cache.</summary>
         /// <param name="predicate">Matches the asset keys to invalidate.</param>
+        /// <param name="dispose">Whether to dispose invalidated assets. This should only be <c>true</c> when they're being invalidated as part of a dispose, to avoid crashing the game.</param>
         /// <returns>Returns whether any cache entries were invalidated.</returns>
-        public bool InvalidateCache(Func<string, Type, bool> predicate)
+        public bool InvalidateCache(Func<string, Type, bool> predicate, bool dispose = false)
         {
             // find matching asset keys
             HashSet<string> purgeCacheKeys = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
@@ -246,9 +262,14 @@ namespace StardewModdingAPI.Framework
                 }
             }
 
-            // purge from cache
+            // purge assets
             foreach (string key in purgeCacheKeys)
+            {
+                if (dispose && this.Cache[key] is IDisposable disposable)
+                    disposable.Dispose();
                 this.Cache.Remove(key);
+                this.AssetLoaders.Remove(key);
+            }
 
             // reload core game assets
             int reloaded = 0;
@@ -268,6 +289,17 @@ namespace StardewModdingAPI.Framework
             return false;
         }
 
+        /// <summary>Dispose assets for the given content manager shim.</summary>
+        /// <param name="shim">The content manager whose assets to dispose.</param>
+        internal void DisposeFor(ContentManagerShim shim)
+        {
+            this.Monitor.Log($"Content manager '{shim.Name}' disposed, disposing assets that aren't needed by any other asset loader.", LogLevel.Trace);
+
+            foreach (var entry in this.AssetLoaders)
+                entry.Value.Remove(shim);
+            this.InvalidateCache((key, type) => !this.AssetLoaders[key].Any(), dispose: true);
+        }
+
 
         /*********
         ** Private methods
@@ -278,6 +310,16 @@ namespace StardewModdingAPI.Framework
         {
             return this.Cache.ContainsKey(normalisedAssetName)
                 || this.Cache.ContainsKey($"{normalisedAssetName}.{this.GetKeyLocale.Invoke<string>()}"); // translated asset
+        }
+
+        /// <summary>Track that a content manager loaded an asset.</summary>
+        /// <param name="key">The asset key that was loaded.</param>
+        /// <param name="manager">The content manager that loaded the asset.</param>
+        private void TrackAssetLoader(string key, ContentManager manager)
+        {
+            if (!this.AssetLoaders.TryGetValue(key, out HashSet<ContentManager> hash))
+                hash = this.AssetLoaders[key] = new HashSet<ContentManager>();
+            hash.Add(manager);
         }
 
         /// <summary>Get the locale codes (like <c>ja-JP</c>) used in asset keys.</summary>
@@ -463,23 +505,12 @@ namespace StardewModdingAPI.Framework
             }
         }
 
-        /// <summary>Dispose all game resources.</summary>
+        /// <summary>Dispose held resources.</summary>
         /// <param name="disposing">Whether the content manager is disposing (rather than finalising).</param>
         protected override void Dispose(bool disposing)
         {
-            if (!disposing)
-                return;
-
-            // Clear cache & reload all assets. While that may seem perverse during disposal, it's
-            // necessary due to limitations in the way SMAPI currently intercepts content assets.
-            // 
-            // The game uses multiple content managers while SMAPI needs one and only one. The game
-            // only disposes some of its content managers when returning to title, which means SMAPI
-            // can't know which assets are meant to be disposed. Here we remove current assets from
-            // the cache, but don't dispose them to avoid crashing any code that still references
-            // them. The garbage collector will eventually clean up any unused assets.
-            this.Monitor.Log("Content manager disposed, resetting cache.", LogLevel.Trace);
-            this.InvalidateCache((key, type) => true);
+            this.Monitor.Log("Disposing SMAPI's main content manager. It will no longer be usable after this point.", LogLevel.Trace);
+            base.Dispose(disposing);
         }
     }
 }

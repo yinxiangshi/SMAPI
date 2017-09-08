@@ -91,6 +91,7 @@
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Command.cs" />
+    <Compile Include="Framework\ContentManagerShim.cs" />
     <Compile Include="Framework\Exceptions\SAssemblyLoadFailedException.cs" />
     <Compile Include="Framework\ModLoading\AssemblyLoadStatus.cs" />
     <Compile Include="Framework\Utilities\ContextHash.cs" />

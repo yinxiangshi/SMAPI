@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using StardewValley;
 
@@ -86,34 +86,27 @@ namespace StardewModdingAPI.Utilities
         /// <exception cref="ArithmeticException">The offset would result in an invalid date (like year 0).</exception>
         public SDate AddDays(int offset)
         {
-            // simple case
-            int day = this.Day + offset;
-            string season = this.Season;
-            int year = this.Year;
+            // get new hash code
+            int hashCode = this.GetHashCode() + offset;
+            if (hashCode < 1)
+                throw new ArithmeticException($"Adding {offset} days to {this} would result in a date before 01 spring Y1.");
 
-            // handle season transition
-            if (day > this.DaysInSeason || day < 1)
-            {
-                // get season index
-                int curSeasonIndex = this.GetSeasonIndex();
+            // get day
+            int day = hashCode % 28;
+            if (day == 0)
+                day = 28;
 
-                // get season offset
-                int seasonOffset = day / this.DaysInSeason;
-                if (day < 1)
-                    seasonOffset -= 1;
+            // get season index
+            int seasonIndex = hashCode / 28;
+            if (seasonIndex > 0 && hashCode % 28 == 0)
+                seasonIndex -= 1;
+            seasonIndex %= 4;
 
-                // get new date
-                day = this.GetWrappedIndex(day, this.DaysInSeason);
-                season = this.Seasons[this.GetWrappedIndex(curSeasonIndex + seasonOffset, this.Seasons.Length)];
-                year += seasonOffset / this.Seasons.Length;
-            }
+            // get year
+            int year = hashCode / (this.Seasons.Length * this.DaysInSeason) + 1;
 
-            // validate
-            if (year < 1)
-                throw new ArithmeticException($"Adding {offset} days to {this} would result in invalid date {day:00} {season} {year}.");
-
-            // return new date
-            return new SDate(day, season, year);
+            // create date
+            return new SDate(day, this.Seasons[seasonIndex], year);
         }
 
         /// <summary>Get a string representation of the date. This is mainly intended for debugging or console messages.</summary>
@@ -142,7 +135,7 @@ namespace StardewModdingAPI.Utilities
         /// <summary>Get a hash code which uniquely identifies a date.</summary>
         public override int GetHashCode()
         {
-            // return the number of days since 01 spring Y1
+            // return the number of days since 01 spring Y1 (inclusively)
             int yearIndex = this.Year - 1;
             return
                 yearIndex * this.DaysInSeason * this.SeasonsInYear
@@ -238,17 +231,6 @@ namespace StardewModdingAPI.Utilities
             if (index == -1)
                 throw new InvalidOperationException($"The current season '{this.Season}' wasn't recognised.");
             return index;
-        }
-
-        /// <summary>Get the real index in an array which should be treated as a two-way loop.</summary>
-        /// <param name="index">The index in the looped array.</param>
-        /// <param name="length">The number of elements in the array.</param>
-        private int GetWrappedIndex(int index, int length)
-        {
-            int wrapped = index % length;
-            if (wrapped < 0)
-                wrapped += length;
-            return wrapped;
         }
     }
 }
