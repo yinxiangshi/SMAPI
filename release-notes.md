@@ -28,8 +28,8 @@ For power users:
 
 ## 1.15.4
 For players:
-* Fixed errors when loading some custom maps via Entoarox Framework or XNB Loader.
-* Fixed errors with in-game date calculation in some mods.
+* Fixed errors when loading some custom maps on Linux/Mac or using XNB Loader.
+* Fixed errors in rare cases when a mod calculates an in-game date.
 
 For modders:
 * Added UTC timestamp to log file.

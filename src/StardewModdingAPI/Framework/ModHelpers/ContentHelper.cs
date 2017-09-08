@@ -231,6 +231,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
             // check map info
             if (!map.TileSheets.Any())
                 return;
+            mapKey = this.ContentManager.NormaliseAssetName(mapKey); // Mono's Path.GetDirectoryName doesn't handle Windows dir separators
             string relativeMapFolder = Path.GetDirectoryName(mapKey) ?? ""; // folder path containing the map, relative to the mod folder
 
             // fix tilesheets
