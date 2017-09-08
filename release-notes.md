@@ -28,11 +28,14 @@ For power users:
 
 ## 1.15.4
 For players:
-* Fixed issues with maps loaded through Entoarox Framework.
+* Fixed errors when loading some custom maps via Entoarox Framework or XNB Loader.
+* Fixed errors with in-game date calculation in some mods.
 
 For modders:
-* Fixed edge cases in `SDate.AddDays(…)` calculations.
-* Added UTC timestamp to logs.
+* Added UTC timestamp to log file.
+
+For SMAPI developers:
+* Internal changes to support the upcoming SMAPI 2.0 release.
 
 ## 1.15.3
 For players:
