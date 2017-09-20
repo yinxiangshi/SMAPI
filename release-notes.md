@@ -7,6 +7,7 @@ For players:
 * The console now adjusts its colors when you have a light terminal background.
 * SMAPI now detects mods which may impact game stability and shows a warning in the console.
 * Updated compatibility list.
+* Renamed installer folder from `SMAPI 2.0` to `SMAPI 2.0 installer` to avoid confusion.
 
 For mod developers:
 * Added new APIs to edit, inject, and reload XNB assets loaded by the game at any time.  
@@ -26,6 +27,9 @@ For mod developers:
 
 For power users:
 * Added command-line arguments to the SMAPI installer so it can be scripted.
+
+For SMAPI developers:
+* SMAPI has been significantly refactored under the hood to support changes in 2.0 and upcoming releases.
 
 ## 1.15.4
 For players:
