@@ -70,6 +70,11 @@ namespace StardewModdingAPI.Metadata
 #endif
 
                 /****
+                ** detect code which may impact game stability
+                ****/
+                new TypeFinder("Harmony.HarmonyInstance", InstructionHandleResult.DetectedGamePatch),
+
+                /****
                 ** rewrite CIL to fix incompatible code
                 ****/
                 // crossplatform

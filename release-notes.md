@@ -3,8 +3,9 @@
 <!--See [log](https://github.com/Pathoschild/SMAPI/compare/1.10...2.0).-->
 
 For players:
-* The SMAPI console is now much simpler and easier to read.
-* The SMAPI console now adjusts its colors when you have a light terminal background.
+* The console is now simpler and easier to read.
+* The console now adjusts its colors when you have a light terminal background.
+* SMAPI now detects mods which may impact game stability and shows a warning in the console.
 * Updated compatibility list.
 
 For mod developers:

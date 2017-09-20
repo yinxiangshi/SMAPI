@@ -110,7 +110,6 @@
     <Compile Include="Framework\ContentManagerShim.cs" />
     <Compile Include="Framework\Exceptions\SAssemblyLoadFailedException.cs" />
     <Compile Include="Framework\ModLoading\AssemblyLoadStatus.cs" />
-    <Compile Include="Framework\ModLoading\DangerousCodeWarner.cs" />
     <Compile Include="Framework\Utilities\ContextHash.cs" />
     <Compile Include="Metadata\CoreAssets.cs" />
     <Compile Include="ContentSource.cs" />

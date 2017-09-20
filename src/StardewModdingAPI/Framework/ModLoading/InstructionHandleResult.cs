@@ -10,6 +10,9 @@ namespace StardewModdingAPI.Framework.ModLoading
         Rewritten,
 
         /// <summary>The instruction is not compatible and can't be rewritten for compatibility.</summary>
-        NotCompatible
+        NotCompatible,
+
+        /// <summary>The instruction is compatible, but patches the game in a way that may impact stability.</summary>
+        DetectedGamePatch
     }
 }

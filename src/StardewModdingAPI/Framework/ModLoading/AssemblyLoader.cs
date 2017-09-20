@@ -83,12 +83,13 @@ namespace StardewModdingAPI.Framework.ModLoading
             // rewrite & load assemblies in leaf-to-root order
             bool oneAssembly = assemblies.Length == 1;
             Assembly lastAssembly = null;
+            HashSet<string> loggedMessages = new HashSet<string>();
             foreach (AssemblyParseResult assembly in assemblies)
             {
                 if (assembly.Status == AssemblyLoadStatus.AlreadyLoaded)
                     continue;
 
-                bool changed = this.RewriteAssembly(mod, assembly.Definition, assumeCompatible, logPrefix: "   ");
+                bool changed = this.RewriteAssembly(mod, assembly.Definition, assumeCompatible, loggedMessages, logPrefix: "   ");
                 if (changed)
                 {
                     if (!oneAssembly)
@@ -178,13 +179,13 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="mod">The mod for which the assembly is being loaded.</param>
         /// <param name="assembly">The assembly to rewrite.</param>
         /// <param name="assumeCompatible">Assume the mod is compatible, even if incompatible code is detected.</param>
+        /// <param name="loggedMessages">The messages that have already been logged for this mod.</param>
         /// <param name="logPrefix">A string to prefix to log messages.</param>
         /// <returns>Returns whether the assembly was modified.</returns>
         /// <exception cref="IncompatibleInstructionException">An incompatible CIL instruction was found while rewriting the assembly.</exception>
-        private bool RewriteAssembly(IModMetadata mod, AssemblyDefinition assembly, bool assumeCompatible, string logPrefix)
+        private bool RewriteAssembly(IModMetadata mod, AssemblyDefinition assembly, bool assumeCompatible, HashSet<string> loggedMessages, string logPrefix)
         {
             ModuleDefinition module = assembly.MainModule;
-            HashSet<string> loggedMessages = new HashSet<string>();
             string filename = $"{assembly.Name.Name}.dll";
 
             // swap assembly references if needed (e.g. XNA => MonoGame)
@@ -221,7 +222,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 foreach (IInstructionHandler handler in handlers)
                 {
                     InstructionHandleResult result = handler.Handle(mod, module, method, this.AssemblyMap, platformChanged);
-                    this.ProcessInstructionHandleResult(handler, result, loggedMessages, logPrefix, assumeCompatible, filename);
+                    this.ProcessInstructionHandleResult(mod, handler, result, loggedMessages, logPrefix, assumeCompatible, filename);
                     if (result == InstructionHandleResult.Rewritten)
                         anyRewritten = true;
                 }
@@ -233,7 +234,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                     foreach (IInstructionHandler handler in handlers)
                     {
                         InstructionHandleResult result = handler.Handle(mod, module, cil, instruction, this.AssemblyMap, platformChanged);
-                        this.ProcessInstructionHandleResult(handler, result, loggedMessages, logPrefix, assumeCompatible, filename);
+                        this.ProcessInstructionHandleResult(mod, handler, result, loggedMessages, logPrefix, assumeCompatible, filename);
                         if (result == InstructionHandleResult.Rewritten)
                             anyRewritten = true;
                     }
@@ -244,13 +245,14 @@ namespace StardewModdingAPI.Framework.ModLoading
         }
 
         /// <summary>Process the result from an instruction handler.</summary>
+        /// <param name="mod">The mod being analysed.</param>
         /// <param name="handler">The instruction handler.</param>
         /// <param name="result">The result returned by the handler.</param>
         /// <param name="loggedMessages">The messages already logged for the current mod.</param>
         /// <param name="assumeCompatible">Assume the mod is compatible, even if incompatible code is detected.</param>
         /// <param name="logPrefix">A string to prefix to log messages.</param>
         /// <param name="filename">The assembly filename for log messages.</param>
-        private void ProcessInstructionHandleResult(IInstructionHandler handler, InstructionHandleResult result, HashSet<string> loggedMessages, string logPrefix, bool assumeCompatible, string filename)
+        private void ProcessInstructionHandleResult(IModMetadata mod, IInstructionHandler handler, InstructionHandleResult result, HashSet<string> loggedMessages, string logPrefix, bool assumeCompatible, string filename)
         {
             switch (result)
             {
@@ -262,6 +264,11 @@ namespace StardewModdingAPI.Framework.ModLoading
                     if (!assumeCompatible)
                         throw new IncompatibleInstructionException(handler.NounPhrase, $"Found an incompatible CIL instruction ({handler.NounPhrase}) while loading assembly {filename}.");
                     this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Found an incompatible CIL instruction ({handler.NounPhrase}) while loading assembly {filename}, but SMAPI is configured to allow it anyway. The mod may crash or behave unexpectedly.", LogLevel.Warn);
+                    break;
+
+                case InstructionHandleResult.DetectedGamePatch:
+                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Detected {handler.NounPhrase} in assembly {filename}.");
+                    this.Monitor.LogOnce(loggedMessages, $"{mod.DisplayName} patches the game in a way that may impact game stability (detected {handler.NounPhrase}).", LogLevel.Warn);
                     break;
 
                 case InstructionHandleResult.None:
