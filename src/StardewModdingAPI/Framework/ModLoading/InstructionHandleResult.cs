@@ -13,6 +13,9 @@ namespace StardewModdingAPI.Framework.ModLoading
         NotCompatible,
 
         /// <summary>The instruction is compatible, but patches the game in a way that may impact stability.</summary>
-        DetectedGamePatch
+        DetectedGamePatch,
+
+        /// <summary>The instruction is compatible, but affects the save serializer in a way that may make saves unloadable without the mod.</summary>
+        DetectedSaveSerialiser
     }
 }

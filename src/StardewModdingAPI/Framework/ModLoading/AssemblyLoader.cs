@@ -267,8 +267,13 @@ namespace StardewModdingAPI.Framework.ModLoading
                     break;
 
                 case InstructionHandleResult.DetectedGamePatch:
-                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Detected {handler.NounPhrase} in assembly {filename}.");
-                    this.Monitor.LogOnce(loggedMessages, $"{mod.DisplayName} patches the game in a way that may impact game stability (detected {handler.NounPhrase}).", LogLevel.Warn);
+                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Detected game patcher ({handler.NounPhrase}) in assembly {filename}.");
+                    this.Monitor.LogOnce(loggedMessages, $"{mod.DisplayName} patches the game, which may impact game stability. If you encounter problems, try removing this mod first.", LogLevel.Warn);
+                    break;
+
+                case InstructionHandleResult.DetectedSaveSerialiser:
+                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Detected possible save serialiser change ({handler.NounPhrase}) in assembly {filename}.");
+                    this.Monitor.LogOnce(loggedMessages, $"{mod.DisplayName} seems to change the save serialiser. It may change your saves in such a way that they won't work without this mod in the future.", LogLevel.Warn);
                     break;
 
                 case InstructionHandleResult.None:
