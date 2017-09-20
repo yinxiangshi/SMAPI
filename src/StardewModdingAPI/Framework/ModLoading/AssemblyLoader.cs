@@ -191,7 +191,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 // remove old assembly reference
                 if (this.AssemblyMap.RemoveNames.Any(name => module.AssemblyReferences[i].Name == name))
                 {
-                    this.LogOnce(this.Monitor, loggedMessages, $"{logPrefix}Rewriting {filename} for OS...");
+                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Rewriting {filename} for OS...");
                     platformChanged = true;
                     module.AssemblyReferences.RemoveAt(i);
                     i--;
@@ -221,7 +221,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                     {
                         if (rewriter.Rewrite(module, method, this.AssemblyMap, platformChanged))
                         {
-                            this.LogOnce(this.Monitor, loggedMessages, $"{logPrefix}Rewrote {filename} to fix {rewriter.NounPhrase}...");
+                            this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Rewrote {filename} to fix {rewriter.NounPhrase}...");
                             anyRewritten = true;
                         }
                     }
@@ -229,7 +229,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                     {
                         if (!assumeCompatible)
                             throw new IncompatibleInstructionException(rewriter.NounPhrase, $"Found an incompatible CIL instruction ({rewriter.NounPhrase}) while loading assembly {filename}.");
-                        this.LogOnce(this.Monitor, loggedMessages, $"{logPrefix}Found an incompatible CIL instruction ({rewriter.NounPhrase}) while loading assembly {filename}, but SMAPI is configured to allow it anyway. The mod may crash or behave unexpectedly.", LogLevel.Warn);
+                        this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Found an incompatible CIL instruction ({rewriter.NounPhrase}) while loading assembly {filename}, but SMAPI is configured to allow it anyway. The mod may crash or behave unexpectedly.", LogLevel.Warn);
                     }
                 }
 
@@ -243,7 +243,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                         {
                             if (rewriter.Rewrite(module, cil, instruction, this.AssemblyMap, platformChanged))
                             {
-                                this.LogOnce(this.Monitor, loggedMessages, $"{logPrefix}Rewrote {filename} to fix {rewriter.NounPhrase}...");
+                                this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Rewrote {filename} to fix {rewriter.NounPhrase}...");
                                 anyRewritten = true;
                             }
                         }
@@ -251,7 +251,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                         {
                             if (!assumeCompatible)
                                 throw new IncompatibleInstructionException(rewriter.NounPhrase, $"Found an incompatible CIL instruction ({rewriter.NounPhrase}) while loading assembly {filename}.");
-                            this.LogOnce(this.Monitor, loggedMessages, $"{logPrefix}Found an incompatible CIL instruction ({rewriter.NounPhrase}) while loading assembly {filename}, but SMAPI is configured to allow it anyway. The mod may crash or behave unexpectedly.", LogLevel.Warn);
+                            this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Found an incompatible CIL instruction ({rewriter.NounPhrase}) while loading assembly {filename}, but SMAPI is configured to allow it anyway. The mod may crash or behave unexpectedly.", LogLevel.Warn);
                         }
                     }
                 }
@@ -288,20 +288,6 @@ namespace StardewModdingAPI.Framework.ModLoading
                 where method.HasBody
                 select method
             );
-        }
-
-        /// <summary>Log a message for the player or developer the first time it occurs.</summary>
-        /// <param name="monitor">The monitor through which to log the message.</param>
-        /// <param name="hash">The hash of logged messages.</param>
-        /// <param name="message">The message to log.</param>
-        /// <param name="level">The log severity level.</param>
-        private void LogOnce(IMonitor monitor, HashSet<string> hash, string message, LogLevel level = LogLevel.Trace)
-        {
-            if (!hash.Contains(message))
-            {
-                monitor.Log(message, level);
-                hash.Add(message);
-            }
         }
     }
 }

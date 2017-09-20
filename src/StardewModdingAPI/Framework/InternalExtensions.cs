@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -68,6 +68,20 @@ namespace StardewModdingAPI.Framework
                 {
                     monitor.Log($"A mod failed handling the {name} event:\n{ex.GetLogSummary()}", LogLevel.Error);
                 }
+            }
+        }
+
+        /// <summary>Log a message for the player or developer the first time it occurs.</summary>
+        /// <param name="monitor">The monitor through which to log the message.</param>
+        /// <param name="hash">The hash of logged messages.</param>
+        /// <param name="message">The message to log.</param>
+        /// <param name="level">The log severity level.</param>
+        public static void LogOnce(this IMonitor monitor, HashSet<string> hash, string message, LogLevel level = LogLevel.Trace)
+        {
+            if (!hash.Contains(message))
+            {
+                monitor.Log(message, level);
+                hash.Add(message);
             }
         }
 
