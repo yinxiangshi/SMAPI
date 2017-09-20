@@ -6,6 +6,7 @@ using System.Reflection;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using StardewModdingAPI.Framework.Exceptions;
+using StardewModdingAPI.Metadata;
 
 namespace StardewModdingAPI.Framework.ModLoading
 {
@@ -213,7 +214,7 @@ namespace StardewModdingAPI.Framework.ModLoading
 
             // find (and optionally rewrite) incompatible instructions
             bool anyRewritten = false;
-            IInstructionRewriter[] rewriters = Constants.GetRewriters(this.Monitor).ToArray();
+            IInstructionRewriter[] rewriters = new InstructionMetadata().GetRewriters().ToArray();
             foreach (MethodDefinition method in this.GetMethods(module))
             {
                 // check method definition

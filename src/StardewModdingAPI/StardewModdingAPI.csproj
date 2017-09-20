@@ -226,6 +226,7 @@
     <Compile Include="Log.cs" />
     <Compile Include="Framework\Monitor.cs" />
     <Compile Include="Framework\Models\Manifest.cs" />
+    <Compile Include="Metadata\InstructionMetadata.cs" />
     <Compile Include="Mod.cs" />
     <Compile Include="PatchMode.cs" />
     <Compile Include="Program.cs" />
