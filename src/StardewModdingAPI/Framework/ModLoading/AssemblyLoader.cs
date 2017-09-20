@@ -221,58 +221,55 @@ namespace StardewModdingAPI.Framework.ModLoading
                 foreach (IInstructionHandler handler in handlers)
                 {
                     InstructionHandleResult result = handler.Handle(mod, module, method, this.AssemblyMap, platformChanged);
-                    switch (result)
-                    {
-                        case InstructionHandleResult.Rewritten:
-                            this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Rewrote {filename} to fix {handler.NounPhrase}...");
-                            anyRewritten = true;
-                            break;
-
-                        case InstructionHandleResult.NotCompatible:
-                            if (!assumeCompatible)
-                                throw new IncompatibleInstructionException(handler.NounPhrase, $"Found an incompatible CIL instruction ({handler.NounPhrase}) while loading assembly {filename}.");
-                            this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Found an incompatible CIL instruction ({handler.NounPhrase}) while loading assembly {filename}, but SMAPI is configured to allow it anyway. The mod may crash or behave unexpectedly.", LogLevel.Warn);
-                            break;
-
-                        case InstructionHandleResult.None:
-                            break;
-
-                        default:
-                            throw new NotSupportedException($"Unrecognised instruction handler result '{result}'.");
-                    }
+                    this.ProcessInstructionHandleResult(handler, result, loggedMessages, logPrefix, assumeCompatible, filename);
+                    if (result == InstructionHandleResult.Rewritten)
+                        anyRewritten = true;
                 }
 
                 // check CIL instructions
                 ILProcessor cil = method.Body.GetILProcessor();
                 foreach (Instruction instruction in cil.Body.Instructions.ToArray())
                 {
-                    foreach (IInstructionHandler rewriter in handlers)
+                    foreach (IInstructionHandler handler in handlers)
                     {
-                        InstructionHandleResult result = rewriter.Handle(mod, module, cil, instruction, this.AssemblyMap, platformChanged);
-                        switch (result)
-                        {
-                            case InstructionHandleResult.Rewritten:
-                                this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Rewrote {filename} to fix {rewriter.NounPhrase}...");
-                                anyRewritten = true;
-                                break;
-
-                            case InstructionHandleResult.NotCompatible:
-                                if (!assumeCompatible)
-                                    throw new IncompatibleInstructionException(rewriter.NounPhrase, $"Found an incompatible CIL instruction ({rewriter.NounPhrase}) while loading assembly {filename}.");
-                                this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Found an incompatible CIL instruction ({rewriter.NounPhrase}) while loading assembly {filename}, but SMAPI is configured to allow it anyway. The mod may crash or behave unexpectedly.", LogLevel.Warn);
-                                break;
-
-                            case InstructionHandleResult.None:
-                                break;
-
-                            default:
-                                throw new NotSupportedException($"Unrecognised instruction handler result '{result}'.");
-                        }
+                        InstructionHandleResult result = handler.Handle(mod, module, cil, instruction, this.AssemblyMap, platformChanged);
+                        this.ProcessInstructionHandleResult(handler, result, loggedMessages, logPrefix, assumeCompatible, filename);
+                        if (result == InstructionHandleResult.Rewritten)
+                            anyRewritten = true;
                     }
                 }
             }
 
             return platformChanged || anyRewritten;
+        }
+
+        /// <summary>Process the result from an instruction handler.</summary>
+        /// <param name="handler">The instruction handler.</param>
+        /// <param name="result">The result returned by the handler.</param>
+        /// <param name="loggedMessages">The messages already logged for the current mod.</param>
+        /// <param name="assumeCompatible">Assume the mod is compatible, even if incompatible code is detected.</param>
+        /// <param name="logPrefix">A string to prefix to log messages.</param>
+        /// <param name="filename">The assembly filename for log messages.</param>
+        private void ProcessInstructionHandleResult(IInstructionHandler handler, InstructionHandleResult result, HashSet<string> loggedMessages, string logPrefix, bool assumeCompatible, string filename)
+        {
+            switch (result)
+            {
+                case InstructionHandleResult.Rewritten:
+                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Rewrote {filename} to fix {handler.NounPhrase}...");
+                    break;
+
+                case InstructionHandleResult.NotCompatible:
+                    if (!assumeCompatible)
+                        throw new IncompatibleInstructionException(handler.NounPhrase, $"Found an incompatible CIL instruction ({handler.NounPhrase}) while loading assembly {filename}.");
+                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Found an incompatible CIL instruction ({handler.NounPhrase}) while loading assembly {filename}, but SMAPI is configured to allow it anyway. The mod may crash or behave unexpectedly.", LogLevel.Warn);
+                    break;
+
+                case InstructionHandleResult.None:
+                    break;
+
+                default:
+                    throw new NotSupportedException($"Unrecognised instruction handler result '{result}'.");
+            }
         }
 
         /// <summary>Get the correct reference to use for compatibility with the current platform.</summary>
