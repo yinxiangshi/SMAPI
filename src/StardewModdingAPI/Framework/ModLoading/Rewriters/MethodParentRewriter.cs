@@ -5,7 +5,7 @@ using Mono.Cecil.Cil;
 namespace StardewModdingAPI.Framework.ModLoading.Rewriters
 {
     /// <summary>Rewrites method references from one parent type to another if the signatures match.</summary>
-    internal class MethodParentRewriter : IInstructionRewriter
+    internal class MethodParentRewriter : IInstructionHandler
     {
         /*********
         ** Properties
@@ -34,45 +34,40 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <param name="fromType">The type whose methods to remap.</param>
         /// <param name="toType">The type with methods to map to.</param>
         /// <param name="onlyIfPlatformChanged">Whether to only rewrite references if loading the assembly on a different platform than it was compiled on.</param>
-        /// <param name="nounPhrase">A brief noun phrase indicating what the instruction finder matches (or <c>null</c> to generate one).</param>
-        public MethodParentRewriter(Type fromType, Type toType, bool onlyIfPlatformChanged = false, string nounPhrase = null)
+        public MethodParentRewriter(Type fromType, Type toType, bool onlyIfPlatformChanged = false)
         {
             this.FromType = fromType;
             this.ToType = toType;
-            this.NounPhrase = nounPhrase ?? $"{fromType.Name} methods";
+            this.NounPhrase = $"{fromType.Name} methods";
             this.OnlyIfPlatformChanged = onlyIfPlatformChanged;
         }
 
-        /// <summary>Rewrite a method definition for compatibility.</summary>
-        /// <param name="mod">The mod to which the module belongs.</param>
-        /// <param name="module">The module being rewritten.</param>
-        /// <param name="method">The method definition to rewrite.</param>
+        /// <summary>Perform the predefined logic for a method if applicable.</summary>
+        /// <param name="mod">The mod containing the instruction.</param>
+        /// <param name="module">The assembly module containing the instruction.</param>
+        /// <param name="method">The method definition containing the instruction.</param>
         /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
         /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        /// <returns>Returns whether the instruction was rewritten.</returns>
-        /// <exception cref="IncompatibleInstructionException">The CIL instruction is not compatible, and can't be rewritten.</exception>
-        public bool Rewrite(IModMetadata mod, ModuleDefinition module, MethodDefinition method, PlatformAssemblyMap assemblyMap, bool platformChanged)
+        public InstructionHandleResult Handle(IModMetadata mod, ModuleDefinition module, MethodDefinition method, PlatformAssemblyMap assemblyMap, bool platformChanged)
         {
-            return false;
+            return InstructionHandleResult.None;
         }
 
-        /// <summary>Rewrite a CIL instruction for compatibility.</summary>
-        /// <param name="mod">The mod to which the module belongs.</param>
-        /// <param name="module">The module being rewritten.</param>
-        /// <param name="cil">The CIL rewriter.</param>
-        /// <param name="instruction">The instruction to rewrite.</param>
+        /// <summary>Perform the predefined logic for an instruction if applicable.</summary>
+        /// <param name="mod">The mod containing the instruction.</param>
+        /// <param name="module">The assembly module containing the instruction.</param>
+        /// <param name="cil">The CIL processor.</param>
+        /// <param name="instruction">The instruction to handle.</param>
         /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
         /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        /// <returns>Returns whether the instruction was rewritten.</returns>
-        /// <exception cref="IncompatibleInstructionException">The CIL instruction is not compatible, and can't be rewritten.</exception>
-        public bool Rewrite(IModMetadata mod, ModuleDefinition module, ILProcessor cil, Instruction instruction, PlatformAssemblyMap assemblyMap, bool platformChanged)
+        public InstructionHandleResult Handle(IModMetadata mod, ModuleDefinition module, ILProcessor cil, Instruction instruction, PlatformAssemblyMap assemblyMap, bool platformChanged)
         {
             if (!this.IsMatch(instruction, platformChanged))
-                return false;
+                return InstructionHandleResult.None;
 
             MethodReference methodRef = (MethodReference)instruction.Operand;
             methodRef.DeclaringType = module.Import(this.ToType);
-            return true;
+            return InstructionHandleResult.Rewritten;
         }
 
 

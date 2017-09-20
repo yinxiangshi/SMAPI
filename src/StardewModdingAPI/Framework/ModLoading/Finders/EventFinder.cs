@@ -3,8 +3,8 @@ using Mono.Cecil.Cil;
 
 namespace StardewModdingAPI.Framework.ModLoading.Finders
 {
-    /// <summary>Finds incompatible CIL instructions that reference a given event and throws an <see cref="IncompatibleInstructionException"/>.</summary>
-    internal class EventFinder : IInstructionRewriter
+    /// <summary>Finds incompatible CIL instructions that reference a given event.</summary>
+    internal class EventFinder : IInstructionHandler
     {
         /*********
         ** Properties
@@ -14,6 +14,9 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
 
         /// <summary>The event name for which to find references.</summary>
         private readonly string EventName;
+
+        /// <summary>The result to return for matching instructions.</summary>
+        private readonly InstructionHandleResult Result;
 
 
         /*********
@@ -29,42 +32,38 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         /// <summary>Construct an instance.</summary>
         /// <param name="fullTypeName">The full type name for which to find references.</param>
         /// <param name="eventName">The event name for which to find references.</param>
-        /// <param name="nounPhrase">A brief noun phrase indicating what the instruction finder matches (or <c>null</c> to generate one).</param>
-        public EventFinder(string fullTypeName, string eventName, string nounPhrase = null)
+        /// <param name="result">The result to return for matching instructions.</param>
+        public EventFinder(string fullTypeName, string eventName, InstructionHandleResult result)
         {
             this.FullTypeName = fullTypeName;
             this.EventName = eventName;
-            this.NounPhrase = nounPhrase ?? $"{fullTypeName}.{eventName} event";
+            this.Result = result;
+            this.NounPhrase = $"{fullTypeName}.{eventName} event";
         }
 
-        /// <summary>Rewrite a method definition for compatibility.</summary>
-        /// <param name="mod">The mod to which the module belongs.</param>
-        /// <param name="module">The module being rewritten.</param>
-        /// <param name="method">The method definition to rewrite.</param>
+        /// <summary>Perform the predefined logic for a method if applicable.</summary>
+        /// <param name="mod">The mod containing the instruction.</param>
+        /// <param name="module">The assembly module containing the instruction.</param>
+        /// <param name="method">The method definition containing the instruction.</param>
         /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
         /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        /// <returns>Returns whether the instruction was rewritten.</returns>
-        /// <exception cref="IncompatibleInstructionException">The CIL instruction is not compatible, and can't be rewritten.</exception>
-        public virtual bool Rewrite(IModMetadata mod, ModuleDefinition module, MethodDefinition method, PlatformAssemblyMap assemblyMap, bool platformChanged)
+        public virtual InstructionHandleResult Handle(IModMetadata mod, ModuleDefinition module, MethodDefinition method, PlatformAssemblyMap assemblyMap, bool platformChanged)
         {
-            return false;
+            return InstructionHandleResult.None;
         }
 
-        /// <summary>Rewrite a CIL instruction for compatibility.</summary>
-        /// <param name="mod">The mod to which the module belongs.</param>
-        /// <param name="module">The module being rewritten.</param>
-        /// <param name="cil">The CIL rewriter.</param>
-        /// <param name="instruction">The instruction to rewrite.</param>
+        /// <summary>Perform the predefined logic for an instruction if applicable.</summary>
+        /// <param name="mod">The mod containing the instruction.</param>
+        /// <param name="module">The assembly module containing the instruction.</param>
+        /// <param name="cil">The CIL processor.</param>
+        /// <param name="instruction">The instruction to handle.</param>
         /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
         /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        /// <returns>Returns whether the instruction was rewritten.</returns>
-        /// <exception cref="IncompatibleInstructionException">The CIL instruction is not compatible, and can't be rewritten.</exception>
-        public virtual bool Rewrite(IModMetadata mod, ModuleDefinition module, ILProcessor cil, Instruction instruction, PlatformAssemblyMap assemblyMap, bool platformChanged)
+        public virtual InstructionHandleResult Handle(IModMetadata mod, ModuleDefinition module, ILProcessor cil, Instruction instruction, PlatformAssemblyMap assemblyMap, bool platformChanged)
         {
-            if (!this.IsMatch(instruction))
-                return false;
-
-            throw new IncompatibleInstructionException(this.NounPhrase);
+            return this.IsMatch(instruction)
+                ? this.Result
+                : InstructionHandleResult.None;
         }
 
 

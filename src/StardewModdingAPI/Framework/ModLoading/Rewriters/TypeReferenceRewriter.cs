@@ -24,23 +24,20 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <summary>Construct an instance.</summary>
         /// <param name="fromTypeFullName">The full type name to which to find references.</param>
         /// <param name="toType">The new type to reference.</param>
-        /// <param name="nounPhrase">A brief noun phrase indicating what the instruction finder matches (or <c>null</c> to generate one).</param>
-        public TypeReferenceRewriter(string fromTypeFullName, Type toType, string nounPhrase = null)
-            : base(fromTypeFullName, nounPhrase)
+        public TypeReferenceRewriter(string fromTypeFullName, Type toType)
+            : base(fromTypeFullName, InstructionHandleResult.None)
         {
             this.FromTypeName = fromTypeFullName;
             this.ToType = toType;
         }
 
-        /// <summary>Rewrite a method definition for compatibility.</summary>
-        /// <param name="mod">The mod to which the module belongs.</param>
-        /// <param name="module">The module being rewritten.</param>
-        /// <param name="method">The method definition to rewrite.</param>
+        /// <summary>Perform the predefined logic for a method if applicable.</summary>
+        /// <param name="mod">The mod containing the instruction.</param>
+        /// <param name="module">The assembly module containing the instruction.</param>
+        /// <param name="method">The method definition containing the instruction.</param>
         /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
         /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        /// <returns>Returns whether the instruction was rewritten.</returns>
-        /// <exception cref="IncompatibleInstructionException">The CIL instruction is not compatible, and can't be rewritten.</exception>
-        public override bool Rewrite(IModMetadata mod, ModuleDefinition module, MethodDefinition method, PlatformAssemblyMap assemblyMap, bool platformChanged)
+        public override InstructionHandleResult Handle(IModMetadata mod, ModuleDefinition module, MethodDefinition method, PlatformAssemblyMap assemblyMap, bool platformChanged)
         {
             bool rewritten = false;
 
@@ -84,22 +81,22 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                 }
             }
 
-            return rewritten;
+            return rewritten
+                ? InstructionHandleResult.Rewritten
+                : InstructionHandleResult.None;
         }
 
-        /// <summary>Rewrite a CIL instruction for compatibility.</summary>
-        /// <param name="mod">The mod to which the module belongs.</param>
-        /// <param name="module">The module being rewritten.</param>
-        /// <param name="cil">The CIL rewriter.</param>
-        /// <param name="instruction">The instruction to rewrite.</param>
+        /// <summary>Perform the predefined logic for an instruction if applicable.</summary>
+        /// <param name="mod">The mod containing the instruction.</param>
+        /// <param name="module">The assembly module containing the instruction.</param>
+        /// <param name="cil">The CIL processor.</param>
+        /// <param name="instruction">The instruction to handle.</param>
         /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
         /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        /// <returns>Returns whether the instruction was rewritten.</returns>
-        /// <exception cref="IncompatibleInstructionException">The CIL instruction is not compatible, and can't be rewritten.</exception>
-        public override bool Rewrite(IModMetadata mod, ModuleDefinition module, ILProcessor cil, Instruction instruction, PlatformAssemblyMap assemblyMap, bool platformChanged)
+        public override InstructionHandleResult Handle(IModMetadata mod, ModuleDefinition module, ILProcessor cil, Instruction instruction, PlatformAssemblyMap assemblyMap, bool platformChanged)
         {
             if (!this.IsMatch(instruction) && !instruction.ToString().Contains(this.FromTypeName))
-                return false;
+                return InstructionHandleResult.None;
 
             // field reference
             FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);
@@ -127,14 +124,14 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                     cil.Replace(instruction, cil.Create(instruction.OpCode, newRef));
             }
 
-            return true;
+            return InstructionHandleResult.Rewritten;
         }
 
         /*********
         ** Private methods
         *********/
         /// <summary>Get the adjusted type reference if it matches, else the same value.</summary>
-        /// <param name="module">The module being rewritten.</param>
+        /// <param name="module">The assembly module containing the instruction.</param>
         /// <param name="type">The type to replace if it matches.</param>
         private TypeReference RewriteIfNeeded(ModuleDefinition module, TypeReference type)
         {

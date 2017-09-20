@@ -214,25 +214,31 @@ namespace StardewModdingAPI.Framework.ModLoading
 
             // find (and optionally rewrite) incompatible instructions
             bool anyRewritten = false;
-            IInstructionRewriter[] rewriters = new InstructionMetadata().GetRewriters().ToArray();
+            IInstructionHandler[] handlers = new InstructionMetadata().GetHandlers().ToArray();
             foreach (MethodDefinition method in this.GetMethods(module))
             {
                 // check method definition
-                foreach (IInstructionRewriter rewriter in rewriters)
+                foreach (IInstructionHandler handler in handlers)
                 {
-                    try
+                    InstructionHandleResult result = handler.Handle(mod, module, method, this.AssemblyMap, platformChanged);
+                    switch (result)
                     {
-                        if (rewriter.Rewrite(mod, module, method, this.AssemblyMap, platformChanged))
-                        {
-                            this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Rewrote {filename} to fix {rewriter.NounPhrase}...");
+                        case InstructionHandleResult.Rewritten:
+                            this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Rewrote {filename} to fix {handler.NounPhrase}...");
                             anyRewritten = true;
-                        }
-                    }
-                    catch (IncompatibleInstructionException)
-                    {
-                        if (!assumeCompatible)
-                            throw new IncompatibleInstructionException(rewriter.NounPhrase, $"Found an incompatible CIL instruction ({rewriter.NounPhrase}) while loading assembly {filename}.");
-                        this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Found an incompatible CIL instruction ({rewriter.NounPhrase}) while loading assembly {filename}, but SMAPI is configured to allow it anyway. The mod may crash or behave unexpectedly.", LogLevel.Warn);
+                            break;
+
+                        case InstructionHandleResult.NotCompatible:
+                            if (!assumeCompatible)
+                                throw new IncompatibleInstructionException(handler.NounPhrase, $"Found an incompatible CIL instruction ({handler.NounPhrase}) while loading assembly {filename}.");
+                            this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Found an incompatible CIL instruction ({handler.NounPhrase}) while loading assembly {filename}, but SMAPI is configured to allow it anyway. The mod may crash or behave unexpectedly.", LogLevel.Warn);
+                            break;
+
+                        case InstructionHandleResult.None:
+                            break;
+
+                        default:
+                            throw new NotSupportedException($"Unrecognised instruction handler result '{result}'.");
                     }
                 }
 
@@ -240,21 +246,27 @@ namespace StardewModdingAPI.Framework.ModLoading
                 ILProcessor cil = method.Body.GetILProcessor();
                 foreach (Instruction instruction in cil.Body.Instructions.ToArray())
                 {
-                    foreach (IInstructionRewriter rewriter in rewriters)
+                    foreach (IInstructionHandler rewriter in handlers)
                     {
-                        try
+                        InstructionHandleResult result = rewriter.Handle(mod, module, cil, instruction, this.AssemblyMap, platformChanged);
+                        switch (result)
                         {
-                            if (rewriter.Rewrite(mod, module, cil, instruction, this.AssemblyMap, platformChanged))
-                            {
+                            case InstructionHandleResult.Rewritten:
                                 this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Rewrote {filename} to fix {rewriter.NounPhrase}...");
                                 anyRewritten = true;
-                            }
-                        }
-                        catch (IncompatibleInstructionException)
-                        {
-                            if (!assumeCompatible)
-                                throw new IncompatibleInstructionException(rewriter.NounPhrase, $"Found an incompatible CIL instruction ({rewriter.NounPhrase}) while loading assembly {filename}.");
-                            this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Found an incompatible CIL instruction ({rewriter.NounPhrase}) while loading assembly {filename}, but SMAPI is configured to allow it anyway. The mod may crash or behave unexpectedly.", LogLevel.Warn);
+                                break;
+
+                            case InstructionHandleResult.NotCompatible:
+                                if (!assumeCompatible)
+                                    throw new IncompatibleInstructionException(rewriter.NounPhrase, $"Found an incompatible CIL instruction ({rewriter.NounPhrase}) while loading assembly {filename}.");
+                                this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Found an incompatible CIL instruction ({rewriter.NounPhrase}) while loading assembly {filename}, but SMAPI is configured to allow it anyway. The mod may crash or behave unexpectedly.", LogLevel.Warn);
+                                break;
+
+                            case InstructionHandleResult.None:
+                                break;
+
+                            default:
+                                throw new NotSupportedException($"Unrecognised instruction handler result '{result}'.");
                         }
                     }
                 }

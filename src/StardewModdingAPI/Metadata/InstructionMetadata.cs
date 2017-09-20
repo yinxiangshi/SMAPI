@@ -16,61 +16,61 @@ namespace StardewModdingAPI.Metadata
         ** Public methods
         *********/
         /// <summary>Get rewriters which detect or fix incompatible CIL instructions in mod assemblies.</summary>
-        public IEnumerable<IInstructionRewriter> GetRewriters()
+        public IEnumerable<IInstructionHandler> GetHandlers()
         {
-            return new IInstructionRewriter[]
+            return new IInstructionHandler[]
             {
                 /****
-                ** Finders throw an exception when incompatible code is found.
+                ** throw exception for incompatible code
                 ****/
                 // changes in Stardew Valley 1.2 (with no rewriters)
-                new FieldFinder("StardewValley.Item", "set_Name"),
+                new FieldFinder("StardewValley.Item", "set_Name", InstructionHandleResult.NotCompatible),
 
                 // APIs removed in SMAPI 1.9
-                new TypeFinder("StardewModdingAPI.Advanced.ConfigFile"),
-                new TypeFinder("StardewModdingAPI.Advanced.IConfigFile"),
-                new TypeFinder("StardewModdingAPI.Entities.SPlayer"),
-                new TypeFinder("StardewModdingAPI.Extensions"),
-                new TypeFinder("StardewModdingAPI.Inheritance.SGame"),
-                new TypeFinder("StardewModdingAPI.Inheritance.SObject"),
-                new TypeFinder("StardewModdingAPI.LogWriter"),
-                new TypeFinder("StardewModdingAPI.Manifest"),
-                new TypeFinder("StardewModdingAPI.Version"),
-                new EventFinder("StardewModdingAPI.Events.GraphicsEvents", "DrawDebug"),
-                new EventFinder("StardewModdingAPI.Events.GraphicsEvents", "DrawTick"),
-                new EventFinder("StardewModdingAPI.Events.GraphicsEvents", "OnPostRenderHudEventNoCheck"),
-                new EventFinder("StardewModdingAPI.Events.GraphicsEvents", "OnPostRenderGuiEventNoCheck"),
-                new EventFinder("StardewModdingAPI.Events.GraphicsEvents", "OnPreRenderHudEventNoCheck"),
-                new EventFinder("StardewModdingAPI.Events.GraphicsEvents", "OnPreRenderGuiEventNoCheck"),
+                new TypeFinder("StardewModdingAPI.Advanced.ConfigFile", InstructionHandleResult.NotCompatible),
+                new TypeFinder("StardewModdingAPI.Advanced.IConfigFile", InstructionHandleResult.NotCompatible),
+                new TypeFinder("StardewModdingAPI.Entities.SPlayer", InstructionHandleResult.NotCompatible),
+                new TypeFinder("StardewModdingAPI.Extensions", InstructionHandleResult.NotCompatible),
+                new TypeFinder("StardewModdingAPI.Inheritance.SGame", InstructionHandleResult.NotCompatible),
+                new TypeFinder("StardewModdingAPI.Inheritance.SObject", InstructionHandleResult.NotCompatible),
+                new TypeFinder("StardewModdingAPI.LogWriter", InstructionHandleResult.NotCompatible),
+                new TypeFinder("StardewModdingAPI.Manifest", InstructionHandleResult.NotCompatible),
+                new TypeFinder("StardewModdingAPI.Version", InstructionHandleResult.NotCompatible),
+                new EventFinder("StardewModdingAPI.Events.GraphicsEvents", "DrawDebug", InstructionHandleResult.NotCompatible),
+                new EventFinder("StardewModdingAPI.Events.GraphicsEvents", "DrawTick", InstructionHandleResult.NotCompatible),
+                new EventFinder("StardewModdingAPI.Events.GraphicsEvents", "OnPostRenderHudEventNoCheck", InstructionHandleResult.NotCompatible),
+                new EventFinder("StardewModdingAPI.Events.GraphicsEvents", "OnPostRenderGuiEventNoCheck", InstructionHandleResult.NotCompatible),
+                new EventFinder("StardewModdingAPI.Events.GraphicsEvents", "OnPreRenderHudEventNoCheck", InstructionHandleResult.NotCompatible),
+                new EventFinder("StardewModdingAPI.Events.GraphicsEvents", "OnPreRenderGuiEventNoCheck", InstructionHandleResult.NotCompatible),
 
                 // APIs removed in SMAPI 2.0
 #if !SMAPI_1_x
-                new TypeFinder("StardewModdingAPI.Command"),
-                new TypeFinder("StardewModdingAPI.Config"),
-                new TypeFinder("StardewModdingAPI.Log"),
-                new EventFinder("StardewModdingAPI.Events.GameEvents", "Initialize"),
-                new EventFinder("StardewModdingAPI.Events.GameEvents", "LoadContent"),
-                new EventFinder("StardewModdingAPI.Events.GameEvents", "GameLoaded"),
-                new EventFinder("StardewModdingAPI.Events.GameEvents", "FirstUpdateTick"),
-                new EventFinder("StardewModdingAPI.Events.PlayerEvents", "LoadedGame"),
-                new EventFinder("StardewModdingAPI.Events.PlayerEvents", "FarmerChanged"),
-                new EventFinder("StardewModdingAPI.Events.TimeEvents", "DayOfMonthChanged"),
-                new EventFinder("StardewModdingAPI.Events.TimeEvents", "YearOfGameChanged"),
-                new EventFinder("StardewModdingAPI.Events.TimeEvents", "SeasonOfYearChanged"),
-                new EventFinder("StardewModdingAPI.Events.TimeEvents", "OnNewDay"),
-                new TypeFinder("StardewModdingAPI.Events.EventArgsCommand"),
-                new TypeFinder("StardewModdingAPI.Events.EventArgsFarmerChanged"),
-                new TypeFinder("StardewModdingAPI.Events.EventArgsLoadedGameChanged"),
-                new TypeFinder("StardewModdingAPI.Events.EventArgsNewDay"),
-                new TypeFinder("StardewModdingAPI.Events.EventArgsStringChanged"),
-                new PropertyFinder("StardewModdingAPI.Mod", "PathOnDisk"),
-                new PropertyFinder("StardewModdingAPI.Mod", "BaseConfigPath"),
-                new PropertyFinder("StardewModdingAPI.Mod", "PerSaveConfigFolder"),
-                new PropertyFinder("StardewModdingAPI.Mod", "PerSaveConfigPath"),
+                new TypeFinder("StardewModdingAPI.Command", InstructionHandleResult.NotCompatible),
+                new TypeFinder("StardewModdingAPI.Config", InstructionHandleResult.NotCompatible),
+                new TypeFinder("StardewModdingAPI.Log", InstructionHandleResult.NotCompatible),
+                new EventFinder("StardewModdingAPI.Events.GameEvents", "Initialize", InstructionHandleResult.NotCompatible),
+                new EventFinder("StardewModdingAPI.Events.GameEvents", "LoadContent", InstructionHandleResult.NotCompatible),
+                new EventFinder("StardewModdingAPI.Events.GameEvents", "GameLoaded", InstructionHandleResult.NotCompatible),
+                new EventFinder("StardewModdingAPI.Events.GameEvents", "FirstUpdateTick", InstructionHandleResult.NotCompatible),
+                new EventFinder("StardewModdingAPI.Events.PlayerEvents", "LoadedGame", InstructionHandleResult.NotCompatible),
+                new EventFinder("StardewModdingAPI.Events.PlayerEvents", "FarmerChanged", InstructionHandleResult.NotCompatible),
+                new EventFinder("StardewModdingAPI.Events.TimeEvents", "DayOfMonthChanged", InstructionHandleResult.NotCompatible),
+                new EventFinder("StardewModdingAPI.Events.TimeEvents", "YearOfGameChanged", InstructionHandleResult.NotCompatible),
+                new EventFinder("StardewModdingAPI.Events.TimeEvents", "SeasonOfYearChanged", InstructionHandleResult.NotCompatible),
+                new EventFinder("StardewModdingAPI.Events.TimeEvents", "OnNewDay", InstructionHandleResult.NotCompatible),
+                new TypeFinder("StardewModdingAPI.Events.EventArgsCommand", InstructionHandleResult.NotCompatible),
+                new TypeFinder("StardewModdingAPI.Events.EventArgsFarmerChanged", InstructionHandleResult.NotCompatible),
+                new TypeFinder("StardewModdingAPI.Events.EventArgsLoadedGameChanged", InstructionHandleResult.NotCompatible),
+                new TypeFinder("StardewModdingAPI.Events.EventArgsNewDay", InstructionHandleResult.NotCompatible),
+                new TypeFinder("StardewModdingAPI.Events.EventArgsStringChanged", InstructionHandleResult.NotCompatible),
+                new PropertyFinder("StardewModdingAPI.Mod", "PathOnDisk", InstructionHandleResult.NotCompatible),
+                new PropertyFinder("StardewModdingAPI.Mod", "BaseConfigPath", InstructionHandleResult.NotCompatible),
+                new PropertyFinder("StardewModdingAPI.Mod", "PerSaveConfigFolder", InstructionHandleResult.NotCompatible),
+                new PropertyFinder("StardewModdingAPI.Mod", "PerSaveConfigPath", InstructionHandleResult.NotCompatible),
 #endif
 
                 /****
-                ** Rewriters change CIL as needed to fix incompatible code
+                ** rewrite CIL to fix incompatible code
                 ****/
                 // crossplatform
                 new MethodParentRewriter(typeof(SpriteBatch), typeof(SpriteBatchWrapper), onlyIfPlatformChanged: true),
