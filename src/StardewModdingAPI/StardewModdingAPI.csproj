@@ -96,7 +96,7 @@
     <Compile Include="Framework\ModLoading\Finders\MethodFinder.cs" />
     <Compile Include="Framework\ModLoading\Finders\PropertyFinder.cs" />
     <Compile Include="Framework\ModLoading\Finders\TypeFinder.cs" />
-    <Compile Include="Framework\ModLoading\IInstructionRewriter.cs" />
+    <Compile Include="Framework\ModLoading\IInstructionHandler.cs" />
     <Compile Include="Framework\ModLoading\IncompatibleInstructionException.cs" />
     <Compile Include="Framework\ModLoading\InstructionHandleResult.cs" />
     <Compile Include="Framework\ModLoading\Platform.cs" />
