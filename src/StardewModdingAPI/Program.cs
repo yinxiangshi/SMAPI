@@ -645,7 +645,7 @@ namespace StardewModdingAPI
                     Assembly modAssembly;
                     try
                     {
-                        modAssembly = modAssemblyLoader.Load(assemblyPath, assumeCompatible: metadata.Compatibility?.Compatibility == ModCompatibilityType.AssumeCompatible);
+                        modAssembly = modAssemblyLoader.Load(metadata, assemblyPath, assumeCompatible: metadata.Compatibility?.Compatibility == ModCompatibilityType.AssumeCompatible);
                     }
                     catch (IncompatibleInstructionException ex)
                     {

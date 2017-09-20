@@ -53,11 +53,12 @@ namespace StardewModdingAPI.Framework.ModLoading
         }
 
         /// <summary>Preprocess and load an assembly.</summary>
+        /// <param name="mod">The mod for which the assembly is being loaded.</param>
         /// <param name="assemblyPath">The assembly file path.</param>
         /// <param name="assumeCompatible">Assume the mod is compatible, even if incompatible code is detected.</param>
         /// <returns>Returns the rewrite metadata for the preprocessed assembly.</returns>
         /// <exception cref="IncompatibleInstructionException">An incompatible CIL instruction was found while rewriting the assembly.</exception>
-        public Assembly Load(string assemblyPath, bool assumeCompatible)
+        public Assembly Load(IModMetadata mod, string assemblyPath, bool assumeCompatible)
         {
             // get referenced local assemblies
             AssemblyParseResult[] assemblies;
@@ -86,7 +87,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 if (assembly.Status == AssemblyLoadStatus.AlreadyLoaded)
                     continue;
 
-                bool changed = this.RewriteAssembly(assembly.Definition, assumeCompatible, logPrefix: "   ");
+                bool changed = this.RewriteAssembly(mod, assembly.Definition, assumeCompatible, logPrefix: "   ");
                 if (changed)
                 {
                     if (!oneAssembly)
@@ -173,12 +174,13 @@ namespace StardewModdingAPI.Framework.ModLoading
         ** Assembly rewriting
         ****/
         /// <summary>Rewrite the types referenced by an assembly.</summary>
+        /// <param name="mod">The mod for which the assembly is being loaded.</param>
         /// <param name="assembly">The assembly to rewrite.</param>
         /// <param name="assumeCompatible">Assume the mod is compatible, even if incompatible code is detected.</param>
         /// <param name="logPrefix">A string to prefix to log messages.</param>
         /// <returns>Returns whether the assembly was modified.</returns>
         /// <exception cref="IncompatibleInstructionException">An incompatible CIL instruction was found while rewriting the assembly.</exception>
-        private bool RewriteAssembly(AssemblyDefinition assembly, bool assumeCompatible, string logPrefix)
+        private bool RewriteAssembly(IModMetadata mod, AssemblyDefinition assembly, bool assumeCompatible, string logPrefix)
         {
             ModuleDefinition module = assembly.MainModule;
             HashSet<string> loggedMessages = new HashSet<string>();
@@ -211,7 +213,7 @@ namespace StardewModdingAPI.Framework.ModLoading
 
             // find (and optionally rewrite) incompatible instructions
             bool anyRewritten = false;
-            IInstructionRewriter[] rewriters = Constants.GetRewriters().ToArray();
+            IInstructionRewriter[] rewriters = Constants.GetRewriters(this.Monitor).ToArray();
             foreach (MethodDefinition method in this.GetMethods(module))
             {
                 // check method definition
@@ -219,7 +221,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 {
                     try
                     {
-                        if (rewriter.Rewrite(module, method, this.AssemblyMap, platformChanged))
+                        if (rewriter.Rewrite(mod, module, method, this.AssemblyMap, platformChanged))
                         {
                             this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Rewrote {filename} to fix {rewriter.NounPhrase}...");
                             anyRewritten = true;
@@ -241,7 +243,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                     {
                         try
                         {
-                            if (rewriter.Rewrite(module, cil, instruction, this.AssemblyMap, platformChanged))
+                            if (rewriter.Rewrite(mod, module, cil, instruction, this.AssemblyMap, platformChanged))
                             {
                                 this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Rewrote {filename} to fix {rewriter.NounPhrase}...");
                                 anyRewritten = true;
