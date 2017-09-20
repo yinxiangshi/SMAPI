@@ -1,10 +1,10 @@
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
-namespace StardewModdingAPI.AssemblyRewriters.Finders
+namespace StardewModdingAPI.Framework.ModLoading.Finders
 {
-    /// <summary>Finds incompatible CIL instructions that reference a given field and throws an <see cref="IncompatibleInstructionException"/>.</summary>
-    public class FieldFinder : IInstructionRewriter
+    /// <summary>Finds incompatible CIL instructions that reference a given property and throws an <see cref="IncompatibleInstructionException"/>.</summary>
+    internal class PropertyFinder : IInstructionRewriter
     {
         /*********
         ** Properties
@@ -12,8 +12,8 @@ namespace StardewModdingAPI.AssemblyRewriters.Finders
         /// <summary>The full type name for which to find references.</summary>
         private readonly string FullTypeName;
 
-        /// <summary>The field name for which to find references.</summary>
-        private readonly string FieldName;
+        /// <summary>The property name for which to find references.</summary>
+        private readonly string PropertyName;
 
 
         /*********
@@ -28,13 +28,13 @@ namespace StardewModdingAPI.AssemblyRewriters.Finders
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="fullTypeName">The full type name for which to find references.</param>
-        /// <param name="fieldName">The field name for which to find references.</param>
+        /// <param name="propertyName">The property name for which to find references.</param>
         /// <param name="nounPhrase">A brief noun phrase indicating what the instruction finder matches (or <c>null</c> to generate one).</param>
-        public FieldFinder(string fullTypeName, string fieldName, string nounPhrase = null)
+        public PropertyFinder(string fullTypeName, string propertyName, string nounPhrase = null)
         {
             this.FullTypeName = fullTypeName;
-            this.FieldName = fieldName;
-            this.NounPhrase = nounPhrase ?? $"{fullTypeName}.{fieldName} field";
+            this.PropertyName = propertyName;
+            this.NounPhrase = nounPhrase ?? $"{fullTypeName}.{propertyName} property";
         }
 
         /// <summary>Rewrite a method definition for compatibility.</summary>
@@ -73,11 +73,11 @@ namespace StardewModdingAPI.AssemblyRewriters.Finders
         /// <param name="instruction">The IL instruction.</param>
         protected bool IsMatch(Instruction instruction)
         {
-            FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);
+            MethodReference methodRef = RewriteHelper.AsMethodReference(instruction);
             return
-                fieldRef != null
-                && fieldRef.DeclaringType.FullName == this.FullTypeName
-                && fieldRef.Name == this.FieldName;
+                methodRef != null
+                && methodRef.DeclaringType.FullName == this.FullTypeName
+                && (methodRef.Name == "get_" + this.PropertyName || methodRef.Name == "set_" + this.PropertyName);
         }
     }
 }

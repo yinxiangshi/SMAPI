@@ -1,4 +1,4 @@
-﻿namespace StardewModdingAPI.Framework.ModLoading
+namespace StardewModdingAPI.Framework.ModLoading
 {
     /// <summary>Indicates the status of a mod's metadata resolution.</summary>
     internal enum ModMetadataStatus

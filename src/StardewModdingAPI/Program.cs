@@ -12,7 +12,6 @@ using System.Management;
 using System.Windows.Forms;
 #endif
 using Newtonsoft.Json;
-using StardewModdingAPI.AssemblyRewriters;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.Exceptions;

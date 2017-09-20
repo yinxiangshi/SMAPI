@@ -1,10 +1,10 @@
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
-namespace StardewModdingAPI.AssemblyRewriters.Finders
+namespace StardewModdingAPI.Framework.ModLoading.Finders
 {
-    /// <summary>Finds incompatible CIL instructions that reference a given property and throws an <see cref="IncompatibleInstructionException"/>.</summary>
-    public class PropertyFinder : IInstructionRewriter
+    /// <summary>Finds incompatible CIL instructions that reference a given event and throws an <see cref="IncompatibleInstructionException"/>.</summary>
+    internal class EventFinder : IInstructionRewriter
     {
         /*********
         ** Properties
@@ -12,8 +12,8 @@ namespace StardewModdingAPI.AssemblyRewriters.Finders
         /// <summary>The full type name for which to find references.</summary>
         private readonly string FullTypeName;
 
-        /// <summary>The property name for which to find references.</summary>
-        private readonly string PropertyName;
+        /// <summary>The event name for which to find references.</summary>
+        private readonly string EventName;
 
 
         /*********
@@ -28,13 +28,13 @@ namespace StardewModdingAPI.AssemblyRewriters.Finders
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="fullTypeName">The full type name for which to find references.</param>
-        /// <param name="propertyName">The property name for which to find references.</param>
+        /// <param name="eventName">The event name for which to find references.</param>
         /// <param name="nounPhrase">A brief noun phrase indicating what the instruction finder matches (or <c>null</c> to generate one).</param>
-        public PropertyFinder(string fullTypeName, string propertyName, string nounPhrase = null)
+        public EventFinder(string fullTypeName, string eventName, string nounPhrase = null)
         {
             this.FullTypeName = fullTypeName;
-            this.PropertyName = propertyName;
-            this.NounPhrase = nounPhrase ?? $"{fullTypeName}.{propertyName} property";
+            this.EventName = eventName;
+            this.NounPhrase = nounPhrase ?? $"{fullTypeName}.{eventName} event";
         }
 
         /// <summary>Rewrite a method definition for compatibility.</summary>
@@ -77,7 +77,7 @@ namespace StardewModdingAPI.AssemblyRewriters.Finders
             return
                 methodRef != null
                 && methodRef.DeclaringType.FullName == this.FullTypeName
-                && (methodRef.Name == "get_" + this.PropertyName || methodRef.Name == "set_" + this.PropertyName);
+                && (methodRef.Name == "add_" + this.EventName || methodRef.Name == "remove_" + this.EventName);
         }
     }
 }

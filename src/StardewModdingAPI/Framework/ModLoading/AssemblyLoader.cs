@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using StardewModdingAPI.AssemblyRewriters;
 using StardewModdingAPI.Framework.Exceptions;
 
 namespace StardewModdingAPI.Framework.ModLoading
@@ -270,8 +269,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 return;
 
             // get assembly
-            Assembly assembly;
-            if (!this.TypeAssemblies.TryGetValue(type.FullName, out assembly))
+            if (!this.TypeAssemblies.TryGetValue(type.FullName, out Assembly assembly))
                 return;
 
             // replace scope

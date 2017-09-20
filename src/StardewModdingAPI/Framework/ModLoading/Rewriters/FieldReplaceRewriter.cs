@@ -1,21 +1,19 @@
 using System;
+using System.Reflection;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using StardewModdingAPI.AssemblyRewriters.Finders;
+using StardewModdingAPI.Framework.ModLoading.Finders;
 
-namespace StardewModdingAPI.AssemblyRewriters.Rewriters
+namespace StardewModdingAPI.Framework.ModLoading.Rewriters
 {
-    /// <summary>Rewrites field references into property references.</summary>
-    public class FieldToPropertyRewriter : FieldFinder
+    /// <summary>Rewrites references to one field with another.</summary>
+    internal class FieldReplaceRewriter : FieldFinder
     {
         /*********
         ** Properties
         *********/
-        /// <summary>The type whose field to which references should be rewritten.</summary>
-        private readonly Type Type;
-
-        /// <summary>The field name to rewrite.</summary>
-        private readonly string FieldName;
+        /// <summary>The new field to reference.</summary>
+        private readonly FieldInfo ToField;
 
 
         /*********
@@ -23,13 +21,15 @@ namespace StardewModdingAPI.AssemblyRewriters.Rewriters
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="type">The type whose field to which references should be rewritten.</param>
-        /// <param name="fieldName">The field name to rewrite.</param>
+        /// <param name="fromFieldName">The field name to rewrite.</param>
+        /// <param name="toFieldName">The new field name to reference.</param>
         /// <param name="nounPhrase">A brief noun phrase indicating what the instruction finder matches (or <c>null</c> to generate one).</param>
-        public FieldToPropertyRewriter(Type type, string fieldName, string nounPhrase = null)
-            : base(type.FullName, fieldName, nounPhrase)
+        public FieldReplaceRewriter(Type type, string fromFieldName, string toFieldName, string nounPhrase = null)
+            : base(type.FullName, fromFieldName, nounPhrase)
         {
-            this.Type = type;
-            this.FieldName = fieldName;
+            this.ToField = type.GetField(toFieldName);
+            if (this.ToField == null)
+                throw new InvalidOperationException($"The {type.FullName} class doesn't have a {toFieldName} field.");
         }
 
         /// <summary>Rewrite a CIL instruction for compatibility.</summary>
@@ -45,9 +45,8 @@ namespace StardewModdingAPI.AssemblyRewriters.Rewriters
             if (!this.IsMatch(instruction))
                 return false;
 
-            string methodPrefix = instruction.OpCode == OpCodes.Ldsfld || instruction.OpCode == OpCodes.Ldfld ? "get" : "set";
-            MethodReference propertyRef = module.Import(this.Type.GetMethod($"{methodPrefix}_{this.FieldName}"));
-            cil.Replace(instruction, cil.Create(OpCodes.Call, propertyRef));
+            FieldReference newRef = module.Import(this.ToField);
+            cil.Replace(instruction, cil.Create(instruction.OpCode, newRef));
             return true;
         }
     }

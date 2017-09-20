@@ -4,7 +4,7 @@ using System.Reflection;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
-namespace StardewModdingAPI.AssemblyRewriters
+namespace StardewModdingAPI.Framework.ModLoading
 {
     /// <summary>Provides helper methods for field rewriters.</summary>
     internal static class RewriteHelper

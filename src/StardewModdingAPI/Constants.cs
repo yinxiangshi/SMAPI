@@ -4,12 +4,12 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Xna.Framework.Graphics;
-using StardewModdingAPI.AssemblyRewriters;
-using StardewModdingAPI.AssemblyRewriters.Finders;
-using StardewModdingAPI.AssemblyRewriters.Rewriters;
-using StardewModdingAPI.AssemblyRewriters.Rewriters.Wrappers;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework;
+using StardewModdingAPI.Framework.ModLoading;
+using StardewModdingAPI.Framework.ModLoading.Finders;
+using StardewModdingAPI.Framework.ModLoading.Rewriters;
+using StardewModdingAPI.Framework.ModLoading.Rewriters.Wrappers;
 using StardewValley;
 
 namespace StardewModdingAPI

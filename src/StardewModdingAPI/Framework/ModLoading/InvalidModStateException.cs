@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 
 namespace StardewModdingAPI.Framework.ModLoading
 {
     /// <summary>An exception which indicates that something went seriously wrong while loading mods, and SMAPI should abort outright.</summary>
-    public class InvalidModStateException : Exception
+    internal class InvalidModStateException : Exception
     {
         /// <summary>Construct an instance.</summary>
         /// <param name="message">The error message.</param>

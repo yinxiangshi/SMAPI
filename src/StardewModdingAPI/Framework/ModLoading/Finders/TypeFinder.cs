@@ -1,19 +1,17 @@
-﻿using Mono.Cecil;
+using System.Linq;
+using Mono.Cecil;
 using Mono.Cecil.Cil;
 
-namespace StardewModdingAPI.AssemblyRewriters.Finders
+namespace StardewModdingAPI.Framework.ModLoading.Finders
 {
-    /// <summary>Finds incompatible CIL instructions that reference a given event and throws an <see cref="IncompatibleInstructionException"/>.</summary>
-    public class EventFinder : IInstructionRewriter
+    /// <summary>Finds incompatible CIL instructions that reference a given type and throws an <see cref="IncompatibleInstructionException"/>.</summary>
+    internal class TypeFinder : IInstructionRewriter
     {
         /*********
-        ** Properties
+        ** Accessors
         *********/
         /// <summary>The full type name for which to find references.</summary>
         private readonly string FullTypeName;
-
-        /// <summary>The event name for which to find references.</summary>
-        private readonly string EventName;
 
 
         /*********
@@ -27,14 +25,12 @@ namespace StardewModdingAPI.AssemblyRewriters.Finders
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="fullTypeName">The full type name for which to find references.</param>
-        /// <param name="eventName">The event name for which to find references.</param>
+        /// <param name="fullTypeName">The full type name to match.</param>
         /// <param name="nounPhrase">A brief noun phrase indicating what the instruction finder matches (or <c>null</c> to generate one).</param>
-        public EventFinder(string fullTypeName, string eventName, string nounPhrase = null)
+        public TypeFinder(string fullTypeName, string nounPhrase = null)
         {
             this.FullTypeName = fullTypeName;
-            this.EventName = eventName;
-            this.NounPhrase = nounPhrase ?? $"{fullTypeName}.{eventName} event";
+            this.NounPhrase = nounPhrase ?? $"{fullTypeName} type";
         }
 
         /// <summary>Rewrite a method definition for compatibility.</summary>
@@ -46,7 +42,10 @@ namespace StardewModdingAPI.AssemblyRewriters.Finders
         /// <exception cref="IncompatibleInstructionException">The CIL instruction is not compatible, and can't be rewritten.</exception>
         public virtual bool Rewrite(ModuleDefinition module, MethodDefinition method, PlatformAssemblyMap assemblyMap, bool platformChanged)
         {
-            return false;
+            if (!this.IsMatch(method))
+                return false;
+
+            throw new IncompatibleInstructionException(this.NounPhrase);
         }
 
         /// <summary>Rewrite a CIL instruction for compatibility.</summary>
@@ -70,14 +69,67 @@ namespace StardewModdingAPI.AssemblyRewriters.Finders
         ** Protected methods
         *********/
         /// <summary>Get whether a CIL instruction matches.</summary>
+        /// <param name="method">The method deifnition.</param>
+        protected bool IsMatch(MethodDefinition method)
+        {
+            if (this.IsMatch(method.ReturnType))
+                return true;
+
+            foreach (VariableDefinition variable in method.Body.Variables)
+            {
+                if (this.IsMatch(variable.VariableType))
+                    return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>Get whether a CIL instruction matches.</summary>
         /// <param name="instruction">The IL instruction.</param>
         protected bool IsMatch(Instruction instruction)
         {
+            // field reference
+            FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);
+            if (fieldRef != null)
+            {
+                return
+                    this.IsMatch(fieldRef.DeclaringType) // field on target class
+                    || this.IsMatch(fieldRef.FieldType); // field value is target class
+            }
+
+            // method reference
             MethodReference methodRef = RewriteHelper.AsMethodReference(instruction);
-            return
-                methodRef != null
-                && methodRef.DeclaringType.FullName == this.FullTypeName
-                && (methodRef.Name == "add_" + this.EventName || methodRef.Name == "remove_" + this.EventName);
+            if (methodRef != null)
+            {
+                return
+                    this.IsMatch(methodRef.DeclaringType) // method on target class
+                    || this.IsMatch(methodRef.ReturnType) // method returns target class
+                    || methodRef.Parameters.Any(p => this.IsMatch(p.ParameterType)); // method parameters
+            }
+
+            return false;
+        }
+
+        /// <summary>Get whether a type reference matches the expected type.</summary>
+        /// <param name="type">The type to check.</param>
+        protected bool IsMatch(TypeReference type)
+        {
+            // root type
+            if (type.FullName == this.FullTypeName)
+                return true;
+
+            // generic arguments
+            if (type is GenericInstanceType genericType)
+            {
+                if (genericType.GenericArguments.Any(this.IsMatch))
+                    return true;
+            }
+
+            // generic parameters (e.g. constraints)
+            if (type.GenericParameters.Any(this.IsMatch))
+                return true;
+
+            return false;
         }
     }
 }

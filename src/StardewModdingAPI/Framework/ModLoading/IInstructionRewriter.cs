@@ -1,10 +1,10 @@
-﻿using Mono.Cecil;
+using Mono.Cecil;
 using Mono.Cecil.Cil;
 
-namespace StardewModdingAPI.AssemblyRewriters
+namespace StardewModdingAPI.Framework.ModLoading
 {
     /// <summary>Rewrites CIL instructions for compatibility.</summary>
-    public interface IInstructionRewriter
+    internal interface IInstructionRewriter
     {
         /*********
         ** Accessors

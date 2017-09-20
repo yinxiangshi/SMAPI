@@ -1,10 +1,10 @@
-﻿using Mono.Cecil;
+using Mono.Cecil;
 using Mono.Cecil.Cil;
 
-namespace StardewModdingAPI.AssemblyRewriters.Finders
+namespace StardewModdingAPI.Framework.ModLoading.Finders
 {
     /// <summary>Finds incompatible CIL instructions that reference a given method and throws an <see cref="IncompatibleInstructionException"/>.</summary>
-    public class MethodFinder : IInstructionRewriter
+    internal class MethodFinder : IInstructionRewriter
     {
         /*********
         ** Properties

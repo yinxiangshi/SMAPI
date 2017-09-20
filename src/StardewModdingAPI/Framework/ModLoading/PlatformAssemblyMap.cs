@@ -3,10 +3,10 @@ using System.Linq;
 using System.Reflection;
 using Mono.Cecil;
 
-namespace StardewModdingAPI.AssemblyRewriters
+namespace StardewModdingAPI.Framework.ModLoading
 {
     /// <summary>Metadata for mapping assemblies to the current <see cref="Platform"/>.</summary>
-    public class PlatformAssemblyMap
+    internal class PlatformAssemblyMap
     {
         /*********
         ** Accessors

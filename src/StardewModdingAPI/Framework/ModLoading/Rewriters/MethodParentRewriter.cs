@@ -2,10 +2,10 @@ using System;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
-namespace StardewModdingAPI.AssemblyRewriters.Rewriters
+namespace StardewModdingAPI.Framework.ModLoading.Rewriters
 {
     /// <summary>Rewrites method references from one parent type to another if the signatures match.</summary>
-    public class MethodParentRewriter : IInstructionRewriter
+    internal class MethodParentRewriter : IInstructionRewriter
     {
         /*********
         ** Properties

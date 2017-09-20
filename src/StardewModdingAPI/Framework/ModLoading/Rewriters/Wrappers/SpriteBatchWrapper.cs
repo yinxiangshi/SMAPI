@@ -2,10 +2,10 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace StardewModdingAPI.AssemblyRewriters.Rewriters.Wrappers
+namespace StardewModdingAPI.Framework.ModLoading.Rewriters.Wrappers
 {
     /// <summary>Wraps <see cref="SpriteBatch"/> methods that are incompatible when converting compiled code between MonoGame and XNA.</summary>
-    public class SpriteBatchWrapper : SpriteBatch
+    internal class SpriteBatchWrapper : SpriteBatch
     {
         /*********
         ** Public methods

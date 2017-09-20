@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 
-namespace StardewModdingAPI.AssemblyRewriters
+namespace StardewModdingAPI.Framework.ModLoading
 {
     /// <summary>An exception raised when an incompatible instruction is found while loading a mod assembly.</summary>
-    public class IncompatibleInstructionException : Exception
+    internal class IncompatibleInstructionException : Exception
     {
         /*********
         ** Accessors

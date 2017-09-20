@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.16
+VisualStudioVersion = 15.0.26730.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrainerMod", "TrainerMod\TrainerMod.csproj", "{28480467-1A48-46A7-99F8-236D95225359}"
 EndProject
@@ -26,8 +26,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StardewModdingAPI.Installer
 		{28480467-1A48-46A7-99F8-236D95225359} = {28480467-1A48-46A7-99F8-236D95225359}
 		{F1A573B0-F436-472C-AE29-0B91EA6B9F8F} = {F1A573B0-F436-472C-AE29-0B91EA6B9F8F}
 	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StardewModdingAPI.AssemblyRewriters", "StardewModdingAPI.AssemblyRewriters\StardewModdingAPI.AssemblyRewriters.csproj", "{10DB0676-9FC1-4771-A2C8-E2519F091E49}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StardewModdingAPI.Tests", "StardewModdingAPI.Tests\StardewModdingAPI.Tests.csproj", "{36CCB19E-92EB-48C7-9615-98EEFD45109B}"
 EndProject
@@ -71,16 +69,6 @@ Global
 		{443DDF81-6AAF-420A-A610-3459F37E5575}.Release|Mixed Platforms.Build.0 = Release|x86
 		{443DDF81-6AAF-420A-A610-3459F37E5575}.Release|x86.ActiveCfg = Release|x86
 		{443DDF81-6AAF-420A-A610-3459F37E5575}.Release|x86.Build.0 = Release|x86
-		{10DB0676-9FC1-4771-A2C8-E2519F091E49}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{10DB0676-9FC1-4771-A2C8-E2519F091E49}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{10DB0676-9FC1-4771-A2C8-E2519F091E49}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{10DB0676-9FC1-4771-A2C8-E2519F091E49}.Debug|x86.ActiveCfg = Debug|x86
-		{10DB0676-9FC1-4771-A2C8-E2519F091E49}.Debug|x86.Build.0 = Debug|x86
-		{10DB0676-9FC1-4771-A2C8-E2519F091E49}.Release|Any CPU.ActiveCfg = Release|x86
-		{10DB0676-9FC1-4771-A2C8-E2519F091E49}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{10DB0676-9FC1-4771-A2C8-E2519F091E49}.Release|Mixed Platforms.Build.0 = Release|x86
-		{10DB0676-9FC1-4771-A2C8-E2519F091E49}.Release|x86.ActiveCfg = Release|x86
-		{10DB0676-9FC1-4771-A2C8-E2519F091E49}.Release|x86.Build.0 = Release|x86
 		{36CCB19E-92EB-48C7-9615-98EEFD45109B}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{36CCB19E-92EB-48C7-9615-98EEFD45109B}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
 		{36CCB19E-92EB-48C7-9615-98EEFD45109B}.Debug|Mixed Platforms.Build.0 = Debug|x86

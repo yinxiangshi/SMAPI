@@ -91,9 +91,25 @@
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Command.cs" />
+    <Compile Include="Framework\ModLoading\Finders\EventFinder.cs" />
+    <Compile Include="Framework\ModLoading\Finders\FieldFinder.cs" />
+    <Compile Include="Framework\ModLoading\Finders\MethodFinder.cs" />
+    <Compile Include="Framework\ModLoading\Finders\PropertyFinder.cs" />
+    <Compile Include="Framework\ModLoading\Finders\TypeFinder.cs" />
+    <Compile Include="Framework\ModLoading\IInstructionRewriter.cs" />
+    <Compile Include="Framework\ModLoading\IncompatibleInstructionException.cs" />
+    <Compile Include="Framework\ModLoading\Platform.cs" />
+    <Compile Include="Framework\ModLoading\PlatformAssemblyMap.cs" />
+    <Compile Include="Framework\ModLoading\RewriteHelper.cs" />
+    <Compile Include="Framework\ModLoading\Rewriters\FieldReplaceRewriter.cs" />
+    <Compile Include="Framework\ModLoading\Rewriters\FieldToPropertyRewriter.cs" />
+    <Compile Include="Framework\ModLoading\Rewriters\MethodParentRewriter.cs" />
+    <Compile Include="Framework\ModLoading\Rewriters\TypeReferenceRewriter.cs" />
+    <Compile Include="Framework\ModLoading\Rewriters\Wrappers\SpriteBatchWrapper.cs" />
     <Compile Include="Framework\ContentManagerShim.cs" />
     <Compile Include="Framework\Exceptions\SAssemblyLoadFailedException.cs" />
     <Compile Include="Framework\ModLoading\AssemblyLoadStatus.cs" />
+    <Compile Include="Framework\ModLoading\DangerousCodeWarner.cs" />
     <Compile Include="Framework\Utilities\ContextHash.cs" />
     <Compile Include="Metadata\CoreAssets.cs" />
     <Compile Include="ContentSource.cs" />
@@ -256,12 +272,6 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\StardewModdingAPI.AssemblyRewriters\StardewModdingAPI.AssemblyRewriters.csproj">
-      <Project>{10db0676-9fc1-4771-a2c8-e2519f091e49}</Project>
-      <Name>StardewModdingAPI.AssemblyRewriters</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\common.targets" />
