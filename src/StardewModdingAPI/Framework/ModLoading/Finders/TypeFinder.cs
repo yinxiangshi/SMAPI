@@ -38,12 +38,11 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         }
 
         /// <summary>Perform the predefined logic for a method if applicable.</summary>
-        /// <param name="mod">The mod containing the instruction.</param>
         /// <param name="module">The assembly module containing the instruction.</param>
         /// <param name="method">The method definition containing the instruction.</param>
         /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
         /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        public virtual InstructionHandleResult Handle(IModMetadata mod, ModuleDefinition module, MethodDefinition method, PlatformAssemblyMap assemblyMap, bool platformChanged)
+        public virtual InstructionHandleResult Handle(ModuleDefinition module, MethodDefinition method, PlatformAssemblyMap assemblyMap, bool platformChanged)
         {
             return this.IsMatch(method)
                 ? this.Result
@@ -51,13 +50,12 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         }
 
         /// <summary>Perform the predefined logic for an instruction if applicable.</summary>
-        /// <param name="mod">The mod containing the instruction.</param>
         /// <param name="module">The assembly module containing the instruction.</param>
         /// <param name="cil">The CIL processor.</param>
         /// <param name="instruction">The instruction to handle.</param>
         /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
         /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        public virtual InstructionHandleResult Handle(IModMetadata mod, ModuleDefinition module, ILProcessor cil, Instruction instruction, PlatformAssemblyMap assemblyMap, bool platformChanged)
+        public virtual InstructionHandleResult Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, PlatformAssemblyMap assemblyMap, bool platformChanged)
         {
             return this.IsMatch(instruction)
                 ? this.Result

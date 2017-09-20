@@ -221,7 +221,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 // check method definition
                 foreach (IInstructionHandler handler in handlers)
                 {
-                    InstructionHandleResult result = handler.Handle(mod, module, method, this.AssemblyMap, platformChanged);
+                    InstructionHandleResult result = handler.Handle(module, method, this.AssemblyMap, platformChanged);
                     this.ProcessInstructionHandleResult(mod, handler, result, loggedMessages, logPrefix, assumeCompatible, filename);
                     if (result == InstructionHandleResult.Rewritten)
                         anyRewritten = true;
@@ -233,7 +233,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 {
                     foreach (IInstructionHandler handler in handlers)
                     {
-                        InstructionHandleResult result = handler.Handle(mod, module, cil, instruction, this.AssemblyMap, platformChanged);
+                        InstructionHandleResult result = handler.Handle(module, cil, instruction, this.AssemblyMap, platformChanged);
                         this.ProcessInstructionHandleResult(mod, handler, result, loggedMessages, logPrefix, assumeCompatible, filename);
                         if (result == InstructionHandleResult.Rewritten)
                             anyRewritten = true;
