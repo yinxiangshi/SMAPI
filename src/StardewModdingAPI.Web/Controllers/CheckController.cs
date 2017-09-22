@@ -1,9 +1,7 @@
-using System;
 using System.Collections.Generic;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+using StardewModdingAPI.Web.Framework;
 using StardewModdingAPI.Web.Models;
 
 namespace StardewModdingAPI.Web.Controllers
@@ -21,45 +19,19 @@ namespace StardewModdingAPI.Web.Controllers
         [HttpPost]
         public async Task<ModGenericModel[]> Post([FromBody] ModSearchModel[] mods)
         {
-            using (var client = new HttpClient())
+            using (NexusModsClient client = new NexusModsClient())
             {
-                // the return array of mods
-                var modList = new List<ModGenericModel>();
+                List<ModGenericModel> result = new List<ModGenericModel>();
 
-                foreach (var mod in mods)
+                foreach (ModSearchModel mod in mods)
                 {
-                    if (!mod.NexusID.HasValue)
-                        continue;
-
-                    try
-                    {
-                        // create request with HttpRequestMessage
-                        var request = new HttpRequestMessage(HttpMethod.Get, new Uri($"http://www.nexusmods.com/stardewvalley/mods/{mod.NexusID}"));
-
-                        // add the Nexus Client useragent to get JSON response from the site
-                        request.Headers.UserAgent.ParseAdd("Nexus Client v0.63.15");
-
-                        // send the request out
-                        var response = await client.SendAsync(request);
-                        // ensure the response is valid (throws exception)
-                        response.EnsureSuccessStatusCode();
-
-                        // get the JSON string of the response
-                        string stringResponse = await response.Content.ReadAsStringAsync();
-
-                        // create the mod data from the JSON string
-                        var modData = JsonConvert.DeserializeObject<NexusResponseModel>(stringResponse);
-
-                        // add to the list of mods
-                        modList.Add(modData.ModInfo());
-                    }
-                    catch (Exception)
-                    {
-                        modList.Add(new ModGenericModel { ID = mod.NexusID.Value, Vendor = "Nexus", Valid = false });
-                    }
+                    if (mod.NexusID.HasValue)
+                        result.Add(await client.GetModInfoAsync(mod.NexusID.Value));
+                    else
+                        result.Add(new ModGenericModel(null, mod.NexusID ?? 0));
                 }
 
-                return modList.ToArray();
+                return result.ToArray();
             }
         }
     }
