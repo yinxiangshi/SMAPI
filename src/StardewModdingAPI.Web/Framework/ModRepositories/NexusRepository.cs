@@ -42,7 +42,10 @@ namespace StardewModdingAPI.Web.Framework.ModRepositories
                 NexusResponseModel response = await this.Client
                     .GetAsync($"mods/{id}")
                     .As<NexusResponseModel>();
-                return new ModInfoModel($"{this.VendorKey}:{id}", response.Name, response.Version, response.Url);
+
+                return response != null
+                    ? new ModInfoModel($"{this.VendorKey}:{id}", response.Name, response.Version, response.Url)
+                    : new ModInfoModel($"{this.VendorKey}:{id}", "Found no mod with this ID.");
             }
             catch (Exception ex)
             {
