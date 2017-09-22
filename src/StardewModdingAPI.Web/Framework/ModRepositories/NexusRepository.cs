@@ -44,12 +44,12 @@ namespace StardewModdingAPI.Web.Framework.ModRepositories
                     .As<NexusResponseModel>();
 
                 return response != null
-                    ? new ModInfoModel($"{this.VendorKey}:{id}", response.Name, response.Version, response.Url)
-                    : new ModInfoModel($"{this.VendorKey}:{id}", "Found no mod with this ID.");
+                    ? new ModInfoModel(response.Name, response.Version, response.Url)
+                    : new ModInfoModel("Found no mod with this ID.");
             }
             catch (Exception ex)
             {
-                return new ModInfoModel($"{this.VendorKey}:{id}", ex.ToString());
+                return new ModInfoModel(ex.ToString());
             }
         }
 

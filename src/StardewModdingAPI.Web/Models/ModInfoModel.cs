@@ -8,9 +8,6 @@ namespace StardewModdingAPI.Web.Models
         /*********
         ** Accessors
         *********/
-        /// <summary>The namespaced mod key.</summary>
-        public string ModKey { get; }
-
         /// <summary>The mod name.</summary>
         public string Name { get; }
 
@@ -28,15 +25,13 @@ namespace StardewModdingAPI.Web.Models
         ** Public methods
         *********/
         /// <summary>Construct a valid instance.</summary>
-        /// <param name="modKey">The namespaced mod key.</param>
         /// <param name="name">The mod name.</param>
         /// <param name="version">The mod's semantic version number.</param>
         /// <param name="url">The mod's web URL.</param>
         /// <param name="error">The error message indicating why the mod is invalid (if applicable).</param>
         [JsonConstructor]
-        public ModInfoModel(string modKey, string name, string version, string url, string error = null)
+        public ModInfoModel(string name, string version, string url, string error = null)
         {
-            this.ModKey = modKey;
             this.Name = name;
             this.Version = version;
             this.Url = url;
@@ -44,11 +39,9 @@ namespace StardewModdingAPI.Web.Models
         }
 
         /// <summary>Construct an valid instance.</summary>
-        /// <param name="modKey">The namespaced mod key.</param>
         /// <param name="error">The error message indicating why the mod is invalid.</param>
-        public ModInfoModel(string modKey, string error)
+        public ModInfoModel(string error)
         {
-            this.ModKey = modKey;
             this.Error = error;
         }
     }

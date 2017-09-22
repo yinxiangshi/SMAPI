@@ -29,33 +29,39 @@ namespace StardewModdingAPI.Web.Controllers
         ** Public methods
         *********/
         /// <summary>Fetch version metadata for the given mods.</summary>
-        /// <param name="modKeys">The namespaced mod keys to search.</param>
-        [HttpGet]
-        public async Task<ModInfoModel[]> Post(IEnumerable<string> modKeys)
+        /// <param name="search">The search options.</param>
+        [HttpPost]
+        public async Task<IDictionary<string, ModInfoModel>> Post([FromBody] ModSearchModel search)
         {
-            IList<ModInfoModel> result = new List<ModInfoModel>();
+            // sort & filter keys
+            string[] modKeys = (search.ModKeys ?? new string[0])
+                .Distinct(StringComparer.CurrentCultureIgnoreCase)
+                .OrderBy(p => p, StringComparer.CurrentCultureIgnoreCase)
+                .ToArray();
 
+            // fetch mod info
+            IDictionary<string, ModInfoModel> result = new Dictionary<string, ModInfoModel>(StringComparer.CurrentCultureIgnoreCase);
             foreach (string modKey in modKeys)
             {
                 // parse mod key
                 if (!this.TryParseModKey(modKey, out string vendorKey, out string modID))
                 {
-                    result.Add(new ModInfoModel(modKey, "The mod key isn't in a valid format. It should contain the mod repository key and mod ID like 'Nexus:541'."));
+                    result[modKey] = new ModInfoModel("The mod key isn't in a valid format. It should contain the mod repository key and mod ID like 'Nexus:541'.");
                     continue;
                 }
 
                 // get matching repository
                 if (!this.Repositories.TryGetValue(vendorKey, out IModRepository repository))
                 {
-                    result.Add(new ModInfoModel(modKey, "There's no mod repository matching this namespaced mod ID."));
+                    result[modKey] = new ModInfoModel("There's no mod repository matching this namespaced mod ID.");
                     continue;
                 }
 
                 // fetch mod info
-                result.Add(await repository.GetModInfoAsync(modID));
+                result[modKey] = await repository.GetModInfoAsync(modID);
             }
 
-            return result.ToArray();
+            return result;
         }
 
 
