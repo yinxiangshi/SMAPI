@@ -38,7 +38,11 @@ namespace StardewModdingAPI.Web
         {
             services
                 .AddMvc()
-                .AddJsonOptions(options => options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore); // suppress null values in JSON responses
+                .AddJsonOptions(options =>
+                {
+                    options.SerializerSettings.Formatting = Formatting.Indented;
+                    options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+                });
         }
 
         /// <summary>The method called by the runtime to configure the HTTP request pipeline.</summary>
