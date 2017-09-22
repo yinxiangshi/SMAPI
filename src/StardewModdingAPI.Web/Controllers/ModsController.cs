@@ -10,8 +10,7 @@ namespace StardewModdingAPI.Web.Controllers
 {
     /// <summary>Provides an API to perform mod update checks.</summary>
     [Produces("application/json")]
-    [Route("api/check")]
-    public class CheckController : Controller
+    public class ModsController : Controller
     {
         /*********
         ** Properties
@@ -31,23 +30,24 @@ namespace StardewModdingAPI.Web.Controllers
         /// <summary>Fetch version metadata for the given mods.</summary>
         /// <param name="search">The mod update search criteria.</param>
         [HttpPost]
-        public async Task<ModGenericModel[]> Post([FromBody] ModSearchModel search)
+        [Route("mods")]
+        public async Task<ModInfoModel[]> Post([FromBody] ModSearchModel search)
         {
-            IList<ModGenericModel> result = new List<ModGenericModel>();
+            IList<ModInfoModel> result = new List<ModInfoModel>();
 
             foreach (string modKey in search.ModKeys)
             {
                 // parse mod key
                 if (!this.TryParseModKey(modKey, out string vendorKey, out string modID))
                 {
-                    result.Add(new ModGenericModel(modKey, "The mod key isn't in a valid format. It should contain the mod repository key and mod ID like 'Nexus:541'."));
+                    result.Add(new ModInfoModel(modKey, "The mod key isn't in a valid format. It should contain the mod repository key and mod ID like 'Nexus:541'."));
                     continue;
                 }
 
                 // get matching repository
                 if (!this.Repositories.TryGetValue(vendorKey, out IModRepository repository))
                 {
-                    result.Add(new ModGenericModel(modKey, "There's no mod repository matching this namespaced mod ID."));
+                    result.Add(new ModInfoModel(modKey, "There's no mod repository matching this namespaced mod ID."));
                     continue;
                 }
 

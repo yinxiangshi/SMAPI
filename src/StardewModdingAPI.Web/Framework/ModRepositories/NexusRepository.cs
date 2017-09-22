@@ -35,18 +35,18 @@ namespace StardewModdingAPI.Web.Framework.ModRepositories
 
         /// <summary>Get metadata about a mod in the repository.</summary>
         /// <param name="id">The mod ID in this repository.</param>
-        public async Task<ModGenericModel> GetModInfoAsync(string id)
+        public async Task<ModInfoModel> GetModInfoAsync(string id)
         {
             try
             {
                 NexusResponseModel response = await this.Client
                     .GetAsync($"mods/{id}")
                     .As<NexusResponseModel>();
-                return new ModGenericModel($"{this.VendorKey}:{id}", response.Name, response.Version, response.Url);
+                return new ModInfoModel($"{this.VendorKey}:{id}", response.Name, response.Version, response.Url);
             }
             catch (Exception ex)
             {
-                return new ModGenericModel($"{this.VendorKey}:{id}", ex.ToString());
+                return new ModInfoModel($"{this.VendorKey}:{id}", ex.ToString());
             }
         }
 

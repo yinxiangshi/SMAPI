@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 namespace StardewModdingAPI.Web.Models
 {
     /// <summary>Generic metadata about a mod.</summary>
-    public class ModGenericModel
+    public class ModInfoModel
     {
         /*********
         ** Accessors
@@ -34,7 +34,7 @@ namespace StardewModdingAPI.Web.Models
         /// <param name="url">The mod's web URL.</param>
         /// <param name="error">The error message indicating why the mod is invalid (if applicable).</param>
         [JsonConstructor]
-        public ModGenericModel(string modKey, string name, string version, string url, string error = null)
+        public ModInfoModel(string modKey, string name, string version, string url, string error = null)
         {
             this.ModKey = modKey;
             this.Name = name;
@@ -46,7 +46,7 @@ namespace StardewModdingAPI.Web.Models
         /// <summary>Construct an valid instance.</summary>
         /// <param name="modKey">The namespaced mod key.</param>
         /// <param name="error">The error message indicating why the mod is invalid.</param>
-        public ModGenericModel(string modKey, string error)
+        public ModInfoModel(string modKey, string error)
         {
             this.ModKey = modKey;
             this.Error = error;

@@ -19,6 +19,6 @@ namespace StardewModdingAPI.Web.Framework.ModRepositories
         *********/
         /// <summary>Get metadata about a mod in the repository.</summary>
         /// <param name="id">The mod ID in this repository.</param>
-        Task<ModGenericModel> GetModInfoAsync(string id);
+        Task<ModInfoModel> GetModInfoAsync(string id);
     }
 }
