@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Builder;
+using System.Linq;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using StardewModdingAPI.Web.Framework;
 
 namespace StardewModdingAPI.Web
 {
@@ -35,7 +38,13 @@ namespace StardewModdingAPI.Web
         /// <param name="services">The service injection container.</param>
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
+            services
+                .AddMvc(options =>
+                {
+                    // add support for comma-delimited parameters
+                    ArrayModelBinderProvider arrayModelBinderProvider = options.ModelBinderProviders.OfType<ArrayModelBinderProvider>().First();
+                    options.ModelBinderProviders.Insert(options.ModelBinderProviders.IndexOf(arrayModelBinderProvider), new CommaDelimitedModelBinderProvider());
+                });
         }
 
         /// <summary>The method called by the runtime to configure the HTTP request pipeline.</summary>

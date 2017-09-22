@@ -29,13 +29,13 @@ namespace StardewModdingAPI.Web.Controllers
         ** Public methods
         *********/
         /// <summary>Fetch version metadata for the given mods.</summary>
-        /// <param name="search">The mod update search criteria.</param>
-        [HttpPost]
-        public async Task<ModInfoModel[]> Post([FromBody] ModSearchModel search)
+        /// <param name="modKeys">The namespaced mod keys to search.</param>
+        [HttpGet]
+        public async Task<ModInfoModel[]> Post(IEnumerable<string> modKeys)
         {
             IList<ModInfoModel> result = new List<ModInfoModel>();
 
-            foreach (string modKey in search.ModKeys)
+            foreach (string modKey in modKeys)
             {
                 // parse mod key
                 if (!this.TryParseModKey(modKey, out string vendorKey, out string modID))
