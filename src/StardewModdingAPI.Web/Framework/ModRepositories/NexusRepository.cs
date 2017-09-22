@@ -4,10 +4,10 @@ using Newtonsoft.Json;
 using Pathoschild.Http.Client;
 using StardewModdingAPI.Web.Models;
 
-namespace StardewModdingAPI.Web.Framework
+namespace StardewModdingAPI.Web.Framework.ModRepositories
 {
     /// <summary>An HTTP client for fetching mod metadata from Nexus Mods.</summary>
-    internal class NexusModsClient : IModRepository
+    internal class NexusRepository : IModRepository
     {
         /*********
         ** Properties
@@ -15,11 +15,19 @@ namespace StardewModdingAPI.Web.Framework
         /// <summary>The underlying HTTP client.</summary>
         private readonly IClient Client;
 
+
+        /*********
+        ** Accessors
+        *********/
+        /// <summary>The unique key for this vendor.</summary>
+        public string VendorKey { get; } = "Nexus";
+
+
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        public NexusModsClient()
+        public NexusRepository()
         {
             this.Client = new FluentClient("http://www.nexusmods.com/stardewvalley")
                 .SetUserAgent("Nexus Client v0.63.15");
@@ -27,18 +35,18 @@ namespace StardewModdingAPI.Web.Framework
 
         /// <summary>Get metadata about a mod in the repository.</summary>
         /// <param name="id">The mod ID in this repository.</param>
-        public async Task<ModGenericModel> GetModInfoAsync(int id)
+        public async Task<ModGenericModel> GetModInfoAsync(string id)
         {
             try
             {
                 NexusResponseModel response = await this.Client
                     .GetAsync($"mods/{id}")
                     .As<NexusResponseModel>();
-                return new ModGenericModel("Nexus", id, response.Name, response.Version, response.Url);
+                return new ModGenericModel($"{this.VendorKey}:{id}", response.Name, response.Version, response.Url);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return new ModGenericModel("Nexus", id);
+                return new ModGenericModel($"{this.VendorKey}:{id}", ex.ToString());
             }
         }
 
@@ -58,9 +66,6 @@ namespace StardewModdingAPI.Web.Framework
             /*********
             ** Accessors
             *********/
-            /// <summary>The unique mod ID.</summary>
-            public int ID { get; set; }
-
             /// <summary>The mod name.</summary>
             public string Name { get; set; }
 

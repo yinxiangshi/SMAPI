@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace StardewModdingAPI.Web.Models
 {
     /// <summary>Generic metadata about a mod.</summary>
@@ -6,14 +8,11 @@ namespace StardewModdingAPI.Web.Models
         /*********
         ** Accessors
         *********/
-        /// <summary>The unique mod ID.</summary>
-        public int ID { get; }
+        /// <summary>The namespaced mod key.</summary>
+        public string ModKey { get; }
 
         /// <summary>The mod name.</summary>
         public string Name { get; }
-
-        /// <summary>The mod's vendor ID.</summary>
-        public string Vendor { get; }
 
         /// <summary>The mod's semantic version number.</summary>
         public string Version { get; }
@@ -21,38 +20,36 @@ namespace StardewModdingAPI.Web.Models
         /// <summary>The mod's web URL.</summary>
         public string Url { get; }
 
-        /// <summary>Whether the mod is valid.</summary>
-        public bool Valid { get; }
+        /// <summary>The error message indicating why the mod is invalid (if applicable).</summary>
+        public string Error { get; }
 
 
         /*********
         ** Public methods
         *********/
         /// <summary>Construct a valid instance.</summary>
-        /// <param name="vendor">The mod's vendor ID.</param>
-        /// <param name="id">The unique mod ID.</param>
+        /// <param name="modKey">The namespaced mod key.</param>
         /// <param name="name">The mod name.</param>
         /// <param name="version">The mod's semantic version number.</param>
         /// <param name="url">The mod's web URL.</param>
-        /// <param name="valid">Whether the mod is valid.</param>
-        public ModGenericModel(string vendor, int id, string name, string version, string url, bool valid = true)
+        /// <param name="error">The error message indicating why the mod is invalid (if applicable).</param>
+        [JsonConstructor]
+        public ModGenericModel(string modKey, string name, string version, string url, string error = null)
         {
-            this.Vendor = vendor;
-            this.ID = id;
+            this.ModKey = modKey;
             this.Name = name;
             this.Version = version;
             this.Url = url;
-            this.Valid = valid;
+            this.Error = error; // mainly initialised here for the JSON deserialiser
         }
 
         /// <summary>Construct an valid instance.</summary>
-        /// <param name="vendor">The mod's vendor ID.</param>
-        /// <param name="id">The unique mod ID.</param>
-        public ModGenericModel(string vendor, int id)
+        /// <param name="modKey">The namespaced mod key.</param>
+        /// <param name="error">The error message indicating why the mod is invalid.</param>
+        public ModGenericModel(string modKey, string error)
         {
-            this.Vendor = vendor;
-            this.ID = id;
-            this.Valid = false;
+            this.ModKey = modKey;
+            this.Error = error;
         }
     }
 }

@@ -1,9 +1,9 @@
 namespace StardewModdingAPI.Web.Models
 {
-    /// <summary>The search criteria for a mod.</summary>
+    /// <summary>The mod update search criteria.</summary>
     public class ModSearchModel
     {
-        /// <summary>The Nexus Mods ID (if any).</summary>
-        public int? NexusID { get; set; }
+        /// <summary>The namespaced mod keys to search.</summary>
+        public string[] ModKeys { get; set; }
     }
 }
