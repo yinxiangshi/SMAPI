@@ -19,7 +19,7 @@ namespace StardewModdingAPI.Web.Controllers
         /// <summary>Fetch version metadata for the given mods.</summary>
         /// <param name="mods">The mods for which to fetch update metadata.</param>
         [HttpPost]
-        public async Task<string> Post([FromBody] ModSearchModel[] mods)
+        public async Task<ModGenericModel[]> Post([FromBody] ModSearchModel[] mods)
         {
             using (var client = new HttpClient())
             {
@@ -59,7 +59,7 @@ namespace StardewModdingAPI.Web.Controllers
                     }
                 }
 
-                return JsonConvert.SerializeObject(modList, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+                return modList.ToArray();
             }
         }
     }
