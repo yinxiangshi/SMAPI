@@ -8,10 +8,16 @@ using Dewdrop.Models;
 
 namespace Dewdrop.Controllers
 {
+    /// <summary>Provides an API to perform mod update checks.</summary>
     [Produces("application/json")]
     [Route("api/check")]
     public class CheckController : Controller
     {
+        /*********
+        ** Public methods
+        *********/
+        /// <summary>Fetch version metadata for the given mods.</summary>
+        /// <param name="mods">The mods for which to fetch update metadata.</param>
         [HttpPost]
         public async Task<string> Post([FromBody] NexusResponseModel[] mods)
         {
@@ -25,7 +31,7 @@ namespace Dewdrop.Controllers
                     try
                     {
                         // create request with HttpRequestMessage
-                        var request = new HttpRequestMessage(HttpMethod.Get, new Uri($"http://www.nexusmods.com/stardewvalley/mods/{mod.Id}"));
+                        var request = new HttpRequestMessage(HttpMethod.Get, new Uri($"http://www.nexusmods.com/stardewvalley/mods/{mod.ID}"));
 
                         // add the Nexus Client useragent to get JSON response from the site
                         request.Headers.UserAgent.ParseAdd("Nexus Client v0.63.15");

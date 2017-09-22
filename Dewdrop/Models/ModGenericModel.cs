@@ -1,40 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Dewdrop.Models
+﻿namespace Dewdrop.Models
 {
+    /// <summary>Generic metadata about a mod.</summary>
     public class ModGenericModel
     {
-        /// <summary>
-        /// An identifier for the mod.
-        /// </summary>
-        public int Id { get; set; }
+        /*********
+        ** Accessors
+        *********/
+        /// <summary>The unique mod ID.</summary>
+        public int ID { get; set; }
 
-        /// <summary>
-        /// The mod's name.
-        /// </summary>
+        /// <summary>The mod name.</summary>
         public string Name { get; set; }
 
-        /// <summary>
-        /// The vendor identifier for the mod.
-        /// </summary>
+        /// <summary>The mod's vendor ID.</summary>
         public string Vendor { get; set; }
 
-        /// <summary>
-        /// The mod's version number.
-        /// </summary>
+        /// <summary>The mod's semantic version number.</summary>
         public string Version { get; set; }
 
-        /// <summary>
-        /// The mod's URL
-        /// </summary>
+        /// <summary>The mod's web URL.</summary>
         public string Url { get; set; }
 
-        /// <summary>
-        /// Is the mod a valid mod.
-        /// </summary>
+        /// <summary>Whether the mod is valid.</summary>
         public bool Valid { get; set; } = true;
     }
 }

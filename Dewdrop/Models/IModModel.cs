@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Dewdrop.Models
+﻿namespace Dewdrop.Models
 {
-    interface IModModel
+    /// <summary>A mod metadata response which provides a method to extract generic info.</summary>
+    internal interface IModModel
     {
-        /// <summary>
-        /// Basic information in the form of <see cref="ModGenericModel"/> 
-        /// </summary>
-        /// <returns><see cref="ModGenericModel"/></returns>
+        /*********
+        ** Public methods
+        *********/
+        /// <summary>Get basic mod metadata.</summary>
         ModGenericModel ModInfo();
     }
 }
