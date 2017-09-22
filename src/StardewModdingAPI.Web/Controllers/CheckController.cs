@@ -19,7 +19,7 @@ namespace StardewModdingAPI.Web.Controllers
         /// <summary>Fetch version metadata for the given mods.</summary>
         /// <param name="mods">The mods for which to fetch update metadata.</param>
         [HttpPost]
-        public async Task<string> Post([FromBody] NexusResponseModel[] mods)
+        public async Task<string> Post([FromBody] ModSearchModel[] mods)
         {
             using (var client = new HttpClient())
             {
@@ -28,10 +28,13 @@ namespace StardewModdingAPI.Web.Controllers
 
                 foreach (var mod in mods)
                 {
+                    if (!mod.NexusID.HasValue)
+                        continue;
+
                     try
                     {
                         // create request with HttpRequestMessage
-                        var request = new HttpRequestMessage(HttpMethod.Get, new Uri($"http://www.nexusmods.com/stardewvalley/mods/{mod.ID}"));
+                        var request = new HttpRequestMessage(HttpMethod.Get, new Uri($"http://www.nexusmods.com/stardewvalley/mods/{mod.NexusID}"));
 
                         // add the Nexus Client useragent to get JSON response from the site
                         request.Headers.UserAgent.ParseAdd("Nexus Client v0.63.15");
@@ -42,7 +45,7 @@ namespace StardewModdingAPI.Web.Controllers
                         response.EnsureSuccessStatusCode();
 
                         // get the JSON string of the response
-                        var stringResponse = await response.Content.ReadAsStringAsync();
+                        string stringResponse = await response.Content.ReadAsStringAsync();
 
                         // create the mod data from the JSON string
                         var modData = JsonConvert.DeserializeObject<NexusResponseModel>(stringResponse);
@@ -50,12 +53,9 @@ namespace StardewModdingAPI.Web.Controllers
                         // add to the list of mods
                         modList.Add(modData.ModInfo());
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
-                        var modData = mod.ModInfo();
-                        modData.Valid = false;
-
-                        modList.Add(modData);
+                        modList.Add(new ModGenericModel { ID = mod.NexusID.Value, Vendor = "Nexus", Valid = false });
                     }
                 }
 
