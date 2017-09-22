@@ -9,6 +9,7 @@ using StardewModdingAPI.Web.Models;
 namespace StardewModdingAPI.Web.Controllers
 {
     /// <summary>Provides an API to perform mod update checks.</summary>
+    [Route("v1.0/mods")]
     [Produces("application/json")]
     public class ModsController : Controller
     {
@@ -30,7 +31,6 @@ namespace StardewModdingAPI.Web.Controllers
         /// <summary>Fetch version metadata for the given mods.</summary>
         /// <param name="search">The mod update search criteria.</param>
         [HttpPost]
-        [Route("mods")]
         public async Task<ModInfoModel[]> Post([FromBody] ModSearchModel search)
         {
             IList<ModInfoModel> result = new List<ModInfoModel>();
