@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using StardewModdingAPI.Web.Framework;
 
 namespace StardewModdingAPI.Web
@@ -44,6 +45,11 @@ namespace StardewModdingAPI.Web
                     // add support for comma-delimited parameters
                     ArrayModelBinderProvider arrayModelBinderProvider = options.ModelBinderProviders.OfType<ArrayModelBinderProvider>().First();
                     options.ModelBinderProviders.Insert(options.ModelBinderProviders.IndexOf(arrayModelBinderProvider), new CommaDelimitedModelBinderProvider());
+                })
+                .AddJsonOptions(options =>
+                {
+                    // suppress null values in JSON responses
+                    options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
                 });
         }
 
