@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Dewdrop
+namespace StardewModdingAPI.Web
 {
     /// <summary>The web app startup configuration.</summary>
     public class Startup

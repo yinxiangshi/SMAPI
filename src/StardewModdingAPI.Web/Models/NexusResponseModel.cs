@@ -1,6 +1,6 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 
-namespace Dewdrop.Models
+namespace StardewModdingAPI.Web.Models
 {
     /// <summary>A mod metadata response from Nexus Mods.</summary>
     public class NexusResponseModel : IModModel

@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using Microsoft.AspNetCore.Hosting;
 
-namespace Dewdrop
+namespace StardewModdingAPI.Web
 {
     /// <summary>The main app entry point.</summary>
     public class Program

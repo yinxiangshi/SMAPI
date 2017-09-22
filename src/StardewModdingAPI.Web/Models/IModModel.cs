@@ -1,4 +1,4 @@
-﻿namespace Dewdrop.Models
+namespace StardewModdingAPI.Web.Models
 {
     /// <summary>A mod metadata response which provides a method to extract generic info.</summary>
     internal interface IModModel

@@ -1,4 +1,4 @@
-﻿namespace Dewdrop.Models
+namespace StardewModdingAPI.Web.Models
 {
     /// <summary>Generic metadata about a mod.</summary>
     public class ModGenericModel

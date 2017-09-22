@@ -1,12 +1,12 @@
 using System;
-using System.Net.Http;
-using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
 using System.Collections.Generic;
-using Dewdrop.Models;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using StardewModdingAPI.Web.Models;
 
-namespace Dewdrop.Controllers
+namespace StardewModdingAPI.Web.Controllers
 {
     /// <summary>Provides an API to perform mod update checks.</summary>
     [Produces("application/json")]
