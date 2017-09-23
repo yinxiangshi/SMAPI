@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using StardewModdingAPI.Web.Framework;
+using StardewModdingAPI.Web.Framework.ConfigModels;
 
 namespace StardewModdingAPI.Web
 {
@@ -39,6 +40,7 @@ namespace StardewModdingAPI.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services
+                .Configure<ModUpdateCheckConfig>(this.Configuration.GetSection("ModUpdateCheck"))
                 .AddMemoryCache()
                 .AddMvc()
                 .AddJsonOptions(options =>

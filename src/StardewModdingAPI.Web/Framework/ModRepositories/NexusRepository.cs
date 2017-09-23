@@ -20,17 +20,25 @@ namespace StardewModdingAPI.Web.Framework.ModRepositories
         ** Accessors
         *********/
         /// <summary>The unique key for this vendor.</summary>
-        public string VendorKey { get; } = "Nexus";
+        public string VendorKey { get; }
+
+        /// <summary>The URL for a Nexus Mods API query excluding the base URL, where {0} is the mod ID.</summary>
+        public string ModUrlFormat { get; }
 
 
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        public NexusRepository()
+        /// <param name="vendorKey">The unique key for this vendor.</param>
+        /// <param name="userAgent">The user agent for the Nexus Mods API client.</param>
+        /// <param name="baseUrl">The base URL for the Nexus Mods API.</param>
+        /// <param name="modUrlFormat">The URL for a Nexus Mods API query excluding the <paramref name="baseUrl"/>, where {0} is the mod ID.</param>
+        public NexusRepository(string vendorKey, string userAgent, string baseUrl, string modUrlFormat)
         {
-            this.Client = new FluentClient("http://www.nexusmods.com/stardewvalley")
-                .SetUserAgent("Nexus Client v0.63.15");
+            this.VendorKey = vendorKey;
+            this.ModUrlFormat = modUrlFormat;
+            this.Client = new FluentClient(baseUrl).SetUserAgent(userAgent);
         }
 
         /// <summary>Get metadata about a mod in the repository.</summary>
@@ -40,7 +48,7 @@ namespace StardewModdingAPI.Web.Framework.ModRepositories
             try
             {
                 NexusResponseModel response = await this.Client
-                    .GetAsync($"mods/{id}")
+                    .GetAsync(string.Format(this.ModUrlFormat, id))
                     .As<NexusResponseModel>();
 
                 return response != null

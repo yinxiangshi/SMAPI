@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
+using StardewModdingAPI.Web.Framework.ConfigModels;
 using StardewModdingAPI.Web.Framework.ModRepositories;
 using StardewModdingAPI.Web.Models;
 
@@ -18,15 +20,13 @@ namespace StardewModdingAPI.Web.Controllers
         ** Properties
         *********/
         /// <summary>The mod repositories which provide mod metadata.</summary>
-        private readonly IDictionary<string, IModRepository> Repositories =
-            new IModRepository[]
-            {
-                new NexusRepository()
-            }
-            .ToDictionary(p => p.VendorKey, StringComparer.CurrentCultureIgnoreCase);
+        private readonly IDictionary<string, IModRepository> Repositories;
 
         /// <summary>The cache in which to store mod metadata.</summary>
         private readonly IMemoryCache Cache;
+
+        /// <summary>The number of minutes update checks should be cached before refetching them.</summary>
+        private readonly int CacheMinutes;
 
 
         /*********
@@ -34,9 +34,20 @@ namespace StardewModdingAPI.Web.Controllers
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="cache">The cache in which to store mod metadata.</param>
-        public ModsController(IMemoryCache cache)
+        /// <param name="configProvider">The config settings for mod update checks.</param>
+        public ModsController(IMemoryCache cache, IOptions<ModUpdateCheckConfig> configProvider)
         {
+            ModUpdateCheckConfig config = configProvider.Value;
+
             this.Cache = cache;
+            this.CacheMinutes = config.CacheMinutes;
+
+            this.Repositories =
+                new IModRepository[]
+                {
+                    new NexusRepository(config.NexusKey, config.NexusUserAgent, config.NexusBaseUrl, config.NexusModUrlFormat)
+                }
+                .ToDictionary(p => p.VendorKey, StringComparer.CurrentCultureIgnoreCase);
         }
 
         /// <summary>Fetch version metadata for the given mods.</summary>
@@ -82,7 +93,7 @@ namespace StardewModdingAPI.Web.Controllers
                 // fetch mod info
                 result[modKey] = await this.Cache.GetOrCreateAsync($"{repository.VendorKey}:{modID}".ToLower(), async entry =>
                 {
-                    entry.AbsoluteExpiration = DateTimeOffset.UtcNow.AddHours(1);
+                    entry.AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(this.CacheMinutes);
                     return await repository.GetModInfoAsync(modID);
                 });
             }
