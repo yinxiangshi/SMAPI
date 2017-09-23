@@ -68,26 +68,15 @@ namespace StardewModdingAPI.Web.Controllers
         [HttpGet]
         public async Task<IDictionary<string, ModInfoModel>> GetAsync(string modKeys)
         {
-            return await this.PostAsync(new ModSearchModel
-            {
-                ModKeys = modKeys?.Split(',').Select(p => p.Trim()).ToArray() ?? new string[0]
-            });
-        }
-
-        /// <summary>Fetch version metadata for the given mods.</summary>
-        /// <param name="search">The search options.</param>
-        [HttpPost]
-        public async Task<IDictionary<string, ModInfoModel>> PostAsync([FromBody] ModSearchModel search)
-        {
             // sort & filter keys
-            string[] modKeys = (search.ModKeys ?? new string[0])
+            string[] modKeysArray = (modKeys?.Split(',').Select(p => p.Trim()).ToArray() ?? new string[0])
                 .Distinct(StringComparer.CurrentCultureIgnoreCase)
                 .OrderBy(p => p, StringComparer.CurrentCultureIgnoreCase)
                 .ToArray();
 
             // fetch mod info
             IDictionary<string, ModInfoModel> result = new Dictionary<string, ModInfoModel>(StringComparer.CurrentCultureIgnoreCase);
-            foreach (string modKey in modKeys)
+            foreach (string modKey in modKeysArray)
             {
                 // parse mod key
                 if (!this.TryParseModKey(modKey, out string vendorKey, out string modID))
