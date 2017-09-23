@@ -29,6 +29,17 @@ namespace StardewModdingAPI.Web.Controllers
         ** Public methods
         *********/
         /// <summary>Fetch version metadata for the given mods.</summary>
+        /// <param name="modKeys">The namespaced mod keys to search as a comma-delimited array.</param>
+        [HttpGet]
+        public async Task<IDictionary<string, ModInfoModel>> GetAsync(string modKeys)
+        {
+            return await this.Post(new ModSearchModel
+            {
+                ModKeys = modKeys?.Split(',').Select(p => p.Trim()).ToArray() ?? new string[0]
+            });
+        }
+
+        /// <summary>Fetch version metadata for the given mods.</summary>
         /// <param name="search">The search options.</param>
         [HttpPost]
         public async Task<IDictionary<string, ModInfoModel>> Post([FromBody] ModSearchModel search)
