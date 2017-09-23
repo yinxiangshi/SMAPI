@@ -30,6 +30,12 @@ namespace StardewModdingAPI.Web.Framework.ConfigModels
         /// <summary>The Accept header value expected by the GitHub API.</summary>
         public string GitHubAcceptHeader { get; set; }
 
+        /// <summary>The username with which to authenticate to the GitHub API (if any).</summary>
+        public string GitHubUsername { get; set; }
+
+        /// <summary>The password with which to authenticate to the GitHub API (if any).</summary>
+        public string GitHubPassword { get; set; }
+
         /****
         ** Nexus Mods
         ****/
