@@ -7,7 +7,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using StardewModdingAPI.Web.Framework.ConfigModels;
 using StardewModdingAPI.Web.Framework.ModRepositories;
-using StardewModdingAPI.Web.Models;
+using StardewModdingAPI.Models;
 
 namespace StardewModdingAPI.Web.Controllers
 {
