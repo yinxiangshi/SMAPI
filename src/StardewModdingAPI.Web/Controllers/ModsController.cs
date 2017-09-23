@@ -13,7 +13,7 @@ namespace StardewModdingAPI.Web.Controllers
 {
     /// <summary>Provides an API to perform mod update checks.</summary>
     [Produces("application/json")]
-    public class ModsController : Controller
+    internal class ModsController : Controller
     {
         /*********
         ** Properties

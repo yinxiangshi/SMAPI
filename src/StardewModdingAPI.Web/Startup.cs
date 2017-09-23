@@ -11,7 +11,7 @@ using StardewModdingAPI.Web.Framework.ConfigModels;
 namespace StardewModdingAPI.Web
 {
     /// <summary>The web app startup configuration.</summary>
-    public class Startup
+    internal class Startup
     {
         /*********
         ** Accessors
@@ -44,6 +44,7 @@ namespace StardewModdingAPI.Web
                 .Configure<ModUpdateCheckConfig>(this.Configuration.GetSection("ModUpdateCheck"))
                 .AddMemoryCache()
                 .AddMvc()
+                .ConfigureApplicationPartManager(manager => manager.FeatureProviders.Add(new InternalControllerFeatureProvider()))
                 .AddJsonOptions(options =>
                 {
                     options.SerializerSettings.Formatting = Formatting.Indented;

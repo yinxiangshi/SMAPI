@@ -5,7 +5,7 @@ namespace StardewModdingAPI.Web.Framework
 {
     /// <summary>Rewrite requests to prepend the subdomain portion (if any) to the path.</summary>
     /// <remarks>Derived from <a href="https://stackoverflow.com/a/44526747/262123" />.</remarks>
-    public class RewriteSubdomainRule : IRule
+    internal class RewriteSubdomainRule : IRule
     {
         /// <summary>Applies the rule. Implementations of ApplyRule should set the value for <see cref="RewriteContext.Result" /> (defaults to RuleResult.ContinueRules).</summary>
         /// <param name="context">The rewrite context.</param>

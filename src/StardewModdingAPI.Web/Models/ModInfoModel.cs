@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 namespace StardewModdingAPI.Web.Models
 {
     /// <summary>Generic metadata about a mod.</summary>
-    public class ModInfoModel
+    internal class ModInfoModel
     {
         /*********
         ** Accessors
