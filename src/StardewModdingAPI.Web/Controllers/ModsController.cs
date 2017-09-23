@@ -44,6 +44,7 @@ namespace StardewModdingAPI.Web.Controllers
             this.Repositories =
                 new IModRepository[]
                 {
+                    new GitHubRepository(config.GitHubKey, config.GitHubBaseUrl, config.GitHubReleaseUrlFormat, config.GitHubUserAgent, config.GitHubAcceptHeader),
                     new NexusRepository(config.NexusKey, config.NexusUserAgent, config.NexusBaseUrl, config.NexusModUrlFormat)
                 }
                 .ToDictionary(p => p.VendorKey, StringComparer.CurrentCultureIgnoreCase);
