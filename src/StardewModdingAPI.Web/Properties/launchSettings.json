@@ -1,4 +1,4 @@
-﻿{
+{
   "iisSettings": {
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
@@ -11,7 +11,7 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "api/check",
+      "launchUrl": "api/v1.0/mods",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
@@ -19,7 +19,7 @@
     "Dewdrop": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "api/check",
+      "launchUrl": "api/v1.0/mods",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
