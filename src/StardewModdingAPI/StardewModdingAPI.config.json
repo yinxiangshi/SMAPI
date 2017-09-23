@@ -1,4 +1,4 @@
-﻿/*
+/*
 
 
 
@@ -20,6 +20,17 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
    * if your connection is offline or slow, because it happens in the background.
    */
   "CheckForUpdates": true,
+
+  /**
+   * SMAPI's GitHub project name, used to perform update checks.
+   */
+  "GitHubProjectName": "Pathoschild/SMAPI",
+
+  /**
+   * The base URL for SMAPI's web API, used to perform update checks.
+   * Note: the protocol will be changed to http:// on Linux/Mac due to OpenSSL issues with the game's bundled Mono.
+   */
+  "WebApiBaseUrl": "https://api.smapi.io",
 
   /**
    * Whether SMAPI should log more information about the game context.

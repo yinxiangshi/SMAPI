@@ -21,6 +21,7 @@ using StardewModdingAPI.Framework.ModHelpers;
 using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Serialisation;
+using StardewModdingAPI.Models;
 using StardewValley;
 using Monitor = StardewModdingAPI.Framework.Monitor;
 using SObject = StardewValley.Object;
@@ -572,10 +573,13 @@ namespace StardewModdingAPI
             {
                 try
                 {
-                    GitRelease release = UpdateHelper.GetLatestVersionAsync(Constants.GitHubRepository).Result;
-                    ISemanticVersion latestVersion = new SemanticVersion(release.Tag);
-                    if (latestVersion.IsNewerThan(Constants.ApiVersion))
-                        this.Monitor.Log($"You can update SMAPI from version {Constants.ApiVersion} to {latestVersion}", LogLevel.Alert);
+                    var client = new WebApiClient(this.Settings.WebApiBaseUrl, Constants.ApiVersion);
+                    string key = $"GitHub:{this.Settings.GitHubProjectName}";
+                    ModInfoModel info = client.GetModInfoAsync(key).Result[key];
+                    if (info.Error != null)
+                        this.Monitor.Log($"Couldn't check for a new version of SMAPI. This won't affect your game, but you may not be notified of new versions if this keeps happening.\n{info.Error}");
+                    else if (new SemanticVersion(info.Version).IsNewerThan(Constants.ApiVersion))
+                        this.Monitor.Log($"You can update SMAPI from version {Constants.ApiVersion} to {info.Version}.", LogLevel.Alert);
                 }
                 catch (Exception ex)
                 {
