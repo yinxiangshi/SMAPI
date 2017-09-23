@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using StardewModdingAPI.Web.Framework.ModRepositories;
 using StardewModdingAPI.Web.Models;
 
@@ -24,10 +25,20 @@ namespace StardewModdingAPI.Web.Controllers
             }
             .ToDictionary(p => p.VendorKey, StringComparer.CurrentCultureIgnoreCase);
 
+        /// <summary>The cache in which to store mod metadata.</summary>
+        private readonly IMemoryCache Cache;
+
 
         /*********
         ** Public methods
         *********/
+        /// <summary>Construct an instance.</summary>
+        /// <param name="cache">The cache in which to store mod metadata.</param>
+        public ModsController(IMemoryCache cache)
+        {
+            this.Cache = cache;
+        }
+
         /// <summary>Fetch version metadata for the given mods.</summary>
         /// <param name="modKeys">The namespaced mod keys to search as a comma-delimited array.</param>
         [HttpGet]
@@ -69,7 +80,11 @@ namespace StardewModdingAPI.Web.Controllers
                 }
 
                 // fetch mod info
-                result[modKey] = await repository.GetModInfoAsync(modID);
+                result[modKey] = await this.Cache.GetOrCreateAsync($"{repository.VendorKey}:{modID}".ToLower(), async entry =>
+                {
+                    entry.AbsoluteExpiration = DateTimeOffset.UtcNow.AddHours(1);
+                    return await repository.GetModInfoAsync(modID);
+                });
             }
 
             return result;
