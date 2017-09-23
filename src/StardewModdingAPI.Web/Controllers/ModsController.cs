@@ -9,7 +9,7 @@ using StardewModdingAPI.Web.Models;
 namespace StardewModdingAPI.Web.Controllers
 {
     /// <summary>Provides an API to perform mod update checks.</summary>
-    [Route("v1.0/mods")]
+    [Route("api/v1.0/mods")]
     [Produces("application/json")]
     public class ModsController : Controller
     {
