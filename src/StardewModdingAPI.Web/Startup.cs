@@ -60,7 +60,22 @@ namespace StardewModdingAPI.Web
             loggerFactory.AddDebug();
             app
                 .UseRewriter(new RewriteOptions().Add(new RewriteSubdomainRule())) // convert subdomain.smapi.io => smapi.io/subdomain for routing
-                .UseMvc();
+                .UseMvc(route =>
+                {
+                    route.MapRoute(
+                        name: "API",
+                        template: "api/{version}/{controller}/{action?}",
+                        defaults: new
+                        {
+                            action = "GetAsync"
+                        },
+                        constraints: new
+                        {
+                            // version regex from SMAPI's SemanticVersion implementation
+                            version = @"^v(?>(?<major>0|[1-9]\d*))\.(?>(?<minor>0|[1-9]\d*))(?>(?:\.(?<patch>0|[1-9]\d*))?)(?:-(?<prerelease>(?>[a-z0-9]+[\-\.]?)+))?$"
+                        }
+                    );
+                });
         }
     }
 }

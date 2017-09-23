@@ -12,7 +12,6 @@ using StardewModdingAPI.Web.Models;
 namespace StardewModdingAPI.Web.Controllers
 {
     /// <summary>Provides an API to perform mod update checks.</summary>
-    [Route("api/v1.0/mods")]
     [Produces("application/json")]
     public class ModsController : Controller
     {
@@ -55,7 +54,7 @@ namespace StardewModdingAPI.Web.Controllers
         [HttpGet]
         public async Task<IDictionary<string, ModInfoModel>> GetAsync(string modKeys)
         {
-            return await this.Post(new ModSearchModel
+            return await this.PostAsync(new ModSearchModel
             {
                 ModKeys = modKeys?.Split(',').Select(p => p.Trim()).ToArray() ?? new string[0]
             });
@@ -64,7 +63,7 @@ namespace StardewModdingAPI.Web.Controllers
         /// <summary>Fetch version metadata for the given mods.</summary>
         /// <param name="search">The search options.</param>
         [HttpPost]
-        public async Task<IDictionary<string, ModInfoModel>> Post([FromBody] ModSearchModel search)
+        public async Task<IDictionary<string, ModInfoModel>> PostAsync([FromBody] ModSearchModel search)
         {
             // sort & filter keys
             string[] modKeys = (search.ModKeys ?? new string[0])
