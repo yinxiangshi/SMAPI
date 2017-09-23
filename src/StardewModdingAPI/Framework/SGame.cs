@@ -297,8 +297,8 @@ namespace StardewModdingAPI.Framework
                     GameEvents.InvokeInitialize(this.Monitor);
 #if SMAPI_1_x
                     GameEvents.InvokeLoadContent(this.Monitor);
-#endif
                     GameEvents.InvokeGameLoaded(this.Monitor);
+#endif
                 }
 
                 /*********

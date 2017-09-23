@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace StardewModdingAPI
 {
@@ -31,6 +31,12 @@ namespace StardewModdingAPI
 
         /// <summary>The other mods that must be loaded before this mod.</summary>
         IManifestDependency[] Dependencies { get; }
+
+        /// <summary>The mod's unique ID in Nexus Mods (if any), used for update checks.</summary>
+        string NexusID { get; set; }
+
+        /// <summary>The mod's organisation and project name on GitHub (if any), used for update checks.</summary>
+        string GitHubProject { get; set; }
 
         /// <summary>Any manifest fields which didn't match a valid field.</summary>
         IDictionary<string, object> ExtraFields { get; }
