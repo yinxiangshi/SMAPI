@@ -107,7 +107,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 // validate compatibility
                 {
                     ModCompatibility compatibility = mod.Compatibility;
-                    if (compatibility?.Compatibility == ModCompatibilityType.AssumeBroken)
+                    if (compatibility?.Status == ModStatus.AssumeBroken)
                     {
                         string reasonPhrase = compatibility.ReasonPhrase ?? "it's no longer compatible";
                         string error = $"{reasonPhrase}. Please check for a ";

@@ -166,7 +166,7 @@
     <Compile Include="Framework\Logging\ConsoleInterceptionManager.cs" />
     <Compile Include="Framework\Logging\InterceptingTextWriter.cs" />
     <Compile Include="Framework\Models\ManifestDependency.cs" />
-    <Compile Include="Framework\Models\ModCompatibilityType.cs" />
+    <Compile Include="Framework\Models\ModStatus.cs" />
     <Compile Include="Framework\Models\SConfig.cs" />
     <Compile Include="Framework\ModLoading\ModMetadata.cs" />
     <Compile Include="Framework\Reflection\PrivateProperty.cs" />

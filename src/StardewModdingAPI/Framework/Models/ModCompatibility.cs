@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using StardewModdingAPI.Framework.Serialisation;
 
 namespace StardewModdingAPI.Framework.Models
@@ -34,7 +34,7 @@ namespace StardewModdingAPI.Framework.Models
         /// <example>"this version is incompatible with the latest version of the game"</example>
         public string ReasonPhrase { get; set; }
 
-        /// <summary>Indicates how SMAPI should consider the mod.</summary>
-        public ModCompatibilityType Compatibility { get; set; } = ModCompatibilityType.AssumeBroken;
+        /// <summary>Indicates how SMAPI should treat the mod.</summary>
+        public ModStatus Status { get; set; } = ModStatus.AssumeBroken;
     }
 }
