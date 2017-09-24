@@ -334,8 +334,7 @@ namespace StardewModdingAPI
                 this.Monitor.Log($"You configured SMAPI to not check for updates. Running an old version of SMAPI is not recommended. You can enable update checks by reinstalling SMAPI or editing {Constants.ApiConfigPath}.", LogLevel.Warn);
             if (!this.Monitor.WriteToConsole)
                 this.Monitor.Log("Writing to the terminal is disabled because the --no-terminal argument was received. This usually means launching the terminal failed.", LogLevel.Warn);
-            if (this.Settings.VerboseLogging)
-                this.Monitor.Log("Verbose logging enabled.", LogLevel.Trace);
+            this.VerboseLog("Verbose logging enabled.");
 
             // validate XNB integrity
             if (!this.ValidateContentIntegrity())
@@ -490,6 +489,8 @@ namespace StardewModdingAPI
 
             new Thread(() =>
             {
+                this.Monitor.Log("Checking for updates...", LogLevel.Trace);
+
                 // update info
                 List<string> updates = new List<string>();
                 bool smapiUpdate = false;
@@ -508,7 +509,10 @@ namespace StardewModdingAPI
                     {
                         smapiUpdate = true;
                         updates.Add($"SMAPI {response.Version}: {response.Url}");
+                        this.VerboseLog($"   SMAPI: update to {response.Version} found.");
                     }
+                    else
+                        this.VerboseLog("   SMAPI: OK.");
                 }
                 catch (Exception ex)
                 {
@@ -522,12 +526,34 @@ namespace StardewModdingAPI
                     IDictionary<string, IModMetadata> modsByKey = new Dictionary<string, IModMetadata>(StringComparer.InvariantCultureIgnoreCase);
                     foreach (IModMetadata mod in mods)
                     {
+                        // validate
+                        if (mod.Manifest == null)
+                        {
+                            this.VerboseLog($"   {mod.DisplayName}: no manifest.");
+                            continue;
+                        }
+
+                        // add update keys
+                        bool hasUpdateKeys = false;
                         if (!string.IsNullOrWhiteSpace(mod.Manifest.ChucklefishID))
+                        {
+                            hasUpdateKeys = true;
                             modsByKey[$"Chucklefish:{mod.Manifest.ChucklefishID}"] = mod;
+                        }
                         if (!string.IsNullOrWhiteSpace(mod.Manifest.NexusID))
+                        {
+                            hasUpdateKeys = true;
                             modsByKey[$"Nexus:{mod.Manifest.NexusID}"] = mod;
+                        }
                         if (!string.IsNullOrWhiteSpace(mod.Manifest.GitHubProject))
+                        {
+                            hasUpdateKeys = true;
                             modsByKey[$"GitHub:{mod.Manifest.GitHubProject}"] = mod;
+                        }
+
+                        // log
+                        if (!hasUpdateKeys)
+                            this.VerboseLog($"   {mod.DisplayName}: no update keys.");
                     }
 
                     // fetch results
@@ -535,17 +561,20 @@ namespace StardewModdingAPI
                     IDictionary<IModMetadata, ModInfoModel> updatesByMod = new Dictionary<IModMetadata, ModInfoModel>();
                     foreach (var entry in response)
                     {
+                        IModMetadata mod = modsByKey[entry.Key];
+
                         // handle error
                         if (entry.Value.Error != null)
                         {
-                            this.Monitor.Log($"Couldn't fetch version of {modsByKey[entry.Key].DisplayName} with key {entry.Key}:\n{entry.Value.Error}", LogLevel.Trace);
+                            this.Monitor.Log($"   {mod.DisplayName} ({entry.Key}): update error: {entry.Value.Error}", LogLevel.Trace);
                             continue;
                         }
 
-                        // collect latest mod version
-                        IModMetadata mod = modsByKey[entry.Key];
+                        // track update
                         ISemanticVersion version = new SemanticVersion(entry.Value.Version);
-                        if (version.IsNewerThan(mod.Manifest.Version))
+                        bool isUpdate = version.IsNewerThan(mod.Manifest.Version);
+                        this.VerboseLog($"   {mod.DisplayName} ({entry.Key}): {(isUpdate ? $"update to {entry.Value.Version} found" : "OK")}.");
+                        if (isUpdate)
                         {
                             if (!updatesByMod.TryGetValue(mod, out ModInfoModel other) || version.IsNewerThan(other.Version))
                             {
@@ -941,6 +970,14 @@ namespace StardewModdingAPI
             catch { }
 #endif
             return Environment.OSVersion.ToString();
+        }
+
+        /// <summary>Log a message if verbose mode is enabled.</summary>
+        /// <param name="message">The message to log.</param>
+        private void VerboseLog(string message)
+        {
+            if (this.Settings.VerboseLogging)
+                this.Monitor.Log(message, LogLevel.Trace);
         }
     }
 }
