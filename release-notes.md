@@ -6,7 +6,8 @@ For players:
 * The console is now simpler and easier to read.
 * The console now adjusts its colors when you have a light terminal background.
 * SMAPI now detects mods which may impact game stability and shows a warning in the console.
-* SMAPI now alerts you in the console when one of your mods has a new version.
+* SMAPI now alerts you in the console when one of your mods has a new version.  
+  <small>_That includes most existing mods, even if they haven't updated to use the new update-check API yet._</small>
 * Renamed installer folder from `SMAPI 2.0` to `SMAPI 2.0 installer` to avoid confusion.
 * Updated compatibility list.
 * Fixed update check errors on Linux/Mac.
@@ -33,6 +34,8 @@ For power users:
 
 For SMAPI developers:
 * SMAPI has been significantly refactored under the hood to support changes in 2.0 and upcoming releases.
+* Overhauled `StardewModdingAPI.config.json` format to support injecting mod data.
+* Removed SMAPI 1._x_ compatibility code.
 
 ## 1.15.4
 For players:
