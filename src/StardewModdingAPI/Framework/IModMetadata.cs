@@ -1,4 +1,4 @@
-﻿using StardewModdingAPI.Framework.Models;
+using StardewModdingAPI.Framework.Models;
 using StardewModdingAPI.Framework.ModLoading;
 
 namespace StardewModdingAPI.Framework
@@ -18,8 +18,8 @@ namespace StardewModdingAPI.Framework
         /// <summary>The mod manifest.</summary>
         IManifest Manifest { get; }
 
-        /// <summary>Optional metadata about a mod version that SMAPI should assume is compatible or broken, regardless of whether it detects incompatible code.</summary>
-        ModCompatibility Compatibility { get; }
+        /// <summary>>Metadata about the mod from SMAPI's internal data (if any).</summary>
+        ModDataRecord DataRecord { get; }
 
         /// <summary>The metadata resolution status.</summary>
         ModMetadataStatus Status { get; }

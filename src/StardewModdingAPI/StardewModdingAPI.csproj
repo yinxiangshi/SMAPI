@@ -142,7 +142,7 @@
     <Compile Include="Framework\Utilities\Countdown.cs" />
     <Compile Include="Framework\GameVersion.cs" />
     <Compile Include="Framework\IModMetadata.cs" />
-    <Compile Include="Framework\Models\ModCompatibilityID.cs" />
+    <Compile Include="Framework\Models\ModDataID.cs" />
     <Compile Include="Framework\ModHelpers\BaseHelper.cs" />
     <Compile Include="Framework\ModHelpers\CommandHelper.cs" />
     <Compile Include="Framework\ModHelpers\ContentHelper.cs" />
@@ -194,7 +194,7 @@
     <Compile Include="Framework\DeprecationLevel.cs" />
     <Compile Include="Framework\DeprecationManager.cs" />
     <Compile Include="Framework\InternalExtensions.cs" />
-    <Compile Include="Framework\Models\ModCompatibility.cs" />
+    <Compile Include="Framework\Models\ModDataRecord.cs" />
     <Compile Include="Framework\ModLoading\AssemblyLoader.cs" />
     <Compile Include="Framework\Reflection\CacheEntry.cs" />
     <Compile Include="Framework\Reflection\PrivateField.cs" />

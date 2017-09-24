@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using Newtonsoft.Json;
 
 namespace StardewModdingAPI.Framework.Models
 {
-    /// <summary>Uniquely identifies a mod for compatibility checks.</summary>
-    internal class ModCompatibilityID
+    /// <summary>Uniquely identifies a mod in SMAPI's internal data.</summary>
+    internal class ModDataID
     {
         /*********
         ** Accessors
@@ -23,11 +23,11 @@ namespace StardewModdingAPI.Framework.Models
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        public ModCompatibilityID() { }
+        public ModDataID() { }
 
         /// <summary>Construct an instance.</summary>
-        /// <param name="data">The mod ID or a JSON string matching the <see cref="ModCompatibilityID"/> fields.</param>
-        public ModCompatibilityID(string data)
+        /// <param name="data">The mod ID or a JSON string matching the <see cref="ModDataID"/> fields.</param>
+        public ModDataID(string data)
         {
             // JSON can be stuffed into the ID string as a convenience hack to keep JSON mod lists
             // formatted readably. The tradeoff is that the format is a bit more magical, but that's

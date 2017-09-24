@@ -21,7 +21,7 @@ namespace StardewModdingAPI.Framework.Models
         /// <summary>Whether SMAPI should log more information about the game context.</summary>
         public bool VerboseLogging { get; set; }
 
-        /// <summary>A list of mod versions which should be considered compatible or incompatible regardless of whether SMAPI detects incompatible code.</summary>
-        public ModCompatibility[] ModCompatibility { get; set; }
+        /// <summary>Extra metadata about mods.</summary>
+        public ModDataRecord[] ModData { get; set; }
     }
 }

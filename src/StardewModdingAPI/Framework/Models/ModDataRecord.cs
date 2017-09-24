@@ -3,15 +3,15 @@ using StardewModdingAPI.Framework.Serialisation;
 
 namespace StardewModdingAPI.Framework.Models
 {
-    /// <summary>Metadata about a mod version that SMAPI should assume is compatible or broken, regardless of whether it detects incompatible code.</summary>
-    internal class ModCompatibility
+    /// <summary>Metadata about a mod from SMAPI's internal data.</summary>
+    internal class ModDataRecord
     {
         /*********
         ** Accessors
         *********/
         /// <summary>The unique mod IDs.</summary>
         [JsonConverter(typeof(SFieldConverter))]
-        public ModCompatibilityID[] ID { get; set; }
+        public ModDataID[] ID { get; set; }
 
         /// <summary>The mod name.</summary>
         public string Name { get; set; }

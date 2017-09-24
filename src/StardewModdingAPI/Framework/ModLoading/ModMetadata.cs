@@ -1,4 +1,4 @@
-﻿using StardewModdingAPI.Framework.Models;
+using StardewModdingAPI.Framework.Models;
 
 namespace StardewModdingAPI.Framework.ModLoading
 {
@@ -17,8 +17,8 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>The mod manifest.</summary>
         public IManifest Manifest { get; }
 
-        /// <summary>Optional metadata about a mod version that SMAPI should assume is compatible or broken, regardless of whether it detects incompatible code.</summary>
-        public ModCompatibility Compatibility { get; }
+        /// <summary>Metadata about the mod from SMAPI's internal data (if any).</summary>
+        public ModDataRecord DataRecord { get; }
 
         /// <summary>The metadata resolution status.</summary>
         public ModMetadataStatus Status { get; private set; }
@@ -37,13 +37,13 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="displayName">The mod's display name.</param>
         /// <param name="directoryPath">The mod's full directory path.</param>
         /// <param name="manifest">The mod manifest.</param>
-        /// <param name="compatibility">Optional metadata about a mod version that SMAPI should assume is compatible or broken, regardless of whether it detects incompatible code.</param>
-        public ModMetadata(string displayName, string directoryPath, IManifest manifest, ModCompatibility compatibility)
+        /// <param name="dataRecord">Metadata about the mod from SMAPI's internal data (if any).</param>
+        public ModMetadata(string displayName, string directoryPath, IManifest manifest, ModDataRecord dataRecord)
         {
             this.DisplayName = displayName;
             this.DirectoryPath = directoryPath;
             this.Manifest = manifest;
-            this.Compatibility = compatibility;
+            this.DataRecord = dataRecord;
         }
 
         /// <summary>Set the mod status.</summary>

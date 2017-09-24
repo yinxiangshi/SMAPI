@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -30,7 +30,7 @@ namespace StardewModdingAPI.Tests.Core
             Directory.CreateDirectory(rootFolder);
 
             // act
-            IModMetadata[] mods = new ModResolver().ReadManifests(rootFolder, new JsonHelper(), new ModCompatibility[0]).ToArray();
+            IModMetadata[] mods = new ModResolver().ReadManifests(rootFolder, new JsonHelper(), new ModDataRecord[0]).ToArray();
 
             // assert
             Assert.AreEqual(0, mods.Length, 0, $"Expected to find zero manifests, found {mods.Length} instead.");
@@ -45,7 +45,7 @@ namespace StardewModdingAPI.Tests.Core
             Directory.CreateDirectory(modFolder);
 
             // act
-            IModMetadata[] mods = new ModResolver().ReadManifests(rootFolder, new JsonHelper(), new ModCompatibility[0]).ToArray();
+            IModMetadata[] mods = new ModResolver().ReadManifests(rootFolder, new JsonHelper(), new ModDataRecord[0]).ToArray();
             IModMetadata mod = mods.FirstOrDefault();
 
             // assert
@@ -84,13 +84,13 @@ namespace StardewModdingAPI.Tests.Core
             File.WriteAllText(filename, JsonConvert.SerializeObject(original));
 
             // act
-            IModMetadata[] mods = new ModResolver().ReadManifests(rootFolder, new JsonHelper(), new ModCompatibility[0]).ToArray();
+            IModMetadata[] mods = new ModResolver().ReadManifests(rootFolder, new JsonHelper(), new ModDataRecord[0]).ToArray();
             IModMetadata mod = mods.FirstOrDefault();
 
             // assert
             Assert.AreEqual(1, mods.Length, 0, "Expected to find one manifest.");
             Assert.IsNotNull(mod, "The loaded manifest shouldn't be null.");
-            Assert.AreEqual(null, mod.Compatibility, "The compatibility record should be null since we didn't provide one.");
+            Assert.AreEqual(null, mod.DataRecord, "The data record should be null since we didn't provide one.");
             Assert.AreEqual(modFolder, mod.DirectoryPath, "The directory path doesn't match.");
             Assert.AreEqual(ModMetadataStatus.Found, mod.Status, "The status doesn't match.");
             Assert.AreEqual(null, mod.Error, "The error should be null since parsing should have succeeded.");
@@ -136,12 +136,12 @@ namespace StardewModdingAPI.Tests.Core
             mock.VerifyGet(p => p.Status, Times.Once, "The validation did not check the manifest status.");
         }
 
-        [Test(Description = "Assert that validation fails if the mod has 'assume broken' compatibility.")]
-        public void ValidateManifests_ModCompatibility_AssumeBroken_Fails()
+        [Test(Description = "Assert that validation fails if the mod has 'assume broken' status.")]
+        public void ValidateManifests_ModStatus_AssumeBroken_Fails()
         {
             // arrange
             Mock<IModMetadata> mock = this.GetMetadata("Mod A", new string[0], allowStatusChange: true);
-            this.SetupMetadataForValidation(mock, new ModCompatibility { Status = ModStatus.AssumeBroken, UpperVersion = new SemanticVersion("1.0"), UpdateUrls = new[] { "http://example.org" } });
+            this.SetupMetadataForValidation(mock, new ModDataRecord { Status = ModStatus.AssumeBroken, UpperVersion = new SemanticVersion("1.0"), UpdateUrls = new[] { "http://example.org" } });
 
             // act
             new ModResolver().ValidateManifests(new[] { mock.Object }, apiVersion: new SemanticVersion("1.0"));
@@ -211,7 +211,7 @@ namespace StardewModdingAPI.Tests.Core
             // arrange
             Mock<IModMetadata> mock = new Mock<IModMetadata>(MockBehavior.Strict);
             mock.Setup(p => p.Status).Returns(ModMetadataStatus.Found);
-            mock.Setup(p => p.Compatibility).Returns(() => null);
+            mock.Setup(p => p.DataRecord).Returns(() => null);
             mock.Setup(p => p.Manifest).Returns(manifest);
             mock.Setup(p => p.DirectoryPath).Returns(modFolder);
 
@@ -523,7 +523,7 @@ namespace StardewModdingAPI.Tests.Core
         private Mock<IModMetadata> GetMetadata(IManifest manifest, bool allowStatusChange = false)
         {
             Mock<IModMetadata> mod = new Mock<IModMetadata>(MockBehavior.Strict);
-            mod.Setup(p => p.Compatibility).Returns(() => null);
+            mod.Setup(p => p.DataRecord).Returns(() => null);
             mod.Setup(p => p.Status).Returns(ModMetadataStatus.Found);
             mod.Setup(p => p.DisplayName).Returns(manifest.UniqueID);
             mod.Setup(p => p.Manifest).Returns(manifest);
@@ -539,14 +539,14 @@ namespace StardewModdingAPI.Tests.Core
 
         /// <summary>Set up a mock mod metadata for <see cref="ModResolver.ValidateManifests"/>.</summary>
         /// <param name="mod">The mock mod metadata.</param>
-        /// <param name="compatibility">The compatibility record to set.</param>
-        private void SetupMetadataForValidation(Mock<IModMetadata> mod, ModCompatibility compatibility = null)
+        /// <param name="modRecord">The extra metadata about the mod from SMAPI's internal data (if any).</param>
+        private void SetupMetadataForValidation(Mock<IModMetadata> mod, ModDataRecord modRecord = null)
         {
             mod.Setup(p => p.Status).Returns(ModMetadataStatus.Found);
-            mod.Setup(p => p.Compatibility).Returns(() => null);
+            mod.Setup(p => p.DataRecord).Returns(() => null);
             mod.Setup(p => p.Manifest).Returns(this.GetManifest());
             mod.Setup(p => p.DirectoryPath).Returns(Path.GetTempPath());
-            mod.Setup(p => p.Compatibility).Returns(compatibility);
+            mod.Setup(p => p.DataRecord).Returns(modRecord);
         }
     }
 }

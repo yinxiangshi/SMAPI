@@ -27,7 +27,7 @@ namespace StardewModdingAPI.Framework.Serialisation
             return
                 objectType == typeof(ISemanticVersion)
                 || objectType == typeof(IManifestDependency[])
-                || objectType == typeof(ModCompatibilityID[]);
+                || objectType == typeof(ModDataID[]);
         }
 
         /// <summary>Reads the JSON representation of the object.</summary>
@@ -83,14 +83,14 @@ namespace StardewModdingAPI.Framework.Serialisation
             }
 
             // mod compatibility ID
-            if (objectType == typeof(ModCompatibilityID[]))
+            if (objectType == typeof(ModDataID[]))
             {
-                List<ModCompatibilityID> result = new List<ModCompatibilityID>();
+                List<ModDataID> result = new List<ModDataID>();
                 foreach (JToken child in JArray.Load(reader).Children())
                 {
                     result.Add(child is JValue value
-                        ? new ModCompatibilityID(value.Value<string>())
-                        : child.ToObject<ModCompatibilityID>()
+                        ? new ModDataID(value.Value<string>())
+                        : child.ToObject<ModDataID>()
                     );
                 }
                 return result.ToArray();

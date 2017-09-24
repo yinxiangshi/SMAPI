@@ -44,7 +44,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
    * load a mod regardless of compatibility checks, add a "Compatibility": "AssumeCompatible" field.
    * Changing this field is not recommended and may destabilise your game.
    */
-  "ModCompatibility": [
+  "ModData": [
     {
       "Name": "AccessChestAnywhere",
       "ID": [ "AccessChestAnywhere" ],

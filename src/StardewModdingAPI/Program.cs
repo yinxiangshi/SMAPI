@@ -347,7 +347,7 @@ namespace StardewModdingAPI
                 ModResolver resolver = new ModResolver();
 
                 // load manifests
-                IModMetadata[] mods = resolver.ReadManifests(Constants.ModPath, new JsonHelper(), this.Settings.ModCompatibility).ToArray();
+                IModMetadata[] mods = resolver.ReadManifests(Constants.ModPath, new JsonHelper(), this.Settings.ModData).ToArray();
                 resolver.ValidateManifests(mods, Constants.ApiVersion);
 
                 // process dependencies
@@ -640,7 +640,7 @@ namespace StardewModdingAPI
                     Assembly modAssembly;
                     try
                     {
-                        modAssembly = modAssemblyLoader.Load(metadata, assemblyPath, assumeCompatible: metadata.Compatibility?.Status == ModStatus.AssumeCompatible);
+                        modAssembly = modAssemblyLoader.Load(metadata, assemblyPath, assumeCompatible: metadata.DataRecord?.Status == ModStatus.AssumeCompatible);
                     }
                     catch (IncompatibleInstructionException ex)
                     {
