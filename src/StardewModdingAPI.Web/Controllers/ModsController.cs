@@ -108,9 +108,11 @@ namespace StardewModdingAPI.Web.Controllers
                 result[modKey] = await this.Cache.GetOrCreateAsync($"{repository.VendorKey}:{modID}".ToLower(), async entry =>
                 {
                     entry.AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(this.CacheMinutes);
+
                     ModInfoModel info = await repository.GetModInfoAsync(modID);
-                    if (info.Error == null && !Regex.IsMatch(info.Version, this.VersionRegex, RegexOptions.CultureInvariant | RegexOptions.IgnoreCase))
-                        info = new ModInfoModel(info.Name, info.Version, info.Url, $"Mod has invalid semantic version '{info.Version}'.");
+                    if (info.Error == null && (info.Version == null || !Regex.IsMatch(info.Version, this.VersionRegex, RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)))
+                        info = new ModInfoModel(info.Name, info.Version, info.Url, info.Version == null ? "Mod has no version number." : $"Mod has invalid semantic version '{info.Version}'.");
+
                     return info;
                 });
             }

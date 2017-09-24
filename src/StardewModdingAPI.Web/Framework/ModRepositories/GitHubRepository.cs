@@ -7,23 +7,16 @@ using StardewModdingAPI.Models;
 namespace StardewModdingAPI.Web.Framework.ModRepositories
 {
     /// <summary>An HTTP client for fetching mod metadata from GitHub project releases.</summary>
-    internal class GitHubRepository : IModRepository
+    internal class GitHubRepository : RepositoryBase
     {
         /*********
         ** Properties
         *********/
+        /// <summary>The URL for a Nexus Mods API query excluding the base URL, where {0} is the mod ID.</summary>
+        private readonly string ReleaseUrlFormat;
+
         /// <summary>The underlying HTTP client.</summary>
         private readonly IClient Client;
-
-
-        /*********
-        ** Accessors
-        *********/
-        /// <summary>The unique key for this vendor.</summary>
-        public string VendorKey { get; }
-
-        /// <summary>The URL for a Nexus Mods API query excluding the base URL, where {0} is the mod ID.</summary>
-        public string ReleaseUrlFormat { get; }
 
 
         /*********
@@ -38,8 +31,8 @@ namespace StardewModdingAPI.Web.Framework.ModRepositories
         /// <param name="username">The username with which to authenticate to the GitHub API.</param>
         /// <param name="password">The password with which to authenticate to the GitHub API.</param>
         public GitHubRepository(string vendorKey, string baseUrl, string releaseUrlFormat, string userAgent, string acceptHeader, string username, string password)
+            : base(vendorKey)
         {
-            this.VendorKey = vendorKey;
             this.ReleaseUrlFormat = releaseUrlFormat;
 
             this.Client = new FluentClient(baseUrl)
@@ -51,23 +44,14 @@ namespace StardewModdingAPI.Web.Framework.ModRepositories
 
         /// <summary>Get metadata about a mod in the repository.</summary>
         /// <param name="id">The mod ID in this repository.</param>
-        public async Task<ModInfoModel> GetModInfoAsync(string id)
+        public override async Task<ModInfoModel> GetModInfoAsync(string id)
         {
             try
             {
-                // fetch data
                 GitRelease release = await this.Client
                     .GetAsync(string.Format(this.ReleaseUrlFormat, id))
                     .As<GitRelease>();
-
-                // extract fields
-                string name = id;
-                string version = release.Tag;
-                if (version.StartsWith("v")) // common format on GitHub
-                    version = version.Substring(1);
-                string url = $"https://github.com/{id}/releases";
-                
-                return new ModInfoModel(name, version, url);
+                return new ModInfoModel(id, this.NormaliseVersion(release.Tag), $"https://github.com/{id}/releases");
             }
             catch (Exception ex)
             {
@@ -76,7 +60,7 @@ namespace StardewModdingAPI.Web.Framework.ModRepositories
         }
 
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
-        public void Dispose()
+        public override void Dispose()
         {
             this.Client.Dispose();
         }

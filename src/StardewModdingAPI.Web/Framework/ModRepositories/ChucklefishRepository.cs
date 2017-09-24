@@ -8,26 +8,19 @@ using StardewModdingAPI.Models;
 namespace StardewModdingAPI.Web.Framework.ModRepositories
 {
     /// <summary>An HTTP client for fetching mod metadata from the Chucklefish mod site.</summary>
-    internal class ChucklefishRepository : IModRepository
+    internal class ChucklefishRepository : RepositoryBase
     {
         /*********
         ** Properties
         *********/
-        /// <summary>The underlying HTTP client.</summary>
-        private readonly IClient Client;
-
-
-        /*********
-        ** Accessors
-        *********/
-        /// <summary>The unique key for this vendor.</summary>
-        public string VendorKey { get; }
-
         /// <summary>The base URL for the Chucklefish mod site.</summary>
-        public string BaseUrl { get; }
+        private readonly string BaseUrl;
 
         /// <summary>The URL for a mod page excluding the base URL, where {0} is the mod ID.</summary>
-        public string ModPageUrlFormat { get; }
+        private readonly string ModPageUrlFormat;
+
+        /// <summary>The underlying HTTP client.</summary>
+        private readonly IClient Client;
 
 
         /*********
@@ -39,8 +32,8 @@ namespace StardewModdingAPI.Web.Framework.ModRepositories
         /// <param name="baseUrl">The base URL for the Chucklefish mod site.</param>
         /// <param name="modPageUrlFormat">The URL for a mod page excluding the <paramref name="baseUrl"/>, where {0} is the mod ID.</param>
         public ChucklefishRepository(string vendorKey, string userAgent, string baseUrl, string modPageUrlFormat)
+            : base(vendorKey)
         {
-            this.VendorKey = vendorKey;
             this.BaseUrl = baseUrl;
             this.ModPageUrlFormat = modPageUrlFormat;
             this.Client = new FluentClient(baseUrl).SetUserAgent(userAgent);
@@ -48,7 +41,7 @@ namespace StardewModdingAPI.Web.Framework.ModRepositories
 
         /// <summary>Get metadata about a mod in the repository.</summary>
         /// <param name="id">The mod ID in this repository.</param>
-        public async Task<ModInfoModel> GetModInfoAsync(string id)
+        public override async Task<ModInfoModel> GetModInfoAsync(string id)
         {
             try
             {
@@ -77,7 +70,7 @@ namespace StardewModdingAPI.Web.Framework.ModRepositories
                 string version = doc.DocumentNode.SelectSingleNode("//h1/span").InnerText;
 
                 // create model
-                return new ModInfoModel(name, version, url);
+                return new ModInfoModel(name, this.NormaliseVersion(version), url);
             }
             catch (Exception ex)
             {
@@ -86,7 +79,7 @@ namespace StardewModdingAPI.Web.Framework.ModRepositories
         }
 
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
-        public void Dispose()
+        public override void Dispose()
         {
             this.Client.Dispose();
         }

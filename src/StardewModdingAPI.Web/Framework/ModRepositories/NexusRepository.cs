@@ -7,23 +7,16 @@ using StardewModdingAPI.Models;
 namespace StardewModdingAPI.Web.Framework.ModRepositories
 {
     /// <summary>An HTTP client for fetching mod metadata from Nexus Mods.</summary>
-    internal class NexusRepository : IModRepository
+    internal class NexusRepository : RepositoryBase
     {
         /*********
         ** Properties
         *********/
+        /// <summary>The URL for a Nexus Mods API query excluding the base URL, where {0} is the mod ID.</summary>
+        private readonly string ModUrlFormat;
+
         /// <summary>The underlying HTTP client.</summary>
         private readonly IClient Client;
-
-
-        /*********
-        ** Accessors
-        *********/
-        /// <summary>The unique key for this vendor.</summary>
-        public string VendorKey { get; }
-
-        /// <summary>The URL for a Nexus Mods API query excluding the base URL, where {0} is the mod ID.</summary>
-        public string ModUrlFormat { get; }
 
 
         /*********
@@ -35,15 +28,15 @@ namespace StardewModdingAPI.Web.Framework.ModRepositories
         /// <param name="baseUrl">The base URL for the Nexus Mods API.</param>
         /// <param name="modUrlFormat">The URL for a Nexus Mods API query excluding the <paramref name="baseUrl"/>, where {0} is the mod ID.</param>
         public NexusRepository(string vendorKey, string userAgent, string baseUrl, string modUrlFormat)
+            : base(vendorKey)
         {
-            this.VendorKey = vendorKey;
             this.ModUrlFormat = modUrlFormat;
             this.Client = new FluentClient(baseUrl).SetUserAgent(userAgent);
         }
 
         /// <summary>Get metadata about a mod in the repository.</summary>
         /// <param name="id">The mod ID in this repository.</param>
-        public async Task<ModInfoModel> GetModInfoAsync(string id)
+        public override async Task<ModInfoModel> GetModInfoAsync(string id)
         {
             try
             {
@@ -52,7 +45,7 @@ namespace StardewModdingAPI.Web.Framework.ModRepositories
                     .As<NexusResponseModel>();
 
                 return response != null
-                    ? new ModInfoModel(response.Name, response.Version, response.Url)
+                    ? new ModInfoModel(response.Name, this.NormaliseVersion(response.Version), response.Url)
                     : new ModInfoModel("Found no mod with this ID.");
             }
             catch (Exception ex)
@@ -62,7 +55,7 @@ namespace StardewModdingAPI.Web.Framework.ModRepositories
         }
 
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
-        public void Dispose()
+        public override void Dispose()
         {
             this.Client.Dispose();
         }
