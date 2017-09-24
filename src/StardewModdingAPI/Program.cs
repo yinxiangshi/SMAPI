@@ -554,27 +554,35 @@ namespace StardewModdingAPI
 
                     // fetch results
                     this.Monitor.Log($"Checking for updates to {modsByKey.Count} keys...", LogLevel.Trace);
-                    IDictionary<string, ModInfoModel> response = client.GetModInfoAsync(modsByKey.Keys.ToArray()).Result;
+                    var results =
+                        (
+                            from entry in client.GetModInfoAsync(modsByKey.Keys.ToArray()).Result
+                            let mod = modsByKey[entry.Key]
+                            orderby mod.DisplayName
+                            select new { entry.Key, Mod = modsByKey[entry.Key], Info = entry.Value }
+                        )
+                        .ToArray();
                     IDictionary<IModMetadata, ModInfoModel> updatesByMod = new Dictionary<IModMetadata, ModInfoModel>();
-                    foreach (var entry in response)
+                    foreach (var result in results)
                     {
-                        IModMetadata mod = modsByKey[entry.Key];
+                        IModMetadata mod = result.Mod;
+                        ModInfoModel info = result.Info;
 
                         // handle error
-                        if (entry.Value.Error != null)
+                        if (info.Error != null)
                         {
-                            this.Monitor.Log($"   {mod.DisplayName} ({entry.Key}): update error: {entry.Value.Error}", LogLevel.Trace);
+                            this.Monitor.Log($"   {mod.DisplayName} ({result.Key}): update error: {info.Error}", LogLevel.Trace);
                             continue;
                         }
 
                         // track update
-                        ISemanticVersion version = new SemanticVersion(entry.Value.Version);
+                        ISemanticVersion version = new SemanticVersion(info.Version);
                         bool isUpdate = version.IsNewerThan(mod.Manifest.Version);
-                        this.VerboseLog($"   {mod.DisplayName} ({entry.Key}): {(isUpdate ? $"update to {entry.Value.Version} found" : "OK")}.");
+                        this.VerboseLog($"   {mod.DisplayName} ({result.Key}): {(isUpdate ? $"{mod.Manifest.Version} => {info.Version}" : "OK")}.");
                         if (isUpdate)
                         {
                             if (!updatesByMod.TryGetValue(mod, out ModInfoModel other) || version.IsNewerThan(other.Version))
-                                updatesByMod[mod] = entry.Value;
+                                updatesByMod[mod] = info;
                         }
                     }
 
