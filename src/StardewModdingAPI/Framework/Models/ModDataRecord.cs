@@ -14,9 +14,6 @@ namespace StardewModdingAPI.Framework.Models
         [JsonConverter(typeof(SFieldConverter))]
         public ModDataID ID { get; set; }
 
-        /// <summary>The mod name.</summary>
-        public string Name { get; set; }
-
         /// <summary>Default values for support fields to inject into the manifest.</summary>
         public ModDataDefaults Defaults { get; set; }
 
