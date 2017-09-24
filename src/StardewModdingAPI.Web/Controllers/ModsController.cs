@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -27,6 +28,9 @@ namespace StardewModdingAPI.Web.Controllers
         /// <summary>The number of minutes update checks should be cached before refetching them.</summary>
         private readonly int CacheMinutes;
 
+        /// <summary>A regex which matches SMAPI-style semantic version.</summary>
+        private readonly string VersionRegex;
+
 
         /*********
         ** Public methods
@@ -40,6 +44,7 @@ namespace StardewModdingAPI.Web.Controllers
 
             this.Cache = cache;
             this.CacheMinutes = config.CacheMinutes;
+            this.VersionRegex = config.SemanticVersionRegex;
 
             string version = this.GetType().Assembly.GetName().Version.ToString(3);
             this.Repositories =
@@ -103,7 +108,10 @@ namespace StardewModdingAPI.Web.Controllers
                 result[modKey] = await this.Cache.GetOrCreateAsync($"{repository.VendorKey}:{modID}".ToLower(), async entry =>
                 {
                     entry.AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(this.CacheMinutes);
-                    return await repository.GetModInfoAsync(modID);
+                    ModInfoModel info = await repository.GetModInfoAsync(modID);
+                    if (info.Error == null && !Regex.IsMatch(info.Version, this.VersionRegex, RegexOptions.CultureInvariant | RegexOptions.IgnoreCase))
+                        info = new ModInfoModel(info.Name, info.Version, info.Url, $"Mod has invalid semantic version '{info.Version}'.");
+                    return info;
                 });
             }
 

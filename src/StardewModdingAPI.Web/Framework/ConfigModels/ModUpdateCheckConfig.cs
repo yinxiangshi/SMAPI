@@ -12,6 +12,10 @@ namespace StardewModdingAPI.Web.Framework.ConfigModels
         /// <summary>The number of minutes update checks should be cached before refetching them.</summary>
         public int CacheMinutes { get; set; }
 
+        /// <summary>A regex which matches SMAPI-style semantic version.</summary>
+        /// <remarks>Derived from SMAPI's SemanticVersion implementation.</remarks>
+        public string SemanticVersionRegex { get; set; }
+
         /****
         ** Chucklefish mod site
         ****/
