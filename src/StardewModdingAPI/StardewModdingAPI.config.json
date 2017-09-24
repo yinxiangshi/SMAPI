@@ -48,958 +48,1092 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     {
       "Name": "AccessChestAnywhere",
       "ID": "AccessChestAnywhere",
-      "UpperVersion": "1.1",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/257", "http://www.nexusmods.com/stardewvalley/mods/518" ],
-      "Notes": "Broke in SDV 1.1."
+      "Compatibility": {
+        "~1.1": { "Status": "AssumeBroken" } // broke in SDV 1.1
+      }
     },
     {
       "Name": "AdjustArtisanPrices",
       "ID": "1e36d4ca-c7ef-4dfb-9927-d27a6c3c8bdc",
-      "UpperVersion": "0.0",
-      "UpperVersionLabel": "0.01",
       "UpdateUrls": [ "http://community.playstarbound.com/resources/3532", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 1.9."
+      "Compatibility": {
+        "~0.01": { "Status": "AssumeBroken" } // broke in SMAPI 1.9
+      }
     },
     {
       "Name": "Advanced Location Loader",
       "ID": "Entoarox.AdvancedLocationLoader",
-      "UpperVersion": "1.2.10",
       "UpdateUrls": [ "http://community.playstarbound.com/resources/3619" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.2.10": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "AgingMod",
       "ID": "skn.AgingMod",
-      "UpperVersion": "1.0",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/1129", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Almighty Tool",
       "ID": "AlmightyTool.dll",
-      "UpperVersion": "1.1.1",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/439" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~1.1.1": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "Animal Mood Fix",
       "ID": "GPeters-AnimalMoodFix",
-      "Status": "Obsolete",
-      "ReasonPhrase": "the animal mood bugs were fixed in Stardew Valley 1.2."
+      "Compatibility": {
+        "~": { "Status": "Obsolete", "ReasonPhrase": "the animal mood bugs were fixed in Stardew Valley 1.2." }
+      }
     },
     {
       "Name": "Animal Sitter",
       "ID": "AnimalSitter.dll",
-      "UpperVersion": "1.0.8",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/581", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.0.8": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "A Tapper's Dream",
       "ID": "ddde5195-8f85-4061-90cc-0d4fd5459358",
-      "UpperVersion": "1.4",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/260", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.4": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Better Sprinklers",
       "ID": "SPDSprinklersMod | Speeder.BetterSprinklers", // changed in 2.3
-      "UpperVersion": "2.3.1-pathoschild-update",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/41", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~2.3.1-pathoschild-update": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "Birthday Mail",
       "ID": "005e02dc-d900-425c-9c68-1ff55c5a295d",
-      "UpperVersion": "1.2.2",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/276", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~1.2.2": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "Build Endurance",
       "ID": "{ID:'4be88c18-b6f3-49b0-ba96-f94b1a5be890', Name:'BuildEndurance'}", // disambiguate from other Alpha_Omegasis mods
-      "UpperVersion": "1.3",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/445", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.3": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Build Health",
       "ID": "{ID:'4be88c18-b6f3-49b0-ba96-f94b1a5be890', Name:'BuildHealth'}", // disambiguate from other Alpha_Omegasis mods
-      "UpperVersion": "1.3",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/446", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.3": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Buy Cooking Recipes",
       "ID": "Denifia.BuyRecipes",
-      "UpperVersion": "1.0",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/1126", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Buy Back Collectables",
       "ID": "BuyBackCollectables",
-      "UpperVersion": "1.3",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/507", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.3": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Chest Label System",
       "ID": "SPDChestLabel",
-      "UpperVersion": "1.6",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/242", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SDV 1.1."
+      "Compatibility": {
+        "~1.6": { "Status": "AssumeBroken" } // broke in SDV 1.1
+      }
     },
     {
       "Name": "Chest Pooling",
       "ID": "ChestPooling.dll",
-      "UpperVersion": "1.2",
       "UpdateUrls": [ "http://community.playstarbound.com/threads/111988" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~1.2": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "Chests Anywhere",
       "ID": "ChestsAnywhere | Pathoschild.ChestsAnywhere", // changed in 1.9
-      "UpperVersion": "1.9-beta",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/518" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~1.9-beta": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "Choose Baby Gender",
       "ID": "ChooseBabyGender.dll",
-      "UpperVersion": "1.0.2",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/590", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.0.2": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "CJB Automation",
       "ID": "CJBAutomation",
-      "UpperVersion": "1.4",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/211", "http://www.nexusmods.com/stardewvalley/mods/1063" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~1.4": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "CJB Cheats Menu",
       "ID": "CJBCheatsMenu",
-      "UpperVersion": "1.12",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/4" ],
-      "Notes": "Broke in SDV 1.1."
+      "Compatibility": {
+        "~1.12": { "Status": "AssumeBroken" } // broke in SDV 1.1
+      }
     },
     {
       "Name": "CJB Item Spawner",
       "ID": "CJBItemSpawner",
-      "UpperVersion": "1.5",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/93" ],
-      "Notes": "Broke in SDV 1.1."
+      "Compatibility": {
+        "~1.5": { "Status": "AssumeBroken" } // broke in SDV 1.1
+      }
     },
     {
       "Name": "CJB Show Item Sell Price",
       "ID": "CJBShowItemSellPrice",
-      "UpperVersion": "1.6",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/93" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~1.6": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "Climates of Ferngill",
       "ID": "KoihimeNakamura.ClimatesOfFerngill",
-      "UpperVersion": "1.0",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/604", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Cold Weather Haley",
       "ID": "LordXamon.ColdWeatherHaleyPRO",
-      "UpperVersion": "1.0",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/1169", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Colored Chests",
       "ID": "4befde5c-731c-4853-8e4b-c5cdf946805f",
-      "Status": "Obsolete",
-      "ReasonPhrase": "colored chests were added in Stardew Valley 1.1."
+      "Compatibility": {
+        "~": { "Status": "Obsolete", "ReasonPhrase": "colored chests were added in Stardew Valley 1.1." }
+      }
     },
     {
       "Name": "Combat with Farm Implements",
       "ID": "SPDFarmingImplementsInCombat",
-      "UpperVersion": "1.0",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/313", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Configurable Shipping Dates",
       "ID": "ConfigurableShippingDates",
-      "UpperVersion": "1.1.1",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/675", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.1.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Cooking Skill",
       "ID": "CookingSkill | spacechase0.CookingSkill", // changed in 1.0.4–6
-      "UpperVersion": "1.0.6",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/522" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.0.6": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "CrabNet",
       "ID": "CrabNet.dll",
-      "UpperVersion": "1.0.4",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/584", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.0.4": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Customize Exterior",
       "ID": "CustomizeExterior",
-      "UpperVersion": "1.0.2",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/1099" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.0.2": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Customizable Traveling Cart Days",
       "ID": "TravelingCartYyeahdude",
-      "UpperVersion": "1.0",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/567", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Daily News",
       "ID": "bashNinja.DailyNews",
-      "UpperVersion": "1.1",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/1141", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Dynamic Checklist",
       "ID": "gunnargolf.DynamicChecklist",
-      "UpperVersion": "1.0",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/1145", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Dynamic Machines",
       "ID": "DynamicMachines",
-      "UpperVersion": "1.1",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/374", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Empty Hands",
       "ID": "QuicksilverFox.EmptyHands",
-      "UpperVersion": "1.0",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/1176", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Enemy Health Bars",
       "ID": "SPDHealthBar",
-      "UpperVersion": "1.7",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/193", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~1.7": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "Entoarox Framework",
       "ID": "eacdb74b-4080-4452-b16b-93773cda5cf9 | Entoarox.EntoaroxFramework", // changed in ???
-      "UpperVersion": "1.7.9",
       "UpdateUrls": [ "http://community.playstarbound.com/resources/4228" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.7.9": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Extended Fridge",
       "ID": "Mystra007ExtendedFridge",
-      "UpperVersion": "1.0",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/485", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "Extended Greenhouse",
       "ID": "ExtendedGreenhouse",
-      "UpperVersion": "1.0.2",
       "UpdateUrls": [ "http://community.playstarbound.com/resources/4303", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~1.0.2": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "Fall 28 Snow Day",
       "ID": "{ID:'7ad4f6f7-c3de-4729-a40f-7a11d2b2a358', Name:'Fall28 Snow Day'}", // disambiguate from other mods by Alpha_Omegasis
-      "UpperVersion": "1.3",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/486", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.3": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Farm Automation: Barn Door Automation",
       "ID": "FarmAutomation.BarnDoorAutomation.dll",
-      "UpperVersion": "1.0",
       "UpdateUrls": [ "http://community.playstarbound.com/threads/111931", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Farm Automation: Item Collector",
       "ID": "FarmAutomation.ItemCollector.dll",
-      "UpperVersion": "1.0",
       "UpdateUrls": [ "http://community.playstarbound.com/threads/111931", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "Farm Automation Unofficial: Item Collector",
       "ID": "Maddy99.FarmAutomation.ItemCollector",
-      "UpperVersion": "0.5",
       "UpdateUrls": [ "http://community.playstarbound.com/threads/125172", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~0.5": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Farm Expansion",
       "ID": "3888bdfd-73f6-4776-8bb7-8ad45aea1915 | AdvizeFarmExpansionMod-2-0 | AdvizeFarmExpansionMod-2-0-5", // changed in 2.0 and 2.0.5
-      "UpperVersion": "2.0.5",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/130", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~2.0.5": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Farm Resource Generator",
       "ID": "FarmResourceGenerator.dll",
-      "UpperVersion": "1.0.4",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/647", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.0.4": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Faster Run",
       "ID": "FasterRun.dll",
-      "UpperVersion": "1.1",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/733", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "FlorenceMod",
       "ID": "FlorenceMod.dll",
-      "UpperVersion": "1.1",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/591", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Forage at the Farm",
       "ID": "ForageAtTheFarm",
-      "UpperVersion": "1.5.1",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/673", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.5.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Instant Geode",
       "ID": "InstantGeode",
-      "UpperVersion": "1.12",
       "UpdateUrls": [ "http://community.playstarbound.com/threads/109038", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~1.12": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "Gate Opener",
       "ID": "GateOpener.dll | mralbobo.GateOpener", // changed in 1.1
-      "UpperVersion": "1.0.1",
       "UpdateUrls": [ "http://community.playstarbound.com/threads/111988" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~1.0.1": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "GenericShopExtender",
       "ID": "GenericShopExtender",
-      "UpperVersion": "0.1.2",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/814", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~0.1.2": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Get Dressed",
       "ID": "GetDressed.dll | Advize.GetDressed", // changed in 3.3
-      "UpperVersion": "3.3",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/331" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~3.3": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "Gift Taste Helper",
       "ID": "8008db57-fa67-4730-978e-34b37ef191d6",
-      "UpperVersion": "2.3.1",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/229" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~2.3.1": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "Happy Animals",
       "ID": "HappyAnimals",
-      "UpperVersion": "1.0.3",
       "UpdateUrls": [ "https://community.playstarbound.com/threads/126655", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.0.3": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Happy Birthday",
       "ID": "{ID:'HappyBirthday', Author:'Alpha_Omegasis'}", // disambiguate from Oxyligen's fork
-      "UpperVersion": "1.3",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/520", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.3": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Harvest With Scythe",
       "ID": "965169fd-e1ed-47d0-9f12-b104535fb4bc",
-      "UpperVersion": "1.0.6",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/236", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.0.6": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Hunger for Food",
       "ID": "HungerForFoodByTigerle",
-      "UpperVersion": "0.1.2",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/810", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~0.1.2": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Improved Quality of Life",
       "ID": "Demiacle.ImprovedQualityOfLife",
-      "UpperVersion": "1.1",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/1025", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Less Strict Over-Exertion (AntiExhaustion)",
       "ID": "BALANCEMOD_AntiExhaustion",
-      "UpperVersion": "1.1",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/637", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Lookup Anything",
       "ID": "LookupAnything | Pathoschild.LookupAnything", // changed in 1.10.1
-      "UpperVersion": "1.10.1",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/541" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~1.10.1": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "Loved Labels",
       "ID": "LovedLabels.dll",
-      "UpperVersion": "2.0",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/279" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~2.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Luck Skill",
       "ID": "LuckSkill | spacechase0.LuckSkill", // changed in 0.1.4
-      "UpperVersion": "0.1.4",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/521" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~0.1.4": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "MailOrderPigs",
       "ID": "MailOrderPigs.dll",
-      "UpperVersion": "1.0.1",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/632", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.0.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Makeshift Multiplayer",
       "ID": "StardewValleyMP | spacechase0.StardewValleyMP", // changed in 0.3
-      "UpperVersion": "0.3.6",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/501", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~0.3.6": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Message Box [API]? (ChatMod)",
       "ID": "Kithio:ChatMod",
-      "UpperVersion": "1.0",
       "UpdateUrls": [ "http://community.playstarbound.com/resources/message-box-api.4296", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Modder Serialization Utility",
       "ID": "SerializerUtils-0-1",
-      "Status": "Obsolete",
-      "ReasonPhrase": "it's no longer maintained or used."
+      "Compatibility": {
+        "~": { "Status": "Obsolete", "ReasonPhrase": "it's no longer maintained or used." }
+      }
     },
     {
       "Name": "More Artifact Spots",
       "ID": "451",
-      "UpperVersion": "1.0.1",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/451", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.0.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "More Pets",
       "ID": "821ce8f6-e629-41ad-9fde-03b54f68b0b6MOREPETS | Entoarox.MorePets", // changed in 1.3
-      "UpperVersion": "1.3.2",
       "UpdateUrls": [ "http://community.playstarbound.com/resources/4288" ],
-      "Notes": "Overhauled for SMAPI 1.11+ compatibility."
+      "Compatibility": {
+        "~1.3.2": { "Status": "AssumeBroken" } // overhauled for SMAPI 1.11+ compatibility
+      }
     },
     {
       "Name": "More Rain",
       "ID": "{ID:'4108e859-333c-4fec-a1a7-d2e18c1019fe', Name:'More_Rain'}", // disambiguate from other mods by Alpha_Omegasis
-      "UpperVersion": "1.4",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/441", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.4": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Multiple Sprites and Portraits On Rotation (File Loading)",
       "ID": "FileLoading",
-      "UpperVersion": "1.12",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/1094", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.12": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Museum Rearranger",
       "ID": "{ID:'7ad4f6f7-c3de-4729-a40f-7a11d2b2a358', Name:'Museum Rearranger'}", // disambiguate from other mods by Alpha_Omegasis
-      "UpperVersion": "1.3",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/428", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.3": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "New Machines",
       "ID": "F70D4FAB-0AB2-4B78-9F1B-AF2CA2236A59",
-      "UpperVersion": "4.2.1343",
       "UpdateUrls": [ "http://community.playstarbound.com/resources/3683", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~4.2.1343": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Night Owl",
       "ID": "{ID:'SaveAnywhere', Name:'Stardew_NightOwl'}", // disambiguate from Save Anywhere
-      "UpperVersion": "2.1",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/433", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~2.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "No Debug Mode",
       "ID": "NoDebugMode",
-      "Status": "Obsolete",
-      "ReasonPhrase": "debug mode was removed in SMAPI 1.0."
+      "Compatibility": {
+        "~": { "Status": "Obsolete", "ReasonPhrase": "debug mode was removed in SMAPI 1.0." }
+      }
     },
     {
       "Name": "NoSoilDecay",
       "ID": "289dee03-5f38-4d8e-8ffc-e440198e8610",
-      "UpperVersion": "0.5",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/237", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SDV 1.2, and uses Assembly.GetExecutingAssembly().Location."
+      "Compatibility": {
+        "~0.5": { "Status": "AssumeBroken" } // broke in SDV 1.2, and uses Assembly.GetExecutingAssembly().Location
+      }
     },
     {
       "Name": "NPC Map Locations",
       "ID": "NPCMapLocationsMod",
-      "LowerVersion": "1.42",
-      "UpperVersion": "1.43",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/239" ],
-      "ReasonPhrase": "this version has an update check error which crashes the game."
+      "Compatibility": {
+        "1.42~1.43": { "Status": "AssumeBroken", "ReasonPhrase": "this version has an update check error which crashes the game." }
+      }
     },
     {
       "Name": "NPC Speak",
       "ID": "NpcEcho.dll",
-      "UpperVersion": "1.0",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/694", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0"
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "OmniFarm",
       "ID": "BlueMod_OmniFarm",
-      "UpperVersion": "2.0.1",
       "UpdateUrls": [ "http://community.playstarbound.com/threads/127299", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0"
+      "Compatibility": {
+        "~2.0.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Part of the Community",
       "ID": "SB_PotC",
-      "UpperVersion": "1.0.8",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/923" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~1.0.8": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "PelicanFiber",
       "ID": "PelicanFiber.dll",
-      "UpperVersion": "3.0",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/631", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~3.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "PelicanTTS",
       "ID": "Platonymous.PelicanTTS",
-      "UpperVersion": "1.6",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/1079", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.6": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Persival's BundleMod",
       "ID": "BundleMod.dll",
-      "UpperVersion": "1.0",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/438", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SDV 1.1."
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SDV 1.1
+      }
     },
     {
       "Name": "Point-and-Plant",
       "ID": "PointAndPlant.dll",
-      "UpperVersion": "1.0.2",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/572", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~1.0.2": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "PrairieKingMadeEasy",
       "ID": "PrairieKingMadeEasy.dll",
-      "UpperVersion": "1.0",
       "UpdateUrls": [ "http://community.playstarbound.com/resources/3594", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "RainRandomizer",
       "ID": "RainRandomizer.dll",
-      "UpperVersion": "1.0.3",
       "UpdateUrls": [ "http://community.playstarbound.com/threads/111526", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.0.3": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "RelationshipsEnhanced",
       "ID": "relationshipsenhanced",
-      "UpperVersion": "1.0",
       "UpdateUrls": [ "http://community.playstarbound.com/resources/4435", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "RelationShipStatus",
       "ID": "relationshipstatus",
-      "UpperVersion": "1.0.5",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/751", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.0.5": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Replanter",
       "ID": "Replanter.dll",
-      "UpperVersion": "1.0.4",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/589", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.0.4": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Reusable Wallpapers and Floors (Wallpaper Retain)",
       "ID": "dae1b553-2e39-43e7-8400-c7c5c836134b",
-      "UpperVersion": "1.5",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/356", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.5": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Rush Orders",
       "ID": "RushOrders | spacechase0.RushOrders", // changed in 1.1
-      "UpperVersion": "1.1",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/605" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~1.1": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "Save Anywhere",
       "ID": "{ID:'SaveAnywhere', Name:'Save Anywhere'}", // disambiguate from Night Owl
-      "UpperVersion": "2.4",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/444", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~2.4": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Seasonal Immersion",
       "ID": "EntoaroxSeasonalHouse | EntoaroxSeasonalBuildings | EntoaroxSeasonalImmersion | Entoarox.SeasonalImmersion", // changed in 1.1, 1.6 or earlier, and 1.7
-      "UpperVersion": "1.8.2",
       "UpdateUrls": [ "http://community.playstarbound.com/resources/4262", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.8.2": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Send Items",
       "ID": "Denifia.SendItems",
-      "UpperVersion": "1.0.2",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/1087", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.0.2": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Shed Notifications (BuildingsNotifications)",
       "ID": "TheCroak.BuildingsNotifications",
-      "UpperVersion": "0.4.1",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/620", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~0.4.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Shenandoah Project",
       "ID": "Shenandoah Project",
-      "UpperVersion": "1.1.1",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/756", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.1.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Shipment Tracker",
       "ID": "7e474181-e1a0-40f9-9c11-d08a3dcefaf3",
-      "UpperVersion": "1.1",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/321", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Shop Expander",
       "ID": "821ce8f6-e629-41ad-9fde-03b54f68b0b6 | EntoaroxShopExpander | Entoarox.ShopExpander", // changed in 1.5 and 1.5.2
-      "UpperVersion": "1.5.3",
       "UpdateUrls": [ "http://community.playstarbound.com/resources/4381", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.5.3": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Showcase Mod",
       "ID": "Igorious.Showcase",
-      "UpperVersion": "0.9",
       "UpdateUrls": [ "http://community.playstarbound.com/resources/4487", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~0.9": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Simple Sprinklers",
       "ID": "SimpleSprinkler.dll",
-      "UpperVersion": "1.4",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/76", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~1.4": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "Siv's Marriage Mod",
       "ID": "6266959802",
-      "UpperVersion": "1.2.2",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/366", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 1.9 (has multiple Mod instances)."
+      "Compatibility": {
+        "~1.2.2": { "Status": "AssumeBroken" } // broke in SMAPI 1.9 (has multiple Mod instances)
+      }
     },
     {
       "Name": "Skill Prestige",
       "ID": "6b843e60-c8fc-4a25-a67b-4a38ac8dcf9b",
-      "UpperVersion": "1.0.9",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/569", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.0.9": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Skill Prestige: Cooking Adapter",
       "ID": "20d6b8a3-b6e7-460b-a6e4-07c2b0cb6c63",
-      "UpperVersion": "1.0.9",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/569", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.0.9": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Slower Fence Decay",
       "ID": "SPDSlowFenceDecay",
-      "UpperVersion": "0.5.1",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/252", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~0.5.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Smart Mod",
       "ID": "KuroBear.SmartMod",
-      "UpperVersion": "2.2",
       "UpdateUrls": [ "http://community.playstarbound.com/threads/108104", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~2.2": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Solar Eclipse Event",
       "ID": "KoihimeNakamura.SolarEclipseEvent",
-      "UpperVersion": "1.1",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/897", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Sprinkles",
       "ID": "Platonymous.Sprinkles",
-      "UpperVersion": "1.1.3",
       "UpdateUrls": [ "http://community.playstarbound.com/resources/4592", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.1.3": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Sprint and Dash",
       "ID": "SPDSprintAndDash",
-      "UpperVersion": "1.0",
       "UpdateUrls": [ "http://community.playstarbound.com/resources/3531", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "Sprint and Dash Redux",
       "ID": "SPDSprintAndDash",
-      "UpperVersion": "1.2",
       "UpdateUrls": [ "http://community.playstarbound.com/resources/4201" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~1.2": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "Sprinting Mod",
       "ID": "a10d3097-b073-4185-98ba-76b586cba00c",
-      "UpperVersion": "2.1",
       "UpdateUrls": [ "http://community.playstarbound.com/threads/108313", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~2.1": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "StackSplitX",
       "ID": "StackSplitX.dll",
-      "UpperVersion": "1.2",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/798" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~1.2": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "StaminaRegen",
       "ID": "StaminaRegen.dll",
-      "UpperVersion": "1.0.3",
       "UpdateUrls": [ "http://community.playstarbound.com/threads/111526", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.0.3": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Stardew Auto Backup",
       "ID": "{ID:'4be88c18-b6f3-49b0-ba96-f94b1a5be890', Name:'Stardew_Save_Backup'}", // disambiguate from other Alpha_Omegasis mods
-      "UpperVersion": "1.2",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/435", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.2": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Stardew Notification",
       "ID": "stardewnotification",
-      "UpperVersion": "1.7",
       "UpdateUrls": [ "http://community.playstarbound.com/threads/127979", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.7": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Stardew Symphony",
       "ID": "{ID:'4108e859-333c-4fec-a1a7-d2e18c1019fe', Name:'Stardew_Symphony'}", // disambiguate other mods by Alpha_Omegasis
-      "UpperVersion": "1.3",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/425", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.3": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "StarDustCore",
       "ID": "StarDustCore",
-      "Status": "Obsolete",
-      "ReasonPhrase": "it was only used by earlier versions of Save Anywhere, and is no longer used or maintained."
+      "Compatibility": {
+        "~": { "Status": "Obsolete", "ReasonPhrase": "it was only used by earlier versions of Save Anywhere, and is no longer used or maintained." }
+      }
     },
     {
       "Name": "StashItemsToChest",
       "ID": "BlueMod_StashItemsToChest",
-      "UpperVersion": "1.0.1",
       "UpdateUrls": [ "http://community.playstarbound.com/threads/126906", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.0.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Stone Bridge Over Pond (PondWithBridge)",
       "ID": "PondWithBridge.dll",
-      "UpperVersion": "1.0",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/316", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Super Greenhouse Warp Modifier",
       "ID": "SuperGreenhouse",
-      "UpperVersion": "1.0",
-      "UpperVersionLabel": "1.0 (2016-11-29)",
       "UpdateUrls": [ "http://community.playstarbound.com/resources/4334", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Tainted Cellar",
       "ID": "TaintedCellar.dll",
-      "UpperVersion": "1.0",
       "UpdateUrls": [ "http://community.playstarbound.com/threads/115735", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SDV 1.1 or 1.11."
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SDV 1.1 or 1.11
+      }
     },
     {
       "Name": "Teleporter",
       "ID": "Teleporter",
-      "UpperVersion": "1.0.2",
       "UpdateUrls": [ "http://community.playstarbound.com/resources/4374", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~1.0.2": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "Three-heart Dance Partner",
       "ID": "ThreeHeartDancePartner",
-      "UpperVersion": "1.0.1",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/500", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~1.0.1": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "TimeSpeed",
       "ID": "TimeSpeed.dll | {ID:'4108e859-333c-4fec-a1a7-d2e18c1019fe', Name:'TimeSpeed'} | {ID:'4108e859-333c-4fec-a1a7-d2e18c1019fe', Name:'TimeSpeed Mod (unofficial)'} | community.TimeSpeed", // changed in 2.0.3 and 2.1; disambiguate other mods by Alpha_Omegasis
-      "UpperVersion": "2.2",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/169" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~2.2": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "UiModSuite",
       "ID": "Demiacle.UiModSuite",
-      "UpperVersion": "1.0",
       "UpdateUrls": [ "http://www.nexusmods.com/stardewvalley/mods/1023", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "WakeUp",
       "ID": "WakeUp.dll",
-      "UpperVersion": "1.0.2",
       "UpdateUrls": [ "http://community.playstarbound.com/threads/111526", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.0.2": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Wallpaper Fix",
       "ID": "WallpaperFix.dll",
-      "UpperVersion": "1.1",
       "UpdateUrls": [ "http://community.playstarbound.com/resources/4211", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "Weather Controller",
       "ID": "WeatherController.dll",
-      "UpperVersion": "1.0.2",
       "UpdateUrls": [ "http://community.playstarbound.com/threads/111526", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~1.0.2": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "Wonderful Farm Life",
       "ID": "WonderfulFarmLife.dll",
-      "UpperVersion": "1.0",
       "UpdateUrls": [ "http://community.playstarbound.com/threads/115384", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SDV 1.1 or 1.11."
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SDV 1.1 or 1.11
+      }
     },
     {
       "Name": "XmlSerializerRetool",
       "ID": "XmlSerializerRetool.dll",
-      "Status": "Obsolete",
-      "ReasonPhrase": "it's no longer maintained or used."
+      "Compatibility": {
+        "~": { "Status": "Obsolete", "ReasonPhrase": "it's no longer maintained or used." }
+      }
     },
     {
       "Name": "Xnb Loader",
       "ID": "Entoarox.XnbLoader",
-      "UpperVersion": "1.0.6",
       "UpdateUrls": [ "http://community.playstarbound.com/resources/4506", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
-      "Notes": "Broke in SMAPI 2.0."
+      "Compatibility": {
+        "~1.0.6": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       "Name": "zDailyIncrease",
       "ID": "zdailyincrease",
-      "UpperVersion": "1.2",
       "UpdateUrls": [ "http://community.playstarbound.com/resources/4247" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~1.2": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "Zoom Out Extreme",
       "ID": "ZoomMod",
-      "UpperVersion": "0.1",
       "UpdateUrls": [ "http://community.playstarbound.com/threads/115028" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~0.1": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "Zoryn's Better RNG",
       "ID": "76b6d1e1-f7ba-4d72-8c32-5a1e6d2716f6 | Zoryn.BetterRNG", // changed in 1.6
-      "UpperVersion": "1.6",
       "UpdateUrls": [ "https://github.com/Zoryn4163/SMAPI-Mods/releases" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~1.6": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "Zoryn's Calendar Anywhere",
       "ID": "a41c01cd-0437-43eb-944f-78cb5a53002a | Zoryn.CalendarAnywhere", // changed in 1.6
-      "UpperVersion": "1.6",
       "UpdateUrls": [ "https://github.com/Zoryn4163/SMAPI-Mods/releases" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~1.6": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "Zoryn's Health Bars",
       "ID": "HealthBars.dll | Zoryn.HealthBars", // changed in 1.6
-      "UpperVersion": "1.6",
       "UpdateUrls": [ "https://github.com/Zoryn4163/SMAPI-Mods/releases" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~1.6": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "Zoryn's Junimo Deposit Anywhere",
       "ID": "f93a4fe8-cade-4146-9335-b5f82fbbf7bc | Zoryn.JunimoDepositAnywhere", // changed in 1.6
-      "UpperVersion": "1.7",
       "UpdateUrls": [ "https://github.com/Zoryn4163/SMAPI-Mods/releases" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~1.7": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "Zoryn's Movement Mod",
       "ID": "8a632929-8335-484f-87dd-c29d2ba3215d | Zoryn.MovementModifier", // changed in 1.6
-      "UpperVersion": "1.6",
       "UpdateUrls": [ "https://github.com/Zoryn4163/SMAPI-Mods/releases" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~1.6": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     },
     {
       "Name": "Zoryn's Regen Mod",
       "ID": "dfac4383-1b6b-4f33-ae4e-37fc23e5252e | Zoryn.RegenMod", // changed in 1.6
-      "UpperVersion": "1.6",
       "UpdateUrls": [ "https://github.com/Zoryn4163/SMAPI-Mods/releases" ],
-      "Notes": "Broke in SDV 1.2."
+      "Compatibility": {
+        "~1.6": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
     }
   ]
 }

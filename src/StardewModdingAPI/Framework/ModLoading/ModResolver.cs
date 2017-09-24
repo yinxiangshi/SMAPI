@@ -61,14 +61,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                     string key = !string.IsNullOrWhiteSpace(manifest.UniqueID) ? manifest.UniqueID : manifest.EntryDll;
 
                     // get data record
-                    dataRecord = (
-                        from mod in dataRecords
-                        where
-                            mod.ID.Matches(key, manifest)
-                            && (mod.LowerVersion == null || !manifest.Version.IsOlderThan(mod.LowerVersion))
-                            && (mod.UpperVersion == null || !manifest.Version.IsNewerThan(mod.UpperVersion))
-                        select mod
-                    ).FirstOrDefault();
+                    dataRecord = dataRecords.FirstOrDefault(record => record.ID.Matches(key, manifest));
                 }
 
                 // build metadata
@@ -98,28 +91,26 @@ namespace StardewModdingAPI.Framework.ModLoading
                     continue;
 
                 // validate compatibility
+                ModCompatibility compatibility = mod.DataRecord?.GetCompatibility(mod.Manifest.Version);
+                switch (compatibility?.Status)
                 {
-                    ModDataRecord dataRecord = mod.DataRecord;
-                    switch (dataRecord?.Status)
-                    {
-                        case ModStatus.Obsolete:
-                            mod.SetStatus(ModMetadataStatus.Failed, $"it's obsolete: {dataRecord.ReasonPhrase}");
-                            continue;
+                    case ModStatus.Obsolete:
+                        mod.SetStatus(ModMetadataStatus.Failed, $"it's obsolete: {compatibility.ReasonPhrase}");
+                        continue;
 
-                        case ModStatus.AssumeBroken:
-                            {
-                                string reasonPhrase = dataRecord.ReasonPhrase ?? "it's no longer compatible";
-                                string error = $"{reasonPhrase}. Please check for a ";
-                                if (mod.Manifest.Version.Equals(dataRecord.UpperVersion) && dataRecord.UpperVersionLabel == null)
-                                    error += "newer version";
-                                else
-                                    error += $"version newer than {dataRecord.UpperVersionLabel ?? dataRecord.UpperVersion.ToString()}";
-                                error += " at " + string.Join(" or ", dataRecord.UpdateUrls);
+                    case ModStatus.AssumeBroken:
+                        {
+                            string reasonPhrase = compatibility.ReasonPhrase ?? "it's no longer compatible";
+                            string error = $"{reasonPhrase}. Please check for a ";
+                            if (mod.Manifest.Version.Equals(compatibility.UpperVersion))
+                                error += "newer version";
+                            else
+                                error += $"version newer than {compatibility.UpperVersion}";
+                            error += " at " + string.Join(" or ", mod.DataRecord.UpdateUrls);
 
-                                mod.SetStatus(ModMetadataStatus.Failed, error);
-                                continue;
-                            }
-                    }
+                            mod.SetStatus(ModMetadataStatus.Failed, error);
+                        }
+                        continue;
                 }
 
                 // validate SMAPI version

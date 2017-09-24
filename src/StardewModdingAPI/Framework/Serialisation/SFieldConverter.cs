@@ -27,7 +27,8 @@ namespace StardewModdingAPI.Framework.Serialisation
             return
                 objectType == typeof(ISemanticVersion)
                 || objectType == typeof(IManifestDependency[])
-                || objectType == typeof(ModDataID);
+                || objectType == typeof(ModDataID)
+                || objectType == typeof(ModCompatibility[]);
         }
 
         /// <summary>Reads the JSON representation of the object.</summary>
@@ -68,7 +69,7 @@ namespace StardewModdingAPI.Framework.Serialisation
                 }
             }
 
-            // manifest dependency
+            // manifest dependencies
             if (objectType == typeof(IManifestDependency[]))
             {
                 List<IManifestDependency> result = new List<IManifestDependency>();
@@ -82,11 +83,26 @@ namespace StardewModdingAPI.Framework.Serialisation
                 return result.ToArray();
             }
 
-            // mod compatibility ID
+            // mod data ID
             if (objectType == typeof(ModDataID))
             {
                 JToken token = JToken.Load(reader);
                 return new ModDataID(token.Value<string>());
+            }
+
+            // mod compatibility records
+            if (objectType == typeof(ModCompatibility[]))
+            {
+                List<ModCompatibility> result = new List<ModCompatibility>();
+                foreach (JProperty property in JObject.Load(reader).Properties())
+                {
+                    string range = property.Name;
+                    ModStatus status = property.Value.Value<ModStatus>(nameof(ModCompatibility.Status));
+                    string reasonPhrase = property.Value.Value<string>(nameof(ModCompatibility.ReasonPhrase));
+
+                    result.Add(new ModCompatibility(range, status, reasonPhrase));
+                }
+                return result.ToArray();
             }
 
             // unknown
