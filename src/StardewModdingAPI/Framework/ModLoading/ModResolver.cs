@@ -53,15 +53,20 @@ namespace StardewModdingAPI.Framework.ModLoading
                     error = $"parsing its manifest failed:\n{ex.GetLogSummary()}";
                 }
 
-                // validate metadata
+                // get internal data record (if any)
                 ModDataRecord dataRecord = null;
                 if (manifest != null)
                 {
-                    // get unique key for lookups
                     string key = !string.IsNullOrWhiteSpace(manifest.UniqueID) ? manifest.UniqueID : manifest.EntryDll;
-
-                    // get data record
                     dataRecord = dataRecords.FirstOrDefault(record => record.ID.Matches(key, manifest));
+                }
+
+                // apply defaults
+                if (dataRecord?.Defaults != null)
+                {
+                    manifest.ChucklefishID = manifest.ChucklefishID ?? dataRecord.Defaults.ChucklefishID;
+                    manifest.GitHubProject = manifest.GitHubProject ?? dataRecord.Defaults.GitHubProject;
+                    manifest.NexusID = manifest.NexusID ?? dataRecord.Defaults.NexusID;
                 }
 
                 // build metadata
@@ -100,13 +105,27 @@ namespace StardewModdingAPI.Framework.ModLoading
 
                     case ModStatus.AssumeBroken:
                         {
+                            // get reason
                             string reasonPhrase = compatibility.ReasonPhrase ?? "it's no longer compatible";
+
+                            // get update URLs
+                            List<string> updateUrls = new List<string>();
+                            if (!string.IsNullOrWhiteSpace(mod.Manifest.ChucklefishID))
+                                updateUrls.Add($"https://community.playstarbound.com/resources/{mod.Manifest.ChucklefishID}");
+                            if (!string.IsNullOrWhiteSpace(mod.Manifest.NexusID))
+                                updateUrls.Add($"http://nexusmods.com/stardewvalley/mods/{mod.Manifest.NexusID}");
+                            if (!string.IsNullOrWhiteSpace(mod.Manifest.GitHubProject))
+                                updateUrls.Add($"https://github.com/{mod.Manifest.GitHubProject}/releases");
+                            if (mod.DataRecord.AlternativeUrl != null)
+                                updateUrls.Add(mod.DataRecord.AlternativeUrl);
+
+                            // build error
                             string error = $"{reasonPhrase}. Please check for a ";
                             if (mod.Manifest.Version.Equals(compatibility.UpperVersion))
                                 error += "newer version";
                             else
                                 error += $"version newer than {compatibility.UpperVersion}";
-                            error += " at " + string.Join(" or ", mod.DataRecord.UpdateUrls);
+                            error += " at " + string.Join(" or ", updateUrls);
 
                             mod.SetStatus(ModMetadataStatus.Failed, error);
                         }

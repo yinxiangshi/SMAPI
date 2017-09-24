@@ -17,8 +17,11 @@ namespace StardewModdingAPI.Framework.Models
         /// <summary>The mod name.</summary>
         public string Name { get; set; }
 
-        /// <summary>The URLs the user can check for a newer version.</summary>
-        public string[] UpdateUrls { get; set; }
+        /// <summary>Default values for support fields to inject into the manifest.</summary>
+        public ModDataDefaults Defaults { get; set; }
+
+        /// <summary>The URL where the player can get an unofficial or alternative version of the mod if the official version isn't compatible.</summary>
+        public string AlternativeUrl { get; set; }
 
         /// <summary>The compatibility of given mod versions (if any).</summary>
         [JsonConverter(typeof(SFieldConverter))]
