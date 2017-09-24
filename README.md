@@ -84,13 +84,13 @@ on the wiki for the first-time setup.
 
    build type | format                            | example
    :--------- | :-------------------------------- | :------
-   dev build  | `<version>-alpha.<timestamp>`     | `1.0-alpha.20171230`
-   prerelease | `<version>-prerelease.<ID>`       | `1.0-prerelease.2`
-   release    | `<version>`                       | `1.0`
+   dev build  | `<version>-alpha.<timestamp>`     | `2.0-alpha.20171230`
+   prerelease | `<version>-prerelease.<ID>`       | `2.0-prerelease.2`
+   release    | `<version>`                       | `2.0`
 
 2. In Windows:
    1. Rebuild the solution in _Release_ mode.
-   2. Rename `bin/Packaged` to `SMAPI <version>` (e.g. `SMAPI 1.0`).
+   2. Rename `bin/Packaged` to `SMAPI <version>` (e.g. `SMAPI 2.0`).
    2. Transfer the `SMAPI <version>` folder to Linux or Mac.  
       _This adds the installer executable and Windows files. We'll do the rest in Linux or Mac,
       since we need to set Unix file permissions that Windows won't save._
@@ -101,7 +101,7 @@ on the wiki for the first-time setup.
    3. If you did everything right so far, you should have a folder like this:
 
       ```
-      SMAPI-1.x/
+      SMAPI-2.x/
          install.exe
          readme.txt
          internal/
@@ -181,4 +181,4 @@ SMAPI uses a small number of conditional compilation constants, which you can se
 flag | purpose
 ---- | -------
 `SMAPI_FOR_WINDOWS` | Indicates that SMAPI is being compiled on Windows for players on Windows. Set automatically in `crossplatform.targets`.
-`SMAPI_1_x` | Sets legacy SMAPI 1._x_ mode, disables SMAPI 2.0 features, and enables deprecated code. This will be removed when SMAPI 2.0 is released.
+

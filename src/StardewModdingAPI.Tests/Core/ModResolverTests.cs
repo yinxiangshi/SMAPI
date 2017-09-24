@@ -141,7 +141,7 @@ namespace StardewModdingAPI.Tests.Core
         {
             // arrange
             Mock<IModMetadata> mock = this.GetMetadata("Mod A", new string[0], allowStatusChange: true);
-            this.SetupMetadataForValidation(mock, new ModCompatibility { Compatibility = ModCompatibilityType.AssumeBroken, UpperVersion = new SemanticVersion("1.0"), UpdateUrls = new[] { "http://example.org" }});
+            this.SetupMetadataForValidation(mock, new ModCompatibility { Compatibility = ModCompatibilityType.AssumeBroken, UpperVersion = new SemanticVersion("1.0"), UpdateUrls = new[] { "http://example.org" } });
 
             // act
             new ModResolver().ValidateManifests(new[] { mock.Object }, apiVersion: new SemanticVersion("1.0"));
@@ -179,7 +179,6 @@ namespace StardewModdingAPI.Tests.Core
             mock.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>()), Times.Once, "The validation did not fail the metadata.");
         }
 
-#if !SMAPI_1_x
         [Test(Description = "Assert that validation fails when multiple mods have the same unique ID.")]
         public void ValidateManifests_DuplicateUniqueID_Fails()
         {
@@ -197,7 +196,6 @@ namespace StardewModdingAPI.Tests.Core
             modA.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>()), Times.Once, "The validation did not fail the first mod with a unique ID.");
             modB.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>()), Times.Once, "The validation did not fail the second mod with a unique ID.");
         }
-#endif
 
         [Test(Description = "Assert that validation fails when the manifest references a DLL that does not exist.")]
         public void ValidateManifests_Valid_Passes()
@@ -423,7 +421,6 @@ namespace StardewModdingAPI.Tests.Core
             Assert.AreSame(modB.Object, mods[1], "The load order is incorrect: mod B should be second since it needs mod A.");
         }
 
-#if !SMAPI_1_x
         [Test(Description = "Assert that optional dependencies are sorted correctly if present.")]
         public void ProcessDependencies_IfOptional()
         {
@@ -455,7 +452,6 @@ namespace StardewModdingAPI.Tests.Core
             Assert.AreEqual(1, mods.Length, 0, "Expected to get the same number of mods input.");
             Assert.AreSame(modB.Object, mods[0], "The load order is incorrect: mod B should be first since it's the only mod.");
         }
-#endif
 
 
         /*********

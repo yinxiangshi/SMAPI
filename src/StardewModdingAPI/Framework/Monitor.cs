@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -37,10 +37,8 @@ namespace StardewModdingAPI.Framework
         /// <summary>Whether SMAPI is aborting. Mods don't need to worry about this unless they have background tasks.</summary>
         public bool IsExiting => this.ExitTokenSource.IsCancellationRequested;
 
-#if !SMAPI_1_x
         /// <summary>Whether to show the full log stamps (with time/level/logger) in the console. If false, shows a simplified stamp with only the logger.</summary>
         internal bool ShowFullStampInConsole { get; set; }
-#endif
 
         /// <summary>Whether to show trace messages in the console.</summary>
         internal bool ShowTraceInConsole { get; set; }
@@ -89,7 +87,6 @@ namespace StardewModdingAPI.Framework
             this.ExitTokenSource.Cancel();
         }
 
-#if !SMAPI_1_x
         /// <summary>Write a newline to the console and log file.</summary>
         internal void Newline()
         {
@@ -98,20 +95,6 @@ namespace StardewModdingAPI.Framework
             if (this.WriteToFile)
                 this.LogFile.WriteLine("");
         }
-#endif
-
-#if SMAPI_1_x
-        /// <summary>Log a message for the player or developer, using the specified console color.</summary>
-        /// <param name="source">The name of the mod logging the message.</param>
-        /// <param name="message">The message to log.</param>
-        /// <param name="color">The console color.</param>
-        /// <param name="level">The log level.</param>
-        [Obsolete("This method is provided for backwards compatibility and otherwise should not be used. Use " + nameof(Monitor) + "." + nameof(Monitor.Log) + " instead.")]
-        internal void LegacyLog(string source, string message, ConsoleColor color, LogLevel level = LogLevel.Debug)
-        {
-            this.LogImpl(source, message, level, color);
-        }
-#endif
 
 
         /*********
@@ -136,11 +119,7 @@ namespace StardewModdingAPI.Framework
             string levelStr = level.ToString().ToUpper().PadRight(Monitor.MaxLevelLength);
 
             string fullMessage = $"[{DateTime.Now:HH:mm:ss} {levelStr} {source}] {message}";
-#if !SMAPI_1_x
             string consoleMessage = this.ShowFullStampInConsole ? fullMessage : $"[{source}] {message}";
-#else
-            string consoleMessage = fullMessage;
-#endif
 
             // write to console
             if (this.WriteToConsole && (this.ShowTraceInConsole || level != LogLevel.Trace))
@@ -168,11 +147,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>Get the color scheme to use for the current console.</summary>
         private static IDictionary<LogLevel, ConsoleColor> GetConsoleColorScheme()
         {
-#if !SMAPI_1_x
             // scheme for dark console background
             if (Monitor.IsDark(Console.BackgroundColor))
             {
-#endif
                 return new Dictionary<LogLevel, ConsoleColor>
                 {
                     [LogLevel.Trace] = ConsoleColor.DarkGray,
@@ -182,7 +159,6 @@ namespace StardewModdingAPI.Framework
                     [LogLevel.Error] = ConsoleColor.Red,
                     [LogLevel.Alert] = ConsoleColor.Magenta
                 };
-#if !SMAPI_1_x
             }
 
             // scheme for light console background
@@ -195,7 +171,6 @@ namespace StardewModdingAPI.Framework
                 [LogLevel.Error] = ConsoleColor.Red,
                 [LogLevel.Alert] = ConsoleColor.DarkMagenta
             };
-#endif
         }
 
         /// <summary>Get whether a console color should be considered dark, which is subjectively defined as 'white looks better than black on this text'.</summary>

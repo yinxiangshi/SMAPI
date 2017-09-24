@@ -28,12 +28,7 @@ namespace StardewModdingAPI
         ** Public
         ****/
         /// <summary>SMAPI's current semantic version.</summary>
-        public static ISemanticVersion ApiVersion { get; } =
-#if SMAPI_1_x
-            new SemanticVersion(1, 15, 4);
-#else
-            new SemanticVersion(2, 0, 0, $"alpha-{DateTime.UtcNow:yyyyMMddHHmm}");
-#endif
+        public static ISemanticVersion ApiVersion { get; } = new SemanticVersion(2, 0, 0, $"alpha-{DateTime.UtcNow:yyyyMMddHHmm}");
 
         /// <summary>The minimum supported version of Stardew Valley.</summary>
         public static ISemanticVersion MinimumGameVersion { get; } = new SemanticVersion("1.2.30");

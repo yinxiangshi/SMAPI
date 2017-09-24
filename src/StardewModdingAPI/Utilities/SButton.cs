@@ -6,12 +6,7 @@ namespace StardewModdingAPI.Utilities
 {
     /// <summary>A unified button constant which includes all controller, keyboard, and mouse buttons.</summary>
     /// <remarks>Derived from <see cref="Keys"/>, <see cref="Buttons"/>, and <see cref="System.Windows.Forms.MouseButtons"/>.</remarks>
-#if SMAPI_1_x
-    internal
-#else
-    public
-#endif
-    enum SButton
+    public enum SButton
     {
         /// <summary>No valid key.</summary>
         None = 0,
@@ -594,12 +589,7 @@ namespace StardewModdingAPI.Utilities
     }
 
     /// <summary>Provides extension methods for <see cref="SButton"/>.</summary>
-#if SMAPI_1_x
-    internal
-#else
-    public
-#endif
-    static class SButtonExtensions
+    public static class SButtonExtensions
     {
         /*********
         ** Accessors

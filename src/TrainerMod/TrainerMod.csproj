@@ -69,8 +69,6 @@
     <Compile Include="Framework\Commands\Player\SetStaminaCommand.cs" />
     <Compile Include="Framework\Commands\Player\SetNameCommand.cs" />
     <Compile Include="Framework\Commands\Player\SetMoneyCommand.cs" />
-    <Compile Include="Framework\Commands\Saves\LoadCommand.cs" />
-    <Compile Include="Framework\Commands\Saves\SaveCommand.cs" />
     <Compile Include="Framework\Commands\TrainerCommand.cs" />
     <Compile Include="Framework\Commands\World\SetMineLevelCommand.cs" />
     <Compile Include="Framework\Commands\World\DownMineLevelCommand.cs" />

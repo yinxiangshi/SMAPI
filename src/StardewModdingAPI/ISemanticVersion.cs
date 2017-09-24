@@ -1,12 +1,9 @@
-﻿using System;
+using System;
 
 namespace StardewModdingAPI
 {
     /// <summary>A semantic version with an optional release tag.</summary>
-    public interface ISemanticVersion : IComparable<ISemanticVersion>
-#if !SMAPI_1_x
-        , IEquatable<ISemanticVersion>
-#endif
+    public interface ISemanticVersion : IComparable<ISemanticVersion>, IEquatable<ISemanticVersion>
     {
         /*********
         ** Accessors

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using StardewModdingAPI.Framework.Reflection;
 
 namespace StardewModdingAPI.Framework.ModHelpers
@@ -180,7 +180,6 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="type">The type being accessed.</param>
         private void AssertAccessAllowed(Type type)
         {
-#if !SMAPI_1_x
             // validate type namespace
             if (type.Namespace != null)
             {
@@ -188,7 +187,6 @@ namespace StardewModdingAPI.Framework.ModHelpers
                 if (type.Namespace == rootSmapiNamespace || type.Namespace.StartsWith(rootSmapiNamespace + "."))
                     throw new InvalidOperationException($"SMAPI blocked access by {this.ModName} to its internals through the reflection API. Accessing the SMAPI internals is strongly discouraged since they're subject to change, which means the mod can break without warning.");
             }
-#endif
         }
 
         /// <summary>Assert that mods can use the reflection helper to access the given type.</summary>

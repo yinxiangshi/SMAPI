@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -12,13 +12,11 @@ namespace StardewModdingAPI
         /*********
         ** Accessors
         *********/
-#if !SMAPI_1_x
         /// <summary>Interceptors which provide the initial versions of matching content assets.</summary>
         IList<IAssetLoader> AssetLoaders { get; }
 
         /// <summary>Interceptors which edit matching content assets after they're loaded.</summary>
         IList<IAssetEditor> AssetEditors { get; }
-#endif
 
         /// <summary>The game's current locale code (like <c>pt-BR</c>).</summary>
         string CurrentLocale { get; }
@@ -44,7 +42,6 @@ namespace StardewModdingAPI
         /// <exception cref="ArgumentException">The <paramref name="key"/> is empty or contains invalid characters.</exception>
         string GetActualAssetKey(string key, ContentSource source = ContentSource.ModFolder);
 
-#if !SMAPI_1_x
         /// <summary>Remove an asset from the content cache so it's reloaded on the next request. This will reload core game assets if needed, but references to the former asset will still show the previous content.</summary>
         /// <param name="key">The asset key to invalidate in the content folder.</param>
         /// <exception cref="ArgumentException">The <paramref name="key"/> is empty or contains invalid characters.</exception>
@@ -55,6 +52,5 @@ namespace StardewModdingAPI
         /// <typeparam name="T">The asset type to remove from the cache.</typeparam>
         /// <returns>Returns whether any assets were invalidated.</returns>
         bool InvalidateCache<T>();
-#endif
     }
 }

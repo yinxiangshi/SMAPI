@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -109,17 +109,6 @@ namespace StardewModdingAPI.Framework.ModLoading
                     ModCompatibility compatibility = mod.Compatibility;
                     if (compatibility?.Compatibility == ModCompatibilityType.AssumeBroken)
                     {
-#if SMAPI_1_x
-                        bool hasOfficialUrl = mod.Compatibility.UpdateUrls.Length > 0;
-                        bool hasUnofficialUrl = mod.Compatibility.UpdateUrls.Length > 1;
-
-                        string reasonPhrase = compatibility.ReasonPhrase ?? "it's not compatible with the latest version of the game or SMAPI";
-                        string error = $"{reasonPhrase}. Please check for a version newer than {compatibility.UpperVersionLabel ?? compatibility.UpperVersion.ToString()} here:";
-                        if (hasOfficialUrl)
-                            error += !hasUnofficialUrl ? $" {compatibility.UpdateUrls[0]}" : $"{Environment.NewLine}- official mod: {compatibility.UpdateUrls[0]}";
-                        if (hasUnofficialUrl)
-                            error += $"{Environment.NewLine}- unofficial update: {compatibility.UpdateUrls[1]}";
-#else
                         string reasonPhrase = compatibility.ReasonPhrase ?? "it's no longer compatible";
                         string error = $"{reasonPhrase}. Please check for a ";
                         if (mod.Manifest.Version.Equals(compatibility.UpperVersion) && compatibility.UpperVersionLabel == null)
@@ -127,7 +116,6 @@ namespace StardewModdingAPI.Framework.ModLoading
                         else
                             error += $"version newer than {compatibility.UpperVersionLabel ?? compatibility.UpperVersion.ToString()}";
                         error += " at " + string.Join(" or ", compatibility.UpdateUrls);
-#endif
 
                         mod.SetStatus(ModMetadataStatus.Failed, error);
                         continue;
@@ -150,7 +138,6 @@ namespace StardewModdingAPI.Framework.ModLoading
                 }
 
                 // validate required fields
-#if !SMAPI_1_x
                 {
                     List<string> missingFields = new List<string>(3);
 
@@ -164,11 +151,9 @@ namespace StardewModdingAPI.Framework.ModLoading
                     if (missingFields.Any())
                         mod.SetStatus(ModMetadataStatus.Failed, $"its manifest is missing required fields ({string.Join(", ", missingFields)}).");
                 }
-#endif
             }
 
             // validate IDs are unique
-#if !SMAPI_1_x
             {
                 var duplicatesByID = mods
                     .GroupBy(mod => mod.Manifest?.UniqueID?.Trim(), mod => mod, StringComparer.InvariantCultureIgnoreCase)
@@ -183,7 +168,6 @@ namespace StardewModdingAPI.Framework.ModLoading
                     }
                 }
             }
-#endif
         }
 
         /// <summary>Sort the given mods by the order they should be loaded.</summary>
@@ -264,12 +248,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                         ID = entry.UniqueID,
                         MinVersion = entry.MinimumVersion,
                         Mod = dependencyMod,
-                        IsRequired =
-#if SMAPI_1_x
-                            true
-#else
-                        entry.IsRequired
-#endif
+                        IsRequired = entry.IsRequired
                     }
                 )
                 .ToArray();

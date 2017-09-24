@@ -1,4 +1,3 @@
-﻿#if !SMAPI_1_x
 using Microsoft.Xna.Framework;
 
 namespace StardewModdingAPI
@@ -16,4 +15,3 @@ namespace StardewModdingAPI
         Vector2 GrabTile { get; }
     }
 }
-#endif

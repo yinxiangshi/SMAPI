@@ -1,4 +1,3 @@
-﻿#if !SMAPI_1_x
 using System;
 using StardewModdingAPI.Framework;
 using StardewModdingAPI.Utilities;
@@ -42,4 +41,3 @@ namespace StardewModdingAPI.Events
         }
     }
 }
-#endif

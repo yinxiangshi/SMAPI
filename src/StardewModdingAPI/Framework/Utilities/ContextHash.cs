@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace StardewModdingAPI.Framework.Utilities
@@ -25,7 +24,7 @@ namespace StardewModdingAPI.Framework.Utilities
         /// <exception cref="InvalidOperationException">The specified key is already added.</exception>
         public void Track(T key, Action action)
         {
-            if(this.Contains(key))
+            if (this.Contains(key))
                 throw new InvalidOperationException($"Can't track context for key {key} because it's already added.");
 
             this.Add(key);

@@ -20,9 +20,6 @@ using StardewValley.Menus;
 using StardewValley.Tools;
 using xTile.Dimensions;
 using xTile.Layers;
-#if SMAPI_1_x
-using SFarmer = StardewValley.Farmer;
-#endif
 
 namespace StardewModdingAPI.Framework
 {
@@ -117,23 +114,6 @@ namespace StardewModdingAPI.Framework
         /// <summary>The time of day (in 24-hour military format) at last check.</summary>
         private int PreviousTime;
 
-#if SMAPI_1_x
-        /// <summary>The day of month (1–28) at last check.</summary>
-        private int PreviousDay;
-
-        /// <summary>The season name (winter, spring, summer, or fall) at last check.</summary>
-        private string PreviousSeason;
-
-        /// <summary>The year number at last check.</summary>
-        private int PreviousYear;
-
-        /// <summary>Whether the game was transitioning to a new day at last check.</summary>
-        private bool PreviousIsNewDay;
-
-        /// <summary>The player character at last check.</summary>
-        private SFarmer PreviousFarmer;
-#endif
-
         /// <summary>The previous content locale.</summary>
         private LocalizedContentManager.LanguageCode? PreviousLocale;
 
@@ -164,10 +144,10 @@ namespace StardewModdingAPI.Framework
         private Color bgColor => SGame.Reflection.GetPrivateField<Color>(this, nameof(bgColor)).GetValue();
         public RenderTarget2D screenWrapper => SGame.Reflection.GetPrivateProperty<RenderTarget2D>(this, "screen").GetValue(); // deliberately renamed to avoid an infinite loop
         public BlendState lightingBlend => SGame.Reflection.GetPrivateField<BlendState>(this, nameof(lightingBlend)).GetValue();
-        private readonly Action drawFarmBuildings = () => SGame.Reflection.GetPrivateMethod(SGame.Instance, nameof(drawFarmBuildings)).Invoke(new object[0]);
-        private readonly Action drawHUD = () => SGame.Reflection.GetPrivateMethod(SGame.Instance, nameof(drawHUD)).Invoke(new object[0]);
-        private readonly Action drawDialogueBox = () => SGame.Reflection.GetPrivateMethod(SGame.Instance, nameof(drawDialogueBox)).Invoke(new object[0]);
-        private readonly Action renderScreenBuffer = () => SGame.Reflection.GetPrivateMethod(SGame.Instance, nameof(renderScreenBuffer)).Invoke(new object[0]);
+        private readonly Action drawFarmBuildings = () => SGame.Reflection.GetPrivateMethod(SGame.Instance, nameof(drawFarmBuildings)).Invoke();
+        private readonly Action drawHUD = () => SGame.Reflection.GetPrivateMethod(SGame.Instance, nameof(drawHUD)).Invoke();
+        private readonly Action drawDialogueBox = () => SGame.Reflection.GetPrivateMethod(SGame.Instance, nameof(drawDialogueBox)).Invoke();
+        private readonly Action renderScreenBuffer = () => SGame.Reflection.GetPrivateMethod(SGame.Instance, nameof(renderScreenBuffer)).Invoke();
         // ReSharper restore ArrangeStaticMemberQualifier, ArrangeThisQualifier, InconsistentNaming
 
 
@@ -295,10 +275,6 @@ namespace StardewModdingAPI.Framework
                 if (this.FirstUpdate)
                 {
                     GameEvents.InvokeInitialize(this.Monitor);
-#if SMAPI_1_x
-                    GameEvents.InvokeLoadContent(this.Monitor);
-                    GameEvents.InvokeGameLoaded(this.Monitor);
-#endif
                 }
 
                 /*********
@@ -321,10 +297,8 @@ namespace StardewModdingAPI.Framework
                 *********/
                 if (Context.IsSaveLoaded && !SaveGame.IsProcessing /*still loading save*/ && this.AfterLoadTimer >= 0)
                 {
-#if !SMAPI_1_x
                     if (Game1.dayOfMonth != 0) // wait until new-game intro finishes (world not fully initialised yet)
-#endif
-                    this.AfterLoadTimer--;
+                        this.AfterLoadTimer--;
 
                     if (this.AfterLoadTimer == 0)
                     {
@@ -332,9 +306,6 @@ namespace StardewModdingAPI.Framework
                         Context.IsWorldReady = true;
 
                         SaveEvents.InvokeAfterLoad(this.Monitor);
-#if SMAPI_1_x
-                        PlayerEvents.InvokeLoadedGame(this.Monitor, new EventArgsLoadedGameChanged(Game1.hasLoadedGame));
-#endif
                         TimeEvents.InvokeAfterDayStarted(this.Monitor);
                     }
                 }
@@ -403,7 +374,6 @@ namespace StardewModdingAPI.Framework
                     bool isClick = framePressedKeys.Contains(SButton.MouseLeft) || (framePressedKeys.Contains(SButton.ControllerA) && !currentlyPressedKeys.Contains(SButton.ControllerX));
 
                     // get cursor position
-#if !SMAPI_1_x
                     ICursorPosition cursor;
                     {
                         // cursor position
@@ -414,14 +384,11 @@ namespace StardewModdingAPI.Framework
                             : Game1.player.GetGrabTile();
                         cursor = new CursorPosition(screenPixels, tile, grabTile);
                     }
-#endif
 
                     // raise button pressed
                     foreach (SButton button in framePressedKeys)
                     {
-#if !SMAPI_1_x
                         InputEvents.InvokeButtonPressed(this.Monitor, button, cursor, isClick);
-#endif
 
                         // legacy events
                         if (button.TryGetKeyboard(out Keys key))
@@ -441,12 +408,10 @@ namespace StardewModdingAPI.Framework
                     // raise button released
                     foreach (SButton button in frameReleasedKeys)
                     {
-#if !SMAPI_1_x
                         bool wasClick =
                             (button == SButton.MouseLeft && previousPressedKeys.Contains(SButton.MouseLeft)) // released left click
                             || (button == SButton.ControllerA && previousPressedKeys.Contains(SButton.ControllerA) && !previousPressedKeys.Contains(SButton.ControllerX));
                         InputEvents.InvokeButtonReleased(this.Monitor, button, cursor, wasClick);
-#endif
 
                         // legacy events
                         if (button.TryGetKeyboard(out Keys key))
@@ -524,12 +489,6 @@ namespace StardewModdingAPI.Framework
                     if (this.GetHash(Game1.locations) != this.PreviousGameLocations)
                         LocationEvents.InvokeLocationsChanged(this.Monitor, Game1.locations);
 
-#if SMAPI_1_x
-                    // raise player changed
-                    if (Game1.player != this.PreviousFarmer)
-                        PlayerEvents.InvokeFarmerChanged(this.Monitor, this.PreviousFarmer, Game1.player);
-#endif
-
                     // raise events that shouldn't be triggered on initial load
                     if (Game1.uniqueIDForThisGame == this.PreviousSaveID)
                     {
@@ -559,14 +518,6 @@ namespace StardewModdingAPI.Framework
                         // raise time changed
                         if (Game1.timeOfDay != this.PreviousTime)
                             TimeEvents.InvokeTimeOfDayChanged(this.Monitor, this.PreviousTime, Game1.timeOfDay);
-#if SMAPI_1_x
-                        if (Game1.dayOfMonth != this.PreviousDay)
-                            TimeEvents.InvokeDayOfMonthChanged(this.Monitor, this.PreviousDay, Game1.dayOfMonth);
-                        if (Game1.currentSeason != this.PreviousSeason)
-                            TimeEvents.InvokeSeasonOfYearChanged(this.Monitor, this.PreviousSeason, Game1.currentSeason);
-                        if (Game1.year != this.PreviousYear)
-                            TimeEvents.InvokeYearOfGameChanged(this.Monitor, this.PreviousYear, Game1.year);
-#endif
 
                         // raise mine level changed
                         if (Game1.mine != null && Game1.mine.mineLevel != this.PreviousMineLevel)
@@ -587,24 +538,7 @@ namespace StardewModdingAPI.Framework
                     this.PreviousTime = Game1.timeOfDay;
                     this.PreviousMineLevel = Game1.mine?.mineLevel ?? 0;
                     this.PreviousSaveID = Game1.uniqueIDForThisGame;
-#if SMAPI_1_x
-                    this.PreviousFarmer = Game1.player;
-                    this.PreviousDay = Game1.dayOfMonth;
-                    this.PreviousSeason = Game1.currentSeason;
-                    this.PreviousYear = Game1.year;
-#endif
                 }
-
-                /*********
-                ** Game day transition event (obsolete)
-                *********/
-#if SMAPI_1_x
-                if (Game1.newDay != this.PreviousIsNewDay)
-                {
-                    TimeEvents.InvokeOnNewDay(this.Monitor, this.PreviousDay, Game1.dayOfMonth, Game1.newDay);
-                    this.PreviousIsNewDay = Game1.newDay;
-                }
-#endif
 
                 /*********
                 ** Game update
@@ -623,12 +557,7 @@ namespace StardewModdingAPI.Framework
                 *********/
                 GameEvents.InvokeUpdateTick(this.Monitor);
                 if (this.FirstUpdate)
-                {
-#if SMAPI_1_x
-                    GameEvents.InvokeFirstUpdateTick(this.Monitor);
-#endif
                     this.FirstUpdate = false;
-                }
                 if (this.CurrentUpdateTick % 2 == 0)
                     GameEvents.InvokeSecondUpdateTick(this.Monitor);
                 if (this.CurrentUpdateTick % 4 == 0)

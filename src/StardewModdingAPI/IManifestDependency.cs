@@ -1,4 +1,4 @@
-﻿namespace StardewModdingAPI
+namespace StardewModdingAPI
 {
     /// <summary>A mod dependency listed in a mod manifest.</summary>
     public interface IManifestDependency
@@ -12,9 +12,7 @@
         /// <summary>The minimum required version (if any).</summary>
         ISemanticVersion MinimumVersion { get; }
 
-#if !SMAPI_1_x
         /// <summary>Whether the dependency must be installed to use the mod.</summary>
         bool IsRequired { get; }
-#endif
     }
 }

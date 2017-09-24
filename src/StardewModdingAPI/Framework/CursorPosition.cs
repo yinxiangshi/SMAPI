@@ -1,4 +1,3 @@
-﻿#if !SMAPI_1_x
 using Microsoft.Xna.Framework;
 
 namespace StardewModdingAPI.Framework
@@ -34,4 +33,3 @@ namespace StardewModdingAPI.Framework
         }
     }
 }
-#endif

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -42,11 +42,7 @@ namespace StardewModdingAPI.Framework
             uniqueID = uniqueID.Trim();
 
             // find match
-            return this.GetAll().FirstOrDefault(p =>
-#if SMAPI_1_x
-            p.UniqueID != null &&
-#endif
-            p.UniqueID.Trim().Equals(uniqueID, StringComparison.InvariantCultureIgnoreCase));
+            return this.GetAll().FirstOrDefault(p => p.UniqueID.Trim().Equals(uniqueID, StringComparison.InvariantCultureIgnoreCase));
         }
 
         /// <summary>Get whether a mod has been loaded.</summary>

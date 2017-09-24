@@ -32,10 +32,8 @@ namespace StardewModdingAPI.Utilities
         /// <summary>The year.</summary>
         public int Year { get; }
 
-#if !SMAPI_1_x
         /// <summary>The day of week.</summary>
         public DayOfWeek DayOfWeek { get; }
-#endif
 
 
         /*********
@@ -69,9 +67,7 @@ namespace StardewModdingAPI.Utilities
             this.Day = day;
             this.Season = season;
             this.Year = year;
-#if !SMAPI_1_x
             this.DayOfWeek = this.GetDayOfWeek();
-#endif
         }
 
         /// <summary>Get the current in-game date.</summary>

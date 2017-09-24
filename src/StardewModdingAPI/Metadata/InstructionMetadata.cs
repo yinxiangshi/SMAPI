@@ -44,7 +44,6 @@ namespace StardewModdingAPI.Metadata
                 new EventFinder("StardewModdingAPI.Events.GraphicsEvents", "OnPreRenderGuiEventNoCheck", InstructionHandleResult.NotCompatible),
 
                 // APIs removed in SMAPI 2.0
-#if !SMAPI_1_x
                 new TypeFinder("StardewModdingAPI.Command", InstructionHandleResult.NotCompatible),
                 new TypeFinder("StardewModdingAPI.Config", InstructionHandleResult.NotCompatible),
                 new TypeFinder("StardewModdingAPI.Log", InstructionHandleResult.NotCompatible),
@@ -67,7 +66,6 @@ namespace StardewModdingAPI.Metadata
                 new PropertyFinder("StardewModdingAPI.Mod", "BaseConfigPath", InstructionHandleResult.NotCompatible),
                 new PropertyFinder("StardewModdingAPI.Mod", "PerSaveConfigFolder", InstructionHandleResult.NotCompatible),
                 new PropertyFinder("StardewModdingAPI.Mod", "PerSaveConfigPath", InstructionHandleResult.NotCompatible),
-#endif
 
                 /****
                 ** detect code which may impact game stability

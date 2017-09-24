@@ -1,4 +1,3 @@
-﻿#if !SMAPI_1_x
 using System;
 using System.Linq;
 using Microsoft.Xna.Framework;
@@ -123,4 +122,3 @@ namespace StardewModdingAPI.Events
         }
     }
 }
-#endif
