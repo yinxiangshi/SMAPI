@@ -55,11 +55,19 @@ namespace StardewModdingAPI.Web.Framework.ModRepositories
         {
             try
             {
+                // fetch data
                 GitRelease release = await this.Client
                     .GetAsync(string.Format(this.ReleaseUrlFormat, id))
                     .As<GitRelease>();
 
-                return new ModInfoModel(id, release.Tag, $"https://github.com/{id}/releases");
+                // extract fields
+                string name = id;
+                string version = release.Tag;
+                if (version.StartsWith("v")) // common format on GitHub
+                    version = version.Substring(1);
+                string url = $"https://github.com/{id}/releases";
+                
+                return new ModInfoModel(name, version, url);
             }
             catch (Exception ex)
             {
