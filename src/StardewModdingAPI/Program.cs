@@ -489,40 +489,36 @@ namespace StardewModdingAPI
 
             new Thread(() =>
             {
-                this.Monitor.Log("Checking for updates...", LogLevel.Trace);
-
-                // update info
-                List<string> updates = new List<string>();
-                bool smapiUpdate = false;
-                int modUpdates = 0;
-
                 // create client
                 WebApiClient client = new WebApiClient(this.Settings.WebApiBaseUrl, Constants.ApiVersion);
 
-                // fetch SMAPI version
+                // check SMAPI version
                 try
                 {
+                    this.Monitor.Log("Checking for SMAPI update...", LogLevel.Trace);
+
                     ModInfoModel response = client.GetModInfoAsync($"GitHub:{this.Settings.GitHubProjectName}").Result.Single().Value;
                     if (response.Error != null)
-                        this.Monitor.Log($"Couldn't check for a new version of SMAPI. This won't affect your game, but you may not be notified of new versions if this keeps happening.\n{response.Error}", LogLevel.Warn);
-                    else if (new SemanticVersion(response.Version).IsNewerThan(Constants.ApiVersion))
                     {
-                        smapiUpdate = true;
-                        updates.Add($"SMAPI {response.Version}: {response.Url}");
-                        this.VerboseLog($"   SMAPI: update to {response.Version} found.");
+                        this.Monitor.Log("Couldn't check for a new version of SMAPI. This won't affect your game, but you may not be notified of new versions if this keeps happening.", LogLevel.Warn);
+                        this.Monitor.Log($"Error: {response.Error}");
                     }
+                    else if (new SemanticVersion(response.Version).IsNewerThan(Constants.ApiVersion))
+                        this.Monitor.Log($"You can update SMAPI to {response.Version}: {response.Url}", LogLevel.Alert);
                     else
-                        this.VerboseLog("   SMAPI: OK.");
+                        this.VerboseLog("   OK.");
                 }
                 catch (Exception ex)
                 {
-                    this.Monitor.Log($"Couldn't check for a new version of SMAPI. This won't affect your game, but you may not be notified of new versions if this keeps happening.\n{ex.GetLogSummary()}");
+                    this.Monitor.Log("Couldn't check for a new version of SMAPI. This won't affect your game, but you may not be notified of new versions if this keeps happening.", LogLevel.Warn);
+                    this.Monitor.Log($"Error: {ex.GetLogSummary()}");
                 }
 
-                // fetch mod versions
+                // check mod versions
                 try
                 {
-                    // prepare update-check data
+                    // prepare update keys
+                    this.VerboseLog("Collecting mod update keys...");
                     IDictionary<string, IModMetadata> modsByKey = new Dictionary<string, IModMetadata>(StringComparer.InvariantCultureIgnoreCase);
                     foreach (IModMetadata mod in mods)
                     {
@@ -557,6 +553,7 @@ namespace StardewModdingAPI
                     }
 
                     // fetch results
+                    this.Monitor.Log($"Checking for updates to {modsByKey.Count} keys...", LogLevel.Trace);
                     IDictionary<string, ModInfoModel> response = client.GetModInfoAsync(modsByKey.Keys.ToArray()).Result;
                     IDictionary<IModMetadata, ModInfoModel> updatesByMod = new Dictionary<IModMetadata, ModInfoModel>();
                     foreach (var entry in response)
@@ -577,18 +574,17 @@ namespace StardewModdingAPI
                         if (isUpdate)
                         {
                             if (!updatesByMod.TryGetValue(mod, out ModInfoModel other) || version.IsNewerThan(other.Version))
-                            {
                                 updatesByMod[mod] = entry.Value;
-                                modUpdates++;
-                            }
                         }
                     }
 
-                    // add to output queue
+                    // output
                     if (updatesByMod.Any())
                     {
+                        this.Monitor.Newline();
+                        this.Monitor.Log($"You can update {updatesByMod.Count} mod{(updatesByMod.Count != 1 ? "s" : "")}:", LogLevel.Alert);
                         foreach (var entry in updatesByMod.OrderBy(p => p.Key.DisplayName))
-                            updates.Add($"{entry.Key.DisplayName} {entry.Value.Version}: {entry.Value.Url}");
+                            this.Monitor.Log($"   {entry.Key.DisplayName} {entry.Value.Version}: {entry.Value.Url}", LogLevel.Alert);
                     }
                 }
                 catch (Exception ex)
@@ -596,24 +592,7 @@ namespace StardewModdingAPI
                     this.Monitor.Log($"Couldn't check for new mod versions:\n{ex.GetLogSummary()}", LogLevel.Trace);
                 }
 
-                // output
-                if (updates.Any())
-                {
-                    this.Monitor.Newline();
 
-                    // print intro
-                    string intro = "";
-                    if (smapiUpdate)
-                        intro = "You can update SMAPI";
-                    if (modUpdates > 0)
-                        intro += $"{(smapiUpdate ? " and" : "You can update")} {modUpdates} mod{(modUpdates != 1 ? "s" : "")}";
-                    intro += ":";
-                    this.Monitor.Log(intro, LogLevel.Alert);
-
-                    // print update list
-                    foreach (string line in updates)
-                        this.Monitor.Log($"   {line}", LogLevel.Alert);
-                }
 
             }).Start();
         }
