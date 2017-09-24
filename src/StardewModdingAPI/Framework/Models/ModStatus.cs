@@ -4,12 +4,15 @@ namespace StardewModdingAPI.Framework.Models
     internal enum ModStatus
     {
         /// <summary>Don't override the status.</summary>
-        None = 0,
+        None,
+
+        /// <summary>The mod is obsolete and shouldn't be used, regardless of version.</summary>
+        Obsolete,
 
         /// <summary>Assume the mod is not compatible, even if SMAPI doesn't detect any incompatible code.</summary>
-        AssumeBroken = 0,
+        AssumeBroken,
 
         /// <summary>Assume the mod is compatible, even if SMAPI detects incompatible code.</summary>
-        AssumeCompatible = 1
+        AssumeCompatible
     }
 }

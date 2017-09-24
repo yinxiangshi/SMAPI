@@ -142,7 +142,6 @@
     <Compile Include="Framework\Utilities\Countdown.cs" />
     <Compile Include="Framework\GameVersion.cs" />
     <Compile Include="Framework\IModMetadata.cs" />
-    <Compile Include="Framework\Models\DisabledMod.cs" />
     <Compile Include="Framework\Models\ModCompatibilityID.cs" />
     <Compile Include="Framework\ModHelpers\BaseHelper.cs" />
     <Compile Include="Framework\ModHelpers\CommandHelper.cs" />

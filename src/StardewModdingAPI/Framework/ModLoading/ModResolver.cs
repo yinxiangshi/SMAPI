@@ -18,12 +18,10 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="rootPath">The root path to search for mods.</param>
         /// <param name="jsonHelper">The JSON helper with which to read manifests.</param>
         /// <param name="compatibilityRecords">Metadata about mods that SMAPI should assume is compatible or broken, regardless of whether it detects incompatible code.</param>
-        /// <param name="disabledMods">Metadata about mods that SMAPI should consider obsolete and not load.</param>
         /// <returns>Returns the manifests by relative folder.</returns>
-        public IEnumerable<IModMetadata> ReadManifests(string rootPath, JsonHelper jsonHelper, IEnumerable<ModCompatibility> compatibilityRecords, IEnumerable<DisabledMod> disabledMods)
+        public IEnumerable<IModMetadata> ReadManifests(string rootPath, JsonHelper jsonHelper, IEnumerable<ModCompatibility> compatibilityRecords)
         {
             compatibilityRecords = compatibilityRecords.ToArray();
-            disabledMods = disabledMods.ToArray();
 
             foreach (DirectoryInfo modDir in this.GetModFolders(rootPath))
             {
@@ -62,18 +60,13 @@ namespace StardewModdingAPI.Framework.ModLoading
                     // get unique key for lookups
                     string key = !string.IsNullOrWhiteSpace(manifest.UniqueID) ? manifest.UniqueID : manifest.EntryDll;
 
-                    // check if mod should be disabled
-                    DisabledMod disabledMod = disabledMods.FirstOrDefault(mod => mod.ID.Contains(key, StringComparer.InvariantCultureIgnoreCase));
-                    if (disabledMod != null)
-                        error = $"it's obsolete: {disabledMod.ReasonPhrase}";
-
                     // get compatibility record
                     compatibility = (
                         from mod in compatibilityRecords
                         where
                             mod.ID.Any(p => p.Matches(key, manifest))
                             && (mod.LowerVersion == null || !manifest.Version.IsOlderThan(mod.LowerVersion))
-                            && !manifest.Version.IsNewerThan(mod.UpperVersion)
+                            && (mod.UpperVersion == null || !manifest.Version.IsNewerThan(mod.UpperVersion))
                         select mod
                     ).FirstOrDefault();
                 }
@@ -107,18 +100,25 @@ namespace StardewModdingAPI.Framework.ModLoading
                 // validate compatibility
                 {
                     ModCompatibility compatibility = mod.Compatibility;
-                    if (compatibility?.Status == ModStatus.AssumeBroken)
+                    switch (compatibility?.Status)
                     {
-                        string reasonPhrase = compatibility.ReasonPhrase ?? "it's no longer compatible";
-                        string error = $"{reasonPhrase}. Please check for a ";
-                        if (mod.Manifest.Version.Equals(compatibility.UpperVersion) && compatibility.UpperVersionLabel == null)
-                            error += "newer version";
-                        else
-                            error += $"version newer than {compatibility.UpperVersionLabel ?? compatibility.UpperVersion.ToString()}";
-                        error += " at " + string.Join(" or ", compatibility.UpdateUrls);
+                        case ModStatus.Obsolete:
+                            mod.SetStatus(ModMetadataStatus.Failed, $"it's obsolete: {compatibility.ReasonPhrase}");
+                            continue;
 
-                        mod.SetStatus(ModMetadataStatus.Failed, error);
-                        continue;
+                        case ModStatus.AssumeBroken:
+                            {
+                                string reasonPhrase = compatibility.ReasonPhrase ?? "it's no longer compatible";
+                                string error = $"{reasonPhrase}. Please check for a ";
+                                if (mod.Manifest.Version.Equals(compatibility.UpperVersion) && compatibility.UpperVersionLabel == null)
+                                    error += "newer version";
+                                else
+                                    error += $"version newer than {compatibility.UpperVersionLabel ?? compatibility.UpperVersion.ToString()}";
+                                error += " at " + string.Join(" or ", compatibility.UpdateUrls);
+
+                                mod.SetStatus(ModMetadataStatus.Failed, error);
+                                continue;
+                            }
                     }
                 }
 

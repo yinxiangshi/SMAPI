@@ -23,8 +23,5 @@ namespace StardewModdingAPI.Framework.Models
 
         /// <summary>A list of mod versions which should be considered compatible or incompatible regardless of whether SMAPI detects incompatible code.</summary>
         public ModCompatibility[] ModCompatibility { get; set; }
-
-        /// <summary>A list of mods which should be considered obsolete and not loaded.</summary>
-        public DisabledMod[] DisabledMods { get; set; }
     }
 }
