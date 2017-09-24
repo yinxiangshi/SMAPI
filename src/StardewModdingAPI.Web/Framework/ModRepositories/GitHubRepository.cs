@@ -33,7 +33,7 @@ namespace StardewModdingAPI.Web.Framework.ModRepositories
         /// <param name="vendorKey">The unique key for this vendor.</param>
         /// <param name="baseUrl">The base URL for the Nexus Mods API.</param>
         /// <param name="releaseUrlFormat">The URL for a Nexus Mods API query excluding the <paramref name="baseUrl"/>, where {0} is the mod ID.</param>
-        /// <param name="userAgent">The user agent for the GitHub API client.</param>
+        /// <param name="userAgent">The user agent for the API client.</param>
         /// <param name="acceptHeader">The Accept header value expected by the GitHub API.</param>
         /// <param name="username">The username with which to authenticate to the GitHub API.</param>
         /// <param name="password">The password with which to authenticate to the GitHub API.</param>
@@ -43,7 +43,7 @@ namespace StardewModdingAPI.Web.Framework.ModRepositories
             this.ReleaseUrlFormat = releaseUrlFormat;
 
             this.Client = new FluentClient(baseUrl)
-                .SetUserAgent(string.Format(userAgent, this.GetType().Assembly.GetName().Version))
+                .SetUserAgent(userAgent)
                 .AddDefault(req => req.WithHeader("Accept", acceptHeader));
             if (!string.IsNullOrWhiteSpace(username))
                 this.Client = this.Client.SetBasicAuthentication(username, password);

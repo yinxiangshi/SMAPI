@@ -14,7 +14,7 @@ For players:
 For mod developers:
 * Added new APIs to edit, inject, and reload XNB assets loaded by the game at any time.  
   <small>_This let mods do anything previously only possible with XNB mods, plus enables new mod scenarios (e.g. seasonal textures, NPC clothing that depend on the weather or location, etc)._</small>
-* Added new manifest fields to enable automatic update checks.
+* Added support for automatic update checks from Chucklefish, GitHub, or Nexus Mods.
 * Added new input events.  
   <small>_The new `InputEvents` combine keyboard + mouse + controller input into one event for easy handling, add metadata like the cursor position and grab tile to support click handling, and add an option to suppress input from the game to enable new scenarios like action highjacking and UI overlays._</small>
 * Added support for optional dependencies.

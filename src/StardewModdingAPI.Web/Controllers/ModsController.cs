@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
+using StardewModdingAPI.Models;
 using StardewModdingAPI.Web.Framework.ConfigModels;
 using StardewModdingAPI.Web.Framework.ModRepositories;
-using StardewModdingAPI.Models;
 
 namespace StardewModdingAPI.Web.Controllers
 {
@@ -41,14 +41,21 @@ namespace StardewModdingAPI.Web.Controllers
             this.Cache = cache;
             this.CacheMinutes = config.CacheMinutes;
 
+            string version = this.GetType().Assembly.GetName().Version.ToString(3);
             this.Repositories =
                 new IModRepository[]
                 {
+                    new ChucklefishRepository(
+                        vendorKey: config.ChucklefishKey,
+                        userAgent: string.Format(config.ChucklefishUserAgent, version),
+                        baseUrl: config.ChucklefishBaseUrl,
+                        modPageUrlFormat: config.ChucklefishModPageUrlFormat
+                    ),
                     new GitHubRepository(
                         vendorKey: config.GitHubKey,
                         baseUrl: config.GitHubBaseUrl,
                         releaseUrlFormat: config.GitHubReleaseUrlFormat,
-                        userAgent: config.GitHubUserAgent,
+                        userAgent: string.Format(config.GitHubUserAgent, version),
                         acceptHeader: config.GitHubAcceptHeader,
                         username: config.GitHubUsername,
                         password: config.GitHubPassword

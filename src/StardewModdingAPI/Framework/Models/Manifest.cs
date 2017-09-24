@@ -34,6 +34,9 @@ namespace StardewModdingAPI.Framework.Models
         [JsonConverter(typeof(SFieldConverter))]
         public IManifestDependency[] Dependencies { get; set; }
 
+        /// <summary>The mod's unique ID in the Chucklefish mod site (if any), used for update checks.</summary>
+        public string ChucklefishID { get; set; }
+
         /// <summary>The mod's unique ID in Nexus Mods (if any), used for update checks.</summary>
         public string NexusID { get; set; }
 

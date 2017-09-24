@@ -522,6 +522,8 @@ namespace StardewModdingAPI
                     IDictionary<string, IModMetadata> modsByKey = new Dictionary<string, IModMetadata>(StringComparer.InvariantCultureIgnoreCase);
                     foreach (IModMetadata mod in mods)
                     {
+                        if (!string.IsNullOrWhiteSpace(mod.Manifest.ChucklefishID))
+                            modsByKey[$"Chucklefish:{mod.Manifest.ChucklefishID}"] = mod;
                         if (!string.IsNullOrWhiteSpace(mod.Manifest.NexusID))
                             modsByKey[$"Nexus:{mod.Manifest.NexusID}"] = mod;
                         if (!string.IsNullOrWhiteSpace(mod.Manifest.GitHubProject))

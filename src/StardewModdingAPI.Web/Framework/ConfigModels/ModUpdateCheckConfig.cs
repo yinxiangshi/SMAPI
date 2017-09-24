@@ -13,12 +13,28 @@ namespace StardewModdingAPI.Web.Framework.ConfigModels
         public int CacheMinutes { get; set; }
 
         /****
+        ** Chucklefish mod site
+        ****/
+        /// <summary>The repository key for the Chucklefish mod site.</summary>
+        public string ChucklefishKey { get; set; }
+
+        /// <summary>The user agent for the Chucklefish API client, where {0} is the SMAPI version.</summary>
+        public string ChucklefishUserAgent { get; set; }
+
+        /// <summary>The base URL for the Chucklefish mod site.</summary>
+        public string ChucklefishBaseUrl { get; set; }
+
+        /// <summary>The URL for a mod page on the Chucklefish mod site excluding the <see cref="GitHubBaseUrl"/>, where {0} is the mod ID.</summary>
+        public string ChucklefishModPageUrlFormat { get; set; }
+
+
+        /****
         ** GitHub
         ****/
         /// <summary>The repository key for Nexus Mods.</summary>
         public string GitHubKey { get; set; }
 
-        /// <summary>The user agent for the GitHub API client.</summary>
+        /// <summary>The user agent for the GitHub API client, where {0} is the SMAPI version.</summary>
         public string GitHubUserAgent { get; set; }
 
         /// <summary>The base URL for the GitHub API.</summary>
