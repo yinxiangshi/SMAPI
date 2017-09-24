@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using StardewModdingAPI.Framework.Serialisation;
@@ -24,6 +25,12 @@ namespace StardewModdingAPI.Framework.Models
         [JsonConverter(typeof(SFieldConverter))]
         public ModCompatibility[] Compatibility { get; set; } = new ModCompatibility[0];
 
+        /// <summary>Map local versions to a semantic version for update checks.</summary>
+        public IDictionary<string, string> MapLocalVersions { get; set; } = new Dictionary<string, string>();
+
+        /// <summary>Map remote versions to a semantic version for update checks.</summary>
+        public IDictionary<string, string> MapRemoteVersions { get; set; } = new Dictionary<string, string>();
+
 
         /*********
         ** Public methods
@@ -33,6 +40,24 @@ namespace StardewModdingAPI.Framework.Models
         public ModCompatibility GetCompatibility(ISemanticVersion version)
         {
             return this.Compatibility.FirstOrDefault(p => p.MatchesVersion(version));
+        }
+
+        /// <summary>Get a semantic local version for update checks.</summary>
+        /// <param name="version">The local version to normalise.</param>
+        public string GetLocalVersionForUpdateChecks(string version)
+        {
+            return this.MapLocalVersions != null && this.MapLocalVersions.TryGetValue(version, out string newVersion)
+                ? newVersion
+                : version;
+        }
+
+        /// <summary>Get a semantic remote version for update checks.</summary>
+        /// <param name="version">The remote version to normalise.</param>
+        public string GetRemoteVersionForUpdateChecks(string version)
+        {
+            return this.MapRemoteVersions != null && this.MapRemoteVersions.TryGetValue(version, out string newVersion)
+                ? newVersion
+                : version;
         }
     }
 }

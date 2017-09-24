@@ -576,12 +576,13 @@ namespace StardewModdingAPI
                         }
 
                         // track update
-                        ISemanticVersion version = new SemanticVersion(info.Version);
-                        bool isUpdate = version.IsNewerThan(mod.Manifest.Version);
-                        this.VerboseLog($"   {mod.DisplayName} ({result.Key}): {(isUpdate ? $"{mod.Manifest.Version} => {info.Version}" : "OK")}.");
+                        ISemanticVersion localVersion = new SemanticVersion(mod.DataRecord?.GetLocalVersionForUpdateChecks(mod.Manifest.Version.ToString()));
+                        ISemanticVersion latestVersion = new SemanticVersion(mod.DataRecord?.GetRemoteVersionForUpdateChecks(info.Version));
+                        bool isUpdate = latestVersion.IsNewerThan(localVersion);
+                        this.VerboseLog($"   {mod.DisplayName} ({result.Key}): {(isUpdate ? $"{mod.Manifest.Version}{(!localVersion.Equals(mod.Manifest.Version) ? $" [{localVersion}]" : "")} => {info.Version}{(!latestVersion.Equals(new SemanticVersion(info.Version)) ? $" [{latestVersion}]" : "")}" : "OK")}.");
                         if (isUpdate)
                         {
-                            if (!updatesByMod.TryGetValue(mod, out ModInfoModel other) || version.IsNewerThan(other.Version))
+                            if (!updatesByMod.TryGetValue(mod, out ModInfoModel other) || latestVersion.IsNewerThan(other.Version))
                                 updatesByMod[mod] = info;
                         }
                     }
