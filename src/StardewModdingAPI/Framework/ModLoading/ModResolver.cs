@@ -64,7 +64,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                     dataRecord = (
                         from mod in dataRecords
                         where
-                            mod.ID.Any(p => p.Matches(key, manifest))
+                            mod.ID.Matches(key, manifest)
                             && (mod.LowerVersion == null || !manifest.Version.IsOlderThan(mod.LowerVersion))
                             && (mod.UpperVersion == null || !manifest.Version.IsNewerThan(mod.UpperVersion))
                         select mod

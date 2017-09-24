@@ -1,22 +1,28 @@
 using System;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace StardewModdingAPI.Framework.Models
 {
     /// <summary>Uniquely identifies a mod in SMAPI's internal data.</summary>
+    /// <remarks>
+    /// This represents a custom format which uniquely identifies a mod across all versions, even
+    /// if its field values change or it doesn't specify a unique ID. This is mapped to a string
+    /// with the following format:
+    /// 
+    /// 1. If the mod's identifier changed over time, multiple variants can be separated by the <c>|</c>
+    ///    character.
+    /// 2. Each variant can take one of two forms:
+    ///    - A simple string matching the mod's UniqueID value.
+    ///    - A JSON structure containing any of three manifest fields (ID, Name, and Author) to match.
+    /// </remarks>
     internal class ModDataID
     {
         /*********
-        ** Accessors
+        ** Properties
         *********/
-        /// <summary>The unique mod ID.</summary>
-        public string ID { get; set; }
-
-        /// <summary>The mod name to disambiguate non-unique IDs, or <c>null</c> to ignore the mod name.</summary>
-        public string Name { get; set; }
-
-        /// <summary>The author name to disambiguate non-unique IDs, or <c>null</c> to ignore the author.</summary>
-        public string Author { get; set; }
+        /// <summary>The unique sets of field values which identify this mod.</summary>
+        private readonly FieldSnapshot[] Snapshots;
 
 
         /*********
@@ -26,17 +32,18 @@ namespace StardewModdingAPI.Framework.Models
         public ModDataID() { }
 
         /// <summary>Construct an instance.</summary>
-        /// <param name="data">The mod ID or a JSON string matching the <see cref="ModDataID"/> fields.</param>
+        /// <param name="data">The mod identifier string (see remarks on <see cref="ModDataID"/>).</param>
         public ModDataID(string data)
         {
-            // JSON can be stuffed into the ID string as a convenience hack to keep JSON mod lists
-            // formatted readably. The tradeoff is that the format is a bit more magical, but that's
-            // probably acceptable since players aren't meant to edit it. It's also fairly clear what
-            // the JSON strings do, if not necessarily how.
-            if (data.StartsWith("{"))
-                JsonConvert.PopulateObject(data, this);
-            else
-                this.ID = data;
+            this.Snapshots =
+                (
+                    from string part in data.Split('|')
+                    let str = part.Trim()
+                    select str.StartsWith("{")
+                        ? JsonConvert.DeserializeObject<FieldSnapshot>(str)
+                        : new FieldSnapshot { ID = str }
+                )
+                .ToArray();
         }
 
         /// <summary>Get whether this ID matches a given mod manifest.</summary>
@@ -44,14 +51,35 @@ namespace StardewModdingAPI.Framework.Models
         /// <param name="manifest">The manifest to check.</param>
         public bool Matches(string id, IManifest manifest)
         {
-            return
-                this.ID.Equals(id, StringComparison.InvariantCultureIgnoreCase)
+            return this.Snapshots.Any(snapshot =>
+                snapshot.ID.Equals(id, StringComparison.InvariantCultureIgnoreCase)
                 && (
-                    this.Author == null
-                    || this.Author.Equals(manifest.Author, StringComparison.InvariantCultureIgnoreCase)
-                    || (manifest.ExtraFields.ContainsKey("Authour") && this.Author.Equals(manifest.ExtraFields["Authour"].ToString(), StringComparison.InvariantCultureIgnoreCase))
+                    snapshot.Author == null
+                    || snapshot.Author.Equals(manifest.Author, StringComparison.InvariantCultureIgnoreCase)
+                    || (manifest.ExtraFields.ContainsKey("Authour") && snapshot.Author.Equals(manifest.ExtraFields["Authour"].ToString(), StringComparison.InvariantCultureIgnoreCase))
                 )
-                && (this.Name == null || this.Name.Equals(manifest.Name, StringComparison.InvariantCultureIgnoreCase));
+                && (snapshot.Name == null || snapshot.Name.Equals(manifest.Name, StringComparison.InvariantCultureIgnoreCase))
+            );
+        }
+
+
+        /*********
+        ** Private models
+        *********/
+        /// <summary>A unique set of fields which identifies the mod.</summary>
+        private class FieldSnapshot
+        {
+            /*********
+            ** Accessors
+            *********/
+            /// <summary>The unique mod ID.</summary>
+            public string ID { get; set; }
+
+            /// <summary>The mod name, or <c>null</c> to ignore the mod name.</summary>
+            public string Name { get; set; }
+
+            /// <summary>The author name, or <c>null</c> to ignore the author.</summary>
+            public string Author { get; set; }
         }
     }
 }

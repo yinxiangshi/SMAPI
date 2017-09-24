@@ -9,9 +9,9 @@ namespace StardewModdingAPI.Framework.Models
         /*********
         ** Accessors
         *********/
-        /// <summary>The unique mod IDs.</summary>
+        /// <summary>The unique mod identifier.</summary>
         [JsonConverter(typeof(SFieldConverter))]
-        public ModDataID[] ID { get; set; }
+        public ModDataID ID { get; set; }
 
         /// <summary>The mod name.</summary>
         public string Name { get; set; }
