@@ -1,4 +1,4 @@
-﻿/*
+/*
 
 
 
@@ -15,11 +15,22 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
   "DeveloperMode": true,
 
   /**
-   * Whether SMAPI should check for a newer version when you load the game. If a new version is
-   * available, a small message will appear in the console. This doesn't affect the load time even
-   * if your connection is offline or slow, because it happens in the background.
+   * Whether SMAPI should check for newer versions of SMAPI and mods when you load the game. If new
+   * versions are available, an alert will be shown in the console. This doesn't affect the load
+   * time even if your connection is offline or slow, because it happens in the background.
    */
   "CheckForUpdates": true,
+
+  /**
+   * SMAPI's GitHub project name, used to perform update checks.
+   */
+  "GitHubProjectName": "Pathoschild/SMAPI",
+
+  /**
+   * The base URL for SMAPI's web API, used to perform update checks.
+   * Note: the protocol will be changed to http:// on Linux/Mac due to OpenSSL issues with the game's bundled Mono.
+   */
+  "WebApiBaseUrl": "https://api.smapi.io",
 
   /**
    * Whether SMAPI should log more information about the game context.

@@ -21,6 +21,7 @@ using StardewModdingAPI.Framework.ModHelpers;
 using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Serialisation;
+using StardewModdingAPI.Models;
 using StardewValley;
 using Monitor = StardewModdingAPI.Framework.Monitor;
 using SObject = StardewValley.Object;
@@ -187,7 +188,6 @@ namespace StardewModdingAPI
 #endif
                 this.GameInstance.Exiting += (sender, e) => this.Dispose();
                 GameEvents.InitializeInternal += (sender, e) => this.InitialiseAfterGameStart();
-                GameEvents.GameLoadedInternal += (sender, e) => this.CheckForUpdateAsync();
                 ContentEvents.AfterLocaleChanged += (sender, e) => this.OnLocaleChanged();
 
                 // set window titles
@@ -436,6 +436,9 @@ namespace StardewModdingAPI
 #else
                 this.LoadMods(mods, new JsonHelper(), this.ContentManager);
 #endif
+
+                // check for updates
+                this.CheckForUpdatesAsync(mods);
             }
             if (this.Monitor.IsExiting)
             {
@@ -562,25 +565,113 @@ namespace StardewModdingAPI
             return !issuesFound;
         }
 
-        /// <summary>Asynchronously check for a new version of SMAPI, and print a message to the console if an update is available.</summary>
-        private void CheckForUpdateAsync()
+        /// <summary>Asynchronously check for a new version of SMAPI and any installed mods, and print alerts to the console if an update is available.</summary>
+        /// <param name="mods">The mods to include in the update check (if eligible).</param>
+        private void CheckForUpdatesAsync(IModMetadata[] mods)
         {
             if (!this.Settings.CheckForUpdates)
                 return;
 
             new Thread(() =>
             {
+                // update info
+                List<string> updates = new List<string>();
+                bool smapiUpdate = false;
+                int modUpdates = 0;
+
+                // create client
+                WebApiClient client = new WebApiClient(this.Settings.WebApiBaseUrl, Constants.ApiVersion);
+
+                // fetch SMAPI version
                 try
                 {
-                    GitRelease release = UpdateHelper.GetLatestVersionAsync(Constants.GitHubRepository).Result;
-                    ISemanticVersion latestVersion = new SemanticVersion(release.Tag);
-                    if (latestVersion.IsNewerThan(Constants.ApiVersion))
-                        this.Monitor.Log($"You can update SMAPI from version {Constants.ApiVersion} to {latestVersion}", LogLevel.Alert);
+                    ModInfoModel response = client.GetModInfoAsync($"GitHub:{this.Settings.GitHubProjectName}").Result.Single().Value;
+                    if (response.Error != null)
+                        this.Monitor.Log($"Couldn't check for a new version of SMAPI. This won't affect your game, but you may not be notified of new versions if this keeps happening.\n{response.Error}", LogLevel.Warn);
+                    else if (new SemanticVersion(response.Version).IsNewerThan(Constants.ApiVersion))
+                    {
+                        smapiUpdate = true;
+                        updates.Add($"SMAPI {response.Version}: {response.Url}");
+                    }
                 }
                 catch (Exception ex)
                 {
                     this.Monitor.Log($"Couldn't check for a new version of SMAPI. This won't affect your game, but you may not be notified of new versions if this keeps happening.\n{ex.GetLogSummary()}");
                 }
+
+                // fetch mod versions
+#if !SMAPI_1_x
+                try
+                {
+                    // prepare update-check data
+                    IDictionary<string, IModMetadata> modsByKey = new Dictionary<string, IModMetadata>(StringComparer.InvariantCultureIgnoreCase);
+                    foreach (IModMetadata mod in mods)
+                    {
+                        if (!string.IsNullOrWhiteSpace(mod.Manifest.NexusID))
+                            modsByKey[$"Nexus:{mod.Manifest.NexusID}"] = mod;
+                        if (!string.IsNullOrWhiteSpace(mod.Manifest.GitHubProject))
+                            modsByKey[$"GitHub:{mod.Manifest.GitHubProject}"] = mod;
+                    }
+
+                    // fetch results
+                    IDictionary<string, ModInfoModel> response = client.GetModInfoAsync(modsByKey.Keys.ToArray()).Result;
+                    IDictionary<IModMetadata, ModInfoModel> updatesByMod = new Dictionary<IModMetadata, ModInfoModel>();
+                    foreach (var entry in response)
+                    {
+                        // handle error
+                        if (entry.Value.Error != null)
+                        {
+                            this.Monitor.Log($"Couldn't fetch version of {modsByKey[entry.Key].DisplayName} with key {entry.Key}:\n{entry.Value.Error}", LogLevel.Trace);
+                            continue;
+                        }
+
+                        // collect latest mod version
+                        IModMetadata mod = modsByKey[entry.Key];
+                        ISemanticVersion version = new SemanticVersion(entry.Value.Version);
+                        if (version.IsNewerThan(mod.Manifest.Version))
+                        {
+                            if (!updatesByMod.TryGetValue(mod, out ModInfoModel other) || version.IsNewerThan(other.Version))
+                            {
+                                updatesByMod[mod] = entry.Value;
+                                modUpdates++;
+                            }
+                        }
+                    }
+
+                    // add to output queue
+                    if (updatesByMod.Any())
+                    {
+                        foreach (var entry in updatesByMod.OrderBy(p => p.Key.DisplayName))
+                            updates.Add($"{entry.Key.DisplayName} {entry.Value.Version}: {entry.Value.Url}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    this.Monitor.Log($"Couldn't check for new mod versions:\n{ex.GetLogSummary()}", LogLevel.Trace);
+                }
+#endif
+
+                // output
+                if (updates.Any())
+                {
+#if !SMAPI_1_x
+                    this.Monitor.Newline();
+#endif
+
+                    // print intro
+                    string intro = "";
+                    if (smapiUpdate)
+                        intro = "You can update SMAPI";
+                    if (modUpdates > 0)
+                        intro += $"{(smapiUpdate ? " and" : "You can update")} {modUpdates} mod{(modUpdates != 1 ? "s" : "")}";
+                    intro += ":";
+                    this.Monitor.Log(intro, LogLevel.Alert);
+
+                    // print update list
+                    foreach (string line in updates)
+                        this.Monitor.Log($"   {line}", LogLevel.Alert);
+                }
+
             }).Start();
         }
 

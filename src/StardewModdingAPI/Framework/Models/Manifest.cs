@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using StardewModdingAPI.Framework.Serialisation;
@@ -34,6 +34,14 @@ namespace StardewModdingAPI.Framework.Models
         /// <summary>The other mods that must be loaded before this mod.</summary>
         [JsonConverter(typeof(SFieldConverter))]
         public IManifestDependency[] Dependencies { get; set; }
+
+#if !SMAPI_1_x
+        /// <summary>The mod's unique ID in Nexus Mods (if any), used for update checks.</summary>
+        public string NexusID { get; set; }
+
+        /// <summary>The mod's organisation and project name on GitHub (if any), used for update checks.</summary>
+        public string GitHubProject { get; set; }
+#endif
 
         /// <summary>The unique mod ID.</summary>
         public string UniqueID { get; set; }
