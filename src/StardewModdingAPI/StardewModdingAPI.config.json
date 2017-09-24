@@ -39,10 +39,30 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
   "VerboseLogging": false,
 
   /**
-   * A list of mod versions SMAPI should consider compatible or broken regardless of whether it
-   * detects incompatible code. The default for each record is to assume broken; to force SMAPI to
-   * load a mod regardless of compatibility checks, add a "Compatibility": "AssumeCompatible" field.
-   * Changing this field is not recommended and may destabilise your game.
+   * Extra metadata about some SMAPI mods. All fields except 'ID' are optional.
+   *
+   * - 'ID' uniquely identifies the mod across all versions, even if its manifest fields changed or
+   *   the mod doesn't have a unique ID. The format is as follows:
+   *      - If the mod's identifier changed over time, multiple variants are separated by |.
+   *      - Each variant can take one of two forms: a simple string matching the mod's UniqueID,
+   *        or a JSON structure containing any of three manifest fields (ID, Name, and Author) to
+   *        match.
+   *
+   * - 'Defaults' specifies fields to inject into the mod's manifest if they're not already set.
+   *   Supported fields: ChucklefishID, GitHubProject, and NexusID.
+   *
+   * - 'AlternativeUrl' specifies a URL where the player can find an unofficial update or
+   *   alternative if the mod is no longer compatible.
+   *
+   * - 'Compatibility' overrides SMAPI's normal compatibility detection. The keys are version
+   *   ranges in the form lower~upper, where either side can be blank for an unbounded range. (For
+   *   example, "~1.0" means all versions up to 1.0 inclusively.) The values have two fields:
+   *      - 'Status' specifies the compatibility. Valid values are Obsolete (SMAPI won't load it
+   *        because the mod should no longer be used), AssumeBroken (SMAPI won't load it because
+   *        the specified version isn't compatible), or AssumeCompatible (SMAPI will load it even
+   *        if it detects incompatible code).
+   *      - 'ReasonPhrase' (optional) specifies a message to show to the player explaining why the
+   *        mod isn't loaded. This has no effect for AssumeCompatible.
    */
   "ModData": [
     {

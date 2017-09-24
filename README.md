@@ -144,18 +144,12 @@ game folder.
 
 Basic fields:
 
-field | purpose
------ | -------
-`DeveloperMode` | Default `false` (except in _SMAPI for developers_ releases). Whether to enable features intended for mod developers (mainly more detailed console logging).
+field             | purpose
+----------------- | -------
+`DeveloperMode`   | Default `false` (except in _SMAPI for developers_ releases). Whether to enable features intended for mod developers (mainly more detailed console logging).
 `CheckForUpdates` | Default `true`. Whether SMAPI should check for a newer version when you load the game. If a new version is available, a small message will appear in the console. This doesn't affect the load time even if your connection is offline or slow, because it happens in the background.
-`VerboseLogging` | Default `false`. Whether SMAPI should log more information about the game context.
-
-Advanced fields (changing these isn't recommended and may destabilise your game):
-
-field | purpose
------ | -------
-`DisabledMods` | A list of mods to consider obsolete and not load.
-`ModCompatibility` | A list of mod versions SMAPI should consider compatible or broken regardless of whether it detects incompatible code. This can be used to force SMAPI to load an incompatible mod, though that isn't recommended.
+`VerboseLogging`  | Default `false`. Whether SMAPI should log more information about the game context.
+`ModData`         | Internal metadata about SMAPI mods. Changing this isn't recommended and may destabilise your game. See documentation in the file.
 
 ### Command-line arguments
 The SMAPI installer recognises three command-line arguments:
