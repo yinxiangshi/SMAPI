@@ -97,7 +97,7 @@ namespace StardewModdingAPI.Framework.Serialisation
                 foreach (JProperty property in JObject.Load(reader).Properties())
                 {
                     string range = property.Name;
-                    ModStatus status = property.Value.Value<ModStatus>(nameof(ModCompatibility.Status));
+                    ModStatus status = (ModStatus)Enum.Parse(typeof(ModStatus), property.Value.Value<string>(nameof(ModCompatibility.Status)));
                     string reasonPhrase = property.Value.Value<string>(nameof(ModCompatibility.ReasonPhrase));
 
                     result.Add(new ModCompatibility(range, status, reasonPhrase));

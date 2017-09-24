@@ -58,7 +58,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": "1e36d4ca-c7ef-4dfb-9927-d27a6c3c8bdc",
       "UpdateUrls": [ "http://community.playstarbound.com/resources/3532", "http://stardewvalleywiki.com/Modding:SMAPI_2.0" ],
       "Compatibility": {
-        "~0.01": { "Status": "AssumeBroken" } // broke in SMAPI 1.9
+        "~0.1": { "Status": "AssumeBroken" } // broke in SMAPI 1.9
       }
     },
     {
