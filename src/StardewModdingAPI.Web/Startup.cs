@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Rewrite;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -42,6 +43,7 @@ namespace StardewModdingAPI.Web
         {
             services
                 .Configure<ModUpdateCheckConfig>(this.Configuration.GetSection("ModUpdateCheck"))
+                .Configure<RouteOptions>(options => options.ConstraintMap.Add("semanticVersion", typeof(VersionConstraint)))
                 .AddMemoryCache()
                 .AddMvc()
                 .ConfigureApplicationPartManager(manager => manager.FeatureProviders.Add(new InternalControllerFeatureProvider()))
@@ -62,22 +64,7 @@ namespace StardewModdingAPI.Web
             loggerFactory.AddDebug();
             app
                 .UseRewriter(new RewriteOptions().Add(new RewriteSubdomainRule())) // convert subdomain.smapi.io => smapi.io/subdomain for routing
-                .UseMvc(route =>
-                {
-                    route.MapRoute(
-                        name: "API",
-                        template: "api/{version}/{controller}/{action?}",
-                        defaults: new
-                        {
-                            action = "GetAsync"
-                        },
-                        constraints: new
-                        {
-                            // version regex from SMAPI's SemanticVersion implementation
-                            version = @"^v(?>(?<major>0|[1-9]\d*))\.(?>(?<minor>0|[1-9]\d*))(?>(?:\.(?<patch>0|[1-9]\d*))?)(?:-(?<prerelease>(?>[a-z0-9]+[\-\.]?)+))?$"
-                        }
-                    );
-                });
+                .UseMvc();
         }
     }
 }

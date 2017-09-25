@@ -9,6 +9,7 @@
     <Import_RootNamespace>StardewModdingAPI.Models</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)ModSeachModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ModInfoModel.cs" />
   </ItemGroup>
 </Project>

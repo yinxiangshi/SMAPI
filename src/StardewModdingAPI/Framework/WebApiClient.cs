@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using StardewModdingAPI.Models;
@@ -40,8 +41,10 @@ namespace StardewModdingAPI.Framework
         /// <param name="modKeys">The mod keys for which to fetch the latest version.</param>
         public async Task<IDictionary<string, ModInfoModel>> GetModInfoAsync(params string[] modKeys)
         {
-            string url = $"v{this.Version}/mods?modKeys={Uri.EscapeDataString(string.Join(",", modKeys))}";
-            return await this.GetAsync<Dictionary<string, ModInfoModel>>(url);
+            return await this.PostAsync<ModSearchModel, Dictionary<string, ModInfoModel>>(
+                $"v{this.Version}/mods",
+                new ModSearchModel(modKeys)
+            );
         }
 
 
@@ -49,13 +52,27 @@ namespace StardewModdingAPI.Framework
         ** Private methods
         *********/
         /// <summary>Fetch the response from the backend API.</summary>
-        /// <typeparam name="T">The expected response type.</typeparam>
+        /// <typeparam name="TBody">The body content type.</typeparam>
+        /// <typeparam name="TResult">The expected response type.</typeparam>
         /// <param name="url">The request URL, optionally excluding the base URL.</param>
-        private async Task<T> GetAsync<T>(string url)
+        /// <param name="content">The body content to post.</param>
+        private async Task<TResult> PostAsync<TBody, TResult>(string url, TBody content)
         {
-            // build request (avoid HttpClient for Mac compatibility)
+            /***
+            ** Note: avoid HttpClient for Mac compatibility.
+            ***/
+
+            // serialise content
+            byte[] data = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(content));
+
+            // build request
             HttpWebRequest request = WebRequest.CreateHttp(new Uri(this.BaseUrl, url).ToString());
+            request.Method = "POST";
             request.UserAgent = $"SMAPI/{this.Version}";
+            request.ContentType = "application/json";
+            request.ContentLength = data.Length;
+            using (Stream bodyStream = request.GetRequestStream())
+                bodyStream.Write(data, 0, data.Length);
 
             // fetch data
             using (WebResponse response = await request.GetResponseAsync())
@@ -63,7 +80,7 @@ namespace StardewModdingAPI.Framework
             using (StreamReader reader = new StreamReader(responseStream))
             {
                 string responseText = reader.ReadToEnd();
-                return JsonConvert.DeserializeObject<T>(responseText);
+                return JsonConvert.DeserializeObject<TResult>(responseText);
             }
         }
     }

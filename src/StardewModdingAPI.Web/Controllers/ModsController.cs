@@ -14,6 +14,7 @@ namespace StardewModdingAPI.Web.Controllers
 {
     /// <summary>Provides an API to perform mod update checks.</summary>
     [Produces("application/json")]
+    [Route("api/{version:semanticVersion}/[controller]")]
     internal class ModsController : Controller
     {
         /*********
@@ -80,15 +81,27 @@ namespace StardewModdingAPI.Web.Controllers
         [HttpGet]
         public async Task<IDictionary<string, ModInfoModel>> GetAsync(string modKeys)
         {
+            string[] modKeysArray = modKeys?.Split(',').Select(p => p.Trim()).ToArray();
+            if (modKeysArray == null || !modKeysArray.Any())
+                return new Dictionary<string, ModInfoModel>();
+
+            return await this.PostAsync(new ModSearchModel(modKeysArray));
+        }
+
+        /// <summary>Fetch version metadata for the given mods.</summary>
+        /// <param name="search">The mod search criteria.</param>
+        [HttpPost]
+        public async Task<IDictionary<string, ModInfoModel>> PostAsync([FromBody] ModSearchModel search)
+        {
             // sort & filter keys
-            string[] modKeysArray = (modKeys?.Split(',').Select(p => p.Trim()).ToArray() ?? new string[0])
+            string[] modKeys = (search?.ModKeys?.ToArray() ?? new string[0])
                 .Distinct(StringComparer.CurrentCultureIgnoreCase)
                 .OrderBy(p => p, StringComparer.CurrentCultureIgnoreCase)
                 .ToArray();
 
             // fetch mod info
             IDictionary<string, ModInfoModel> result = new Dictionary<string, ModInfoModel>(StringComparer.CurrentCultureIgnoreCase);
-            foreach (string modKey in modKeysArray)
+            foreach (string modKey in modKeys)
             {
                 // parse mod key
                 if (!this.TryParseModKey(modKey, out string vendorKey, out string modID))
