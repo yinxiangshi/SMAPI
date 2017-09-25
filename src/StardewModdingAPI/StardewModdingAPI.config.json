@@ -99,7 +99,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     {
       // Advanced Location Loader
       "ID": "Entoarox.AdvancedLocationLoader",
-      "Defaults": { "ChucklefishID": 3619 },
+      //"Defaults": { "ChucklefishID": 3619 }, // Entoarox opted out of mod update checks
       "Compatibility": {
         "~1.2.10": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
       }
@@ -621,7 +621,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     {
       // Entoarox Framework
       "ID": "eacdb74b-4080-4452-b16b-93773cda5cf9 | Entoarox.EntoaroxFramework", // changed in ???
-      "Defaults": { "ChucklefishID": 4228 },
+      //"Defaults": { "ChucklefishID": 4228 }, // Entoarox opted out of mod update checks
       "Compatibility": {
         "~1.7.9": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
       }
@@ -661,8 +661,8 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     },
     {
       // Extended Minecart
-      "ID": "{ID:'EntoaroxFurnitureAnywhere', Name:'Extended Minecart'} | Entoarox.ExtendedMinecart", // changed in 1.6.1
-      "Defaults": { "ChucklefishID": 4359 }
+      "ID": "{ID:'EntoaroxFurnitureAnywhere', Name:'Extended Minecart'} | Entoarox.ExtendedMinecart" // changed in 1.6.1
+      //"Defaults": { "ChucklefishID": 4359 } // Entoarox opted out of mod update checks
     },
     {
       // Fall 28 Snow Day
@@ -721,8 +721,8 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     },
     {
       // Faster Paths
-      "ID": "{ID:'821ce8f6-e629-41ad-9fde-03b54f68b0b6', Name:'Faster Paths'} | 615f85f8-5c89-44ee-aecc-c328f172e413 | Entoarox.FasterPaths", // changed in 1.2 and 1.3; disambiguate from Shop Expander
-      "Defaults": { "ChucklefishID": 3641 }
+      "ID": "{ID:'821ce8f6-e629-41ad-9fde-03b54f68b0b6', Name:'Faster Paths'} | 615f85f8-5c89-44ee-aecc-c328f172e413 | Entoarox.FasterPaths" // changed in 1.2 and 1.3; disambiguate from Shop Expander
+      // "Defaults": { "ChucklefishID": 3641 } // Entoarox opted out of mod update checks
     },
     {
       // Faster Run
@@ -771,8 +771,8 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     },
     {
       // Furniture Anywhere
-      "ID": "{ID:'EntoaroxFurnitureAnywhere', Name:'Furniture Anywhere'} | Entoarox.FurnitureAnywhere", // changed in 1.1; disambiguate from Extended Minecart
-      "Defaults": { "ChucklefishID": 4324 }
+      "ID": "{ID:'EntoaroxFurnitureAnywhere', Name:'Furniture Anywhere'} | Entoarox.FurnitureAnywhere" // changed in 1.1; disambiguate from Extended Minecart
+      // "Defaults": { "ChucklefishID": 4324 } // Entoarox opted out of mod update checks
     },
     {
       // Game Reminder
@@ -1067,7 +1067,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     {
       // More Pets
       "ID": "821ce8f6-e629-41ad-9fde-03b54f68b0b6MOREPETS | Entoarox.MorePets", // changed in 1.3
-      "Defaults": { "ChucklefishID": 4288 },
+      // "Defaults": { "ChucklefishID": 4288 }, // Entoarox opted out of mod update checks
       "Compatibility": {
         "~1.3.2": { "Status": "AssumeBroken" } // overhauled for SMAPI 1.11+ compatibility
       }
@@ -1409,7 +1409,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     {
       // Seasonal Immersion
       "ID": "EntoaroxSeasonalHouse | EntoaroxSeasonalBuildings | EntoaroxSeasonalImmersion | Entoarox.SeasonalImmersion", // changed in 1.1, 1.6 or earlier, and 1.7
-      "Defaults": { "ChucklefishID": 4262 },
+      // "Defaults": { "ChucklefishID": 4262 }, // Entoarox opted out of mod update checks
       "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
       "Compatibility": {
         "~1.8.2": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
@@ -1475,7 +1475,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     {
       // Shop Expander
       "ID": "{ID:'821ce8f6-e629-41ad-9fde-03b54f68b0b6', Name:'Shop Expander'} | EntoaroxShopExpander | Entoarox.ShopExpander", // changed in 1.5 and 1.5.2; disambiguate from Faster Paths
-      "Defaults": { "ChucklefishID": 4381 },
+      // "Defaults": { "ChucklefishID": 4381 }, // Entoarox opted out of mod update checks
       "Compatibility": {
         "~1.5.3": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
       }
@@ -1916,7 +1916,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     {
       // Xnb Loader
       "ID": "Entoarox.XnbLoader",
-      "Defaults": { "ChucklefishID": 4506 },
+      // "Defaults": { "ChucklefishID": 4506 }, // Entoarox opted out of mod update checks
       "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
       "Compatibility": {
         "~1.0.6": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
