@@ -61,13 +61,9 @@ namespace StardewModdingAPI.Framework.ModLoading
                     dataRecord = dataRecords.FirstOrDefault(record => record.ID.Matches(key, manifest));
                 }
 
-                // apply defaults
-                if (dataRecord?.Defaults != null)
-                {
-                    manifest.ChucklefishID = manifest.ChucklefishID ?? dataRecord.Defaults.ChucklefishID;
-                    manifest.GitHubProject = manifest.GitHubProject ?? dataRecord.Defaults.GitHubProject;
-                    manifest.NexusID = manifest.NexusID ?? dataRecord.Defaults.NexusID;
-                }
+                // add default update keys
+                if (manifest != null && manifest.UpdateKeys == null && dataRecord?.UpdateKeys != null)
+                    manifest.UpdateKeys = dataRecord.UpdateKeys;
 
                 // build metadata
                 string displayName = !string.IsNullOrWhiteSpace(manifest?.Name)
@@ -84,7 +80,8 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>Validate manifest metadata.</summary>
         /// <param name="mods">The mod manifests to validate.</param>
         /// <param name="apiVersion">The current SMAPI version.</param>
-        public void ValidateManifests(IEnumerable<IModMetadata> mods, ISemanticVersion apiVersion)
+        /// <param name="vendorModUrls">Maps vendor keys (like <c>Nexus</c>) to their mod URL template (where <c>{0}</c> is the mod ID).</param>
+        public void ValidateManifests(IEnumerable<IModMetadata> mods, ISemanticVersion apiVersion, IDictionary<string, string> vendorModUrls)
         {
             mods = mods.ToArray();
 
@@ -110,12 +107,18 @@ namespace StardewModdingAPI.Framework.ModLoading
 
                             // get update URLs
                             List<string> updateUrls = new List<string>();
-                            if (!string.IsNullOrWhiteSpace(mod.Manifest.ChucklefishID))
-                                updateUrls.Add($"https://community.playstarbound.com/resources/{mod.Manifest.ChucklefishID}");
-                            if (!string.IsNullOrWhiteSpace(mod.Manifest.NexusID))
-                                updateUrls.Add($"http://nexusmods.com/stardewvalley/mods/{mod.Manifest.NexusID}");
-                            if (!string.IsNullOrWhiteSpace(mod.Manifest.GitHubProject))
-                                updateUrls.Add($"https://github.com/{mod.Manifest.GitHubProject}/releases");
+                            foreach (string key in mod.Manifest.UpdateKeys ?? new string[0])
+                            {
+                                string[] parts = key.Split(new[] { ':' }, 2);
+                                if (parts.Length != 2)
+                                    continue;
+
+                                string vendorKey = parts[0].Trim();
+                                string modID = parts[1].Trim();
+
+                                if (vendorModUrls.TryGetValue(vendorKey, out string urlTemplate))
+                                    updateUrls.Add(string.Format(urlTemplate, modID));
+                            }
                             if (mod.DataRecord.AlternativeUrl != null)
                                 updateUrls.Add(mod.DataRecord.AlternativeUrl);
 

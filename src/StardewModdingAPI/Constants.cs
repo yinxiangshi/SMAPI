@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -85,6 +86,14 @@ namespace StardewModdingAPI
 #else
         Platform.Mono;
 #endif
+
+        /// <summary>Maps vendor keys (like <c>Nexus</c>) to their mod URL template (where <c>{0}</c> is the mod ID) during mod compatibility checks. This doesn't affect update checks, which defer to the remote web API.</summary>
+        internal static readonly IDictionary<string, string> VendorModUrls = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+        {
+            ["Chucklefish"] = "https://community.playstarbound.com/resources/{0}",
+            ["Nexus"] = "http://nexusmods.com/stardewvalley/mods/{0}",
+            ["GitHub"] = "https://github.com/{0}/releases"
+        };
 
 
         /*********

@@ -15,8 +15,8 @@ namespace StardewModdingAPI.Framework.Models
         [JsonConverter(typeof(SFieldConverter))]
         public ModDataID ID { get; set; }
 
-        /// <summary>Default values for support fields to inject into the manifest.</summary>
-        public ModDataDefaults Defaults { get; set; }
+        /// <summary>A value to inject into <see cref="IManifest.UpdateKeys"/> field if it's not already set.</summary>
+        public string[] UpdateKeys { get; set; }
 
         /// <summary>The URL where the player can get an unofficial or alternative version of the mod if the official version isn't compatible.</summary>
         public string AlternativeUrl { get; set; }

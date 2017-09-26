@@ -81,7 +81,7 @@ namespace StardewModdingAPI.Web.Controllers
         [HttpGet]
         public async Task<IDictionary<string, ModInfoModel>> GetAsync(string modKeys)
         {
-            string[] modKeysArray = modKeys?.Split(',').Select(p => p.Trim()).ToArray();
+            string[] modKeysArray = modKeys?.Split(',').ToArray();
             if (modKeysArray == null || !modKeysArray.Any())
                 return new Dictionary<string, ModInfoModel>();
 
@@ -154,8 +154,8 @@ namespace StardewModdingAPI.Web.Controllers
             }
 
             // parse
-            vendorKey = parts[0];
-            modID = parts[1];
+            vendorKey = parts[0].Trim();
+            modID = parts[1].Trim();
             return true;
         }
     }

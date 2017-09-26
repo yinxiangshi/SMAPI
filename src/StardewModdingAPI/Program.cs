@@ -347,7 +347,7 @@ namespace StardewModdingAPI
 
                 // load manifests
                 IModMetadata[] mods = resolver.ReadManifests(Constants.ModPath, new JsonHelper(), this.Settings.ModData).ToArray();
-                resolver.ValidateManifests(mods, Constants.ApiVersion);
+                resolver.ValidateManifests(mods, Constants.ApiVersion, Constants.VendorModUrls);
 
                 // process dependencies
                 mods = resolver.ProcessDependencies(mods).ToArray();
@@ -530,25 +530,12 @@ namespace StardewModdingAPI
                         }
 
                         // add update keys
-                        bool hasUpdateKeys = false;
-                        if (!string.IsNullOrWhiteSpace(mod.Manifest.ChucklefishID))
+                        if (mod.Manifest.UpdateKeys?.Any() == true)
                         {
-                            hasUpdateKeys = true;
-                            modsByKey[$"Chucklefish:{mod.Manifest.ChucklefishID}"] = mod;
+                            foreach (string updateKey in mod.Manifest.UpdateKeys)
+                                modsByKey[updateKey] = mod;
                         }
-                        if (!string.IsNullOrWhiteSpace(mod.Manifest.NexusID))
-                        {
-                            hasUpdateKeys = true;
-                            modsByKey[$"Nexus:{mod.Manifest.NexusID}"] = mod;
-                        }
-                        if (!string.IsNullOrWhiteSpace(mod.Manifest.GitHubProject))
-                        {
-                            hasUpdateKeys = true;
-                            modsByKey[$"GitHub:{mod.Manifest.GitHubProject}"] = mod;
-                        }
-
-                        // log
-                        if (!hasUpdateKeys)
+                        else
                             this.VerboseLog($"   {mod.DisplayName}: no update keys.");
                     }
 
