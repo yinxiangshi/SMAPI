@@ -43,6 +43,11 @@ namespace StardewModdingAPI.Web.Framework.ModRepositories
         /// <param name="id">The mod ID in this repository.</param>
         public override async Task<ModInfoModel> GetModInfoAsync(string id)
         {
+            // validate ID format
+            if (!uint.TryParse(id, out uint _))
+                return new ModInfoModel($"The value '{id}' isn't a valid Chucklefish mod ID, must be an integer ID.");
+
+            // fetch info
             try
             {
                 // fetch HTML

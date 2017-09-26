@@ -1,4 +1,5 @@
 using System;
+using System.Net;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Pathoschild.Http.Client;
@@ -46,12 +47,21 @@ namespace StardewModdingAPI.Web.Framework.ModRepositories
         /// <param name="id">The mod ID in this repository.</param>
         public override async Task<ModInfoModel> GetModInfoAsync(string id)
         {
+            // validate ID format
+            if (!id.Contains("/") || id.IndexOf("/", StringComparison.InvariantCultureIgnoreCase) != id.LastIndexOf("/", StringComparison.InvariantCultureIgnoreCase))
+                return new ModInfoModel($"The value '{id}' isn't a valid GitHub mod ID, must be a username and project name like 'Pathoschild/LookupAnything'.");
+
+            // fetch info
             try
             {
                 GitRelease release = await this.Client
                     .GetAsync(string.Format(this.ReleaseUrlFormat, id))
                     .As<GitRelease>();
                 return new ModInfoModel(id, this.NormaliseVersion(release.Tag), $"https://github.com/{id}/releases");
+            }
+            catch (ApiException ex) when (ex.Status == HttpStatusCode.NotFound)
+            {
+                return new ModInfoModel("Found no mod with this ID.");
             }
             catch (Exception ex)
             {

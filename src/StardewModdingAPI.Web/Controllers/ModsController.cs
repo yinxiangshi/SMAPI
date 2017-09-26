@@ -106,14 +106,14 @@ namespace StardewModdingAPI.Web.Controllers
                 // parse mod key
                 if (!this.TryParseModKey(modKey, out string vendorKey, out string modID))
                 {
-                    result[modKey] = new ModInfoModel("The mod key isn't in a valid format. It should contain the mod repository key and mod ID like 'Nexus:541'.");
+                    result[modKey] = new ModInfoModel("The mod key isn't in a valid format. It should contain the site key and mod ID like 'Nexus:541'.");
                     continue;
                 }
 
                 // get matching repository
                 if (!this.Repositories.TryGetValue(vendorKey, out IModRepository repository))
                 {
-                    result[modKey] = new ModInfoModel("There's no mod repository matching this namespaced mod ID.");
+                    result[modKey] = new ModInfoModel($"There's no mod site with key '{vendorKey}'. Expected one of [{string.Join(", ", this.Repositories.Keys)}].");
                     continue;
                 }
 
