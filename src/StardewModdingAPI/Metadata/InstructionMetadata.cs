@@ -90,7 +90,10 @@ namespace StardewModdingAPI.Metadata
                 new FieldReplaceRewriter(typeof(Game1), "smoothFont", nameof(Game1.smallFont)),
 
                 // SMAPI 1.9
-                new TypeReferenceRewriter("StardewModdingAPI.Inheritance.ItemStackChange", typeof(ItemStackChange))
+                new TypeReferenceRewriter("StardewModdingAPI.Inheritance.ItemStackChange", typeof(ItemStackChange)),
+
+                // SMAPI 2.0
+                new VirtualEntryCallRemover() // Mod.Entry changed from virtual to abstract in SMAPI 2.0, which breaks the few mods which called base.Entry()
             };
         }
     }

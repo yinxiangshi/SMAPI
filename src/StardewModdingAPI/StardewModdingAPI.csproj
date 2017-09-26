@@ -104,6 +104,7 @@
     <Compile Include="Framework\ModLoading\RewriteHelper.cs" />
     <Compile Include="Framework\ModLoading\Rewriters\FieldReplaceRewriter.cs" />
     <Compile Include="Framework\ModLoading\Rewriters\FieldToPropertyRewriter.cs" />
+    <Compile Include="Framework\ModLoading\Rewriters\VirtualEntryCallRemover.cs" />
     <Compile Include="Framework\ModLoading\Rewriters\MethodParentRewriter.cs" />
     <Compile Include="Framework\ModLoading\Rewriters\TypeReferenceRewriter.cs" />
     <Compile Include="Framework\ModLoading\Rewriters\Wrappers\SpriteBatchWrapper.cs" />
