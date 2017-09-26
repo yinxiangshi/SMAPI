@@ -3,25 +3,26 @@
 <!--See [log](https://github.com/Pathoschild/SMAPI/compare/1.10...2.0).-->
 
 For players:
-* The console is now simpler and easier to read.
-* The console now adjusts its colors when you have a light terminal background.
-* SMAPI now detects mods which may impact game stability and shows a warning in the console.
-* SMAPI now alerts you in the console when one of your mods has a new version.  
-  <small>_That includes most existing mods, even if they haven't updated to use the new update-check API yet._</small>
-* Renamed installer folder from `SMAPI 2.0` to `SMAPI 2.0 installer` to avoid confusion.
+* SMAPI now alerts you when mods have new versions available.
+* SMAPI now warns you about mods which may impact game stability.
+* The console is now simpler and easier to read, and adjusts its colors to fit your terminal background color.
+* Renamed installer folder to avoid confusion.
 * Updated compatibility list.
 * Fixed update check errors on Linux/Mac.
 
 For mod developers:
-* Added new APIs to edit, inject, and reload XNB assets loaded by the game at any time.  
-  <small>_This let mods do anything previously only possible with XNB mods, plus enables new mod scenarios (e.g. seasonal textures, NPC clothing that depend on the weather or location, etc)._</small>
-* Added support for automatic update checks from Chucklefish, GitHub, or Nexus Mods.
-* Added new input events.  
-  <small>_The new `InputEvents` combine keyboard + mouse + controller input into one event for easy handling, add metadata like the cursor position and grab tile to support click handling, and add an option to suppress input from the game to enable new scenarios like action highjacking and UI overlays._</small>
+* Added support for editing, injecting, and reloading XNB data loaded by the game at any time.  
+  <small>_This let SMAPI mods do anything previously only possible with XNB mods, and enables new mod scenarios not possible with XNB mods (e.g. seasonal textures, NPC clothing that depend on the weather or location, etc)._</small>
+* Added support for automatic mod update checks.  
+  <small>_Add your Chucklefish, GitHub, or Nexus mod ID to the manifest and SMAPI will check for updates automatically. SMAPI will retroactively enable updates for most existing mods._</small>
+* Added unified input events.  
+  <small>_The new `InputEvents` combine keyboard + mouse + controller input into one event and constant for easy handling, add metadata like the cursor position and grab tile to support click handling._</small>
+* Added support for suppressing input.  
+  <small>_You can prevent the game from receiving input via `InputEvents`, to enable new scenarios like action highjacking and UI overlays._</small>
 * Added support for optional dependencies.
-* Added support for string versions (like `"1.0-alpha"`) in `manifest.json`.
-* Added `IEquatable<ISemanticVersion>` to `ISemanticVersion`.
+* Added support for specifying the mod version as a string (like `"1.0-alpha"`) in `manifest.json`.
 * Added day of week to `SDate` instances.
+* Added `IEquatable<ISemanticVersion>` to `ISemanticVersion`.
 * Removed the TrainerMod's `save` and `load` commands.
 * Removed all deprecated code.
 * Removed support for mods with no `Name`, `Version`, or `UniqueID` in their manifest.
@@ -33,9 +34,9 @@ For power users:
 * Added command-line arguments to the SMAPI installer so it can be scripted.
 
 For SMAPI developers:
-* SMAPI has been significantly refactored under the hood to support changes in 2.0 and upcoming releases.
-* Overhauled `StardewModdingAPI.config.json` format to support injecting mod data.
-* Removed SMAPI 1._x_ compatibility code.
+* Significantly refactored SMAPI to support changes in 2.0 and upcoming releases.
+* Overhauled `StardewModdingAPI.config.json` format to support mod data like update keys.
+* Removed SMAPI 1._x_ compatibility mode.
 
 ## 1.15.4
 For players:
