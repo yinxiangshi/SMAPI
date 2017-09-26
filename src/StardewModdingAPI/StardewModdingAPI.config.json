@@ -211,6 +211,11 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       }
     },
     {
+      // Better Hay
+      "ID": "cat.betterhay",
+      "UpdateKeys": [ "Nexus:1430" ]
+    },
+    {
       // Better Quality More Seasons
       "ID": "SB_BQMS",
       "UpdateKeys": [ "Nexus:935" ]
@@ -438,6 +443,11 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "UpdateKeys": [ "Nexus:1329" ]
     },
     {
+      // Concentration on Farming
+      "ID": "punyo.ConcentrationOnFarming",
+      "UpdateKeys": [ "Nexus:1445" ]
+    },
+    {
       // Configurable Machines
       "ID": "21da6619-dc03-4660-9794-8e5b498f5b97",
       "UpdateKeys": [ "Nexus:280" ],
@@ -601,6 +611,11 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "UpdateKeys": [ "Nexus:1183" ]
     },
     {
+      // Easier Farming
+      "ID": "cautiouswafffle.EasierFarming",
+      "UpdateKeys": [ "Nexus:1426" ]
+    },
+    {
       // Empty Hands
       "ID": "QuicksilverFox.EmptyHands",
       "UpdateKeys": [ "Nexus:1176" ],
@@ -663,6 +678,11 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       // Extended Minecart
       "ID": "{ID:'EntoaroxFurnitureAnywhere', Name:'Extended Minecart'} | Entoarox.ExtendedMinecart" // changed in 1.6.1
       //"UpdateKeys": [ "Chucklefish:4359" ] // Entoarox opted out of mod update checks
+    },
+    {
+      // Extended Reach
+      "ID": "spacechase0.ExtendedReach",
+      "UpdateKeys": [ "Nexus:1493" ]
     },
     {
       // Fall 28 Snow Day
@@ -795,6 +815,11 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "Compatibility": {
         "~0.1.2": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
       }
+    },
+    {
+      // Geode Info Menu
+      "ID": "cat.geodeinfomenu",
+      "UpdateKeys": [ "Nexus:1448" ]
     },
     {
       // Get Dressed
@@ -954,6 +979,14 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       },
       "MapLocalVersions": {
         "0.0": "1.1"
+      }
+    },
+    {
+      // Level Extender
+      "ID": "Devin Lematty.Level Extender",
+      "UpdateKeys": [ "Nexus:1471" ],
+      "MapRemoteVersions": {
+        "1.1": "1.0" // manifest not updated
       }
     },
     {
@@ -1132,6 +1165,11 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       }
     },
     {
+      // No Kids Ever
+      "ID": "Hangy.NoKidsEver",
+      "UpdateKeys": [ "Nexus:1464" ]
+    },
+    {
       // No Debug Mode
       "ID": "NoDebugMode",
       "Compatibility": {
@@ -1200,6 +1238,11 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       }
     },
     {
+      // Out of Season Bonuses / Seasonal Items
+      "ID": "midoriarmstrong.seasonalitems",
+      "UpdateKeys": [ "Nexus:1452" ]
+    },
+    {
       // Part of the Community
       "ID": "SB_PotC",
       "UpdateKeys": [ "Nexus:923" ],
@@ -1226,6 +1269,11 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "Compatibility": {
         "~1.6": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
       }
+    },
+    {
+      // Persia the Mermaid - Standalone Custom NPC
+      "ID": "63b9f419-7449-42db-ab2e-440b4d05c073",
+      "UpdateKeys": [ "Nexus:1419" ]
     },
     {
       // Persival's BundleMod
@@ -1787,6 +1835,11 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "Compatibility": {
         "~1.0.2": { "Status": "AssumeBroken" } // broke in SDV 1.2
       }
+    },
+    {
+      // The Long Night
+      "ID": "Pathoschild.TheLongNight",
+      "UpdateKeys": [ "Nexus:1369" ]
     },
     {
       // Three-heart Dance Partner
