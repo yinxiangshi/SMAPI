@@ -517,38 +517,46 @@ namespace StardewModdingAPI
                 // check mod versions
                 try
                 {
-                    // prepare update keys
-                    this.VerboseLog("Collecting mod update keys...");
-                    IDictionary<string, IModMetadata> modsByKey = new Dictionary<string, IModMetadata>(StringComparer.InvariantCultureIgnoreCase);
-                    foreach (IModMetadata mod in mods)
+                    // log issues
+                    if (this.Settings.VerboseLogging)
                     {
-                        // validate
-                        if (mod.Manifest == null)
+                        this.VerboseLog("Validating mod update keys...");
+                        foreach (IModMetadata mod in mods)
                         {
-                            this.VerboseLog($"   {mod.DisplayName}: no manifest.");
-                            continue;
+                            if (mod.Manifest == null)
+                                this.VerboseLog($"   {mod.DisplayName}: no manifest.");
+                            else if (mod.Manifest.UpdateKeys == null || !mod.Manifest.UpdateKeys.Any())
+                                this.VerboseLog($"   {mod.DisplayName}: no update keys.");
                         }
-
-                        // add update keys
-                        if (mod.Manifest.UpdateKeys?.Any() == true)
-                        {
-                            foreach (string updateKey in mod.Manifest.UpdateKeys)
-                                modsByKey[updateKey] = mod;
-                        }
-                        else
-                            this.VerboseLog($"   {mod.DisplayName}: no update keys.");
                     }
 
+                    // prepare update keys
+                    Dictionary<string, IModMetadata[]> modsByKey =
+                        (
+                            from mod in mods
+                            where mod.Manifest?.UpdateKeys != null
+                            from key in mod.Manifest.UpdateKeys
+                            select new { key, mod }
+                        )
+                        .GroupBy(p => p.key, StringComparer.InvariantCultureIgnoreCase)
+                        .ToDictionary(
+                            group => group.Key,
+                            group => group.Select(p => p.mod).ToArray(),
+                            StringComparer.InvariantCultureIgnoreCase
+                        );
+
                     // fetch results
-                    this.Monitor.Log($"Checking for updates to {modsByKey.Count} keys...", LogLevel.Trace);
+                    this.Monitor.Log($"Checking for updates to {modsByKey.Keys.Count} keys...", LogLevel.Trace);
                     var results =
                         (
                             from entry in client.GetModInfoAsync(modsByKey.Keys.ToArray()).Result
-                            let mod = modsByKey[entry.Key]
+                            from mod in modsByKey[entry.Key]
                             orderby mod.DisplayName
-                            select new { entry.Key, Mod = modsByKey[entry.Key], Info = entry.Value }
+                            select new { entry.Key, Mod = mod, Info = entry.Value }
                         )
                         .ToArray();
+
+                    // extract latest versions
                     IDictionary<IModMetadata, ModInfoModel> updatesByMod = new Dictionary<IModMetadata, ModInfoModel>();
                     foreach (var result in results)
                     {
