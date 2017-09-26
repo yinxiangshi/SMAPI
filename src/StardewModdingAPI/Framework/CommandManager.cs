@@ -52,8 +52,7 @@ namespace StardewModdingAPI.Framework
         public Command Get(string name)
         {
             name = this.GetNormalisedName(name);
-            Command command;
-            this.Commands.TryGetValue(name, out command);
+            this.Commands.TryGetValue(name, out Command command);
             return command;
         }
 
@@ -92,14 +91,14 @@ namespace StardewModdingAPI.Framework
                 return false;
 
             // get command
-            Command command;
-            if (this.Commands.TryGetValue(name, out command))
+            if (this.Commands.TryGetValue(name, out Command command))
             {
                 command.Callback.Invoke(name, arguments);
                 return true;
             }
             return false;
         }
+
 
         /*********
         ** Private methods

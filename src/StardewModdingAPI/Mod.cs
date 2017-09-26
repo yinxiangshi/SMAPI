@@ -3,7 +3,7 @@ using System;
 namespace StardewModdingAPI
 {
     /// <summary>The base class for a mod.</summary>
-    public class Mod : IMod, IDisposable
+    public abstract class Mod : IMod, IDisposable
     {
         /*********
         ** Accessors
@@ -23,7 +23,7 @@ namespace StardewModdingAPI
         *********/
         /// <summary>The mod entry point, called after the mod is first loaded.</summary>
         /// <param name="helper">Provides simplified APIs for writing mods.</param>
-        public virtual void Entry(IModHelper helper) { }
+        public abstract void Entry(IModHelper helper);
 
         /// <summary>Release or reset unmanaged resources.</summary>
         public void Dispose()

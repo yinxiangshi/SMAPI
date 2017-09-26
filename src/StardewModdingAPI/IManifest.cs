@@ -26,7 +26,7 @@ namespace StardewModdingAPI
         /// <summary>The unique mod ID.</summary>
         string UniqueID { get; }
 
-        /// <summary>The name of the DLL in the directory that has the <see cref="Mod.Entry"/> method.</summary>
+        /// <summary>The name of the DLL in the directory that has the <see cref="IMod.Entry"/> method.</summary>
         string EntryDll { get; }
 
         /// <summary>The other mods that must be loaded before this mod.</summary>

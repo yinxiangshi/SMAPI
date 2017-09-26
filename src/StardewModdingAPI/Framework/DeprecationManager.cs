@@ -1,6 +1,5 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Reflection;
 
 namespace StardewModdingAPI.Framework
 {
@@ -52,10 +51,6 @@ namespace StardewModdingAPI.Framework
             if (!this.MarkWarned(source ?? "<unknown>", nounPhrase, version))
                 return;
 
-            // show SMAPI 2.0 meta-warning
-            if(this.MarkWarned("SMAPI", "SMAPI 2.0 meta-warning", "2.0"))
-                this.Monitor.Log("Some mods may stop working in SMAPI 2.0 (but they'll work fine for now). Try updating mods with 'deprecated code' warnings; if that doesn't remove the warnings, let the mod authors know about this message or see http://stardewvalleywiki.com/Modding:SMAPI_2.0 for details.", LogLevel.Warn);
-
             // build message
             string message = $"{source ?? "An unknown mod"} uses deprecated code ({nounPhrase}).";
             if (source == null)
@@ -105,17 +100,6 @@ namespace StardewModdingAPI.Framework
                 return false;
             this.LoggedDeprecations.Add(key);
             return true;
-        }
-
-        /// <summary>Get whether a type implements the given virtual method.</summary>
-        /// <param name="subtype">The type to check.</param>
-        /// <param name="baseType">The base type which declares the virtual method.</param>
-        /// <param name="name">The method name.</param>
-        /// <param name="argumentTypes">The expected argument types.</param>
-        internal bool IsVirtualMethodImplemented(Type subtype, Type baseType, string name, Type[] argumentTypes)
-        {
-            MethodInfo method = subtype.GetMethod(nameof(Mod.Entry), argumentTypes);
-            return method.DeclaringType != baseType;
         }
     }
 }
