@@ -2,16 +2,16 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace StardewModdingAPI.Framework.ModLoading.Rewriters.Wrappers
+namespace StardewModdingAPI.AssemblyRewriters
 {
-    /// <summary>Wraps <see cref="SpriteBatch"/> methods that are incompatible when converting compiled code between MonoGame and XNA.</summary>
-    internal class SpriteBatchWrapper : SpriteBatch
+    /// <summary>Provides <see cref="SpriteBatch"/> method signatures that can be injected into mod code for compatibility between Linux/Mac or Windows.</summary>
+    public class SpriteBatchMethods : SpriteBatch
     {
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        public SpriteBatchWrapper(GraphicsDevice graphicsDevice) : base(graphicsDevice) { }
+        public SpriteBatchMethods(GraphicsDevice graphicsDevice) : base(graphicsDevice) { }
 
 
         /****

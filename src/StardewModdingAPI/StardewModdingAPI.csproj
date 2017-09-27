@@ -107,7 +107,6 @@
     <Compile Include="Framework\ModLoading\Rewriters\VirtualEntryCallRemover.cs" />
     <Compile Include="Framework\ModLoading\Rewriters\MethodParentRewriter.cs" />
     <Compile Include="Framework\ModLoading\Rewriters\TypeReferenceRewriter.cs" />
-    <Compile Include="Framework\ModLoading\Rewriters\Wrappers\SpriteBatchWrapper.cs" />
     <Compile Include="Framework\ContentManagerShim.cs" />
     <Compile Include="Framework\Exceptions\SAssemblyLoadFailedException.cs" />
     <Compile Include="Framework\ModLoading\AssemblyLoadStatus.cs" />
@@ -267,6 +266,12 @@
     </BootstrapperPackage>
   </ItemGroup>
   <Import Project="..\StardewModdingAPI.Models\StardewModdingAPI.Models.projitems" Label="Shared" />
+  <ItemGroup>
+    <ProjectReference Include="..\StardewModdingAPI.AssemblyRewriters\StardewModdingAPI.AssemblyRewriters.csproj">
+      <Project>{10db0676-9fc1-4771-a2c8-e2519f091e49}</Project>
+      <Name>StardewModdingAPI.AssemblyRewriters</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\common.targets" />
 </Project>

@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI.AssemblyRewriters;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Framework.ModLoading.Finders;
 using StardewModdingAPI.Framework.ModLoading.Rewriters;
-using StardewModdingAPI.Framework.ModLoading.Rewriters.Wrappers;
 using StardewValley;
 
 namespace StardewModdingAPI.Metadata
@@ -79,7 +79,7 @@ namespace StardewModdingAPI.Metadata
                 ** rewrite CIL to fix incompatible code
                 ****/
                 // crossplatform
-                new MethodParentRewriter(typeof(SpriteBatch), typeof(SpriteBatchWrapper), onlyIfPlatformChanged: true),
+                new MethodParentRewriter(typeof(SpriteBatch), typeof(SpriteBatchMethods), onlyIfPlatformChanged: true),
 
                 // Stardew Valley 1.2
                 new FieldToPropertyRewriter(typeof(Game1), nameof(Game1.activeClickableMenu)),

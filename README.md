@@ -110,6 +110,7 @@ on the wiki for the first-time setup.
                Mono.Cecil.dll
                Newtonsoft.Json.dll
                StardewModdingAPI
+               StardewModdingAPI.AssemblyRewriters.dll
                StardewModdingAPI.config.json
                StardewModdingAPI.exe
                StardewModdingAPI.pdb
@@ -122,6 +123,7 @@ on the wiki for the first-time setup.
                Mods/*
                Mono.Cecil.dll
                Newtonsoft.Json.dll
+               StardewModdingAPI.AssemblyRewriters.dll
                StardewModdingAPI.config.json
                StardewModdingAPI.exe
                StardewModdingAPI.pdb

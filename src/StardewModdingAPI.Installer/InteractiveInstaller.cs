@@ -81,6 +81,7 @@ namespace StardewModdingApi.Installer
             yield return GetInstallPath("StardewModdingAPI.exe");
             yield return GetInstallPath("StardewModdingAPI.config.json");
             yield return GetInstallPath("StardewModdingAPI.data.json");
+            yield return GetInstallPath("StardewModdingAPI.AssemblyRewriters.dll");
             yield return GetInstallPath("System.ValueTuple.dll");
             yield return GetInstallPath("steam_appid.txt");
 
@@ -97,8 +98,7 @@ namespace StardewModdingApi.Installer
             // obsolete
             yield return GetInstallPath("Mods/.cache"); // 1.3-1.4
             yield return GetInstallPath("Mono.Cecil.Rocks.dll"); // 1.3–1.8
-            yield return GetInstallPath("StardewModdingAPI-settings.json"); // 1.0–1.4
-            yield return GetInstallPath("StardewModdingAPI.AssemblyRewriters.dll"); // 1.3–1.15.4
+            yield return GetInstallPath("StardewModdingAPI-settings.json"); // 1.0-1.4
             if (modsDir.Exists)
             {
                 foreach (DirectoryInfo modDir in modsDir.EnumerateDirectories())
