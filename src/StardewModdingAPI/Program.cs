@@ -497,7 +497,7 @@ namespace StardewModdingAPI
                 {
                     this.Monitor.Log("Checking for SMAPI update...", LogLevel.Trace);
 
-                    ModInfoModel response = client.GetModInfoAsync($"GitHub:{this.Settings.GitHubProjectName}").Result.Single().Value;
+                    ModInfoModel response = client.GetModInfo($"GitHub:{this.Settings.GitHubProjectName}").Single().Value;
                     if (response.Error != null)
                     {
                         this.Monitor.Log("Couldn't check for a new version of SMAPI. This won't affect your game, but you may not be notified of new versions if this keeps happening.", LogLevel.Warn);
@@ -549,7 +549,7 @@ namespace StardewModdingAPI
                     this.Monitor.Log($"Checking for updates to {modsByKey.Keys.Count} keys...", LogLevel.Trace);
                     var results =
                         (
-                            from entry in client.GetModInfoAsync(modsByKey.Keys.ToArray()).Result
+                            from entry in client.GetModInfo(modsByKey.Keys.ToArray())
                             from mod in modsByKey[entry.Key]
                             orderby mod.DisplayName
                             select new { entry.Key, Mod = mod, Info = entry.Value }
@@ -595,9 +595,6 @@ namespace StardewModdingAPI
                 {
                     this.Monitor.Log($"Couldn't check for new mod versions:\n{ex.GetLogSummary()}", LogLevel.Trace);
                 }
-
-
-
             }).Start();
         }
 

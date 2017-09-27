@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 using StardewModdingAPI.Models;
 
@@ -39,9 +36,9 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Get the latest SMAPI version.</summary>
         /// <param name="modKeys">The mod keys for which to fetch the latest version.</param>
-        public async Task<IDictionary<string, ModInfoModel>> GetModInfoAsync(params string[] modKeys)
+        public IDictionary<string, ModInfoModel> GetModInfo(params string[] modKeys)
         {
-            return await this.PostAsync<ModSearchModel, Dictionary<string, ModInfoModel>>(
+            return this.Post<ModSearchModel, Dictionary<string, ModInfoModel>>(
                 $"v{this.Version}/mods",
                 new ModSearchModel(modKeys)
             );
@@ -56,31 +53,20 @@ namespace StardewModdingAPI.Framework
         /// <typeparam name="TResult">The expected response type.</typeparam>
         /// <param name="url">The request URL, optionally excluding the base URL.</param>
         /// <param name="content">The body content to post.</param>
-        private async Task<TResult> PostAsync<TBody, TResult>(string url, TBody content)
+        private TResult Post<TBody, TResult>(string url, TBody content)
         {
             /***
             ** Note: avoid HttpClient for Mac compatibility.
             ***/
-
-            // serialise content
-            byte[] data = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(content));
-
-            // build request
-            HttpWebRequest request = WebRequest.CreateHttp(new Uri(this.BaseUrl, url).ToString());
-            request.Method = "POST";
-            request.UserAgent = $"SMAPI/{this.Version}";
-            request.ContentType = "application/json";
-            request.ContentLength = data.Length;
-            using (Stream bodyStream = request.GetRequestStream())
-                bodyStream.Write(data, 0, data.Length);
-
-            // fetch data
-            using (WebResponse response = await request.GetResponseAsync())
-            using (Stream responseStream = response.GetResponseStream())
-            using (StreamReader reader = new StreamReader(responseStream))
+            using (WebClient client = new WebClient())
             {
-                string responseText = reader.ReadToEnd();
-                return JsonConvert.DeserializeObject<TResult>(responseText);
+                Uri fullUrl = new Uri(this.BaseUrl, url);
+                string data = JsonConvert.SerializeObject(content);
+
+                client.Headers["Content-Type"] = "application/json";
+                client.Headers["User-Agent"] = $"SMAPI/{this.Version}";
+                string response = client.UploadString(fullUrl, data);
+                return JsonConvert.DeserializeObject<TResult>(response);
             }
         }
     }
