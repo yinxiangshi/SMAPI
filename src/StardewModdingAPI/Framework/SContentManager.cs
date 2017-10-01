@@ -128,8 +128,11 @@ namespace StardewModdingAPI.Framework
         /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
         public bool IsLoaded(string assetName)
         {
-            assetName = this.NormaliseAssetName(assetName);
-            return this.IsNormalisedKeyLoaded(assetName);
+            lock (this.Cache)
+            {
+                assetName = this.NormaliseAssetName(assetName);
+                return this.IsNormalisedKeyLoaded(assetName);
+            }
         }
 
         /// <summary>Load an asset that has been processed by the content pipeline.</summary>
@@ -146,38 +149,41 @@ namespace StardewModdingAPI.Framework
         /// <param name="instance">The content manager instance for which to load the asset.</param>
         public T LoadFor<T>(string assetName, ContentManager instance)
         {
-            assetName = this.NormaliseAssetName(assetName);
+            lock (this.Cache)
+            {
+                assetName = this.NormaliseAssetName(assetName);
 
-            // skip if already loaded
-            if (this.IsNormalisedKeyLoaded(assetName))
-            {
-                this.TrackAssetLoader(assetName, instance);
-                return base.Load<T>(assetName);
-            }
-
-            // load asset
-            T data;
-            if (this.AssetsBeingLoaded.Contains(assetName))
-            {
-                this.Monitor.Log($"Broke loop while loading asset '{assetName}'.", LogLevel.Warn);
-                this.Monitor.Log($"Bypassing mod loaders for this asset. Stack trace:\n{Environment.StackTrace}", LogLevel.Trace);
-                data = base.Load<T>(assetName);
-            }
-            else
-            {
-                data = this.AssetsBeingLoaded.Track(assetName, () =>
+                // skip if already loaded
+                if (this.IsNormalisedKeyLoaded(assetName))
                 {
-                    IAssetInfo info = new AssetInfo(this.GetLocale(), assetName, typeof(T), this.NormaliseAssetName);
-                    IAssetData asset = this.ApplyLoader<T>(info) ?? new AssetDataForObject(info, base.Load<T>(assetName), this.NormaliseAssetName);
-                    asset = this.ApplyEditors<T>(info, asset);
-                    return (T)asset.Data;
-                });
-            }
+                    this.TrackAssetLoader(assetName, instance);
+                    return base.Load<T>(assetName);
+                }
 
-            // update cache & return data
-            this.Cache[assetName] = data;
-            this.TrackAssetLoader(assetName, instance);
-            return data;
+                // load asset
+                T data;
+                if (this.AssetsBeingLoaded.Contains(assetName))
+                {
+                    this.Monitor.Log($"Broke loop while loading asset '{assetName}'.", LogLevel.Warn);
+                    this.Monitor.Log($"Bypassing mod loaders for this asset. Stack trace:\n{Environment.StackTrace}", LogLevel.Trace);
+                    data = base.Load<T>(assetName);
+                }
+                else
+                {
+                    data = this.AssetsBeingLoaded.Track(assetName, () =>
+                    {
+                        IAssetInfo info = new AssetInfo(this.GetLocale(), assetName, typeof(T), this.NormaliseAssetName);
+                        IAssetData asset = this.ApplyLoader<T>(info) ?? new AssetDataForObject(info, base.Load<T>(assetName), this.NormaliseAssetName);
+                        asset = this.ApplyEditors<T>(info, asset);
+                        return (T)asset.Data;
+                    });
+                }
+
+                // update cache & return data
+                this.Cache[assetName] = data;
+                this.TrackAssetLoader(assetName, instance);
+                return data;
+            }
         }
 
         /// <summary>Inject an asset into the cache.</summary>
@@ -186,9 +192,12 @@ namespace StardewModdingAPI.Framework
         /// <param name="value">The asset value.</param>
         public void Inject<T>(string assetName, T value)
         {
-            assetName = this.NormaliseAssetName(assetName);
-            this.Cache[assetName] = value;
-            this.TrackAssetLoader(assetName, this);
+            lock (this.Cache)
+            {
+                assetName = this.NormaliseAssetName(assetName);
+                this.Cache[assetName] = value;
+                this.TrackAssetLoader(assetName, this);
+            }
         }
 
         /// <summary>Get the current content locale.</summary>
@@ -200,16 +209,19 @@ namespace StardewModdingAPI.Framework
         /// <summary>Get the cached asset keys.</summary>
         public IEnumerable<string> GetAssetKeys()
         {
-            IEnumerable<string> GetAllAssetKeys()
+            lock (this.Cache)
             {
-                foreach (string cacheKey in this.Cache.Keys)
+                IEnumerable<string> GetAllAssetKeys()
                 {
-                    this.ParseCacheKey(cacheKey, out string assetKey, out string _);
-                    yield return assetKey;
+                    foreach (string cacheKey in this.Cache.Keys)
+                    {
+                        this.ParseCacheKey(cacheKey, out string assetKey, out string _);
+                        yield return assetKey;
+                    }
                 }
-            }
 
-            return GetAllAssetKeys().Distinct();
+                return GetAllAssetKeys().Distinct();
+            }
         }
 
         /// <summary>Purge assets from the cache that match one of the interceptors.</summary>
@@ -248,45 +260,48 @@ namespace StardewModdingAPI.Framework
         /// <returns>Returns whether any cache entries were invalidated.</returns>
         public bool InvalidateCache(Func<string, Type, bool> predicate, bool dispose = false)
         {
-            // find matching asset keys
-            HashSet<string> purgeCacheKeys = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
-            HashSet<string> purgeAssetKeys = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
-            foreach (string cacheKey in this.Cache.Keys)
+            lock (this.Cache)
             {
-                this.ParseCacheKey(cacheKey, out string assetKey, out _);
-                Type type = this.Cache[cacheKey].GetType();
-                if (predicate(assetKey, type))
+                // find matching asset keys
+                HashSet<string> purgeCacheKeys = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+                HashSet<string> purgeAssetKeys = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+                foreach (string cacheKey in this.Cache.Keys)
                 {
-                    purgeAssetKeys.Add(assetKey);
-                    purgeCacheKeys.Add(cacheKey);
+                    this.ParseCacheKey(cacheKey, out string assetKey, out _);
+                    Type type = this.Cache[cacheKey].GetType();
+                    if (predicate(assetKey, type))
+                    {
+                        purgeAssetKeys.Add(assetKey);
+                        purgeCacheKeys.Add(cacheKey);
+                    }
                 }
-            }
 
-            // purge assets
-            foreach (string key in purgeCacheKeys)
-            {
-                if (dispose && this.Cache[key] is IDisposable disposable)
-                    disposable.Dispose();
-                this.Cache.Remove(key);
-                this.AssetLoaders.Remove(key);
-            }
+                // purge assets
+                foreach (string key in purgeCacheKeys)
+                {
+                    if (dispose && this.Cache[key] is IDisposable disposable)
+                        disposable.Dispose();
+                    this.Cache.Remove(key);
+                    this.AssetLoaders.Remove(key);
+                }
 
-            // reload core game assets
-            int reloaded = 0;
-            foreach (string key in purgeAssetKeys)
-            {
-                if (this.CoreAssets.ReloadForKey(this, key))
-                    reloaded++;
-            }
+                // reload core game assets
+                int reloaded = 0;
+                foreach (string key in purgeAssetKeys)
+                {
+                    if (this.CoreAssets.ReloadForKey(this, key))
+                        reloaded++;
+                }
 
-            // report result
-            if (purgeCacheKeys.Any())
-            {
-                this.Monitor.Log($"Invalidated {purgeCacheKeys.Count} cache entries for {purgeAssetKeys.Count} asset keys: {string.Join(", ", purgeCacheKeys.OrderBy(p => p, StringComparer.InvariantCultureIgnoreCase))}. Reloaded {reloaded} core assets.", LogLevel.Trace);
-                return true;
+                // report result
+                if (purgeCacheKeys.Any())
+                {
+                    this.Monitor.Log($"Invalidated {purgeCacheKeys.Count} cache entries for {purgeAssetKeys.Count} asset keys: {string.Join(", ", purgeCacheKeys.OrderBy(p => p, StringComparer.InvariantCultureIgnoreCase))}. Reloaded {reloaded} core assets.", LogLevel.Trace);
+                    return true;
+                }
+                this.Monitor.Log("Invalidated 0 cache entries.", LogLevel.Trace);
+                return false;
             }
-            this.Monitor.Log("Invalidated 0 cache entries.", LogLevel.Trace);
-            return false;
         }
 
         /// <summary>Dispose assets for the given content manager shim.</summary>
