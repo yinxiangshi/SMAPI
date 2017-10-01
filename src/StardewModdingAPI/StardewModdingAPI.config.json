@@ -718,7 +718,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     },
     {
       // Farm Expansion
-      "ID": "3888bdfd-73f6-4776-8bb7-8ad45aea1915 | AdvizeFarmExpansionMod-2-0 | AdvizeFarmExpansionMod-2-0-5", // changed in 2.0 and 2.0.5
+      "ID": "3888bdfd-73f6-4776-8bb7-8ad45aea1915 | AdvizeFarmExpansionMod-2-0 | AdvizeFarmExpansionMod-2-0-5 | Advize.FarmExpansion", // changed in 2.0, 2.0.5, and 3.0
       "UpdateKeys": [ "Nexus:130" ],
       "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
       "Compatibility": {
