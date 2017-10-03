@@ -9,6 +9,7 @@ For players:
 * Renamed installer folder to avoid confusion.
 * Updated compatibility list.
 * Fixed update check errors on Linux/Mac.
+* Fixed collection-changed errors during startup for some players.
 
 For mod developers:
 * Added support for editing, injecting, and reloading XNB data loaded by the game at any time.  
