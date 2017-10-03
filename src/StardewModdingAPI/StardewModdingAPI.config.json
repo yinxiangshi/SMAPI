@@ -1616,7 +1616,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     },
     {
       // Slower Fence Decay
-      "ID": "SPDSlowFenceDecay",
+      "ID": "SPDSlowFenceDecay | Speeder.SlowerFenceDecay", // changed in 0.5.2-pathoschild-update
       "UpdateKeys": [ "Nexus:252" ],
       "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
       "Compatibility": {
