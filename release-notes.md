@@ -4,7 +4,7 @@
 
 For players:
 * SMAPI now alerts you when mods have new versions available.
-* SMAPI now warns you about mods which may impact game stability.
+* SMAPI now warns you about mods which may impact game stability or compatibility.
 * The console is now simpler and easier to read, and adjusts its colors to fit your terminal background color.
 * Renamed installer folder to avoid confusion.
 * Updated compatibility list.

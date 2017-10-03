@@ -71,6 +71,7 @@ namespace StardewModdingAPI.Metadata
                 ** detect code which may impact game stability
                 ****/
                 new TypeFinder("Harmony.HarmonyInstance", InstructionHandleResult.DetectedGamePatch),
+                new TypeFinder("System.Runtime.CompilerServices.CallSite", InstructionHandleResult.DetectedDynamic),
                 new FieldFinder(typeof(SaveGame).FullName, nameof(SaveGame.serializer), InstructionHandleResult.DetectedSaveSerialiser),
                 new FieldFinder(typeof(SaveGame).FullName, nameof(SaveGame.farmerSerializer), InstructionHandleResult.DetectedSaveSerialiser),
                 new FieldFinder(typeof(SaveGame).FullName, nameof(SaveGame.locationSerializer), InstructionHandleResult.DetectedSaveSerialiser),

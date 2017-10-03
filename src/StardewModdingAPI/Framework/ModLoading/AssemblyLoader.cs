@@ -25,6 +25,9 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>Encapsulates monitoring and logging.</summary>
         private readonly IMonitor Monitor;
 
+        /// <summary>Whether to enable developer mode logging.</summary>
+        private readonly bool IsDeveloperMode;
+
 
         /*********
         ** Public methods
@@ -32,9 +35,11 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>Construct an instance.</summary>
         /// <param name="targetPlatform">The current game platform.</param>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        public AssemblyLoader(Platform targetPlatform, IMonitor monitor)
+        /// <param name="isDeveloperMode">Whether to enable developer mode logging.</param>
+        public AssemblyLoader(Platform targetPlatform, IMonitor monitor, bool isDeveloperMode)
         {
             this.Monitor = monitor;
+            this.IsDeveloperMode = isDeveloperMode;
             this.AssemblyMap = Constants.GetAssemblyMap(targetPlatform);
 
             // generate type => assembly lookup for types which should be rewritten
@@ -274,6 +279,17 @@ namespace StardewModdingAPI.Framework.ModLoading
                 case InstructionHandleResult.DetectedSaveSerialiser:
                     this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Detected possible save serialiser change ({handler.NounPhrase}) in assembly {filename}.");
                     this.Monitor.LogOnce(loggedMessages, $"{mod.DisplayName} seems to change the save serialiser. It may change your saves in such a way that they won't work without this mod in the future.", LogLevel.Warn);
+                    break;
+
+                case InstructionHandleResult.DetectedDynamic:
+                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Detected 'dynamic' keyword ({handler.NounPhrase}) in assembly {filename}.");
+                    this.Monitor.LogOnce(loggedMessages, $"{mod.DisplayName} uses the 'dynamic' keyword, which isn't compatible with Stardew Valley on Linux or Mac.",
+#if SMAPI_FOR_WINDOWS
+                        this.IsDeveloperMode ? LogLevel.Warn : LogLevel.Debug
+#else
+                        LogLevel.Warn
+#endif
+                    );
                     break;
 
                 case InstructionHandleResult.None:

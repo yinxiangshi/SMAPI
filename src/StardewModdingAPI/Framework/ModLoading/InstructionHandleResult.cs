@@ -16,6 +16,9 @@ namespace StardewModdingAPI.Framework.ModLoading
         DetectedGamePatch,
 
         /// <summary>The instruction is compatible, but affects the save serializer in a way that may make saves unloadable without the mod.</summary>
-        DetectedSaveSerialiser
+        DetectedSaveSerialiser,
+
+        /// <summary>The instruction is compatible, but uses the <c>dynamic</c> keyword which won't work on Linux/Mac.</summary>
+        DetectedDynamic
     }
 }
