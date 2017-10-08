@@ -1,6 +1,6 @@
 using System;
-using System.Text.RegularExpressions;
 using Newtonsoft.Json;
+using StardewModdingAPI.Common;
 
 namespace StardewModdingAPI
 {
@@ -10,31 +10,24 @@ namespace StardewModdingAPI
         /*********
         ** Properties
         *********/
-        /// <summary>A regular expression matching a semantic version string.</summary>
-        /// <remarks>
-        /// This pattern is derived from the BNF documentation in the <a href="https://github.com/mojombo/semver">semver repo</a>,
-        /// with three important deviations intended to support Stardew Valley mod conventions:
-        /// - allows short-form "x.y" versions;
-        /// - allows hyphens in prerelease tags as synonyms for dots (like "-unofficial-update.3");
-        /// - doesn't allow '+build' suffixes.
-        /// </remarks>
-        private static readonly Regex Regex = new Regex(@"^(?>(?<major>0|[1-9]\d*))\.(?>(?<minor>0|[1-9]\d*))(?>(?:\.(?<patch>0|[1-9]\d*))?)(?:-(?<prerelease>(?>[a-z0-9]+[\-\.]?)+))?$", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+        /// <summary>The underlying semantic version implementation.</summary>
+        private readonly SemanticVersionImpl Version;
 
 
         /*********
         ** Accessors
         *********/
         /// <summary>The major version incremented for major API changes.</summary>
-        public int MajorVersion { get; }
+        public int MajorVersion => this.Version.Major;
 
         /// <summary>The minor version incremented for backwards-compatible changes.</summary>
-        public int MinorVersion { get; }
+        public int MinorVersion => this.Version.Minor;
 
         /// <summary>The patch version for backwards-compatible bug fixes.</summary>
-        public int PatchVersion { get; }
+        public int PatchVersion => this.Version.Patch;
 
         /// <summary>An optional build tag.</summary>
-        public string Build { get; }
+        public string Build => this.Version.Tag;
 
 
         /*********
@@ -47,32 +40,14 @@ namespace StardewModdingAPI
         /// <param name="build">An optional build tag.</param>
         [JsonConstructor]
         public SemanticVersion(int majorVersion, int minorVersion, int patchVersion, string build = null)
-        {
-            this.MajorVersion = majorVersion;
-            this.MinorVersion = minorVersion;
-            this.PatchVersion = patchVersion;
-            this.Build = this.GetNormalisedTag(build);
-        }
+            : this(new SemanticVersionImpl(majorVersion, minorVersion, patchVersion, build)) { }
 
         /// <summary>Construct an instance.</summary>
         /// <param name="version">The semantic version string.</param>
         /// <exception cref="ArgumentNullException">The <paramref name="version"/> is null.</exception>
         /// <exception cref="FormatException">The <paramref name="version"/> is not a valid semantic version.</exception>
         public SemanticVersion(string version)
-        {
-            // parse
-            if (version == null)
-                throw new ArgumentNullException(nameof(version), "The input version string can't be null.");
-            var match = SemanticVersion.Regex.Match(version.Trim());
-            if (!match.Success)
-                throw new FormatException($"The input '{version}' isn't a valid semantic version.");
-
-            // initialise
-            this.MajorVersion = int.Parse(match.Groups["major"].Value);
-            this.MinorVersion = match.Groups["minor"].Success ? int.Parse(match.Groups["minor"].Value) : 0;
-            this.PatchVersion = match.Groups["patch"].Success ? int.Parse(match.Groups["patch"].Value) : 0;
-            this.Build = match.Groups["prerelease"].Success ? this.GetNormalisedTag(match.Groups["prerelease"].Value) : null;
-        }
+            : this(new SemanticVersionImpl(version)) { }
 
         /// <summary>Get an integer indicating whether this version precedes (less than 0), supercedes (more than 0), or is equivalent to (0) the specified version.</summary>
         /// <param name="other">The version to compare with this instance.</param>
@@ -80,56 +55,7 @@ namespace StardewModdingAPI
         /// <remarks>The implementation is defined by Semantic Version 2.0 (http://semver.org/).</remarks>
         public int CompareTo(ISemanticVersion other)
         {
-            if (other == null)
-                throw new ArgumentNullException(nameof(other));
-
-            const int same = 0;
-            const int curNewer = 1;
-            const int curOlder = -1;
-
-            // compare stable versions
-            if (this.MajorVersion != other.MajorVersion)
-                return this.MajorVersion.CompareTo(other.MajorVersion);
-            if (this.MinorVersion != other.MinorVersion)
-                return this.MinorVersion.CompareTo(other.MinorVersion);
-            if (this.PatchVersion != other.PatchVersion)
-                return this.PatchVersion.CompareTo(other.PatchVersion);
-            if (this.Build == other.Build)
-                return same;
-
-            // stable supercedes pre-release
-            bool curIsStable = string.IsNullOrWhiteSpace(this.Build);
-            bool otherIsStable = string.IsNullOrWhiteSpace(other.Build);
-            if (curIsStable)
-                return curNewer;
-            if (otherIsStable)
-                return curOlder;
-
-            // compare two pre-release tag values
-            string[] curParts = this.Build.Split('.', '-');
-            string[] otherParts = other.Build.Split('.', '-');
-            for (int i = 0; i < curParts.Length; i++)
-            {
-                // longer prerelease tag supercedes if otherwise equal
-                if (otherParts.Length <= i)
-                    return curNewer;
-
-                // compare if different
-                if (curParts[i] != otherParts[i])
-                {
-                    // compare numerically if possible
-                    {
-                        if (int.TryParse(curParts[i], out int curNum) && int.TryParse(otherParts[i], out int otherNum))
-                            return curNum.CompareTo(otherNum);
-                    }
-
-                    // else compare lexically
-                    return string.Compare(curParts[i], otherParts[i], StringComparison.OrdinalIgnoreCase);
-                }
-            }
-
-            // fallback (this should never happen)
-            return string.Compare(this.ToString(), other.ToString(), StringComparison.InvariantCultureIgnoreCase);
+            return this.Version.CompareTo(other.MajorVersion, other.MinorVersion, other.PatchVersion, other.Build);
         }
 
         /// <summary>Get whether this version is older than the specified version.</summary>
@@ -190,16 +116,7 @@ namespace StardewModdingAPI
         /// <summary>Get a string representation of the version.</summary>
         public override string ToString()
         {
-            // version
-            string result = this.PatchVersion != 0
-                ? $"{this.MajorVersion}.{this.MinorVersion}.{this.PatchVersion}"
-                : $"{this.MajorVersion}.{this.MinorVersion}";
-
-            // tag
-            string tag = this.Build;
-            if (tag != null)
-                result += $"-{tag}";
-            return result;
+            return this.Version.ToString();
         }
 
         /// <summary>Parse a version string without throwing an exception if it fails.</summary>
@@ -208,30 +125,26 @@ namespace StardewModdingAPI
         /// <returns>Returns whether parsing the version succeeded.</returns>
         internal static bool TryParse(string version, out ISemanticVersion parsed)
         {
-            try
+            if (SemanticVersionImpl.TryParse(version, out SemanticVersionImpl versionImpl))
             {
-                parsed = new SemanticVersion(version);
+                parsed = new SemanticVersion(versionImpl);
                 return true;
             }
-            catch
-            {
-                parsed = null;
-                return false;
-            }
+
+            parsed = null;
+            return false;
         }
 
 
         /*********
         ** Private methods
         *********/
-        /// <summary>Get a normalised build tag.</summary>
-        /// <param name="tag">The tag to normalise.</param>
-        private string GetNormalisedTag(string tag)
+        /// <summary>Construct an instance.</summary>
+        /// <param name="version">The underlying semantic version implementation.</param>
+        private SemanticVersion(SemanticVersionImpl version)
         {
-            tag = tag?.Trim();
-            if (string.IsNullOrWhiteSpace(tag) || tag == "0") // '0' from incorrect examples in old SMAPI documentation
-                return null;
-            return tag;
+            this.Version = version;
         }
+
     }
 }

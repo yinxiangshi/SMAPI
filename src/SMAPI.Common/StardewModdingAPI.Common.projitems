@@ -11,6 +11,7 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Models\ModSeachModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\ModInfoModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SemanticVersionImpl.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)Models\" />
