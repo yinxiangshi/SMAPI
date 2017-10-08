@@ -1,21 +1,9 @@
 ![](docs/imgs/SMAPI.png)
 
-## Contents
-* [What is SMAPI?](#what-is-smapi)
-* **[For players](#for-players)**
-* **[For mod developers](#for-mod-developers)**
-* [For SMAPI developers](#for-smapi-developers)
-  * [Compiling from source](#compiling-from-source)
-  * [Debugging a local build](#debugging-a-local-build)
-  * [Preparing a release](#preparing-a-release)
-* [Advanced usage](#advanced-usage)
-  * [Configuration file](#configuration-file)
-  * [Command-line arguments](#command-line-arguments)
-
 ## What is SMAPI?
-**SMAPI** is an [open-source](LICENSE) modding API for [Stardew Valley](http://stardewvalley.net/)
+**SMAPI** is an [open-source](LICENSE.md) modding API for [Stardew Valley](http://stardewvalley.net/)
 that lets you play the game with mods. It's safely installed alongside the game's executable, and
-doesn't change any of your game files. It serves five main purposes:
+doesn't change any of your game files. It serves six main purposes:
 
 1. **Load mods into the game.**  
    _SMAPI loads mods when the game is starting up so they can interact with it. (Code mods aren't
@@ -39,6 +27,10 @@ doesn't change any of your game files. It serves five main purposes:
    window, and in most cases automatically recovers the game. This prevents mods from accidentally
    crashing the game, and makes it possible to troubleshoot errors in the game itself that would
    otherwise show a generic 'program has stopped working' type of message._
+
+6. **Provide update checks.**
+   _SMAPI automatically checks for new versions of your installed mods, and notifies you when any
+   are available._
 
 ## Documentation
 * [For players & mod creators](http://stardewvalleywiki.com/Modding:Index)
