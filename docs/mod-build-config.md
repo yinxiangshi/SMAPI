@@ -13,7 +13,7 @@ The package...
 * [Install](#install)
 * [Simplify mod development](#simplify-mod-development)
 * [Troubleshoot](#troubleshoot)
-* [Versions](#versions)
+* [Release notes](#release-notes)
 
 ## Install
 **When creating a new mod:**
@@ -117,5 +117,46 @@ the game location yourself. There's two ways to do that:
 The configuration will check your custom path first, then fall back to the default paths (so it'll
 still compile on a different computer).
 
-## Versions
-See [release notes](release-notes.md).
+## Release notes
+### 1.8
+* Added mod's version to release zip filename.
+* Fixed release zip not having a mod folder.
+* Fixed release zip failing if mod name contains characters that aren't valid in a filename.
+
+### 1.7.1
+* Fixed issue where i18n folders were flattened.
+* The manifest/i18n files in the project now take precedence over those in the build output if both
+  are present.
+
+### 1.7
+* Added option to create release zips on build.
+* Added reference to XNA's XACT library for audio-related mods.
+
+### 1.6
+* Added support for deploying mod files into `Mods` automatically.
+* Added a build error if a game folder is found, but doesn't contain Stardew Valley or SMAPI.
+
+### 1.5
+* Added support for setting a custom game path globally.
+* Added default GOG path on Mac.
+
+### 1.4
+* Fixed detection of non-default game paths on 32-bit Windows.
+* Removed support for SilVerPLuM (discontinued).
+* Removed support for overriding the target platform (no longer needed since SMAPI crossplatforms
+  mods automatically).
+
+### 1.3
+* Added support for non-default game paths on Windows.
+
+### 1.2
+* Exclude game binaries from mod build output.
+
+### 1.1
+* Added support for overriding the target platform.
+
+### 1.0
+* Initial release.
+* Added support for detecting the game path automatically.
+* Added support for injecting XNA/MonoGame references automatically based on the OS.
+* Added support for mod builders like SilVerPLuM.

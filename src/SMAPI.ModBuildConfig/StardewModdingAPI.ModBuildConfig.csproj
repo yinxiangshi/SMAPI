@@ -49,7 +49,6 @@
     <None Include="package.nuspec">
       <SubType>Designer</SubType>
     </None>
-    <None Include="release-notes.md" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="assets\nuget-icon.png" />
