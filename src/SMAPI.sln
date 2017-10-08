@@ -45,6 +45,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{09CF91E5
 		..\build\prepare-install-package.targets = ..\build\prepare-install-package.targets
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StardewModdingAPI.ModBuildConfig", "SMAPI.ModBuildConfig\StardewModdingAPI.ModBuildConfig.csproj", "{EA4F1E80-743F-4A1D-9757-AE66904A196A}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		SMAPI.Common\StardewModdingAPI.Common.projitems*{2aa02fb6-ff03-41cf-a215-2ee60ab4f5dc}*SharedItemsImports = 13
@@ -121,6 +123,16 @@ Global
 		{A308F679-51A3-4006-92D5-BAEC7EBD01A1}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{A308F679-51A3-4006-92D5-BAEC7EBD01A1}.Release|x86.ActiveCfg = Release|Any CPU
 		{A308F679-51A3-4006-92D5-BAEC7EBD01A1}.Release|x86.Build.0 = Release|Any CPU
+		{EA4F1E80-743F-4A1D-9757-AE66904A196A}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{EA4F1E80-743F-4A1D-9757-AE66904A196A}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{EA4F1E80-743F-4A1D-9757-AE66904A196A}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{EA4F1E80-743F-4A1D-9757-AE66904A196A}.Debug|x86.ActiveCfg = Debug|x86
+		{EA4F1E80-743F-4A1D-9757-AE66904A196A}.Debug|x86.Build.0 = Debug|x86
+		{EA4F1E80-743F-4A1D-9757-AE66904A196A}.Release|Any CPU.ActiveCfg = Release|x86
+		{EA4F1E80-743F-4A1D-9757-AE66904A196A}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{EA4F1E80-743F-4A1D-9757-AE66904A196A}.Release|Mixed Platforms.Build.0 = Release|x86
+		{EA4F1E80-743F-4A1D-9757-AE66904A196A}.Release|x86.ActiveCfg = Release|x86
+		{EA4F1E80-743F-4A1D-9757-AE66904A196A}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
