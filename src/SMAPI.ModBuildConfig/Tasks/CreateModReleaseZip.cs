@@ -106,14 +106,21 @@ namespace StardewModdingAPI.ModBuildConfig.Tasks
                 throw new InvalidOperationException($"The mod's {this.ManifestFileName} couldn't be parsed. It doesn't seem to be valid JSON.", ex);
             }
 
-            // extract version dictionary
-            IDictionary<string, object> versionFields = (IDictionary<string, object>)data["Version"];
-            int major = versionFields.ContainsKey("MajorVersion") ? (int)versionFields["MajorVersion"] : 0;
-            int minor = versionFields.ContainsKey("MinorVersion") ? (int)versionFields["MinorVersion"] : 0;
-            int patch = versionFields.ContainsKey("PatchVersion") ? (int)versionFields["PatchVersion"] : 0;
-            string tag = versionFields.ContainsKey("Build") ? (string)versionFields["Build"] : null;
+            // get version field
+            object versionObj = data.ContainsKey("Version") ? data["Version"] : null;
+            if (versionObj == null)
+                throw new InvalidOperationException($"The mod's {this.ManifestFileName} must have a version field.");
 
-            return new SemanticVersionImpl(major, minor, patch, tag).ToString();
+            // get version string
+            if (versionObj is IDictionary<string, object> versionFields) // SMAPI 1.x
+            {
+                int major = versionFields.ContainsKey("MajorVersion") ? (int) versionFields["MajorVersion"] : 0;
+                int minor = versionFields.ContainsKey("MinorVersion") ? (int) versionFields["MinorVersion"] : 0;
+                int patch = versionFields.ContainsKey("PatchVersion") ? (int) versionFields["PatchVersion"] : 0;
+                string tag = versionFields.ContainsKey("Build") ? (string) versionFields["Build"] : null;
+                return new SemanticVersionImpl(major, minor, patch, tag).ToString();
+            }
+            return new SemanticVersionImpl(versionObj.ToString()).ToString(); // SMAPI 2.0+
         }
 
         /// <summary>Get a case-insensitive dictionary matching the given JSON.</summary>
