@@ -6,6 +6,7 @@ using System.Linq;
 using System.Web.Script.Serialization;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
+using StardewModdingAPI.Common;
 
 namespace StardewModdingAPI.ModBuildConfig.Tasks
 {
@@ -115,8 +116,9 @@ namespace StardewModdingAPI.ModBuildConfig.Tasks
             int major = versionFields.ContainsKey("MajorVersion") ? (int)versionFields["MajorVersion"] : 0;
             int minor = versionFields.ContainsKey("MinorVersion") ? (int)versionFields["MinorVersion"] : 0;
             int patch = versionFields.ContainsKey("PatchVersion") ? (int)versionFields["PatchVersion"] : 0;
+            string tag = versionFields.ContainsKey("Build") ? (string)versionFields["Build"] : null;
 
-            return $"{major}.{minor}.{patch}";
+            return new SemanticVersionImpl(major, minor, patch, tag).ToString();
         }
 
         /// <summary>Get a case-insensitive dictionary matching the given JSON.</summary>

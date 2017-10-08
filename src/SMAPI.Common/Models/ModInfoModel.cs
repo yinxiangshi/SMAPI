@@ -1,5 +1,3 @@
-using Newtonsoft.Json;
-
 namespace StardewModdingAPI.Common.Models
 {
     /// <summary>Generic metadata about a mod.</summary>
@@ -9,16 +7,16 @@ namespace StardewModdingAPI.Common.Models
         ** Accessors
         *********/
         /// <summary>The mod name.</summary>
-        public string Name { get; }
+        public string Name { get; set; }
 
         /// <summary>The mod's semantic version number.</summary>
-        public string Version { get; }
+        public string Version { get; set; }
 
         /// <summary>The mod's web URL.</summary>
-        public string Url { get; }
+        public string Url { get; set; }
 
         /// <summary>The error message indicating why the mod is invalid (if applicable).</summary>
-        public string Error { get; }
+        public string Error { get; set; }
 
 
         /*********
@@ -29,7 +27,6 @@ namespace StardewModdingAPI.Common.Models
         /// <param name="version">The mod's semantic version number.</param>
         /// <param name="url">The mod's web URL.</param>
         /// <param name="error">The error message indicating why the mod is invalid (if applicable).</param>
-        [JsonConstructor]
         public ModInfoModel(string name, string version, string url, string error = null)
         {
             this.Name = name;

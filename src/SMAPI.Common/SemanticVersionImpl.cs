@@ -1,6 +1,5 @@
 using System;
 using System.Text.RegularExpressions;
-using Newtonsoft.Json;
 
 namespace StardewModdingAPI.Common
 {
@@ -41,7 +40,6 @@ namespace StardewModdingAPI.Common
         /// <param name="minor">The minor version incremented for backwards-compatible changes.</param>
         /// <param name="patch">The patch version for backwards-compatible bug fixes.</param>
         /// <param name="tag">An optional prerelease tag.</param>
-        [JsonConstructor]
         public SemanticVersionImpl(int major, int minor, int patch, string tag = null)
         {
             this.Major = major;
