@@ -2,7 +2,7 @@
   <!--*********************************************
   ** Import build tasks
   **********************************************-->
-  <UsingTask TaskName="CreateModReleaseZip" AssemblyFile="StardewModdingAPI.ModBuildConfig.dll" />
+  <UsingTask TaskName="DeployModTask" AssemblyFile="StardewModdingAPI.ModBuildConfig.dll" />
 
   <!--*********************************************
   ** Find the basic mod metadata
@@ -152,6 +152,6 @@
 
     <!-- create release zip if <DeployModZipTo> property is set -->
     <Message Text="Generating mod release at $(DeployModZipTo)\$(MSBuildProjectName).zip..." Importance="high" Condition="'$(DeployModZipTo)' != ''" />
-    <CreateModReleaseZip ModName="$(MSBuildProjectName)" Files="@(BuildFiles);@(I18nFiles)" OutputFolderPath="$(DeployModZipTo)" Condition="'$(DeployModZipTo)' != ''" />
+    <DeployModTask ModName="$(MSBuildProjectName)" Files="@(BuildFiles);@(I18nFiles)" OutputFolderPath="$(DeployModZipTo)" Condition="'$(DeployModZipTo)' != ''" />
   </Target>
 </Project>

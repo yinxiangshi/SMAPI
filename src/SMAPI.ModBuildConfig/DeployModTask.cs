@@ -8,10 +8,10 @@ using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using StardewModdingAPI.Common;
 
-namespace StardewModdingAPI.ModBuildConfig.Tasks
+namespace StardewModdingAPI.ModBuildConfig
 {
-    /// <summary>A build task which packs mod files into a conventional release zip.</summary>
-    public class CreateModReleaseZip : Task
+    /// <summary>A build task which deploys the mod files and prepares a release zip.</summary>
+    public class DeployModTask : Task
     {
         /*********
         ** Properties
