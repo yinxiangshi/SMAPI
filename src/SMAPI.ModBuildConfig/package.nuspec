@@ -17,6 +17,7 @@
   </metadata>
   <files>
     <file src="build/smapi.targets" target="build/Pathoschild.Stardew.ModBuildConfig.targets" />
+    <file src="bin/StardewModdingAPI.ModBuildConfig.dll" target="build/StardewModdingAPI.ModBuildConfig.dll" />
     <file src="readme.md" />
   </files>
 </package>
