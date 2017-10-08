@@ -45,18 +45,17 @@ namespace StardewModdingAPI.ModBuildConfig.Tasks
         {
             try
             {
-                // create output path if needed
-                Directory.CreateDirectory(this.OutputFolderPath);
-
-                // get zip filename
-                string fileName = $"{this.ModName}-{this.GetManifestVersion()}.zip";
+                // get names
+                string zipName = this.EscapeInvalidFilenameCharacters($"{this.ModName}-{this.GetManifestVersion()}.zip");
+                string folderName = this.EscapeInvalidFilenameCharacters(this.ModName);
+                string zipPath = Path.Combine(this.OutputFolderPath, zipName);
 
                 // clear old zip file if present
-                string zipPath = Path.Combine(this.OutputFolderPath, fileName);
                 if (File.Exists(zipPath))
                     File.Delete(zipPath);
 
                 // create zip file
+                Directory.CreateDirectory(this.OutputFolderPath);
                 using (Stream zipStream = new FileStream(zipPath, FileMode.Create, FileAccess.Write))
                 using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create))
                 {
@@ -64,7 +63,7 @@ namespace StardewModdingAPI.ModBuildConfig.Tasks
                     {
                         // get file info
                         string filePath = file.ItemSpec;
-                        string entryName = this.ModName + '/' + file.GetMetadata("RecursiveDir") + file.GetMetadata("Filename") + file.GetMetadata("Extension");
+                        string entryName = folderName + '/' + file.GetMetadata("RecursiveDir") + file.GetMetadata("Filename") + file.GetMetadata("Extension");
                         if (new FileInfo(filePath).Directory.Name.Equals("i18n", StringComparison.InvariantCultureIgnoreCase))
                             entryName = Path.Combine("i18n", entryName);
 
@@ -137,6 +136,15 @@ namespace StardewModdingAPI.ModBuildConfig.Tasks
 
             IDictionary<string, object> data = (IDictionary<string, object>)new JavaScriptSerializer().DeserializeObject(json);
             return MakeCaseInsensitive(data);
+        }
+
+        /// <summary>Get a copy of a filename with all invalid filename characters substituted.</summary>
+        /// <param name="name">The filename.</param>
+        private string EscapeInvalidFilenameCharacters(string name)
+        {
+            foreach (char invalidChar in Path.GetInvalidFileNameChars())
+                name = name.Replace(invalidChar, '.');
+            return name;
         }
     }
 }
