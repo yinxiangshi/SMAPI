@@ -5,42 +5,50 @@ VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrainerMod", "TrainerMod\TrainerMod.csproj", "{28480467-1A48-46A7-99F8-236D95225359}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StardewModdingAPI", "StardewModdingAPI\StardewModdingAPI.csproj", "{F1A573B0-F436-472C-AE29-0B91EA6B9F8F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StardewModdingAPI", "SMAPI\StardewModdingAPI.csproj", "{F1A573B0-F436-472C-AE29-0B91EA6B9F8F}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "metadata", "metadata", "{86C452BE-D2D8-45B4-B63F-E329EB06CEDA}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".root", ".root", "{86C452BE-D2D8-45B4-B63F-E329EB06CEDA}"
 	ProjectSection(SolutionItems) = preProject
-		.editorconfig = .editorconfig
+		..\.editorconfig = ..\.editorconfig
 		..\.gitattributes = ..\.gitattributes
 		..\.gitignore = ..\.gitignore
-		common.targets = common.targets
-		..\CONTRIBUTING.md = ..\CONTRIBUTING.md
-		GlobalAssemblyInfo.cs = GlobalAssemblyInfo.cs
-		..\LICENSE = ..\LICENSE
-		prepare-install-package.targets = prepare-install-package.targets
-		..\README.md = ..\README.md
-		..\release-notes.md = ..\release-notes.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StardewModdingAPI.Installer", "StardewModdingAPI.Installer\StardewModdingAPI.Installer.csproj", "{443DDF81-6AAF-420A-A610-3459F37E5575}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StardewModdingAPI.Installer", "SMAPI.Installer\StardewModdingAPI.Installer.csproj", "{443DDF81-6AAF-420A-A610-3459F37E5575}"
 	ProjectSection(ProjectDependencies) = postProject
 		{28480467-1A48-46A7-99F8-236D95225359} = {28480467-1A48-46A7-99F8-236D95225359}
 		{F1A573B0-F436-472C-AE29-0B91EA6B9F8F} = {F1A573B0-F436-472C-AE29-0B91EA6B9F8F}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StardewModdingAPI.AssemblyRewriters", "StardewModdingAPI.AssemblyRewriters\StardewModdingAPI.AssemblyRewriters.csproj", "{10DB0676-9FC1-4771-A2C8-E2519F091E49}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StardewModdingAPI.AssemblyRewriters", "SMAPI.AssemblyRewriters\StardewModdingAPI.AssemblyRewriters.csproj", "{10DB0676-9FC1-4771-A2C8-E2519F091E49}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StardewModdingAPI.Tests", "StardewModdingAPI.Tests\StardewModdingAPI.Tests.csproj", "{36CCB19E-92EB-48C7-9615-98EEFD45109B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StardewModdingAPI.Tests", "SMAPI.Tests\StardewModdingAPI.Tests.csproj", "{36CCB19E-92EB-48C7-9615-98EEFD45109B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StardewModdingAPI.Web", "StardewModdingAPI.Web\StardewModdingAPI.Web.csproj", "{A308F679-51A3-4006-92D5-BAEC7EBD01A1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StardewModdingAPI.Web", "SMAPI.Web\StardewModdingAPI.Web.csproj", "{A308F679-51A3-4006-92D5-BAEC7EBD01A1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Internal", "Internal", "{82D22ED7-A0A7-4D64-8E92-4B6A5E74ED11}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "StardewModdingAPI.Models", "StardewModdingAPI.Models\StardewModdingAPI.Models.shproj", "{2AA02FB6-FF03-41CF-A215-2EE60AB4F5DC}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "StardewModdingAPI.Models", "SMAPI.Models\StardewModdingAPI.Models.shproj", "{2AA02FB6-FF03-41CF-A215-2EE60AB4F5DC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{EB35A917-67B9-4EFA-8DFC-4FB49B3949BB}"
+	ProjectSection(SolutionItems) = preProject
+		..\docs\CONTRIBUTING.md = ..\docs\CONTRIBUTING.md
+		..\docs\LICENSE.md = ..\docs\LICENSE.md
+		..\docs\README.md = ..\docs\README.md
+		..\docs\release-notes.md = ..\docs\release-notes.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{09CF91E5-5BAB-4650-A200-E5EA9A633046}"
+	ProjectSection(SolutionItems) = preProject
+		..\build\common.targets = ..\build\common.targets
+		..\build\GlobalAssemblyInfo.cs = ..\build\GlobalAssemblyInfo.cs
+		..\build\prepare-install-package.targets = ..\build\prepare-install-package.targets
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		StardewModdingAPI.Models\StardewModdingAPI.Models.projitems*{2aa02fb6-ff03-41cf-a215-2ee60ab4f5dc}*SharedItemsImports = 13
-		StardewModdingAPI.Models\StardewModdingAPI.Models.projitems*{f1a573b0-f436-472c-ae29-0b91ea6b9f8f}*SharedItemsImports = 4
+		SMAPI.Models\StardewModdingAPI.Models.projitems*{2aa02fb6-ff03-41cf-a215-2ee60ab4f5dc}*SharedItemsImports = 13
+		SMAPI.Models\StardewModdingAPI.Models.projitems*{f1a573b0-f436-472c-ae29-0b91ea6b9f8f}*SharedItemsImports = 4
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -121,6 +129,8 @@ Global
 		{10DB0676-9FC1-4771-A2C8-E2519F091E49} = {82D22ED7-A0A7-4D64-8E92-4B6A5E74ED11}
 		{36CCB19E-92EB-48C7-9615-98EEFD45109B} = {82D22ED7-A0A7-4D64-8E92-4B6A5E74ED11}
 		{2AA02FB6-FF03-41CF-A215-2EE60AB4F5DC} = {82D22ED7-A0A7-4D64-8E92-4B6A5E74ED11}
+		{EB35A917-67B9-4EFA-8DFC-4FB49B3949BB} = {86C452BE-D2D8-45B4-B63F-E329EB06CEDA}
+		{09CF91E5-5BAB-4650-A200-E5EA9A633046} = {86C452BE-D2D8-45B4-B63F-E329EB06CEDA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {70143042-A862-47A8-A677-7C819DDC90DC}

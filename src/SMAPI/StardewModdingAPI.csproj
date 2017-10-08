@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -87,7 +87,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\GlobalAssemblyInfo.cs">
+    <Compile Include="..\..\build\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Framework\Models\ModCompatibility.cs" />
@@ -265,13 +265,13 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <Import Project="..\StardewModdingAPI.Models\StardewModdingAPI.Models.projitems" Label="Shared" />
+  <Import Project="..\SMAPI.Models\StardewModdingAPI.Models.projitems" Label="Shared" />
   <ItemGroup>
-    <ProjectReference Include="..\StardewModdingAPI.AssemblyRewriters\StardewModdingAPI.AssemblyRewriters.csproj">
+    <ProjectReference Include="..\SMAPI.AssemblyRewriters\StardewModdingAPI.AssemblyRewriters.csproj">
       <Project>{10db0676-9fc1-4771-a2c8-e2519f091e49}</Project>
       <Name>StardewModdingAPI.AssemblyRewriters</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(SolutionDir)\common.targets" />
+  <Import Project="..\..\build\common.targets" />
 </Project>
