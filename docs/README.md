@@ -30,7 +30,16 @@ change any of your game files. It serves six main purposes:
    are available._
 
 ## Documentation
-* [For players & mod creators](http://stardewvalleywiki.com/Modding:Index)
+Have questions? Come [chat on Discord](https://discord.gg/KCJHWhX) with SMAPI developers and other
+modders!
+
+### For players
+* [Modding guides](https://stardewvalleywiki.com/Modding:Index#For_players)
+
+### For modders
+* [Modding documentation](https://stardewvalleywiki.com/Modding:Index)
+* [Mod build configuration](mod-build-config.md)
 * [Release notes](release-notes.md)
+
+### For SMAPI developers
 * [Technical docs](technical-docs.md)
-* [Chat on Discord](https://discord.gg/KCJHWhX) with SMAPI developers and other modders
