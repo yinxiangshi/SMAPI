@@ -12,6 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".root", ".root", "{86C452BE
 		..\.editorconfig = ..\.editorconfig
 		..\.gitattributes = ..\.gitattributes
 		..\.gitignore = ..\.gitignore
+		..\LICENSE.txt = ..\LICENSE.txt
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StardewModdingAPI.Installer", "SMAPI.Installer\StardewModdingAPI.Installer.csproj", "{443DDF81-6AAF-420A-A610-3459F37E5575}"
@@ -33,7 +34,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{EB35A917-67B9-4EFA-8DFC-4FB49B3949BB}"
 	ProjectSection(SolutionItems) = preProject
 		..\docs\CONTRIBUTING.md = ..\docs\CONTRIBUTING.md
-		..\docs\LICENSE.md = ..\docs\LICENSE.md
 		..\docs\README.md = ..\docs\README.md
 		..\docs\release-notes.md = ..\docs\release-notes.md
 	EndProjectSection
