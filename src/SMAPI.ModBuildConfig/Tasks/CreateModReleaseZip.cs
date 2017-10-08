@@ -50,10 +50,6 @@ namespace StardewModdingAPI.ModBuildConfig.Tasks
                 string folderName = this.EscapeInvalidFilenameCharacters(this.ModName);
                 string zipPath = Path.Combine(this.OutputFolderPath, zipName);
 
-                // clear old zip file if present
-                if (File.Exists(zipPath))
-                    File.Delete(zipPath);
-
                 // create zip file
                 Directory.CreateDirectory(this.OutputFolderPath);
                 using (Stream zipStream = new FileStream(zipPath, FileMode.Create, FileAccess.Write))
