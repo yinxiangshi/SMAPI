@@ -152,6 +152,6 @@
 
     <!-- create release zip if <DeployModZipTo> property is set -->
     <Message Text="Generating mod release at $(DeployModZipTo)\$(MSBuildProjectName).zip..." Importance="high" Condition="'$(DeployModZipTo)' != ''" />
-    <DeployModTask ModName="$(MSBuildProjectName)" Files="@(BuildFiles);@(I18nFiles)" OutputFolderPath="$(DeployModZipTo)" Condition="'$(DeployModZipTo)' != ''" />
+    <DeployModTask ModName="$(MSBuildProjectName)" Files="@(BuildFiles);@(I18nFiles)" ModZipPath="$(ModZipPath)" Condition="'$(DeployModZipTo)' != ''" />
   </Target>
 </Project>

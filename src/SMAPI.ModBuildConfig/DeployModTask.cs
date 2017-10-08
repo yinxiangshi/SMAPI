@@ -33,7 +33,7 @@ namespace StardewModdingAPI.ModBuildConfig
 
         /// <summary>The absolute or relative path to the folder which should contain the generated zip file.</summary>
         [Required]
-        public string OutputFolderPath { get; set; }
+        public string ModZipPath { get; set; }
 
 
         /*********
@@ -45,32 +45,8 @@ namespace StardewModdingAPI.ModBuildConfig
         {
             try
             {
-                // get names
-                string zipName = this.EscapeInvalidFilenameCharacters($"{this.ModName}-{this.GetManifestVersion()}.zip");
-                string folderName = this.EscapeInvalidFilenameCharacters(this.ModName);
-                string zipPath = Path.Combine(this.OutputFolderPath, zipName);
-
-                // create zip file
-                Directory.CreateDirectory(this.OutputFolderPath);
-                using (Stream zipStream = new FileStream(zipPath, FileMode.Create, FileAccess.Write))
-                using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create))
-                {
-                    foreach (ITaskItem file in this.Files)
-                    {
-                        // get file info
-                        string filePath = file.ItemSpec;
-                        string entryName = folderName + '/' + file.GetMetadata("RecursiveDir") + file.GetMetadata("Filename") + file.GetMetadata("Extension");
-                        if (new FileInfo(filePath).Directory.Name.Equals("i18n", StringComparison.InvariantCultureIgnoreCase))
-                            entryName = Path.Combine("i18n", entryName);
-
-                        // add to zip
-                        using (Stream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
-                        using (Stream fileStreamInZip = archive.CreateEntry(entryName).Open())
-                        {
-                            fileStream.CopyTo(fileStreamInZip);
-                        }
-                    }
-                }
+                string modVersion = this.GetManifestVersion();
+                this.CreateReleaseZip(this.Files, this.ModName, modVersion, this.ModZipPath);
 
                 return true;
             }
@@ -81,9 +57,48 @@ namespace StardewModdingAPI.ModBuildConfig
             }
         }
 
+
+        /*********
+        ** Private methods
+        *********/
+        /// <summary>Create a release zip in the recommended format for uploading to mod sites.</summary>
+        /// <param name="files">The files to include.</param>
+        /// <param name="modName">The name of the mod.</param>
+        /// <param name="modVersion">The mod version string.</param>
+        /// <param name="outputFolderPath">The absolute or relative path to the folder which should contain the generated zip file.</param>
+        private void CreateReleaseZip(ITaskItem[] files, string modName, string modVersion, string outputFolderPath)
+        {
+            // get names
+            string zipName = this.EscapeInvalidFilenameCharacters($"{modName}-{modVersion}.zip");
+            string folderName = this.EscapeInvalidFilenameCharacters(modName);
+            string zipPath = Path.Combine(outputFolderPath, zipName);
+
+            // create zip file
+            Directory.CreateDirectory(outputFolderPath);
+            using (Stream zipStream = new FileStream(zipPath, FileMode.Create, FileAccess.Write))
+            using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create))
+            {
+                foreach (ITaskItem file in files)
+                {
+                    // get file info
+                    string filePath = file.ItemSpec;
+                    string entryName = folderName + '/' + file.GetMetadata("RecursiveDir") + file.GetMetadata("Filename") + file.GetMetadata("Extension");
+                    if (new FileInfo(filePath).Directory.Name.Equals("i18n", StringComparison.InvariantCultureIgnoreCase))
+                        entryName = Path.Combine("i18n", entryName);
+
+                    // add to zip
+                    using (Stream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                    using (Stream fileStreamInZip = archive.CreateEntry(entryName).Open())
+                    {
+                        fileStream.CopyTo(fileStreamInZip);
+                    }
+                }
+            }
+        }
+
         /// <summary>Get a semantic version from the mod manifest (if available).</summary>
         /// <exception cref="InvalidOperationException">The manifest file wasn't found or is invalid.</exception>
-        public string GetManifestVersion()
+        private string GetManifestVersion()
         {
             // find manifest file
             ITaskItem file = this.Files.FirstOrDefault(p => this.ManifestFileName.Equals(Path.GetFileName(p.ItemSpec), StringComparison.InvariantCultureIgnoreCase));
@@ -114,10 +129,10 @@ namespace StardewModdingAPI.ModBuildConfig
             // get version string
             if (versionObj is IDictionary<string, object> versionFields) // SMAPI 1.x
             {
-                int major = versionFields.ContainsKey("MajorVersion") ? (int) versionFields["MajorVersion"] : 0;
-                int minor = versionFields.ContainsKey("MinorVersion") ? (int) versionFields["MinorVersion"] : 0;
-                int patch = versionFields.ContainsKey("PatchVersion") ? (int) versionFields["PatchVersion"] : 0;
-                string tag = versionFields.ContainsKey("Build") ? (string) versionFields["Build"] : null;
+                int major = versionFields.ContainsKey("MajorVersion") ? (int)versionFields["MajorVersion"] : 0;
+                int minor = versionFields.ContainsKey("MinorVersion") ? (int)versionFields["MinorVersion"] : 0;
+                int patch = versionFields.ContainsKey("PatchVersion") ? (int)versionFields["PatchVersion"] : 0;
+                string tag = versionFields.ContainsKey("Build") ? (string)versionFields["Build"] : null;
                 return new SemanticVersionImpl(major, minor, patch, tag).ToString();
             }
             return new SemanticVersionImpl(versionObj.ToString()).ToString(); // SMAPI 2.0+
