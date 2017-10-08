@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Pathoschild.Http.Client;
-using StardewModdingAPI.Models;
+using StardewModdingAPI.Common.Models;
 
 namespace StardewModdingAPI.Web.Framework.ModRepositories
 {

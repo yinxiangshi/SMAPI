@@ -3,7 +3,7 @@ using System.Net;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Pathoschild.Http.Client;
-using StardewModdingAPI.Models;
+using StardewModdingAPI.Common.Models;
 
 namespace StardewModdingAPI.Web.Framework.ModRepositories
 {

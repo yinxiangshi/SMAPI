@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace StardewModdingAPI.Models
+namespace StardewModdingAPI.Common.Models
 {
     /// <summary>Specifies mods whose update-check info to fetch.</summary>
     internal class ModSearchModel

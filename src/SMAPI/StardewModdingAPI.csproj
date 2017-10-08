@@ -265,7 +265,7 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <Import Project="..\SMAPI.Models\StardewModdingAPI.Models.projitems" Label="Shared" />
+  <Import Project="..\SMAPI.Common\StardewModdingAPI.Common.projitems" Label="Shared" />
   <ItemGroup>
     <ProjectReference Include="..\SMAPI.AssemblyRewriters\StardewModdingAPI.AssemblyRewriters.csproj">
       <Project>{10db0676-9fc1-4771-a2c8-e2519f091e49}</Project>

@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace StardewModdingAPI.Models
+namespace StardewModdingAPI.Common.Models
 {
     /// <summary>Generic metadata about a mod.</summary>
     internal class ModInfoModel

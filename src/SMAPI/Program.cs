@@ -12,6 +12,7 @@ using System.Management;
 using System.Windows.Forms;
 #endif
 using Newtonsoft.Json;
+using StardewModdingAPI.Common.Models;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.Exceptions;
@@ -21,7 +22,6 @@ using StardewModdingAPI.Framework.ModHelpers;
 using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Serialisation;
-using StardewModdingAPI.Models;
 using StardewValley;
 using Monitor = StardewModdingAPI.Framework.Monitor;
 using SObject = StardewValley.Object;

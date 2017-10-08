@@ -6,10 +6,13 @@
     <SharedGUID>2aa02fb6-ff03-41cf-a215-2ee60ab4f5dc</SharedGUID>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
-    <Import_RootNamespace>StardewModdingAPI.Models</Import_RootNamespace>
+    <Import_RootNamespace>StardewModdingAPI.Common</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)ModSeachModel.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ModInfoModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\ModSeachModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\ModInfoModel.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Models\" />
   </ItemGroup>
 </Project>

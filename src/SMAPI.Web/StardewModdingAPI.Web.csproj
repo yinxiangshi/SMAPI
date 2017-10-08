@@ -21,6 +21,6 @@
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="1.0.1" />
   </ItemGroup>
-  <Import Project="..\SMAPI.Models\StardewModdingAPI.Models.projitems" Label="Shared" />
+  <Import Project="..\SMAPI.Common\StardewModdingAPI.Common.projitems" Label="Shared" />
 
 </Project>
