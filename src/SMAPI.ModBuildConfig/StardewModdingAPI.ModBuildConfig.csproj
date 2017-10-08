@@ -39,12 +39,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DeployModTask.cs" />
+    <Compile Include="Framework\UserErrorException.cs" />
+    <Compile Include="Framework\ModFileManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\nuget-icon.pdn" />
     <None Include="build\smapi.targets">
       <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="package.nuspec">
       <SubType>Designer</SubType>

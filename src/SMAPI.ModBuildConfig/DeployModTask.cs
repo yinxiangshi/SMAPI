@@ -2,11 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
-using System.Web.Script.Serialization;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
-using StardewModdingAPI.Common;
+using StardewModdingAPI.ModBuildConfig.Framework;
 
 namespace StardewModdingAPI.ModBuildConfig
 {
@@ -16,24 +14,52 @@ namespace StardewModdingAPI.ModBuildConfig
         /*********
         ** Properties
         *********/
-        /// <summary>The name of the manifest file.</summary>
-        private readonly string ManifestFileName = "manifest.json";
+        /// <summary>The MSBuild platforms recognised by the build configuration.</summary>
+        private readonly HashSet<string> ValidPlatforms = new HashSet<string>(new[] { "OSX", "Unix", "Windows_NT" }, StringComparer.InvariantCultureIgnoreCase);
+
+        /// <summary>The name of the game's main executable file.</summary>
+        private string GameExeName => this.Platform == "Windows_NT"
+            ? "Stardew Valley.exe"
+            : "StardewValley.exe";
+
+        /// <summary>The name of SMAPI's main executable file.</summary>
+        private readonly string SmapiExeName = "StardewModdingAPI.exe";
 
 
         /*********
         ** Accessors
         *********/
-        /// <summary>The mod files to pack.</summary>
+        /// <summary>The name of the mod folder.</summary>
         [Required]
-        public ITaskItem[] Files { get; set; }
-
-        /// <summary>The name of the mod.</summary>
-        [Required]
-        public string ModName { get; set; }
+        public string ModFolderName { get; set; }
 
         /// <summary>The absolute or relative path to the folder which should contain the generated zip file.</summary>
         [Required]
         public string ModZipPath { get; set; }
+
+        /// <summary>The folder containing the project files.</summary>
+        [Required]
+        public string ProjectDir { get; set; }
+
+        /// <summary>The folder containing the build output.</summary>
+        [Required]
+        public string TargetDir { get; set; }
+
+        /// <summary>The folder containing the game files.</summary>
+        [Required]
+        public string GameDir { get; set; }
+
+        /// <summary>The MSBuild OS value.</summary>
+        [Required]
+        public string Platform { get; set; }
+
+        /// <summary>Whether to enable copying the mod files into the game's Mods folder.</summary>
+        [Required]
+        public bool EnableModDeploy { get; set; }
+
+        /// <summary>Whether to enable the release zip.</summary>
+        [Required]
+        public bool EnableModZip { get; set; }
 
 
         /*********
@@ -43,16 +69,49 @@ namespace StardewModdingAPI.ModBuildConfig
         /// <returns>true if the task successfully executed; otherwise, false.</returns>
         public override bool Execute()
         {
+            if (!this.EnableModDeploy && !this.EnableModZip)
+                return true; // nothing to do
+
             try
             {
-                string modVersion = this.GetManifestVersion();
-                this.CreateReleaseZip(this.Files, this.ModName, modVersion, this.ModZipPath);
+                // validate context
+                if (!this.ValidPlatforms.Contains(this.Platform))
+                    throw new UserErrorException($"The mod build package doesn't recognise OS type '{this.Platform}'.");
+                if (!Directory.Exists(this.GameDir))
+                    throw new UserErrorException("The mod build package can't find your game path. See https://github.com/Pathoschild/SMAPI/blob/develop/docs/mod-build-config.md for help specifying it.");
+                if (!File.Exists(Path.Combine(this.GameDir, this.GameExeName)))
+                    throw new UserErrorException($"The mod build package found a game folder at {this.GameDir}, but it doesn't contain the {this.GameExeName} file. If this folder is invalid, delete it and the package will autodetect another game install path.");
+                if (!File.Exists(Path.Combine(this.GameDir, this.SmapiExeName)))
+                    throw new UserErrorException($"The mod build package found a game folder at {this.GameDir}, but it doesn't contain SMAPI. You need to install SMAPI before building the mod.");
+
+                // get mod info
+                ModFileManager package = new ModFileManager(this.ProjectDir, this.TargetDir);
+
+                // deploy mod files
+                if (this.EnableModDeploy)
+                {
+                    string outputPath = Path.Combine(this.GameDir, "Mods", this.EscapeInvalidFilenameCharacters(this.ModFolderName));
+                    this.Log.LogMessage(MessageImportance.High, $"The mod build package is copying the mod files to {outputPath}...");
+                    this.CreateModFolder(package.GetFiles(), outputPath);
+                }
+
+                // create release zip
+                if (this.EnableModZip)
+                {
+                    this.Log.LogMessage(MessageImportance.High, $"The mod build package is generating a release zip at {this.ModZipPath} for {this.ModFolderName}...");
+                    this.CreateReleaseZip(package.GetFiles(), this.ModFolderName, package.GetManifestVersion(), this.ModZipPath);
+                }
 
                 return true;
             }
-            catch (Exception ex)
+            catch (UserErrorException ex)
             {
                 this.Log.LogErrorFromException(ex);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                this.Log.LogError($"The mod build package failed trying to deploy the mod.\n{ex}");
                 return false;
             }
         }
@@ -61,15 +120,29 @@ namespace StardewModdingAPI.ModBuildConfig
         /*********
         ** Private methods
         *********/
+        /// <summary>Copy the mod files into the game's mod folder.</summary>
+        /// <param name="files">The files to include.</param>
+        /// <param name="modFolderPath">The folder path to create with the mod files.</param>
+        private void CreateModFolder(IDictionary<string, FileInfo> files, string modFolderPath)
+        {
+            Directory.CreateDirectory(modFolderPath);
+            foreach (var entry in files)
+            {
+                string fromPath = entry.Value.FullName;
+                string toPath = Path.Combine(modFolderPath, entry.Key);
+                File.Copy(fromPath, toPath, overwrite: true);
+            }
+        }
+
         /// <summary>Create a release zip in the recommended format for uploading to mod sites.</summary>
         /// <param name="files">The files to include.</param>
         /// <param name="modName">The name of the mod.</param>
         /// <param name="modVersion">The mod version string.</param>
         /// <param name="outputFolderPath">The absolute or relative path to the folder which should contain the generated zip file.</param>
-        private void CreateReleaseZip(ITaskItem[] files, string modName, string modVersion, string outputFolderPath)
+        private void CreateReleaseZip(IDictionary<string, FileInfo> files, string modName, string modVersion, string outputFolderPath)
         {
             // get names
-            string zipName = this.EscapeInvalidFilenameCharacters($"{modName}-{modVersion}.zip");
+            string zipName = this.EscapeInvalidFilenameCharacters($"{modName} {modVersion}.zip");
             string folderName = this.EscapeInvalidFilenameCharacters(modName);
             string zipPath = Path.Combine(outputFolderPath, zipName);
 
@@ -78,82 +151,23 @@ namespace StardewModdingAPI.ModBuildConfig
             using (Stream zipStream = new FileStream(zipPath, FileMode.Create, FileAccess.Write))
             using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create))
             {
-                foreach (ITaskItem file in files)
+                foreach (var fileEntry in files)
                 {
+                    string relativePath = fileEntry.Key;
+                    FileInfo file = fileEntry.Value;
+
                     // get file info
-                    string filePath = file.ItemSpec;
-                    string entryName = folderName + '/' + file.GetMetadata("RecursiveDir") + file.GetMetadata("Filename") + file.GetMetadata("Extension");
+                    string filePath = file.FullName;
+                    string entryName = folderName + '/' + relativePath.Replace(Path.DirectorySeparatorChar, '/');
                     if (new FileInfo(filePath).Directory.Name.Equals("i18n", StringComparison.InvariantCultureIgnoreCase))
                         entryName = Path.Combine("i18n", entryName);
 
                     // add to zip
                     using (Stream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
                     using (Stream fileStreamInZip = archive.CreateEntry(entryName).Open())
-                    {
                         fileStream.CopyTo(fileStreamInZip);
-                    }
                 }
             }
-        }
-
-        /// <summary>Get a semantic version from the mod manifest (if available).</summary>
-        /// <exception cref="InvalidOperationException">The manifest file wasn't found or is invalid.</exception>
-        private string GetManifestVersion()
-        {
-            // find manifest file
-            ITaskItem file = this.Files.FirstOrDefault(p => this.ManifestFileName.Equals(Path.GetFileName(p.ItemSpec), StringComparison.InvariantCultureIgnoreCase));
-            if (file == null)
-                throw new InvalidOperationException($"The mod must include a {this.ManifestFileName} file.");
-
-            // read content
-            string json = File.ReadAllText(file.ItemSpec);
-            if (string.IsNullOrWhiteSpace(json))
-                throw new InvalidOperationException($"The mod's {this.ManifestFileName} file must not be empty.");
-
-            // parse JSON
-            IDictionary<string, object> data;
-            try
-            {
-                data = this.Parse(json);
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException($"The mod's {this.ManifestFileName} couldn't be parsed. It doesn't seem to be valid JSON.", ex);
-            }
-
-            // get version field
-            object versionObj = data.ContainsKey("Version") ? data["Version"] : null;
-            if (versionObj == null)
-                throw new InvalidOperationException($"The mod's {this.ManifestFileName} must have a version field.");
-
-            // get version string
-            if (versionObj is IDictionary<string, object> versionFields) // SMAPI 1.x
-            {
-                int major = versionFields.ContainsKey("MajorVersion") ? (int)versionFields["MajorVersion"] : 0;
-                int minor = versionFields.ContainsKey("MinorVersion") ? (int)versionFields["MinorVersion"] : 0;
-                int patch = versionFields.ContainsKey("PatchVersion") ? (int)versionFields["PatchVersion"] : 0;
-                string tag = versionFields.ContainsKey("Build") ? (string)versionFields["Build"] : null;
-                return new SemanticVersionImpl(major, minor, patch, tag).ToString();
-            }
-            return new SemanticVersionImpl(versionObj.ToString()).ToString(); // SMAPI 2.0+
-        }
-
-        /// <summary>Get a case-insensitive dictionary matching the given JSON.</summary>
-        /// <param name="json">The JSON to parse.</param>
-        private IDictionary<string, object> Parse(string json)
-        {
-            IDictionary<string, object> MakeCaseInsensitive(IDictionary<string, object> dict)
-            {
-                foreach (var field in dict.ToArray())
-                {
-                    if (field.Value is IDictionary<string, object> value)
-                        dict[field.Key] = MakeCaseInsensitive(value);
-                }
-                return new Dictionary<string, object>(dict, StringComparer.InvariantCultureIgnoreCase);
-            }
-
-            IDictionary<string, object> data = (IDictionary<string, object>)new JavaScriptSerializer().DeserializeObject(json);
-            return MakeCaseInsensitive(data);
         }
 
         /// <summary>Get a copy of a filename with all invalid filename characters substituted.</summary>

@@ -71,6 +71,11 @@ Finally, you can disable the zip creation with this:
 <EnableModZip>False</EnableModZip>
 ```
 
+Or only create it in release builds with this:
+```xml
+<EnableModZip Condition="$(Configuration) != 'Release'">False</EnableModZip>
+```
+
 ### Game path
 The package usually detects where your game is installed automatically. If it can't find your game
 or you have multiple installs, you can specify the path yourself. There's two ways to do that:
@@ -118,14 +123,15 @@ still compile on a different computer).
 
 ## Troubleshoot
 ### "Failed to find the game install path"
-That error means the package couldn't find your game. You need to specify the game path yourself;
-see _[Game path](#game-path)_ above.
+That error means the package couldn't find your game. You can specify the game path yourself; see
+_[Game path](#game-path)_ above.
 
 ## Release notes
 ### 2.0
-* Mods are now copied into the `Mods` folder automatically (configurable).
-* The release zip is now created automatically in your build output folder (configurable).
+* Added: mods are now copied into the `Mods` folder automatically (configurable).
+* Added: release zips are now created automatically in your build output folder (configurable).
 * Added mod's version to release zip filename.
+* Improved errors to simplify troubleshooting.
 * Fixed release zip not having a mod folder.
 * Fixed release zip failing if mod name contains characters that aren't valid in a filename.
 

@@ -7,15 +7,24 @@
   <!--*********************************************
   ** Find the basic mod metadata
   **********************************************-->
-  <!--######
-  ## import developer's custom settings (if any)
-  #######-->
+  <!-- import developer's custom settings (if any) -->
   <Import Condition="$(OS) != 'Windows_NT' AND Exists('$(HOME)\stardewvalley.targets')" Project="$(HOME)\stardewvalley.targets" />
   <Import Condition="$(OS) == 'Windows_NT' AND Exists('$(USERPROFILE)\stardewvalley.targets')" Project="$(USERPROFILE)\stardewvalley.targets" />
 
-  <!--######
-  ## find platform + game path
-  #######-->
+  <!-- set setting defaults -->
+  <PropertyGroup>
+    <!-- map legacy settings -->
+    <ModFolderName Condition="'$(ModFolderName)' == '' AND '$(DeployModFolderName)' != ''">$(DeployModFolderName)</ModFolderName>
+    <ModZipPath Condition="'$(ModZipPath)' == '' AND '$(DeployModZipTo)' != ''">$(DeployModZipTo)</ModZipPath>
+
+    <!-- set default settings -->
+    <ModFolderName Condition="'$(ModFolderName)' == ''">$(MSBuildProjectName)</ModFolderName>
+    <ModZipPath Condition="'$(ModZipPath)' == ''">$(TargetDir)</ModZipPath>
+    <EnableModDeploy Condition="'$(EnableModDeploy)' == ''">True</EnableModDeploy>
+    <EnableModZip Condition="'$(EnableModZip)' == ''">True</EnableModZip>
+  </PropertyGroup>
+
+  <!-- find platform + game path -->
   <Choose>
     <When Condition="$(OS) == 'Unix' OR $(OS) == 'OSX'">
       <PropertyGroup>
@@ -106,52 +115,21 @@
 
 
   <!--*********************************************
-  ** Perform build logic
+  ** Deploy mod files & create release zip after build
   **********************************************-->
-  <!--######
-  ## validate metadata before build
-  #######-->
-  <Target Name="BeforeBuild">
-    <!-- show error for unknown platform -->
-    <Error Condition="'$(OS)' != 'OSX' AND '$(OS)' != 'Unix' AND '$(OS)' != 'Windows_NT'" Text="The build config package doesn't recognise OS type '$(OS)'." />
+  <Target Name="AfterBuild">
+    <DeployModTask
+      ModFolderName="$(ModFolderName)"
+      ModZipPath="$(ModZipPath)"
 
-    <!-- if game path is invalid, show one user-friendly error instead of a slew of reference errors -->
-    <Error Condition="!Exists('$(GamePath)')" Text="Failed to find the game install path. See https://github.com/Pathoschild/Stardew.ModBuildConfig#troubleshoot for help." />
-    <Error Condition="'$(OS)' == 'Windows_NT' AND !Exists('$(GamePath)\Stardew Valley.exe')" Text="Found a game folder at $(GamePath), but it doesn't contain Stardew Valley. You should delete this folder if it's empty." />
-    <Error Condition="'$(OS)' != 'Windows_NT' AND !Exists('$(GamePath)\StardewValley.exe')" Text="Found a game folder at $(GamePath), but it doesn't contain Stardew Valley. You should delete this folder if it's empty." />
-    <Error Condition="!Exists('$(GamePath)\StardewModdingAPI.exe')" Text="Found a game folder at $(GamePath), but it doesn't contain SMAPI." />
-  </Target>
+      EnableModDeploy="$(EnableModDeploy)"
+      EnableModZip="$(EnableModZip)"
 
-  <!--######
-  ## Deploy files after build
-  #######-->
-  <Target Name="AfterBuild" Condition="'$(DeployModFolderName)' != '' OR '$(DeployModZipTo)' != ''">
-    <!--collect file paths-->
-    <PropertyGroup>
-      <ModDeployPath>$(GamePath)\Mods\$(DeployModFolderName)</ModDeployPath>
-      <DeployModZipTo Condition="'$(OS)' != 'Windows_NT'"><!--disable on Linux/Mac where CodeTaskFactory doesn't seem to be available--></DeployModZipTo>
-    </PropertyGroup>
-    <ItemGroup>
-      <BuildFiles Include="$(TargetDir)\**\*.*" Exclude="$(TargetDir)\manifest.json;$(TargetDir)\i18n\**\*.*" />
+      ProjectDir="$(ProjectDir)"
+      TargetDir="$(TargetDir)"
+      GameDir="$(GamePath)"
 
-      <BuildFiles Include="$(ProjectDir)\manifest.json" Condition="'@(BuildFiles)' != ''" />
-      <BuildFiles Include="$(TargetDir)\manifest.json" Condition="'@(BuildFiles)' != '' AND !EXISTS('$(ProjectDir)\manifest.json')" />
-
-      <I18nFiles Include="$(ProjectDir)\i18n\*.json" Condition="'@(BuildFiles)' != ''" />
-      <I18nFiles Include="$(TargetDir)\i18n\*.json" Condition="'@(BuildFiles)' != '' AND !EXISTS('$(ProjectDir)\i18n')" />
-    </ItemGroup>
-
-    <!--validate paths-->
-    <Error Text="Could not deploy mod automatically because no build output was found." Condition="'@(BuildFiles)' == ''" />
-    <Error Text="Could not deploy mod automatically because no manifest.json was found in the project or build output." Condition="!Exists('$(TargetDir)\manifest.json') AND !Exists('$(ProjectDir)\manifest.json')" />
-
-    <!-- copy mod files into mod folder if <DeployModFolderName> property is set -->
-    <Message Text="Deploying mod to $(ModDeployPath)..." Importance="high" Condition="'$(DeployModFolderName)' != ''" />
-    <Copy SourceFiles="@(BuildFiles)" DestinationFolder="$(ModDeployPath)\%(RecursiveDir)" SkipUnchangedFiles="true" Condition="'$(DeployModFolderName)' != ''" />
-    <Copy SourceFiles="@(I18nFiles)" DestinationFolder="$(ModDeployPath)\i18n" SkipUnchangedFiles="true" Condition="'$(DeployModFolderName)' != ''" />
-
-    <!-- create release zip if <DeployModZipTo> property is set -->
-    <Message Text="Generating mod release at $(DeployModZipTo)\$(MSBuildProjectName).zip..." Importance="high" Condition="'$(DeployModZipTo)' != ''" />
-    <DeployModTask ModName="$(MSBuildProjectName)" Files="@(BuildFiles);@(I18nFiles)" ModZipPath="$(ModZipPath)" Condition="'$(DeployModZipTo)' != ''" />
+      Platform="$(OS)"
+    />
   </Target>
 </Project>
