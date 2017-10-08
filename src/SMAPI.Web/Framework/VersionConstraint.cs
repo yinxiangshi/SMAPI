@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Routing.Constraints;
+using StardewModdingAPI.Common;
 
 namespace StardewModdingAPI.Web.Framework
 {
@@ -10,6 +11,6 @@ namespace StardewModdingAPI.Web.Framework
         *********/
         /// <summary>Construct an instance.</summary>
         public VersionConstraint()
-            : base(@"^v(?>(?<major>0|[1-9]\d*))\.(?>(?<minor>0|[1-9]\d*))(?>(?:\.(?<patch>0|[1-9]\d*))?)(?:-(?<prerelease>(?>[a-z0-9]+[\-\.]?)+))?$") { }
+            : base(SemanticVersionImpl.Regex) { }
     }
 }
