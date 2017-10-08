@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Web.Script.Serialization;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
@@ -11,6 +12,13 @@ namespace StardewModdingAPI.ModBuildConfig.Tasks
     /// <summary>A build task which packs mod files into a conventional release zip.</summary>
     public class CreateModReleaseZip : Task
     {
+        /*********
+        ** Properties
+        *********/
+        /// <summary>The name of the manifest file.</summary>
+        private readonly string ManifestFileName = "manifest.json";
+
+
         /*********
         ** Accessors
         *********/
@@ -30,6 +38,8 @@ namespace StardewModdingAPI.ModBuildConfig.Tasks
         /*********
         ** Public methods
         *********/
+        /// <summary>When overridden in a derived class, executes the task.</summary>
+        /// <returns>true if the task successfully executed; otherwise, false.</returns>
         public override bool Execute()
         {
             try
@@ -38,7 +48,7 @@ namespace StardewModdingAPI.ModBuildConfig.Tasks
                 Directory.CreateDirectory(this.OutputFolderPath);
 
                 // get zip filename
-                string fileName = string.Format("{0}-{1}.zip", this.ModName, this.GetManifestVersion());
+                string fileName = $"{this.ModName}-{this.GetManifestVersion()}.zip";
 
                 // clear old zip file if present
                 string zipPath = Path.Combine(this.OutputFolderPath, fileName);
@@ -76,28 +86,55 @@ namespace StardewModdingAPI.ModBuildConfig.Tasks
         }
 
         /// <summary>Get a semantic version from the mod manifest (if available).</summary>
+        /// <exception cref="InvalidOperationException">The manifest file wasn't found or is invalid.</exception>
         public string GetManifestVersion()
         {
-            // Get the file JSON string
-            string json = "";
-            foreach (ITaskItem file in this.Files)
+            // find manifest file
+            ITaskItem file = this.Files.FirstOrDefault(p => this.ManifestFileName.Equals(Path.GetFileName(p.ItemSpec), StringComparison.InvariantCultureIgnoreCase));
+            if (file == null)
+                throw new InvalidOperationException($"The mod must include a {this.ManifestFileName} file.");
+
+            // read content
+            string json = File.ReadAllText(file.ItemSpec);
+            if (string.IsNullOrWhiteSpace(json))
+                throw new InvalidOperationException($"The mod's {this.ManifestFileName} file must not be empty.");
+
+            // parse JSON
+            IDictionary<string, object> data;
+            try
             {
-                if (Path.GetFileName(file.ItemSpec).ToLower() != "manifest.json")
-                    continue;
-                json = File.ReadAllText(file.ItemSpec);
-                break;
+                data = this.Parse(json);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"The mod's {this.ManifestFileName} couldn't be parsed. It doesn't seem to be valid JSON.", ex);
             }
 
-            // Serialize the manifest json into a data object, then get a version object from that.
+            // extract version dictionary
+            IDictionary<string, object> versionFields = (IDictionary<string, object>)data["Version"];
+            int major = versionFields.ContainsKey("MajorVersion") ? (int)versionFields["MajorVersion"] : 0;
+            int minor = versionFields.ContainsKey("MinorVersion") ? (int)versionFields["MinorVersion"] : 0;
+            int patch = versionFields.ContainsKey("PatchVersion") ? (int)versionFields["PatchVersion"] : 0;
+
+            return $"{major}.{minor}.{patch}";
+        }
+
+        /// <summary>Get a case-insensitive dictionary matching the given JSON.</summary>
+        /// <param name="json">The JSON to parse.</param>
+        private IDictionary<string, object> Parse(string json)
+        {
+            IDictionary<string, object> MakeCaseInsensitive(IDictionary<string, object> dict)
+            {
+                foreach (var field in dict.ToArray())
+                {
+                    if (field.Value is IDictionary<string, object> value)
+                        dict[field.Key] = MakeCaseInsensitive(value);
+                }
+                return new Dictionary<string, object>(dict, StringComparer.InvariantCultureIgnoreCase);
+            }
+
             IDictionary<string, object> data = (IDictionary<string, object>)new JavaScriptSerializer().DeserializeObject(json);
-            IDictionary<string, object> version = (IDictionary<string, object>)data["Version"];
-
-            // Store our version numbers for ease of use
-            int major = (int)version["MajorVersion"];
-            int minor = (int)version["MinorVersion"];
-            int patch = (int)version["PatchVersion"];
-
-            return String.Format("{0}.{1}.{2}", major, minor, patch);
+            return MakeCaseInsensitive(data);
         }
     }
 }
