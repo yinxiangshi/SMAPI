@@ -289,7 +289,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     {
       // Buy Cooking Recipes
       "ID": "Denifia.BuyRecipes",
-      "UpdateKeys": [ "Nexus:1126" ],
+      "UpdateKeys": [ "Nexus:1126" ], // added in 1.0.1 (2017-10-04)
       "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
       "Compatibility": {
         "~1.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
@@ -493,12 +493,19 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     {
       // Custom Element Handler
       "ID": "Platonymous.CustomElementHandler",
-      "UpdateKeys": [ "Nexus:1068" ]
+      "UpdateKeys": [ "Nexus:1068" ] // added in 1.3.1
     },
     {
       // Custom Farming
       "ID": "Platonymous.CustomFarming",
-      "UpdateKeys": [ "Nexus:991" ]
+      "UpdateKeys": [ "Nexus:991" ] // added in 0.6.1
+    },
+    {
+      // Custom Farming Automate Bridge
+      "ID": "Platonymous.CFAutomate",
+      "Compatibility": {
+        "~1.0.1": { "Status": "AssumeBroken" } // no longer compatible with Automate
+      }
     },
     {
       // Custom Farm Types
@@ -508,7 +515,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     {
       // Custom Furniture
       "ID": "Platonymous.CustomFurniture",
-      "UpdateKeys": [ "Nexus:1254" ]
+      "UpdateKeys": [ "Nexus:1254" ] // added in 0.4.1
     },
     {
       // Customize Exterior
@@ -551,7 +558,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     {
       // Custom TV
       "ID": "Platonymous.CustomTV",
-      "UpdateKeys": [ "Nexus:1139" ]
+      "UpdateKeys": [ "Nexus:1139" ] // added in 1.0.6
     },
     {
       // Daily Luck Message
@@ -579,7 +586,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     {
       // Dynamic Checklist
       "ID": "gunnargolf.DynamicChecklist",
-      "UpdateKeys": [ "Nexus:1145" ],
+      "UpdateKeys": [ "Nexus:1145" ], // added in 1.0.1-pathoschild-update
       "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
       "Compatibility": {
         "~1.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
@@ -618,7 +625,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     {
       // Empty Hands
       "ID": "QuicksilverFox.EmptyHands",
-      "UpdateKeys": [ "Nexus:1176" ],
+      "UpdateKeys": [ "Nexus:1176" ], // added in 1.0.1-pathoschild-update
       "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
       "Compatibility": {
         "~1.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
@@ -746,8 +753,8 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     },
     {
       // Faster Run
-      "ID": "FasterRun.dll",
-      "UpdateKeys": [ "Nexus:733" ],
+      "ID": "FasterRun.dll | KathrynHazuka.FasterRun", // changed in 1.1.1-pathoschild-update
+      "UpdateKeys": [ "Nexus:733" ], // added in 1.1.1-pathoschild-update
       "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
       "Compatibility": {
         "~1.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
@@ -810,7 +817,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     {
       // GenericShopExtender
       "ID": "GenericShopExtender",
-      "UpdateKeys": [ "Nexus:814" ],
+      "UpdateKeys": [ "Nexus:814" ], // added in 0.1.3
       "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
       "Compatibility": {
         "~0.1.2": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
@@ -871,7 +878,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     {
       // Harp of Yoba Redux
       "ID": "Platonymous.HarpOfYobaRedux",
-      "UpdateKeys": [ "Nexus:914" ]
+      "UpdateKeys": [ "Nexus:914" ] // added in 2.0.3
     },
     {
       // Harvest Moon Witch Princess
@@ -964,7 +971,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     {
       // Junimo Farm
       "ID": "Platonymous.JunimoFarm",
-      "UpdateKeys": [ "Nexus:984" ],
+      "UpdateKeys": [ "Nexus:984" ], // added in 1.1.3
       "MapRemoteVersions": {
         "1.1.2": "1.1.1" // manifest not updated
       }
@@ -1095,7 +1102,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     {
       // More Map Layers
       "ID": "Platonymous.MoreMapLayers",
-      "UpdateKeys": [ "Nexus:1134" ]
+      "UpdateKeys": [ "Nexus:1134" ] // added in 1.1.1
     },
     {
       // More Pets
@@ -1201,7 +1208,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     {
       // No Soil Decay Redux
       "ID": "Platonymous.NoSoilDecayRedux",
-      "UpdateKeys": [ "Nexus:1084" ]
+      "UpdateKeys": [ "Nexus:1084" ] // added in 1.1.9
     },
     {
       // NPC Map Locations
@@ -1230,7 +1237,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     },
     {
       // OmniFarm
-      "ID": "BlueMod_OmniFarm",
+      "ID": "BlueMod_OmniFarm | PhthaloBlue.OmniFarm", // changed in 2.0.2-pathoschild-update
       "UpdateKeys": [ "GitHub:lambui/StardewValleyMod_OmniFarm" ],
       "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
       "Compatibility": {
@@ -1264,7 +1271,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     {
       // PelicanTTS
       "ID": "Platonymous.PelicanTTS",
-      "UpdateKeys": [ "Nexus:1079" ],
+      "UpdateKeys": [ "Nexus:1079" ], // added in 1.6.1
       "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
       "Compatibility": {
         "~1.6": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
@@ -1305,7 +1312,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     {
       // Portraiture
       "ID": "Platonymous.Portraiture",
-      "UpdateKeys": [ "Nexus:999" ]
+      "UpdateKeys": [ "Nexus:999" ] // added in 1.3.1
     },
     {
       // Prairie King Made Easy
@@ -1404,7 +1411,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     {
       // Ring of Fire
       "ID": "Platonymous.RingOfFire",
-      "UpdateKeys": [ "Nexus:1166" ]
+      "UpdateKeys": [ "Nexus:1166" ] // added in 1.0.1
     },
     {
       // Rope Bridge
@@ -1466,7 +1473,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     {
       // Seed Bag
       "ID": "Platonymous.SeedBag",
-      "UpdateKeys": [ "Nexus:1133" ]
+      "UpdateKeys": [ "Nexus:1133" ] // added in 1.1.2
     },
     {
       // Self Service
@@ -1479,7 +1486,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     {
       // Send Items
       "ID": "Denifia.SendItems",
-      "UpdateKeys": [ "Nexus:1087" ],
+      "UpdateKeys": [ "Nexus:1087" ], // added in 1.0.3 (2017-10-04)
       "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
       "Compatibility": {
         "~1.0.2": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
@@ -1650,7 +1657,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     {
       // Speedster
       "ID": "Platonymous.Speedster",
-      "UpdateKeys": [ "Nexus:1102" ]
+      "UpdateKeys": [ "Nexus:1102" ] // added in 1.3.1
     },
     {
       // Sprinkler Range
@@ -1807,7 +1814,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     {
       // Swim Almost Anywhere / Swim Suit
       "ID": "Platonymous.SwimSuit",
-      "UpdateKeys": [ "Nexus:1215" ]
+      "UpdateKeys": [ "Nexus:1215" ] // added in 0.5.1
     },
     {
       // Tainted Cellar
