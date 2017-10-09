@@ -47,7 +47,6 @@
     <None Include="assets\nuget-icon.pdn" />
     <None Include="build\smapi.targets">
       <SubType>Designer</SubType>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="package.nuspec">
       <SubType>Designer</SubType>

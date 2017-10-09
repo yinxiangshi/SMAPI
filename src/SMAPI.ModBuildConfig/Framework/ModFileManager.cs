@@ -73,7 +73,7 @@ namespace StardewModdingAPI.ModBuildConfig.Framework
                     continue;
 
                 // ignore release zips
-                if (file.Extension.Equals("zip", StringComparison.InvariantCultureIgnoreCase))
+                if (file.Extension.Equals(".zip", StringComparison.InvariantCultureIgnoreCase))
                     continue;
                 
                 // add file
