@@ -159,8 +159,6 @@ namespace StardewModdingAPI.ModBuildConfig
                     // get file info
                     string filePath = file.FullName;
                     string entryName = folderName + '/' + relativePath.Replace(Path.DirectorySeparatorChar, '/');
-                    if (new FileInfo(filePath).Directory.Name.Equals("i18n", StringComparison.InvariantCultureIgnoreCase))
-                        entryName = Path.Combine("i18n", entryName);
 
                     // add to zip
                     using (Stream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
