@@ -130,6 +130,7 @@ _[Game path](#game-path)_ above.
 ### 2.0
 * Added: mods are now copied into the `Mods` folder automatically (configurable).
 * Added: release zips are now created automatically in your build output folder (configurable).
+* Added: mod deploy and release zips now exclude Json.NET automatically, since it's provided by SMAPI.
 * Added mod's version to release zip filename.
 * Improved errors to simplify troubleshooting.
 * Fixed release zip not having a mod folder.

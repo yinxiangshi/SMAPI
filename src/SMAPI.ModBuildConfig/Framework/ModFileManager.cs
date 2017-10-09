@@ -67,15 +67,19 @@ namespace StardewModdingAPI.ModBuildConfig.Framework
                 string relativeDirPath = file.Directory.FullName.Replace(buildFolder.FullName, "");
 
                 // prefer project manifest/i18n files
-                if (hasProjectManifest && relativePath.Equals(this.ManifestFileName, StringComparison.InvariantCultureIgnoreCase))
+                if (hasProjectManifest && this.EqualsInvariant(relativePath, this.ManifestFileName))
                     continue;
-                if (hasProjectTranslations && relativeDirPath.Equals("i18n", StringComparison.InvariantCultureIgnoreCase))
+                if (hasProjectTranslations && this.EqualsInvariant(relativeDirPath, "i18n"))
                     continue;
 
                 // ignore release zips
-                if (file.Extension.Equals(".zip", StringComparison.InvariantCultureIgnoreCase))
+                if (this.EqualsInvariant(file.Extension, ".zip"))
                     continue;
-                
+
+                // ignore Json.NET (bundled into SMAPI)
+                if (this.EqualsInvariant(file.Name, "Newtonsoft.Json.dll") || this.EqualsInvariant(file.Name, "Newtonsoft.Json.xml"))
+                    continue;
+
                 // add file
                 this.Files[relativePath] = file;
             }
@@ -157,6 +161,14 @@ namespace StardewModdingAPI.ModBuildConfig.Framework
 
             IDictionary<string, object> data = (IDictionary<string, object>)new JavaScriptSerializer().DeserializeObject(json);
             return MakeCaseInsensitive(data);
+        }
+
+        /// <summary>Get whether a string is equal to another case-insensitively.</summary>
+        /// <param name="str">The string value.</param>
+        /// <param name="other">The string to compare with.</param>
+        private bool EqualsInvariant(string str, string other)
+        {
+            return str.Equals(other, StringComparison.InvariantCultureIgnoreCase);
         }
     }
 }
