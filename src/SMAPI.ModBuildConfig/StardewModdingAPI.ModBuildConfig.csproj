@@ -38,7 +38,9 @@
     <Reference Include="System.Web.Extensions" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Tasks\CreateModReleaseZip.cs" />
+    <Compile Include="DeployModTask.cs" />
+    <Compile Include="Framework\UserErrorException.cs" />
+    <Compile Include="Framework\ModFileManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
