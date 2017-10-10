@@ -17,10 +17,12 @@ namespace StardewModdingAPI.Common.Models
         ** Public methods
         *********/
         /// <summary>Construct an empty instance.</summary>
-        /// <remarks>This constructed is needed for JSON deserialisation.</remarks>
-        public ModSearchModel() { }
+        public ModSearchModel()
+        {
+            // needed for JSON deserialising
+        }
 
-        /// <summary>Construct an valid instance.</summary>
+        /// <summary>Construct an instance.</summary>
         /// <param name="modKeys">The namespaced mod keys to search.</param>
         public ModSearchModel(IEnumerable<string> modKeys)
         {

@@ -22,7 +22,14 @@ namespace StardewModdingAPI.Common.Models
         /*********
         ** Public methods
         *********/
-        /// <summary>Construct a valid instance.</summary>
+        /// <summary>Construct an empty instance.</summary>
+        public ModInfoModel()
+        {
+            // needed for JSON deserialising
+        }
+
+
+        /// <summary>Construct an instance.</summary>
         /// <param name="name">The mod name.</param>
         /// <param name="version">The mod's semantic version number.</param>
         /// <param name="url">The mod's web URL.</param>
@@ -35,7 +42,7 @@ namespace StardewModdingAPI.Common.Models
             this.Error = error; // mainly initialised here for the JSON deserialiser
         }
 
-        /// <summary>Construct an valid instance.</summary>
+        /// <summary>Construct an instance.</summary>
         /// <param name="error">The error message indicating why the mod is invalid.</param>
         public ModInfoModel(string error)
         {
