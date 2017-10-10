@@ -51,6 +51,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>A lookup of the content managers which loaded each asset.</summary>
         private readonly IDictionary<string, HashSet<ContentManager>> AssetLoaders = new Dictionary<string, HashSet<ContentManager>>();
 
+        /// <summary>An object locked to prevent concurrent changes to the underlying assets.</summary>
+        private readonly object Lock = new object();
+
 
         /*********
         ** Accessors
@@ -128,7 +131,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
         public bool IsLoaded(string assetName)
         {
-            lock (this.Cache)
+            lock (this.Lock)
             {
                 assetName = this.NormaliseAssetName(assetName);
                 return this.IsNormalisedKeyLoaded(assetName);
@@ -149,7 +152,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="instance">The content manager instance for which to load the asset.</param>
         public T LoadFor<T>(string assetName, ContentManager instance)
         {
-            lock (this.Cache)
+            lock (this.Lock)
             {
                 assetName = this.NormaliseAssetName(assetName);
 
@@ -192,7 +195,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="value">The asset value.</param>
         public void Inject<T>(string assetName, T value)
         {
-            lock (this.Cache)
+            lock (this.Lock)
             {
                 assetName = this.NormaliseAssetName(assetName);
                 this.Cache[assetName] = value;
@@ -209,7 +212,7 @@ namespace StardewModdingAPI.Framework
         /// <summary>Get the cached asset keys.</summary>
         public IEnumerable<string> GetAssetKeys()
         {
-            lock (this.Cache)
+            lock (this.Lock)
             {
                 IEnumerable<string> GetAllAssetKeys()
                 {
@@ -260,7 +263,7 @@ namespace StardewModdingAPI.Framework
         /// <returns>Returns whether any cache entries were invalidated.</returns>
         public bool InvalidateCache(Func<string, Type, bool> predicate, bool dispose = false)
         {
-            lock (this.Cache)
+            lock (this.Lock)
             {
                 // find matching asset keys
                 HashSet<string> purgeCacheKeys = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
