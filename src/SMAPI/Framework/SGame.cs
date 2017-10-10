@@ -378,7 +378,7 @@ namespace StardewModdingAPI.Framework
                     {
                         // cursor position
                         Vector2 screenPixels = new Vector2(Game1.getMouseX(), Game1.getMouseY());
-                        Vector2 tile = new Vector2((Game1.viewport.X + screenPixels.X) / Game1.tileSize, (Game1.viewport.Y + screenPixels.Y) / Game1.tileSize);
+                        Vector2 tile = new Vector2((int)((Game1.viewport.X + screenPixels.X) / Game1.tileSize), (int)((Game1.viewport.Y + screenPixels.Y) / Game1.tileSize));
                         Vector2 grabTile = (Game1.mouseCursorTransparency > 0 && Utility.tileWithinRadiusOfPlayer((int)tile.X, (int)tile.Y, 1, Game1.player)) // derived from Game1.pressActionButton
                             ? tile
                             : Game1.player.GetGrabTile();
