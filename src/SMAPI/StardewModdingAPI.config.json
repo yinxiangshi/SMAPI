@@ -287,10 +287,14 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       }
     },
     {
+      // Butcher Mod
+      "ID": "DIGUS.BUTCHER",
+      "UpdateKeys": [ "Nexus:1538" ]
+    },
+    {
       // Buy Cooking Recipes
       "ID": "Denifia.BuyRecipes",
       "UpdateKeys": [ "Nexus:1126" ], // added in 1.0.1 (2017-10-04)
-      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
       "Compatibility": {
         "~1.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
       }
@@ -818,7 +822,6 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       // GenericShopExtender
       "ID": "GenericShopExtender",
       "UpdateKeys": [ "Nexus:814" ], // added in 0.1.3
-      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
       "Compatibility": {
         "~0.1.2": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
       }
@@ -933,7 +936,6 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       // Improved Quality of Life
       "ID": "Demiacle.ImprovedQualityOfLife",
       "UpdateKeys": [ "Nexus:1025" ],
-      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
       "Compatibility": {
         "~1.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
       }
@@ -1041,6 +1043,11 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       }
     },
     {
+      // Mail Framework
+      "ID": "DIGUS.MailFrameworkMod",
+      "UpdateKeys": [ "Nexus:1536" ]
+    },
+    {
       // MailOrderPigs
       "ID": "MailOrderPigs.dll | jwdred.MailOrderPigs", // changed in 1.0.2
       "UpdateKeys": [ "Nexus:632" ],
@@ -1116,7 +1123,6 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       // More Rain
       "ID": "{ID:'4108e859-333c-4fec-a1a7-d2e18c1019fe', Name:'More_Rain'} | Omegasis.MoreRain", // changed in 1.5; disambiguate from other mods by Alpha_Omegasis
       "UpdateKeys": [ "Nexus:441" ],
-      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
       "Compatibility": {
         "~1.4": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
       }
@@ -1239,7 +1245,6 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       // OmniFarm
       "ID": "BlueMod_OmniFarm | PhthaloBlue.OmniFarm", // changed in 2.0.2-pathoschild-update
       "UpdateKeys": [ "GitHub:lambui/StardewValleyMod_OmniFarm" ],
-      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
       "Compatibility": {
         "~2.0.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
       }
@@ -1381,7 +1386,6 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       // Replanter
       "ID": "Replanter.dll | jwdred.Replanter", // changed in 1.0.5
       "UpdateKeys": [ "Nexus:589" ],
-      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
       "Compatibility": {
         "~1.0.4": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
       }
@@ -1435,7 +1439,6 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       // Save Anywhere
       "ID": "{ID:'SaveAnywhere', Name:'Save Anywhere'} | Omegasis.SaveAnywhere", // changed in 2.5; disambiguate from Night Owl
       "UpdateKeys": [ "Nexus:444" ],
-      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
       "Compatibility": {
         "~2.4": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
       },
@@ -1465,7 +1468,6 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       // Seasonal Immersion
       "ID": "EntoaroxSeasonalHouse | EntoaroxSeasonalBuildings | EntoaroxSeasonalImmersion | Entoarox.SeasonalImmersion", // changed in 1.1, 1.6 or earlier, and 1.7
       // "UpdateKeys": [ "Chucklefish:4262" ], // Entoarox opted out of mod update checks
-      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
       "Compatibility": {
         "~1.8.2": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
       }
@@ -1487,7 +1489,6 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       // Send Items
       "ID": "Denifia.SendItems",
       "UpdateKeys": [ "Nexus:1087" ], // added in 1.0.3 (2017-10-04)
-      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
       "Compatibility": {
         "~1.0.2": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
       }
@@ -1560,7 +1561,11 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     {
       // Simple Sound Manager
       "ID": "Omegasis.SimpleSoundManager",
-      "UpdateKeys": [ "Nexus:1410" ]
+      "UpdateKeys": [ "Nexus:1410" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
     },
     {
       // Simple Sprinklers
@@ -1789,7 +1794,6 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       // Stone Bridge Over Pond (PondWithBridge)
       "ID": "PondWithBridge.dll",
       "UpdateKeys": [ "Nexus:316" ],
-      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
       "Compatibility": {
         "~1.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
       },
@@ -1977,7 +1981,6 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       // Xnb Loader
       "ID": "Entoarox.XnbLoader",
       // "UpdateKeys": [ "Chucklefish:4506" ], // Entoarox opted out of mod update checks
-      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
       "Compatibility": {
         "~1.0.6": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
       }
