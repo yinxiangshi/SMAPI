@@ -3,6 +3,7 @@
   ** Import build tasks
   **********************************************-->
   <UsingTask TaskName="DeployModTask" AssemblyFile="StardewModdingAPI.ModBuildConfig.dll" />
+  <UsingTask TaskName="ValidateInstallTask" AssemblyFile="StardewModdingAPI.ModBuildConfig.dll" />
 
   <!--*********************************************
   ** Find the basic mod metadata
@@ -117,6 +118,9 @@
   <!--*********************************************
   ** Deploy mod files & create release zip after build
   **********************************************-->
+  <Target Name="BeforeBuild">
+    <ValidateInstallTask GameDir="$(GamePath)" Platform="$(OS)" />
+  </Target>
   <Target Name="AfterBuild">
     <DeployModTask
       ModFolderName="$(ModFolderName)"
@@ -128,8 +132,6 @@
       ProjectDir="$(ProjectDir)"
       TargetDir="$(TargetDir)"
       GameDir="$(GamePath)"
-
-      Platform="$(OS)"
     />
   </Target>
 </Project>

@@ -6,26 +6,11 @@ using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using StardewModdingAPI.ModBuildConfig.Framework;
 
-namespace StardewModdingAPI.ModBuildConfig
+namespace StardewModdingAPI.ModBuildConfig.BuildTasks
 {
     /// <summary>A build task which deploys the mod files and prepares a release zip.</summary>
     public class DeployModTask : Task
     {
-        /*********
-        ** Properties
-        *********/
-        /// <summary>The MSBuild platforms recognised by the build configuration.</summary>
-        private readonly HashSet<string> ValidPlatforms = new HashSet<string>(new[] { "OSX", "Unix", "Windows_NT" }, StringComparer.InvariantCultureIgnoreCase);
-
-        /// <summary>The name of the game's main executable file.</summary>
-        private string GameExeName => this.Platform == "Windows_NT"
-            ? "Stardew Valley.exe"
-            : "StardewValley.exe";
-
-        /// <summary>The name of SMAPI's main executable file.</summary>
-        private readonly string SmapiExeName = "StardewModdingAPI.exe";
-
-
         /*********
         ** Accessors
         *********/
@@ -49,10 +34,6 @@ namespace StardewModdingAPI.ModBuildConfig
         [Required]
         public string GameDir { get; set; }
 
-        /// <summary>The MSBuild OS value.</summary>
-        [Required]
-        public string Platform { get; set; }
-
         /// <summary>Whether to enable copying the mod files into the game's Mods folder.</summary>
         [Required]
         public bool EnableModDeploy { get; set; }
@@ -74,16 +55,6 @@ namespace StardewModdingAPI.ModBuildConfig
 
             try
             {
-                // validate context
-                if (!this.ValidPlatforms.Contains(this.Platform))
-                    throw new UserErrorException($"The mod build package doesn't recognise OS type '{this.Platform}'.");
-                if (!Directory.Exists(this.GameDir))
-                    throw new UserErrorException("The mod build package can't find your game path. See https://github.com/Pathoschild/SMAPI/blob/develop/docs/mod-build-config.md for help specifying it.");
-                if (!File.Exists(Path.Combine(this.GameDir, this.GameExeName)))
-                    throw new UserErrorException($"The mod build package found a game folder at {this.GameDir}, but it doesn't contain the {this.GameExeName} file. If this folder is invalid, delete it and the package will autodetect another game install path.");
-                if (!File.Exists(Path.Combine(this.GameDir, this.SmapiExeName)))
-                    throw new UserErrorException($"The mod build package found a game folder at {this.GameDir}, but it doesn't contain SMAPI. You need to install SMAPI before building the mod.");
-
                 // get mod info
                 ModFileManager package = new ModFileManager(this.ProjectDir, this.TargetDir);
 
