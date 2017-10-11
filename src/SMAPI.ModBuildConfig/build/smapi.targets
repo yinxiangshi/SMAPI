@@ -3,7 +3,6 @@
   ** Import build tasks
   **********************************************-->
   <UsingTask TaskName="DeployModTask" AssemblyFile="StardewModdingAPI.ModBuildConfig.dll" />
-  <UsingTask TaskName="ValidateInstallTask" AssemblyFile="StardewModdingAPI.ModBuildConfig.dll" />
 
   <!--*********************************************
   ** Find the basic mod metadata
