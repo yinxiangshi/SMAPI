@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>Pathoschild.Stardew.ModBuildConfig</id>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
     <title>Build package for SMAPI mods</title>
     <authors>Pathoschild</authors>
     <owners>Pathoschild</owners>
@@ -12,6 +12,7 @@
     <iconUrl>https://raw.githubusercontent.com/Pathoschild/SMAPI/develop/src/SMAPI.ModBuildConfig/assets/nuget-icon.png</iconUrl>
     <description>Automates the build configuration for crossplatform Stardew Valley SMAPI mods.</description>
     <releaseNotes>
+      2.0:
       - Added: mods are now copied into the `Mods` folder automatically (configurable).
       - Added: release zips are now created automatically in your build output folder (configurable).
       - Added: mod deploy and release zips now exclude Json.NET automatically, since it's provided by SMAPI.
@@ -19,6 +20,9 @@
       - Improved errors to simplify troubleshooting.
       - Fixed release zip not having a mod folder.
       - Fixed release zip failing if mod name contains characters that aren't valid in a filename.
+
+      2.0.1:
+      - Fixed mod deploy failing to create subfolders if they don't already exist.
     </releaseNotes>
   </metadata>
   <files>
