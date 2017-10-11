@@ -96,11 +96,14 @@ namespace StardewModdingAPI.ModBuildConfig
         /// <param name="modFolderPath">The folder path to create with the mod files.</param>
         private void CreateModFolder(IDictionary<string, FileInfo> files, string modFolderPath)
         {
-            Directory.CreateDirectory(modFolderPath);
             foreach (var entry in files)
             {
                 string fromPath = entry.Value.FullName;
                 string toPath = Path.Combine(modFolderPath, entry.Key);
+
+                // ReSharper disable once AssignNullToNotNullAttribute -- not applicable in this context
+                Directory.CreateDirectory(Path.GetDirectoryName(toPath));
+
                 File.Copy(fromPath, toPath, overwrite: true);
             }
         }
