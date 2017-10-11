@@ -6,7 +6,7 @@ using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using StardewModdingAPI.ModBuildConfig.Framework;
 
-namespace StardewModdingAPI.ModBuildConfig.BuildTasks
+namespace StardewModdingAPI.ModBuildConfig
 {
     /// <summary>A build task which deploys the mod files and prepares a release zip.</summary>
     public class DeployModTask : Task

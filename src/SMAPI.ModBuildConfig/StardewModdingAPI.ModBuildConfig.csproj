@@ -38,8 +38,7 @@
     <Reference Include="System.Web.Extensions" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BuildTasks\ValidateInstallTask.cs" />
-    <Compile Include="BuildTasks\DeployModTask.cs" />
+    <Compile Include="DeployModTask.cs" />
     <Compile Include="Framework\UserErrorException.cs" />
     <Compile Include="Framework\ModFileManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
