@@ -1,4 +1,4 @@
-﻿# Release notes
+# Release notes
 ## 2.0 (upcoming)
 <!--See [log](https://github.com/Pathoschild/SMAPI/compare/1.10...2.0).-->
 
@@ -30,6 +30,7 @@ For mod developers:
 * Removed support for mods with a non-unique `UniqueID` value in their manifest.
 * Removed access to SMAPI internals through the reflection helper, to discourage fragile mods.
 * Fixed `TimeEvents.AfterDayStarted` being raised during the new-game intro.
+* Fixed SMAPI allowing map tilesheets with absolute or directory-climbing paths. These are now rejected even if the path exists, to avoid problems when players install the mod.
 
 For power users:
 * Added command-line arguments to the SMAPI installer so it can be scripted.

@@ -239,6 +239,10 @@ namespace StardewModdingAPI.Framework.ModHelpers
             {
                 string imageSource = tilesheet.ImageSource;
 
+                // validate
+                if (Path.IsPathRooted(imageSource) || imageSource.Split(SContentManager.PossiblePathSeparators).Contains(".."))
+                    throw new ContentLoadException($"The '{imageSource}' tilesheet couldn't be loaded. Tilesheet paths must be a relative path without directory climbing (../).");
+
                 // get seasonal name (if applicable)
                 string seasonalImageSource = null;
                 if (Game1.currentSeason != null)

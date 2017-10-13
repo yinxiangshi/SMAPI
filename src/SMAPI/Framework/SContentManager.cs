@@ -21,9 +21,6 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Properties
         *********/
-        /// <summary>The possible directory separator characters in an asset key.</summary>
-        private static readonly char[] PossiblePathSeparators = new[] { '/', '\\', Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }.Distinct().ToArray();
-
         /// <summary>The preferred directory separator chaeacter in an asset key.</summary>
         private static readonly string PreferredPathSeparator = Path.DirectorySeparatorChar.ToString();
 
@@ -64,8 +61,11 @@ namespace StardewModdingAPI.Framework
         /// <summary>Interceptors which edit matching assets after they're loaded.</summary>
         internal IDictionary<IModMetadata, IList<IAssetEditor>> Editors { get; } = new Dictionary<IModMetadata, IList<IAssetEditor>>();
 
+        /// <summary>The possible directory separator characters in an asset key.</summary>
+        internal static readonly char[] PossiblePathSeparators = new[] { '/', '\\', Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }.Distinct().ToArray();
+
         /// <summary>The absolute path to the <see cref="ContentManager.RootDirectory"/>.</summary>
-        public string FullRootDirectory => Path.Combine(Constants.ExecutionPath, this.RootDirectory);
+        internal string FullRootDirectory => Path.Combine(Constants.ExecutionPath, this.RootDirectory);
 
 
         /*********
