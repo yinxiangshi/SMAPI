@@ -24,6 +24,7 @@ For mod developers:
 * Added support for specifying the mod version as a string (like `"1.0-alpha"`) in `manifest.json`.
 * Added day of week to `SDate` instances.
 * Added `IEquatable<ISemanticVersion>` to `ISemanticVersion`.
+* Updated Json.NET from 8.0.3 to 10.0.3.
 * Removed the TrainerMod's `save` and `load` commands.
 * Removed all deprecated code.
 * Removed support for mods with no `Name`, `Version`, or `UniqueID` in their manifest.
