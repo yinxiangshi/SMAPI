@@ -52,28 +52,12 @@ namespace StardewModdingAPI.Utilities
         /// <param name="year">The year.</param>
         /// <exception cref="ArgumentException">One of the arguments has an invalid value (like day 35).</exception>
         public SDate(int day, string season, int year)
-        {
-            // validate
-            if (season == null)
-                throw new ArgumentNullException(nameof(season));
-            if (!this.Seasons.Contains(season))
-                throw new ArgumentException($"Unknown season '{season}', must be one of [{string.Join(", ", this.Seasons)}].");
-            if (day < 1 || day > this.DaysInSeason)
-                throw new ArgumentException($"Invalid day '{day}', must be a value from 1 to {this.DaysInSeason}.");
-            if (year < 1)
-                throw new ArgumentException($"Invalid year '{year}', must be at least 1.");
-
-            // initialise
-            this.Day = day;
-            this.Season = season;
-            this.Year = year;
-            this.DayOfWeek = this.GetDayOfWeek();
-        }
+            : this(day, season, year, allowDayZero: false) { }
 
         /// <summary>Get the current in-game date.</summary>
         public static SDate Now()
         {
-            return new SDate(Game1.dayOfMonth, Game1.currentSeason, Game1.year);
+            return new SDate(Game1.dayOfMonth, Game1.currentSeason, Game1.year, allowDayZero: true);
         }
 
         /// <summary>Get a new date with the given number of days added.</summary>
@@ -195,6 +179,42 @@ namespace StardewModdingAPI.Utilities
         /*********
         ** Private methods
         *********/
+        /// <summary>Construct an instance.</summary>
+        /// <param name="day">The day of month.</param>
+        /// <param name="season">The season name.</param>
+        /// <param name="year">The year.</param>
+        /// <param name="allowDayZero">Whether to allow 0 spring Y1 as a valid date.</param>
+        /// <exception cref="ArgumentException">One of the arguments has an invalid value (like day 35).</exception>
+        private SDate(int day, string season, int year, bool allowDayZero)
+        {
+            // validate
+            if (season == null)
+                throw new ArgumentNullException(nameof(season));
+            if (!this.Seasons.Contains(season))
+                throw new ArgumentException($"Unknown season '{season}', must be one of [{string.Join(", ", this.Seasons)}].");
+            if (day < 0 || day > this.DaysInSeason)
+                throw new ArgumentException($"Invalid day '{day}', must be a value from 1 to {this.DaysInSeason}.");
+            if(day == 0 && !(allowDayZero && this.IsDayZero(day, season, year)))
+                throw new ArgumentException($"Invalid day '{day}', must be a value from 1 to {this.DaysInSeason}.");
+            if (year < 1)
+                throw new ArgumentException($"Invalid year '{year}', must be at least 1.");
+
+            // initialise
+            this.Day = day;
+            this.Season = season;
+            this.Year = year;
+            this.DayOfWeek = this.GetDayOfWeek();
+        }
+
+        /// <summary>Get whether a date represents 0 spring Y1, which is the date during the in-game intro.</summary>
+        /// <param name="day">The day of month.</param>
+        /// <param name="season">The season name.</param>
+        /// <param name="year">The year.</param>
+        private bool IsDayZero(int day, string season, int year)
+        {
+            return day == 0 && season == "spring" && year == 1;
+        }
+
         /// <summary>Get the day of week for the current date.</summary>
         private DayOfWeek GetDayOfWeek()
         {

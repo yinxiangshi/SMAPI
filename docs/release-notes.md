@@ -29,6 +29,7 @@ For mod developers:
 * Removed support for mods with no `Name`, `Version`, or `UniqueID` in their manifest.
 * Removed support for mods with a non-unique `UniqueID` value in their manifest.
 * Removed access to SMAPI internals through the reflection helper, to discourage fragile mods.
+* Fixed `SDate.Now()` crashing when called during the new-game intro.
 * Fixed `TimeEvents.AfterDayStarted` being raised during the new-game intro.
 * Fixed SMAPI allowing map tilesheets with absolute or directory-climbing paths. These are now rejected even if the path exists, to avoid problems when players install the mod.
 

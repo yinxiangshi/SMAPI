@@ -69,6 +69,8 @@ namespace StardewModdingAPI.Tests.Utilities
         [TestCase(01, "Spring", 1)] // seasons are case-sensitive
         [TestCase(01, "springs", 1)] // invalid season name
         [TestCase(-1, "spring", 1)] // day < 0
+        [TestCase(0, "spring", 1)] // day zero
+        [TestCase(0, "spring", 2)] // day zero
         [TestCase(29, "spring", 1)] // day > 28
         [TestCase(01, "spring", -1)] // year < 1
         [TestCase(01, "spring", 0)] // year < 1
