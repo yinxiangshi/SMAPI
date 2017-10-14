@@ -1859,7 +1859,6 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       // Three-heart Dance Partner
       "ID": "ThreeHeartDancePartner",
       "UpdateKeys": [ "Nexus:500" ],
-      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
       "Compatibility": {
         "~1.0.1": { "Status": "AssumeBroken" } // broke in SDV 1.2
       }
