@@ -37,6 +37,10 @@ namespace StardewModdingAPI.Metadata
             this.SingletonSetters =
                 new Dictionary<string, Action<SContentManager, string>>
                 {
+                    // from CraftingRecipe.InitShared
+                    ["Data\\CraftingRecipes"] = (content, key) => CraftingRecipe.craftingRecipes = content.Load<Dictionary<string, string>>(key),
+                    ["Data\\CookingRecipes"] = (content, key) => CraftingRecipe.cookingRecipes = content.Load<Dictionary<string, string>>(key),
+
                     // from Game1.loadContent
                     ["LooseSprites\\daybg"] = (content, key) => Game1.daybg = content.Load<Texture2D>(key),
                     ["LooseSprites\\nightbg"] = (content, key) => Game1.nightbg = content.Load<Texture2D>(key),
