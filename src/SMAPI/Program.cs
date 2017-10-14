@@ -774,6 +774,13 @@ namespace StardewModdingAPI
                 // add interceptors
                 if (metadata.Mod.Helper.Content is ContentHelper helper)
                 {
+                    // ReSharper disable SuspiciousTypeConversion.Global
+                    if (metadata.Mod is IAssetEditor editor)
+                        helper.ObservableAssetEditors.Add(editor);
+                    if (metadata.Mod is IAssetLoader loader)
+                        helper.ObservableAssetLoaders.Add(loader);
+                    // ReSharper restore SuspiciousTypeConversion.Global
+
                     this.ContentManager.Editors[metadata] = helper.ObservableAssetEditors;
                     this.ContentManager.Loaders[metadata] = helper.ObservableAssetLoaders;
                 }
