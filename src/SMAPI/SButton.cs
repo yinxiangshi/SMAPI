@@ -2,7 +2,7 @@ using System;
 using Microsoft.Xna.Framework.Input;
 using StardewValley;
 
-namespace StardewModdingAPI.Utilities
+namespace StardewModdingAPI
 {
     /// <summary>A unified button constant which includes all controller, keyboard, and mouse buttons.</summary>
     /// <remarks>Derived from <see cref="Keys"/>, <see cref="Buttons"/>, and <see cref="System.Windows.Forms.MouseButtons"/>.</remarks>

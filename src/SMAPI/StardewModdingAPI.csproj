@@ -229,7 +229,7 @@
     <Compile Include="Translation.cs" />
     <Compile Include="ICursorPosition.cs" />
     <Compile Include="Utilities\SDate.cs" />
-    <Compile Include="Utilities\SButton.cs" />
+    <Compile Include="SButton.cs" />
     <Compile Include="Framework\CursorPosition.cs" />
   </ItemGroup>
   <ItemGroup>
