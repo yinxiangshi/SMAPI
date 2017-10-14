@@ -1,7 +1,54 @@
 # Release notes
-## 2.0 (upcoming)
-<!--See [log](https://github.com/Pathoschild/SMAPI/compare/1.10...2.0).-->
+## 2.0
+### Release highlights
+* **Mod update checks**  
+  SMAPI now checks if your mods have updates available, and will alert you in the console with a convenient link to the
+  mod page. This works with mods from the Chucklefish mod site, GitHub, or Nexus Mods. SMAPI 2.0 launches with
+  update-check support for over 250 existing mods, and more will be added as modders enable the feature.
 
+* **Mod stability warnings**  
+  SMAPI now detects when a mod contains code which can destabilise your game or corrupt your save, and shows a warning
+  in the console.
+
+* **Simpler console**  
+   The console is now simpler and easier to read, some commands have been streamlined, and the colors now adjust to fit
+   your terminal background color.
+
+* **New features for modders**  
+  SMAPI 2.0 adds several features to enable new kinds of mods (see
+  [API documentation](https://stardewvalleywiki.com/Modding:SMAPI_APIs)).
+
+  The **content API** lets you edit, inject, and reload XNB data loaded by the game at any time. This let SMAPI mods do
+  anything previously only possible with XNB mods, and enables new mod scenarios not possible with XNB mods (e.g.
+  seasonal textures, NPC clothing that depend on the weather or location, etc).
+
+  The **input events** unify controller + keyboard + mouse input into one event and constant for easy handling, and add
+  metadata like the cursor position and grab tile to support click handling. They also let you prevent the game from
+  receiving input, to enable new scenarios like action highjacking and UI overlays.
+
+  The mod manifest has a few changes too:
+  * The **`UpdateKeys` field** lets you specify your Chucklefish, GitHub, or Nexus mod IDs. SMAPI will automatically
+    check for newer versions and notify the player.
+  * The **version field** is now a semantic string like `"1.0-alpha"`. (Mods which still use the version structure will
+    still work fine.)
+  * The **dependencies field** now lets you add optional dependencies which should be loaded first if available.
+
+  Finally, the `SDate` utility now has a `DayOfWeek` field for more convenient date calculations, and `ISemanticVersion`
+  now implements `IEquatable<ISemanticVersion>`.
+
+* **Goodbye deprecated code**  
+  SMAPI 2.0 removes all deprecated code to unshackle future development. That includes...
+  * removed all code marked obsolete;
+  * removed TrainerMod's `save` and `load` commands;
+  * removed support for mods with no `Name`, `Version`, or `UniqueID` in their manifest;
+  * removed support for multiple mods having the same `UniqueID` value;
+  * removed access to SMAPI internals through the reflection helper.
+
+* **Command-line install**
+  For power users and mod managers, the SMAPI installer can now be scripted using command-line arguments
+  (see [technical docs](technical-docs.md#command-line-arguments)).
+
+### Change log
 For players:
 * SMAPI now alerts you when mods have new versions available.
 * SMAPI now warns you about mods which may impact game stability or compatibility.
@@ -12,14 +59,10 @@ For players:
 * Fixed collection-changed errors during startup for some players.
 
 For mod developers:
-* Added support for editing, injecting, and reloading XNB data loaded by the game at any time.  
-  <small>_This let SMAPI mods do anything previously only possible with XNB mods, and enables new mod scenarios not possible with XNB mods (e.g. seasonal textures, NPC clothing that depend on the weather or location, etc)._</small>
-* Added support for automatic mod update checks.  
-  <small>_Add your Chucklefish, GitHub, or Nexus mod ID to the manifest and SMAPI will check for updates automatically. SMAPI will retroactively enable updates for most existing mods._</small>
-* Added unified input events.  
-  <small>_The new `InputEvents` combine keyboard + mouse + controller input into one event and constant for easy handling, add metadata like the cursor position and grab tile to support click handling._</small>
-* Added support for suppressing input.  
-  <small>_You can prevent the game from receiving input via `InputEvents`, to enable new scenarios like action highjacking and UI overlays._</small>
+* Added support for editing, injecting, and reloading XNB data loaded by the game at any time.
+* Added support for automatic mod update checks.
+* Added unified input events.
+* Added support for suppressing input.
 * Added support for optional dependencies.
 * Added support for specifying the mod version as a string (like `"1.0-alpha"`) in `manifest.json`.
 * Added day of week to `SDate` instances.
