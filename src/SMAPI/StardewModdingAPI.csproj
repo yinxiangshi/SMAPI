@@ -1,0 +1,276 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProjectGuid>{F1A573B0-F436-472C-AE29-0B91EA6B9F8F}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>StardewModdingAPI</RootNamespace>
+    <AssemblyName>StardewModdingAPI</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkProfile />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <PlatformTarget>x86</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+    <Optimize>false</Optimize>
+    <OutputPath>$(SolutionDir)\..\bin\Debug\SMAPI</OutputPath>
+    <DocumentationFile>$(SolutionDir)\..\bin\Debug\SMAPI\StardewModdingAPI.xml</DocumentationFile>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <PlatformTarget>x86</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+    <OutputPath>$(SolutionDir)\..\bin\Release\SMAPI</OutputPath>
+    <DocumentationFile>$(SolutionDir)\..\bin\Debug\SMAPI\StardewModdingAPI.xml</DocumentationFile>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+    <DebugType>pdbonly</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Mono.Cecil, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\packages\Mono.Cecil.0.9.6.4\lib\net45\Mono.Cecil.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Mono.Cecil.Mdb, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\packages\Mono.Cecil.0.9.6.4\lib\net45\Mono.Cecil.Mdb.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Mono.Cecil.Pdb, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\packages\Mono.Cecil.0.9.6.4\lib\net45\Mono.Cecil.Pdb.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Management" Condition="$(OS) == 'Windows_NT'" />
+    <Reference Include="System.Numerics">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Runtime.Caching">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Windows.Forms" Condition="$(OS) == 'Windows_NT'" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\build\GlobalAssemblyInfo.cs">
+      <Link>Properties\GlobalAssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="Framework\Models\ModCompatibility.cs" />
+    <Compile Include="Framework\ModLoading\Finders\EventFinder.cs" />
+    <Compile Include="Framework\ModLoading\Finders\FieldFinder.cs" />
+    <Compile Include="Framework\ModLoading\Finders\MethodFinder.cs" />
+    <Compile Include="Framework\ModLoading\Finders\PropertyFinder.cs" />
+    <Compile Include="Framework\ModLoading\Finders\TypeFinder.cs" />
+    <Compile Include="Framework\ModLoading\IInstructionHandler.cs" />
+    <Compile Include="Framework\ModLoading\IncompatibleInstructionException.cs" />
+    <Compile Include="Framework\ModLoading\InstructionHandleResult.cs" />
+    <Compile Include="Framework\ModLoading\Platform.cs" />
+    <Compile Include="Framework\ModLoading\PlatformAssemblyMap.cs" />
+    <Compile Include="Framework\ModLoading\RewriteHelper.cs" />
+    <Compile Include="Framework\ModLoading\Rewriters\FieldReplaceRewriter.cs" />
+    <Compile Include="Framework\ModLoading\Rewriters\FieldToPropertyRewriter.cs" />
+    <Compile Include="Framework\ModLoading\Rewriters\VirtualEntryCallRemover.cs" />
+    <Compile Include="Framework\ModLoading\Rewriters\MethodParentRewriter.cs" />
+    <Compile Include="Framework\ModLoading\Rewriters\TypeReferenceRewriter.cs" />
+    <Compile Include="Framework\ContentManagerShim.cs" />
+    <Compile Include="Framework\Exceptions\SAssemblyLoadFailedException.cs" />
+    <Compile Include="Framework\ModLoading\AssemblyLoadStatus.cs" />
+    <Compile Include="Framework\Utilities\ContextHash.cs" />
+    <Compile Include="Metadata\CoreAssets.cs" />
+    <Compile Include="ContentSource.cs" />
+    <Compile Include="Events\ContentEvents.cs" />
+    <Compile Include="Events\EventArgsInput.cs" />
+    <Compile Include="Events\EventArgsValueChanged.cs" />
+    <Compile Include="Events\InputEvents.cs" />
+    <Compile Include="Framework\Content\AssetInfo.cs" />
+    <Compile Include="Framework\Exceptions\SContentLoadException.cs" />
+    <Compile Include="Framework\Command.cs" />
+    <Compile Include="Constants.cs" />
+    <Compile Include="Events\ControlEvents.cs" />
+    <Compile Include="Events\EventArgsClickableMenuChanged.cs" />
+    <Compile Include="Events\EventArgsClickableMenuClosed.cs" />
+    <Compile Include="Events\EventArgsControllerButtonPressed.cs" />
+    <Compile Include="Events\EventArgsControllerButtonReleased.cs" />
+    <Compile Include="Events\EventArgsControllerTriggerPressed.cs" />
+    <Compile Include="Events\EventArgsControllerTriggerReleased.cs" />
+    <Compile Include="Events\EventArgsCurrentLocationChanged.cs" />
+    <Compile Include="Events\EventArgsGameLocationsChanged.cs" />
+    <Compile Include="Events\EventArgsIntChanged.cs" />
+    <Compile Include="Events\EventArgsInventoryChanged.cs" />
+    <Compile Include="Events\EventArgsKeyboardStateChanged.cs" />
+    <Compile Include="Events\EventArgsKeyPressed.cs" />
+    <Compile Include="Events\EventArgsLevelUp.cs" />
+    <Compile Include="Events\EventArgsLocationObjectsChanged.cs" />
+    <Compile Include="Events\EventArgsMineLevelChanged.cs" />
+    <Compile Include="Events\EventArgsMouseStateChanged.cs" />
+    <Compile Include="Events\GameEvents.cs" />
+    <Compile Include="Events\GraphicsEvents.cs" />
+    <Compile Include="Framework\Utilities\Countdown.cs" />
+    <Compile Include="Framework\GameVersion.cs" />
+    <Compile Include="Framework\IModMetadata.cs" />
+    <Compile Include="Framework\Models\ModDataID.cs" />
+    <Compile Include="Framework\ModHelpers\BaseHelper.cs" />
+    <Compile Include="Framework\ModHelpers\CommandHelper.cs" />
+    <Compile Include="Framework\ModHelpers\ContentHelper.cs" />
+    <Compile Include="Framework\ModHelpers\ModHelper.cs" />
+    <Compile Include="Framework\ModHelpers\ModRegistryHelper.cs" />
+    <Compile Include="Framework\ModHelpers\ReflectionHelper.cs" />
+    <Compile Include="Framework\ModHelpers\TranslationHelper.cs" />
+    <Compile Include="Framework\ModLoading\InvalidModStateException.cs" />
+    <Compile Include="Framework\ModLoading\ModDependencyStatus.cs" />
+    <Compile Include="Framework\ModLoading\ModMetadataStatus.cs" />
+    <Compile Include="Framework\ModLoading\ModResolver.cs" />
+    <Compile Include="Framework\ModLoading\AssemblyDefinitionResolver.cs" />
+    <Compile Include="Framework\ModLoading\AssemblyParseResult.cs" />
+    <Compile Include="Framework\CommandManager.cs" />
+    <Compile Include="Framework\Content\AssetData.cs" />
+    <Compile Include="Framework\Content\AssetDataForObject.cs" />
+    <Compile Include="Framework\Content\AssetDataForDictionary.cs" />
+    <Compile Include="Framework\Content\AssetDataForImage.cs" />
+    <Compile Include="Context.cs" />
+    <Compile Include="Framework\Logging\ConsoleInterceptionManager.cs" />
+    <Compile Include="Framework\Logging\InterceptingTextWriter.cs" />
+    <Compile Include="Framework\Models\ManifestDependency.cs" />
+    <Compile Include="Framework\Models\ModStatus.cs" />
+    <Compile Include="Framework\Models\SConfig.cs" />
+    <Compile Include="Framework\ModLoading\ModMetadata.cs" />
+    <Compile Include="Framework\Reflection\PrivateProperty.cs" />
+    <Compile Include="Framework\RequestExitDelegate.cs" />
+    <Compile Include="Framework\SContentManager.cs" />
+    <Compile Include="Framework\Exceptions\SParseException.cs" />
+    <Compile Include="Framework\Serialisation\JsonHelper.cs" />
+    <Compile Include="Framework\Serialisation\SelectiveStringEnumConverter.cs" />
+    <Compile Include="Framework\Serialisation\SFieldConverter.cs" />
+    <Compile Include="IAssetEditor.cs" />
+    <Compile Include="IAssetInfo.cs" />
+    <Compile Include="IAssetLoader.cs" />
+    <Compile Include="ICommandHelper.cs" />
+    <Compile Include="IAssetData.cs" />
+    <Compile Include="IAssetDataForDictionary.cs" />
+    <Compile Include="IAssetDataForImage.cs" />
+    <Compile Include="IContentHelper.cs" />
+    <Compile Include="IManifestDependency.cs" />
+    <Compile Include="IModRegistry.cs" />
+    <Compile Include="Events\LocationEvents.cs" />
+    <Compile Include="Events\MenuEvents.cs" />
+    <Compile Include="Events\MineEvents.cs" />
+    <Compile Include="Events\PlayerEvents.cs" />
+    <Compile Include="Events\SaveEvents.cs" />
+    <Compile Include="Events\TimeEvents.cs" />
+    <Compile Include="Framework\DeprecationLevel.cs" />
+    <Compile Include="Framework\DeprecationManager.cs" />
+    <Compile Include="Framework\InternalExtensions.cs" />
+    <Compile Include="Framework\Models\ModDataRecord.cs" />
+    <Compile Include="Framework\ModLoading\AssemblyLoader.cs" />
+    <Compile Include="Framework\Reflection\CacheEntry.cs" />
+    <Compile Include="Framework\Reflection\PrivateField.cs" />
+    <Compile Include="Framework\Reflection\PrivateMethod.cs" />
+    <Compile Include="Framework\Reflection\Reflector.cs" />
+    <Compile Include="IManifest.cs" />
+    <Compile Include="IMod.cs" />
+    <Compile Include="IModHelper.cs" />
+    <Compile Include="IModLinked.cs" />
+    <Compile Include="Framework\Logging\LogFileManager.cs" />
+    <Compile Include="IPrivateProperty.cs" />
+    <Compile Include="ISemanticVersion.cs" />
+    <Compile Include="ITranslationHelper.cs" />
+    <Compile Include="LogLevel.cs" />
+    <Compile Include="Framework\ModRegistry.cs" />
+    <Compile Include="Framework\WebApiClient.cs" />
+    <Compile Include="IMonitor.cs" />
+    <Compile Include="Events\ChangeType.cs" />
+    <Compile Include="Events\ItemStackChange.cs" />
+    <Compile Include="Framework\Monitor.cs" />
+    <Compile Include="Framework\Models\Manifest.cs" />
+    <Compile Include="Metadata\InstructionMetadata.cs" />
+    <Compile Include="Mod.cs" />
+    <Compile Include="PatchMode.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Framework\SGame.cs" />
+    <Compile Include="IPrivateField.cs" />
+    <Compile Include="IPrivateMethod.cs" />
+    <Compile Include="IReflectionHelper.cs" />
+    <Compile Include="SemanticVersion.cs" />
+    <Compile Include="Translation.cs" />
+    <Compile Include="ICursorPosition.cs" />
+    <Compile Include="Utilities\SDate.cs" />
+    <Compile Include="SButton.cs" />
+    <Compile Include="Framework\CursorPosition.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="StardewModdingAPI.config.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Include="unix-launcher.sh">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="icon.ico" />
+    <Content Include="steam_appid.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.5">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.5 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <Import Project="..\SMAPI.Common\StardewModdingAPI.Common.projitems" Label="Shared" />
+  <ItemGroup>
+    <ProjectReference Include="..\SMAPI.AssemblyRewriters\StardewModdingAPI.AssemblyRewriters.csproj">
+      <Project>{10db0676-9fc1-4771-a2c8-e2519f091e49}</Project>
+      <Name>StardewModdingAPI.AssemblyRewriters</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\..\build\common.targets" />
+</Project>

@@ -1,0 +1,2068 @@
+/*
+
+
+
+This file contains advanced configuration for SMAPI. You generally shouldn't change this file.
+
+
+
+*/
+{
+  /**
+   * Whether to enable features intended for mod developers. Currently this only makes TRACE-level
+   * messages appear in the console.
+   */
+  "DeveloperMode": true,
+
+  /**
+   * Whether SMAPI should check for newer versions of SMAPI and mods when you load the game. If new
+   * versions are available, an alert will be shown in the console. This doesn't affect the load
+   * time even if your connection is offline or slow, because it happens in the background.
+   */
+  "CheckForUpdates": true,
+
+  /**
+   * SMAPI's GitHub project name, used to perform update checks.
+   */
+  "GitHubProjectName": "Pathoschild/SMAPI",
+
+  /**
+   * The base URL for SMAPI's web API, used to perform update checks.
+   * Note: the protocol will be changed to http:// on Linux/Mac due to OpenSSL issues with the
+   * game's bundled Mono.
+   */
+  "WebApiBaseUrl": "https://api.smapi.io",
+
+  /**
+   * Whether SMAPI should log more information about the game context.
+   */
+  "VerboseLogging": false,
+
+  /**
+   * Extra metadata about some SMAPI mods. All fields except 'ID' are optional.
+   *
+   * - 'ID' uniquely identifies the mod across all versions, even if its manifest fields changed or
+   *   the mod doesn't have a unique ID. The format is as follows:
+   *      - If the mod's identifier changed over time, multiple variants are separated by |.
+   *      - Each variant can take one of two forms: a simple string matching the mod's UniqueID,
+   *        or a JSON structure containing any of three manifest fields (ID, Name, and Author) to
+   *        match.
+   *
+   * - 'UpdateKeys' specifies the value of the equivalent manifest field if it's not already set.
+   *   This is used to enable update checks for older mods that haven't been updated to use it yet.
+   *
+   * - 'AlternativeUrl' specifies a URL where the player can find an unofficial update or
+   *   alternative if the mod is no longer compatible.
+   *
+   * - 'Compatibility' overrides SMAPI's normal compatibility detection. The keys are version
+   *   ranges in the form lower~upper, where either side can be blank for an unbounded range. (For
+   *   example, "~1.0" means all versions up to 1.0 inclusively.) The values have two fields:
+   *      - 'Status' specifies the compatibility. Valid values are Obsolete (SMAPI won't load it
+   *        because the mod should no longer be used), AssumeBroken (SMAPI won't load it because
+   *        the specified version isn't compatible), or AssumeCompatible (SMAPI will load it even
+   *        if it detects incompatible code).
+   *      - 'ReasonPhrase' (optional) specifies a message to show to the player explaining why the
+   *        mod isn't loaded. This has no effect for AssumeCompatible.
+   *
+   * - 'MapLocalVersions' and 'MapRemoteVersions' substitute versions for update checks. For
+   *   example, if the API returns version '1.1-1078', MapRemoteVersions can map it to '1.1' when
+   *   comparing to the mod's current version. This is only intended to support legacy mods with
+   *   injected update keys.
+   */
+  "ModData": [
+    {
+      // AccessChestAnywhere
+      "ID": "AccessChestAnywhere",
+      "UpdateKeys": [ "Nexus:257" ],
+      "AlternativeUrl": "https://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.1": { "Status": "AssumeBroken" } // broke in SDV 1.1
+      },
+      "MapLocalVersions": {
+        "1.1-1078": "1.1"
+      }
+    },
+    {
+      // AdjustArtisanPrices
+      "ID": "1e36d4ca-c7ef-4dfb-9927-d27a6c3c8bdc",
+      "UpdateKeys": [ "Chucklefish:3532" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~0.1": { "Status": "AssumeBroken" } // broke in SMAPI 1.9
+      }
+    },
+    {
+      // Adjust Monster
+      "ID": "mmanlapat.AdjustMonster",
+      "UpdateKeys": [ "Nexus:1161" ]
+    },
+    {
+      // Advanced Location Loader
+      "ID": "Entoarox.AdvancedLocationLoader",
+      //"UpdateKeys": [ "Chucklefish:3619" ], // Entoarox opted out of mod update checks
+      "Compatibility": {
+        "~1.2.10": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Adventure Shop Inventory
+      "ID": "HammurabiAdventureShopInventory",
+      "UpdateKeys": [ "Chucklefish:4608" ]
+    },
+    {
+      // AgingMod
+      "ID": "skn.AgingMod",
+      "UpdateKeys": [ "Nexus:1129" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // All Crops All Seasons
+      "ID": "29ee8246-d67b-4242-a340-35a9ae0d5dd7 | community.AllCropsAllSeasons", // changed in 1.3
+      "UpdateKeys": [ "Nexus:170" ]
+    },
+    {
+      // All Professions
+      "ID": "8c37b1a7-4bfb-4916-9d8a-9533e6363ea3 | community.AllProfessions", // changed in 1.2
+      "UpdateKeys": [ "Nexus:174" ]
+    },
+    {
+      // Almighty Tool
+      "ID": "AlmightyTool.dll | 439", // changed in 1.2.1
+      "UpdateKeys": [ "Nexus:439" ],
+      "Compatibility": {
+        "~1.1.1": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      },
+      "MapRemoteVersions": {
+        "1.21": "1.2.1"
+      }
+    },
+    {
+      // Animal Mood Fix
+      "ID": "GPeters-AnimalMoodFix",
+      "Compatibility": {
+        "~": {
+          "Status": "Obsolete",
+          "ReasonPhrase": "the animal mood bugs were fixed in Stardew Valley 1.2."
+        }
+      }
+    },
+    {
+      // Animal Sitter
+      "ID": "AnimalSitter.dll | jwdred.AnimalSitter", // changed in 1.0.9
+      "UpdateKeys": [ "Nexus:581" ],
+      "Compatibility": {
+        "~1.0.8": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // A Tapper's Dream
+      "ID": "ddde5195-8f85-4061-90cc-0d4fd5459358",
+      "UpdateKeys": [ "Nexus:260" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.4": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Auto Animal Doors
+      "ID": "AaronTaggart.AutoAnimalDoors",
+      "UpdateKeys": [ "Nexus:1019" ],
+      "MapRemoteVersions": {
+        "1.1.1": "1.1" // manifest not updated
+      }
+    },
+    {
+      // Auto-Eat
+      "ID": "BALANCEMOD_AutoEat | Permamiss.AutoEat", // changed in 1.1.1
+      "UpdateKeys": [ "Nexus:643" ]
+    },
+    {
+      // AutoGate
+      "ID": "AutoGate",
+      "UpdateKeys": [ "Nexus:820" ]
+    },
+    {
+      // Automate
+      "ID": "Pathoschild.Automate",
+      "UpdateKeys": [ "Nexus:1063" ]
+    },
+    {
+      // Automated Doors
+      "ID": "1abcfa07-2cf4-4dc3-a6e9-6068b642112b | azah.automated-doors", // changed in 1.4.1
+      "UpdateKeys": [ "GitHub:azah/AutomatedDoors" ],
+      "MapLocalVersions": {
+        "1.4.1-1": "1.4.1"
+      }
+    },
+    {
+      // AutoSpeed
+      "ID": "{ID:'4be88c18-b6f3-49b0-ba96-f94b1a5be890', Name:'AutoSpeed'} | Omegasis.AutoSpeed", // changed in 1.4; disambiguate from other Alpha_Omegasis mods
+      "UpdateKeys": [ "Nexus:443" ] // added in 1.4.1
+    },
+    {
+      // Basic Sprinkler Improved
+      "ID": "lrsk_sdvm_bsi.0117171308",
+      "UpdateKeys": [ "Nexus:833" ],
+      "MapRemoteVersions": {
+        "1.0.2": "1.0.1-release" // manifest not updated
+      }
+    },
+    {
+      // Better Hay
+      "ID": "cat.betterhay",
+      "UpdateKeys": [ "Nexus:1430" ]
+    },
+    {
+      // Better Quality More Seasons
+      "ID": "SB_BQMS",
+      "UpdateKeys": [ "Nexus:935" ]
+    },
+    {
+      // Better Quarry
+      "ID": "BetterQuarry",
+      "UpdateKeys": [ "Nexus:771" ]
+    },
+    {
+      // Better Ranching
+      "ID": "BetterRanching",
+      "UpdateKeys": [ "Nexus:859" ]
+    },
+    {
+      // Better Shipping Box
+      "ID": "Kithio:BetterShippingBox",
+      "UpdateKeys": [ "Chucklefish:4302" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.0.2": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      },
+      "MapLocalVersions": {
+        "1.0.1": "1.0.2"
+      }
+    },
+    {
+      // Better Sprinklers
+      "ID": "SPDSprinklersMod | Speeder.BetterSprinklers", // changed in 2.3
+      "UpdateKeys": [ "Nexus:41" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~2.3.1-pathoschild-update": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
+    },
+    {
+      // Billboard Anywhere
+      "ID": "{ID:'7ad4f6f7-c3de-4729-a40f-7a11d2b2a358', Name:'Billboard Anywhere'} | Omegasis.BillboardAnywhere", // changed in 1.4; disambiguate from other mods by Alpha_Omegasis
+      "UpdateKeys": [ "Nexus:492" ] // added in 1.4.1
+    },
+    {
+      // Birthday Mail
+      "ID": "005e02dc-d900-425c-9c68-1ff55c5a295d | KathrynHazuka.BirthdayMail", // changed in 1.2.3-pathoschild-update
+      "UpdateKeys": [ "Nexus:276" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.2.2": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
+    },
+    {
+      // Breed Like Rabbits
+      "ID": "dycedarger.breedlikerabbits",
+      "UpdateKeys": [ "Nexus:948" ]
+    },
+    {
+      // Build Endurance
+      "ID": "{ID:'4be88c18-b6f3-49b0-ba96-f94b1a5be890', Name:'BuildEndurance'} | Omegasis.BuildEndurance", // changed in 1.4; disambiguate from other Alpha_Omegasis mods
+      "UpdateKeys": [ "Nexus:445" ], // added in 1.4.1
+      "Compatibility": {
+        "~1.3": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Build Health
+      "ID": "{ID:'4be88c18-b6f3-49b0-ba96-f94b1a5be890', Name:'BuildHealth'} | Omegasis.BuildHealth", // changed in 1.4; disambiguate from other Alpha_Omegasis mods
+      "UpdateKeys": [ "Nexus:446" ], // added in 1.4.1
+      "Compatibility": {
+        "~1.3": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Butcher Mod
+      "ID": "DIGUS.BUTCHER",
+      "UpdateKeys": [ "Nexus:1538" ]
+    },
+    {
+      // Buy Cooking Recipes
+      "ID": "Denifia.BuyRecipes",
+      "UpdateKeys": [ "Nexus:1126" ], // added in 1.0.1 (2017-10-04)
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Buy Back Collectables
+      "ID": "BuyBackCollectables | Omegasis.BuyBackCollectables", // changed in 1.4
+      "UpdateKeys": [ "Nexus:507" ], // added in 1.4.1
+      "Compatibility": {
+        "~1.3": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Carry Chest
+      "ID": "spacechase0.CarryChest",
+      "UpdateKeys": [ "Nexus:1333" ]
+    },
+    {
+      // Casks Anywhere
+      "ID": "CasksAnywhere",
+      "UpdateKeys": [ "Nexus:878" ],
+      "MapLocalVersions": {
+        "1.1-alpha": "1.1"
+      }
+    },
+    {
+      // Categorize Chests
+      "ID": "CategorizeChests",
+      "UpdateKeys": [ "Nexus:1300" ]
+    },
+    {
+      // ChefsCloset
+      "ID": "Duder.ChefsCloset",
+      "UpdateKeys": [ "Nexus:1030" ],
+      "MapLocalVersions": {
+        "1.3-1": "1.3"
+      }
+    },
+    {
+      // Chest Label System
+      "ID": "SPDChestLabel | Speeder.ChestLabel", // changed in 1.5.1-pathoschild-update
+      "UpdateKeys": [ "Nexus:242" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.6": { "Status": "AssumeBroken" } // broke in SDV 1.1
+      }
+    },
+    {
+      // Chest Pooling
+      "ID": "ChestPooling.dll | mralbobo.ChestPooling", // changed in 1.3
+      "UpdateKeys": [ "GitHub:mralbobo/stardew-chest-pooling" ],
+      "Compatibility": {
+        "~1.2": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
+    },
+    {
+      // Chests Anywhere
+      "ID": "ChestsAnywhere | Pathoschild.ChestsAnywhere", // changed in 1.9
+      "UpdateKeys": [ "Nexus:518" ],
+      "Compatibility": {
+        "~1.9-beta": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
+    },
+    {
+      // Choose Baby Gender
+      "ID": "ChooseBabyGender.dll",
+      "UpdateKeys": [ "Nexus:590" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.0.2": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // CJB Automation
+      "ID": "CJBAutomation",
+      "UpdateKeys": [ "Nexus:211" ],
+      "AlternativeUrl": "http://www.nexusmods.com/stardewvalley/mods/1063",
+      "Compatibility": {
+        "~1.4": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
+    },
+    {
+      // CJB Cheats Menu
+      "ID": "CJBCheatsMenu | CJBok.CheatsMenu", // changed in 1.14
+      "UpdateKeys": [ "Nexus:4" ],
+      "Compatibility": {
+        "~1.12": { "Status": "AssumeBroken" } // broke in SDV 1.1
+      }
+    },
+    {
+      // CJB Item Spawner
+      "ID": "CJBItemSpawner | CJBok.ItemSpawner", // changed in 1.7
+      "UpdateKeys": [ "Nexus:93" ],
+      "Compatibility": {
+        "~1.5": { "Status": "AssumeBroken" } // broke in SDV 1.1
+      }
+    },
+    {
+      // CJB Show Item Sell Price
+      "ID": "CJBShowItemSellPrice | CJBok.ShowItemSellPrice", // changed in 1.7
+      "UpdateKeys": [ "Nexus:5" ],
+      "Compatibility": {
+        "~1.6": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
+    },
+    {
+      // Clean Farm
+      "ID": "tstaples.CleanFarm",
+      "UpdateKeys": [ "Nexus:794" ]
+    },
+    {
+      // Climates of Ferngill
+      "ID": "KoihimeNakamura.ClimatesOfFerngill",
+      "UpdateKeys": [ "Nexus:604" ],
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Cold Weather Haley
+      "ID": "LordXamon.ColdWeatherHaleyPRO",
+      "UpdateKeys": [ "Nexus:1169" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Colored Chests
+      "ID": "4befde5c-731c-4853-8e4b-c5cdf946805f",
+      "Compatibility": {
+        "~": {
+          "Status": "Obsolete",
+          "ReasonPhrase": "colored chests were added in Stardew Valley 1.1."
+        }
+      }
+    },
+    {
+      // Combat with Farm Implements
+      "ID": "SPDFarmingImplementsInCombat",
+      "UpdateKeys": [ "Nexus:313" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Community Bundle Item Tooltip
+      "ID": "musbah.bundleTooltip",
+      "UpdateKeys": [ "Nexus:1329" ]
+    },
+    {
+      // Concentration on Farming
+      "ID": "punyo.ConcentrationOnFarming",
+      "UpdateKeys": [ "Nexus:1445" ]
+    },
+    {
+      // Configurable Machines
+      "ID": "21da6619-dc03-4660-9794-8e5b498f5b97",
+      "UpdateKeys": [ "Nexus:280" ],
+      "MapLocalVersions": {
+        "1.2-beta": "1.2"
+      }
+    },
+    {
+      // Configurable Shipping Dates
+      "ID": "ConfigurableShippingDates",
+      "UpdateKeys": [ "Nexus:675" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.1.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Cooking Skill
+      "ID": "CookingSkill | spacechase0.CookingSkill", // changed in 1.0.4–6
+      "UpdateKeys": [ "Nexus:522" ],
+      "Compatibility": {
+        "~1.0.6": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // CrabNet
+      "ID": "CrabNet.dll | jwdred.CrabNet", // changed in 1.0.5
+      "UpdateKeys": [ "Nexus:584" ],
+      "Compatibility": {
+        "~1.0.4": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Current Location
+      "ID": "CurrentLocation102120161203",
+      "UpdateKeys": [ "Nexus:638" ]
+    },
+    {
+      // Custom Critters
+      "ID": "spacechase0.CustomCritters",
+      "UpdateKeys": [ "Nexus:1255" ]
+    },
+    {
+      // Custom Element Handler
+      "ID": "Platonymous.CustomElementHandler",
+      "UpdateKeys": [ "Nexus:1068" ] // added in 1.3.1
+    },
+    {
+      // Custom Farming
+      "ID": "Platonymous.CustomFarming",
+      "UpdateKeys": [ "Nexus:991" ] // added in 0.6.1
+    },
+    {
+      // Custom Farming Automate Bridge
+      "ID": "Platonymous.CFAutomate",
+      "Compatibility": {
+        "~1.0.1": { "Status": "AssumeBroken" } // no longer compatible with Automate
+      }
+    },
+    {
+      // Custom Farm Types
+      "ID": "spacechase0.CustomFarmTypes",
+      "UpdateKeys": [ "Nexus:1140" ]
+    },
+    {
+      // Custom Furniture
+      "ID": "Platonymous.CustomFurniture",
+      "UpdateKeys": [ "Nexus:1254" ] // added in 0.4.1
+    },
+    {
+      // Customize Exterior
+      "ID": "CustomizeExterior | spacechase0.CustomizeExterior", // changed in 1.0.3
+      "UpdateKeys": [ "Nexus:1099" ],
+      "Compatibility": {
+        "~1.0.2": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Customizable Cart Redux
+      "ID": "KoihimeNakamura.CCR",
+      "UpdateKeys": [ "Nexus:1402" ],
+      "MapLocalVersions": {
+        "1.1-20170917": "1.1"
+      }
+    },
+    {
+      // Customizable Traveling Cart Days
+      "ID": "TravelingCartYyeahdude",
+      "UpdateKeys": [ "Nexus:567" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Custom Linens
+      "ID": "Mevima.CustomLinens",
+      "UpdateKeys": [ "Nexus:1027" ],
+      "MapRemoteVersions": {
+        "1.1": "1.0" // manifest not updated
+      }
+    },
+    {
+      // Custom Shops Redux
+      "ID": "Omegasis.CustomShopReduxGui",
+      "UpdateKeys": [ "Nexus:1378" ] // added in 1.4.1
+    },
+    {
+      // Custom TV
+      "ID": "Platonymous.CustomTV",
+      "UpdateKeys": [ "Nexus:1139" ] // added in 1.0.6
+    },
+    {
+      // Daily Luck Message
+      "ID": "Schematix.DailyLuckMessage",
+      "UpdateKeys": [ "Nexus:1327" ]
+    },
+    {
+      // Daily News
+      "ID": "bashNinja.DailyNews",
+      "UpdateKeys": [ "Nexus:1141" ],
+      "Compatibility": {
+        "~1.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Daily Quest Anywhere
+      "ID": "DailyQuest | Omegasis.DailyQuestAnywhere", // changed in 1.4
+      "UpdateKeys": [ "Nexus:513" ] // added in 1.4.1
+    },
+    {
+      // Debug Mode
+      "ID": "Pathoschild.Stardew.DebugMode | Pathoschild.DebugMode", // changed in 1.4
+      "UpdateKeys": [ "Nexus:679" ]
+    },
+    {
+      // Dynamic Checklist
+      "ID": "gunnargolf.DynamicChecklist",
+      "UpdateKeys": [ "Nexus:1145" ], // added in 1.0.1-pathoschild-update
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Dynamic Horses
+      "ID": "Bpendragon-DynamicHorses",
+      "UpdateKeys": [ "Nexus:874" ],
+      "MapRemoteVersions": {
+        "1.2": "1.1-release" // manifest not updated
+      }
+    },
+    {
+      // Dynamic Machines
+      "ID": "DynamicMachines",
+      "UpdateKeys": [ "Nexus:374" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.1.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      },
+      "MapLocalVersions": {
+        "1.1": "1.1.1"
+      }
+    },
+    {
+      // Dynamic NPC Sprites
+      "ID": "BashNinja.DynamicNPCSprites",
+      "UpdateKeys": [ "Nexus:1183" ]
+    },
+    {
+      // Easier Farming
+      "ID": "cautiouswafffle.EasierFarming",
+      "UpdateKeys": [ "Nexus:1426" ]
+    },
+    {
+      // Empty Hands
+      "ID": "QuicksilverFox.EmptyHands",
+      "UpdateKeys": [ "Nexus:1176" ], // added in 1.0.1-pathoschild-update
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Enemy Health Bars
+      "ID": "SPDHealthBar | Speeder.HealthBars", // changed in 1.7.1-pathoschild-update
+      "UpdateKeys": [ "Nexus:193" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.7": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
+    },
+    {
+      // Entoarox Framework
+      "ID": "eacdb74b-4080-4452-b16b-93773cda5cf9 | Entoarox.EntoaroxFramework", // changed in ???
+      //"UpdateKeys": [ "Chucklefish:4228" ], // Entoarox opted out of mod update checks
+      "Compatibility": {
+        "~1.7.9": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Expanded Fridge / Dynamic Expanded Fridge
+      "ID": "Uwazouri.ExpandedFridge",
+      "UpdateKeys": [ "Nexus:1191" ]
+    },
+    {
+      // Experience Bars
+      "ID": "ExperienceBars | spacechase0.ExperienceBars", // changed in 1.0.2
+      "UpdateKeys": [ "Nexus:509" ]
+    },
+    {
+      // Extended Bus System
+      "ID": "ExtendedBusSystem",
+      "UpdateKeys": [ "Chucklefish:4373" ]
+    },
+    {
+      // Extended Fridge
+      "ID": "Mystra007ExtendedFridge | Crystalmir.ExtendedFridge", // changed in 1.0.1
+      "UpdateKeys": [ "Nexus:485" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
+    },
+    {
+      // Extended Greenhouse
+      "ID": "ExtendedGreenhouse",
+      "UpdateKeys": [ "Chucklefish:4303" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.0.2": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
+    },
+    {
+      // Extended Minecart
+      "ID": "{ID:'EntoaroxFurnitureAnywhere', Name:'Extended Minecart'} | Entoarox.ExtendedMinecart" // changed in 1.6.1
+      //"UpdateKeys": [ "Chucklefish:4359" ] // Entoarox opted out of mod update checks
+    },
+    {
+      // Extended Reach
+      "ID": "spacechase0.ExtendedReach",
+      "UpdateKeys": [ "Nexus:1493" ]
+    },
+    {
+      // Fall 28 Snow Day
+      "ID": "{ID:'7ad4f6f7-c3de-4729-a40f-7a11d2b2a358', Name:'Fall28 Snow Day'} | Omegasis.Fall28SnowDay", // changed in 1.4; disambiguate from other mods by Alpha_Omegasis
+      "UpdateKeys": [ "Nexus:486" ], // added in 1.4.1
+      "Compatibility": {
+        "~1.3": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Farm Automation: Barn Door Automation
+      "ID": "FarmAutomation.BarnDoorAutomation.dll",
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Farm Automation: Item Collector
+      "ID": "FarmAutomation.ItemCollector.dll",
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
+    },
+    {
+      // Farm Automation Unofficial: Item Collector
+      "ID": "Maddy99.FarmAutomation.ItemCollector",
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~0.5": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Farm Expansion
+      "ID": "3888bdfd-73f6-4776-8bb7-8ad45aea1915 | AdvizeFarmExpansionMod-2-0 | AdvizeFarmExpansionMod-2-0-5 | Advize.FarmExpansion", // changed in 2.0, 2.0.5, and 3.0
+      "UpdateKeys": [ "Nexus:130" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~2.0.5": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Farm Resource Generator
+      "ID": "FarmResourceGenerator.dll",
+      "UpdateKeys": [ "Nexus:647" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.0.4": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Fast Animations
+      "ID": "Pathoschild.FastAnimations",
+      "UpdateKeys": [ "Nexus:1089" ]
+    },
+    {
+      // Faster Paths
+      "ID": "{ID:'821ce8f6-e629-41ad-9fde-03b54f68b0b6', Name:'Faster Paths'} | 615f85f8-5c89-44ee-aecc-c328f172e413 | Entoarox.FasterPaths" // changed in 1.2 and 1.3; disambiguate from Shop Expander
+      // "UpdateKeys": [ "Chucklefish:3641" ] // Entoarox opted out of mod update checks
+    },
+    {
+      // Faster Run
+      "ID": "FasterRun.dll | KathrynHazuka.FasterRun", // changed in 1.1.1-pathoschild-update
+      "UpdateKeys": [ "Nexus:733" ], // added in 1.1.1-pathoschild-update
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Fishing Adjust
+      "ID": "shuaiz.FishingAdjustMod",
+      "UpdateKeys": [ "Nexus:1350" ]
+    },
+    {
+      // Fishing Tuner Redux
+      "ID": "HammurabiFishingTunerRedux",
+      "UpdateKeys": [ "Chucklefish:4578" ]
+    },
+    {
+      // FlorenceMod
+      "ID": "FlorenceMod.dll",
+      "UpdateKeys": [ "Nexus:591" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      },
+      "MapLocalVersions": {
+        "1.0.1": "1.1"
+      }
+    },
+    {
+      // Flower Color Picker
+      "ID": "spacechase0.FlowerColorPicker",
+      "UpdateKeys": [ "Nexus:1229" ]
+    },
+    {
+      // Forage at the Farm
+      "ID": "ForageAtTheFarm",
+      "UpdateKeys": [ "Nexus:673" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.5.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Furniture Anywhere
+      "ID": "{ID:'EntoaroxFurnitureAnywhere', Name:'Furniture Anywhere'} | Entoarox.FurnitureAnywhere" // changed in 1.1; disambiguate from Extended Minecart
+      // "UpdateKeys": [ "Chucklefish:4324" ] // Entoarox opted out of mod update checks
+    },
+    {
+      // Game Reminder
+      "ID": "mmanlapat.GameReminder",
+      "UpdateKeys": [ "Nexus:1153" ]
+    },
+    {
+      // Gate Opener
+      "ID": "GateOpener.dll | mralbobo.GateOpener", // changed in 1.1
+      "UpdateKeys": [ "GitHub:mralbobo/stardew-gate-opener" ],
+      "Compatibility": {
+        "~1.0.1": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
+    },
+    {
+      // GenericShopExtender
+      "ID": "GenericShopExtender",
+      "UpdateKeys": [ "Nexus:814" ], // added in 0.1.3
+      "Compatibility": {
+        "~0.1.2": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Geode Info Menu
+      "ID": "cat.geodeinfomenu",
+      "UpdateKeys": [ "Nexus:1448" ]
+    },
+    {
+      // Get Dressed
+      "ID": "GetDressed.dll | Advize.GetDressed", // changed in 3.3
+      "UpdateKeys": [ "Nexus:331" ],
+      "Compatibility": {
+        "~3.3": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
+    },
+    {
+      // Giant Crop Ring
+      "ID": "cat.giantcropring",
+      "UpdateKeys": [ "Nexus:1182" ]
+    },
+    {
+      // Gift Taste Helper
+      "ID": "8008db57-fa67-4730-978e-34b37ef191d6 | tstaples.GiftTasteHelper", // changed in 2.5
+      "UpdateKeys": [ "Nexus:229" ],
+      "Compatibility": {
+        "~2.3.1": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
+    },
+    {
+      // Grandfather's Gift
+      "ID": "ShadowDragon.GrandfathersGift",
+      "UpdateKeys": [ "Nexus:985" ]
+    },
+    {
+      // Happy Animals
+      "ID": "HappyAnimals",
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.0.3": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Happy Birthday (Omegasis)
+      "ID": "{ID:'HappyBirthday', Author:'Alpha_Omegasis'} | Omegasis.HappyBirthday", // changed in 1.4; disambiguate from Oxyligen's fork
+      "UpdateKeys": [ "Nexus:520" ], // added in 1.4.1
+      "Compatibility": {
+        "~1.3": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Happy Birthday (Oxyligen fork)
+      "ID": "{ID:'HappyBirthday', Author:'Alpha_Omegasis/Oxyligen'}", // disambiguate from Oxyligen's fork
+      "UpdateKeys": [ "Nexus:1064" ]
+    },
+    {
+      // Harp of Yoba Redux
+      "ID": "Platonymous.HarpOfYobaRedux",
+      "UpdateKeys": [ "Nexus:914" ] // added in 2.0.3
+    },
+    {
+      // Harvest Moon Witch Princess
+      "ID": "Sasara.WitchPrincess",
+      "UpdateKeys": [ "Nexus:1157" ]
+    },
+    {
+      // Harvest With Scythe
+      "ID": "965169fd-e1ed-47d0-9f12-b104535fb4bc",
+      "UpdateKeys": [ "Nexus:236" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.0.6": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Horse Whistle (icepuente)
+      "ID": "icepuente.HorseWhistle",
+      "UpdateKeys": [ "Nexus:1131" ]
+    },
+    {
+      // Hunger (Yyeadude)
+      "ID": "HungerYyeadude",
+      "UpdateKeys": [ "Nexus:613" ]
+    },
+    {
+      // Hunger for Food (Tigerle)
+      "ID": "HungerForFoodByTigerle",
+      "UpdateKeys": [ "Nexus:810" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~0.1.2": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Hunger Mod (skn)
+      "ID": "skn.HungerMod",
+      "UpdateKeys": [ "Nexus:1127" ],
+      "MapRemoteVersions": {
+        "1.2.1": "1.0" // manifest not updated
+      }
+    },
+    {
+      // Idle Pause
+      "ID": "Veleek.IdlePause",
+      "UpdateKeys": [ "Nexus:1092" ],
+      "MapRemoteVersions": {
+        "1.2": "1.1" // manifest not updated
+      }
+    },
+    {
+      // Improved Quality of Life
+      "ID": "Demiacle.ImprovedQualityOfLife",
+      "UpdateKeys": [ "Nexus:1025" ],
+      "Compatibility": {
+        "~1.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Instant Geode
+      "ID": "InstantGeode",
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.12": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
+    },
+    {
+      // Instant Grow Trees
+      "ID": "dc50c58b-c7d8-4e60-86cc-e27b5d95ee59 | community.InstantGrowTrees", // changed in 1.2
+      "UpdateKeys": [ "Nexus:173" ]
+    },
+    {
+      // Interaction Helper
+      "ID": "HammurabiInteractionHelper",
+      "UpdateKeys": [ "Chucklefish:4640" ], // added in 1.0.4-pathoschild-update
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.0.3": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Item Auto Stacker
+      "ID": "cat.autostacker",
+      "UpdateKeys": [ "Nexus:1184" ],
+      "MapRemoteVersions": {
+        "1.0.1": "1.0" // manifest not updated
+      }
+    },
+    {
+      // Jiggly Junimo Bundles
+      "ID": "JJB.dll | Greger.JigglyJunimoBundles", // changed in 1.1.2-pathoschild-update
+      "UpdateKeys": [ "GitHub:gr3ger/Stardew_JJB" ], // added in 1.0.4-pathoschild-update
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+    },
+    {
+      // Junimo Farm
+      "ID": "Platonymous.JunimoFarm",
+      "UpdateKeys": [ "Nexus:984" ], // added in 1.1.3
+      "MapRemoteVersions": {
+        "1.1.2": "1.1.1" // manifest not updated
+      }
+    },
+    {
+      // Less Strict Over-Exertion (AntiExhaustion)
+      "ID": "BALANCEMOD_AntiExhaustion",
+      "UpdateKeys": [ "Nexus:637" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      },
+      "MapLocalVersions": {
+        "0.0": "1.1"
+      }
+    },
+    {
+      // Level Extender
+      "ID": "Devin Lematty.Level Extender",
+      "UpdateKeys": [ "Nexus:1471" ],
+      "MapRemoteVersions": {
+        "1.1": "1.0" // manifest not updated
+      }
+    },
+    {
+      // Level Up Notifications
+      "ID": "Level Up Notifications",
+      "UpdateKeys": [ "Nexus:855" ]
+    },
+    {
+      // Location and Music Logging
+      "ID": "Brandy Lover.LMlog",
+      "UpdateKeys": [ "Nexus:1366" ]
+    },
+    {
+      // Longevity
+      "ID": "RTGOAT.Longevity",
+      "UpdateKeys": [ "Nexus:649" ]
+    },
+    {
+      // Lookup Anything
+      "ID": "LookupAnything | Pathoschild.LookupAnything", // changed in 1.10.1
+      "UpdateKeys": [ "Nexus:541" ],
+      "Compatibility": {
+        "~1.10.1": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
+    },
+    {
+      // Love Bubbles
+      "ID": "LoveBubbles",
+      "UpdateKeys": [ "Nexus:1318" ]
+    },
+    {
+      // Loved Labels
+      "ID": "LovedLabels.dll",
+      "UpdateKeys": [ "Nexus:279" ],
+      "Compatibility": {
+        "~2.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Luck Skill
+      "ID": "LuckSkill | spacechase0.LuckSkill", // changed in 0.1.4
+      "UpdateKeys": [ "Nexus:521" ],
+      "Compatibility": {
+        "~0.1.4": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Mail Framework
+      "ID": "DIGUS.MailFrameworkMod",
+      "UpdateKeys": [ "Nexus:1536" ]
+    },
+    {
+      // MailOrderPigs
+      "ID": "MailOrderPigs.dll | jwdred.MailOrderPigs", // changed in 1.0.2
+      "UpdateKeys": [ "Nexus:632" ],
+      "Compatibility": {
+        "~1.0.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Makeshift Multiplayer
+      "ID": "StardewValleyMP | spacechase0.StardewValleyMP", // changed in 0.3
+      "UpdateKeys": [ "Nexus:501" ],
+      "Compatibility": {
+        "~0.3.6": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Map Image Exporter
+      "ID": "MapImageExporter | spacechase0.MapImageExporter", // changed in 1.0.2
+      "UpdateKeys": [ "Nexus:1073" ]
+    },
+    {
+      // Message Box [API]? (ChatMod)
+      "ID": "Kithio:ChatMod",
+      "UpdateKeys": [ "Chucklefish:4296" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Mining at the Farm
+      "ID": "MiningAtTheFarm",
+      "UpdateKeys": [ "Nexus:674" ]
+    },
+    {
+      // Mining With Explosives
+      "ID": "MiningWithExplosives",
+      "UpdateKeys": [ "Nexus:770" ]
+    },
+    {
+      // Modder Serialization Utility
+      "ID": "SerializerUtils-0-1",
+      "Compatibility": {
+        "~": {
+          "Status": "Obsolete",
+          "ReasonPhrase": "it's no longer maintained or used."
+        }
+      }
+    },
+    {
+      // More Artifact Spots
+      "ID": "451",
+      "UpdateKeys": [ "Nexus:451" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.0.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // More Map Layers
+      "ID": "Platonymous.MoreMapLayers",
+      "UpdateKeys": [ "Nexus:1134" ] // added in 1.1.1
+    },
+    {
+      // More Pets
+      "ID": "821ce8f6-e629-41ad-9fde-03b54f68b0b6MOREPETS | Entoarox.MorePets", // changed in 1.3
+      // "UpdateKeys": [ "Chucklefish:4288" ], // Entoarox opted out of mod update checks
+      "Compatibility": {
+        "~1.3.2": { "Status": "AssumeBroken" } // overhauled for SMAPI 1.11+ compatibility
+      }
+    },
+    {
+      // More Rain
+      "ID": "{ID:'4108e859-333c-4fec-a1a7-d2e18c1019fe', Name:'More_Rain'} | Omegasis.MoreRain", // changed in 1.5; disambiguate from other mods by Alpha_Omegasis
+      "UpdateKeys": [ "Nexus:441" ], // added in 1.5.1
+      "Compatibility": {
+        "~1.4": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // More Weapons
+      "ID": "Joco80.MoreWeapons",
+      "UpdateKeys": [ "Nexus:1168" ]
+    },
+    {
+      // Move Faster
+      "ID": "shuaiz.MoveFasterMod",
+      "UpdateKeys": [ "Nexus:1351" ]
+    },
+    {
+      // Multiple Sprites and Portraits On Rotation (File Loading)
+      "ID": "FileLoading",
+      "UpdateKeys": [ "Nexus:1094" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.12": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      },
+      "MapLocalVersions": {
+        "1.1": "1.12"
+      }
+    },
+    {
+      // Museum Rearranger
+      "ID": "{ID:'7ad4f6f7-c3de-4729-a40f-7a11d2b2a358', Name:'Museum Rearranger'} | Omegasis.MuseumRearranger", // changed in 1.4; disambiguate from other mods by Alpha_Omegasis
+      "UpdateKeys": [ "Nexus:428" ], // added in 1.4.1
+      "Compatibility": {
+        "~1.3": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // New Machines
+      "ID": "F70D4FAB-0AB2-4B78-9F1B-AF2CA2236A59",
+      "UpdateKeys": [ "Chucklefish:3683" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~4.2.1343": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Night Owl
+      "ID": "{ID:'SaveAnywhere', Name:'Stardew_NightOwl'} | Omegasis.NightOwl", // changed in 1.4; disambiguate from Save Anywhere
+      "UpdateKeys": [ "Nexus:433" ], // added in 1.4.1
+      "Compatibility": {
+        "~1.3": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      },
+      "MapLocalVersions": {
+        "2.1": "1.3" // 1.3 had wrong version in manifest
+      }
+    },
+    {
+      // No Kids Ever
+      "ID": "Hangy.NoKidsEver",
+      "UpdateKeys": [ "Nexus:1464" ]
+    },
+    {
+      // No Debug Mode
+      "ID": "NoDebugMode",
+      "Compatibility": {
+        "~": {
+          "Status": "Obsolete",
+          "ReasonPhrase": "debug mode was removed in SMAPI 1.0."
+        }
+      }
+    },
+    {
+      // No Fence Decay
+      "ID": "cat.nofencedecay",
+      "UpdateKeys": [ "Nexus:1180" ]
+    },
+    {
+      // No More Pets
+      "ID": "NoMorePets | Omegasis.NoMorePets", // changed in 1.4
+      "UpdateKeys": [ "Nexus:506" ] // added in 1.4.1
+    },
+    {
+      // NoSoilDecay
+      "ID": "289dee03-5f38-4d8e-8ffc-e440198e8610",
+      "UpdateKeys": [ "Nexus:237" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~0.5": { "Status": "AssumeBroken" } // broke in SDV 1.2, and uses Assembly.GetExecutingAssembly().Location
+      }
+    },
+    {
+      // No Soil Decay Redux
+      "ID": "Platonymous.NoSoilDecayRedux",
+      "UpdateKeys": [ "Nexus:1084" ] // added in 1.1.9
+    },
+    {
+      // NPC Map Locations
+      "ID": "NPCMapLocationsMod",
+      "UpdateKeys": [ "Nexus:239" ],
+      "Compatibility": {
+        "1.42~1.43": {
+          "Status": "AssumeBroken",
+          "ReasonPhrase": "this version has an update check error which crashes the game."
+        }
+      }
+    },
+    {
+      // NPC Speak
+      "ID": "NpcEcho.dll",
+      "UpdateKeys": [ "Nexus:694" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Object Time Left
+      "ID": "spacechase0.ObjectTimeLeft",
+      "UpdateKeys": [ "Nexus:1315" ]
+    },
+    {
+      // OmniFarm
+      "ID": "BlueMod_OmniFarm | PhthaloBlue.OmniFarm", // changed in 2.0.2-pathoschild-update
+      "UpdateKeys": [ "GitHub:lambui/StardewValleyMod_OmniFarm" ],
+      "Compatibility": {
+        "~2.0.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Out of Season Bonuses / Seasonal Items
+      "ID": "midoriarmstrong.seasonalitems",
+      "UpdateKeys": [ "Nexus:1452" ]
+    },
+    {
+      // Part of the Community
+      "ID": "SB_PotC",
+      "UpdateKeys": [ "Nexus:923" ],
+      "Compatibility": {
+        "~1.0.8": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
+    },
+    {
+      // PelicanFiber
+      "ID": "PelicanFiber.dll | jwdred.PelicanFiber", // changed in 3.0.1
+      "UpdateKeys": [ "Nexus:631" ],
+      "Compatibility": {
+        "~3.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      },
+      "MapRemoteVersions": {
+        "3.0.2": "3.0.1" // didn't change manifest version
+      }
+    },
+    {
+      // PelicanTTS
+      "ID": "Platonymous.PelicanTTS",
+      "UpdateKeys": [ "Nexus:1079" ], // added in 1.6.1
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.6": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Persia the Mermaid - Standalone Custom NPC
+      "ID": "63b9f419-7449-42db-ab2e-440b4d05c073",
+      "UpdateKeys": [ "Nexus:1419" ]
+    },
+    {
+      // Persival's BundleMod
+      "ID": "BundleMod.dll",
+      "UpdateKeys": [ "Nexus:438" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SDV 1.1
+      }
+    },
+    {
+      // Plant on Grass
+      "ID": "Demiacle.PlantOnGrass",
+      "UpdateKeys": [ "Nexus:1026" ]
+    },
+    {
+      // Point-and-Plant
+      "ID": "PointAndPlant.dll | jwdred.PointAndPlant", // changed in 1.0.3
+      "UpdateKeys": [ "Nexus:572" ],
+      "Compatibility": {
+        "~1.0.2": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
+    },
+    {
+      // Pony Weight Loss Program
+      "ID": "BadNetCode.PonyWeightLossProgram",
+      "UpdateKeys": [ "Nexus:1232" ]
+    },
+    {
+      // Portraiture
+      "ID": "Platonymous.Portraiture",
+      "UpdateKeys": [ "Nexus:999" ] // added in 1.3.1
+    },
+    {
+      // Prairie King Made Easy
+      "ID": "PrairieKingMadeEasy.dll | Mucchan.PrairieKingMadeEasy", // changed in 1.0.1
+      "UpdateKeys": [ "Chucklefish:3594" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
+    },
+    {
+      // Quest Delay
+      "ID": "BadNetCode.QuestDelay",
+      "UpdateKeys": [ "Nexus:1239" ]
+    },
+    {
+      // Rain Randomizer
+      "ID": "RainRandomizer.dll",
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.0.3": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Recatch Legendary Fish
+      "ID": "b3af8c31-48f0-43cf-8343-3eb08bcfa1f9 | community.RecatchLegendaryFish", // changed in 1.3
+      "UpdateKeys": [ "Nexus:172" ]
+    },
+    {
+      // Regeneration
+      "ID": "HammurabiRegeneration",
+      "UpdateKeys": [ "Chucklefish:4584" ]
+    },
+    {
+      // Relationship Bar UI
+      "ID": "RelationshipBar",
+      "UpdateKeys": [ "Nexus:1009" ]
+    },
+    {
+      // RelationshipsEnhanced
+      "ID": "relationshipsenhanced",
+      "UpdateKeys": [ "Chucklefish:4435" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Relationship Status
+      "ID": "relationshipstatus",
+      "UpdateKeys": [ "Nexus:751" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.0.5": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      },
+      "MapRemoteVersions": {
+        "1.0.5": "1.0.4" // not updated in manifest
+      }
+    },
+    {
+      // Rented Tools
+      "ID": "JarvieK.RentedTools",
+      "UpdateKeys": [ "Nexus:1307" ]
+    },
+    {
+      // Replanter
+      "ID": "Replanter.dll | jwdred.Replanter", // changed in 1.0.5
+      "UpdateKeys": [ "Nexus:589" ],
+      "Compatibility": {
+        "~1.0.4": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // ReRegeneration
+      "ID": "lrsk_sdvm_rerg.0925160827",
+      "UpdateKeys": [ "Chucklefish:4465" ],
+      "MapLocalVersions": {
+        "1.1.2-release": "1.1.2"
+      }
+    },
+    {
+      // Reseed
+      "ID": "Roc.Reseed",
+      "UpdateKeys": [ "Nexus:887" ]
+    },
+    {
+      // Reusable Wallpapers and Floors (Wallpaper Retain)
+      "ID": "dae1b553-2e39-43e7-8400-c7c5c836134b",
+      "UpdateKeys": [ "Nexus:356" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.5": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Ring of Fire
+      "ID": "Platonymous.RingOfFire",
+      "UpdateKeys": [ "Nexus:1166" ] // added in 1.0.1
+    },
+    {
+      // Rope Bridge
+      "ID": "RopeBridge",
+      "UpdateKeys": [ "Nexus:824" ]
+    },
+    {
+      // Rotate Toolbar
+      "ID": "Pathoschild.RotateToolbar",
+      "UpdateKeys": [ "Nexus:1100" ]
+    },
+    {
+      // Rush Orders
+      "ID": "RushOrders | spacechase0.RushOrders", // changed in 1.1
+      "UpdateKeys": [ "Nexus:605" ],
+      "Compatibility": {
+        "~1.1": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
+    },
+    {
+      // Save Anywhere
+      "ID": "{ID:'SaveAnywhere', Name:'Save Anywhere'} | Omegasis.SaveAnywhere", // changed in 2.5; disambiguate from Night Owl
+      "UpdateKeys": [ "Nexus:444" ], // added in 2.6.1
+      "Compatibility": {
+        "~2.4": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Save Backup
+      "ID": "{ID:'4be88c18-b6f3-49b0-ba96-f94b1a5be890', Name:'Stardew_Save_Backup'} | Omegasis.SaveBackup", // changed in 1.3; disambiguate from other Alpha_Omegasis mods
+      "UpdateKeys": [ "Nexus:435" ], // added in 1.3.1
+      "Compatibility": {
+        "~1.2": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Scroll to Blank
+      "ID": "caraxian.scroll.to.blank",
+      "UpdateKeys": [ "Chucklefish:4405" ]
+    },
+    {
+      // Scythe Harvesting
+      "ID": "ScytheHarvesting | mmanlapat.ScytheHarvesting", // changed in 1.6
+      "UpdateKeys": [ "Nexus:1106" ]
+    },
+    {
+      // Seasonal Immersion
+      "ID": "EntoaroxSeasonalHouse | EntoaroxSeasonalBuildings | EntoaroxSeasonalImmersion | Entoarox.SeasonalImmersion", // changed in 1.1, 1.6 or earlier, and 1.7
+      // "UpdateKeys": [ "Chucklefish:4262" ], // Entoarox opted out of mod update checks
+      "Compatibility": {
+        "~1.8.2": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Seed Bag
+      "ID": "Platonymous.SeedBag",
+      "UpdateKeys": [ "Nexus:1133" ] // added in 1.1.2
+    },
+    {
+      // Self Service
+      "ID": "JarvieK.SelfService",
+      "UpdateKeys": [ "Nexus:1304" ],
+      "MapRemoteVersions": {
+        "0.2.1": "0.2" // manifest not updated
+      }
+    },
+    {
+      // Send Items
+      "ID": "Denifia.SendItems",
+      "UpdateKeys": [ "Nexus:1087" ], // added in 1.0.3 (2017-10-04)
+      "Compatibility": {
+        "~1.0.2": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Shed Notifications (BuildingsNotifications)
+      "ID": "TheCroak.BuildingsNotifications",
+      "UpdateKeys": [ "Nexus:620" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~0.4.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Shenandoah Project
+      "ID": "Shenandoah Project",
+      "UpdateKeys": [ "Nexus:756" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.1.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      },
+      "MapRemoteVersions": {
+        "1.1.1": "1.1" // not updated in manifest
+      }
+    },
+    {
+      // Ship Anywhere
+      "ID": "spacechase0.ShipAnywhere",
+      "UpdateKeys": [ "Nexus:1379" ]
+    },
+    {
+      // Shipment Tracker
+      "ID": "7e474181-e1a0-40f9-9c11-d08a3dcefaf3",
+      "UpdateKeys": [ "Nexus:321" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Shop Expander
+      "ID": "{ID:'821ce8f6-e629-41ad-9fde-03b54f68b0b6', Name:'Shop Expander'} | EntoaroxShopExpander | Entoarox.ShopExpander", // changed in 1.5 and 1.5.2; disambiguate from Faster Paths
+      // "UpdateKeys": [ "Chucklefish:4381" ], // Entoarox opted out of mod update checks
+      "Compatibility": {
+        "~1.5.3": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Showcase Mod
+      "ID": "Igorious.Showcase",
+      "UpdateKeys": [ "Chucklefish:4487" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~0.9": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      },
+      "MapLocalVersions": {
+        "0.9-500": "0.9"
+      }
+    },
+    {
+      // Shroom Spotter
+      "ID": "TehPers.ShroomSpotter",
+      "UpdateKeys": [ "Nexus:908" ]
+    },
+    {
+      // Simple Crop Label
+      "ID": "SimpleCropLabel",
+      "UpdateKeys": [ "Nexus:314" ]
+    },
+    {
+      // Simple Sound Manager
+      "ID": "Omegasis.SimpleSoundManager",
+      "UpdateKeys": [ "Nexus:1410" ], // added in 1.0.1
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0", // can remove once 1.0.1 is published
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Simple Sprinklers
+      "ID": "SimpleSprinkler.dll | tZed.SimpleSprinkler", // changed in 1.5
+      "UpdateKeys": [ "Nexus:76" ],
+      "Compatibility": {
+        "~1.4": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
+    },
+    {
+      // Siv's Marriage Mod
+      "ID": "6266959802",
+      "UpdateKeys": [ "Nexus:366" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.2.2": { "Status": "AssumeBroken" } // broke in SMAPI 1.9 (has multiple Mod instances)
+      },
+      "MapLocalVersions": {
+        "0.0": "1.4"
+      }
+    },
+    {
+      // Skill Prestige
+      "ID": "6b843e60-c8fc-4a25-a67b-4a38ac8dcf9b | alphablackwolf.skillPrestige", // changed circa 1.2.3
+      "UpdateKeys": [ "Nexus:569" ],
+      "Compatibility": {
+        "~1.0.9": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Skill Prestige: Cooking Adapter
+      "ID": "20d6b8a3-b6e7-460b-a6e4-07c2b0cb6c63 | Alphablackwolf.CookingSkillPrestigeAdapter", // changed circa 1.1
+      "UpdateKeys": [ "Nexus:569" ],
+      "Compatibility": {
+        "~1.0.9": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      },
+      "MapRemoteVersions": {
+        "1.2.3": "1.1" // manifest not updated
+      }
+    },
+    {
+      // Skip Intro
+      "ID": "SkipIntro | Pathoschild.SkipIntro", // changed in 1.4
+      "UpdateKeys": [ "Nexus:533" ]
+    },
+    {
+      // Skull Cavern Elevator
+      "ID": "SkullCavernElevator",
+      "UpdateKeys": [ "Nexus:963" ]
+    },
+    {
+      // Skull Cave Saver
+      "ID": "8ac06349-26f7-4394-806c-95d48fd35774 | community.SkullCaveSaver", // changed in 1.1
+      "UpdateKeys": [ "Nexus:175" ]
+    },
+    {
+      // Sleepy Eye
+      "ID": "spacechase0.SleepyEye",
+      "UpdateKeys": [ "Nexus:1152" ]
+    },
+    {
+      // Slower Fence Decay
+      "ID": "SPDSlowFenceDecay | Speeder.SlowerFenceDecay", // changed in 0.5.2-pathoschild-update
+      "UpdateKeys": [ "Nexus:252" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~0.5.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Smart Mod
+      "ID": "KuroBear.SmartMod",
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~2.2": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Solar Eclipse Event
+      "ID": "KoihimeNakamura.SolarEclipseEvent",
+      "UpdateKeys": [ "Nexus:897" ],
+      "Compatibility": {
+        "~1.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      },
+      "MapLocalVersions": {
+        "1.3-20170917": "1.3"
+      }
+    },
+    {
+      // SpaceCore
+      "ID": "spacechase0.SpaceCore",
+      "UpdateKeys": [ "Nexus:1348" ]
+    },
+    {
+      // Speedster
+      "ID": "Platonymous.Speedster",
+      "UpdateKeys": [ "Nexus:1102" ] // added in 1.3.1
+    },
+    {
+      // Sprinkler Range
+      "ID": "cat.sprinklerrange",
+      "UpdateKeys": [ "Nexus:1179" ],
+      "MapRemoteVersions": {
+        "1.0.1": "1.0" // manifest not updated
+      }
+    },
+    {
+      // Sprinkles
+      "ID": "Platonymous.Sprinkles",
+      "UpdateKeys": [ "Chucklefish:4592" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.1.3": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Sprint and Dash
+      "ID": "SPDSprintAndDash",
+      "UpdateKeys": [ "Chucklefish:3531" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
+    },
+    {
+      // Sprint and Dash Redux
+      "ID": "lrsk_sdvm_sndr.0921161059 | littleraskol.SprintAndDashRedux", // changed in 1.3
+      "UpdateKeys": [ "Chucklefish:4201" ]
+    },
+    {
+      // Sprinting Mod
+      "ID": "a10d3097-b073-4185-98ba-76b586cba00c",
+      "UpdateKeys": [ "GitHub:oliverpl/SprintingMod" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~2.1": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      },
+      "MapLocalVersions": {
+        "1.0": "2.1" // not updated in manifest
+      }
+    },
+    {
+      // StackSplitX
+      "ID": "StackSplitX.dll | tstaples.StackSplitX", // changed circa 1.3.1
+      "UpdateKeys": [ "Nexus:798" ],
+      "Compatibility": {
+        "~1.2": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
+    },
+    {
+      // StaminaRegen
+      "ID": "StaminaRegen.dll",
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.0.3": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Stardew Config Menu
+      "ID": "Juice805.StardewConfigMenu",
+      "UpdateKeys": [ "Nexus:1312" ]
+    },
+    {
+      // Stardew Content Compatibility Layer (SCCL)
+      "ID": "SCCL",
+      "UpdateKeys": [ "Nexus:889" ],
+      "Compatibility": {
+        "~0.1": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
+    },
+    {
+      // Stardew Editor Game Integration
+      "ID": "spacechase0.StardewEditor.GameIntegration",
+      "UpdateKeys": [ "Nexus:1298" ]
+    },
+    {
+      // Stardew Notification
+      "ID": "stardewnotification",
+      "UpdateKeys": [ "GitHub:monopandora/StardewNotification" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.7": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Stardew Symphony
+      "ID": "{ID:'4108e859-333c-4fec-a1a7-d2e18c1019fe', Name:'Stardew_Symphony'} | Omegasis.StardewSymphony", // changed in 1.4; disambiguate other mods by Alpha_Omegasis
+      "UpdateKeys": [ "Nexus:425" ], // added in 1.4.1
+      "Compatibility": {
+        "~1.3": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // StarDustCore
+      "ID": "StarDustCore",
+      "Compatibility": {
+        "~": {
+          "Status": "Obsolete",
+          "ReasonPhrase": "it was only used by earlier versions of Save Anywhere, and is no longer used or maintained."
+        }
+      }
+    },
+    {
+      // Starting Money
+      "ID": "StartingMoney | mmanlapat.StartingMoney", // changed in 1.1
+      "UpdateKeys": [ "Nexus:1138" ]
+    },
+    {
+      // StashItemsToChest
+      "ID": "BlueMod_StashItemsToChest",
+      "UpdateKeys": [ "GitHub:lambui/StardewValleyMod_StashItemsToChest" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.0.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Stephan's Lots of Crops
+      "ID": "stephansstardewcrops",
+      "UpdateKeys": [ "Chucklefish:4314" ],
+      "MapRemoteVersions": {
+        "1.41": "1.1" // manifest not updated
+      }
+    },
+    {
+      // Stone Bridge Over Pond (PondWithBridge)
+      "ID": "PondWithBridge.dll",
+      "UpdateKeys": [ "Nexus:316" ],
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      },
+      "MapLocalVersions": {
+        "0.0": "1.0"
+      }
+    },
+    {
+      // Stumps to Hardwood Stumps
+      "ID": "StumpsToHardwoodStumps",
+      "UpdateKeys": [ "Nexus:691" ]
+    },
+    {
+      // Super Greenhouse Warp Modifier
+      "ID": "SuperGreenhouse",
+      "UpdateKeys": [ "Chucklefish:4334" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Swim Almost Anywhere / Swim Suit
+      "ID": "Platonymous.SwimSuit",
+      "UpdateKeys": [ "Nexus:1215" ] // added in 0.5.1
+    },
+    {
+      // Tainted Cellar
+      "ID": "TaintedCellar.dll",
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SDV 1.1 or 1.11
+      }
+    },
+    {
+      // Tapper Ready
+      "ID": "skunkkk.TapperReady",
+      "UpdateKeys": [ "Nexus:1219" ]
+    },
+    {
+      // Teh's Fishing Overhaul
+      "ID": "TehPers.FishingOverhaul",
+      "UpdateKeys": [ "Nexus:866" ]
+    },
+    {
+      // Teleporter
+      "ID": "Teleporter",
+      "UpdateKeys": [ "Chucklefish:4374" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.0.2": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
+    },
+    {
+      // The Long Night
+      "ID": "Pathoschild.TheLongNight",
+      "UpdateKeys": [ "Nexus:1369" ]
+    },
+    {
+      // Three-heart Dance Partner
+      "ID": "ThreeHeartDancePartner",
+      "UpdateKeys": [ "Nexus:500" ],
+      "Compatibility": {
+        "~1.0.1": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
+    },
+    {
+      // TimeFreeze
+      "ID": "4108e859-333c-4fec-a1a7-d2e18c1019fe | Omegasis.TimeFreeze", // changed in 1.2
+      "UpdateKeys": [ "Nexus:973" ] // added in 1.2.1
+    },
+    {
+      // Time Reminder
+      "ID": "KoihimeNakamura.TimeReminder",
+      "UpdateKeys": [ "Nexus:1000" ],
+      "MapLocalVersions": {
+        "1.0-20170314": "1.0.2"
+      }
+    },
+    {
+      // TimeSpeed
+      "ID": "TimeSpeed.dll | {ID:'4108e859-333c-4fec-a1a7-d2e18c1019fe', Name:'TimeSpeed'} | {ID:'4108e859-333c-4fec-a1a7-d2e18c1019fe', Name:'TimeSpeed Mod (unofficial)'} | community.TimeSpeed", // changed in 2.0.3 and 2.1; disambiguate other mods by Alpha_Omegasis
+      "UpdateKeys": [ "Nexus:169" ],
+      "Compatibility": {
+        "~2.2": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
+    },
+    {
+      // TractorMod
+      "ID": "BlueMod_TractorMod | PhthaloBlue.TractorMod | community.TractorMod | Pathoschild.TractorMod", // changed in 3.2, 4.0 beta, and 4.0
+      "UpdateKeys": [ "Nexus:1401" ]
+    },
+    {
+      // Tree Transplant
+      "ID": "TreeTransplant",
+      "UpdateKeys": [ "Nexus:1342" ]
+    },
+    {
+      // UI Info Suite
+      "ID": "Cdaragorn.UiInfoSuite",
+      "UpdateKeys": [ "Nexus:1150" ]
+    },
+    {
+      // UiModSuite
+      "ID": "Demiacle.UiModSuite",
+      "UpdateKeys": [ "Nexus:1023" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      },
+      "MapLocalVersions": {
+        "0.5": "1.0" // not updated in manifest
+      }
+    },
+    {
+      // Variable Grass
+      "ID": "dantheman999.VariableGrass",
+      "UpdateKeys": [ "GitHub:dantheman999301/StardewMods" ]
+    },
+    {
+      // Vertical Toolbar
+      "ID": "SB_VerticalToolMenu",
+      "UpdateKeys": [ "Nexus:943" ]
+    },
+    {
+      // WakeUp
+      "ID": "WakeUp.dll",
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.0.2": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // Wallpaper Fix
+      "ID": "WallpaperFix.dll",
+      "UpdateKeys": [ "Chucklefish:4211" ],
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.1": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // WarpAnimals
+      "ID": "Symen.WarpAnimals",
+      "UpdateKeys": [ "Nexus:1400" ]
+    },
+    {
+      // Weather Controller
+      "ID": "WeatherController.dll",
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.0.2": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
+    },
+    {
+      // What Farm Cave / WhatAMush
+      "ID": "WhatAMush",
+      "UpdateKeys": [ "Nexus:1097" ]
+    },
+    {
+      // WHats Up
+      "ID": "wHatsUp",
+      "UpdateKeys": [ "Nexus:1082" ]
+    },
+    {
+      // Wonderful Farm Life
+      "ID": "WonderfulFarmLife.dll",
+      "AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0",
+      "Compatibility": {
+        "~1.0": { "Status": "AssumeBroken" } // broke in SDV 1.1 or 1.11
+      }
+    },
+    {
+      // XmlSerializerRetool
+      "ID": "XmlSerializerRetool.dll",
+      "Compatibility": {
+        "~": {
+          "Status": "Obsolete",
+          "ReasonPhrase": "it's no longer maintained or used."
+        }
+      }
+    },
+    {
+      // Xnb Loader
+      "ID": "Entoarox.XnbLoader",
+      // "UpdateKeys": [ "Chucklefish:4506" ], // Entoarox opted out of mod update checks
+      "Compatibility": {
+        "~1.0.6": { "Status": "AssumeBroken" } // broke in SMAPI 2.0
+      }
+    },
+    {
+      // zDailyIncrease
+      "ID": "zdailyincrease",
+      "UpdateKeys": [ "Chucklefish:4247" ],
+      "Compatibility": {
+        "~1.2": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      },
+      "MapRemoteVersions": {
+        "1.3.5": "1.3.4" // not updated in manifest
+      }
+    },
+    {
+      // Zoom Out Extreme
+      "ID": "ZoomMod | RockinMods.ZoomMod", // changed circa 1.2.1
+      "UpdateKeys": [ "Nexus:1326" ],
+      "Compatibility": {
+        "~0.1": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
+    },
+    {
+      // Zoryn's Better RNG
+      "ID": "76b6d1e1-f7ba-4d72-8c32-5a1e6d2716f6 | Zoryn.BetterRNG", // changed in 1.6
+      "UpdateKeys": [ "GitHub:Zoryn4163/SMAPI-Mods" ],
+      "Compatibility": {
+        "~1.6": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
+    },
+    {
+      // Zoryn's Calendar Anywhere
+      "ID": "a41c01cd-0437-43eb-944f-78cb5a53002a | Zoryn.CalendarAnywhere", // changed in 1.6
+      "UpdateKeys": [ "GitHub:Zoryn4163/SMAPI-Mods" ],
+      "Compatibility": {
+        "~1.6": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
+    },
+    {
+      // Zoryn's Durable Fences
+      "ID": "56d3439c-7b9b-497e-9496-0c4890e8a00e | Zoryn.DurableFences", // changed in 1.6
+      "UpdateKeys": [ "GitHub:Zoryn4163/SMAPI-Mods" ]
+    },
+    {
+      // Zoryn's Health Bars
+      "ID": "HealthBars.dll | Zoryn.HealthBars", // changed in 1.6
+      "UpdateKeys": [ "GitHub:Zoryn4163/SMAPI-Mods" ],
+      "Compatibility": {
+        "~1.6": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
+    },
+    {
+      // Zoryn's Fishing Mod
+      "ID": "fa277b1f-265e-47c3-a84f-cd320cc74949 | Zoryn.FishingMod", // changed in 1.6
+      "UpdateKeys": [ "GitHub:Zoryn4163/SMAPI-Mods" ]
+    },
+    {
+      // Zoryn's Junimo Deposit Anywhere
+      "ID": "f93a4fe8-cade-4146-9335-b5f82fbbf7bc | Zoryn.JunimoDepositAnywhere", // changed in 1.6
+      "UpdateKeys": [ "GitHub:Zoryn4163/SMAPI-Mods" ],
+      "Compatibility": {
+        "~1.7": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
+    },
+    {
+      // Zoryn's Movement Mod
+      "ID": "8a632929-8335-484f-87dd-c29d2ba3215d | Zoryn.MovementModifier", // changed in 1.6
+      "UpdateKeys": [ "GitHub:Zoryn4163/SMAPI-Mods" ],
+      "Compatibility": {
+        "~1.6": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
+    },
+    {
+      // Zoryn's Regen Mod
+      "ID": "dfac4383-1b6b-4f33-ae4e-37fc23e5252e | Zoryn.RegenMod", // changed in 1.6
+      "UpdateKeys": [ "GitHub:Zoryn4163/SMAPI-Mods" ],
+      "Compatibility": {
+        "~1.6": { "Status": "AssumeBroken" } // broke in SDV 1.2
+      }
+    }
+  ]
+}
