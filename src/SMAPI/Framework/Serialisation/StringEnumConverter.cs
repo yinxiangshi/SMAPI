@@ -5,7 +5,7 @@ namespace StardewModdingAPI.Framework.Serialisation
 {
     /// <summary>A variant of <see cref="StringEnumConverter"/> which only converts a specified enum.</summary>
     /// <typeparam name="T">The enum type.</typeparam>
-    internal class SelectiveStringEnumConverter<T> : StringEnumConverter
+    internal class StringEnumConverter<T> : StringEnumConverter
     {
         /*********
         ** Public methods
