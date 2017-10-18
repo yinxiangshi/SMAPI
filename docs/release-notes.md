@@ -1,4 +1,8 @@
 # Release notes
+## 2.1 (upcoming)
+* For players:
+  * Fixed compatibility check crashing for players with Stardew Valley 1.08.
+
 ## 2.0
 ### Release highlights
 * **Mod update checks**  
@@ -18,7 +22,7 @@
   SMAPI 2.0 adds several features to enable new kinds of mods (see
   [API documentation](https://stardewvalleywiki.com/Modding:SMAPI_APIs)).
 
-  The **content API** lets you edit, inject, and reload XNB data loaded by the game at any time. This let SMAPI mods do
+  The **content API** lets you edit, inject, and reload XNB data loaded by the game at any time. This lets SMAPI mods do
   anything previously only possible with XNB mods, and enables new mod scenarios not possible with XNB mods (e.g.
   seasonal textures, NPC clothing that depend on the weather or location, etc).
 

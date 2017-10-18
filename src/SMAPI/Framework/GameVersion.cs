@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace StardewModdingAPI.Framework
@@ -22,6 +22,7 @@ namespace StardewModdingAPI.Framework
             ["1.06"] = "1.0.6",
             ["1.07"] = "1.0.7",
             ["1.07a"] = "1.0.8-prerelease1",
+            ["1.08"] = "1.0.8",
             ["1.11"] = "1.1.1"
         };
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -239,6 +239,7 @@ namespace StardewModdingAPI.Tests.Utilities
         [TestCase("1.06")]
         [TestCase("1.07")]
         [TestCase("1.07a")]
+        [TestCase("1.08")]
         [TestCase("1.1")]
         [TestCase("1.11")]
         [TestCase("1.2")]
