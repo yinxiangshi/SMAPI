@@ -3,6 +3,9 @@
 * For players:
   * Fixed compatibility check crashing for players with Stardew Valley 1.08.
 
+* For modders:
+  * Fixed `e.SuppressButton()` in input events not correctly suppressing keyboard buttons.
+
 ## 2.0
 ### Release highlights
 * **Mod update checks**  

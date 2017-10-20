@@ -49,7 +49,7 @@ namespace StardewModdingAPI.Events
         {
             // keyboard
             if (this.Button.TryGetKeyboard(out Keys key))
-                Game1.oldKBState = new KeyboardState(Game1.oldKBState.GetPressedKeys().Except(new[] { key }).ToArray());
+                Game1.oldKBState = new KeyboardState(Game1.oldKBState.GetPressedKeys().Union(new[] { key }).ToArray());
 
             // controller
             else if (this.Button.TryGetController(out Buttons controllerButton))
