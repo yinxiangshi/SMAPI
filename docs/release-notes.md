@@ -7,6 +7,7 @@
   * The reflection API now works with public code to simplify mod integrations.
   * Fixed `e.SuppressButton()` in input events not correctly suppressing keyboard buttons.
   * Fixed mods which implement `IAssetLoader` directly not being allowed to load files due to incorrect conflict detection.
+  * Fixed SMAPI blocking reflection access to vanilla members on overridden types.
 
 ## 2.0
 ### Release highlights
