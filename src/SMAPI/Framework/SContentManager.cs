@@ -510,16 +510,12 @@ namespace StardewModdingAPI.Framework
         {
             foreach (var entry in entries)
             {
-                IModMetadata metadata = entry.Key;
+                IModMetadata mod = entry.Key;
                 IList<T> interceptors = entry.Value;
-
-                // special case if mod is an interceptor
-                if (metadata.Mod is T modAsInterceptor)
-                    yield return new KeyValuePair<IModMetadata, T>(metadata, modAsInterceptor);
 
                 // registered editors
                 foreach (T interceptor in interceptors)
-                    yield return new KeyValuePair<IModMetadata, T>(metadata, interceptor);
+                    yield return new KeyValuePair<IModMetadata, T>(mod, interceptor);
             }
         }
 
