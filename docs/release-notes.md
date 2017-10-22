@@ -6,8 +6,11 @@
 * For modders:
   * Added support for public code in reflection API, to simplify mod integrations.
   * Improved input events:
+    * Added `e.IsActionButton` and `e.IsUseToolButton`.
     * Added `ToSButton()` extension for the game's `Game1.options` button type.
+    * Deprecated `e.IsClick`, which is limited and unclear. Use `IsActionButton` or `IsUseToolButton` instead.
     * Fixed `e.SuppressButton()` not correctly suppressing keyboard buttons.
+    * Fixed `e.IsClick` (now `e.IsActionButton`) ignoring custom key bindings.
   * Fixed mods which implement `IAssetLoader` directly not being allowed to load files due to incorrect conflict detection.
   * Fixed SMAPI blocking reflection access to vanilla members on overridden types.
 

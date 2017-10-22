@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using StardewModdingAPI.Utilities;
 using StardewValley;
 
 namespace StardewModdingAPI.Events
@@ -20,7 +19,14 @@ namespace StardewModdingAPI.Events
         public ICursorPosition Cursor { get; set; }
 
         /// <summary>Whether the input is considered a 'click' by the game for enabling action.</summary>
-        public bool IsClick { get; }
+        [Obsolete("Use " + nameof(EventArgsInput.IsActionButton) + " or " + nameof(EventArgsInput.IsUseToolButton) + " instead")] // deprecated in SMAPI 2.1
+        public bool IsClick => this.IsActionButton;
+
+        /// <summary>Whether the input should trigger actions on the affected tile.</summary>
+        public bool IsActionButton { get; }
+
+        /// <summary>Whether the input should use tools on the affected tile.</summary>
+        public bool IsUseToolButton { get; }
 
 
         /*********
@@ -29,12 +35,14 @@ namespace StardewModdingAPI.Events
         /// <summary>Construct an instance.</summary>
         /// <param name="button">The button on the controller, keyboard, or mouse.</param>
         /// <param name="cursor">The cursor position.</param>
-        /// <param name="isClick">Whether the input is considered a 'click' by the game for enabling action.</param>
-        public EventArgsInput(SButton button, ICursorPosition cursor, bool isClick)
+        /// <param name="isActionButton">Whether the input should trigger actions on the affected tile.</param>
+        /// <param name="isUseToolButton">Whether the input should use tools on the affected tile.</param>
+        public EventArgsInput(SButton button, ICursorPosition cursor, bool isActionButton, bool isUseToolButton)
         {
             this.Button = button;
             this.Cursor = cursor;
-            this.IsClick = isClick;
+            this.IsActionButton = isActionButton;
+            this.IsUseToolButton = isUseToolButton;
         }
 
         /// <summary>Prevent the game from handling the vurrent button press. This doesn't prevent other mods from receiving the event.</summary>
