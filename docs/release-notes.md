@@ -4,8 +4,10 @@
   * Fixed compatibility check crashing for players with Stardew Valley 1.08.
 
 * For modders:
-  * The reflection API now works with public code to simplify mod integrations.
-  * Fixed `e.SuppressButton()` in input events not correctly suppressing keyboard buttons.
+  * Added support for public code in reflection API, to simplify mod integrations.
+  * Improved input events:
+    * Added `ToSButton()` extension for the game's `Game1.options` button type.
+    * Fixed `e.SuppressButton()` not correctly suppressing keyboard buttons.
   * Fixed mods which implement `IAssetLoader` directly not being allowed to load files due to incorrect conflict detection.
   * Fixed SMAPI blocking reflection access to vanilla members on overridden types.
 
