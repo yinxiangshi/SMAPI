@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Xna.Framework;
+using System.Threading;
 using Microsoft.Xna.Framework.Content;
 using StardewModdingAPI.Framework.Content;
-using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Utilities;
 using StardewModdingAPI.Metadata;
@@ -15,7 +15,17 @@ using StardewValley;
 
 namespace StardewModdingAPI.Framework
 {
-    /// <summary>SMAPI's implementation of the game's content manager which lets it raise content events.</summary>
+    /// <summary>A thread-safe content manager which intercepts assets being loaded to let SMAPI mods inject or edit them.</summary>
+    /// <remarks>
+    /// This is the centralised content manager which manages all game assets. The game and mods don't use this class
+    /// directly; instead they use one of several <see cref="ContentManagerShim"/> instances, which proxy requests to
+    /// this class. That ensures that when the game disposes one content manager, the others can continue unaffected.
+    /// That notably requires this class to be thread-safe, since the content managers can be disposed asynchronously.
+    /// 
+    /// Note that assets in the cache have two identifiers: the asset name (like "bundles") and key (like "bundles.pt-BR").
+    /// For English and non-translatable assets, these have the same value. The underlying cache only knows about asset
+    /// keys, and the game and mods only know about asset names. The content manager handles resolving them.
+    /// </remarks>
     internal class SContentManager : LocalizedContentManager
     {
         /*********
@@ -27,11 +37,8 @@ namespace StardewModdingAPI.Framework
         /// <summary>Encapsulates monitoring and logging.</summary>
         private readonly IMonitor Monitor;
 
-        /// <summary>The underlying content manager's asset cache.</summary>
-        private readonly IDictionary<string, object> Cache;
-
-        /// <summary>Applies platform-specific asset key normalisation so it's consistent with the underlying cache.</summary>
-        private readonly Func<string, string> NormaliseAssetNameForPlatform;
+        /// <summary>The underlying asset cache.</summary>
+        private readonly ContentCache Cache;
 
         /// <summary>The private <see cref="LocalizedContentManager"/> method which generates the locale portion of an asset name.</summary>
         private readonly IPrivateMethod GetKeyLocale;
@@ -46,10 +53,10 @@ namespace StardewModdingAPI.Framework
         private readonly ContextHash<string> AssetsBeingLoaded = new ContextHash<string>();
 
         /// <summary>A lookup of the content managers which loaded each asset.</summary>
-        private readonly IDictionary<string, HashSet<ContentManager>> AssetLoaders = new Dictionary<string, HashSet<ContentManager>>();
+        private readonly IDictionary<string, HashSet<ContentManager>> ContentManagersByAssetKey = new Dictionary<string, HashSet<ContentManager>>();
 
-        /// <summary>An object locked to prevent concurrent changes to the underlying assets.</summary>
-        private readonly object Lock = new object();
+        /// <summary>A lock used to prevents concurrent changes to the cache while data is being read.</summary>
+        private readonly ReaderWriterLockSlim Lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
 
         /*********
@@ -77,29 +84,14 @@ namespace StardewModdingAPI.Framework
         /// <param name="currentCulture">The current culture for which to localise content.</param>
         /// <param name="languageCodeOverride">The current language code for which to localise content.</param>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        public SContentManager(IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, string languageCodeOverride, IMonitor monitor)
+        /// <param name="reflection">Simplifies access to private code.</param>
+        public SContentManager(IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, string languageCodeOverride, IMonitor monitor, Reflector reflection)
             : base(serviceProvider, rootDirectory, currentCulture, languageCodeOverride)
         {
-            // validate
-            if (monitor == null)
-                throw new ArgumentNullException(nameof(monitor));
-
-            // initialise
-            var reflection = new Reflector();
-            this.Monitor = monitor;
-
-            // get underlying fields for interception
-            this.Cache = reflection.GetPrivateField<Dictionary<string, object>>(this, "loadedAssets").GetValue();
+            // init
+            this.Monitor = monitor ?? throw new ArgumentNullException(nameof(monitor));
+            this.Cache = new ContentCache(this, reflection, SContentManager.PossiblePathSeparators, SContentManager.PreferredPathSeparator);
             this.GetKeyLocale = reflection.GetPrivateMethod(this, "languageCode");
-
-            // get asset key normalisation logic
-            if (Constants.TargetPlatform == Platform.Windows)
-            {
-                IPrivateMethod method = reflection.GetPrivateMethod(typeof(TitleContainer), "GetCleanPath");
-                this.NormaliseAssetNameForPlatform = path => method.Invoke<string>(path);
-            }
-            else
-                this.NormaliseAssetNameForPlatform = key => key.Replace('\\', '/'); // based on MonoGame's ContentManager.Load<T> logic
 
             // get asset data
             this.CoreAssets = new CoreAssets(this.NormaliseAssetName);
@@ -108,34 +100,26 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Normalise path separators in a file path. For asset keys, see <see cref="NormaliseAssetName"/> instead.</summary>
         /// <param name="path">The file path to normalise.</param>
+        [Pure]
         public string NormalisePathSeparators(string path)
         {
-            string[] parts = path.Split(SContentManager.PossiblePathSeparators, StringSplitOptions.RemoveEmptyEntries);
-            string normalised = string.Join(SContentManager.PreferredPathSeparator, parts);
-            if (path.StartsWith(SContentManager.PreferredPathSeparator))
-                normalised = SContentManager.PreferredPathSeparator + normalised; // keep root slash
-            return normalised;
+            return this.Cache.NormalisePathSeparators(path);
         }
 
         /// <summary>Normalise an asset name so it's consistent with the underlying cache.</summary>
         /// <param name="assetName">The asset key.</param>
+        [Pure]
         public string NormaliseAssetName(string assetName)
         {
-            assetName = this.NormalisePathSeparators(assetName);
-            if (assetName.EndsWith(".xnb", StringComparison.InvariantCultureIgnoreCase))
-                return assetName.Substring(0, assetName.Length - 4);
-            return this.NormaliseAssetNameForPlatform(assetName);
+            return this.Cache.NormaliseKey(assetName);
         }
 
         /// <summary>Get whether the content manager has already loaded and cached the given asset.</summary>
         /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
         public bool IsLoaded(string assetName)
         {
-            lock (this.Lock)
-            {
-                assetName = this.NormaliseAssetName(assetName);
-                return this.IsNormalisedKeyLoaded(assetName);
-            }
+            assetName = this.Cache.NormaliseKey(assetName);
+            return this.WithReadLock(() => this.IsNormalisedKeyLoaded(assetName));
         }
 
         /// <summary>Load an asset that has been processed by the content pipeline.</summary>
@@ -152,10 +136,9 @@ namespace StardewModdingAPI.Framework
         /// <param name="instance">The content manager instance for which to load the asset.</param>
         public T LoadFor<T>(string assetName, ContentManager instance)
         {
-            lock (this.Lock)
+            assetName = this.NormaliseAssetName(assetName);
+            return this.WithWriteLock(() =>
             {
-                assetName = this.NormaliseAssetName(assetName);
-
                 // skip if already loaded
                 if (this.IsNormalisedKeyLoaded(assetName))
                 {
@@ -186,7 +169,7 @@ namespace StardewModdingAPI.Framework
                 this.Cache[assetName] = data;
                 this.TrackAssetLoader(assetName, instance);
                 return data;
-            }
+            });
         }
 
         /// <summary>Inject an asset into the cache.</summary>
@@ -195,12 +178,12 @@ namespace StardewModdingAPI.Framework
         /// <param name="value">The asset value.</param>
         public void Inject<T>(string assetName, T value)
         {
-            lock (this.Lock)
+            this.WithWriteLock(() =>
             {
                 assetName = this.NormaliseAssetName(assetName);
                 this.Cache[assetName] = value;
                 this.TrackAssetLoader(assetName, this);
-            }
+            });
         }
 
         /// <summary>Get the current content locale.</summary>
@@ -212,19 +195,11 @@ namespace StardewModdingAPI.Framework
         /// <summary>Get the cached asset keys.</summary>
         public IEnumerable<string> GetAssetKeys()
         {
-            lock (this.Lock)
-            {
-                IEnumerable<string> GetAllAssetKeys()
-                {
-                    foreach (string cacheKey in this.Cache.Keys)
-                    {
-                        this.ParseCacheKey(cacheKey, out string assetKey, out string _);
-                        yield return assetKey;
-                    }
-                }
-
-                return GetAllAssetKeys().Distinct();
-            }
+            return this.WithReadLock(() =>
+                this.Cache.Keys
+                    .Select(this.GetAssetName)
+                    .Distinct()
+            );
         }
 
         /// <summary>Purge assets from the cache that match one of the interceptors.</summary>
@@ -239,11 +214,12 @@ namespace StardewModdingAPI.Framework
             // get CanEdit/Load methods
             MethodInfo canEdit = typeof(IAssetEditor).GetMethod(nameof(IAssetEditor.CanEdit));
             MethodInfo canLoad = typeof(IAssetLoader).GetMethod(nameof(IAssetLoader.CanLoad));
+            if (canEdit == null || canLoad == null)
+                throw new InvalidOperationException("SMAPI could not access the interceptor methods."); // should never happen
 
             // invalidate matching keys
             return this.InvalidateCache((assetName, assetType) =>
             {
-                // get asset metadata
                 IAssetInfo info = new AssetInfo(this.GetLocale(), assetName, assetType, this.NormaliseAssetName);
 
                 // check loaders
@@ -263,48 +239,44 @@ namespace StardewModdingAPI.Framework
         /// <returns>Returns whether any cache entries were invalidated.</returns>
         public bool InvalidateCache(Func<string, Type, bool> predicate, bool dispose = false)
         {
-            lock (this.Lock)
+            return this.WithWriteLock(() =>
             {
-                // find matching asset keys
-                HashSet<string> purgeCacheKeys = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
-                HashSet<string> purgeAssetKeys = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
-                foreach (string cacheKey in this.Cache.Keys)
+                // invalidate matching keys
+                HashSet<string> removeKeys = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+                HashSet<string> removeAssetNames = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+                this.Cache.Remove((key, type) =>
                 {
-                    this.ParseCacheKey(cacheKey, out string assetKey, out _);
-                    Type type = this.Cache[cacheKey].GetType();
-                    if (predicate(assetKey, type))
+                    this.ParseCacheKey(key, out string assetName, out _);
+                    if (removeAssetNames.Contains(assetName) || predicate(assetName, type))
                     {
-                        purgeAssetKeys.Add(assetKey);
-                        purgeCacheKeys.Add(cacheKey);
+                        removeAssetNames.Add(assetName);
+                        removeKeys.Add(key);
+                        return true;
                     }
-                }
+                    return false;
+                });
 
-                // purge assets
-                foreach (string key in purgeCacheKeys)
-                {
-                    if (dispose && this.Cache[key] is IDisposable disposable)
-                        disposable.Dispose();
-                    this.Cache.Remove(key);
-                    this.AssetLoaders.Remove(key);
-                }
+                // update reference tracking
+                foreach (string key in removeKeys)
+                    this.ContentManagersByAssetKey.Remove(key);
 
                 // reload core game assets
                 int reloaded = 0;
-                foreach (string key in purgeAssetKeys)
+                foreach (string key in removeAssetNames)
                 {
                     if (this.CoreAssets.ReloadForKey(this, key))
                         reloaded++;
                 }
 
                 // report result
-                if (purgeCacheKeys.Any())
+                if (removeKeys.Any())
                 {
-                    this.Monitor.Log($"Invalidated {purgeCacheKeys.Count} cache entries for {purgeAssetKeys.Count} asset keys: {string.Join(", ", purgeCacheKeys.OrderBy(p => p, StringComparer.InvariantCultureIgnoreCase))}. Reloaded {reloaded} core assets.", LogLevel.Trace);
+                    this.Monitor.Log($"Invalidated {removeAssetNames.Count} asset names: {string.Join(", ", removeKeys.OrderBy(p => p, StringComparer.InvariantCultureIgnoreCase))}. Reloaded {reloaded} core assets.", LogLevel.Trace);
                     return true;
                 }
                 this.Monitor.Log("Invalidated 0 cache entries.", LogLevel.Trace);
                 return false;
-            }
+            });
         }
 
         /// <summary>Dispose assets for the given content manager shim.</summary>
@@ -313,15 +285,26 @@ namespace StardewModdingAPI.Framework
         {
             this.Monitor.Log($"Content manager '{shim.Name}' disposed, disposing assets that aren't needed by any other asset loader.", LogLevel.Trace);
 
-            foreach (var entry in this.AssetLoaders)
-                entry.Value.Remove(shim);
-            this.InvalidateCache((key, type) => !this.AssetLoaders[key].Any(), dispose: true);
+            this.WithWriteLock(() =>
+            {
+                foreach (var entry in this.ContentManagersByAssetKey)
+                    entry.Value.Remove(shim);
+                this.InvalidateCache((key, type) => !this.ContentManagersByAssetKey[key].Any(), dispose: true);
+            });
         }
 
 
         /*********
         ** Private methods
         *********/
+        /// <summary>Dispose held resources.</summary>
+        /// <param name="disposing">Whether the content manager is disposing (rather than finalising).</param>
+        protected override void Dispose(bool disposing)
+        {
+            this.Monitor.Log("Disposing SMAPI's main content manager. It will no longer be usable after this point.", LogLevel.Trace);
+            base.Dispose(disposing);
+        }
+
         /// <summary>Get whether an asset has already been loaded.</summary>
         /// <param name="normalisedAssetName">The normalised asset name.</param>
         private bool IsNormalisedKeyLoaded(string normalisedAssetName)
@@ -335,8 +318,8 @@ namespace StardewModdingAPI.Framework
         /// <param name="manager">The content manager that loaded the asset.</param>
         private void TrackAssetLoader(string key, ContentManager manager)
         {
-            if (!this.AssetLoaders.TryGetValue(key, out HashSet<ContentManager> hash))
-                hash = this.AssetLoaders[key] = new HashSet<ContentManager>();
+            if (!this.ContentManagersByAssetKey.TryGetValue(key, out HashSet<ContentManager> hash))
+                hash = this.ContentManagersByAssetKey[key] = new HashSet<ContentManager>();
             hash.Add(manager);
         }
 
@@ -367,11 +350,19 @@ namespace StardewModdingAPI.Framework
             return map;
         }
 
+        /// <summary>Get the asset name from a cache key.</summary>
+        /// <param name="cacheKey">The input cache key.</param>
+        private string GetAssetName(string cacheKey)
+        {
+            this.ParseCacheKey(cacheKey, out string assetName, out string _);
+            return assetName;
+        }
+
         /// <summary>Parse a cache key into its component parts.</summary>
         /// <param name="cacheKey">The input cache key.</param>
-        /// <param name="assetKey">The original asset key.</param>
+        /// <param name="assetName">The original asset name.</param>
         /// <param name="localeCode">The asset locale code (or <c>null</c> if not localised).</param>
-        private void ParseCacheKey(string cacheKey, out string assetKey, out string localeCode)
+        private void ParseCacheKey(string cacheKey, out string assetName, out string localeCode)
         {
             // handle localised key
             if (!string.IsNullOrWhiteSpace(cacheKey))
@@ -382,7 +373,7 @@ namespace StardewModdingAPI.Framework
                     string suffix = cacheKey.Substring(lastSepIndex + 1, cacheKey.Length - lastSepIndex - 1);
                     if (this.KeyLocales.ContainsKey(suffix))
                     {
-                        assetKey = cacheKey.Substring(0, lastSepIndex);
+                        assetName = cacheKey.Substring(0, lastSepIndex);
                         localeCode = cacheKey.Substring(lastSepIndex + 1, cacheKey.Length - lastSepIndex - 1);
                         return;
                     }
@@ -390,7 +381,7 @@ namespace StardewModdingAPI.Framework
             }
 
             // handle simple key
-            assetKey = cacheKey;
+            assetName = cacheKey;
             localeCode = null;
         }
 
@@ -519,12 +510,51 @@ namespace StardewModdingAPI.Framework
             }
         }
 
-        /// <summary>Dispose held resources.</summary>
-        /// <param name="disposing">Whether the content manager is disposing (rather than finalising).</param>
-        protected override void Dispose(bool disposing)
+        /// <summary>Acquire a read lock which prevents concurrent writes to the cache while it's open.</summary>
+        /// <typeparam name="T">The action's return value.</typeparam>
+        /// <param name="action">The action to perform.</param>
+        private T WithReadLock<T>(Func<T> action)
         {
-            this.Monitor.Log("Disposing SMAPI's main content manager. It will no longer be usable after this point.", LogLevel.Trace);
-            base.Dispose(disposing);
+            try
+            {
+                this.Lock.EnterReadLock();
+                return action();
+            }
+            finally
+            {
+                this.Lock.ExitReadLock();
+            }
+        }
+
+        /// <summary>Acquire a write lock which prevents concurrent reads or writes to the cache while it's open.</summary>
+        /// <param name="action">The action to perform.</param>
+        private void WithWriteLock(Action action)
+        {
+            try
+            {
+                this.Lock.EnterWriteLock();
+                action();
+            }
+            finally
+            {
+                this.Lock.ExitWriteLock();
+            }
+        }
+
+        /// <summary>Acquire a write lock which prevents concurrent reads or writes to the cache while it's open.</summary>
+        /// <typeparam name="T">The action's return value.</typeparam>
+        /// <param name="action">The action to perform.</param>
+        private T WithWriteLock<T>(Func<T> action)
+        {
+            try
+            {
+                this.Lock.EnterReadLock();
+                return action();
+            }
+            finally
+            {
+                this.Lock.ExitReadLock();
+            }
         }
     }
 }

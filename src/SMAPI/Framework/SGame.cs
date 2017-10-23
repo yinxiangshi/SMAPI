@@ -179,7 +179,7 @@ namespace StardewModdingAPI.Framework
 
             // override content manager
             this.Monitor?.Log("Overriding content manager...", LogLevel.Trace);
-            this.SContentManager = new SContentManager(this.Content.ServiceProvider, this.Content.RootDirectory, Thread.CurrentThread.CurrentUICulture, null, this.Monitor);
+            this.SContentManager = new SContentManager(this.Content.ServiceProvider, this.Content.RootDirectory, Thread.CurrentThread.CurrentUICulture, null, this.Monitor, reflection);
             this.Content = new ContentManagerShim(this.SContentManager, "SGame.Content");
             Game1.content = new ContentManagerShim(this.SContentManager, "Game1.content");
             reflection.GetPrivateField<LocalizedContentManager>(typeof(Game1), "_temporaryContent").SetValue(new ContentManagerShim(this.SContentManager, "Game1._temporaryContent")); // regenerate value with new content manager
