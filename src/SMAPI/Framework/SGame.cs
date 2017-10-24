@@ -240,6 +240,9 @@ namespace StardewModdingAPI.Framework
                     return;
                 }
 
+                /*********
+                ** Save events + suppress events during save
+                *********/
                 // While the game is writing to the save file in the background, mods can unexpectedly
                 // fail since they don't have exclusive access to resources (e.g. collection changed
                 // during enumeration errors). To avoid problems, events are not invoked while a save
@@ -248,7 +251,7 @@ namespace StardewModdingAPI.Framework
                 if (Context.IsSaving)
                 {
                     // raise before-save
-                    if (!this.IsBetweenSaveEvents)
+                    if (Context.IsWorldReady && !this.IsBetweenSaveEvents)
                     {
                         this.IsBetweenSaveEvents = true;
                         this.Monitor.Log("Context: before save.", LogLevel.Trace);
