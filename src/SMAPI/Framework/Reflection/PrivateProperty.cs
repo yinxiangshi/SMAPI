@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reflection;
 
 namespace StardewModdingAPI.Framework.Reflection
@@ -10,16 +10,13 @@ namespace StardewModdingAPI.Framework.Reflection
         /*********
         ** Properties
         *********/
-        /// <summary>The type that has the field.</summary>
-        private readonly Type ParentType;
-
-        /// <summary>The object that has the instance field (if applicable).</summary>
-        private readonly object Parent;
-
         /// <summary>The display name shown in error messages.</summary>
-        private string DisplayName => $"{this.ParentType.FullName}::{this.PropertyInfo.Name}";
+        private readonly string DisplayName;
 
+        /// <summary>The underlying property getter.</summary>
         private readonly Func<TValue> GetterDelegate;
+
+        /// <summary>The underlying property setter.</summary>
         private readonly Action<TValue> SetterDelegate;
 
 
@@ -42,16 +39,21 @@ namespace StardewModdingAPI.Framework.Reflection
         /// <exception cref="ArgumentException">The <paramref name="obj"/> is null for a non-static field, or not null for a static field.</exception>
         public PrivateProperty(Type parentType, object obj, PropertyInfo property, bool isStatic)
         {
+            // validate input
+            if (parentType == null)
+                throw new ArgumentNullException(nameof(parentType));
+            if (property == null)
+                throw new ArgumentNullException(nameof(property));
+
+            // validate static
             if (isStatic && obj != null)
                 throw new ArgumentException("A static property cannot have an object instance.");
             if (!isStatic && obj == null)
                 throw new ArgumentException("A non-static property must have an object instance.");
 
-            this.ParentType = parentType ?? throw new ArgumentNullException(nameof(parentType));
-            this.Parent = obj;
-            this.PropertyInfo = property ?? throw new ArgumentNullException(nameof(property));
 
-            Type[] types = new Type[] { this.PropertyInfo.DeclaringType, typeof(TValue)};
+            this.DisplayName = $"{parentType.FullName}::{property.Name}";
+            this.PropertyInfo = property;
 
             this.GetterDelegate = (Func<TValue>)Delegate.CreateDelegate(typeof(Func<TValue>), obj, this.PropertyInfo.GetMethod);
             this.SetterDelegate = (Action<TValue>)Delegate.CreateDelegate(typeof(Action<TValue>), obj, this.PropertyInfo.SetMethod);
@@ -63,8 +65,6 @@ namespace StardewModdingAPI.Framework.Reflection
             try
             {
                 return this.GetterDelegate();
-                // Old version: Commented out in case of issues with new version
-                //return (TValue)this.PropertyInfo.GetValue(this.Parent);
             }
             catch (InvalidCastException)
             {
@@ -83,8 +83,6 @@ namespace StardewModdingAPI.Framework.Reflection
             try
             {
                 this.SetterDelegate(value);
-                // Old version: Commented out in case of issues with new version
-                //this.PropertyInfo.SetValue(this.Parent, value);
             }
             catch (InvalidCastException)
             {
