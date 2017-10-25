@@ -1,13 +1,17 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Framework.Content;
+using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Utilities;
 using StardewModdingAPI.Metadata;
@@ -55,6 +59,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>A lookup of the content managers which loaded each asset.</summary>
         private readonly IDictionary<string, HashSet<ContentManager>> ContentManagersByAssetKey = new Dictionary<string, HashSet<ContentManager>>();
 
+        /// <summary>The path prefix for assets in mod folders.</summary>
+        private readonly string ModContentPrefix;
+
         /// <summary>A lock used to prevents concurrent changes to the cache while data is being read.</summary>
         private readonly ReaderWriterLockSlim Lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
@@ -78,6 +85,9 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Public methods
         *********/
+        /****
+        ** Constructor
+        ****/
         /// <summary>Construct an instance.</summary>
         /// <param name="serviceProvider">The service provider to use to locate services.</param>
         /// <param name="rootDirectory">The root directory to search for content.</param>
@@ -92,12 +102,16 @@ namespace StardewModdingAPI.Framework
             this.Monitor = monitor ?? throw new ArgumentNullException(nameof(monitor));
             this.Cache = new ContentCache(this, reflection, SContentManager.PossiblePathSeparators, SContentManager.PreferredPathSeparator);
             this.GetKeyLocale = reflection.GetPrivateMethod(this, "languageCode");
+            this.ModContentPrefix = this.GetRelativePath(Constants.ModPath);
 
             // get asset data
             this.CoreAssets = new CoreAssets(this.NormaliseAssetName);
             this.KeyLocales = this.GetKeyLocales(reflection);
         }
 
+        /****
+        ** Asset key/name handling
+        ****/
         /// <summary>Normalise path separators in a file path. For asset keys, see <see cref="NormaliseAssetName"/> instead.</summary>
         /// <param name="path">The file path to normalise.</param>
         [Pure]
@@ -114,82 +128,48 @@ namespace StardewModdingAPI.Framework
             return this.Cache.NormaliseKey(assetName);
         }
 
+        /// <summary>Assert that the given key has a valid format.</summary>
+        /// <param name="key">The asset key to check.</param>
+        /// <exception cref="ArgumentException">The asset key is empty or contains invalid characters.</exception>
+        [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "Parameter is only used for assertion checks by design.")]
+        public void AssertValidAssetKeyFormat(string key)
+        {
+            if (string.IsNullOrWhiteSpace(key))
+                throw new ArgumentException("The asset key or local path is empty.");
+            if (key.Intersect(Path.GetInvalidPathChars()).Any())
+                throw new ArgumentException("The asset key or local path contains invalid characters.");
+        }
+
+        /// <summary>Get a directory path relative to the content root.</summary>
+        /// <param name="targetPath">The target file path.</param>
+        public string GetRelativePath(string targetPath)
+        {
+            // convert to URIs
+            Uri from = new Uri(this.FullRootDirectory + "/");
+            Uri to = new Uri(targetPath + "/");
+            if (from.Scheme != to.Scheme)
+                throw new InvalidOperationException($"Can't get path for '{targetPath}' relative to '{this.FullRootDirectory}'.");
+
+            // get relative path
+            return Uri.UnescapeDataString(from.MakeRelativeUri(to).ToString())
+                .Replace(Path.DirectorySeparatorChar == '/' ? '\\' : '/', Path.DirectorySeparatorChar); // use correct separator for platform
+        }
+
+        /****
+        ** Content loading
+        ****/
+        /// <summary>Get the current content locale.</summary>
+        public string GetLocale()
+        {
+            return this.GetKeyLocale.Invoke<string>();
+        }
+
         /// <summary>Get whether the content manager has already loaded and cached the given asset.</summary>
         /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
         public bool IsLoaded(string assetName)
         {
             assetName = this.Cache.NormaliseKey(assetName);
             return this.WithReadLock(() => this.IsNormalisedKeyLoaded(assetName));
-        }
-
-        /// <summary>Load an asset that has been processed by the content pipeline.</summary>
-        /// <typeparam name="T">The type of asset to load.</typeparam>
-        /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
-        public override T Load<T>(string assetName)
-        {
-            return this.LoadFor<T>(assetName, this);
-        }
-
-        /// <summary>Load an asset that has been processed by the content pipeline.</summary>
-        /// <typeparam name="T">The type of asset to load.</typeparam>
-        /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
-        /// <param name="instance">The content manager instance for which to load the asset.</param>
-        public T LoadFor<T>(string assetName, ContentManager instance)
-        {
-            assetName = this.NormaliseAssetName(assetName);
-            return this.WithWriteLock(() =>
-            {
-                // skip if already loaded
-                if (this.IsNormalisedKeyLoaded(assetName))
-                {
-                    this.TrackAssetLoader(assetName, instance);
-                    return base.Load<T>(assetName);
-                }
-
-                // load asset
-                T data;
-                if (this.AssetsBeingLoaded.Contains(assetName))
-                {
-                    this.Monitor.Log($"Broke loop while loading asset '{assetName}'.", LogLevel.Warn);
-                    this.Monitor.Log($"Bypassing mod loaders for this asset. Stack trace:\n{Environment.StackTrace}", LogLevel.Trace);
-                    data = base.Load<T>(assetName);
-                }
-                else
-                {
-                    data = this.AssetsBeingLoaded.Track(assetName, () =>
-                    {
-                        IAssetInfo info = new AssetInfo(this.GetLocale(), assetName, typeof(T), this.NormaliseAssetName);
-                        IAssetData asset = this.ApplyLoader<T>(info) ?? new AssetDataForObject(info, base.Load<T>(assetName), this.NormaliseAssetName);
-                        asset = this.ApplyEditors<T>(info, asset);
-                        return (T)asset.Data;
-                    });
-                }
-
-                // update cache & return data
-                this.Cache[assetName] = data;
-                this.TrackAssetLoader(assetName, instance);
-                return data;
-            });
-        }
-
-        /// <summary>Inject an asset into the cache.</summary>
-        /// <typeparam name="T">The type of asset to inject.</typeparam>
-        /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
-        /// <param name="value">The asset value.</param>
-        public void Inject<T>(string assetName, T value)
-        {
-            this.WithWriteLock(() =>
-            {
-                assetName = this.NormaliseAssetName(assetName);
-                this.Cache[assetName] = value;
-                this.TrackAssetLoader(assetName, this);
-            });
-        }
-
-        /// <summary>Get the current content locale.</summary>
-        public string GetLocale()
-        {
-            return this.GetKeyLocale.Invoke<string>();
         }
 
         /// <summary>Get the cached asset keys.</summary>
@@ -202,6 +182,95 @@ namespace StardewModdingAPI.Framework
             );
         }
 
+        /// <summary>Load an asset through the content pipeline. When loading a <c>.png</c> file, this must be called outside the game's draw loop.</summary>
+        /// <typeparam name="T">The expected asset type.</typeparam>
+        /// <param name="assetName">The asset path relative to the content directory.</param>
+        public override T Load<T>(string assetName)
+        {
+            return this.LoadFor<T>(assetName, this);
+        }
+
+        /// <summary>Load an asset through the content pipeline. When loading a <c>.png</c> file, this must be called outside the game's draw loop.</summary>
+        /// <typeparam name="T">The expected asset type.</typeparam>
+        /// <param name="assetName">The asset path relative to the content directory.</param>
+        /// <param name="instance">The content manager instance for which to load the asset.</param>
+        /// <exception cref="ArgumentException">The <paramref name="assetName"/> is empty or contains invalid characters.</exception>
+        /// <exception cref="ContentLoadException">The content asset couldn't be loaded (e.g. because it doesn't exist).</exception>
+        public T LoadFor<T>(string assetName, ContentManager instance)
+        {
+            // normalise asset key
+            this.AssertValidAssetKeyFormat(assetName);
+            assetName = this.NormaliseAssetName(assetName);
+
+            // load game content
+            if (!assetName.StartsWith(this.ModContentPrefix))
+                return this.LoadImpl<T>(assetName, instance);
+
+            // load mod content
+            SContentLoadException GetContentError(string reasonPhrase) => new SContentLoadException($"Failed loading content asset '{assetName}': {reasonPhrase}.");
+            try
+            {
+                return this.WithWriteLock(() =>
+                {
+                    // try cache
+                    if (this.IsLoaded(assetName))
+                        return this.LoadImpl<T>(assetName, instance);
+
+                    // get file
+                    FileInfo file = this.GetModFile(assetName);
+                    if (!file.Exists)
+                        throw GetContentError("the specified path doesn't exist.");
+
+                    // load content
+                    switch (file.Extension.ToLower())
+                    {
+                        // XNB file
+                        case ".xnb":
+                            return this.LoadImpl<T>(assetName, instance);
+
+                        // unpacked map
+                        case ".tbin":
+                            throw GetContentError($"can't read unpacked map file '{assetName}' directly from the underlying content manager. It must be loaded through the mod's {typeof(IModHelper)}.{nameof(IModHelper.Content)} helper.");
+
+                        // unpacked image
+                        case ".png":
+                            // validate
+                            if (typeof(T) != typeof(Texture2D))
+                                throw GetContentError($"can't read file with extension '{file.Extension}' as type '{typeof(T)}'; must be type '{typeof(Texture2D)}'.");
+
+                            // fetch & cache
+                            using (FileStream stream = File.OpenRead(file.FullName))
+                            {
+                                Texture2D texture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, stream);
+                                texture = this.PremultiplyTransparency(texture);
+                                this.InjectWithoutLock(assetName, texture, instance);
+                                return (T)(object)texture;
+                            }
+
+                        default:
+                            throw GetContentError($"unknown file extension '{file.Extension}'; must be one of '.png', '.tbin', or '.xnb'.");
+                    }
+                });
+            }
+            catch (Exception ex) when (!(ex is SContentLoadException))
+            {
+                throw new SContentLoadException($"The content manager failed loading content asset '{assetName}'.", ex);
+            }
+        }
+
+        /// <summary>Inject an asset into the cache.</summary>
+        /// <typeparam name="T">The type of asset to inject.</typeparam>
+        /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
+        /// <param name="value">The asset value.</param>
+        /// <param name="instance">The content manager instance for which to load the asset.</param>
+        public void Inject<T>(string assetName, T value, ContentManager instance)
+        {
+            this.WithWriteLock(() => this.InjectWithoutLock(assetName, value, instance));
+        }
+
+        /****
+        ** Cache invalidation
+        ****/
         /// <summary>Purge assets from the cache that match one of the interceptors.</summary>
         /// <param name="editors">The asset editors for which to purge matching assets.</param>
         /// <param name="loaders">The asset loaders for which to purge matching assets.</param>
@@ -279,6 +348,9 @@ namespace StardewModdingAPI.Framework
             });
         }
 
+        /****
+        ** Disposal
+        ****/
         /// <summary>Dispose assets for the given content manager shim.</summary>
         /// <param name="shim">The content manager whose assets to dispose.</param>
         internal void DisposeFor(ContentManagerShim shim)
@@ -297,6 +369,9 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Private methods
         *********/
+        /****
+        ** Disposal
+        ****/
         /// <summary>Dispose held resources.</summary>
         /// <param name="disposing">Whether the content manager is disposing (rather than finalising).</param>
         protected override void Dispose(bool disposing)
@@ -305,24 +380,9 @@ namespace StardewModdingAPI.Framework
             base.Dispose(disposing);
         }
 
-        /// <summary>Get whether an asset has already been loaded.</summary>
-        /// <param name="normalisedAssetName">The normalised asset name.</param>
-        private bool IsNormalisedKeyLoaded(string normalisedAssetName)
-        {
-            return this.Cache.ContainsKey(normalisedAssetName)
-                || this.Cache.ContainsKey($"{normalisedAssetName}.{this.GetKeyLocale.Invoke<string>()}"); // translated asset
-        }
-
-        /// <summary>Track that a content manager loaded an asset.</summary>
-        /// <param name="key">The asset key that was loaded.</param>
-        /// <param name="manager">The content manager that loaded the asset.</param>
-        private void TrackAssetLoader(string key, ContentManager manager)
-        {
-            if (!this.ContentManagersByAssetKey.TryGetValue(key, out HashSet<ContentManager> hash))
-                hash = this.ContentManagersByAssetKey[key] = new HashSet<ContentManager>();
-            hash.Add(manager);
-        }
-
+        /****
+        ** Asset name/key handling
+        ****/
         /// <summary>Get the locale codes (like <c>ja-JP</c>) used in asset keys.</summary>
         /// <param name="reflection">Simplifies access to private game code.</param>
         private IDictionary<string, LanguageCode> GetKeyLocales(Reflector reflection)
@@ -383,6 +443,113 @@ namespace StardewModdingAPI.Framework
             // handle simple key
             assetName = cacheKey;
             localeCode = null;
+        }
+
+        /****
+        ** Cache handling
+        ****/
+        /// <summary>Get whether an asset has already been loaded.</summary>
+        /// <param name="normalisedAssetName">The normalised asset name.</param>
+        private bool IsNormalisedKeyLoaded(string normalisedAssetName)
+        {
+            return this.Cache.ContainsKey(normalisedAssetName)
+                || this.Cache.ContainsKey($"{normalisedAssetName}.{this.GetKeyLocale.Invoke<string>()}"); // translated asset
+        }
+
+        /// <summary>Track that a content manager loaded an asset.</summary>
+        /// <param name="key">The asset key that was loaded.</param>
+        /// <param name="manager">The content manager that loaded the asset.</param>
+        private void TrackAssetLoader(string key, ContentManager manager)
+        {
+            if (!this.ContentManagersByAssetKey.TryGetValue(key, out HashSet<ContentManager> hash))
+                hash = this.ContentManagersByAssetKey[key] = new HashSet<ContentManager>();
+            hash.Add(manager);
+        }
+
+        /****
+        ** Content loading
+        ****/
+        /// <summary>Load an asset name without heuristics to support mod content.</summary>
+        /// <typeparam name="T">The type of asset to load.</typeparam>
+        /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
+        /// <param name="instance">The content manager instance for which to load the asset.</param>
+        private T LoadImpl<T>(string assetName, ContentManager instance)
+        {
+            return this.WithWriteLock(() =>
+            {
+                // skip if already loaded
+                if (this.IsNormalisedKeyLoaded(assetName))
+                {
+                    this.TrackAssetLoader(assetName, instance);
+                    return base.Load<T>(assetName);
+                }
+
+                // load asset
+                T data;
+                if (this.AssetsBeingLoaded.Contains(assetName))
+                {
+                    this.Monitor.Log($"Broke loop while loading asset '{assetName}'.", LogLevel.Warn);
+                    this.Monitor.Log($"Bypassing mod loaders for this asset. Stack trace:\n{Environment.StackTrace}", LogLevel.Trace);
+                    data = base.Load<T>(assetName);
+                }
+                else
+                {
+                    data = this.AssetsBeingLoaded.Track(assetName, () =>
+                    {
+                        IAssetInfo info = new AssetInfo(this.GetLocale(), assetName, typeof(T), this.NormaliseAssetName);
+                        IAssetData asset = this.ApplyLoader<T>(info) ?? new AssetDataForObject(info, base.Load<T>(assetName), this.NormaliseAssetName);
+                        asset = this.ApplyEditors<T>(info, asset);
+                        return (T)asset.Data;
+                    });
+                }
+
+                // update cache & return data
+                this.InjectWithoutLock(assetName, data, instance);
+                return data;
+            });
+        }
+
+        /// <summary>Inject an asset into the cache without acquiring a write lock. This should only be called from within a write lock.</summary>
+        /// <typeparam name="T">The type of asset to inject.</typeparam>
+        /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
+        /// <param name="value">The asset value.</param>
+        /// <param name="instance">The content manager instance for which to load the asset.</param>
+        private void InjectWithoutLock<T>(string assetName, T value, ContentManager instance)
+        {
+            assetName = this.NormaliseAssetName(assetName);
+            this.Cache[assetName] = value;
+            this.TrackAssetLoader(assetName, instance);
+        }
+
+        /// <summary>Get a file from the mod folder.</summary>
+        /// <param name="path">The asset path relative to the content folder.</param>
+        private FileInfo GetModFile(string path)
+        {
+            // try exact match
+            FileInfo file = new FileInfo(Path.Combine(this.FullRootDirectory, path));
+
+            // try with default extension
+            if (!file.Exists && file.Extension.ToLower() != ".xnb")
+            {
+                FileInfo result = new FileInfo(path + ".xnb");
+                if (result.Exists)
+                    file = result;
+            }
+
+            return file;
+        }
+
+        /// <summary>Get a file from the game's content folder.</summary>
+        /// <param name="key">The asset key.</param>
+        private FileInfo GetContentFolderFile(string key)
+        {
+            // get file path
+            string path = Path.Combine(this.FullRootDirectory, key);
+            if (!path.EndsWith(".xnb"))
+                path += ".xnb";
+
+            // get file
+            return new FileInfo(path);
         }
 
         /// <summary>Load the initial asset from the registered <see cref="Loaders"/>.</summary>
@@ -510,6 +677,69 @@ namespace StardewModdingAPI.Framework
             }
         }
 
+        /// <summary>Premultiply a texture's alpha values to avoid transparency issues in the game. This is only possible if the game isn't currently drawing.</summary>
+        /// <param name="texture">The texture to premultiply.</param>
+        /// <returns>Returns a premultiplied texture.</returns>
+        /// <remarks>Based on <a href="https://gist.github.com/Layoric/6255384">code by Layoric</a>.</remarks>
+        private Texture2D PremultiplyTransparency(Texture2D texture)
+        {
+            // validate
+            if (Context.IsInDrawLoop)
+                throw new NotSupportedException("Can't load a PNG file while the game is drawing to the screen. Make sure you load content outside the draw loop.");
+
+            // process texture
+            SpriteBatch spriteBatch = Game1.spriteBatch;
+            GraphicsDevice gpu = Game1.graphics.GraphicsDevice;
+            using (RenderTarget2D renderTarget = new RenderTarget2D(Game1.graphics.GraphicsDevice, texture.Width, texture.Height))
+            {
+                // create blank render target to premultiply
+                gpu.SetRenderTarget(renderTarget);
+                gpu.Clear(Color.Black);
+
+                // multiply each color by the source alpha, and write just the color values into the final texture
+                spriteBatch.Begin(SpriteSortMode.Immediate, new BlendState
+                {
+                    ColorDestinationBlend = Blend.Zero,
+                    ColorWriteChannels = ColorWriteChannels.Red | ColorWriteChannels.Green | ColorWriteChannels.Blue,
+                    AlphaDestinationBlend = Blend.Zero,
+                    AlphaSourceBlend = Blend.SourceAlpha,
+                    ColorSourceBlend = Blend.SourceAlpha
+                });
+                spriteBatch.Draw(texture, texture.Bounds, Color.White);
+                spriteBatch.End();
+
+                // copy the alpha values from the source texture into the final one without multiplying them
+                spriteBatch.Begin(SpriteSortMode.Immediate, new BlendState
+                {
+                    ColorWriteChannels = ColorWriteChannels.Alpha,
+                    AlphaDestinationBlend = Blend.Zero,
+                    ColorDestinationBlend = Blend.Zero,
+                    AlphaSourceBlend = Blend.One,
+                    ColorSourceBlend = Blend.One
+                });
+                spriteBatch.Draw(texture, texture.Bounds, Color.White);
+                spriteBatch.End();
+
+                // release GPU
+                gpu.SetRenderTarget(null);
+
+                // extract premultiplied data
+                Color[] data = new Color[texture.Width * texture.Height];
+                renderTarget.GetData(data);
+
+                // unset texture from GPU to regain control
+                gpu.Textures[0] = null;
+
+                // update texture with premultiplied data
+                texture.SetData(data);
+            }
+
+            return texture;
+        }
+
+        /****
+        ** Concurrency logic
+        ****/
         /// <summary>Acquire a read lock which prevents concurrent writes to the cache while it's open.</summary>
         /// <typeparam name="T">The action's return value.</typeparam>
         /// <param name="action">The action to perform.</param>
