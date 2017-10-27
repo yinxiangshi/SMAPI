@@ -531,7 +531,7 @@ namespace StardewModdingAPI.Framework
             // try with default extension
             if (!file.Exists && file.Extension.ToLower() != ".xnb")
             {
-                FileInfo result = new FileInfo(path + ".xnb");
+                FileInfo result = new FileInfo(file.FullName + ".xnb");
                 if (result.Exists)
                     file = result;
             }
