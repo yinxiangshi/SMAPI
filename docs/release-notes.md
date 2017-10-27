@@ -11,6 +11,7 @@
     * Deprecated `e.IsClick`, which is limited and unclear. Use `IsActionButton` or `IsUseToolButton` instead.
     * Fixed `e.SuppressButton()` not correctly suppressing keyboard buttons.
     * Fixed `e.IsClick` (now `e.IsActionButton`) ignoring custom key bindings.
+  * Fixed custom map tilesheets not working unless they're explicitly loaded first.
   * Fixed mods which implement `IAssetLoader` directly not being allowed to load files due to incorrect conflict detection.
   * Fixed SMAPI blocking reflection access to vanilla members on overridden types.
 
