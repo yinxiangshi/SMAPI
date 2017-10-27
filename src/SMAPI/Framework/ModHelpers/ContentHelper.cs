@@ -117,7 +117,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
                             // fetch & cache
                             FormatManager formatManager = FormatManager.Instance;
                             Map map = formatManager.LoadMap(file.FullName);
-                            this.FixLocalMapTilesheets(map, key);
+                            this.FixCustomTilesheetPaths(map, key);
 
                             // inject map
                             this.ContentManager.Inject(assetName, map, this.ContentManager);
@@ -180,25 +180,27 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /*********
         ** Private methods
         *********/
-        /// <summary>Fix the tilesheets for a map loaded from the mod folder.</summary>
+        /// <summary>Fix custom map tilesheet paths so they can be found by the content manager.</summary>
         /// <param name="map">The map whose tilesheets to fix.</param>
         /// <param name="mapKey">The map asset key within the mod folder.</param>
-        /// <exception cref="ContentLoadException">The map tilesheets could not be loaded.</exception>
+        /// <exception cref="ContentLoadException">A map tilesheet couldn't be resolved.</exception>
         /// <remarks>
-        /// The game's logic for tilesheets in <see cref="Game1.setGraphicsForSeason"/> is a bit specialised. It boils down to this:
-        ///  * If the location is indoors or the desert, or the image source contains 'path' or 'object', it's loaded as-is relative to the <c>Content</c> folder.
+        /// The game's logic for tilesheets in <see cref="Game1.setGraphicsForSeason"/> is a bit specialised. It boils
+        /// down to this:
+        ///  * If the location is indoors or the desert, or the image source contains 'path' or 'object', it's loaded
+        ///    as-is relative to the <c>Content</c> folder.
         ///  * Else it's loaded from <c>Content\Maps</c> with a seasonal prefix.
         /// 
         /// That logic doesn't work well in our case, mainly because we have no location metadata at this point.
         /// Instead we use a more heuristic approach: check relative to the map file first, then relative to
-        /// <c>Content\Maps</c>, then <c>Content</c>. If the image source filename contains a seasonal prefix, we try
-        /// for a seasonal variation and then an exact match.
+        /// <c>Content\Maps</c>, then <c>Content</c>. If the image source filename contains a seasonal prefix, try for a
+        /// seasonal variation and then an exact match.
         /// 
         /// While that doesn't exactly match the game logic, it's close enough that it's unlikely to make a difference.
         /// </remarks>
-        private void FixLocalMapTilesheets(Map map, string mapKey)
+        private void FixCustomTilesheetPaths(Map map, string mapKey)
         {
-            // check map info
+            // get map info
             if (!map.TileSheets.Any())
                 return;
             mapKey = this.ContentManager.NormaliseAssetName(mapKey); // Mono's Path.GetDirectoryName doesn't handle Windows dir separators
@@ -209,7 +211,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
             {
                 string imageSource = tilesheet.ImageSource;
 
-                // validate
+                // validate tilesheet path
                 if (Path.IsPathRooted(imageSource) || imageSource.Split(SContentManager.PossiblePathSeparators).Contains(".."))
                     throw new ContentLoadException($"The '{imageSource}' tilesheet couldn't be loaded. Tilesheet paths must be a relative path without directory climbing (../).");
 
@@ -256,7 +258,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="modRelativeMapFolder">The folder path containing the map, relative to the mod folder.</param>
         /// <param name="imageSource">The tilesheet image source to load.</param>
         /// <returns>Returns the asset name.</returns>
-        /// <remarks>See remarks on <see cref="FixLocalMapTilesheets"/>.</remarks>
+        /// <remarks>See remarks on <see cref="FixCustomTilesheetPaths"/>.</remarks>
         private string GetTilesheetAssetName(string modRelativeMapFolder, string imageSource)
         {
             if (imageSource == null)
@@ -286,7 +288,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
                     catch
                     {
                         // ignore file-not-found errors
-                        // TODO: while it's useful to suppress a asset-not-found error here to avoid
+                        // TODO: while it's useful to suppress an asset-not-found error here to avoid
                         // confusion, this is a pretty naive approach. Even if the file doesn't exist,
                         // the file may have been loaded through an IAssetLoader which failed. So even
                         // if the content file doesn't exist, that doesn't mean the error here is a
