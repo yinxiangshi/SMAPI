@@ -2,6 +2,7 @@
 ## 2.1 (upcoming)
 * For players:
   * Fixed compatibility check crashing for players with Stardew Valley 1.08.
+  * Fixed the game's test messages being shown in the console and log.
 
 * For modders:
   * Added support for public code in reflection API, to simplify mod integrations.

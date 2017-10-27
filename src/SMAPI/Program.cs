@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Security;
+using System.Text.RegularExpressions;
 using System.Threading;
 #if SMAPI_FOR_WINDOWS
 using System.Management;
@@ -76,6 +77,13 @@ namespace StardewModdingAPI
 
         /// <summary>Whether the program has been disposed.</summary>
         private bool IsDisposed;
+
+        /// <summary>Regex patterns which match console messages to suppress from the console and log.</summary>
+        private readonly Regex[] SuppressConsolePatterns =
+        {
+            new Regex(@"^TextBox\.Selected is now '(?:True|False)'\.$", RegexOptions.Compiled | RegexOptions.CultureInvariant),
+            new Regex(@"^(?:FRUIT )?TREE: IsClient:(?:True|False) randomOutput: \d+$", RegexOptions.Compiled | RegexOptions.CultureInvariant)
+        };
 
 
         /*********
@@ -910,7 +918,14 @@ namespace StardewModdingAPI
         /// <param name="message">The message to log.</param>
         private void HandleConsoleMessage(IMonitor monitor, string message)
         {
-            LogLevel level = message.Contains("Exception") ? LogLevel.Error : LogLevel.Trace; // intercept potential exceptions
+            // detect exception
+            LogLevel level = message.Contains("Exception") ? LogLevel.Error : LogLevel.Trace;
+
+            // ignore suppressed message
+            if (level != LogLevel.Error && this.SuppressConsolePatterns.Any(p => p.IsMatch(message)))
+                return;
+
+            // forward to monitor
             monitor.Log(message, level);
         }
 
