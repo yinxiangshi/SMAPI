@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.16
+VisualStudioVersion = 15.0.27004.2002
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrainerMod", "TrainerMod\TrainerMod.csproj", "{28480467-1A48-46A7-99F8-236D95225359}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleCommands", "SMAPI.Mods.ConsoleCommands\StardewModdingAPI.Mods.ConsoleCommands.csproj", "{28480467-1A48-46A7-99F8-236D95225359}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StardewModdingAPI", "SMAPI\StardewModdingAPI.csproj", "{F1A573B0-F436-472C-AE29-0B91EA6B9F8F}"
 EndProject

@@ -78,7 +78,7 @@
 
   <!-- copy files into game directory and enable debugging (only in debug mode) -->
   <Target Name="AfterBuild">
-    <CallTarget Targets="CopySMAPI;CopyTrainerMod" Condition="'$(Configuration)' == 'Debug'" />
+    <CallTarget Targets="CopySMAPI;CopyDefaultMod" Condition="'$(Configuration)' == 'Debug'" />
   </Target>
   <Target Name="CopySMAPI" Condition="'$(MSBuildProjectName)' == 'StardewModdingAPI'">
     <Copy SourceFiles="$(TargetDir)\$(TargetName).exe" DestinationFolder="$(GamePath)" />
@@ -89,10 +89,10 @@
     <Copy SourceFiles="$(TargetDir)\Newtonsoft.Json.dll" DestinationFolder="$(GamePath)" />
     <Copy SourceFiles="$(TargetDir)\Mono.Cecil.dll" DestinationFolder="$(GamePath)" />
   </Target>
-  <Target Name="CopyTrainerMod" Condition="'$(MSBuildProjectName)' == 'TrainerMod'">
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).dll" DestinationFolder="$(GamePath)\Mods\TrainerMod" />
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)\Mods\TrainerMod" Condition="Exists('$(TargetDir)\$(TargetName).pdb')" />
-    <Copy SourceFiles="$(TargetDir)\manifest.json" DestinationFolder="$(GamePath)\Mods\TrainerMod" />
+  <Target Name="CopyDefaultMod" Condition="'$(MSBuildProjectName)' == 'StardewModdingAPI.Mods.ConsoleCommands'">
+    <Copy SourceFiles="$(TargetDir)\$(TargetName).dll" DestinationFolder="$(GamePath)\Mods\ConsoleCommands" />
+    <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)\Mods\ConsoleCommands" Condition="Exists('$(TargetDir)\$(TargetName).pdb')" />
+    <Copy SourceFiles="$(TargetDir)\manifest.json" DestinationFolder="$(GamePath)\Mods\ConsoleCommands" />
   </Target>
 
   <!-- launch SMAPI on debug -->

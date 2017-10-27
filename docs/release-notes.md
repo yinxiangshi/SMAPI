@@ -4,6 +4,7 @@
   * Fixed compatibility check crashing for players with Stardew Valley 1.08.
   * Fixed the game's test messages being shown in the console and log.
   * Fixed TrainerMod's `player_setlevel` command not also setting XP.
+  * Renamed the default _TrainerMod_ mod to _Console Commands_ to clarify its purpose.
 
 * For modders:
   * Added support for public code in reflection API, to simplify mod integrations.
