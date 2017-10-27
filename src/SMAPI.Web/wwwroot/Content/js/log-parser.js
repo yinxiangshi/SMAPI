@@ -36,10 +36,6 @@ $(function() {
         $("#input").val("");
         $("#popup-upload").fadeIn();
     });
-    var proxies = [
-        "https://cors-anywhere.herokuapp.com/",
-        "https://galvanize-cors-proxy.herokuapp.com/"
-    ];
     $("#popup-upload").on({
         'dragover dragenter': function(e) {
             e.preventDefault();
@@ -66,38 +62,35 @@ $(function() {
 
     $("#submit").on("click", function() {
         $("#popup-upload").fadeOut();
-        if ($("#input").val()) {
+        var raw = $("#input").val();
+        if (raw) {
             memory = "";
-            var raw = $("#input").val();
             var paste = LZString.compressToUTF16(raw);
-            logSize("Raw", raw);
-            logSize("Compressed", paste);
             if (paste.length * 2 > 524288) {
                 $("#output").html('<div id="log" class="color-red"><h1>Unable to save!</h1>This log cannot be saved due to its size.<hr />' + $("#input").val() + "</div>");
                 return;
             }
-            console.log("paste:", paste);
-            var packet = {
-                api_dev_key: "b8219d942109d1e60ebb14fbb45f06f9",
-                api_option: "paste",
-                api_paste_private: 1,
-                api_paste_code: paste,
-                api_paste_expire_date: "1W"
-            };
             $("#uploader").attr("data-text", "Saving...");
             $("#uploader").fadeIn();
-            var uri = proxies[Math.floor(Math.random() * proxies.length)] + "pastebin.com/api/api_post.php";
-            console.log(packet, uri);
-            $.post(uri, packet, function(data) {
-                $("#uploader").fadeOut();
-                console.log("Result: ", data);
-                if (data.substring(0, 15) === "Bad API request")
-                    $("#output").html('<div id="log" class="color-red"><h1>Parsing failed!</h1>Parsing of the log failed, details follow.<br />&nbsp;<p>Stage: Upload</p>Error: ' + data + "<hr />" + $("#input").val() + "</div>");
-                else if (data)
-                    location.href = "?" + data.split("/").pop();
-                else
-                    $("#output").html('<div id="log" class="color-red"><h1>Parsing failed!</h1>Parsing of the log failed, details follow.<br />&nbsp;<p>Stage: Upload</p>Error: Received null response<hr />' + $("#input").val() + "</div>");
-            });
+            $
+                .ajax({
+                    type: "POST",
+                    url: "/log/save",
+                    data: JSON.stringify(paste),
+                    contentType: "application/json" // sent to API
+                })
+                .fail(function(xhr, textStatus) {
+                    $("#uploader").fadeOut();
+                    $("#output").html('<div id="log" class="color-red"><h1>Parsing failed!</h1>Parsing of the log failed, details follow.<br />&nbsp;<p>Stage: Upload</p>Error: ' + textStatus + ': ' + xhr.responseText + "<hr />" + $("#input").val() + "</div>");
+                })
+                .then(function(data) {
+                    $("#uploader").fadeOut();
+                    console.log("Result: ", data);
+                    if (!data.success)
+                        $("#output").html('<div id="log" class="color-red"><h1>Parsing failed!</h1>Parsing of the log failed, details follow.<br />&nbsp;<p>Stage: Upload</p>Error: ' + data.error + "<hr />" + $("#input").val() + "</div>");
+                    else
+                        location.href = "?" + data.id;
+                });
         } else {
             alert("Unable to parse log, the input is empty!");
             $("#uploader").fadeOut();
@@ -122,10 +115,6 @@ $(function() {
     /*********
     ** Helpers
     *********/
-    function logSize(id, str) {
-        console.log(id + ":", str.length * 2, "bytes", Math.round(str.length / 5.12) / 100, "kb");
-    }
-
     function modClicked(evt) {
         var id = $(evt.currentTarget).attr("id").split("-")[1],
             cls = "mod-" + id;
@@ -284,13 +273,13 @@ $(function() {
     function getData() {
         $("#uploader").attr("data-text", "Loading...");
         $("#uploader").fadeIn();
-        $.get("https://cors-anywhere.herokuapp.com/pastebin.com/raw/" + location.search.substring(1) + "/?nocache=" + Math.random(), function(data) {
-            if (data.substring(0, 9) === "<!DOCTYPE") {
-                $("#output").html('<div id="log" class="color-red"><h1>Captcha required!</h1>The pastebin server is asking for a captcha, but their API doesnt let us show it to you directly.<br />Instead, to finish saving the log, you need to <a href="https://pastebin.com/' + location.search.substring(1) + '" target="_blank">solve the captcha in a new tab</a>, once you have done so, reload this page.</div>');
-            }
-            else {
-                $("#input").val(LZString.decompressFromUTF16(data) || data);
+        $.get("/log/fetch/" + location.search.substring(1), function(data) {
+            if (data.success) {
+                $("#input").val(LZString.decompressFromUTF16(data.content) || data.content);
                 loadData();
+            } else {
+                $("#output").html('<div id="log" class="color-red"><h1>Fetching the log failed!</h1><p>' + data.error + '</p><div id="rawlog"></div></div>');
+                $("#rawlog").text($("#input").val());
             }
             $("#uploader").fadeOut();
         });
