@@ -6,114 +6,107 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js" crossorigin="anonymous"></script>
     <script src="~/Content/js/log-parser.js"></script>
+    <style type="text/css" id="modflags"></style>
 }
 
-<h2>How to share a SMAPI log</h2>
-<ol>
-    <li><a href="https://stardewvalleywiki.com/Modding:Player_FAQs#SMAPI_log">Find your SMAPI log</a>.</li>
-    <li>Click the file and drag it onto the upload form below (or paste the text in).</li>
-    <li>Click <em>Parse</em>.</li>
-    <li>Share the link you get back.</li>
-</ol>
+@*********
+** Intro
+*********@
+<p id="blurb">This page lets you upload, view, and share a SMAPI log to help troubleshoot mod issues.</p>
+<input type="button" id="upload-button" value="Share a new log" />
 
 <h2>Parsed log</h2>
-<em>TODO</em>
 
-
-<!DOCTYPE html>
-<html>
-<head>
-    <title>SMAPI log parser</title>
-    <style type="text/css" id="modflags"></style>
-</head>
-<body>
-    <ul id="tabs">
-        <li>TRACE</li>
-        <li>DEBUG</li>
-        <li class="active">INFO</li>
-        <li class="active">ALERT</li>
-        <li class="active">WARN</li>
-        <li class="active">ERROR</li>
-        <li class="notice">Click tabs to toggle message visibility</li>
-        <li class="upload" id="upload">UPLOAD</li>
-    </ul>
-    <div id="output" class="trace debug"></div>
-    <script class="template" id="template-body" type="text/html">
-        <div class="always">
-            <table id="gameinfo">
-                <caption>Game info:</caption>
-                <tr>
-                    <td>SMAPI Version</td>
-                    <td>{0}</td>
-                </tr>
-                <tr>
-                    <td>Game Version</td>
-                    <td>{1}</td>
-                </tr>
-                <tr>
-                    <td>Platform</td>
-                    <td>{2}</td>
-                </tr>
-                <tr>
-                    <td>Mods path</td>
-                    <td>{4}</td>
-                </tr>
-                <tr>
-                    <td>Log started</td>
-                    <td>{3}</td>
-                </tr>
-            </table>
-            <br />
-            <table id="modslist">
-                <caption>Installed Mods: <span id="modlink-r" class="notice btn">Remove all mod filters</span><span class="notice txt"><i>Click any mod to filter</i></span> <span id="modlink-a" class="notice btn txt">Select all</span></caption>
-            </table>
-        </div>
-        <table id="log"></table>
-    </script>
-    <script class="template" id="template-css" type="text/html">
-        #output.modfilter:not(.mod-{0}) .mod-{0} { display:none; } #output.modfilter.mod-{0} #modslist tr { background:#ffeeee; } #output.modfilter.mod-{0} #modslist tr#modlink-{0} { background:#eeffee; }
-    </script>
-    <script class="template" id="template-modentry" type="text/html">
-        <tr id="modlink-{0}">
-            <td>{1}</td>
-            <td>{2}</td>
-            <td>{3}</td>
-            <td class={4}>{5}</td>
-        </tr>
-    </script>
-    <script class="template" id="template-logentry" type="text/html">
-        <tr class="{0} mod mod-{1}">
-            <td>{2}</td>
-            <td>{3}</td>
-            <td data-title="{4}">{4}</td>
-            <td>{5}</td>
-        </tr>
-    </script>
-    <script class="template" id="template-lognotice" type="text/html">
-        <tr class="{0} mod-repeat mod mod-{1}">
-            <td colspan="3"></td>
-            <td><i>repeats [{2}] times.</i></td>
-        </tr>
-    </script>
-    <div id="popup-upload" class="popup">
-        <h1>Upload log file</h1>
-        <div class="frame">
-            <textarea id="input" placeholder="Paste or drag a text file here to upload"></textarea>
-            <div class="buttons">
-                <input type="button" id="submit" value="Parse" />
-                <input type="button" id="cancel" value="Cancel" />
-            </div>
+<ul id="tabs">
+    <li>TRACE</li>
+    <li>DEBUG</li>
+    <li class="active">INFO</li>
+    <li class="active">ALERT</li>
+    <li class="active">WARN</li>
+    <li class="active">ERROR</li>
+    <li class="notice">Click tabs to toggle message visibility</li>
+</ul>
+<div id="output" class="trace debug"></div>
+<script class="template" id="template-body" type="text/html">
+    <div class="always">
+        <table id="gameinfo">
+            <caption>Game info:</caption>
+            <tr>
+                <td>SMAPI Version</td>
+                <td>{0}</td>
+            </tr>
+            <tr>
+                <td>Game Version</td>
+                <td>{1}</td>
+            </tr>
+            <tr>
+                <td>Platform</td>
+                <td>{2}</td>
+            </tr>
+            <tr>
+                <td>Mods path</td>
+                <td>{4}</td>
+            </tr>
+            <tr>
+                <td>Log started</td>
+                <td>{3}</td>
+            </tr>
+        </table>
+        <br />
+        <table id="modslist">
+            <caption>Installed Mods: <span id="modlink-r" class="notice btn">Remove all mod filters</span><span class="notice txt"><i>Click any mod to filter</i></span> <span id="modlink-a" class="notice btn txt">Select all</span></caption>
+        </table>
+    </div>
+    <table id="log"></table>
+</script>
+<script class="template" id="template-css" type="text/html">
+    #output.modfilter:not(.mod-{0}) .mod-{0} { display:none; } #output.modfilter.mod-{0} #modslist tr { background:#ffeeee; } #output.modfilter.mod-{0} #modslist tr#modlink-{0} { background:#eeffee; }
+</script>
+<script class="template" id="template-modentry" type="text/html">
+    <tr id="modlink-{0}">
+        <td>{1}</td>
+        <td>{2}</td>
+        <td>{3}</td>
+        <td class={4}>{5}</td>
+    </tr>
+</script>
+<script class="template" id="template-logentry" type="text/html">
+    <tr class="{0} mod mod-{1}">
+        <td>{2}</td>
+        <td>{3}</td>
+        <td data-title="{4}">{4}</td>
+        <td>{5}</td>
+    </tr>
+</script>
+<script class="template" id="template-lognotice" type="text/html">
+    <tr class="{0} mod-repeat mod mod-{1}">
+        <td colspan="3"></td>
+        <td><i>repeats [{2}] times.</i></td>
+    </tr>
+</script>
+<div id="popup-upload" class="popup">
+    <h1>Upload log file</h1>
+    <div class="frame">
+        <ol>
+            <li><a href="https://stardewvalleywiki.com/Modding:Player_FAQs#SMAPI_log" target="_blank">Find your SMAPI log</a>.</li>
+            <li>Drag the file onto the textbox below (or paste the text in).</li>
+            <li>Click <em>Parse</em>.</li>
+            <li>Share the link you get back.</li>
+        </ol>
+        <textarea id="input" placeholder="Paste or drag the log here"></textarea>
+        <div class="buttons">
+            <input type="button" id="submit" value="Parse"/>
+            <input type="button" id="cancel" value="Cancel"/>
         </div>
     </div>
-    <div id="popup-raw" class="popup">
-        <h1>Raw log file</h1>
-        <div class="frame">
-            <textarea id="dataraw"></textarea>
-            <div class="buttons">
-                <input type="button" id="closeraw" value="Close" />
-            </div>
+</div>
+<div id="popup-raw" class="popup">
+    <h1>Raw log file</h1>
+    <div class="frame">
+        <textarea id="dataraw"></textarea>
+        <div class="buttons">
+            <input type="button" id="closeraw" value="Close" />
         </div>
     </div>
-    <div id="uploader"></div>
-</body>
-</html>
+</div>
+<div id="uploader"></div>

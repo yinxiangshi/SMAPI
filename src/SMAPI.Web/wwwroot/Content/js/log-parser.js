@@ -196,7 +196,7 @@ $(function() {
         t.toggleClass("active");
         $("#output").toggleClass(t.text().toLowerCase());
     })
-    $("#upload").on("click", function() {
+    $("#upload-button").on("click", function() {
         memory = $("#input").val() || "";
         $("#input").val("");
         $("#popup-upload").fadeIn();

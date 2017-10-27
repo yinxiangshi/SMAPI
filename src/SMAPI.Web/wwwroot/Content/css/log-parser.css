@@ -1,14 +1,5 @@
-body {
-    font-size: 10pt;
-    background: #fff;
-}
-
 .mod-repeat {
     font-size: 8pt;
-}
-
-input[type="button"] {
-    cursor: pointer;
 }
 
 .template {
@@ -26,6 +17,16 @@ input[type="button"] {
     display: none;
     padding: 5px;
 }
+
+#upload-button {
+    background: #ccf;
+    border: 1px solid #000088;
+}
+
+#upload-button {
+    background: #eef;
+}
+
 
 #uploader:after {
     content: attr(data-text);
@@ -58,50 +59,45 @@ input[type="button"] {
     font-family: sans-serif;
     font-size: 40px;
     margin-top: -25px;
+    z-index: 10;
+    border-bottom: 0;
 }
 
 .frame {
     margin: auto;
     margin-top: 25px;
+    padding: 2em;
     position: absolute;
     top: 10%;
     left: 10%;
     right: 10%;
     bottom: 10%;
     padding-bottom: 30px;
-}
-
-.buttons {
-    position: absolute;
-    display: inline-block;
-    bottom: -10px;
-    right: 0px;
-    padding: 5px;
-    border: 1px solid #008;
+    background: #FFF;
     border-radius: 5px;
-    background: #fff;
+    border: 1px solid #008;
 }
 
-#cancel, #closeraw {
+input[type="button"] {
     font-size: 20px;
     border-radius: 5px;
-    border: 1px solid #880000;
-    background-color: #fcc;
     outline: none;
     box-shadow: inset 0px 0px 1px 1px rgba(0, 0, 0, .2);
+    cursor: pointer;
 }
 
-#cancel:hover, #closeraw:hover {
+#input[type="button"]:hover {
     background-color: #fee;
 }
 
+#cancel, #closeraw {
+    border: 1px solid #880000;
+    background-color: #fcc;
+}
+
 #submit {
-    font-size: 20px;
-    border-radius: 5px;
     border: 1px solid #008800;
     background-color: #cfc;
-    outline: none;
-    box-shadow: inset 0px 0px 1px 1px rgba(0, 0, 0, .2);
 }
 
 #submit:hover {
@@ -109,9 +105,9 @@ input[type="button"] {
 }
 
 #input, #dataraw {
-    width: 100%;
-    height: 100%;
-    max-width: 100%;
+    width: 80%;
+    height: 30em;
+    max-width: 80%;
     max-height: 100%;
     margin: auto;
     box-sizing: border-box;
@@ -130,12 +126,8 @@ input[type="button"] {
 }
 
 #tabs {
-    top: 0px;
-    left: 0px;
-    right: 0px;
     border-bottom: 0;
     display: block;
-    position: fixed;
     margin: 0;
     padding: 0;
     background: linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(210, 235, 249, 1) 100%);
@@ -144,7 +136,6 @@ input[type="button"] {
 #tabs li {
     margin: 5px 1px 0 0;
     height: 25px;
-    float: left;
     display: inline-block;
     width: 75px;
     border: 1px solid #000000;
@@ -179,17 +170,6 @@ input[type="button"] {
     background: #efe;
 }
 
-#tabs li.upload {
-    float: right;
-    background: #ccf;
-    border-color: #000088;
-    margin-right: 5px;
-}
-
-#tabs li.upload:hover {
-    background: #eef;
-}
-
 #tabs li.notice {
     color: #000000;
     background: transparent;
@@ -206,11 +186,6 @@ input[type="button"] {
 
 #output {
     border-top: 1px solid #888;
-    position: fixed;
-    top: 30px;
-    left: 0px;
-    right: 0px;
-    bottom: 0px;
     padding: 10px;
     overflow: auto;
     font-family: monospace;
