@@ -64,6 +64,7 @@ namespace StardewModdingAPI.Web
             loggerFactory.AddDebug();
             app
                 .UseRewriter(new RewriteOptions().Add(new RewriteSubdomainRule())) // convert subdomain.smapi.io => smapi.io/subdomain for routing
+                .UseStaticFiles() // wwwroot folder
                 .UseMvc();
         }
     }
