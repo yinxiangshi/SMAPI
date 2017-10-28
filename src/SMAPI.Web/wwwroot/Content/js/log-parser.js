@@ -1,7 +1,7 @@
 /* globals $, LZString */
 
 var smapi = smapi || {};
-smapi.logParser = function(sectionUrl) {
+smapi.logParser = function(sectionUrl, pasteID) {
     /*********
     ** Initialisation
     *********/
@@ -86,11 +86,10 @@ smapi.logParser = function(sectionUrl) {
                 })
                 .then(function(data) {
                     $("#uploader").fadeOut();
-                    console.log("Result: ", data);
                     if (!data.success)
                         $("#output").html('<div id="log" class="color-red"><h1>Parsing failed!</h1>Parsing of the log failed, details follow.<br />&nbsp;<p>Stage: Upload</p>Error: ' + data.error + "<hr />" + $("#input").val() + "</div>");
                     else
-                        location.href = "?" + data.id;
+                        location.href = (sectionUrl.replace(/\/$/, "") + "/" + data.id);
                 });
         } else {
             alert("Unable to parse log, the input is empty!");
@@ -106,8 +105,8 @@ smapi.logParser = function(sectionUrl) {
     $("#closeraw").on("click", function() {
         $("#popup-raw").fadeOut(400);
     });
-    if (location.search) {
-        getData();
+    if (pasteID) {
+        getData(pasteID);
     }
     else
         $("#popup-upload").fadeIn();
@@ -160,10 +159,6 @@ smapi.logParser = function(sectionUrl) {
             dataDate = regexDate.exec(data) || regexDate.exec(data) || regexDate.exec(data),
             dataPath = regexPath.exec(data) || regexPath.exec(data) || regexPath.exec(data),
             match;
-        console.log("dataInfo:", dataInfo);
-        console.log("dataMods:", dataMods);
-        console.log("dataDate:", dataDate);
-        console.log("dataPath:", dataPath);
         stage = "parseData.doNullCheck";
         if (!dataInfo)
             throw new Error("Field `dataInfo` is null");
@@ -267,19 +262,19 @@ smapi.logParser = function(sectionUrl) {
             stage = "loadData.Post";
         }
         catch (err) {
-            $("#output").html('<div id="log" class="color-red"><h1>Parsing failed!</h1>Parsing of the log failed, details follow.<br />&nbsp;<p>Stage: ' + stage + "</p>" + err + '<hr /><div id="rawlog"></div></div>');
+            $("#output").html('<div id="log" class="color-red"><h1>Parsing failed!</h1>Parsing of the log failed, details follow.<br />&nbsp;<p>Stage: ' + stage + "</p>" + err + '<hr /><pre id="rawlog"></pre></div>');
             $("#rawlog").text($("#input").val());
         }
     }
-    function getData() {
+    function getData(pasteID) {
         $("#uploader").attr("data-text", "Loading...");
         $("#uploader").fadeIn();
-        $.get(sectionUrl + "/fetch/" + location.search.substring(1), function(data) {
+        $.get(sectionUrl + "/fetch/" + pasteID, function(data) {
             if (data.success) {
                 $("#input").val(LZString.decompressFromUTF16(data.content) || data.content);
                 loadData();
             } else {
-                $("#output").html('<div id="log" class="color-red"><h1>Fetching the log failed!</h1><p>' + data.error + '</p><div id="rawlog"></div></div>');
+                $("#output").html('<div id="log" class="color-red"><h1>Fetching the log failed!</h1><p>' + data.error + '</p><pre id="rawlog"></pre></div>');
                 $("#rawlog").text($("#input").val());
             }
             $("#uploader").fadeOut();

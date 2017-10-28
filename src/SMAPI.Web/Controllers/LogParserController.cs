@@ -42,11 +42,13 @@ namespace StardewModdingAPI.Web.Controllers
         ** Web UI
         ***/
         /// <summary>Render the log parser UI.</summary>
+        /// <param name="id">The paste ID.</param>
         [HttpGet]
         [Route("log")]
-        public ViewResult Index()
+        [Route("log/{id}")]
+        public ViewResult Index(string id = null)
         {
-            return this.View("Index", new LogParserModel(this.Config.SectionUrl));
+            return this.View("Index", new LogParserModel(this.Config.SectionUrl, id));
         }
 
         /***

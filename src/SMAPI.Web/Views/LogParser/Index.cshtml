@@ -10,7 +10,7 @@
     <style type="text/css" id="modflags"></style>
     <script>
         $(function() {
-            smapi.logParser('@Model.SectionUrl');
+            smapi.logParser('@Model.SectionUrl', '@Model.PasteID');
         });
     </script>
 }
@@ -21,17 +21,19 @@
 <p id="blurb">This page lets you upload, view, and share a SMAPI log to help troubleshoot mod issues.</p>
 <input type="button" id="upload-button" value="Share a new log" />
 
-<h2>Parsed log</h2>
-
-<ul id="tabs">
-    <li>TRACE</li>
-    <li>DEBUG</li>
-    <li class="active">INFO</li>
-    <li class="active">ALERT</li>
-    <li class="active">WARN</li>
-    <li class="active">ERROR</li>
-    <li class="notice">Click tabs to toggle message visibility</li>
-</ul>
+@if (Model.PasteID != null)
+{
+    <h2>Parsed log</h2>
+    <ul id="tabs">
+        <li>TRACE</li>
+        <li>DEBUG</li>
+        <li class="active">INFO</li>
+        <li class="active">ALERT</li>
+        <li class="active">WARN</li>
+        <li class="active">ERROR</li>
+        <li class="notice">Click tabs to toggle message visibility</li>
+    </ul>
+}
 <div id="output" class="trace debug"></div>
 <script class="template" id="template-body" type="text/html">
     <div class="always">
@@ -97,7 +99,7 @@
             <li><a href="https://stardewvalleywiki.com/Modding:Player_FAQs#SMAPI_log" target="_blank">Find your SMAPI log</a>.</li>
             <li>Drag the file onto the textbox below (or paste the text in).</li>
             <li>Click <em>Parse</em>.</li>
-            <li>Share the link you get back.</li>
+            <li>Share the URL of the new page.</li>
         </ol>
         <textarea id="input" placeholder="Paste or drag the log here"></textarea>
         <div class="buttons">

@@ -9,6 +9,9 @@ namespace StardewModdingAPI.Web.ViewModels
         /// <summary>The root URL for the log parser controller.</summary>
         public string SectionUrl { get; set; }
 
+        /// <summary>The paste ID.</summary>
+        public string PasteID { get; set; }
+
 
         /*********
         ** Public methods
@@ -18,9 +21,11 @@ namespace StardewModdingAPI.Web.ViewModels
 
         /// <summary>Construct an instance.</summary>
         /// <param name="sectionUrl">The root URL for the log parser controller.</param>
-        public LogParserModel(string sectionUrl)
+        /// <param name="pasteID">The paste ID.</param>
+        public LogParserModel(string sectionUrl, string pasteID)
         {
             this.SectionUrl = sectionUrl;
+            this.PasteID = pasteID;
         }
     }
 }
