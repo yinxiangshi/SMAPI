@@ -14,7 +14,7 @@ namespace StardewModdingAPI.Web.Controllers
 {
     /// <summary>Provides an API to perform mod update checks.</summary>
     [Produces("application/json")]
-    [Route("api/{version:semanticVersion}/mods")]
+    [Route("api/v{version:semanticVersion}/mods")]
     internal class ModsApiController : Controller
     {
         /*********
