@@ -17,6 +17,9 @@ namespace StardewModdingAPI.Web.Framework.LogParser
         /// <summary>The underlying HTTP client.</summary>
         private readonly IClient Client;
 
+        /// <summary>The user key used to authenticate with the Pastebin API.</summary>
+        private readonly string UserKey;
+
         /// <summary>The developer key used to authenticate with the Pastebin API.</summary>
         private readonly string DevKey;
 
@@ -27,10 +30,12 @@ namespace StardewModdingAPI.Web.Framework.LogParser
         /// <summary>Construct an instance.</summary>
         /// <param name="baseUrl">The base URL for the Pastebin API.</param>
         /// <param name="userAgent">The user agent for the API client.</param>
+        /// <param name="userKey">The user key used to authenticate with the Pastebin API.</param>
         /// <param name="devKey">The developer key used to authenticate with the Pastebin API.</param>
-        public PastebinClient(string baseUrl, string userAgent, string devKey)
+        public PastebinClient(string baseUrl, string userAgent, string userKey, string devKey)
         {
             this.Client = new FluentClient(baseUrl).SetUserAgent(userAgent);
+            this.UserKey = userKey;
             this.DevKey = devKey;
         }
 
@@ -75,11 +80,13 @@ namespace StardewModdingAPI.Web.Framework.LogParser
                         .PostAsync("api/api_post.php")
                         .WithBodyContent(new FormUrlEncodedContent(new Dictionary<string, string>
                         {
-                            ["api_dev_key"] = this.DevKey,
                             ["api_option"] = "paste",
-                            ["api_paste_private"] = "1",
-                            ["api_paste_code"] = content,
-                            ["api_paste_expire_date"] = "1W"
+                            ["api_user_key"] = this.UserKey,
+                            ["api_dev_key"] = this.DevKey,
+                            ["api_paste_private"] = "1", // unlisted
+                            ["api_paste_name"] = $"SMAPI log {DateTime.UtcNow:s}",
+                            ["api_paste_expire_date"] = "1W", // one week
+                            ["api_paste_code"] = content
                         }))
                         .AsString();
 

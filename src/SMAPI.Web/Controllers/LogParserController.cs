@@ -35,7 +35,7 @@ namespace StardewModdingAPI.Web.Controllers
             this.Config = configProvider.Value;
             string version = this.GetType().Assembly.GetName().Version.ToString(3);
             string userAgent = string.Format(this.Config.PastebinUserAgent, version);
-            this.PastebinClient = new PastebinClient(this.Config.PastebinBaseUrl, userAgent, this.Config.PastebinDevKey);
+            this.PastebinClient = new PastebinClient(this.Config.PastebinBaseUrl, userAgent, this.Config.PastebinUserKey, this.Config.PastebinDevKey);
         }
 
         /***
