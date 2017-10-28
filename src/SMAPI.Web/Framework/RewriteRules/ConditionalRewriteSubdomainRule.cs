@@ -1,44 +1,44 @@
 using System;
-using System.Linq;
-using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Rewrite;
 
-namespace StardewModdingAPI.Web.Framework
+namespace StardewModdingAPI.Web.Framework.RewriteRules
 {
     /// <summary>Rewrite requests to prepend the subdomain portion (if any) to the path.</summary>
     /// <remarks>Derived from <a href="https://stackoverflow.com/a/44526747/262123" />.</remarks>
-    internal class RewriteSubdomainRule : IRule
+    internal class ConditionalRewriteSubdomainRule : IRule
     {
         /*********
         ** Accessors
         *********/
-        /// <summary>The paths (excluding the hostname portion) to not rewrite.</summary>
-        public Regex[] ExceptPaths { get; set; }
+        /// <summary>A predicate which indicates when the rule should be applied.</summary>
+        private readonly Func<HttpRequest, bool> ShouldRewrite;
 
 
         /*********
         ** Public methods
         *********/
+        /// <summary>Construct an instance.</summary>
+        /// <param name="shouldRewrite">A predicate which indicates when the rule should be applied.</param>
+        public ConditionalRewriteSubdomainRule(Func<HttpRequest, bool> shouldRewrite = null)
+        {
+            this.ShouldRewrite = shouldRewrite;
+        }
+
         /// <summary>Applies the rule. Implementations of ApplyRule should set the value for <see cref="RewriteContext.Result" /> (defaults to RuleResult.ContinueRules).</summary>
         /// <param name="context">The rewrite context.</param>
         public void ApplyRule(RewriteContext context)
         {
-            context.Result = RuleResult.ContinueRules;
             HttpRequest request = context.HttpContext.Request;
 
-            // check ignores
-            if (this.ExceptPaths?.Any(pattern => pattern.IsMatch(request.Path)) == true)
+            // check condition
+            if (this.ShouldRewrite != null && !this.ShouldRewrite(request))
                 return;
 
             // get host parts
             string host = request.Host.Host;
             string[] parts = host.Split('.');
-
-            // validate
             if (parts.Length < 2)
-                return;
-            if (parts.Length < 3 && !"localhost".Equals(parts[1], StringComparison.InvariantCultureIgnoreCase))
                 return;
 
             // prepend to path

@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Rewrite;
@@ -9,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using StardewModdingAPI.Web.Framework;
 using StardewModdingAPI.Web.Framework.ConfigModels;
+using StardewModdingAPI.Web.Framework.RewriteRules;
 
 namespace StardewModdingAPI.Web
 {
@@ -65,13 +65,15 @@ namespace StardewModdingAPI.Web
             loggerFactory.AddConsole(this.Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
             app
-                .UseRewriter(
-                    new RewriteOptions()
-                    .Add(new RewriteSubdomainRule
-                    {
-                        ExceptPaths = new[] { new Regex("^/Content", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase) }
-                    })
-                ) // convert subdomain.smapi.io => smapi.io/subdomain for routing
+                .UseRewriter(new RewriteOptions()
+                    // convert subdomain.smapi.io => smapi.io/subdomain for routing
+                    .Add(new ConditionalRewriteSubdomainRule(
+                        shouldRewrite: req =>
+                            req.Host.Host != "localhost"
+                            && (req.Host.Host.StartsWith("api.") || req.Host.Host.StartsWith("log."))
+                            && !req.Path.StartsWithSegments("/content")
+                    ))
+                )
                 .UseStaticFiles() // wwwroot folder
                 .UseMvc();
         }
