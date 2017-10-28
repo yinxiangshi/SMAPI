@@ -22,7 +22,7 @@ namespace StardewModdingAPI.Web.Framework.RewriteRules
         /// <param name="shouldRewrite">A predicate which indicates when the rule should be applied.</param>
         public ConditionalRewriteSubdomainRule(Func<HttpRequest, bool> shouldRewrite = null)
         {
-            this.ShouldRewrite = shouldRewrite;
+            this.ShouldRewrite = shouldRewrite ?? (req => true);
         }
 
         /// <summary>Applies the rule. Implementations of ApplyRule should set the value for <see cref="RewriteContext.Result" /> (defaults to RuleResult.ContinueRules).</summary>
@@ -32,7 +32,7 @@ namespace StardewModdingAPI.Web.Framework.RewriteRules
             HttpRequest request = context.HttpContext.Request;
 
             // check condition
-            if (this.ShouldRewrite != null && !this.ShouldRewrite(request))
+            if (!this.ShouldRewrite(request))
                 return;
 
             // get host parts

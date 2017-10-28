@@ -66,6 +66,13 @@ namespace StardewModdingAPI.Web
             loggerFactory.AddDebug();
             app
                 .UseRewriter(new RewriteOptions()
+                    // redirect to HTTPS (except API for Linux/Mac Mono compatibility)
+                    .Add(new ConditionalRedirectToHttpsRule(
+                        shouldRewrite: req =>
+                            req.Host.Host != "localhost"
+                            && !req.Path.StartsWithSegments("/api")
+                    ))
+
                     // convert subdomain.smapi.io => smapi.io/subdomain for routing
                     .Add(new ConditionalRewriteSubdomainRule(
                         shouldRewrite: req =>
