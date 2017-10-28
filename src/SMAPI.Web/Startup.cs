@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Rewrite;
@@ -64,7 +65,13 @@ namespace StardewModdingAPI.Web
             loggerFactory.AddConsole(this.Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
             app
-                .UseRewriter(new RewriteOptions().Add(new RewriteSubdomainRule())) // convert subdomain.smapi.io => smapi.io/subdomain for routing
+                .UseRewriter(
+                    new RewriteOptions()
+                    .Add(new RewriteSubdomainRule
+                    {
+                        ExceptPaths = new[] { new Regex("^/Content", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase) }
+                    })
+                ) // convert subdomain.smapi.io => smapi.io/subdomain for routing
                 .UseStaticFiles() // wwwroot folder
                 .UseMvc();
         }

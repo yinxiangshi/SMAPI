@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using StardewModdingAPI.Web.Framework;
 using StardewModdingAPI.Web.Framework.ConfigModels;
 using StardewModdingAPI.Web.Framework.LogParser;
+using StardewModdingAPI.Web.ViewModels;
 
 namespace StardewModdingAPI.Web.Controllers
 {
@@ -13,6 +14,9 @@ namespace StardewModdingAPI.Web.Controllers
         /*********
         ** Properties
         *********/
+        /// <summary>The log parser config settings.</summary>
+        private readonly LogParserConfig Config;
+
         /// <summary>The underlying Pastebin client.</summary>
         private readonly PastebinClient PastebinClient;
 
@@ -28,10 +32,10 @@ namespace StardewModdingAPI.Web.Controllers
         public LogParserController(IOptions<LogParserConfig> configProvider)
         {
             // init Pastebin client
-            LogParserConfig config = configProvider.Value;
+            this.Config = configProvider.Value;
             string version = this.GetType().Assembly.GetName().Version.ToString(3);
-            string userAgent = string.Format(config.PastebinUserAgent, version);
-            this.PastebinClient = new PastebinClient(config.PastebinBaseUrl, userAgent, config.PastebinDevKey);
+            string userAgent = string.Format(this.Config.PastebinUserAgent, version);
+            this.PastebinClient = new PastebinClient(this.Config.PastebinBaseUrl, userAgent, this.Config.PastebinDevKey);
         }
 
         /***
@@ -42,7 +46,7 @@ namespace StardewModdingAPI.Web.Controllers
         [Route("log")]
         public ViewResult Index()
         {
-            return this.View("Index");
+            return this.View("Index", new LogParserModel(this.Config.SectionUrl));
         }
 
         /***

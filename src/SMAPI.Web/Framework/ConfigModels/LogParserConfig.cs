@@ -6,6 +6,9 @@ namespace StardewModdingAPI.Web.Framework.ConfigModels
         /*********
         ** Accessors
         *********/
+        /// <summary>The root URL for the log parser controller.</summary>
+        public string SectionUrl { get; set; }
+
         /// <summary>The base URL for the Pastebin API.</summary>
         public string PastebinBaseUrl { get; set; }
 

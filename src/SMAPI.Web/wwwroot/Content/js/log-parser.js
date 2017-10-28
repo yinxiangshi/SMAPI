@@ -1,6 +1,7 @@
 /* globals $, LZString */
 
-$(function() {
+var smapi = smapi || {};
+smapi.logParser = function(sectionUrl) {
     /*********
     ** Initialisation
     *********/
@@ -75,7 +76,7 @@ $(function() {
             $
                 .ajax({
                     type: "POST",
-                    url: "/log/save",
+                    url: sectionUrl + "/save",
                     data: JSON.stringify(paste),
                     contentType: "application/json" // sent to API
                 })
@@ -273,7 +274,7 @@ $(function() {
     function getData() {
         $("#uploader").attr("data-text", "Loading...");
         $("#uploader").fadeIn();
-        $.get("/log/fetch/" + location.search.substring(1), function(data) {
+        $.get(sectionUrl + "/fetch/" + location.search.substring(1), function(data) {
             if (data.success) {
                 $("#input").val(LZString.decompressFromUTF16(data.content) || data.content);
                 loadData();
@@ -284,4 +285,4 @@ $(function() {
             $("#uploader").fadeOut();
         });
     }
-});
+};
