@@ -75,7 +75,7 @@ namespace StardewModdingAPI.Web.Framework.LogParser
                         .PostAsync("api/api_post.php")
                         .WithBodyContent(new FormUrlEncodedContent(new Dictionary<string, string>
                         {
-                            ["api_dev_key"] = "b8219d942109d1e60ebb14fbb45f06f9",
+                            ["api_dev_key"] = this.DevKey,
                             ["api_option"] = "paste",
                             ["api_paste_private"] = "1",
                             ["api_paste_code"] = content,
