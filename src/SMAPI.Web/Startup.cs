@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using StardewModdingAPI.Web.Framework;
 using StardewModdingAPI.Web.Framework.ConfigModels;
+using StardewModdingAPI.Web.Framework.RewriteRules;
 
 namespace StardewModdingAPI.Web
 {
@@ -30,10 +31,9 @@ namespace StardewModdingAPI.Web
         {
             this.Configuration = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
-                .AddEnvironmentVariables()
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-                .AddEnvironmentVariables()
+                .Add(new BeanstalkEnvPropsConfigProvider()) //.AddEnvironmentVariables()
                 .Build();
         }
 
@@ -43,6 +43,7 @@ namespace StardewModdingAPI.Web
         {
             services
                 .Configure<ModUpdateCheckConfig>(this.Configuration.GetSection("ModUpdateCheck"))
+                .Configure<LogParserConfig>(this.Configuration.GetSection("LogParser"))
                 .Configure<RouteOptions>(options => options.ConstraintMap.Add("semanticVersion", typeof(VersionConstraint)))
                 .AddMemoryCache()
                 .AddMvc()
@@ -63,7 +64,23 @@ namespace StardewModdingAPI.Web
             loggerFactory.AddConsole(this.Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
             app
-                .UseRewriter(new RewriteOptions().Add(new RewriteSubdomainRule())) // convert subdomain.smapi.io => smapi.io/subdomain for routing
+                .UseRewriter(new RewriteOptions()
+                    // redirect to HTTPS (except API for Linux/Mac Mono compatibility)
+                    .Add(new ConditionalRedirectToHttpsRule(
+                        shouldRewrite: req =>
+                            req.Host.Host != "localhost"
+                            && !req.Path.StartsWithSegments("/api")
+                    ))
+
+                    // convert subdomain.smapi.io => smapi.io/subdomain for routing
+                    .Add(new ConditionalRewriteSubdomainRule(
+                        shouldRewrite: req =>
+                            req.Host.Host != "localhost"
+                            && (req.Host.Host.StartsWith("api.") || req.Host.Host.StartsWith("log."))
+                            && !req.Path.StartsWithSegments("/content")
+                    ))
+                )
+                .UseStaticFiles() // wwwroot folder
                 .UseMvc();
         }
     }

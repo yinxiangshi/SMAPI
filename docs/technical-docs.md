@@ -3,16 +3,25 @@
 This file provides more technical documentation about SMAPI. If you only want to use or create
 mods, this section isn't relevant to you; see the main README to use or create mods.
 
-## Contents
-* [Development](#development)
-  * [Compiling from source](#compiling-from-source)
-  * [Debugging a local build](#debugging-a-local-build)
-  * [Preparing a release](#preparing-a-release)
-* [Customisation](#customisation)
-  * [Configuration file](#configuration-file)
-  * [Command-line arguments](#command-line-arguments)
-  * [Compile flags](#compile-flags)
+# Contents
+* [SMAPI](#smapi)
+  * [Development](#development)
+    * [Compiling from source](#compiling-from-source)
+    * [Debugging a local build](#debugging-a-local-build)
+    * [Preparing a release](#preparing-a-release)
+  * [Customisation](#customisation)
+    * [Configuration file](#configuration-file)
+    * [Command-line arguments](#command-line-arguments)
+    * [Compile flags](#compile-flags)
+* [SMAPI web services](#smapi-web-services)
+  * [Overview](#overview)
+    * [Log parser](#log-parser)
+    * [Mods API](#mods-api)
+  * [Development](#development-2)
+    * [Local development](#local-development)
+    * [Deploying to Amazon Beanstalk](#deploying-to-amazon-beanstalk)
 
+# SMAPI
 ## Development
 ### Compiling from source
 Using an official SMAPI release is recommended for most users.
@@ -135,3 +144,81 @@ SMAPI uses a small number of conditional compilation constants, which you can se
 flag | purpose
 ---- | -------
 `SMAPI_FOR_WINDOWS` | Indicates that SMAPI is being compiled on Windows for players on Windows. Set automatically in `crossplatform.targets`.
+
+
+# SMAPI web services
+## Overview
+The `StardewModdingAPI.Web` project provides an API and web UI hosted at `*.smapi.io`.
+
+### Log parser
+The log parser provides a web UI for uploading, parsing, and sharing SMAPI logs. The logs are
+persisted in a compressed form to Pastebin.
+
+The log parser lives at https://log.smapi.io.
+
+### Mods API
+The mods API provides version info for mods hosted by Chucklefish, GitHub, or Nexus Mods. It's used
+by SMAPI to perform update checks. The `{version}` URL token is the version of SMAPI making the
+request; it doesn't do anything currently, but lets us version breaking changes if needed.
+
+Each mod is identified by a repository key and unique identifier (like `nexus:541`). The following
+repositories are supported:
+
+key           | repository
+------------- | ----------
+`chucklefish` | A mod page on the [Chucklefish mod site](https://community.playstarbound.com/resources/categories/22), identified by the mod ID in the page URL.
+`github`      | A repository on [GitHub](https://github.com), identified by its owner and repository name (like `Zoryn4163/SMAPI-Mods`). This checks the version of the latest repository release.
+`nexus`       | A mod page on [Nexus Mods](https://www.nexusmods.com/stardewvalley), identified by the mod ID in the page URL.
+
+
+The API accepts either `GET` or `POST` for convenience:
+> ```
+>GET https://api.smapi.io/v2.0/mods?modKeys=nexus:541,chucklefish:4228
+>```
+
+>```
+>POST https://api.smapi.io/v2.0/mods
+>{
+>   "ModKeys": [ "nexus:541", "chucklefish:4228" ]
+>}
+>```
+
+It returns a response like this:
+>```
+>{
+>  "chucklefish:4228": {
+>    "name": "Entoarox Framework",
+>    "version": "1.8.0",
+>    "url": "https://community.playstarbound.com/resources/4228"
+>  },
+>  "nexus:541": {
+>    "name": "Lookup Anything",
+>    "version": "1.16",
+>    "url": "http://www.nexusmods.com/stardewvalley/mods/541"
+>  }
+>}
+>```
+
+## Development
+### Local development
+`StardewModdingAPI.Web` is a regular ASP.NET MVC Core app, so you can just launch it from within
+Visual Studio to run a local version.
+
+There are two differences when it's run locally: all endpoints use HTTP instead of HTTPS, and the
+subdomain portion becomes a route (e.g. `log.smapi.io` &rarr; `localhost:59482/log`).
+
+Before running it locally, you need to enter your credentials in the `appsettings.Development.json`
+file. See the next section for a description of each setting. This file is listed in `.gitignore`
+to prevent accidentally committing credentials.
+
+### Deploying to Amazon Beanstalk
+The app can be deployed to a standard Amazon Beanstalk IIS environment. When creating the
+environment, make sure to specify the following environment properties:
+
+property name                   | description
+------------------------------- | -----------------
+`LogParser:PastebinDevKey`      | The [Pastebin developer key](https://pastebin.com/api#1) used to authenticate with the Pastebin API.
+`LogParser:PastebinUserKey`     | The [Pastebin user key](https://pastebin.com/api#8) used to authenticate with the Pastebin API. Can be left blank to post anonymously.
+`LogParser:SectionUrl`          | The root URL of the log page, like `https://log.smapi.io/`.
+`ModUpdateCheck:GitHubPassword` | The password with which to authenticate to GitHub when fetching release info.
+`ModUpdateCheck:GitHubUsername` | The username with which to authenticate to GitHub when fetching release info.

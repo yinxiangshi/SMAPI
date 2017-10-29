@@ -14,8 +14,8 @@ namespace StardewModdingAPI.Web.Controllers
 {
     /// <summary>Provides an API to perform mod update checks.</summary>
     [Produces("application/json")]
-    [Route("api/{version:semanticVersion}/[controller]")]
-    internal class ModsController : Controller
+    [Route("api/v{version:semanticVersion}/mods")]
+    internal class ModsApiController : Controller
     {
         /*********
         ** Properties
@@ -39,7 +39,7 @@ namespace StardewModdingAPI.Web.Controllers
         /// <summary>Construct an instance.</summary>
         /// <param name="cache">The cache in which to store mod metadata.</param>
         /// <param name="configProvider">The config settings for mod update checks.</param>
-        public ModsController(IMemoryCache cache, IOptions<ModUpdateCheckConfig> configProvider)
+        public ModsApiController(IMemoryCache cache, IOptions<ModUpdateCheckConfig> configProvider)
         {
             ModUpdateCheckConfig config = configProvider.Value;
 
