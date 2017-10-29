@@ -1,4 +1,4 @@
-/* globals $, LZString */
+/* globals $ */
 
 var smapi = smapi || {};
 smapi.logParser = function(sectionUrl, pasteID) {
@@ -63,14 +63,9 @@ smapi.logParser = function(sectionUrl, pasteID) {
 
     $("#submit").on("click", function() {
         $("#popup-upload").fadeOut();
-        var raw = $("#input").val();
-        if (raw) {
+        var paste = $("#input").val();
+        if (paste) {
             memory = "";
-            var paste = LZString.compressToUTF16(raw);
-            if (paste.length * 2 > 524288) {
-                $("#output").html('<div id="log" class="color-red"><h1>Unable to save!</h1>This log cannot be saved due to its size.<hr />' + $("#input").val() + "</div>");
-                return;
-            }
             $("#uploader").attr("data-text", "Saving...");
             $("#uploader").fadeIn();
             $
@@ -271,7 +266,7 @@ smapi.logParser = function(sectionUrl, pasteID) {
         $("#uploader").fadeIn();
         $.get(sectionUrl + "/fetch/" + pasteID, function(data) {
             if (data.success) {
-                $("#input").val(LZString.decompressFromUTF16(data.content) || data.content);
+                $("#input").val(data.content);
                 loadData();
             } else {
                 $("#output").html('<div id="log" class="color-red"><h1>Fetching the log failed!</h1><p>' + data.error + '</p><pre id="rawlog"></pre></div>');
