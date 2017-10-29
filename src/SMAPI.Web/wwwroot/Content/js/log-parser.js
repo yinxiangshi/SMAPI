@@ -82,7 +82,7 @@ smapi.logParser = function(sectionUrl, pasteID) {
                 })
                 .fail(function(xhr, textStatus) {
                     $("#uploader").fadeOut();
-                    $("#output").html('<div id="log" class="color-red"><h1>Parsing failed!</h1>Parsing of the log failed, details follow.<br />&nbsp;<p>Stage: Upload</p>Error: ' + textStatus + ': ' + xhr.responseText + "<hr />" + $("#input").val() + "</div>");
+                    $("#output").html('<div id="log" class="color-red"><h1>Parsing failed!</h1>Parsing of the log failed, details follow.<br />&nbsp;<p>Stage: Upload</p>Error: ' + textStatus + ': ' + xhr.responseText + "<hr /><pre>" + $("#input").val() + "</pre></div>");
                 })
                 .then(function(data) {
                     $("#uploader").fadeOut();
