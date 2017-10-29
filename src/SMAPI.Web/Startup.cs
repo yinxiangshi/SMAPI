@@ -31,10 +31,9 @@ namespace StardewModdingAPI.Web
         {
             this.Configuration = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
-                .AddEnvironmentVariables()
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-                .AddEnvironmentVariables()
+                .Add(new BeanstalkEnvPropsConfigProvider()) //.AddEnvironmentVariables()
                 .Build();
         }
 
