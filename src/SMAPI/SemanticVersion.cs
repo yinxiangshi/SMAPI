@@ -49,6 +49,12 @@ namespace StardewModdingAPI
         public SemanticVersion(string version)
             : this(new SemanticVersionImpl(version)) { }
 
+        /// <summary>Construct an instance.</summary>
+        /// <param name="version">The assembly version.</param>
+        /// <exception cref="ArgumentNullException">The <paramref name="version"/> is null.</exception>
+        public SemanticVersion(Version version)
+            : this(new SemanticVersionImpl(version)) { }
+
         /// <summary>Get an integer indicating whether this version precedes (less than 0), supercedes (more than 0), or is equivalent to (0) the specified version.</summary>
         /// <param name="other">The version to compare with this instance.</param>
         /// <exception cref="ArgumentNullException">The <paramref name="other"/> value is null.</exception>

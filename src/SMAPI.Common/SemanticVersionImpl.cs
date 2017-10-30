@@ -49,6 +49,19 @@ namespace StardewModdingAPI.Common
         }
 
         /// <summary>Construct an instance.</summary>
+        /// <param name="version">The assembly version.</param>
+        /// <exception cref="ArgumentNullException">The <paramref name="version"/> is null.</exception>
+        public SemanticVersionImpl(Version version)
+        {
+            if (version == null)
+                throw new ArgumentNullException(nameof(version), "The input version can't be null.");
+
+            this.Major = version.Major;
+            this.Minor = version.Minor;
+            this.Patch = version.Build;
+        }
+
+        /// <summary>Construct an instance.</summary>
         /// <param name="version">The semantic version string.</param>
         /// <exception cref="ArgumentNullException">The <paramref name="version"/> is null.</exception>
         /// <exception cref="FormatException">The <paramref name="version"/> is not a valid semantic version.</exception>

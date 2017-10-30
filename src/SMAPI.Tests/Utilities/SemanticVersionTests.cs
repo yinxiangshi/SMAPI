@@ -16,7 +16,7 @@ namespace StardewModdingAPI.Tests.Utilities
         /****
         ** Constructor
         ****/
-        [Test(Description = "Assert that the constructor sets the expected values for all valid versions.")]
+        [Test(Description = "Assert that the constructor sets the expected values for all valid versions when constructed from a string.")]
         [TestCase("1.0", ExpectedResult = "1.0")]
         [TestCase("1.0.0", ExpectedResult = "1.0")]
         [TestCase("3000.4000.5000", ExpectedResult = "3000.4000.5000")]
@@ -28,7 +28,7 @@ namespace StardewModdingAPI.Tests.Utilities
             return new SemanticVersion(input).ToString();
         }
 
-        [Test(Description = "Assert that the constructor sets the expected values for all valid versions.")]
+        [Test(Description = "Assert that the constructor sets the expected values for all valid versions when constructed from the individual numbers.")]
         [TestCase(1, 0, 0, null, ExpectedResult = "1.0")]
         [TestCase(3000, 4000, 5000, null, ExpectedResult = "3000.4000.5000")]
         [TestCase(1, 2, 3, "", ExpectedResult = "1.2.3")]
@@ -45,6 +45,22 @@ namespace StardewModdingAPI.Tests.Utilities
             Assert.AreEqual(minor, version.MinorVersion, "The minor version doesn't match the given value.");
             Assert.AreEqual(patch, version.PatchVersion, "The patch version doesn't match the given value.");
             Assert.AreEqual(string.IsNullOrWhiteSpace(tag) ? null : tag.Trim(), version.Build, "The tag doesn't match the given value.");
+            return version.ToString();
+        }
+
+        [Test(Description = "Assert that the constructor sets the expected values for all valid versions when constructed from an assembly version.")]
+        [TestCase(1, 0, 0, ExpectedResult = "1.0")]
+        [TestCase(1, 2, 3, ExpectedResult = "1.2.3")]
+        [TestCase(3000, 4000, 5000, ExpectedResult = "3000.4000.5000")]
+        public string Constructor_FromAssemblyVersion(int major, int minor, int patch)
+        {
+            // act
+            ISemanticVersion version = new SemanticVersion(new Version(major, minor, patch));
+
+            // assert
+            Assert.AreEqual(major, version.MajorVersion, "The major version doesn't match the given value.");
+            Assert.AreEqual(minor, version.MinorVersion, "The minor version doesn't match the given value.");
+            Assert.AreEqual(patch, version.PatchVersion, "The patch version doesn't match the given value.");
             return version.ToString();
         }
 
