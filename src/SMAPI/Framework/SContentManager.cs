@@ -287,18 +287,30 @@ namespace StardewModdingAPI.Framework
                 throw new InvalidOperationException("SMAPI could not access the interceptor methods."); // should never happen
 
             // invalidate matching keys
-            return this.InvalidateCache((assetName, assetType) =>
+            return this.InvalidateCache(asset =>
             {
-                IAssetInfo info = new AssetInfo(this.GetLocale(), assetName, assetType, this.NormaliseAssetName);
-
                 // check loaders
-                MethodInfo canLoadGeneric = canLoad.MakeGenericMethod(assetType);
-                if (loaders.Any(loader => (bool)canLoadGeneric.Invoke(loader, new object[] { info })))
+                MethodInfo canLoadGeneric = canLoad.MakeGenericMethod(asset.DataType);
+                if (loaders.Any(loader => (bool)canLoadGeneric.Invoke(loader, new object[] { asset })))
                     return true;
 
                 // check editors
-                MethodInfo canEditGeneric = canEdit.MakeGenericMethod(assetType);
-                return editors.Any(editor => (bool)canEditGeneric.Invoke(editor, new object[] { info }));
+                MethodInfo canEditGeneric = canEdit.MakeGenericMethod(asset.DataType);
+                return editors.Any(editor => (bool)canEditGeneric.Invoke(editor, new object[] { asset }));
+            });
+        }
+
+        /// <summary>Purge matched assets from the cache.</summary>
+        /// <param name="predicate">Matches the asset keys to invalidate.</param>
+        /// <param name="dispose">Whether to dispose invalidated assets. This should only be <c>true</c> when they're being invalidated as part of a dispose, to avoid crashing the game.</param>
+        /// <returns>Returns whether any cache entries were invalidated.</returns>
+        public bool InvalidateCache(Func<IAssetInfo, bool> predicate, bool dispose = false)
+        {
+            string locale = this.GetLocale();
+            return this.InvalidateCache((assetName, type) =>
+            {
+                IAssetInfo info = new AssetInfo(locale, assetName, type, this.NormaliseAssetName);
+                return predicate(info);
             });
         }
 

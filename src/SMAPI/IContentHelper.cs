@@ -53,5 +53,10 @@ namespace StardewModdingAPI
         /// <typeparam name="T">The asset type to remove from the cache.</typeparam>
         /// <returns>Returns whether any assets were invalidated.</returns>
         bool InvalidateCache<T>();
+
+        /// <summary>Remove matching assets from the content cache so they're reloaded on the next request. This will reload core game assets if needed, but references to the former asset will still show the previous content.</summary>
+        /// <param name="predicate">A predicate matching the assets to invalidate.</param>
+        /// <returns>Returns whether any cache entries were invalidated.</returns>
+        bool InvalidateCache(Func<IAssetInfo, bool> predicate);
     }
 }

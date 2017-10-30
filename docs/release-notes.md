@@ -1,15 +1,16 @@
 # Release notes
 ## 2.1 (upcoming)
 * For players:
-  * Fixed compatibility check crashing for players with Stardew Valley 1.08.
-  * Fixed the game's test messages being shown in the console and log.
-  * Fixed TrainerMod's `player_setlevel` command not also setting XP.
-  * Renamed the default _TrainerMod_ mod to _Console Commands_ to clarify its purpose.
   * Added a log parser service at [log.smapi.io](https://log.smapi.io).
   * Added better Steam instructions to the SMAPI installer.
+  * Renamed the default _TrainerMod_ mod to _Console Commands_ to clarify its purpose.
+  * Hid the game's test messages from the console log.
+  * Fixed compatibility check crashing for players with Stardew Valley 1.08.
+  * Fixed TrainerMod's `player_setlevel` command not also setting XP.
 
 * For modders:
-  * Added support for public code in reflection API, to simplify mod integrations.
+  * The reflection API now works with public code to simplify mod integrations.
+  * The content API now lets you invalidated multiple assets at once.
   * Improved input events:
     * Added `e.IsActionButton` and `e.IsUseToolButton`.
     * Added `ToSButton()` extension for the game's `Game1.options` button type.

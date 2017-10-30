@@ -163,9 +163,9 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <returns>Returns whether the given asset key was cached.</returns>
         public bool InvalidateCache(string key)
         {
-            this.Monitor.Log($"Requested cache invalidation for '{key}'.", LogLevel.Trace);
             string actualKey = this.GetActualAssetKey(key, ContentSource.GameContent);
-            return this.ContentManager.InvalidateCache((otherKey, type) => otherKey.Equals(actualKey, StringComparison.InvariantCultureIgnoreCase));
+            this.Monitor.Log($"Requested cache invalidation for '{actualKey}'.", LogLevel.Trace);
+            return this.ContentManager.InvalidateCache(asset => asset.AssetNameEquals(actualKey));
         }
 
         /// <summary>Remove all assets of the given type from the cache so they're reloaded on the next request. <b>This can be a very expensive operation and should only be used in very specific cases.</b> This will reload core game assets if needed, but references to the former assets will still show the previous content.</summary>
@@ -175,6 +175,15 @@ namespace StardewModdingAPI.Framework.ModHelpers
         {
             this.Monitor.Log($"Requested cache invalidation for all assets of type {typeof(T)}. This is an expensive operation and should be avoided if possible.", LogLevel.Trace);
             return this.ContentManager.InvalidateCache((key, type) => typeof(T).IsAssignableFrom(type));
+        }
+
+        /// <summary>Remove matching assets from the content cache so they're reloaded on the next request. This will reload core game assets if needed, but references to the former asset will still show the previous content.</summary>
+        /// <param name="predicate">A predicate matching the assets to invalidate.</param>
+        /// <returns>Returns whether any cache entries were invalidated.</returns>
+        public bool InvalidateCache(Func<IAssetInfo, bool> predicate)
+        {
+            this.Monitor.Log("Requested cache invalidation for all assets matching a predicate.", LogLevel.Trace);
+            return this.ContentManager.InvalidateCache(predicate);
         }
 
         /*********
