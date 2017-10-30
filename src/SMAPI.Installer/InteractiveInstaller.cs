@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Threading;
 using Microsoft.Win32;
 using StardewModdingApi.Installer.Enums;
+using StardewModdingAPI.Common;
 
 namespace StardewModdingApi.Installer
 {
@@ -137,6 +138,13 @@ namespace StardewModdingApi.Installer
         public void Run(string[] args)
         {
             /****
+            ** Get platform & set window title
+            ****/
+            Platform platform = this.DetectPlatform();
+            Console.Title = $"SMAPI {new SemanticVersionImpl(this.GetType().Assembly.GetName().Version)} installer on {platform}";
+            Console.WriteLine();
+
+            /****
             ** read command-line arguments
             ****/
             // get action from CLI
@@ -160,10 +168,6 @@ namespace StardewModdingApi.Installer
             /****
             ** collect details
             ****/
-            // get platform
-            Platform platform = this.DetectPlatform();
-            this.PrintDebug($"Platform: {(platform == Platform.Windows ? "Windows" : "Linux or Mac")}.");
-
             // get game path
             DirectoryInfo installDir = this.InteractivelyGetInstallPath(platform, gamePathArg);
             if (installDir == null)
@@ -183,7 +187,9 @@ namespace StardewModdingApi.Installer
                 unixLauncher = Path.Combine(installDir.FullName, "StardewValley"),
                 unixLauncherBackup = Path.Combine(installDir.FullName, "StardewValley-original")
             };
-            this.PrintDebug($"Install path: {installDir}.");
+
+            // show output
+            Console.WriteLine($"Your game folder: {installDir}.");
 
             /****
             ** validate assumptions
