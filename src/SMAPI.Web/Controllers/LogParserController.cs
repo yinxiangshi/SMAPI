@@ -52,6 +52,7 @@ namespace StardewModdingAPI.Web.Controllers
         /// <summary>Render the log parser UI.</summary>
         /// <param name="id">The paste ID.</param>
         [HttpGet]
+        [Route("")]
         [Route("log")]
         [Route("log/{id}")]
         public ViewResult Index(string id = null)
