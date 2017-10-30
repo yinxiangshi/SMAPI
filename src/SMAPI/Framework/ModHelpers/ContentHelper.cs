@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework.Content;
@@ -88,7 +89,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
 
             try
             {
-                this.ContentManager.AssertValidAssetKeyFormat(key);
+                this.AssertValidAssetKeyFormat(key);
                 switch (source)
                 {
                     case ContentSource.GameContent:
@@ -189,6 +190,17 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /*********
         ** Private methods
         *********/
+        /// <summary>Assert that the given key has a valid format.</summary>
+        /// <param name="key">The asset key to check.</param>
+        /// <exception cref="ArgumentException">The asset key is empty or contains invalid characters.</exception>
+        [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "Parameter is only used for assertion checks by design.")]
+        private void AssertValidAssetKeyFormat(string key)
+        {
+            this.ContentManager.AssertValidAssetKeyFormat(key);
+            if (Path.IsPathRooted(key))
+                throw new ArgumentException("The asset key must not be an absolute path.");
+        }
+
         /// <summary>Fix custom map tilesheet paths so they can be found by the content manager.</summary>
         /// <param name="map">The map whose tilesheets to fix.</param>
         /// <param name="mapKey">The map asset key within the mod folder.</param>

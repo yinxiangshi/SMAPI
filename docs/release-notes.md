@@ -19,9 +19,10 @@
     * Fixed `e.SuppressButton()` not correctly suppressing keyboard buttons.
     * Fixed `e.IsClick` (now `e.IsActionButton`) ignoring custom key bindings.
   * `SemanticVersion` can now be constructed from a `System.Version`.
-  * Fixed custom map tilesheets not working unless they're explicitly loaded first.
-  * Fixed mods which implement `IAssetLoader` directly not being allowed to load files due to incorrect conflict detection.
-  * Fixed SMAPI blocking reflection access to vanilla members on overridden types.
+  * Fixed reflection API blocking access to vanilla members on overridden types.
+  * Fixed content API allowing absolute paths as asset keys.
+  * Fixed content API failing to load custom map tilesheets that aren't preloaded.
+  * Fixed content API incorrectly detecting duplicate loaders when a mod implements `IAssetLoader` directly.
 
 * For SMAPI developers:
   * Added the SMAPI installer version and platform to the window title to simplify troubleshooting.
