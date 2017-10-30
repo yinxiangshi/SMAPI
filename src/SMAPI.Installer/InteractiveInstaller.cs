@@ -347,22 +347,26 @@ namespace StardewModdingApi.Installer
                 this.InteractivelyRemoveAppDataMods(platform, modsDir, packagedModsDir);
             }
             Console.WriteLine();
+            Console.WriteLine();
 
             /****
-            ** exit
+            ** final instructions
             ****/
-            this.PrintColor("Done!", ConsoleColor.DarkGreen);
             if (platform == Platform.Windows)
             {
-                this.PrintColor(
-                    action == ScriptAction.Install
-                        ? "Don't forget to launch StardewModdingAPI.exe instead of the normal game executable. See the readme.txt for details."
-                        : "If you manually changed shortcuts or Steam to launch SMAPI, don't forget to change those back.",
-                    ConsoleColor.DarkGreen
-                );
+                if (action == ScriptAction.Install)
+                {
+                    this.PrintColor("SMAPI is installed! If you use Steam, set your launch options to enable achievements (see smapi.io/install):", ConsoleColor.DarkGreen);
+                    this.PrintColor($"    \"{Path.Combine(installDir.FullName, "StardewModdingAPI.exe")}\" %command%", ConsoleColor.DarkGreen);
+                    Console.WriteLine();
+                    this.PrintColor("If you don't use Steam, launch StardewModdingAPI.exe in your game folder to play with mods.", ConsoleColor.DarkGreen);
+                }
+                else
+                    this.PrintColor("SMAPI is removed! If you configured Steam to launch SMAPI, don't forget to clear your launch options.", ConsoleColor.DarkGreen);
             }
             else if (action == ScriptAction.Install)
-                this.PrintColor("You can launch the game the same way as before to play with mods.", ConsoleColor.DarkGreen);
+                this.PrintColor("SMAPI is installed! Launch the game the same way as before to play with mods.", ConsoleColor.DarkGreen);
+
             Console.ReadKey();
         }
 
