@@ -5,6 +5,7 @@
   * Fixed the game's test messages being shown in the console and log.
   * Fixed TrainerMod's `player_setlevel` command not also setting XP.
   * Renamed the default _TrainerMod_ mod to _Console Commands_ to clarify its purpose.
+  * Added a log parser service at [log.smapi.io](https://log.smapi.io).
 
 * For modders:
   * Added support for public code in reflection API, to simplify mod integrations.
