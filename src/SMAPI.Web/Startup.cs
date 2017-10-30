@@ -79,6 +79,10 @@ namespace StardewModdingAPI.Web
                             && (req.Host.Host.StartsWith("api.") || req.Host.Host.StartsWith("log."))
                             && !req.Path.StartsWithSegments("/content")
                     ))
+
+                    // shortcut redirects
+                    .Add(new RedirectToUrlRule("^/docs$", "https://stardewvalleywiki.com/Modding:Index"))
+                    .Add(new RedirectToUrlRule("^/install$", "https://stardewvalleywiki.com/Modding:Installing_SMAPI"))
                 )
                 .UseStaticFiles() // wwwroot folder
                 .UseMvc();
