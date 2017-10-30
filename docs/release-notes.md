@@ -5,6 +5,7 @@
   * Added better Steam instructions to the SMAPI installer.
   * Renamed the default _TrainerMod_ mod to _Console Commands_ to clarify its purpose.
   * Hid the game's test messages from the console log.
+  * Improved update-check errors when connection is offline.
   * Fixed compatibility check crashing for players with Stardew Valley 1.08.
   * Fixed TrainerMod's `player_setlevel` command not also setting XP.
 
