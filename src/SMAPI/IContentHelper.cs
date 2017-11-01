@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
+using xTile;
 
 namespace StardewModdingAPI
 {
@@ -29,7 +30,7 @@ namespace StardewModdingAPI
         ** Public methods
         *********/
         /// <summary>Load content from the game folder or mod folder (if not already cached), and return it. When loading a <c>.png</c> file, this must be called outside the game's draw loop.</summary>
-        /// <typeparam name="T">The expected data type. The main supported types are <see cref="Texture2D"/> and dictionaries; other types may be supported by the game's content pipeline.</typeparam>
+        /// <typeparam name="T">The expected data type. The main supported types are <see cref="Map"/>, <see cref="Texture2D"/>, and dictionaries; other types may be supported by the game's content pipeline.</typeparam>
         /// <param name="key">The asset key to fetch (if the <paramref name="source"/> is <see cref="ContentSource.GameContent"/>), or the local path to a content file relative to the mod folder.</param>
         /// <param name="source">Where to search for a matching content asset.</param>
         /// <exception cref="ArgumentException">The <paramref name="key"/> is empty or contains invalid characters.</exception>
@@ -52,5 +53,10 @@ namespace StardewModdingAPI
         /// <typeparam name="T">The asset type to remove from the cache.</typeparam>
         /// <returns>Returns whether any assets were invalidated.</returns>
         bool InvalidateCache<T>();
+
+        /// <summary>Remove matching assets from the content cache so they're reloaded on the next request. This will reload core game assets if needed, but references to the former asset will still show the previous content.</summary>
+        /// <param name="predicate">A predicate matching the assets to invalidate.</param>
+        /// <returns>Returns whether any cache entries were invalidated.</returns>
+        bool InvalidateCache(Func<IAssetInfo, bool> predicate);
     }
 }

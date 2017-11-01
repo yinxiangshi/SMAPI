@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Framework.Exceptions;
@@ -74,12 +73,12 @@ namespace StardewModdingAPI.Framework.ModHelpers
             this.ContentManager = contentManager;
             this.ModFolderPath = modFolderPath;
             this.ModName = modName;
-            this.ModFolderPathFromContent = this.GetRelativePath(contentManager.FullRootDirectory, modFolderPath);
+            this.ModFolderPathFromContent = this.ContentManager.GetRelativePath(modFolderPath);
             this.Monitor = monitor;
         }
 
         /// <summary>Load content from the game folder or mod folder (if not already cached), and return it. When loading a <c>.png</c> file, this must be called outside the game's draw loop.</summary>
-        /// <typeparam name="T">The expected data type. The main supported types are <see cref="Texture2D"/> and dictionaries; other types may be supported by the game's content pipeline.</typeparam>
+        /// <typeparam name="T">The expected data type. The main supported types are <see cref="Map"/>, <see cref="Texture2D"/>, and dictionaries; other types may be supported by the game's content pipeline.</typeparam>
         /// <param name="key">The asset key to fetch (if the <paramref name="source"/> is <see cref="ContentSource.GameContent"/>), or the local path to a content file relative to the mod folder.</param>
         /// <param name="source">Where to search for a matching content asset.</param>
         /// <exception cref="ArgumentException">The <paramref name="key"/> is empty or contains invalid characters.</exception>
@@ -88,9 +87,9 @@ namespace StardewModdingAPI.Framework.ModHelpers
         {
             SContentLoadException GetContentError(string reasonPhrase) => new SContentLoadException($"{this.ModName} failed loading content asset '{key}' from {source}: {reasonPhrase}.");
 
-            this.AssertValidAssetKeyFormat(key);
             try
             {
+                this.AssertValidAssetKeyFormat(key);
                 switch (source)
                 {
                     case ContentSource.GameContent:
@@ -103,59 +102,31 @@ namespace StardewModdingAPI.Framework.ModHelpers
                             throw GetContentError($"there's no matching file at path '{file.FullName}'.");
 
                         // get asset path
-                        string assetPath = this.GetModAssetPath(key, file.FullName);
+                        string assetName = this.GetModAssetPath(key, file.FullName);
 
                         // try cache
-                        if (this.ContentManager.IsLoaded(assetPath))
-                            return this.ContentManager.Load<T>(assetPath);
+                        if (this.ContentManager.IsLoaded(assetName))
+                            return this.ContentManager.Load<T>(assetName);
 
-                        // load content
-                        switch (file.Extension.ToLower())
+                        // fix map tilesheets
+                        if (file.Extension.ToLower() == ".tbin")
                         {
-                            // XNB file
-                            case ".xnb":
-                                {
-                                    T asset = this.ContentManager.Load<T>(assetPath);
-                                    if (asset is Map)
-                                        this.FixLocalMapTilesheets(asset as Map, key);
-                                    return asset;
-                                }
+                            // validate
+                            if (typeof(T) != typeof(Map))
+                                throw GetContentError($"can't read file with extension '{file.Extension}' as type '{typeof(T)}'; must be type '{typeof(Map)}'.");
 
-                            // unpacked map
-                            case ".tbin":
-                                {
-                                    // validate
-                                    if (typeof(T) != typeof(Map))
-                                        throw GetContentError($"can't read file with extension '{file.Extension}' as type '{typeof(T)}'; must be type '{typeof(Map)}'.");
+                            // fetch & cache
+                            FormatManager formatManager = FormatManager.Instance;
+                            Map map = formatManager.LoadMap(file.FullName);
+                            this.FixCustomTilesheetPaths(map, key);
 
-                                    // fetch & cache
-                                    FormatManager formatManager = FormatManager.Instance;
-                                    Map map = formatManager.LoadMap(file.FullName);
-                                    this.FixLocalMapTilesheets(map, key);
-
-                                    // inject map
-                                    this.ContentManager.Inject(assetPath, map);
-                                    return (T)(object)map;
-                                }
-
-                            // unpacked image
-                            case ".png":
-                                // validate
-                                if (typeof(T) != typeof(Texture2D))
-                                    throw GetContentError($"can't read file with extension '{file.Extension}' as type '{typeof(T)}'; must be type '{typeof(Texture2D)}'.");
-
-                                // fetch & cache
-                                using (FileStream stream = File.OpenRead(file.FullName))
-                                {
-                                    Texture2D texture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, stream);
-                                    texture = this.PremultiplyTransparency(texture);
-                                    this.ContentManager.Inject(assetPath, texture);
-                                    return (T)(object)texture;
-                                }
-
-                            default:
-                                throw GetContentError($"unknown file extension '{file.Extension}'; must be one of '.png', '.tbin', or '.xnb'.");
+                            // inject map
+                            this.ContentManager.Inject(assetName, map, this.ContentManager);
+                            return (T)(object)map;
                         }
+
+                        // load through content manager
+                        return this.ContentManager.Load<T>(assetName);
 
                     default:
                         throw GetContentError($"unknown content source '{source}'.");
@@ -193,9 +164,9 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <returns>Returns whether the given asset key was cached.</returns>
         public bool InvalidateCache(string key)
         {
-            this.Monitor.Log($"Requested cache invalidation for '{key}'.", LogLevel.Trace);
             string actualKey = this.GetActualAssetKey(key, ContentSource.GameContent);
-            return this.ContentManager.InvalidateCache((otherKey, type) => otherKey.Equals(actualKey, StringComparison.InvariantCultureIgnoreCase));
+            this.Monitor.Log($"Requested cache invalidation for '{actualKey}'.", LogLevel.Trace);
+            return this.ContentManager.InvalidateCache(asset => asset.AssetNameEquals(actualKey));
         }
 
         /// <summary>Remove all assets of the given type from the cache so they're reloaded on the next request. <b>This can be a very expensive operation and should only be used in very specific cases.</b> This will reload core game assets if needed, but references to the former assets will still show the previous content.</summary>
@@ -207,28 +178,50 @@ namespace StardewModdingAPI.Framework.ModHelpers
             return this.ContentManager.InvalidateCache((key, type) => typeof(T).IsAssignableFrom(type));
         }
 
+        /// <summary>Remove matching assets from the content cache so they're reloaded on the next request. This will reload core game assets if needed, but references to the former asset will still show the previous content.</summary>
+        /// <param name="predicate">A predicate matching the assets to invalidate.</param>
+        /// <returns>Returns whether any cache entries were invalidated.</returns>
+        public bool InvalidateCache(Func<IAssetInfo, bool> predicate)
+        {
+            this.Monitor.Log("Requested cache invalidation for all assets matching a predicate.", LogLevel.Trace);
+            return this.ContentManager.InvalidateCache(predicate);
+        }
+
         /*********
         ** Private methods
         *********/
-        /// <summary>Fix the tilesheets for a map loaded from the mod folder.</summary>
+        /// <summary>Assert that the given key has a valid format.</summary>
+        /// <param name="key">The asset key to check.</param>
+        /// <exception cref="ArgumentException">The asset key is empty or contains invalid characters.</exception>
+        [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "Parameter is only used for assertion checks by design.")]
+        private void AssertValidAssetKeyFormat(string key)
+        {
+            this.ContentManager.AssertValidAssetKeyFormat(key);
+            if (Path.IsPathRooted(key))
+                throw new ArgumentException("The asset key must not be an absolute path.");
+        }
+
+        /// <summary>Fix custom map tilesheet paths so they can be found by the content manager.</summary>
         /// <param name="map">The map whose tilesheets to fix.</param>
         /// <param name="mapKey">The map asset key within the mod folder.</param>
-        /// <exception cref="ContentLoadException">The map tilesheets could not be loaded.</exception>
+        /// <exception cref="ContentLoadException">A map tilesheet couldn't be resolved.</exception>
         /// <remarks>
-        /// The game's logic for tilesheets in <see cref="Game1.setGraphicsForSeason"/> is a bit specialised. It boils down to this:
-        ///  * If the location is indoors or the desert, or the image source contains 'path' or 'object', it's loaded as-is relative to the <c>Content</c> folder.
+        /// The game's logic for tilesheets in <see cref="Game1.setGraphicsForSeason"/> is a bit specialised. It boils
+        /// down to this:
+        ///  * If the location is indoors or the desert, or the image source contains 'path' or 'object', it's loaded
+        ///    as-is relative to the <c>Content</c> folder.
         ///  * Else it's loaded from <c>Content\Maps</c> with a seasonal prefix.
         /// 
         /// That logic doesn't work well in our case, mainly because we have no location metadata at this point.
         /// Instead we use a more heuristic approach: check relative to the map file first, then relative to
-        /// <c>Content\Maps</c>, then <c>Content</c>. If the image source filename contains a seasonal prefix, we try
-        /// for a seasonal variation and then an exact match.
+        /// <c>Content\Maps</c>, then <c>Content</c>. If the image source filename contains a seasonal prefix, try for a
+        /// seasonal variation and then an exact match.
         /// 
         /// While that doesn't exactly match the game logic, it's close enough that it's unlikely to make a difference.
         /// </remarks>
-        private void FixLocalMapTilesheets(Map map, string mapKey)
+        private void FixCustomTilesheetPaths(Map map, string mapKey)
         {
-            // check map info
+            // get map info
             if (!map.TileSheets.Any())
                 return;
             mapKey = this.ContentManager.NormaliseAssetName(mapKey); // Mono's Path.GetDirectoryName doesn't handle Windows dir separators
@@ -239,7 +232,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
             {
                 string imageSource = tilesheet.ImageSource;
 
-                // validate
+                // validate tilesheet path
                 if (Path.IsPathRooted(imageSource) || imageSource.Split(SContentManager.PossiblePathSeparators).Contains(".."))
                     throw new ContentLoadException($"The '{imageSource}' tilesheet couldn't be loaded. Tilesheet paths must be a relative path without directory climbing (../).");
 
@@ -264,8 +257,8 @@ namespace StardewModdingAPI.Framework.ModHelpers
                 try
                 {
                     string key =
-                        this.TryLoadTilesheetImageSource(relativeMapFolder, seasonalImageSource)
-                        ?? this.TryLoadTilesheetImageSource(relativeMapFolder, imageSource);
+                        this.GetTilesheetAssetName(relativeMapFolder, seasonalImageSource)
+                        ?? this.GetTilesheetAssetName(relativeMapFolder, imageSource);
                     if (key != null)
                     {
                         tilesheet.ImageSource = key;
@@ -282,33 +275,22 @@ namespace StardewModdingAPI.Framework.ModHelpers
             }
         }
 
-        /// <summary>Load a tilesheet image source if the file exists.</summary>
-        /// <param name="relativeMapFolder">The folder path containing the map, relative to the mod folder.</param>
+        /// <summary>Get the actual asset name for a tilesheet.</summary>
+        /// <param name="modRelativeMapFolder">The folder path containing the map, relative to the mod folder.</param>
         /// <param name="imageSource">The tilesheet image source to load.</param>
-        /// <returns>Returns the loaded asset key (if it was loaded successfully).</returns>
-        /// <remarks>See remarks on <see cref="FixLocalMapTilesheets"/>.</remarks>
-        private string TryLoadTilesheetImageSource(string relativeMapFolder, string imageSource)
+        /// <returns>Returns the asset name.</returns>
+        /// <remarks>See remarks on <see cref="FixCustomTilesheetPaths"/>.</remarks>
+        private string GetTilesheetAssetName(string modRelativeMapFolder, string imageSource)
         {
             if (imageSource == null)
                 return null;
 
             // check relative to map file
             {
-                string localKey = Path.Combine(relativeMapFolder, imageSource);
+                string localKey = Path.Combine(modRelativeMapFolder, imageSource);
                 FileInfo localFile = this.GetModFile(localKey);
                 if (localFile.Exists)
-                {
-                    try
-                    {
-                        this.Load<Texture2D>(localKey);
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new ContentLoadException($"The local '{imageSource}' tilesheet couldn't be loaded.", ex);
-                    }
-
                     return this.GetActualAssetKey(localKey);
-                }
             }
 
             // check relative to content folder
@@ -327,7 +309,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
                     catch
                     {
                         // ignore file-not-found errors
-                        // TODO: while it's useful to suppress a asset-not-found error here to avoid
+                        // TODO: while it's useful to suppress an asset-not-found error here to avoid
                         // confusion, this is a pretty naive approach. Even if the file doesn't exist,
                         // the file may have been loaded through an IAssetLoader which failed. So even
                         // if the content file doesn't exist, that doesn't mean the error here is a
@@ -341,18 +323,6 @@ namespace StardewModdingAPI.Framework.ModHelpers
 
             // not found
             return null;
-        }
-
-        /// <summary>Assert that the given key has a valid format.</summary>
-        /// <param name="key">The asset key to check.</param>
-        /// <exception cref="ArgumentException">The asset key is empty or contains invalid characters.</exception>
-        [SuppressMessage("ReSharper", "UnusedParameter.Local", Justification = "Parameter is only used for assertion checks by design.")]
-        private void AssertValidAssetKeyFormat(string key)
-        {
-            if (string.IsNullOrWhiteSpace(key))
-                throw new ArgumentException("The asset key or local path is empty.");
-            if (key.Intersect(Path.GetInvalidPathChars()).Any())
-                throw new ArgumentException("The asset key or local path contains invalid characters.");
         }
 
         /// <summary>Get a file from the mod folder.</summary>
@@ -399,82 +369,6 @@ namespace StardewModdingAPI.Framework.ModHelpers
             // MonoGame is weird about relative paths on Mac, but allows absolute paths
             return absolutePath;
 #endif
-        }
-
-        /// <summary>Get a directory path relative to a given root.</summary>
-        /// <param name="rootPath">The root path from which the path should be relative.</param>
-        /// <param name="targetPath">The target file path.</param>
-        private string GetRelativePath(string rootPath, string targetPath)
-        {
-            // convert to URIs
-            Uri from = new Uri(rootPath + "/");
-            Uri to = new Uri(targetPath + "/");
-            if (from.Scheme != to.Scheme)
-                throw new InvalidOperationException($"Can't get path for '{targetPath}' relative to '{rootPath}'.");
-
-            // get relative path
-            return Uri.UnescapeDataString(from.MakeRelativeUri(to).ToString())
-                .Replace(Path.DirectorySeparatorChar == '/' ? '\\' : '/', Path.DirectorySeparatorChar); // use correct separator for platform
-        }
-
-        /// <summary>Premultiply a texture's alpha values to avoid transparency issues in the game. This is only possible if the game isn't currently drawing.</summary>
-        /// <param name="texture">The texture to premultiply.</param>
-        /// <returns>Returns a premultiplied texture.</returns>
-        /// <remarks>Based on <a href="https://gist.github.com/Layoric/6255384">code by Layoric</a>.</remarks>
-        private Texture2D PremultiplyTransparency(Texture2D texture)
-        {
-            // validate
-            if (Context.IsInDrawLoop)
-                throw new NotSupportedException("Can't load a PNG file while the game is drawing to the screen. Make sure you load content outside the draw loop.");
-
-            // process texture
-            SpriteBatch spriteBatch = Game1.spriteBatch;
-            GraphicsDevice gpu = Game1.graphics.GraphicsDevice;
-            using (RenderTarget2D renderTarget = new RenderTarget2D(Game1.graphics.GraphicsDevice, texture.Width, texture.Height))
-            {
-                // create blank render target to premultiply
-                gpu.SetRenderTarget(renderTarget);
-                gpu.Clear(Color.Black);
-
-                // multiply each color by the source alpha, and write just the color values into the final texture
-                spriteBatch.Begin(SpriteSortMode.Immediate, new BlendState
-                {
-                    ColorDestinationBlend = Blend.Zero,
-                    ColorWriteChannels = ColorWriteChannels.Red | ColorWriteChannels.Green | ColorWriteChannels.Blue,
-                    AlphaDestinationBlend = Blend.Zero,
-                    AlphaSourceBlend = Blend.SourceAlpha,
-                    ColorSourceBlend = Blend.SourceAlpha
-                });
-                spriteBatch.Draw(texture, texture.Bounds, Color.White);
-                spriteBatch.End();
-
-                // copy the alpha values from the source texture into the final one without multiplying them
-                spriteBatch.Begin(SpriteSortMode.Immediate, new BlendState
-                {
-                    ColorWriteChannels = ColorWriteChannels.Alpha,
-                    AlphaDestinationBlend = Blend.Zero,
-                    ColorDestinationBlend = Blend.Zero,
-                    AlphaSourceBlend = Blend.One,
-                    ColorSourceBlend = Blend.One
-                });
-                spriteBatch.Draw(texture, texture.Bounds, Color.White);
-                spriteBatch.End();
-
-                // release GPU
-                gpu.SetRenderTarget(null);
-
-                // extract premultiplied data
-                Color[] data = new Color[texture.Width * texture.Height];
-                renderTarget.GetData(data);
-
-                // unset texture from GPU to regain control
-                gpu.Textures[0] = null;
-
-                // update texture with premultiplied data
-                texture.SetData(data);
-            }
-
-            return texture;
         }
     }
 }

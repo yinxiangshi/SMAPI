@@ -38,7 +38,7 @@ namespace StardewModdingAPI.Framework.Reflection
                 throw new ArgumentNullException(nameof(obj), "Can't get a private instance field from a null object.");
 
             // get field from hierarchy
-            IPrivateField<TValue> field = this.GetFieldFromHierarchy<TValue>(obj.GetType(), obj, name, BindingFlags.Instance | BindingFlags.NonPublic);
+            IPrivateField<TValue> field = this.GetFieldFromHierarchy<TValue>(obj.GetType(), obj, name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
             if (required && field == null)
                 throw new InvalidOperationException($"The {obj.GetType().FullName} object doesn't have a private '{name}' instance field.");
             return field;
@@ -52,7 +52,7 @@ namespace StardewModdingAPI.Framework.Reflection
         public IPrivateField<TValue> GetPrivateField<TValue>(Type type, string name, bool required = true)
         {
             // get field from hierarchy
-            IPrivateField<TValue> field = this.GetFieldFromHierarchy<TValue>(type, null, name, BindingFlags.NonPublic | BindingFlags.Static);
+            IPrivateField<TValue> field = this.GetFieldFromHierarchy<TValue>(type, null, name, BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Public);
             if (required && field == null)
                 throw new InvalidOperationException($"The {type.FullName} object doesn't have a private '{name}' static field.");
             return field;
@@ -73,7 +73,7 @@ namespace StardewModdingAPI.Framework.Reflection
                 throw new ArgumentNullException(nameof(obj), "Can't get a private instance property from a null object.");
 
             // get property from hierarchy
-            IPrivateProperty<TValue> property = this.GetPropertyFromHierarchy<TValue>(obj.GetType(), obj, name, BindingFlags.Instance | BindingFlags.NonPublic);
+            IPrivateProperty<TValue> property = this.GetPropertyFromHierarchy<TValue>(obj.GetType(), obj, name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
             if (required && property == null)
                 throw new InvalidOperationException($"The {obj.GetType().FullName} object doesn't have a private '{name}' instance property.");
             return property;
@@ -87,7 +87,7 @@ namespace StardewModdingAPI.Framework.Reflection
         public IPrivateProperty<TValue> GetPrivateProperty<TValue>(Type type, string name, bool required = true)
         {
             // get field from hierarchy
-            IPrivateProperty<TValue> property = this.GetPropertyFromHierarchy<TValue>(type, null, name, BindingFlags.NonPublic | BindingFlags.Static);
+            IPrivateProperty<TValue> property = this.GetPropertyFromHierarchy<TValue>(type, null, name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
             if (required && property == null)
                 throw new InvalidOperationException($"The {type.FullName} object doesn't have a private '{name}' static property.");
             return property;
@@ -107,7 +107,7 @@ namespace StardewModdingAPI.Framework.Reflection
                 throw new ArgumentNullException(nameof(obj), "Can't get a private instance method from a null object.");
 
             // get method from hierarchy
-            IPrivateMethod method = this.GetMethodFromHierarchy(obj.GetType(), obj, name, BindingFlags.Instance | BindingFlags.NonPublic);
+            IPrivateMethod method = this.GetMethodFromHierarchy(obj.GetType(), obj, name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
             if (required && method == null)
                 throw new InvalidOperationException($"The {obj.GetType().FullName} object doesn't have a private '{name}' instance method.");
             return method;
@@ -120,7 +120,7 @@ namespace StardewModdingAPI.Framework.Reflection
         public IPrivateMethod GetPrivateMethod(Type type, string name, bool required = true)
         {
             // get method from hierarchy
-            IPrivateMethod method = this.GetMethodFromHierarchy(type, null, name, BindingFlags.NonPublic | BindingFlags.Static);
+            IPrivateMethod method = this.GetMethodFromHierarchy(type, null, name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
             if (required && method == null)
                 throw new InvalidOperationException($"The {type.FullName} object doesn't have a private '{name}' static method.");
             return method;
@@ -141,7 +141,7 @@ namespace StardewModdingAPI.Framework.Reflection
                 throw new ArgumentNullException(nameof(obj), "Can't get a private instance method from a null object.");
 
             // get method from hierarchy
-            PrivateMethod method = this.GetMethodFromHierarchy(obj.GetType(), obj, name, BindingFlags.Instance | BindingFlags.NonPublic, argumentTypes);
+            PrivateMethod method = this.GetMethodFromHierarchy(obj.GetType(), obj, name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, argumentTypes);
             if (required && method == null)
                 throw new InvalidOperationException($"The {obj.GetType().FullName} object doesn't have a private '{name}' instance method with that signature.");
             return method;
@@ -155,7 +155,7 @@ namespace StardewModdingAPI.Framework.Reflection
         public IPrivateMethod GetPrivateMethod(Type type, string name, Type[] argumentTypes, bool required = true)
         {
             // get field from hierarchy
-            PrivateMethod method = this.GetMethodFromHierarchy(type, null, name, BindingFlags.NonPublic | BindingFlags.Static, argumentTypes);
+            PrivateMethod method = this.GetMethodFromHierarchy(type, null, name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static, argumentTypes);
             if (required && method == null)
                 throw new InvalidOperationException($"The {type.FullName} object doesn't have a private '{name}' static method with that signature.");
             return method;

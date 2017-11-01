@@ -1,6 +1,5 @@
 using System;
 using StardewModdingAPI.Framework;
-using StardewModdingAPI.Utilities;
 
 namespace StardewModdingAPI.Events
 {
@@ -24,20 +23,22 @@ namespace StardewModdingAPI.Events
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="button">The button on the controller, keyboard, or mouse.</param>
         /// <param name="cursor">The cursor position.</param>
-        /// <param name="isClick">Whether the input is considered a 'click' by the game for enabling action.</param>
-        internal static void InvokeButtonPressed(IMonitor monitor, SButton button, ICursorPosition cursor, bool isClick)
+        /// <param name="isActionButton">Whether the input should trigger actions on the affected tile.</param>
+        /// <param name="isUseToolButton">Whether the input should use tools on the affected tile.</param>
+        internal static void InvokeButtonPressed(IMonitor monitor, SButton button, ICursorPosition cursor, bool isActionButton, bool isUseToolButton)
         {
-            monitor.SafelyRaiseGenericEvent($"{nameof(InputEvents)}.{nameof(InputEvents.ButtonPressed)}", InputEvents.ButtonPressed?.GetInvocationList(), null, new EventArgsInput(button, cursor, isClick));
+            monitor.SafelyRaiseGenericEvent($"{nameof(InputEvents)}.{nameof(InputEvents.ButtonPressed)}", InputEvents.ButtonPressed?.GetInvocationList(), null, new EventArgsInput(button, cursor, isActionButton, isUseToolButton));
         }
 
         /// <summary>Raise a <see cref="ButtonReleased"/> event.</summary>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="button">The button on the controller, keyboard, or mouse.</param>
         /// <param name="cursor">The cursor position.</param>
-        /// <param name="isClick">Whether the input is considered a 'click' by the game for enabling action.</param>
-        internal static void InvokeButtonReleased(IMonitor monitor, SButton button, ICursorPosition cursor, bool isClick)
+        /// <param name="isActionButton">Whether the input should trigger actions on the affected tile.</param>
+        /// <param name="isUseToolButton">Whether the input should use tools on the affected tile.</param>
+        internal static void InvokeButtonReleased(IMonitor monitor, SButton button, ICursorPosition cursor, bool isActionButton, bool isUseToolButton)
         {
-            monitor.SafelyRaiseGenericEvent($"{nameof(InputEvents)}.{nameof(InputEvents.ButtonReleased)}", InputEvents.ButtonReleased?.GetInvocationList(), null, new EventArgsInput(button, cursor, isClick));
+            monitor.SafelyRaiseGenericEvent($"{nameof(InputEvents)}.{nameof(InputEvents.ButtonReleased)}", InputEvents.ButtonReleased?.GetInvocationList(), null, new EventArgsInput(button, cursor, isActionButton, isUseToolButton));
         }
     }
 }

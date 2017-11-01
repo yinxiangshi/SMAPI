@@ -11,19 +11,10 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "api/1.0/mods?modKeys=nexus:541,chucklefish:4228,github:Zoryn4163/SMAPI-Mods",
+      "launchUrl": "log",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
-    },
-    "Dewdrop": {
-      "commandName": "Project",
-      "launchBrowser": true,
-      "launchUrl": "api/1.0/mods?modKeys=nexus:541,chucklefish:4228,github:Zoryn4163/SMAPI-Mods",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      },
-      "applicationUrl": "http://localhost:59483"
     }
   }
 }

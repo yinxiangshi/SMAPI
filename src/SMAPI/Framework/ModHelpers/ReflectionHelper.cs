@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using StardewModdingAPI.Framework.Reflection;
 
 namespace StardewModdingAPI.Framework.ModHelpers
@@ -42,8 +43,9 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <returns>Returns the field wrapper, or <c>null</c> if the field doesn't exist and <paramref name="required"/> is <c>false</c>.</returns>
         public IPrivateField<TValue> GetPrivateField<TValue>(object obj, string name, bool required = true)
         {
-            this.AssertAccessAllowed(obj);
-            return this.Reflector.GetPrivateField<TValue>(obj, name, required);
+            return this.AssertAccessAllowed(
+                this.Reflector.GetPrivateField<TValue>(obj, name, required)
+            );
         }
 
         /// <summary>Get a private static field.</summary>
@@ -53,8 +55,9 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="required">Whether to throw an exception if the private field is not found.</param>
         public IPrivateField<TValue> GetPrivateField<TValue>(Type type, string name, bool required = true)
         {
-            this.AssertAccessAllowed(type);
-            return this.Reflector.GetPrivateField<TValue>(type, name, required);
+            return this.AssertAccessAllowed(
+                this.Reflector.GetPrivateField<TValue>(type, name, required)
+            );
         }
 
         /****
@@ -67,8 +70,9 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="required">Whether to throw an exception if the private property is not found.</param>
         public IPrivateProperty<TValue> GetPrivateProperty<TValue>(object obj, string name, bool required = true)
         {
-            this.AssertAccessAllowed(obj);
-            return this.Reflector.GetPrivateProperty<TValue>(obj, name, required);
+            return this.AssertAccessAllowed(
+                this.Reflector.GetPrivateProperty<TValue>(obj, name, required)
+               );
         }
 
         /// <summary>Get a private static property.</summary>
@@ -78,8 +82,9 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="required">Whether to throw an exception if the private property is not found.</param>
         public IPrivateProperty<TValue> GetPrivateProperty<TValue>(Type type, string name, bool required = true)
         {
-            this.AssertAccessAllowed(type);
-            return this.Reflector.GetPrivateProperty<TValue>(type, name, required);
+            return this.AssertAccessAllowed(
+                this.Reflector.GetPrivateProperty<TValue>(type, name, required)
+            );
         }
 
         /****
@@ -98,7 +103,6 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// </remarks>
         public TValue GetPrivateValue<TValue>(object obj, string name, bool required = true)
         {
-            this.AssertAccessAllowed(obj);
             IPrivateField<TValue> field = this.GetPrivateField<TValue>(obj, name, required);
             return field != null
                 ? field.GetValue()
@@ -117,7 +121,6 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// </remarks>
         public TValue GetPrivateValue<TValue>(Type type, string name, bool required = true)
         {
-            this.AssertAccessAllowed(type);
             IPrivateField<TValue> field = this.GetPrivateField<TValue>(type, name, required);
             return field != null
                 ? field.GetValue()
@@ -133,8 +136,9 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="required">Whether to throw an exception if the private field is not found.</param>
         public IPrivateMethod GetPrivateMethod(object obj, string name, bool required = true)
         {
-            this.AssertAccessAllowed(obj);
-            return this.Reflector.GetPrivateMethod(obj, name, required);
+            return this.AssertAccessAllowed(
+                this.Reflector.GetPrivateMethod(obj, name, required)
+            );
         }
 
         /// <summary>Get a private static method.</summary>
@@ -143,8 +147,9 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="required">Whether to throw an exception if the private field is not found.</param>
         public IPrivateMethod GetPrivateMethod(Type type, string name, bool required = true)
         {
-            this.AssertAccessAllowed(type);
-            return this.Reflector.GetPrivateMethod(type, name, required);
+            return this.AssertAccessAllowed(
+                this.Reflector.GetPrivateMethod(type, name, required)
+            );
         }
 
         /****
@@ -157,8 +162,9 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="required">Whether to throw an exception if the private field is not found.</param>
         public IPrivateMethod GetPrivateMethod(object obj, string name, Type[] argumentTypes, bool required = true)
         {
-            this.AssertAccessAllowed(obj);
-            return this.Reflector.GetPrivateMethod(obj, name, argumentTypes, required);
+            return this.AssertAccessAllowed(
+                this.Reflector.GetPrivateMethod(obj, name, argumentTypes, required)
+            );
         }
 
         /// <summary>Get a private static method.</summary>
@@ -168,33 +174,60 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="required">Whether to throw an exception if the private field is not found.</param>
         public IPrivateMethod GetPrivateMethod(Type type, string name, Type[] argumentTypes, bool required = true)
         {
-            this.AssertAccessAllowed(type);
-            return this.Reflector.GetPrivateMethod(type, name, argumentTypes, required);
+            return this.AssertAccessAllowed(
+                this.Reflector.GetPrivateMethod(type, name, argumentTypes, required)
+            );
         }
 
 
         /*********
         ** Private methods
         *********/
-        /// <summary>Assert that mods can use the reflection helper to access the given type.</summary>
-        /// <param name="type">The type being accessed.</param>
-        private void AssertAccessAllowed(Type type)
+        /// <summary>Assert that mods can use the reflection helper to access the given member.</summary>
+        /// <typeparam name="T">The field value type.</typeparam>
+        /// <param name="field">The field being accessed.</param>
+        /// <returns>Returns the same field instance for convenience.</returns>
+        private IPrivateField<T> AssertAccessAllowed<T>(IPrivateField<T> field)
         {
-            // validate type namespace
-            if (type.Namespace != null)
-            {
-                string rootSmapiNamespace = typeof(Program).Namespace;
-                if (type.Namespace == rootSmapiNamespace || type.Namespace.StartsWith(rootSmapiNamespace + "."))
-                    throw new InvalidOperationException($"SMAPI blocked access by {this.ModName} to its internals through the reflection API. Accessing the SMAPI internals is strongly discouraged since they're subject to change, which means the mod can break without warning.");
-            }
+            this.AssertAccessAllowed(field?.FieldInfo);
+            return field;
         }
 
-        /// <summary>Assert that mods can use the reflection helper to access the given type.</summary>
-        /// <param name="obj">The object being accessed.</param>
-        private void AssertAccessAllowed(object obj)
+        /// <summary>Assert that mods can use the reflection helper to access the given member.</summary>
+        /// <typeparam name="T">The property value type.</typeparam>
+        /// <param name="property">The property being accessed.</param>
+        /// <returns>Returns the same property instance for convenience.</returns>
+        private IPrivateProperty<T> AssertAccessAllowed<T>(IPrivateProperty<T> property)
         {
-            if (obj != null)
-                this.AssertAccessAllowed(obj.GetType());
+            this.AssertAccessAllowed(property?.PropertyInfo);
+            return property;
+        }
+
+        /// <summary>Assert that mods can use the reflection helper to access the given member.</summary>
+        /// <param name="method">The method being accessed.</param>
+        /// <returns>Returns the same method instance for convenience.</returns>
+        private IPrivateMethod AssertAccessAllowed(IPrivateMethod method)
+        {
+            this.AssertAccessAllowed(method?.MethodInfo);
+            return method;
+        }
+
+        /// <summary>Assert that mods can use the reflection helper to access the given member.</summary>
+        /// <param name="member">The member being accessed.</param>
+        private void AssertAccessAllowed(MemberInfo member)
+        {
+            if (member == null)
+                return;
+
+            // get type which defines the member
+            Type declaringType = member.DeclaringType;
+            if (declaringType == null)
+                throw new InvalidOperationException($"Can't validate access to {member.MemberType} {member.Name} because it has no declaring type."); // should never happen
+
+            // validate access
+            string rootNamespace = typeof(Program).Namespace;
+            if (declaringType.Namespace == rootNamespace || declaringType.Namespace?.StartsWith(rootNamespace + ".") == true)
+                throw new InvalidOperationException($"SMAPI blocked access by {this.ModName} to its internals through the reflection API. Accessing the SMAPI internals is strongly discouraged since they're subject to change, which means the mod can break without warning. (Detected access to {declaringType.FullName}.{member.Name}.)");
         }
     }
 }

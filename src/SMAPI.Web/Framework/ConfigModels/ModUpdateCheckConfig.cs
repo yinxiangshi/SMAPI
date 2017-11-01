@@ -1,7 +1,7 @@
 namespace StardewModdingAPI.Web.Framework.ConfigModels
 {
     /// <summary>The config settings for mod update checks.</summary>
-    public class ModUpdateCheckConfig
+    internal class ModUpdateCheckConfig
     {
         /*********
         ** Accessors

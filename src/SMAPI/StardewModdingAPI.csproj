@@ -89,6 +89,7 @@
     <Compile Include="..\..\build\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Framework\Content\ContentCache.cs" />
     <Compile Include="Framework\Models\ModCompatibility.cs" />
     <Compile Include="Framework\ModLoading\Finders\EventFinder.cs" />
     <Compile Include="Framework\ModLoading\Finders\FieldFinder.cs" />
@@ -173,7 +174,7 @@
     <Compile Include="Framework\SContentManager.cs" />
     <Compile Include="Framework\Exceptions\SParseException.cs" />
     <Compile Include="Framework\Serialisation\JsonHelper.cs" />
-    <Compile Include="Framework\Serialisation\SelectiveStringEnumConverter.cs" />
+    <Compile Include="Framework\Serialisation\StringEnumConverter.cs" />
     <Compile Include="Framework\Serialisation\SFieldConverter.cs" />
     <Compile Include="IAssetEditor.cs" />
     <Compile Include="IAssetInfo.cs" />

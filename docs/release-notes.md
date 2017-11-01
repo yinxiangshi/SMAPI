@@ -1,4 +1,32 @@
 # Release notes
+## 2.1
+* For players:
+  * Added a log parser at [log.smapi.io](https://log.smapi.io).
+  * Added better Steam instructions to the SMAPI installer.
+  * Renamed the bundled _TrainerMod_ to _ConsoleCommands_ to make its purpose clearer.
+  * Removed the game's test messages from the console log.
+  * Improved update-check errors when playing offline.
+  * Fixed compatibility check for players with Stardew Valley 1.08.
+  * Fixed `player_setlevel` command not setting XP too.
+
+* For modders:
+  * The reflection API now works with public code to simplify mod integrations.
+  * The content API now lets you invalidated multiple assets at once.
+  * The `InputEvents` have been improved:
+    * Added `e.IsActionButton` and `e.IsUseToolButton`.
+    * Added `ToSButton()` extension for the game's `Game1.options` button type.
+    * Deprecated `e.IsClick`, which is limited and unclear. Use `IsActionButton` or `IsUseToolButton` instead.
+    * Fixed `e.SuppressButton()` not correctly suppressing keyboard buttons.
+    * Fixed `e.IsClick` (now `e.IsActionButton`) ignoring custom key bindings.
+  * `SemanticVersion` can now be constructed from a `System.Version`.
+  * Fixed reflection API blocking access to some non-SMAPI members.
+  * Fixed content API allowing absolute paths as asset keys.
+  * Fixed content API failing to load custom map tilesheets that aren't preloaded.
+  * Fixed content API incorrectly detecting duplicate loaders when a mod implements `IAssetLoader` directly.
+
+* For SMAPI developers:
+  * Added the installer version and platform to the installer window title to simplify troubleshooting.
+
 ## 2.0
 ### Release highlights
 * **Mod update checks**  
@@ -18,7 +46,7 @@
   SMAPI 2.0 adds several features to enable new kinds of mods (see
   [API documentation](https://stardewvalleywiki.com/Modding:SMAPI_APIs)).
 
-  The **content API** lets you edit, inject, and reload XNB data loaded by the game at any time. This let SMAPI mods do
+  The **content API** lets you edit, inject, and reload XNB data loaded by the game at any time. This lets SMAPI mods do
   anything previously only possible with XNB mods, and enables new mod scenarios not possible with XNB mods (e.g.
   seasonal textures, NPC clothing that depend on the weather or location, etc).
 

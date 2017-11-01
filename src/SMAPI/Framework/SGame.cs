@@ -12,7 +12,6 @@ using Microsoft.Xna.Framework.Input;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Utilities;
-using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
 using StardewValley.Locations;
@@ -180,7 +179,7 @@ namespace StardewModdingAPI.Framework
 
             // override content manager
             this.Monitor?.Log("Overriding content manager...", LogLevel.Trace);
-            this.SContentManager = new SContentManager(this.Content.ServiceProvider, this.Content.RootDirectory, Thread.CurrentThread.CurrentUICulture, null, this.Monitor);
+            this.SContentManager = new SContentManager(this.Content.ServiceProvider, this.Content.RootDirectory, Thread.CurrentThread.CurrentUICulture, null, this.Monitor, reflection);
             this.Content = new ContentManagerShim(this.SContentManager, "SGame.Content");
             Game1.content = new ContentManagerShim(this.SContentManager, "Game1.content");
             reflection.GetPrivateField<LocalizedContentManager>(typeof(Game1), "_temporaryContent").SetValue(new ContentManagerShim(this.SContentManager, "Game1._temporaryContent")); // regenerate value with new content manager
@@ -241,6 +240,9 @@ namespace StardewModdingAPI.Framework
                     return;
                 }
 
+                /*********
+                ** Save events + suppress events during save
+                *********/
                 // While the game is writing to the save file in the background, mods can unexpectedly
                 // fail since they don't have exclusive access to resources (e.g. collection changed
                 // during enumeration errors). To avoid problems, events are not invoked while a save
@@ -249,7 +251,7 @@ namespace StardewModdingAPI.Framework
                 if (Context.IsSaving)
                 {
                     // raise before-save
-                    if (!this.IsBetweenSaveEvents)
+                    if (Context.IsWorldReady && !this.IsBetweenSaveEvents)
                     {
                         this.IsBetweenSaveEvents = true;
                         this.Monitor.Log("Context: before save.", LogLevel.Trace);
@@ -371,7 +373,8 @@ namespace StardewModdingAPI.Framework
                     SButton[] previousPressedKeys = this.PreviousPressedButtons;
                     SButton[] framePressedKeys = currentlyPressedKeys.Except(previousPressedKeys).ToArray();
                     SButton[] frameReleasedKeys = previousPressedKeys.Except(currentlyPressedKeys).ToArray();
-                    bool isClick = framePressedKeys.Contains(SButton.MouseLeft) || (framePressedKeys.Contains(SButton.ControllerA) && !currentlyPressedKeys.Contains(SButton.ControllerX));
+                    bool isUseToolButton = Game1.options.useToolButton.Any(p => framePressedKeys.Contains(p.ToSButton()));
+                    bool isActionButton = !isUseToolButton && Game1.options.actionButton.Any(p => framePressedKeys.Contains(p.ToSButton()));
 
                     // get cursor position
                     ICursorPosition cursor;
@@ -388,7 +391,7 @@ namespace StardewModdingAPI.Framework
                     // raise button pressed
                     foreach (SButton button in framePressedKeys)
                     {
-                        InputEvents.InvokeButtonPressed(this.Monitor, button, cursor, isClick);
+                        InputEvents.InvokeButtonPressed(this.Monitor, button, cursor, isActionButton, isUseToolButton);
 
                         // legacy events
                         if (button.TryGetKeyboard(out Keys key))
@@ -408,10 +411,9 @@ namespace StardewModdingAPI.Framework
                     // raise button released
                     foreach (SButton button in frameReleasedKeys)
                     {
-                        bool wasClick =
-                            (button == SButton.MouseLeft && previousPressedKeys.Contains(SButton.MouseLeft)) // released left click
-                            || (button == SButton.ControllerA && previousPressedKeys.Contains(SButton.ControllerA) && !previousPressedKeys.Contains(SButton.ControllerX));
-                        InputEvents.InvokeButtonReleased(this.Monitor, button, cursor, wasClick);
+                        bool wasUseToolButton = (from opt in Game1.options.useToolButton let optButton = opt.ToSButton() where optButton == button && framePressedKeys.Contains(optButton) select optButton).Any();
+                        bool wasActionButton = !wasUseToolButton && (from opt in Game1.options.actionButton let optButton = opt.ToSButton() where optButton == button && framePressedKeys.Contains(optButton) select optButton).Any();
+                        InputEvents.InvokeButtonReleased(this.Monitor, button, cursor, wasActionButton, wasUseToolButton);
 
                         // legacy events
                         if (button.TryGetKeyboard(out Keys key))

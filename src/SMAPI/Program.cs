@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Security;
+using System.Text.RegularExpressions;
 using System.Threading;
 #if SMAPI_FOR_WINDOWS
 using System.Management;
@@ -76,6 +78,13 @@ namespace StardewModdingAPI
 
         /// <summary>Whether the program has been disposed.</summary>
         private bool IsDisposed;
+
+        /// <summary>Regex patterns which match console messages to suppress from the console and log.</summary>
+        private readonly Regex[] SuppressConsolePatterns =
+        {
+            new Regex(@"^TextBox\.Selected is now '(?:True|False)'\.$", RegexOptions.Compiled | RegexOptions.CultureInvariant),
+            new Regex(@"^(?:FRUIT )?TREE: IsClient:(?:True|False) randomOutput: \d+$", RegexOptions.Compiled | RegexOptions.CultureInvariant)
+        };
 
 
         /*********
@@ -510,8 +519,11 @@ namespace StardewModdingAPI
                 }
                 catch (Exception ex)
                 {
-                    this.Monitor.Log("Couldn't check for a new version of SMAPI. This won't affect your game, but you may not be notified of new versions if this keeps happening.", LogLevel.Warn);
-                    this.Monitor.Log($"Error: {ex.GetLogSummary()}");
+                    this.Monitor.Log("Couldn't check for a new version of SMAPI. This won't affect your game, but you won't be notified of new versions if this keeps happening.", LogLevel.Warn);
+                    this.Monitor.Log(ex is WebException && ex.InnerException == null
+                        ? $"Error: {ex.Message}"
+                        : $"Error: {ex.GetLogSummary()}"
+                    );
                 }
 
                 // check mod versions
@@ -598,7 +610,11 @@ namespace StardewModdingAPI
                 }
                 catch (Exception ex)
                 {
-                    this.Monitor.Log($"Couldn't check for new mod versions:\n{ex.GetLogSummary()}", LogLevel.Trace);
+                    this.Monitor.Log("Couldn't check for new mod versions. This won't affect your game, but you won't be notified of mod updates if this keeps happening.", LogLevel.Warn);
+                    this.Monitor.Log(ex is WebException && ex.InnerException == null
+                        ? ex.Message
+                        : ex.ToString()
+                    );
                 }
             }).Start();
         }
@@ -910,7 +926,14 @@ namespace StardewModdingAPI
         /// <param name="message">The message to log.</param>
         private void HandleConsoleMessage(IMonitor monitor, string message)
         {
-            LogLevel level = message.Contains("Exception") ? LogLevel.Error : LogLevel.Trace; // intercept potential exceptions
+            // detect exception
+            LogLevel level = message.Contains("Exception") ? LogLevel.Error : LogLevel.Trace;
+
+            // ignore suppressed message
+            if (level != LogLevel.Error && this.SuppressConsolePatterns.Any(p => p.IsMatch(message)))
+                return;
+
+            // forward to monitor
             monitor.Log(message, level);
         }
 

@@ -615,6 +615,18 @@ namespace StardewModdingAPI
             return (SButton)(SButtonExtensions.ControllerOffset + key);
         }
 
+        /// <summary>Get the <see cref="SButton"/> equivalent for the given button.</summary>
+        /// <param name="input">The Stardew Valley button to convert.</param>
+        internal static SButton ToSButton(this InputButton input)
+        {
+            // derived from InputButton constructors
+            if (input.mouseLeft)
+                return SButton.MouseLeft;
+            if (input.mouseRight)
+                return SButton.MouseRight;
+            return input.key.ToSButton();
+        }
+
         /// <summary>Get the <see cref="Keys"/> equivalent for the given button.</summary>
         /// <param name="input">The button to convert.</param>
         /// <param name="key">The keyboard equivalent.</param>
