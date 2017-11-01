@@ -1,31 +1,31 @@
 # Release notes
-## 2.1 (upcoming)
+## 2.1
 * For players:
-  * Added a log parser service at [log.smapi.io](https://log.smapi.io).
+  * Added a log parser at [log.smapi.io](https://log.smapi.io).
   * Added better Steam instructions to the SMAPI installer.
-  * Renamed the default _TrainerMod_ mod to _Console Commands_ to clarify its purpose.
-  * Hid the game's test messages from the console log.
-  * Improved update-check errors when connection is offline.
-  * Fixed compatibility check crashing for players with Stardew Valley 1.08.
-  * Fixed TrainerMod's `player_setlevel` command not also setting XP.
+  * Renamed the bundled _TrainerMod_ to _ConsoleCommands_ to make its purpose clearer.
+  * Removed the game's test messages from the console log.
+  * Improved update-check errors when playing offline.
+  * Fixed compatibility check for players with Stardew Valley 1.08.
+  * Fixed `player_setlevel` command not setting XP too.
 
 * For modders:
   * The reflection API now works with public code to simplify mod integrations.
   * The content API now lets you invalidated multiple assets at once.
-  * Improved input events:
+  * The `InputEvents` have been improved:
     * Added `e.IsActionButton` and `e.IsUseToolButton`.
     * Added `ToSButton()` extension for the game's `Game1.options` button type.
     * Deprecated `e.IsClick`, which is limited and unclear. Use `IsActionButton` or `IsUseToolButton` instead.
     * Fixed `e.SuppressButton()` not correctly suppressing keyboard buttons.
     * Fixed `e.IsClick` (now `e.IsActionButton`) ignoring custom key bindings.
   * `SemanticVersion` can now be constructed from a `System.Version`.
-  * Fixed reflection API blocking access to vanilla members on overridden types.
+  * Fixed reflection API blocking access to some non-SMAPI members.
   * Fixed content API allowing absolute paths as asset keys.
   * Fixed content API failing to load custom map tilesheets that aren't preloaded.
   * Fixed content API incorrectly detecting duplicate loaders when a mod implements `IAssetLoader` directly.
 
 * For SMAPI developers:
-  * Added the SMAPI installer version and platform to the window title to simplify troubleshooting.
+  * Added the installer version and platform to the installer window title to simplify troubleshooting.
 
 ## 2.0
 ### Release highlights
