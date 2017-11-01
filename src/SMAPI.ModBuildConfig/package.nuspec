@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>Pathoschild.Stardew.ModBuildConfig</id>
-    <version>2.0.1</version>
+    <version>2.0.2</version>
     <title>Build package for SMAPI mods</title>
     <authors>Pathoschild</authors>
     <owners>Pathoschild</owners>
@@ -23,6 +23,9 @@
 
       2.0.1:
       - Fixed mod deploy failing to create subfolders if they don't already exist.
+
+      2.0.2:
+      - Fixed compatibility issue on Linux.
     </releaseNotes>
   </metadata>
   <files>
