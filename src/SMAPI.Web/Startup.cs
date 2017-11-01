@@ -64,6 +64,12 @@ namespace StardewModdingAPI.Web
             loggerFactory.AddConsole(this.Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
             app
+                .UseCors(policy => policy
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .WithOrigins("https://smapi.io", "https://*.smapi.io", "https://*.edge.smapi.io")
+                    .SetIsOriginAllowedToAllowWildcardSubdomains()
+                )
                 .UseRewriter(new RewriteOptions()
                     // redirect to HTTPS (except API for Linux/Mac Mono compatibility)
                     .Add(new ConditionalRedirectToHttpsRule(
