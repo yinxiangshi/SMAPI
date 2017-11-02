@@ -26,9 +26,6 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <summary>The absolute path to the mod folder.</summary>
         private readonly string ModFolderPath;
 
-        /// <summary>The path to the mod's folder, relative to the game's content folder (e.g. "../Mods/ModName").</summary>
-        private readonly string ModFolderPathFromContent;
-
         /// <summary>The friendly mod name for use in errors.</summary>
         private readonly string ModName;
 
@@ -73,7 +70,6 @@ namespace StardewModdingAPI.Framework.ModHelpers
             this.ContentManager = contentManager;
             this.ModFolderPath = modFolderPath;
             this.ModName = modName;
-            this.ModFolderPathFromContent = this.ContentManager.GetRelativePath(modFolderPath);
             this.Monitor = monitor;
         }
 
@@ -102,7 +98,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
                             throw GetContentError($"there's no matching file at path '{file.FullName}'.");
 
                         // get asset path
-                        string assetName = this.GetModAssetPath(key, file.FullName);
+                        string assetName = this.ContentManager.GetAssetNameFromFilePath(file.FullName);
 
                         // try cache
                         if (this.ContentManager.IsLoaded(assetName))
@@ -151,7 +147,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
 
                 case ContentSource.ModFolder:
                     FileInfo file = this.GetModFile(key);
-                    return this.ContentManager.NormaliseAssetName(this.GetModAssetPath(key, file.FullName));
+                    return this.ContentManager.NormaliseAssetName(this.ContentManager.GetAssetNameFromFilePath(file.FullName));
 
                 default:
                     throw new NotSupportedException($"Unknown content source '{source}'.");
@@ -355,20 +351,6 @@ namespace StardewModdingAPI.Framework.ModHelpers
 
             // get file
             return new FileInfo(path);
-        }
-
-        /// <summary>Get the asset path which loads a mod folder through a content manager.</summary>
-        /// <param name="localPath">The file path relative to the mod's folder.</param>
-        /// <param name="absolutePath">The absolute file path.</param>
-        private string GetModAssetPath(string localPath, string absolutePath)
-        {
-#if SMAPI_FOR_WINDOWS
-            // XNA doesn't allow absolute asset paths, so get a path relative to the content folder
-            return Path.Combine(this.ModFolderPathFromContent, localPath);
-#else
-            // MonoGame is weird about relative paths on Mac, but allows absolute paths
-            return absolutePath;
-#endif
         }
     }
 }
