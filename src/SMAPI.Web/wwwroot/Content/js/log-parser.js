@@ -106,7 +106,10 @@ smapi.logParser = function(sectionUrl, pasteID) {
 
     $(document).on("keydown", function (e) {
         if (e.which == 27) {
-            closeUploadPopUp();
+            if ($("#popup-upload").css("display") !== "none" && $("#popup-upload").css("opacity") == 1) {
+                closeUploadPopUp();
+            }
+
             $("#popup-raw").fadeOut(400);
         }
     });
