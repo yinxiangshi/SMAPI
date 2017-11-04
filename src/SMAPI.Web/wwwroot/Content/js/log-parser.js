@@ -117,8 +117,9 @@ smapi.logParser = function(sectionUrl, pasteID) {
     });
 
     $("#popup-raw").on("click", function (e) {
-        if (e.target.id === "popup-raw")
+        if (e.target.id === "popup-raw") {
             $("#popup-raw").fadeOut(400);
+        }
     });
 
     if (pasteID) {
