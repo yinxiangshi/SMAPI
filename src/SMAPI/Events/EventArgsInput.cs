@@ -127,6 +127,37 @@ namespace StardewModdingAPI.Events
 
                 Game1.oldPadState = new GamePadState(thumbsticks, triggers, buttons, dpad);
             }
+
+            // mouse
+            else if (button.TryGetStardewInput(out InputButton inputButton))
+            {
+                if (inputButton.mouseLeft)
+                {
+                    Game1.oldMouseState = new MouseState(
+                        Game1.oldMouseState.X,
+                        Game1.oldMouseState.Y,
+                        Game1.oldMouseState.ScrollWheelValue,
+                        ButtonState.Pressed,
+                        Game1.oldMouseState.MiddleButton,
+                        Game1.oldMouseState.RightButton,
+                        Game1.oldMouseState.XButton1,
+                        Game1.oldMouseState.XButton2
+                    );
+                }
+                else if (inputButton.mouseRight)
+                {
+                    Game1.oldMouseState = new MouseState(
+                        Game1.oldMouseState.X,
+                        Game1.oldMouseState.Y,
+                        Game1.oldMouseState.ScrollWheelValue,
+                        Game1.oldMouseState.LeftButton,
+                        Game1.oldMouseState.MiddleButton,
+                        ButtonState.Pressed,
+                        Game1.oldMouseState.XButton1,
+                        Game1.oldMouseState.XButton2
+                    );
+                }
+            }
         }
     }
 }
