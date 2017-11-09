@@ -129,7 +129,7 @@ namespace StardewModdingAPI.Events
             }
 
             // mouse
-            else if (button.TryGetStardewInput(out InputButton inputButton))
+            else if (this.Button.TryGetStardewInput(out InputButton inputButton))
             {
                 if (inputButton.mouseLeft)
                 {
