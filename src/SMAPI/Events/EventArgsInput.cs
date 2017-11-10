@@ -56,11 +56,11 @@ namespace StardewModdingAPI.Events
         public void SuppressButton(SButton button)
         {
             // keyboard
-            if (this.Button.TryGetKeyboard(out Keys key))
+            if (button.TryGetKeyboard(out Keys key))
                 Game1.oldKBState = new KeyboardState(Game1.oldKBState.GetPressedKeys().Union(new[] { key }).ToArray());
 
             // controller
-            else if (this.Button.TryGetController(out Buttons controllerButton))
+            else if (button.TryGetController(out Buttons controllerButton))
             {
                 var newState = GamePad.GetState(PlayerIndex.One);
                 var thumbsticks = Game1.oldPadState.ThumbSticks;
@@ -129,34 +129,31 @@ namespace StardewModdingAPI.Events
             }
 
             // mouse
-            else if (this.Button.TryGetStardewInput(out InputButton inputButton))
+            else if (button == SButton.MouseLeft)
             {
-                if (inputButton.mouseLeft)
-                {
-                    Game1.oldMouseState = new MouseState(
-                        Game1.oldMouseState.X,
-                        Game1.oldMouseState.Y,
-                        Game1.oldMouseState.ScrollWheelValue,
-                        ButtonState.Pressed,
-                        Game1.oldMouseState.MiddleButton,
-                        Game1.oldMouseState.RightButton,
-                        Game1.oldMouseState.XButton1,
-                        Game1.oldMouseState.XButton2
-                    );
-                }
-                else if (inputButton.mouseRight)
-                {
-                    Game1.oldMouseState = new MouseState(
-                        Game1.oldMouseState.X,
-                        Game1.oldMouseState.Y,
-                        Game1.oldMouseState.ScrollWheelValue,
-                        Game1.oldMouseState.LeftButton,
-                        Game1.oldMouseState.MiddleButton,
-                        ButtonState.Pressed,
-                        Game1.oldMouseState.XButton1,
-                        Game1.oldMouseState.XButton2
-                    );
-                }
+                Game1.oldMouseState = new MouseState(
+                    Game1.oldMouseState.X,
+                    Game1.oldMouseState.Y,
+                    Game1.oldMouseState.ScrollWheelValue,
+                    ButtonState.Pressed,
+                    Game1.oldMouseState.MiddleButton,
+                    Game1.oldMouseState.RightButton,
+                    Game1.oldMouseState.XButton1,
+                    Game1.oldMouseState.XButton2
+                );
+            }
+            else if (button == SButton.MouseRight)
+            {
+                Game1.oldMouseState = new MouseState(
+                    Game1.oldMouseState.X,
+                    Game1.oldMouseState.Y,
+                    Game1.oldMouseState.ScrollWheelValue,
+                    Game1.oldMouseState.LeftButton,
+                    Game1.oldMouseState.MiddleButton,
+                    ButtonState.Pressed,
+                    Game1.oldMouseState.XButton1,
+                    Game1.oldMouseState.XButton2
+                );
             }
         }
     }
