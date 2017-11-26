@@ -95,6 +95,12 @@ namespace StardewModdingAPI.Utilities
             return $"{this.Day:00} {this.Season} Y{this.Year}";
         }
 
+        /// <summary>This function will return the number of days since Year 1 Spring 0 for an arbitrary date</summary>
+        public static int TotalNumberOfDays(SDate date)
+        {
+            return (((date.Year - 1) * 112) + (date.GetSeasonIndex() * 28) + date.Day);
+        }
+
         /****
         ** IEquatable
         ****/
