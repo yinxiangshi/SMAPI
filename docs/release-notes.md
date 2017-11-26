@@ -8,6 +8,9 @@
   * Fixed input `e.SuppressButton(button)` method ignoring input.
   * Fixed input `e.SuppressButton()` method not working with mouse buttons.
 
+* For log.smapi.io:
+  * The upload-log modal can now be closed by pressing `ESC` or clicking outside it.
+
 ## 2.1
 * For players:
   * Added a log parser at [log.smapi.io](https://log.smapi.io).
