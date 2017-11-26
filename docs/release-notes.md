@@ -2,6 +2,7 @@
 ## 2.2
 * For players:
   * Fixed mods crashing when loading a custom asset on Linux/Mac.
+  * Fixed rare installer errors on Mac due to generated `mcs` file.
   * Updated compatibility list.
 
 * For modders:
