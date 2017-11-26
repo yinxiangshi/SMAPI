@@ -85,7 +85,7 @@ namespace StardewModdingAPI.Web.Framework.LogParser
                             ["api_dev_key"] = this.DevKey,
                             ["api_paste_private"] = "1", // unlisted
                             ["api_paste_name"] = $"SMAPI log {DateTime.UtcNow:s}",
-                            ["api_paste_expire_date"] = "1W", // one week
+                            ["api_paste_expire_date"] = "N", // never expire
                             ["api_paste_code"] = content
                         }))
                         .AsString();

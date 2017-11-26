@@ -11,6 +11,7 @@
   * Fixed input `e.SuppressButton()` method not working with mouse buttons.
 
 * For log.smapi.io:
+  * Saved logs no longer expire after a week.
   * The upload-log modal can now be closed by pressing `ESC` or clicking outside it.
 
 ## 2.1
