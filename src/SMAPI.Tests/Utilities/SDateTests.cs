@@ -82,6 +82,59 @@ namespace StardewModdingAPI.Tests.Utilities
         }
 
         /****
+        ** DayOfWeek
+        ****/
+        [Test(Description = "Assert the day of week.")]
+        [TestCase("01 spring Y1", ExpectedResult = System.DayOfWeek.Monday)]
+        [TestCase("02 spring Y2", ExpectedResult = System.DayOfWeek.Tuesday)]
+        [TestCase("03 spring Y3", ExpectedResult = System.DayOfWeek.Wednesday)]
+        [TestCase("04 spring Y4", ExpectedResult = System.DayOfWeek.Thursday)]
+        [TestCase("05 spring Y5", ExpectedResult = System.DayOfWeek.Friday)]
+        [TestCase("06 spring Y6", ExpectedResult = System.DayOfWeek.Saturday)]
+        [TestCase("07 spring Y7", ExpectedResult = System.DayOfWeek.Sunday)]
+        [TestCase("08 summer Y8", ExpectedResult = System.DayOfWeek.Monday)]
+        [TestCase("09 summer Y9", ExpectedResult = System.DayOfWeek.Tuesday)]
+        [TestCase("10 summer Y10", ExpectedResult = System.DayOfWeek.Wednesday)]
+        [TestCase("11 summer Y11", ExpectedResult = System.DayOfWeek.Thursday)]
+        [TestCase("12 summer Y12", ExpectedResult = System.DayOfWeek.Friday)]
+        [TestCase("13 summer Y13", ExpectedResult = System.DayOfWeek.Saturday)]
+        [TestCase("14 summer Y14", ExpectedResult = System.DayOfWeek.Sunday)]
+        [TestCase("15 fall Y15", ExpectedResult = System.DayOfWeek.Monday)]
+        [TestCase("16 fall Y16", ExpectedResult = System.DayOfWeek.Tuesday)]
+        [TestCase("17 fall Y17", ExpectedResult = System.DayOfWeek.Wednesday)]
+        [TestCase("18 fall Y18", ExpectedResult = System.DayOfWeek.Thursday)]
+        [TestCase("19 fall Y19", ExpectedResult = System.DayOfWeek.Friday)]
+        [TestCase("20 fall Y20", ExpectedResult = System.DayOfWeek.Saturday)]
+        [TestCase("21 fall Y21", ExpectedResult = System.DayOfWeek.Sunday)]
+        [TestCase("22 winter Y22", ExpectedResult = System.DayOfWeek.Monday)]
+        [TestCase("23 winter Y23", ExpectedResult = System.DayOfWeek.Tuesday)]
+        [TestCase("24 winter Y24", ExpectedResult = System.DayOfWeek.Wednesday)]
+        [TestCase("25 winter Y25", ExpectedResult = System.DayOfWeek.Thursday)]
+        [TestCase("26 winter Y26", ExpectedResult = System.DayOfWeek.Friday)]
+        [TestCase("27 winter Y27", ExpectedResult = System.DayOfWeek.Saturday)]
+        [TestCase("28 winter Y28" + "", ExpectedResult = System.DayOfWeek.Sunday)]
+        public DayOfWeek DayOfWeek(string dateStr)
+        {
+            // act
+            return this.GetDate(dateStr).DayOfWeek;
+        }
+
+        /****
+        ** DaysSinceStart
+        ****/
+        [Test(Description = "Assert the number of days since 01 spring Y1 (inclusive).")]
+        [TestCase("01 spring Y1", ExpectedResult = 1)]
+        [TestCase("02 spring Y1", ExpectedResult = 2)]
+        [TestCase("28 spring Y1", ExpectedResult = 28)]
+        [TestCase("01 summer Y1", ExpectedResult = 29)]
+        [TestCase("01 summer Y2", ExpectedResult = 141)]
+        public int DaysSinceStart(string dateStr)
+        {
+            // act
+            return this.GetDate(dateStr).DaysSinceStart;
+        }
+
+        /****
         ** ToString
         ****/
         [Test(Description = "Assert that ToString returns the expected string.")]

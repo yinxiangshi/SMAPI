@@ -1,4 +1,11 @@
 # Release notes
+## 2.2
+* For players:
+  * Fixed mods crashing when loading a custom asset on Linux/Mac.
+
+* For modders:
+  * Added `DaysSinceStart` property to `SDate` dates.
+
 ## 2.1
 * For players:
   * Added a log parser at [log.smapi.io](https://log.smapi.io).
