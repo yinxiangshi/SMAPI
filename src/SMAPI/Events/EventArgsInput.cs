@@ -129,30 +129,17 @@ namespace StardewModdingAPI.Events
             }
 
             // mouse
-            else if (button == SButton.MouseLeft)
+            else if (button == SButton.MouseLeft || button == SButton.MouseMiddle || button == SButton.MouseRight || button == SButton.MouseX1 || button == SButton.MouseX2)
             {
                 Game1.oldMouseState = new MouseState(
-                    Game1.oldMouseState.X,
-                    Game1.oldMouseState.Y,
-                    Game1.oldMouseState.ScrollWheelValue,
-                    ButtonState.Pressed,
-                    Game1.oldMouseState.MiddleButton,
-                    Game1.oldMouseState.RightButton,
-                    Game1.oldMouseState.XButton1,
-                    Game1.oldMouseState.XButton2
-                );
-            }
-            else if (button == SButton.MouseRight)
-            {
-                Game1.oldMouseState = new MouseState(
-                    Game1.oldMouseState.X,
-                    Game1.oldMouseState.Y,
-                    Game1.oldMouseState.ScrollWheelValue,
-                    Game1.oldMouseState.LeftButton,
-                    Game1.oldMouseState.MiddleButton,
-                    ButtonState.Pressed,
-                    Game1.oldMouseState.XButton1,
-                    Game1.oldMouseState.XButton2
+                    x: Game1.oldMouseState.X,
+                    y: Game1.oldMouseState.Y,
+                    scrollWheel: Game1.oldMouseState.ScrollWheelValue,
+                    leftButton: button == SButton.MouseLeft ? ButtonState.Pressed : Game1.oldMouseState.LeftButton,
+                    middleButton: button == SButton.MouseMiddle ? ButtonState.Pressed : Game1.oldMouseState.MiddleButton,
+                    rightButton: button == SButton.MouseRight ? ButtonState.Pressed : Game1.oldMouseState.RightButton,
+                    xButton1: button == SButton.MouseX1 ? ButtonState.Pressed : Game1.oldMouseState.XButton1,
+                    xButton2: button == SButton.MouseX2 ? ButtonState.Pressed : Game1.oldMouseState.XButton2
                 );
             }
         }

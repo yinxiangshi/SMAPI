@@ -5,6 +5,8 @@
 
 * For modders:
   * Added `DaysSinceStart` property to `SDate` dates.
+  * Fixed input `e.SuppressButton(button)` method ignoring input.
+  * Fixed input `e.SuppressButton()` method not working with mouse buttons.
 
 ## 2.1
 * For players:
