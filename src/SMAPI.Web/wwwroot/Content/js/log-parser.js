@@ -37,6 +37,14 @@ smapi.logParser = function(sectionUrl, pasteID) {
         $("#input").val("");
         $("#popup-upload").fadeIn();
     });
+
+    var closeUploadPopUp = function () {
+        $("#popup-upload").fadeOut(400, function () {
+            $("#input").val(memory);
+            memory = "";
+        });
+    };
+ 
     $("#popup-upload").on({
         'dragover dragenter': function(e) {
             e.preventDefault();
@@ -58,6 +66,10 @@ smapi.logParser = function(sectionUrl, pasteID) {
                 }, this, file, $("#input"));
                 reader.readAsText(file);
             }
+        },
+        'click': function (e) {
+            if (e.target.id === "popup-upload")
+                closeUploadPopUp();
         }
     });
 
@@ -91,15 +103,28 @@ smapi.logParser = function(sectionUrl, pasteID) {
             $("#uploader").fadeOut();
         }
     });
-    $("#cancel").on("click", function() {
-        $("#popup-upload").fadeOut(400, function() {
-            $("#input").val(memory);
-            memory = "";
-        });
+
+    $(document).on("keydown", function (e) {
+        if (e.which == 27) {
+            if ($("#popup-upload").css("display") !== "none" && $("#popup-upload").css("opacity") == 1) {
+                closeUploadPopUp();
+            }
+
+            $("#popup-raw").fadeOut(400);
+        }
     });
+    $("#cancel").on("click", closeUploadPopUp);
+
     $("#closeraw").on("click", function() {
         $("#popup-raw").fadeOut(400);
     });
+
+    $("#popup-raw").on("click", function (e) {
+        if (e.target.id === "popup-raw") {
+            $("#popup-raw").fadeOut(400);
+        }
+    });
+
     if (pasteID) {
         getData(pasteID);
     }
