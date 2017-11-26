@@ -1,4 +1,4 @@
-using System.IO;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
 namespace StardewModdingAPI.Web
@@ -14,10 +14,8 @@ namespace StardewModdingAPI.Web
         public static void Main(string[] args)
         {
             // configure web server
-            new WebHostBuilder()
-                .UseKestrel()
-                .UseContentRoot(Directory.GetCurrentDirectory())
-                .UseIISIntegration()
+            WebHost
+                .CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
                 .Build()
                 .Run();
