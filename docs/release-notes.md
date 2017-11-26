@@ -2,6 +2,7 @@
 ## 2.2
 * For players:
   * Fixed mods crashing when loading a custom asset on Linux/Mac.
+  * Updated compatibility list.
 
 * For modders:
   * Added `DaysSinceStart` property to `SDate` dates.
