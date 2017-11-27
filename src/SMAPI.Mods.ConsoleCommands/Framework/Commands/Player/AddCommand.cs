@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using StardewModdingAPI.Mods.ConsoleCommands.Framework.ItemData;
 using StardewValley;
@@ -49,10 +49,14 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
                 return;
             }
 
-            // apply count & quality
+            // apply count
             match.Item.Stack = count;
+
+            // apply quality
             if (match.Item is Object obj)
                 obj.quality = quality;
+            else if (match.Item is Tool tool)
+                tool.UpgradeLevel = quality;
 
             // add to inventory
             Game1.player.addItemByMenuIfNecessary(match.Item);

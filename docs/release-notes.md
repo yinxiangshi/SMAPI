@@ -3,6 +3,7 @@
 * For players:
   * Fixed mods crashing when loading a custom asset on Linux/Mac.
   * Fixed rare installer errors on Mac due to generated `mcs` file.
+  * Fixed `player_add` command not handling tool upgrade levels.
   * Updated compatibility list.
 
 * For modders:
