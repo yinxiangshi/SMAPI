@@ -2,12 +2,12 @@
 ## 2.2
 * For players:
   * Fixed error when a mod loads custom assets on Linux/Mac.
-  * Fixed error when a mod has an invalid `EntryDLL` manifest value format.
+  * Fixed error when a mod has an invalid `EntryDLL` filename.
   * Fixed rare error when Mac adds an `mcs` file to the installer package.
   * Fixed `player_add` command not handling tool upgrade levels.
   * Updated compatibility list.
-  * (log.smapi.io) Saved logs no longer expire after a week.
-  * (log.smapi.io) The upload-log modal can now be closed by pressing `ESC` or clicking outside it.
+  * The [log parser][] no longer expires logs after a week.
+  * The [log parser][] now lets you close modals with `ESC` or a click outside it.
 
 * For modders:
   * Added `DaysSinceStart` property to `SDate` dates.
@@ -16,7 +16,7 @@
 
 ## 2.1
 * For players:
-  * Added a log parser at [log.smapi.io](https://log.smapi.io).
+  * Added a [log parser][] site.
   * Added better Steam instructions to the SMAPI installer.
   * Renamed the bundled _TrainerMod_ to _ConsoleCommands_ to make its purpose clearer.
   * Removed the game's test messages from the console log.
@@ -558,3 +558,5 @@ For SMAPI developers:
 * 0.3 (2016-03-01, [log](https://github.com/Pathoschild/SMAPI/compare/Alpha0.2...0.3))
 * 0.2 (2016-02-29, [log](https://github.com/Pathoschild/SMAPI/compare/Alpha0.1...Alpha0.2)
 * 0.1 (2016-02-28)
+
+[log parser]: https://log.smapi.io
