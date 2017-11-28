@@ -653,11 +653,8 @@ namespace StardewModdingAPI
                 {
                     // get basic info
                     IManifest manifest = metadata.Manifest;
-                    string assemblyPath = metadata.Manifest?.EntryDll != null
-                        ? Path.Combine(metadata.DirectoryPath, metadata.Manifest.EntryDll)
-                        : null;
-                    this.Monitor.Log(assemblyPath != null
-                        ? $"Loading {metadata.DisplayName} from {assemblyPath.Replace(Constants.ModPath, "").TrimStart(Path.DirectorySeparatorChar)}..."
+                    this.Monitor.Log(metadata.Manifest?.EntryDll != null
+                        ? $"Loading {metadata.DisplayName} from {metadata.DirectoryPath.Replace(Constants.ModPath, "").TrimStart(Path.DirectorySeparatorChar)}{Path.DirectorySeparatorChar}{metadata.Manifest.EntryDll}..." // don't use Path.Combine here, since EntryDLL might not be valid
                         : $"Loading {metadata.DisplayName}...", LogLevel.Trace);
 
                     // validate status
@@ -669,6 +666,9 @@ namespace StardewModdingAPI
                     }
 
                     // preprocess & load mod assembly
+                    string assemblyPath = metadata.Manifest?.EntryDll != null
+                        ? Path.Combine(metadata.DirectoryPath, metadata.Manifest.EntryDll)
+                        : null;
                     Assembly modAssembly;
                     try
                     {

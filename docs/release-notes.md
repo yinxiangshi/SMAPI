@@ -1,19 +1,18 @@
 # Release notes
 ## 2.2
 * For players:
-  * Fixed mods crashing when loading a custom asset on Linux/Mac.
-  * Fixed rare installer errors on Mac due to generated `mcs` file.
+  * Fixed error when a mod loads custom assets on Linux/Mac.
+  * Fixed error when a mod has an invalid `EntryDLL` manifest value format.
+  * Fixed rare error when Mac adds an `mcs` file to the installer package.
   * Fixed `player_add` command not handling tool upgrade levels.
   * Updated compatibility list.
+  * (log.smapi.io) Saved logs no longer expire after a week.
+  * (log.smapi.io) The upload-log modal can now be closed by pressing `ESC` or clicking outside it.
 
 * For modders:
   * Added `DaysSinceStart` property to `SDate` dates.
   * Fixed input `e.SuppressButton(button)` method ignoring input.
   * Fixed input `e.SuppressButton()` method not working with mouse buttons.
-
-* For log.smapi.io:
-  * Saved logs no longer expire after a week.
-  * The upload-log modal can now be closed by pressing `ESC` or clicking outside it.
 
 ## 2.1
 * For players:
