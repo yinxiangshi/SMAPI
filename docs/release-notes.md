@@ -3,7 +3,8 @@
 * For players:
   * Fixed error when a mod loads custom assets on Linux/Mac.
   * Fixed error when a mod has an invalid `EntryDLL` filename.
-  * Fixed rare error when Mac adds an `mcs` file to the installer package.
+  * Fixed error when checking for updates on Linux/Mac due to API HTTPS redirect.
+  * Fixed error when Mac adds an `mcs` symlink to the installer package.
   * Fixed `player_add` command not handling tool upgrade levels.
   * Updated compatibility list.
   * The [log parser][] no longer expires logs after a week.
@@ -11,8 +12,8 @@
 
 * For modders:
   * Added `DaysSinceStart` property to `SDate` dates.
-  * Fixed input `e.SuppressButton(button)` method ignoring input.
-  * Fixed input `e.SuppressButton()` method not working with mouse buttons.
+  * Fixed input events' `e.SuppressButton(button)` method ignoring specified button.
+  * Fixed input events' `e.SuppressButton()` method not working with mouse buttons.
 
 ## 2.1
 * For players:

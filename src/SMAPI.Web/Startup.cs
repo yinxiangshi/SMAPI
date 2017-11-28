@@ -80,6 +80,7 @@ namespace StardewModdingAPI.Web
                         shouldRewrite: req =>
                             req.Host.Host != "localhost"
                             && !req.Path.StartsWithSegments("/api")
+                            && !req.Host.Host.StartsWith("api.")
                     ))
 
                     // convert subdomain.smapi.io => smapi.io/subdomain for routing
