@@ -9,6 +9,7 @@
   * Updated compatibility list.
   * The [log parser][] no longer expires logs after a week.
   * The [log parser][] now lets you close modals with `ESC` or a click outside it.
+  * Fixed [log parser][] error when uploading very large logs.
 
 * For modders:
   * Added `DaysSinceStart` property to `SDate` dates.
