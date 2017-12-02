@@ -2,14 +2,16 @@
 ## 2.2
 * For players:
   * Fixed error when a mod loads custom assets on Linux/Mac.
-  * Fixed error when a mod has an invalid `EntryDLL` filename.
   * Fixed error when checking for updates on Linux/Mac due to API HTTPS redirect.
   * Fixed error when Mac adds an `mcs` symlink to the installer package.
   * Fixed `player_add` command not handling tool upgrade levels.
+  * Improved error when a mod has an invalid `EntryDLL` filename format.
   * Updated compatibility list.
-  * The [log parser][] no longer expires logs after a week.
-  * Fixed [log parser][] error when uploading very large logs.
-  * Slightly improved the [log parser][] UI.
+
+* For the [log parser][]:
+  * Logs no longer expire after a week.
+  * Fixed error when uploading very large logs.
+  * Slightly improved the UI.
 
 * For modders:
   * Added `helper.Content.NormaliseAssetName` method.
