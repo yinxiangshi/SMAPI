@@ -33,39 +33,41 @@
         <li class="notice">Click tabs to toggle message visibility</li>
     </ul>
 }
-<div id="output" class="trace debug"></div>
-<script class="template" id="template-body" type="text/html">
-    <div class="always">
-        <table id="gameinfo">
-            <caption>Game info:</caption>
-            <tr>
-                <td>SMAPI Version</td>
-                <td>{0}</td>
-            </tr>
-            <tr>
-                <td>Game Version</td>
-                <td>{1}</td>
-            </tr>
-            <tr>
-                <td>Platform</td>
-                <td>{2}</td>
-            </tr>
-            <tr>
-                <td>Mods path</td>
-                <td>{4}</td>
-            </tr>
-            <tr>
-                <td>Log started</td>
-                <td>{3}</td>
-            </tr>
-        </table>
-        <br />
-        <table id="modslist">
-            <caption>Installed Mods: <span id="modlink-r" class="notice btn">Remove all mod filters</span><span class="notice txt"><i>Click any mod to filter</i></span> <span id="modlink-a" class="notice btn txt">Select all</span></caption>
-        </table>
+<div id="output" class="trace debug">
+    <div id="log-data" style="display: none;">
+        <div class="always">
+            <table id="gameinfo">
+                <caption>Game info:</caption>
+                <tr>
+                    <td>SMAPI Version</td>
+                    <td id="api-version"></td>
+                </tr>
+                <tr>
+                    <td>Game Version</td>
+                    <td id="game-version"></td>
+                </tr>
+                <tr>
+                    <td>Platform</td>
+                    <td id="platform"></td>
+                </tr>
+                <tr>
+                    <td>Mods path</td>
+                    <td id="mods-path"></td>
+                </tr>
+                <tr>
+                    <td>Log started</td>
+                    <td id="log-started"></td>
+                </tr>
+            </table>
+            <br />
+            <table id="modslist">
+                <caption>Installed Mods: <span id="modlink-r" class="notice btn">Remove all mod filters</span><span class="notice txt"><i>Click any mod to filter</i></span> <span id="modlink-a" class="notice btn txt">Select all</span></caption>
+            </table>
+        </div>
+        <table id="log"></table>
     </div>
-    <table id="log"></table>
-</script>
+    <div id="error" class="color-red"></div>
+</div>
 <script class="template" id="template-css" type="text/html">
     #output.modfilter:not(.mod-{0}) .mod-{0} { display:none; } #output.modfilter.mod-{0} #modslist tr { background:#ffeeee; } #output.modfilter.mod-{0} #modslist tr#modlink-{0} { background:#eeffee; }
 </script>
@@ -102,8 +104,8 @@
         </ol>
         <textarea id="input" placeholder="Paste or drag the log here"></textarea>
         <div class="buttons">
-            <input type="button" id="submit" value="Parse"/>
-            <input type="button" id="cancel" value="Cancel"/>
+            <input type="button" id="submit" value="Parse" />
+            <input type="button" id="cancel" value="Cancel" />
         </div>
     </div>
 </div>
