@@ -270,11 +270,8 @@ smapi.logParser = function(sectionUrl, pasteID) {
     function loadData() {
         try {
             stage = "loadData.Pre";
-            var start = performance.now();
             parseData();
             renderData();
-            var end = performance.now();
-            $(".always").prepend("<div>Log processed in: " + (Math.round((end - start) * 100) / 100) + ' ms (<a id="viewraw" href="#">View raw</a>)</div><br />');
             $("#viewraw").on("click", function() {
                 $("#dataraw").val($("#input").val());
                 $("#popup-raw").fadeIn();
