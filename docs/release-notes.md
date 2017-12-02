@@ -8,8 +8,8 @@
   * Fixed `player_add` command not handling tool upgrade levels.
   * Updated compatibility list.
   * The [log parser][] no longer expires logs after a week.
-  * The [log parser][] now lets you close modals with `ESC` or a click outside it.
   * Fixed [log parser][] error when uploading very large logs.
+  * Slightly improved the [log parser][] UI.
 
 * For modders:
   * Added `DaysSinceStart` property to `SDate` dates.
