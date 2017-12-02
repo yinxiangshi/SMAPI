@@ -102,7 +102,7 @@ namespace StardewModdingAPI.Framework
             this.Monitor = monitor ?? throw new ArgumentNullException(nameof(monitor));
             this.Cache = new ContentCache(this, reflection, SContentManager.PossiblePathSeparators, SContentManager.PreferredPathSeparator);
             this.GetKeyLocale = reflection.GetPrivateMethod(this, "languageCode");
-            this.ModContentPrefix = this.GetRelativePath(Constants.ModPath);
+            this.ModContentPrefix = this.GetAssetNameFromFilePath(Constants.ModPath);
 
             // get asset data
             this.CoreAssets = new CoreAssets(this.NormaliseAssetName);
@@ -140,19 +140,17 @@ namespace StardewModdingAPI.Framework
                 throw new ArgumentException("The asset key or local path contains invalid characters.");
         }
 
-        /// <summary>Get a directory path relative to the content root.</summary>
-        /// <param name="targetPath">The target file path.</param>
-        public string GetRelativePath(string targetPath)
+        /// <summary>Convert an absolute file path into a appropriate asset name.</summary>
+        /// <param name="absolutePath">The absolute path to the file.</param>
+        public string GetAssetNameFromFilePath(string absolutePath)
         {
-            // convert to URIs
-            Uri from = new Uri(this.FullRootDirectory + "/");
-            Uri to = new Uri(targetPath + "/");
-            if (from.Scheme != to.Scheme)
-                throw new InvalidOperationException($"Can't get path for '{targetPath}' relative to '{this.FullRootDirectory}'.");
-
-            // get relative path
-            return Uri.UnescapeDataString(from.MakeRelativeUri(to).ToString())
-                .Replace(Path.DirectorySeparatorChar == '/' ? '\\' : '/', Path.DirectorySeparatorChar); // use correct separator for platform
+#if SMAPI_FOR_WINDOWS
+            // XNA doesn't allow absolute asset paths, so get a path relative to the content folder
+            return this.GetRelativePath(absolutePath);
+#else
+            // MonoGame is weird about relative paths on Mac, but allows absolute paths
+            return absolutePath;
+#endif
         }
 
         /****
@@ -395,6 +393,21 @@ namespace StardewModdingAPI.Framework
         /****
         ** Asset name/key handling
         ****/
+        /// <summary>Get a directory or file path relative to the content root.</summary>
+        /// <param name="targetPath">The target file path.</param>
+        private string GetRelativePath(string targetPath)
+        {
+            // convert to URIs
+            Uri from = new Uri(this.FullRootDirectory + "/");
+            Uri to = new Uri(targetPath + "/");
+            if (from.Scheme != to.Scheme)
+                throw new InvalidOperationException($"Can't get path for '{targetPath}' relative to '{this.FullRootDirectory}'.");
+
+            // get relative path
+            return Uri.UnescapeDataString(from.MakeRelativeUri(to).ToString())
+                .Replace(Path.DirectorySeparatorChar == '/' ? '\\' : '/', Path.DirectorySeparatorChar); // use correct separator for platform
+        }
+
         /// <summary>Get the locale codes (like <c>ja-JP</c>) used in asset keys.</summary>
         /// <param name="reflection">Simplifies access to private game code.</param>
         private IDictionary<string, LanguageCode> GetKeyLocales(Reflector reflection)
@@ -549,19 +562,6 @@ namespace StardewModdingAPI.Framework
             }
 
             return file;
-        }
-
-        /// <summary>Get a file from the game's content folder.</summary>
-        /// <param name="key">The asset key.</param>
-        private FileInfo GetContentFolderFile(string key)
-        {
-            // get file path
-            string path = Path.Combine(this.FullRootDirectory, key);
-            if (!path.EndsWith(".xnb"))
-                path += ".xnb";
-
-            // get file
-            return new FileInfo(path);
         }
 
         /// <summary>Load the initial asset from the registered <see cref="Loaders"/>.</summary>

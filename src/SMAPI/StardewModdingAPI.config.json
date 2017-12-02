@@ -509,7 +509,8 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": "Platonymous.CFAutomate",
       "Compatibility": {
         "~1.0.1": { "Status": "AssumeBroken" } // no longer compatible with Automate
-      }
+      },
+      "AlternativeUrl": "https://www.nexusmods.com/stardewvalley/mods/991"
     },
     {
       // Custom Farm Types

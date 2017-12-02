@@ -35,6 +35,9 @@ namespace StardewModdingAPI.Utilities
         /// <summary>The day of week.</summary>
         public DayOfWeek DayOfWeek { get; }
 
+        /// <summary>The number of days since the game began (starting at 1 for the first day of spring in Y1).</summary>
+        public int DaysSinceStart { get; }
+
 
         /*********
         ** Public methods
@@ -67,7 +70,7 @@ namespace StardewModdingAPI.Utilities
         public SDate AddDays(int offset)
         {
             // get new hash code
-            int hashCode = this.GetHashCode() + offset;
+            int hashCode = this.DaysSinceStart + offset;
             if (hashCode < 1)
                 throw new ArithmeticException($"Adding {offset} days to {this} would result in a date before 01 spring Y1.");
 
@@ -115,12 +118,7 @@ namespace StardewModdingAPI.Utilities
         /// <summary>Get a hash code which uniquely identifies a date.</summary>
         public override int GetHashCode()
         {
-            // return the number of days since 01 spring Y1 (inclusively)
-            int yearIndex = this.Year - 1;
-            return
-                yearIndex * this.DaysInSeason * this.SeasonsInYear
-                + this.GetSeasonIndex() * this.DaysInSeason
-                + this.Day;
+            return this.DaysSinceStart;
         }
 
         /****
@@ -132,7 +130,7 @@ namespace StardewModdingAPI.Utilities
         /// <returns>The equality of the dates</returns>
         public static bool operator ==(SDate date, SDate other)
         {
-            return date?.GetHashCode() == other?.GetHashCode();
+            return date?.DaysSinceStart == other?.DaysSinceStart;
         }
 
         /// <summary>Get whether one date is not equal to another.</summary>
@@ -140,7 +138,7 @@ namespace StardewModdingAPI.Utilities
         /// <param name="other">The other date to compare.</param>
         public static bool operator !=(SDate date, SDate other)
         {
-            return date?.GetHashCode() != other?.GetHashCode();
+            return date?.DaysSinceStart != other?.DaysSinceStart;
         }
 
         /// <summary>Get whether one date is more than another.</summary>
@@ -148,7 +146,7 @@ namespace StardewModdingAPI.Utilities
         /// <param name="other">The other date to compare.</param>
         public static bool operator >(SDate date, SDate other)
         {
-            return date?.GetHashCode() > other?.GetHashCode();
+            return date?.DaysSinceStart > other?.DaysSinceStart;
         }
 
         /// <summary>Get whether one date is more than or equal to another.</summary>
@@ -156,7 +154,7 @@ namespace StardewModdingAPI.Utilities
         /// <param name="other">The other date to compare.</param>
         public static bool operator >=(SDate date, SDate other)
         {
-            return date?.GetHashCode() >= other?.GetHashCode();
+            return date?.DaysSinceStart >= other?.DaysSinceStart;
         }
 
         /// <summary>Get whether one date is less than or equal to another.</summary>
@@ -164,7 +162,7 @@ namespace StardewModdingAPI.Utilities
         /// <param name="other">The other date to compare.</param>
         public static bool operator <=(SDate date, SDate other)
         {
-            return date?.GetHashCode() <= other?.GetHashCode();
+            return date?.DaysSinceStart <= other?.DaysSinceStart;
         }
 
         /// <summary>Get whether one date is less than another.</summary>
@@ -172,7 +170,7 @@ namespace StardewModdingAPI.Utilities
         /// <param name="other">The other date to compare.</param>
         public static bool operator <(SDate date, SDate other)
         {
-            return date?.GetHashCode() < other?.GetHashCode();
+            return date?.DaysSinceStart < other?.DaysSinceStart;
         }
 
 
@@ -203,7 +201,9 @@ namespace StardewModdingAPI.Utilities
             this.Day = day;
             this.Season = season;
             this.Year = year;
-            this.DayOfWeek = this.GetDayOfWeek();
+            this.DayOfWeek = this.GetDayOfWeek(day);
+            this.DaysSinceStart = this.GetDaysSinceStart(day, season, year);
+
         }
 
         /// <summary>Get whether a date represents 0 spring Y1, which is the date during the in-game intro.</summary>
@@ -215,10 +215,11 @@ namespace StardewModdingAPI.Utilities
             return day == 0 && season == "spring" && year == 1;
         }
 
-        /// <summary>Get the day of week for the current date.</summary>
-        private DayOfWeek GetDayOfWeek()
+        /// <summary>Get the day of week for a given date.</summary>
+        /// <param name="day">The day of month.</param>
+        private DayOfWeek GetDayOfWeek(int day)
         {
-            switch (this.Day % 7)
+            switch (day % 7)
             {
                 case 0:
                     return DayOfWeek.Sunday;
@@ -239,13 +240,28 @@ namespace StardewModdingAPI.Utilities
             }
         }
 
-        /// <summary>Get the current season index.</summary>
-        /// <exception cref="InvalidOperationException">The current season wasn't recognised.</exception>
-        private int GetSeasonIndex()
+        /// <summary>Get the number of days since the game began (starting at 1 for the first day of spring in Y1).</summary>
+        /// <param name="day">The day of month.</param>
+        /// <param name="season">The season name.</param>
+        /// <param name="year">The year.</param>
+        private int GetDaysSinceStart(int day, string season, int year)
         {
-            int index = Array.IndexOf(this.Seasons, this.Season);
+            // return the number of days since 01 spring Y1 (inclusively)
+            int yearIndex = year - 1;
+            return
+                yearIndex * this.DaysInSeason * this.SeasonsInYear
+                + this.GetSeasonIndex(season) * this.DaysInSeason
+                + day;
+        }
+
+        /// <summary>Get a season index.</summary>
+        /// <param name="season">The season name.</param>
+        /// <exception cref="InvalidOperationException">The current season wasn't recognised.</exception>
+        private int GetSeasonIndex(string season)
+        {
+            int index = Array.IndexOf(this.Seasons, season);
             if (index == -1)
-                throw new InvalidOperationException($"The current season '{this.Season}' wasn't recognised.");
+                throw new InvalidOperationException($"The season '{season}' wasn't recognised.");
             return index;
         }
     }

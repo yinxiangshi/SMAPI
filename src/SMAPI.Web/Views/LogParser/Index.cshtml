@@ -3,9 +3,9 @@
 }
 @model StardewModdingAPI.Web.ViewModels.LogParserModel
 @section Head {
-    <link rel="stylesheet" href="~/Content/css/log-parser.css" />
+    <link rel="stylesheet" href="~/Content/css/log-parser.css?r=20171202" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" crossorigin="anonymous"></script>
-    <script src="~/Content/js/log-parser.js"></script>
+    <script src="~/Content/js/log-parser.js?r=20171202"></script>
     <style type="text/css" id="modflags"></style>
     <script>
         $(function() {
@@ -23,49 +23,48 @@
 @if (Model.PasteID != null)
 {
     <h2>Parsed log</h2>
-    <ul id="tabs">
-        <li>TRACE</li>
-        <li>DEBUG</li>
-        <li class="active">INFO</li>
-        <li class="active">ALERT</li>
-        <li class="active">WARN</li>
-        <li class="active">ERROR</li>
-        <li class="notice">Click tabs to toggle message visibility</li>
-    </ul>
 }
-<div id="output" class="trace debug"></div>
-<script class="template" id="template-body" type="text/html">
-    <div class="always">
-        <table id="gameinfo">
-            <caption>Game info:</caption>
-            <tr>
-                <td>SMAPI Version</td>
-                <td>{0}</td>
-            </tr>
-            <tr>
-                <td>Game Version</td>
-                <td>{1}</td>
-            </tr>
-            <tr>
-                <td>Platform</td>
-                <td>{2}</td>
-            </tr>
-            <tr>
-                <td>Mods path</td>
-                <td>{4}</td>
-            </tr>
-            <tr>
-                <td>Log started</td>
-                <td>{3}</td>
-            </tr>
-        </table>
-        <br />
-        <table id="modslist">
-            <caption>Installed Mods: <span id="modlink-r" class="notice btn">Remove all mod filters</span><span class="notice txt"><i>Click any mod to filter</i></span> <span id="modlink-a" class="notice btn txt">Select all</span></caption>
-        </table>
-    </div>
-    <table id="log"></table>
-</script>
+<div id="output" class="trace debug">
+    @if (Model.PasteID != null)
+    {
+        <div id="log-data" style="display: none;">
+            <div class="always">
+                <table id="gameinfo">
+                    <caption>Game info:</caption>
+                    <tr>
+                        <td>SMAPI Version</td>
+                        <td id="api-version"></td>
+                    </tr>
+                    <tr>
+                        <td>Game Version</td>
+                        <td id="game-version"></td>
+                    </tr>
+                    <tr>
+                        <td>Platform</td>
+                        <td id="platform"></td>
+                    </tr>
+                    <tr>
+                        <td>Mods path</td>
+                        <td id="mods-path"></td>
+                    </tr>
+                    <tr>
+                        <td>Log started</td>
+                        <td id="log-started"></td>
+                    </tr>
+                </table>
+                <br/>
+                <table id="modslist">
+                    <caption>Installed Mods: <span id="modlink-r" class="notice btn">Remove all mod filters</span><span class="notice txt"><i>Click any mod to filter</i></span> <span id="modlink-a" class="notice btn txt">Select all</span></caption>
+                </table>
+                <div id="filters">
+                    Filter messages: <span>TRACE</span> | <span>DEBUG</span> | <span class="active">INFO</span> | <span class="active">ALERT</span> | <span class="active">WARN</span> | <span class="active">ERROR</span>
+                </div>
+            </div>
+            <table id="log"></table>
+        </div>
+    }
+    <div id="error" class="color-red"></div>
+</div>
 <script class="template" id="template-css" type="text/html">
     #output.modfilter:not(.mod-{0}) .mod-{0} { display:none; } #output.modfilter.mod-{0} #modslist tr { background:#ffeeee; } #output.modfilter.mod-{0} #modslist tr#modlink-{0} { background:#eeffee; }
 </script>
@@ -95,15 +94,15 @@
     <h1>Upload log file</h1>
     <div class="frame">
         <ol>
-            <li><a href="https://stardewvalleywiki.com/Modding:Player_FAQs#SMAPI_log" target="_blank">Find your SMAPI log</a>.</li>
+            <li><a href="https://stardewvalleywiki.com/Modding:Player_FAQs#SMAPI_log" target="_blank">Find your SMAPI log file</a> (not the console text).</li>
             <li>Drag the file onto the textbox below (or paste the text in).</li>
             <li>Click <em>Parse</em>.</li>
             <li>Share the URL of the new page.</li>
         </ol>
         <textarea id="input" placeholder="Paste or drag the log here"></textarea>
         <div class="buttons">
-            <input type="button" id="submit" value="Parse"/>
-            <input type="button" id="cancel" value="Cancel"/>
+            <input type="button" id="submit" value="Parse" />
+            <input type="button" id="cancel" value="Cancel" />
         </div>
     </div>
 </div>

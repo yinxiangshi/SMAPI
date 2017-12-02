@@ -296,7 +296,7 @@ namespace StardewModdingApi.Installer
             {
                 // copy SMAPI files to game dir
                 this.PrintDebug("Adding SMAPI files...");
-                foreach (FileInfo sourceFile in packageDir.EnumerateFiles())
+                foreach (FileInfo sourceFile in packageDir.EnumerateFiles().Where(this.ShouldCopyFile))
                 {
                     string targetPath = Path.Combine(installDir.FullName, sourceFile.Name);
                     this.InteractivelyDelete(targetPath);
@@ -338,7 +338,7 @@ namespace StardewModdingApi.Installer
                         targetDir.Create();
 
                         // copy files
-                        foreach (FileInfo sourceFile in sourceDir.EnumerateFiles())
+                        foreach (FileInfo sourceFile in sourceDir.EnumerateFiles().Where(this.ShouldCopyFile))
                             sourceFile.CopyTo(Path.Combine(targetDir.FullName, sourceFile.Name));
                     }
                 }
@@ -684,7 +684,7 @@ namespace StardewModdingApi.Installer
             this.PrintDebug("   Support for mods here was dropped in SMAPI 1.0 (it was never officially supported).");
 
             // move mods if no conflicts (else warn)
-            foreach (FileSystemInfo entry in modDir.EnumerateFileSystemInfos())
+            foreach (FileSystemInfo entry in modDir.EnumerateFileSystemInfos().Where(this.ShouldCopyFile))
             {
                 // get type
                 bool isDir = entry is DirectoryInfo;
@@ -718,7 +718,7 @@ namespace StardewModdingApi.Installer
             else
             {
                 this.PrintDebug("   Deleted empty directory.");
-                modDir.Delete();
+                modDir.Delete(recursive: true);
             }
         }
 
@@ -741,11 +741,22 @@ namespace StardewModdingApi.Installer
                 Directory.CreateDirectory(newPath);
 
                 DirectoryInfo directory = (DirectoryInfo)entry;
-                foreach (FileSystemInfo child in directory.EnumerateFileSystemInfos())
+                foreach (FileSystemInfo child in directory.EnumerateFileSystemInfos().Where(this.ShouldCopyFile))
                     this.Move(child, Path.Combine(newPath, child.Name));
 
-                directory.Delete();
+                directory.Delete(recursive: true);
             }
+        }
+
+        /// <summary>Get whether a file should be copied when moving a folder.</summary>
+        /// <param name="file">The file info.</param>
+        private bool ShouldCopyFile(FileSystemInfo file)
+        {
+            // ignore Mac symlink
+            if (file is FileInfo && file.Name == "mcs")
+                return false;
+
+            return true;
         }
     }
 }

@@ -1,7 +1,27 @@
 # Release notes
+## 2.2
+* For players:
+  * Fixed error when a mod loads custom assets on Linux/Mac.
+  * Fixed error when checking for updates on Linux/Mac due to API HTTPS redirect.
+  * Fixed error when Mac adds an `mcs` symlink to the installer package.
+  * Fixed `player_add` command not handling tool upgrade levels.
+  * Improved error when a mod has an invalid `EntryDLL` filename format.
+  * Updated compatibility list.
+
+* For the [log parser][]:
+  * Logs no longer expire after a week.
+  * Fixed error when uploading very large logs.
+  * Slightly improved the UI.
+
+* For modders:
+  * Added `helper.Content.NormaliseAssetName` method.
+  * Added `SDate.DaysSinceStart` property.
+  * Fixed input events' `e.SuppressButton(button)` method ignoring specified button.
+  * Fixed input events' `e.SuppressButton()` method not working with mouse buttons.
+
 ## 2.1
 * For players:
-  * Added a log parser at [log.smapi.io](https://log.smapi.io).
+  * Added a [log parser][] site.
   * Added better Steam instructions to the SMAPI installer.
   * Renamed the bundled _TrainerMod_ to _ConsoleCommands_ to make its purpose clearer.
   * Removed the game's test messages from the console log.
@@ -543,3 +563,5 @@ For SMAPI developers:
 * 0.3 (2016-03-01, [log](https://github.com/Pathoschild/SMAPI/compare/Alpha0.2...0.3))
 * 0.2 (2016-02-29, [log](https://github.com/Pathoschild/SMAPI/compare/Alpha0.1...Alpha0.2)
 * 0.1 (2016-02-28)
+
+[log parser]: https://log.smapi.io

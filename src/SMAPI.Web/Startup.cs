@@ -33,7 +33,7 @@ namespace StardewModdingAPI.Web
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-                .Add(new BeanstalkEnvPropsConfigProvider()) //.AddEnvironmentVariables()
+                .Add(new BeanstalkEnvPropsConfigProvider())
                 .Build();
         }
 
@@ -63,6 +63,10 @@ namespace StardewModdingAPI.Web
         {
             loggerFactory.AddConsole(this.Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
+
+            if (env.IsDevelopment())
+                app.UseDeveloperExceptionPage();
+
             app
                 .UseCors(policy => policy
                     .AllowAnyHeader()
@@ -76,6 +80,7 @@ namespace StardewModdingAPI.Web
                         shouldRewrite: req =>
                             req.Host.Host != "localhost"
                             && !req.Path.StartsWithSegments("/api")
+                            && !req.Host.Host.StartsWith("api.")
                     ))
 
                     // convert subdomain.smapi.io => smapi.io/subdomain for routing

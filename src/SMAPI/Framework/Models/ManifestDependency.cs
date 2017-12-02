@@ -15,6 +15,7 @@ namespace StardewModdingAPI.Framework.Models
         /// <summary>Whether the dependency must be installed to use the mod.</summary>
         public bool IsRequired { get; set; }
 
+
         /*********
         ** Public methods
         *********/

@@ -56,11 +56,11 @@ namespace StardewModdingAPI.Events
         public void SuppressButton(SButton button)
         {
             // keyboard
-            if (this.Button.TryGetKeyboard(out Keys key))
+            if (button.TryGetKeyboard(out Keys key))
                 Game1.oldKBState = new KeyboardState(Game1.oldKBState.GetPressedKeys().Union(new[] { key }).ToArray());
 
             // controller
-            else if (this.Button.TryGetController(out Buttons controllerButton))
+            else if (button.TryGetController(out Buttons controllerButton))
             {
                 var newState = GamePad.GetState(PlayerIndex.One);
                 var thumbsticks = Game1.oldPadState.ThumbSticks;
@@ -126,6 +126,21 @@ namespace StardewModdingAPI.Events
                 }
 
                 Game1.oldPadState = new GamePadState(thumbsticks, triggers, buttons, dpad);
+            }
+
+            // mouse
+            else if (button == SButton.MouseLeft || button == SButton.MouseMiddle || button == SButton.MouseRight || button == SButton.MouseX1 || button == SButton.MouseX2)
+            {
+                Game1.oldMouseState = new MouseState(
+                    x: Game1.oldMouseState.X,
+                    y: Game1.oldMouseState.Y,
+                    scrollWheel: Game1.oldMouseState.ScrollWheelValue,
+                    leftButton: button == SButton.MouseLeft ? ButtonState.Pressed : Game1.oldMouseState.LeftButton,
+                    middleButton: button == SButton.MouseMiddle ? ButtonState.Pressed : Game1.oldMouseState.MiddleButton,
+                    rightButton: button == SButton.MouseRight ? ButtonState.Pressed : Game1.oldMouseState.RightButton,
+                    xButton1: button == SButton.MouseX1 ? ButtonState.Pressed : Game1.oldMouseState.XButton1,
+                    xButton2: button == SButton.MouseX2 ? ButtonState.Pressed : Game1.oldMouseState.XButton2
+                );
             }
         }
     }

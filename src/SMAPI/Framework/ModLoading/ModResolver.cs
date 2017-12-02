@@ -142,6 +142,18 @@ namespace StardewModdingAPI.Framework.ModLoading
                     continue;
                 }
 
+                // validate DLL value
+                if (string.IsNullOrWhiteSpace(mod.Manifest.EntryDll))
+                {
+                    mod.SetStatus(ModMetadataStatus.Failed, "its manifest has no EntryDLL field.");
+                    continue;
+                }
+                if (mod.Manifest.EntryDll.Intersect(Path.GetInvalidFileNameChars()).Any())
+                {
+                    mod.SetStatus(ModMetadataStatus.Failed, $"its manifest has invalid filename '{mod.Manifest.EntryDll}' for the EntryDLL field.");
+                    continue;
+                }
+
                 // validate DLL path
                 string assemblyPath = Path.Combine(mod.DirectoryPath, mod.Manifest.EntryDll);
                 if (!File.Exists(assemblyPath))

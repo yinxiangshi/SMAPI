@@ -8,6 +8,7 @@ smapi.logParser = function(sectionUrl, pasteID) {
     var stage,
         flags = $("#modflags"),
         output = $("#output"),
+        error = $("#error"),
         filters = 0,
         memory = "",
         versionInfo,
@@ -15,7 +16,6 @@ smapi.logParser = function(sectionUrl, pasteID) {
         modMap,
         modErrors,
         logInfo,
-        templateBody = $("#template-body").text(),
         templateModentry = $("#template-modentry").text(),
         templateCss = $("#template-css").text(),
         templateLogentry = $("#template-logentry").text(),
@@ -27,16 +27,24 @@ smapi.logParser = function(sectionUrl, pasteID) {
         regexDate = /\[\d{2}:\d{2}:\d{2} TRACE SMAPI\] Log started at (.*?) UTC/g,
         regexPath = /\[\d{2}:\d{2}:\d{2} DEBUG SMAPI\] Mods go here: (.*?)(?:\n|$)/g;
 
-    $("#tabs li:not(.notice)").on("click", function(evt) {
+    $("#filters span").on("click", function(evt) {
         var t = $(evt.currentTarget);
         t.toggleClass("active");
-        $("#output").toggleClass(t.text().toLowerCase());
+        output.toggleClass(t.text().toLowerCase());
     });
     $("#upload-button").on("click", function() {
         memory = $("#input").val() || "";
         $("#input").val("");
         $("#popup-upload").fadeIn();
     });
+
+    var closeUploadPopUp = function() {
+        $("#popup-upload").fadeOut(400, function() {
+            $("#input").val(memory);
+            memory = "";
+        });
+    };
+
     $("#popup-upload").on({
         'dragover dragenter': function(e) {
             e.preventDefault();
@@ -58,6 +66,10 @@ smapi.logParser = function(sectionUrl, pasteID) {
                 }, this, file, $("#input"));
                 reader.readAsText(file);
             }
+        },
+        'click': function(e) {
+            if (e.target.id === "popup-upload")
+                closeUploadPopUp();
         }
     });
 
@@ -77,12 +89,12 @@ smapi.logParser = function(sectionUrl, pasteID) {
                 })
                 .fail(function(xhr, textStatus) {
                     $("#uploader").fadeOut();
-                    $("#output").html('<div id="log" class="color-red"><h1>Parsing failed!</h1>Parsing of the log failed, details follow.<br />&nbsp;<p>Stage: Upload</p>Error: ' + textStatus + ': ' + xhr.responseText + "<hr /><pre>" + $("#input").val() + "</pre></div>");
+                    error.html('<h1>Parsing failed!</h1>Parsing of the log failed, details follow.<br />&nbsp;<p>Stage: Upload</p>Error: ' + textStatus + ': ' + xhr.responseText + "<hr /><pre>" + $("#input").val() + "</pre>");
                 })
                 .then(function(data) {
                     $("#uploader").fadeOut();
                     if (!data.success)
-                        $("#output").html('<div id="log" class="color-red"><h1>Parsing failed!</h1>Parsing of the log failed, details follow.<br />&nbsp;<p>Stage: Upload</p>Error: ' + data.error + "<hr />" + $("#input").val() + "</div>");
+                        error.html('<h1>Parsing failed!</h1>Parsing of the log failed, details follow.<br />&nbsp;<p>Stage: Upload</p>Error: ' + data.error + "<hr /><pre>" + $("#input").val() + "</pre>");
                     else
                         location.href = (sectionUrl.replace(/\/$/, "") + "/" + data.id);
                 });
@@ -91,15 +103,28 @@ smapi.logParser = function(sectionUrl, pasteID) {
             $("#uploader").fadeOut();
         }
     });
-    $("#cancel").on("click", function() {
-        $("#popup-upload").fadeOut(400, function() {
-            $("#input").val(memory);
-            memory = "";
-        });
+
+    $(document).on("keydown", function(e) {
+        if (e.which == 27) {
+            if ($("#popup-upload").css("display") !== "none" && $("#popup-upload").css("opacity") == 1) {
+                closeUploadPopUp();
+            }
+
+            $("#popup-raw").fadeOut(400);
+        }
     });
+    $("#cancel").on("click", closeUploadPopUp);
+
     $("#closeraw").on("click", function() {
         $("#popup-raw").fadeOut(400);
     });
+
+    $("#popup-raw").on("click", function(e) {
+        if (e.target.id === "popup-raw") {
+            $("#popup-raw").fadeOut(400);
+        }
+    });
+
     if (pasteID) {
         getData(pasteID);
     }
@@ -176,7 +201,13 @@ smapi.logParser = function(sectionUrl, pasteID) {
         ];
         stage = "parseData.parseInfo";
         var date = dataDate ? new Date(dataDate[1] + "Z") : null;
-        versionInfo = [dataInfo[1], dataInfo[2], dataInfo[3], date ? date.getFullYear() + "-" + ("0" + date.getMonth().toString()).substr(-2) + "-" + ("0" + date.getDay().toString()).substr(-2) + " at " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + " " + date.toLocaleTimeString("en-us", { timeZoneName: "short" }).split(" ")[2] : "No timestamp found", dataPath[1]];
+        versionInfo = {
+            apiVersion: dataInfo[1],
+            gameVersion: dataInfo[2],
+            platform: dataInfo[3],
+            logDate: date ? date.getFullYear() + "-" + ("0" + date.getMonth().toString()).substr(-2) + "-" + ("0" + date.getDay().toString()).substr(-2) + " at " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + " " + date.toLocaleTimeString("en-us", { timeZoneName: "short" }).split(" ")[2] : "No timestamp found",
+            modsPath: dataPath[1]
+        };
         stage = "parseData.parseMods";
         while ((match = regexMod.exec(dataMods))) {
             modErrors[match[1]] = 0;
@@ -196,7 +227,13 @@ smapi.logParser = function(sectionUrl, pasteID) {
 
     function renderData() {
         stage = "renderData.pre";
-        output.html(prepare(templateBody, versionInfo));
+
+        output.find("#api-version").text(versionInfo.apiVersion);
+        output.find("#game-version").text(versionInfo.gameVersion);
+        output.find("#platform").text(versionInfo.platform);
+        output.find("#log-started").text(versionInfo.logDate);
+        output.find("#mods-path").text(versionInfo.modsPath);
+
         var modslist = $("#modslist"), log = $("#log"), modCache = [], y = 0;
         for (; y < modInfo.length; y++) {
             var errors = modErrors[modInfo[y][0]],
@@ -233,6 +270,8 @@ smapi.logParser = function(sectionUrl, pasteID) {
         log.append(logCache.join(""));
         $("#modlink-r").on("click", removeFilter);
         $("#modlink-a").on("click", selectAll);
+
+        $("#log-data").show();
     }
 
     function prepare(str, arr) {
@@ -245,11 +284,8 @@ smapi.logParser = function(sectionUrl, pasteID) {
     function loadData() {
         try {
             stage = "loadData.Pre";
-            var start = performance.now();
             parseData();
             renderData();
-            var end = performance.now();
-            $(".always").prepend("<div>Log processed in: " + (Math.round((end - start) * 100) / 100) + ' ms (<a id="viewraw" href="#">View raw</a>)</div><br />');
             $("#viewraw").on("click", function() {
                 $("#dataraw").val($("#input").val());
                 $("#popup-raw").fadeIn();
@@ -257,7 +293,7 @@ smapi.logParser = function(sectionUrl, pasteID) {
             stage = "loadData.Post";
         }
         catch (err) {
-            $("#output").html('<div id="log" class="color-red"><h1>Parsing failed!</h1>Parsing of the log failed, details follow.<br />&nbsp;<p>Stage: ' + stage + "</p>" + err + '<hr /><pre id="rawlog"></pre></div>');
+            error.html('<h1>Parsing failed!</h1>Parsing of the log failed, details follow.<br />&nbsp;<p>Stage: ' + stage + "</p>" + err + '<hr /><pre id="rawlog"></pre>');
             $("#rawlog").text($("#input").val());
         }
     }
@@ -269,7 +305,7 @@ smapi.logParser = function(sectionUrl, pasteID) {
                 $("#input").val(data.content);
                 loadData();
             } else {
-                $("#output").html('<div id="log" class="color-red"><h1>Fetching the log failed!</h1><p>' + data.error + '</p><pre id="rawlog"></pre></div>');
+                error.html('<h1>Fetching the log failed!</h1><p>' + data.error + '</p><pre id="rawlog"></pre>');
                 $("#rawlog").text($("#input").val());
             }
             $("#uploader").fadeOut();
