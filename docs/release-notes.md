@@ -12,7 +12,8 @@
   * Slightly improved the [log parser][] UI.
 
 * For modders:
-  * Added `DaysSinceStart` property to `SDate` dates.
+  * Added `helper.Content.NormaliseAssetName` method.
+  * Added `SDate.DaysSinceStart` property.
   * Fixed input events' `e.SuppressButton(button)` method ignoring specified button.
   * Fixed input events' `e.SuppressButton()` method not working with mouse buttons.
 
