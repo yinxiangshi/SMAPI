@@ -27,7 +27,7 @@ smapi.logParser = function(sectionUrl, pasteID) {
         regexDate = /\[\d{2}:\d{2}:\d{2} TRACE SMAPI\] Log started at (.*?) UTC/g,
         regexPath = /\[\d{2}:\d{2}:\d{2} DEBUG SMAPI\] Mods go here: (.*?)(?:\n|$)/g;
 
-    $("#filters li").on("click", function(evt) {
+    $("#filters span").on("click", function(evt) {
         var t = $(evt.currentTarget);
         t.toggleClass("active");
         output.toggleClass(t.text().toLowerCase());
