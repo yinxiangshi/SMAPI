@@ -1,4 +1,8 @@
 # Release notes
+## 2.3
+* For modders:
+  * Fixed error when using the reflection API accesses with a property with either `get` and `set` missing.
+
 ## 2.2
 * For players:
   * Fixed error when a mod loads custom assets on Linux/Mac.

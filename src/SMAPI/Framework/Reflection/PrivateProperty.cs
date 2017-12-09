@@ -14,10 +14,10 @@ namespace StardewModdingAPI.Framework.Reflection
         private readonly string DisplayName;
 
         /// <summary>The underlying property getter.</summary>
-        private readonly Func<TValue> GetterDelegate;
+        private readonly Func<TValue> GetMethod;
 
         /// <summary>The underlying property setter.</summary>
-        private readonly Action<TValue> SetterDelegate;
+        private readonly Action<TValue> SetMethod;
 
 
         /*********
@@ -55,16 +55,21 @@ namespace StardewModdingAPI.Framework.Reflection
             this.DisplayName = $"{parentType.FullName}::{property.Name}";
             this.PropertyInfo = property;
 
-            this.GetterDelegate = (Func<TValue>)Delegate.CreateDelegate(typeof(Func<TValue>), obj, this.PropertyInfo.GetMethod);
-            this.SetterDelegate = (Action<TValue>)Delegate.CreateDelegate(typeof(Action<TValue>), obj, this.PropertyInfo.SetMethod);
+            if (this.PropertyInfo.GetMethod != null)
+                this.GetMethod = (Func<TValue>)Delegate.CreateDelegate(typeof(Func<TValue>), obj, this.PropertyInfo.GetMethod);
+            if (this.PropertyInfo.SetMethod != null)
+                this.SetMethod = (Action<TValue>)Delegate.CreateDelegate(typeof(Action<TValue>), obj, this.PropertyInfo.SetMethod);
         }
 
         /// <summary>Get the property value.</summary>
         public TValue GetValue()
         {
+            if (this.GetMethod == null)
+                throw new InvalidOperationException($"The private {this.DisplayName} property has no get method.");
+
             try
             {
-                return this.GetterDelegate();
+                return this.GetMethod();
             }
             catch (InvalidCastException)
             {
@@ -80,9 +85,12 @@ namespace StardewModdingAPI.Framework.Reflection
         //// <param name="value">The value to set.</param>
         public void SetValue(TValue value)
         {
+            if (this.SetMethod == null)
+                throw new InvalidOperationException($"The private {this.DisplayName} property has no set method.");
+
             try
             {
-                this.SetterDelegate(value);
+                this.SetMethod(value);
             }
             catch (InvalidCastException)
             {
