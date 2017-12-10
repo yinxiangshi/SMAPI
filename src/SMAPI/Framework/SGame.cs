@@ -689,6 +689,7 @@ namespace StardewModdingAPI.Framework
                             this.Monitor.Log($"The {activeClickableMenu.GetType().FullName} menu crashed while drawing itself during save. SMAPI will force it to exit to avoid crashing the game.\n{ex.GetLogSummary()}", LogLevel.Error);
                             activeClickableMenu.exitThisMenu();
                         }
+                        this.RaisePostRender();
                         Game1.spriteBatch.End();
                     }
                     //base.Draw(gameTime);
@@ -712,6 +713,7 @@ namespace StardewModdingAPI.Framework
                             this.Monitor.Log($"The {Game1.activeClickableMenu.GetType().FullName} menu crashed while drawing itself. SMAPI will force it to exit to avoid crashing the game.\n{ex.GetLogSummary()}", LogLevel.Error);
                             Game1.activeClickableMenu.exitThisMenu();
                         }
+                        this.RaisePostRender();
                         Game1.spriteBatch.End();
                         if ((double)Game1.options.zoomLevel != 1.0)
                         {
@@ -721,11 +723,12 @@ namespace StardewModdingAPI.Framework
                             Game1.spriteBatch.Draw((Texture2D)this.screenWrapper, Vector2.Zero, new Microsoft.Xna.Framework.Rectangle?(this.screenWrapper.Bounds), Color.White, 0.0f, Vector2.Zero, Game1.options.zoomLevel, SpriteEffects.None, 1f);
                             Game1.spriteBatch.End();
                         }
-                        if (Game1.overlayMenu == null)
-                            return;
-                        Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, (DepthStencilState)null, (RasterizerState)null);
-                        Game1.overlayMenu.draw(Game1.spriteBatch);
-                        Game1.spriteBatch.End();
+                        if (Game1.overlayMenu != null)
+                        {
+                            Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, (DepthStencilState) null, (RasterizerState) null);
+                            Game1.overlayMenu.draw(Game1.spriteBatch);
+                            Game1.spriteBatch.End();
+                        }
                     }
                     else if ((int)Game1.gameMode == 11)
                     {
@@ -733,6 +736,7 @@ namespace StardewModdingAPI.Framework
                         Game1.spriteBatch.DrawString(Game1.dialogueFont, Game1.content.LoadString("Strings\\StringsFromCSFiles:Game1.cs.3685"), new Vector2(16f, 16f), Color.HotPink);
                         Game1.spriteBatch.DrawString(Game1.dialogueFont, Game1.content.LoadString("Strings\\StringsFromCSFiles:Game1.cs.3686"), new Vector2(16f, 32f), new Color(0, (int)byte.MaxValue, 0));
                         Game1.spriteBatch.DrawString(Game1.dialogueFont, Game1.parseText(Game1.errorMessage, Game1.dialogueFont, Game1.graphics.GraphicsDevice.Viewport.Width), new Vector2(16f, 48f), Color.White);
+                        this.RaisePostRender();
                         Game1.spriteBatch.End();
                     }
                     else if (Game1.currentMinigame != null)
@@ -744,6 +748,7 @@ namespace StardewModdingAPI.Framework
                             Game1.spriteBatch.Draw(Game1.fadeToBlackRect, Game1.graphics.GraphicsDevice.Viewport.Bounds, Color.Black * ((int)Game1.gameMode == 0 ? 1f - Game1.fadeToBlackAlpha : Game1.fadeToBlackAlpha));
                             Game1.spriteBatch.End();
                         }
+                        this.RaisePostRender(needsNewBatch: true);
                         if ((double)Game1.options.zoomLevel != 1.0)
                         {
                             this.GraphicsDevice.SetRenderTarget((RenderTarget2D)null);
@@ -752,11 +757,12 @@ namespace StardewModdingAPI.Framework
                             Game1.spriteBatch.Draw((Texture2D)this.screenWrapper, Vector2.Zero, new Microsoft.Xna.Framework.Rectangle?(this.screenWrapper.Bounds), Color.White, 0.0f, Vector2.Zero, Game1.options.zoomLevel, SpriteEffects.None, 1f);
                             Game1.spriteBatch.End();
                         }
-                        if (Game1.overlayMenu == null)
-                            return;
-                        Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, (DepthStencilState)null, (RasterizerState)null);
-                        Game1.overlayMenu.draw(Game1.spriteBatch);
-                        Game1.spriteBatch.End();
+                        if (Game1.overlayMenu != null)
+                        {
+                            Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, (DepthStencilState) null, (RasterizerState) null);
+                            Game1.overlayMenu.draw(Game1.spriteBatch);
+                            Game1.spriteBatch.End();
+                        }
                     }
                     else if (Game1.showingEndOfNightStuff)
                     {
@@ -775,6 +781,7 @@ namespace StardewModdingAPI.Framework
                                 Game1.activeClickableMenu.exitThisMenu();
                             }
                         }
+                        this.RaisePostRender();
                         Game1.spriteBatch.End();
                         if ((double)Game1.options.zoomLevel != 1.0)
                         {
@@ -784,11 +791,12 @@ namespace StardewModdingAPI.Framework
                             Game1.spriteBatch.Draw((Texture2D)this.screenWrapper, Vector2.Zero, new Microsoft.Xna.Framework.Rectangle?(this.screenWrapper.Bounds), Color.White, 0.0f, Vector2.Zero, Game1.options.zoomLevel, SpriteEffects.None, 1f);
                             Game1.spriteBatch.End();
                         }
-                        if (Game1.overlayMenu == null)
-                            return;
-                        Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, (DepthStencilState)null, (RasterizerState)null);
-                        Game1.overlayMenu.draw(Game1.spriteBatch);
-                        Game1.spriteBatch.End();
+                        if (Game1.overlayMenu != null)
+                        {
+                            Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, (DepthStencilState) null, (RasterizerState) null);
+                            Game1.overlayMenu.draw(Game1.spriteBatch);
+                            Game1.spriteBatch.End();
+                        }
                     }
                     else if ((int)Game1.gameMode == 6)
                     {
@@ -806,6 +814,7 @@ namespace StardewModdingAPI.Framework
                         int x = 64;
                         int y = Game1.graphics.GraphicsDevice.Viewport.TitleSafeArea.Bottom - height;
                         SpriteText.drawString(Game1.spriteBatch, s, x, y, 999999, widthOfString, height, 1f, 0.88f, false, 0, str5, -1);
+                        this.RaisePostRender();
                         Game1.spriteBatch.End();
                         if ((double)Game1.options.zoomLevel != 1.0)
                         {
@@ -815,11 +824,12 @@ namespace StardewModdingAPI.Framework
                             Game1.spriteBatch.Draw((Texture2D)this.screenWrapper, Vector2.Zero, new Microsoft.Xna.Framework.Rectangle?(this.screenWrapper.Bounds), Color.White, 0.0f, Vector2.Zero, Game1.options.zoomLevel, SpriteEffects.None, 1f);
                             Game1.spriteBatch.End();
                         }
-                        if (Game1.overlayMenu == null)
-                            return;
-                        Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, (DepthStencilState)null, (RasterizerState)null);
-                        Game1.overlayMenu.draw(Game1.spriteBatch);
-                        Game1.spriteBatch.End();
+                        if (Game1.overlayMenu != null)
+                        {
+                            Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, (DepthStencilState) null, (RasterizerState) null);
+                            Game1.overlayMenu.draw(Game1.spriteBatch);
+                            Game1.spriteBatch.End();
+                        }
                     }
                     else
                     {
@@ -1265,6 +1275,8 @@ namespace StardewModdingAPI.Framework
                         }
                         else if (Game1.farmEvent != null)
                             Game1.farmEvent.drawAboveEverything(Game1.spriteBatch);
+
+                        this.RaisePostRender();
                         Game1.spriteBatch.End();
                         if (Game1.overlayMenu != null)
                         {
@@ -1272,14 +1284,6 @@ namespace StardewModdingAPI.Framework
                             Game1.overlayMenu.draw(Game1.spriteBatch);
                             Game1.spriteBatch.End();
                         }
-
-                        if (GraphicsEvents.HasPostRenderListeners())
-                        {
-                            Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
-                            GraphicsEvents.InvokeOnPostRenderEvent(this.Monitor);
-                            Game1.spriteBatch.End();
-                        }
-
                         this.renderScreenBuffer();
                     }
                 }
@@ -1400,6 +1404,20 @@ namespace StardewModdingAPI.Framework
             foreach (object v in enumerable)
                 hash ^= v.GetHashCode();
             return hash;
+        }
+
+        /// <summary>Raise the <see cref="GraphicsEvents.OnPostRenderEvent"/> if there are any listeners.</summary>
+        /// <param name="needsNewBatch">Whether to create a new sprite batch.</param>
+        private void RaisePostRender(bool needsNewBatch = false)
+        {
+            if (GraphicsEvents.HasPostRenderListeners())
+            {
+                if (needsNewBatch)
+                    Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
+                GraphicsEvents.InvokeOnPostRenderEvent(this.Monitor);
+                if (needsNewBatch)
+                    Game1.spriteBatch.End();
+            }
         }
     }
 }
