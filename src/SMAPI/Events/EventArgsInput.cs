@@ -28,6 +28,9 @@ namespace StardewModdingAPI.Events
         /// <summary>Whether the input should use tools on the affected tile.</summary>
         public bool IsUseToolButton { get; }
 
+        /// <summary>Whether a mod has indicated the key was already handled.</summary>
+        public bool IsSuppressed { get; private set; }
+
 
         /*********
         ** Public methods
@@ -55,6 +58,9 @@ namespace StardewModdingAPI.Events
         /// <param name="button">The button to suppress.</param>
         public void SuppressButton(SButton button)
         {
+            if (button == this.Button)
+                this.IsSuppressed = true;
+
             // keyboard
             if (button.TryGetKeyboard(out Keys key))
                 Game1.oldKBState = new KeyboardState(Game1.oldKBState.GetPressedKeys().Union(new[] { key }).ToArray());

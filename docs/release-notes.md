@@ -1,6 +1,7 @@
 # Release notes
 ## 2.3
 * For modders:
+  * Added `IsSuppressed` to input events so mods can optionally avoid handling a key another mod already handled.
   * Fixed error when using the reflection API accesses with a property with either `get` and `set` missing.
   * Fixed issue where a mod could change the cursor position reported to other mods.
 
