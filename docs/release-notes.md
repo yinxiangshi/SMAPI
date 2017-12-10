@@ -2,6 +2,7 @@
 ## 2.3
 * For modders:
   * Fixed error when using the reflection API accesses with a property with either `get` and `set` missing.
+  * Fixed issue where a mod could change the cursor position reported to other mods.
 
 ## 2.2
 * For players:
