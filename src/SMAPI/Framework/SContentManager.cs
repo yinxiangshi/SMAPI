@@ -45,7 +45,7 @@ namespace StardewModdingAPI.Framework
         private readonly ContentCache Cache;
 
         /// <summary>The private <see cref="LocalizedContentManager"/> method which generates the locale portion of an asset name.</summary>
-        private readonly IPrivateMethod GetKeyLocale;
+        private readonly IReflectedMethod GetKeyLocale;
 
         /// <summary>The language codes used in asset keys.</summary>
         private readonly IDictionary<string, LanguageCode> KeyLocales;
@@ -101,7 +101,7 @@ namespace StardewModdingAPI.Framework
             // init
             this.Monitor = monitor ?? throw new ArgumentNullException(nameof(monitor));
             this.Cache = new ContentCache(this, reflection, SContentManager.PossiblePathSeparators, SContentManager.PreferredPathSeparator);
-            this.GetKeyLocale = reflection.GetPrivateMethod(this, "languageCode");
+            this.GetKeyLocale = reflection.GetMethod(this, "languageCode");
             this.ModContentPrefix = this.GetAssetNameFromFilePath(Constants.ModPath);
 
             // get asset data
@@ -413,7 +413,7 @@ namespace StardewModdingAPI.Framework
         private IDictionary<string, LanguageCode> GetKeyLocales(Reflector reflection)
         {
             // get the private code field directly to avoid changed-code logic
-            IPrivateField<LanguageCode> codeField = reflection.GetPrivateField<LanguageCode>(typeof(LocalizedContentManager), "_currentLangCode");
+            IReflectedField<LanguageCode> codeField = reflection.GetField<LanguageCode>(typeof(LocalizedContentManager), "_currentLangCode");
 
             // remember previous settings
             LanguageCode previousCode = codeField.GetValue();

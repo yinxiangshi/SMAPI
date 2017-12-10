@@ -5,7 +5,7 @@ using System.Runtime.Caching;
 
 namespace StardewModdingAPI.Framework.Reflection
 {
-    /// <summary>Provides helper methods for accessing private game code.</summary>
+    /// <summary>Provides helper methods for accessing inaccessible code.</summary>
     /// <remarks>This implementation searches up the type hierarchy, and caches the reflected fields and methods with a sliding expiry (to optimise performance without unnecessary memory usage).</remarks>
     internal class Reflector
     {
@@ -25,139 +25,139 @@ namespace StardewModdingAPI.Framework.Reflection
         /****
         ** Fields
         ****/
-        /// <summary>Get a private instance field.</summary>
+        /// <summary>Get a instance field.</summary>
         /// <typeparam name="TValue">The field type.</typeparam>
         /// <param name="obj">The object which has the field.</param>
         /// <param name="name">The field name.</param>
-        /// <param name="required">Whether to throw an exception if the private field is not found.</param>
+        /// <param name="required">Whether to throw an exception if the field is not found.</param>
         /// <returns>Returns the field wrapper, or <c>null</c> if the field doesn't exist and <paramref name="required"/> is <c>false</c>.</returns>
-        public IPrivateField<TValue> GetPrivateField<TValue>(object obj, string name, bool required = true)
+        public IReflectedField<TValue> GetField<TValue>(object obj, string name, bool required = true)
         {
             // validate
             if (obj == null)
-                throw new ArgumentNullException(nameof(obj), "Can't get a private instance field from a null object.");
+                throw new ArgumentNullException(nameof(obj), "Can't get a instance field from a null object.");
 
             // get field from hierarchy
-            IPrivateField<TValue> field = this.GetFieldFromHierarchy<TValue>(obj.GetType(), obj, name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            IReflectedField<TValue> field = this.GetFieldFromHierarchy<TValue>(obj.GetType(), obj, name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
             if (required && field == null)
-                throw new InvalidOperationException($"The {obj.GetType().FullName} object doesn't have a private '{name}' instance field.");
+                throw new InvalidOperationException($"The {obj.GetType().FullName} object doesn't have a '{name}' instance field.");
             return field;
         }
 
-        /// <summary>Get a private static field.</summary>
+        /// <summary>Get a static field.</summary>
         /// <typeparam name="TValue">The field type.</typeparam>
         /// <param name="type">The type which has the field.</param>
         /// <param name="name">The field name.</param>
-        /// <param name="required">Whether to throw an exception if the private field is not found.</param>
-        public IPrivateField<TValue> GetPrivateField<TValue>(Type type, string name, bool required = true)
+        /// <param name="required">Whether to throw an exception if the field is not found.</param>
+        public IReflectedField<TValue> GetField<TValue>(Type type, string name, bool required = true)
         {
             // get field from hierarchy
-            IPrivateField<TValue> field = this.GetFieldFromHierarchy<TValue>(type, null, name, BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Public);
+            IReflectedField<TValue> field = this.GetFieldFromHierarchy<TValue>(type, null, name, BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Public);
             if (required && field == null)
-                throw new InvalidOperationException($"The {type.FullName} object doesn't have a private '{name}' static field.");
+                throw new InvalidOperationException($"The {type.FullName} object doesn't have a '{name}' static field.");
             return field;
         }
 
         /****
         ** Properties
         ****/
-        /// <summary>Get a private instance property.</summary>
+        /// <summary>Get a instance property.</summary>
         /// <typeparam name="TValue">The property type.</typeparam>
         /// <param name="obj">The object which has the property.</param>
         /// <param name="name">The property name.</param>
-        /// <param name="required">Whether to throw an exception if the private property is not found.</param>
-        public IPrivateProperty<TValue> GetPrivateProperty<TValue>(object obj, string name, bool required = true)
+        /// <param name="required">Whether to throw an exception if the property is not found.</param>
+        public IReflectedProperty<TValue> GetProperty<TValue>(object obj, string name, bool required = true)
         {
             // validate
             if (obj == null)
-                throw new ArgumentNullException(nameof(obj), "Can't get a private instance property from a null object.");
+                throw new ArgumentNullException(nameof(obj), "Can't get a instance property from a null object.");
 
             // get property from hierarchy
-            IPrivateProperty<TValue> property = this.GetPropertyFromHierarchy<TValue>(obj.GetType(), obj, name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            IReflectedProperty<TValue> property = this.GetPropertyFromHierarchy<TValue>(obj.GetType(), obj, name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
             if (required && property == null)
-                throw new InvalidOperationException($"The {obj.GetType().FullName} object doesn't have a private '{name}' instance property.");
+                throw new InvalidOperationException($"The {obj.GetType().FullName} object doesn't have a '{name}' instance property.");
             return property;
         }
 
-        /// <summary>Get a private static property.</summary>
+        /// <summary>Get a static property.</summary>
         /// <typeparam name="TValue">The property type.</typeparam>
         /// <param name="type">The type which has the property.</param>
         /// <param name="name">The property name.</param>
-        /// <param name="required">Whether to throw an exception if the private property is not found.</param>
-        public IPrivateProperty<TValue> GetPrivateProperty<TValue>(Type type, string name, bool required = true)
+        /// <param name="required">Whether to throw an exception if the property is not found.</param>
+        public IReflectedProperty<TValue> GetProperty<TValue>(Type type, string name, bool required = true)
         {
             // get field from hierarchy
-            IPrivateProperty<TValue> property = this.GetPropertyFromHierarchy<TValue>(type, null, name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
+            IReflectedProperty<TValue> property = this.GetPropertyFromHierarchy<TValue>(type, null, name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
             if (required && property == null)
-                throw new InvalidOperationException($"The {type.FullName} object doesn't have a private '{name}' static property.");
+                throw new InvalidOperationException($"The {type.FullName} object doesn't have a '{name}' static property.");
             return property;
         }
 
         /****
         ** Methods
         ****/
-        /// <summary>Get a private instance method.</summary>
+        /// <summary>Get a instance method.</summary>
         /// <param name="obj">The object which has the method.</param>
         /// <param name="name">The field name.</param>
-        /// <param name="required">Whether to throw an exception if the private field is not found.</param>
-        public IPrivateMethod GetPrivateMethod(object obj, string name, bool required = true)
+        /// <param name="required">Whether to throw an exception if the field is not found.</param>
+        public IReflectedMethod GetMethod(object obj, string name, bool required = true)
         {
             // validate
             if (obj == null)
-                throw new ArgumentNullException(nameof(obj), "Can't get a private instance method from a null object.");
+                throw new ArgumentNullException(nameof(obj), "Can't get a instance method from a null object.");
 
             // get method from hierarchy
-            IPrivateMethod method = this.GetMethodFromHierarchy(obj.GetType(), obj, name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            IReflectedMethod method = this.GetMethodFromHierarchy(obj.GetType(), obj, name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
             if (required && method == null)
-                throw new InvalidOperationException($"The {obj.GetType().FullName} object doesn't have a private '{name}' instance method.");
+                throw new InvalidOperationException($"The {obj.GetType().FullName} object doesn't have a '{name}' instance method.");
             return method;
         }
 
-        /// <summary>Get a private static method.</summary>
+        /// <summary>Get a static method.</summary>
         /// <param name="type">The type which has the method.</param>
         /// <param name="name">The field name.</param>
-        /// <param name="required">Whether to throw an exception if the private field is not found.</param>
-        public IPrivateMethod GetPrivateMethod(Type type, string name, bool required = true)
+        /// <param name="required">Whether to throw an exception if the field is not found.</param>
+        public IReflectedMethod GetMethod(Type type, string name, bool required = true)
         {
             // get method from hierarchy
-            IPrivateMethod method = this.GetMethodFromHierarchy(type, null, name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
+            IReflectedMethod method = this.GetMethodFromHierarchy(type, null, name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
             if (required && method == null)
-                throw new InvalidOperationException($"The {type.FullName} object doesn't have a private '{name}' static method.");
+                throw new InvalidOperationException($"The {type.FullName} object doesn't have a '{name}' static method.");
             return method;
         }
 
         /****
         ** Methods by signature
         ****/
-        /// <summary>Get a private instance method.</summary>
+        /// <summary>Get a instance method.</summary>
         /// <param name="obj">The object which has the method.</param>
         /// <param name="name">The field name.</param>
         /// <param name="argumentTypes">The argument types of the method signature to find.</param>
-        /// <param name="required">Whether to throw an exception if the private field is not found.</param>
-        public IPrivateMethod GetPrivateMethod(object obj, string name, Type[] argumentTypes, bool required = true)
+        /// <param name="required">Whether to throw an exception if the field is not found.</param>
+        public IReflectedMethod GetMethod(object obj, string name, Type[] argumentTypes, bool required = true)
         {
             // validate parent
             if (obj == null)
-                throw new ArgumentNullException(nameof(obj), "Can't get a private instance method from a null object.");
+                throw new ArgumentNullException(nameof(obj), "Can't get a instance method from a null object.");
 
             // get method from hierarchy
-            PrivateMethod method = this.GetMethodFromHierarchy(obj.GetType(), obj, name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, argumentTypes);
+            ReflectedMethod method = this.GetMethodFromHierarchy(obj.GetType(), obj, name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, argumentTypes);
             if (required && method == null)
-                throw new InvalidOperationException($"The {obj.GetType().FullName} object doesn't have a private '{name}' instance method with that signature.");
+                throw new InvalidOperationException($"The {obj.GetType().FullName} object doesn't have a '{name}' instance method with that signature.");
             return method;
         }
 
-        /// <summary>Get a private static method.</summary>
+        /// <summary>Get a static method.</summary>
         /// <param name="type">The type which has the method.</param>
         /// <param name="name">The field name.</param>
         /// <param name="argumentTypes">The argument types of the method signature to find.</param>
-        /// <param name="required">Whether to throw an exception if the private field is not found.</param>
-        public IPrivateMethod GetPrivateMethod(Type type, string name, Type[] argumentTypes, bool required = true)
+        /// <param name="required">Whether to throw an exception if the field is not found.</param>
+        public IReflectedMethod GetMethod(Type type, string name, Type[] argumentTypes, bool required = true)
         {
             // get field from hierarchy
-            PrivateMethod method = this.GetMethodFromHierarchy(type, null, name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static, argumentTypes);
+            ReflectedMethod method = this.GetMethodFromHierarchy(type, null, name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static, argumentTypes);
             if (required && method == null)
-                throw new InvalidOperationException($"The {type.FullName} object doesn't have a private '{name}' static method with that signature.");
+                throw new InvalidOperationException($"The {type.FullName} object doesn't have a '{name}' static method with that signature.");
             return method;
         }
 
@@ -171,7 +171,7 @@ namespace StardewModdingAPI.Framework.Reflection
         /// <param name="obj">The object which has the field.</param>
         /// <param name="name">The field name.</param>
         /// <param name="bindingFlags">The reflection binding which flags which indicates what type of field to find.</param>
-        private IPrivateField<TValue> GetFieldFromHierarchy<TValue>(Type type, object obj, string name, BindingFlags bindingFlags)
+        private IReflectedField<TValue> GetFieldFromHierarchy<TValue>(Type type, object obj, string name, BindingFlags bindingFlags)
         {
             bool isStatic = bindingFlags.HasFlag(BindingFlags.Static);
             FieldInfo field = this.GetCached<FieldInfo>($"field::{isStatic}::{type.FullName}::{name}", () =>
@@ -183,7 +183,7 @@ namespace StardewModdingAPI.Framework.Reflection
             });
 
             return field != null
-                ? new PrivateField<TValue>(type, obj, field, isStatic)
+                ? new ReflectedField<TValue>(type, obj, field, isStatic)
                 : null;
         }
 
@@ -193,7 +193,7 @@ namespace StardewModdingAPI.Framework.Reflection
         /// <param name="obj">The object which has the property.</param>
         /// <param name="name">The property name.</param>
         /// <param name="bindingFlags">The reflection binding which flags which indicates what type of property to find.</param>
-        private IPrivateProperty<TValue> GetPropertyFromHierarchy<TValue>(Type type, object obj, string name, BindingFlags bindingFlags)
+        private IReflectedProperty<TValue> GetPropertyFromHierarchy<TValue>(Type type, object obj, string name, BindingFlags bindingFlags)
         {
             bool isStatic = bindingFlags.HasFlag(BindingFlags.Static);
             PropertyInfo property = this.GetCached<PropertyInfo>($"property::{isStatic}::{type.FullName}::{name}", () =>
@@ -205,7 +205,7 @@ namespace StardewModdingAPI.Framework.Reflection
             });
 
             return property != null
-                ? new PrivateProperty<TValue>(type, obj, property, isStatic)
+                ? new ReflectedProperty<TValue>(type, obj, property, isStatic)
                 : null;
         }
 
@@ -214,7 +214,7 @@ namespace StardewModdingAPI.Framework.Reflection
         /// <param name="obj">The object which has the method.</param>
         /// <param name="name">The method name.</param>
         /// <param name="bindingFlags">The reflection binding which flags which indicates what type of method to find.</param>
-        private IPrivateMethod GetMethodFromHierarchy(Type type, object obj, string name, BindingFlags bindingFlags)
+        private IReflectedMethod GetMethodFromHierarchy(Type type, object obj, string name, BindingFlags bindingFlags)
         {
             bool isStatic = bindingFlags.HasFlag(BindingFlags.Static);
             MethodInfo method = this.GetCached($"method::{isStatic}::{type.FullName}::{name}", () =>
@@ -226,7 +226,7 @@ namespace StardewModdingAPI.Framework.Reflection
             });
 
             return method != null
-                ? new PrivateMethod(type, obj, method, isStatic: bindingFlags.HasFlag(BindingFlags.Static))
+                ? new ReflectedMethod(type, obj, method, isStatic: bindingFlags.HasFlag(BindingFlags.Static))
                 : null;
         }
 
@@ -236,7 +236,7 @@ namespace StardewModdingAPI.Framework.Reflection
         /// <param name="name">The method name.</param>
         /// <param name="bindingFlags">The reflection binding which flags which indicates what type of method to find.</param>
         /// <param name="argumentTypes">The argument types of the method signature to find.</param>
-        private PrivateMethod GetMethodFromHierarchy(Type type, object obj, string name, BindingFlags bindingFlags, Type[] argumentTypes)
+        private ReflectedMethod GetMethodFromHierarchy(Type type, object obj, string name, BindingFlags bindingFlags, Type[] argumentTypes)
         {
             bool isStatic = bindingFlags.HasFlag(BindingFlags.Static);
             MethodInfo method = this.GetCached($"method::{isStatic}::{type.FullName}::{name}({string.Join(",", argumentTypes.Select(p => p.FullName))})", () =>
@@ -247,7 +247,7 @@ namespace StardewModdingAPI.Framework.Reflection
                 return methodInfo;
             });
             return method != null
-                ? new PrivateMethod(type, obj, method, isStatic)
+                ? new ReflectedMethod(type, obj, method, isStatic)
                 : null;
         }
 

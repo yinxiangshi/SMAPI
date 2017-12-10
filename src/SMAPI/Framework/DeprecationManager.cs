@@ -52,7 +52,7 @@ namespace StardewModdingAPI.Framework
                 return;
 
             // build message
-            string message = $"{source ?? "An unknown mod"} uses deprecated code ({nounPhrase}).";
+            string message = $"{source ?? "An unknown mod"} uses deprecated code ({nounPhrase} is deprecated since SMAPI {version}).";
             if (source == null)
                 message += $"{Environment.NewLine}{Environment.StackTrace}";
 

@@ -125,7 +125,7 @@ namespace StardewModdingAPI.Framework
 #endif
 
             // get result
-            return reflection.GetPrivateField<bool>(Game1.spriteBatch, fieldName).GetValue();
+            return reflection.GetField<bool>(Game1.spriteBatch, fieldName).GetValue();
         }
     }
 }

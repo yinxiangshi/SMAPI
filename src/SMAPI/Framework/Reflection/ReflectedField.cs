@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.Reflection;
 
 namespace StardewModdingAPI.Framework.Reflection
 {
-    /// <summary>A private field obtained through reflection.</summary>
+    /// <summary>A field obtained through reflection.</summary>
     /// <typeparam name="TValue">The field value type.</typeparam>
-    internal class PrivateField<TValue> : IPrivateField<TValue>
+    internal class ReflectedField<TValue> : IPrivateField<TValue>, IReflectedField<TValue>
     {
         /*********
         ** Properties
@@ -37,7 +37,7 @@ namespace StardewModdingAPI.Framework.Reflection
         /// <param name="isStatic">Whether the field is static.</param>
         /// <exception cref="ArgumentNullException">The <paramref name="parentType"/> or <paramref name="field"/> is null.</exception>
         /// <exception cref="ArgumentException">The <paramref name="obj"/> is null for a non-static field, or not null for a static field.</exception>
-        public PrivateField(Type parentType, object obj, FieldInfo field, bool isStatic)
+        public ReflectedField(Type parentType, object obj, FieldInfo field, bool isStatic)
         {
             // validate
             if (parentType == null)
@@ -64,11 +64,11 @@ namespace StardewModdingAPI.Framework.Reflection
             }
             catch (InvalidCastException)
             {
-                throw new InvalidCastException($"Can't convert the private {this.DisplayName} field from {this.FieldInfo.FieldType.FullName} to {typeof(TValue).FullName}.");
+                throw new InvalidCastException($"Can't convert the {this.DisplayName} field from {this.FieldInfo.FieldType.FullName} to {typeof(TValue).FullName}.");
             }
             catch (Exception ex)
             {
-                throw new Exception($"Couldn't get the value of the private {this.DisplayName} field", ex);
+                throw new Exception($"Couldn't get the value of the {this.DisplayName} field", ex);
             }
         }
 
@@ -82,11 +82,11 @@ namespace StardewModdingAPI.Framework.Reflection
             }
             catch (InvalidCastException)
             {
-                throw new InvalidCastException($"Can't assign the private {this.DisplayName} field a {typeof(TValue).FullName} value, must be compatible with {this.FieldInfo.FieldType.FullName}.");
+                throw new InvalidCastException($"Can't assign the {this.DisplayName} field a {typeof(TValue).FullName} value, must be compatible with {this.FieldInfo.FieldType.FullName}.");
             }
             catch (Exception ex)
             {
-                throw new Exception($"Couldn't set the value of the private {this.DisplayName} field", ex);
+                throw new Exception($"Couldn't set the value of the {this.DisplayName} field", ex);
             }
         }
     }

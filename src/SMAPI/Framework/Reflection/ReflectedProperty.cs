@@ -3,9 +3,9 @@ using System.Reflection;
 
 namespace StardewModdingAPI.Framework.Reflection
 {
-    /// <summary>A private property obtained through reflection.</summary>
+    /// <summary>A property obtained through reflection.</summary>
     /// <typeparam name="TValue">The property value type.</typeparam>
-    internal class PrivateProperty<TValue> : IPrivateProperty<TValue>
+    internal class ReflectedProperty<TValue> : IPrivateProperty<TValue>, IReflectedProperty<TValue>
     {
         /*********
         ** Properties
@@ -31,13 +31,13 @@ namespace StardewModdingAPI.Framework.Reflection
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="parentType">The type that has the field.</param>
-        /// <param name="obj">The object that has the instance field (if applicable).</param>
+        /// <param name="parentType">The type that has the property.</param>
+        /// <param name="obj">The object that has the instance property (if applicable).</param>
         /// <param name="property">The reflection metadata.</param>
-        /// <param name="isStatic">Whether the field is static.</param>
+        /// <param name="isStatic">Whether the property is static.</param>
         /// <exception cref="ArgumentNullException">The <paramref name="parentType"/> or <paramref name="property"/> is null.</exception>
-        /// <exception cref="ArgumentException">The <paramref name="obj"/> is null for a non-static field, or not null for a static field.</exception>
-        public PrivateProperty(Type parentType, object obj, PropertyInfo property, bool isStatic)
+        /// <exception cref="ArgumentException">The <paramref name="obj"/> is null for a non-static property, or not null for a static property.</exception>
+        public ReflectedProperty(Type parentType, object obj, PropertyInfo property, bool isStatic)
         {
             // validate input
             if (parentType == null)
@@ -65,7 +65,7 @@ namespace StardewModdingAPI.Framework.Reflection
         public TValue GetValue()
         {
             if (this.GetMethod == null)
-                throw new InvalidOperationException($"The private {this.DisplayName} property has no get method.");
+                throw new InvalidOperationException($"The {this.DisplayName} property has no get method.");
 
             try
             {
@@ -73,11 +73,11 @@ namespace StardewModdingAPI.Framework.Reflection
             }
             catch (InvalidCastException)
             {
-                throw new InvalidCastException($"Can't convert the private {this.DisplayName} property from {this.PropertyInfo.PropertyType.FullName} to {typeof(TValue).FullName}.");
+                throw new InvalidCastException($"Can't convert the {this.DisplayName} property from {this.PropertyInfo.PropertyType.FullName} to {typeof(TValue).FullName}.");
             }
             catch (Exception ex)
             {
-                throw new Exception($"Couldn't get the value of the private {this.DisplayName} property", ex);
+                throw new Exception($"Couldn't get the value of the {this.DisplayName} property", ex);
             }
         }
 
@@ -86,7 +86,7 @@ namespace StardewModdingAPI.Framework.Reflection
         public void SetValue(TValue value)
         {
             if (this.SetMethod == null)
-                throw new InvalidOperationException($"The private {this.DisplayName} property has no set method.");
+                throw new InvalidOperationException($"The {this.DisplayName} property has no set method.");
 
             try
             {
@@ -94,11 +94,11 @@ namespace StardewModdingAPI.Framework.Reflection
             }
             catch (InvalidCastException)
             {
-                throw new InvalidCastException($"Can't assign the private {this.DisplayName} property a {typeof(TValue).FullName} value, must be compatible with {this.PropertyInfo.PropertyType.FullName}.");
+                throw new InvalidCastException($"Can't assign the {this.DisplayName} property a {typeof(TValue).FullName} value, must be compatible with {this.PropertyInfo.PropertyType.FullName}.");
             }
             catch (Exception ex)
             {
-                throw new Exception($"Couldn't set the value of the private {this.DisplayName} property", ex);
+                throw new Exception($"Couldn't set the value of the {this.DisplayName} property", ex);
             }
         }
     }

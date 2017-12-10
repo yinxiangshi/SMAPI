@@ -1,11 +1,9 @@
-using System;
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace StardewModdingAPI
 {
-    /// <summary>A private method obtained through reflection.</summary>
-    [Obsolete("Use " + nameof(IReflectedMethod) + " instead")]
-    public interface IPrivateMethod
+    /// <summary>A method obtained through reflection.</summary>
+    public interface IReflectedMethod
     {
         /*********
         ** Accessors

@@ -3,8 +3,8 @@ using System.Reflection;
 
 namespace StardewModdingAPI.Framework.Reflection
 {
-    /// <summary>A private method obtained through reflection.</summary>
-    internal class PrivateMethod : IPrivateMethod
+    /// <summary>A method obtained through reflection.</summary>
+    internal class ReflectedMethod : IPrivateMethod, IReflectedMethod
     {
         /*********
         ** Properties
@@ -33,10 +33,10 @@ namespace StardewModdingAPI.Framework.Reflection
         /// <param name="parentType">The type that has the method.</param>
         /// <param name="obj">The object that has the instance method(if applicable).</param>
         /// <param name="method">The reflection metadata.</param>
-        /// <param name="isStatic">Whether the field is static.</param>
+        /// <param name="isStatic">Whether the method is static.</param>
         /// <exception cref="ArgumentNullException">The <paramref name="parentType"/> or <paramref name="method"/> is null.</exception>
         /// <exception cref="ArgumentException">The <paramref name="obj"/> is null for a non-static method, or not null for a static method.</exception>
-        public PrivateMethod(Type parentType, object obj, MethodInfo method, bool isStatic)
+        public ReflectedMethod(Type parentType, object obj, MethodInfo method, bool isStatic)
         {
             // validate
             if (parentType == null)
@@ -67,7 +67,7 @@ namespace StardewModdingAPI.Framework.Reflection
             }
             catch (Exception ex)
             {
-                throw new Exception($"Couldn't invoke the private {this.DisplayName} field", ex);
+                throw new Exception($"Couldn't invoke the {this.DisplayName} method", ex);
             }
 
             // cast return value
@@ -77,7 +77,7 @@ namespace StardewModdingAPI.Framework.Reflection
             }
             catch (InvalidCastException)
             {
-                throw new InvalidCastException($"Can't convert the return value of the private {this.DisplayName} method from {this.MethodInfo.ReturnType.FullName} to {typeof(TValue).FullName}.");
+                throw new InvalidCastException($"Can't convert the return value of the {this.DisplayName} method from {this.MethodInfo.ReturnType.FullName} to {typeof(TValue).FullName}.");
             }
         }
 
@@ -92,7 +92,7 @@ namespace StardewModdingAPI.Framework.Reflection
             }
             catch (Exception ex)
             {
-                throw new Exception($"Couldn't invoke the private {this.DisplayName} field", ex);
+                throw new Exception($"Couldn't invoke the {this.DisplayName} method", ex);
             }
         }
     }

@@ -133,20 +133,20 @@ namespace StardewModdingAPI.Framework
 
         // ReSharper disable ArrangeStaticMemberQualifier, ArrangeThisQualifier, InconsistentNaming
         /// <summary>Used to access private fields and methods.</summary>
-        private static List<float> _fpsList => SGame.Reflection.GetPrivateField<List<float>>(typeof(Game1), nameof(_fpsList)).GetValue();
-        private static Stopwatch _fpsStopwatch => SGame.Reflection.GetPrivateField<Stopwatch>(typeof(Game1), nameof(SGame._fpsStopwatch)).GetValue();
+        private static List<float> _fpsList => SGame.Reflection.GetField<List<float>>(typeof(Game1), nameof(_fpsList)).GetValue();
+        private static Stopwatch _fpsStopwatch => SGame.Reflection.GetField<Stopwatch>(typeof(Game1), nameof(SGame._fpsStopwatch)).GetValue();
         private static float _fps
         {
-            set => SGame.Reflection.GetPrivateField<float>(typeof(Game1), nameof(_fps)).SetValue(value);
+            set => SGame.Reflection.GetField<float>(typeof(Game1), nameof(_fps)).SetValue(value);
         }
-        private static Task _newDayTask => SGame.Reflection.GetPrivateField<Task>(typeof(Game1), nameof(_newDayTask)).GetValue();
-        private Color bgColor => SGame.Reflection.GetPrivateField<Color>(this, nameof(bgColor)).GetValue();
-        public RenderTarget2D screenWrapper => SGame.Reflection.GetPrivateProperty<RenderTarget2D>(this, "screen").GetValue(); // deliberately renamed to avoid an infinite loop
-        public BlendState lightingBlend => SGame.Reflection.GetPrivateField<BlendState>(this, nameof(lightingBlend)).GetValue();
-        private readonly Action drawFarmBuildings = () => SGame.Reflection.GetPrivateMethod(SGame.Instance, nameof(drawFarmBuildings)).Invoke();
-        private readonly Action drawHUD = () => SGame.Reflection.GetPrivateMethod(SGame.Instance, nameof(drawHUD)).Invoke();
-        private readonly Action drawDialogueBox = () => SGame.Reflection.GetPrivateMethod(SGame.Instance, nameof(drawDialogueBox)).Invoke();
-        private readonly Action renderScreenBuffer = () => SGame.Reflection.GetPrivateMethod(SGame.Instance, nameof(renderScreenBuffer)).Invoke();
+        private static Task _newDayTask => SGame.Reflection.GetField<Task>(typeof(Game1), nameof(_newDayTask)).GetValue();
+        private Color bgColor => SGame.Reflection.GetField<Color>(this, nameof(bgColor)).GetValue();
+        public RenderTarget2D screenWrapper => SGame.Reflection.GetProperty<RenderTarget2D>(this, "screen").GetValue(); // deliberately renamed to avoid an infinite loop
+        public BlendState lightingBlend => SGame.Reflection.GetField<BlendState>(this, nameof(lightingBlend)).GetValue();
+        private readonly Action drawFarmBuildings = () => SGame.Reflection.GetMethod(SGame.Instance, nameof(drawFarmBuildings)).Invoke();
+        private readonly Action drawHUD = () => SGame.Reflection.GetMethod(SGame.Instance, nameof(drawHUD)).Invoke();
+        private readonly Action drawDialogueBox = () => SGame.Reflection.GetMethod(SGame.Instance, nameof(drawDialogueBox)).Invoke();
+        private readonly Action renderScreenBuffer = () => SGame.Reflection.GetMethod(SGame.Instance, nameof(renderScreenBuffer)).Invoke();
         // ReSharper restore ArrangeStaticMemberQualifier, ArrangeThisQualifier, InconsistentNaming
 
 
@@ -182,7 +182,7 @@ namespace StardewModdingAPI.Framework
             this.SContentManager = new SContentManager(this.Content.ServiceProvider, this.Content.RootDirectory, Thread.CurrentThread.CurrentUICulture, null, this.Monitor, reflection);
             this.Content = new ContentManagerShim(this.SContentManager, "SGame.Content");
             Game1.content = new ContentManagerShim(this.SContentManager, "Game1.content");
-            reflection.GetPrivateField<LocalizedContentManager>(typeof(Game1), "_temporaryContent").SetValue(new ContentManagerShim(this.SContentManager, "Game1._temporaryContent")); // regenerate value with new content manager
+            reflection.GetField<LocalizedContentManager>(typeof(Game1), "_temporaryContent").SetValue(new ContentManagerShim(this.SContentManager, "Game1._temporaryContent")); // regenerate value with new content manager
         }
 
         /****

@@ -1,12 +1,10 @@
-using System;
 using System.Reflection;
 
 namespace StardewModdingAPI
 {
-    /// <summary>A private property obtained through reflection.</summary>
+    /// <summary>A property obtained through reflection.</summary>
     /// <typeparam name="TValue">The property value type.</typeparam>
-    [Obsolete("Use " + nameof(IPrivateProperty<TValue>) + " instead")]
-    public interface IPrivateProperty<TValue>
+    public interface IReflectedProperty<TValue>
     {
         /*********
         ** Accessors
