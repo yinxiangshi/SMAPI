@@ -89,6 +89,7 @@ namespace StardewModdingAPI.Web
                             req.Host.Host != "localhost"
                             && (req.Host.Host.StartsWith("api.") || req.Host.Host.StartsWith("log."))
                             && !req.Path.StartsWithSegments("/content")
+                            && !req.Path.StartsWithSegments("/favicon.ico")
                     ))
 
                     // shortcut redirects

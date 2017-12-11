@@ -7,6 +7,9 @@
   * Fixed issue where a mod could change the cursor position reported to other mods.
   * Improved cryptic libgdiplus errors on Mac when Mono isn't installed.
 
+* For the [log parser][]:
+  * Fixed broken favicon.
+
 ## 2.2
 * For players:
   * Fixed error when a mod loads custom assets on Linux/Mac.
