@@ -205,7 +205,7 @@ namespace StardewModdingAPI.Framework
                 return this.LoadImpl<T>(assetName, instance);
 
             // load mod content
-            SContentLoadException GetContentError(string reasonPhrase) => new SContentLoadException($"Failed loading content asset '{assetName}': {reasonPhrase}.");
+            SContentLoadException GetContentError(string reasonPhrase) => new SContentLoadException($"Failed loading content asset '{assetName}': {reasonPhrase}");
             try
             {
                 return this.WithWriteLock(() =>
@@ -252,6 +252,8 @@ namespace StardewModdingAPI.Framework
             }
             catch (Exception ex) when (!(ex is SContentLoadException))
             {
+                if (ex.GetInnermostException() is DllNotFoundException dllEx && dllEx.Message == "libgdiplus.dylib")
+                    throw GetContentError("couldn't find libgdiplus, which is needed to load mod images. Make sure Mono is installed and you're running the game through the normal launcher.");
                 throw new SContentLoadException($"The content manager failed loading content asset '{assetName}'.", ex);
             }
         }

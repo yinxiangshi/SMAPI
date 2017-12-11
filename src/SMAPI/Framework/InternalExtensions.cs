@@ -108,6 +108,15 @@ namespace StardewModdingAPI.Framework
             }
         }
 
+        /// <summary>Get the lowest exception in an exception stack.</summary>
+        /// <param name="exception">The exception from which to search.</param>
+        public static Exception GetInnermostException(this Exception exception)
+        {
+            while (exception.InnerException != null)
+                exception = exception.InnerException;
+            return exception;
+        }
+
         /****
         ** Sprite batch
         ****/

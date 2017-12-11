@@ -5,6 +5,7 @@
   * Fixed `GraphicsEvents.OnPostRenderEvent` not being raised in some specialised cases.
   * Fixed error when using the reflection API accesses with a property with either `get` and `set` missing.
   * Fixed issue where a mod could change the cursor position reported to other mods.
+  * Improved cryptic libgdiplus errors on Mac when Mono isn't installed.
 
 ## 2.2
 * For players:
