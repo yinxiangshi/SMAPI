@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using ImpromptuInterface;
 
 namespace StardewModdingAPI.Framework.ModHelpers
 {
@@ -61,6 +62,29 @@ namespace StardewModdingAPI.Framework.ModHelpers
             if (mod?.Api != null && this.AccessedModApis.Add(mod.Manifest.UniqueID))
                 this.Monitor.Log($"Accessed mod-provided API for {mod.DisplayName}.", LogLevel.Trace);
             return mod?.Api;
+        }
+
+        /// <summary>Get the API provided by a mod, mapped to a given interface which specifies the expected properties and methods. If the mod has no API or it's not compatible with the given interface, get <c>null</c>.</summary>
+        /// <typeparam name="TInterface">The interface which matches the properties and methods you intend to access.</typeparam>
+        /// <param name="uniqueID">The mod's unique ID.</param>
+        public TInterface GetApi<TInterface>(string uniqueID) where TInterface : class
+        {
+            // validate
+            if (!typeof(TInterface).IsInterface)
+            {
+                this.Monitor.Log("Tried to map a mod-provided API into a class; must be an interface.");
+                return null;
+            }
+
+            // get raw API
+            object api = this.GetApi(uniqueID);
+            if (api == null)
+                return null;
+
+            // get API of type
+            if (api is TInterface castApi)
+                return castApi;
+            return api.ActLike<TInterface>();
         }
     }
 }
