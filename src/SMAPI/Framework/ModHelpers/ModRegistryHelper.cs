@@ -72,7 +72,12 @@ namespace StardewModdingAPI.Framework.ModHelpers
             // validate
             if (!typeof(TInterface).IsInterface)
             {
-                this.Monitor.Log("Tried to map a mod-provided API into a class; must be an interface.");
+                this.Monitor.Log("Tried to map a mod-provided API to a class; must be a public interface.", LogLevel.Error);
+                return null;
+            }
+            if (!typeof(TInterface).IsPublic)
+            {
+                this.Monitor.Log("Tried to map a mod-provided API to a non-public interface; must be a public interface.", LogLevel.Error);
                 return null;
             }
 
