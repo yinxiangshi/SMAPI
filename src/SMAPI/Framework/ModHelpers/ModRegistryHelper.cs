@@ -45,5 +45,11 @@ namespace StardewModdingAPI.Framework.ModHelpers
         {
             return this.Registry.Get(uniqueID) != null;
         }
+
+        /// <summary>Get the API provided by a mod, or <c>null</c> if it has none. This signature requires using the <see cref="IModHelper.Reflection"/> API to access the API's properties and methods.</summary>
+        public IModProvidedApi GetApi(string uniqueID)
+        {
+            return this.Registry.Get(uniqueID)?.Api;
+        }
     }
 }

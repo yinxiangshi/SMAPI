@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace StardewModdingAPI
 {
@@ -16,5 +16,9 @@ namespace StardewModdingAPI
         /// <summary>Get whether a mod has been loaded.</summary>
         /// <param name="uniqueID">The mod's unique ID.</param>
         bool IsLoaded(string uniqueID);
+
+        /// <summary>Get the API provided by a mod, or <c>null</c> if it has none. This signature requires using the <see cref="IModHelper.Reflection"/> API to access the API's properties and methods.</summary>
+        /// <param name="uniqueID">The mod's unique ID.</param>
+        IModProvidedApi GetApi(string uniqueID);
     }
 }

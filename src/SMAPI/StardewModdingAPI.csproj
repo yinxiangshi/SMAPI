@@ -114,6 +114,7 @@
     <Compile Include="IReflectedField.cs" />
     <Compile Include="IReflectedMethod.cs" />
     <Compile Include="IReflectedProperty.cs" />
+    <Compile Include="IModProvidedApi.cs" />
     <Compile Include="Metadata\CoreAssets.cs" />
     <Compile Include="ContentSource.cs" />
     <Compile Include="Events\ContentEvents.cs" />
