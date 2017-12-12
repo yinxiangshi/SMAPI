@@ -842,6 +842,9 @@ namespace StardewModdingAPI
                 this.Monitor.Log("Invalidating cached assets for new editors & loaders...", LogLevel.Trace);
                 this.ContentManager.InvalidateCacheFor(editors, loaders);
             }
+
+            // unlock mod integrations
+            this.ModRegistry.AreAllModsInitialised = true;
         }
 
         /// <summary>Load a mod's entry class.</summary>

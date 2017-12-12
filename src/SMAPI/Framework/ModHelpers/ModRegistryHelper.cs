@@ -70,6 +70,11 @@ namespace StardewModdingAPI.Framework.ModHelpers
         public TInterface GetApi<TInterface>(string uniqueID) where TInterface : class
         {
             // validate
+            if (!this.Registry.AreAllModsInitialised)
+            {
+                this.Monitor.Log("Tried to access a mod-provided API before all mods were initialised.", LogLevel.Error);
+                return null;
+            }
             if (!typeof(TInterface).IsInterface)
             {
                 this.Monitor.Log("Tried to map a mod-provided API to a class; must be a public interface.", LogLevel.Error);
