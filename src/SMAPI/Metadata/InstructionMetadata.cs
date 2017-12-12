@@ -50,7 +50,6 @@ namespace StardewModdingAPI.Metadata
                 new EventFinder("StardewModdingAPI.Events.GameEvents", "Initialize", InstructionHandleResult.NotCompatible),
                 new EventFinder("StardewModdingAPI.Events.GameEvents", "LoadContent", InstructionHandleResult.NotCompatible),
                 new EventFinder("StardewModdingAPI.Events.GameEvents", "GameLoaded", InstructionHandleResult.NotCompatible),
-                new EventFinder("StardewModdingAPI.Events.GameEvents", "FirstUpdateTick", InstructionHandleResult.NotCompatible),
                 new EventFinder("StardewModdingAPI.Events.PlayerEvents", "LoadedGame", InstructionHandleResult.NotCompatible),
                 new EventFinder("StardewModdingAPI.Events.PlayerEvents", "FarmerChanged", InstructionHandleResult.NotCompatible),
                 new EventFinder("StardewModdingAPI.Events.TimeEvents", "DayOfMonthChanged", InstructionHandleResult.NotCompatible),
