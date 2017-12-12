@@ -711,11 +711,9 @@ namespace StardewModdingAPI
                             modHelper = new ModHelper(manifest.UniqueID, metadata.DirectoryPath, jsonHelper, contentHelper, commandHelper, modRegistryHelper, reflectionHelper, translationHelper);
                         }
 
-                        // get mod instances
+                        // get mod instance
                         if (!this.TryLoadModEntry(modAssembly, error => TrackSkip(metadata, error), out Mod mod))
                             continue;
-                        if (this.TryLoadModProvidedApi(modAssembly, modHelper, monitor, error => this.Monitor.Log($"Failed loading {metadata.DisplayName}'s mod-provided API. Integrations may not work correctly. Error: {error}", LogLevel.Warn), out IModProvidedApi api))
-                            this.Monitor.Log($"   Found mod-provided API ({api.GetType().FullName}).", LogLevel.Trace);
 
                         // init mod
                         mod.ModManifest = manifest;
@@ -723,7 +721,7 @@ namespace StardewModdingAPI
                         mod.Monitor = monitor;
 
                         // track mod
-                        metadata.SetMod(mod, api);
+                        metadata.SetMod(mod);
                         this.ModRegistry.Add(metadata);
                     }
                     catch (Exception ex)
@@ -796,6 +794,19 @@ namespace StardewModdingAPI
                 {
                     this.Monitor.Log($"{metadata.DisplayName} failed on entry and might not work correctly. Technical details:\n{ex.GetLogSummary()}", LogLevel.Error);
                 }
+
+                // get mod API
+                try
+                {
+                    object api = metadata.Mod.GetApi();
+                    if (api != null)
+                        this.Monitor.Log($"   Found mod-provided API ({api.GetType().FullName}).", LogLevel.Trace);
+                    metadata.SetApi(api);
+                }
+                catch (Exception ex)
+                {
+                    this.Monitor.Log($"Failed loading mod-provided API for {metadata.DisplayName}. Integrations with other mods may not work. Error: {ex.GetLogSummary()}", LogLevel.Error);
+                }
             }
 
             // invalidate cache entries when needed
@@ -863,73 +874,6 @@ namespace StardewModdingAPI
             }
 
             return true;
-        }
-
-        /// <summary>Load a mod's <see cref="IModProvidedApi"/> implementation.</summary>
-        /// <param name="modAssembly">The mod assembly.</param>
-        /// <param name="modHelper">The mod's helper instance.</param>
-        /// <param name="monitor">The mod's monitor instance.</param>
-        /// <param name="onError">A callback invoked when loading fails.</param>
-        /// <param name="api">The loaded instance.</param>
-        private bool TryLoadModProvidedApi(Assembly modAssembly, IModHelper modHelper, IMonitor monitor, Action<string> onError, out IModProvidedApi api)
-        {
-            api = null;
-
-            // find type
-            TypeInfo[] apis = modAssembly.DefinedTypes.Where(type => typeof(IModProvidedApi).IsAssignableFrom(type) && !type.IsAbstract).Take(2).ToArray();
-            if (apis.Length == 0)
-                return false;
-            if (apis.Length > 1)
-            {
-                onError($"its DLL contains multiple '{nameof(IModProvidedApi)}' implementations.");
-                return false;
-            }
-
-            // get constructor
-            ConstructorInfo constructor = (
-                from constr in apis[0].GetConstructors()
-                let args = constr.GetParameters()
-                where
-                    !args.Any()
-                    || args.All(arg => typeof(IModHelper).IsAssignableFrom(arg.ParameterType) || typeof(IMonitor).IsAssignableFrom(arg.ParameterType))
-                orderby args.Length descending
-                select constr
-            ).FirstOrDefault();
-            if (constructor == null)
-            {
-                onError($"its {nameof(IModProvidedApi)} must have a constructor with zero arguments, or only arguments of type {nameof(IModHelper)} or {nameof(IMonitor)}.");
-                return false;
-            }
-
-            // construct instance
-            try
-            {
-                // prepare constructor args
-                ParameterInfo[] args = constructor.GetParameters();
-                object[] values = new object[args.Length];
-                for (int i = 0; i < args.Length; i++)
-                {
-                    if (typeof(IModHelper).IsAssignableFrom(args[i].ParameterType))
-                        values[i] = modHelper;
-                    else if (typeof(IMonitor).IsAssignableFrom(args[i].ParameterType))
-                        values[i] = monitor;
-                    else
-                    {
-                        // shouldn't happen
-                        onError($"its {nameof(IModProvidedApi)} instance's constructor has unexpected argument type {args[i].ParameterType.FullName}.");
-                        return false;
-                    }
-                }
-
-                // instantiate
-                api = (IModProvidedApi)constructor.Invoke(values);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                onError($"its {nameof(IModProvidedApi)} couldn't be constructed: {ex.GetLogSummary()}");
-                return false;
-            }
         }
 
         /// <summary>Reload translations for all mods.</summary>

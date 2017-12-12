@@ -31,7 +31,7 @@ namespace StardewModdingAPI.Framework
         IMod Mod { get; }
 
         /// <summary>The mod-provided API (if any).</summary>
-        IModProvidedApi Api { get; }
+        object Api { get; }
 
 
         /*********
@@ -45,7 +45,10 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Set the mod instance.</summary>
         /// <param name="mod">The mod instance to set.</param>
-        /// <param name="api">The mod-provided API (if any).</param>
-        IModMetadata SetMod(IMod mod, IModProvidedApi api);
+        IModMetadata SetMod(IMod mod);
+
+        /// <summary>Set the mod-provided API instance.</summary>
+        /// <param name="api">The mod-provided API.</param>
+        IModMetadata SetApi(object api);
     }
 }
