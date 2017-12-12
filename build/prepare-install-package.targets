@@ -24,6 +24,7 @@
     <!-- copy SMAPI files for Mono -->
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\ImpromptuInterface.dll" DestinationFolder="$(PackageInternalPath)\Mono" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\Mono.Cecil.dll" DestinationFolder="$(PackageInternalPath)\Mono" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\Mono.CSharp.dll" DestinationFolder="$(PackageInternalPath)\Mono" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\Newtonsoft.Json.dll" DestinationFolder="$(PackageInternalPath)\Mono" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.exe" DestinationFolder="$(PackageInternalPath)\Mono" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.pdb" DestinationFolder="$(PackageInternalPath)\Mono" />
