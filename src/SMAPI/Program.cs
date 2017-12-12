@@ -247,7 +247,7 @@ namespace StardewModdingAPI
             this.IsDisposed = true;
 
             // dispose mod data
-            foreach (IModMetadata mod in this.ModRegistry.GetMods())
+            foreach (IModMetadata mod in this.ModRegistry.GetAll())
             {
                 try
                 {
@@ -374,7 +374,7 @@ namespace StardewModdingAPI
             }
 
             // update window titles
-            int modsLoaded = this.ModRegistry.GetMods().Count();
+            int modsLoaded = this.ModRegistry.GetAll().Count();
             this.GameInstance.Window.Title = $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion} with {modsLoaded} mods";
             Console.Title = $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion} with {modsLoaded} mods";
 
@@ -390,7 +390,7 @@ namespace StardewModdingAPI
             LocalizedContentManager.LanguageCode languageCode = this.ContentManager.GetCurrentLanguage();
 
             // update mod translation helpers
-            foreach (IModMetadata mod in this.ModRegistry.GetMods())
+            foreach (IModMetadata mod in this.ModRegistry.GetAll())
                 (mod.Mod.Helper.Translation as TranslationHelper)?.SetLocale(locale, languageCode);
         }
 
@@ -753,7 +753,7 @@ namespace StardewModdingAPI
                     }
                 }
             }
-            IModMetadata[] loadedMods = this.ModRegistry.GetMods().ToArray();
+            IModMetadata[] loadedMods = this.ModRegistry.GetAll().ToArray();
 
             // log skipped mods
             this.Monitor.Newline();
@@ -858,7 +858,7 @@ namespace StardewModdingAPI
         private void ReloadTranslations()
         {
             JsonHelper jsonHelper = new JsonHelper();
-            foreach (IModMetadata metadata in this.ModRegistry.GetMods())
+            foreach (IModMetadata metadata in this.ModRegistry.GetAll())
             {
                 // read translation files
                 IDictionary<string, IDictionary<string, string>> translations = new Dictionary<string, IDictionary<string, string>>();

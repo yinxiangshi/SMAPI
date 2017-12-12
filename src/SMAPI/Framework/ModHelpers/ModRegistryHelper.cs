@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace StardewModdingAPI.Framework.ModHelpers
 {
@@ -27,7 +28,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <summary>Get metadata for all loaded mods.</summary>
         public IEnumerable<IManifest> GetAll()
         {
-            return this.Registry.GetAll();
+            return this.Registry.GetAll().Select(p => p.Manifest);
         }
 
         /// <summary>Get metadata for a loaded mod.</summary>
@@ -35,14 +36,14 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <returns>Returns the matching mod's metadata, or <c>null</c> if not found.</returns>
         public IManifest Get(string uniqueID)
         {
-            return this.Registry.Get(uniqueID);
+            return this.Registry.Get(uniqueID)?.Manifest;
         }
 
         /// <summary>Get whether a mod has been loaded.</summary>
         /// <param name="uniqueID">The mod's unique ID.</param>
         public bool IsLoaded(string uniqueID)
         {
-            return this.Registry.IsLoaded(uniqueID);
+            return this.Registry.Get(uniqueID) != null;
         }
     }
 }
