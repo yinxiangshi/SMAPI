@@ -79,13 +79,6 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Windows.Forms" Condition="$(OS) == 'Windows_NT'" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" Condition="$(OS) == 'Windows_NT'" />
-    <Reference Include="Mono.CSharp" Condition="$(OS) != 'Windows_NT'">
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
