@@ -1891,6 +1891,16 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "UpdateKeys": [ "Nexus:1401" ]
     },
     {
+      // TrainerMod
+      "ID": "SMAPI.TrainerMod",
+      "Compatibility": {
+        "~": {
+          "Status": "Obsolete",
+          "ReasonPhrase": "replaced by ConsoleCommands, which is added by the SMAPI installer."
+        }
+      }
+    },
+    {
       // Tree Transplant
       "ID": "TreeTransplant",
       "UpdateKeys": [ "Nexus:1342" ]
