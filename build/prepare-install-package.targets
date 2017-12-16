@@ -22,7 +22,6 @@
     <Copy SourceFiles="$(TargetDir)\readme.txt" DestinationFiles="$(PackagePath)\README.txt" />
     
     <!-- copy SMAPI files for Mono -->
-    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\ImpromptuInterface.dll" DestinationFolder="$(PackageInternalPath)\Mono" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\Mono.Cecil.dll" DestinationFolder="$(PackageInternalPath)\Mono" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\Mono.CSharp.dll" DestinationFolder="$(PackageInternalPath)\Mono" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\Newtonsoft.Json.dll" DestinationFolder="$(PackageInternalPath)\Mono" />
@@ -38,7 +37,6 @@
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="@(CompiledMods)" DestinationFolder="$(PackageInternalPath)\Mono\Mods\%(RecursiveDir)" />
 
     <!-- copy SMAPI files for Windows -->
-    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\ImpromptuInterface.dll" DestinationFolder="$(PackageInternalPath)\Windows" />
     <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\Mono.Cecil.dll" DestinationFolder="$(PackageInternalPath)\Windows" />
     <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\Newtonsoft.Json.dll" DestinationFolder="$(PackageInternalPath)\Windows" />
     <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.exe" DestinationFolder="$(PackageInternalPath)\Windows" />
