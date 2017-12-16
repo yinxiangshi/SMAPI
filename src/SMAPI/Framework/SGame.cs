@@ -557,9 +557,12 @@ namespace StardewModdingAPI.Framework
                 /*********
                 ** Update events
                 *********/
-                GameEvents.InvokeUpdateTick(this.Monitor);
                 if (this.FirstUpdate)
+                {
                     this.FirstUpdate = false;
+                    GameEvents.InvokeFirstUpdateTick(this.Monitor);
+                }
+                GameEvents.InvokeUpdateTick(this.Monitor);
                 if (this.CurrentUpdateTick % 2 == 0)
                     GameEvents.InvokeSecondUpdateTick(this.Monitor);
                 if (this.CurrentUpdateTick % 4 == 0)
@@ -725,7 +728,7 @@ namespace StardewModdingAPI.Framework
                         }
                         if (Game1.overlayMenu != null)
                         {
-                            Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, (DepthStencilState) null, (RasterizerState) null);
+                            Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, (DepthStencilState)null, (RasterizerState)null);
                             Game1.overlayMenu.draw(Game1.spriteBatch);
                             Game1.spriteBatch.End();
                         }
@@ -759,7 +762,7 @@ namespace StardewModdingAPI.Framework
                         }
                         if (Game1.overlayMenu != null)
                         {
-                            Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, (DepthStencilState) null, (RasterizerState) null);
+                            Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, (DepthStencilState)null, (RasterizerState)null);
                             Game1.overlayMenu.draw(Game1.spriteBatch);
                             Game1.spriteBatch.End();
                         }
@@ -793,7 +796,7 @@ namespace StardewModdingAPI.Framework
                         }
                         if (Game1.overlayMenu != null)
                         {
-                            Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, (DepthStencilState) null, (RasterizerState) null);
+                            Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, (DepthStencilState)null, (RasterizerState)null);
                             Game1.overlayMenu.draw(Game1.spriteBatch);
                             Game1.spriteBatch.End();
                         }
@@ -826,7 +829,7 @@ namespace StardewModdingAPI.Framework
                         }
                         if (Game1.overlayMenu != null)
                         {
-                            Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, (DepthStencilState) null, (RasterizerState) null);
+                            Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, (DepthStencilState)null, (RasterizerState)null);
                             Game1.overlayMenu.draw(Game1.spriteBatch);
                             Game1.spriteBatch.End();
                         }

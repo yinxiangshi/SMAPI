@@ -1,6 +1,8 @@
 # Release notes
 ## 2.3
 * For modders:
+  * **Added mod-provided APIs** which enable simple integrations between mods, even without direct assembly references.
+  * Added `GameEvents.FirstUpdateTick` event, which is called once after all mods are initialised.
   * Added `IsSuppressed` to input events so mods can optionally avoid handling a key another mod already handled.
   * Added trace message listing mods with no update keys.
   * Fixed `GraphicsEvents.OnPostRenderEvent` not being raised in some specialised cases.

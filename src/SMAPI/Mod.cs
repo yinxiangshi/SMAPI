@@ -25,6 +25,9 @@ namespace StardewModdingAPI
         /// <param name="helper">Provides simplified APIs for writing mods.</param>
         public abstract void Entry(IModHelper helper);
 
+        /// <summary>Get an API that other mods can access. This is always called after <see cref="Entry"/>.</summary>
+        public virtual object GetApi() => null;
+
         /// <summary>Release or reset unmanaged resources.</summary>
         public void Dispose()
         {

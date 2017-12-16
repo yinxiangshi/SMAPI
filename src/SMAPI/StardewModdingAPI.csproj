@@ -79,10 +79,6 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Windows.Forms" Condition="$(OS) == 'Windows_NT'" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -110,6 +106,7 @@
     <Compile Include="Framework\ContentManagerShim.cs" />
     <Compile Include="Framework\Exceptions\SAssemblyLoadFailedException.cs" />
     <Compile Include="Framework\ModLoading\AssemblyLoadStatus.cs" />
+    <Compile Include="Framework\Reflection\InterfaceProxyBuilder.cs" />
     <Compile Include="Framework\Utilities\ContextHash.cs" />
     <Compile Include="IReflectedField.cs" />
     <Compile Include="IReflectedMethod.cs" />

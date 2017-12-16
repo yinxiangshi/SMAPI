@@ -33,6 +33,9 @@ namespace StardewModdingAPI.Events
         /// <summary>Raised every 60th tick (≈once per second).</summary>
         public static event EventHandler OneSecondTick;
 
+        /// <summary>Raised once after the game initialises and all <see cref="IMod.Entry"/> methods have been called.</summary>
+        public static event EventHandler FirstUpdateTick;
+
 
         /*********
         ** Internal methods
@@ -91,6 +94,13 @@ namespace StardewModdingAPI.Events
         internal static void InvokeOneSecondTick(IMonitor monitor)
         {
             monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.OneSecondTick)}", GameEvents.OneSecondTick?.GetInvocationList());
+        }
+
+        /// <summary>Raise a <see cref="FirstUpdateTick"/> event.</summary>
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
+        internal static void InvokeFirstUpdateTick(IMonitor monitor)
+        {
+            monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.FirstUpdateTick)}", GameEvents.FirstUpdateTick?.GetInvocationList());
         }
     }
 }
