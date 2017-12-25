@@ -1,5 +1,8 @@
 # Release notes
 ## 2.3
+* For players:
+  * Added a user-friendly [download page](https://smapi.io).
+
 * For modders:
   * **Added mod-provided APIs** which enable simple integrations between mods, even without direct assembly references.
   * Added `GameEvents.FirstUpdateTick` event, which is called once after all mods are initialised.
