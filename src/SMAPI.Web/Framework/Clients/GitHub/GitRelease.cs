@@ -15,5 +15,11 @@ namespace StardewModdingAPI.Web.Framework.Clients.GitHub
         /// <summary>The semantic version string.</summary>
         [JsonProperty("tag_name")]
         public string Tag { get; set; }
+
+        /// <summary>The Markdown description for the release.</summary>
+        public string Body { get; set; }
+
+        /// <summary>The attached files.</summary>
+        public GitAsset[] Assets { get; set; }
     }
 }

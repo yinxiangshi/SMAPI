@@ -1,0 +1,73 @@
+@{
+    ViewData["Title"] = "SMAPI";
+}
+@model StardewModdingAPI.Web.ViewModels.IndexModel
+
+<style>
+    li.main-download * {
+        font-size: 1.2em;
+        font-weight: bold;
+    }
+
+    li.main-download img {
+        height: 1em;
+    }
+
+    .github-description .noinclude {
+        display: none;
+    }
+
+    li small {
+        display: block;
+        width: 50em;
+    }
+</style>
+
+<p>
+    SMAPI is the modding API for Stardew Valley. It works fine with Steam achievements and the
+    overlay, you can uninstall it anytime, and there's a friendly community if you need help. It's
+    a cool boy.
+</p>
+
+<h2>Download and links</h2>
+<ul>
+    <li class="main-download"><a href="@Model.DownloadUrl">Download SMAPI @Model.LatestVersion</a> <img src="favicon.ico" /></li>
+    <li><a href="https://stardewvalleywiki.com/Modding:Installing_SMAPI">Install guide</a></li>
+    <li><a href="https://stardewvalleywiki.com/Modding:Player_FAQs">FAQs</a></li>
+    <li><a href="https://stardewvalleywiki.com/Modding:SMAPI_compatibility">Mod compatibility list</a></li>
+    <li>Get help <a href="https://stardewvalleywiki.com/Modding:Community#Discord">on Discord</a> or <a href="https://community.playstarbound.com/threads/smapi-stardew-modding-api.108375/">in the forums</a></li>
+</ul>
+
+<h2>What's new in SMAPI @Model.LatestVersion?</h2>
+<div class="github-description">
+    @Html.Raw(Markdig.Markdown.ToHtml(Model.Description))
+</div>
+
+<h2>Support SMAPI ♥</h2>
+<ul>
+    <li><a href="https://www.paypal.me/pathoschild">Donate once</a></li>
+    <li>
+        <a href="https://www.patreon.com/pathoschild">Donate $1+/month</a><br />
+        <small>You'll have access to all private posts about behind-the-scenes info, upcoming features, and early previews of SMAPI updates. You can optionally provide early feedback on SMAPI features to influence development.</small>
+    </li>
+    <li><a href="https://github.com/Pathoschild/SMAPI">Contribute to the code</a></li>
+    <li><a href="https://community.playstarbound.com/threads/108375">Discuss, give feedback, or report bugs in the forums</a></li>
+</ul>
+
+<p>
+    Special thanks to
+    acerbicon,
+    <a href="https://www.nexusmods.com/stardewvalley/users/31393530">ChefRude</a>,
+    jwdred,
+    <a href="http://community.playstarbound.com/members/karmylla.637910/">Karmylla</a>,
+    OfficialPiAddict,
+    Robby LaFarge,
+    and a few anonymous users for supporting SMAPI; you're awesome!
+</p>
+
+<h2>For mod creators</h2>
+<ul>
+    <li><a href="@Model.DevDownloadUrl">SMAPI 2.2 for developers</a> (includes <a href="https://docs.microsoft.com/en-us/visualstudio/ide/using-intellisense">intellisense</a> and full console output)</li>
+    <li><a href="https://stardewvalleywiki.com/Modding:Index">Modding documentation</a></li>
+    <li>Need help? Come <a href="https://stardewvalleywiki.com/Modding:Community#Discord">chat on Discord</a>.</li>
+</ul>
