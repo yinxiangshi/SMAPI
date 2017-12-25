@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using StardewModdingAPI.Web.Framework;
+using StardewModdingAPI.Web.Framework.Clients.Pastebin;
 using StardewModdingAPI.Web.Framework.ConfigModels;
-using StardewModdingAPI.Web.Framework.LogParser;
 using StardewModdingAPI.Web.ViewModels;
 
 namespace StardewModdingAPI.Web.Controllers
@@ -22,7 +22,7 @@ namespace StardewModdingAPI.Web.Controllers
         private readonly LogParserConfig Config;
 
         /// <summary>The underlying Pastebin client.</summary>
-        private readonly PastebinClient PastebinClient;
+        private readonly IPastebinClient Pastebin;
 
         /// <summary>The first bytes in a valid zip file.</summary>
         /// <remarks>See <a href="https://en.wikipedia.org/wiki/Zip_(file_format)#File_headers"/>.</remarks>
@@ -37,13 +37,11 @@ namespace StardewModdingAPI.Web.Controllers
         ***/
         /// <summary>Construct an instance.</summary>
         /// <param name="configProvider">The log parser config settings.</param>
-        public LogParserController(IOptions<LogParserConfig> configProvider)
+        /// <param name="pastebin">The Pastebin API client.</param>
+        public LogParserController(IOptions<LogParserConfig> configProvider, IPastebinClient pastebin)
         {
-            // init Pastebin client
             this.Config = configProvider.Value;
-            string version = this.GetType().Assembly.GetName().Version.ToString(3);
-            string userAgent = string.Format(this.Config.PastebinUserAgent, version);
-            this.PastebinClient = new PastebinClient(this.Config.PastebinBaseUrl, userAgent, this.Config.PastebinUserKey, this.Config.PastebinDevKey);
+            this.Pastebin = pastebin;
         }
 
         /***
@@ -67,9 +65,9 @@ namespace StardewModdingAPI.Web.Controllers
         /// <param name="id">The Pastebin paste ID.</param>
         [HttpGet, Produces("application/json")]
         [Route("log/fetch/{id}")]
-        public async Task<GetPasteResponse> GetAsync(string id)
+        public async Task<PasteInfo> GetAsync(string id)
         {
-            GetPasteResponse response = await this.PastebinClient.GetAsync(id);
+            PasteInfo response = await this.Pastebin.GetAsync(id);
             response.Content = this.DecompressString(response.Content);
             return response;
         }
@@ -78,10 +76,10 @@ namespace StardewModdingAPI.Web.Controllers
         /// <param name="content">The log content to save.</param>
         [HttpPost, Produces("application/json"), AllowLargePosts]
         [Route("log/save")]
-        public async Task<SavePasteResponse> PostAsync([FromBody] string content)
+        public async Task<SavePasteResult> PostAsync([FromBody] string content)
         {
             content = this.CompressString(content);
-            return await this.PastebinClient.PostAsync(content);
+            return await this.Pastebin.PostAsync(content);
         }
 
 

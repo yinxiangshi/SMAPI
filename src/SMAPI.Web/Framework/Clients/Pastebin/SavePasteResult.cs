@@ -1,7 +1,7 @@
-namespace StardewModdingAPI.Web.Framework.LogParser
+namespace StardewModdingAPI.Web.Framework.Clients.Pastebin
 {
     /// <summary>The response for a save-log request.</summary>
-    internal class SavePasteResponse
+    internal class SavePasteResult
     {
         /// <summary>Whether the log was successfully saved.</summary>
         public bool Success { get; set; }

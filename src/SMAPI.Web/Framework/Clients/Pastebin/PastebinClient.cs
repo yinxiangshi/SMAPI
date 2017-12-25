@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 using System.Web;
 using Pathoschild.Http.Client;
 
-namespace StardewModdingAPI.Web.Framework.LogParser
+namespace StardewModdingAPI.Web.Framework.Clients.Pastebin
 {
     /// <summary>An API client for Pastebin.</summary>
-    internal class PastebinClient : IDisposable
+    internal class PastebinClient : IPastebinClient
     {
         /*********
         ** Properties
@@ -43,7 +43,7 @@ namespace StardewModdingAPI.Web.Framework.LogParser
 
         /// <summary>Fetch a saved paste.</summary>
         /// <param name="id">The paste ID.</param>
-        public async Task<GetPasteResponse> GetAsync(string id)
+        public async Task<PasteInfo> GetAsync(string id)
         {
             try
             {
@@ -54,30 +54,30 @@ namespace StardewModdingAPI.Web.Framework.LogParser
 
                 // handle Pastebin errors
                 if (string.IsNullOrWhiteSpace(content))
-                    return new GetPasteResponse { Error = "Received an empty response from Pastebin." };
+                    return new PasteInfo { Error = "Received an empty response from Pastebin." };
                 if (content.StartsWith("<!DOCTYPE"))
-                    return new GetPasteResponse { Error = $"Received a captcha challenge from Pastebin. Please visit https://pastebin.com/{id} in a new window to solve it." };
-                return new GetPasteResponse { Success = true, Content = content };
+                    return new PasteInfo { Error = $"Received a captcha challenge from Pastebin. Please visit https://pastebin.com/{id} in a new window to solve it." };
+                return new PasteInfo { Success = true, Content = content };
             }
             catch (ApiException ex) when (ex.Status == HttpStatusCode.NotFound)
             {
-                return new GetPasteResponse { Error = "There's no log with that ID." };
+                return new PasteInfo { Error = "There's no log with that ID." };
             }
             catch (Exception ex)
             {
-                return new GetPasteResponse { Error = ex.ToString() };
+                return new PasteInfo { Error = ex.ToString() };
             }
         }
 
         /// <summary>Save a paste to Pastebin.</summary>
         /// <param name="content">The paste content.</param>
-        public async Task<SavePasteResponse> PostAsync(string content)
+        public async Task<SavePasteResult> PostAsync(string content)
         {
             try
             {
                 // validate
                 if (string.IsNullOrWhiteSpace(content))
-                    return new SavePasteResponse { Error = "The log content can't be empty." };
+                    return new SavePasteResult { Error = "The log content can't be empty." };
 
                 // post to API
                 string response = await this.Client
@@ -96,19 +96,19 @@ namespace StardewModdingAPI.Web.Framework.LogParser
 
                 // handle Pastebin errors
                 if (string.IsNullOrWhiteSpace(response))
-                    return new SavePasteResponse { Error = "Received an empty response from Pastebin." };
+                    return new SavePasteResult { Error = "Received an empty response from Pastebin." };
                 if (response.StartsWith("Bad API request"))
-                    return new SavePasteResponse { Error = response };
+                    return new SavePasteResult { Error = response };
                 if (!response.Contains("/"))
-                    return new SavePasteResponse { Error = $"Received an unknown response: {response}" };
+                    return new SavePasteResult { Error = $"Received an unknown response: {response}" };
 
                 // return paste ID
                 string pastebinID = response.Split("/").Last();
-                return new SavePasteResponse { Success = true, ID = pastebinID };
+                return new SavePasteResult { Success = true, ID = pastebinID };
             }
             catch (Exception ex)
             {
-                return new SavePasteResponse { Success = false, Error = ex.ToString() };
+                return new SavePasteResult { Success = false, Error = ex.ToString() };
             }
         }
 

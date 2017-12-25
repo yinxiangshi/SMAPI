@@ -10,6 +10,7 @@ using StardewModdingAPI.Web.Framework;
 using StardewModdingAPI.Web.Framework.Clients.Chucklefish;
 using StardewModdingAPI.Web.Framework.Clients.GitHub;
 using StardewModdingAPI.Web.Framework.Clients.Nexus;
+using StardewModdingAPI.Web.Framework.Clients.Pastebin;
 using StardewModdingAPI.Web.Framework.ConfigModels;
 using StardewModdingAPI.Web.Framework.RewriteRules;
 
@@ -69,6 +70,7 @@ namespace StardewModdingAPI.Web
                     baseUrl: api.ChucklefishBaseUrl,
                     modPageUrlFormat: api.ChucklefishModPageUrlFormat
                 ));
+
                 services.AddSingleton<IGitHubClient>(new GitHubClient(
                     baseUrl: api.GitHubBaseUrl,
                     releaseUrlFormat: api.GitHubReleaseUrlFormat,
@@ -77,10 +79,18 @@ namespace StardewModdingAPI.Web
                     username: api.GitHubUsername,
                     password: api.GitHubPassword
                 ));
+
                 services.AddSingleton<INexusClient>(new NexusClient(
                     userAgent: api.NexusUserAgent,
                     baseUrl: api.NexusBaseUrl,
                     modUrlFormat: api.NexusModUrlFormat
+                ));
+
+                services.AddSingleton<IPastebinClient>(new PastebinClient(
+                    baseUrl: api.PastebinBaseUrl,
+                    userAgent: userAgent,
+                    userKey: api.PastebinUserKey,
+                    devKey: api.PastebinDevKey
                 ));
             }
         }
