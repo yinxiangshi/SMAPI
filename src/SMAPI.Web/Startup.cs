@@ -48,7 +48,7 @@ namespace StardewModdingAPI.Web
             // init configuration
             services
                 .Configure<ModUpdateCheckConfig>(this.Configuration.GetSection("ModUpdateCheck"))
-                .Configure<LogParserConfig>(this.Configuration.GetSection("LogParser"))
+                .Configure<ContextConfig>(this.Configuration.GetSection("Context"))
                 .Configure<RouteOptions>(options => options.ConstraintMap.Add("semanticVersion", typeof(VersionConstraint)))
                 .AddMemoryCache()
                 .AddMvc()
@@ -134,7 +134,6 @@ namespace StardewModdingAPI.Web
 
                     // shortcut redirects
                     .Add(new RedirectToUrlRule("^/docs$", "https://stardewvalleywiki.com/Modding:Index"))
-                    .Add(new RedirectToUrlRule("^/install$", "https://stardewvalleywiki.com/Modding:Installing_SMAPI"))
                 )
                 .UseStaticFiles() // wwwroot folder
                 .UseMvc();
