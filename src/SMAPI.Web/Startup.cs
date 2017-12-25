@@ -7,6 +7,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using StardewModdingAPI.Web.Framework;
+using StardewModdingAPI.Web.Framework.Clients.Chucklefish;
+using StardewModdingAPI.Web.Framework.Clients.GitHub;
+using StardewModdingAPI.Web.Framework.Clients.Nexus;
 using StardewModdingAPI.Web.Framework.ConfigModels;
 using StardewModdingAPI.Web.Framework.RewriteRules;
 
@@ -41,6 +44,7 @@ namespace StardewModdingAPI.Web
         /// <param name="services">The service injection container.</param>
         public void ConfigureServices(IServiceCollection services)
         {
+            // init configuration
             services
                 .Configure<ModUpdateCheckConfig>(this.Configuration.GetSection("ModUpdateCheck"))
                 .Configure<LogParserConfig>(this.Configuration.GetSection("LogParser"))
@@ -53,6 +57,32 @@ namespace StardewModdingAPI.Web
                     options.SerializerSettings.Formatting = Formatting.Indented;
                     options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
                 });
+
+            // init API clients
+            {
+                ApiClientsConfig api = this.Configuration.GetSection("ApiClients").Get<ApiClientsConfig>();
+                string version = this.GetType().Assembly.GetName().Version.ToString(3);
+                string userAgent = string.Format(api.UserAgent, version);
+
+                services.AddSingleton<IChucklefishClient>(new ChucklefishClient(
+                    userAgent: userAgent,
+                    baseUrl: api.ChucklefishBaseUrl,
+                    modPageUrlFormat: api.ChucklefishModPageUrlFormat
+                ));
+                services.AddSingleton<IGitHubClient>(new GitHubClient(
+                    baseUrl: api.GitHubBaseUrl,
+                    releaseUrlFormat: api.GitHubReleaseUrlFormat,
+                    userAgent: userAgent,
+                    acceptHeader: api.GitHubAcceptHeader,
+                    username: api.GitHubUsername,
+                    password: api.GitHubPassword
+                ));
+                services.AddSingleton<INexusClient>(new NexusClient(
+                    userAgent: api.NexusUserAgent,
+                    baseUrl: api.NexusBaseUrl,
+                    modUrlFormat: api.NexusModUrlFormat
+                ));
+            }
         }
 
         /// <summary>The method called by the runtime to configure the HTTP request pipeline.</summary>
