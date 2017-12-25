@@ -48,7 +48,7 @@ namespace StardewModdingAPI.Web
             // init configuration
             services
                 .Configure<ModUpdateCheckConfig>(this.Configuration.GetSection("ModUpdateCheck"))
-                .Configure<LogParserConfig>(this.Configuration.GetSection("LogParser"))
+                .Configure<ContextConfig>(this.Configuration.GetSection("Context"))
                 .Configure<RouteOptions>(options => options.ConstraintMap.Add("semanticVersion", typeof(VersionConstraint)))
                 .AddMemoryCache()
                 .AddMvc()

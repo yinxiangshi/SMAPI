@@ -19,7 +19,7 @@ namespace StardewModdingAPI.Web.Controllers
         ** Properties
         *********/
         /// <summary>The log parser config settings.</summary>
-        private readonly LogParserConfig Config;
+        private readonly ContextConfig Config;
 
         /// <summary>The underlying Pastebin client.</summary>
         private readonly IPastebinClient Pastebin;
@@ -36,11 +36,11 @@ namespace StardewModdingAPI.Web.Controllers
         ** Constructor
         ***/
         /// <summary>Construct an instance.</summary>
-        /// <param name="configProvider">The log parser config settings.</param>
+        /// <param name="contextProvider">The context config settings.</param>
         /// <param name="pastebin">The Pastebin API client.</param>
-        public LogParserController(IOptions<LogParserConfig> configProvider, IPastebinClient pastebin)
+        public LogParserController(IOptions<ContextConfig> contextProvider, IPastebinClient pastebin)
         {
-            this.Config = configProvider.Value;
+            this.Config = contextProvider.Value;
             this.Pastebin = pastebin;
         }
 
@@ -54,7 +54,7 @@ namespace StardewModdingAPI.Web.Controllers
         [Route("log/{id}")]
         public ViewResult Index(string id = null)
         {
-            return this.View("Index", new LogParserModel(this.Config.SectionUrl, id));
+            return this.View("Index", new LogParserModel(this.Config.LogParserUrl, id));
         }
 
         /***
