@@ -2,38 +2,26 @@
     ViewData["Title"] = "SMAPI";
 }
 @model StardewModdingAPI.Web.ViewModels.IndexModel
+@section Head {
+    <link rel="stylesheet" href="~/Content/css/index.css" />
+}
 
-<style>
-    li.main-download * {
-        font-size: 1.2em;
-        font-weight: bold;
-    }
-
-    li.main-download img {
-        height: 1em;
-    }
-
-    .github-description .noinclude {
-        display: none;
-    }
-
-    li small {
-        display: block;
-        width: 50em;
-    }
-</style>
-
-<p>
-    SMAPI is the modding API for Stardew Valley. It works fine with Steam achievements and the
-    overlay, you can uninstall it anytime, and there's a friendly community if you need help. It's
-    a cool boy.
+<p id="blurb">
+    The mod loader for Stardew Valley. It works fine with GOG and Steam achievements, compatible
+    with Linux/Mac/Windows, you can uninstall it anytime, and there's a friendly community if
+    you need help. It's a cool pufferchick.
 </p>
 
-<h2>Download and links</h2>
+<div id="call-to-action">
+    <a href="@Model.DownloadUrl" class="main-cta">Download SMAPI @Model.LatestVersion</a><br />
+    <a href="https://stardewvalleywiki.com/Modding:Installing_SMAPI" class="secondary-cta">Install guide</a><br />
+    <a href="https://stardewvalleywiki.com/Modding:Player_FAQs" class="secondary-cta">FAQs</a><br />
+    <img src="favicon.ico" />
+</div>
+
+
+<h2>Find help</h2>
 <ul>
-    <li class="main-download"><a href="@Model.DownloadUrl">Download SMAPI @Model.LatestVersion</a> <img src="favicon.ico" /></li>
-    <li><a href="https://stardewvalleywiki.com/Modding:Installing_SMAPI">Install guide</a></li>
-    <li><a href="https://stardewvalleywiki.com/Modding:Player_FAQs">FAQs</a></li>
     <li><a href="https://stardewvalleywiki.com/Modding:SMAPI_compatibility">Mod compatibility list</a></li>
     <li>Get help <a href="https://stardewvalleywiki.com/Modding:Community#Discord">on Discord</a> or <a href="https://community.playstarbound.com/threads/smapi-stardew-modding-api.108375/">in the forums</a></li>
 </ul>
@@ -43,8 +31,10 @@
     @Html.Raw(Markdig.Markdown.ToHtml(Model.Description))
 </div>
 
+<p>See the <a href="https://github.com/Pathoschild/SMAPI/blob/develop/docs/release-notes.md#release-notes">release notes</a> for more info.</p>
+
 <h2>Support SMAPI ♥</h2>
-<ul>
+<ul id="support-links">
     <li><a href="https://www.paypal.me/pathoschild">Donate once</a></li>
     <li>
         <a href="https://www.patreon.com/pathoschild">Donate $1+/month</a><br />
