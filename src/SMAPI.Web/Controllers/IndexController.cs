@@ -1,6 +1,8 @@
+using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using StardewModdingAPI.Web.Framework.Clients.GitHub;
 using StardewModdingAPI.Web.ViewModels;
 
@@ -14,17 +16,25 @@ namespace StardewModdingAPI.Web.Controllers
         /*********
         ** Properties
         *********/
+        /// <summary>The cache in which to store release data.</summary>
+        private readonly IMemoryCache Cache;
+
         /// <summary>The GitHub API client.</summary>
         private readonly IGitHubClient GitHub;
+
+        /// <summary>The cache time for release info.</summary>
+        private readonly TimeSpan CacheTime = TimeSpan.FromMinutes(5);
 
 
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
+        /// <param name="cache">The cache in which to store release data.</param>
         /// <param name="github">The GitHub API client.</param>
-        public IndexController(IGitHubClient github)
+        public IndexController(IMemoryCache cache, IGitHubClient github)
         {
+            this.Cache = cache;
             this.GitHub = github;
         }
 
@@ -33,7 +43,11 @@ namespace StardewModdingAPI.Web.Controllers
         public async Task<ViewResult> Index()
         {
             // fetch latest SMAPI release
-            GitRelease release = await this.GitHub.GetLatestReleaseAsync("Pathoschild/SMAPI");
+            GitRelease release = await this.Cache.GetOrCreateAsync("latest-smapi-release", async entry =>
+            {
+                entry.AbsoluteExpiration = DateTimeOffset.UtcNow.Add(this.CacheTime);
+                return await this.GitHub.GetLatestReleaseAsync("Pathoschild/SMAPI");
+            });
             string downloadUrl = this.GetMainDownloadUrl(release);
             string devDownloadUrl = this.GetDevDownloadUrl(release);
 
