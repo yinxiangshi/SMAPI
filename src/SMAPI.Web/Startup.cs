@@ -7,6 +7,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using StardewModdingAPI.Web.Framework;
+using StardewModdingAPI.Web.Framework.Clients.Chucklefish;
+using StardewModdingAPI.Web.Framework.Clients.GitHub;
+using StardewModdingAPI.Web.Framework.Clients.Nexus;
+using StardewModdingAPI.Web.Framework.Clients.Pastebin;
 using StardewModdingAPI.Web.Framework.ConfigModels;
 using StardewModdingAPI.Web.Framework.RewriteRules;
 
@@ -41,9 +45,10 @@ namespace StardewModdingAPI.Web
         /// <param name="services">The service injection container.</param>
         public void ConfigureServices(IServiceCollection services)
         {
+            // init configuration
             services
                 .Configure<ModUpdateCheckConfig>(this.Configuration.GetSection("ModUpdateCheck"))
-                .Configure<LogParserConfig>(this.Configuration.GetSection("LogParser"))
+                .Configure<ContextConfig>(this.Configuration.GetSection("Context"))
                 .Configure<RouteOptions>(options => options.ConstraintMap.Add("semanticVersion", typeof(VersionConstraint)))
                 .AddMemoryCache()
                 .AddMvc()
@@ -53,6 +58,41 @@ namespace StardewModdingAPI.Web
                     options.SerializerSettings.Formatting = Formatting.Indented;
                     options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
                 });
+
+            // init API clients
+            {
+                ApiClientsConfig api = this.Configuration.GetSection("ApiClients").Get<ApiClientsConfig>();
+                string version = this.GetType().Assembly.GetName().Version.ToString(3);
+                string userAgent = string.Format(api.UserAgent, version);
+
+                services.AddSingleton<IChucklefishClient>(new ChucklefishClient(
+                    userAgent: userAgent,
+                    baseUrl: api.ChucklefishBaseUrl,
+                    modPageUrlFormat: api.ChucklefishModPageUrlFormat
+                ));
+
+                services.AddSingleton<IGitHubClient>(new GitHubClient(
+                    baseUrl: api.GitHubBaseUrl,
+                    releaseUrlFormat: api.GitHubReleaseUrlFormat,
+                    userAgent: userAgent,
+                    acceptHeader: api.GitHubAcceptHeader,
+                    username: api.GitHubUsername,
+                    password: api.GitHubPassword
+                ));
+
+                services.AddSingleton<INexusClient>(new NexusClient(
+                    userAgent: api.NexusUserAgent,
+                    baseUrl: api.NexusBaseUrl,
+                    modUrlFormat: api.NexusModUrlFormat
+                ));
+
+                services.AddSingleton<IPastebinClient>(new PastebinClient(
+                    baseUrl: api.PastebinBaseUrl,
+                    userAgent: userAgent,
+                    userKey: api.PastebinUserKey,
+                    devKey: api.PastebinDevKey
+                ));
+            }
         }
 
         /// <summary>The method called by the runtime to configure the HTTP request pipeline.</summary>
@@ -89,11 +129,11 @@ namespace StardewModdingAPI.Web
                             req.Host.Host != "localhost"
                             && (req.Host.Host.StartsWith("api.") || req.Host.Host.StartsWith("log."))
                             && !req.Path.StartsWithSegments("/content")
+                            && !req.Path.StartsWithSegments("/favicon.ico")
                     ))
 
                     // shortcut redirects
                     .Add(new RedirectToUrlRule("^/docs$", "https://stardewvalleywiki.com/Modding:Index"))
-                    .Add(new RedirectToUrlRule("^/install$", "https://stardewvalleywiki.com/Modding:Installing_SMAPI"))
                 )
                 .UseStaticFiles() // wwwroot folder
                 .UseMvc();

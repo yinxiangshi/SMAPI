@@ -29,6 +29,9 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>The mod instance (if it was loaded).</summary>
         public IMod Mod { get; private set; }
 
+        /// <summary>The mod-provided API (if any).</summary>
+        public object Api { get; private set; }
+
 
         /*********
         ** Public methods
@@ -62,6 +65,14 @@ namespace StardewModdingAPI.Framework.ModLoading
         public IModMetadata SetMod(IMod mod)
         {
             this.Mod = mod;
+            return this;
+        }
+
+        /// <summary>Set the mod-provided API instance.</summary>
+        /// <param name="api">The mod-provided API.</param>
+        public IModMetadata SetApi(object api)
+        {
+            this.Api = api;
             return this;
         }
     }

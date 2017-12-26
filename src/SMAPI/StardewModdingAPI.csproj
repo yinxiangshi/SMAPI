@@ -79,10 +79,6 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Windows.Forms" Condition="$(OS) == 'Windows_NT'" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -110,7 +106,11 @@
     <Compile Include="Framework\ContentManagerShim.cs" />
     <Compile Include="Framework\Exceptions\SAssemblyLoadFailedException.cs" />
     <Compile Include="Framework\ModLoading\AssemblyLoadStatus.cs" />
+    <Compile Include="Framework\Reflection\InterfaceProxyBuilder.cs" />
     <Compile Include="Framework\Utilities\ContextHash.cs" />
+    <Compile Include="IReflectedField.cs" />
+    <Compile Include="IReflectedMethod.cs" />
+    <Compile Include="IReflectedProperty.cs" />
     <Compile Include="Metadata\CoreAssets.cs" />
     <Compile Include="ContentSource.cs" />
     <Compile Include="Events\ContentEvents.cs" />
@@ -169,7 +169,7 @@
     <Compile Include="Framework\Models\ModStatus.cs" />
     <Compile Include="Framework\Models\SConfig.cs" />
     <Compile Include="Framework\ModLoading\ModMetadata.cs" />
-    <Compile Include="Framework\Reflection\PrivateProperty.cs" />
+    <Compile Include="Framework\Reflection\ReflectedProperty.cs" />
     <Compile Include="Framework\RequestExitDelegate.cs" />
     <Compile Include="Framework\SContentManager.cs" />
     <Compile Include="Framework\Exceptions\SParseException.cs" />
@@ -198,8 +198,8 @@
     <Compile Include="Framework\Models\ModDataRecord.cs" />
     <Compile Include="Framework\ModLoading\AssemblyLoader.cs" />
     <Compile Include="Framework\Reflection\CacheEntry.cs" />
-    <Compile Include="Framework\Reflection\PrivateField.cs" />
-    <Compile Include="Framework\Reflection\PrivateMethod.cs" />
+    <Compile Include="Framework\Reflection\ReflectedField.cs" />
+    <Compile Include="Framework\Reflection\ReflectedMethod.cs" />
     <Compile Include="Framework\Reflection\Reflector.cs" />
     <Compile Include="IManifest.cs" />
     <Compile Include="IMod.cs" />

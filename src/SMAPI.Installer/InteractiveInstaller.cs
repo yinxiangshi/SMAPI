@@ -97,8 +97,8 @@ namespace StardewModdingApi.Installer
             yield return GetInstallPath("StardewModdingAPI.pdb");
 
             // obsolete
-            yield return GetInstallPath("Mods/.cache"); // 1.3-1.4
-            yield return GetInstallPath("Mods/TrainerMod"); // *–2.0 (renamed to ConsoleCommands)
+            yield return GetInstallPath(Path.Combine("Mods", ".cache")); // 1.3-1.4
+            yield return GetInstallPath(Path.Combine("Mods", "TrainerMod")); // *–2.0 (renamed to ConsoleCommands)
             yield return GetInstallPath("Mono.Cecil.Rocks.dll"); // 1.3–1.8
             yield return GetInstallPath("StardewModdingAPI-settings.json"); // 1.0-1.4
             if (modsDir.Exists)

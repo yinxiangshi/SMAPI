@@ -57,14 +57,14 @@ namespace StardewModdingAPI.Framework.Content
         public ContentCache(LocalizedContentManager contentManager, Reflector reflection, char[] possiblePathSeparators, string preferredPathSeparator)
         {
             // init
-            this.Cache = reflection.GetPrivateField<Dictionary<string, object>>(contentManager, "loadedAssets").GetValue();
+            this.Cache = reflection.GetField<Dictionary<string, object>>(contentManager, "loadedAssets").GetValue();
             this.PossiblePathSeparators = possiblePathSeparators;
             this.PreferredPathSeparator = preferredPathSeparator;
 
             // get key normalisation logic
             if (Constants.TargetPlatform == Platform.Windows)
             {
-                IPrivateMethod method = reflection.GetPrivateMethod(typeof(TitleContainer), "GetCleanPath");
+                IReflectedMethod method = reflection.GetMethod(typeof(TitleContainer), "GetCleanPath");
                 this.NormaliseAssetNameForPlatform = path => method.Invoke<string>(path);
             }
             else

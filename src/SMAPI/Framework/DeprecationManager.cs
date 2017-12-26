@@ -37,7 +37,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="severity">How deprecated the code is.</param>
         public void Warn(string nounPhrase, string version, DeprecationLevel severity)
         {
-            this.Warn(this.ModRegistry.GetModFromStack(), nounPhrase, version, severity);
+            this.Warn(this.ModRegistry.GetFromStack()?.DisplayName, nounPhrase, version, severity);
         }
 
         /// <summary>Log a deprecation warning.</summary>
@@ -52,7 +52,7 @@ namespace StardewModdingAPI.Framework
                 return;
 
             // build message
-            string message = $"{source ?? "An unknown mod"} uses deprecated code ({nounPhrase}).";
+            string message = $"{source ?? "An unknown mod"} uses deprecated code ({nounPhrase} is deprecated since SMAPI {version}).";
             if (source == null)
                 message += $"{Environment.NewLine}{Environment.StackTrace}";
 
@@ -82,7 +82,7 @@ namespace StardewModdingAPI.Framework
         /// <returns>Returns whether the deprecation was successfully marked as warned. Returns <c>false</c> if it was already marked.</returns>
         public bool MarkWarned(string nounPhrase, string version)
         {
-            return this.MarkWarned(this.ModRegistry.GetModFromStack(), nounPhrase, version);
+            return this.MarkWarned(this.ModRegistry.GetFromStack()?.DisplayName, nounPhrase, version);
         }
 
         /// <summary>Mark a deprecation warning as already logged.</summary>

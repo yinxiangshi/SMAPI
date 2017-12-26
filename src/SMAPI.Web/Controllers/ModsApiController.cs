@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using StardewModdingAPI.Common.Models;
+using StardewModdingAPI.Web.Framework.Clients.Chucklefish;
+using StardewModdingAPI.Web.Framework.Clients.GitHub;
+using StardewModdingAPI.Web.Framework.Clients.Nexus;
 using StardewModdingAPI.Web.Framework.ConfigModels;
 using StardewModdingAPI.Web.Framework.ModRepositories;
 
@@ -39,39 +42,22 @@ namespace StardewModdingAPI.Web.Controllers
         /// <summary>Construct an instance.</summary>
         /// <param name="cache">The cache in which to store mod metadata.</param>
         /// <param name="configProvider">The config settings for mod update checks.</param>
-        public ModsApiController(IMemoryCache cache, IOptions<ModUpdateCheckConfig> configProvider)
+        /// <param name="chucklefish">The Chucklefish API client.</param>
+        /// <param name="github">The GitHub API client.</param>
+        /// <param name="nexus">The Nexus API client.</param>
+        public ModsApiController(IMemoryCache cache, IOptions<ModUpdateCheckConfig> configProvider, IChucklefishClient chucklefish, IGitHubClient github, INexusClient nexus)
         {
             ModUpdateCheckConfig config = configProvider.Value;
 
             this.Cache = cache;
             this.CacheMinutes = config.CacheMinutes;
             this.VersionRegex = config.SemanticVersionRegex;
-
-            string version = this.GetType().Assembly.GetName().Version.ToString(3);
             this.Repositories =
                 new IModRepository[]
                 {
-                    new ChucklefishRepository(
-                        vendorKey: config.ChucklefishKey,
-                        userAgent: string.Format(config.ChucklefishUserAgent, version),
-                        baseUrl: config.ChucklefishBaseUrl,
-                        modPageUrlFormat: config.ChucklefishModPageUrlFormat
-                    ),
-                    new GitHubRepository(
-                        vendorKey: config.GitHubKey,
-                        baseUrl: config.GitHubBaseUrl,
-                        releaseUrlFormat: config.GitHubReleaseUrlFormat,
-                        userAgent: string.Format(config.GitHubUserAgent, version),
-                        acceptHeader: config.GitHubAcceptHeader,
-                        username: config.GitHubUsername,
-                        password: config.GitHubPassword
-                    ),
-                    new NexusRepository(
-                        vendorKey: config.NexusKey,
-                        userAgent: config.NexusUserAgent,
-                        baseUrl: config.NexusBaseUrl,
-                        modUrlFormat: config.NexusModUrlFormat
-                    )
+                    new ChucklefishRepository(config.ChucklefishKey, chucklefish),
+                    new GitHubRepository(config.GitHubKey, github),
+                    new NexusRepository(config.NexusKey, nexus)
                 }
                 .ToDictionary(p => p.VendorKey, StringComparer.CurrentCultureIgnoreCase);
         }

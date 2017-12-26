@@ -1,3 +1,7 @@
+@using Microsoft.Extensions.Options
+@using StardewModdingAPI.Web.Framework.ConfigModels
+@inject IOptions<ContextConfig> ContextConfig
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -10,9 +14,9 @@
     <div id="sidebar">
         <h4>SMAPI</h4>
         <ul>
-            <li><a href="https://stardewvalleywiki.com/Modding:Index">FAQs & guides</a></li>
-            <li><a href="https://github.com/pathoschild/SMAPI/releases">Download SMAPI</a></li>
-            <li><a href="https://discord.gg/stardewvalley">Get help on Discord</a></li>
+            <li><a href="@ContextConfig.Value.RootUrl">About SMAPI</a></li>
+            <li><a href="@ContextConfig.Value.LogParserUrl">Log parser</a></li>
+            <li><a href="https://stardewvalleywiki.com/Modding:Index">Docs</a></li>
         </ul>
     </div>
     <div id="content-column">

@@ -17,6 +17,9 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <summary>The mod name for error messages.</summary>
         private readonly string ModName;
 
+        /// <summary>Manages deprecation warnings.</summary>
+        private readonly DeprecationManager DeprecationManager;
+
 
         /*********
         ** Public methods
@@ -25,15 +28,88 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="modID">The unique ID of the relevant mod.</param>
         /// <param name="modName">The mod name for error messages.</param>
         /// <param name="reflector">The underlying reflection helper.</param>
-        public ReflectionHelper(string modID, string modName, Reflector reflector)
+        /// <param name="deprecationManager">Manages deprecation warnings.</param>
+        public ReflectionHelper(string modID, string modName, Reflector reflector, DeprecationManager deprecationManager)
             : base(modID)
         {
             this.ModName = modName;
             this.Reflector = reflector;
+            this.DeprecationManager = deprecationManager;
         }
 
+        /// <summary>Get an instance field.</summary>
+        /// <typeparam name="TValue">The field type.</typeparam>
+        /// <param name="obj">The object which has the field.</param>
+        /// <param name="name">The field name.</param>
+        /// <param name="required">Whether to throw an exception if the field is not found.</param>
+        public IReflectedField<TValue> GetField<TValue>(object obj, string name, bool required = true)
+        {
+            return this.AssertAccessAllowed(
+                this.Reflector.GetField<TValue>(obj, name, required)
+            );
+        }
+
+        /// <summary>Get a static field.</summary>
+        /// <typeparam name="TValue">The field type.</typeparam>
+        /// <param name="type">The type which has the field.</param>
+        /// <param name="name">The field name.</param>
+        /// <param name="required">Whether to throw an exception if the field is not found.</param>
+        public IReflectedField<TValue> GetField<TValue>(Type type, string name, bool required = true)
+        {
+            return this.AssertAccessAllowed(
+                this.Reflector.GetField<TValue>(type, name, required)
+            );
+        }
+
+        /// <summary>Get an instance property.</summary>
+        /// <typeparam name="TValue">The property type.</typeparam>
+        /// <param name="obj">The object which has the property.</param>
+        /// <param name="name">The property name.</param>
+        /// <param name="required">Whether to throw an exception if the property is not found.</param>
+        public IReflectedProperty<TValue> GetProperty<TValue>(object obj, string name, bool required = true)
+        {
+            return this.AssertAccessAllowed(
+                this.Reflector.GetProperty<TValue>(obj, name, required)
+            );
+        }
+
+        /// <summary>Get a static property.</summary>
+        /// <typeparam name="TValue">The property type.</typeparam>
+        /// <param name="type">The type which has the property.</param>
+        /// <param name="name">The property name.</param>
+        /// <param name="required">Whether to throw an exception if the property is not found.</param>
+        public IReflectedProperty<TValue> GetProperty<TValue>(Type type, string name, bool required = true)
+        {
+            return this.AssertAccessAllowed(
+                this.Reflector.GetProperty<TValue>(type, name, required)
+            );
+        }
+
+        /// <summary>Get an instance method.</summary>
+        /// <param name="obj">The object which has the method.</param>
+        /// <param name="name">The field name.</param>
+        /// <param name="required">Whether to throw an exception if the field is not found.</param>
+        public IReflectedMethod GetMethod(object obj, string name, bool required = true)
+        {
+            return this.AssertAccessAllowed(
+                this.Reflector.GetMethod(obj, name, required)
+            );
+        }
+
+        /// <summary>Get a static method.</summary>
+        /// <param name="type">The type which has the method.</param>
+        /// <param name="name">The field name.</param>
+        /// <param name="required">Whether to throw an exception if the field is not found.</param>
+        public IReflectedMethod GetMethod(Type type, string name, bool required = true)
+        {
+            return this.AssertAccessAllowed(
+                this.Reflector.GetMethod(type, name, required)
+            );
+        }
+
+
         /****
-        ** Fields
+        ** Obsolete
         ****/
         /// <summary>Get a private instance field.</summary>
         /// <typeparam name="TValue">The field type.</typeparam>
@@ -41,11 +117,11 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="name">The field name.</param>
         /// <param name="required">Whether to throw an exception if the private field is not found.</param>
         /// <returns>Returns the field wrapper, or <c>null</c> if the field doesn't exist and <paramref name="required"/> is <c>false</c>.</returns>
+        [Obsolete]
         public IPrivateField<TValue> GetPrivateField<TValue>(object obj, string name, bool required = true)
         {
-            return this.AssertAccessAllowed(
-                this.Reflector.GetPrivateField<TValue>(obj, name, required)
-            );
+            this.DeprecationManager.Warn($"{nameof(IReflectionHelper)}.GetPrivate*", "2.3", DeprecationLevel.Notice);
+            return (IPrivateField<TValue>)this.GetField<TValue>(obj, name, required);
         }
 
         /// <summary>Get a private static field.</summary>
@@ -53,26 +129,23 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="type">The type which has the field.</param>
         /// <param name="name">The field name.</param>
         /// <param name="required">Whether to throw an exception if the private field is not found.</param>
+        [Obsolete]
         public IPrivateField<TValue> GetPrivateField<TValue>(Type type, string name, bool required = true)
         {
-            return this.AssertAccessAllowed(
-                this.Reflector.GetPrivateField<TValue>(type, name, required)
-            );
+            this.DeprecationManager.Warn($"{nameof(IReflectionHelper)}.GetPrivate*", "2.3", DeprecationLevel.Notice);
+            return (IPrivateField<TValue>)this.GetField<TValue>(type, name, required);
         }
 
-        /****
-        ** Properties
-        ****/
         /// <summary>Get a private instance property.</summary>
         /// <typeparam name="TValue">The property type.</typeparam>
         /// <param name="obj">The object which has the property.</param>
         /// <param name="name">The property name.</param>
         /// <param name="required">Whether to throw an exception if the private property is not found.</param>
+        [Obsolete]
         public IPrivateProperty<TValue> GetPrivateProperty<TValue>(object obj, string name, bool required = true)
         {
-            return this.AssertAccessAllowed(
-                this.Reflector.GetPrivateProperty<TValue>(obj, name, required)
-               );
+            this.DeprecationManager.Warn($"{nameof(IReflectionHelper)}.GetPrivate*", "2.3", DeprecationLevel.Notice);
+            return (IPrivateProperty<TValue>)this.GetProperty<TValue>(obj, name, required);
         }
 
         /// <summary>Get a private static property.</summary>
@@ -80,17 +153,13 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="type">The type which has the property.</param>
         /// <param name="name">The property name.</param>
         /// <param name="required">Whether to throw an exception if the private property is not found.</param>
+        [Obsolete]
         public IPrivateProperty<TValue> GetPrivateProperty<TValue>(Type type, string name, bool required = true)
         {
-            return this.AssertAccessAllowed(
-                this.Reflector.GetPrivateProperty<TValue>(type, name, required)
-            );
+            this.DeprecationManager.Warn($"{nameof(IReflectionHelper)}.GetPrivate*", "2.3", DeprecationLevel.Notice);
+            return (IPrivateProperty<TValue>)this.GetProperty<TValue>(type, name, required);
         }
 
-        /****
-        ** Field values
-        ** (shorthand since this is the most common case)
-        ****/
         /// <summary>Get the value of a private instance field.</summary>
         /// <typeparam name="TValue">The field type.</typeparam>
         /// <param name="obj">The object which has the field.</param>
@@ -101,9 +170,11 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// This is a shortcut for <see cref="GetPrivateField{TValue}(object,string,bool)"/> followed by <see cref="IPrivateField{TValue}.GetValue"/>.
         /// When <paramref name="required" /> is false, this will return the default value if reflection fails. If you need to check whether the field exists, use <see cref="GetPrivateField{TValue}(object,string,bool)" /> instead.
         /// </remarks>
+        [Obsolete]
         public TValue GetPrivateValue<TValue>(object obj, string name, bool required = true)
         {
-            IPrivateField<TValue> field = this.GetPrivateField<TValue>(obj, name, required);
+            this.DeprecationManager.Warn($"{nameof(IReflectionHelper)}.GetPrivate*", "2.3", DeprecationLevel.Notice);
+            IPrivateField<TValue> field = (IPrivateField<TValue>)this.GetField<TValue>(obj, name, required);
             return field != null
                 ? field.GetValue()
                 : default(TValue);
@@ -119,64 +190,36 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// This is a shortcut for <see cref="GetPrivateField{TValue}(Type,string,bool)"/> followed by <see cref="IPrivateField{TValue}.GetValue"/>.
         /// When <paramref name="required" /> is false, this will return the default value if reflection fails. If you need to check whether the field exists, use <see cref="GetPrivateField{TValue}(Type,string,bool)" /> instead.
         /// </remarks>
+        [Obsolete]
         public TValue GetPrivateValue<TValue>(Type type, string name, bool required = true)
         {
-            IPrivateField<TValue> field = this.GetPrivateField<TValue>(type, name, required);
+            this.DeprecationManager.Warn($"{nameof(IReflectionHelper)}.GetPrivate*", "2.3", DeprecationLevel.Notice);
+            IPrivateField<TValue> field = (IPrivateField<TValue>)this.GetField<TValue>(type, name, required);
             return field != null
                 ? field.GetValue()
                 : default(TValue);
         }
 
-        /****
-        ** Methods
-        ****/
         /// <summary>Get a private instance method.</summary>
         /// <param name="obj">The object which has the method.</param>
         /// <param name="name">The field name.</param>
         /// <param name="required">Whether to throw an exception if the private field is not found.</param>
+        [Obsolete]
         public IPrivateMethod GetPrivateMethod(object obj, string name, bool required = true)
         {
-            return this.AssertAccessAllowed(
-                this.Reflector.GetPrivateMethod(obj, name, required)
-            );
+            this.DeprecationManager.Warn($"{nameof(IReflectionHelper)}.GetPrivate*", "2.3", DeprecationLevel.Notice);
+            return (IPrivateMethod)this.GetMethod(obj, name, required);
         }
 
         /// <summary>Get a private static method.</summary>
         /// <param name="type">The type which has the method.</param>
         /// <param name="name">The field name.</param>
         /// <param name="required">Whether to throw an exception if the private field is not found.</param>
+        [Obsolete]
         public IPrivateMethod GetPrivateMethod(Type type, string name, bool required = true)
         {
-            return this.AssertAccessAllowed(
-                this.Reflector.GetPrivateMethod(type, name, required)
-            );
-        }
-
-        /****
-        ** Methods by signature
-        ****/
-        /// <summary>Get a private instance method.</summary>
-        /// <param name="obj">The object which has the method.</param>
-        /// <param name="name">The field name.</param>
-        /// <param name="argumentTypes">The argument types of the method signature to find.</param>
-        /// <param name="required">Whether to throw an exception if the private field is not found.</param>
-        public IPrivateMethod GetPrivateMethod(object obj, string name, Type[] argumentTypes, bool required = true)
-        {
-            return this.AssertAccessAllowed(
-                this.Reflector.GetPrivateMethod(obj, name, argumentTypes, required)
-            );
-        }
-
-        /// <summary>Get a private static method.</summary>
-        /// <param name="type">The type which has the method.</param>
-        /// <param name="name">The field name.</param>
-        /// <param name="argumentTypes">The argument types of the method signature to find.</param>
-        /// <param name="required">Whether to throw an exception if the private field is not found.</param>
-        public IPrivateMethod GetPrivateMethod(Type type, string name, Type[] argumentTypes, bool required = true)
-        {
-            return this.AssertAccessAllowed(
-                this.Reflector.GetPrivateMethod(type, name, argumentTypes, required)
-            );
+            this.DeprecationManager.Warn($"{nameof(IReflectionHelper)}.GetPrivate*", "2.3", DeprecationLevel.Notice);
+            return (IPrivateMethod)this.GetMethod(type, name, required);
         }
 
 
@@ -187,7 +230,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <typeparam name="T">The field value type.</typeparam>
         /// <param name="field">The field being accessed.</param>
         /// <returns>Returns the same field instance for convenience.</returns>
-        private IPrivateField<T> AssertAccessAllowed<T>(IPrivateField<T> field)
+        private IReflectedField<T> AssertAccessAllowed<T>(IReflectedField<T> field)
         {
             this.AssertAccessAllowed(field?.FieldInfo);
             return field;
@@ -197,7 +240,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <typeparam name="T">The property value type.</typeparam>
         /// <param name="property">The property being accessed.</param>
         /// <returns>Returns the same property instance for convenience.</returns>
-        private IPrivateProperty<T> AssertAccessAllowed<T>(IPrivateProperty<T> property)
+        private IReflectedProperty<T> AssertAccessAllowed<T>(IReflectedProperty<T> property)
         {
             this.AssertAccessAllowed(property?.PropertyInfo);
             return property;
@@ -206,7 +249,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <summary>Assert that mods can use the reflection helper to access the given member.</summary>
         /// <param name="method">The method being accessed.</param>
         /// <returns>Returns the same method instance for convenience.</returns>
-        private IPrivateMethod AssertAccessAllowed(IPrivateMethod method)
+        private IReflectedMethod AssertAccessAllowed(IReflectedMethod method)
         {
             this.AssertAccessAllowed(method?.MethodInfo);
             return method;

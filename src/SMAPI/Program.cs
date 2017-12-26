@@ -247,7 +247,7 @@ namespace StardewModdingAPI
             this.IsDisposed = true;
 
             // dispose mod data
-            foreach (IModMetadata mod in this.ModRegistry.GetMods())
+            foreach (IModMetadata mod in this.ModRegistry.GetAll())
             {
                 try
                 {
@@ -374,7 +374,7 @@ namespace StardewModdingAPI
             }
 
             // update window titles
-            int modsLoaded = this.ModRegistry.GetMods().Count();
+            int modsLoaded = this.ModRegistry.GetAll().Count();
             this.GameInstance.Window.Title = $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion} with {modsLoaded} mods";
             Console.Title = $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion} with {modsLoaded} mods";
 
@@ -390,7 +390,7 @@ namespace StardewModdingAPI
             LocalizedContentManager.LanguageCode languageCode = this.ContentManager.GetCurrentLanguage();
 
             // update mod translation helpers
-            foreach (IModMetadata mod in this.ModRegistry.GetMods())
+            foreach (IModMetadata mod in this.ModRegistry.GetAll())
                 (mod.Mod.Helper.Translation as TranslationHelper)?.SetLocale(locale, languageCode);
         }
 
@@ -500,12 +500,11 @@ namespace StardewModdingAPI
             {
                 // create client
                 WebApiClient client = new WebApiClient(this.Settings.WebApiBaseUrl, Constants.ApiVersion);
+                this.Monitor.Log("Checking for updates...", LogLevel.Trace);
 
                 // check SMAPI version
                 try
                 {
-                    this.Monitor.Log("Checking for SMAPI update...", LogLevel.Trace);
-
                     ModInfoModel response = client.GetModInfo($"GitHub:{this.Settings.GitHubProjectName}").Single().Value;
                     if (response.Error != null)
                     {
@@ -515,7 +514,7 @@ namespace StardewModdingAPI
                     else if (new SemanticVersion(response.Version).IsNewerThan(Constants.ApiVersion))
                         this.Monitor.Log($"You can update SMAPI to {response.Version}: {response.Url}", LogLevel.Alert);
                     else
-                        this.VerboseLog("   OK.");
+                        this.Monitor.Log("   SMAPI okay.", LogLevel.Trace);
                 }
                 catch (Exception ex)
                 {
@@ -527,94 +526,101 @@ namespace StardewModdingAPI
                 }
 
                 // check mod versions
-                try
+                if (mods.Any())
                 {
-                    // log issues
-                    if (this.Settings.VerboseLogging)
+                    try
                     {
-                        this.VerboseLog("Validating mod update keys...");
-                        foreach (IModMetadata mod in mods)
+                        // prepare update keys
+                        Dictionary<string, IModMetadata[]> modsByKey =
+                            (
+                                from mod in mods
+                                where mod.Manifest?.UpdateKeys != null
+                                from key in mod.Manifest.UpdateKeys
+                                select new { key, mod }
+                            )
+                            .GroupBy(p => p.key, StringComparer.InvariantCultureIgnoreCase)
+                            .ToDictionary(
+                                group => group.Key,
+                                group => group.Select(p => p.mod).ToArray(),
+                                StringComparer.InvariantCultureIgnoreCase
+                            );
+
+                        // report update keys
                         {
-                            if (mod.Manifest == null)
-                                this.VerboseLog($"   {mod.DisplayName}: no manifest.");
-                            else if (mod.Manifest.UpdateKeys == null || !mod.Manifest.UpdateKeys.Any())
-                                this.VerboseLog($"   {mod.DisplayName}: no update keys.");
+                            IModMetadata[] modsWithoutKeys = (
+                                from mod in mods
+                                where
+                                    mod.Manifest != null
+                                    && (mod.Manifest.UpdateKeys == null || !mod.Manifest.UpdateKeys.Any())
+                                    && (mod.Manifest?.UniqueID != "SMAPI.ConsoleCommands" && mod.Manifest?.UniqueID != "SMAPI.TrainerMod")
+                                orderby mod.DisplayName
+                                select mod
+                            ).ToArray();
+
+                            string message = $"Checking {modsByKey.Count} mod update keys.";
+                            if (modsWithoutKeys.Any())
+                                message += $" {modsWithoutKeys.Length} mods have no update keys: {string.Join(", ", modsWithoutKeys.Select(p => p.DisplayName))}.";
+                            this.Monitor.Log($"   {message}", LogLevel.Trace);
+                        }
+
+                        // fetch results
+                        var results =
+                            (
+                                from entry in client.GetModInfo(modsByKey.Keys.ToArray())
+                                from mod in modsByKey[entry.Key]
+                                orderby mod.DisplayName
+                                select new { entry.Key, Mod = mod, Info = entry.Value }
+                            )
+                            .ToArray();
+
+                        // extract latest versions
+                        IDictionary<IModMetadata, ModInfoModel> updatesByMod = new Dictionary<IModMetadata, ModInfoModel>();
+                        foreach (var result in results)
+                        {
+                            IModMetadata mod = result.Mod;
+                            ModInfoModel info = result.Info;
+
+                            // handle error
+                            if (info.Error != null)
+                            {
+                                this.Monitor.Log($"   {mod.DisplayName} ({result.Key}): update error: {info.Error}", LogLevel.Trace);
+                                continue;
+                            }
+
+                            // track update
+                            ISemanticVersion localVersion = mod.DataRecord != null
+                                ? new SemanticVersion(mod.DataRecord.GetLocalVersionForUpdateChecks(mod.Manifest.Version.ToString()))
+                                : mod.Manifest.Version;
+                            ISemanticVersion latestVersion = new SemanticVersion(mod.DataRecord != null
+                                ? mod.DataRecord.GetRemoteVersionForUpdateChecks(new SemanticVersion(info.Version).ToString())
+                                : info.Version
+                            );
+                            bool isUpdate = latestVersion.IsNewerThan(localVersion);
+                            this.VerboseLog($"   {mod.DisplayName} ({result.Key}): {(isUpdate ? $"{mod.Manifest.Version}{(!localVersion.Equals(mod.Manifest.Version) ? $" [{localVersion}]" : "")} => {info.Version}{(!latestVersion.Equals(new SemanticVersion(info.Version)) ? $" [{latestVersion}]" : "")}" : "okay")}.");
+                            if (isUpdate)
+                            {
+                                if (!updatesByMod.TryGetValue(mod, out ModInfoModel other) || latestVersion.IsNewerThan(other.Version))
+                                    updatesByMod[mod] = info;
+                            }
+                        }
+
+                        // output
+                        if (updatesByMod.Any())
+                        {
+                            this.Monitor.Newline();
+                            this.Monitor.Log($"You can update {updatesByMod.Count} mod{(updatesByMod.Count != 1 ? "s" : "")}:", LogLevel.Alert);
+                            foreach (var entry in updatesByMod.OrderBy(p => p.Key.DisplayName))
+                                this.Monitor.Log($"   {entry.Key.DisplayName} {entry.Value.Version}: {entry.Value.Url}", LogLevel.Alert);
                         }
                     }
-
-                    // prepare update keys
-                    Dictionary<string, IModMetadata[]> modsByKey =
-                        (
-                            from mod in mods
-                            where mod.Manifest?.UpdateKeys != null
-                            from key in mod.Manifest.UpdateKeys
-                            select new { key, mod }
-                        )
-                        .GroupBy(p => p.key, StringComparer.InvariantCultureIgnoreCase)
-                        .ToDictionary(
-                            group => group.Key,
-                            group => group.Select(p => p.mod).ToArray(),
-                            StringComparer.InvariantCultureIgnoreCase
+                    catch (Exception ex)
+                    {
+                        this.Monitor.Log("Couldn't check for new mod versions. This won't affect your game, but you won't be notified of mod updates if this keeps happening.", LogLevel.Warn);
+                        this.Monitor.Log(ex is WebException && ex.InnerException == null
+                            ? ex.Message
+                            : ex.ToString()
                         );
-
-                    // fetch results
-                    this.Monitor.Log($"Checking for updates to {modsByKey.Keys.Count} keys...", LogLevel.Trace);
-                    var results =
-                        (
-                            from entry in client.GetModInfo(modsByKey.Keys.ToArray())
-                            from mod in modsByKey[entry.Key]
-                            orderby mod.DisplayName
-                            select new { entry.Key, Mod = mod, Info = entry.Value }
-                        )
-                        .ToArray();
-
-                    // extract latest versions
-                    IDictionary<IModMetadata, ModInfoModel> updatesByMod = new Dictionary<IModMetadata, ModInfoModel>();
-                    foreach (var result in results)
-                    {
-                        IModMetadata mod = result.Mod;
-                        ModInfoModel info = result.Info;
-
-                        // handle error
-                        if (info.Error != null)
-                        {
-                            this.Monitor.Log($"   {mod.DisplayName} ({result.Key}): update error: {info.Error}", LogLevel.Trace);
-                            continue;
-                        }
-
-                        // track update
-                        ISemanticVersion localVersion = mod.DataRecord != null
-                            ? new SemanticVersion(mod.DataRecord.GetLocalVersionForUpdateChecks(mod.Manifest.Version.ToString()))
-                            : mod.Manifest.Version;
-                        ISemanticVersion latestVersion = new SemanticVersion(mod.DataRecord != null
-                            ? mod.DataRecord.GetRemoteVersionForUpdateChecks(new SemanticVersion(info.Version).ToString())
-                            : info.Version
-                        );
-                        bool isUpdate = latestVersion.IsNewerThan(localVersion);
-                        this.VerboseLog($"   {mod.DisplayName} ({result.Key}): {(isUpdate ? $"{mod.Manifest.Version}{(!localVersion.Equals(mod.Manifest.Version) ? $" [{localVersion}]" : "")} => {info.Version}{(!latestVersion.Equals(new SemanticVersion(info.Version)) ? $" [{latestVersion}]" : "")}" : "OK")}.");
-                        if (isUpdate)
-                        {
-                            if (!updatesByMod.TryGetValue(mod, out ModInfoModel other) || latestVersion.IsNewerThan(other.Version))
-                                updatesByMod[mod] = info;
-                        }
                     }
-
-                    // output
-                    if (updatesByMod.Any())
-                    {
-                        this.Monitor.Newline();
-                        this.Monitor.Log($"You can update {updatesByMod.Count} mod{(updatesByMod.Count != 1 ? "s" : "")}:", LogLevel.Alert);
-                        foreach (var entry in updatesByMod.OrderBy(p => p.Key.DisplayName))
-                            this.Monitor.Log($"   {entry.Key.DisplayName} {entry.Value.Version}: {entry.Value.Url}", LogLevel.Alert);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    this.Monitor.Log("Couldn't check for new mod versions. This won't affect your game, but you won't be notified of mod updates if this keeps happening.", LogLevel.Warn);
-                    this.Monitor.Log(ex is WebException && ex.InnerException == null
-                        ? ex.Message
-                        : ex.ToString()
-                    );
                 }
             }).Start();
         }
@@ -649,6 +655,7 @@ namespace StardewModdingAPI
 
                 AssemblyLoader modAssemblyLoader = new AssemblyLoader(Constants.TargetPlatform, this.Monitor, this.Settings.DeveloperMode);
                 AppDomain.CurrentDomain.AssemblyResolve += (sender, e) => modAssemblyLoader.ResolveAssembly(e.Name);
+                InterfaceProxyBuilder proxyBuilder = new InterfaceProxyBuilder();
                 foreach (IModMetadata metadata in mods)
                 {
                     // get basic info
@@ -690,52 +697,29 @@ namespace StardewModdingAPI
                         continue;
                     }
 
-                    // validate assembly
-                    try
-                    {
-                        int modEntries = modAssembly.DefinedTypes.Count(type => typeof(Mod).IsAssignableFrom(type) && !type.IsAbstract);
-                        if (modEntries == 0)
-                        {
-                            TrackSkip(metadata, $"its DLL has no '{nameof(Mod)}' subclass.");
-                            continue;
-                        }
-                        if (modEntries > 1)
-                        {
-                            TrackSkip(metadata, $"its DLL contains multiple '{nameof(Mod)}' subclasses.");
-                            continue;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        TrackSkip(metadata, $"its DLL couldn't be loaded:\n{ex.GetLogSummary()}");
-                        continue;
-                    }
-
                     // initialise mod
                     try
                     {
-                        // get implementation
-                        TypeInfo modEntryType = modAssembly.DefinedTypes.First(type => typeof(Mod).IsAssignableFrom(type) && !type.IsAbstract);
-                        Mod mod = (Mod)modAssembly.CreateInstance(modEntryType.ToString());
-                        if (mod == null)
+                        // init mod helpers
+                        IMonitor monitor = this.GetSecondaryMonitor(metadata.DisplayName);
+                        IModHelper modHelper;
                         {
-                            TrackSkip(metadata, "its entry class couldn't be instantiated.");
-                            continue;
-                        }
-
-                        // inject data
-                        {
-                            IMonitor monitor = this.GetSecondaryMonitor(metadata.DisplayName);
                             ICommandHelper commandHelper = new CommandHelper(manifest.UniqueID, metadata.DisplayName, this.CommandManager);
                             IContentHelper contentHelper = new ContentHelper(contentManager, metadata.DirectoryPath, manifest.UniqueID, metadata.DisplayName, monitor);
-                            IReflectionHelper reflectionHelper = new ReflectionHelper(manifest.UniqueID, metadata.DisplayName, this.Reflection);
-                            IModRegistry modRegistryHelper = new ModRegistryHelper(manifest.UniqueID, this.ModRegistry);
+                            IReflectionHelper reflectionHelper = new ReflectionHelper(manifest.UniqueID, metadata.DisplayName, this.Reflection, this.DeprecationManager);
+                            IModRegistry modRegistryHelper = new ModRegistryHelper(manifest.UniqueID, this.ModRegistry, proxyBuilder, monitor);
                             ITranslationHelper translationHelper = new TranslationHelper(manifest.UniqueID, manifest.Name, contentManager.GetLocale(), contentManager.GetCurrentLanguage());
-
-                            mod.ModManifest = manifest;
-                            mod.Helper = new ModHelper(manifest.UniqueID, metadata.DirectoryPath, jsonHelper, contentHelper, commandHelper, modRegistryHelper, reflectionHelper, translationHelper);
-                            mod.Monitor = monitor;
+                            modHelper = new ModHelper(manifest.UniqueID, metadata.DirectoryPath, jsonHelper, contentHelper, commandHelper, modRegistryHelper, reflectionHelper, translationHelper);
                         }
+
+                        // get mod instance
+                        if (!this.TryLoadModEntry(modAssembly, error => TrackSkip(metadata, error), out Mod mod))
+                            continue;
+
+                        // init mod
+                        mod.ModManifest = manifest;
+                        mod.Helper = modHelper;
+                        mod.Monitor = monitor;
 
                         // track mod
                         metadata.SetMod(mod);
@@ -747,7 +731,7 @@ namespace StardewModdingAPI
                     }
                 }
             }
-            IModMetadata[] loadedMods = this.ModRegistry.GetMods().ToArray();
+            IModMetadata[] loadedMods = this.ModRegistry.GetAll().ToArray();
 
             // log skipped mods
             this.Monitor.Newline();
@@ -811,6 +795,19 @@ namespace StardewModdingAPI
                 {
                     this.Monitor.Log($"{metadata.DisplayName} failed on entry and might not work correctly. Technical details:\n{ex.GetLogSummary()}", LogLevel.Error);
                 }
+
+                // get mod API
+                try
+                {
+                    object api = metadata.Mod.GetApi();
+                    if (api != null)
+                        this.Monitor.Log($"   Found mod-provided API ({api.GetType().FullName}).", LogLevel.Trace);
+                    metadata.SetApi(api);
+                }
+                catch (Exception ex)
+                {
+                    this.Monitor.Log($"Failed loading mod-provided API for {metadata.DisplayName}. Integrations with other mods may not work. Error: {ex.GetLogSummary()}", LogLevel.Error);
+                }
             }
 
             // invalidate cache entries when needed
@@ -846,13 +843,48 @@ namespace StardewModdingAPI
                 this.Monitor.Log("Invalidating cached assets for new editors & loaders...", LogLevel.Trace);
                 this.ContentManager.InvalidateCacheFor(editors, loaders);
             }
+
+            // unlock mod integrations
+            this.ModRegistry.AreAllModsInitialised = true;
+        }
+
+        /// <summary>Load a mod's entry class.</summary>
+        /// <param name="modAssembly">The mod assembly.</param>
+        /// <param name="onError">A callback invoked when loading fails.</param>
+        /// <param name="mod">The loaded instance.</param>
+        private bool TryLoadModEntry(Assembly modAssembly, Action<string> onError, out Mod mod)
+        {
+            mod = null;
+
+            // find type
+            TypeInfo[] modEntries = modAssembly.DefinedTypes.Where(type => typeof(Mod).IsAssignableFrom(type) && !type.IsAbstract).Take(2).ToArray();
+            if (modEntries.Length == 0)
+            {
+                onError($"its DLL has no '{nameof(Mod)}' subclass.");
+                return false;
+            }
+            if (modEntries.Length > 1)
+            {
+                onError($"its DLL contains multiple '{nameof(Mod)}' subclasses.");
+                return false;
+            }
+
+            // get implementation
+            mod = (Mod)modAssembly.CreateInstance(modEntries[0].ToString());
+            if (mod == null)
+            {
+                onError("its entry class couldn't be instantiated.");
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>Reload translations for all mods.</summary>
         private void ReloadTranslations()
         {
             JsonHelper jsonHelper = new JsonHelper();
-            foreach (IModMetadata metadata in this.ModRegistry.GetMods())
+            foreach (IModMetadata metadata in this.ModRegistry.GetAll())
             {
                 // read translation files
                 IDictionary<string, IDictionary<string, string>> translations = new Dictionary<string, IDictionary<string, string>>();

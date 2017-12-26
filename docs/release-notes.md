@@ -1,4 +1,24 @@
 # Release notes
+## 2.3
+* For players:
+  * Added a user-friendly [download page](https://smapi.io).
+  * Improved cryptic libgdiplus errors on Mac when Mono isn't installed.
+  * Fixed mod UIs hidden when menu backgrounds are enabled.
+
+* For modders:
+  * **Added mod-provided APIs** to allow simple integrations between mods, even without direct assembly references.
+  * Added `GameEvents.FirstUpdateTick` event (called once after all mods are initialised).
+  * Added `IsSuppressed` to input events so mods can optionally avoid handling keys another mod has already handled.
+  * Added trace message for mods with no update keys.
+  * Adjusted reflection API to match actual usage (e.g. renamed `GetPrivate*` to `Get*`), and deprecated previous methods.
+  * Fixed `GraphicsEvents.OnPostRenderEvent` not being raised in some specialised cases.
+  * Fixed reflection API error for properties missing a `get` and `set`.
+  * Fixed issue where a mod could change the cursor position reported to other mods.
+  * Updated compatibility list.
+
+* For the [log parser][]:
+  * Fixed broken favicon.
+
 ## 2.2
 * For players:
   * Fixed error when a mod loads custom assets on Linux/Mac.

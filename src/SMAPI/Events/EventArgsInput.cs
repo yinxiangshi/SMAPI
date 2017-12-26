@@ -16,7 +16,7 @@ namespace StardewModdingAPI.Events
         public SButton Button { get; }
 
         /// <summary>The current cursor position.</summary>
-        public ICursorPosition Cursor { get; set; }
+        public ICursorPosition Cursor { get; }
 
         /// <summary>Whether the input is considered a 'click' by the game for enabling action.</summary>
         [Obsolete("Use " + nameof(EventArgsInput.IsActionButton) + " or " + nameof(EventArgsInput.IsUseToolButton) + " instead")] // deprecated in SMAPI 2.1
@@ -27,6 +27,9 @@ namespace StardewModdingAPI.Events
 
         /// <summary>Whether the input should use tools on the affected tile.</summary>
         public bool IsUseToolButton { get; }
+
+        /// <summary>Whether a mod has indicated the key was already handled.</summary>
+        public bool IsSuppressed { get; private set; }
 
 
         /*********
@@ -55,6 +58,9 @@ namespace StardewModdingAPI.Events
         /// <param name="button">The button to suppress.</param>
         public void SuppressButton(SButton button)
         {
+            if (button == this.Button)
+                this.IsSuppressed = true;
+
             // keyboard
             if (button.TryGetKeyboard(out Keys key))
                 Game1.oldKBState = new KeyboardState(Game1.oldKBState.GetPressedKeys().Union(new[] { key }).ToArray());

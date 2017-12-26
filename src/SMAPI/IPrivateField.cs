@@ -1,9 +1,11 @@
-﻿using System.Reflection;
+using System;
+using System.Reflection;
 
 namespace StardewModdingAPI
 {
     /// <summary>A private field obtained through reflection.</summary>
     /// <typeparam name="TValue">The field value type.</typeparam>
+    [Obsolete("Use " + nameof(IReflectedField<TValue>) + " instead")]
     public interface IPrivateField<TValue>
     {
         /*********
