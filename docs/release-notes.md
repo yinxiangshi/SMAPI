@@ -10,6 +10,7 @@
   * Added `GameEvents.FirstUpdateTick` event (called once after all mods are initialised).
   * Added `IsSuppressed` to input events so mods can optionally avoid handling keys another mod has already handled.
   * Added trace message for mods with no update keys.
+  * Adjusted reflection API to match actual usage (e.g. renamed `GetPrivate*` to `Get*`), and deprecated previous methods.
   * Fixed `GraphicsEvents.OnPostRenderEvent` not being raised in some specialised cases.
   * Fixed reflection API error for properties missing a `get` and `set`.
   * Fixed issue where a mod could change the cursor position reported to other mods.
