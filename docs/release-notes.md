@@ -1,4 +1,8 @@
 # Release notes
+## 2.4
+* For players:
+  * Fixed rare issues caused by assembly references being incorrectly loaded twice.
+
 ## 2.3
 * For players:
   * Added a user-friendly [download page](https://smapi.io).
