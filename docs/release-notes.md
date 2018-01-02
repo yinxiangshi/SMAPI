@@ -3,6 +3,9 @@
 * For players:
   * Fixed rare issues caused by assembly references being incorrectly loaded twice.
 
+* For the [log parser][]:
+  * Fixed parse error for logs with zero installed mods.
+
 ## 2.3
 * For players:
   * Added a user-friendly [download page](https://smapi.io).
