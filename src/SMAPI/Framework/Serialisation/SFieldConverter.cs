@@ -51,7 +51,7 @@ namespace StardewModdingAPI.Framework.Serialisation
                             int minor = obj.Value<int>(nameof(ISemanticVersion.MinorVersion));
                             int patch = obj.Value<int>(nameof(ISemanticVersion.PatchVersion));
                             string build = obj.Value<string>(nameof(ISemanticVersion.Build));
-                            return new SemanticVersion(major, minor, patch, build);
+                            return new LegacyManifestVersion(major, minor, patch, build);
                         }
 
                     case JTokenType.String:

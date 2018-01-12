@@ -2,6 +2,7 @@
 ## 2.4
 * For players:
   * SMAPI now fixes curly quotes in `config.json` if possible.
+  * Fixed semantic versions always ignoring `-0` tag.
   * Fixed rare issues caused by assembly references being incorrectly loaded twice.
 
 * For the [log parser][]:
