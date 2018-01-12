@@ -55,18 +55,15 @@ namespace StardewModdingAPI.Framework.Serialisation
             // deserialise model
             try
             {
-                return JsonConvert.DeserializeObject<TModel>(json, this.JsonSettings);
+                return this.Deserialise<TModel>(json);
             }
             catch (JsonReaderException ex)
             {
-                string message = $"The file at {fullPath} doesn't seem to be valid JSON.";
-
-                string text = File.ReadAllText(fullPath);
-                if (text.Contains("“") || text.Contains("”"))
-                    message += " Found curly quotes in the text; note that only straight quotes are allowed in JSON.";
-
-                message += $"\nTechnical details: {ex.Message}";
-                throw new JsonReaderException(message);
+                string error = $"The file at {fullPath} doesn't seem to be valid JSON.";
+                if (json.Contains("“") || json.Contains("”"))
+                    error += " Found curly quotes in the text; note that only straight quotes are allowed in JSON.";
+                error += $"\nTechnical details: {ex.Message}";
+                throw new JsonReaderException(error);
             }
         }
 
@@ -92,6 +89,35 @@ namespace StardewModdingAPI.Framework.Serialisation
             // write file
             string json = JsonConvert.SerializeObject(model, this.JsonSettings);
             File.WriteAllText(fullPath, json);
+        }
+
+
+        /*********
+        ** Private methods
+        *********/
+        /// <summary>Deserialize JSON text if possible.</summary>
+        /// <typeparam name="TModel">The model type.</typeparam>
+        /// <param name="json">The raw JSON text.</param>
+        private TModel Deserialise<TModel>(string json)
+        {
+            try
+            {
+                return JsonConvert.DeserializeObject<TModel>(json, this.JsonSettings);
+            }
+            catch (JsonReaderException)
+            {
+                // try replacing curly quotes
+                if (json.Contains("“") || json.Contains("”"))
+                {
+                    try
+                    {
+                        return JsonConvert.DeserializeObject<TModel>(json.Replace('“', '"').Replace('”', '"'), this.JsonSettings);
+                    }
+                    catch { /* rethrow original error */ }
+                }
+
+                throw;
+            }
         }
     }
 }
