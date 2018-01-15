@@ -63,7 +63,11 @@ else
 
     # open SMAPI in terminal
     if $COMMAND x-terminal-emulator 2>/dev/null; then
-        x-terminal-emulator -e "$LAUNCHER"
+        if [[ " $(readlink $(readlink /usr/bin/x-terminal-emulator))" == *"/terminator" ]]; then
+            terminator -e "$LAUNCHER"
+        else
+            x-terminal-emulator -e "$LAUNCHER"
+        fi
     elif $COMMAND xfce4-terminal 2>/dev/null; then
         xfce4-terminal -e "$LAUNCHER"
     elif $COMMAND gnome-terminal 2>/dev/null; then
