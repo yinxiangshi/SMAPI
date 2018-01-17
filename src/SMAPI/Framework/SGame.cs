@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using StardewModdingAPI.Events;
+using StardewModdingAPI.Framework.Input;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Utilities;
 using StardewValley;
@@ -53,20 +54,8 @@ namespace StardewModdingAPI.Framework
         /****
         ** Game state
         ****/
-        /// <summary>A record of the buttons pressed as of the previous tick.</summary>
-        private SButton[] PreviousPressedButtons = new SButton[0];
-
-        /// <summary>A record of the keyboard state (i.e. the up/down state for each button) as of the previous tick.</summary>
-        private KeyboardState PreviousKeyState;
-
-        /// <summary>A record of the controller state (i.e. the up/down state for each button) as of the previous tick.</summary>
-        private GamePadState PreviousControllerState;
-
-        /// <summary>A record of the mouse state (i.e. the cursor position, scroll amount, and the up/down state for each button) as of the previous tick.</summary>
-        private MouseState PreviousMouseState;
-
-        /// <summary>The previous mouse position on the screen adjusted for the zoom level.</summary>
-        private Point PreviousMousePosition;
+        /// <summary>The player input as of the previous tick.</summary>
+        private InputState PreviousInput = new InputState();
 
         /// <summary>The window size value at last check.</summary>
         private Point PreviousWindowSize;
@@ -348,33 +337,16 @@ namespace StardewModdingAPI.Framework
                 *********/
                 if (Game1.game1.IsActive)
                 {
-                    // get latest state
-                    KeyboardState keyState;
-                    GamePadState controllerState;
-                    MouseState mouseState;
-                    Point mousePosition;
+                    // get input state
+                    InputState inputState;
                     try
                     {
-                        keyState = Keyboard.GetState();
-                        controllerState = GamePad.GetState(PlayerIndex.One);
-                        mouseState = Mouse.GetState();
-                        mousePosition = new Point(Game1.getMouseX(), Game1.getMouseY());
+                        inputState = InputState.GetState(this.PreviousInput);
                     }
                     catch (InvalidOperationException) // GetState() may crash for some players if window doesn't have focus but game1.IsActive == true
                     {
-                        keyState = this.PreviousKeyState;
-                        controllerState = this.PreviousControllerState;
-                        mouseState = this.PreviousMouseState;
-                        mousePosition = this.PreviousMousePosition;
+                        inputState = this.PreviousInput;
                     }
-
-                    // analyse state
-                    SButton[] currentlyPressedKeys = this.GetPressedButtons(keyState, mouseState, controllerState).ToArray();
-                    SButton[] previousPressedKeys = this.PreviousPressedButtons;
-                    SButton[] framePressedKeys = currentlyPressedKeys.Except(previousPressedKeys).ToArray();
-                    SButton[] frameReleasedKeys = previousPressedKeys.Except(currentlyPressedKeys).ToArray();
-                    bool isUseToolButton = Game1.options.useToolButton.Any(p => framePressedKeys.Contains(p.ToSButton()));
-                    bool isActionButton = !isUseToolButton && Game1.options.actionButton.Any(p => framePressedKeys.Contains(p.ToSButton()));
 
                     // get cursor position
                     ICursorPosition cursor;
@@ -388,60 +360,58 @@ namespace StardewModdingAPI.Framework
                         cursor = new CursorPosition(screenPixels, tile, grabTile);
                     }
 
-                    // raise button pressed
-                    foreach (SButton button in framePressedKeys)
+                    // raise input events
+                    foreach (var pair in inputState.ActiveButtons)
                     {
-                        InputEvents.InvokeButtonPressed(this.Monitor, button, cursor, isActionButton, isUseToolButton);
+                        SButton button = pair.Key;
+                        InputStatus status = pair.Value;
 
-                        // legacy events
-                        if (button.TryGetKeyboard(out Keys key))
+                        if (status == InputStatus.Pressed)
                         {
-                            if (key != Keys.None)
-                                ControlEvents.InvokeKeyPressed(this.Monitor, key);
-                        }
-                        else if (button.TryGetController(out Buttons controllerButton))
-                        {
-                            if (controllerButton == Buttons.LeftTrigger || controllerButton == Buttons.RightTrigger)
-                                ControlEvents.InvokeTriggerPressed(this.Monitor, controllerButton, controllerButton == Buttons.LeftTrigger ? controllerState.Triggers.Left : controllerState.Triggers.Right);
-                            else
-                                ControlEvents.InvokeButtonPressed(this.Monitor, controllerButton);
-                        }
-                    }
+                            InputEvents.InvokeButtonPressed(this.Monitor, button, cursor, button.IsActionButton(), button.IsUseToolButton());
 
-                    // raise button released
-                    foreach (SButton button in frameReleasedKeys)
-                    {
-                        bool wasUseToolButton = (from opt in Game1.options.useToolButton let optButton = opt.ToSButton() where optButton == button && framePressedKeys.Contains(optButton) select optButton).Any();
-                        bool wasActionButton = !wasUseToolButton && (from opt in Game1.options.actionButton let optButton = opt.ToSButton() where optButton == button && framePressedKeys.Contains(optButton) select optButton).Any();
-                        InputEvents.InvokeButtonReleased(this.Monitor, button, cursor, wasActionButton, wasUseToolButton);
-
-                        // legacy events
-                        if (button.TryGetKeyboard(out Keys key))
-                        {
-                            if (key != Keys.None)
-                                ControlEvents.InvokeKeyReleased(this.Monitor, key);
+                            // legacy events
+                            if (button.TryGetKeyboard(out Keys key))
+                            {
+                                if (key != Keys.None)
+                                    ControlEvents.InvokeKeyPressed(this.Monitor, key);
+                            }
+                            else if (button.TryGetController(out Buttons controllerButton))
+                            {
+                                if (controllerButton == Buttons.LeftTrigger || controllerButton == Buttons.RightTrigger)
+                                    ControlEvents.InvokeTriggerPressed(this.Monitor, controllerButton, controllerButton == Buttons.LeftTrigger ? inputState.ControllerState.Triggers.Left : inputState.ControllerState.Triggers.Right);
+                                else
+                                    ControlEvents.InvokeButtonPressed(this.Monitor, controllerButton);
+                            }
                         }
-                        else if (button.TryGetController(out Buttons controllerButton))
+                        else if (status == InputStatus.Released)
                         {
-                            if (controllerButton == Buttons.LeftTrigger || controllerButton == Buttons.RightTrigger)
-                                ControlEvents.InvokeTriggerReleased(this.Monitor, controllerButton, controllerButton == Buttons.LeftTrigger ? controllerState.Triggers.Left : controllerState.Triggers.Right);
-                            else
-                                ControlEvents.InvokeButtonReleased(this.Monitor, controllerButton);
+                            InputEvents.InvokeButtonReleased(this.Monitor, button, cursor, button.IsActionButton(), button.IsUseToolButton());
+
+                            // legacy events
+                            if (button.TryGetKeyboard(out Keys key))
+                            {
+                                if (key != Keys.None)
+                                    ControlEvents.InvokeKeyReleased(this.Monitor, key);
+                            }
+                            else if (button.TryGetController(out Buttons controllerButton))
+                            {
+                                if (controllerButton == Buttons.LeftTrigger || controllerButton == Buttons.RightTrigger)
+                                    ControlEvents.InvokeTriggerReleased(this.Monitor, controllerButton, controllerButton == Buttons.LeftTrigger ? inputState.ControllerState.Triggers.Left : inputState.ControllerState.Triggers.Right);
+                                else
+                                    ControlEvents.InvokeButtonReleased(this.Monitor, controllerButton);
+                            }
                         }
                     }
 
                     // raise legacy state-changed events
-                    if (keyState != this.PreviousKeyState)
-                        ControlEvents.InvokeKeyboardChanged(this.Monitor, this.PreviousKeyState, keyState);
-                    if (mouseState != this.PreviousMouseState)
-                        ControlEvents.InvokeMouseChanged(this.Monitor, this.PreviousMouseState, mouseState, this.PreviousMousePosition, mousePosition);
+                    if (inputState.KeyboardState != this.PreviousInput.KeyboardState)
+                        ControlEvents.InvokeKeyboardChanged(this.Monitor, this.PreviousInput.KeyboardState, inputState.KeyboardState);
+                    if (inputState.MouseState != this.PreviousInput.MouseState)
+                        ControlEvents.InvokeMouseChanged(this.Monitor, this.PreviousInput.MouseState, inputState.MouseState, this.PreviousInput.MousePosition, inputState.MousePosition);
 
                     // track state
-                    this.PreviousMouseState = mouseState;
-                    this.PreviousMousePosition = mousePosition;
-                    this.PreviousKeyState = keyState;
-                    this.PreviousControllerState = controllerState;
-                    this.PreviousPressedButtons = currentlyPressedKeys;
+                    this.PreviousInput = inputState;
                 }
 
                 /*********
@@ -1304,67 +1274,7 @@ namespace StardewModdingAPI.Framework
             this.PreviousSaveID = 0;
         }
 
-        /// <summary>Get the buttons pressed in the given stats.</summary>
-        /// <param name="keyboard">The keyboard state.</param>
-        /// <param name="mouse">The mouse state.</param>
-        /// <param name="controller">The controller state.</param>
-        private IEnumerable<SButton> GetPressedButtons(KeyboardState keyboard, MouseState mouse, GamePadState controller)
-        {
-            // keyboard
-            foreach (Keys key in keyboard.GetPressedKeys())
-                yield return key.ToSButton();
 
-            // mouse
-            if (mouse.LeftButton == ButtonState.Pressed)
-                yield return SButton.MouseLeft;
-            if (mouse.RightButton == ButtonState.Pressed)
-                yield return SButton.MouseRight;
-            if (mouse.MiddleButton == ButtonState.Pressed)
-                yield return SButton.MouseMiddle;
-            if (mouse.XButton1 == ButtonState.Pressed)
-                yield return SButton.MouseX1;
-            if (mouse.XButton2 == ButtonState.Pressed)
-                yield return SButton.MouseX2;
-
-            // controller
-            if (controller.IsConnected)
-            {
-                if (controller.Buttons.A == ButtonState.Pressed)
-                    yield return SButton.ControllerA;
-                if (controller.Buttons.B == ButtonState.Pressed)
-                    yield return SButton.ControllerB;
-                if (controller.Buttons.Back == ButtonState.Pressed)
-                    yield return SButton.ControllerBack;
-                if (controller.Buttons.BigButton == ButtonState.Pressed)
-                    yield return SButton.BigButton;
-                if (controller.Buttons.LeftShoulder == ButtonState.Pressed)
-                    yield return SButton.LeftShoulder;
-                if (controller.Buttons.LeftStick == ButtonState.Pressed)
-                    yield return SButton.LeftStick;
-                if (controller.Buttons.RightShoulder == ButtonState.Pressed)
-                    yield return SButton.RightShoulder;
-                if (controller.Buttons.RightStick == ButtonState.Pressed)
-                    yield return SButton.RightStick;
-                if (controller.Buttons.Start == ButtonState.Pressed)
-                    yield return SButton.ControllerStart;
-                if (controller.Buttons.X == ButtonState.Pressed)
-                    yield return SButton.ControllerX;
-                if (controller.Buttons.Y == ButtonState.Pressed)
-                    yield return SButton.ControllerY;
-                if (controller.DPad.Up == ButtonState.Pressed)
-                    yield return SButton.DPadUp;
-                if (controller.DPad.Down == ButtonState.Pressed)
-                    yield return SButton.DPadDown;
-                if (controller.DPad.Left == ButtonState.Pressed)
-                    yield return SButton.DPadLeft;
-                if (controller.DPad.Right == ButtonState.Pressed)
-                    yield return SButton.DPadRight;
-                if (controller.Triggers.Left > 0.2f)
-                    yield return SButton.LeftTrigger;
-                if (controller.Triggers.Right > 0.2f)
-                    yield return SButton.RightTrigger;
-            }
-        }
 
         /// <summary>Get the player inventory changes between two states.</summary>
         /// <param name="current">The player's current inventory.</param>

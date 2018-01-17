@@ -5,11 +5,17 @@
   * Fixed error parsing JSON files generated on another platform.
   * Fixed rare issues caused by mods reloading core assemblies, which is no longer allowed.
 
-* For mod authors:
-  * Fixed semantic versions always ignoring `-0` tag.
-
 * For the [log parser][]:
   * Fixed parse error for logs with zero installed mods.
+
+* For modders:
+  * Added `SButton` `IsActionButton()` and `IsUseToolButton()` extensions.
+  * Fixed input events not recognising controller input as an action or use-tool button.
+  * Fixed input events setting the same `IsActionButton` and `IsUseToolButton` values for all buttons pressed in an update tick.
+  * Fixed semantic versions always ignoring `-0` tag.
+
+* For SMAPI developers:
+  * Overhauled input handling to support future input events.
 
 ## 2.3
 * For players:

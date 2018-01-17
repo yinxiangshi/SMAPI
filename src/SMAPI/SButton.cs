@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Microsoft.Xna.Framework.Input;
 using StardewValley;
 
@@ -682,6 +683,20 @@ namespace StardewModdingAPI
             // not valid
             button = default(InputButton);
             return false;
+        }
+
+        /// <summary>Get whether the given button is equivalent to <see cref="Options.useToolButton"/>.</summary>
+        /// <param name="input">The button.</param>
+        public static bool IsUseToolButton(this SButton input)
+        {
+            return input == SButton.ControllerX || Game1.options.useToolButton.Any(p => p.ToSButton() == input);
+        }
+
+        /// <summary>Get whether the given button is equivalent to <see cref="Options.actionButton"/>.</summary>
+        /// <param name="input">The button.</param>
+        public static bool IsActionButton(this SButton input)
+        {
+            return input == SButton.ControllerA || Game1.options.actionButton.Any(p => p.ToSButton() == input);
         }
     }
 }
