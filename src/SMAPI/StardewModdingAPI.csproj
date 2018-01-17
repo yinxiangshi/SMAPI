@@ -108,6 +108,9 @@
     <Compile Include="Framework\Exceptions\SAssemblyLoadFailedException.cs" />
     <Compile Include="Framework\ModLoading\AssemblyLoadStatus.cs" />
     <Compile Include="Framework\Reflection\InterfaceProxyBuilder.cs" />
+    <Compile Include="Framework\Serialisation\RectangleConverter.cs" />
+    <Compile Include="Framework\Serialisation\ColorConverter.cs" />
+    <Compile Include="Framework\Serialisation\PointConverter.cs" />
     <Compile Include="Framework\Utilities\ContextHash.cs" />
     <Compile Include="IReflectedField.cs" />
     <Compile Include="IReflectedMethod.cs" />

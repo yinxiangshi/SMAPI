@@ -1,9 +1,12 @@
 # Release notes
 ## 2.4
 * For players:
-  * SMAPI now fixes curly quotes in `config.json` if possible.
+  * Fixed error parsing `config.json` files containing curly quotes.
+  * Fixed error parsing JSON files generated on another platform.
+  * Fixed rare issues caused by mods reloading core assemblies, which is no longer allowed.
+
+* For mod authors:
   * Fixed semantic versions always ignoring `-0` tag.
-  * Fixed rare issues caused by assembly references being incorrectly loaded twice.
 
 * For the [log parser][]:
   * Fixed parse error for logs with zero installed mods.
