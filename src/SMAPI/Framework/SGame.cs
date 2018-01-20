@@ -229,6 +229,13 @@ namespace StardewModdingAPI.Framework
                     return;
                 }
 
+                // game is asynchronously loading a save, block mod events to avoid conflicts
+                if (Game1.gameMode == Game1.loadingMode)
+                {
+                    base.Update(gameTime);
+                    return;
+                }
+
                 /*********
                 ** Save events + suppress events during save
                 *********/
