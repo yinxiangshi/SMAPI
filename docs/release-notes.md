@@ -4,6 +4,7 @@
   * SMAPI now fixes curly quotes in `config.json` if possible.
   * Fixed semantic versions always ignoring `-0` tag.
   * Fixed rare issues caused by assembly references being incorrectly loaded twice.
+  * Fixed error on Linux loading SMAPI when the default terminal is set to Terminator.
 
 * For the [log parser][]:
   * Fixed parse error for logs with zero installed mods.
