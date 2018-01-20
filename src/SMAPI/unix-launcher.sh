@@ -63,7 +63,14 @@ else
 
     # open SMAPI in terminal
     if $COMMAND x-terminal-emulator 2>/dev/null; then
-        x-terminal-emulator -e "$LAUNCHER"
+        # Terminator converts -e to -x when used through x-terminal-emulator for some reason (per
+        # `man terminator`), which causes an "unable to find shell" error. If x-terminal-emulator
+        # is mapped to Terminator, invoke it directly instead.
+        if [[ "$(readlink -e $(which x-terminal-emulator))" == *"/terminator" ]]; then
+            terminator -e "$LAUNCHER"
+        else
+            x-terminal-emulator -e "$LAUNCHER"
+        fi
     elif $COMMAND xfce4-terminal 2>/dev/null; then
         xfce4-terminal -e "$LAUNCHER"
     elif $COMMAND gnome-terminal 2>/dev/null; then

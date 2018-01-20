@@ -5,6 +5,7 @@
   * Fixed error parsing `config.json` files containing curly quotes.
   * Fixed error parsing JSON files generated on another platform.
   * Fixed error parsing some JSON files after mods reload core assemblies, which is no longer allowed.
+  * Fixed error on Linux loading SMAPI when the default terminal is set to Terminator.
 
 * For the [log parser][]:
   * Fixed parse error for logs with zero installed mods.
