@@ -63,11 +63,16 @@ namespace StardewModdingAPI.Framework.Serialisation
             {
                 return this.Deserialise<TModel>(json);
             }
-            catch (JsonReaderException ex)
+            catch (Exception ex)
             {
-                string error = $"The file at {fullPath} doesn't seem to be valid JSON.";
-                if (json.Contains("“") || json.Contains("”"))
-                    error += " Found curly quotes in the text; note that only straight quotes are allowed in JSON.";
+                string error = $"Can't parse JSON file at {fullPath}.";
+
+                if (ex is JsonReaderException)
+                {
+                    error += " This doesn't seem to be valid JSON.";
+                    if (json.Contains("“") || json.Contains("”"))
+                        error += " Found curly quotes in the text; note that only straight quotes are allowed in JSON.";
+                }
                 error += $"\nTechnical details: {ex.Message}";
                 throw new JsonReaderException(error);
             }

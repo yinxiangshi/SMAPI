@@ -12,6 +12,7 @@
 
 * For modders:
   * Added `SButton` `IsActionButton()` and `IsUseToolButton()` extensions.
+  * Improved JSON parse errors to provide more useful info for troubleshooting.
   * Fixed events being raised while the game is loading a save file.
   * Fixed input events not recognising controller input as an action or use-tool button.
   * Fixed input events setting the same `IsActionButton` and `IsUseToolButton` values for all buttons pressed in an update tick.

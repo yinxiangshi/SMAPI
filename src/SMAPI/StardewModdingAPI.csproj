@@ -110,6 +110,7 @@
     <Compile Include="Framework\Exceptions\SAssemblyLoadFailedException.cs" />
     <Compile Include="Framework\ModLoading\AssemblyLoadStatus.cs" />
     <Compile Include="Framework\Reflection\InterfaceProxyBuilder.cs" />
+    <Compile Include="Framework\Serialisation\SimpleReadOnlyConverter.cs" />
     <Compile Include="Framework\Serialisation\RectangleConverter.cs" />
     <Compile Include="Framework\Serialisation\ColorConverter.cs" />
     <Compile Include="Framework\Serialisation\PointConverter.cs" />
