@@ -50,7 +50,7 @@ namespace StardewModdingAPI.Framework.Serialisation
                 case JsonToken.String:
                     return this.ReadString(JToken.Load(reader).Value<string>(), path);
                 default:
-                    throw new SParseException($"Can't parse {typeof(T).Name} from {reader.TokenType} (path: {reader.Path}).");
+                    throw new SParseException($"Can't parse {typeof(T).Name} from {reader.TokenType} node (path: {reader.Path}).");
             }
         }
 
@@ -63,7 +63,7 @@ namespace StardewModdingAPI.Framework.Serialisation
         /// <param name="path">The path to the current JSON node.</param>
         protected virtual T ReadObject(JObject obj, string path)
         {
-            throw new SParseException($"Can't parse {typeof(T).Name} from object (path: {path}).");
+            throw new SParseException($"Can't parse {typeof(T).Name} from object node (path: {path}).");
         }
 
         /// <summary>Read a JSON string.</summary>
@@ -71,7 +71,7 @@ namespace StardewModdingAPI.Framework.Serialisation
         /// <param name="path">The path to the current JSON node.</param>
         protected virtual T ReadString(string str, string path)
         {
-            throw new SParseException($"Can't parse {typeof(T).Name} from string (path: {path}).");
+            throw new SParseException($"Can't parse {typeof(T).Name} from string node (path: {path}).");
         }
     }
 }
