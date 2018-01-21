@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 using Newtonsoft.Json.Linq;
 using StardewModdingAPI.Framework.Exceptions;
 
-namespace StardewModdingAPI.Framework.Serialisation
+namespace StardewModdingAPI.Framework.Serialisation.Converters
 {
     /// <summary>Handles deserialisation of <see cref="Color"/> for crossplatform compatibility.</summary>
     /// <remarks>

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using StardewModdingAPI.Framework.Serialisation;
+using StardewModdingAPI.Framework.Serialisation.Converters;
 
 namespace StardewModdingAPI.Framework.Models
 {

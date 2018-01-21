@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.Models;
 
-namespace StardewModdingAPI.Framework.Serialisation
+namespace StardewModdingAPI.Framework.Serialisation.Converters
 {
     /// <summary>Overrides how SMAPI reads and writes <see cref="ISemanticVersion"/> and <see cref="IManifestDependency"/> fields.</summary>
     internal class SFieldConverter : JsonConverter
