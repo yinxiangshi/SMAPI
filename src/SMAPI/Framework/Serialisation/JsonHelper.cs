@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using Microsoft.Xna.Framework.Input;
 using Newtonsoft.Json;
-using StardewModdingAPI.Framework.Serialisation.Converters;
+using StardewModdingAPI.Framework.Serialisation.CrossplatformConverters;
+using StardewModdingAPI.Framework.Serialisation.SmapiConverters;
 
 namespace StardewModdingAPI.Framework.Serialisation
 {
