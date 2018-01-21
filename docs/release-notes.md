@@ -6,6 +6,7 @@
   * Fixed error parsing JSON files generated on another platform.
   * Fixed error parsing some JSON files after mods reload core assemblies, which is no longer allowed.
   * Fixed error on Linux loading SMAPI when the default terminal is set to Terminator.
+  * Fixed issue where Custom Farm Types couldn't initialise a custom farm.
 
 * For the [log parser][]:
   * Fixed parse error for logs with zero installed mods.
@@ -17,6 +18,7 @@
   * Fixed input events not recognising controller input as an action or use-tool button.
   * Fixed input events setting the same `IsActionButton` and `IsUseToolButton` values for all buttons pressed in an update tick.
   * Fixed semantic versions always ignoring `-0` tag.
+  * Updated Json.NET to 11.0.1-beta3 (needed to avoid parser edge case with the new converters).
 
 * For SMAPI developers:
   * Overhauled input handling to support future input events.
