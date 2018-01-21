@@ -6,7 +6,6 @@
   * Fixed error parsing JSON files generated on another platform.
   * Fixed error parsing some JSON files after mods reload core assemblies, which is no longer allowed.
   * Fixed error on Linux loading SMAPI when the default terminal is set to Terminator.
-  * Fixed issue where Custom Farm Types couldn't initialise a custom farm.
 
 * For the [log parser][]:
   * Fixed parse error for logs with zero installed mods.
