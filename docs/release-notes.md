@@ -12,6 +12,7 @@
   * Fixed parse error for logs with zero installed mods.
 
 * For modders:
+  * Added `SaveEvents.BeforeCreate` and `AfterCreate` events.
   * Added `SButton` `IsActionButton()` and `IsUseToolButton()` extensions.
   * Improved JSON parse errors to provide more useful info for troubleshooting.
   * Fixed events being raised while the game is loading a save file.

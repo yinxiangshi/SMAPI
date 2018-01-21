@@ -51,6 +51,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>Whether the game is saving and SMAPI has already raised <see cref="SaveEvents.BeforeSave"/>.</summary>
         private bool IsBetweenSaveEvents;
 
+        /// <summary>Whether the game is creating the save file and SMAPI has already raised <see cref="SaveEvents.BeforeCreate"/>.</summary>
+        private bool IsBetweenCreateEvents;
+
         /****
         ** Game state
         ****/
@@ -246,6 +249,14 @@ namespace StardewModdingAPI.Framework
                 // opened (since the save hasn't started yet), but all other events should be suppressed.
                 if (Context.IsSaving)
                 {
+                    // raise before-create
+                    if (!Context.IsWorldReady && !this.IsBetweenCreateEvents)
+                    {
+                        this.IsBetweenCreateEvents = true;
+                        this.Monitor.Log("Context: before save creation.", LogLevel.Trace);
+                        SaveEvents.InvokeBeforeCreate(this.Monitor);
+                    }
+                    
                     // raise before-save
                     if (Context.IsWorldReady && !this.IsBetweenSaveEvents)
                     {
@@ -257,6 +268,13 @@ namespace StardewModdingAPI.Framework
                     // suppress non-save events
                     base.Update(gameTime);
                     return;
+                }
+                if (this.IsBetweenCreateEvents)
+                {
+                    // raise after-create
+                    this.IsBetweenCreateEvents = false;
+                    this.Monitor.Log($"Context: after save creation, starting {Game1.currentSeason} {Game1.dayOfMonth} Y{Game1.year}.", LogLevel.Trace);
+                    SaveEvents.InvokeAfterCreated(this.Monitor);
                 }
                 if (this.IsBetweenSaveEvents)
                 {
