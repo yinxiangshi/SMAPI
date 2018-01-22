@@ -1,14 +1,15 @@
 # Release notes
 ## 2.4
 * For players:
-  * Fixed graphical corruption in rare cases.
-  * Fixed error parsing `config.json` files containing curly quotes.
-  * Fixed error parsing JSON files generated on another platform.
+  * Fixed visual map glitch in rare cases.
+  * Fixed error parsing JSON files which have curly quotes.
+  * Fixed error parsing some JSON files generated on another system.
   * Fixed error parsing some JSON files after mods reload core assemblies, which is no longer allowed.
-  * Fixed error on Linux loading SMAPI when the default terminal is set to Terminator.
+  * Fixed intermittent errors (e.g. 'collection has been modified') with some mods when loading a save.
+  * Fixed compatibility with Linux Terminator terminal.
 
 * For the [log parser][]:
-  * Fixed parse error for logs with zero installed mods.
+  * Fixed error parsing logs with zero installed mods.
 
 * For modders:
   * Added `SaveEvents.BeforeCreate` and `AfterCreate` events.
@@ -17,8 +18,8 @@
   * Fixed events being raised while the game is loading a save file.
   * Fixed input events not recognising controller input as an action or use-tool button.
   * Fixed input events setting the same `IsActionButton` and `IsUseToolButton` values for all buttons pressed in an update tick.
-  * Fixed semantic versions always ignoring `-0` tag.
-  * Updated Json.NET to 11.0.1-beta3 (needed to avoid parser edge case with the new converters).
+  * Fixed semantic versions ignoring `-0` as a prerelease tag.
+  * Updated Json.NET to 11.0.1-beta3 (needed to avoid a parser edge case).
 
 * For SMAPI developers:
   * Overhauled input handling to support future input events.
