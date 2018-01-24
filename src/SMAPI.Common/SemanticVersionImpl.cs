@@ -190,9 +190,7 @@ namespace StardewModdingAPI.Common
         private string GetNormalisedTag(string tag)
         {
             tag = tag?.Trim();
-            if (string.IsNullOrWhiteSpace(tag) || tag == "0") // '0' from incorrect examples in old SMAPI documentation
-                return null;
-            return tag;
+            return !string.IsNullOrWhiteSpace(tag) ? tag : null;
         }
     }
 }

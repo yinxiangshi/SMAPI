@@ -175,7 +175,7 @@ smapi.logParser = function(sectionUrl, pasteID) {
 
         }
         var dataInfo = regexInfo.exec(data) || regexInfo.exec(data) || regexInfo.exec(data),
-            dataMods = regexMods.exec(data) || regexMods.exec(data) || regexMods.exec(data),
+            dataMods = regexMods.exec(data) || regexMods.exec(data) || regexMods.exec(data) || [""],
             dataDate = regexDate.exec(data) || regexDate.exec(data) || regexDate.exec(data),
             dataPath = regexPath.exec(data) || regexPath.exec(data) || regexPath.exec(data),
             match;

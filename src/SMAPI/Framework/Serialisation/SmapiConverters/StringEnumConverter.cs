@@ -1,7 +1,7 @@
 using System;
 using Newtonsoft.Json.Converters;
 
-namespace StardewModdingAPI.Framework.Serialisation
+namespace StardewModdingAPI.Framework.Serialisation.SmapiConverters
 {
     /// <summary>A variant of <see cref="StringEnumConverter"/> which only converts a specified enum.</summary>
     /// <typeparam name="T">The enum type.</typeparam>

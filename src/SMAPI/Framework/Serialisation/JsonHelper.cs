@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using Microsoft.Xna.Framework.Input;
 using Newtonsoft.Json;
+using StardewModdingAPI.Framework.Serialisation.CrossplatformConverters;
+using StardewModdingAPI.Framework.Serialisation.SmapiConverters;
 
 namespace StardewModdingAPI.Framework.Serialisation
 {
@@ -19,9 +21,15 @@ namespace StardewModdingAPI.Framework.Serialisation
             ObjectCreationHandling = ObjectCreationHandling.Replace, // avoid issue where default ICollection<T> values are duplicated each time the config is loaded
             Converters = new List<JsonConverter>
             {
+                // enums
                 new StringEnumConverter<Buttons>(),
                 new StringEnumConverter<Keys>(),
-                new StringEnumConverter<SButton>()
+                new StringEnumConverter<SButton>(),
+
+                // crossplatform compatibility
+                new ColorConverter(),
+                new PointConverter(),
+                new RectangleConverter()
             }
         };
 
@@ -55,18 +63,20 @@ namespace StardewModdingAPI.Framework.Serialisation
             // deserialise model
             try
             {
-                return JsonConvert.DeserializeObject<TModel>(json, this.JsonSettings);
+                return this.Deserialise<TModel>(json);
             }
-            catch (JsonReaderException ex)
+            catch (Exception ex)
             {
-                string message = $"The file at {fullPath} doesn't seem to be valid JSON.";
+                string error = $"Can't parse JSON file at {fullPath}.";
 
-                string text = File.ReadAllText(fullPath);
-                if (text.Contains("“") || text.Contains("”"))
-                    message += " Found curly quotes in the text; note that only straight quotes are allowed in JSON.";
-
-                message += $"\nTechnical details: {ex.Message}";
-                throw new JsonReaderException(message);
+                if (ex is JsonReaderException)
+                {
+                    error += " This doesn't seem to be valid JSON.";
+                    if (json.Contains("“") || json.Contains("”"))
+                        error += " Found curly quotes in the text; note that only straight quotes are allowed in JSON.";
+                }
+                error += $"\nTechnical details: {ex.Message}";
+                throw new JsonReaderException(error);
             }
         }
 
@@ -92,6 +102,35 @@ namespace StardewModdingAPI.Framework.Serialisation
             // write file
             string json = JsonConvert.SerializeObject(model, this.JsonSettings);
             File.WriteAllText(fullPath, json);
+        }
+
+
+        /*********
+        ** Private methods
+        *********/
+        /// <summary>Deserialize JSON text if possible.</summary>
+        /// <typeparam name="TModel">The model type.</typeparam>
+        /// <param name="json">The raw JSON text.</param>
+        private TModel Deserialise<TModel>(string json)
+        {
+            try
+            {
+                return JsonConvert.DeserializeObject<TModel>(json, this.JsonSettings);
+            }
+            catch (JsonReaderException)
+            {
+                // try replacing curly quotes
+                if (json.Contains("“") || json.Contains("”"))
+                {
+                    try
+                    {
+                        return JsonConvert.DeserializeObject<TModel>(json.Replace('“', '"').Replace('”', '"'), this.JsonSettings);
+                    }
+                    catch { /* rethrow original error */ }
+                }
+
+                throw;
+            }
         }
     }
 }

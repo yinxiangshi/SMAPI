@@ -65,8 +65,8 @@
       <HintPath>..\packages\Mono.Cecil.0.9.6.4\lib\net45\Mono.Cecil.Pdb.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.1-beta3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -86,6 +86,9 @@
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Framework\Content\ContentCache.cs" />
+    <Compile Include="Framework\Input\InputState.cs" />
+    <Compile Include="Framework\Input\InputStatus.cs" />
+    <Compile Include="Framework\LegacyManifestVersion.cs" />
     <Compile Include="Framework\Models\ModCompatibility.cs" />
     <Compile Include="Framework\ModLoading\Finders\EventFinder.cs" />
     <Compile Include="Framework\ModLoading\Finders\FieldFinder.cs" />
@@ -107,6 +110,14 @@
     <Compile Include="Framework\Exceptions\SAssemblyLoadFailedException.cs" />
     <Compile Include="Framework\ModLoading\AssemblyLoadStatus.cs" />
     <Compile Include="Framework\Reflection\InterfaceProxyBuilder.cs" />
+    <Compile Include="Framework\Serialisation\SmapiConverters\ModCompatibilityArrayConverter.cs" />
+    <Compile Include="Framework\Serialisation\SmapiConverters\ManifestDependencyArrayConverter.cs" />
+    <Compile Include="Framework\Serialisation\SmapiConverters\ModDataIdConverter.cs" />
+    <Compile Include="Framework\Serialisation\SmapiConverters\SemanticVersionConverter.cs" />
+    <Compile Include="Framework\Serialisation\SimpleReadOnlyConverter.cs" />
+    <Compile Include="Framework\Serialisation\CrossplatformConverters\RectangleConverter.cs" />
+    <Compile Include="Framework\Serialisation\CrossplatformConverters\ColorConverter.cs" />
+    <Compile Include="Framework\Serialisation\CrossplatformConverters\PointConverter.cs" />
     <Compile Include="Framework\Utilities\ContextHash.cs" />
     <Compile Include="IReflectedField.cs" />
     <Compile Include="IReflectedMethod.cs" />
@@ -174,8 +185,7 @@
     <Compile Include="Framework\SContentManager.cs" />
     <Compile Include="Framework\Exceptions\SParseException.cs" />
     <Compile Include="Framework\Serialisation\JsonHelper.cs" />
-    <Compile Include="Framework\Serialisation\StringEnumConverter.cs" />
-    <Compile Include="Framework\Serialisation\SFieldConverter.cs" />
+    <Compile Include="Framework\Serialisation\SmapiConverters\StringEnumConverter.cs" />
     <Compile Include="IAssetEditor.cs" />
     <Compile Include="IAssetInfo.cs" />
     <Compile Include="IAssetLoader.cs" />

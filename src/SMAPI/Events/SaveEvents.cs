@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using StardewModdingAPI.Framework;
 
 namespace StardewModdingAPI.Events
@@ -9,6 +9,12 @@ namespace StardewModdingAPI.Events
         /*********
         ** Events
         *********/
+        /// <summary>Raised before the game creates the save file.</summary>
+        public static event EventHandler BeforeCreate;
+
+        /// <summary>Raised after the game finishes creating the save file.</summary>
+        public static event EventHandler AfterCreate;
+
         /// <summary>Raised before the game begins writes data to the save file.</summary>
         public static event EventHandler BeforeSave;
 
@@ -25,6 +31,20 @@ namespace StardewModdingAPI.Events
         /*********
         ** Internal methods
         *********/
+        /// <summary>Raise a <see cref="BeforeCreate"/> event.</summary>
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
+        internal static void InvokeBeforeCreate(IMonitor monitor)
+        {
+            monitor.SafelyRaisePlainEvent($"{nameof(SaveEvents)}.{nameof(SaveEvents.BeforeCreate)}", SaveEvents.BeforeCreate?.GetInvocationList(), null, EventArgs.Empty);
+        }
+
+        /// <summary>Raise a <see cref="AfterCreate"/> event.</summary>
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
+        internal static void InvokeAfterCreated(IMonitor monitor)
+        {
+            monitor.SafelyRaisePlainEvent($"{nameof(SaveEvents)}.{nameof(SaveEvents.AfterCreate)}", SaveEvents.AfterCreate?.GetInvocationList(), null, EventArgs.Empty);
+        }
+
         /// <summary>Raise a <see cref="BeforeSave"/> event.</summary>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         internal static void InvokeBeforeSave(IMonitor monitor)

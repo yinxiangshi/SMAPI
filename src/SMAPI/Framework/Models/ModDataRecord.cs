@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
-using StardewModdingAPI.Framework.Serialisation;
+using StardewModdingAPI.Framework.Serialisation.SmapiConverters;
 
 namespace StardewModdingAPI.Framework.Models
 {
@@ -12,7 +12,7 @@ namespace StardewModdingAPI.Framework.Models
         ** Accessors
         *********/
         /// <summary>The unique mod identifier.</summary>
-        [JsonConverter(typeof(SFieldConverter))]
+        [JsonConverter(typeof(ModDataIdConverter))]
         public ModDataID ID { get; set; }
 
         /// <summary>A value to inject into <see cref="IManifest.UpdateKeys"/> field if it's not already set.</summary>
@@ -22,7 +22,7 @@ namespace StardewModdingAPI.Framework.Models
         public string AlternativeUrl { get; set; }
 
         /// <summary>The compatibility of given mod versions (if any).</summary>
-        [JsonConverter(typeof(SFieldConverter))]
+        [JsonConverter(typeof(ModCompatibilityArrayConverter))]
         public ModCompatibility[] Compatibility { get; set; } = new ModCompatibility[0];
 
         /// <summary>Map local versions to a semantic version for update checks.</summary>
