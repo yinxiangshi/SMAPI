@@ -1,4 +1,11 @@
 # Release notes
+## 2.5
+* For modders:
+  * Fixed error when accessing a mod-provided API whose underlying class is `internal`.
+
+* For SMAPI developers:
+  * All mod assemblies are now rewritten in-memory to support features like mod-provided APIs.
+
 ## 2.4
 * For players:
   * Fixed visual map glitch in rare cases.

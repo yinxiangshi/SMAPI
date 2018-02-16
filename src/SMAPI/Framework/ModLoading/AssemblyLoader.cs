@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using StardewModdingAPI.Framework.Exceptions;
@@ -94,23 +95,14 @@ namespace StardewModdingAPI.Framework.ModLoading
                 if (assembly.Status == AssemblyLoadStatus.AlreadyLoaded)
                     continue;
 
-                bool changed = this.RewriteAssembly(mod, assembly.Definition, assumeCompatible, loggedMessages, logPrefix: "   ");
-                if (changed)
+                this.RewriteAssembly(mod, assembly.Definition, assumeCompatible, loggedMessages, logPrefix: "   ");
+                if (!oneAssembly)
+                    this.Monitor.Log($"   Loading {assembly.File.Name}...", LogLevel.Trace);
+                using (MemoryStream outStream = new MemoryStream())
                 {
-                    if (!oneAssembly)
-                        this.Monitor.Log($"   Loading {assembly.File.Name} (rewritten in memory)...", LogLevel.Trace);
-                    using (MemoryStream outStream = new MemoryStream())
-                    {
-                        assembly.Definition.Write(outStream);
-                        byte[] bytes = outStream.ToArray();
-                        lastAssembly = Assembly.Load(bytes);
-                    }
-                }
-                else
-                {
-                    if (!oneAssembly)
-                        this.Monitor.Log($"   Loading {assembly.File.Name}...", LogLevel.Trace);
-                    lastAssembly = Assembly.UnsafeLoadFrom(assembly.File.FullName);
+                    assembly.Definition.Write(outStream);
+                    byte[] bytes = outStream.ToArray();
+                    lastAssembly = Assembly.Load(bytes);
                 }
             }
 
@@ -192,38 +184,48 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="logPrefix">A string to prefix to log messages.</param>
         /// <returns>Returns whether the assembly was modified.</returns>
         /// <exception cref="IncompatibleInstructionException">An incompatible CIL instruction was found while rewriting the assembly.</exception>
-        private bool RewriteAssembly(IModMetadata mod, AssemblyDefinition assembly, bool assumeCompatible, HashSet<string> loggedMessages, string logPrefix)
+        private void RewriteAssembly(IModMetadata mod, AssemblyDefinition assembly, bool assumeCompatible, HashSet<string> loggedMessages, string logPrefix)
         {
             ModuleDefinition module = assembly.MainModule;
             string filename = $"{assembly.Name.Name}.dll";
 
+            // let SMAPI proxy mod internals for mod-provided APIs
+            {
+                MethodReference attributeConstructor = module.Import(typeof(InternalsVisibleToAttribute).GetConstructor(new[] { typeof(string) }));
+                CustomAttribute attribute = new CustomAttribute(attributeConstructor);
+                attribute.ConstructorArguments.Add(new CustomAttributeArgument(module.TypeSystem.String, "StardewModdingAPI.Proxies"));
+                assembly.CustomAttributes.Add(attribute);
+            }
+
             // swap assembly references if needed (e.g. XNA => MonoGame)
             bool platformChanged = false;
-            for (int i = 0; i < module.AssemblyReferences.Count; i++)
             {
-                // remove old assembly reference
-                if (this.AssemblyMap.RemoveNames.Any(name => module.AssemblyReferences[i].Name == name))
+                for (int i = 0; i < module.AssemblyReferences.Count; i++)
                 {
-                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Rewriting {filename} for OS...");
-                    platformChanged = true;
-                    module.AssemblyReferences.RemoveAt(i);
-                    i--;
+                    // remove old assembly reference
+                    if (this.AssemblyMap.RemoveNames.Any(name => module.AssemblyReferences[i].Name == name))
+                    {
+                        this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Rewriting {filename} for OS...");
+                        platformChanged = true;
+                        module.AssemblyReferences.RemoveAt(i);
+                        i--;
+                    }
                 }
-            }
-            if (platformChanged)
-            {
-                // add target assembly references
-                foreach (AssemblyNameReference target in this.AssemblyMap.TargetReferences.Values)
-                    module.AssemblyReferences.Add(target);
 
-                // rewrite type scopes to use target assemblies
-                IEnumerable<TypeReference> typeReferences = module.GetTypeReferences().OrderBy(p => p.FullName);
-                foreach (TypeReference type in typeReferences)
-                    this.ChangeTypeScope(type);
+                if (platformChanged)
+                {
+                    // add target assembly references
+                    foreach (AssemblyNameReference target in this.AssemblyMap.TargetReferences.Values)
+                        module.AssemblyReferences.Add(target);
+
+                    // rewrite type scopes to use target assemblies
+                    IEnumerable<TypeReference> typeReferences = module.GetTypeReferences().OrderBy(p => p.FullName);
+                    foreach (TypeReference type in typeReferences)
+                        this.ChangeTypeScope(type);
+                }
             }
 
             // find (and optionally rewrite) incompatible instructions
-            bool anyRewritten = false;
             IInstructionHandler[] handlers = new InstructionMetadata().GetHandlers().ToArray();
             foreach (MethodDefinition method in this.GetMethods(module))
             {
@@ -232,8 +234,6 @@ namespace StardewModdingAPI.Framework.ModLoading
                 {
                     InstructionHandleResult result = handler.Handle(module, method, this.AssemblyMap, platformChanged);
                     this.ProcessInstructionHandleResult(mod, handler, result, loggedMessages, logPrefix, assumeCompatible, filename);
-                    if (result == InstructionHandleResult.Rewritten)
-                        anyRewritten = true;
                 }
 
                 // check CIL instructions
@@ -244,13 +244,9 @@ namespace StardewModdingAPI.Framework.ModLoading
                     {
                         InstructionHandleResult result = handler.Handle(module, cil, instruction, this.AssemblyMap, platformChanged);
                         this.ProcessInstructionHandleResult(mod, handler, result, loggedMessages, logPrefix, assumeCompatible, filename);
-                        if (result == InstructionHandleResult.Rewritten)
-                            anyRewritten = true;
                     }
                 }
             }
-
-            return platformChanged || anyRewritten;
         }
 
         /// <summary>Process the result from an instruction handler.</summary>
