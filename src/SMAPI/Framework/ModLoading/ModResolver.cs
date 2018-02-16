@@ -53,17 +53,14 @@ namespace StardewModdingAPI.Framework.ModLoading
                     error = $"parsing its manifest failed:\n{ex.GetLogSummary()}";
                 }
 
-                // get internal data record (if any)
-                ModDataRecord dataRecord = null;
+                // parse internal data record (if any)
+                ParsedModDataRecord dataRecord = null;
                 if (manifest != null)
                 {
-                    string key = !string.IsNullOrWhiteSpace(manifest.UniqueID) ? manifest.UniqueID : manifest.EntryDll;
-                    dataRecord = dataRecords.FirstOrDefault(record => record.ID.Matches(key, manifest));
+                    ModDataRecord rawDataRecord = dataRecords.FirstOrDefault(p => p.Matches(manifest));
+                    if (rawDataRecord != null)
+                        dataRecord = rawDataRecord.ParseFieldsFor(manifest);
                 }
-
-                // add default update keys
-                if (manifest != null && manifest.UpdateKeys == null && dataRecord?.UpdateKeys != null)
-                    manifest.UpdateKeys = dataRecord.UpdateKeys;
 
                 // build metadata
                 string displayName = !string.IsNullOrWhiteSpace(manifest?.Name)
@@ -93,17 +90,16 @@ namespace StardewModdingAPI.Framework.ModLoading
                     continue;
 
                 // validate compatibility
-                ModCompatibility compatibility = mod.DataRecord?.GetCompatibility(mod.Manifest.Version);
-                switch (compatibility?.Status)
+                switch (mod.DataRecord?.Status)
                 {
                     case ModStatus.Obsolete:
-                        mod.SetStatus(ModMetadataStatus.Failed, $"it's obsolete: {compatibility.ReasonPhrase}");
+                        mod.SetStatus(ModMetadataStatus.Failed, $"it's obsolete: {mod.DataRecord.StatusReasonPhrase}");
                         continue;
 
                     case ModStatus.AssumeBroken:
                         {
                             // get reason
-                            string reasonPhrase = compatibility.ReasonPhrase ?? "it's no longer compatible";
+                            string reasonPhrase = mod.DataRecord.StatusReasonPhrase ?? "it's no longer compatible";
 
                             // get update URLs
                             List<string> updateUrls = new List<string>();
@@ -124,10 +120,10 @@ namespace StardewModdingAPI.Framework.ModLoading
 
                             // build error
                             string error = $"{reasonPhrase}. Please check for a ";
-                            if (mod.Manifest.Version.Equals(compatibility.UpperVersion))
+                            if (mod.DataRecord.StatusUpperVersion == null || mod.Manifest.Version.Equals(mod.DataRecord.StatusUpperVersion))
                                 error += "newer version";
                             else
-                                error += $"version newer than {compatibility.UpperVersion}";
+                                error += $"version newer than {mod.DataRecord.StatusUpperVersion}";
                             error += " at " + string.Join(" or ", updateUrls);
 
                             mod.SetStatus(ModMetadataStatus.Failed, error);

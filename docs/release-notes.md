@@ -8,6 +8,7 @@
 
 * For SMAPI developers:
   * All mod assemblies are now rewritten in-memory to support features like mod-provided APIs.
+  * Overhauled `StardewModdingApi.config.json`'s `ModData` format to be more concise, reduce the memory footprint, and support versioning/defaulting more fields.
 
 ## 2.4
 * For players:

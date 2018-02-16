@@ -19,7 +19,7 @@ namespace StardewModdingAPI.Framework
         IManifest Manifest { get; }
 
         /// <summary>>Metadata about the mod from SMAPI's internal data (if any).</summary>
-        ModDataRecord DataRecord { get; }
+        ParsedModDataRecord DataRecord { get; }
 
         /// <summary>The metadata resolution status.</summary>
         ModMetadataStatus Status { get; }
