@@ -1,5 +1,8 @@
 # Release notes
 ## 2.5
+* For players:
+  * Fixed mod crashes being logged under `[SMAPI]` instead of the mod name.
+
 * For modders:
   * Fixed error when accessing a mod-provided API whose underlying class is `internal`.
 

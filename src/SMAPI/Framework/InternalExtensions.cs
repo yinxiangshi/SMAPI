@@ -86,6 +86,18 @@ namespace StardewModdingAPI.Framework
         }
 
         /****
+        ** IModMetadata
+        ****/
+        /// <summary>Log a message using the mod's monitor.</summary>
+        /// <param name="metadata">The mod whose monitor to use.</param>
+        /// <param name="message">The message to log.</param>
+        /// <param name="level">The log severity level.</param>
+        public static void LogAsMod(this IModMetadata metadata, string message, LogLevel level = LogLevel.Trace)
+        {
+            metadata.Mod.Monitor.Log(message, level);
+        }
+
+        /****
         ** Exceptions
         ****/
         /// <summary>Get a string representation of an exception suitable for writing to the error log.</summary>

@@ -255,7 +255,7 @@ namespace StardewModdingAPI
                 }
                 catch (Exception ex)
                 {
-                    this.Monitor.Log($"The {mod.DisplayName} mod failed during disposal: {ex.GetLogSummary()}.", LogLevel.Warn);
+                    mod.LogAsMod($"Mod failed during disposal: {ex.GetLogSummary()}.", LogLevel.Warn);
                 }
             }
 
@@ -793,7 +793,7 @@ namespace StardewModdingAPI
                 }
                 catch (Exception ex)
                 {
-                    this.Monitor.Log($"{metadata.DisplayName} failed on entry and might not work correctly. Technical details:\n{ex.GetLogSummary()}", LogLevel.Error);
+                    metadata.LogAsMod($"Mod crashed on entry and might not work correctly. Technical details:\n{ex.GetLogSummary()}", LogLevel.Error);
                 }
 
                 // get mod API
@@ -900,7 +900,7 @@ namespace StardewModdingAPI
                         }
                         catch (Exception ex)
                         {
-                            this.Monitor.Log($"Couldn't read {metadata.DisplayName}'s i18n/{locale}.json file: {ex.GetLogSummary()}");
+                            metadata.LogAsMod($"Mod's i18n/{locale}.json file couldn't be parsed: {ex.GetLogSummary()}");
                         }
                     }
                 }
