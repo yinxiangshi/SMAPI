@@ -152,7 +152,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     },
 
     "Animal Husbandry": {
-      "ID": "DIGUS.ANIMALHUSBANDRYMOD", 
+      "ID": "DIGUS.ANIMALHUSBANDRYMOD",
       "FormerIDs": "DIGUS.BUTCHER", // changed in 2.0.1
       "Default | UpdateKey": "Nexus:1538"
     },
@@ -457,12 +457,16 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "Default | UpdateKey": "Nexus:1255"
     },
 
+    "Custom Crops": {
+      "ID": "spacechase0.CustomCrops"
+    },
+
     "Custom Element Handler": {
       "ID": "Platonymous.CustomElementHandler",
       "Default | UpdateKey": "Nexus:1068" // added in 1.3.1
     },
 
-    "Custom Farming": {
+    "Custom Farming Redux": {
       "ID": "Platonymous.CustomFarming",
       "Default | UpdateKey": "Nexus:991" // added in 0.6.1
     },
@@ -508,6 +512,10 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": "Mevima.CustomLinens",
       "MapRemoteVersions": { "1.1": "1.0" }, // manifest not updated
       "Default | UpdateKey": "Nexus:1027"
+    },
+
+    "Custom NPC": {
+      "ID": "Platonymous.CustomNPC"
     },
 
     "Custom Shops Redux": {
@@ -881,6 +889,10 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "Default | UpdateKey": "GitHub:gr3ger/Stardew_JJB" // added in 1.0.4-pathoschild-update
     },
 
+    "Json Assets": {
+      "ID": "spacechase0.JsonAssets"
+    },
+
     "Junimo Farm": {
       "ID": "Platonymous.JunimoFarm",
       "MapRemoteVersions": { "1.1.2": "1.1.1" }, // manifest not updated
@@ -1157,6 +1169,10 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "Plant on Grass": {
       "ID": "Demiacle.PlantOnGrass",
       "Default | UpdateKey": "Nexus:1026"
+    },
+
+    "PyTK - Platonymous Toolkit": {
+      "ID": "Platonymous.Toolkit"
     },
 
     "Point-and-Plant": {
