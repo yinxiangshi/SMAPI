@@ -360,7 +360,7 @@ namespace StardewModdingAPI
 
                 // load manifests
                 IModMetadata[] mods = resolver.ReadManifests(Constants.ModPath, new JsonHelper(), modDatabase).ToArray();
-                resolver.ValidateManifests(mods, Constants.ApiVersion, Constants.VendorModUrls);
+                resolver.ValidateManifests(mods, Constants.ApiVersion, Constants.GetUpdateUrl);
 
                 // process dependencies
                 mods = resolver.ProcessDependencies(mods, modDatabase).ToArray();

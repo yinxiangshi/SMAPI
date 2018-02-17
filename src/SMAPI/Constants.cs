@@ -21,6 +21,14 @@ namespace StardewModdingAPI
         /// <summary>Whether the directory containing the current save's data exists on disk.</summary>
         private static bool SavePathReady => Context.IsSaveLoaded && Directory.Exists(Constants.RawSavePath);
 
+        /// <summary>Maps vendor keys (like <c>Nexus</c>) to their mod URL template (where <c>{0}</c> is the mod ID). This doesn't affect update checks, which defer to the remote web API.</summary>
+        private static readonly IDictionary<string, string> VendorModUrls = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+        {
+            ["Chucklefish"] = "https://community.playstarbound.com/resources/{0}",
+            ["Nexus"] = "http://nexusmods.com/stardewvalley/mods/{0}",
+            ["GitHub"] = "https://github.com/{0}/releases"
+        };
+
 
         /*********
         ** Accessors
@@ -87,14 +95,6 @@ namespace StardewModdingAPI
         Platform.Mono;
 #endif
 
-        /// <summary>Maps vendor keys (like <c>Nexus</c>) to their mod URL template (where <c>{0}</c> is the mod ID) during mod compatibility checks. This doesn't affect update checks, which defer to the remote web API.</summary>
-        internal static readonly IDictionary<string, string> VendorModUrls = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
-        {
-            ["Chucklefish"] = "https://community.playstarbound.com/resources/{0}",
-            ["Nexus"] = "http://nexusmods.com/stardewvalley/mods/{0}",
-            ["GitHub"] = "https://github.com/{0}/releases"
-        };
-
 
         /*********
         ** Internal methods
@@ -143,6 +143,23 @@ namespace StardewModdingAPI
             }
 
             return new PlatformAssemblyMap(targetPlatform, removeAssemblyReferences, targetAssemblies);
+        }
+
+        /// <summary>Get an update URL for an update key (if valid).</summary>
+        /// <param name="updateKey">The update key.</param>
+        internal static string GetUpdateUrl(string updateKey)
+        {
+            string[] parts = updateKey.Split(new[] { ':' }, 2);
+            if (parts.Length != 2)
+                return null;
+
+            string vendorKey = parts[0].Trim();
+            string modID = parts[1].Trim();
+
+            if (Constants.VendorModUrls.TryGetValue(vendorKey, out string urlTemplate))
+                return string.Format(urlTemplate, modID);
+
+            return null;
         }
 
 

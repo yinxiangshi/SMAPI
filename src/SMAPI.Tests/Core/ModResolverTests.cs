@@ -120,7 +120,7 @@ namespace StardewModdingAPI.Tests.Core
         [Test(Description = "Assert that validation doesn't fail if there are no mods installed.")]
         public void ValidateManifests_NoMods_DoesNothing()
         {
-            new ModResolver().ValidateManifests(new ModMetadata[0], apiVersion: new SemanticVersion("1.0"), vendorModUrls: new Dictionary<string, string>());
+            new ModResolver().ValidateManifests(new ModMetadata[0], apiVersion: new SemanticVersion("1.0"), getUpdateUrl: key => null);
         }
 
         [Test(Description = "Assert that validation skips manifests that have already failed without calling any other properties.")]
@@ -131,7 +131,7 @@ namespace StardewModdingAPI.Tests.Core
             mock.Setup(p => p.Status).Returns(ModMetadataStatus.Failed);
 
             // act
-            new ModResolver().ValidateManifests(new[] { mock.Object }, apiVersion: new SemanticVersion("1.0"), vendorModUrls: new Dictionary<string, string>());
+            new ModResolver().ValidateManifests(new[] { mock.Object }, apiVersion: new SemanticVersion("1.0"), getUpdateUrl: key => null);
 
             // assert
             mock.VerifyGet(p => p.Status, Times.Once, "The validation did not check the manifest status.");
@@ -149,7 +149,7 @@ namespace StardewModdingAPI.Tests.Core
             });
 
             // act
-            new ModResolver().ValidateManifests(new[] { mock.Object }, apiVersion: new SemanticVersion("1.0"), vendorModUrls: new Dictionary<string, string>());
+            new ModResolver().ValidateManifests(new[] { mock.Object }, apiVersion: new SemanticVersion("1.0"), getUpdateUrl: key => null);
 
             // assert
             mock.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>()), Times.Once, "The validation did not fail the metadata.");
@@ -164,7 +164,7 @@ namespace StardewModdingAPI.Tests.Core
             this.SetupMetadataForValidation(mock);
 
             // act
-            new ModResolver().ValidateManifests(new[] { mock.Object }, apiVersion: new SemanticVersion("1.0"), vendorModUrls: new Dictionary<string, string>());
+            new ModResolver().ValidateManifests(new[] { mock.Object }, apiVersion: new SemanticVersion("1.0"), getUpdateUrl: key => null);
 
             // assert
             mock.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>()), Times.Once, "The validation did not fail the metadata.");
@@ -178,7 +178,7 @@ namespace StardewModdingAPI.Tests.Core
             this.SetupMetadataForValidation(mock);
 
             // act
-            new ModResolver().ValidateManifests(new[] { mock.Object }, apiVersion: new SemanticVersion("1.0"), vendorModUrls: new Dictionary<string, string>());
+            new ModResolver().ValidateManifests(new[] { mock.Object }, apiVersion: new SemanticVersion("1.0"), getUpdateUrl: key => null);
 
             // assert
             mock.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>()), Times.Once, "The validation did not fail the metadata.");
@@ -195,7 +195,7 @@ namespace StardewModdingAPI.Tests.Core
                 this.SetupMetadataForValidation(mod);
 
             // act
-            new ModResolver().ValidateManifests(new[] { modA.Object, modB.Object }, apiVersion: new SemanticVersion("1.0"), vendorModUrls: new Dictionary<string, string>());
+            new ModResolver().ValidateManifests(new[] { modA.Object, modB.Object }, apiVersion: new SemanticVersion("1.0"), getUpdateUrl: key => null);
 
             // assert
             modA.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>()), Times.Once, "The validation did not fail the first mod with a unique ID.");
@@ -221,7 +221,7 @@ namespace StardewModdingAPI.Tests.Core
             mock.Setup(p => p.DirectoryPath).Returns(modFolder);
 
             // act
-            new ModResolver().ValidateManifests(new[] { mock.Object }, apiVersion: new SemanticVersion("1.0"), vendorModUrls: new Dictionary<string, string>());
+            new ModResolver().ValidateManifests(new[] { mock.Object }, apiVersion: new SemanticVersion("1.0"), getUpdateUrl: key => null);
 
             // assert
             // if Moq doesn't throw a method-not-setup exception, the validation didn't override the status.

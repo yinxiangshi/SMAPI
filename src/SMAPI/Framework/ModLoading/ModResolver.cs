@@ -73,8 +73,8 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>Validate manifest metadata.</summary>
         /// <param name="mods">The mod manifests to validate.</param>
         /// <param name="apiVersion">The current SMAPI version.</param>
-        /// <param name="vendorModUrls">Maps vendor keys (like <c>Nexus</c>) to their mod URL template (where <c>{0}</c> is the mod ID).</param>
-        public void ValidateManifests(IEnumerable<IModMetadata> mods, ISemanticVersion apiVersion, IDictionary<string, string> vendorModUrls)
+        /// <param name="getUpdateUrl">Get an update URL for an update key (if valid).</param>
+        public void ValidateManifests(IEnumerable<IModMetadata> mods, ISemanticVersion apiVersion, Func<string, string> getUpdateUrl)
         {
             mods = mods.ToArray();
 
@@ -101,15 +101,9 @@ namespace StardewModdingAPI.Framework.ModLoading
                             List<string> updateUrls = new List<string>();
                             foreach (string key in mod.Manifest.UpdateKeys ?? new string[0])
                             {
-                                string[] parts = key.Split(new[] { ':' }, 2);
-                                if (parts.Length != 2)
-                                    continue;
-
-                                string vendorKey = parts[0].Trim();
-                                string modID = parts[1].Trim();
-
-                                if (vendorModUrls.TryGetValue(vendorKey, out string urlTemplate))
-                                    updateUrls.Add(string.Format(urlTemplate, modID));
+                                string url = getUpdateUrl(key);
+                                if (url != null)
+                                    updateUrls.Add(url);
                             }
                             if (mod.DataRecord.AlternativeUrl != null)
                                 updateUrls.Add(mod.DataRecord.AlternativeUrl);
