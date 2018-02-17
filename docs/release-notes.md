@@ -8,11 +8,9 @@
   * Updated compatibility list and enabled update checks for more old mods.
 
 * For modders:
-  * Fixed error when accessing a mod-provided API whose underlying class is `internal`.
   * Fixed deadlock in rare cases when injecting a file with an asset loader.
 
 * For SMAPI developers:
-  * All mod assemblies are now rewritten in-memory to support features like mod-provided APIs.
   * Overhauled `StardewModdingApi.config.json`'s `ModData` format to be more concise, reduce the memory footprint, and support versioning/defaulting more fields.
 
 ## 2.4
