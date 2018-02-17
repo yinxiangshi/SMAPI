@@ -250,9 +250,6 @@
     <Content Include="StardewModdingAPI.config.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <None Include="unix-launcher.sh">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="icon.ico" />
