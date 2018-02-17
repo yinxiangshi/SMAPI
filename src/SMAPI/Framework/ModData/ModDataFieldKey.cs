@@ -1,4 +1,4 @@
-namespace StardewModdingAPI.Framework.Models
+namespace StardewModdingAPI.Framework.ModData
 {
     /// <summary>The valid field keys.</summary>
     public enum ModDataFieldKey

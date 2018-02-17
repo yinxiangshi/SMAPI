@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using StardewModdingAPI.Framework.Exceptions;
+using StardewModdingAPI.Framework.ModData;
 using StardewModdingAPI.Framework.Models;
 using StardewModdingAPI.Framework.Serialisation;
 
@@ -17,12 +18,10 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>Get manifest metadata for each folder in the given root path.</summary>
         /// <param name="rootPath">The root path to search for mods.</param>
         /// <param name="jsonHelper">The JSON helper with which to read manifests.</param>
-        /// <param name="dataRecords">Metadata about mods from SMAPI's internal data.</param>
+        /// <param name="modDatabase">Handles access to SMAPI's internal mod metadata list.</param>
         /// <returns>Returns the manifests by relative folder.</returns>
-        public IEnumerable<IModMetadata> ReadManifests(string rootPath, JsonHelper jsonHelper, IEnumerable<ModDataRecord> dataRecords)
+        public IEnumerable<IModMetadata> ReadManifests(string rootPath, JsonHelper jsonHelper, ModDatabase modDatabase)
         {
-            dataRecords = dataRecords.ToArray();
-
             foreach (DirectoryInfo modDir in this.GetModFolders(rootPath))
             {
                 // read file
@@ -54,22 +53,19 @@ namespace StardewModdingAPI.Framework.ModLoading
                 }
 
                 // parse internal data record (if any)
-                ParsedModDataRecord dataRecord = null;
-                if (manifest != null)
-                {
-                    ModDataRecord rawDataRecord = dataRecords.FirstOrDefault(p => p.Matches(manifest));
-                    if (rawDataRecord != null)
-                        dataRecord = rawDataRecord.ParseFieldsFor(manifest);
-                }
+                ParsedModDataRecord dataRecord = modDatabase.GetParsed(manifest);
+
+                // get display name
+                string displayName = manifest?.Name;
+                if (string.IsNullOrWhiteSpace(displayName))
+                    displayName = dataRecord?.DisplayName;
+                if (string.IsNullOrWhiteSpace(displayName))
+                    displayName = modDir.FullName.Replace(rootPath, "").Trim('/', '\\');
 
                 // build metadata
-                string displayName = !string.IsNullOrWhiteSpace(manifest?.Name)
-                    ? manifest.Name
-                    : modDir.FullName.Replace(rootPath, "").Trim('/', '\\');
                 ModMetadataStatus status = error == null
                     ? ModMetadataStatus.Found
                     : ModMetadataStatus.Failed;
-
                 yield return new ModMetadata(displayName, modDir.FullName, manifest, dataRecord).SetStatus(status, error);
             }
         }
@@ -193,7 +189,8 @@ namespace StardewModdingAPI.Framework.ModLoading
 
         /// <summary>Sort the given mods by the order they should be loaded.</summary>
         /// <param name="mods">The mods to process.</param>
-        public IEnumerable<IModMetadata> ProcessDependencies(IEnumerable<IModMetadata> mods)
+        /// <param name="modDatabase">Handles access to SMAPI's internal mod metadata list.</param>
+        public IEnumerable<IModMetadata> ProcessDependencies(IEnumerable<IModMetadata> mods, ModDatabase modDatabase)
         {
             // initialise metadata
             mods = mods.ToArray();
@@ -209,7 +206,7 @@ namespace StardewModdingAPI.Framework.ModLoading
 
             // sort mods
             foreach (IModMetadata mod in mods)
-                this.ProcessDependencies(mods.ToArray(), mod, states, sortedMods, new List<IModMetadata>());
+                this.ProcessDependencies(mods.ToArray(), modDatabase, mod, states, sortedMods, new List<IModMetadata>());
 
             return sortedMods.Reverse();
         }
@@ -220,12 +217,13 @@ namespace StardewModdingAPI.Framework.ModLoading
         *********/
         /// <summary>Sort a mod's dependencies by the order they should be loaded, and remove any mods that can't be loaded due to missing or conflicting dependencies.</summary>
         /// <param name="mods">The full list of mods being validated.</param>
+        /// <param name="modDatabase">Handles access to SMAPI's internal mod metadata list.</param>
         /// <param name="mod">The mod whose dependencies to process.</param>
         /// <param name="states">The dependency state for each mod.</param>
         /// <param name="sortedMods">The list in which to save mods sorted by dependency order.</param>
         /// <param name="currentChain">The current change of mod dependencies.</param>
         /// <returns>Returns the mod dependency status.</returns>
-        private ModDependencyStatus ProcessDependencies(IModMetadata[] mods, IModMetadata mod, IDictionary<IModMetadata, ModDependencyStatus> states, Stack<IModMetadata> sortedMods, ICollection<IModMetadata> currentChain)
+        private ModDependencyStatus ProcessDependencies(IModMetadata[] mods, ModDatabase modDatabase, IModMetadata mod, IDictionary<IModMetadata, ModDependencyStatus> states, Stack<IModMetadata> sortedMods, ICollection<IModMetadata> currentChain)
         {
             // check if already visited
             switch (states[mod])
@@ -276,11 +274,17 @@ namespace StardewModdingAPI.Framework.ModLoading
 
             // missing required dependencies, mark failed
             {
-                string[] failedIDs = (from entry in dependencies where entry.IsRequired && entry.Mod == null select entry.ID).ToArray();
-                if (failedIDs.Any())
+                string[] failedModNames = (
+                    from entry in dependencies
+                    where entry.IsRequired && entry.Mod == null
+                    let displayName = modDatabase.GetDisplayNameFor(entry.ID) ?? entry.ID
+                    orderby displayName
+                    select displayName
+                ).ToArray();
+                if (failedModNames.Any())
                 {
                     sortedMods.Push(mod);
-                    mod.SetStatus(ModMetadataStatus.Failed, $"it requires mods which aren't installed ({string.Join(", ", failedIDs)}).");
+                    mod.SetStatus(ModMetadataStatus.Failed, $"it requires mods which aren't installed ({string.Join(", ", failedModNames)}).");
                     return states[mod] = ModDependencyStatus.Failed;
                 }
             }
@@ -325,7 +329,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                     }
 
                     // recursively process each dependency
-                    var substatus = this.ProcessDependencies(mods, requiredMod, states, sortedMods, subchain);
+                    var substatus = this.ProcessDependencies(mods, modDatabase, requiredMod, states, sortedMods, subchain);
                     switch (substatus)
                     {
                         // sorted successfully

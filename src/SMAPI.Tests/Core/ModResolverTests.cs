@@ -6,6 +6,7 @@ using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using StardewModdingAPI.Framework;
+using StardewModdingAPI.Framework.ModData;
 using StardewModdingAPI.Framework.Models;
 using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Framework.Serialisation;
@@ -30,7 +31,7 @@ namespace StardewModdingAPI.Tests.Core
             Directory.CreateDirectory(rootFolder);
 
             // act
-            IModMetadata[] mods = new ModResolver().ReadManifests(rootFolder, new JsonHelper(), new ModDataRecord[0]).ToArray();
+            IModMetadata[] mods = new ModResolver().ReadManifests(rootFolder, new JsonHelper(), new ModDatabase()).ToArray();
 
             // assert
             Assert.AreEqual(0, mods.Length, 0, $"Expected to find zero manifests, found {mods.Length} instead.");
@@ -45,7 +46,7 @@ namespace StardewModdingAPI.Tests.Core
             Directory.CreateDirectory(modFolder);
 
             // act
-            IModMetadata[] mods = new ModResolver().ReadManifests(rootFolder, new JsonHelper(), new ModDataRecord[0]).ToArray();
+            IModMetadata[] mods = new ModResolver().ReadManifests(rootFolder, new JsonHelper(), new ModDatabase()).ToArray();
             IModMetadata mod = mods.FirstOrDefault();
 
             // assert
@@ -84,7 +85,7 @@ namespace StardewModdingAPI.Tests.Core
             File.WriteAllText(filename, JsonConvert.SerializeObject(original));
 
             // act
-            IModMetadata[] mods = new ModResolver().ReadManifests(rootFolder, new JsonHelper(), new ModDataRecord[0]).ToArray();
+            IModMetadata[] mods = new ModResolver().ReadManifests(rootFolder, new JsonHelper(), new ModDatabase()).ToArray();
             IModMetadata mod = mods.FirstOrDefault();
 
             // assert
@@ -233,7 +234,7 @@ namespace StardewModdingAPI.Tests.Core
         public void ProcessDependencies_NoMods_DoesNothing()
         {
             // act
-            IModMetadata[] mods = new ModResolver().ProcessDependencies(new IModMetadata[0]).ToArray();
+            IModMetadata[] mods = new ModResolver().ProcessDependencies(new IModMetadata[0], new ModDatabase()).ToArray();
 
             // assert
             Assert.AreEqual(0, mods.Length, 0, "Expected to get an empty list of mods.");
@@ -249,7 +250,7 @@ namespace StardewModdingAPI.Tests.Core
             Mock<IModMetadata> modC = this.GetMetadata("Mod C");
 
             // act
-            IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modA.Object, modB.Object, modC.Object }).ToArray();
+            IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modA.Object, modB.Object, modC.Object }, new ModDatabase()).ToArray();
 
             // assert
             Assert.AreEqual(3, mods.Length, 0, "Expected to get the same number of mods input.");
@@ -266,7 +267,7 @@ namespace StardewModdingAPI.Tests.Core
             mock.Setup(p => p.Status).Returns(ModMetadataStatus.Failed);
 
             // act
-            new ModResolver().ProcessDependencies(new[] { mock.Object });
+            new ModResolver().ProcessDependencies(new[] { mock.Object }, new ModDatabase());
 
             // assert
             mock.VerifyGet(p => p.Status, Times.Once, "The validation did not check the manifest status.");
@@ -285,7 +286,7 @@ namespace StardewModdingAPI.Tests.Core
             Mock<IModMetadata> modC = this.GetMetadata("Mod C", dependencies: new[] { "Mod A", "Mod B" });
 
             // act
-            IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modC.Object, modA.Object, modB.Object }).ToArray();
+            IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modC.Object, modA.Object, modB.Object }, new ModDatabase()).ToArray();
 
             // assert
             Assert.AreEqual(3, mods.Length, 0, "Expected to get the same number of mods input.");
@@ -305,7 +306,7 @@ namespace StardewModdingAPI.Tests.Core
             Mock<IModMetadata> modD = this.GetMetadata("Mod D", dependencies: new[] { "Mod C" });
 
             // act
-            IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modC.Object, modA.Object, modB.Object, modD.Object }).ToArray();
+            IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modC.Object, modA.Object, modB.Object, modD.Object }, new ModDatabase()).ToArray();
 
             // assert
             Assert.AreEqual(4, mods.Length, 0, "Expected to get the same number of mods input.");
@@ -331,7 +332,7 @@ namespace StardewModdingAPI.Tests.Core
             Mock<IModMetadata> modF = this.GetMetadata("Mod F", dependencies: new[] { "Mod C", "Mod E" });
 
             // act
-            IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modC.Object, modA.Object, modB.Object, modD.Object, modF.Object, modE.Object }).ToArray();
+            IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modC.Object, modA.Object, modB.Object, modD.Object, modF.Object, modE.Object }, new ModDatabase()).ToArray();
 
             // assert
             Assert.AreEqual(6, mods.Length, 0, "Expected to get the same number of mods input.");
@@ -358,7 +359,7 @@ namespace StardewModdingAPI.Tests.Core
             Mock<IModMetadata> modE = this.GetMetadata("Mod E", dependencies: new[] { "Mod C" }, allowStatusChange: true);
 
             // act
-            IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modC.Object, modA.Object, modB.Object, modD.Object, modE.Object }).ToArray();
+            IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modC.Object, modA.Object, modB.Object, modD.Object, modE.Object }, new ModDatabase()).ToArray();
 
             // assert
             Assert.AreEqual(5, mods.Length, 0, "Expected to get the same number of mods input.");
@@ -382,7 +383,7 @@ namespace StardewModdingAPI.Tests.Core
             modD.Setup(p => p.Status).Returns(ModMetadataStatus.Failed);
 
             // act
-            IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modC.Object, modA.Object, modB.Object, modD.Object }).ToArray();
+            IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modC.Object, modA.Object, modB.Object, modD.Object }, new ModDatabase()).ToArray();
 
             // assert
             Assert.AreEqual(4, mods.Length, 0, "Expected to get the same number of mods input.");
@@ -401,7 +402,7 @@ namespace StardewModdingAPI.Tests.Core
             Mock<IModMetadata> modB = this.GetMetadata(this.GetManifest("Mod B", "1.0", new ManifestDependency("Mod A", "1.1")), allowStatusChange: true);
 
             // act
-            IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modA.Object, modB.Object }).ToArray();
+            IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modA.Object, modB.Object }, new ModDatabase()).ToArray();
 
             // assert
             Assert.AreEqual(2, mods.Length, 0, "Expected to get the same number of mods input.");
@@ -417,7 +418,7 @@ namespace StardewModdingAPI.Tests.Core
             Mock<IModMetadata> modB = this.GetMetadata(this.GetManifest("Mod B", "1.0", new ManifestDependency("Mod A", "1.0-beta")), allowStatusChange: false);
 
             // act
-            IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modA.Object, modB.Object }).ToArray();
+            IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modA.Object, modB.Object }, new ModDatabase()).ToArray();
 
             // assert
             Assert.AreEqual(2, mods.Length, 0, "Expected to get the same number of mods input.");
@@ -434,7 +435,7 @@ namespace StardewModdingAPI.Tests.Core
             Mock<IModMetadata> modB = this.GetMetadata(this.GetManifest("Mod B", "1.0", new ManifestDependency("Mod A", "1.0", required: false)), allowStatusChange: false);
 
             // act
-            IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modB.Object, modA.Object }).ToArray();
+            IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modB.Object, modA.Object }, new ModDatabase()).ToArray();
 
             // assert
             Assert.AreEqual(2, mods.Length, 0, "Expected to get the same number of mods input.");
@@ -450,7 +451,7 @@ namespace StardewModdingAPI.Tests.Core
             Mock<IModMetadata> modB = this.GetMetadata(this.GetManifest("Mod B", "1.0", new ManifestDependency("Mod A", "1.0", required: false)), allowStatusChange: false);
 
             // act
-            IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modB.Object }).ToArray();
+            IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modB.Object }, new ModDatabase()).ToArray();
 
             // assert
             Assert.AreEqual(1, mods.Length, 0, "Expected to get the same number of mods input.");

@@ -19,6 +19,7 @@ using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.Logging;
+using StardewModdingAPI.Framework.ModData;
 using StardewModdingAPI.Framework.Models;
 using StardewModdingAPI.Framework.ModHelpers;
 using StardewModdingAPI.Framework.ModLoading;
@@ -349,17 +350,20 @@ namespace StardewModdingAPI
             if (!this.ValidateContentIntegrity())
                 this.Monitor.Log("SMAPI found problems in your game's content files which are likely to cause errors or crashes. Consider uninstalling XNB mods or reinstalling the game.", LogLevel.Error);
 
+            // load mod data
+            ModDatabase modDatabase = new ModDatabase(this.Settings.ModData);
+
             // load mods
             {
                 this.Monitor.Log("Loading mod metadata...", LogLevel.Trace);
                 ModResolver resolver = new ModResolver();
 
                 // load manifests
-                IModMetadata[] mods = resolver.ReadManifests(Constants.ModPath, new JsonHelper(), this.Settings.ModData).ToArray();
+                IModMetadata[] mods = resolver.ReadManifests(Constants.ModPath, new JsonHelper(), modDatabase).ToArray();
                 resolver.ValidateManifests(mods, Constants.ApiVersion, Constants.VendorModUrls);
 
                 // process dependencies
-                mods = resolver.ProcessDependencies(mods).ToArray();
+                mods = resolver.ProcessDependencies(mods, modDatabase).ToArray();
 
                 // load mods
                 this.LoadMods(mods, new JsonHelper(), this.ContentManager);

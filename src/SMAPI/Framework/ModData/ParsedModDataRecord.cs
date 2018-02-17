@@ -1,4 +1,4 @@
-namespace StardewModdingAPI.Framework.Models
+namespace StardewModdingAPI.Framework.ModData
 {
     /// <summary>A parsed representation of the fields from a <see cref="ModDataRecord"/> for a specific manifest.</summary>
     internal class ParsedModDataRecord
@@ -8,6 +8,9 @@ namespace StardewModdingAPI.Framework.Models
         *********/
         /// <summary>The underlying data record.</summary>
         public ModDataRecord DataRecord { get; set; }
+
+        /// <summary>The default mod name to display when the name isn't available (e.g. during dependency checks).</summary>
+        public string DisplayName { get; set; }
 
         /// <summary>The update key to apply.</summary>
         public string UpdateKey { get; set; }

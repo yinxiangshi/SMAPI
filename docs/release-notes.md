@@ -1,6 +1,7 @@
 # Release notes
 ## 2.5
 * For players:
+  * Dependency errors will now show the name of the missing mod, instead of its ID.
   * Fixed mod crashes being logged under `[SMAPI]` instead of the mod name.
   * Updated compatibility list and enabled update checks for more older mods.
 

@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace StardewModdingAPI.Framework.Models
+namespace StardewModdingAPI.Framework.ModData
 {
     /// <summary>Raw mod metadata from SMAPI's internal mod list.</summary>
     internal class ModDataRecord
@@ -63,47 +62,6 @@ namespace StardewModdingAPI.Framework.Models
         /*********
         ** Public methods
         *********/
-        /// <summary>Get whether the manifest matches the <see cref="FormerIDs"/> field.</summary>
-        /// <param name="manifest">The mod manifest to check.</param>
-        public bool Matches(IManifest manifest)
-        {
-            // try main ID
-            if (this.ID != null && this.ID.Equals(manifest.UniqueID, StringComparison.InvariantCultureIgnoreCase))
-                return true;
-
-            // try former IDs
-            if (this.FormerIDs != null)
-            {
-                foreach (string part in this.FormerIDs.Split('|'))
-                {
-                    // packed field snapshot
-                    if (part.StartsWith("{"))
-                    {
-                        FieldSnapshot snapshot = JsonConvert.DeserializeObject<FieldSnapshot>(part);
-                        bool isMatch =
-                            (snapshot.ID == null || snapshot.ID.Equals(manifest.UniqueID, StringComparison.InvariantCultureIgnoreCase))
-                            && (snapshot.EntryDll == null || snapshot.EntryDll.Equals(manifest.EntryDll, StringComparison.InvariantCultureIgnoreCase))
-                            && (
-                                snapshot.Author == null
-                                || snapshot.Author.Equals(manifest.Author, StringComparison.InvariantCultureIgnoreCase)
-                                || (manifest.ExtraFields.ContainsKey("Authour") && snapshot.Author.Equals(manifest.ExtraFields["Authour"].ToString(), StringComparison.InvariantCultureIgnoreCase))
-                            )
-                            && (snapshot.Name == null || snapshot.Name.Equals(manifest.Name, StringComparison.InvariantCultureIgnoreCase));
-
-                        if (isMatch)
-                            return true;
-                    }
-
-                    // plain ID
-                    else if (part.Equals(manifest.UniqueID, StringComparison.InvariantCultureIgnoreCase))
-                        return true;
-                }
-            }
-
-            // no match
-            return false;
-        }
-
         /// <summary>Get a parsed representation of the <see cref="Fields"/>.</summary>
         public IEnumerable<ModDataField> GetFields()
         {
@@ -146,41 +104,6 @@ namespace StardewModdingAPI.Framework.Models
             }
         }
 
-        /// <summary>Get a parsed representation of the <see cref="Fields"/> which match a given manifest.</summary>
-        /// <param name="manifest">The manifest to match.</param>
-        public ParsedModDataRecord ParseFieldsFor(IManifest manifest)
-        {
-            ParsedModDataRecord parsed = new ParsedModDataRecord { DataRecord = this };
-            foreach (ModDataField field in this.GetFields().Where(field => field.IsMatch(manifest)))
-            {
-                switch (field.Key)
-                {
-                    // update key
-                    case ModDataFieldKey.UpdateKey:
-                        parsed.UpdateKey = field.Value;
-                        break;
-
-                    // alternative URL
-                    case ModDataFieldKey.AlternativeUrl:
-                        parsed.AlternativeUrl = field.Value;
-                        break;
-
-                    // status
-                    case ModDataFieldKey.Status:
-                        parsed.Status = (ModStatus)Enum.Parse(typeof(ModStatus), field.Value, ignoreCase: true);
-                        parsed.StatusUpperVersion = field.UpperVersion;
-                        break;
-
-                    // status reason phrase
-                    case ModDataFieldKey.StatusReasonPhrase:
-                        parsed.StatusReasonPhrase = field.Value;
-                        break;
-                }
-            }
-
-            return parsed;
-        }
-
         /// <summary>Get a semantic local version for update checks.</summary>
         /// <param name="version">The remote version to normalise.</param>
         public string GetLocalVersionForUpdateChecks(string version)
@@ -213,31 +136,6 @@ namespace StardewModdingAPI.Framework.Models
                 this.Fields = this.ExtensionData.ToDictionary(p => p.Key, p => p.Value.ToString());
                 this.ExtensionData = null;
             }
-        }
-
-
-        /*********
-        ** Private models
-        *********/
-        /// <summary>A unique set of fields which identifies the mod.</summary>
-        [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local", Justification = "Used via JSON deserialisation.")]
-        [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local", Justification = "Used via JSON deserialisation.")]
-        private class FieldSnapshot
-        {
-            /*********
-            ** Accessors
-            *********/
-            /// <summary>The unique mod ID  (or <c>null</c> to ignore it).</summary>
-            public string ID { get; set; }
-
-            /// <summary>The entry DLL (or <c>null</c> to ignore it).</summary>
-            public string EntryDll { get; set; }
-
-            /// <summary>The mod name (or <c>null</c> to ignore it).</summary>
-            public string Name { get; set; }
-
-            /// <summary>The author name (or <c>null</c> to ignore it).</summary>
-            public string Author { get; set; }
         }
     }
 }

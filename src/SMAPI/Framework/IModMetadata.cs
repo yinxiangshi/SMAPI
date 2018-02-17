@@ -1,4 +1,4 @@
-using StardewModdingAPI.Framework.Models;
+using StardewModdingAPI.Framework.ModData;
 using StardewModdingAPI.Framework.ModLoading;
 
 namespace StardewModdingAPI.Framework
