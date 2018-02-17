@@ -272,8 +272,11 @@ namespace StardewModdingAPI.Framework.ModLoading
                     from entry in dependencies
                     where entry.IsRequired && entry.Mod == null
                     let displayName = modDatabase.GetDisplayNameFor(entry.ID) ?? entry.ID
+                    let modUrl = modDatabase.GetModPageUrlFor(entry.ID)
                     orderby displayName
-                    select displayName
+                    select modUrl != null
+                        ? $"{displayName}: {modUrl}"
+                        : displayName
                 ).ToArray();
                 if (failedModNames.Any())
                 {

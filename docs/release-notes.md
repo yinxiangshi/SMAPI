@@ -1,9 +1,9 @@
 # Release notes
 ## 2.5
 * For players:
-  * Dependency errors will now show the name of the missing mod, instead of its ID.
+  * When a mod is skipped because you're missing a dependency, the error now shows the name and URL of the missing mod.
   * Fixed mod crashes being logged under `[SMAPI]` instead of the mod name.
-  * Updated compatibility list and enabled update checks for more older mods.
+  * Updated compatibility list and enabled update checks for more old mods.
 
 * For modders:
   * Fixed error when accessing a mod-provided API whose underlying class is `internal`.

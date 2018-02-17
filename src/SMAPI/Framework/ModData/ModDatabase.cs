@@ -15,19 +15,24 @@ namespace StardewModdingAPI.Framework.ModData
         /// <summary>The underlying mod data records indexed by default display name.</summary>
         private readonly IDictionary<string, ModDataRecord> Records;
 
+        /// <summary>Get an update URL for an update key (if valid).</summary>
+        private readonly Func<string, string> GetUpdateUrl;
+
 
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an empty instance.</summary>
         public ModDatabase()
-        : this(new Dictionary<string, ModDataRecord>()) { }
+        : this(new Dictionary<string, ModDataRecord>(), key => null) { }
 
         /// <summary>Construct an instance.</summary>
         /// <param name="records">The underlying mod data records indexed by default display name.</param>
-        public ModDatabase(IDictionary<string, ModDataRecord> records)
+        /// <param name="getUpdateUrl">Get an update URL for an update key (if valid).</param>
+        public ModDatabase(IDictionary<string, ModDataRecord> records, Func<string, string> getUpdateUrl)
         {
             this.Records = records;
+            this.GetUpdateUrl = getUpdateUrl;
         }
 
         /// <summary>Get a parsed representation of the <see cref="ModDataRecord.Fields"/> which match a given manifest.</summary>
@@ -74,21 +79,54 @@ namespace StardewModdingAPI.Framework.ModData
         /// <param name="id">The unique mod ID.</param>
         public string GetDisplayNameFor(string id)
         {
-            foreach (var entry in this.Records)
-            {
-                if (entry.Value.ID != null && entry.Value.ID.Equals(id, StringComparison.InvariantCultureIgnoreCase))
-                    return entry.Key;
-            }
+            return this.TryGetRaw(id, out string displayName, out ModDataRecord _)
+                ? displayName
+                : null;
+        }
 
-            return null;
+        /// <summary>Get the mod page URL for a mod (if available).</summary>
+        /// <param name="id">The unique mod ID.</param>
+        public string GetModPageUrlFor(string id)
+        {
+            // get raw record
+            if (!this.TryGetRaw(id, out string _, out ModDataRecord record))
+                return null;
+
+            // get update key
+            ModDataField updateKeyField = record.GetFields().FirstOrDefault(p => p.Key == ModDataFieldKey.UpdateKey);
+            if (updateKeyField == null)
+                return null;
+
+            // get update URL
+            return this.GetUpdateUrl(updateKeyField.Value);
         }
 
 
         /*********
         ** Private models
         *********/
-        /// <summary>Get the data record matching a given manifest.</summary>
-        /// <param name="manifest">The mod manifest.</param>
+        /// <summary>Get a raw data record.</summary>
+        /// <param name="id">The mod ID to match.</param>
+        /// <param name="displayName">The mod's default display name.</param>
+        /// <param name="record">The raw mod record.</param>
+        private bool TryGetRaw(string id, out string displayName, out ModDataRecord record)
+        {
+            foreach (var entry in this.Records)
+            {
+                if (entry.Value.ID != null && entry.Value.ID.Equals(id, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    displayName = entry.Key;
+                    record = entry.Value;
+                    return true;
+                }
+            }
+
+            displayName = null;
+            record = null;
+            return false;
+        }
+        /// <summary>Get a raw data record.</summary>
+        /// <param name="manifest">The mod manifest whose fields to match.</param>
         /// <param name="displayName">The mod's default display name.</param>
         /// <param name="record">The raw mod record.</param>
         private bool TryGetRaw(IManifest manifest, out string displayName, out ModDataRecord record)

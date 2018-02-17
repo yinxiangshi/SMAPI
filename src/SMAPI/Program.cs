@@ -351,7 +351,7 @@ namespace StardewModdingAPI
                 this.Monitor.Log("SMAPI found problems in your game's content files which are likely to cause errors or crashes. Consider uninstalling XNB mods or reinstalling the game.", LogLevel.Error);
 
             // load mod data
-            ModDatabase modDatabase = new ModDatabase(this.Settings.ModData);
+            ModDatabase modDatabase = new ModDatabase(this.Settings.ModData, Constants.GetUpdateUrl);
 
             // load mods
             {

@@ -458,7 +458,8 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     },
 
     "Custom Crops": {
-      "ID": "spacechase0.CustomCrops"
+      "ID": "spacechase0.CustomCrops",
+      "Default | UpdateKey": "Nexus:1592"
     },
 
     "Custom Element Handler": {
@@ -515,7 +516,8 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     },
 
     "Custom NPC": {
-      "ID": "Platonymous.CustomNPC"
+      "ID": "Platonymous.CustomNPC",
+      "Default | UpdateKey": "Nexus:1607"
     },
 
     "Custom Shops Redux": {
@@ -890,7 +892,8 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     },
 
     "Json Assets": {
-      "ID": "spacechase0.JsonAssets"
+      "ID": "spacechase0.JsonAssets",
+      "Default | UpdateKey": "Nexus:1720"
     },
 
     "Junimo Farm": {
@@ -1172,7 +1175,8 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     },
 
     "PyTK - Platonymous Toolkit": {
-      "ID": "Platonymous.Toolkit"
+      "ID": "Platonymous.Toolkit",
+      "Default | UpdateKey": "Nexus:1726"
     },
 
     "Point-and-Plant": {
