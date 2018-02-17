@@ -7,6 +7,7 @@
 
 * For modders:
   * Fixed error when accessing a mod-provided API whose underlying class is `internal`.
+  * Fixed deadlock in rare cases when injecting a file with an asset loader.
 
 * For SMAPI developers:
   * All mod assemblies are now rewritten in-memory to support features like mod-provided APIs.

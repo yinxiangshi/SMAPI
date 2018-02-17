@@ -792,12 +792,12 @@ namespace StardewModdingAPI.Framework
         {
             try
             {
-                this.Lock.EnterReadLock();
+                this.Lock.EnterWriteLock();
                 return action();
             }
             finally
             {
-                this.Lock.ExitReadLock();
+                this.Lock.ExitWriteLock();
             }
         }
     }
