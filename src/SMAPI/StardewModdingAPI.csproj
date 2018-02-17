@@ -113,6 +113,7 @@
     <Compile Include="Framework\Exceptions\SAssemblyLoadFailedException.cs" />
     <Compile Include="Framework\ModLoading\AssemblyLoadStatus.cs" />
     <Compile Include="Framework\Reflection\InterfaceProxyBuilder.cs" />
+    <Compile Include="Framework\Reflection\InterfaceProxyFactory.cs" />
     <Compile Include="Framework\Serialisation\SmapiConverters\ManifestDependencyArrayConverter.cs" />
     <Compile Include="Framework\Serialisation\SmapiConverters\SemanticVersionConverter.cs" />
     <Compile Include="Framework\Serialisation\SimpleReadOnlyConverter.cs" />

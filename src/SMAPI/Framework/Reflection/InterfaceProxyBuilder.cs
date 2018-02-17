@@ -1,82 +1,47 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
 namespace StardewModdingAPI.Framework.Reflection
 {
-    /// <summary>Generates proxy classes to access mod APIs through an arbitrary interface.</summary>
+    /// <summary>Generates a proxy class to access a mod API through an arbitrary interface.</summary>
     internal class InterfaceProxyBuilder
     {
         /*********
         ** Properties
         *********/
-        /// <summary>The CLR module in which to create proxy classes.</summary>
-        private readonly ModuleBuilder ModuleBuilder;
+        /// <summary>The target class type.</summary>
+        private readonly Type TargetType;
 
-        /// <summary>The generated proxy types.</summary>
-        private readonly IDictionary<string, Type> GeneratedTypes = new Dictionary<string, Type>();
+        /// <summary>The generated proxy type.</summary>
+        private readonly Type ProxyType;
 
 
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        public InterfaceProxyBuilder()
-        {
-            AssemblyBuilder assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(new AssemblyName($"StardewModdingAPI.Proxies, Version={this.GetType().Assembly.GetName().Version}, Culture=neutral"), AssemblyBuilderAccess.Run);
-            this.ModuleBuilder = assemblyBuilder.DefineDynamicModule("StardewModdingAPI.Proxies");
-        }
-
-        /// <summary>Create an API proxy.</summary>
-        /// <typeparam name="TInterface">The interface through which to access the API.</typeparam>
-        /// <param name="instance">The API instance to access.</param>
-        /// <param name="sourceModID">The unique ID of the mod consuming the API.</param>
-        /// <param name="targetModID">The unique ID of the mod providing the API.</param>
-        public TInterface CreateProxy<TInterface>(object instance, string sourceModID, string targetModID)
-            where TInterface : class
+        /// <param name="name">The type name to generate.</param>
+        /// <param name="moduleBuilder">The CLR module in which to create proxy classes.</param>
+        /// <param name="interfaceType">The interface type to implement.</param>
+        /// <param name="targetType">The target type.</param>
+        public InterfaceProxyBuilder(string name, ModuleBuilder moduleBuilder, Type interfaceType, Type targetType)
         {
             // validate
-            if (instance == null)
-                throw new InvalidOperationException("Can't proxy access to a null API.");
-            if (!typeof(TInterface).IsInterface)
-                throw new InvalidOperationException("The proxy type must be an interface, not a class.");
+            if (name == null)
+                throw new ArgumentNullException(nameof(name));
+            if (targetType == null)
+                throw new ArgumentNullException(nameof(targetType));
 
-            // get proxy type
-            Type targetType = instance.GetType();
-            string proxyTypeName = $"StardewModdingAPI.Proxies.From<{sourceModID}_{typeof(TInterface).FullName}>_To<{targetModID}_{targetType.FullName}>";
-            if (!this.GeneratedTypes.TryGetValue(proxyTypeName, out Type type))
-            {
-                type = this.CreateProxyType(proxyTypeName, typeof(TInterface), targetType);
-                this.GeneratedTypes[proxyTypeName] = type;
-            }
-
-            // create instance
-            ConstructorInfo constructor = type.GetConstructor(new[] { targetType });
-            if (constructor == null)
-                throw new InvalidOperationException($"Couldn't find the constructor for generated proxy type '{proxyTypeName}'."); // should never happen
-            return (TInterface)constructor.Invoke(new[] { instance });
-        }
-
-
-        /*********
-        ** Private methods
-        *********/
-        /// <summary>Define a class which proxies access to a target type through an interface.</summary>
-        /// <param name="proxyTypeName">The name of the proxy type to generate.</param>
-        /// <param name="interfaceType">The interface type through which to access the target.</param>
-        /// <param name="targetType">The target type to access.</param>
-        private Type CreateProxyType(string proxyTypeName, Type interfaceType, Type targetType)
-        {
             // define proxy type
-            TypeBuilder proxyBuilder = this.ModuleBuilder.DefineType(proxyTypeName, TypeAttributes.Public | TypeAttributes.Class);
+            TypeBuilder proxyBuilder = moduleBuilder.DefineType(name, TypeAttributes.Public | TypeAttributes.Class);
             proxyBuilder.AddInterfaceImplementation(interfaceType);
 
             // create field to store target instance
-            FieldBuilder field = proxyBuilder.DefineField("__Target", targetType, FieldAttributes.Private);
+            FieldBuilder targetField = proxyBuilder.DefineField("__Target", targetType, FieldAttributes.Private);
 
-            // create constructor which accepts target instance
+            // create constructor which accepts target instance and sets field
             {
                 ConstructorBuilder constructor = proxyBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard | CallingConventions.HasThis, new[] { targetType });
                 ILGenerator il = constructor.GetILGenerator();
@@ -86,7 +51,7 @@ namespace StardewModdingAPI.Framework.Reflection
                 il.Emit(OpCodes.Call, typeof(object).GetConstructor(new Type[0])); // call base constructor
                 il.Emit(OpCodes.Ldarg_0);      // this
                 il.Emit(OpCodes.Ldarg_1);      // load argument
-                il.Emit(OpCodes.Stfld, field); // set field to loaded argument
+                il.Emit(OpCodes.Stfld, targetField); // set field to loaded argument
                 il.Emit(OpCodes.Ret);
             }
 
@@ -97,13 +62,28 @@ namespace StardewModdingAPI.Framework.Reflection
                 if (targetMethod == null)
                     throw new InvalidOperationException($"The {interfaceType.FullName} interface defines method {proxyMethod.Name} which doesn't exist in the API.");
 
-                this.ProxyMethod(proxyBuilder, targetMethod, field);
+                this.ProxyMethod(proxyBuilder, targetMethod, targetField);
             }
 
-            // create type
-            return proxyBuilder.CreateType();
+            // save info
+            this.TargetType = targetType;
+            this.ProxyType = proxyBuilder.CreateType();
         }
 
+        /// <summary>Create an instance of the proxy for a target instance.</summary>
+        /// <param name="targetInstance">The target instance.</param>
+        public object CreateInstance(object targetInstance)
+        {
+            ConstructorInfo constructor = this.ProxyType.GetConstructor(new[] { this.TargetType });
+            if (constructor == null)
+                throw new InvalidOperationException($"Couldn't find the constructor for generated proxy type '{this.ProxyType.Name}'."); // should never happen
+            return constructor.Invoke(new[] { targetInstance });
+        }
+
+
+        /*********
+        ** Private methods
+        *********/
         /// <summary>Define a method which proxies access to a method on the target.</summary>
         /// <param name="proxyBuilder">The proxy type being generated.</param>
         /// <param name="target">The target method.</param>
