@@ -25,18 +25,27 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Public methods
         *********/
-        /// <summary>Register a mod as a possible source of deprecation warnings.</summary>
+        /// <summary>Register a mod.</summary>
         /// <param name="metadata">The mod metadata.</param>
         public void Add(IModMetadata metadata)
         {
             this.Mods.Add(metadata);
-            this.ModNamesByAssembly[metadata.Mod.GetType().Assembly.FullName] = metadata;
+            if (!metadata.IsContentPack)
+                this.ModNamesByAssembly[metadata.Mod.GetType().Assembly.FullName] = metadata;
         }
 
         /// <summary>Get metadata for all loaded mods.</summary>
-        public IEnumerable<IModMetadata> GetAll()
+        /// <param name="assemblyMods">Whether to include SMAPI mods.</param>
+        /// <param name="contentPacks">Whether to include content pack mods.</param>
+        public IEnumerable<IModMetadata> GetAll(bool assemblyMods = true, bool contentPacks = true)
         {
-            return this.Mods.Select(p => p);
+            IEnumerable<IModMetadata> query = this.Mods;
+            if (!assemblyMods)
+                query = query.Where(p => p.IsContentPack);
+            if (!contentPacks)
+                query = query.Where(p => !p.IsContentPack);
+
+            return query;
         }
 
         /// <summary>Get metadata for a loaded mod.</summary>

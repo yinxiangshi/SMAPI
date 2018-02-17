@@ -27,8 +27,12 @@ namespace StardewModdingAPI.Framework.Models
         [JsonConverter(typeof(SemanticVersionConverter))]
         public ISemanticVersion MinimumApiVersion { get; set; }
 
-        /// <summary>The name of the DLL in the directory that has the <see cref="IMod.Entry"/> method.</summary>
+        /// <summary>The name of the DLL in the directory that has the <see cref="IMod.Entry"/> method. Mutually exclusive with <see cref="ContentPackFor"/>.</summary>
         public string EntryDll { get; set; }
+
+        /// <summary>The mod which will read this as a content pack. Mutually exclusive with <see cref="IManifest.EntryDll"/>.</summary>
+        [JsonConverter(typeof(ManifestContentPackForConverter))]
+        public IManifestContentPackFor ContentPackFor { get; set; }
 
         /// <summary>The other mods that must be loaded before this mod.</summary>
         [JsonConverter(typeof(ManifestDependencyArrayConverter))]

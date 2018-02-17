@@ -30,18 +30,13 @@ namespace StardewModdingAPI.Framework.ModLoading
                 string error = null;
                 try
                 {
-                    // read manifest
                     manifest = jsonHelper.ReadJsonFile<Manifest>(path);
-
-                    // validate
                     if (manifest == null)
                     {
                         error = File.Exists(path)
                             ? "its manifest is invalid."
                             : "it doesn't have a manifest.";
                     }
-                    else if (string.IsNullOrWhiteSpace(manifest.EntryDll))
-                        error = "its manifest doesn't set an entry DLL.";
                 }
                 catch (SParseException ex)
                 {
@@ -85,7 +80,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 if (mod.Status == ModMetadataStatus.Failed)
                     continue;
 
-                // validate compatibility
+                // validate compatibility from internal data
                 switch (mod.DataRecord?.Status)
                 {
                     case ModStatus.Obsolete:
@@ -128,24 +123,52 @@ namespace StardewModdingAPI.Framework.ModLoading
                     continue;
                 }
 
-                // validate DLL value
-                if (string.IsNullOrWhiteSpace(mod.Manifest.EntryDll))
+                // validate DLL / content pack fields
                 {
-                    mod.SetStatus(ModMetadataStatus.Failed, "its manifest has no EntryDLL field.");
-                    continue;
-                }
-                if (mod.Manifest.EntryDll.Intersect(Path.GetInvalidFileNameChars()).Any())
-                {
-                    mod.SetStatus(ModMetadataStatus.Failed, $"its manifest has invalid filename '{mod.Manifest.EntryDll}' for the EntryDLL field.");
-                    continue;
-                }
+                    bool hasDll = !string.IsNullOrWhiteSpace(mod.Manifest.EntryDll);
+                    bool isContentPack = mod.Manifest.ContentPackFor != null;
 
-                // validate DLL path
-                string assemblyPath = Path.Combine(mod.DirectoryPath, mod.Manifest.EntryDll);
-                if (!File.Exists(assemblyPath))
-                {
-                    mod.SetStatus(ModMetadataStatus.Failed, $"its DLL '{mod.Manifest.EntryDll}' doesn't exist.");
-                    continue;
+                    // validate field presence
+                    if (!hasDll && !isContentPack)
+                    {
+                        mod.SetStatus(ModMetadataStatus.Failed, $"its manifest has no {nameof(IManifest.EntryDll)} or {nameof(IManifest.ContentPackFor)} field; must specify one.");
+                        continue;
+                    }
+                    if (hasDll && isContentPack)
+                    {
+                        mod.SetStatus(ModMetadataStatus.Failed, $"its manifest sets both {nameof(IManifest.EntryDll)} and {nameof(IManifest.ContentPackFor)}, which are mutually exclusive.");
+                        continue;
+                    }
+
+                    // validate DLL
+                    if (hasDll)
+                    {
+                        // invalid filename format
+                        if (mod.Manifest.EntryDll.Intersect(Path.GetInvalidFileNameChars()).Any())
+                        {
+                            mod.SetStatus(ModMetadataStatus.Failed, $"its manifest has invalid filename '{mod.Manifest.EntryDll}' for the EntryDLL field.");
+                            continue;
+                        }
+
+                        // invalid path
+                        string assemblyPath = Path.Combine(mod.DirectoryPath, mod.Manifest.EntryDll);
+                        if (!File.Exists(assemblyPath))
+                        {
+                            mod.SetStatus(ModMetadataStatus.Failed, $"its DLL '{mod.Manifest.EntryDll}' doesn't exist.");
+                            continue;
+                        }
+                    }
+
+                    // validate content pack
+                    else
+                    {
+                        // invalid content pack ID
+                        if (string.IsNullOrWhiteSpace(mod.Manifest.ContentPackFor.UniqueID))
+                        {
+                            mod.SetStatus(ModMetadataStatus.Failed, $"its manifest declares {nameof(IManifest.ContentPackFor)} without its required {nameof(IManifestContentPackFor.UniqueID)} field.");
+                            continue;
+                        }
+                    }
                 }
 
                 // validate required fields
@@ -243,30 +266,17 @@ namespace StardewModdingAPI.Framework.ModLoading
                     throw new InvalidModStateException($"Unknown dependency status '{states[mod]}'.");
             }
 
-            // no dependencies, mark sorted
-            if (mod.Manifest.Dependencies == null || !mod.Manifest.Dependencies.Any())
+            // collect dependencies
+            ModDependency[] dependencies = this.GetDependenciesFrom(mod.Manifest, mods).ToArray();
+
+            // mark sorted if no dependencies
+            if (!dependencies.Any())
             {
                 sortedMods.Push(mod);
                 return states[mod] = ModDependencyStatus.Sorted;
             }
 
-            // get dependencies
-            var dependencies =
-                (
-                    from entry in mod.Manifest.Dependencies
-                    let dependencyMod = mods.FirstOrDefault(m => string.Equals(m.Manifest?.UniqueID, entry.UniqueID, StringComparison.InvariantCultureIgnoreCase))
-                    orderby entry.UniqueID
-                    select new
-                    {
-                        ID = entry.UniqueID,
-                        MinVersion = entry.MinimumVersion,
-                        Mod = dependencyMod,
-                        IsRequired = entry.IsRequired
-                    }
-                )
-                .ToArray();
-
-            // missing required dependencies, mark failed
+            // mark failed if missing dependencies
             {
                 string[] failedModNames = (
                     from entry in dependencies
@@ -369,6 +379,65 @@ namespace StardewModdingAPI.Framework.ModLoading
                     directory = directory.GetDirectories().First();
 
                 yield return directory;
+            }
+        }
+
+        /// <summary>Get the dependencies declared in a manifest.</summary>
+        /// <param name="manifest">The mod manifest.</param>
+        /// <param name="loadedMods">The loaded mods.</param>
+        private IEnumerable<ModDependency> GetDependenciesFrom(IManifest manifest, IModMetadata[] loadedMods)
+        {
+            IModMetadata FindMod(string id) => loadedMods.FirstOrDefault(m => string.Equals(m.Manifest?.UniqueID, id, StringComparison.InvariantCultureIgnoreCase));
+
+            // yield dependencies
+            if (manifest.Dependencies != null)
+            {
+                foreach (var entry in manifest.Dependencies)
+                    yield return new ModDependency(entry.UniqueID, entry.MinimumVersion, FindMod(entry.UniqueID), entry.IsRequired);
+            }
+
+            // yield content pack parent
+            if (manifest.ContentPackFor != null)
+                yield return new ModDependency(manifest.ContentPackFor.UniqueID, manifest.ContentPackFor.MinimumVersion, FindMod(manifest.ContentPackFor.UniqueID), isRequired: true);
+        }
+
+
+        /*********
+        ** Private models
+        *********/
+        /// <summary>Represents a dependency from one mod to another.</summary>
+        private struct ModDependency
+        {
+            /*********
+            ** Accessors
+            *********/
+            /// <summary>The unique ID of the required mod.</summary>
+            public string ID { get; }
+
+            /// <summary>The minimum required version (if any).</summary>
+            public ISemanticVersion MinVersion { get; }
+
+            /// <summary>Whether the mod shouldn't be loaded if the dependency isn't available.</summary>
+            public bool IsRequired { get; }
+
+            /// <summary>The loaded mod that fulfills the dependency (if available).</summary>
+            public IModMetadata Mod { get; }
+
+
+            /*********
+            ** Public methods
+            *********/
+            /// <summary>Construct an instance.</summary>
+            /// <param name="id">The unique ID of the required mod.</param>
+            /// <param name="minVersion">The minimum required version (if any).</param>
+            /// <param name="mod">The loaded mod that fulfills the dependency (if available).</param>
+            /// <param name="isRequired">Whether the mod shouldn't be loaded if the dependency isn't available.</param>
+            public ModDependency(string id, ISemanticVersion minVersion, IModMetadata mod, bool isRequired)
+            {
+                this.ID = id;
+                this.MinVersion = minVersion;
+                this.Mod = mod;
+                this.IsRequired = isRequired;
             }
         }
     }

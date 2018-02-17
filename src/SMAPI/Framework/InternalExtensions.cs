@@ -94,7 +94,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="level">The log severity level.</param>
         public static void LogAsMod(this IModMetadata metadata, string message, LogLevel level = LogLevel.Trace)
         {
-            metadata.Mod.Monitor.Log(message, level);
+            metadata.Monitor.Log(message, level);
         }
 
         /****

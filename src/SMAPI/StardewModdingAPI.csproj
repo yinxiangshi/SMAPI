@@ -85,6 +85,7 @@
     <Compile Include="..\..\build\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Framework\ContentPack.cs" />
     <Compile Include="Framework\Content\ContentCache.cs" />
     <Compile Include="Framework\Input\InputState.cs" />
     <Compile Include="Framework\Input\InputStatus.cs" />
@@ -93,6 +94,7 @@
     <Compile Include="Framework\ModData\ModDataField.cs" />
     <Compile Include="Framework\ModData\ModDataFieldKey.cs" />
     <Compile Include="Framework\ModData\ParsedModDataRecord.cs" />
+    <Compile Include="Framework\Models\ManifestContentPackFor.cs" />
     <Compile Include="Framework\ModLoading\Finders\EventFinder.cs" />
     <Compile Include="Framework\ModLoading\Finders\FieldFinder.cs" />
     <Compile Include="Framework\ModLoading\Finders\MethodFinder.cs" />
@@ -114,6 +116,7 @@
     <Compile Include="Framework\ModLoading\AssemblyLoadStatus.cs" />
     <Compile Include="Framework\Reflection\InterfaceProxyBuilder.cs" />
     <Compile Include="Framework\Reflection\InterfaceProxyFactory.cs" />
+    <Compile Include="Framework\Serialisation\SmapiConverters\ManifestContentPackForConverter.cs" />
     <Compile Include="Framework\Serialisation\SmapiConverters\ManifestDependencyArrayConverter.cs" />
     <Compile Include="Framework\Serialisation\SmapiConverters\SemanticVersionConverter.cs" />
     <Compile Include="Framework\Serialisation\SimpleReadOnlyConverter.cs" />
@@ -121,6 +124,8 @@
     <Compile Include="Framework\Serialisation\CrossplatformConverters\ColorConverter.cs" />
     <Compile Include="Framework\Serialisation\CrossplatformConverters\PointConverter.cs" />
     <Compile Include="Framework\Utilities\ContextHash.cs" />
+    <Compile Include="IContentPack.cs" />
+    <Compile Include="IManifestContentPackFor.cs" />
     <Compile Include="IReflectedField.cs" />
     <Compile Include="IReflectedMethod.cs" />
     <Compile Include="IReflectedProperty.cs" />
