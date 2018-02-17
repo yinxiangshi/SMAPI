@@ -25,8 +25,8 @@ namespace StardewModdingAPI
         private static readonly IDictionary<string, string> VendorModUrls = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
         {
             ["Chucklefish"] = "https://community.playstarbound.com/resources/{0}",
-            ["Nexus"] = "http://nexusmods.com/stardewvalley/mods/{0}",
-            ["GitHub"] = "https://github.com/{0}/releases"
+            ["GitHub"] = "https://github.com/{0}/releases",
+            ["Nexus"] = "https://www.nexusmods.com/stardewvalley/mods/{0}"
         };
 
 
