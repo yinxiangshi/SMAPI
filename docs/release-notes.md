@@ -9,6 +9,7 @@
 
 * For modders:
   * Fixed deadlock in rare cases when injecting a file with an asset loader.
+  * Fixed unhelpful error when a mod exposes a non-public API.
 
 * For SMAPI developers:
   * Overhauled `StardewModdingApi.config.json`'s `ModData` format to be more concise, reduce the memory footprint, and support versioning/defaulting more fields.

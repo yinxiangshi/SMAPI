@@ -804,6 +804,12 @@ namespace StardewModdingAPI
                 try
                 {
                     object api = metadata.Mod.GetApi();
+                    if (api != null && !api.GetType().IsPublic)
+                    {
+                        api = null;
+                        this.Monitor.Log($"{metadata.DisplayName} provides an API instance with a non-public type. This isn't currently supported, so the API won't be available to other mods.", LogLevel.Warn);
+                    }
+
                     if (api != null)
                         this.Monitor.Log($"   Found mod-provided API ({api.GetType().FullName}).", LogLevel.Trace);
                     metadata.SetApi(api);
