@@ -364,8 +364,13 @@ namespace StardewModdingApi.Installer
                 else
                     this.PrintColor("SMAPI is removed! If you configured Steam to launch SMAPI, don't forget to clear your launch options.", ConsoleColor.DarkGreen);
             }
-            else if (action == ScriptAction.Install)
-                this.PrintColor("SMAPI is installed! Launch the game the same way as before to play with mods.", ConsoleColor.DarkGreen);
+            else
+            {
+                if (action == ScriptAction.Install)
+                    this.PrintColor("SMAPI is installed! Launch the game the same way as before to play with mods.", ConsoleColor.DarkGreen);
+                else
+                    this.PrintColor("SMAPI is removed! Launch the game the same way as before to play without mods.", ConsoleColor.DarkGreen);
+            }
 
             Console.ReadKey();
         }
