@@ -1,12 +1,12 @@
 # Release notes
 ## 2.5
 * For players:
-  * Added support for content packs, which can be dropped into `Mods` like normal mods.
+  * **Added support for content packs**, so sub-mods can be dropped into `Mods` just like normal mods.
   * Added install scripts for Linux/Mac (no longer need to run `mono install.exe` through the terminal).
-  * When a mod is skipped because you're missing a dependency, the error now shows the name and URL of the missing mod.
+  * Added the required mod's name and URL to dependency errors.
   * Fixed mod crashes being logged under `[SMAPI]` instead of the mod name.
   * Fixed uninstall script not confirming success on Linux/Mac.
-  * Updated compatibility list and enabled update checks for more old mods.
+  * Updated compatibility list and enabled update checks for more mods.
 
 * For modders:
   * Added APIs to fetch and interact with content packs.
@@ -15,7 +15,7 @@
   * Fixed unhelpful error when a mod exposes a non-public API.
 
 * For SMAPI developers:
-  * Overhauled `StardewModdingApi.config.json`'s `ModData` format to be more concise, reduce the memory footprint, and support versioning/defaulting more fields.
+  * Overhauled mod DB format to be more concise, reduce the memory footprint, and support versioning/defaulting more fields.
 
 ## 2.4
 * For players:
