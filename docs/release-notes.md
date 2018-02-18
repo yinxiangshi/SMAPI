@@ -1,6 +1,7 @@
 # Release notes
 ## 2.5
 * For players:
+  * Added support for content packs, which can be dropped into `Mods` like normal mods.
   * Added install scripts for Linux/Mac (no longer need to run `mono install.exe` through the terminal).
   * When a mod is skipped because you're missing a dependency, the error now shows the name and URL of the missing mod.
   * Fixed mod crashes being logged under `[SMAPI]` instead of the mod name.
@@ -8,6 +9,7 @@
   * Updated compatibility list and enabled update checks for more old mods.
 
 * For modders:
+  * Added APIs to fetch and interact with content packs.
   * Added support for `ISemanticVersion` in JSON models.
   * Fixed deadlock in rare cases when injecting a file with an asset loader.
   * Fixed unhelpful error when a mod exposes a non-public API.
