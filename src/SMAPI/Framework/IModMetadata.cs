@@ -18,7 +18,7 @@ namespace StardewModdingAPI.Framework
         /// <summary>The mod manifest.</summary>
         IManifest Manifest { get; }
 
-        /// <summary>>Metadata about the mod from SMAPI's internal data (if any).</summary>
+        /// <summary>Metadata about the mod from SMAPI's internal data (if any).</summary>
         ParsedModDataRecord DataRecord { get; }
 
         /// <summary>The metadata resolution status.</summary>
@@ -27,11 +27,20 @@ namespace StardewModdingAPI.Framework
         /// <summary>The reason the metadata is invalid, if any.</summary>
         string Error { get; }
 
-        /// <summary>The mod instance (if it was loaded).</summary>
+        /// <summary>The mod instance (if loaded and <see cref="IsContentPack"/> is false).</summary>
         IMod Mod { get; }
+
+        /// <summary>The content pack instance (if loaded and <see cref="IsContentPack"/> is true).</summary>
+        IContentPack ContentPack { get; }
+
+        /// <summary>Writes messages to the console and log file as this mod.</summary>
+        IMonitor Monitor { get; }
 
         /// <summary>The mod-provided API (if any).</summary>
         object Api { get; }
+
+        /// <summary>Whether the mod is a content pack.</summary>
+        bool IsContentPack { get; }
 
 
         /*********
@@ -46,6 +55,11 @@ namespace StardewModdingAPI.Framework
         /// <summary>Set the mod instance.</summary>
         /// <param name="mod">The mod instance to set.</param>
         IModMetadata SetMod(IMod mod);
+
+        /// <summary>Set the mod instance.</summary>
+        /// <param name="contentPack">The contentPack instance to set.</param>
+        /// <param name="monitor">Writes messages to the console and log file.</param>
+        IModMetadata SetMod(IContentPack contentPack, IMonitor monitor);
 
         /// <summary>Set the mod-provided API instance.</summary>
         /// <param name="api">The mod-provided API.</param>

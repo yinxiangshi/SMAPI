@@ -1,3 +1,4 @@
+using System;
 using StardewModdingAPI.Framework.ModData;
 
 namespace StardewModdingAPI.Framework.ModLoading
@@ -26,11 +27,20 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>The reason the metadata is invalid, if any.</summary>
         public string Error { get; private set; }
 
-        /// <summary>The mod instance (if it was loaded).</summary>
+        /// <summary>The mod instance (if loaded and <see cref="IsContentPack"/> is false).</summary>
         public IMod Mod { get; private set; }
+
+        /// <summary>The content pack instance (if loaded and <see cref="IsContentPack"/> is true).</summary>
+        public IContentPack ContentPack { get; private set; }
+
+        /// <summary>Writes messages to the console and log file as this mod.</summary>
+        public IMonitor Monitor { get; private set; }
 
         /// <summary>The mod-provided API (if any).</summary>
         public object Api { get; private set; }
+
+        /// <summary>Whether the mod is a content pack.</summary>
+        public bool IsContentPack => this.Manifest?.ContentPackFor != null;
 
 
         /*********
@@ -64,7 +74,24 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="mod">The mod instance to set.</param>
         public IModMetadata SetMod(IMod mod)
         {
+            if (this.ContentPack != null)
+                throw new InvalidOperationException("A mod can't be both an assembly mod and content pack.");
+
             this.Mod = mod;
+            this.Monitor = mod.Monitor;
+            return this;
+        }
+
+        /// <summary>Set the mod instance.</summary>
+        /// <param name="contentPack">The contentPack instance to set.</param>
+        /// <param name="monitor">Writes messages to the console and log file.</param>
+        public IModMetadata SetMod(IContentPack contentPack, IMonitor monitor)
+        {
+            if (this.Mod != null)
+                throw new InvalidOperationException("A mod can't be both an assembly mod and content pack.");
+
+            this.ContentPack = contentPack;
+            this.Monitor = monitor;
             return this;
         }
 

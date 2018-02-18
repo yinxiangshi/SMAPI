@@ -1,4 +1,6 @@
-﻿namespace StardewModdingAPI
+using System.Collections.Generic;
+
+namespace StardewModdingAPI
 {
     /// <summary>Provides simplified APIs for writing mods.</summary>
     public interface IModHelper
@@ -54,5 +56,11 @@
         /// <param name="path">The file path relative to the mod directory.</param>
         /// <param name="model">The model to save.</param>
         void WriteJsonFile<TModel>(string path, TModel model) where TModel : class;
+
+        /****
+        ** Content packs
+        ****/
+        /// <summary>Get all content packs loaded for this mod.</summary>
+        IEnumerable<IContentPack> GetContentPacks();
     }
 }

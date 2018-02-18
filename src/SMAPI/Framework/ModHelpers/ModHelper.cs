@@ -1,5 +1,7 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using StardewModdingAPI.Framework.Serialisation;
 
 namespace StardewModdingAPI.Framework.ModHelpers
@@ -12,6 +14,9 @@ namespace StardewModdingAPI.Framework.ModHelpers
         *********/
         /// <summary>Encapsulates SMAPI's JSON file parsing.</summary>
         private readonly JsonHelper JsonHelper;
+
+        /// <summary>The content packs loaded for this mod.</summary>
+        private readonly IContentPack[] ContentPacks;
 
 
         /*********
@@ -48,9 +53,10 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="modRegistry">an API for fetching metadata about loaded mods.</param>
         /// <param name="reflectionHelper">An API for accessing private game code.</param>
         /// <param name="translationHelper">An API for reading translations stored in the mod's <c>i18n</c> folder.</param>
+        /// <param name="contentPacks">The content packs loaded for this mod.</param>
         /// <exception cref="ArgumentNullException">An argument is null or empty.</exception>
         /// <exception cref="InvalidOperationException">The <paramref name="modDirectory"/> path does not exist on disk.</exception>
-        public ModHelper(string modID, string modDirectory, JsonHelper jsonHelper, IContentHelper contentHelper, ICommandHelper commandHelper, IModRegistry modRegistry, IReflectionHelper reflectionHelper, ITranslationHelper translationHelper)
+        public ModHelper(string modID, string modDirectory, JsonHelper jsonHelper, IContentHelper contentHelper, ICommandHelper commandHelper, IModRegistry modRegistry, IReflectionHelper reflectionHelper, ITranslationHelper translationHelper, IEnumerable<IContentPack> contentPacks)
             : base(modID)
         {
             // validate directory
@@ -67,6 +73,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
             this.ConsoleCommands = commandHelper ?? throw new ArgumentNullException(nameof(commandHelper));
             this.Reflection = reflectionHelper ?? throw new ArgumentNullException(nameof(reflectionHelper));
             this.Translation = translationHelper ?? throw new ArgumentNullException(nameof(translationHelper));
+            this.ContentPacks = contentPacks.ToArray();
         }
 
         /****
@@ -116,6 +123,14 @@ namespace StardewModdingAPI.Framework.ModHelpers
             this.JsonHelper.WriteJsonFile(path, model);
         }
 
+        /****
+        ** Content packs
+        ****/
+        /// <summary>Get all content packs loaded for this mod.</summary>
+        public IEnumerable<IContentPack> GetContentPacks()
+        {
+            return this.ContentPacks;
+        }
 
         /****
         ** Disposal

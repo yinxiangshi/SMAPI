@@ -21,6 +21,9 @@ namespace StardewModdingAPI.Framework.Serialisation
             ObjectCreationHandling = ObjectCreationHandling.Replace, // avoid issue where default ICollection<T> values are duplicated each time the config is loaded
             Converters = new List<JsonConverter>
             {
+                // SMAPI types
+                new SemanticVersionConverter(),
+
                 // enums
                 new StringEnumConverter<Buttons>(),
                 new StringEnumConverter<Keys>(),
