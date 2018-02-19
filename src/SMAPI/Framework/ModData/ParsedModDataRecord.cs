@@ -15,9 +15,6 @@ namespace StardewModdingAPI.Framework.ModData
         /// <summary>The update key to apply.</summary>
         public string UpdateKey { get; set; }
 
-        /// <summary>The mod version to apply.</summary>
-        public ISemanticVersion Version { get; set; }
-
         /// <summary>The alternative URL the player can check for an updated version.</summary>
         public string AlternativeUrl { get; set; }
 

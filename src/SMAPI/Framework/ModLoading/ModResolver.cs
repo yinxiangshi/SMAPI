@@ -57,6 +57,13 @@ namespace StardewModdingAPI.Framework.ModLoading
                 if (string.IsNullOrWhiteSpace(displayName))
                     displayName = modDir.FullName.Replace(rootPath, "").Trim('/', '\\');
 
+                // apply defaults
+                if (manifest != null && dataRecord != null)
+                {
+                    if (dataRecord.UpdateKey != null)
+                        manifest.UpdateKeys = new[] { dataRecord.UpdateKey };
+                }
+
                 // build metadata
                 ModMetadataStatus status = error == null
                     ? ModMetadataStatus.Found
