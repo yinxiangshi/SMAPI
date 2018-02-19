@@ -21,10 +21,10 @@ namespace StardewModdingAPI.Framework.Serialisation.CrossplatformConverters
         /// <param name="path">The path to the current JSON node.</param>
         protected override Rectangle ReadObject(JObject obj, string path)
         {
-            int x = obj.Value<int>(nameof(Rectangle.X));
-            int y = obj.Value<int>(nameof(Rectangle.Y));
-            int width = obj.Value<int>(nameof(Rectangle.Width));
-            int height = obj.Value<int>(nameof(Rectangle.Height));
+            int x = obj.ValueIgnoreCase<int>(nameof(Rectangle.X));
+            int y = obj.ValueIgnoreCase<int>(nameof(Rectangle.Y));
+            int width = obj.ValueIgnoreCase<int>(nameof(Rectangle.Width));
+            int height = obj.ValueIgnoreCase<int>(nameof(Rectangle.Height));
             return new Rectangle(x, y, width, height);
         }
 
@@ -36,7 +36,7 @@ namespace StardewModdingAPI.Framework.Serialisation.CrossplatformConverters
             if (string.IsNullOrWhiteSpace(str))
                 return Rectangle.Empty;
 
-            var match = Regex.Match(str, @"^\{X:(?<x>\d+) Y:(?<y>\d+) Width:(?<width>\d+) Height:(?<height>\d+)\}$");
+            var match = Regex.Match(str, @"^\{X:(?<x>\d+) Y:(?<y>\d+) Width:(?<width>\d+) Height:(?<height>\d+)\}$", RegexOptions.IgnoreCase);
             if (!match.Success)
                 throw new SParseException($"Can't parse {typeof(Rectangle).Name} from invalid value '{str}' (path: {path}).");
 

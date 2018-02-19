@@ -20,10 +20,10 @@ namespace StardewModdingAPI.Framework.Serialisation.CrossplatformConverters
         /// <param name="path">The path to the current JSON node.</param>
         protected override Color ReadObject(JObject obj, string path)
         {
-            int r = obj.Value<int>(nameof(Color.R));
-            int g = obj.Value<int>(nameof(Color.G));
-            int b = obj.Value<int>(nameof(Color.B));
-            int a = obj.Value<int>(nameof(Color.A));
+            int r = obj.ValueIgnoreCase<int>(nameof(Color.R));
+            int g = obj.ValueIgnoreCase<int>(nameof(Color.G));
+            int b = obj.ValueIgnoreCase<int>(nameof(Color.B));
+            int a = obj.ValueIgnoreCase<int>(nameof(Color.A));
             return new Color(r, g, b, a);
         }
 

@@ -40,9 +40,9 @@ namespace StardewModdingAPI.Framework.Serialisation.SmapiConverters
             List<IManifestDependency> result = new List<IManifestDependency>();
             foreach (JObject obj in JArray.Load(reader).Children<JObject>())
             {
-                string uniqueID = obj.Value<string>(nameof(IManifestDependency.UniqueID));
-                string minVersion = obj.Value<string>(nameof(IManifestDependency.MinimumVersion));
-                bool required = obj.Value<bool?>(nameof(IManifestDependency.IsRequired)) ?? true;
+                string uniqueID = obj.ValueIgnoreCase<string>(nameof(IManifestDependency.UniqueID));
+                string minVersion = obj.ValueIgnoreCase<string>(nameof(IManifestDependency.MinimumVersion));
+                bool required = obj.ValueIgnoreCase<bool?>(nameof(IManifestDependency.IsRequired)) ?? true;
                 result.Add(new ManifestDependency(uniqueID, minVersion, required));
             }
             return result.ToArray();

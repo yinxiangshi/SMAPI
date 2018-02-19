@@ -14,6 +14,7 @@
   * Fixed deadlock in rare cases when injecting a file with an asset loader.
   * Fixed unhelpful error when a mod exposes a non-public API.
   * Fixed input events being raised for keyboard buttons when a textbox is receiving input.
+  * Fixed some JSON field names being case-sensitive.
 
 * For SMAPI developers:
   * Overhauled mod DB format to be more concise, reduce the memory footprint, and support versioning/defaulting more fields.

@@ -14,10 +14,10 @@ namespace StardewModdingAPI.Framework.Serialisation.SmapiConverters
         /// <param name="path">The path to the current JSON node.</param>
         protected override ISemanticVersion ReadObject(JObject obj, string path)
         {
-            int major = obj.Value<int>(nameof(ISemanticVersion.MajorVersion));
-            int minor = obj.Value<int>(nameof(ISemanticVersion.MinorVersion));
-            int patch = obj.Value<int>(nameof(ISemanticVersion.PatchVersion));
-            string build = obj.Value<string>(nameof(ISemanticVersion.Build));
+            int major = obj.ValueIgnoreCase<int>(nameof(ISemanticVersion.MajorVersion));
+            int minor = obj.ValueIgnoreCase<int>(nameof(ISemanticVersion.MinorVersion));
+            int patch = obj.ValueIgnoreCase<int>(nameof(ISemanticVersion.PatchVersion));
+            string build = obj.ValueIgnoreCase<string>(nameof(ISemanticVersion.Build));
             return new LegacyManifestVersion(major, minor, patch, build);
         }
 
