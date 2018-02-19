@@ -603,7 +603,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": "Entoarox.EntoaroxFramework",
       "FormerIDs": "eacdb74b-4080-4452-b16b-93773cda5cf9", // changed in ???
       "~2.0.6 | UpdateKey": "Chucklefish:4228", // only enable update checks up to 2.0.6 by request (has its own update-check feature)
-      "~1.7.9 | Status": "AssumeBroken" // broke in SMAPI 2.0
+      "~2.0.6 | Status": "AssumeBroken" // broke in SMAPI 2.5 (error reflecting into SMAPI internals)
     },
 
     "Expanded Fridge": {
