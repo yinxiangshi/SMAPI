@@ -256,7 +256,7 @@ namespace StardewModdingAPI.Framework
                         this.Monitor.Log("Context: before save creation.", LogLevel.Trace);
                         SaveEvents.InvokeBeforeCreate(this.Monitor);
                     }
-                    
+
                     // raise before-save
                     if (Context.IsWorldReady && !this.IsBetweenSaveEvents)
                     {
@@ -386,20 +386,23 @@ namespace StardewModdingAPI.Framework
                     }
 
                     // raise input events
+                    bool isTextboxReceiving = Game1.keyboardDispatcher?.Subscriber?.Selected == true;
                     foreach (var pair in inputState.ActiveButtons)
                     {
                         SButton button = pair.Key;
                         InputStatus status = pair.Value;
+                        bool isKeyboard = button.TryGetKeyboard(out Keys keyboardKey);
 
                         if (status == InputStatus.Pressed)
                         {
-                            InputEvents.InvokeButtonPressed(this.Monitor, button, cursor, button.IsActionButton(), button.IsUseToolButton());
+                            if (!isTextboxReceiving || !isKeyboard)
+                                InputEvents.InvokeButtonPressed(this.Monitor, button, cursor, button.IsActionButton(), button.IsUseToolButton());
 
                             // legacy events
-                            if (button.TryGetKeyboard(out Keys key))
+                            if (isKeyboard)
                             {
-                                if (key != Keys.None)
-                                    ControlEvents.InvokeKeyPressed(this.Monitor, key);
+                                if (!isTextboxReceiving && keyboardKey != Keys.None)
+                                    ControlEvents.InvokeKeyPressed(this.Monitor, keyboardKey);
                             }
                             else if (button.TryGetController(out Buttons controllerButton))
                             {
@@ -411,13 +414,14 @@ namespace StardewModdingAPI.Framework
                         }
                         else if (status == InputStatus.Released)
                         {
-                            InputEvents.InvokeButtonReleased(this.Monitor, button, cursor, button.IsActionButton(), button.IsUseToolButton());
+                            if (!isTextboxReceiving || !isKeyboard)
+                                InputEvents.InvokeButtonReleased(this.Monitor, button, cursor, button.IsActionButton(), button.IsUseToolButton());
 
                             // legacy events
-                            if (button.TryGetKeyboard(out Keys key))
+                            if (isKeyboard)
                             {
-                                if (key != Keys.None)
-                                    ControlEvents.InvokeKeyReleased(this.Monitor, key);
+                                if (!isTextboxReceiving && keyboardKey != Keys.None)
+                                    ControlEvents.InvokeKeyReleased(this.Monitor, keyboardKey);
                             }
                             else if (button.TryGetController(out Buttons controllerButton))
                             {
