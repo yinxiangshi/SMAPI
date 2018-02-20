@@ -823,7 +823,7 @@ namespace StardewModdingAPI
                     this.Monitor.Log(
                         $"   {metadata.DisplayName} {manifest.Version}"
                         + (!string.IsNullOrWhiteSpace(manifest.Author) ? $" by {manifest.Author}" : "")
-                        + (metadata.IsContentPack ? $" | content pack for {GetModDisplayName(metadata.Manifest.ContentPackFor.UniqueID)}" : "")
+                        + (metadata.IsContentPack ? $" | for {GetModDisplayName(metadata.Manifest.ContentPackFor.UniqueID)}" : "")
                         + (!string.IsNullOrWhiteSpace(manifest.Description) ? $" | {manifest.Description}" : ""),
                         LogLevel.Info
                     );
