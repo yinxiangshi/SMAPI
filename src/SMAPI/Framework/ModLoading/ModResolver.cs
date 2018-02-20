@@ -6,6 +6,7 @@ using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.ModData;
 using StardewModdingAPI.Framework.Models;
 using StardewModdingAPI.Framework.Serialisation;
+using StardewModdingAPI.Framework.Utilities;
 
 namespace StardewModdingAPI.Framework.ModLoading
 {
@@ -55,7 +56,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 if (string.IsNullOrWhiteSpace(displayName))
                     displayName = dataRecord?.DisplayName;
                 if (string.IsNullOrWhiteSpace(displayName))
-                    displayName = modDir.FullName.Replace(rootPath, "").Trim('/', '\\');
+                    displayName = PathUtilities.GetRelativePath(rootPath, modDir.FullName);
 
                 // apply defaults
                 if (manifest != null && dataRecord != null)

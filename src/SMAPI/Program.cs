@@ -25,6 +25,7 @@ using StardewModdingAPI.Framework.ModHelpers;
 using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Serialisation;
+using StardewModdingAPI.Framework.Utilities;
 using StardewValley;
 using Monitor = StardewModdingAPI.Framework.Monitor;
 using SObject = StardewValley.Object;
@@ -660,7 +661,7 @@ namespace StardewModdingAPI
             {
                 // get basic info
                 IManifest manifest = metadata.Manifest;
-                this.Monitor.Log($"Loading {metadata.DisplayName} from {metadata.DirectoryPath.Replace(Constants.ModPath, "").TrimStart(Path.DirectorySeparatorChar)} (content pack)...", LogLevel.Trace);
+                this.Monitor.Log($"Loading {metadata.DisplayName} from {PathUtilities.GetRelativePath(Constants.ModPath, metadata.DirectoryPath)} (content pack)...", LogLevel.Trace);
 
                 // validate status
                 if (metadata.Status == ModMetadataStatus.Failed)
@@ -702,7 +703,7 @@ namespace StardewModdingAPI
                     // get basic info
                     IManifest manifest = metadata.Manifest;
                     this.Monitor.Log(metadata.Manifest?.EntryDll != null
-                        ? $"Loading {metadata.DisplayName} from {metadata.DirectoryPath.Replace(Constants.ModPath, "").TrimStart(Path.DirectorySeparatorChar)}{Path.DirectorySeparatorChar}{metadata.Manifest.EntryDll}..." // don't use Path.Combine here, since EntryDLL might not be valid
+                        ? $"Loading {metadata.DisplayName} from {PathUtilities.GetRelativePath(Constants.ModPath, metadata.DirectoryPath)}{Path.DirectorySeparatorChar}{metadata.Manifest.EntryDll}..." // don't use Path.Combine here, since EntryDLL might not be valid
                         : $"Loading {metadata.DisplayName}...", LogLevel.Trace);
 
                     // validate status
