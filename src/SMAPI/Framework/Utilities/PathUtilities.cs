@@ -53,7 +53,10 @@ namespace StardewModdingAPI.Framework.Utilities
                 throw new InvalidOperationException($"Can't get path for '{targetPath}' relative to '{sourceDir}'.");
 
             // get relative path
-            return PathUtilities.NormalisePathSeparators(Uri.UnescapeDataString(from.MakeRelativeUri(to).ToString()));
+            string relative = PathUtilities.NormalisePathSeparators(Uri.UnescapeDataString(from.MakeRelativeUri(to).ToString()));
+            if (relative == "")
+                relative = "./";
+            return relative;
         }
     }
 }
