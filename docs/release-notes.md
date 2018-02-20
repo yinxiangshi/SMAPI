@@ -9,8 +9,9 @@
   * Updated compatibility list and enabled update checks for more mods.
 
 * For modders:
-  * Added APIs to fetch and interact with content packs.
+  * Added content pack APIs.
   * Added support for `ISemanticVersion` in JSON models.
+  * Added `SpecialisedEvents.UnvalidatedUpdateTick` event for specialised use cases.
   * Fixed deadlock in rare cases when injecting a file with an asset loader.
   * Fixed unhelpful error when a mod exposes a non-public API.
   * Fixed input events being raised for keyboard buttons when a textbox is receiving input.

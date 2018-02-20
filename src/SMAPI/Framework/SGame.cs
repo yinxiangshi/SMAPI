@@ -229,6 +229,7 @@ namespace StardewModdingAPI.Framework
                 if (SGame._newDayTask != null)
                 {
                     base.Update(gameTime);
+                    SpecialisedEvents.InvokeUnvalidatedUpdateTick(this.Monitor);
                     return;
                 }
 
@@ -236,6 +237,7 @@ namespace StardewModdingAPI.Framework
                 if (Game1.gameMode == Game1.loadingMode)
                 {
                     base.Update(gameTime);
+                    SpecialisedEvents.InvokeUnvalidatedUpdateTick(this.Monitor);
                     return;
                 }
 
@@ -267,6 +269,7 @@ namespace StardewModdingAPI.Framework
 
                     // suppress non-save events
                     base.Update(gameTime);
+                    SpecialisedEvents.InvokeUnvalidatedUpdateTick(this.Monitor);
                     return;
                 }
                 if (this.IsBetweenCreateEvents)
@@ -289,9 +292,7 @@ namespace StardewModdingAPI.Framework
                 ** Game loaded events
                 *********/
                 if (this.FirstUpdate)
-                {
                     GameEvents.InvokeInitialize(this.Monitor);
-                }
 
                 /*********
                 ** Locale changed events
@@ -556,6 +557,7 @@ namespace StardewModdingAPI.Framework
                 /*********
                 ** Update events
                 *********/
+                SpecialisedEvents.InvokeUnvalidatedUpdateTick(this.Monitor);
                 if (this.FirstUpdate)
                 {
                     this.FirstUpdate = false;

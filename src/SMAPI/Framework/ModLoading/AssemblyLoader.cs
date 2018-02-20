@@ -285,6 +285,11 @@ namespace StardewModdingAPI.Framework.ModLoading
                     this.Monitor.LogOnce(loggedMessages, $"{mod.DisplayName} seems to change the save serialiser. It may change your saves in such a way that they won't work without this mod in the future.", LogLevel.Warn);
                     break;
 
+                case InstructionHandleResult.DetectedUnvalidatedUpdateTick:
+                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Detected reference to {handler.NounPhrase} in assembly {filename}.");
+                    this.Monitor.LogOnce(loggedMessages, $"{mod.DisplayName} uses a specialised SMAPI event that may crash the game or corrupt your save file. If you encounter problems, try removing this mod first.", LogLevel.Warn);
+                    break;
+
                 case InstructionHandleResult.DetectedDynamic:
                     this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Detected 'dynamic' keyword ({handler.NounPhrase}) in assembly {filename}.");
                     this.Monitor.LogOnce(loggedMessages, $"{mod.DisplayName} uses the 'dynamic' keyword, which isn't compatible with Stardew Valley on Linux or Mac.",
