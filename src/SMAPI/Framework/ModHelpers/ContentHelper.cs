@@ -8,6 +8,7 @@ using System.Linq;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Framework.Exceptions;
+using StardewModdingAPI.Framework.Utilities;
 using StardewValley;
 using xTile;
 using xTile.Format;
@@ -238,7 +239,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
                 string imageSource = tilesheet.ImageSource;
 
                 // validate tilesheet path
-                if (Path.IsPathRooted(imageSource) || imageSource.Split(SContentManager.PossiblePathSeparators).Contains(".."))
+                if (Path.IsPathRooted(imageSource) || PathUtilities.GetSegments(imageSource).Contains(".."))
                     throw new ContentLoadException($"The '{imageSource}' tilesheet couldn't be loaded. Tilesheet paths must be a relative path without directory climbing (../).");
 
                 // get seasonal name (if applicable)

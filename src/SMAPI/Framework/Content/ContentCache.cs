@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Framework.Reflection;
+using StardewModdingAPI.Framework.Utilities;
 using StardewValley;
 
 namespace StardewModdingAPI.Framework.Content
@@ -17,12 +18,6 @@ namespace StardewModdingAPI.Framework.Content
         *********/
         /// <summary>The underlying asset cache.</summary>
         private readonly IDictionary<string, object> Cache;
-
-        /// <summary>The possible directory separator characters in an asset key.</summary>
-        private readonly char[] PossiblePathSeparators;
-
-        /// <summary>The preferred directory separator chaeacter in an asset key.</summary>
-        private readonly string PreferredPathSeparator;
 
         /// <summary>Applies platform-specific asset key normalisation so it's consistent with the underlying cache.</summary>
         private readonly Func<string, string> NormaliseAssetNameForPlatform;
@@ -52,14 +47,10 @@ namespace StardewModdingAPI.Framework.Content
         /// <summary>Construct an instance.</summary>
         /// <param name="contentManager">The underlying content manager whose cache to manage.</param>
         /// <param name="reflection">Simplifies access to private game code.</param>
-        /// <param name="possiblePathSeparators">The possible directory separator characters in an asset key.</param>
-        /// <param name="preferredPathSeparator">The preferred directory separator chaeacter in an asset key.</param>
-        public ContentCache(LocalizedContentManager contentManager, Reflector reflection, char[] possiblePathSeparators, string preferredPathSeparator)
+        public ContentCache(LocalizedContentManager contentManager, Reflector reflection)
         {
             // init
             this.Cache = reflection.GetField<Dictionary<string, object>>(contentManager, "loadedAssets").GetValue();
-            this.PossiblePathSeparators = possiblePathSeparators;
-            this.PreferredPathSeparator = preferredPathSeparator;
 
             // get key normalisation logic
             if (Constants.TargetPlatform == Platform.Windows)
@@ -90,11 +81,7 @@ namespace StardewModdingAPI.Framework.Content
         [Pure]
         public string NormalisePathSeparators(string path)
         {
-            string[] parts = path.Split(this.PossiblePathSeparators, StringSplitOptions.RemoveEmptyEntries);
-            string normalised = string.Join(this.PreferredPathSeparator, parts);
-            if (path.StartsWith(this.PreferredPathSeparator))
-                normalised = this.PreferredPathSeparator + normalised; // keep root slash
-            return normalised;
+            return PathUtilities.NormalisePathSeparators(path);
         }
 
         /// <summary>Normalise a cache key so it's consistent with the underlying cache.</summary>

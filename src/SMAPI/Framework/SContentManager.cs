@@ -35,9 +35,6 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Properties
         *********/
-        /// <summary>The preferred directory separator chaeacter in an asset key.</summary>
-        private static readonly string PreferredPathSeparator = Path.DirectorySeparatorChar.ToString();
-
         /// <summary>Encapsulates monitoring and logging.</summary>
         private readonly IMonitor Monitor;
 
@@ -75,9 +72,6 @@ namespace StardewModdingAPI.Framework
         /// <summary>Interceptors which edit matching assets after they're loaded.</summary>
         internal IDictionary<IModMetadata, IList<IAssetEditor>> Editors { get; } = new Dictionary<IModMetadata, IList<IAssetEditor>>();
 
-        /// <summary>The possible directory separator characters in an asset key.</summary>
-        internal static readonly char[] PossiblePathSeparators = new[] { '/', '\\', Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }.Distinct().ToArray();
-
         /// <summary>The absolute path to the <see cref="ContentManager.RootDirectory"/>.</summary>
         internal string FullRootDirectory => Path.Combine(Constants.ExecutionPath, this.RootDirectory);
 
@@ -100,7 +94,7 @@ namespace StardewModdingAPI.Framework
         {
             // init
             this.Monitor = monitor ?? throw new ArgumentNullException(nameof(monitor));
-            this.Cache = new ContentCache(this, reflection, SContentManager.PossiblePathSeparators, SContentManager.PreferredPathSeparator);
+            this.Cache = new ContentCache(this, reflection);
             this.GetKeyLocale = reflection.GetMethod(this, "languageCode");
             this.ModContentPrefix = this.GetAssetNameFromFilePath(Constants.ModPath);
 
@@ -399,15 +393,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="targetPath">The target file path.</param>
         private string GetRelativePath(string targetPath)
         {
-            // convert to URIs
-            Uri from = new Uri(this.FullRootDirectory + "/");
-            Uri to = new Uri(targetPath + "/");
-            if (from.Scheme != to.Scheme)
-                throw new InvalidOperationException($"Can't get path for '{targetPath}' relative to '{this.FullRootDirectory}'.");
-
-            // get relative path
-            return Uri.UnescapeDataString(from.MakeRelativeUri(to).ToString())
-                .Replace(Path.DirectorySeparatorChar == '/' ? '\\' : '/', Path.DirectorySeparatorChar); // use correct separator for platform
+            return PathUtilities.GetRelativePath(this.FullRootDirectory, targetPath);
         }
 
         /// <summary>Get the locale codes (like <c>ja-JP</c>) used in asset keys.</summary>
