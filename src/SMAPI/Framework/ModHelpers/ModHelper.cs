@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using StardewModdingAPI.Framework.Serialisation;
+using StardewModdingAPI.Framework.Utilities;
 
 namespace StardewModdingAPI.Framework.ModHelpers
 {
@@ -108,7 +109,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         public TModel ReadJsonFile<TModel>(string path)
             where TModel : class
         {
-            path = Path.Combine(this.DirectoryPath, path);
+            path = Path.Combine(this.DirectoryPath, PathUtilities.NormalisePathSeparators(path));
             return this.JsonHelper.ReadJsonFile<TModel>(path);
         }
 
@@ -119,7 +120,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         public void WriteJsonFile<TModel>(string path, TModel model)
             where TModel : class
         {
-            path = Path.Combine(this.DirectoryPath, path);
+            path = Path.Combine(this.DirectoryPath, PathUtilities.NormalisePathSeparators(path));
             this.JsonHelper.WriteJsonFile(path, model);
         }
 

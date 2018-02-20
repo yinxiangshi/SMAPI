@@ -3,6 +3,7 @@ using System.IO;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Framework.Serialisation;
+using StardewModdingAPI.Framework.Utilities;
 using xTile;
 
 namespace StardewModdingAPI.Framework
@@ -52,7 +53,7 @@ namespace StardewModdingAPI.Framework
         /// <returns>Returns the deserialised model, or <c>null</c> if the file doesn't exist or is empty.</returns>
         public TModel ReadJsonFile<TModel>(string path) where TModel : class
         {
-            path = Path.Combine(this.DirectoryPath, path);
+            path = Path.Combine(this.DirectoryPath, PathUtilities.NormalisePathSeparators(path));
             return this.JsonHelper.ReadJsonFile<TModel>(path);
         }
 
