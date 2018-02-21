@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using StardewModdingAPI.Framework.Models;
 using StardewModdingAPI.Framework.Serialisation;
 using StardewModdingAPI.Framework.Utilities;
 
@@ -18,6 +19,12 @@ namespace StardewModdingAPI.Framework.ModHelpers
 
         /// <summary>The content packs loaded for this mod.</summary>
         private readonly IContentPack[] ContentPacks;
+
+        /// <summary>Create a transitional content pack.</summary>
+        private readonly Func<string, IManifest, IContentPack> CreateContentPack;
+
+        /// <summary>Manages deprecation warnings.</summary>
+        private readonly DeprecationManager DeprecationManager;
 
 
         /*********
@@ -55,9 +62,11 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="reflectionHelper">An API for accessing private game code.</param>
         /// <param name="translationHelper">An API for reading translations stored in the mod's <c>i18n</c> folder.</param>
         /// <param name="contentPacks">The content packs loaded for this mod.</param>
+        /// <param name="createContentPack">Create a transitional content pack.</param>
+        /// <param name="deprecationManager">Manages deprecation warnings.</param>
         /// <exception cref="ArgumentNullException">An argument is null or empty.</exception>
         /// <exception cref="InvalidOperationException">The <paramref name="modDirectory"/> path does not exist on disk.</exception>
-        public ModHelper(string modID, string modDirectory, JsonHelper jsonHelper, IContentHelper contentHelper, ICommandHelper commandHelper, IModRegistry modRegistry, IReflectionHelper reflectionHelper, ITranslationHelper translationHelper, IEnumerable<IContentPack> contentPacks)
+        public ModHelper(string modID, string modDirectory, JsonHelper jsonHelper, IContentHelper contentHelper, ICommandHelper commandHelper, IModRegistry modRegistry, IReflectionHelper reflectionHelper, ITranslationHelper translationHelper, IEnumerable<IContentPack> contentPacks, Func<string, IManifest, IContentPack> createContentPack, DeprecationManager deprecationManager)
             : base(modID)
         {
             // validate directory
@@ -75,6 +84,8 @@ namespace StardewModdingAPI.Framework.ModHelpers
             this.Reflection = reflectionHelper ?? throw new ArgumentNullException(nameof(reflectionHelper));
             this.Translation = translationHelper ?? throw new ArgumentNullException(nameof(translationHelper));
             this.ContentPacks = contentPacks.ToArray();
+            this.CreateContentPack = createContentPack;
+            this.DeprecationManager = deprecationManager;
         }
 
         /****
@@ -127,6 +138,45 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /****
         ** Content packs
         ****/
+        /// <summary>Manually create a transitional content pack to support pre-SMAPI content packs. This provides a way to access legacy content packs using the SMAPI content pack APIs, but the content pack will not be visible in the log or validated by SMAPI.</summary>
+        /// <param name="directoryPath">The absolute directory path containing the content pack files.</param>
+        /// <param name="id">The content pack's unique ID.</param>
+        /// <param name="name">The content pack name.</param>
+        /// <param name="description">The content pack description.</param>
+        /// <param name="author">The content pack author's name.</param>
+        /// <param name="version">The content pack version.</param>
+        [Obsolete("This method supports mods which previously had their own content packs, and shouldn't be used by new mods. It will be removed in SMAPI 3.0.")]
+        public IContentPack CreateTransitionalContentPack(string directoryPath, string id, string name, string description, string author, ISemanticVersion version)
+        {
+            // raise deprecation notice
+            this.DeprecationManager.Warn($"{nameof(IModHelper)}.{nameof(IModHelper.CreateTransitionalContentPack)}", "2.5", DeprecationLevel.Notice);
+
+            // validate
+            if(string.IsNullOrWhiteSpace(directoryPath))
+                throw new ArgumentNullException(nameof(directoryPath));
+            if(string.IsNullOrWhiteSpace(id))
+                throw new ArgumentNullException(nameof(id));
+            if(string.IsNullOrWhiteSpace(name))
+                throw new ArgumentNullException(nameof(name));
+            if(!Directory.Exists(directoryPath))
+                throw new ArgumentException($"Can't create content pack for directory path '{directoryPath}' because no such directory exists.");
+
+            // create manifest
+            IManifest manifest = new Manifest
+            {
+                Name = name,
+                Author = author,
+                Description = description,
+                Version = version,
+                UniqueID = id,
+                UpdateKeys = new string[0],
+                ContentPackFor = new ManifestContentPackFor { UniqueID = this.ModID }
+            };
+
+            // create content pack
+            return this.CreateContentPack(directoryPath, manifest);
+        }
+
         /// <summary>Get all content packs loaded for this mod.</summary>
         public IEnumerable<IContentPack> GetContentPacks()
         {

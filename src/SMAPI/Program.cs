@@ -88,6 +88,9 @@ namespace StardewModdingAPI
             new Regex(@"^(?:FRUIT )?TREE: IsClient:(?:True|False) randomOutput: \d+$", RegexOptions.Compiled | RegexOptions.CultureInvariant)
         };
 
+        /// <summary>Encapsulates SMAPI's JSON file parsing.</summary>
+        private readonly JsonHelper JsonHelper = new JsonHelper();
+
 
         /*********
         ** Public methods
@@ -360,14 +363,14 @@ namespace StardewModdingAPI
                 ModResolver resolver = new ModResolver();
 
                 // load manifests
-                IModMetadata[] mods = resolver.ReadManifests(Constants.ModPath, new JsonHelper(), modDatabase).ToArray();
+                IModMetadata[] mods = resolver.ReadManifests(Constants.ModPath, this.JsonHelper, modDatabase).ToArray();
                 resolver.ValidateManifests(mods, Constants.ApiVersion, Constants.GetUpdateUrl);
 
                 // process dependencies
                 mods = resolver.ProcessDependencies(mods, modDatabase).ToArray();
 
                 // load mods
-                this.LoadMods(mods, new JsonHelper(), this.ContentManager);
+                this.LoadMods(mods, this.JsonHelper, this.ContentManager);
 
                 // check for updates
                 this.CheckForUpdatesAsync(mods);
@@ -755,7 +758,15 @@ namespace StardewModdingAPI
                             IReflectionHelper reflectionHelper = new ReflectionHelper(manifest.UniqueID, metadata.DisplayName, this.Reflection, this.DeprecationManager);
                             IModRegistry modRegistryHelper = new ModRegistryHelper(manifest.UniqueID, this.ModRegistry, proxyFactory, monitor);
                             ITranslationHelper translationHelper = new TranslationHelper(manifest.UniqueID, manifest.Name, contentManager.GetLocale(), contentManager.GetCurrentLanguage());
-                            modHelper = new ModHelper(manifest.UniqueID, metadata.DirectoryPath, jsonHelper, contentHelper, commandHelper, modRegistryHelper, reflectionHelper, translationHelper, contentPacks);
+
+                            IContentPack CreateTransitionalContentPack(string packDirPath, IManifest packManifest)
+                            {
+                                IMonitor packMonitor = this.GetSecondaryMonitor(packManifest.Name);
+                                IContentHelper packContentHelper = new ContentHelper(contentManager, packDirPath, packManifest.UniqueID, packManifest.Name, packMonitor);
+                                return new ContentPack(packDirPath, packManifest, packContentHelper, this.JsonHelper);
+                            }
+                            
+                            modHelper = new ModHelper(manifest.UniqueID, metadata.DirectoryPath, jsonHelper, contentHelper, commandHelper, modRegistryHelper, reflectionHelper, translationHelper, contentPacks, CreateTransitionalContentPack, this.DeprecationManager);
                         }
 
                         // get mod instance
