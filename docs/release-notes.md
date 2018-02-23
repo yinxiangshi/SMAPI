@@ -1,10 +1,11 @@
 # Release notes
 ## 2.5
 * For players:
-  * **Added support for content packs**, so sub-mods can be dropped into `Mods` just like normal mods.
-  * Added install scripts for Linux/Mac (no longer need to run `mono install.exe` through the terminal).
+  * **Added support for content packs**.  
+    <small>_Content packs are collections of files for a SMAPI mod to load. These can be installed directly under `Mods` like a normal SMAPI mod, get automatic update and compatibility checks, and provide convenient APIs to the mods that read them._</small>
+  * Added install scripts for Linux/Mac (no more manual terminal commands!).
   * Added the required mod's name and URL to dependency errors.
-  * Fixed mod crashes being logged under `[SMAPI]` instead of the mod name.
+  * Fixed unhandled mod errors being logged under `[SMAPI]` instead of the mod name.
   * Fixed uninstall script not confirming success on Linux/Mac.
   * Updated compatibility list and enabled update checks for more mods.
 
@@ -12,11 +13,11 @@
   * Added content pack APIs.
   * Added support for `ISemanticVersion` in JSON models.
   * Added `SpecialisedEvents.UnvalidatedUpdateTick` event for specialised use cases.
+  * Added: `helper.ReadJsonFile` and `helper.WriteJsonFile` now normalise path separators automatically.
   * Fixed deadlock in rare cases when injecting a file with an asset loader.
   * Fixed unhelpful error when a mod exposes a non-public API.
   * Fixed unhelpful error when a translation file has duplicate keys due to case-insensitivity.
   * Fixed some JSON field names being case-sensitive.
-  * Fixed `helper.ReadJsonFile` and `helper.WriteJsonFile` not normalising path separators.
 
 * For SMAPI developers:
   * Overhauled mod DB format to be more concise, reduce the memory footprint, and support versioning/defaulting more fields.
