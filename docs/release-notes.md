@@ -14,6 +14,7 @@
   * Added `SpecialisedEvents.UnvalidatedUpdateTick` event for specialised use cases.
   * Fixed deadlock in rare cases when injecting a file with an asset loader.
   * Fixed unhelpful error when a mod exposes a non-public API.
+  * Fixed unhelpful error when a translation file has duplicate keys due to case-insensitivity.
   * Fixed input events being raised for keyboard buttons when a textbox is receiving input.
   * Fixed some JSON field names being case-sensitive.
   * Fixed `helper.ReadJsonFile` and `helper.WriteJsonFile` not normalising path separators.

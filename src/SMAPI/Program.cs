@@ -765,7 +765,7 @@ namespace StardewModdingAPI
                                 IContentHelper packContentHelper = new ContentHelper(contentManager, packDirPath, packManifest.UniqueID, packManifest.Name, packMonitor);
                                 return new ContentPack(packDirPath, packManifest, packContentHelper, this.JsonHelper);
                             }
-                            
+
                             modHelper = new ModHelper(manifest.UniqueID, metadata.DirectoryPath, jsonHelper, contentHelper, commandHelper, modRegistryHelper, reflectionHelper, translationHelper, contentPacks, CreateTransitionalContentPack, this.DeprecationManager);
                         }
 
@@ -991,6 +991,24 @@ namespace StardewModdingAPI
                             metadata.LogAsMod($"Mod's i18n/{locale}.json file couldn't be parsed: {ex.GetLogSummary()}");
                         }
                     }
+                }
+
+                // validate translations
+                foreach (string locale in translations.Keys)
+                {
+                    HashSet<string> keys = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+                    HashSet<string> duplicateKeys = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+                    foreach (string key in translations[locale].Keys.ToArray())
+                    {
+                        if (!keys.Add(key))
+                        {
+                            duplicateKeys.Add(key);
+                            translations[locale].Remove(key);
+                        }
+                    }
+
+                    if (duplicateKeys.Any())
+                        metadata.LogAsMod($"Mod's i18n/{locale}.json has duplicate translation keys: [{string.Join(", ", duplicateKeys)}]. Keys are case-insensitive.", LogLevel.Warn);
                 }
 
                 // update translation
