@@ -85,9 +85,12 @@
     <Compile Include="..\..\build\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Framework\Events\EventManager.cs" />
+    <Compile Include="Framework\Events\ManagedEvent.cs" />
     <Compile Include="Events\SpecialisedEvents.cs" />
     <Compile Include="Framework\ContentPack.cs" />
     <Compile Include="Framework\Content\ContentCache.cs" />
+    <Compile Include="Framework\Events\ManagedEventBase.cs" />
     <Compile Include="Framework\Input\InputState.cs" />
     <Compile Include="Framework\Input\InputStatus.cs" />
     <Compile Include="Framework\LegacyManifestVersion.cs" />

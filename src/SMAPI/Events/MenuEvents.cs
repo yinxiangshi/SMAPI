@@ -1,6 +1,5 @@
-﻿using System;
-using StardewModdingAPI.Framework;
-using StardewValley.Menus;
+using System;
+using StardewModdingAPI.Framework.Events;
 
 namespace StardewModdingAPI.Events
 {
@@ -8,33 +7,38 @@ namespace StardewModdingAPI.Events
     public static class MenuEvents
     {
         /*********
-        ** Events
+        ** Properties
         *********/
-        /// <summary>Raised after a game menu is opened or replaced with another menu. This event is not invoked when a menu is closed.</summary>
-        public static event EventHandler<EventArgsClickableMenuChanged> MenuChanged;
-
-        /// <summary>Raised after a game menu is closed.</summary>
-        public static event EventHandler<EventArgsClickableMenuClosed> MenuClosed;
+        /// <summary>The core event manager.</summary>
+        private static EventManager EventManager;
 
 
         /*********
-        ** Internal methods
+        ** Events
         *********/
-        /// <summary>Raise a <see cref="MenuChanged"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        /// <param name="priorMenu">The previous menu.</param>
-        /// <param name="newMenu">The current menu.</param>
-        internal static void InvokeMenuChanged(IMonitor monitor, IClickableMenu priorMenu, IClickableMenu newMenu)
+        /// <summary>Raised after a game menu is opened or replaced with another menu. This event is not invoked when a menu is closed.</summary>
+        public static event EventHandler<EventArgsClickableMenuChanged> MenuChanged
         {
-            monitor.SafelyRaiseGenericEvent($"{nameof(MenuEvents)}.{nameof(MenuEvents.MenuChanged)}", MenuEvents.MenuChanged?.GetInvocationList(), null, new EventArgsClickableMenuChanged(priorMenu, newMenu));
+            add => MenuEvents.EventManager.Menu_Changed.Add(value);
+            remove => MenuEvents.EventManager.Menu_Changed.Remove(value);
         }
 
-        /// <summary>Raise a <see cref="MenuClosed"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        /// <param name="priorMenu">The menu that was closed.</param>
-        internal static void InvokeMenuClosed(IMonitor monitor, IClickableMenu priorMenu)
+        /// <summary>Raised after a game menu is closed.</summary>
+        public static event EventHandler<EventArgsClickableMenuClosed> MenuClosed
         {
-            monitor.SafelyRaiseGenericEvent($"{nameof(MenuEvents)}.{nameof(MenuEvents.MenuClosed)}", MenuEvents.MenuClosed?.GetInvocationList(), null, new EventArgsClickableMenuClosed(priorMenu));
+            add => MenuEvents.EventManager.Menu_Closed.Add(value);
+            remove => MenuEvents.EventManager.Menu_Closed.Remove(value);
+        }
+
+
+        /*********
+        ** Public methods
+        *********/
+        /// <summary>Initialise the events.</summary>
+        /// <param name="eventManager">The core event manager.</param>
+        internal static void Init(EventManager eventManager)
+        {
+            MenuEvents.EventManager = eventManager;
         }
     }
 }

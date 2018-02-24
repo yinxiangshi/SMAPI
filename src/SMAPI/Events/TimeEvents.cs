@@ -1,5 +1,5 @@
 using System;
-using StardewModdingAPI.Framework;
+using StardewModdingAPI.Framework.Events;
 
 namespace StardewModdingAPI.Events
 {
@@ -7,31 +7,38 @@ namespace StardewModdingAPI.Events
     public static class TimeEvents
     {
         /*********
+        ** Properties
+        *********/
+        /// <summary>The core event manager.</summary>
+        private static EventManager EventManager;
+
+
+        /*********
         ** Events
         *********/
         /// <summary>Raised after the game begins a new day, including when loading a save.</summary>
-        public static event EventHandler AfterDayStarted;
-
-        /// <summary>Raised after the in-game clock changes.</summary>
-        public static event EventHandler<EventArgsIntChanged> TimeOfDayChanged;
-
-        /*********
-        ** Internal methods
-        *********/
-        /// <summary>Raise an <see cref="AfterDayStarted"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        internal static void InvokeAfterDayStarted(IMonitor monitor)
+        public static event EventHandler AfterDayStarted
         {
-            monitor.SafelyRaisePlainEvent($"{nameof(TimeEvents)}.{nameof(TimeEvents.AfterDayStarted)}", TimeEvents.AfterDayStarted?.GetInvocationList(), null, EventArgs.Empty);
+            add => TimeEvents.EventManager.Time_AfterDayStarted.Add(value);
+            remove => TimeEvents.EventManager.Time_AfterDayStarted.Remove(value);
         }
 
-        /// <summary>Raise a <see cref="TimeOfDayChanged"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        /// <param name="priorTime">The previous time in military time format (e.g. 6:00pm is 1800).</param>
-        /// <param name="newTime">The current time in military time format (e.g. 6:10pm is 1810).</param>
-        internal static void InvokeTimeOfDayChanged(IMonitor monitor, int priorTime, int newTime)
+        /// <summary>Raised after the in-game clock changes.</summary>
+        public static event EventHandler<EventArgsIntChanged> TimeOfDayChanged
         {
-            monitor.SafelyRaiseGenericEvent($"{nameof(TimeEvents)}.{nameof(TimeEvents.TimeOfDayChanged)}", TimeEvents.TimeOfDayChanged?.GetInvocationList(), null, new EventArgsIntChanged(priorTime, newTime));
+            add => TimeEvents.EventManager.Time_TimeOfDayChanged.Add(value);
+            remove => TimeEvents.EventManager.Time_TimeOfDayChanged.Remove(value);
+        }
+
+
+        /*********
+        ** Public methods
+        *********/
+        /// <summary>Initialise the events.</summary>
+        /// <param name="eventManager">The core event manager.</param>
+        internal static void Init(EventManager eventManager)
+        {
+            TimeEvents.EventManager = eventManager;
         }
     }
 }

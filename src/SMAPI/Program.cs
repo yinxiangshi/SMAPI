@@ -17,6 +17,7 @@ using Newtonsoft.Json;
 using StardewModdingAPI.Common.Models;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework;
+using StardewModdingAPI.Framework.Events;
 using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.Logging;
 using StardewModdingAPI.Framework.ModData;
@@ -65,7 +66,7 @@ namespace StardewModdingAPI
 
         /// <summary>Tracks the installed mods.</summary>
         /// <remarks>This is initialised after the game starts.</remarks>
-        private ModRegistry ModRegistry;
+        private readonly ModRegistry ModRegistry = new ModRegistry();
 
         /// <summary>Manages deprecation warnings.</summary>
         /// <remarks>This is initialised after the game starts.</remarks>
@@ -74,6 +75,9 @@ namespace StardewModdingAPI
         /// <summary>Manages console commands.</summary>
         /// <remarks>This is initialised after the game starts.</remarks>
         private CommandManager CommandManager;
+
+        /// <summary>Manages SMAPI events for mods.</summary>
+        private readonly EventManager EventManager;
 
         /// <summary>Whether the game is currently running.</summary>
         private bool IsGameRunning;
@@ -128,8 +132,24 @@ namespace StardewModdingAPI
         /// <param name="logPath">The full file path to which to write log messages.</param>
         public Program(bool writeToConsole, string logPath)
         {
+            // init basics
             this.LogFile = new LogFileManager(logPath);
             this.Monitor = new Monitor("SMAPI", this.ConsoleManager, this.LogFile, this.CancellationTokenSource) { WriteToConsole = writeToConsole };
+            this.EventManager = new EventManager(this.Monitor, this.ModRegistry);
+
+            // hook up events
+            ContentEvents.Init(this.EventManager);
+            ControlEvents.Init(this.EventManager);
+            GameEvents.Init(this.EventManager);
+            GraphicsEvents.Init(this.EventManager);
+            InputEvents.Init(this.EventManager);
+            LocationEvents.Init(this.EventManager);
+            MenuEvents.Init(this.EventManager);
+            MineEvents.Init(this.EventManager);
+            PlayerEvents.Init(this.EventManager);
+            SaveEvents.Init(this.EventManager);
+            SpecialisedEvents.Init(this.EventManager);
+            TimeEvents.Init(this.EventManager);
         }
 
         /// <summary>Launch SMAPI.</summary>
@@ -170,7 +190,7 @@ namespace StardewModdingAPI
                 AppDomain.CurrentDomain.UnhandledException += (sender, e) => this.Monitor.Log($"Critical app domain exception: {e.ExceptionObject}", LogLevel.Error);
 
                 // override game
-                this.GameInstance = new SGame(this.Monitor, this.Reflection);
+                this.GameInstance = new SGame(this.Monitor, this.Reflection, this.EventManager, this.InitialiseAfterGameStart);
                 StardewValley.Program.gamePtr = this.GameInstance;
 
                 // add exit handler
@@ -198,7 +218,6 @@ namespace StardewModdingAPI
                 ((Form)Control.FromHandle(this.GameInstance.Window.Handle)).FormClosing += (sender, args) => this.Dispose();
 #endif
                 this.GameInstance.Exiting += (sender, e) => this.Dispose();
-                GameEvents.InitializeInternal += (sender, e) => this.InitialiseAfterGameStart();
                 ContentEvents.AfterLocaleChanged += (sender, e) => this.OnLocaleChanged();
 
                 // set window titles
@@ -326,7 +345,6 @@ namespace StardewModdingAPI
             this.GameInstance.VerboseLogging = this.Settings.VerboseLogging;
 
             // load core components
-            this.ModRegistry = new ModRegistry();
             this.DeprecationManager = new DeprecationManager(this.Monitor, this.ModRegistry);
             this.CommandManager = new CommandManager();
 

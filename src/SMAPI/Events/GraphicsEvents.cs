@@ -1,5 +1,5 @@
-﻿using System;
-using StardewModdingAPI.Framework;
+using System;
+using StardewModdingAPI.Framework.Events;
 
 namespace StardewModdingAPI.Events
 {
@@ -7,110 +7,82 @@ namespace StardewModdingAPI.Events
     public static class GraphicsEvents
     {
         /*********
+        ** Properties
+        *********/
+        /// <summary>The core event manager.</summary>
+        private static EventManager EventManager;
+
+
+        /*********
         ** Events
         *********/
-        /****
-        ** Generic events
-        ****/
         /// <summary>Raised after the game window is resized.</summary>
-        public static event EventHandler Resize;
+        public static event EventHandler Resize
+        {
+            add => GraphicsEvents.EventManager.Graphics_Resize.Add(value);
+            remove => GraphicsEvents.EventManager.Graphics_Resize.Remove(value);
+        }
 
         /****
         ** Main render events
         ****/
         /// <summary>Raised before drawing the world to the screen.</summary>
-        public static event EventHandler OnPreRenderEvent;
+        public static event EventHandler OnPreRenderEvent
+        {
+            add => GraphicsEvents.EventManager.Graphics_OnPreRenderEvent.Add(value);
+            remove => GraphicsEvents.EventManager.Graphics_OnPreRenderEvent.Remove(value);
+        }
 
         /// <summary>Raised after drawing the world to the screen.</summary>
-        public static event EventHandler OnPostRenderEvent;
+        public static event EventHandler OnPostRenderEvent
+        {
+            add => GraphicsEvents.EventManager.Graphics_OnPostRenderEvent.Add(value);
+            remove => GraphicsEvents.EventManager.Graphics_OnPostRenderEvent.Remove(value);
+        }
 
         /****
         ** HUD events
         ****/
         /// <summary>Raised before drawing the HUD (item toolbar, clock, etc) to the screen. The HUD is available at this point, but not necessarily visible. (For example, the event is raised even if a menu is open.)</summary>
-        public static event EventHandler OnPreRenderHudEvent;
+        public static event EventHandler OnPreRenderHudEvent
+        {
+            add => GraphicsEvents.EventManager.Graphics_OnPreRenderHudEvent.Add(value);
+            remove => GraphicsEvents.EventManager.Graphics_OnPreRenderHudEvent.Remove(value);
+        }
 
         /// <summary>Raised after drawing the HUD (item toolbar, clock, etc) to the screen. The HUD is available at this point, but not necessarily visible. (For example, the event is raised even if a menu is open.)</summary>
-        public static event EventHandler OnPostRenderHudEvent;
+        public static event EventHandler OnPostRenderHudEvent
+        {
+            add => GraphicsEvents.EventManager.Graphics_OnPostRenderHudEvent.Add(value);
+            remove => GraphicsEvents.EventManager.Graphics_OnPostRenderHudEvent.Remove(value);
+        }
 
         /****
         ** GUI events
         ****/
         /// <summary>Raised before drawing a menu to the screen during a draw loop. This includes the game's internal menus like the title screen.</summary>
-        public static event EventHandler OnPreRenderGuiEvent;
+        public static event EventHandler OnPreRenderGuiEvent
+        {
+            add => GraphicsEvents.EventManager.Graphics_OnPreRenderGuiEvent.Add(value);
+            remove => GraphicsEvents.EventManager.Graphics_OnPreRenderGuiEvent.Remove(value);
+        }
 
         /// <summary>Raised after drawing a menu to the screen during a draw loop. This includes the game's internal menus like the title screen.</summary>
-        public static event EventHandler OnPostRenderGuiEvent;
+        public static event EventHandler OnPostRenderGuiEvent
+        {
+            add => GraphicsEvents.EventManager.Graphics_OnPostRenderGuiEvent.Add(value);
+            remove => GraphicsEvents.EventManager.Graphics_OnPostRenderGuiEvent.Remove(value);
+        }
 
 
         /*********
-        ** Internal methods
+        ** Public methods
         *********/
-        /****
-        ** Generic events
-        ****/
-        /// <summary>Raise a <see cref="Resize"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        internal static void InvokeResize(IMonitor monitor)
+        /// <summary>Initialise the events.</summary>
+        /// <param name="eventManager">The core event manager.</param>
+        internal static void Init(EventManager eventManager)
         {
-            monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.Resize)}", GraphicsEvents.Resize?.GetInvocationList());
-        }
-
-        /****
-        ** Main render events
-        ****/
-        /// <summary>Raise an <see cref="OnPreRenderEvent"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        internal static void InvokeOnPreRenderEvent(IMonitor monitor)
-        {
-            monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.OnPreRenderEvent)}", GraphicsEvents.OnPreRenderEvent?.GetInvocationList());
-        }
-
-        /// <summary>Raise an <see cref="OnPostRenderEvent"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        internal static void InvokeOnPostRenderEvent(IMonitor monitor)
-        {
-            monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.OnPostRenderEvent)}", GraphicsEvents.OnPostRenderEvent?.GetInvocationList());
-        }
-
-        /// <summary>Get whether there are any post-render event listeners.</summary>
-        internal static bool HasPostRenderListeners()
-        {
-            return GraphicsEvents.OnPostRenderEvent != null;
-        }
-
-        /****
-        ** GUI events
-        ****/
-        /// <summary>Raise an <see cref="OnPreRenderGuiEvent"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        internal static void InvokeOnPreRenderGuiEvent(IMonitor monitor)
-        {
-            monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.OnPreRenderGuiEvent)}", GraphicsEvents.OnPreRenderGuiEvent?.GetInvocationList());
-        }
-
-        /// <summary>Raise an <see cref="OnPostRenderGuiEvent"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        internal static void InvokeOnPostRenderGuiEvent(IMonitor monitor)
-        {
-            monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.OnPostRenderGuiEvent)}", GraphicsEvents.OnPostRenderGuiEvent?.GetInvocationList());
-        }
-
-        /****
-        ** HUD events
-        ****/
-        /// <summary>Raise an <see cref="OnPreRenderHudEvent"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        internal static void InvokeOnPreRenderHudEvent(IMonitor monitor)
-        {
-            monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.OnPreRenderHudEvent)}", GraphicsEvents.OnPreRenderHudEvent?.GetInvocationList());
-        }
-
-        /// <summary>Raise an <see cref="OnPostRenderHudEvent"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        internal static void InvokeOnPostRenderHudEvent(IMonitor monitor)
-        {
-            monitor.SafelyRaisePlainEvent($"{nameof(GraphicsEvents)}.{nameof(GraphicsEvents.OnPostRenderHudEvent)}", GraphicsEvents.OnPostRenderHudEvent?.GetInvocationList());
+            GraphicsEvents.EventManager = eventManager;
         }
     }
 }

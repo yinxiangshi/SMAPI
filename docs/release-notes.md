@@ -3,6 +3,7 @@
 * For players:
   * **Added support for content packs**.  
     <small>_Content packs are collections of files for a SMAPI mod to load. These can be installed directly under `Mods` like a normal SMAPI mod, get automatic update and compatibility checks, and provide convenient APIs to the mods that read them._</small>
+  * Added mod detection to unhandled errors (i.e. most errors will now mention which mod caused them).
   * Added install scripts for Linux/Mac (no more manual terminal commands!).
   * Added the required mod's name and URL to dependency errors.
   * Fixed unhandled mod errors being logged under `[SMAPI]` instead of the mod name.

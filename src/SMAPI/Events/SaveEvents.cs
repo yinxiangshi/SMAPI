@@ -1,5 +1,5 @@
 using System;
-using StardewModdingAPI.Framework;
+using StardewModdingAPI.Framework.Events;
 
 namespace StardewModdingAPI.Events
 {
@@ -7,70 +7,66 @@ namespace StardewModdingAPI.Events
     public static class SaveEvents
     {
         /*********
-        ** Events
+        ** Properties
         *********/
-        /// <summary>Raised before the game creates the save file.</summary>
-        public static event EventHandler BeforeCreate;
-
-        /// <summary>Raised after the game finishes creating the save file.</summary>
-        public static event EventHandler AfterCreate;
-
-        /// <summary>Raised before the game begins writes data to the save file.</summary>
-        public static event EventHandler BeforeSave;
-
-        /// <summary>Raised after the game finishes writing data to the save file.</summary>
-        public static event EventHandler AfterSave;
-
-        /// <summary>Raised after the player loads a save slot.</summary>
-        public static event EventHandler AfterLoad;
-
-        /// <summary>Raised after the game returns to the title screen.</summary>
-        public static event EventHandler AfterReturnToTitle;
+        /// <summary>The core event manager.</summary>
+        private static EventManager EventManager;
 
 
         /*********
-        ** Internal methods
+        ** Events
         *********/
-        /// <summary>Raise a <see cref="BeforeCreate"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        internal static void InvokeBeforeCreate(IMonitor monitor)
+        /// <summary>Raised before the game creates the save file.</summary>
+        public static event EventHandler BeforeCreate
         {
-            monitor.SafelyRaisePlainEvent($"{nameof(SaveEvents)}.{nameof(SaveEvents.BeforeCreate)}", SaveEvents.BeforeCreate?.GetInvocationList(), null, EventArgs.Empty);
+            add => SaveEvents.EventManager.Save_BeforeCreate.Add(value);
+            remove => SaveEvents.EventManager.Save_BeforeCreate.Remove(value);
         }
 
-        /// <summary>Raise a <see cref="AfterCreate"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        internal static void InvokeAfterCreated(IMonitor monitor)
+        /// <summary>Raised after the game finishes creating the save file.</summary>
+        public static event EventHandler AfterCreate
         {
-            monitor.SafelyRaisePlainEvent($"{nameof(SaveEvents)}.{nameof(SaveEvents.AfterCreate)}", SaveEvents.AfterCreate?.GetInvocationList(), null, EventArgs.Empty);
+            add => SaveEvents.EventManager.Save_AfterCreate.Add(value);
+            remove => SaveEvents.EventManager.Save_AfterCreate.Remove(value);
         }
 
-        /// <summary>Raise a <see cref="BeforeSave"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        internal static void InvokeBeforeSave(IMonitor monitor)
+        /// <summary>Raised before the game begins writes data to the save file.</summary>
+        public static event EventHandler BeforeSave
         {
-            monitor.SafelyRaisePlainEvent($"{nameof(SaveEvents)}.{nameof(SaveEvents.BeforeSave)}", SaveEvents.BeforeSave?.GetInvocationList(), null, EventArgs.Empty);
+            add => SaveEvents.EventManager.Save_BeforeSave.Add(value);
+            remove => SaveEvents.EventManager.Save_BeforeSave.Remove(value);
         }
 
-        /// <summary>Raise a <see cref="AfterSave"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        internal static void InvokeAfterSave(IMonitor monitor)
+        /// <summary>Raised after the game finishes writing data to the save file.</summary>
+        public static event EventHandler AfterSave
         {
-            monitor.SafelyRaisePlainEvent($"{nameof(SaveEvents)}.{nameof(SaveEvents.AfterSave)}", SaveEvents.AfterSave?.GetInvocationList(), null, EventArgs.Empty);
+            add => SaveEvents.EventManager.Save_AfterSave.Add(value);
+            remove => SaveEvents.EventManager.Save_AfterSave.Remove(value);
         }
 
-        /// <summary>Raise a <see cref="AfterLoad"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        internal static void InvokeAfterLoad(IMonitor monitor)
+        /// <summary>Raised after the player loads a save slot.</summary>
+        public static event EventHandler AfterLoad
         {
-            monitor.SafelyRaisePlainEvent($"{nameof(SaveEvents)}.{nameof(SaveEvents.AfterLoad)}", SaveEvents.AfterLoad?.GetInvocationList(), null, EventArgs.Empty);
+            add => SaveEvents.EventManager.Save_AfterLoad.Add(value);
+            remove => SaveEvents.EventManager.Save_AfterLoad.Remove(value);
         }
 
-        /// <summary>Raise a <see cref="AfterReturnToTitle"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        internal static void InvokeAfterReturnToTitle(IMonitor monitor)
+        /// <summary>Raised after the game returns to the title screen.</summary>
+        public static event EventHandler AfterReturnToTitle
         {
-            monitor.SafelyRaisePlainEvent($"{nameof(SaveEvents)}.{nameof(SaveEvents.AfterReturnToTitle)}", SaveEvents.AfterReturnToTitle?.GetInvocationList(), null, EventArgs.Empty);
+            add => SaveEvents.EventManager.Save_AfterReturnToTitle.Add(value);
+            remove => SaveEvents.EventManager.Save_AfterReturnToTitle.Remove(value);
+        }
+
+
+        /*********
+        ** Public methods
+        *********/
+        /// <summary>Initialise the events.</summary>
+        /// <param name="eventManager">The core event manager.</param>
+        internal static void Init(EventManager eventManager)
+        {
+            SaveEvents.EventManager = eventManager;
         }
     }
 }

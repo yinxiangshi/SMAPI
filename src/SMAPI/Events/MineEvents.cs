@@ -1,5 +1,5 @@
-﻿using System;
-using StardewModdingAPI.Framework;
+using System;
+using StardewModdingAPI.Framework.Events;
 
 namespace StardewModdingAPI.Events
 {
@@ -7,22 +7,31 @@ namespace StardewModdingAPI.Events
     public static class MineEvents
     {
         /*********
-        ** Events
+        ** Properties
         *********/
-        /// <summary>Raised after the player warps to a new level of the mine.</summary>
-        public static event EventHandler<EventArgsMineLevelChanged> MineLevelChanged;
+        /// <summary>The core event manager.</summary>
+        private static EventManager EventManager;
 
 
         /*********
-        ** Internal methods
+        ** Events
         *********/
-        /// <summary>Raise a <see cref="MineLevelChanged"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        /// <param name="previousMineLevel">The previous mine level.</param>
-        /// <param name="currentMineLevel">The current mine level.</param>
-        internal static void InvokeMineLevelChanged(IMonitor monitor, int previousMineLevel, int currentMineLevel)
+        /// <summary>Raised after the player warps to a new level of the mine.</summary>
+        public static event EventHandler<EventArgsMineLevelChanged> MineLevelChanged
         {
-            monitor.SafelyRaiseGenericEvent($"{nameof(MineEvents)}.{nameof(MineEvents.MineLevelChanged)}", MineEvents.MineLevelChanged?.GetInvocationList(), null, new EventArgsMineLevelChanged(previousMineLevel, currentMineLevel));
+            add => MineEvents.EventManager.Mine_LevelChanged.Add(value);
+            remove => MineEvents.EventManager.Mine_LevelChanged.Remove(value);
+        }
+
+
+        /*********
+        ** Public methods
+        *********/
+        /// <summary>Initialise the events.</summary>
+        /// <param name="eventManager">The core event manager.</param>
+        internal static void Init(EventManager eventManager)
+        {
+            MineEvents.EventManager = eventManager;
         }
     }
 }

@@ -1,5 +1,5 @@
 using System;
-using StardewModdingAPI.Framework;
+using StardewModdingAPI.Framework.Events;
 
 namespace StardewModdingAPI.Events
 {
@@ -7,38 +7,38 @@ namespace StardewModdingAPI.Events
     public static class InputEvents
     {
         /*********
-        ** Events
+        ** Properties
         *********/
-        /// <summary>Raised when the player presses a button on the keyboard, controller, or mouse.</summary>
-        public static event EventHandler<EventArgsInput> ButtonPressed;
-
-        /// <summary>Raised when the player releases a keyboard key on the keyboard, controller, or mouse.</summary>
-        public static event EventHandler<EventArgsInput> ButtonReleased;
+        /// <summary>The core event manager.</summary>
+        private static EventManager EventManager;
 
 
         /*********
-        ** Internal methods
+        ** Events
         *********/
-        /// <summary>Raise a <see cref="ButtonPressed"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        /// <param name="button">The button on the controller, keyboard, or mouse.</param>
-        /// <param name="cursor">The cursor position.</param>
-        /// <param name="isActionButton">Whether the input should trigger actions on the affected tile.</param>
-        /// <param name="isUseToolButton">Whether the input should use tools on the affected tile.</param>
-        internal static void InvokeButtonPressed(IMonitor monitor, SButton button, ICursorPosition cursor, bool isActionButton, bool isUseToolButton)
+        /// <summary>Raised when the player presses a button on the keyboard, controller, or mouse.</summary>
+        public static event EventHandler<EventArgsInput> ButtonPressed
         {
-            monitor.SafelyRaiseGenericEvent($"{nameof(InputEvents)}.{nameof(InputEvents.ButtonPressed)}", InputEvents.ButtonPressed?.GetInvocationList(), null, new EventArgsInput(button, cursor, isActionButton, isUseToolButton));
+            add => InputEvents.EventManager.Input_ButtonPressed.Add(value);
+            remove => InputEvents.EventManager.Input_ButtonPressed.Remove(value);
         }
 
-        /// <summary>Raise a <see cref="ButtonReleased"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        /// <param name="button">The button on the controller, keyboard, or mouse.</param>
-        /// <param name="cursor">The cursor position.</param>
-        /// <param name="isActionButton">Whether the input should trigger actions on the affected tile.</param>
-        /// <param name="isUseToolButton">Whether the input should use tools on the affected tile.</param>
-        internal static void InvokeButtonReleased(IMonitor monitor, SButton button, ICursorPosition cursor, bool isActionButton, bool isUseToolButton)
+        /// <summary>Raised when the player releases a keyboard key on the keyboard, controller, or mouse.</summary>
+        public static event EventHandler<EventArgsInput> ButtonReleased
         {
-            monitor.SafelyRaiseGenericEvent($"{nameof(InputEvents)}.{nameof(InputEvents.ButtonReleased)}", InputEvents.ButtonReleased?.GetInvocationList(), null, new EventArgsInput(button, cursor, isActionButton, isUseToolButton));
+            add => InputEvents.EventManager.Input_ButtonReleased.Add(value);
+            remove => InputEvents.EventManager.Input_ButtonReleased.Remove(value);
+        }
+
+
+        /*********
+        ** Public methods
+        *********/
+        /// <summary>Initialise the events.</summary>
+        /// <param name="eventManager">The core event manager.</param>
+        internal static void Init(EventManager eventManager)
+        {
+            InputEvents.EventManager = eventManager;
         }
     }
 }
