@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-using System.Runtime.InteropServices;
+using System.Reflection;
 
-[assembly: AssemblyTitle("StardewModdingAPI.Tests")]
+[assembly: AssemblyTitle("SMAPI.Tests")]
 [assembly: AssemblyDescription("")]
-[assembly: Guid("36ccb19e-92eb-48c7-9615-98eefd45109b")]
