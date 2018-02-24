@@ -1,8 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using StardewModdingAPI.Framework;
-using StardewValley;
+using StardewModdingAPI.Framework.Events;
 
 namespace StardewModdingAPI.Events
 {
@@ -10,34 +7,38 @@ namespace StardewModdingAPI.Events
     public static class PlayerEvents
     {
         /*********
-        ** Events
+        ** Properties
         *********/
-        /// <summary>Raised after the player's inventory changes in any way (added or removed item, sorted, etc).</summary>
-        public static event EventHandler<EventArgsInventoryChanged> InventoryChanged;
-
-        /// <summary> Raised after the player levels up a skill. This happens as soon as they level up, not when the game notifies the player after their character goes to bed.</summary>
-        public static event EventHandler<EventArgsLevelUp> LeveledUp;
+        /// <summary>The core event manager.</summary>
+        private static EventManager EventManager;
 
 
         /*********
-        ** Internal methods
+        ** Events
         *********/
-        /// <summary>Raise an <see cref="InventoryChanged"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        /// <param name="inventory">The player's inventory.</param>
-        /// <param name="changedItems">The inventory changes.</param>
-        internal static void InvokeInventoryChanged(IMonitor monitor, List<Item> inventory, IEnumerable<ItemStackChange> changedItems)
+        /// <summary>Raised after the player's inventory changes in any way (added or removed item, sorted, etc).</summary>
+        public static event EventHandler<EventArgsInventoryChanged> InventoryChanged
         {
-            monitor.SafelyRaiseGenericEvent($"{nameof(PlayerEvents)}.{nameof(PlayerEvents.InventoryChanged)}", PlayerEvents.InventoryChanged?.GetInvocationList(), null, new EventArgsInventoryChanged(inventory, changedItems.ToList()));
+            add => PlayerEvents.EventManager.Player_InventoryChanged.Add(value);
+            remove => PlayerEvents.EventManager.Player_InventoryChanged.Remove(value);
         }
 
-        /// <summary>Rase a <see cref="LeveledUp"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        /// <param name="type">The player skill that leveled up.</param>
-        /// <param name="newLevel">The new skill level.</param>
-        internal static void InvokeLeveledUp(IMonitor monitor, EventArgsLevelUp.LevelType type, int newLevel)
+        /// <summary> Raised after the player levels up a skill. This happens as soon as they level up, not when the game notifies the player after their character goes to bed.</summary>
+        public static event EventHandler<EventArgsLevelUp> LeveledUp
         {
-            monitor.SafelyRaiseGenericEvent($"{nameof(PlayerEvents)}.{nameof(PlayerEvents.LeveledUp)}", PlayerEvents.LeveledUp?.GetInvocationList(), null, new EventArgsLevelUp(type, newLevel));
+            add => PlayerEvents.EventManager.Player_LeveledUp.Add(value);
+            remove => PlayerEvents.EventManager.Player_LeveledUp.Remove(value);
+        }
+
+
+        /*********
+        ** Public methods
+        *********/
+        /// <summary>Initialise the events.</summary>
+        /// <param name="eventManager">The core event manager.</param>
+        internal static void Init(EventManager eventManager)
+        {
+            PlayerEvents.EventManager = eventManager;
         }
     }
 }

@@ -1,4 +1,34 @@
 # Release notes
+## 2.5
+* For players:
+  * **Added support for [content packs](https://stardewvalleywiki.com/Modding:Content_packs)**.  
+    <small>_Content packs are collections of files for a SMAPI mod to load. These can be installed directly under `Mods` like a normal SMAPI mod, get automatic update and compatibility checks, and provide convenient APIs to the mods that read them._</small>
+  * Added mod detection for unhandled errors (so most errors now mention which mod caused them).
+  * Added install scripts for Linux/Mac (no more manual terminal commands!).
+  * Added the missing mod's name and URL to dependency errors.
+  * Fixed uninstall script not reporting when done on Linux/Mac.
+  * Updated compatibility list and enabled update checks for more mods.
+
+* For modders:
+  * Added support for content packs and new APIs to read them.
+  * Added support for `ISemanticVersion` in JSON models.
+  * Added `SpecialisedEvents.UnvalidatedUpdateTick` event for specialised use cases.
+  * Added path normalising to `ReadJsonFile` and `WriteJsonFile` helpers (so no longer need `Path.Combine` with those).
+  * Fixed deadlock in rare cases with asset loaders.
+  * Fixed unhelpful error when a mod exposes a non-public API.
+  * Fixed unhelpful error when a translation file has duplicate keys due to case-insensitivity.
+  * Fixed some JSON field names being case-sensitive.
+
+* For the [log parser][]:
+  * Added support for SMAPI 2.5 content packs.
+  * Reduced download size when viewing a parsed log with repeated errors.
+  * Improved parse error handling.
+  * Fixed 'log started' field showing incorrect date.
+
+* For SMAPI developers:
+  * Overhauled mod DB format to be more concise, reduce the memory footprint, and support versioning/defaulting more fields.
+  * Reimplemented log parser with serverside parsing and vue.js on the frontend.
+
 ## 2.4
 * For players:
   * Fixed visual map glitch in rare cases.

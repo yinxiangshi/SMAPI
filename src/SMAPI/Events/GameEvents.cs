@@ -1,5 +1,5 @@
 using System;
-using StardewModdingAPI.Framework;
+using StardewModdingAPI.Framework.Events;
 
 namespace StardewModdingAPI.Events
 {
@@ -7,100 +7,80 @@ namespace StardewModdingAPI.Events
     public static class GameEvents
     {
         /*********
-        ** Events
+        ** Properties
         *********/
-        /// <summary>Raised during launch after configuring XNA or MonoGame. The game window hasn't been opened by this point. Called after <see cref="Microsoft.Xna.Framework.Game.Initialize"/>.</summary>
-        internal static event EventHandler InitializeInternal;
-
-        /// <summary>Raised when the game updates its state (≈60 times per second).</summary>
-        public static event EventHandler UpdateTick;
-
-        /// <summary>Raised every other tick (≈30 times per second).</summary>
-        public static event EventHandler SecondUpdateTick;
-
-        /// <summary>Raised every fourth tick (≈15 times per second).</summary>
-        public static event EventHandler FourthUpdateTick;
-
-        /// <summary>Raised every eighth tick (≈8 times per second).</summary>
-        public static event EventHandler EighthUpdateTick;
-
-        /// <summary>Raised every 15th tick (≈4 times per second).</summary>
-        public static event EventHandler QuarterSecondTick;
-
-        /// <summary>Raised every 30th tick (≈twice per second).</summary>
-        public static event EventHandler HalfSecondTick;
-
-        /// <summary>Raised every 60th tick (≈once per second).</summary>
-        public static event EventHandler OneSecondTick;
-
-        /// <summary>Raised once after the game initialises and all <see cref="IMod.Entry"/> methods have been called.</summary>
-        public static event EventHandler FirstUpdateTick;
+        /// <summary>The core event manager.</summary>
+        private static EventManager EventManager;
 
 
         /*********
-        ** Internal methods
+        ** Events
         *********/
-        /// <summary>Raise an <see cref="InitializeInternal"/> event.</summary>
-        /// <param name="monitor">Encapsulates logging and monitoring.</param>
-        internal static void InvokeInitialize(IMonitor monitor)
+        /// <summary>Raised when the game updates its state (≈60 times per second).</summary>
+        public static event EventHandler UpdateTick
         {
-            monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.InitializeInternal)}", GameEvents.InitializeInternal?.GetInvocationList());
+            add => GameEvents.EventManager.Game_UpdateTick.Add(value);
+            remove => GameEvents.EventManager.Game_UpdateTick.Remove(value);
         }
 
-        /// <summary>Raise an <see cref="UpdateTick"/> event.</summary>
-        /// <param name="monitor">Encapsulates logging and monitoring.</param>
-        internal static void InvokeUpdateTick(IMonitor monitor)
+        /// <summary>Raised every other tick (≈30 times per second).</summary>
+        public static event EventHandler SecondUpdateTick
         {
-            monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.UpdateTick)}", GameEvents.UpdateTick?.GetInvocationList());
+            add => GameEvents.EventManager.Game_SecondUpdateTick.Add(value);
+            remove => GameEvents.EventManager.Game_SecondUpdateTick.Remove(value);
         }
 
-        /// <summary>Raise a <see cref="SecondUpdateTick"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        internal static void InvokeSecondUpdateTick(IMonitor monitor)
+        /// <summary>Raised every fourth tick (≈15 times per second).</summary>
+        public static event EventHandler FourthUpdateTick
         {
-            monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.SecondUpdateTick)}", GameEvents.SecondUpdateTick?.GetInvocationList());
+            add => GameEvents.EventManager.Game_FourthUpdateTick.Add(value);
+            remove => GameEvents.EventManager.Game_FourthUpdateTick.Remove(value);
         }
 
-        /// <summary>Raise a <see cref="FourthUpdateTick"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        internal static void InvokeFourthUpdateTick(IMonitor monitor)
+        /// <summary>Raised every eighth tick (≈8 times per second).</summary>
+        public static event EventHandler EighthUpdateTick
         {
-            monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.FourthUpdateTick)}", GameEvents.FourthUpdateTick?.GetInvocationList());
+            add => GameEvents.EventManager.Game_EighthUpdateTick.Add(value);
+            remove => GameEvents.EventManager.Game_EighthUpdateTick.Remove(value);
         }
 
-        /// <summary>Raise a <see cref="EighthUpdateTick"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        internal static void InvokeEighthUpdateTick(IMonitor monitor)
+        /// <summary>Raised every 15th tick (≈4 times per second).</summary>
+        public static event EventHandler QuarterSecondTick
         {
-            monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.EighthUpdateTick)}", GameEvents.EighthUpdateTick?.GetInvocationList());
+            add => GameEvents.EventManager.Game_QuarterSecondTick.Add(value);
+            remove => GameEvents.EventManager.Game_QuarterSecondTick.Remove(value);
         }
 
-        /// <summary>Raise a <see cref="QuarterSecondTick"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        internal static void InvokeQuarterSecondTick(IMonitor monitor)
+        /// <summary>Raised every 30th tick (≈twice per second).</summary>
+        public static event EventHandler HalfSecondTick
         {
-            monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.QuarterSecondTick)}", GameEvents.QuarterSecondTick?.GetInvocationList());
+            add => GameEvents.EventManager.Game_HalfSecondTick.Add(value);
+            remove => GameEvents.EventManager.Game_HalfSecondTick.Remove(value);
         }
 
-        /// <summary>Raise a <see cref="HalfSecondTick"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        internal static void InvokeHalfSecondTick(IMonitor monitor)
+        /// <summary>Raised every 60th tick (≈once per second).</summary>
+        public static event EventHandler OneSecondTick
         {
-            monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.HalfSecondTick)}", GameEvents.HalfSecondTick?.GetInvocationList());
+            add => GameEvents.EventManager.Game_OneSecondTick.Add(value);
+            remove => GameEvents.EventManager.Game_OneSecondTick.Remove(value);
         }
 
-        /// <summary>Raise a <see cref="OneSecondTick"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        internal static void InvokeOneSecondTick(IMonitor monitor)
+        /// <summary>Raised once after the game initialises and all <see cref="IMod.Entry"/> methods have been called.</summary>
+        public static event EventHandler FirstUpdateTick
         {
-            monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.OneSecondTick)}", GameEvents.OneSecondTick?.GetInvocationList());
+            add => GameEvents.EventManager.Game_FirstUpdateTick.Add(value);
+            remove => GameEvents.EventManager.Game_FirstUpdateTick.Remove(value);
         }
 
-        /// <summary>Raise a <see cref="FirstUpdateTick"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        internal static void InvokeFirstUpdateTick(IMonitor monitor)
+
+        /*********
+        ** Public methods
+        *********/
+        /// <summary>Initialise the events.</summary>
+        /// <param name="eventManager">The core event manager.</param>
+        internal static void Init(EventManager eventManager)
         {
-            monitor.SafelyRaisePlainEvent($"{nameof(GameEvents)}.{nameof(GameEvents.FirstUpdateTick)}", GameEvents.FirstUpdateTick?.GetInvocationList());
+            GameEvents.EventManager = eventManager;
         }
     }
 }

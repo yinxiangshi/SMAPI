@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using StardewModdingAPI.Framework.ModData;
+
 namespace StardewModdingAPI.Framework.Models
 {
     /// <summary>The SMAPI configuration settings.</summary>
@@ -22,6 +25,6 @@ namespace StardewModdingAPI.Framework.Models
         public bool VerboseLogging { get; set; }
 
         /// <summary>Extra metadata about mods.</summary>
-        public ModDataRecord[] ModData { get; set; }
+        public IDictionary<string, ModDataRecord> ModData { get; set; }
     }
 }

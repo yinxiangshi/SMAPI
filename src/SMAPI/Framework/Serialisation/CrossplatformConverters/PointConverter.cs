@@ -20,8 +20,8 @@ namespace StardewModdingAPI.Framework.Serialisation.CrossplatformConverters
         /// <param name="path">The path to the current JSON node.</param>
         protected override Point ReadObject(JObject obj, string path)
         {
-            int x = obj.Value<int>(nameof(Point.X));
-            int y = obj.Value<int>(nameof(Point.Y));
+            int x = obj.ValueIgnoreCase<int>(nameof(Point.X));
+            int y = obj.ValueIgnoreCase<int>(nameof(Point.Y));
             return new Point(x, y);
         }
 

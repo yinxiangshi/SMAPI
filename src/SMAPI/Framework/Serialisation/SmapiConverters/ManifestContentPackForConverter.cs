@@ -1,13 +1,11 @@
 using System;
-using System.Collections.Generic;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using StardewModdingAPI.Framework.Models;
 
 namespace StardewModdingAPI.Framework.Serialisation.SmapiConverters
 {
-    /// <summary>Handles deserialisation of <see cref="ModCompatibility"/> arrays.</summary>
-    internal class ModCompatibilityArrayConverter : JsonConverter
+    /// <summary>Handles deserialisation of <see cref="IManifestContentPackFor"/> arrays.</summary>
+    internal class ManifestContentPackForConverter : JsonConverter
     {
         /*********
         ** Accessors
@@ -23,7 +21,7 @@ namespace StardewModdingAPI.Framework.Serialisation.SmapiConverters
         /// <param name="objectType">The object type.</param>
         public override bool CanConvert(Type objectType)
         {
-            return objectType == typeof(ModCompatibility[]);
+            return objectType == typeof(IManifestContentPackFor[]);
         }
 
 
@@ -37,16 +35,7 @@ namespace StardewModdingAPI.Framework.Serialisation.SmapiConverters
         /// <param name="serializer">The calling serializer.</param>
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            List<ModCompatibility> result = new List<ModCompatibility>();
-            foreach (JProperty property in JObject.Load(reader).Properties())
-            {
-                string range = property.Name;
-                ModStatus status = (ModStatus)Enum.Parse(typeof(ModStatus), property.Value.Value<string>(nameof(ModCompatibility.Status)));
-                string reasonPhrase = property.Value.Value<string>(nameof(ModCompatibility.ReasonPhrase));
-
-                result.Add(new ModCompatibility(range, status, reasonPhrase));
-            }
-            return result.ToArray();
+            return serializer.Deserialize<ManifestContentPackFor>(reader);
         }
 
         /// <summary>Writes the JSON representation of the object.</summary>

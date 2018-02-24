@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Rewrite;
@@ -114,29 +115,62 @@ namespace StardewModdingAPI.Web
                     .WithOrigins("https://smapi.io", "https://*.smapi.io", "https://*.edge.smapi.io")
                     .SetIsOriginAllowedToAllowWildcardSubdomains()
                 )
-                .UseRewriter(new RewriteOptions()
-                    // redirect to HTTPS (except API for Linux/Mac Mono compatibility)
-                    .Add(new ConditionalRedirectToHttpsRule(
-                        shouldRewrite: req =>
-                            req.Host.Host != "localhost"
-                            && !req.Path.StartsWithSegments("/api")
-                            && !req.Host.Host.StartsWith("api.")
-                    ))
-
-                    // convert subdomain.smapi.io => smapi.io/subdomain for routing
-                    .Add(new ConditionalRewriteSubdomainRule(
-                        shouldRewrite: req =>
-                            req.Host.Host != "localhost"
-                            && (req.Host.Host.StartsWith("api.") || req.Host.Host.StartsWith("log."))
-                            && !req.Path.StartsWithSegments("/content")
-                            && !req.Path.StartsWithSegments("/favicon.ico")
-                    ))
-
-                    // shortcut redirects
-                    .Add(new RedirectToUrlRule("^/docs$", "https://stardewvalleywiki.com/Modding:Index"))
-                )
+                .UseRewriter(this.GetRedirectRules())
                 .UseStaticFiles() // wwwroot folder
                 .UseMvc();
+        }
+
+
+        /*********
+        ** Private methods
+        *********/
+        /// <summary>Get the redirect rules to apply.</summary>
+        private RewriteOptions GetRedirectRules()
+        {
+            var redirects = new RewriteOptions();
+
+            // redirect to HTTPS (except API for Linux/Mac Mono compatibility)
+            redirects.Add(new ConditionalRedirectToHttpsRule(
+                shouldRewrite: req =>
+                    req.Host.Host != "localhost"
+                    && !req.Path.StartsWithSegments("/api")
+                    && !req.Host.Host.StartsWith("api.")
+            ));
+
+            // convert subdomain.smapi.io => smapi.io/subdomain for routing
+            redirects.Add(new ConditionalRewriteSubdomainRule(
+                shouldRewrite: req =>
+                    req.Host.Host != "localhost"
+                    && (req.Host.Host.StartsWith("api.") || req.Host.Host.StartsWith("log."))
+                    && !req.Path.StartsWithSegments("/content")
+                    && !req.Path.StartsWithSegments("/favicon.ico")
+            ));
+
+            // shortcut redirects
+            redirects.Add(new RedirectToUrlRule("^/docs$", "https://stardewvalleywiki.com/Modding:Index"));
+
+            // redirect legacy canimod.com URLs
+            var wikiRedirects = new Dictionary<string, string[]>
+            {
+                ["Modding:Creating_a_SMAPI_mod"] = new[] { "^/for-devs/creating-a-smapi-mod", "^/guides/creating-a-smapi-mod" },
+                ["Modding:Editing_XNB_files"] = new[] { "^/for-devs/creating-an-xnb-mod", "^/guides/creating-an-xnb-mod" },
+                ["Modding:Event_data"] = new[] { "^/for-devs/events", "^/guides/events" },
+                ["Modding:Gift_taste_data"] = new[] { "^/for-devs/npc-gift-tastes", "^/guides/npc-gift-tastes" },
+                ["Modding:IDE_reference"] = new[] { "^/for-devs/creating-a-smapi-mod-ide-primer" },
+                ["Modding:Installing_SMAPI"] = new[] { "^/for-players/install-smapi", "^/guides/using-mods" },
+                ["Modding:Object_data"] = new[] { "^/for-devs/object-data", "^/guides/object-data" },
+                ["Modding:Player_FAQs"] = new[] { "^/for-players/faqs", "^/for-players/intro", "^/for-players/use-mods", "^/guides/asking-for-help", "^/guides/smapi-faq" },
+                ["Modding:SMAPI_APIs"] = new[] { "^/for-devs/creating-a-smapi-mod-advanced-config" },
+                ["Modding:Updating_deprecated_SMAPI_code"] = new[] { "^/for-devs/updating-a-smapi-mod", "^/guides/updating-a-smapi-mod" },
+                ["Modding:Weather_data"] = new[] { "^/for-devs/weather", "^/guides/weather" }
+            };
+            foreach (KeyValuePair<string, string[]> pair in wikiRedirects)
+            {
+                foreach (string pattern in pair.Value)
+                    redirects.Add(new RedirectToUrlRule(pattern, "https://stardewvalleywiki.com/" + pair.Key));
+            }
+
+            return redirects;
         }
     }
 }

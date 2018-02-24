@@ -1,3 +1,5 @@
+using StardewModdingAPI.Events;
+
 namespace StardewModdingAPI.Framework.ModLoading
 {
     /// <summary>Indicates how an instruction was handled.</summary>
@@ -19,6 +21,9 @@ namespace StardewModdingAPI.Framework.ModLoading
         DetectedSaveSerialiser,
 
         /// <summary>The instruction is compatible, but uses the <c>dynamic</c> keyword which won't work on Linux/Mac.</summary>
-        DetectedDynamic
+        DetectedDynamic,
+
+        /// <summary>The instruction is compatible, but references <see cref="SpecialisedEvents.UnvalidatedUpdateTick"/> which may impact stability.</summary>
+        DetectedUnvalidatedUpdateTick
     }
 }

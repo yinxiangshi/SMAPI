@@ -49,6 +49,7 @@
     <Compile Include="..\..\build\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Core\PathUtilitiesTests.cs" />
     <Compile Include="Utilities\SemanticVersionTests.cs" />
     <Compile Include="Utilities\SDateTests.cs" />
     <Compile Include="Core\TranslationTests.cs" />

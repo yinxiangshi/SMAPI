@@ -1,4 +1,4 @@
-namespace StardewModdingAPI.Framework.Models
+namespace StardewModdingAPI.Framework.ModData
 {
     /// <summary>Indicates how SMAPI should treat a mod.</summary>
     internal enum ModStatus

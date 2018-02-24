@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework;
-using StardewModdingAPI.Framework;
-using StardewValley;
-using Object = StardewValley.Object;
+using System;
+using StardewModdingAPI.Framework.Events;
 
 namespace StardewModdingAPI.Events
 {
@@ -11,44 +7,45 @@ namespace StardewModdingAPI.Events
     public static class LocationEvents
     {
         /*********
-        ** Events
+        ** Properties
         *********/
-        /// <summary>Raised after the player warps to a new location.</summary>
-        public static event EventHandler<EventArgsCurrentLocationChanged> CurrentLocationChanged;
-
-        /// <summary>Raised after a game location is added or removed.</summary>
-        public static event EventHandler<EventArgsGameLocationsChanged> LocationsChanged;
-
-        /// <summary>Raised after the list of objects in the current location changes (e.g. an object is added or removed).</summary>
-        public static event EventHandler<EventArgsLocationObjectsChanged> LocationObjectsChanged;
+        /// <summary>The core event manager.</summary>
+        private static EventManager EventManager;
 
 
         /*********
-        ** Internal methods
+        ** Events
         *********/
-        /// <summary>Raise a <see cref="CurrentLocationChanged"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        /// <param name="priorLocation">The player's previous location.</param>
-        /// <param name="newLocation">The player's current location.</param>
-        internal static void InvokeCurrentLocationChanged(IMonitor monitor, GameLocation priorLocation, GameLocation newLocation)
+        /// <summary>Raised after the player warps to a new location.</summary>
+        public static event EventHandler<EventArgsCurrentLocationChanged> CurrentLocationChanged
         {
-            monitor.SafelyRaiseGenericEvent($"{nameof(LocationEvents)}.{nameof(LocationEvents.CurrentLocationChanged)}", LocationEvents.CurrentLocationChanged?.GetInvocationList(), null, new EventArgsCurrentLocationChanged(priorLocation, newLocation));
+            add => LocationEvents.EventManager.Location_CurrentLocationChanged.Add(value);
+            remove => LocationEvents.EventManager.Location_CurrentLocationChanged.Remove(value);
         }
 
-        /// <summary>Raise a <see cref="LocationsChanged"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        /// <param name="newLocations">The current list of game locations.</param>
-        internal static void InvokeLocationsChanged(IMonitor monitor, List<GameLocation> newLocations)
+        /// <summary>Raised after a game location is added or removed.</summary>
+        public static event EventHandler<EventArgsGameLocationsChanged> LocationsChanged
         {
-            monitor.SafelyRaiseGenericEvent($"{nameof(LocationEvents)}.{nameof(LocationEvents.LocationsChanged)}", LocationEvents.LocationsChanged?.GetInvocationList(), null, new EventArgsGameLocationsChanged(newLocations));
+            add => LocationEvents.EventManager.Location_LocationsChanged.Add(value);
+            remove => LocationEvents.EventManager.Location_LocationsChanged.Remove(value);
         }
 
-        /// <summary>Raise a <see cref="LocationObjectsChanged"/> event.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        /// <param name="newObjects">The current list of objects in the current location.</param>
-        internal static void InvokeOnNewLocationObject(IMonitor monitor, SerializableDictionary<Vector2, Object> newObjects)
+        /// <summary>Raised after the list of objects in the current location changes (e.g. an object is added or removed).</summary>
+        public static event EventHandler<EventArgsLocationObjectsChanged> LocationObjectsChanged
         {
-            monitor.SafelyRaiseGenericEvent($"{nameof(LocationEvents)}.{nameof(LocationEvents.LocationObjectsChanged)}", LocationEvents.LocationObjectsChanged?.GetInvocationList(), null, new EventArgsLocationObjectsChanged(newObjects));
+            add => LocationEvents.EventManager.Location_LocationObjectsChanged.Add(value);
+            remove => LocationEvents.EventManager.Location_LocationObjectsChanged.Remove(value);
+        }
+
+
+        /*********
+        ** Public methods
+        *********/
+        /// <summary>Initialise the events.</summary>
+        /// <param name="eventManager">The core event manager.</param>
+        internal static void Init(EventManager eventManager)
+        {
+            LocationEvents.EventManager = eventManager;
         }
     }
 }

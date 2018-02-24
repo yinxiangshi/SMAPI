@@ -1,4 +1,7 @@
-﻿namespace StardewModdingAPI
+using System;
+using System.Collections.Generic;
+
+namespace StardewModdingAPI
 {
     /// <summary>Provides simplified APIs for writing mods.</summary>
     public interface IModHelper
@@ -54,5 +57,21 @@
         /// <param name="path">The file path relative to the mod directory.</param>
         /// <param name="model">The model to save.</param>
         void WriteJsonFile<TModel>(string path, TModel model) where TModel : class;
+
+        /****
+        ** Content packs
+        ****/
+        /// <summary>Manually create a transitional content pack to support pre-SMAPI content packs. This provides a way to access legacy content packs using the SMAPI content pack APIs, but the content pack will not be visible in the log or validated by SMAPI.</summary>
+        /// <param name="directoryPath">The absolute directory path containing the content pack files.</param>
+        /// <param name="id">The content pack's unique ID.</param>
+        /// <param name="name">The content pack name.</param>
+        /// <param name="description">The content pack description.</param>
+        /// <param name="author">The content pack author's name.</param>
+        /// <param name="version">The content pack version.</param>
+        [Obsolete("This method supports mods which previously had their own content packs, and shouldn't be used by new mods. It will be removed in SMAPI 3.0.")]
+        IContentPack CreateTransitionalContentPack(string directoryPath, string id, string name, string description, string author, ISemanticVersion version);
+
+        /// <summary>Get all content packs loaded for this mod.</summary>
+        IEnumerable<IContentPack> GetContentPacks();
     }
 }

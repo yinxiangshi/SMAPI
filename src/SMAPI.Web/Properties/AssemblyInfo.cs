@@ -1,4 +1,4 @@
 using System.Reflection;
 
-[assembly: AssemblyTitle("StardewModdingAPI.Web")]
-[assembly: AssemblyProduct("StardewModdingAPI.Web")]
+[assembly: AssemblyTitle("SMAPI.Web")]
+[assembly: AssemblyDescription("")]

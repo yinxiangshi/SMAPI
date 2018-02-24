@@ -1,15 +1,34 @@
 @{
     ViewData["Title"] = "SMAPI log parser";
+
+    Dictionary<string, LogModInfo[]> contentPacks = Model.ParsedLog?.Mods
+        ?.GroupBy(mod => mod.ContentPackFor)
+        .Where(group => group.Key != null)
+        .ToDictionary(group => group.Key, group => group.ToArray());
 }
+@using Newtonsoft.Json
+@using StardewModdingAPI.Web.Framework.LogParsing.Models
 @model StardewModdingAPI.Web.ViewModels.LogParserModel
 @section Head {
     <link rel="stylesheet" href="~/Content/css/log-parser.css?r=20180101" />
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" crossorigin="anonymous"></script>
     <script src="~/Content/js/log-parser.js?r=20180101"></script>
-    <style type="text/css" id="modflags"></style>
     <script>
         $(function() {
-            smapi.logParser('@Model.SectionUrl', '@Model.PasteID');
+            smapi.logParser({
+                logStarted: new Date(@Json.Serialize(Model.ParsedLog?.Timestamp)),
+                showPopup: @Json.Serialize(Model.ParsedLog == null),
+                showMods: @Json.Serialize(Model.ParsedLog?.Mods?.ToDictionary(p => p.Name, p => true), new JsonSerializerSettings { Formatting = Formatting.None }),
+                showLevels: {
+                    trace: false,
+                    debug: false,
+                    info: true,
+                    alert: true,
+                    warn: true,
+                    error: true
+                }
+            }, '@Model.SectionUrl');
         });
     </script>
 }
@@ -20,99 +39,134 @@
 <p id="blurb">This page lets you upload, view, and share a SMAPI log to help troubleshoot mod issues.</p>
 <input type="button" id="upload-button" value="Share a new log" />
 
-@if (Model.PasteID != null)
+@if (Model.ParsedLog?.IsValid == true)
 {
     <h2>Parsed log</h2>
+    <div id="output">
+        <table id="metadata">
+            <caption>Game info:</caption>
+            <tr>
+                <td>SMAPI version:</td>
+                <td>@Model.ParsedLog.ApiVersion</td>
+            </tr>
+            <tr>
+                <td>Game version:</td>
+                <td>@Model.ParsedLog.GameVersion</td>
+            </tr>
+            <tr>
+                <td>Platform:</td>
+                <td>@Model.ParsedLog.OperatingSystem</td>
+            </tr>
+            <tr>
+                <td>Mods path:</td>
+                <td>@Model.ParsedLog.ModPath</td>
+            </tr>
+            <tr>
+                <td>Log started:</td>
+                <td>@Model.ParsedLog.Timestamp.UtcDateTime.ToString("yyyy-MM-dd HH:mm") UTC ({{localTimeStarted}} your time)</td>
+            </tr>
+        </table>
+        <br />
+        <table id="mods">
+            <caption>
+                Installed mods:
+                <span class="notice txt"><i>click any mod to filter</i></span>
+                <span class="notice btn txt" v-on:click="showAllMods" v-if="stats.modsHidden > 0">show all</span>
+                <span class="notice btn txt" v-on:click="hideAllMods" v-if="stats.modsShown > 0 && stats.modsHidden > 0">hide all</span>
+            </caption>
+            @foreach (var mod in Model.ParsedLog.Mods.Where(p => p.ContentPackFor == null))
+            {
+                <tr v-on:click="toggleMod('@mod.Name')" class="mod-entry" v-bind:class="{ hidden: !showMods['@mod.Name'] }">
+                    <td><input type="checkbox" v-bind:checked="showMods['@mod.Name']" v-if="anyModsHidden" /></td>
+                    <td>
+                        @mod.Name
+                        @if (contentPacks != null && contentPacks.TryGetValue(mod.Name, out LogModInfo[] contentPackList))
+                        {
+                            <div class="content-packs">
+                                @foreach (var contentPack in contentPackList)
+                                {
+                                    <text>+@contentPack.Name @contentPack.Version</text>
+                                }
+                            </div>
+                        }
+                    </td>
+                    <td>@mod.Version</td>
+                    <td>@mod.Author</td>
+                    @if (mod.Errors == 0)
+                    {
+                        <td class="color-green">no errors</td>
+                    }
+                    else if (mod.Errors == 1)
+                    {
+                        <td class="color-red">@mod.Errors error</td>
+                    }
+                    else
+                    {
+                        <td class="color-red">@mod.Errors errors</td>
+                    }
+                </tr>
+            }
+        </table>
+        <div id="filters">
+            Filter messages:
+            <span v-bind:class="{ active: showLevels['trace'] }" v-on:click="toggleLevel('trace')">TRACE</span> |
+            <span v-bind:class="{ active: showLevels['debug'] }" v-on:click="toggleLevel('debug')">DEBUG</span> |
+            <span v-bind:class="{ active: showLevels['info'] }" v-on:click="toggleLevel('info')">INFO</span> |
+            <span v-bind:class="{ active: showLevels['alert'] }" v-on:click="toggleLevel('alert')">ALERT</span> |
+            <span v-bind:class="{ active: showLevels['warn'] }" v-on:click="toggleLevel('warn')">WARN</span> |
+            <span v-bind:class="{ active: showLevels['error'] }" v-on:click="toggleLevel('error')">ERROR</span>
+        </div>
+
+        <table id="log">
+            @foreach (var message in Model.ParsedLog.Messages)
+            {
+                string levelStr = @message.Level.ToString().ToLower();
+
+                <tr class="@levelStr mod" v-if="showMods['@message.Mod'] && showLevels['@levelStr']">
+                    <td>@message.Time</td>
+                    <td>@message.Level.ToString().ToUpper()</td>
+                    <td data-title="@message.Mod">@message.Mod</td>
+                    <td>@message.Text</td>
+                </tr>
+                if (message.Repeated > 0)
+                {
+                    <tr class="@levelStr mod mod-repeat" v-if="showMods['@message.Mod'] && showLevels['@levelStr']">
+                        <td colspan="3"></td>
+                        <td><i>repeats [@message.Repeated] times.</i></td>
+                    </tr>
+                }
+            }
+        </table>
+    </div>
 }
-<div id="output" class="trace debug">
-    @if (Model.PasteID != null)
-    {
-        <div id="log-data" style="display: none;">
-            <div class="always">
-                <table id="gameinfo">
-                    <caption>Game info:</caption>
-                    <tr>
-                        <td>SMAPI Version</td>
-                        <td id="api-version"></td>
-                    </tr>
-                    <tr>
-                        <td>Game Version</td>
-                        <td id="game-version"></td>
-                    </tr>
-                    <tr>
-                        <td>Platform</td>
-                        <td id="platform"></td>
-                    </tr>
-                    <tr>
-                        <td>Mods path</td>
-                        <td id="mods-path"></td>
-                    </tr>
-                    <tr>
-                        <td>Log started</td>
-                        <td id="log-started"></td>
-                    </tr>
-                </table>
-                <br/>
-                <table id="modslist">
-                    <caption>Installed Mods: <span id="modlink-r" class="notice btn">Remove all mod filters</span><span class="notice txt"><i>Click any mod to filter</i></span> <span id="modlink-a" class="notice btn txt">Select all</span></caption>
-                </table>
-                <div id="filters">
-                    Filter messages: <span>TRACE</span> | <span>DEBUG</span> | <span class="active">INFO</span> | <span class="active">ALERT</span> | <span class="active">WARN</span> | <span class="active">ERROR</span>
-                </div>
+else if (Model.ParsedLog?.IsValid == false)
+{
+    <h2>Parsed log</h2>
+    <div id="error" class="color-red">
+        <p><strong>We couldn't parse that file, but you can still share the link.</strong></p>
+        <p>Error details: @Model.ParsedLog.Error</p>
+    </div>
+
+    <h3>Raw log</h3>
+    <pre>@Model.ParsedLog.RawTextIfError</pre>
+}
+
+<div id="upload-area">
+    <div id="popup-upload" class="popup">
+        <h1>Upload log file</h1>
+        <div class="frame">
+            <ol>
+                <li><a href="https://stardewvalleywiki.com/Modding:Player_FAQs#SMAPI_log" target="_blank">Find your SMAPI log file</a> (not the console text).</li>
+                <li>Drag the file onto the textbox below (or paste the text in).</li>
+                <li>Click <em>Parse</em>.</li>
+                <li>Share the URL of the new page.</li>
+            </ol>
+            <textarea id="input" placeholder="Paste or drag the log here"></textarea>
+            <div class="buttons">
+                <input type="button" id="submit" value="Parse" />
+                <input type="button" id="cancel" value="Cancel" />
             </div>
-            <table id="log"></table>
-        </div>
-    }
-    <div id="error" class="color-red"></div>
-</div>
-<script class="template" id="template-css" type="text/html">
-    #output.modfilter:not(.mod-{0}) .mod-{0} { display:none; } #output.modfilter.mod-{0} #modslist tr { background:#ffeeee; } #output.modfilter.mod-{0} #modslist tr#modlink-{0} { background:#eeffee; }
-</script>
-<script class="template" id="template-modentry" type="text/html">
-    <tr id="modlink-{0}">
-        <td>{1}</td>
-        <td>{2}</td>
-        <td>{3}</td>
-        <td class={4}>{5}</td>
-    </tr>
-</script>
-<script class="template" id="template-logentry" type="text/html">
-    <tr class="{0} mod mod-{1}">
-        <td>{2}</td>
-        <td>{3}</td>
-        <td data-title="{4}">{4}</td>
-        <td>{5}</td>
-    </tr>
-</script>
-<script class="template" id="template-lognotice" type="text/html">
-    <tr class="{0} mod-repeat mod mod-{1}">
-        <td colspan="3"></td>
-        <td><i>repeats [{2}] times.</i></td>
-    </tr>
-</script>
-<div id="popup-upload" class="popup">
-    <h1>Upload log file</h1>
-    <div class="frame">
-        <ol>
-            <li><a href="https://stardewvalleywiki.com/Modding:Player_FAQs#SMAPI_log" target="_blank">Find your SMAPI log file</a> (not the console text).</li>
-            <li>Drag the file onto the textbox below (or paste the text in).</li>
-            <li>Click <em>Parse</em>.</li>
-            <li>Share the URL of the new page.</li>
-        </ol>
-        <textarea id="input" placeholder="Paste or drag the log here"></textarea>
-        <div class="buttons">
-            <input type="button" id="submit" value="Parse" />
-            <input type="button" id="cancel" value="Cancel" />
         </div>
     </div>
+    <div id="uploader"></div>
 </div>
-<div id="popup-raw" class="popup">
-    <h1>Raw log file</h1>
-    <div class="frame">
-        <textarea id="dataraw"></textarea>
-        <div class="buttons">
-            <input type="button" id="closeraw" value="Close" />
-        </div>
-    </div>
-</div>
-<div id="uploader"></div>

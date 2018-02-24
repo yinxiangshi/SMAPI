@@ -1,21 +1,23 @@
-.mod-repeat {
-    font-size: 8pt;
+/*********
+** Main layout
+*********/
+input[type="button"] {
+    font-size: 20px;
+    border-radius: 5px;
+    outline: none;
+    box-shadow: inset 0 0 1px 1px rgba(0, 0, 0, .2);
+    cursor: pointer;
 }
 
-.template {
-    display: none;
+caption {
+    text-align: left;
+    padding-top: 2px;
 }
 
-.popup, #uploader {
-    position: fixed;
-    top: 0px;
-    left: 0px;
-    right: 0px;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, .33);
-    z-index: 2;
-    display: none;
-    padding: 5px;
+#output {
+    padding: 10px;
+    overflow: auto;
+    font-family: monospace;
 }
 
 #upload-button {
@@ -27,101 +29,87 @@
     background: #eef;
 }
 
-
-#uploader:after {
-    content: attr(data-text);
-    display: block;
-    width: 100px;
-    height: 24px;
-    line-height: 25px;
-    border: 1px solid #000;
-    background: #fff;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    margin: -12px -50px 0 0;
-    font-size: 18px;
+/*********
+** Log metadata & filters
+*********/
+#metadata, #mods, #filters {
     font-weight: bold;
-    text-align: center;
+    border-bottom: 1px dashed #888888;
+    padding-bottom: 10px;
+    margin-bottom: 5px;
+}
+
+table#metadata,
+table#mods {
+    border: 1px solid #000000;
+    background: #ffffff;
     border-radius: 5px;
+    border-spacing: 1px;
+    overflow: hidden;
+    cursor: default;
+    box-shadow: 1px 1px 1px 1px #dddddd;
 }
 
-.popup h1 {
-    position: absolute;
-    top: 10%;
-    left: 50%;
-    margin-left: -150px;
-    text-align: center;
-    width: 300px;
-    border: 1px solid #008;
-    border-radius: 5px;
-    background: #fff;
-    font-family: sans-serif;
-    font-size: 40px;
-    margin-top: -25px;
-    z-index: 10;
-    border-bottom: 0;
+#mods {
+    min-width: 400px;
 }
 
-.frame {
-    margin: auto;
-    margin-top: 25px;
-    padding: 2em;
-    position: absolute;
-    top: 10%;
-    left: 10%;
-    right: 10%;
-    bottom: 10%;
-    padding-bottom: 30px;
-    background: #FFF;
-    border-radius: 5px;
-    border: 1px solid #008;
-}
-
-input[type="button"] {
-    font-size: 20px;
-    border-radius: 5px;
-    outline: none;
-    box-shadow: inset 0px 0px 1px 1px rgba(0, 0, 0, .2);
-    cursor: pointer;
-}
-
-#input[type="button"]:hover {
-    background-color: #fee;
-}
-
-#cancel, #closeraw {
-    border: 1px solid #880000;
-    background-color: #fcc;
-}
-
-#submit {
-    border: 1px solid #008800;
-    background-color: #cfc;
-}
-
-#submit:hover {
-    background-color: #efe;
-}
-
-#input, #dataraw {
-    width: 100%;
-    height: 30em;
-    max-height: 70%;
-    margin: auto;
-    box-sizing: border-box;
-    border-radius: 5px;
-    border: 1px solid #000088;
-    outline: none;
-    box-shadow: inset 0px 0px 1px 1px rgba(0, 0, 192, .2);
-}
-
-.color-red {
+#mods .color-red {
     color: red;
 }
 
-.color-green {
+#mods .color-green {
     color: green;
+}
+
+#mods tr {
+    cursor: pointer;
+}
+
+#metadata tr,
+#mods tr {
+    background: #eee
+}
+
+#mods span.notice {
+    font-weight: normal;
+    font-size: 11px;
+    position: relative;
+    top: -1px;
+    display: none;
+}
+
+#mods span.notice.btn {
+    cursor: pointer;
+    border: 1px solid #000;
+    border-radius: 5px;
+    position: relative;
+    top: -1px;
+    padding: 0 2px;
+    background: #eee;
+}
+
+#mods span.notice.txt {
+    display: inline-block;
+}
+
+#mods .mod-entry.hidden {
+    opacity: 0.5;
+}
+
+#mods .content-packs {
+    margin-left: 1em;
+    font-size: 0.9em;
+    font-style: italic;
+}
+
+#metadata td:first-child {
+    padding-right: 5px;
+}
+
+#metadata tr:nth-child(even),
+#mods tr:nth-child(even) {
+    background: #fff
 }
 
 #filters {
@@ -155,59 +143,35 @@ input[type="button"] {
     background: #efe;
 }
 
-#output {
-    padding: 10px;
-    overflow: auto;
-    font-family: monospace;
+/*********
+** Log
+*********/
+#log .mod-repeat {
+    font-size: 0.85em;
 }
 
-#output > * {
-    display: block;
-}
-
-#output.trace .trace,
-#output.debug .debug,
-#output.info .info,
-#output.alert .alert,
-#output.warn .warn,
-#output.error .error {
-    display: none;
-}
-
-#output .trace {
+#log .trace {
     color: #999;
 }
 
-#output .debug {
+#log .debug {
     color: #595959;
 }
 
-#output .info {
-    color: #000
+#log .info {
+    color: #000;
 }
 
-#output .alert {
+#log .alert {
     color: #b0b;
 }
 
-#output .warn {
-    color: #f80
+#log .warn {
+    color: #f80;
 }
 
-#output .error {
-    color: #f00
-}
-
-#output .always {
-    font-weight: bold;
-    border-bottom: 1px dashed #888888;
-    padding-bottom: 10px;
-    margin-bottom: 5px;
-}
-
-caption {
-    text-align: left;
-    padding-top: 2px;
+#log .error {
+    color: #f00;
 }
 
 #log {
@@ -224,6 +188,7 @@ caption {
     border-bottom: 1px dotted #ccc;
     border-top: 2px solid #fff;
     vertical-align: top;
+    white-space: pre-wrap;
 }
 
 #log td:not(:last-child) {
@@ -259,61 +224,99 @@ caption {
     width: 100%;
 }
 
-table#gameinfo,
-table#modslist {
-    border: 1px solid #000000;
-    background: #ffffff;
-    border-radius: 5px;
-    border-spacing: 1px;
-    overflow: hidden;
-    cursor: default;
-    box-shadow: 1px 1px 1px 1px #dddddd;
+#error {
+    color: #f00;
 }
 
-#modslist {
-    min-width: 400px;
-}
 
-#gameinfo td:first-child {
-    padding-right: 5px;
-}
-
-#gameinfo tr,
-#modslist tr {
-    background: #eee
-}
-
-#gameinfo tr:nth-child(even),
-#modslist tr:nth-child(even) {
-    background: #fff
-}
-
-#modslist tr {
-    cursor: pointer;
-}
-
-span.notice {
-    font-weight: normal;
-    font-size: 11px;
-    position: relative;
-    top: -1px;
+/*********
+** Upload popup
+*********/
+#upload-area .popup,
+#upload-area #uploader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, .33);
+    z-index: 2;
     display: none;
+    padding: 5px;
 }
 
-span.notice.btn {
-    cursor: pointer;
+#upload-area #uploader:after {
+    content: attr(data-text);
+    display: block;
+    width: 100px;
+    height: 24px;
+    line-height: 25px;
     border: 1px solid #000;
+    background: #fff;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -12px -50px 0 0;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
     border-radius: 5px;
-    position: relative;
-    top: -1px;
-    padding: 0 2px;
-    background: #eee;
 }
 
-#output:not(.modfilter) span.notice.txt {
-    display: inline-block;
+#upload-area .popup h1 {
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    margin-left: -150px;
+    text-align: center;
+    width: 300px;
+    border: 1px solid #008;
+    border-radius: 5px;
+    background: #fff;
+    font-family: sans-serif;
+    font-size: 40px;
+    margin-top: -25px;
+    z-index: 10;
+    border-bottom: 0;
 }
 
-#output.modfilter span.notice.btn {
-    display: inline-block;
+#upload-area .frame {
+    margin: auto;
+    margin-top: 25px;
+    padding: 2em;
+    position: absolute;
+    top: 10%;
+    left: 10%;
+    right: 10%;
+    bottom: 10%;
+    padding-bottom: 30px;
+    background: #FFF;
+    border-radius: 5px;
+    border: 1px solid #008;
+}
+
+#upload-area #cancel {
+    border: 1px solid #880000;
+    background-color: #fcc;
+}
+
+#upload-area #submit {
+    border: 1px solid #008800;
+    background-color: #cfc;
+}
+
+#upload-area #submit:hover {
+    background-color: #efe;
+}
+
+#upload-area #input {
+    width: 100%;
+    height: 30em;
+    max-height: 70%;
+    margin: auto;
+    box-sizing: border-box;
+    border-radius: 5px;
+    border: 1px solid #000088;
+    outline: none;
+    box-shadow: inset 0px 0px 1px 1px rgba(0, 0, 192, .2);
 }

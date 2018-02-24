@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using Microsoft.Xna.Framework.Graphics;
+using Newtonsoft.Json.Linq;
 using StardewModdingAPI.Framework.Reflection;
 using StardewValley;
 
@@ -14,63 +14,6 @@ namespace StardewModdingAPI.Framework
         /****
         ** IMonitor
         ****/
-        /// <summary>Safely raise an <see cref="EventHandler"/> event, and intercept any exceptions thrown by its handlers.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        /// <param name="name">The event name for error messages.</param>
-        /// <param name="handlers">The event handlers.</param>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="args">The event arguments (or <c>null</c> to pass <see cref="EventArgs.Empty"/>).</param>
-        public static void SafelyRaisePlainEvent(this IMonitor monitor, string name, IEnumerable<Delegate> handlers, object sender = null, EventArgs args = null)
-        {
-            if (handlers == null)
-                return;
-
-            foreach (EventHandler handler in handlers.Cast<EventHandler>())
-            {
-                // handle SMAPI exiting
-                if (monitor.IsExiting)
-                {
-                    monitor.Log($"SMAPI shutting down: aborting {name} event.", LogLevel.Warn);
-                    return;
-                }
-
-                // raise event
-                try
-                {
-                    handler.Invoke(sender, args ?? EventArgs.Empty);
-                }
-                catch (Exception ex)
-                {
-                    monitor.Log($"A mod failed handling the {name} event:\n{ex.GetLogSummary()}", LogLevel.Error);
-                }
-            }
-        }
-
-        /// <summary>Safely raise an <see cref="EventHandler{TEventArgs}"/> event, and intercept any exceptions thrown by its handlers.</summary>
-        /// <typeparam name="TEventArgs">The event argument object type.</typeparam>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        /// <param name="name">The event name for error messages.</param>
-        /// <param name="handlers">The event handlers.</param>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="args">The event arguments.</param>
-        public static void SafelyRaiseGenericEvent<TEventArgs>(this IMonitor monitor, string name, IEnumerable<Delegate> handlers, object sender, TEventArgs args)
-        {
-            if (handlers == null)
-                return;
-
-            foreach (EventHandler<TEventArgs> handler in handlers.Cast<EventHandler<TEventArgs>>())
-            {
-                try
-                {
-                    handler.Invoke(sender, args);
-                }
-                catch (Exception ex)
-                {
-                    monitor.Log($"A mod failed handling the {name} event:\n{ex.GetLogSummary()}", LogLevel.Error);
-                }
-            }
-        }
-
         /// <summary>Log a message for the player or developer the first time it occurs.</summary>
         /// <param name="monitor">The monitor through which to log the message.</param>
         /// <param name="hash">The hash of logged messages.</param>
@@ -83,6 +26,18 @@ namespace StardewModdingAPI.Framework
                 monitor.Log(message, level);
                 hash.Add(message);
             }
+        }
+
+        /****
+        ** IModMetadata
+        ****/
+        /// <summary>Log a message using the mod's monitor.</summary>
+        /// <param name="metadata">The mod whose monitor to use.</param>
+        /// <param name="message">The message to log.</param>
+        /// <param name="level">The log severity level.</param>
+        public static void LogAsMod(this IModMetadata metadata, string message, LogLevel level = LogLevel.Trace)
+        {
+            metadata.Monitor.Log(message, level);
         }
 
         /****
@@ -135,6 +90,21 @@ namespace StardewModdingAPI.Framework
 
             // get result
             return reflection.GetField<bool>(Game1.spriteBatch, fieldName).GetValue();
+        }
+
+        /****
+        ** Json.NET
+        ****/
+        /// <summary>Get a JSON field value from a case-insensitive field name. This will check for an exact match first, then search without case sensitivity.</summary>
+        /// <typeparam name="T">The value type.</typeparam>
+        /// <param name="obj">The JSON object to search.</param>
+        /// <param name="fieldName">The field name.</param>
+        public static T ValueIgnoreCase<T>(this JObject obj, string fieldName)
+        {
+            JToken token = obj.GetValue(fieldName, StringComparison.InvariantCultureIgnoreCase);
+            return token != null
+                ? token.Value<T>()
+                : default(T);
         }
     }
 }

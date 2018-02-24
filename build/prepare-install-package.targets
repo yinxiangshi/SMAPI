@@ -20,6 +20,8 @@
     <!-- copy installer files -->
     <Copy SourceFiles="$(TargetDir)\$(TargetName).exe" DestinationFiles="$(PackagePath)\install.exe" />
     <Copy SourceFiles="$(TargetDir)\readme.txt" DestinationFiles="$(PackagePath)\README.txt" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(TargetDir)\unix-launcher.sh" DestinationFiles="$(PackageInternalPath)\Mono\StardewModdingAPI" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(TargetDir)\unix-install.sh" DestinationFiles="$(PackagePath)\install.sh" />
     
     <!-- copy SMAPI files for Mono -->
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\Mono.Cecil.dll" DestinationFolder="$(PackageInternalPath)\Mono" />
@@ -31,7 +33,6 @@
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.config.json" DestinationFolder="$(PackageInternalPath)\Mono" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\System.Numerics.dll" DestinationFolder="$(PackageInternalPath)\Mono" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\System.Runtime.Caching.dll" DestinationFolder="$(PackageInternalPath)\Mono" />
-    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\unix-launcher.sh" DestinationFiles="$(PackageInternalPath)\Mono\StardewModdingAPI" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\steam_appid.txt" DestinationFolder="$(PackageInternalPath)\Mono" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="@(CompiledMods)" DestinationFolder="$(PackageInternalPath)\Mono\Mods\%(RecursiveDir)" />
 
