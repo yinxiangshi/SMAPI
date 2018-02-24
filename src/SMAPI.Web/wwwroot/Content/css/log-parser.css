@@ -97,6 +97,12 @@ table#mods {
     opacity: 0.5;
 }
 
+#mods .content-packs {
+    margin-left: 1em;
+    font-size: 0.9em;
+    font-style: italic;
+}
+
 #metadata td:first-child {
     padding-right: 5px;
 }

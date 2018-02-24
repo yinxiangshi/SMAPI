@@ -1,5 +1,10 @@
 @{
     ViewData["Title"] = "SMAPI log parser";
+
+    Dictionary<string, LogModInfo[]> contentPacks = Model.ParsedLog?.Mods
+        ?.GroupBy(mod => mod.ContentPackFor)
+        .Where(group => group.Key != null)
+        .ToDictionary(group => group.Key, group => group.ToArray());
 }
 @using Newtonsoft.Json
 @using StardewModdingAPI.Web.Framework.LogParsing.Models
@@ -69,10 +74,22 @@
                 <span class="notice btn txt" v-on:click="showAllMods" v-if="stats.modsHidden > 0">show all</span>
                 <span class="notice btn txt" v-on:click="hideAllMods" v-if="stats.modsShown > 0 && stats.modsHidden > 0">hide all</span>
             </caption>
-            @foreach (var mod in Model.ParsedLog.Mods)
+            @foreach (var mod in Model.ParsedLog.Mods.Where(p => p.ContentPackFor == null))
             {
                 <tr v-on:click="toggleMod('@mod.Name')" class="mod-entry" v-bind:class="{ hidden: !showMods['@mod.Name'] }">
                     <td><input type="checkbox" v-bind:checked="showMods['@mod.Name']" v-if="anyModsHidden" /></td>
+                    <td>
+                        @mod.Name
+                        @if (contentPacks != null && contentPacks.TryGetValue(mod.Name, out LogModInfo[] contentPackList))
+                        {
+                            <div class="content-packs">
+                                @foreach (var contentPack in contentPackList)
+                                {
+                                    <text>+@contentPack.Name @contentPack.Version</text>
+                                }
+                            </div>
+                        }
+                    </td>
                     <td>@mod.Version</td>
                     <td>@mod.Author</td>
                     @if (mod.Errors == 0)

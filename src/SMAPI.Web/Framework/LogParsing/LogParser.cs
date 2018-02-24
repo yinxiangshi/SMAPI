@@ -31,6 +31,12 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
         /// <summary>A regex pattern matching an entry in SMAPI's mod list.</summary>
         private readonly Regex ModListEntryPattern = new Regex(@"^   (?<name>.+) (?<version>.+) by (?<author>.+) \| (?<description>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
+        /// <summary>A regex pattern matching the start of SMAPI's content pack list.</summary>
+        private readonly Regex ContentPackListStartPattern = new Regex(@"^Loaded \d+ content packs:$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+        /// <summary>A regex pattern matching an entry in SMAPI's content pack list.</summary>
+        private readonly Regex ContentPackListEntryPattern = new Regex(@"^   (?<name>.+) (?<version>.+) by (?<author>.+) \| for (?<for>.+?) \| (?<description>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
 
         /*********
         ** Public methods
@@ -62,6 +68,7 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                 LogModInfo smapiMod = new LogModInfo { Name = "SMAPI", Author = "Pathoschild", Description = "" };
                 IDictionary<string, LogModInfo> mods = new Dictionary<string, LogModInfo>();
                 bool inModList = false;
+                bool inContentPackList = false;
                 foreach (LogMessage message in log.Messages)
                 {
                     // collect stats
@@ -79,6 +86,8 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                         // update flags
                         if (inModList && !this.ModListEntryPattern.IsMatch(message.Text))
                             inModList = false;
+                        if (inContentPackList && !this.ContentPackListEntryPattern.IsMatch(message.Text))
+                            inContentPackList = false;
 
                         // mod list
                         if (!inModList && message.Level == LogLevel.Info && this.ModListStartPattern.IsMatch(message.Text))
@@ -91,6 +100,20 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                             string author = match.Groups["author"].Value;
                             string description = match.Groups["description"].Value;
                             mods[name] = new LogModInfo { Name = name, Author = author, Version = version, Description = description };
+                        }
+
+                        // content pack list
+                        else if (!inContentPackList && message.Level == LogLevel.Info && this.ContentPackListStartPattern.IsMatch(message.Text))
+                            inContentPackList = true;
+                        else if (inContentPackList)
+                        {
+                            Match match = this.ContentPackListEntryPattern.Match(message.Text);
+                            string name = match.Groups["name"].Value;
+                            string version = match.Groups["version"].Value;
+                            string author = match.Groups["author"].Value;
+                            string description = match.Groups["description"].Value;
+                            string forMod = match.Groups["for"].Value;
+                            mods[name] = new LogModInfo { Name = name, Author = author, Version = version, Description = description, ContentPackFor = forMod };
                         }
 
                         // platform info line

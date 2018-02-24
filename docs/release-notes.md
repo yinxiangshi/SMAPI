@@ -22,6 +22,7 @@
 
 * For the [log parser][]:
   * Significantly reduced download size when viewing files with repeated errors.
+  * Added support for SMAPI 2.5 content packs.
   * Improved parse error handling.
   * Fixed 'log started' field showing incorrect date.
 

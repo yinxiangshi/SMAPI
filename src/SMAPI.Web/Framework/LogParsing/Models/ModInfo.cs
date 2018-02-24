@@ -18,6 +18,9 @@ namespace StardewModdingAPI.Web.Framework.LogParsing.Models
         /// <summary>The mod description.</summary>
         public string Description { get; set; }
 
+        /// <summary>The name of the mod for which this is a content pack (if applicable).</summary>
+        public string ContentPackFor { get; set; }
+
         /// <summary>The number of errors logged by this mod.</summary>
         public int Errors { get; set; }
     }
