@@ -20,8 +20,14 @@
   * Fixed unhelpful error when a translation file has duplicate keys due to case-insensitivity.
   * Fixed some JSON field names being case-sensitive.
 
+* For the [log parser][]:
+  * Significantly reduced download size when viewing files with repeated errors.
+  * Improved parse error handling.
+  * Fixed 'log started' field showing incorrect date.
+
 * For SMAPI developers:
   * Overhauled mod DB format to be more concise, reduce the memory footprint, and support versioning/defaulting more fields.
+  * Reimplemented log parser with serverside parsing and vue.js on the frontend.
 
 ## 2.4
 * For players:

@@ -8,6 +8,8 @@ using Microsoft.Extensions.Options;
 using StardewModdingAPI.Web.Framework;
 using StardewModdingAPI.Web.Framework.Clients.Pastebin;
 using StardewModdingAPI.Web.Framework.ConfigModels;
+using StardewModdingAPI.Web.Framework.LogParsing;
+using StardewModdingAPI.Web.Framework.LogParsing.Models;
 using StardewModdingAPI.Web.ViewModels;
 
 namespace StardewModdingAPI.Web.Controllers
@@ -52,25 +54,23 @@ namespace StardewModdingAPI.Web.Controllers
         [HttpGet]
         [Route("log")]
         [Route("log/{id}")]
-        public ViewResult Index(string id = null)
+        public async Task<ViewResult> Index(string id = null)
         {
-            return this.View("Index", new LogParserModel(this.Config.LogParserUrl, id));
+            // fresh page
+            if (string.IsNullOrWhiteSpace(id))
+                return this.View("Index", new LogParserModel(this.Config.LogParserUrl, id, null));
+
+            // log page
+            PasteInfo paste = await this.GetAsync(id);
+            ParsedLog log = paste.Success
+                ? new LogParser().Parse(paste.Content)
+                : new ParsedLog { IsValid = false, Error = "Pastebin error: " + paste.Error };
+            return this.View("Index", new LogParserModel(this.Config.LogParserUrl, id, log));
         }
 
         /***
         ** JSON
         ***/
-        /// <summary>Fetch raw text from Pastebin.</summary>
-        /// <param name="id">The Pastebin paste ID.</param>
-        [HttpGet, Produces("application/json")]
-        [Route("log/fetch/{id}")]
-        public async Task<PasteInfo> GetAsync(string id)
-        {
-            PasteInfo response = await this.Pastebin.GetAsync(id);
-            response.Content = this.DecompressString(response.Content);
-            return response;
-        }
-
         /// <summary>Save raw log data.</summary>
         /// <param name="content">The log content to save.</param>
         [HttpPost, Produces("application/json"), AllowLargePosts]
@@ -85,6 +85,15 @@ namespace StardewModdingAPI.Web.Controllers
         /*********
         ** Private methods
         *********/
+        /// <summary>Fetch raw text from Pastebin.</summary>
+        /// <param name="id">The Pastebin paste ID.</param>
+        private async Task<PasteInfo> GetAsync(string id)
+        {
+            PasteInfo response = await this.Pastebin.GetAsync(id);
+            response.Content = this.DecompressString(response.Content);
+            return response;
+        }
+
         /// <summary>Compress a string.</summary>
         /// <param name="text">The text to compress.</param>
         /// <remarks>Derived from <a href="https://stackoverflow.com/a/17993002/262123"/>.</remarks>

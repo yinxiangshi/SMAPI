@@ -1,3 +1,5 @@
+using StardewModdingAPI.Web.Framework.LogParsing.Models;
+
 namespace StardewModdingAPI.Web.ViewModels
 {
     /// <summary>The view model for the log parser page.</summary>
@@ -12,6 +14,9 @@ namespace StardewModdingAPI.Web.ViewModels
         /// <summary>The paste ID.</summary>
         public string PasteID { get; set; }
 
+        /// <summary>The parsed log info.</summary>
+        public ParsedLog ParsedLog { get; set; }
+
 
         /*********
         ** Public methods
@@ -22,10 +27,12 @@ namespace StardewModdingAPI.Web.ViewModels
         /// <summary>Construct an instance.</summary>
         /// <param name="sectionUrl">The root URL for the log parser controller.</param>
         /// <param name="pasteID">The paste ID.</param>
-        public LogParserModel(string sectionUrl, string pasteID)
+        /// <param name="parsedLog">The parsed log info.</param>
+        public LogParserModel(string sectionUrl, string pasteID, ParsedLog parsedLog)
         {
             this.SectionUrl = sectionUrl;
             this.PasteID = pasteID;
+            this.ParsedLog = parsedLog;
         }
     }
 }
