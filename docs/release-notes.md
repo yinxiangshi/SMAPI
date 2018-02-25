@@ -1,4 +1,11 @@
 # Release notes
+## 2.5.2
+* For modders:
+  * Fixed issue where replacing an asset through `asset.AsImage()` or `asset.AsDictionary()` didn't take effect.
+
+* For the [log parser][]:
+  * Fixed blank page after uploading a log in some cases.
+
 ## 2.5.1
 * For players:
   * Fixed event error in rare cases.
