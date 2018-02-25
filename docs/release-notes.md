@@ -1,4 +1,8 @@
 # Release notes
+## 2.5.1
+* For players:
+  * Fixed event error in rare cases.
+
 ## 2.5
 * For players:
   * **Added support for [content packs](https://stardewvalleywiki.com/Modding:Content_packs)**.  

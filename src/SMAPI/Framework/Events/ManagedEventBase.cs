@@ -55,7 +55,7 @@ namespace StardewModdingAPI.Framework.Events
         protected void AddTracking(TEventHandler handler, IEnumerable<TEventHandler> invocationList)
         {
             this.SourceMods[handler] = this.ModRegistry.GetFromStack();
-            this.CachedInvocationList = invocationList.ToArray();
+            this.CachedInvocationList = invocationList?.ToArray() ?? new TEventHandler[0];
         }
 
         /// <summary>Remove tracking for an event handler.</summary>
@@ -63,8 +63,9 @@ namespace StardewModdingAPI.Framework.Events
         /// <param name="invocationList">The updated event invocation list.</param>
         protected void RemoveTracking(TEventHandler handler, IEnumerable<TEventHandler> invocationList)
         {
-            this.SourceMods.Remove(handler);
-            this.CachedInvocationList = invocationList.ToArray();
+            this.CachedInvocationList = invocationList?.ToArray() ?? new TEventHandler[0];
+            if(!this.CachedInvocationList.Contains(handler)) // don't remove if there's still a reference to the removed handler (e.g. it was added twice and removed once)
+                this.SourceMods.Remove(handler);
         }
 
         /// <summary>Log an exception from an event handler.</summary>
