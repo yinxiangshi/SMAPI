@@ -1,4 +1,8 @@
 # Release notes
+## 2.5.2
+* For modders:
+  * Fixed issue where replacing an asset through `asset.AsImage()` or `asset.AsDictionary()` didn't take effect.
+
 ## 2.5.1
 * For players:
   * Fixed event error in rare cases.

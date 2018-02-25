@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -16,7 +16,7 @@ namespace StardewModdingAPI.Framework.Content
         /// <param name="data">The content data being read.</param>
         /// <param name="getNormalisedPath">Normalises an asset key to match the cache key.</param>
         public AssetDataForObject(string locale, string assetName, object data, Func<string, string> getNormalisedPath)
-            : base(locale, assetName, data, getNormalisedPath) { }
+            : base(locale, assetName, data, getNormalisedPath, onDataReplaced: null) { }
 
         /// <summary>Construct an instance.</summary>
         /// <param name="info">The asset metadata.</param>
@@ -31,14 +31,14 @@ namespace StardewModdingAPI.Framework.Content
         /// <exception cref="InvalidOperationException">The content being read isn't a dictionary.</exception>
         public IAssetDataForDictionary<TKey, TValue> AsDictionary<TKey, TValue>()
         {
-            return new AssetDataForDictionary<TKey, TValue>(this.Locale, this.AssetName, this.GetData<IDictionary<TKey, TValue>>(), this.GetNormalisedPath);
+            return new AssetDataForDictionary<TKey, TValue>(this.Locale, this.AssetName, this.GetData<IDictionary<TKey, TValue>>(), this.GetNormalisedPath, this.ReplaceWith);
         }
 
         /// <summary>Get a helper to manipulate the data as an image.</summary>
         /// <exception cref="InvalidOperationException">The content being read isn't an image.</exception>
         public IAssetDataForImage AsImage()
         {
-            return new AssetDataForImage(this.Locale, this.AssetName, this.GetData<Texture2D>(), this.GetNormalisedPath);
+            return new AssetDataForImage(this.Locale, this.AssetName, this.GetData<Texture2D>(), this.GetNormalisedPath, this.ReplaceWith);
         }
 
         /// <summary>Get the data as a given type.</summary>

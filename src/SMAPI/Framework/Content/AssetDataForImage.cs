@@ -15,8 +15,9 @@ namespace StardewModdingAPI.Framework.Content
         /// <param name="assetName">The normalised asset name being read.</param>
         /// <param name="data">The content data being read.</param>
         /// <param name="getNormalisedPath">Normalises an asset key to match the cache key.</param>
-        public AssetDataForImage(string locale, string assetName, Texture2D data, Func<string, string> getNormalisedPath)
-            : base(locale, assetName, data, getNormalisedPath) { }
+        /// <param name="onDataReplaced">A callback to invoke when the data is replaced (if any).</param>
+        public AssetDataForImage(string locale, string assetName, Texture2D data, Func<string, string> getNormalisedPath, Action<Texture2D> onDataReplaced)
+            : base(locale, assetName, data, getNormalisedPath, onDataReplaced) { }
 
         /// <summary>Overwrite part of the image.</summary>
         /// <param name="source">The image to patch into the content.</param>

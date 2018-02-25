@@ -15,8 +15,9 @@ namespace StardewModdingAPI.Framework.Content
         /// <param name="assetName">The normalised asset name being read.</param>
         /// <param name="data">The content data being read.</param>
         /// <param name="getNormalisedPath">Normalises an asset key to match the cache key.</param>
-        public AssetDataForDictionary(string locale, string assetName, IDictionary<TKey, TValue> data, Func<string, string> getNormalisedPath)
-            : base(locale, assetName, data, getNormalisedPath) { }
+        /// <param name="onDataReplaced">A callback to invoke when the data is replaced (if any).</param>
+        public AssetDataForDictionary(string locale, string assetName, IDictionary<TKey, TValue> data, Func<string, string> getNormalisedPath, Action<IDictionary<TKey, TValue>> onDataReplaced)
+            : base(locale, assetName, data, getNormalisedPath, onDataReplaced) { }
 
         /// <summary>Add or replace an entry in the dictionary.</summary>
         /// <param name="key">The entry key.</param>

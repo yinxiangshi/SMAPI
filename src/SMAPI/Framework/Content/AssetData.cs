@@ -7,6 +7,13 @@ namespace StardewModdingAPI.Framework.Content
     internal class AssetData<TValue> : AssetInfo, IAssetData<TValue>
     {
         /*********
+        ** Properties
+        *********/
+        /// <summary>A callback to invoke when the data is replaced (if any).</summary>
+        private readonly Action<TValue> OnDataReplaced;
+
+
+        /*********
         ** Accessors
         *********/
         /// <summary>The content data being read.</summary>
@@ -21,10 +28,12 @@ namespace StardewModdingAPI.Framework.Content
         /// <param name="assetName">The normalised asset name being read.</param>
         /// <param name="data">The content data being read.</param>
         /// <param name="getNormalisedPath">Normalises an asset key to match the cache key.</param>
-        public AssetData(string locale, string assetName, TValue data, Func<string, string> getNormalisedPath)
+        /// <param name="onDataReplaced">A callback to invoke when the data is replaced (if any).</param>
+        public AssetData(string locale, string assetName, TValue data, Func<string, string> getNormalisedPath, Action<TValue> onDataReplaced)
             : base(locale, assetName, data.GetType(), getNormalisedPath)
         {
             this.Data = data;
+            this.OnDataReplaced = onDataReplaced;
         }
 
         /// <summary>Replace the entire content value with the given value. This is generally not recommended, since it may break compatibility with other mods or different versions of the game.</summary>
@@ -39,6 +48,7 @@ namespace StardewModdingAPI.Framework.Content
                 throw new InvalidCastException($"Can't replace loaded asset of type {this.GetFriendlyTypeName(this.DataType)} with value of type {this.GetFriendlyTypeName(value.GetType())}. The new type must be compatible to prevent game errors.");
 
             this.Data = value;
+            this.OnDataReplaced?.Invoke(value);
         }
     }
 }
