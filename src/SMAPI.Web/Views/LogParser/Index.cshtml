@@ -1,11 +1,18 @@
 @{
     ViewData["Title"] = "SMAPI log parser";
 
-    Dictionary<string, LogModInfo[]> contentPacks = Model.ParsedLog?.Mods
+    IDictionary<string, LogModInfo[]> contentPacks = Model.ParsedLog?.Mods
         ?.GroupBy(mod => mod.ContentPackFor)
         .Where(group => group.Key != null)
         .ToDictionary(group => group.Key, group => group.ToArray());
+
+    Regex slugInvalidCharPattern = new Regex("[^a-z0-9]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    string GetSlug(string modName)
+    {
+        return slugInvalidCharPattern.Replace(modName, "");
+    }
 }
+@using System.Text.RegularExpressions
 @using Newtonsoft.Json
 @using StardewModdingAPI.Web.Framework.LogParsing.Models
 @model StardewModdingAPI.Web.ViewModels.LogParserModel
@@ -19,7 +26,7 @@
             smapi.logParser({
                 logStarted: new Date(@Json.Serialize(Model.ParsedLog?.Timestamp)),
                 showPopup: @Json.Serialize(Model.ParsedLog == null),
-                showMods: @Json.Serialize(Model.ParsedLog?.Mods?.ToDictionary(p => p.Name, p => true), new JsonSerializerSettings { Formatting = Formatting.None }),
+                showMods: @Json.Serialize(Model.ParsedLog?.Mods?.ToDictionary(p => GetSlug(p.Name), p => true), new JsonSerializerSettings { Formatting = Formatting.None }),
                 showLevels: {
                     trace: false,
                     debug: false,
@@ -76,8 +83,8 @@
             </caption>
             @foreach (var mod in Model.ParsedLog.Mods.Where(p => p.ContentPackFor == null))
             {
-                <tr v-on:click="toggleMod('@mod.Name')" class="mod-entry" v-bind:class="{ hidden: !showMods['@mod.Name'] }">
-                    <td><input type="checkbox" v-bind:checked="showMods['@mod.Name']" v-if="anyModsHidden" /></td>
+                <tr v-on:click="toggleMod('@GetSlug(mod.Name)')" class="mod-entry" v-bind:class="{ hidden: !showMods['@GetSlug(mod.Name)'] }">
+                    <td><input type="checkbox" v-bind:checked="showMods['@GetSlug(mod.Name)']" v-if="anyModsHidden" /></td>
                     <td>
                         @mod.Name
                         @if (contentPacks != null && contentPacks.TryGetValue(mod.Name, out LogModInfo[] contentPackList))
