@@ -17,8 +17,8 @@ namespace StardewModdingAPI.Web.Framework.LogParsing.Models
         /// <summary>An error message indicating why the log file is invalid.</summary>
         public string Error { get; set; }
 
-        /// <summary>The raw text if <see cref="IsValid"/> is false.</summary>
-        public string RawTextIfError { get; set; }
+        /// <summary>The raw log text.</summary>
+        public string RawText { get; set; }
 
         /****
         ** Log data

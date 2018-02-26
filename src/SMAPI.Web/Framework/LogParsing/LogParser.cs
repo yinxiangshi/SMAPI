@@ -55,6 +55,7 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                     return new ParsedLog
                     {
                         IsValid = false,
+                        RawText = logText,
                         Error = "The log is empty."
                     };
                 }
@@ -63,7 +64,8 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                 ParsedLog log = new ParsedLog
                 {
                     IsValid = true,
-                    Messages = this.CollapseRepeats(this.GetMessages(logText)).ToArray(),
+                    RawText = logText,
+                    Messages = this.CollapseRepeats(this.GetMessages(logText)).ToArray()
                 };
 
                 // parse log messages
@@ -154,7 +156,7 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                 {
                     IsValid = false,
                     Error = ex.Message,
-                    RawTextIfError = logText
+                    RawText = logText
                 };
             }
             catch (Exception ex)
@@ -163,7 +165,7 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                 {
                     IsValid = false,
                     Error = $"Parsing the log file failed. Technical details:\n{ex}",
-                    RawTextIfError = logText
+                    RawText = logText
                 };
             }
         }
