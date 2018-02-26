@@ -2,6 +2,7 @@
 ## 2.6 (upcoming)
 * For the [log parser][]:
   * Fixed mod list not including all mods if at least one has no author name.
+  * Fixed some log entries being incorrectly filtered.
 
 ## 2.5.2
 * For modders:
