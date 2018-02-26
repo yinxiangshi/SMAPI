@@ -1,4 +1,8 @@
 # Release notes
+## 2.6 (upcoming)
+* For the [log parser][]:
+  * Fixed mod list not including all mods if at least one has no author name.
+
 ## 2.5.2
 * For modders:
   * Fixed issue where replacing an asset through `asset.AsImage()` or `asset.AsDictionary()` didn't take effect.
