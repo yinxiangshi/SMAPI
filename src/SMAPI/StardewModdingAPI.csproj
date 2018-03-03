@@ -103,6 +103,7 @@
     <Compile Include="Framework\ModLoading\Finders\FieldFinder.cs" />
     <Compile Include="Framework\ModLoading\Finders\MethodFinder.cs" />
     <Compile Include="Framework\ModLoading\Finders\PropertyFinder.cs" />
+    <Compile Include="Framework\ModLoading\Finders\ReferenceToMissingMemberFinder.cs" />
     <Compile Include="Framework\ModLoading\Finders\TypeFinder.cs" />
     <Compile Include="Framework\ModLoading\IInstructionHandler.cs" />
     <Compile Include="Framework\ModLoading\IncompatibleInstructionException.cs" />
@@ -112,6 +113,7 @@
     <Compile Include="Framework\ModLoading\RewriteHelper.cs" />
     <Compile Include="Framework\ModLoading\Rewriters\FieldReplaceRewriter.cs" />
     <Compile Include="Framework\ModLoading\Rewriters\FieldToPropertyRewriter.cs" />
+    <Compile Include="Framework\ModLoading\Rewriters\ReferenceToMemberWithUnexpectedTypeFinder.cs" />
     <Compile Include="Framework\ModLoading\Rewriters\VirtualEntryCallRemover.cs" />
     <Compile Include="Framework\ModLoading\Rewriters\MethodParentRewriter.cs" />
     <Compile Include="Framework\ModLoading\Rewriters\TypeReferenceRewriter.cs" />

@@ -238,10 +238,13 @@ namespace StardewModdingAPI.Framework.ModLoading
 
                 // check CIL instructions
                 ILProcessor cil = method.Body.GetILProcessor();
-                foreach (Instruction instruction in cil.Body.Instructions.ToArray())
+                var instructions = cil.Body.Instructions;
+                // ReSharper disable once ForCanBeConvertedToForeach -- deliberate access by index so each handler sees replacements from previous handlers
+                for (int offset = 0; offset < instructions.Count; offset++)
                 {
                     foreach (IInstructionHandler handler in handlers)
                     {
+                        Instruction instruction = instructions[offset];
                         InstructionHandleResult result = handler.Handle(module, cil, instruction, this.AssemblyMap, platformChanged);
                         this.ProcessInstructionHandleResult(mod, handler, result, loggedMessages, logPrefix, assumeCompatible, filename);
                         if (result == InstructionHandleResult.Rewritten)

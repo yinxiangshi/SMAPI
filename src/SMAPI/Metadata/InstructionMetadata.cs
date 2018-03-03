@@ -21,7 +21,27 @@ namespace StardewModdingAPI.Metadata
             return new IInstructionHandler[]
             {
                 /****
-                ** throw exception for incompatible code
+                ** rewrite CIL to fix incompatible code
+                ****/
+                // crossplatform
+                new MethodParentRewriter(typeof(SpriteBatch), typeof(SpriteBatchMethods), onlyIfPlatformChanged: true),
+
+                // Stardew Valley 1.2
+                new FieldToPropertyRewriter(typeof(Game1), nameof(Game1.activeClickableMenu)),
+                new FieldToPropertyRewriter(typeof(Game1), nameof(Game1.currentMinigame)),
+                new FieldToPropertyRewriter(typeof(Game1), nameof(Game1.gameMode)),
+                new FieldToPropertyRewriter(typeof(Game1), nameof(Game1.player)),
+                new FieldReplaceRewriter(typeof(Game1), "borderFont", nameof(Game1.smallFont)),
+                new FieldReplaceRewriter(typeof(Game1), "smoothFont", nameof(Game1.smallFont)),
+
+                // SMAPI 1.9
+                new TypeReferenceRewriter("StardewModdingAPI.Inheritance.ItemStackChange", typeof(ItemStackChange)),
+
+                // SMAPI 2.0
+                new VirtualEntryCallRemover(), // Mod.Entry changed from virtual to abstract in SMAPI 2.0, which breaks the few mods which called base.Entry()
+
+                /****
+                ** detect incompatible code
                 ****/
                 // changes in Stardew Valley 1.2 (with no rewriters)
                 new FieldFinder("StardewValley.Item", "set_Name", InstructionHandleResult.NotCompatible),
@@ -66,6 +86,10 @@ namespace StardewModdingAPI.Metadata
                 new PropertyFinder("StardewModdingAPI.Mod", "PerSaveConfigFolder", InstructionHandleResult.NotCompatible),
                 new PropertyFinder("StardewModdingAPI.Mod", "PerSaveConfigPath", InstructionHandleResult.NotCompatible),
 
+                // broken code
+                new ReferenceToMissingMemberFinder(),
+                new ReferenceToMemberWithUnexpectedTypeFinder(),
+
                 /****
                 ** detect code which may impact game stability
                 ****/
@@ -74,27 +98,7 @@ namespace StardewModdingAPI.Metadata
                 new FieldFinder(typeof(SaveGame).FullName, nameof(SaveGame.serializer), InstructionHandleResult.DetectedSaveSerialiser),
                 new FieldFinder(typeof(SaveGame).FullName, nameof(SaveGame.farmerSerializer), InstructionHandleResult.DetectedSaveSerialiser),
                 new FieldFinder(typeof(SaveGame).FullName, nameof(SaveGame.locationSerializer), InstructionHandleResult.DetectedSaveSerialiser),
-                new EventFinder(typeof(SpecialisedEvents).FullName, nameof(SpecialisedEvents.UnvalidatedUpdateTick), InstructionHandleResult.DetectedUnvalidatedUpdateTick), 
-
-                /****
-                ** rewrite CIL to fix incompatible code
-                ****/
-                // crossplatform
-                new MethodParentRewriter(typeof(SpriteBatch), typeof(SpriteBatchMethods), onlyIfPlatformChanged: true),
-
-                // Stardew Valley 1.2
-                new FieldToPropertyRewriter(typeof(Game1), nameof(Game1.activeClickableMenu)),
-                new FieldToPropertyRewriter(typeof(Game1), nameof(Game1.currentMinigame)),
-                new FieldToPropertyRewriter(typeof(Game1), nameof(Game1.gameMode)),
-                new FieldToPropertyRewriter(typeof(Game1), nameof(Game1.player)),
-                new FieldReplaceRewriter(typeof(Game1), "borderFont", nameof(Game1.smallFont)),
-                new FieldReplaceRewriter(typeof(Game1), "smoothFont", nameof(Game1.smallFont)),
-
-                // SMAPI 1.9
-                new TypeReferenceRewriter("StardewModdingAPI.Inheritance.ItemStackChange", typeof(ItemStackChange)),
-
-                // SMAPI 2.0
-                new VirtualEntryCallRemover() // Mod.Entry changed from virtual to abstract in SMAPI 2.0, which breaks the few mods which called base.Entry()
+                new EventFinder(typeof(SpecialisedEvents).FullName, nameof(SpecialisedEvents.UnvalidatedUpdateTick), InstructionHandleResult.DetectedUnvalidatedUpdateTick)
             };
         }
     }
