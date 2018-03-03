@@ -388,7 +388,7 @@ namespace StardewModdingAPI
                 mods = resolver.ProcessDependencies(mods, modDatabase).ToArray();
 
                 // load mods
-                this.LoadMods(mods, this.JsonHelper, this.ContentManager);
+                this.LoadMods(mods, this.JsonHelper, this.ContentManager, modDatabase);
 
                 // check for updates
                 this.CheckForUpdatesAsync(mods);
@@ -670,7 +670,8 @@ namespace StardewModdingAPI
         /// <param name="mods">The mods to load.</param>
         /// <param name="jsonHelper">The JSON helper with which to read mods' JSON files.</param>
         /// <param name="contentManager">The content manager to use for mod content.</param>
-        private void LoadMods(IModMetadata[] mods, JsonHelper jsonHelper, SContentManager contentManager)
+        /// <param name="modDatabase">Handles access to SMAPI's internal mod metadata list.</param>
+        private void LoadMods(IModMetadata[] mods, JsonHelper jsonHelper, SContentManager contentManager, ModDatabase modDatabase)
         {
             this.Monitor.Log("Loading mods...", LogLevel.Trace);
 
@@ -744,9 +745,10 @@ namespace StardewModdingAPI
                     {
                         modAssembly = modAssemblyLoader.Load(metadata, assemblyPath, assumeCompatible: metadata.DataRecord?.Status == ModStatus.AssumeCompatible);
                     }
-                    catch (IncompatibleInstructionException ex)
+                    catch (IncompatibleInstructionException) // details already in trace logs
                     {
-                        TrackSkip(metadata, "it's no longer compatible. Please check for a newer version of the mod.");
+                        string url = modDatabase.GetModPageUrlFor(metadata.Manifest.UniqueID);
+                        TrackSkip(metadata, $"it's no longer compatible. Please check for a newer version of the mod{(url != null ? $" at {url}" : "")}.");
                         continue;
                     }
                     catch (SAssemblyLoadFailedException ex)

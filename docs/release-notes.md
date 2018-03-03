@@ -1,5 +1,8 @@
 # Release notes
 ## 2.6 (upcoming)
+* For players:
+  * Fixed some incompatible-mod errors not showing mod's update URL.
+
 * For the [log parser][]:
   * Fixed mod list not including all mods if at least one has no author name.
   * Fixed some log entries being incorrectly filtered.
