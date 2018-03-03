@@ -674,8 +674,8 @@ namespace StardewModdingAPI
         {
             this.Monitor.Log("Loading mods...", LogLevel.Trace);
 
-            IDictionary<IModMetadata, string> skippedMods = new Dictionary<IModMetadata, string>();
-            void TrackSkip(IModMetadata mod, string reasonPhrase) => skippedMods[mod] = reasonPhrase;
+            IDictionary<IModMetadata, string[]> skippedMods = new Dictionary<IModMetadata, string[]>();
+            void TrackSkip(IModMetadata mod, string userReasonPhrase, string devReasonPhrase = null) => skippedMods[mod] = new[] { userReasonPhrase, devReasonPhrase };
 
             // load content packs
             foreach (IModMetadata metadata in mods.Where(p => p.IsContentPack))
@@ -746,17 +746,17 @@ namespace StardewModdingAPI
                     }
                     catch (IncompatibleInstructionException ex)
                     {
-                        TrackSkip(metadata, $"it's no longer compatible (detected {ex.NounPhrase}). Please check for a newer version of the mod.");
+                        TrackSkip(metadata, "it's no longer compatible. Please check for a newer version of the mod.");
                         continue;
                     }
                     catch (SAssemblyLoadFailedException ex)
                     {
-                        TrackSkip(metadata, $"its DLL '{manifest.EntryDll}' couldn't be loaded: {ex.Message}");
+                        TrackSkip(metadata, $"it DLL couldn't be loaded: {ex.Message}");
                         continue;
                     }
                     catch (Exception ex)
                     {
-                        TrackSkip(metadata, $"its DLL '{manifest.EntryDll}' couldn't be loaded:\n{ex.GetLogSummary()}");
+                        TrackSkip(metadata, "its DLL couldn't be loaded.", $"Error: {ex.GetLogSummary()}");
                         continue;
                     }
 
@@ -816,12 +816,11 @@ namespace StardewModdingAPI
                 foreach (var pair in skippedMods.OrderBy(p => p.Key.DisplayName))
                 {
                     IModMetadata mod = pair.Key;
-                    string reason = pair.Value;
+                    string[] reason = pair.Value;
 
-                    if (mod.Manifest?.Version != null)
-                        this.Monitor.Log($"   {mod.DisplayName} {mod.Manifest.Version} because {reason}", LogLevel.Error);
-                    else
-                        this.Monitor.Log($"   {mod.DisplayName} because {reason}", LogLevel.Error);
+                    this.Monitor.Log($"   {mod.DisplayName}{(mod.Manifest?.Version != null ? " " + mod.Manifest.Version.ToString() : "")} because {reason[0]}", LogLevel.Error);
+                    if (reason[1] != null)
+                        this.Monitor.Log($"     {reason[1]}", LogLevel.Trace);
                 }
                 this.Monitor.Newline();
             }

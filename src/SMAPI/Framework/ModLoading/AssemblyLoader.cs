@@ -270,9 +270,10 @@ namespace StardewModdingAPI.Framework.ModLoading
                     break;
 
                 case InstructionHandleResult.NotCompatible:
+                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Broken code in {filename}: {handler.NounPhrase}.");
                     if (!assumeCompatible)
                         throw new IncompatibleInstructionException(handler.NounPhrase, $"Found an incompatible CIL instruction ({handler.NounPhrase}) while loading assembly {filename}.");
-                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Found an incompatible CIL instruction ({handler.NounPhrase}) while loading assembly {filename}, but SMAPI is configured to allow it anyway. The mod may crash or behave unexpectedly.", LogLevel.Warn);
+                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Found broken code ({handler.NounPhrase}) while loading assembly {filename}, but SMAPI is configured to allow it anyway. The mod may crash or behave unexpectedly.", LogLevel.Warn);
                     break;
 
                 case InstructionHandleResult.DetectedGamePatch:
