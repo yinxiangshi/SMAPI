@@ -350,7 +350,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     },
 
     "Choose Baby Gender": {
-      "ID": "{EntryDll: 'ChooseBabyGender.dll'}",
+      "FormerIDs": "{EntryDll: 'ChooseBabyGender.dll'}",
       "Default | UpdateKey": "Nexus:590",
       "~1.0.2  | Status": "AssumeBroken", // broke in SMAPI 2.0
       "~1.0.2  | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
@@ -666,13 +666,13 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     },
 
     "Farm Automation: Barn Door Automation": {
-      "ID": "{EntryDll: 'FarmAutomation.BarnDoorAutomation.dll'}",
+      "FormerIDs": "{EntryDll: 'FarmAutomation.BarnDoorAutomation.dll'}",
       "~1.0 | Status": "AssumeBroken", // broke in SMAPI 2.0
       "~1.0 | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
     },
 
     "Farm Automation: Item Collector": {
-      "ID": "{EntryDll: 'FarmAutomation.ItemCollector.dll'}",
+      "FormerIDs": "{EntryDll: 'FarmAutomation.ItemCollector.dll'}",
       "~1.0 | Status": "AssumeBroken", // broke in SDV 1.2
       "~1.0 | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
     },
@@ -692,7 +692,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     },
 
     "Farm Resource Generator": {
-      "ID": "{EntryDll: 'FarmResourceGenerator.dll'}",
+      "FormerIDs": "{EntryDll: 'FarmResourceGenerator.dll'}",
       "Default | UpdateKey": "Nexus:647",
       "~1.0.4  | Status": "AssumeBroken", // broke in SMAPI 2.0
       "~1.0.4  | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
@@ -738,7 +738,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     },
 
     "FlorenceMod": {
-      "ID": "{EntryDll: 'FlorenceMod.dll'}",
+      "FormerIDs": "{EntryDll: 'FlorenceMod.dll'}",
       "MapLocalVersions": { "1.0.1": "1.1" },
       "Default | UpdateKey": "Nexus:591",
       "~1.1    | Status": "AssumeBroken", // broke in SMAPI 2.0
@@ -824,7 +824,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     },
 
     "Happy Birthday (Oxyligen fork)": {
-      "ID": "{ID:'HappyBirthday', Author:'Alpha_Omegasis/Oxyligen'}", // disambiguate from Oxyligen's fork
+      "FormerIDs": "{ID:'HappyBirthday', Author:'Alpha_Omegasis/Oxyligen'}", // disambiguate from Oxyligen's fork
       "Default | UpdateKey": "Nexus:1064"
     },
 
@@ -1148,7 +1148,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     },
 
     "NPC Speak": {
-      "ID": "{EntryDll: 'NpcEcho.dll'}",
+      "FormerIDs": "{EntryDll: 'NpcEcho.dll'}",
       "Default | UpdateKey": "Nexus:694",
       "~1.0    | Status": "AssumeBroken", // broke in SMAPI 2.0
       "~1.0    | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
@@ -1203,7 +1203,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     },
 
     "Persival's BundleMod": {
-      "ID": "{EntryDll: 'BundleMod.dll'}",
+      "FormerIDs": "{EntryDll: 'BundleMod.dll'}",
       "Default | UpdateKey": "Nexus:438",
       "~1.0    | Status": "AssumeBroken", // broke in SDV 1.1
       "~1.0    | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
@@ -1250,7 +1250,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     },
 
     "Rain Randomizer": {
-      "ID": "{EntryDll: 'RainRandomizer.dll'}",
+      "FormerIDs": "{EntryDll: 'RainRandomizer.dll'}",
       "~1.0.3 | Status": "AssumeBroken", // broke in SMAPI 2.0
       "~1.0.3 | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
     },
@@ -1575,7 +1575,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     },
 
     "StaminaRegen": {
-      "ID": "{EntryDll: 'StaminaRegen.dll'}",
+      "FormerIDs": "{EntryDll: 'StaminaRegen.dll'}",
       "~1.0.3 | Status": "AssumeBroken", // broke in SMAPI 2.0
       "~1.0.3 | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
     },
@@ -1636,7 +1636,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     },
 
     "Stone Bridge Over Pond (PondWithBridge)": {
-      "ID": "{EntryDll: 'PondWithBridge.dll'}",
+      "FormerIDs": "{EntryDll: 'PondWithBridge.dll'}",
       "MapLocalVersions": { "0.0": "1.0" },
       "Default | UpdateKey": "Nexus:316",
       "~1.0    | Status": "AssumeBroken" // broke in SMAPI 2.0
@@ -1660,7 +1660,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     },
 
     "Tainted Cellar": {
-      "ID": "{EntryDll: 'TaintedCellar.dll'}",
+      "FormerIDs": "{EntryDll: 'TaintedCellar.dll'}",
       "~1.0 | Status": "AssumeBroken", // broke in SDV 1.1 or 1.11
       "~1.0 | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
     },
@@ -1753,13 +1753,13 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     },
 
     "WakeUp": {
-      "ID": "{EntryDll: 'WakeUp.dll'}",
+      "FormerIDs": "{EntryDll: 'WakeUp.dll'}",
       "~1.0.2 | Status": "AssumeBroken", // broke in SMAPI 2.0
       "~1.0.2 | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
     },
 
     "Wallpaper Fix": {
-      "ID": "{EntryDll: 'WallpaperFix.dll'}",
+      "FormerIDs": "{EntryDll: 'WallpaperFix.dll'}",
       "Default | UpdateKey": "Chucklefish:4211",
       "~1.1    | Status": "AssumeBroken", // broke in SMAPI 2.0
       "~1.1    | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
@@ -1771,7 +1771,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     },
 
     "Weather Controller": {
-      "ID": "{EntryDll: 'WeatherController.dll'}",
+      "FormerIDs": "{EntryDll: 'WeatherController.dll'}",
       "~1.0.2 | Status": "AssumeBroken", // broke in SDV 1.2
       "~1.0.2 | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
     },
@@ -1787,13 +1787,13 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     },
 
     "Wonderful Farm Life": {
-      "ID": "{EntryDll: 'WonderfulFarmLife.dll'}",
+      "FormerIDs": "{EntryDll: 'WonderfulFarmLife.dll'}",
       "~1.0 | Status": "AssumeBroken", // broke in SDV 1.1 or 1.11
       "~1.0 | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
     },
 
     "XmlSerializerRetool": {
-      "ID": "{EntryDll: 'XmlSerializerRetool.dll'}",
+      "FormerIDs": "{EntryDll: 'XmlSerializerRetool.dll'}",
       "~ | Status": "Obsolete",
       "~ | StatusReasonPhrase": "it's no longer maintained or used."
     },
