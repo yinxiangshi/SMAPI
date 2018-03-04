@@ -8,6 +8,9 @@
   * Fixed mod list not including all mods if at least one has no author name.
   * Fixed some log entries being incorrectly filtered.
 
+* For SMAPI developers:
+  * Internal changes to support the upcoming Stardew Valley 1.3 update.
+
 ## 2.5.2
 * For modders:
   * Fixed issue where replacing an asset through `asset.AsImage()` or `asset.AsDictionary()` didn't take effect.
