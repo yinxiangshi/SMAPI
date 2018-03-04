@@ -6,6 +6,7 @@
   * Fixed some incompatible-mod errors not showing the mod URL.
   * Fixed rare crash with a specific combination of `manifest.json` fields and internal SMAPI mod data.
   * Fixed update checks not working for Nexus Mods due to a change in their API.
+  * Fixed update checks failing for some older mods with non-standard versions.
 
 * For the [log parser][]:
   * Fixed mod list not including all mods if at least one has no author name.

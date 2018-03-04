@@ -604,29 +604,30 @@ namespace StardewModdingAPI
                         foreach (var result in results)
                         {
                             IModMetadata mod = result.Mod;
-                            ModInfoModel info = result.Info;
+                            ModInfoModel remoteInfo = result.Info;
 
                             // handle error
-                            if (info.Error != null)
+                            if (remoteInfo.Error != null)
                             {
-                                this.Monitor.Log($"   {mod.DisplayName} ({result.Key}): update error: {info.Error}", LogLevel.Trace);
+                                this.Monitor.Log($"   {mod.DisplayName} ({result.Key}): update error: {remoteInfo.Error}", LogLevel.Trace);
                                 continue;
                             }
 
-                            // track update
-                            ISemanticVersion localVersion = mod.DataRecord != null
-                                ? new SemanticVersion(mod.DataRecord.GetLocalVersionForUpdateChecks(mod.Manifest.Version.ToString()))
-                                : mod.Manifest.Version;
-                            ISemanticVersion latestVersion = new SemanticVersion(mod.DataRecord != null
-                                ? mod.DataRecord.GetRemoteVersionForUpdateChecks(new SemanticVersion(info.Version).ToString())
-                                : info.Version
-                            );
-                            bool isUpdate = latestVersion.IsNewerThan(localVersion);
-                            this.VerboseLog($"   {mod.DisplayName} ({result.Key}): {(isUpdate ? $"{mod.Manifest.Version}{(!localVersion.Equals(mod.Manifest.Version) ? $" [{localVersion}]" : "")} => {info.Version}{(!latestVersion.Equals(new SemanticVersion(info.Version)) ? $" [{latestVersion}]" : "")}" : "okay")}.");
+                            // normalise versions
+                            ISemanticVersion localVersion = mod.DataRecord?.GetLocalVersionForUpdateChecks(mod.Manifest.Version) ?? mod.Manifest.Version;
+                            if (!SemanticVersion.TryParse(mod.DataRecord?.GetRemoteVersionForUpdateChecks(remoteInfo.Version) ?? remoteInfo.Version, out ISemanticVersion remoteVersion))
+                            {
+                                this.Monitor.Log($"   {mod.DisplayName} ({result.Key}): update error: Mod has invalid version {remoteInfo.Version}", LogLevel.Trace);
+                                continue;
+                            }
+
+                            // compare versions
+                            bool isUpdate = remoteVersion.IsNewerThan(localVersion);
+                            this.VerboseLog($"   {mod.DisplayName} ({result.Key}): {(isUpdate ? $"{mod.Manifest.Version}{(!localVersion.Equals(mod.Manifest.Version) ? $" [{localVersion}]" : "")} => {remoteInfo.Version}{(!remoteVersion.Equals(new SemanticVersion(remoteInfo.Version)) ? $" [{remoteVersion}]" : "")}" : "okay")}.");
                             if (isUpdate)
                             {
-                                if (!updatesByMod.TryGetValue(mod, out ModInfoModel other) || latestVersion.IsNewerThan(other.Version))
-                                    updatesByMod[mod] = info;
+                                if (!updatesByMod.TryGetValue(mod, out ModInfoModel other) || remoteVersion.IsNewerThan(other.Version))
+                                    updatesByMod[mod] = remoteInfo;
                             }
                         }
 

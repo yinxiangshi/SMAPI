@@ -64,14 +64,15 @@ namespace StardewModdingAPI.Web.Controllers
 
         /// <summary>Fetch version metadata for the given mods.</summary>
         /// <param name="modKeys">The namespaced mod keys to search as a comma-delimited array.</param>
+        /// <param name="allowInvalidVersions">Whether to allow non-semantic versions, instead of returning an error for those.</param>
         [HttpGet]
-        public async Task<IDictionary<string, ModInfoModel>> GetAsync(string modKeys)
+        public async Task<IDictionary<string, ModInfoModel>> GetAsync(string modKeys, bool allowInvalidVersions = false)
         {
             string[] modKeysArray = modKeys?.Split(',').ToArray();
             if (modKeysArray == null || !modKeysArray.Any())
                 return new Dictionary<string, ModInfoModel>();
 
-            return await this.PostAsync(new ModSearchModel(modKeysArray));
+            return await this.PostAsync(new ModSearchModel(modKeysArray, allowInvalidVersions));
         }
 
         /// <summary>Fetch version metadata for the given mods.</summary>
@@ -79,7 +80,8 @@ namespace StardewModdingAPI.Web.Controllers
         [HttpPost]
         public async Task<IDictionary<string, ModInfoModel>> PostAsync([FromBody] ModSearchModel search)
         {
-            // sort & filter keys
+            // parse model
+            bool allowInvalidVersions = search?.AllowInvalidVersions ?? false;
             string[] modKeys = (search?.ModKeys?.ToArray() ?? new string[0])
                 .Distinct(StringComparer.CurrentCultureIgnoreCase)
                 .OrderBy(p => p, StringComparer.CurrentCultureIgnoreCase)
@@ -106,12 +108,20 @@ namespace StardewModdingAPI.Web.Controllers
                 // fetch mod info
                 result[modKey] = await this.Cache.GetOrCreateAsync($"{repository.VendorKey}:{modID}".ToLower(), async entry =>
                 {
-                    entry.AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(this.CacheMinutes);
-
+                    // fetch info
                     ModInfoModel info = await repository.GetModInfoAsync(modID);
-                    if (info.Error == null && (info.Version == null || !Regex.IsMatch(info.Version, this.VersionRegex, RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)))
-                        info = new ModInfoModel(info.Name, info.Version, info.Url, info.Version == null ? "Mod has no version number." : $"Mod has invalid semantic version '{info.Version}'.");
 
+                    // validate
+                    if (info.Error == null)
+                    {
+                        if (info.Version == null)
+                            info = new ModInfoModel(info.Name, info.Version, info.Url, "Mod has no version number.");
+                        if (!allowInvalidVersions && !Regex.IsMatch(info.Version, this.VersionRegex, RegexOptions.CultureInvariant | RegexOptions.IgnoreCase))
+                            info = new ModInfoModel(info.Name, info.Version, info.Url, $"Mod has invalid semantic version '{info.Version}'.");
+                    }
+
+                    // cache & return
+                    entry.AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(this.CacheMinutes);
                     return info;
                 });
             }
