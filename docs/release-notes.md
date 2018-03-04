@@ -8,6 +8,7 @@
 * For the [log parser][]:
   * Fixed mod list not including all mods if at least one has no author name.
   * Fixed some log entries being incorrectly filtered.
+  * Fixed error when mods have duplicate names.
 
 * For SMAPI developers:
   * Internal changes to support the upcoming Stardew Valley 1.3 update.

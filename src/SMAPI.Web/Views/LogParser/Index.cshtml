@@ -26,7 +26,7 @@
             smapi.logParser({
                 logStarted: new Date(@Json.Serialize(Model.ParsedLog?.Timestamp)),
                 showPopup: @Json.Serialize(Model.ParsedLog == null),
-                showMods: @Json.Serialize(Model.ParsedLog?.Mods?.ToDictionary(p => GetSlug(p.Name), p => true), new JsonSerializerSettings { Formatting = Formatting.None }),
+                showMods: @Json.Serialize(Model.ParsedLog?.Mods?.Select(p => GetSlug(p.Name)).Distinct().ToDictionary(slug => slug, slug => true), new JsonSerializerSettings { Formatting = Formatting.None }),
                 showLevels: {
                     trace: false,
                     debug: false,
