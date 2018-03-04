@@ -2,6 +2,7 @@
 ## 2.5.3
 * For players:
   * Fixed some incompatible-mod errors not showing the mod URL.
+  * Simplified default mod update URL, which is now always included for incompatible mods.
   * Updated compatibility list.
 
 * For the [log parser][]:

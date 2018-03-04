@@ -97,15 +97,13 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": "AccessChestAnywhere",
       "MapLocalVersions": { "1.1-1078": "1.1" },
       "Default | UpdateKey": "Nexus:257",
-      "~1.1    | Status": "AssumeBroken",
-      "~1.1    | AlternativeUrl": "https://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.1    | Status": "AssumeBroken"
     },
 
     "AdjustArtisanPrices": {
       "ID": "1e36d4ca-c7ef-4dfb-9927-d27a6c3c8bdc",
       "Default | UpdateKey": "Chucklefish:3532",
-      "~0.1    | Status": "AssumeBroken",
-      "~0.1    | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~0.1    | Status": "AssumeBroken"
     },
 
     "Adjust Monster": {
@@ -127,8 +125,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "AgingMod": {
       "ID": "skn.AgingMod",
       "Default | UpdateKey": "Nexus:1129",
-      "~1.0    | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.0    | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.0    | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "All Crops All Seasons": {
@@ -173,8 +170,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "A Tapper's Dream": {
       "ID": "ddde5195-8f85-4061-90cc-0d4fd5459358",
       "Default | UpdateKey": "Nexus:260",
-      "~1.4    | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.4    | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.4    | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Auto Animal Doors": {
@@ -247,16 +243,14 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": "Kithio:BetterShippingBox",
       "MapLocalVersions": { "1.0.1": "1.0.2" },
       "Default | UpdateKey": "Chucklefish:4302",
-      "~1.0.2  | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.0.2  | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.0.2  | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Better Sprinklers": {
       "ID": "Speeder.BetterSprinklers",
       "FormerIDs": "SPDSprinklersMod", // changed in 2.3
       "Default                   | UpdateKey": "Nexus:41",
-      "~2.3.1-pathoschild-update | Status": "AssumeBroken", // broke in SDV 1.2
-      "~2.3.1-pathoschild-update | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~2.3.1-pathoschild-update | Status": "AssumeBroken" // broke in SDV 1.2
     },
 
     "Billboard Anywhere": {
@@ -269,8 +263,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": "KathrynHazuka.BirthdayMail",
       "FormerIDs": "005e02dc-d900-425c-9c68-1ff55c5a295d", // changed in 1.2.3-pathoschild-update
       "Default | UpdateKey": "Nexus:276",
-      "~1.2.2  | Status": "AssumeBroken", // broke in SDV 1.2
-      "~1.2.2  | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.2.2  | Status": "AssumeBroken" // broke in SDV 1.2
     },
 
     "Breed Like Rabbits": {
@@ -331,8 +324,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": "Speeder.ChestLabel",
       "FormerIDs": "SPDChestLabel", // changed in 1.5.1-pathoschild-update
       "Default | UpdateKey": "Nexus:242",
-      "~1.6    | Status": "AssumeBroken", // broke in SDV 1.1
-      "~1.6    | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.6    | Status": "AssumeBroken" // broke in SDV 1.1
     },
 
     "Chest Pooling": {
@@ -352,8 +344,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "Choose Baby Gender": {
       "FormerIDs": "{EntryDll: 'ChooseBabyGender.dll'}",
       "Default | UpdateKey": "Nexus:590",
-      "~1.0.2  | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.0.2  | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.0.2  | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "CJB Automation": {
@@ -398,8 +389,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "Cold Weather Haley": {
       "ID": "LordXamon.ColdWeatherHaleyPRO",
       "Default | UpdateKey": "Nexus:1169",
-      "~1.0    | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.0    | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.0    | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Colored Chests": {
@@ -411,8 +401,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "Combat with Farm Implements": {
       "ID": "SPDFarmingImplementsInCombat",
       "Default | UpdateKey": "Nexus:313",
-      "~1.0    | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.0    | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.0    | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Community Bundle Item Tooltip": {
@@ -434,8 +423,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "Configurable Shipping Dates": {
       "ID": "ConfigurableShippingDates",
       "Default | UpdateKey": "Nexus:675",
-      "~1.1.1  | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.1.1  | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.1.1  | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Cooking Skill": {
@@ -515,8 +503,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "Customizable Traveling Cart Days": {
       "ID": "TravelingCartYyeahdude",
       "Default | UpdateKey": "Nexus:567",
-      "~1.0    | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.0    | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.0    | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Custom Linens": {
@@ -566,8 +553,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "Dynamic Checklist": {
       "ID": "gunnargolf.DynamicChecklist",
       "Default | UpdateKey": "Nexus:1145", // added in 1.0.1-pathoschild-update
-      "~1.0    | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.0    | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.0    | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Dynamic Horses": {
@@ -580,8 +566,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": "DynamicMachines",
       "MapLocalVersions": { "1.1": "1.1.1" },
       "Default | UpdateKey": "Nexus:374",
-      "~1.1.1  | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.1.1  | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.1.1  | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Dynamic NPC Sprites": {
@@ -597,16 +582,14 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "Empty Hands": {
       "ID": "QuicksilverFox.EmptyHands",
       "Default | UpdateKey": "Nexus:1176", // added in 1.0.1-pathoschild-update
-      "~1.0    | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.0    | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.0    | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Enemy Health Bars": {
       "ID": "Speeder.HealthBars",
       "FormerIDs": "SPDHealthBar", // changed in 1.7.1-pathoschild-update
       "Default | UpdateKey": "Nexus:193",
-      "~1.7    | Status": "AssumeBroken", // broke in SDV 1.2
-      "~1.7    | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.7    | Status": "AssumeBroken" // broke in SDV 1.2
     },
 
     "Entoarox Framework": {
@@ -636,15 +619,13 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": "Crystalmir.ExtendedFridge",
       "FormerIDs": "Mystra007ExtendedFridge", // changed in 1.0.1
       "Default | UpdateKey": "Nexus:485",
-      "~1.0    | Status": "AssumeBroken", // broke in SDV 1.2
-      "~1.0    | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.0    | Status": "AssumeBroken" // broke in SDV 1.2
     },
 
     "Extended Greenhouse": {
       "ID": "ExtendedGreenhouse",
       "Default | UpdateKey": "Chucklefish:4303",
-      "~1.0.2  | Status": "AssumeBroken", // broke in SDV 1.2
-      "~1.0.2  | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.0.2  | Status": "AssumeBroken" // broke in SDV 1.2
     },
 
     "Extended Minecart": {
@@ -667,35 +648,30 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
 
     "Farm Automation: Barn Door Automation": {
       "FormerIDs": "{EntryDll: 'FarmAutomation.BarnDoorAutomation.dll'}",
-      "~1.0 | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.0 | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.0 | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Farm Automation: Item Collector": {
       "FormerIDs": "{EntryDll: 'FarmAutomation.ItemCollector.dll'}",
-      "~1.0 | Status": "AssumeBroken", // broke in SDV 1.2
-      "~1.0 | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.0 | Status": "AssumeBroken" // broke in SDV 1.2
     },
 
     "Farm Automation Unofficial: Item Collector": {
       "ID": "Maddy99.FarmAutomation.ItemCollector",
-      "~0.5 | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~0.5 | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~0.5 | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Farm Expansion": {
       "ID": "Advize.FarmExpansion",
       "FormerIDs": "3888bdfd-73f6-4776-8bb7-8ad45aea1915 | AdvizeFarmExpansionMod-2-0 | AdvizeFarmExpansionMod-2-0-5", // changed in 2.0, 2.0.5, and 3.0
       "Default | UpdateKey": "Nexus:130",
-      "~2.0.5  | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~2.0.5  | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~2.0.5  | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Farm Resource Generator": {
       "FormerIDs": "{EntryDll: 'FarmResourceGenerator.dll'}",
       "Default | UpdateKey": "Nexus:647",
-      "~1.0.4  | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.0.4  | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.0.4  | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Fast Animations": {
@@ -718,8 +694,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": "KathrynHazuka.FasterRun",
       "FormerIDs": "{EntryDll: 'FasterRun.dll'}", // changed in 1.1.1-pathoschild-update
       "Default | UpdateKey": "Nexus:733", // added in 1.1.1-pathoschild-update
-      "~1.1    | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.1    | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.1    | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Fishing Adjust": {
@@ -741,8 +716,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "FormerIDs": "{EntryDll: 'FlorenceMod.dll'}",
       "MapLocalVersions": { "1.0.1": "1.1" },
       "Default | UpdateKey": "Nexus:591",
-      "~1.1    | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.1    | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.1    | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Flower Color Picker": {
@@ -753,8 +727,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "Forage at the Farm": {
       "ID": "ForageAtTheFarm",
       "Default | UpdateKey": "Nexus:673",
-      "~1.5.1  | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.5.1  | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.5.1  | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Furniture Anywhere": {
@@ -812,8 +785,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
 
     "Happy Animals": {
       "ID": "HappyAnimals",
-      "~1.0.3 | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.0.3 | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.0.3 | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Happy Birthday (Omegasis)": {
@@ -841,8 +813,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "Harvest With Scythe": {
       "ID": "965169fd-e1ed-47d0-9f12-b104535fb4bc",
       "Default | UpdateKey": "Nexus:236",
-      "~1.0.6  | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.0.6  | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.0.6  | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Horse Whistle (icepuente)": {
@@ -858,8 +829,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "Hunger for Food (Tigerle)": {
       "ID": "HungerForFoodByTigerle",
       "Default | UpdateKey": "Nexus:810",
-      "~0.1.2  | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~0.1.2  | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~0.1.2  | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Hunger Mod (skn)": {
@@ -882,8 +852,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
 
     "Instant Geode": {
       "ID": "InstantGeode",
-      "~1.12 | Status": "AssumeBroken", // broke in SDV 1.2
-      "~1.12 | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.12 | Status": "AssumeBroken" // broke in SDV 1.2
     },
 
     "Instant Grow Trees": {
@@ -895,8 +864,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "Interaction Helper": {
       "ID": "HammurabiInteractionHelper",
       "Default | UpdateKey": "Chucklefish:4640", // added in 1.0.4-pathoschild-update
-      "~1.0.3  | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.0.3  | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.0.3  | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Item Auto Stacker": {
@@ -926,8 +894,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": "BALANCEMOD_AntiExhaustion",
       "MapLocalVersions": { "0.0": "1.1" },
       "Default | UpdateKey": "Nexus:637",
-      "~1.1 | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.1 | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.1 | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Level Extender": {
@@ -1005,8 +972,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "Message Box [API]? (ChatMod)": {
       "ID": "Kithio:ChatMod",
       "Default | UpdateKey": "Chucklefish:4296",
-      "~1.0    | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.0    | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.0    | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Mining at the Farm": {
@@ -1040,8 +1006,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "More Artifact Spots": {
       "ID": "451",
       "Default | UpdateKey": "Nexus:451",
-      "~1.0.1  | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.0.1  | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.0.1  | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "More Map Layers": {
@@ -1070,8 +1035,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": "FileLoading",
       "MapLocalVersions": { "1.1": "1.12" },
       "Default | UpdateKey": "Nexus:1094",
-      "~1.12   | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.12   | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.12   | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Museum Rearranger": {
@@ -1089,8 +1053,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "New Machines": {
       "ID": "F70D4FAB-0AB2-4B78-9F1B-AF2CA2236A59",
       "Default   | UpdateKey": "Chucklefish:3683",
-      "~4.2.1343 | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~4.2.1343 | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~4.2.1343 | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Night Owl": {
@@ -1131,8 +1094,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "No Soil Decay": {
       "ID": "289dee03-5f38-4d8e-8ffc-e440198e8610",
       "Default | UpdateKey": "Nexus:237",
-      "~0.5    | Status": "AssumeBroken", // broke in SDV 1.2 and uses Assembly.GetExecutingAssembly().Location
-      "~0.5    | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~0.5    | Status": "AssumeBroken" // broke in SDV 1.2 and uses Assembly.GetExecutingAssembly().Location
     },
 
     "No Soil Decay Redux": {
@@ -1150,8 +1112,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "NPC Speak": {
       "FormerIDs": "{EntryDll: 'NpcEcho.dll'}",
       "Default | UpdateKey": "Nexus:694",
-      "~1.0    | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.0    | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.0    | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Object Time Left": {
@@ -1188,8 +1149,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "PelicanTTS": {
       "ID": "Platonymous.PelicanTTS",
       "Default | UpdateKey": "Nexus:1079", // added in 1.6.1
-      "~1.6    | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.6    | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.6    | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Persia the Mermaid - Standalone Custom NPC": {
@@ -1205,8 +1165,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "Persival's BundleMod": {
       "FormerIDs": "{EntryDll: 'BundleMod.dll'}",
       "Default | UpdateKey": "Nexus:438",
-      "~1.0    | Status": "AssumeBroken", // broke in SDV 1.1
-      "~1.0    | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.0    | Status": "AssumeBroken" // broke in SDV 1.1
     },
 
     "Plant on Grass": {
@@ -1240,8 +1199,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": "Mucchan.PrairieKingMadeEasy",
       "FormerIDs": "{EntryDll: 'PrairieKingMadeEasy.dll'}", // changed in 1.0.1
       "Default | UpdateKey": "Chucklefish:3594",
-      "~1.0    | Status": "AssumeBroken", // broke in SDV 1.2
-      "~1.0    | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.0    | Status": "AssumeBroken" // broke in SDV 1.2
     },
 
     "Quest Delay": {
@@ -1251,8 +1209,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
 
     "Rain Randomizer": {
       "FormerIDs": "{EntryDll: 'RainRandomizer.dll'}",
-      "~1.0.3 | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.0.3 | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.0.3 | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Recatch Legendary Fish": {
@@ -1274,16 +1231,14 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "RelationshipsEnhanced": {
       "ID": "relationshipsenhanced",
       "Default | UpdateKey": "Chucklefish:4435",
-      "~1.0    | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.0    | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.0    | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Relationship Status": {
       "ID": "relationshipstatus",
       "MapRemoteVersions": { "1.0.5": "1.0.4" }, // not updated in manifest
       "Default | UpdateKey": "Nexus:751",
-      "~1.0.5  | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.0.5  | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.0.5  | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Rented Tools": {
@@ -1312,8 +1267,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "Reusable Wallpapers and Floors (Wallpaper Retain)": {
       "ID": "dae1b553-2e39-43e7-8400-c7c5c836134b",
       "Default | UpdateKey": "Nexus:356",
-      "~1.5    | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.5    | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.5    | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Ring of Fire": {
@@ -1395,16 +1349,14 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "Shed Notifications (BuildingsNotifications)": {
       "ID": "TheCroak.BuildingsNotifications",
       "Default | UpdateKey": "Nexus:620",
-      "~0.4.1  | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~0.4.1  | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~0.4.1  | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Shenandoah Project": {
       "ID": "Shenandoah Project",
       "MapRemoteVersions": { "1.1.1": "1.1" }, // not updated in manifest
       "Default | UpdateKey": "Nexus:756",
-      "~1.1.1  | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.1.1  | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.1.1  | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Ship Anywhere": {
@@ -1415,8 +1367,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "Shipment Tracker": {
       "ID": "7e474181-e1a0-40f9-9c11-d08a3dcefaf3",
       "Default | UpdateKey": "Nexus:321",
-      "~1.1    | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.1    | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.1    | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Shop Expander": {
@@ -1430,8 +1381,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": "Igorious.Showcase",
       "MapLocalVersions": { "0.9-500": "0.9" },
       "Default | UpdateKey": "Chucklefish:4487",
-      "~0.9    | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~0.9    | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~0.9    | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Shroom Spotter": {
@@ -1461,8 +1411,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": "6266959802",
       "MapLocalVersions": { "0.0": "1.4" },
       "Default | UpdateKey": "Nexus:366",
-      "~1.2.2  | Status": "AssumeBroken", // broke in SMAPI 1.9 (has multiple Mod instances)
-      "~1.2.2  | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.2.2  | Status": "AssumeBroken" // broke in SMAPI 1.9 (has multiple Mod instances)
     },
 
     "Skill Prestige": {
@@ -1506,14 +1455,12 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": "Speeder.SlowerFenceDecay",
       "FormerIDs": "SPDSlowFenceDecay", // changed in 0.5.2-pathoschild-update
       "Default | UpdateKey": "Nexus:252",
-      "~0.5.1  | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~0.5.1  | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~0.5.1  | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Smart Mod": {
       "ID": "KuroBear.SmartMod",
-      "~2.2 | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~2.2 | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~2.2 | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Solar Eclipse Event": {
@@ -1542,15 +1489,13 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "Sprinkles": {
       "ID": "Platonymous.Sprinkles",
       "Default | UpdateKey": "Chucklefish:4592",
-      "~1.1.3  | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.1.3  | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.1.3  | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Sprint and Dash": {
       "ID": "SPDSprintAndDash",
       "Default | UpdateKey": "Chucklefish:3531",
-      "~1.0    | Status": "AssumeBroken", // broke in SDV 1.2
-      "~1.0    | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.0    | Status": "AssumeBroken" // broke in SDV 1.2
     },
 
     "Sprint and Dash Redux": {
@@ -1563,8 +1508,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": "a10d3097-b073-4185-98ba-76b586cba00c",
       "MapLocalVersions": { "1.0": "2.1" }, // not updated in manifest
       "Default | UpdateKey": "GitHub:oliverpl/SprintingMod",
-      "~2.1    | Status": "AssumeBroken", // broke in SDV 1.2
-      "~2.1    | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~2.1    | Status": "AssumeBroken" // broke in SDV 1.2
     },
 
     "StackSplitX": {
@@ -1576,8 +1520,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
 
     "StaminaRegen": {
       "FormerIDs": "{EntryDll: 'StaminaRegen.dll'}",
-      "~1.0.3 | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.0.3 | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.0.3 | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Stardew Config Menu": {
@@ -1599,8 +1542,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "Stardew Notification": {
       "ID": "stardewnotification",
       "Default | UpdateKey": "GitHub:monopandora/StardewNotification",
-      "~1.7    | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.7    | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.7    | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Stardew Symphony": {
@@ -1625,8 +1567,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "StashItemsToChest": {
       "ID": "BlueMod_StashItemsToChest",
       "Default | UpdateKey": "GitHub:lambui/StardewValleyMod_StashItemsToChest",
-      "~1.0.1  | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.0.1  | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.0.1  | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Stephan's Lots of Crops": {
@@ -1650,8 +1591,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "Super Greenhouse Warp Modifier": {
       "ID": "SuperGreenhouse",
       "Default | UpdateKey": "Chucklefish:4334",
-      "~1.0    | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.0    | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.0    | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Swim Almost Anywhere / Swim Suit": {
@@ -1661,8 +1601,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
 
     "Tainted Cellar": {
       "FormerIDs": "{EntryDll: 'TaintedCellar.dll'}",
-      "~1.0 | Status": "AssumeBroken", // broke in SDV 1.1 or 1.11
-      "~1.0 | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.0 | Status": "AssumeBroken" // broke in SDV 1.1 or 1.11
     },
 
     "Tapper Ready": {
@@ -1678,8 +1617,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "Teleporter": {
       "ID": "Teleporter",
       "Default | UpdateKey": "Chucklefish:4374",
-      "~1.0.2  | Status": "AssumeBroken", // broke in SDV 1.2
-      "~1.0.2  | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.0.2  | Status": "AssumeBroken" // broke in SDV 1.2
     },
 
     "The Long Night": {
@@ -1738,8 +1676,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": "Demiacle.UiModSuite",
       "MapLocalVersions": { "0.5": "1.0" }, // not updated in manifest
       "Default | UpdateKey": "Nexus:1023",
-      "~1.0    | Status": "AssumeBroken", // broke in SDV 1.2
-      "~1.0    | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.0    | Status": "AssumeBroken" // broke in SDV 1.2
     },
 
     "Variable Grass": {
@@ -1754,15 +1691,13 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
 
     "WakeUp": {
       "FormerIDs": "{EntryDll: 'WakeUp.dll'}",
-      "~1.0.2 | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.0.2 | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.0.2 | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Wallpaper Fix": {
       "FormerIDs": "{EntryDll: 'WallpaperFix.dll'}",
       "Default | UpdateKey": "Chucklefish:4211",
-      "~1.1    | Status": "AssumeBroken", // broke in SMAPI 2.0
-      "~1.1    | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.1    | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "WarpAnimals": {
@@ -1772,8 +1707,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
 
     "Weather Controller": {
       "FormerIDs": "{EntryDll: 'WeatherController.dll'}",
-      "~1.0.2 | Status": "AssumeBroken", // broke in SDV 1.2
-      "~1.0.2 | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.0.2 | Status": "AssumeBroken" // broke in SDV 1.2
     },
 
     "What Farm Cave / WhatAMush": {
@@ -1788,8 +1722,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
 
     "Wonderful Farm Life": {
       "FormerIDs": "{EntryDll: 'WonderfulFarmLife.dll'}",
-      "~1.0 | Status": "AssumeBroken", // broke in SDV 1.1 or 1.11
-      "~1.0 | AlternativeUrl": "http://stardewvalleywiki.com/Modding:SMAPI_2.0"
+      "~1.0 | Status": "AssumeBroken" // broke in SDV 1.1 or 1.11
     },
 
     "XmlSerializerRetool": {
