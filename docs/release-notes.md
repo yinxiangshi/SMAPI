@@ -1,9 +1,10 @@
 # Release notes
 ## 2.5.3
 * For players:
-  * Fixed some incompatible-mod errors not showing the mod URL.
   * Simplified default mod update URL, which is now always included for incompatible mods.
   * Updated compatibility list.
+  * Fixed some incompatible-mod errors not showing the mod URL.
+  * Fixed rare crash with a specific combination of `manifest.json` fields and internal SMAPI mod data.
 
 * For the [log parser][]:
   * Fixed mod list not including all mods if at least one has no author name.
