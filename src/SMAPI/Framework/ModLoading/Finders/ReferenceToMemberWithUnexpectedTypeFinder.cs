@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
-namespace StardewModdingAPI.Framework.ModLoading.Rewriters
+namespace StardewModdingAPI.Framework.ModLoading.Finders
 {
     /// <summary>Finds references to a field, property, or method which returns a different type than the code expects.</summary>
     /// <remarks>This implementation is purely heuristic. It should never return a false positive, but won't detect all cases.</remarks>
