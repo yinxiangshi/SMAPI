@@ -39,9 +39,11 @@ namespace StardewModdingAPI.Web.Framework.ModRepositories
             try
             {
                 NexusMod mod = await this.Client.GetModAsync(nexusID);
-                return mod != null
-                    ? new ModInfoModel(mod.Name, this.NormaliseVersion(mod.Version), mod.Url)
-                    : new ModInfoModel("Found no mod with this ID.");
+                if (mod == null)
+                    return new ModInfoModel("Found no mod with this ID.");
+                if (mod.Error != null)
+                    return new ModInfoModel(mod.Error);
+                return new ModInfoModel(mod.Name, this.NormaliseVersion(mod.Version), mod.Url);
             }
             catch (Exception ex)
             {
