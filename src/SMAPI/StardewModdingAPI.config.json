@@ -189,6 +189,11 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "Default | UpdateKey": "Nexus:643"
     },
 
+    "AutoFish": {
+      "ID": "WhiteMind.AF",
+      "Default | UpdateKey": "Nexus:1895"
+    },
+
     "AutoGate": {
       "ID": "AutoGate",
       "Default | UpdateKey": "Nexus:820"
@@ -452,6 +457,11 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "Default | UpdateKey": "Nexus:638"
     },
 
+    "Custom Asset Modifier": {
+      "ID": "Omegasis.CustomAssetModifier",
+      "Default | UpdateKey": "1836"
+    },
+
     "Custom Critters": {
       "ID": "spacechase0.CustomCritters",
       "Default | UpdateKey": "Nexus:1255"
@@ -693,6 +703,11 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "Default | UpdateKey": "Nexus:1089"
     },
 
+    "Faster Grass": {
+      "ID": "IceGladiador.FasterGrass",
+      "Default | UpdateKey": "Nexus:1772"
+    },
+
     "Faster Paths": {
       "ID": "Entoarox.FasterPaths",
       "FormerIDs": "{ID:'821ce8f6-e629-41ad-9fde-03b54f68b0b6', Name:'Faster Paths'} | 615f85f8-5c89-44ee-aecc-c328f172e413", // changed in 1.2 and 1.3; disambiguate from Shop Expander
@@ -715,6 +730,11 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "Fishing Tuner Redux": {
       "ID": "HammurabiFishingTunerRedux",
       "Default | UpdateKey": "Chucklefish:4578"
+    },
+
+    "Fixed Secret Woods Debris": {
+      "ID": "f4iTh.WoodsDebrisFix",
+      "Default | UpdateKey": "Nexus:1941"
     },
 
     "FlorenceMod": {
@@ -1005,6 +1025,11 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "~ | StatusReasonPhrase": "it's no longer maintained or used."
     },
 
+    "Monster Level Tip": {
+      "ID": "WhiteMind.MonsterLT",
+      "Default | UpdateKey": "Nexus:1896"
+    },
+
     "More Animals": {
       "ID": "Entoarox.MoreAnimals",
       "FormerIDs": "821ce8f6-e629-41ad-9fde-03b54f68b0b6MOREPETS | Entoarox.MorePets", // changed in 1.3 and 2.0
@@ -1056,6 +1081,11 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "~1.3    | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
+    "Mushroom Level Tip": {
+      "ID": "WhiteMind.MLT",
+      "Default | UpdateKey": "Nexus:1894"
+    },
+
     "New Machines": {
       "ID": "F70D4FAB-0AB2-4B78-9F1B-AF2CA2236A59",
       "Default   | UpdateKey": "Chucklefish:3683",
@@ -1093,7 +1123,12 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "Default | UpdateKey": "Nexus:506" // added in 1.4.1
     },
 
-    "NoSoilDecay": {
+    "No Rumble Horse": {
+      "ID": "Xangria.NoRumbleHorse",
+      "Default | UpdateKey": "Nexus:1779"
+    },
+
+    "No Soil Decay": {
       "ID": "289dee03-5f38-4d8e-8ffc-e440198e8610",
       "Default | UpdateKey": "Nexus:237",
       "~0.5    | Status": "AssumeBroken", // broke in SDV 1.2 and uses Assembly.GetExecutingAssembly().Location
@@ -1160,6 +1195,11 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "Persia the Mermaid - Standalone Custom NPC": {
       "ID": "63b9f419-7449-42db-ab2e-440b4d05c073",
       "Default | UpdateKey": "Nexus:1419"
+    },
+
+    "Persistent Game Options": {
+      "ID": "Xangria.PersistentGameOptions",
+      "Default | UpdateKey": "Nexus:1778"
     },
 
     "Persival's BundleMod": {
@@ -1321,6 +1361,11 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": "mmanlapat.ScytheHarvesting",
       "FormerIDs": "ScytheHarvesting", // changed in 1.6
       "Default | UpdateKey": "Nexus:1106"
+    },
+
+    "SDV Twitch": {
+      "ID": "MTD.SDVTwitch",
+      "Default | UpdateKey": "Nexus:1760"
     },
 
     "Seasonal Immersion": {
