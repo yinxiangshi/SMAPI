@@ -101,7 +101,8 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     },
 
     "AdjustArtisanPrices": {
-      "ID": "1e36d4ca-c7ef-4dfb-9927-d27a6c3c8bdc",
+      "ID": "ThatNorthernMonkey.AdjustArtisanPrices",
+      "FormerIDs": "1e36d4ca-c7ef-4dfb-9927-d27a6c3c8bdc", // changed in 0.0.2-pathoschild-update
       "Default | UpdateKey": "Chucklefish:3532",
       "~0.1    | Status": "AssumeBroken"
     },
@@ -167,6 +168,11 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "~1.0.8  | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
+    "Ashley Mod": {
+      "FormerIDs": "{EntryDll: 'AshleyMod.dll'}",
+      "~1.0.1 | Status": "AssumeBroken" // broke in SMAPI 2.0
+    },
+
     "A Tapper's Dream": {
       "ID": "ddde5195-8f85-4061-90cc-0d4fd5459358",
       "Default | UpdateKey": "Nexus:260",
@@ -203,8 +209,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "Automated Doors": {
       "ID": "azah.automated-doors",
       "FormerIDs": "1abcfa07-2cf4-4dc3-a6e9-6068b642112b", // changed in 1.4.1
-      "MapLocalVersions": { "1.4.1-1": "1.4.1" },
-      "Default | UpdateKey": "GitHub:azah/AutomatedDoors"
+      "Default | UpdateKey": "GitHub:azah/AutomatedDoors" // added in 1.4.2
     },
 
     "AutoSpeed": {
@@ -386,6 +391,11 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "~1.0    | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
+    "Coal Regen": {
+      "ID": "Blucifer.CoalRegen",
+      "Default | UpdateKey": "Nexus:1664"
+    },
+
     "Cold Weather Haley": {
       "ID": "LordXamon.ColdWeatherHaleyPRO",
       "Default | UpdateKey": "Nexus:1169",
@@ -438,6 +448,11 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "FormerIDs": "{EntryDll: 'CrabNet.dll'}", // changed in 1.0.5
       "Default | UpdateKey": "Nexus:584",
       "~1.0.4  | Status": "AssumeBroken" // broke in SMAPI 2.0
+    },
+
+    "Crafting Counter": {
+      "ID": "lolpcgaming.CraftingCounter",
+      "Default | UpdateKey": "Nexus:1585"
     },
 
     "Current Location": {
@@ -493,7 +508,6 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "~1.0.2  | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
-
     "Customizable Cart Redux": {
       "ID": "KoihimeNakamura.CCR",
       "MapLocalVersions": { "1.1-20170917": "1.1" },
@@ -548,6 +562,11 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "ID": "Pathoschild.DebugMode",
       "FormerIDs": "Pathoschild.Stardew.DebugMode", // changed in 1.4
       "Default | UpdateKey": "Nexus:679"
+    },
+
+    "Did You Water Your Crops?": {
+      "ID": "Nishtra.DidYouWaterYourCrops",
+      "Default | UpdateKey": "Nexus:1583"
     },
 
     "Dynamic Checklist": {
@@ -725,7 +744,8 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     },
 
     "Forage at the Farm": {
-      "ID": "ForageAtTheFarm",
+      "ID": "Nishtra.ForageAtTheFarm",
+      "FormerIDs": "ForageAtTheFarm", // changed in <=1.6
       "Default | UpdateKey": "Nexus:673",
       "~1.5.1  | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
@@ -797,7 +817,12 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
 
     "Happy Birthday (Oxyligen fork)": {
       "FormerIDs": "{ID:'HappyBirthday', Author:'Alpha_Omegasis/Oxyligen'}", // disambiguate from Oxyligen's fork
-      "Default | UpdateKey": "Nexus:1064"
+      "Default | UpdateKey": "Nexus:1064" // missing key reported: https://www.nexusmods.com/stardewvalley/mods/1064?tab=bugs
+    },
+
+    "Hardcore Mines": {
+      "ID": "kibbe.hardcore_mines",
+      "Default | UpdateKey": "Nexus:1674"
     },
 
     "Harp of Yoba Redux": {
@@ -976,12 +1001,14 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     },
 
     "Mining at the Farm": {
-      "ID": "MiningAtTheFarm",
+      "ID": "Nishtra.MiningAtTheFarm",
+      "FormerIDs": "MiningAtTheFarm", // changed in <=1.7
       "Default | UpdateKey": "Nexus:674"
     },
 
     "Mining With Explosives": {
-      "ID": "MiningWithExplosives",
+      "ID": "Nishtra.MiningWithExplosives",
+      "FormerIDs": "MiningWithExplosives", // changed in 1.1
       "Default | UpdateKey": "Nexus:770"
     },
 
@@ -1062,6 +1089,11 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "MapLocalVersions": { "2.1": "1.3" }, // 1.3 had wrong version in manifest
       "Default | UpdateKey": "Nexus:433", // added in 1.4.1
       "~1.3    | Status": "AssumeBroken" // broke in SMAPI 2.0
+    },
+
+    "No Crows": {
+      "ID": "cat.nocrows",
+      "Default | UpdateKey": "Nexus:1682"
     },
 
     "No Kids Ever": {
@@ -1202,6 +1234,11 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "~1.0    | Status": "AssumeBroken" // broke in SDV 1.2
     },
 
+    "Purchasable Recipes": {
+      "ID": "Paracosm.PurchasableRecipes",
+      "Default | UpdateKey": "Nexus:1722"
+    },
+
     "Quest Delay": {
       "ID": "BadNetCode.QuestDelay",
       "Default | UpdateKey": "Nexus:1239"
@@ -1275,6 +1312,12 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "Default | UpdateKey": "Nexus:1166" // added in 1.0.1
     },
 
+    "Rise and Shine": {
+      "ID": "Yoshify.RiseAndShine",
+      "FormerIDs": "{EntryDll: 'RiseAndShine.dll'}", // changed in 1.1.1-whisk-update
+      "Default | UpdateKey": "Nexus:3"
+    },
+
     "Rope Bridge": {
       "ID": "RopeBridge",
       "Default | UpdateKey": "Nexus:824"
@@ -1334,6 +1377,11 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "Default | UpdateKey": "Nexus:1133" // added in 1.1.2
     },
 
+    "Seed Catalogue": {
+      "ID": "spacechase0.SeedCatalogue",
+      "Default | UpdateKey": "Nexus:1640"
+    },
+
     "Self Service": {
       "ID": "JarvieK.SelfService",
       "MapRemoteVersions": { "0.2.1": "0.2" }, // manifest not updated
@@ -1353,7 +1401,8 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     },
 
     "Shenandoah Project": {
-      "ID": "Shenandoah Project",
+      "ID": "Nishtra.ShenandoahProject",
+      "FormerIDs": "Shenandoah Project", // changed in 1.2
       "MapRemoteVersions": { "1.1.1": "1.1" }, // not updated in manifest
       "Default | UpdateKey": "Nexus:756",
       "~1.1.1  | Status": "AssumeBroken" // broke in SMAPI 2.0
@@ -1373,7 +1422,8 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "Shop Expander": {
       "ID": "Entoarox.ShopExpander",
       "FormerIDs": "{ID:'821ce8f6-e629-41ad-9fde-03b54f68b0b6', Name:'Shop Expander'} | EntoaroxShopExpander", // changed in 1.5 and 1.5.2; disambiguate from Faster Paths
-      "~1.5.3 | UpdateKey": "Chucklefish:4381", // only enable update checks up to 1.5.3 by request (has its own update-check feature)
+      "MapRemoteVersions": { "1.6.0b": "1.6.0" },
+      "~1.6   | UpdateKey": "Chucklefish:4381", // only enable update checks up to 1.6 by request (has its own update-check feature)
       "~1.5.3 | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
@@ -1505,7 +1555,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     },
 
     "Sprinting Mod": {
-      "ID": "a10d3097-b073-4185-98ba-76b586cba00c",
+      "FormerIDs": "{EntryDll: 'SprintingMod.dll'}",
       "MapLocalVersions": { "1.0": "2.1" }, // not updated in manifest
       "Default | UpdateKey": "GitHub:oliverpl/SprintingMod",
       "~2.1    | Status": "AssumeBroken" // broke in SDV 1.2
@@ -1600,7 +1650,8 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     },
 
     "Tainted Cellar": {
-      "FormerIDs": "{EntryDll: 'TaintedCellar.dll'}",
+      "ID": "TaintedCellar",
+      "FormerIDs": "{EntryDll: 'TaintedCellar.dll'}", // changed in 1.1
       "~1.0 | Status": "AssumeBroken" // broke in SDV 1.1 or 1.11
     },
 
@@ -1648,6 +1699,16 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
       "FormerIDs": "{EntryDll: 'TimeSpeed.dll'} | {ID:'4108e859-333c-4fec-a1a7-d2e18c1019fe', Name:'TimeSpeed'} | {ID:'4108e859-333c-4fec-a1a7-d2e18c1019fe', Name:'TimeSpeed Mod (unofficial)'} | community.TimeSpeed", // changed in 2.0.3, 2.1, and 2.3.3; disambiguate other mods by Alpha_Omegasis
       "Default | UpdateKey": "Nexus:169",
       "~2.2    | Status": "AssumeBroken" // broke in SDV 1.2
+    },
+
+    "To Do List": {
+      "ID": "eleanor.todolist",
+      "Default | UpdateKey": "Nexus:1630"
+    },
+
+    "Tool Charging": {
+      "ID": "mralbobo.ToolCharging",
+      "Default | UpdateKey": "GitHub:mralbobo/stardew-tool-charging"
     },
 
     "TractorMod": {
@@ -1718,6 +1779,11 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "WHats Up": {
       "ID": "wHatsUp",
       "Default | UpdateKey": "Nexus:1082"
+    },
+
+    "Winter Grass": {
+      "ID": "cat.wintergrass",
+      "Default | UpdateKey": "Nexus:1601"
     },
 
     "Wonderful Farm Life": {
