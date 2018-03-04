@@ -48,6 +48,10 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
             FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);
             if (fieldRef != null)
             {
+                // can't compare generic type parameters between definition and reference
+                if (fieldRef.FieldType.IsGenericInstance || fieldRef.FieldType.IsGenericParameter)
+                    return InstructionHandleResult.None;
+
                 // get target field
                 FieldDefinition targetField = fieldRef.DeclaringType.Resolve()?.Fields.FirstOrDefault(p => p.Name == fieldRef.Name);
                 if (targetField == null)
@@ -67,6 +71,10 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
             MethodReference methodReference = RewriteHelper.AsMethodReference(instruction);
             if (methodReference != null)
             {
+                // can't compare generic type parameters between definition and reference
+                if (methodReference.ReturnType.IsGenericInstance || methodReference.ReturnType.IsGenericParameter)
+                    return InstructionHandleResult.None;
+
                 // get potential targets
                 MethodDefinition[] candidateMethods = methodReference.DeclaringType.Resolve()?.Methods.Where(found => found.Name == methodReference.Name).ToArray();
                 if (candidateMethods == null || !candidateMethods.Any())
