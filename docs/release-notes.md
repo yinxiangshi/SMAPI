@@ -1,17 +1,17 @@
 # Release notes
 ## 2.5.3
 * For players:
-  * Simplified default mod update URL, which is now always included for incompatible mods.
-  * Updated compatibility list.
+  * Simplified and improved skipped-incompatible-mod messages.
   * Fixed some incompatible-mod errors not showing the mod URL.
-  * Fixed rare crash with a specific combination of `manifest.json` fields and internal SMAPI mod data.
-  * Fixed update checks not working for Nexus Mods due to a change in their API.
+  * Fixed rare crash with some combinations of manifest fields and internal mod data.
+  * Fixed update checks failing for Nexus Mods due to a change in their API.
   * Fixed update checks failing for some older mods with non-standard versions.
+  * Updated compatibility list and added update checks for more mods.
 
 * For the [log parser][]:
-  * Fixed mod list not including all mods if at least one has no author name.
-  * Fixed some log entries being incorrectly filtered.
-  * Fixed error when mods have duplicate names.
+  * Fixed incorrect filtering in some cases.
+  * Fixed error if mods have duplicate names.
+  * Fixed parse bugs if a mod has no author name.
 
 * For SMAPI developers:
   * Internal changes to support the upcoming Stardew Valley 1.3 update.
