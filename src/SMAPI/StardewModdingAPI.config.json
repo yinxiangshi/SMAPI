@@ -103,8 +103,9 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
     "AdjustArtisanPrices": {
       "ID": "ThatNorthernMonkey.AdjustArtisanPrices",
       "FormerIDs": "1e36d4ca-c7ef-4dfb-9927-d27a6c3c8bdc", // changed in 0.0.2-pathoschild-update
+      "MapRemoteVersions": { "0.01": "0.0.1" },
       "Default | UpdateKey": "Chucklefish:3532",
-      "~0.1    | Status": "AssumeBroken"
+      "~0.0.1  | Status": "AssumeBroken"
     },
 
     "Adjust Monster": {
@@ -181,7 +182,6 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
 
     "Auto Animal Doors": {
       "ID": "AaronTaggart.AutoAnimalDoors",
-      "MapRemoteVersions": { "1.1.1": "1.1" }, // manifest not updated
       "Default | UpdateKey": "Nexus:1019"
     },
 
@@ -930,6 +930,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
 
     "Level Up Notifications": {
       "ID": "Level Up Notifications",
+      "MapRemoteVersions": { "0.0.1a": "0.0.1" },
       "Default | UpdateKey": "Nexus:855"
     },
 
@@ -940,6 +941,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
 
     "Longevity": {
       "ID": "RTGOAT.Longevity",
+      "MapRemoteVersions": { "1.6.8h": "1.6.8" },
       "Default | UpdateKey": "Nexus:649"
     },
 
@@ -1532,7 +1534,6 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
 
     "Sprinkler Range": {
       "ID": "cat.sprinklerrange",
-      "MapRemoteVersions": { "1.0.1": "1.0" }, // manifest not updated
       "Default | UpdateKey": "Nexus:1179"
     },
 
