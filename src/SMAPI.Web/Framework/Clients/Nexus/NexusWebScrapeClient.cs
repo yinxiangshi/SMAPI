@@ -72,7 +72,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.Nexus
             }
 
             // extract mod info
-            string url = new UriBuilder(this.Client.BaseClient.BaseAddress) { Path = string.Format(this.ModUrlFormat, id) }.Uri.ToString();
+            string url = this.GetModUrl(id);
             string name = doc.DocumentNode.SelectSingleNode("//h1")?.InnerText.Trim();
             string version = doc.DocumentNode.SelectSingleNode("//ul[contains(@class, 'stats')]//li[@class='stat-version']//div[@class='stat']")?.InnerText.Trim();
 
@@ -88,6 +88,19 @@ namespace StardewModdingAPI.Web.Framework.Clients.Nexus
         public void Dispose()
         {
             this.Client?.Dispose();
+        }
+
+
+        /*********
+        ** Private methods
+        *********/
+        /// <summary>Get the full mod page URL for a given ID.</summary>
+        /// <param name="id">The mod ID.</param>
+        private string GetModUrl(uint id)
+        {
+            UriBuilder builder = new UriBuilder(this.Client.BaseClient.BaseAddress);
+            builder.Path += string.Format(this.ModUrlFormat, id);
+            return builder.Uri.ToString();
         }
     }
 }
