@@ -13,6 +13,14 @@ namespace StardewModdingAPI.Metadata
     internal class InstructionMetadata
     {
         /*********
+        ** Properties
+        *********/
+        /// <summary>The assembly names to which to heuristically detect broken references.</summary>
+        /// <remarks>The current implementation only works correctly with assemblies that should always be present.</remarks>
+        private readonly string[] ValidateReferencesToAssemblies = { "StardewModdingAPI", "Stardew Valley", "StardewValley" };
+
+
+        /*********
         ** Public methods
         *********/
         /// <summary>Get rewriters which detect or fix incompatible CIL instructions in mod assemblies.</summary>
@@ -87,8 +95,8 @@ namespace StardewModdingAPI.Metadata
                 new PropertyFinder("StardewModdingAPI.Mod", "PerSaveConfigPath", InstructionHandleResult.NotCompatible),
 
                 // broken code
-                new ReferenceToMissingMemberFinder(),
-                new ReferenceToMemberWithUnexpectedTypeFinder(),
+                new ReferenceToMissingMemberFinder(this.ValidateReferencesToAssemblies),
+                new ReferenceToMemberWithUnexpectedTypeFinder(this.ValidateReferencesToAssemblies),
 
                 /****
                 ** detect code which may impact game stability

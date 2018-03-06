@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -9,6 +10,13 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
     internal class ReferenceToMissingMemberFinder : IInstructionHandler
     {
         /*********
+        ** Properties
+        *********/
+        /// <summary>The assembly names to which to heuristically detect broken references.</summary>
+        private readonly HashSet<string> ValidateReferencesToAssemblies;
+
+
+        /*********
         ** Accessors
         *********/
         /// <summary>A brief noun phrase indicating what the instruction finder matches.</summary>
@@ -18,6 +26,13 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         /*********
         ** Public methods
         *********/
+        /// <summary>Construct an instance.</summary>
+        /// <param name="validateReferencesToAssemblies">The assembly names to which to heuristically detect broken references.</param>
+        public ReferenceToMissingMemberFinder(string[] validateReferencesToAssemblies)
+        {
+            this.ValidateReferencesToAssemblies = new HashSet<string>(validateReferencesToAssemblies);
+        }
+
         /// <summary>Perform the predefined logic for a method if applicable.</summary>
         /// <param name="module">The assembly module containing the instruction.</param>
         /// <param name="method">The method definition containing the instruction.</param>
@@ -38,7 +53,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         {
             // field reference
             FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);
-            if (fieldRef != null)
+            if (fieldRef != null && this.ShouldValidate(fieldRef.DeclaringType))
             {
                 FieldDefinition target = fieldRef.DeclaringType.Resolve()?.Fields.FirstOrDefault(p => p.Name == fieldRef.Name);
                 if (target == null)
@@ -50,7 +65,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
 
             // method reference
             MethodReference methodRef = RewriteHelper.AsMethodReference(instruction);
-            if (methodRef != null && !this.IsUnsupported(methodRef))
+            if (methodRef != null && this.ShouldValidate(methodRef.DeclaringType) && !this.IsUnsupported(methodRef))
             {
                 MethodDefinition target = methodRef.DeclaringType.Resolve()?.Methods.FirstOrDefault(p => p.Name == methodRef.Name);
                 if (target == null)
@@ -69,6 +84,13 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         /*********
         ** Private methods
         *********/
+        /// <summary>Whether references to the given type should be validated.</summary>
+        /// <param name="type">The type reference.</param>
+        private bool ShouldValidate(TypeReference type)
+        {
+            return type != null && this.ValidateReferencesToAssemblies.Contains(type.Scope.Name);
+        }
+
         /// <summary>Get whether a method reference is a special case that's not currently supported (e.g. array methods).</summary>
         /// <param name="method">The method reference.</param>
         private bool IsUnsupported(MethodReference method)

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Mono.Cecil;
@@ -12,6 +13,9 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         /*********
         ** Properties
         *********/
+        /// <summary>The assembly names to which to heuristically detect broken references.</summary>
+        private readonly HashSet<string> ValidateReferencesToAssemblies;
+
         /// <summary>A pattern matching type name substrings to strip for display.</summary>
         private readonly Regex StripTypeNamePattern = new Regex(@"`\d+(?=<)", RegexOptions.Compiled);
 
@@ -26,6 +30,13 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         /*********
         ** Public methods
         *********/
+        /// <summary>Construct an instance.</summary>
+        /// <param name="validateReferencesToAssemblies">The assembly names to which to heuristically detect broken references.</param>
+        public ReferenceToMemberWithUnexpectedTypeFinder(string[] validateReferencesToAssemblies)
+        {
+            this.ValidateReferencesToAssemblies = new HashSet<string>(validateReferencesToAssemblies);
+        }
+
         /// <summary>Perform the predefined logic for a method if applicable.</summary>
         /// <param name="module">The assembly module containing the instruction.</param>
         /// <param name="method">The method definition containing the instruction.</param>
@@ -46,7 +57,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         {
             // field reference
             FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);
-            if (fieldRef != null)
+            if (fieldRef != null && this.ShouldValidate(fieldRef.DeclaringType))
             {
                 // can't compare generic type parameters between definition and reference
                 if (fieldRef.FieldType.IsGenericInstance || fieldRef.FieldType.IsGenericParameter)
@@ -69,7 +80,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
 
             // method reference
             MethodReference methodReference = RewriteHelper.AsMethodReference(instruction);
-            if (methodReference != null)
+            if (methodReference != null && this.ShouldValidate(methodReference.DeclaringType))
             {
                 // can't compare generic type parameters between definition and reference
                 if (methodReference.ReturnType.IsGenericInstance || methodReference.ReturnType.IsGenericParameter)
@@ -103,6 +114,13 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         /*********
         ** Private methods
         *********/
+        /// <summary>Whether references to the given type should be validated.</summary>
+        /// <param name="type">The type reference.</param>
+        private bool ShouldValidate(TypeReference type)
+        {
+            return type != null && this.ValidateReferencesToAssemblies.Contains(type.Scope.Name);
+        }
+
         /// <summary>Get a unique string representation of a type.</summary>
         /// <param name="type">The type reference.</param>
         private string GetComparableTypeID(TypeReference type)
