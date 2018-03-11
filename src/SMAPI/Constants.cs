@@ -37,13 +37,28 @@ namespace StardewModdingAPI
         ** Public
         ****/
         /// <summary>SMAPI's current semantic version.</summary>
-        public static ISemanticVersion ApiVersion { get; } = new SemanticVersion("2.5.3");
+        public static ISemanticVersion ApiVersion { get; } =
+#if STARDEW_VALLEY_1_3
+            new SemanticVersion($"2.6-alpha.{DateTime.UtcNow:yyyyMMddHHmm}");
+#else
+            new SemanticVersion($"2.5.3");
+#endif
 
         /// <summary>The minimum supported version of Stardew Valley.</summary>
-        public static ISemanticVersion MinimumGameVersion { get; } = new SemanticVersion("1.2.30");
+        public static ISemanticVersion MinimumGameVersion { get; } =
+#if STARDEW_VALLEY_1_3
+            new GameVersion("1.3.0.2");
+#else
+            new SemanticVersion("1.2.33");
+#endif
 
         /// <summary>The maximum supported version of Stardew Valley.</summary>
-        public static ISemanticVersion MaximumGameVersion { get; } = new SemanticVersion("1.2.33");
+        public static ISemanticVersion MaximumGameVersion { get; } =
+#if STARDEW_VALLEY_1_3
+            null;
+#else
+            new SemanticVersion("1.2.33");
+#endif
 
         /// <summary>The path to the game folder.</summary>
         public static string ExecutionPath { get; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -169,7 +184,12 @@ namespace StardewModdingAPI
         /// <summary>Get the name of a save directory for the current player.</summary>
         private static string GetSaveFolderName()
         {
-            string prefix = new string(Game1.player.name.Where(char.IsLetterOrDigit).ToArray());
+            string prefix =
+#if STARDEW_VALLEY_1_3
+                new string(Game1.player.name.Value.Where(char.IsLetterOrDigit).ToArray());
+#else
+                new string(Game1.player.name.Where(char.IsLetterOrDigit).ToArray());
+#endif
             return $"{prefix}_{Game1.uniqueIDForThisGame}";
         }
 
