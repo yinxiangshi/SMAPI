@@ -1,3 +1,4 @@
+#if !STARDEW_VALLEY_1_3
 using System;
 using System.Reflection;
 
@@ -26,3 +27,4 @@ namespace StardewModdingAPI
         void SetValue(TValue value);
     }
 }
+#endif
