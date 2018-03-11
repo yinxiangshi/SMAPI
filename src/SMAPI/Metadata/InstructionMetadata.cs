@@ -6,6 +6,9 @@ using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Framework.ModLoading.Finders;
 using StardewModdingAPI.Framework.ModLoading.Rewriters;
 using StardewValley;
+#if STARDEW_VALLEY_1_3
+using SObject = StardewValley.Object;
+#endif
 
 namespace StardewModdingAPI.Metadata
 {
@@ -31,10 +34,11 @@ namespace StardewModdingAPI.Metadata
                 /****
                 ** rewrite CIL to fix incompatible code
                 ****/
-                // crossplatform
+                // rewrite for crossplatform compatibility
                 new MethodParentRewriter(typeof(SpriteBatch), typeof(SpriteBatchMethods), onlyIfPlatformChanged: true),
 
-                // Stardew Valley 1.2
+#if !STARDEW_VALLEY_1_3
+                // rewrite for Stardew Valley 1.2
                 new FieldToPropertyRewriter(typeof(Game1), nameof(Game1.activeClickableMenu)),
                 new FieldToPropertyRewriter(typeof(Game1), nameof(Game1.currentMinigame)),
                 new FieldToPropertyRewriter(typeof(Game1), nameof(Game1.gameMode)),
@@ -42,19 +46,33 @@ namespace StardewModdingAPI.Metadata
                 new FieldReplaceRewriter(typeof(Game1), "borderFont", nameof(Game1.smallFont)),
                 new FieldReplaceRewriter(typeof(Game1), "smoothFont", nameof(Game1.smallFont)),
 
-                // SMAPI 1.9
+                // rewrite for SMAPI 1.9
                 new TypeReferenceRewriter("StardewModdingAPI.Inheritance.ItemStackChange", typeof(ItemStackChange)),
+#endif
 
-                // SMAPI 2.0
-                new VirtualEntryCallRemover(), // Mod.Entry changed from virtual to abstract in SMAPI 2.0, which breaks the few mods which called base.Entry()
+                // rewrite for SMAPI 2.0
+                new VirtualEntryCallRemover(),
+
+                // rewrite for Stardew Valley 1.3
+#if STARDEW_VALLEY_1_3
+                new StaticFieldToConstantRewriter<int>(typeof(Game1), "tileSize", Game1.tileSize),
+                new FieldToPropertyRewriter(typeof(Character), nameof(Character.name), nameof(Character.Name)),
+                new FieldToPropertyRewriter(typeof(GameLocation), nameof(GameLocation.isFarm), nameof(GameLocation.IsFarm)),
+                new FieldToPropertyRewriter(typeof(GameLocation), nameof(GameLocation.isOutdoors), nameof(GameLocation.isOutdoors)),
+                new FieldToPropertyRewriter(typeof(GameLocation), nameof(GameLocation.name), nameof(GameLocation.Name)),
+                new FieldToPropertyRewriter(typeof(Item), nameof(Item.category), nameof(Item.Category)),
+                new FieldToPropertyRewriter(typeof(SObject), nameof(SObject.quality), nameof(SObject.Quality)),
+                new FieldToPropertyRewriter(typeof(SObject), nameof(SObject.stack), nameof(SObject.Stack)),
+#endif
 
                 /****
                 ** detect incompatible code
                 ****/
-                // changes in Stardew Valley 1.2 (with no rewriters)
+                #if !STARDEW_VALLEY_1_3
+                // detect changes in Stardew Valley 1.2
                 new FieldFinder("StardewValley.Item", "set_Name", InstructionHandleResult.NotCompatible),
 
-                // APIs removed in SMAPI 1.9
+                // detect APIs removed in SMAPI 1.9
                 new TypeFinder("StardewModdingAPI.Advanced.ConfigFile", InstructionHandleResult.NotCompatible),
                 new TypeFinder("StardewModdingAPI.Advanced.IConfigFile", InstructionHandleResult.NotCompatible),
                 new TypeFinder("StardewModdingAPI.Entities.SPlayer", InstructionHandleResult.NotCompatible),
@@ -71,7 +89,7 @@ namespace StardewModdingAPI.Metadata
                 new EventFinder("StardewModdingAPI.Events.GraphicsEvents", "OnPreRenderHudEventNoCheck", InstructionHandleResult.NotCompatible),
                 new EventFinder("StardewModdingAPI.Events.GraphicsEvents", "OnPreRenderGuiEventNoCheck", InstructionHandleResult.NotCompatible),
 
-                // APIs removed in SMAPI 2.0
+                // detect APIs removed in SMAPI 2.0
                 new TypeFinder("StardewModdingAPI.Command", InstructionHandleResult.NotCompatible),
                 new TypeFinder("StardewModdingAPI.Config", InstructionHandleResult.NotCompatible),
                 new TypeFinder("StardewModdingAPI.Log", InstructionHandleResult.NotCompatible),
@@ -93,8 +111,9 @@ namespace StardewModdingAPI.Metadata
                 new PropertyFinder("StardewModdingAPI.Mod", "BaseConfigPath", InstructionHandleResult.NotCompatible),
                 new PropertyFinder("StardewModdingAPI.Mod", "PerSaveConfigFolder", InstructionHandleResult.NotCompatible),
                 new PropertyFinder("StardewModdingAPI.Mod", "PerSaveConfigPath", InstructionHandleResult.NotCompatible),
+                #endif
 
-                // broken code
+                // detect broken code
                 new ReferenceToMissingMemberFinder(this.ValidateReferencesToAssemblies),
                 new ReferenceToMemberWithUnexpectedTypeFinder(this.ValidateReferencesToAssemblies),
 
