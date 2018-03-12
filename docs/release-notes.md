@@ -14,6 +14,7 @@
   * Fixed rare crash with some combinations of manifest fields and internal mod data.
   * Fixed update checks failing for Nexus Mods due to a change in their API.
   * Fixed update checks failing for some older mods with non-standard versions.
+  * Fixed error when a content pack needs a mod that couldn't be loaded.
   * Updated compatibility list and added update checks for more mods.
 
 * For the [log parser][]:

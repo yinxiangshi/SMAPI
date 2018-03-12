@@ -854,7 +854,7 @@ namespace StardewModdingAPI
             // log loaded content packs
             if (loadedContentPacks.Any())
             {
-                string GetModDisplayName(string id) => loadedMods.First(p => id != null && id.Equals(p.Manifest?.UniqueID, StringComparison.InvariantCultureIgnoreCase))?.DisplayName;
+                string GetModDisplayName(string id) => loadedMods.FirstOrDefault(p => id != null && id.Equals(p.Manifest?.UniqueID, StringComparison.InvariantCultureIgnoreCase))?.DisplayName;
 
                 this.Monitor.Log($"Loaded {loadedContentPacks.Length} content packs:", LogLevel.Info);
                 foreach (IModMetadata metadata in loadedContentPacks.OrderBy(p => p.DisplayName))
