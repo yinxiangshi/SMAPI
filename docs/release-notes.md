@@ -15,6 +15,7 @@
   * Fixed update checks failing for Nexus Mods due to a change in their API.
   * Fixed update checks failing for some older mods with non-standard versions.
   * Fixed error when a content pack needs a mod that couldn't be loaded.
+  * Fixed Linux ["magic number is wrong" errors](https://github.com/mono/mono/issues/6752) by changing default terminal order.
   * Updated compatibility list and added update checks for more mods.
 
 * For the [log parser][]:
