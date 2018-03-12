@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 #if STARDEW_VALLEY_1_3
+using System.Collections.Generic;
 using Netcode;
 #else
 using StardewValley;

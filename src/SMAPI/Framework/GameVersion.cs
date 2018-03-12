@@ -23,9 +23,7 @@ namespace StardewModdingAPI.Framework
             ["1.07"] = "1.0.7",
             ["1.07a"] = "1.0.8-prerelease1",
             ["1.08"] = "1.0.8",
-            ["1.11"] = "1.1.1",
-            ["1.3.0.1"] = "1.13-alpha.1",
-            ["1.3.0.2"] = "1.13-alpha.2"
+            ["1.11"] = "1.1.1"
         };
 
 
@@ -51,21 +49,31 @@ namespace StardewModdingAPI.Framework
         /// <param name="gameVersion">The game version string.</param>
         private static string GetSemanticVersionString(string gameVersion)
         {
+#if STARDEW_VALLEY_1_3
+            if(gameVersion.StartsWith("1.3.0."))
+                return new SemanticVersion(1, 3, 0, "alpha." + gameVersion.Substring("1.3.0.".Length)).ToString();
+#endif
+
             return GameVersion.VersionMap.TryGetValue(gameVersion, out string semanticVersion)
                 ? semanticVersion
                 : gameVersion;
         }
 
-        /// <summary>Convert a game version string to a semantic version string.</summary>
-        /// <param name="gameVersion">The game version string.</param>
-        private static string GetGameVersionString(string gameVersion)
+        /// <summary>Convert a semantic version string to the equivalent game version string.</summary>
+        /// <param name="semanticVersion">The semantic version string.</param>
+        private static string GetGameVersionString(string semanticVersion)
         {
+            #if STARDEW_VALLEY_1_3
+            if(semanticVersion.StartsWith("1.3-alpha."))
+                return "1.3.0." + semanticVersion.Substring("1.3-alpha.".Length);
+            #endif
+
             foreach (var mapping in GameVersion.VersionMap)
             {
-                if (mapping.Value.Equals(gameVersion, StringComparison.InvariantCultureIgnoreCase))
+                if (mapping.Value.Equals(semanticVersion, StringComparison.InvariantCultureIgnoreCase))
                     return mapping.Key;
             }
-            return gameVersion;
+            return semanticVersion;
         }
     }
 }
