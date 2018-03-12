@@ -5,6 +5,7 @@
 
 * For modders:
   * Dropped support for some deprecated APIs.
+  * Fixed some assets not being editable.
 
 ## 2.5.3
 * For players:
