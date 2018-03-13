@@ -9,8 +9,7 @@
 
 ## 2.5.3
 * For players:
-  * Simplified and improved skipped-incompatible-mod messages.
-  * Fixed some incompatible-mod errors not showing the mod URL.
+  * Simplified and improved skipped-mod messages.
   * Fixed rare crash with some combinations of manifest fields and internal mod data.
   * Fixed update checks failing for Nexus Mods due to a change in their API.
   * Fixed update checks failing for some older mods with non-standard versions.
