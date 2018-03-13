@@ -56,13 +56,6 @@ namespace StardewModdingAPI.Metadata
                 // rewrite for Stardew Valley 1.3
 #if STARDEW_VALLEY_1_3
                 new StaticFieldToConstantRewriter<int>(typeof(Game1), "tileSize", Game1.tileSize),
-                new FieldToPropertyRewriter(typeof(Character), nameof(Character.name), nameof(Character.Name)),
-                new FieldToPropertyRewriter(typeof(GameLocation), nameof(GameLocation.isFarm), nameof(GameLocation.IsFarm)),
-                new FieldToPropertyRewriter(typeof(GameLocation), nameof(GameLocation.isOutdoors), nameof(GameLocation.isOutdoors)),
-                new FieldToPropertyRewriter(typeof(GameLocation), nameof(GameLocation.name), nameof(GameLocation.Name)),
-                new FieldToPropertyRewriter(typeof(Item), nameof(Item.category), nameof(Item.Category)),
-                new FieldToPropertyRewriter(typeof(SObject), nameof(SObject.quality), nameof(SObject.Quality)),
-                new FieldToPropertyRewriter(typeof(SObject), nameof(SObject.stack), nameof(SObject.Stack)),
 #endif
 
                 /****
