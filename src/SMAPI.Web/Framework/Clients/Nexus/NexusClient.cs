@@ -3,7 +3,7 @@ using Pathoschild.Http.Client;
 
 namespace StardewModdingAPI.Web.Framework.Clients.Nexus
 {
-    /// <summary>An HTTP client for fetching mod metadata from Nexus Mods.</summary>
+    /// <summary>An HTTP client for fetching mod metadata from the Nexus Mods API.</summary>
     internal class NexusClient : INexusClient
     {
         /*********

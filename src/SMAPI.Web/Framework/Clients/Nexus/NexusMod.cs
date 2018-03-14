@@ -17,5 +17,9 @@ namespace StardewModdingAPI.Web.Framework.Clients.Nexus
         /// <summary>The mod's web URL.</summary>
         [JsonProperty("mod_page_uri")]
         public string Url { get; set; }
+
+        /// <summary>A user-friendly error which indicates why fetching the mod info failed (if applicable).</summary>
+        [JsonIgnore]
+        public string Error { get; set; }
     }
 }

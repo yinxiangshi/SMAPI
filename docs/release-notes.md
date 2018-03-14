@@ -1,4 +1,30 @@
 # Release notes
+## 2.6 alpha
+* For players:
+  * Updated for Stardew Valley 1.3 (multiplayer update); no longer compatible with earlier versions.
+
+* For modders:
+  * Dropped support for some deprecated APIs.
+  * Fixed some assets not being editable.
+
+## 2.5.3
+* For players:
+  * Simplified and improved skipped-mod messages.
+  * Fixed rare crash with some combinations of manifest fields and internal mod data.
+  * Fixed update checks failing for Nexus Mods due to a change in their API.
+  * Fixed update checks failing for some older mods with non-standard versions.
+  * Fixed error when a content pack needs a mod that couldn't be loaded.
+  * Fixed Linux ["magic number is wrong" errors](https://github.com/mono/mono/issues/6752) by changing default terminal order.
+  * Updated compatibility list and added update checks for more mods.
+
+* For the [log parser][]:
+  * Fixed incorrect filtering in some cases.
+  * Fixed error if mods have duplicate names.
+  * Fixed parse bugs if a mod has no author name.
+
+* For SMAPI developers:
+  * Internal changes to support the upcoming Stardew Valley 1.3 update.
+
 ## 2.5.2
 * For modders:
   * Fixed issue where replacing an asset through `asset.AsImage()` or `asset.AsDictionary()` didn't take effect.

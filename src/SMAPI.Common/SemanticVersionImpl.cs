@@ -22,6 +22,9 @@ namespace StardewModdingAPI.Common
         /// <summary>An optional prerelease tag.</summary>
         public string Tag { get; }
 
+        /// <summary>A regex pattern matching a version within a larger string.</summary>
+        internal const string UnboundedVersionPattern = @"(?>(?<major>0|[1-9]\d*))\.(?>(?<minor>0|[1-9]\d*))(?>(?:\.(?<patch>0|[1-9]\d*))?)(?:-(?<prerelease>(?>[a-z0-9]+[\-\.]?)+))?";
+
         /// <summary>A regular expression matching a semantic version string.</summary>
         /// <remarks>
         /// This pattern is derived from the BNF documentation in the <a href="https://github.com/mojombo/semver">semver repo</a>,
@@ -30,7 +33,7 @@ namespace StardewModdingAPI.Common
         /// - allows hyphens in prerelease tags as synonyms for dots (like "-unofficial-update.3");
         /// - doesn't allow '+build' suffixes.
         /// </remarks>
-        internal static readonly Regex Regex = new Regex(@"^(?>(?<major>0|[1-9]\d*))\.(?>(?<minor>0|[1-9]\d*))(?>(?:\.(?<patch>0|[1-9]\d*))?)(?:-(?<prerelease>(?>[a-z0-9]+[\-\.]?)+))?$", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+        internal static readonly Regex Regex = new Regex($@"^{SemanticVersionImpl.UnboundedVersionPattern}$", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
         /*********
         ** Public methods

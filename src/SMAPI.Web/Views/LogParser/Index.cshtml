@@ -17,16 +17,16 @@
 @using StardewModdingAPI.Web.Framework.LogParsing.Models
 @model StardewModdingAPI.Web.ViewModels.LogParserModel
 @section Head {
-    <link rel="stylesheet" href="~/Content/css/log-parser.css?r=20180101" />
+    <link rel="stylesheet" href="~/Content/css/log-parser.css?r=20180225" />
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" crossorigin="anonymous"></script>
-    <script src="~/Content/js/log-parser.js?r=20180101"></script>
+    <script src="~/Content/js/log-parser.js?r=20180225"></script>
     <script>
         $(function() {
             smapi.logParser({
                 logStarted: new Date(@Json.Serialize(Model.ParsedLog?.Timestamp)),
                 showPopup: @Json.Serialize(Model.ParsedLog == null),
-                showMods: @Json.Serialize(Model.ParsedLog?.Mods?.ToDictionary(p => GetSlug(p.Name), p => true), new JsonSerializerSettings { Formatting = Formatting.None }),
+                showMods: @Json.Serialize(Model.ParsedLog?.Mods?.Select(p => GetSlug(p.Name)).Distinct().ToDictionary(slug => slug, slug => true), new JsonSerializerSettings { Formatting = Formatting.None }),
                 showLevels: {
                     trace: false,
                     debug: false,
@@ -78,13 +78,13 @@
             <caption>
                 Installed mods:
                 <span class="notice txt"><i>click any mod to filter</i></span>
-                <span class="notice btn txt" v-on:click="showAllMods" v-if="stats.modsHidden > 0">show all</span>
-                <span class="notice btn txt" v-on:click="hideAllMods" v-if="stats.modsShown > 0 && stats.modsHidden > 0">hide all</span>
+                <span class="notice btn txt" v-on:click="showAllMods" v-show="stats.modsHidden > 0">show all</span>
+                <span class="notice btn txt" v-on:click="hideAllMods" v-show="stats.modsShown > 0 && stats.modsHidden > 0">hide all</span>
             </caption>
             @foreach (var mod in Model.ParsedLog.Mods.Where(p => p.ContentPackFor == null))
             {
                 <tr v-on:click="toggleMod('@GetSlug(mod.Name)')" class="mod-entry" v-bind:class="{ hidden: !showMods['@GetSlug(mod.Name)'] }">
-                    <td><input type="checkbox" v-bind:checked="showMods['@GetSlug(mod.Name)']" v-if="anyModsHidden" /></td>
+                    <td><input type="checkbox" v-bind:checked="showMods['@GetSlug(mod.Name)']" v-show="anyModsHidden" /></td>
                     <td>
                         @mod.Name
                         @if (contentPacks != null && contentPacks.TryGetValue(mod.Name, out LogModInfo[] contentPackList))
@@ -92,7 +92,7 @@
                             <div class="content-packs">
                                 @foreach (var contentPack in contentPackList)
                                 {
-                                    <text>+@contentPack.Name @contentPack.Version</text>
+                                    <text>+ @contentPack.Name @contentPack.Version</text><br />
                                 }
                             </div>
                         }
@@ -127,9 +127,9 @@
         <table id="log">
             @foreach (var message in Model.ParsedLog.Messages)
             {
-                string levelStr = @message.Level.ToString().ToLower();
+                string levelStr = message.Level.ToString().ToLower();
 
-                <tr class="@levelStr mod" v-if="showMods['@message.Mod'] && showLevels['@levelStr']">
+                <tr class="@levelStr mod" v-show="filtersAllow('@GetSlug(message.Mod)', '@levelStr')">
                     <td>@message.Time</td>
                     <td>@message.Level.ToString().ToUpper()</td>
                     <td data-title="@message.Mod">@message.Mod</td>
@@ -137,7 +137,7 @@
                 </tr>
                 if (message.Repeated > 0)
                 {
-                    <tr class="@levelStr mod mod-repeat" v-if="showMods['@message.Mod'] && showLevels['@levelStr']">
+                    <tr class="@levelStr mod mod-repeat" v-show="filtersAllow('@GetSlug(message.Mod)', '@levelStr')">
                         <td colspan="3"></td>
                         <td><i>repeats [@message.Repeated] times.</i></td>
                     </tr>
@@ -155,7 +155,7 @@ else if (Model.ParsedLog?.IsValid == false)
     </div>
 
     <h3>Raw log</h3>
-    <pre>@Model.ParsedLog.RawTextIfError</pre>
+    <pre>@Model.ParsedLog.RawText</pre>
 }
 
 <div id="upload-area">

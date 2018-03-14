@@ -2,11 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
-using StardewModdingAPI.Framework;
+using StardewModdingAPI.Framework.Reflection;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
 using StardewValley.Buildings;
 using StardewValley.Locations;
+using StardewValley.Menus;
 using StardewValley.Objects;
 using StardewValley.Projectiles;
 using StardewValley.TerrainFeatures;
@@ -23,7 +24,7 @@ namespace StardewModdingAPI.Metadata
         protected readonly Func<string, string> GetNormalisedPath;
 
         /// <summary>Setters which update static or singleton texture fields indexed by normalised asset key.</summary>
-        private readonly IDictionary<string, Action<SContentManager, string>> SingletonSetters;
+        private readonly IDictionary<string, Action<LocalizedContentManager, string>> SingletonSetters;
 
 
         /*********
@@ -31,11 +32,12 @@ namespace StardewModdingAPI.Metadata
         *********/
         /// <summary>Initialise the core asset data.</summary>
         /// <param name="getNormalisedPath">Normalises an asset key to match the cache key.</param>
-        public CoreAssets(Func<string, string> getNormalisedPath)
+        /// <param name="reflection">Simplifies access to private code.</param>
+        public CoreAssets(Func<string, string> getNormalisedPath, Reflector reflection)
         {
             this.GetNormalisedPath = getNormalisedPath;
             this.SingletonSetters =
-                new Dictionary<string, Action<SContentManager, string>>
+                new Dictionary<string, Action<LocalizedContentManager, string>>
                 {
                     // from CraftingRecipe.InitShared
                     ["Data\\CraftingRecipes"] = (content, key) => CraftingRecipe.craftingRecipes = content.Load<Dictionary<string, string>>(key),
@@ -82,6 +84,25 @@ namespace StardewModdingAPI.Metadata
                     // from Game1.ResetToolSpriteSheet
                     ["TileSheets\\tools"] = (content, key) => Game1.ResetToolSpriteSheet(),
 
+#if STARDEW_VALLEY_1_3
+                    // from Bush
+                    ["TileSheets\\bushes"] = (content, key) => reflection.GetField<Lazy<Texture2D>>(typeof(Bush), "texture").SetValue(new Lazy<Texture2D>(() => content.Load<Texture2D>(key))),
+
+                    // from Farm
+                    ["Buildings\\houses"] = (content, key) => reflection.GetField<Texture2D>(typeof(Farm), nameof(Farm.houseTextures)).SetValue(content.Load<Texture2D>(key)),
+
+                    // from Farmer
+                    ["Characters\\Farmer\\farmer_base"] = (content, key) =>
+                    {
+                        if (Game1.player != null && Game1.player.isMale)
+                            Game1.player.FarmerRenderer = new FarmerRenderer(key);
+                    },
+                    ["Characters\\Farmer\\farmer_girl_base"] = (content, key) =>
+                    {
+                        if (Game1.player != null && !Game1.player.isMale)
+                            Game1.player.FarmerRenderer = new FarmerRenderer(key);
+                    },
+#else
                     // from Bush
                     ["TileSheets\\bushes"] = (content, key) => Bush.texture = content.Load<Texture2D>(key),
 
@@ -107,6 +128,7 @@ namespace StardewModdingAPI.Metadata
                         if (Game1.player != null && !Game1.player.isMale)
                             Game1.player.FarmerRenderer = new FarmerRenderer(content.Load<Texture2D>(key));
                     },
+#endif
 
                     // from Flooring
                     ["TerrainFeatures\\Flooring"] = (content, key) => Flooring.floorsTexture = content.Load<Texture2D>(key),
@@ -119,6 +141,26 @@ namespace StardewModdingAPI.Metadata
                     ["TerrainFeatures\\hoeDirtDark"] = (content, key) => HoeDirt.darkTexture = content.Load<Texture2D>(key),
                     ["TerrainFeatures\\hoeDirtSnow"] = (content, key) => HoeDirt.snowTexture = content.Load<Texture2D>(key),
 
+                    // from TitleMenu
+                    ["Minigames\\Clouds"] = (content, key) =>
+                    {
+                        if (Game1.activeClickableMenu is TitleMenu)
+                            reflection.GetField<Texture2D>(Game1.activeClickableMenu, "cloudsTexture").SetValue(content.Load<Texture2D>(key));
+                    },
+                    ["Minigames\\TitleButtons"] = (content, key) =>
+                    {
+                        if (Game1.activeClickableMenu is TitleMenu titleMenu)
+                        {
+                            reflection.GetField<Texture2D>(titleMenu, "titleButtonsTexture").SetValue(content.Load<Texture2D>(key));
+                            foreach (TemporaryAnimatedSprite bird in reflection.GetField<List<TemporaryAnimatedSprite>>(titleMenu, "birds").GetValue())
+#if STARDEW_VALLEY_1_3
+                                bird.texture = content.Load<Texture2D>(key);
+#else
+                                bird.Texture = content.Load<Texture2D>(key);
+#endif
+                        }
+                    },
+
                     // from Wallpaper
                     ["Maps\\walls_and_floors"] = (content, key) => Wallpaper.wallpaperTexture = content.Load<Texture2D>(key)
                 }
@@ -129,10 +171,10 @@ namespace StardewModdingAPI.Metadata
         /// <param name="content">The content manager through which to reload the asset.</param>
         /// <param name="key">The asset key to reload.</param>
         /// <returns>Returns whether an asset was reloaded.</returns>
-        public bool ReloadForKey(SContentManager content, string key)
+        public bool ReloadForKey(LocalizedContentManager content, string key)
         {
             // static assets
-            if (this.SingletonSetters.TryGetValue(key, out Action<SContentManager, string> reload))
+            if (this.SingletonSetters.TryGetValue(key, out Action<LocalizedContentManager, string> reload))
             {
                 reload(content, key);
                 return true;
@@ -144,9 +186,15 @@ namespace StardewModdingAPI.Metadata
                 Building[] buildings = this.GetAllBuildings().Where(p => key == this.GetNormalisedPath($"Buildings\\{p.buildingType}")).ToArray();
                 if (buildings.Any())
                 {
+#if STARDEW_VALLEY_1_3
+                    foreach (Building building in buildings)
+                        building.texture = new Lazy<Texture2D>(() => content.Load<Texture2D>(key));
+#else
                     Texture2D texture = content.Load<Texture2D>(key);
                     foreach (Building building in buildings)
                         building.texture = texture;
+#endif
+
                     return true;
                 }
                 return false;
@@ -162,9 +210,11 @@ namespace StardewModdingAPI.Metadata
         /// <summary>Get all player-constructed buildings in the world.</summary>
         private IEnumerable<Building> GetAllBuildings()
         {
-            return Game1.locations
-                .OfType<BuildableGameLocation>()
-                .SelectMany(p => p.buildings);
+            foreach (BuildableGameLocation location in Game1.locations.OfType<BuildableGameLocation>())
+            {
+                foreach (Building building in location.buildings)
+                    yield return building;
+            }
         }
     }
 }

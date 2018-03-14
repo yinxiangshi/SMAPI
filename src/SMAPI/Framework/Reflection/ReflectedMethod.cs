@@ -4,7 +4,10 @@ using System.Reflection;
 namespace StardewModdingAPI.Framework.Reflection
 {
     /// <summary>A method obtained through reflection.</summary>
-    internal class ReflectedMethod : IPrivateMethod, IReflectedMethod
+    internal class ReflectedMethod : IReflectedMethod
+#if !STARDEW_VALLEY_1_3
+        , IPrivateMethod
+#endif
     {
         /*********
         ** Properties

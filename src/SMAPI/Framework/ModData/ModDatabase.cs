@@ -157,7 +157,7 @@ namespace StardewModdingAPI.Framework.ModData
                                     && (
                                         snapshot.Author == null
                                         || snapshot.Author.Equals(manifest.Author, StringComparison.InvariantCultureIgnoreCase)
-                                        || (manifest.ExtraFields.ContainsKey("Authour") && snapshot.Author.Equals(manifest.ExtraFields["Authour"].ToString(), StringComparison.InvariantCultureIgnoreCase))
+                                        || (manifest.ExtraFields != null && manifest.ExtraFields.ContainsKey("Authour") && snapshot.Author.Equals(manifest.ExtraFields["Authour"].ToString(), StringComparison.InvariantCultureIgnoreCase))
                                     )
                                     && (snapshot.Name == null || snapshot.Name.Equals(manifest.Name, StringComparison.InvariantCultureIgnoreCase));
 

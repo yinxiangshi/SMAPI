@@ -12,6 +12,9 @@ namespace StardewModdingAPI.Common.Models
         /// <summary>The namespaced mod keys to search.</summary>
         public string[] ModKeys { get; set; }
 
+        /// <summary>Whether to allow non-semantic versions, instead of returning an error for those.</summary>
+        public bool AllowInvalidVersions { get; set; }
+
 
         /*********
         ** Public methods
@@ -24,9 +27,11 @@ namespace StardewModdingAPI.Common.Models
 
         /// <summary>Construct an instance.</summary>
         /// <param name="modKeys">The namespaced mod keys to search.</param>
-        public ModSearchModel(IEnumerable<string> modKeys)
+        /// <param name="allowInvalidVersions">Whether to allow non-semantic versions, instead of returning an error for those.</param>
+        public ModSearchModel(IEnumerable<string> modKeys, bool allowInvalidVersions)
         {
             this.ModKeys = modKeys.ToArray();
+            this.AllowInvalidVersions = allowInvalidVersions;
         }
     }
 }

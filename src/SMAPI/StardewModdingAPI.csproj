@@ -103,6 +103,7 @@
     <Compile Include="Framework\ModLoading\Finders\FieldFinder.cs" />
     <Compile Include="Framework\ModLoading\Finders\MethodFinder.cs" />
     <Compile Include="Framework\ModLoading\Finders\PropertyFinder.cs" />
+    <Compile Include="Framework\ModLoading\Finders\ReferenceToMissingMemberFinder.cs" />
     <Compile Include="Framework\ModLoading\Finders\TypeFinder.cs" />
     <Compile Include="Framework\ModLoading\IInstructionHandler.cs" />
     <Compile Include="Framework\ModLoading\IncompatibleInstructionException.cs" />
@@ -111,7 +112,9 @@
     <Compile Include="Framework\ModLoading\PlatformAssemblyMap.cs" />
     <Compile Include="Framework\ModLoading\RewriteHelper.cs" />
     <Compile Include="Framework\ModLoading\Rewriters\FieldReplaceRewriter.cs" />
+    <Compile Include="Framework\ModLoading\Rewriters\StaticFieldToConstantRewriter.cs" />
     <Compile Include="Framework\ModLoading\Rewriters\FieldToPropertyRewriter.cs" />
+    <Compile Include="Framework\ModLoading\Finders\ReferenceToMemberWithUnexpectedTypeFinder.cs" />
     <Compile Include="Framework\ModLoading\Rewriters\VirtualEntryCallRemover.cs" />
     <Compile Include="Framework\ModLoading\Rewriters\MethodParentRewriter.cs" />
     <Compile Include="Framework\ModLoading\Rewriters\TypeReferenceRewriter.cs" />
@@ -193,7 +196,7 @@
     <Compile Include="Framework\ModLoading\ModMetadata.cs" />
     <Compile Include="Framework\Reflection\ReflectedProperty.cs" />
     <Compile Include="Framework\RequestExitDelegate.cs" />
-    <Compile Include="Framework\SContentManager.cs" />
+    <Compile Include="Framework\ContentCore.cs" />
     <Compile Include="Framework\Exceptions\SParseException.cs" />
     <Compile Include="Framework\Serialisation\JsonHelper.cs" />
     <Compile Include="Framework\Serialisation\SmapiConverters\StringEnumConverter.cs" />

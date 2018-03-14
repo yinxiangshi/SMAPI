@@ -12,9 +12,6 @@ namespace StardewModdingAPI.Web.Framework.Clients.Chucklefish
         /*********
         ** Properties
         *********/
-        /// <summary>The base URL for the Chucklefish mod site.</summary>
-        private readonly string BaseUrl;
-
         /// <summary>The URL for a mod page excluding the base URL, where {0} is the mod ID.</summary>
         private readonly string ModPageUrlFormat;
 
@@ -31,7 +28,6 @@ namespace StardewModdingAPI.Web.Framework.Clients.Chucklefish
         /// <param name="modPageUrlFormat">The URL for a mod page excluding the <paramref name="baseUrl"/>, where {0} is the mod ID.</param>
         public ChucklefishClient(string userAgent, string baseUrl, string modPageUrlFormat)
         {
-            this.BaseUrl = baseUrl;
             this.ModPageUrlFormat = modPageUrlFormat;
             this.Client = new FluentClient(baseUrl).SetUserAgent(userAgent);
         }
@@ -59,7 +55,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.Chucklefish
             doc.LoadHtml(html);
 
             // extract mod info
-            string url = new UriBuilder(new Uri(this.BaseUrl)) { Path = string.Format(this.ModPageUrlFormat, id) }.Uri.ToString();
+            string url = this.GetModUrl(id);
             string name = doc.DocumentNode.SelectSingleNode("//meta[@name='twitter:title']").Attributes["content"].Value;
             if (name.StartsWith("[SMAPI] "))
                 name = name.Substring("[SMAPI] ".Length);
@@ -78,6 +74,19 @@ namespace StardewModdingAPI.Web.Framework.Clients.Chucklefish
         public void Dispose()
         {
             this.Client?.Dispose();
+        }
+
+
+        /*********
+        ** Private methods
+        *********/
+        /// <summary>Get the full mod page URL for a given ID.</summary>
+        /// <param name="id">The mod ID.</param>
+        private string GetModUrl(uint id)
+        {
+            UriBuilder builder = new UriBuilder(this.Client.BaseClient.BaseAddress);
+            builder.Path += string.Format(this.ModPageUrlFormat, id);
+            return builder.Uri.ToString();
         }
     }
 }

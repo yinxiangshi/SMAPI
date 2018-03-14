@@ -16,17 +16,20 @@ namespace StardewModdingAPI.Framework.ModLoading
         /*********
         ** Properties
         *********/
+        /// <summary>Encapsulates monitoring and logging.</summary>
+        private readonly IMonitor Monitor;
+
+        /// <summary>Whether to enable developer mode logging.</summary>
+        private readonly bool IsDeveloperMode;
+
         /// <summary>Metadata for mapping assemblies to the current platform.</summary>
         private readonly PlatformAssemblyMap AssemblyMap;
 
         /// <summary>A type => assembly lookup for types which should be rewritten.</summary>
         private readonly IDictionary<string, Assembly> TypeAssemblies;
 
-        /// <summary>Encapsulates monitoring and logging.</summary>
-        private readonly IMonitor Monitor;
-
-        /// <summary>Whether to enable developer mode logging.</summary>
-        private readonly bool IsDeveloperMode;
+        /// <summary>A minimal assembly definition resolver which resolves references to known loaded assemblies.</summary>
+        private readonly AssemblyDefinitionResolver AssemblyDefinitionResolver;
 
 
         /*********
@@ -41,6 +44,7 @@ namespace StardewModdingAPI.Framework.ModLoading
             this.Monitor = monitor;
             this.IsDeveloperMode = isDeveloperMode;
             this.AssemblyMap = Constants.GetAssemblyMap(targetPlatform);
+            this.AssemblyDefinitionResolver = new AssemblyDefinitionResolver();
 
             // generate type => assembly lookup for types which should be rewritten
             this.TypeAssemblies = new Dictionary<string, Assembly>();
@@ -69,9 +73,8 @@ namespace StardewModdingAPI.Framework.ModLoading
             // get referenced local assemblies
             AssemblyParseResult[] assemblies;
             {
-                AssemblyDefinitionResolver resolver = new AssemblyDefinitionResolver();
                 HashSet<string> visitedAssemblyNames = new HashSet<string>(AppDomain.CurrentDomain.GetAssemblies().Select(p => p.GetName().Name)); // don't try loading assemblies that are already loaded
-                assemblies = this.GetReferencedLocalAssemblies(new FileInfo(assemblyPath), visitedAssemblyNames, resolver).ToArray();
+                assemblies = this.GetReferencedLocalAssemblies(new FileInfo(assemblyPath), visitedAssemblyNames, this.AssemblyDefinitionResolver).ToArray();
             }
 
             // validate load
@@ -94,7 +97,10 @@ namespace StardewModdingAPI.Framework.ModLoading
                 if (assembly.Status == AssemblyLoadStatus.AlreadyLoaded)
                     continue;
 
+                // rewrite assembly
                 bool changed = this.RewriteAssembly(mod, assembly.Definition, assumeCompatible, loggedMessages, logPrefix: "   ");
+
+                // load assembly
                 if (changed)
                 {
                     if (!oneAssembly)
@@ -112,6 +118,9 @@ namespace StardewModdingAPI.Framework.ModLoading
                         this.Monitor.Log($"   Loading {assembly.File.Name}...", LogLevel.Trace);
                     lastAssembly = Assembly.UnsafeLoadFrom(assembly.File.FullName);
                 }
+
+                // track loaded assembly for definition resolution
+                this.AssemblyDefinitionResolver.Add(assembly.Definition);
             }
 
             // last assembly loaded is the root
@@ -166,7 +175,6 @@ namespace StardewModdingAPI.Framework.ModLoading
                 yield return new AssemblyParseResult(file, null, AssemblyLoadStatus.AlreadyLoaded);
                 yield break;
             }
-
             visitedAssemblyNames.Add(assembly.Name.Name);
 
             // yield referenced assemblies
@@ -238,10 +246,13 @@ namespace StardewModdingAPI.Framework.ModLoading
 
                 // check CIL instructions
                 ILProcessor cil = method.Body.GetILProcessor();
-                foreach (Instruction instruction in cil.Body.Instructions.ToArray())
+                var instructions = cil.Body.Instructions;
+                // ReSharper disable once ForCanBeConvertedToForeach -- deliberate access by index so each handler sees replacements from previous handlers
+                for (int offset = 0; offset < instructions.Count; offset++)
                 {
                     foreach (IInstructionHandler handler in handlers)
                     {
+                        Instruction instruction = instructions[offset];
                         InstructionHandleResult result = handler.Handle(module, cil, instruction, this.AssemblyMap, platformChanged);
                         this.ProcessInstructionHandleResult(mod, handler, result, loggedMessages, logPrefix, assumeCompatible, filename);
                         if (result == InstructionHandleResult.Rewritten)
@@ -270,9 +281,10 @@ namespace StardewModdingAPI.Framework.ModLoading
                     break;
 
                 case InstructionHandleResult.NotCompatible:
+                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Broken code in {filename}: {handler.NounPhrase}.");
                     if (!assumeCompatible)
                         throw new IncompatibleInstructionException(handler.NounPhrase, $"Found an incompatible CIL instruction ({handler.NounPhrase}) while loading assembly {filename}.");
-                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Found an incompatible CIL instruction ({handler.NounPhrase}) while loading assembly {filename}, but SMAPI is configured to allow it anyway. The mod may crash or behave unexpectedly.", LogLevel.Warn);
+                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Found broken code ({handler.NounPhrase}) while loading assembly {filename}, but SMAPI is configured to allow it anyway. The mod may crash or behave unexpectedly.", LogLevel.Warn);
                     break;
 
                 case InstructionHandleResult.DetectedGamePatch:

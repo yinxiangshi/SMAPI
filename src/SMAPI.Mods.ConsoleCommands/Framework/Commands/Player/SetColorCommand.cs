@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using StardewValley;
 
 namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
@@ -36,7 +36,11 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
             switch (target)
             {
                 case "hair":
+#if STARDEW_VALLEY_1_3
+                    Game1.player.hairstyleColor.Value = color;
+#else
                     Game1.player.hairstyleColor = color;
+#endif
                     monitor.Log("OK, your hair color is updated.", LogLevel.Info);
                     break;
 
@@ -46,7 +50,11 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
                     break;
 
                 case "pants":
+#if STARDEW_VALLEY_1_3
+                    Game1.player.pantsColor.Value = color;
+#else
                     Game1.player.pantsColor = color;
+#endif
                     monitor.Log("OK, your pants color is updated.", LogLevel.Info);
                     break;
             }

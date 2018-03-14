@@ -12,7 +12,11 @@ namespace StardewModdingAPI.Events
         ** Accessors
         *********/
         /// <summary>The player's inventory.</summary>
+#if STARDEW_VALLEY_1_3
+        public IList<Item> Inventory { get; }
+#else
         public List<Item> Inventory { get; }
+#endif
 
         /// <summary>The added items.</summary>
         public List<ItemStackChange> Added { get; }
@@ -30,7 +34,13 @@ namespace StardewModdingAPI.Events
         /// <summary>Construct an instance.</summary>
         /// <param name="inventory">The player's inventory.</param>
         /// <param name="changedItems">The inventory changes.</param>
-        public EventArgsInventoryChanged(List<Item> inventory, List<ItemStackChange> changedItems)
+        public EventArgsInventoryChanged(
+#if STARDEW_VALLEY_1_3
+            IList<Item> inventory,
+#else
+            List<Item> inventory,
+#endif
+            List<ItemStackChange> changedItems)
         {
             this.Inventory = inventory;
             this.Added = changedItems.Where(n => n.ChangeType == ChangeType.Added).ToList();

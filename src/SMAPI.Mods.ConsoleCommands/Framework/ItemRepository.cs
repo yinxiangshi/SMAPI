@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI.Mods.ConsoleCommands.Framework.ItemData;
 using StardewValley;
@@ -95,39 +95,90 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework
                 // fruit products
                 if (item.category == SObject.FruitsCategory)
                 {
-                    yield return new SearchableItem(ItemType.Object, this.CustomIDOffset + id, new SObject(348, 1)
+                    // wine
+#if STARDEW_VALLEY_1_3
+                    SObject wine =
+                        new SObject(348, 1)
+                    {
+                        Name = $"{item.Name} Wine",
+                        Price = item.price * 3
+                    };
+                    wine.preserve.Value = SObject.PreserveType.Wine;
+                    wine.preservedParentSheetIndex.Value = item.parentSheetIndex;
+#else
+                    SObject wine = new SObject(348, 1)
                     {
                         name = $"{item.Name} Wine",
                         price = item.price * 3,
                         preserve = SObject.PreserveType.Wine,
                         preservedParentSheetIndex = item.parentSheetIndex
-                    });
-                    yield return new SearchableItem(ItemType.Object, this.CustomIDOffset * 2 + id, new SObject(344, 1)
+                    };
+#endif
+                    yield return new SearchableItem(ItemType.Object, this.CustomIDOffset + id, wine);
+
+                    // jelly
+#if STARDEW_VALLEY_1_3
+                    SObject jelly = new SObject(344, 1)
+                    {
+                        Name = $"{item.Name} Jelly",
+                        Price = 50 + item.Price * 2
+                    };
+                    jelly.preserve.Value = SObject.PreserveType.Jelly;
+                    jelly.preservedParentSheetIndex.Value = item.parentSheetIndex;
+#else
+                    SObject jelly = new SObject(344, 1)
                     {
                         name = $"{item.Name} Jelly",
                         price = 50 + item.Price * 2,
                         preserve = SObject.PreserveType.Jelly,
                         preservedParentSheetIndex = item.parentSheetIndex
-                    });
+                    };
+#endif
+                    yield return new SearchableItem(ItemType.Object, this.CustomIDOffset * 2 + id, jelly);
                 }
 
                 // vegetable products
                 else if (item.category == SObject.VegetableCategory)
                 {
-                    yield return new SearchableItem(ItemType.Object, this.CustomIDOffset * 3 + id, new SObject(350, 1)
+                    // juice
+#if STARDEW_VALLEY_1_3
+                    SObject juice = new SObject(350, 1)
+                    {
+                        Name = $"{item.Name} Juice",
+                        Price = (int)(item.price * 2.25d)
+                    };
+                    juice.preserve.Value = SObject.PreserveType.Juice;
+                    juice.preservedParentSheetIndex.Value = item.parentSheetIndex;
+#else
+                    SObject juice = new SObject(350, 1)
                     {
                         name = $"{item.Name} Juice",
                         price = (int)(item.price * 2.25d),
                         preserve = SObject.PreserveType.Juice,
                         preservedParentSheetIndex = item.parentSheetIndex
-                    });
-                    yield return new SearchableItem(ItemType.Object, this.CustomIDOffset * 4 + id, new SObject(342, 1)
+                    };
+#endif
+                    yield return new SearchableItem(ItemType.Object, this.CustomIDOffset * 3 + id, juice);
+
+                    // pickled
+#if STARDEW_VALLEY_1_3
+                    SObject pickled = new SObject(342, 1)
+                    {
+                        Name = $"Pickled {item.Name}",
+                        Price = 50 + item.Price * 2
+                    };
+                    pickled.preserve.Value = SObject.PreserveType.Pickle;
+                    pickled.preservedParentSheetIndex.Value = item.parentSheetIndex;
+#else
+                    SObject pickled = new SObject(342, 1)
                     {
                         name = $"Pickled {item.Name}",
                         price = 50 + item.Price * 2,
                         preserve = SObject.PreserveType.Pickle,
                         preservedParentSheetIndex = item.parentSheetIndex
-                    });
+                    };
+#endif
+                    yield return new SearchableItem(ItemType.Object, this.CustomIDOffset * 4 + id, pickled);
                 }
 
                 // flower honey
@@ -160,6 +211,19 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework
                     // yield honey
                     if (type != null)
                     {
+#if STARDEW_VALLEY_1_3
+                        SObject honey = new SObject(Vector2.Zero, 340, item.Name + " Honey", false, true, false, false)
+                        {
+                            Name = "Wild Honey"
+                        };
+                        honey.honeyType.Value = type;
+
+                        if (type != SObject.HoneyType.Wild)
+                        {
+                            honey.Name = $"{item.Name} Honey";
+                            honey.Price += item.Price * 2;
+                        }
+#else
                         SObject honey = new SObject(Vector2.Zero, 340, item.Name + " Honey", false, true, false, false)
                         {
                             name = "Wild Honey",
@@ -170,6 +234,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework
                             honey.name = $"{item.Name} Honey";
                             honey.price += item.price * 2;
                         }
+#endif
                         yield return new SearchableItem(ItemType.Object, this.CustomIDOffset * 5 + id, honey);
                     }
                 }

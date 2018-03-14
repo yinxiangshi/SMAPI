@@ -81,8 +81,13 @@ namespace StardewModdingAPI.Web
                     password: api.GitHubPassword
                 ));
 
-                services.AddSingleton<INexusClient>(new NexusClient(
-                    userAgent: api.NexusUserAgent,
+                //services.AddSingleton<INexusClient>(new NexusClient(
+                //    userAgent: api.NexusUserAgent,
+                //    baseUrl: api.NexusBaseUrl,
+                //    modUrlFormat: api.NexusModUrlFormat
+                //));
+                services.AddSingleton<INexusClient>(new NexusWebScrapeClient(
+                    userAgent: userAgent,
                     baseUrl: api.NexusBaseUrl,
                     modUrlFormat: api.NexusModUrlFormat
                 ));
@@ -147,7 +152,8 @@ namespace StardewModdingAPI.Web
             ));
 
             // shortcut redirects
-            redirects.Add(new RedirectToUrlRule("^/docs$", "https://stardewvalleywiki.com/Modding:Index"));
+            redirects.Add(new RedirectToUrlRule(@"^/compat\.?$", "https://stardewvalleywiki.com/Modding:SMAPI_compatibility"));
+            redirects.Add(new RedirectToUrlRule(@"^/docs\.?$", "https://stardewvalleywiki.com/Modding:Index"));
 
             // redirect legacy canimod.com URLs
             var wikiRedirects = new Dictionary<string, string[]>

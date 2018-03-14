@@ -40,7 +40,7 @@ namespace StardewModdingAPI.Framework
         {
             return this.Post<ModSearchModel, Dictionary<string, ModInfoModel>>(
                 $"v{this.Version}/mods",
-                new ModSearchModel(modKeys)
+                new ModSearchModel(modKeys, allowInvalidVersions: true)
             );
         }
 

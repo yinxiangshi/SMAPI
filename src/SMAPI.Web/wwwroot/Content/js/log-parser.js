@@ -62,6 +62,7 @@ smapi.logParser = function (data, sectionUrl) {
 
                 updateModFilters();
             },
+
             showAllMods: function () {
                 for (var key in this.showMods) {
                     if (this.showMods.hasOwnProperty(key)) {
@@ -70,6 +71,7 @@ smapi.logParser = function (data, sectionUrl) {
                 }
                 updateModFilters();
             },
+
             hideAllMods: function () {
                 for (var key in this.showMods) {
                     if (this.showMods.hasOwnProperty(key)) {
@@ -77,6 +79,10 @@ smapi.logParser = function (data, sectionUrl) {
                     }
                 }
                 updateModFilters();
+            },
+
+            filtersAllow: function(modId, level) {
+                return this.showMods[modId] !== false && this.showLevels[level] !== false;
             }
         }
     });

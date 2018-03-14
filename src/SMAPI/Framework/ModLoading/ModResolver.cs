@@ -98,7 +98,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                     case ModStatus.AssumeBroken:
                         {
                             // get reason
-                            string reasonPhrase = mod.DataRecord.StatusReasonPhrase ?? "it's no longer compatible";
+                            string reasonPhrase = mod.DataRecord.StatusReasonPhrase ?? "it's outdated";
 
                             // get update URLs
                             List<string> updateUrls = new List<string>();
@@ -110,6 +110,9 @@ namespace StardewModdingAPI.Framework.ModLoading
                             }
                             if (mod.DataRecord.AlternativeUrl != null)
                                 updateUrls.Add(mod.DataRecord.AlternativeUrl);
+
+                            // default update URL
+                            updateUrls.Add("https://smapi.io/compat");
 
                             // build error
                             string error = $"{reasonPhrase}. Please check for a ";

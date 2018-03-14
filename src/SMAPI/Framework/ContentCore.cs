@@ -19,9 +19,9 @@ using StardewValley;
 
 namespace StardewModdingAPI.Framework
 {
-    /// <summary>A thread-safe content manager which intercepts assets being loaded to let SMAPI mods inject or edit them.</summary>
+    /// <summary>A thread-safe content handler which loads assets with support for mod injection and editing.</summary>
     /// <remarks>
-    /// This is the centralised content manager which manages all game assets. The game and mods don't use this class
+    /// This is the centralised content logic which manages all game assets. The game and mods don't use this class
     /// directly; instead they use one of several <see cref="ContentManagerShim"/> instances, which proxy requests to
     /// this class. That ensures that when the game disposes one content manager, the others can continue unaffected.
     /// That notably requires this class to be thread-safe, since the content managers can be disposed asynchronously.
@@ -30,22 +30,25 @@ namespace StardewModdingAPI.Framework
     /// For English and non-translatable assets, these have the same value. The underlying cache only knows about asset
     /// keys, and the game and mods only know about asset names. The content manager handles resolving them.
     /// </remarks>
-    internal class SContentManager : LocalizedContentManager
+    internal class ContentCore : IDisposable
     {
         /*********
         ** Properties
         *********/
+        /// <summary>The underlying content manager.</summary>
+        private readonly LocalizedContentManager Content;
+
         /// <summary>Encapsulates monitoring and logging.</summary>
         private readonly IMonitor Monitor;
 
         /// <summary>The underlying asset cache.</summary>
         private readonly ContentCache Cache;
 
-        /// <summary>The private <see cref="LocalizedContentManager"/> method which generates the locale portion of an asset name.</summary>
-        private readonly IReflectedMethod GetKeyLocale;
+        /// <summary>The locale codes used in asset keys indexed by enum value.</summary>
+        private readonly IDictionary<LocalizedContentManager.LanguageCode, string> Locales;
 
-        /// <summary>The language codes used in asset keys.</summary>
-        private readonly IDictionary<string, LanguageCode> KeyLocales;
+        /// <summary>The language enum values indexed by locale code.</summary>
+        private readonly IDictionary<string, LocalizedContentManager.LanguageCode> LanguageCodes;
 
         /// <summary>Provides metadata for core game assets.</summary>
         private readonly CoreAssets CoreAssets;
@@ -66,15 +69,17 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Accessors
         *********/
+        /// <summary>The current language as a constant.</summary>
+        public LocalizedContentManager.LanguageCode Language => this.Content.GetCurrentLanguage();
+
         /// <summary>Interceptors which provide the initial versions of matching assets.</summary>
-        internal IDictionary<IModMetadata, IList<IAssetLoader>> Loaders { get; } = new Dictionary<IModMetadata, IList<IAssetLoader>>();
+        public IDictionary<IModMetadata, IList<IAssetLoader>> Loaders { get; } = new Dictionary<IModMetadata, IList<IAssetLoader>>();
 
         /// <summary>Interceptors which edit matching assets after they're loaded.</summary>
-        internal IDictionary<IModMetadata, IList<IAssetEditor>> Editors { get; } = new Dictionary<IModMetadata, IList<IAssetEditor>>();
+        public IDictionary<IModMetadata, IList<IAssetEditor>> Editors { get; } = new Dictionary<IModMetadata, IList<IAssetEditor>>();
 
         /// <summary>The absolute path to the <see cref="ContentManager.RootDirectory"/>.</summary>
-        internal string FullRootDirectory => Path.Combine(Constants.ExecutionPath, this.RootDirectory);
-
+        public string FullRootDirectory => Path.Combine(Constants.ExecutionPath, this.Content.RootDirectory);
 
         /*********
         ** Public methods
@@ -89,18 +94,26 @@ namespace StardewModdingAPI.Framework
         /// <param name="languageCodeOverride">The current language code for which to localise content.</param>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="reflection">Simplifies access to private code.</param>
-        public SContentManager(IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, string languageCodeOverride, IMonitor monitor, Reflector reflection)
-            : base(serviceProvider, rootDirectory, currentCulture, languageCodeOverride)
+        public ContentCore(IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, string languageCodeOverride, IMonitor monitor, Reflector reflection)
         {
             // init
             this.Monitor = monitor ?? throw new ArgumentNullException(nameof(monitor));
-            this.Cache = new ContentCache(this, reflection);
-            this.GetKeyLocale = reflection.GetMethod(this, "languageCode");
+            this.Content = new LocalizedContentManager(serviceProvider, rootDirectory, currentCulture, languageCodeOverride);
+            this.Cache = new ContentCache(this.Content, reflection);
             this.ModContentPrefix = this.GetAssetNameFromFilePath(Constants.ModPath);
 
             // get asset data
-            this.CoreAssets = new CoreAssets(this.NormaliseAssetName);
-            this.KeyLocales = this.GetKeyLocales(reflection);
+            this.CoreAssets = new CoreAssets(this.NormaliseAssetName, reflection);
+            this.Locales = this.GetKeyLocales(reflection);
+            this.LanguageCodes = this.Locales.ToDictionary(p => p.Value, p => p.Key, StringComparer.InvariantCultureIgnoreCase);
+        }
+
+        /// <summary>Get a new content manager which defers loading to the content core.</summary>
+        /// <param name="name">The content manager's name for logs (if any).</param>
+        /// <param name="rootDirectory">The root directory to search for content (or <c>null</c>. for the default)</param>
+        public ContentManagerShim CreateContentManager(string name, string rootDirectory = null)
+        {
+            return new ContentManagerShim(this, name, this.Content.ServiceProvider, rootDirectory ?? this.Content.RootDirectory, this.Content.CurrentCulture, this.Content.LanguageCodeOverride);
         }
 
         /****
@@ -153,7 +166,14 @@ namespace StardewModdingAPI.Framework
         /// <summary>Get the current content locale.</summary>
         public string GetLocale()
         {
-            return this.GetKeyLocale.Invoke<string>();
+            return this.GetLocale(this.Content.GetCurrentLanguage());
+        }
+
+        /// <summary>The locale for a language.</summary>
+        /// <param name="language">The language.</param>
+        public string GetLocale(LocalizedContentManager.LanguageCode language)
+        {
+            return this.Locales[language];
         }
 
         /// <summary>Get whether the content manager has already loaded and cached the given asset.</summary>
@@ -177,18 +197,15 @@ namespace StardewModdingAPI.Framework
         /// <summary>Load an asset through the content pipeline. When loading a <c>.png</c> file, this must be called outside the game's draw loop.</summary>
         /// <typeparam name="T">The expected asset type.</typeparam>
         /// <param name="assetName">The asset path relative to the content directory.</param>
-        public override T Load<T>(string assetName)
-        {
-            return this.LoadFor<T>(assetName, this);
-        }
-
-        /// <summary>Load an asset through the content pipeline. When loading a <c>.png</c> file, this must be called outside the game's draw loop.</summary>
-        /// <typeparam name="T">The expected asset type.</typeparam>
-        /// <param name="assetName">The asset path relative to the content directory.</param>
         /// <param name="instance">The content manager instance for which to load the asset.</param>
+        /// <param name="language">The language code for which to load content.</param>
         /// <exception cref="ArgumentException">The <paramref name="assetName"/> is empty or contains invalid characters.</exception>
         /// <exception cref="ContentLoadException">The content asset couldn't be loaded (e.g. because it doesn't exist).</exception>
-        public T LoadFor<T>(string assetName, ContentManager instance)
+        public T Load<T>(string assetName, ContentManager instance
+#if STARDEW_VALLEY_1_3
+            , LocalizedContentManager.LanguageCode language
+#endif
+            )
         {
             // normalise asset key
             this.AssertValidAssetKeyFormat(assetName);
@@ -196,7 +213,11 @@ namespace StardewModdingAPI.Framework
 
             // load game content
             if (!assetName.StartsWith(this.ModContentPrefix))
+#if STARDEW_VALLEY_1_3
+                return this.LoadImpl<T>(assetName, instance, language);
+#else
                 return this.LoadImpl<T>(assetName, instance);
+#endif
 
             // load mod content
             SContentLoadException GetContentError(string reasonPhrase) => new SContentLoadException($"Failed loading content asset '{assetName}': {reasonPhrase}");
@@ -206,7 +227,11 @@ namespace StardewModdingAPI.Framework
                 {
                     // try cache
                     if (this.IsLoaded(assetName))
+#if STARDEW_VALLEY_1_3
+                        return this.LoadImpl<T>(assetName, instance, language);
+#else
                         return this.LoadImpl<T>(assetName, instance);
+#endif
 
                     // get file
                     FileInfo file = this.GetModFile(assetName);
@@ -218,7 +243,11 @@ namespace StardewModdingAPI.Framework
                     {
                         // XNB file
                         case ".xnb":
+#if STARDEW_VALLEY_1_3
+                            return this.LoadImpl<T>(assetName, instance, language);
+#else
                             return this.LoadImpl<T>(assetName, instance);
+#endif
 
                         // unpacked map
                         case ".tbin":
@@ -339,7 +368,7 @@ namespace StardewModdingAPI.Framework
                 int reloaded = 0;
                 foreach (string key in removeAssetNames)
                 {
-                    if (this.CoreAssets.ReloadForKey(this, key))
+                    if (this.CoreAssets.ReloadForKey(Game1.content, key)) // use an intercepted content manager
                         reloaded++;
                 }
 
@@ -379,11 +408,10 @@ namespace StardewModdingAPI.Framework
         ** Disposal
         ****/
         /// <summary>Dispose held resources.</summary>
-        /// <param name="disposing">Whether the content manager is disposing (rather than finalising).</param>
-        protected override void Dispose(bool disposing)
+        public void Dispose()
         {
             this.Monitor.Log("Disposing SMAPI's main content manager. It will no longer be usable after this point.", LogLevel.Trace);
-            base.Dispose(disposing);
+            this.Content.Dispose();
         }
 
         /****
@@ -398,29 +426,48 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Get the locale codes (like <c>ja-JP</c>) used in asset keys.</summary>
         /// <param name="reflection">Simplifies access to private game code.</param>
-        private IDictionary<string, LanguageCode> GetKeyLocales(Reflector reflection)
+        private IDictionary<LocalizedContentManager.LanguageCode, string> GetKeyLocales(Reflector reflection)
         {
-            // get the private code field directly to avoid changed-code logic
-            IReflectedField<LanguageCode> codeField = reflection.GetField<LanguageCode>(typeof(LocalizedContentManager), "_currentLangCode");
+#if !STARDEW_VALLEY_1_3
+            IReflectedField<LocalizedContentManager.LanguageCode> codeField = reflection.GetField<LocalizedContentManager.LanguageCode>(typeof(LocalizedContentManager), "_currentLangCode");
+            LocalizedContentManager.LanguageCode previousCode = codeField.GetValue();
+#endif
+            string previousOverride = this.Content.LanguageCodeOverride;
 
-            // remember previous settings
-            LanguageCode previousCode = codeField.GetValue();
-            string previousOverride = this.LanguageCodeOverride;
-
-            // create locale => code map
-            IDictionary<string, LanguageCode> map = new Dictionary<string, LanguageCode>(StringComparer.InvariantCultureIgnoreCase);
-            this.LanguageCodeOverride = null;
-            foreach (LanguageCode code in Enum.GetValues(typeof(LanguageCode)))
+            try
             {
-                codeField.SetValue(code);
-                map[this.GetKeyLocale.Invoke<string>()] = code;
+                // temporarily disable language override
+                this.Content.LanguageCodeOverride = null;
+
+                // create locale => code map
+                IReflectedMethod languageCodeString = reflection
+#if STARDEW_VALLEY_1_3
+                    .GetMethod(this.Content, "languageCodeString");
+#else
+                    .GetMethod(this.Content, "languageCode");
+#endif
+                IDictionary<LocalizedContentManager.LanguageCode, string> map = new Dictionary<LocalizedContentManager.LanguageCode, string>();
+                foreach (LocalizedContentManager.LanguageCode code in Enum.GetValues(typeof(LocalizedContentManager.LanguageCode)))
+                {
+#if STARDEW_VALLEY_1_3
+                    map[code] = languageCodeString.Invoke<string>(code);
+#else
+                    codeField.SetValue(code);
+                    map[code] = languageCodeString.Invoke<string>();
+#endif
+                }
+
+                return map;
             }
+            finally
+            {
+                // restore previous settings
+                this.Content.LanguageCodeOverride = previousOverride;
+#if !STARDEW_VALLEY_1_3
+                codeField.SetValue(previousCode);
+#endif
 
-            // restore previous settings
-            codeField.SetValue(previousCode);
-            this.LanguageCodeOverride = previousOverride;
-
-            return map;
+            }
         }
 
         /// <summary>Get the asset name from a cache key.</summary>
@@ -444,7 +491,7 @@ namespace StardewModdingAPI.Framework
                 if (lastSepIndex >= 0)
                 {
                     string suffix = cacheKey.Substring(lastSepIndex + 1, cacheKey.Length - lastSepIndex - 1);
-                    if (this.KeyLocales.ContainsKey(suffix))
+                    if (this.LanguageCodes.ContainsKey(suffix))
                     {
                         assetName = cacheKey.Substring(0, lastSepIndex);
                         localeCode = cacheKey.Substring(lastSepIndex + 1, cacheKey.Length - lastSepIndex - 1);
@@ -466,7 +513,7 @@ namespace StardewModdingAPI.Framework
         private bool IsNormalisedKeyLoaded(string normalisedAssetName)
         {
             return this.Cache.ContainsKey(normalisedAssetName)
-                || this.Cache.ContainsKey($"{normalisedAssetName}.{this.GetKeyLocale.Invoke<string>()}"); // translated asset
+                || this.Cache.ContainsKey($"{normalisedAssetName}.{this.Locales[this.Content.GetCurrentLanguage()]}"); // translated asset
         }
 
         /// <summary>Track that a content manager loaded an asset.</summary>
@@ -486,7 +533,12 @@ namespace StardewModdingAPI.Framework
         /// <typeparam name="T">The type of asset to load.</typeparam>
         /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
         /// <param name="instance">The content manager instance for which to load the asset.</param>
-        private T LoadImpl<T>(string assetName, ContentManager instance)
+        /// <param name="language">The language code for which to load content.</param>
+        private T LoadImpl<T>(string assetName, ContentManager instance
+#if STARDEW_VALLEY_1_3
+            , LocalizedContentManager.LanguageCode language
+#endif
+    )
         {
             return this.WithWriteLock(() =>
             {
@@ -494,7 +546,13 @@ namespace StardewModdingAPI.Framework
                 if (this.IsNormalisedKeyLoaded(assetName))
                 {
                     this.TrackAssetLoader(assetName, instance);
-                    return base.Load<T>(assetName);
+                    return this.Content
+
+#if STARDEW_VALLEY_1_3
+                        .Load<T>(assetName, language);
+#else
+                        .Load<T>(assetName);
+#endif
                 }
 
                 // load asset
@@ -503,14 +561,30 @@ namespace StardewModdingAPI.Framework
                 {
                     this.Monitor.Log($"Broke loop while loading asset '{assetName}'.", LogLevel.Warn);
                     this.Monitor.Log($"Bypassing mod loaders for this asset. Stack trace:\n{Environment.StackTrace}", LogLevel.Trace);
-                    data = base.Load<T>(assetName);
+                    data = this.Content
+#if STARDEW_VALLEY_1_3
+                        .Load<T>(assetName, language);
+#else
+                        .Load<T>(assetName);
+#endif
                 }
                 else
                 {
                     data = this.AssetsBeingLoaded.Track(assetName, () =>
                     {
-                        IAssetInfo info = new AssetInfo(this.GetLocale(), assetName, typeof(T), this.NormaliseAssetName);
-                        IAssetData asset = this.ApplyLoader<T>(info) ?? new AssetDataForObject(info, base.Load<T>(assetName), this.NormaliseAssetName);
+                        string locale =
+#if STARDEW_VALLEY_1_3
+                            this.GetLocale(language);
+#else
+                            this.GetLocale();
+#endif
+                        IAssetInfo info = new AssetInfo(locale, assetName, typeof(T), this.NormaliseAssetName);
+                        IAssetData asset = this.ApplyLoader<T>(info)
+#if STARDEW_VALLEY_1_3
+                            ?? new AssetDataForObject(info, this.Content.Load<T>(assetName, language), this.NormaliseAssetName);
+#else
+                            ?? new AssetDataForObject(info, this.Content.Load<T>(assetName), this.NormaliseAssetName);
+#endif
                         asset = this.ApplyEditors<T>(info, asset);
                         return (T)asset.Data;
                     });

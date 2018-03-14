@@ -107,7 +107,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
             );
         }
 
-
+#if !STARDEW_VALLEY_1_3
         /****
         ** Obsolete
         ****/
@@ -221,6 +221,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
             this.DeprecationManager.Warn($"{nameof(IReflectionHelper)}.GetPrivate*", "2.3", DeprecationLevel.Notice);
             return (IPrivateMethod)this.GetMethod(type, name, required);
         }
+#endif
 
 
         /*********

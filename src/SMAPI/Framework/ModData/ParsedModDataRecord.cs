@@ -33,7 +33,7 @@ namespace StardewModdingAPI.Framework.ModData
         *********/
         /// <summary>Get a semantic local version for update checks.</summary>
         /// <param name="version">The remote version to normalise.</param>
-        public string GetLocalVersionForUpdateChecks(string version)
+        public ISemanticVersion GetLocalVersionForUpdateChecks(ISemanticVersion version)
         {
             return this.DataRecord.GetLocalVersionForUpdateChecks(version);
         }

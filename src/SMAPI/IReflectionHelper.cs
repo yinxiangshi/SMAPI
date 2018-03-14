@@ -48,6 +48,7 @@ namespace StardewModdingAPI
         /// <param name="required">Whether to throw an exception if the field is not found.</param>
         IReflectedMethod GetMethod(Type type, string name, bool required = true);
 
+#if !STARDEW_VALLEY_1_3
         /*****
         ** Obsolete
         *****/
@@ -114,5 +115,6 @@ namespace StardewModdingAPI
         /// <param name="required">Whether to throw an exception if the private field is not found.</param>
         [Obsolete("Use " + nameof(IReflectionHelper) + "." + nameof(IReflectionHelper.GetMethod) + " instead")]
         IPrivateMethod GetPrivateMethod(Type type, string name, bool required = true);
+#endif
     }
 }
