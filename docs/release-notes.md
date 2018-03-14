@@ -1,4 +1,5 @@
 # Release notes
+<!--
 ## 2.6 alpha
 * For players:
   * Updated for Stardew Valley 1.3 (multiplayer update); no longer compatible with earlier versions.
@@ -6,6 +7,7 @@
 * For modders:
   * Dropped support for some deprecated APIs.
   * Fixed some assets not being editable.
+-->
 
 ## 2.5.3
 * For players:
