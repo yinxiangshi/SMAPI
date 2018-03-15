@@ -19,6 +19,10 @@ namespace StardewModdingAPI.Web.Framework.Clients.GitHub
         /// <summary>The Markdown description for the release.</summary>
         public string Body { get; set; }
 
+        /// <summary>Whether this is a prerelease version.</summary>
+        [JsonProperty("prerelease")]
+        public bool IsPrerelease { get; set; }
+
         /// <summary>The attached files.</summary>
         public GitAsset[] Assets { get; set; }
     }

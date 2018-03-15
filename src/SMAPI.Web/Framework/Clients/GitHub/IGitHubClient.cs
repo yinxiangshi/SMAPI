@@ -11,7 +11,8 @@ namespace StardewModdingAPI.Web.Framework.Clients.GitHub
         *********/
         /// <summary>Get the latest release for a GitHub repository.</summary>
         /// <param name="repo">The repository key (like <c>Pathoschild/SMAPI</c>).</param>
-        /// <returns>Returns the latest release if found, else <c>null</c>.</returns>
-        Task<GitRelease> GetLatestReleaseAsync(string repo);
+        /// <param name="includePrerelease">Whether to return a prerelease version if it's latest.</param>
+        /// <returns>Returns the release if found, else <c>null</c>.</returns>
+        Task<GitRelease> GetLatestReleaseAsync(string repo, bool includePrerelease = false);
     }
 }

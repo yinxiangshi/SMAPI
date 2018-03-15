@@ -9,8 +9,11 @@ namespace StardewModdingAPI.Common.Models
         /// <summary>The mod name.</summary>
         public string Name { get; set; }
 
-        /// <summary>The mod's semantic version number.</summary>
+        /// <summary>The semantic version for the mod's latest release.</summary>
         public string Version { get; set; }
+
+        /// <summary>The semantic version for the mod's latest preview release, if available and different from <see cref="Version"/>.</summary>
+        public string PreviewVersion { get; set; }
 
         /// <summary>The mod's web URL.</summary>
         public string Url { get; set; }
@@ -28,16 +31,17 @@ namespace StardewModdingAPI.Common.Models
             // needed for JSON deserialising
         }
 
-
         /// <summary>Construct an instance.</summary>
         /// <param name="name">The mod name.</param>
-        /// <param name="version">The mod's semantic version number.</param>
+        /// <param name="version">The semantic version for the mod's latest release.</param>
+        /// <param name="previewVersion">The semantic version for the mod's latest preview release, if available and different from <see cref="Version"/>.</param>
         /// <param name="url">The mod's web URL.</param>
         /// <param name="error">The error message indicating why the mod is invalid (if applicable).</param>
-        public ModInfoModel(string name, string version, string url, string error = null)
+        public ModInfoModel(string name, string version, string url, string previewVersion = null, string error = null)
         {
             this.Name = name;
             this.Version = version;
+            this.PreviewVersion = previewVersion;
             this.Url = url;
             this.Error = error; // mainly initialised here for the JSON deserialiser
         }
