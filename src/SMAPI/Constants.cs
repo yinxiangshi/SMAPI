@@ -81,8 +81,8 @@ namespace StardewModdingAPI
         /****
         ** Internal
         ****/
-        /// <summary>The GitHub repository to check for updates.</summary>
-        internal const string GitHubRepository = "Pathoschild/SMAPI";
+        /// <summary>The URL of the SMAPI home page.</summary>
+        internal const string HomePageUrl = "https://smapi.io";
 
         /// <summary>The file path for the SMAPI configuration file.</summary>
         internal static string ApiConfigPath => Path.Combine(Constants.ExecutionPath, $"{typeof(Program).Assembly.GetName().Name}.config.json");

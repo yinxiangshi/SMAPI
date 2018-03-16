@@ -542,9 +542,9 @@ namespace StardewModdingAPI
                         this.Monitor.Log($"Error: {response.Error}");
                     }
                     else if (this.IsValidUpdate(Constants.ApiVersion, new SemanticVersion(response.Version)))
-                        this.Monitor.Log($"You can update SMAPI to {response.Version}: {response.Url}", LogLevel.Alert);
+                        this.Monitor.Log($"You can update SMAPI to {response.Version}: {Constants.HomePageUrl}", LogLevel.Alert);
                     else if (response.PreviewVersion != null && this.IsValidUpdate(Constants.ApiVersion, new SemanticVersion(response.PreviewVersion)))
-                        this.Monitor.Log($"You can update SMAPI to {response.PreviewVersion}: {response.Url}", LogLevel.Alert);
+                        this.Monitor.Log($"You can update SMAPI to {response.PreviewVersion}: {Constants.HomePageUrl}", LogLevel.Alert);
                     else
                         this.Monitor.Log("   SMAPI okay.", LogLevel.Trace);
                 }
