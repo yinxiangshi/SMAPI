@@ -2,11 +2,17 @@
 <!--
 ## 2.6 alpha
 * For players:
-  * Updated for Stardew Valley 1.3 (multiplayer update); no longer compatible with earlier versions.
+  * Added support for Stardew Valley 1.3+; no longer compatible with earlier versions.
+  * Fixed SMAPI update alerts linking to the GitHub repository instead of [smapi.io](https://smapi.io).
+  * Fixed SMAPI update checks not showing newer beta versions when using a beta version.
 
 * For modders:
-  * Dropped support for some deprecated APIs.
+  * Dropped some deprecated APIs.
   * Fixed some assets not being editable.
+
+* For SMAPI developers:
+  * Added prerelease versions to the mod update-check API response where available (GitHub only).
+  * Added support for beta releases on the home page.
 -->
 
 ## 2.5.3
