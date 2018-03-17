@@ -29,8 +29,11 @@ namespace StardewModdingAPI.Web.Controllers
         /// <summary>The cache in which to store mod metadata.</summary>
         private readonly IMemoryCache Cache;
 
-        /// <summary>The number of minutes update checks should be cached before refetching them.</summary>
-        private readonly int CacheMinutes;
+        /// <summary>The number of minutes successful update checks should be cached before refetching them.</summary>
+        private readonly int SuccessCacheMinutes;
+
+        /// <summary>The number of minutes failed update checks should be cached before refetching them.</summary>
+        private readonly int ErrorCacheMinutes;
 
         /// <summary>A regex which matches SMAPI-style semantic version.</summary>
         private readonly string VersionRegex;
@@ -50,7 +53,8 @@ namespace StardewModdingAPI.Web.Controllers
             ModUpdateCheckConfig config = configProvider.Value;
 
             this.Cache = cache;
-            this.CacheMinutes = config.CacheMinutes;
+            this.SuccessCacheMinutes = config.SuccessCacheMinutes;
+            this.ErrorCacheMinutes = config.ErrorCacheMinutes;
             this.VersionRegex = config.SemanticVersionRegex;
             this.Repositories =
                 new IModRepository[]
@@ -121,7 +125,7 @@ namespace StardewModdingAPI.Web.Controllers
                     }
 
                     // cache & return
-                    entry.AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(this.CacheMinutes);
+                    entry.AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(info.Error == null ? this.SuccessCacheMinutes : this.ErrorCacheMinutes);
                     return info;
                 });
             }

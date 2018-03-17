@@ -21,6 +21,7 @@
   * Fixed rare crash with some combinations of manifest fields and internal mod data.
   * Fixed update checks failing for Nexus Mods due to a change in their API.
   * Fixed update checks failing for some older mods with non-standard versions.
+  * Fixed failed update checks being cached for an hour (now cached 5 minutes).
   * Fixed error when a content pack needs a mod that couldn't be loaded.
   * Fixed Linux ["magic number is wrong" errors](https://github.com/mono/mono/issues/6752) by changing default terminal order.
   * Updated compatibility list and added update checks for more mods.
