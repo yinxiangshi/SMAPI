@@ -14,8 +14,9 @@ using StardewValley.TerrainFeatures;
 
 namespace StardewModdingAPI.Metadata
 {
-    /// <summary>Provides metadata about core assets in the game.</summary>
-    internal class CoreAssets
+    /// <summary>Handles updating the game when a mod changes core assets.</summary>
+    /// <remarks>This implementation only handles the core assets used by the game itself, and doesn't update any custom references to the changed textures.</remarks>
+    internal class CoreAssetPropagator
     {
         /*********
         ** Properties
@@ -33,7 +34,7 @@ namespace StardewModdingAPI.Metadata
         /// <summary>Initialise the core asset data.</summary>
         /// <param name="getNormalisedPath">Normalises an asset key to match the cache key.</param>
         /// <param name="reflection">Simplifies access to private code.</param>
-        public CoreAssets(Func<string, string> getNormalisedPath, Reflector reflection)
+        public CoreAssetPropagator(Func<string, string> getNormalisedPath, Reflector reflection)
         {
             this.GetNormalisedPath = getNormalisedPath;
             this.SingletonSetters =
