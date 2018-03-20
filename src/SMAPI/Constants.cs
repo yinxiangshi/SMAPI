@@ -49,7 +49,7 @@ namespace StardewModdingAPI
 #if STARDEW_VALLEY_1_3
             new GameVersion("1.3.0.4");
 #else
-            new SemanticVersion("1.2.33");
+            new SemanticVersion("1.2.30");
 #endif
 
         /// <summary>The maximum supported version of Stardew Valley.</summary>
