@@ -368,7 +368,7 @@ namespace StardewModdingAPI.Framework
                 int reloaded = 0;
                 foreach (string key in removeAssetNames)
                 {
-                    if (this.CoreAssets.ReloadForKey(Game1.content, key)) // use an intercepted content manager
+                    if (this.CoreAssets.Propagate(Game1.content, key)) // use an intercepted content manager
                         reloaded++;
                 }
 

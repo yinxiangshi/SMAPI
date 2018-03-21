@@ -14,18 +14,17 @@ using StardewValley.TerrainFeatures;
 
 namespace StardewModdingAPI.Metadata
 {
-    /// <summary>Handles updating the game when a mod changes core assets.</summary>
-    /// <remarks>This implementation only handles the core assets used by the game itself, and doesn't update any custom references to the changed textures.</remarks>
+    /// <summary>Propagates changes to core assets to the game state.</summary>
     internal class CoreAssetPropagator
     {
         /*********
         ** Properties
         *********/
         /// <summary>Normalises an asset key to match the cache key.</summary>
-        protected readonly Func<string, string> GetNormalisedPath;
+        private readonly Func<string, string> GetNormalisedPath;
 
-        /// <summary>Setters which update static or singleton texture fields indexed by normalised asset key.</summary>
-        private readonly IDictionary<string, Action<LocalizedContentManager, string>> SingletonSetters;
+        /// <summary>Simplifies access to private game code.</summary>
+        private readonly Reflector Reflection;
 
 
         /*********
@@ -37,154 +36,272 @@ namespace StardewModdingAPI.Metadata
         public CoreAssetPropagator(Func<string, string> getNormalisedPath, Reflector reflection)
         {
             this.GetNormalisedPath = getNormalisedPath;
-            this.SingletonSetters =
-                new Dictionary<string, Action<LocalizedContentManager, string>>
-                {
-                    // from CraftingRecipe.InitShared
-                    ["Data\\CraftingRecipes"] = (content, key) => CraftingRecipe.craftingRecipes = content.Load<Dictionary<string, string>>(key),
-                    ["Data\\CookingRecipes"] = (content, key) => CraftingRecipe.cookingRecipes = content.Load<Dictionary<string, string>>(key),
-
-                    // from Game1.loadContent
-                    ["LooseSprites\\daybg"] = (content, key) => Game1.daybg = content.Load<Texture2D>(key),
-                    ["LooseSprites\\nightbg"] = (content, key) => Game1.nightbg = content.Load<Texture2D>(key),
-                    ["Maps\\MenuTiles"] = (content, key) => Game1.menuTexture = content.Load<Texture2D>(key),
-                    ["LooseSprites\\Lighting\\lantern"] = (content, key) => Game1.lantern = content.Load<Texture2D>(key),
-                    ["LooseSprites\\Lighting\\windowLight"] = (content, key) => Game1.windowLight = content.Load<Texture2D>(key),
-                    ["LooseSprites\\Lighting\\sconceLight"] = (content, key) => Game1.sconceLight = content.Load<Texture2D>(key),
-                    ["LooseSprites\\Lighting\\greenLight"] = (content, key) => Game1.cauldronLight = content.Load<Texture2D>(key),
-                    ["LooseSprites\\Lighting\\indoorWindowLight"] = (content, key) => Game1.indoorWindowLight = content.Load<Texture2D>(key),
-                    ["LooseSprites\\shadow"] = (content, key) => Game1.shadowTexture = content.Load<Texture2D>(key),
-                    ["LooseSprites\\Cursors"] = (content, key) => Game1.mouseCursors = content.Load<Texture2D>(key),
-                    ["LooseSprites\\ControllerMaps"] = (content, key) => Game1.controllerMaps = content.Load<Texture2D>(key),
-                    ["TileSheets\\animations"] = (content, key) => Game1.animations = content.Load<Texture2D>(key),
-                    ["Data\\Achievements"] = (content, key) => Game1.achievements = content.Load<Dictionary<int, string>>(key),
-                    ["Data\\NPCGiftTastes"] = (content, key) => Game1.NPCGiftTastes = content.Load<Dictionary<string, string>>(key),
-                    ["Fonts\\SpriteFont1"] = (content, key) => Game1.dialogueFont = content.Load<SpriteFont>(key),
-                    ["Fonts\\SmallFont"] = (content, key) => Game1.smallFont = content.Load<SpriteFont>(key),
-                    ["Fonts\\tinyFont"] = (content, key) => Game1.tinyFont = content.Load<SpriteFont>(key),
-                    ["Fonts\\tinyFontBorder"] = (content, key) => Game1.tinyFontBorder = content.Load<SpriteFont>(key),
-                    ["Maps\\springobjects"] = (content, key) => Game1.objectSpriteSheet = content.Load<Texture2D>(key),
-                    ["TileSheets\\crops"] = (content, key) => Game1.cropSpriteSheet = content.Load<Texture2D>(key),
-                    ["TileSheets\\emotes"] = (content, key) => Game1.emoteSpriteSheet = content.Load<Texture2D>(key),
-                    ["TileSheets\\debris"] = (content, key) => Game1.debrisSpriteSheet = content.Load<Texture2D>(key),
-                    ["TileSheets\\Craftables"] = (content, key) => Game1.bigCraftableSpriteSheet = content.Load<Texture2D>(key),
-                    ["TileSheets\\rain"] = (content, key) => Game1.rainTexture = content.Load<Texture2D>(key),
-                    ["TileSheets\\BuffsIcons"] = (content, key) => Game1.buffsIcons = content.Load<Texture2D>(key),
-                    ["Data\\ObjectInformation"] = (content, key) => Game1.objectInformation = content.Load<Dictionary<int, string>>(key),
-                    ["Data\\BigCraftablesInformation"] = (content, key) => Game1.bigCraftablesInformation = content.Load<Dictionary<int, string>>(key),
-                    ["Characters\\Farmer\\hairstyles"] = (content, key) => FarmerRenderer.hairStylesTexture = content.Load<Texture2D>(key),
-                    ["Characters\\Farmer\\shirts"] = (content, key) => FarmerRenderer.shirtsTexture = content.Load<Texture2D>(key),
-                    ["Characters\\Farmer\\hats"] = (content, key) => FarmerRenderer.hatsTexture = content.Load<Texture2D>(key),
-                    ["Characters\\Farmer\\accessories"] = (content, key) => FarmerRenderer.accessoriesTexture = content.Load<Texture2D>(key),
-                    ["TileSheets\\furniture"] = (content, key) => Furniture.furnitureTexture = content.Load<Texture2D>(key),
-                    ["LooseSprites\\font_bold"] = (content, key) => SpriteText.spriteTexture = content.Load<Texture2D>(key),
-                    ["LooseSprites\\font_colored"] = (content, key) => SpriteText.coloredTexture = content.Load<Texture2D>(key),
-                    ["TileSheets\\weapons"] = (content, key) => Tool.weaponsTexture = content.Load<Texture2D>(key),
-                    ["TileSheets\\Projectiles"] = (content, key) => Projectile.projectileSheet = content.Load<Texture2D>(key),
-
-                    // from Game1.ResetToolSpriteSheet
-                    ["TileSheets\\tools"] = (content, key) => Game1.ResetToolSpriteSheet(),
-
-#if STARDEW_VALLEY_1_3
-                    // from Bush
-                    ["TileSheets\\bushes"] = (content, key) => reflection.GetField<Lazy<Texture2D>>(typeof(Bush), "texture").SetValue(new Lazy<Texture2D>(() => content.Load<Texture2D>(key))),
-
-                    // from Farm
-                    ["Buildings\\houses"] = (content, key) => reflection.GetField<Texture2D>(typeof(Farm), nameof(Farm.houseTextures)).SetValue(content.Load<Texture2D>(key)),
-
-                    // from Farmer
-                    ["Characters\\Farmer\\farmer_base"] = (content, key) =>
-                    {
-                        if (Game1.player != null && Game1.player.isMale)
-                            Game1.player.FarmerRenderer = new FarmerRenderer(key);
-                    },
-                    ["Characters\\Farmer\\farmer_girl_base"] = (content, key) =>
-                    {
-                        if (Game1.player != null && !Game1.player.isMale)
-                            Game1.player.FarmerRenderer = new FarmerRenderer(key);
-                    },
-#else
-                    // from Bush
-                    ["TileSheets\\bushes"] = (content, key) => Bush.texture = content.Load<Texture2D>(key),
-
-                    // from Critter
-                    ["TileSheets\\critters"] = (content, key) => Critter.critterTexture = content.Load<Texture2D>(key),
-
-                    // from Farm
-                    ["Buildings\\houses"] = (content, key) =>
-                    {
-                        Farm farm = Game1.getFarm();
-                        if (farm != null)
-                            farm.houseTextures = content.Load<Texture2D>(key);
-                    },
-
-                    // from Farmer
-                    ["Characters\\Farmer\\farmer_base"] = (content, key) =>
-                    {
-                        if (Game1.player != null && Game1.player.isMale)
-                            Game1.player.FarmerRenderer = new FarmerRenderer(content.Load<Texture2D>(key));
-                    },
-                    ["Characters\\Farmer\\farmer_girl_base"] = (content, key) =>
-                    {
-                        if (Game1.player != null && !Game1.player.isMale)
-                            Game1.player.FarmerRenderer = new FarmerRenderer(content.Load<Texture2D>(key));
-                    },
-#endif
-
-                    // from Flooring
-                    ["TerrainFeatures\\Flooring"] = (content, key) => Flooring.floorsTexture = content.Load<Texture2D>(key),
-
-                    // from FruitTree
-                    ["TileSheets\\fruitTrees"] = (content, key) => FruitTree.texture = content.Load<Texture2D>(key),
-
-                    // from HoeDirt
-                    ["TerrainFeatures\\hoeDirt"] = (content, key) => HoeDirt.lightTexture = content.Load<Texture2D>(key),
-                    ["TerrainFeatures\\hoeDirtDark"] = (content, key) => HoeDirt.darkTexture = content.Load<Texture2D>(key),
-                    ["TerrainFeatures\\hoeDirtSnow"] = (content, key) => HoeDirt.snowTexture = content.Load<Texture2D>(key),
-
-                    // from TitleMenu
-                    ["Minigames\\Clouds"] = (content, key) =>
-                    {
-                        if (Game1.activeClickableMenu is TitleMenu)
-                            reflection.GetField<Texture2D>(Game1.activeClickableMenu, "cloudsTexture").SetValue(content.Load<Texture2D>(key));
-                    },
-                    ["Minigames\\TitleButtons"] = (content, key) =>
-                    {
-                        if (Game1.activeClickableMenu is TitleMenu titleMenu)
-                        {
-                            reflection.GetField<Texture2D>(titleMenu, "titleButtonsTexture").SetValue(content.Load<Texture2D>(key));
-                            foreach (TemporaryAnimatedSprite bird in reflection.GetField<List<TemporaryAnimatedSprite>>(titleMenu, "birds").GetValue())
-#if STARDEW_VALLEY_1_3
-                                bird.texture = content.Load<Texture2D>(key);
-#else
-                                bird.Texture = content.Load<Texture2D>(key);
-#endif
-                        }
-                    },
-
-                    // from Wallpaper
-                    ["Maps\\walls_and_floors"] = (content, key) => Wallpaper.wallpaperTexture = content.Load<Texture2D>(key)
-                }
-                .ToDictionary(p => getNormalisedPath(p.Key), p => p.Value);
+            this.Reflection = reflection;
         }
 
         /// <summary>Reload one of the game's core assets (if applicable).</summary>
         /// <param name="content">The content manager through which to reload the asset.</param>
         /// <param name="key">The asset key to reload.</param>
         /// <returns>Returns whether an asset was reloaded.</returns>
-        public bool ReloadForKey(LocalizedContentManager content, string key)
+        public bool Propagate(LocalizedContentManager content, string key)
         {
-            // static assets
-            if (this.SingletonSetters.TryGetValue(key, out Action<LocalizedContentManager, string> reload))
+            return this.PropagateImpl(content, key) != null;
+        }
+
+
+        /*********
+        ** Private methods
+        *********/
+        /// <summary>Reload one of the game's core assets (if applicable).</summary>
+        /// <param name="content">The content manager through which to reload the asset.</param>
+        /// <param name="key">The asset key to reload.</param>
+        /// <returns>Returns any non-null value to indicate an asset was loaded..</returns>
+        private object PropagateImpl(LocalizedContentManager content, string key)
+        {
+            Reflector reflection = this.Reflection;
+            switch (key.ToLower().Replace("/", "\\")) // normalised key so we can compare statically
             {
-                reload(content, key);
-                return true;
+                /****
+                ** Buildings
+                ****/
+                case "buildings\\houses": // Farm
+#if STARDEW_VALLEY_1_3
+                    reflection.GetField<Texture2D>(typeof(Farm), nameof(Farm.houseTextures)).SetValue(content.Load<Texture2D>(key));
+                    return true;
+#else
+                    {
+                        Farm farm = Game1.getFarm();
+                        if (farm == null)
+                            return null;
+                        return farm.houseTextures = content.Load<Texture2D>(key);
+                    }
+#endif
+
+                /****
+                ** Content\Characters\Farmer
+                ****/
+                case "characters\\farmer\\accessories": // Game1.loadContent
+                    return FarmerRenderer.accessoriesTexture = content.Load<Texture2D>(key);
+
+                case "characters\\farmer\\farmer_base": // Farmer
+                    if (Game1.player == null || !Game1.player.isMale)
+                        return null;
+#if STARDEW_VALLEY_1_3
+                    return Game1.player.FarmerRenderer = new FarmerRenderer(key);
+#else
+                    return Game1.player.FarmerRenderer = new FarmerRenderer(content.Load<Texture2D>(key));
+#endif
+
+                case "characters\\farmer\\farmer_girl_base": // Farmer
+                    if (Game1.player == null || Game1.player.isMale)
+                        return null;
+#if STARDEW_VALLEY_1_3
+                    return Game1.player.FarmerRenderer = new FarmerRenderer(key);
+#else
+                    return Game1.player.FarmerRenderer = new FarmerRenderer(content.Load<Texture2D>(key));
+#endif
+
+                case "characters\\farmer\\hairstyles": // Game1.loadContent
+                    return FarmerRenderer.hairStylesTexture = content.Load<Texture2D>(key);
+
+                case "characters\\farmer\\hats": // Game1.loadContent
+                    return FarmerRenderer.hatsTexture = content.Load<Texture2D>(key);
+
+                case "characters\\farmer\\shirts": // Game1.loadContent
+                    return FarmerRenderer.shirtsTexture = content.Load<Texture2D>(key);
+
+                /****
+                ** Content\Data
+                ****/
+                case "data\\achievements": // Game1.loadContent
+                    return Game1.achievements = content.Load<Dictionary<int, string>>(key);
+
+                case "data\\bigcraftablesinformation": // Game1.loadContent
+                    return Game1.bigCraftablesInformation = content.Load<Dictionary<int, string>>(key);
+
+                case "data\\cookingrecipes": // CraftingRecipe.InitShared
+                    return CraftingRecipe.cookingRecipes = content.Load<Dictionary<string, string>>(key);
+
+                case "data\\craftingrecipes": // CraftingRecipe.InitShared
+                    return CraftingRecipe.craftingRecipes = content.Load<Dictionary<string, string>>(key);
+
+                case "data\\npcgifttastes": // Game1.loadContent
+                    return Game1.NPCGiftTastes = content.Load<Dictionary<string, string>>(key);
+
+                case "data\\objectinformation": // Game1.loadContent
+                    return Game1.objectInformation = content.Load<Dictionary<int, string>>(key);
+
+                /****
+                ** Content\Fonts
+                ****/
+                case "fonts\\spritefont1": // Game1.loadContent
+                    return Game1.dialogueFont = content.Load<SpriteFont>(key);
+
+                case "fonts\\smallfont": // Game1.loadContent
+                    return Game1.smallFont = content.Load<SpriteFont>(key);
+
+                case "fonts\\tinyfont": // Game1.loadContent
+                    return Game1.tinyFont = content.Load<SpriteFont>(key);
+
+                case "fonts\\tinyfontborder": // Game1.loadContent
+                    return Game1.tinyFontBorder = content.Load<SpriteFont>(key);
+
+                /****
+                ** Content\Lighting
+                ****/
+                case "loosesprites\\lighting\\greenlight": // Game1.loadContent
+                    return Game1.cauldronLight = content.Load<Texture2D>(key);
+
+                case "loosesprites\\lighting\\indoorwindowlight": // Game1.loadContent
+                    return Game1.indoorWindowLight = content.Load<Texture2D>(key);
+
+                case "loosesprites\\lighting\\lantern": // Game1.loadContent
+                    return Game1.lantern = content.Load<Texture2D>(key);
+
+                case "loosesprites\\lighting\\sconcelight": // Game1.loadContent
+                    return Game1.sconceLight = content.Load<Texture2D>(key);
+
+                case "loosesprites\\lighting\\windowlight": // Game1.loadContent
+                    return Game1.windowLight = content.Load<Texture2D>(key);
+
+                /****
+                ** Content\LooseSprites
+                ****/
+                case "loosesprites\\controllermaps": // Game1.loadContent
+                    return Game1.controllerMaps = content.Load<Texture2D>(key);
+
+                case "loosesprites\\cursors": // Game1.loadContent
+                    return Game1.mouseCursors = content.Load<Texture2D>(key);
+
+                case "loosesprites\\daybg": // Game1.loadContent
+                    return Game1.daybg = content.Load<Texture2D>(key);
+
+                case "loosesprites\\font_bold": // Game1.loadContent
+                    return SpriteText.spriteTexture = content.Load<Texture2D>(key);
+
+                case "loosesprites\\font_colored": // Game1.loadContent
+                    return SpriteText.coloredTexture = content.Load<Texture2D>(key);
+
+                case "loosesprites\\nightbg": // Game1.loadContent
+                    return Game1.nightbg = content.Load<Texture2D>(key);
+
+                case "loosesprites\\shadow": // Game1.loadContent
+                    return Game1.shadowTexture = content.Load<Texture2D>(key);
+
+                /****
+                ** Content\Critters
+                ****/
+                case "tilesheets\\critters": // Criter.InitShared
+                    return Critter.critterTexture = content.Load<Texture2D>(key);
+
+                case "tilesheets\\crops": // Game1.loadContent
+                    return Game1.cropSpriteSheet = content.Load<Texture2D>(key);
+
+                case "tilesheets\\debris": // Game1.loadContent
+                    return Game1.debrisSpriteSheet = content.Load<Texture2D>(key);
+
+                case "tilesheets\\emotes": // Game1.loadContent
+                    return Game1.emoteSpriteSheet = content.Load<Texture2D>(key);
+
+                case "tilesheets\\furniture": // Game1.loadContent
+                    return Furniture.furnitureTexture = content.Load<Texture2D>(key);
+
+                case "tilesheets\\projectiles": // Game1.loadContent
+                    return Projectile.projectileSheet = content.Load<Texture2D>(key);
+
+                case "tilesheets\\rain": // Game1.loadContent
+                    return Game1.rainTexture = content.Load<Texture2D>(key);
+
+                case "tilesheets\\tools": // Game1.ResetToolSpriteSheet
+                    Game1.ResetToolSpriteSheet();
+                    return true;
+
+                case "tilesheets\\weapons": // Game1.loadContent
+                    return Tool.weaponsTexture = content.Load<Texture2D>(key);
+
+                /****
+                ** Content\Maps
+                ****/
+                case "maps\\menutiles": // Game1.loadContent
+                    return Game1.menuTexture = content.Load<Texture2D>(key);
+
+                case "maps\\springobjects": // Game1.loadContent
+                    return Game1.objectSpriteSheet = content.Load<Texture2D>(key);
+
+                case "maps\\walls_and_floors": // Wallpaper
+                    return Wallpaper.wallpaperTexture = content.Load<Texture2D>(key);
+
+                /****
+                ** Content\Minigames
+                ****/
+                case "minigames\\clouds": // TitleMenu
+                    if (Game1.activeClickableMenu is TitleMenu)
+                    {
+                        reflection.GetField<Texture2D>(Game1.activeClickableMenu, "cloudsTexture").SetValue(content.Load<Texture2D>(key));
+                        return true;
+                    }
+
+                    return null;
+
+                case "minigames\\titlebuttons": // TitleMenu
+                    if (Game1.activeClickableMenu is TitleMenu titleMenu)
+                    {
+                        Texture2D texture = content.Load<Texture2D>(key);
+                        reflection.GetField<Texture2D>(titleMenu, "titleButtonsTexture").SetValue(texture);
+                        foreach (TemporaryAnimatedSprite bird in reflection.GetField<List<TemporaryAnimatedSprite>>(titleMenu, "birds").GetValue())
+#if STARDEW_VALLEY_1_3
+                            bird.texture = texture;
+#else
+                            bird.Texture = texture;
+#endif
+                        return true;
+                    }
+
+                    return null;
+
+                /****
+                ** Content\TileSheets
+                ****/
+                case "tilesheets\\animations": // Game1.loadContent
+                    return Game1.animations = content.Load<Texture2D>(key);
+
+                case "tilesheets\\buffsicons": // Game1.loadContent
+                    return Game1.buffsIcons = content.Load<Texture2D>(key);
+
+                case "tilesheets\\bushes": // new Bush()
+#if STARDEW_VALLEY_1_3
+                    reflection.GetField<Lazy<Texture2D>>(typeof(Bush), "texture").SetValue(new Lazy<Texture2D>(() => content.Load<Texture2D>(key)));
+                    return true;
+#else
+                    return Bush.texture = content.Load<Texture2D>(key);
+#endif
+
+                case "tilesheets\\craftables": // Game1.loadContent
+                    return Game1.bigCraftableSpriteSheet = content.Load<Texture2D>(key);
+
+                case "tilesheets\\fruittrees": // FruitTree
+                    return FruitTree.texture = content.Load<Texture2D>(key);
+
+                /****
+                ** Content\TerrainFeatures
+                ****/
+                case "terrainfeatures\\flooring": // Flooring
+                    return Flooring.floorsTexture = content.Load<Texture2D>(key);
+
+                case "terrainfeatures\\hoedirt": // from HoeDirt
+                    return HoeDirt.lightTexture = content.Load<Texture2D>(key);
+
+                case "Terrainfeatures\\hoedirtdark": // from HoeDirt
+                    return HoeDirt.darkTexture = content.Load<Texture2D>(key);
+
+                case "Terrainfeatures\\hoedirtsnow": // from HoeDirt
+                    return HoeDirt.snowTexture = content.Load<Texture2D>(key);
             }
 
             // building textures
-            if (key.StartsWith(this.GetNormalisedPath("Buildings\\")))
+            if (key.StartsWith(this.GetNormalisedPath("Buildings\\"), StringComparison.InvariantCultureIgnoreCase))
             {
-                Building[] buildings = this.GetAllBuildings().Where(p => key == this.GetNormalisedPath($"Buildings\\{p.buildingType}")).ToArray();
+                Building[] buildings = this.GetAllBuildings().Where(p => key.Equals(this.GetNormalisedPath($"Buildings\\{p.buildingType?.ToLower()}"), StringComparison.InvariantCultureIgnoreCase)).ToArray();
                 if (buildings.Any())
                 {
 #if STARDEW_VALLEY_1_3
@@ -198,10 +315,10 @@ namespace StardewModdingAPI.Metadata
 
                     return true;
                 }
-                return false;
+                return null;
             }
 
-            return false;
+            return null;
         }
 
 
