@@ -120,6 +120,19 @@ or you have multiple installs, you can specify the path yourself. There's two wa
 The configuration will check your custom path first, then fall back to the default paths (so it'll
 still compile on a different computer).
 
+### Unit test projects
+**(upcoming in 2.0.3)**
+
+You can use the package in unit test projects too. Its optional unit test mode...
+
+1. disables deploying the project as a mod;
+2. disables creating a release zip;
+2. and copies the referenced DLLs into the build output for unit test frameworks.
+
+To enable it, add this above the first `</PropertyGroup>` in your `.csproj`:
+```xml
+<ModUnitTests>True</ModUnitTests>
+```
 
 ## Troubleshoot
 ### "Failed to find the game install path"
