@@ -15,6 +15,10 @@
   * Added support for beta releases on the home page.
 -->
 
+## 2.5.4
+* For the [log parser][]:
+  * Fixed error when log text contains certain tokens.
+
 ## 2.5.3
 * For players:
   * Simplified and improved skipped-mod messages.
