@@ -19,14 +19,14 @@
 
     <!-- set default settings -->
     <ModFolderName Condition="'$(ModFolderName)' == ''">$(MSBuildProjectName)</ModFolderName>
-    <ModUnitTests Condition="'$(ModUnitTests)' == ''">True</ModUnitTests>
+    <ModUnitTests Condition="'$(ModUnitTests)' == ''">False</ModUnitTests>
     <ModZipPath Condition="'$(ModZipPath)' == ''">$(TargetDir)</ModZipPath>
     <EnableModDeploy Condition="'$(EnableModDeploy)' == ''">True</EnableModDeploy>
     <EnableModZip Condition="'$(EnableModZip)' == ''">True</EnableModZip>
 
     <!-- disable mod deploy in unit test project -->
-    <EnableModDeploy Condition="$(ModUnitTests)">False</EnableModDeploy>
-    <EnableModZip Condition="$(ModUnitTests)">False</EnableModZip>
+    <EnableModDeploy Condition="'$(ModUnitTests)' == true">False</EnableModDeploy>
+    <EnableModZip Condition="'$(ModUnitTests)' == true">False</EnableModZip>
   </PropertyGroup>
 
   <!-- find platform + game path -->
