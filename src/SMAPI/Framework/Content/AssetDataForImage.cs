@@ -58,7 +58,7 @@ namespace StardewModdingAPI.Framework.Content
                 for (int i = 0; i < sourceData.Length; i++)
                 {
                     Color pixel = sourceData[i];
-                    if (pixel.A > 2) // not transparent (note: on Linux/Mac, fully transparent pixels may have an alpha up to 2 for some reason)
+                    if (pixel.A > 4) // not transparent (note: on Linux/Mac, fully transparent pixels may have an alpha up to 4 for some reason)
                         newData[i] = pixel;
                 }
                 sourceData = newData;
