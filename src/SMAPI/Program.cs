@@ -953,7 +953,7 @@ namespace StardewModdingAPI
                 {
                     helper.ObservableAssetEditors.CollectionChanged += (sender, e) =>
                     {
-                        if (e.NewItems.Count > 0)
+                        if (e.NewItems?.Count > 0)
                         {
                             this.Monitor.Log("Invalidating cache entries for new asset editors...", LogLevel.Trace);
                             this.ContentCore.InvalidateCacheFor(e.NewItems.Cast<IAssetEditor>().ToArray(), new IAssetLoader[0]);
@@ -961,7 +961,7 @@ namespace StardewModdingAPI
                     };
                     helper.ObservableAssetLoaders.CollectionChanged += (sender, e) =>
                     {
-                        if (e.NewItems.Count > 0)
+                        if (e.NewItems?.Count > 0)
                         {
                             this.Monitor.Log("Invalidating cache entries for new asset loaders...", LogLevel.Trace);
                             this.ContentCore.InvalidateCacheFor(new IAssetEditor[0], e.NewItems.Cast<IAssetLoader>().ToArray());

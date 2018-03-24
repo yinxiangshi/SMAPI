@@ -18,7 +18,8 @@
 ## 2.5.4
 * For players:
   * Fixed tree textures not updated when changed through the content API.
-  * Fixed display bugs on Linux/Mac when mods overlay images through the content API.
+  * Fixed visual bug on Linux/Mac when mods overlay images through the content API.
+  * Fixed error when a mod removes an asset editor/loader.
 
 * For the [log parser][]:
   * Fixed error when log text contains certain tokens.
