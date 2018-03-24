@@ -16,6 +16,9 @@
 -->
 
 ## 2.5.4
+* For modders:
+  * Added automatic texture update for trees when changed through the content API.
+
 * For the [log parser][]:
   * Fixed error when log text contains certain tokens.
 

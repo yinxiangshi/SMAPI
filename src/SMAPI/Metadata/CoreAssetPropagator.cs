@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Framework.Reflection;
@@ -45,7 +46,10 @@ namespace StardewModdingAPI.Metadata
         /// <returns>Returns whether an asset was reloaded.</returns>
         public bool Propagate(LocalizedContentManager content, string key)
         {
-            return this.PropagateImpl(content, key) != null;
+            object result = this.PropagateImpl(content, key);
+            if (result is bool b)
+                return b;
+            return result != null;
         }
 
 
@@ -55,7 +59,7 @@ namespace StardewModdingAPI.Metadata
         /// <summary>Reload one of the game's core assets (if applicable).</summary>
         /// <param name="content">The content manager through which to reload the asset.</param>
         /// <param name="key">The asset key to reload.</param>
-        /// <returns>Returns any non-null value to indicate an asset was loaded..</returns>
+        /// <returns>Returns any non-null value to indicate an asset was loaded.</returns>
         private object PropagateImpl(LocalizedContentManager content, string key)
         {
             Reflector reflection = this.Reflection;
@@ -72,7 +76,7 @@ namespace StardewModdingAPI.Metadata
                     {
                         Farm farm = Game1.getFarm();
                         if (farm == null)
-                            return null;
+                            return false;
                         return farm.houseTextures = content.Load<Texture2D>(key);
                     }
 #endif
@@ -85,7 +89,7 @@ namespace StardewModdingAPI.Metadata
 
                 case "characters\\farmer\\farmer_base": // Farmer
                     if (Game1.player == null || !Game1.player.isMale)
-                        return null;
+                        return false;
 #if STARDEW_VALLEY_1_3
                     return Game1.player.FarmerRenderer = new FarmerRenderer(key);
 #else
@@ -94,7 +98,7 @@ namespace StardewModdingAPI.Metadata
 
                 case "characters\\farmer\\farmer_girl_base": // Farmer
                     if (Game1.player == null || Game1.player.isMale)
-                        return null;
+                        return false;
 #if STARDEW_VALLEY_1_3
                     return Game1.player.FarmerRenderer = new FarmerRenderer(key);
 #else
@@ -240,8 +244,7 @@ namespace StardewModdingAPI.Metadata
                         reflection.GetField<Texture2D>(Game1.activeClickableMenu, "cloudsTexture").SetValue(content.Load<Texture2D>(key));
                         return true;
                     }
-
-                    return null;
+                    return false;
 
                 case "minigames\\titlebuttons": // TitleMenu
                     if (Game1.activeClickableMenu is TitleMenu titleMenu)
@@ -256,8 +259,7 @@ namespace StardewModdingAPI.Metadata
 #endif
                         return true;
                     }
-
-                    return null;
+                    return false;
 
                 /****
                 ** Content\TileSheets
@@ -291,48 +293,102 @@ namespace StardewModdingAPI.Metadata
                 case "terrainfeatures\\hoedirt": // from HoeDirt
                     return HoeDirt.lightTexture = content.Load<Texture2D>(key);
 
-                case "Terrainfeatures\\hoedirtdark": // from HoeDirt
+                case "terrainfeatures\\hoedirtdark": // from HoeDirt
                     return HoeDirt.darkTexture = content.Load<Texture2D>(key);
 
-                case "Terrainfeatures\\hoedirtsnow": // from HoeDirt
+                case "terrainfeatures\\hoedirtsnow": // from HoeDirt
                     return HoeDirt.snowTexture = content.Load<Texture2D>(key);
+
+                case "terrainfeatures\\mushroom_tree": // from Tree
+                    return this.ReloadTreeTextures(content, key, Tree.mushroomTree);
+
+                case "terrainfeatures\\tree_palm": // from Tree
+                    return this.ReloadTreeTextures(content, key, Tree.palmTree);
+
+                case "terrainfeatures\\tree1_fall": // from Tree
+                case "terrainfeatures\\tree1_spring": // from Tree
+                case "terrainfeatures\\tree1_summer": // from Tree
+                case "terrainfeatures\\tree1_winter": // from Tree
+                    return this.ReloadTreeTextures(content, key, Tree.bushyTree);
+
+                case "terrainfeatures\\tree2_fall": // from Tree
+                case "terrainfeatures\\tree2_spring": // from Tree
+                case "terrainfeatures\\tree2_summer": // from Tree
+                case "terrainfeatures\\tree2_winter": // from Tree
+                    return this.ReloadTreeTextures(content, key, Tree.leafyTree);
+
+                case "terrainfeatures\\tree3_fall": // from Tree
+                case "terrainfeatures\\tree3_spring": // from Tree
+                case "terrainfeatures\\tree3_winter": // from Tree
+                    return this.ReloadTreeTextures(content, key, Tree.pineTree);
             }
 
             // building textures
             if (key.StartsWith(this.GetNormalisedPath("Buildings\\"), StringComparison.InvariantCultureIgnoreCase))
             {
-                Building[] buildings = this.GetAllBuildings().Where(p => key.Equals(this.GetNormalisedPath($"Buildings\\{p.buildingType?.ToLower()}"), StringComparison.InvariantCultureIgnoreCase)).ToArray();
-                if (buildings.Any())
-                {
-#if STARDEW_VALLEY_1_3
-                    foreach (Building building in buildings)
-                        building.texture = new Lazy<Texture2D>(() => content.Load<Texture2D>(key));
-#else
-                    Texture2D texture = content.Load<Texture2D>(key);
-                    foreach (Building building in buildings)
-                        building.texture = texture;
-#endif
-
-                    return true;
-                }
-                return null;
+                string type = Path.GetFileName(key);
+                return this.ReloadBuildings(content, key, type);
             }
 
-            return null;
+            return false;
         }
 
 
         /*********
         ** Private methods
         *********/
-        /// <summary>Get all player-constructed buildings in the world.</summary>
-        private IEnumerable<Building> GetAllBuildings()
+        /// <summary>Reload building textures.</summary>
+        /// <param name="content">The content manager through which to reload the asset.</param>
+        /// <param name="key">The asset key to reload.</param>
+        /// <param name="type">The type to reload.</param>
+        /// <returns>Returns whether any textures were reloaded.</returns>
+        private bool ReloadBuildings(LocalizedContentManager content, string key, string type)
         {
-            foreach (BuildableGameLocation location in Game1.locations.OfType<BuildableGameLocation>())
+            Building[] buildings = Game1.locations
+                .OfType<BuildableGameLocation>()
+                .SelectMany(p => p.buildings)
+                .Where(p => p.buildingType == type)
+                .ToArray();
+
+            if (buildings.Any())
             {
-                foreach (Building building in location.buildings)
-                    yield return building;
+                Lazy<Texture2D> texture = new Lazy<Texture2D>(() => content.Load<Texture2D>(key));
+                foreach (Building building in buildings)
+#if STARDEW_VALLEY_1_3
+                    building.texture = texture;
+#else
+                    building.texture = texture.Value;
+#endif
+                return true;
             }
+            return false;
+        }
+
+        /// <summary>Reload tree textures.</summary>
+        /// <param name="content">The content manager through which to reload the asset.</param>
+        /// <param name="key">The asset key to reload.</param>
+        /// <param name="type">The type to reload.</param>
+        /// <returns>Returns whether any textures were reloaded.</returns>
+        private bool ReloadTreeTextures(LocalizedContentManager content, string key, int type)
+        {
+            Tree[] trees = Game1.locations
+                .SelectMany(p => p.terrainFeatures.Values.OfType<Tree>())
+                .Where(tree => tree.treeType == type)
+                .ToArray();
+
+            if (trees.Any())
+            {
+                Lazy<Texture2D> texture = new Lazy<Texture2D>(() => content.Load<Texture2D>(key));
+                foreach (Tree tree in trees)
+#if STARDEW_VALLEY_1_3
+                    this.Reflection.GetField<Lazy<Texture2D>>(tree, "texture").SetValue(texture);
+#else
+                    this.Reflection.GetField<Texture2D>(tree, "texture").SetValue(texture.Value);
+#endif
+                return true;
+            }
+
+            return false;
         }
     }
 }
