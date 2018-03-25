@@ -323,12 +323,18 @@ namespace StardewModdingAPI.Metadata
                     return this.ReloadTreeTextures(content, key, Tree.pineTree);
             }
 
-            // building textures
+            // dynamic textures
             if (key.StartsWith(this.GetNormalisedPath("Buildings\\"), StringComparison.InvariantCultureIgnoreCase))
-            {
-                string type = Path.GetFileName(key);
-                return this.ReloadBuildings(content, key, type);
-            }
+                return this.ReloadBuildings(content, key);
+
+            if (key.StartsWith(this.GetNormalisedPath("Characters\\")) && this.CountSegments(key) == 2) // ignore Characters/Dialogue/*, etc
+                return this.ReloadNpcSprites(content, key, monster: false);
+
+            if (key.StartsWith(this.GetNormalisedPath("Characters\\Monsters\\")))
+                return this.ReloadNpcSprites(content, key, monster: true);
+
+            if (key.StartsWith(this.GetNormalisedPath("Portraits\\")))
+                return this.ReloadNpcPortraits(content, key);
 
             return false;
         }
@@ -340,16 +346,18 @@ namespace StardewModdingAPI.Metadata
         /// <summary>Reload building textures.</summary>
         /// <param name="content">The content manager through which to reload the asset.</param>
         /// <param name="key">The asset key to reload.</param>
-        /// <param name="type">The type to reload.</param>
         /// <returns>Returns whether any textures were reloaded.</returns>
-        private bool ReloadBuildings(LocalizedContentManager content, string key, string type)
+        private bool ReloadBuildings(LocalizedContentManager content, string key)
         {
+            // get buildings
+            string type = Path.GetFileName(key);
             Building[] buildings = Game1.locations
                 .OfType<BuildableGameLocation>()
                 .SelectMany(p => p.buildings)
                 .Where(p => p.buildingType == type)
                 .ToArray();
 
+            // reload buildings
             if (buildings.Any())
             {
                 Lazy<Texture2D> texture = new Lazy<Texture2D>(() => content.Load<Texture2D>(key));
@@ -362,6 +370,61 @@ namespace StardewModdingAPI.Metadata
                 return true;
             }
             return false;
+        }
+
+        /// <summary>Reload the sprites for matching NPCs.</summary>
+        /// <param name="content">The content manager through which to reload the asset.</param>
+        /// <param name="key">The asset key to reload.</param>
+        /// <param name="monster">Whether to match monsters (<c>true</c>) or non-monsters (<c>false</c>).</param>
+        /// <returns>Returns whether any textures were reloaded.</returns>
+        private bool ReloadNpcSprites(LocalizedContentManager content, string key, bool monster)
+        {
+            // get NPCs
+            string name = this.GetNpcNameFromFileName(Path.GetFileName(key));
+            NPC[] characters =
+                (
+                    from location in this.GetLocations()
+                    from npc in location.characters
+                    where npc.name == name && npc.IsMonster == monster
+                    select npc
+                )
+                .Distinct()
+                .ToArray();
+            if (!characters.Any())
+                return false;
+
+            // update portrait
+            Texture2D texture = content.Load<Texture2D>(key);
+            foreach (NPC character in characters)
+                character.Sprite.Texture = texture;
+            return true;
+        }
+
+        /// <summary>Reload the portraits for matching NPCs.</summary>
+        /// <param name="content">The content manager through which to reload the asset.</param>
+        /// <param name="key">The asset key to reload.</param>
+        /// <returns>Returns whether any textures were reloaded.</returns>
+        private bool ReloadNpcPortraits(LocalizedContentManager content, string key)
+        {
+            // get NPCs
+            string name = this.GetNpcNameFromFileName(Path.GetFileName(key));
+            NPC[] villagers =
+                (
+                    from location in this.GetLocations()
+                    from npc in location.characters
+                    where npc.name == name && npc.isVillager()
+                    select npc
+                )
+                .Distinct()
+                .ToArray();
+            if (!villagers.Any())
+                return false;
+
+            // update portrait
+            Texture2D texture = content.Load<Texture2D>(key);
+            foreach (NPC villager in villagers)
+                villager.Portrait = texture;
+            return true;
         }
 
         /// <summary>Reload tree textures.</summary>
@@ -389,6 +452,51 @@ namespace StardewModdingAPI.Metadata
             }
 
             return false;
+        }
+
+        /// <summary>Get an NPC name from the name of their file under <c>Content/Characters</c>.</summary>
+        /// <param name="name">The file name.</param>
+        /// <remarks>Derived from <see cref="NPC.reloadSprite"/>.</remarks>
+        private string GetNpcNameFromFileName(string name)
+        {
+            switch (name)
+            {
+                case "Mariner":
+                    return "Old Mariner";
+                case "DwarfKing":
+                    return "Dwarf King";
+                case "MrQi":
+                    return "Mister Qi";
+                default:
+                    return name;
+            }
+        }
+
+        /// <summary>Get all locations in the game.</summary>
+        private IEnumerable<GameLocation> GetLocations()
+        {
+            foreach (GameLocation location in Game1.locations)
+            {
+                yield return location;
+
+                if (location is BuildableGameLocation buildableLocation)
+                {
+                    foreach (Building building in buildableLocation.buildings)
+                    {
+                        if (building.indoors != null)
+                            yield return building.indoors;
+                    }
+                }
+            }
+        }
+
+        /// <summary>Count the number of segments in a path (e.g. 'a/b' is 2).</summary>
+        /// <param name="path">The path to check.</param>
+        private int CountSegments(string path)
+        {
+            if (path == null)
+                return 0;
+            return path.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).Length;
         }
     }
 }
