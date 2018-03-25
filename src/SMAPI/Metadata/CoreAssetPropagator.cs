@@ -326,19 +326,19 @@ namespace StardewModdingAPI.Metadata
             }
 
             // dynamic textures
-            if (key.StartsWith(this.GetNormalisedPath("Buildings\\"), StringComparison.InvariantCultureIgnoreCase))
+            if (this.IsInFolder(key, "Buildings"))
                 return this.ReloadBuildings(content, key);
 
-            if (key.StartsWith(this.GetNormalisedPath("Characters\\")) && this.CountSegments(key) == 2) // ignore Characters/Dialogue/*, etc
+            if (this.IsInFolder(key, "Characters"))
                 return this.ReloadNpcSprites(content, key, monster: false);
 
-            if (key.StartsWith(this.GetNormalisedPath("Characters\\Monsters\\")))
+            if (this.IsInFolder(key, "Characters\\Monsters"))
                 return this.ReloadNpcSprites(content, key, monster: true);
 
-            if (key.StartsWith(this.GetNormalisedPath("LooseSprites\\Fence")))
+            if (key.StartsWith(this.GetNormalisedPath("LooseSprites\\Fence"), StringComparison.InvariantCultureIgnoreCase))
                 return this.ReloadFenceTextures(content, key);
 
-            if (key.StartsWith(this.GetNormalisedPath("Portraits\\")))
+            if (this.IsInFolder(key, "Portraits"))
                 return this.ReloadNpcPortraits(content, key);
 
             return false;
@@ -348,6 +348,9 @@ namespace StardewModdingAPI.Metadata
         /*********
         ** Private methods
         *********/
+        /****
+        ** Reload methods
+        ****/
         /// <summary>Reload building textures.</summary>
         /// <param name="content">The content manager through which to reload the asset.</param>
         /// <param name="key">The asset key to reload.</param>
@@ -491,6 +494,9 @@ namespace StardewModdingAPI.Metadata
             return false;
         }
 
+        /****
+        ** Helpers
+        ****/
         /// <summary>Get an NPC name from the name of their file under <c>Content/Characters</c>.</summary>
         /// <param name="name">The file name.</param>
         /// <remarks>Derived from <see cref="NPC.reloadSprite"/>.</remarks>
@@ -525,6 +531,17 @@ namespace StardewModdingAPI.Metadata
                     }
                 }
             }
+        }
+
+        /// <summary>Get whether a normalised asset key is in the given folder.</summary>
+        /// <param name="key">The normalised asset key (like <c>Animals/cat</c>).</param>
+        /// <param name="folder">The key folder (like <c>Animals</c>); doesn't need to be normalised.</param>
+        /// <param name="allowSubfolders">Whether to return true if the key is inside a subfolder of the <paramref name="folder"/>.</param>
+        private bool IsInFolder(string key, string folder, bool allowSubfolders = false)
+        {
+            return
+                key.StartsWith(this.GetNormalisedPath($"{folder}\\"), StringComparison.InvariantCultureIgnoreCase)
+                && (allowSubfolders || this.CountSegments(key) == this.CountSegments(folder) + 1);
         }
 
         /// <summary>Get the segments in a path (e.g. 'a/b' is 'a' and 'b').</summary>
