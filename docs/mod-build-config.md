@@ -140,6 +140,16 @@ That error means the package couldn't find your game. You can specify the game p
 _[Game path](#game-path)_ above.
 
 ## Release notes
+### 2.0.3 alpha
+* Added support for Stardew Valley 1.3.
+* Added support for unit test projects.
+
+### 2.0.2
+* Fixed compatibility issue on Linux.
+
+### 2.0.1
+* Fixed mod deploy failing to create subfolders if they don't already exist.
+
 ### 2.0
 * Added: mods are now copied into the `Mods` folder automatically (configurable).
 * Added: release zips are now created automatically in your build output folder (configurable).
