@@ -195,8 +195,10 @@ namespace StardewModdingAPI.Metadata
                 /****
                 ** Content\Critters
                 ****/
+#if !STARDEW_VALLEY_1_3
                 case "tilesheets\\critters": // Criter.InitShared
                     return Critter.critterTexture = content.Load<Texture2D>(key);
+#endif
 
                 case "tilesheets\\crops": // Game1.loadContent
                     return Game1.cropSpriteSheet = content.Load<Texture2D>(key);
@@ -427,7 +429,11 @@ namespace StardewModdingAPI.Metadata
             // update portrait
             Texture2D texture = content.Load<Texture2D>(key);
             foreach (NPC character in characters)
+#if STARDEW_VALLEY_1_3
+                this.Reflection.GetField<Texture2D>(character.Sprite, "spriteTexture").SetValue(texture);
+#else
                 character.Sprite.Texture = texture;
+#endif
             return true;
         }
 
