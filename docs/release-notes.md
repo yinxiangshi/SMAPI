@@ -17,8 +17,8 @@
 
 ## 2.5.4
 * For players:
-  * Fixed fence, NPC, and tree textures not updated when a mod changes them through the content API.
-  * Fixed visual bug on Linux/Mac when mods overlay images through the content API.
+  * Fixed some textures not updated when a mod changes them (notably animals, fences, NPCs, and trees).
+  * Fixed visual bug on Linux/Mac when mods overlay textures.
   * Fixed error when a mod removes an asset editor/loader.
   * Fixed minimum game version incorrectly changed from 1.2.30 to 1.2.33 in SMAPI 2.5.3.
 

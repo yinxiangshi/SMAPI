@@ -7,6 +7,7 @@ using StardewModdingAPI.Framework.Reflection;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
 using StardewValley.Buildings;
+using StardewValley.Characters;
 using StardewValley.Locations;
 using StardewValley.Menus;
 using StardewValley.Objects;
@@ -65,6 +66,16 @@ namespace StardewModdingAPI.Metadata
             Reflector reflection = this.Reflection;
             switch (key.ToLower().Replace("/", "\\")) // normalised key so we can compare statically
             {
+                /****
+                ** Animals
+                ****/
+                case "animals\\cat":
+                    return this.ReloadPetOrHorseSprites<Cat>(content, key);
+                case "animals\\dog":
+                    return this.ReloadPetOrHorseSprites<Dog>(content, key);
+                case "animals\\horse":
+                    return this.ReloadPetOrHorseSprites<Horse>(content, key);
+
                 /****
                 ** Buildings
                 ****/
@@ -326,6 +337,9 @@ namespace StardewModdingAPI.Metadata
             }
 
             // dynamic textures
+            if (this.IsInFolder(key, "Animals"))
+                return this.ReloadFarmAnimalSprites(content, key);
+
             if (this.IsInFolder(key, "Buildings"))
                 return this.ReloadBuildings(content, key);
 
@@ -351,6 +365,57 @@ namespace StardewModdingAPI.Metadata
         /****
         ** Reload methods
         ****/
+        /// <summary>Reload the sprites for matching pets or horses.</summary>
+        /// <typeparam name="TAnimal">The animal type.</typeparam>
+        /// <param name="content">The content manager through which to reload the asset.</param>
+        /// <param name="key">The asset key to reload.</param>
+        /// <returns>Returns whether any textures were reloaded.</returns>
+        private bool ReloadPetOrHorseSprites<TAnimal>(LocalizedContentManager content, string key)
+            where TAnimal : NPC
+        {
+            // find matches
+            TAnimal[] animals = this.GetCharacters().OfType<TAnimal>().ToArray();
+            if (!animals.Any())
+                return false;
+
+            // update sprites
+            Texture2D texture = content.Load<Texture2D>(key);
+            foreach (TAnimal animal in animals)
+                this.SetSpriteTexture(animal.sprite, texture);
+            return true;
+        }
+
+        /// <summary>Reload the sprites for matching farm animals.</summary>
+        /// <param name="content">The content manager through which to reload the asset.</param>
+        /// <param name="key">The asset key to reload.</param>
+        /// <returns>Returns whether any textures were reloaded.</returns>
+        /// <remarks>Derived from <see cref="FarmAnimal.reload"/>.</remarks>
+        private bool ReloadFarmAnimalSprites(LocalizedContentManager content, string key)
+        {
+            // find matches
+            FarmAnimal[] animals = this.GetFarmAnimals().ToArray();
+            if (!animals.Any())
+                return false;
+
+            // update sprites
+            Lazy<Texture2D> texture = new Lazy<Texture2D>(() => content.Load<Texture2D>(key));
+            foreach (FarmAnimal animal in animals)
+            {
+                // get expected key
+                string expectedKey = animal.age < animal.ageWhenMature
+                    ? $"Baby{(animal.type == "Duck" ? "White Chicken" : animal.type)}"
+                    : animal.type;
+                if (animal.showDifferentTextureWhenReadyForHarvest && animal.currentProduce <= 0)
+                    expectedKey = $"Sheared{expectedKey}";
+                expectedKey = $"Animals\\{expectedKey}";
+
+                // reload asset
+                if (expectedKey == key)
+                    this.SetSpriteTexture(animal.sprite, texture.Value);
+            }
+            return texture.IsValueCreated;
+        }
+
         /// <summary>Reload building textures.</summary>
         /// <param name="content">The content manager through which to reload the asset.</param>
         /// <param name="key">The asset key to reload.</param>
@@ -417,26 +482,14 @@ namespace StardewModdingAPI.Metadata
         {
             // get NPCs
             string name = this.GetNpcNameFromFileName(Path.GetFileName(key));
-            NPC[] characters =
-                (
-                    from location in this.GetLocations()
-                    from npc in location.characters
-                    where npc.name == name && npc.IsMonster == monster
-                    select npc
-                )
-                .Distinct()
-                .ToArray();
+            NPC[] characters = this.GetCharacters().Where(npc => npc.name == name && npc.IsMonster == monster).ToArray();
             if (!characters.Any())
                 return false;
 
             // update portrait
             Texture2D texture = content.Load<Texture2D>(key);
             foreach (NPC character in characters)
-#if STARDEW_VALLEY_1_3
-                this.Reflection.GetField<Texture2D>(character.Sprite, "spriteTexture").SetValue(texture);
-#else
-                character.Sprite.Texture = texture;
-#endif
+                this.SetSpriteTexture(character.Sprite, texture);
             return true;
         }
 
@@ -448,15 +501,7 @@ namespace StardewModdingAPI.Metadata
         {
             // get NPCs
             string name = this.GetNpcNameFromFileName(Path.GetFileName(key));
-            NPC[] villagers =
-                (
-                    from location in this.GetLocations()
-                    from npc in location.characters
-                    where npc.name == name && npc.isVillager()
-                    select npc
-                )
-                .Distinct()
-                .ToArray();
+            NPC[] villagers = this.GetCharacters().Where(npc => npc.name == name && npc.isVillager()).ToArray();
             if (!villagers.Any())
                 return false;
 
@@ -497,6 +542,18 @@ namespace StardewModdingAPI.Metadata
         /****
         ** Helpers
         ****/
+        /// <summary>Reload the texture for an animated sprite.</summary>
+        /// <param name="sprite">The animated sprite to update.</param>
+        /// <param name="texture">The texture to set.</param>
+        private void SetSpriteTexture(AnimatedSprite sprite, Texture2D texture)
+        {
+#if STARDEW_VALLEY_1_3
+            this.Reflection.GetField<Texture2D>(sprite, "spriteTexture").SetValue(texture);
+#else
+            sprite.Texture = texture;
+#endif
+        }
+
         /// <summary>Get an NPC name from the name of their file under <c>Content/Characters</c>.</summary>
         /// <param name="name">The file name.</param>
         /// <remarks>Derived from <see cref="NPC.reloadSprite"/>.</remarks>
@@ -512,6 +569,28 @@ namespace StardewModdingAPI.Metadata
                     return "Mister Qi";
                 default:
                     return name;
+            }
+        }
+
+        /// <summary>Get all NPCs in the game (excluding farm animals).</summary>
+        private IEnumerable<NPC> GetCharacters()
+        {
+            return this.GetLocations().SelectMany(p => p.characters);
+        }
+
+        /// <summary>Get all farm animals in the game.</summary>
+        private IEnumerable<FarmAnimal> GetFarmAnimals()
+        {
+            foreach (GameLocation location in this.GetLocations())
+            {
+                if (location is Farm farm)
+                {
+                    foreach (FarmAnimal animal in farm.animals.Values)
+                        yield return animal;
+                }
+                else if (location is AnimalHouse animalHouse)
+                    foreach (FarmAnimal animal in animalHouse.animals.Values)
+                        yield return animal;
             }
         }
 
