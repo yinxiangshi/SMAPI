@@ -17,7 +17,7 @@
 
 ## 2.5.4
 * For players:
-  * Fixed tree textures not updated when changed through the content API.
+  * Fixed NPC and tree textures not updated when changed through the content API.
   * Fixed visual bug on Linux/Mac when mods overlay images through the content API.
   * Fixed error when a mod removes an asset editor/loader.
 
