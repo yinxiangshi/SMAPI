@@ -333,6 +333,9 @@ namespace StardewModdingAPI.Metadata
             if (key.StartsWith(this.GetNormalisedPath("Characters\\Monsters\\")))
                 return this.ReloadNpcSprites(content, key, monster: true);
 
+            if (key.StartsWith(this.GetNormalisedPath("LooseSprites\\Fence")))
+                return this.ReloadFenceTextures(content, key);
+
             if (key.StartsWith(this.GetNormalisedPath("Portraits\\")))
                 return this.ReloadNpcPortraits(content, key);
 
@@ -370,6 +373,34 @@ namespace StardewModdingAPI.Metadata
                 return true;
             }
             return false;
+        }
+
+        /// <summary>Reload the sprites for a fence type.</summary>
+        /// <param name="content">The content manager through which to reload the asset.</param>
+        /// <param name="key">The asset key to reload.</param>
+        /// <returns>Returns whether any textures were reloaded.</returns>
+        private bool ReloadFenceTextures(LocalizedContentManager content, string key)
+        {
+            // get fence type
+            if (!int.TryParse(this.GetSegments(key)[1].Substring("Fence".Length), out int fenceType))
+                return false;
+
+            // get fences
+            Fence[] fences =
+                (
+                    from location in this.GetLocations()
+                    from fence in location.Objects.Values.OfType<Fence>()
+                    where fenceType == 1
+                        ? fence.isGate
+                        : fence.whichType == fenceType
+                    select fence
+                )
+                .ToArray();
+
+            // update fence textures
+            foreach (Fence fence in fences)
+                fence.reloadSprite();
+            return true;
         }
 
         /// <summary>Reload the sprites for matching NPCs.</summary>
@@ -490,13 +521,20 @@ namespace StardewModdingAPI.Metadata
             }
         }
 
+        /// <summary>Get the segments in a path (e.g. 'a/b' is 'a' and 'b').</summary>
+        /// <param name="path">The path to check.</param>
+        private string[] GetSegments(string path)
+        {
+            if (path == null)
+                return new string[0];
+            return path.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        }
+
         /// <summary>Count the number of segments in a path (e.g. 'a/b' is 2).</summary>
         /// <param name="path">The path to check.</param>
         private int CountSegments(string path)
         {
-            if (path == null)
-                return 0;
-            return path.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).Length;
+            return this.GetSegments(path).Length;
         }
     }
 }
