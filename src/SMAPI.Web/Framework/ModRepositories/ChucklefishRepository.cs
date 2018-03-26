@@ -43,7 +43,7 @@ namespace StardewModdingAPI.Web.Framework.ModRepositories
                     return new ModInfoModel("Found no mod with this ID.");
 
                 // create model
-                return new ModInfoModel(mod.Name, this.NormaliseVersion(mod.Version), mod.Url);
+                return new ModInfoModel(name: mod.Name, version: this.NormaliseVersion(mod.Version), url: mod.Url);
             }
             catch (Exception ex)
             {

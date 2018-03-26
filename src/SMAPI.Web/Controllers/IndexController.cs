@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using StardewModdingAPI.Common;
 using StardewModdingAPI.Web.Framework.Clients.GitHub;
 using StardewModdingAPI.Web.ViewModels;
 
@@ -23,7 +24,10 @@ namespace StardewModdingAPI.Web.Controllers
         private readonly IGitHubClient GitHub;
 
         /// <summary>The cache time for release info.</summary>
-        private readonly TimeSpan CacheTime = TimeSpan.FromMinutes(5);
+        private readonly TimeSpan CacheTime = TimeSpan.FromSeconds(1);
+
+        /// <summary>The GitHub repository name to check for update.</summary>
+        private readonly string RepositoryName = "Pathoschild/SMAPI";
 
 
         /*********
@@ -42,17 +46,24 @@ namespace StardewModdingAPI.Web.Controllers
         [HttpGet]
         public async Task<ViewResult> Index()
         {
-            // fetch latest SMAPI release
-            GitRelease release = await this.Cache.GetOrCreateAsync("latest-smapi-release", async entry =>
+            // fetch SMAPI releases
+            IndexVersionModel stableVersion = await this.Cache.GetOrCreateAsync("stable-version", async entry =>
             {
                 entry.AbsoluteExpiration = DateTimeOffset.UtcNow.Add(this.CacheTime);
-                return await this.GitHub.GetLatestReleaseAsync("Pathoschild/SMAPI");
+                GitRelease release = await this.GitHub.GetLatestReleaseAsync(this.RepositoryName, includePrerelease: false);
+                return new IndexVersionModel(release.Name, release.Body, this.GetMainDownloadUrl(release), this.GetDevDownloadUrl(release));
             });
-            string downloadUrl = this.GetMainDownloadUrl(release);
-            string devDownloadUrl = this.GetDevDownloadUrl(release);
+            IndexVersionModel betaVersion = await this.Cache.GetOrCreateAsync("beta-version", async entry =>
+            {
+                entry.AbsoluteExpiration = DateTimeOffset.UtcNow.Add(this.CacheTime);
+                GitRelease release = await this.GitHub.GetLatestReleaseAsync(this.RepositoryName, includePrerelease: true);
+                return release.IsPrerelease
+                    ? this.GetBetaDownload(release)
+                    : null;
+            });
 
             // render view
-            var model = new IndexModel(release.Name, release.Body, downloadUrl, devDownloadUrl);
+            var model = new IndexModel(stableVersion, betaVersion);
             return this.View(model);
         }
 
@@ -88,6 +99,34 @@ namespace StardewModdingAPI.Web.Controllers
 
             // fallback just in case
             return "https://github.com/pathoschild/SMAPI/releases";
+        }
+
+        /// <summary>Get the latest beta download for a SMAPI release.</summary>
+        /// <param name="release">The SMAPI release.</param>
+        private IndexVersionModel GetBetaDownload(GitRelease release)
+        {
+            // get download with the latest version
+            SemanticVersionImpl latestVersion = null;
+            string latestUrl = null;
+            foreach (GitAsset asset in release.Assets ?? new GitAsset[0])
+            {
+                // parse version
+                Match versionMatch = Regex.Match(asset.FileName, @"SMAPI-([\d\.]+(?:-.+)?)-installer.zip");
+                if (!versionMatch.Success || !SemanticVersionImpl.TryParse(versionMatch.Groups[1].Value, out SemanticVersionImpl version))
+                    continue;
+
+                // save latest version
+                if (latestVersion == null || latestVersion.CompareTo(version) < 0)
+                {
+                    latestVersion = version;
+                    latestUrl = asset.DownloadUrl;
+                }
+            }
+
+            // return if prerelease
+            return latestVersion?.Tag != null
+                ? new IndexVersionModel(latestVersion.ToString(), release.Body, latestUrl, null)
+                : null;
         }
     }
 }

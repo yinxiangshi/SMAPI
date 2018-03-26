@@ -29,8 +29,11 @@ namespace StardewModdingAPI.Web.Controllers
         /// <summary>The cache in which to store mod metadata.</summary>
         private readonly IMemoryCache Cache;
 
-        /// <summary>The number of minutes update checks should be cached before refetching them.</summary>
-        private readonly int CacheMinutes;
+        /// <summary>The number of minutes successful update checks should be cached before refetching them.</summary>
+        private readonly int SuccessCacheMinutes;
+
+        /// <summary>The number of minutes failed update checks should be cached before refetching them.</summary>
+        private readonly int ErrorCacheMinutes;
 
         /// <summary>A regex which matches SMAPI-style semantic version.</summary>
         private readonly string VersionRegex;
@@ -50,7 +53,8 @@ namespace StardewModdingAPI.Web.Controllers
             ModUpdateCheckConfig config = configProvider.Value;
 
             this.Cache = cache;
-            this.CacheMinutes = config.CacheMinutes;
+            this.SuccessCacheMinutes = config.SuccessCacheMinutes;
+            this.ErrorCacheMinutes = config.ErrorCacheMinutes;
             this.VersionRegex = config.SemanticVersionRegex;
             this.Repositories =
                 new IModRepository[]
@@ -115,13 +119,13 @@ namespace StardewModdingAPI.Web.Controllers
                     if (info.Error == null)
                     {
                         if (info.Version == null)
-                            info = new ModInfoModel(info.Name, info.Version, info.Url, "Mod has no version number.");
+                            info = new ModInfoModel(name: info.Name, version: info.Version, url: info.Url, error: "Mod has no version number.");
                         if (!allowInvalidVersions && !Regex.IsMatch(info.Version, this.VersionRegex, RegexOptions.CultureInvariant | RegexOptions.IgnoreCase))
-                            info = new ModInfoModel(info.Name, info.Version, info.Url, $"Mod has invalid semantic version '{info.Version}'.");
+                            info = new ModInfoModel(name: info.Name, version: info.Version, url: info.Url, error: $"Mod has invalid semantic version '{info.Version}'.");
                     }
 
                     // cache & return
-                    entry.AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(this.CacheMinutes);
+                    entry.AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(info.Error == null ? this.SuccessCacheMinutes : this.ErrorCacheMinutes);
                     return info;
                 });
             }

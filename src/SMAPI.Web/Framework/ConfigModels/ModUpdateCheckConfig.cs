@@ -6,8 +6,11 @@ namespace StardewModdingAPI.Web.Framework.ConfigModels
         /*********
         ** Accessors
         *********/
-        /// <summary>The number of minutes update checks should be cached before refetching them.</summary>
-        public int CacheMinutes { get; set; }
+        /// <summary>The number of minutes successful update checks should be cached before refetching them.</summary>
+        public int SuccessCacheMinutes { get; set; }
+
+        /// <summary>The number of minutes failed update checks should be cached before refetching them.</summary>
+        public int ErrorCacheMinutes { get; set; }
 
         /// <summary>A regex which matches SMAPI-style semantic version.</summary>
         /// <remarks>Derived from SMAPI's SemanticVersion implementation.</remarks>

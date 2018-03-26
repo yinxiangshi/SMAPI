@@ -54,19 +54,19 @@
             <caption>Game info:</caption>
             <tr>
                 <td>SMAPI version:</td>
-                <td>@Model.ParsedLog.ApiVersion</td>
+                <td v-pre>@Model.ParsedLog.ApiVersion</td>
             </tr>
             <tr>
                 <td>Game version:</td>
-                <td>@Model.ParsedLog.GameVersion</td>
+                <td v-pre>@Model.ParsedLog.GameVersion</td>
             </tr>
             <tr>
                 <td>Platform:</td>
-                <td>@Model.ParsedLog.OperatingSystem</td>
+                <td v-pre>@Model.ParsedLog.OperatingSystem</td>
             </tr>
             <tr>
                 <td>Mods path:</td>
-                <td>@Model.ParsedLog.ModPath</td>
+                <td v-pre>@Model.ParsedLog.ModPath</td>
             </tr>
             <tr>
                 <td>Log started:</td>
@@ -85,7 +85,7 @@
             {
                 <tr v-on:click="toggleMod('@GetSlug(mod.Name)')" class="mod-entry" v-bind:class="{ hidden: !showMods['@GetSlug(mod.Name)'] }">
                     <td><input type="checkbox" v-bind:checked="showMods['@GetSlug(mod.Name)']" v-show="anyModsHidden" /></td>
-                    <td>
+                    <td v-pre>
                         @mod.Name
                         @if (contentPacks != null && contentPacks.TryGetValue(mod.Name, out LogModInfo[] contentPackList))
                         {
@@ -97,19 +97,19 @@
                             </div>
                         }
                     </td>
-                    <td>@mod.Version</td>
-                    <td>@mod.Author</td>
+                    <td v-pre>@mod.Version</td>
+                    <td v-pre>@mod.Author</td>
                     @if (mod.Errors == 0)
                     {
-                        <td class="color-green">no errors</td>
+                        <td v-pre class="color-green">no errors</td>
                     }
                     else if (mod.Errors == 1)
                     {
-                        <td class="color-red">@mod.Errors error</td>
+                        <td v-pre class="color-red">@mod.Errors error</td>
                     }
                     else
                     {
-                        <td class="color-red">@mod.Errors errors</td>
+                        <td v-pre class="color-red">@mod.Errors errors</td>
                     }
                 </tr>
             }
@@ -130,16 +130,16 @@
                 string levelStr = message.Level.ToString().ToLower();
 
                 <tr class="@levelStr mod" v-show="filtersAllow('@GetSlug(message.Mod)', '@levelStr')">
-                    <td>@message.Time</td>
-                    <td>@message.Level.ToString().ToUpper()</td>
-                    <td data-title="@message.Mod">@message.Mod</td>
-                    <td>@message.Text</td>
+                    <td v-pre>@message.Time</td>
+                    <td v-pre>@message.Level.ToString().ToUpper()</td>
+                    <td v-pre data-title="@message.Mod">@message.Mod</td>
+                    <td v-pre>@message.Text</td>
                 </tr>
                 if (message.Repeated > 0)
                 {
                     <tr class="@levelStr mod mod-repeat" v-show="filtersAllow('@GetSlug(message.Mod)', '@levelStr')">
                         <td colspan="3"></td>
-                        <td><i>repeats [@message.Repeated] times.</i></td>
+                        <td v-pre><i>repeats [@message.Repeated] times.</i></td>
                     </tr>
                 }
             }
@@ -151,11 +151,11 @@ else if (Model.ParsedLog?.IsValid == false)
     <h2>Parsed log</h2>
     <div id="error" class="color-red">
         <p><strong>We couldn't parse that file, but you can still share the link.</strong></p>
-        <p>Error details: @Model.ParsedLog.Error</p>
+        <p v-pre>Error details: @Model.ParsedLog.Error</p>
     </div>
 
     <h3>Raw log</h3>
-    <pre>@Model.ParsedLog.RawText</pre>
+    <pre v-pre>@Model.ParsedLog.RawText</pre>
 }
 
 <div id="upload-area">

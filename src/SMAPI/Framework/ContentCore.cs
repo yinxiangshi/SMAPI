@@ -51,7 +51,7 @@ namespace StardewModdingAPI.Framework
         private readonly IDictionary<string, LocalizedContentManager.LanguageCode> LanguageCodes;
 
         /// <summary>Provides metadata for core game assets.</summary>
-        private readonly CoreAssets CoreAssets;
+        private readonly CoreAssetPropagator CoreAssets;
 
         /// <summary>The assets currently being intercepted by <see cref="IAssetLoader"/> instances. This is used to prevent infinite loops when a loader loads a new asset.</summary>
         private readonly ContextHash<string> AssetsBeingLoaded = new ContextHash<string>();
@@ -103,7 +103,7 @@ namespace StardewModdingAPI.Framework
             this.ModContentPrefix = this.GetAssetNameFromFilePath(Constants.ModPath);
 
             // get asset data
-            this.CoreAssets = new CoreAssets(this.NormaliseAssetName, reflection);
+            this.CoreAssets = new CoreAssetPropagator(this.NormaliseAssetName, reflection);
             this.Locales = this.GetKeyLocales(reflection);
             this.LanguageCodes = this.Locales.ToDictionary(p => p.Value, p => p.Key, StringComparer.InvariantCultureIgnoreCase);
         }
@@ -368,7 +368,7 @@ namespace StardewModdingAPI.Framework
                 int reloaded = 0;
                 foreach (string key in removeAssetNames)
                 {
-                    if (this.CoreAssets.ReloadForKey(Game1.content, key)) // use an intercepted content manager
+                    if (this.CoreAssets.Propagate(Game1.content, key)) // use an intercepted content manager
                         reloaded++;
                 }
 

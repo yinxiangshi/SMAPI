@@ -38,10 +38,21 @@ namespace StardewModdingAPI.Web.Framework.ModRepositories
             // fetch info
             try
             {
-                GitRelease release = await this.Client.GetLatestReleaseAsync(id);
-                return release != null
-                    ? new ModInfoModel(id, this.NormaliseVersion(release.Tag), $"https://github.com/{id}/releases")
-                    : new ModInfoModel("Found no mod with this ID.");
+                // get latest release
+                GitRelease latest = await this.Client.GetLatestReleaseAsync(id, includePrerelease: true);
+                GitRelease preview = null;
+                if (latest == null)
+                    return new ModInfoModel("Found no mod with this ID.");
+
+                // get latest stable release (if not latest)
+                if (latest.IsPrerelease)
+                {
+                    preview = latest;
+                    latest = await this.Client.GetLatestReleaseAsync(id, includePrerelease: false);
+                }
+
+                // return data
+                return new ModInfoModel(name: id, version: this.NormaliseVersion(latest?.Tag), previewVersion: this.NormaliseVersion(preview?.Tag), url: $"https://github.com/{id}/releases");
             }
             catch (Exception ex)
             {

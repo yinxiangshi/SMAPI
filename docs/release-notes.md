@@ -1,11 +1,35 @@
 # Release notes
+<!--
 ## 2.6 alpha
 * For players:
-  * Updated for Stardew Valley 1.3 (multiplayer update); no longer compatible with earlier versions.
+  * Added support for Stardew Valley 1.3+; no longer compatible with earlier versions.
+  * Fixed SMAPI update alerts linking to the GitHub repository instead of [smapi.io](https://smapi.io).
+  * Fixed SMAPI update checks not showing newer beta versions when using a beta version.
 
 * For modders:
-  * Dropped support for some deprecated APIs.
+  * Dropped some deprecated APIs.
   * Fixed some assets not being editable.
+
+* For SMAPI developers:
+  * Added prerelease versions to the mod update-check API response where available (GitHub only).
+  * Added support for beta releases on the home page.
+-->
+
+## 2.5.4
+* For players:
+  * Fixed some textures not updated when a mod changes them.
+  * Fixed visual bug on Linux/Mac when mods overlay textures.
+  * Fixed error when mods remove an asset editor/loader.
+  * Fixed minimum game version incorrectly increased in SMAPI 2.5.3.
+
+* For the [log parser][]:
+  * Fixed error when log text contains certain tokens.
+
+* For modders:
+  * Updated to Json.NET 11.0.2.
+
+* For SMAPI developers:
+  * Added support for beta update track to support upcoming Stardew Valley 1.3 beta.
 
 ## 2.5.3
 * For players:
@@ -13,6 +37,7 @@
   * Fixed rare crash with some combinations of manifest fields and internal mod data.
   * Fixed update checks failing for Nexus Mods due to a change in their API.
   * Fixed update checks failing for some older mods with non-standard versions.
+  * Fixed failed update checks being cached for an hour (now cached 5 minutes).
   * Fixed error when a content pack needs a mod that couldn't be loaded.
   * Fixed Linux ["magic number is wrong" errors](https://github.com/mono/mono/issues/6752) by changing default terminal order.
   * Updated compatibility list and added update checks for more mods.

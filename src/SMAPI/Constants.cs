@@ -41,7 +41,7 @@ namespace StardewModdingAPI
 #if STARDEW_VALLEY_1_3
             new SemanticVersion($"2.6-alpha.{DateTime.UtcNow:yyyyMMddHHmm}");
 #else
-            new SemanticVersion($"2.5.3");
+            new SemanticVersion("2.5.4");
 #endif
 
         /// <summary>The minimum supported version of Stardew Valley.</summary>
@@ -49,7 +49,7 @@ namespace StardewModdingAPI
 #if STARDEW_VALLEY_1_3
             new GameVersion("1.3.0.4");
 #else
-            new SemanticVersion("1.2.33");
+            new SemanticVersion("1.2.30");
 #endif
 
         /// <summary>The maximum supported version of Stardew Valley.</summary>
@@ -81,8 +81,8 @@ namespace StardewModdingAPI
         /****
         ** Internal
         ****/
-        /// <summary>The GitHub repository to check for updates.</summary>
-        internal const string GitHubRepository = "Pathoschild/SMAPI";
+        /// <summary>The URL of the SMAPI home page.</summary>
+        internal const string HomePageUrl = "https://smapi.io";
 
         /// <summary>The file path for the SMAPI configuration file.</summary>
         internal static string ApiConfigPath => Path.Combine(Constants.ExecutionPath, $"{typeof(Program).Assembly.GetName().Name}.config.json");

@@ -541,8 +541,10 @@ namespace StardewModdingAPI
                         this.Monitor.Log("Couldn't check for a new version of SMAPI. This won't affect your game, but you may not be notified of new versions if this keeps happening.", LogLevel.Warn);
                         this.Monitor.Log($"Error: {response.Error}");
                     }
-                    else if (new SemanticVersion(response.Version).IsNewerThan(Constants.ApiVersion))
-                        this.Monitor.Log($"You can update SMAPI to {response.Version}: {response.Url}", LogLevel.Alert);
+                    else if (this.IsValidUpdate(Constants.ApiVersion, new SemanticVersion(response.Version)))
+                        this.Monitor.Log($"You can update SMAPI to {response.Version}: {Constants.HomePageUrl}", LogLevel.Alert);
+                    else if (response.PreviewVersion != null && this.IsValidUpdate(Constants.ApiVersion, new SemanticVersion(response.PreviewVersion)))
+                        this.Monitor.Log($"You can update SMAPI to {response.PreviewVersion}: {Constants.HomePageUrl}", LogLevel.Alert);
                     else
                         this.Monitor.Log("   SMAPI okay.", LogLevel.Trace);
                 }
@@ -654,6 +656,27 @@ namespace StardewModdingAPI
                     }
                 }
             }).Start();
+        }
+
+        /// <summary>Get whether a given version should be offered to the user as an update.</summary>
+        /// <param name="currentVersion">The current semantic version.</param>
+        /// <param name="newVersion">The target semantic version.</param>
+        private bool IsValidUpdate(ISemanticVersion currentVersion, ISemanticVersion newVersion)
+        {
+            // basic eligibility
+            bool isNewer = newVersion.IsNewerThan(currentVersion);
+            bool isPrerelease = newVersion.Build != null;
+            bool isEquallyStable = !isPrerelease || currentVersion.Build != null; // don't update stable => prerelease
+            if (!isNewer || !isEquallyStable)
+                return false;
+            if (!isPrerelease)
+                return true;
+
+            // prerelease eligible if same version (excluding prerelease tag)
+            return
+                newVersion.MajorVersion == currentVersion.MajorVersion
+                && newVersion.MinorVersion == currentVersion.MinorVersion
+                && newVersion.PatchVersion == currentVersion.PatchVersion;
         }
 
         /// <summary>Create a directory path if it doesn't exist.</summary>
@@ -930,7 +953,7 @@ namespace StardewModdingAPI
                 {
                     helper.ObservableAssetEditors.CollectionChanged += (sender, e) =>
                     {
-                        if (e.NewItems.Count > 0)
+                        if (e.NewItems?.Count > 0)
                         {
                             this.Monitor.Log("Invalidating cache entries for new asset editors...", LogLevel.Trace);
                             this.ContentCore.InvalidateCacheFor(e.NewItems.Cast<IAssetEditor>().ToArray(), new IAssetLoader[0]);
@@ -938,7 +961,7 @@ namespace StardewModdingAPI
                     };
                     helper.ObservableAssetLoaders.CollectionChanged += (sender, e) =>
                     {
-                        if (e.NewItems.Count > 0)
+                        if (e.NewItems?.Count > 0)
                         {
                             this.Monitor.Log("Invalidating cache entries for new asset loaders...", LogLevel.Trace);
                             this.ContentCore.InvalidateCacheFor(new IAssetEditor[0], e.NewItems.Cast<IAssetLoader>().ToArray());
