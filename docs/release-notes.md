@@ -17,13 +17,19 @@
 
 ## 2.5.4
 * For players:
-  * Fixed some textures not updated when a mod changes them (notably animals, fences, NPCs, and trees).
+  * Fixed some textures not updated when a mod changes them.
   * Fixed visual bug on Linux/Mac when mods overlay textures.
-  * Fixed error when a mod removes an asset editor/loader.
-  * Fixed minimum game version incorrectly changed from 1.2.30 to 1.2.33 in SMAPI 2.5.3.
+  * Fixed error when mods remove an asset editor/loader.
+  * Fixed minimum game version incorrectly increased in SMAPI 2.5.3.
 
 * For the [log parser][]:
   * Fixed error when log text contains certain tokens.
+
+* For modders:
+  * Updated to Json.NET 11.0.2.
+
+* For SMAPI developers:
+  * Added support for beta update track to support upcoming Stardew Valley 1.3 beta.
 
 ## 2.5.3
 * For players:
