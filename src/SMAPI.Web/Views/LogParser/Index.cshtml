@@ -78,23 +78,19 @@ else
         <table id="metadata">
             <caption>Game info:</caption>
             <tr>
-                <td>SMAPI version:</td>
+                <th>Stardew Valley:</th>
+                <td v-pre>@Model.ParsedLog.GameVersion on @Model.ParsedLog.OperatingSystem</td>
+            </tr>
+            <tr>
+                <th>SMAPI:</th>
                 <td v-pre>@Model.ParsedLog.ApiVersion</td>
             </tr>
             <tr>
-                <td>Game version:</td>
-                <td v-pre>@Model.ParsedLog.GameVersion</td>
-            </tr>
-            <tr>
-                <td>Platform:</td>
-                <td v-pre>@Model.ParsedLog.OperatingSystem</td>
-            </tr>
-            <tr>
-                <td>Game path:</td>
+                <th>Folder:</th>
                 <td v-pre>@Model.ParsedLog.GamePath</td>
             </tr>
             <tr>
-                <td>Log started:</td>
+                <th>Log started:</th>
                 <td>@Model.ParsedLog.Timestamp.UtcDateTime.ToString("yyyy-MM-dd HH:mm") UTC ({{localTimeStarted}} your time)</td>
             </tr>
         </table>
@@ -111,7 +107,7 @@ else
                 <tr v-on:click="toggleMod('@GetSlug(mod.Name)')" class="mod-entry" v-bind:class="{ hidden: !showMods['@GetSlug(mod.Name)'] }">
                     <td><input type="checkbox" v-bind:checked="showMods['@GetSlug(mod.Name)']" v-show="anyModsHidden" /></td>
                     <td v-pre>
-                        @mod.Name
+                        <strong>@mod.Name</strong>
                         @if (contentPacks != null && contentPacks.TryGetValue(mod.Name, out LogModInfo[] contentPackList))
                         {
                             <div class="content-packs">

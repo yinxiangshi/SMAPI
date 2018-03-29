@@ -29,8 +29,12 @@ input#upload-button {
     background: #eef;
 }
 
+table caption {
+    font-weight: bold;
+}
+
 /*********
-** Log metadata & filters
+** Result banner
 *********/
 .banner {
     border: 2px solid gray;
@@ -48,15 +52,20 @@ input#upload-button {
     background: #FCC;
 }
 
+/*********
+** Log metadata & filters
+*********/
 #metadata, #mods, #filters {
-    font-weight: bold;
     border-bottom: 1px dashed #888888;
-    padding-bottom: 10px;
     margin-bottom: 5px;
 }
 
-table#metadata,
-table#mods {
+#metadata th {
+    text-align: right;
+    padding-right: 0.7em;
+}
+
+table#metadata, table#mods {
     border: 1px solid #000000;
     background: #ffffff;
     border-radius: 5px;
@@ -131,6 +140,7 @@ table#mods {
 #filters {
     margin: 1em 0 0 0;
     padding: 0;
+    font-weight: bold;
 }
 
 #filters span {
