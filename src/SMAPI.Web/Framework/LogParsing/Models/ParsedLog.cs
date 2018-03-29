@@ -32,6 +32,9 @@ namespace StardewModdingAPI.Web.Framework.LogParsing.Models
         /// <summary>The player's operating system.</summary>
         public string OperatingSystem { get; set; }
 
+        /// <summary>The game install path.</summary>
+        public string GamePath { get; set; }
+
         /// <summary>The mod folder path.</summary>
         public string ModPath { get; set; }
 

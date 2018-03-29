@@ -135,6 +135,7 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                         {
                             Match match = this.ModPathPattern.Match(message.Text);
                             log.ModPath = match.Groups["path"].Value;
+                            log.GamePath = new FileInfo(log.ModPath).Directory.FullName;
                         }
 
                         // log UTC timestamp line
