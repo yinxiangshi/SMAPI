@@ -107,7 +107,7 @@ else
                 <tr v-on:click="toggleMod('@GetSlug(mod.Name)')" class="mod-entry" v-bind:class="{ hidden: !showMods['@GetSlug(mod.Name)'] }">
                     <td><input type="checkbox" v-bind:checked="showMods['@GetSlug(mod.Name)']" v-show="anyModsHidden" /></td>
                     <td v-pre>
-                        <strong>@mod.Name</strong>
+                        <strong>@mod.Name</strong> @mod.Version
                         @if (contentPacks != null && contentPacks.TryGetValue(mod.Name, out LogModInfo[] contentPackList))
                         {
                             <div class="content-packs">
@@ -118,7 +118,6 @@ else
                             </div>
                         }
                     </td>
-                    <td v-pre>@mod.Version</td>
                     <td v-pre>@mod.Author</td>
                     @if (mod.Errors == 0)
                     {
