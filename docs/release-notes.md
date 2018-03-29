@@ -15,6 +15,10 @@
   * Added support for beta releases on the home page.
 -->
 
+## vNext
+* For the [log parser][]:
+  * Tweaked UI.
+
 ## 2.5.4
 * For players:
   * Fixed some textures not updated when a mod changes them.

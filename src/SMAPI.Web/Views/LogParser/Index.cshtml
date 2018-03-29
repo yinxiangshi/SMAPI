@@ -44,11 +44,36 @@
 ** Intro
 *********@
 <p id="blurb">This page lets you upload, view, and share a SMAPI log to help troubleshoot mod issues.</p>
-<input type="button" id="upload-button" value="Share a new log" />
 
 @if (Model.ParsedLog?.IsValid == true)
 {
-    <h2>Parsed log</h2>
+    <div class="banner success" v-pre>
+        <strong>The log was uploaded successfully!</strong><br/>
+        Share this URL when asking for help: <code>@(new Uri(new Uri(Model.SectionUrl), Model.PasteID))</code><br/>
+        (Or <a id="upload-button" href="#">upload a new log</a>.)
+    </div>
+}
+else if (Model.ParsedLog?.IsValid == false)
+{
+    <div class="banner error" v-pre>
+        <strong>Oops, couldn't parse that file. (Make sure you upload the log file, not the console text.)</strong><br />
+        Share this URL when asking for help: <code>@(new Uri(new Uri(Model.SectionUrl), Model.PasteID))</code><br />
+        (Or <a id="upload-button" href="#">upload a new log</a>.)<br />
+        <br />
+        <small v-pre>Error details: @Model.ParsedLog.Error</small>
+    </div>
+}
+else
+{
+    <input type="button" id="upload-button" value="Share a new log" />
+}
+
+@*********
+** Parsed log
+*********@
+@if (Model.ParsedLog?.IsValid == true)
+{
+    <h2>Log info</h2>
     <div id="output">
         <table id="metadata">
             <caption>Game info:</caption>
@@ -148,12 +173,6 @@
 }
 else if (Model.ParsedLog?.IsValid == false)
 {
-    <h2>Parsed log</h2>
-    <div id="error" class="color-red">
-        <p><strong>We couldn't parse that file, but you can still share the link.</strong></p>
-        <p v-pre>Error details: @Model.ParsedLog.Error</p>
-    </div>
-
     <h3>Raw log</h3>
     <pre v-pre>@Model.ParsedLog.RawText</pre>
 }
@@ -166,7 +185,6 @@ else if (Model.ParsedLog?.IsValid == false)
                 <li><a href="https://stardewvalleywiki.com/Modding:Player_FAQs#SMAPI_log" target="_blank">Find your SMAPI log file</a> (not the console text).</li>
                 <li>Drag the file onto the textbox below (or paste the text in).</li>
                 <li>Click <em>Parse</em>.</li>
-                <li>Share the URL of the new page.</li>
             </ol>
             <textarea id="input" placeholder="Paste or drag the log here"></textarea>
             <div class="buttons">

@@ -20,18 +20,34 @@ caption {
     font-family: monospace;
 }
 
-#upload-button {
+input#upload-button {
     background: #ccf;
     border: 1px solid #000088;
 }
 
-#upload-button {
+input#upload-button {
     background: #eef;
 }
 
 /*********
 ** Log metadata & filters
 *********/
+.banner {
+    border: 2px solid gray;
+    border-radius: 5px;
+    padding: 1em;
+}
+
+.banner.success {
+    border-color: green;
+    background: #CFC;
+}
+
+.banner.error {
+    border-color: red;
+    background: #FCC;
+}
+
 #metadata, #mods, #filters {
     font-weight: bold;
     border-bottom: 1px dashed #888888;
