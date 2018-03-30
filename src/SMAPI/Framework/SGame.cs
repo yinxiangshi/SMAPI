@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
@@ -25,6 +26,8 @@ using StardewValley.Tools;
 using xTile.Dimensions;
 #if !STARDEW_VALLEY_1_3
 using xTile.Layers;
+#else
+using SFarmer = StardewValley.Farmer;
 #endif
 
 namespace StardewModdingAPI.Framework
@@ -162,6 +165,7 @@ namespace StardewModdingAPI.Framework
         private readonly Action drawDialogueBox = () => SGame.Reflection.GetMethod(SGame.Instance, nameof(drawDialogueBox)).Invoke();
 #if STARDEW_VALLEY_1_3
         private readonly Action<SpriteBatch> drawOverlays = spriteBatch => SGame.Reflection.GetMethod(SGame.Instance, nameof(SGame.drawOverlays)).Invoke(spriteBatch);
+        private static StringBuilder _debugStringBuilder => SGame.Reflection.GetField<StringBuilder>(typeof(Game1), nameof(_debugStringBuilder)).GetValue();
 #endif
         private readonly Action renderScreenBuffer = () => SGame.Reflection.GetMethod(SGame.Instance, nameof(renderScreenBuffer)).Invoke();
         // ReSharper restore ArrangeStaticMemberQualifier, ArrangeThisQualifier, InconsistentNaming
@@ -727,6 +731,12 @@ namespace StardewModdingAPI.Framework
                         this.RaisePostRender();
                         Game1.spriteBatch.End();
                     }
+                    if (Game1.overlayMenu != null)
+                    {
+                        Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, (DepthStencilState)null, (RasterizerState)null);
+                        Game1.overlayMenu.draw(Game1.spriteBatch);
+                        Game1.spriteBatch.End();
+                    }
                     //base.Draw(gameTime);
                     this.renderScreenBuffer();
                 }
@@ -845,7 +855,7 @@ namespace StardewModdingAPI.Framework
                             int widthOfString = SpriteText.getWidthOfString(str3);
                             int height = 64;
                             int x = 64;
-                            int y = Game1.graphics.GraphicsDevice.Viewport.TitleSafeArea.Bottom - height;
+                            int y = Game1.graphics.GraphicsDevice.Viewport.GetTitleSafeArea().Bottom - height;
                             SpriteText.drawString(Game1.spriteBatch, s, x, y, 999999, widthOfString, height, 1f, 0.88f, false, 0, str3, -1);
                             Game1.spriteBatch.End();
                             if ((double)Game1.options.zoomLevel != 1.0)
@@ -857,6 +867,7 @@ namespace StardewModdingAPI.Framework
                                 Game1.spriteBatch.End();
                             }
                             this.drawOverlays(Game1.spriteBatch);
+                            //base.Draw(gameTime);
                         }
                         else
                         {
@@ -956,6 +967,27 @@ namespace StardewModdingAPI.Framework
                                         }
                                     }
                                 }
+                                foreach (SFarmer farmer in Game1.currentLocation.getFarmers())
+                                {
+                                    if (!(bool)((NetFieldBase<bool, NetBool>)farmer.swimming) && !farmer.isRidingHorse() && (Game1.currentLocation == null || !Game1.currentLocation.shouldShadowBeDrawnAboveBuildingsLayer(farmer.getTileLocation())))
+                                    {
+                                        SpriteBatch spriteBatch = Game1.spriteBatch;
+                                        Texture2D shadowTexture = Game1.shadowTexture;
+                                        Vector2 local = Game1.GlobalToLocal(farmer.Position + new Vector2(32f, 24f));
+                                        Microsoft.Xna.Framework.Rectangle? sourceRectangle = new Microsoft.Xna.Framework.Rectangle?(Game1.shadowTexture.Bounds);
+                                        Color white = Color.White;
+                                        double num2 = 0.0;
+                                        Microsoft.Xna.Framework.Rectangle bounds2 = Game1.shadowTexture.Bounds;
+                                        double x = (double)bounds2.Center.X;
+                                        bounds2 = Game1.shadowTexture.Bounds;
+                                        double y = (double)bounds2.Center.Y;
+                                        Vector2 origin = new Vector2((float)x, (float)y);
+                                        double num3 = 4.0 - (!farmer.running && !farmer.UsingTool || farmer.FarmerSprite.currentAnimationIndex <= 1 ? 0.0 : (double)Math.Abs(FarmerRenderer.featureYOffsetPerFrame[farmer.FarmerSprite.CurrentFrame]) * 0.5);
+                                        int num4 = 0;
+                                        double num5 = 0.0;
+                                        spriteBatch.Draw(shadowTexture, local, sourceRectangle, white, (float)num2, origin, (float)num3, (SpriteEffects)num4, (float)num5);
+                                    }
+                                }
                                 Game1.currentLocation.Map.GetLayer("Buildings").Draw(Game1.mapDisplayDevice, Game1.viewport, Location.Origin, false, 4);
                                 Game1.mapDisplayDevice.EndScene();
                                 Game1.spriteBatch.End();
@@ -974,6 +1006,27 @@ namespace StardewModdingAPI.Framework
                                     {
                                         if (!(bool)((NetFieldBase<bool, NetBool>)actor.swimming) && !actor.HideShadow && Game1.currentLocation.shouldShadowBeDrawnAboveBuildingsLayer(actor.getTileLocation()))
                                             Game1.spriteBatch.Draw(Game1.shadowTexture, Game1.GlobalToLocal(Game1.viewport, actor.Position + new Vector2((float)(actor.Sprite.SpriteWidth * 4) / 2f, (float)(actor.GetBoundingBox().Height + (actor.IsMonster ? 0 : 12)))), new Microsoft.Xna.Framework.Rectangle?(Game1.shadowTexture.Bounds), Color.White, 0.0f, new Vector2((float)Game1.shadowTexture.Bounds.Center.X, (float)Game1.shadowTexture.Bounds.Center.Y), (float)(4.0 + (double)actor.yJumpOffset / 40.0) * (float)((NetFieldBase<float, NetFloat>)actor.scale), SpriteEffects.None, Math.Max(0.0f, (float)actor.getStandingY() / 10000f) - 1E-06f);
+                                    }
+                                }
+                                foreach (SFarmer farmer in Game1.currentLocation.getFarmers())
+                                {
+                                    if (!(bool)((NetFieldBase<bool, NetBool>)farmer.swimming) && !farmer.isRidingHorse() && (Game1.currentLocation != null && Game1.currentLocation.shouldShadowBeDrawnAboveBuildingsLayer(farmer.getTileLocation())))
+                                    {
+                                        SpriteBatch spriteBatch = Game1.spriteBatch;
+                                        Texture2D shadowTexture = Game1.shadowTexture;
+                                        Vector2 local = Game1.GlobalToLocal(farmer.Position + new Vector2(32f, 24f));
+                                        Microsoft.Xna.Framework.Rectangle? sourceRectangle = new Microsoft.Xna.Framework.Rectangle?(Game1.shadowTexture.Bounds);
+                                        Color white = Color.White;
+                                        double num2 = 0.0;
+                                        Microsoft.Xna.Framework.Rectangle bounds2 = Game1.shadowTexture.Bounds;
+                                        double x = (double)bounds2.Center.X;
+                                        bounds2 = Game1.shadowTexture.Bounds;
+                                        double y = (double)bounds2.Center.Y;
+                                        Vector2 origin = new Vector2((float)x, (float)y);
+                                        double num3 = 4.0 - (!farmer.running && !farmer.UsingTool || farmer.FarmerSprite.currentAnimationIndex <= 1 ? 0.0 : (double)Math.Abs(FarmerRenderer.featureYOffsetPerFrame[farmer.FarmerSprite.CurrentFrame]) * 0.5);
+                                        int num4 = 0;
+                                        double num5 = 0.0;
+                                        spriteBatch.Draw(shadowTexture, local, sourceRectangle, white, (float)num2, origin, (float)num3, (SpriteEffects)num4, (float)num5);
                                     }
                                 }
                                 if ((Game1.eventUp || Game1.killScreen) && (!Game1.killScreen && Game1.currentLocation.currentEvent != null))
@@ -1054,7 +1107,6 @@ namespace StardewModdingAPI.Framework
                                         Game1.spriteBatch.Draw(Game1.rainTexture, Game1.rainDrops[index].position, new Microsoft.Xna.Framework.Rectangle?(Game1.getSourceRectForStandardTileSheet(Game1.rainTexture, Game1.rainDrops[index].frame, -1, -1)), Color.White);
                                 }
                                 Game1.spriteBatch.End();
-                                //base.Draw(gameTime);
                                 Game1.spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp, (DepthStencilState)null, (RasterizerState)null);
                                 if (Game1.eventUp && Game1.currentLocation.currentEvent != null)
                                 {
@@ -1155,30 +1207,8 @@ namespace StardewModdingAPI.Framework
                                 this.drawDialogueBox();
                             if (Game1.progressBar)
                             {
-                                SpriteBatch spriteBatch1 = Game1.spriteBatch;
-                                Texture2D fadeToBlackRect = Game1.fadeToBlackRect;
-                                viewport1 = Game1.graphics.GraphicsDevice.Viewport;
-                                int x1 = (viewport1.TitleSafeArea.Width - Game1.dialogueWidth) / 2;
-                                viewport1 = Game1.graphics.GraphicsDevice.Viewport;
-                                Microsoft.Xna.Framework.Rectangle titleSafeArea = viewport1.TitleSafeArea;
-                                int y1 = titleSafeArea.Bottom - 128;
-                                int dialogueWidth = Game1.dialogueWidth;
-                                int height1 = 32;
-                                Microsoft.Xna.Framework.Rectangle destinationRectangle1 = new Microsoft.Xna.Framework.Rectangle(x1, y1, dialogueWidth, height1);
-                                Color lightGray = Color.LightGray;
-                                spriteBatch1.Draw(fadeToBlackRect, destinationRectangle1, lightGray);
-                                SpriteBatch spriteBatch2 = Game1.spriteBatch;
-                                Texture2D staminaRect = Game1.staminaRect;
-                                viewport1 = Game1.graphics.GraphicsDevice.Viewport;
-                                int x2 = (viewport1.TitleSafeArea.Width - Game1.dialogueWidth) / 2;
-                                viewport1 = Game1.graphics.GraphicsDevice.Viewport;
-                                titleSafeArea = viewport1.TitleSafeArea;
-                                int y2 = titleSafeArea.Bottom - 128;
-                                int width = (int)((double)Game1.pauseAccumulator / (double)Game1.pauseTime * (double)Game1.dialogueWidth);
-                                int height2 = 32;
-                                Microsoft.Xna.Framework.Rectangle destinationRectangle2 = new Microsoft.Xna.Framework.Rectangle(x2, y2, width, height2);
-                                Color dimGray = Color.DimGray;
-                                spriteBatch2.Draw(staminaRect, destinationRectangle2, dimGray);
+                                Game1.spriteBatch.Draw(Game1.fadeToBlackRect, new Microsoft.Xna.Framework.Rectangle((Game1.graphics.GraphicsDevice.Viewport.GetTitleSafeArea().Width - Game1.dialogueWidth) / 2, Game1.graphics.GraphicsDevice.Viewport.GetTitleSafeArea().Bottom - 128, Game1.dialogueWidth, 32), Color.LightGray);
+                                Game1.spriteBatch.Draw(Game1.staminaRect, new Microsoft.Xna.Framework.Rectangle((Game1.graphics.GraphicsDevice.Viewport.GetTitleSafeArea().Width - Game1.dialogueWidth) / 2, Game1.graphics.GraphicsDevice.Viewport.GetTitleSafeArea().Bottom - 128, (int)((double)Game1.pauseAccumulator / (double)Game1.pauseTime * (double)Game1.dialogueWidth), 32), Color.DimGray);
                             }
                             if (Game1.eventUp && (Game1.currentLocation != null && Game1.currentLocation.currentEvent != null))
                                 Game1.currentLocation.currentEvent.drawAfterMap(Game1.spriteBatch);
@@ -1219,38 +1249,31 @@ namespace StardewModdingAPI.Framework
                                 overlayTempSprite.draw(Game1.spriteBatch, true, 0, 0, 1f);
                             if (Game1.debugMode)
                             {
-                                SpriteBatch spriteBatch = Game1.spriteBatch;
-                                SpriteFont smallFont = Game1.smallFont;
-                                object[] objArray = new object[10];
-                                int index = 0;
-                                string str;
-                                if (!Game1.panMode)
-                                    str = "player: " + (object)(Game1.player.getStandingX() / 64) + ", " + (object)(Game1.player.getStandingY() / 64);
+                                StringBuilder debugStringBuilder = SGame._debugStringBuilder;
+                                debugStringBuilder.Clear();
+                                if (Game1.panMode)
+                                {
+                                    debugStringBuilder.Append((Game1.getOldMouseX() + Game1.viewport.X) / 64);
+                                    debugStringBuilder.Append(",");
+                                    debugStringBuilder.Append((Game1.getOldMouseY() + Game1.viewport.Y) / 64);
+                                }
                                 else
-                                    str = ((Game1.getOldMouseX() + Game1.viewport.X) / 64).ToString() + "," + (object)((Game1.getOldMouseY() + Game1.viewport.Y) / 64);
-                                objArray[index] = (object)str;
-                                objArray[1] = (object)" mouseTransparency: ";
-                                objArray[2] = (object)Game1.mouseCursorTransparency;
-                                objArray[3] = (object)" mousePosition: ";
-                                objArray[4] = (object)Game1.getMouseX();
-                                objArray[5] = (object)",";
-                                objArray[6] = (object)Game1.getMouseY();
-                                objArray[7] = (object)Environment.NewLine;
-                                objArray[8] = (object)"debugOutput: ";
-                                objArray[9] = (object)Game1.debugOutput;
-                                string text = string.Concat(objArray);
-                                Viewport viewport2 = this.GraphicsDevice.Viewport;
-                                double x = (double)viewport2.TitleSafeArea.X;
-                                viewport2 = this.GraphicsDevice.Viewport;
-                                double y = (double)viewport2.TitleSafeArea.Y;
-                                Vector2 position = new Vector2((float)x, (float)y);
-                                Color red = Color.Red;
-                                double num2 = 0.0;
-                                Vector2 zero = Vector2.Zero;
-                                double num3 = 1.0;
-                                int num4 = 0;
-                                double num5 = 0.99999988079071;
-                                spriteBatch.DrawString(smallFont, text, position, red, (float)num2, zero, (float)num3, (SpriteEffects)num4, (float)num5);
+                                {
+                                    debugStringBuilder.Append("player: ");
+                                    debugStringBuilder.Append(Game1.player.getStandingX() / 64);
+                                    debugStringBuilder.Append(", ");
+                                    debugStringBuilder.Append(Game1.player.getStandingY() / 64);
+                                }
+                                debugStringBuilder.Append(" mouseTransparency: ");
+                                debugStringBuilder.Append(Game1.mouseCursorTransparency);
+                                debugStringBuilder.Append(" mousePosition: ");
+                                debugStringBuilder.Append(Game1.getMouseX());
+                                debugStringBuilder.Append(",");
+                                debugStringBuilder.Append(Game1.getMouseY());
+                                debugStringBuilder.Append(Environment.NewLine);
+                                debugStringBuilder.Append("debugOutput: ");
+                                debugStringBuilder.Append(Game1.debugOutput);
+                                Game1.spriteBatch.DrawString(Game1.smallFont, debugStringBuilder, new Vector2((float)this.GraphicsDevice.Viewport.GetTitleSafeArea().X, (float)(this.GraphicsDevice.Viewport.GetTitleSafeArea().Y + Game1.smallFont.LineSpacing * 8)), Color.Red, 0.0f, Vector2.Zero, 1f, SpriteEffects.None, 0.9999999f);
                             }
                             if (Game1.showKeyHelp)
                                 Game1.spriteBatch.DrawString(Game1.smallFont, Game1.keyHelpString, new Vector2(64f, (float)(Game1.viewport.Height - 64 - (Game1.dialogueUp ? 192 + (Game1.isQuestion ? Game1.questionChoices.Count * 64 : 0) : 0)) - Game1.smallFont.MeasureString(Game1.keyHelpString).Y), Color.LightGray, 0.0f, Vector2.Zero, 1f, SpriteEffects.None, 0.9999999f);
@@ -1279,6 +1302,7 @@ namespace StardewModdingAPI.Framework
                             Game1.spriteBatch.End();
                             this.drawOverlays(Game1.spriteBatch);
                             this.renderScreenBuffer();
+                            //base.Draw(gameTime);
                         }
                     }
                 }
