@@ -15,7 +15,10 @@
   * Added support for beta releases on the home page.
 -->
 
-## vNext
+## 2.5.5
+* For players:
+  * Fixed mods not being loaded if an optional dependency is installed but skipped.
+
 * For the [log parser][]:
   * Tweaked UI.
 
