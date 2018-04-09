@@ -3,15 +3,16 @@ for SMAPI mods.
 
 The package...
 
-* lets your code compile on any computer (Linux/Mac/Windows) without needing to change the assembly
-  references or game path.
-* packages the mod into the game's `Mods` folder when you rebuild the code (configurable).
-* configures Visual Studio so you can debug into the mod code when the game is running (_Windows
-  only_).
+* detects your game install path;
+* adds the assembly references you need (with automatic support for Linux/Mac/Windows);
+* packages the mod into your `Mods` folder when you rebuild the code (configurable);
+* configures Visual Studio to enable debugging into the code when the game is running (_Windows only_);
+* adds C# analyzers to warn for Stardew Valley-specific issues.
 
 ## Contents
 * [Install](#install)
 * [Configure](#configure)
+* [Code analysis warnings](#code-analysis-warnings)
 * [Troubleshoot](#troubleshoot)
 * [Release notes](#release-notes)
 
@@ -121,7 +122,7 @@ The configuration will check your custom path first, then fall back to the defau
 still compile on a different computer).
 
 ### Unit test projects
-**(upcoming in 2.0.3)**
+**(upcoming in 2.1)**
 
 You can use the package in unit test projects too. Its optional unit test mode...
 
@@ -134,15 +135,63 @@ To enable it, add this above the first `</PropertyGroup>` in your `.csproj`:
 <ModUnitTests>True</ModUnitTests>
 ```
 
+## Code warnings
+### Overview
+The NuGet package adds code warnings in Visual Studio specific to Stardew Valley. For example:  
+![](screenshots/code-analyzer-example.png)
+
+You can hide the warnings...
+* [for specific code](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/preprocessor-directives/preprocessor-pragma-warning);
+* for a method using this attribute:
+  ```cs
+  [System.Diagnostics.CodeAnalysis.SuppressMessage("SMAPI.CommonErrors", "SMAPI001")] // implicit net field conversion
+  ```
+* for an entire project:
+  1. Expand the _References_ node for the project in Visual Studio.
+  2. Right-click on _Analyzers_ and choose _Open Active Rule Set_.
+  4. Expand _StardewModdingAPI.ModBuildConfig.Analyzer_ and uncheck the warnings you want to hide.
+
+See below for help with each specific warning.
+
+### SMAPI001
+**Implicit net field conversion:**
+> This implicitly converts '{{expression}}' from {{net type}} to {{other type}}, but
+> {{net type}} has unintuitive implicit conversion rules. Consider comparing against the actual
+> value instead to avoid bugs.
+
+Stardew Valley uses a set of net fields (like `NetBool` or `NetInt`) to handle multiplayer sync.
+These types can implicitly convert to their equivalent normal values (like `bool x = new NetBool()`),
+but their conversion rules can be unintuitive and error-prone. For example,
+`item?.category == null && item?.category != null` can both be true at once, and
+`building.indoors != null` will be true for a null value in some cases.
+
+Suggested fix:
+* For a reference type (i.e. one that can contain `null`), you can use the `.Value` property:
+  ```c#
+  if (building.indoors.Value == null)
+  ```
+  Or convert the value before comparison:
+  ```c#
+  GameLocation indoors = building.indoors;
+  if(indoors == null)
+     // ...
+  ```
+* For a value type (i.e. one that can't contain `null`), make sure to check for null first if
+  applicable:
+  ```cs
+  if (item != null && item.category == 0)
+  ```
+
 ## Troubleshoot
 ### "Failed to find the game install path"
 That error means the package couldn't find your game. You can specify the game path yourself; see
 _[Game path](#game-path)_ above.
 
 ## Release notes
-### 2.0.3 alpha
+### 2.1 alpha
 * Added support for Stardew Valley 1.3.
 * Added support for unit test projects.
+* Added C# analyzers to warn about implicit conversions of Netcode fields in Stardew Valley 1.3.
 
 ### 2.0.2
 * Fixed compatibility issue on Linux.

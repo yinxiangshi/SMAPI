@@ -20,6 +20,7 @@ mods, this section isn't relevant to you; see the main README to use or create m
   * [Development](#development-2)
     * [Local development](#local-development)
     * [Deploying to Amazon Beanstalk](#deploying-to-amazon-beanstalk)
+* [Mod build config package](#mod-build-config-package)
 
 # SMAPI
 ## Development
@@ -222,3 +223,31 @@ property name                   | description
 `LogParser:SectionUrl`          | The root URL of the log page, like `https://log.smapi.io/`.
 `ModUpdateCheck:GitHubPassword` | The password with which to authenticate to GitHub when fetching release info.
 `ModUpdateCheck:GitHubUsername` | The username with which to authenticate to GitHub when fetching release info.
+
+## Mod build config package
+### Overview
+The mod build config package is a NuGet package that mods reference to automatically set up
+references, configure the build, and add analyzers specific to Stardew Valley mods.
+
+This involves three projects:
+
+project                                           | purpose
+------------------------------------------------- | ----------------
+`StardewModdingAPI.ModBuildConfig`                | Configures the build (references, deploying the mod files, setting up debugging, etc).
+`StardewModdingAPI.ModBuildConfig.Analyzer`       | Adds C# analyzers which show code warnings in Visual Studio.
+`StardewModdingAPI.ModBuildConfig.Analyzer.Tests` | Unit tests for the C# analyzers.
+
+When the projects are built, the relevant files are copied into `bin/Pathoschild.Stardew.ModBuildConfig`.
+
+### Preparing a build
+To prepare a build of the NuGet package:
+1. Install the [NuGet CLI](https://docs.microsoft.com/en-us/nuget/install-nuget-client-tools#nugetexe-cli).
+1. Change the version and release notes in `package.nuspec`.
+2. Rebuild the solution in _Release_ mode.
+3. Open a terminal in the `bin/Pathoschild.Stardew.ModBuildConfig` package and run this command:
+   ```bash
+   nuget.exe pack
+   ```
+
+That will create a `Pathoschild.Stardew.ModBuildConfig-<version>.nupkg` file in the same directory
+which can be uploaded to NuGet or referenced directly.
