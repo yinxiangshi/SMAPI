@@ -18,28 +18,7 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
             using System;
             using StardewValley;
             using Netcode;
-
-            namespace Netcode
-            {
-                public class NetInt : NetFieldBase<int, NetInt> { }
-                public class NetRef : NetFieldBase<object, NetRef> { }
-                public class NetFieldBase<T, TSelf> where TSelf : NetFieldBase<T, TSelf>
-                {
-                    public T Value { get; set; }
-                    public static implicit operator T(NetFieldBase<T, TSelf> field) => field.Value;
-                }
-            }
-
-            namespace StardewValley
-            {
-                class Item
-                {
-                    public NetInt category { get; } = new NetInt { Value = 42 }; // SMAPI002: use Category instead
-                    public NetInt type { get; } = new NetInt { Value = 42 };
-                    public NetRef refField { get; } = null;
-                }
-                class SObject : Item { }
-            }
+            using SObject = StardewValley.Object;
 
             namespace SampleMod
             {
@@ -51,7 +30,7 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
                         SObject obj = null;
 
                         // this line should raise diagnostics
-                        {{test-code}} // line 38
+                        {{test-code}}
 
                         // these lines should not
                         if (item.type.Value != 42);
@@ -61,7 +40,7 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
         ";
 
         /// <summary>The line number where the unit tested code is injected into <see cref="SampleProgram"/>.</summary>
-        private const int SampleCodeLine = 38;
+        private const int SampleCodeLine = 17;
 
         /// <summary>The column number where the unit tested code is injected into <see cref="SampleProgram"/>.</summary>
         private const int SampleCodeColumn = 25;
