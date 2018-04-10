@@ -182,6 +182,15 @@ Suggested fix:
   if (item != null && item.category == 0)
   ```
 
+### SMAPI002
+**Avoid net fields when possible:**
+> '{{expression}}' is a {{net type}} field; consider using the {{property name}} property instead.
+
+Your code accesses a net field, which has some unusual behavior (see [SMAPI001](#SMAPI001)). This
+field has an equivalent non-net property that avoids those issues.
+
+Suggested fix: access the suggested property name instead.
+
 ## Troubleshoot
 ### "Failed to find the game install path"
 That error means the package couldn't find your game. You can specify the game path yourself; see
