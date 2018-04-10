@@ -1,4 +1,4 @@
-﻿using StardewModdingAPI.Events;
+using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Menus;
 
@@ -24,6 +24,12 @@ namespace StardewModdingAPI
 
         /// <summary>Whether the game is currently running the draw loop. This isn't relevant to most mods, since you should use <see cref="GraphicsEvents.OnPostRenderEvent"/> to draw to the screen.</summary>
         public static bool IsInDrawLoop { get; internal set; }
+
+        /// <summary>Whether <see cref="IsWorldReady"/> and the player loaded the save in multiplayer mode (regardless of whether any other players are connected).</summary>
+        public static bool IsMultiplayer => Context.IsWorldReady && Game1.multiplayerMode != Game1.singlePlayer;
+
+        /// <summary>Whether <see cref="IsWorldReady"/> and the current player is the main player. This is always true in single-player, and true when hosting in multiplayer.</summary>
+        public static bool IsMainPlayer => Context.IsWorldReady && Game1.IsMasterGame;
 
         /****
         ** Internal

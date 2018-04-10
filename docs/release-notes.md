@@ -3,12 +3,14 @@
 ## 2.6 alpha
 * For players:
   * Added support for Stardew Valley 1.3+; no longer compatible with earlier versions.
+  * Added `Context.IsMultiplayer` and `Context.IsMainPlayer` flags.
   * Fixed SMAPI update alerts linking to the GitHub repository instead of [smapi.io](https://smapi.io).
   * Fixed SMAPI update checks not showing newer beta versions when using a beta version.
 
 * For modders:
   * Dropped some deprecated APIs.
-  * Fixed some assets not being editable.
+  * Fixed assets loaded by temporary content managers not being editable.
+  * Fixed issue where assets didn't reload correctly when the player switches language.
 
 * For SMAPI developers:
   * Added prerelease versions to the mod update-check API response where available (GitHub only).
