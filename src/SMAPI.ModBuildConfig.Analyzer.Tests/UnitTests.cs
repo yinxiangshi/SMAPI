@@ -92,7 +92,7 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
             DiagnosticResult expected = new DiagnosticResult
             {
                 Id = "SMAPI001",
-                Message = $"This implicitly converts '{expression}' from {fromType} to {toType}, but {fromType} has unintuitive implicit conversion rules. Consider comparing against the actual value instead to avoid bugs. See https://smapi.io/buildmsg/SMAPI001 for details.",
+                Message = $"This implicitly converts '{expression}' from {fromType} to {toType}, but {fromType} has unintuitive implicit conversion rules. Consider comparing against the actual value instead to avoid bugs. See https://smapi.io/buildmsg/smapi001 for details.",
                 Severity = DiagnosticSeverity.Warning,
                 Locations = new[] { new DiagnosticResultLocation("Test0.cs", UnitTests.SampleCodeLine, UnitTests.SampleCodeColumn + column) }
             };
@@ -118,7 +118,7 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
             DiagnosticResult expected = new DiagnosticResult
             {
                 Id = "SMAPI002",
-                Message = $"'{expression}' is a {netType} field; consider using the {suggestedProperty} property instead. See https://smapi.io/buildmsg/SMAPI002 for details.",
+                Message = $"'{expression}' is a {netType} field; consider using the {suggestedProperty} property instead. See https://smapi.io/buildmsg/smapi002 for details.",
                 Severity = DiagnosticSeverity.Warning,
                 Locations = new[] { new DiagnosticResultLocation("Test0.cs", UnitTests.SampleCodeLine, UnitTests.SampleCodeColumn + column) }
             };

@@ -130,22 +130,20 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
             ["SMAPI001"] = new DiagnosticDescriptor(
                 id: "SMAPI001",
                 title: "Netcode types shouldn't be implicitly converted",
-                messageFormat: "This implicitly converts '{0}' from {1} to {2}, but {1} has unintuitive implicit conversion rules. Consider comparing against the actual value instead to avoid bugs. See https://smapi.io/buildmsg/SMAPI001 for details.",
+                messageFormat: "This implicitly converts '{0}' from {1} to {2}, but {1} has unintuitive implicit conversion rules. Consider comparing against the actual value instead to avoid bugs. See https://smapi.io/buildmsg/smapi001 for details.",
                 category: "SMAPI.CommonErrors",
                 defaultSeverity: DiagnosticSeverity.Warning,
                 isEnabledByDefault: true,
-                description: "",
-                helpLinkUri: "https://smapi.io/buildmsg/SMAPI001"
+                helpLinkUri: "https://smapi.io/buildmsg/smapi001"
             ),
             ["SMAPI002"] = new DiagnosticDescriptor(
                 id: "SMAPI002",
                 title: "Avoid Netcode types when possible",
-                messageFormat: "'{0}' is a {1} field; consider using the {2} property instead. See https://smapi.io/buildmsg/SMAPI002 for details.",
+                messageFormat: "'{0}' is a {1} field; consider using the {2} property instead. See https://smapi.io/buildmsg/smapi002 for details.",
                 category: "SMAPI.CommonErrors",
                 defaultSeverity: DiagnosticSeverity.Warning,
                 isEnabledByDefault: true,
-                description: "",
-                helpLinkUri: "https://smapi.io/buildmsg/SMAPI001"
+                helpLinkUri: "https://smapi.io/buildmsg/smapi001"
             )
         };
 

@@ -159,13 +159,16 @@ See below for help with each specific warning.
 > {{net type}} has unintuitive implicit conversion rules. Consider comparing against the actual
 > value instead to avoid bugs.
 
-Stardew Valley uses a set of net fields (like `NetBool` or `NetInt`) to handle multiplayer sync.
-These types can implicitly convert to their equivalent normal values (like `bool x = new NetBool()`),
-but their conversion rules can be unintuitive and error-prone. For example,
+Stardew Valley uses net types (like `NetBool` and `NetInt`) to handle multiplayer sync. These types
+can implicitly convert to their equivalent normal values (like `bool x = new NetBool()`), but their
+conversion rules are unintuitive and error-prone. For example,
 `item?.category == null && item?.category != null` can both be true at once, and
 `building.indoors != null` will be true for a null value in some cases.
 
 Suggested fix:
+* Some net fields have an equivalent non-net property like `monster.Health` (`int`) instead of
+  `monster.health` (`NetInt`). The package will add a separate [SMAPI002](#smapi002) warning for
+  these. Use the suggested property instead.
 * For a reference type (i.e. one that can contain `null`), you can use the `.Value` property:
   ```c#
   if (building.indoors.Value == null)
@@ -176,17 +179,17 @@ Suggested fix:
   if(indoors == null)
      // ...
   ```
-* For a value type (i.e. one that can't contain `null`), make sure to check for null first if
-  applicable:
+* For a value type (i.e. one that can't contain `null`), check if the object is null (if applicable)
+  and compare with `.Value`:
   ```cs
-  if (item != null && item.category == 0)
+  if (item != null && item.category.Value == 0)
   ```
 
 ### SMAPI002
 **Avoid net fields when possible:**
 > '{{expression}}' is a {{net type}} field; consider using the {{property name}} property instead.
 
-Your code accesses a net field, which has some unusual behavior (see [SMAPI001](#SMAPI001)). This
+Your code accesses a net field, which has some unusual behavior (see [SMAPI001](#smapi001)). This
 field has an equivalent non-net property that avoids those issues.
 
 Suggested fix: access the suggested property name instead.
