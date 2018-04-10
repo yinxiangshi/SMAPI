@@ -6,14 +6,14 @@ using StardewModdingAPI.ModBuildConfig.Analyzer;
 
 namespace SMAPI.ModBuildConfig.Analyzer.Tests
 {
-    /// <summary>Unit tests for the C# analyzers.</summary>
+    /// <summary>Unit tests for <see cref="NetFieldAnalyzer"/>.</summary>
     [TestFixture]
-    public class UnitTests : DiagnosticVerifier
+    public class NetFieldAnalyzerTests : DiagnosticVerifier
     {
         /*********
         ** Properties
         *********/
-        /// <summary>Sample C# code which contains a simplified representation of Stardew Valley's <c>Netcode</c> types, and sample mod code with a {{test-code}} placeholder for the code being tested.</summary>
+        /// <summary>Sample C# mod code, with a {{test-code}} placeholder for the code in the Entry method to test.</summary>
         const string SampleProgram = @"
             using System;
             using StardewValley;
@@ -88,13 +88,13 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
         public void AvoidImplicitNetFieldComparisons_RaisesDiagnostic(string codeText, int column, string expression, string fromType, string toType)
         {
             // arrange
-            string code = UnitTests.SampleProgram.Replace("{{test-code}}", codeText);
+            string code = NetFieldAnalyzerTests.SampleProgram.Replace("{{test-code}}", codeText);
             DiagnosticResult expected = new DiagnosticResult
             {
                 Id = "SMAPI001",
                 Message = $"This implicitly converts '{expression}' from {fromType} to {toType}, but {fromType} has unintuitive implicit conversion rules. Consider comparing against the actual value instead to avoid bugs. See https://smapi.io/buildmsg/smapi001 for details.",
                 Severity = DiagnosticSeverity.Warning,
-                Locations = new[] { new DiagnosticResultLocation("Test0.cs", UnitTests.SampleCodeLine, UnitTests.SampleCodeColumn + column) }
+                Locations = new[] { new DiagnosticResultLocation("Test0.cs", NetFieldAnalyzerTests.SampleCodeLine, NetFieldAnalyzerTests.SampleCodeColumn + column) }
             };
 
             // assert
@@ -114,13 +114,13 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
         public void AvoidNetFields_RaisesDiagnostic(string codeText, int column, string expression, string netType, string suggestedProperty)
         {
             // arrange
-            string code = UnitTests.SampleProgram.Replace("{{test-code}}", codeText);
+            string code = NetFieldAnalyzerTests.SampleProgram.Replace("{{test-code}}", codeText);
             DiagnosticResult expected = new DiagnosticResult
             {
                 Id = "SMAPI002",
                 Message = $"'{expression}' is a {netType} field; consider using the {suggestedProperty} property instead. See https://smapi.io/buildmsg/smapi002 for details.",
                 Severity = DiagnosticSeverity.Warning,
-                Locations = new[] { new DiagnosticResultLocation("Test0.cs", UnitTests.SampleCodeLine, UnitTests.SampleCodeColumn + column) }
+                Locations = new[] { new DiagnosticResultLocation("Test0.cs", NetFieldAnalyzerTests.SampleCodeLine, NetFieldAnalyzerTests.SampleCodeColumn + column) }
             };
 
             // assert

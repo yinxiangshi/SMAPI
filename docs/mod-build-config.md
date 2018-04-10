@@ -194,6 +194,12 @@ field has an equivalent non-net property that avoids those issues.
 
 Suggested fix: access the suggested property name instead.
 
+### SMAPI003
+**Avoid obsolete fields:**
+> The '{{old field}}' field is obsolete and should be replaced with '{{new field}}'.
+
+Your code accesses a field which is obsolete or no longer works. Use the suggested field instead.
+
 ## Troubleshoot
 ### "Failed to find the game install path"
 That error means the package couldn't find your game. You can specify the game path yourself; see
