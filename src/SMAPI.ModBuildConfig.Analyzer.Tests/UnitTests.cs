@@ -38,6 +38,7 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
                     public NetInt type { get; } = new NetInt { Value = 42 };
                     public NetRef refField { get; } = null;
                 }
+                class SObject : Item { }
             }
 
             namespace SampleMod
@@ -47,9 +48,10 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
                     public void Entry()
                     {
                         Item item = null;
+                        SObject obj = null;
 
                         // this line should raise diagnostics
-                        {{test-code}} // line 36
+                        {{test-code}} // line 38
 
                         // these lines should not
                         if (item.type.Value != 42);
@@ -59,7 +61,7 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
         ";
 
         /// <summary>The line number where the unit tested code is injected into <see cref="SampleProgram"/>.</summary>
-        private const int SampleCodeLine = 36;
+        private const int SampleCodeLine = 38;
 
         /// <summary>The column number where the unit tested code is injected into <see cref="SampleProgram"/>.</summary>
         private const int SampleCodeColumn = 25;
@@ -93,6 +95,7 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
         [TestCase("if (item.type != 42);", 4, "item.type", "NetInt", "int")]
         [TestCase("if (item.refField != null);", 4, "item.refField", "NetRef", "object")]
         [TestCase("if (item?.type != 42);", 4, "item?.type", "NetInt", "int")]
+        [TestCase("if (obj.type != 42);", 4, "obj.type", "NetInt", "int")]
         public void AvoidImplicitNetFieldComparisons_RaisesDiagnostic(string codeText, int column, string expression, string fromType, string toType)
         {
             // arrange
@@ -118,6 +121,7 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
         [TestCase("int category = item.category;", 15, "item.category", "NetInt", "Category")]
         [TestCase("int category = (item).category;", 15, "(item).category", "NetInt", "Category")]
         [TestCase("int category = ((Item)item).category;", 15, "((Item)item).category", "NetInt", "Category")]
+        [TestCase("int category = obj.category;", 15, "obj.category", "NetInt", "Category")]
         public void AvoidNetFields_RaisesDiagnostic(string codeText, int column, string expression, string netType, string suggestedProperty)
         {
             // arrange

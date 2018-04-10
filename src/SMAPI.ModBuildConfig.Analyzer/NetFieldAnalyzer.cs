@@ -209,9 +209,13 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
                 string propertyName = node.Name.Identifier.Text;
 
                 // suggest replacement
-                if (this.NetFieldWrapperProperties.TryGetValue($"{declaringType}::{propertyName}", out string suggestedPropertyName))
+                for (ITypeSymbol type = declaringType; type != null; type = type.BaseType)
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(this.Rules["SMAPI002"], context.Node.GetLocation(), node, memberType.Type.Name, suggestedPropertyName));
+                    if (this.NetFieldWrapperProperties.TryGetValue($"{type}::{propertyName}", out string suggestedPropertyName))
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(this.Rules["SMAPI002"], context.Node.GetLocation(), node, memberType.Type.Name, suggestedPropertyName));
+                        break;
+                    }
                 }
             }
             catch (Exception ex)
