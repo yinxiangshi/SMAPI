@@ -7,8 +7,9 @@
   * Fixed SMAPI update checks not showing newer beta versions when using a beta version.
 
 * For modders:
-  * Dropped some deprecated APIs.
+  * Added code analysis to mod build config package to flag common issues as warnings.
   * Fixed some assets not being editable.
+  * Dropped some deprecated APIs.
 
 * For SMAPI developers:
   * Added prerelease versions to the mod update-check API response where available (GitHub only).
