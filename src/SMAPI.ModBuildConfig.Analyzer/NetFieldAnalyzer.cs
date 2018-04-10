@@ -230,31 +230,37 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
         {
             try
             {
-                BinaryExpressionSyntax node = (BinaryExpressionSyntax)context.Node;
-                bool leftHasWarning = this.WarnIfOperandImplicitlyConvertsNetField(context, node.Left);
-                if (!leftHasWarning)
-                    this.WarnIfOperandImplicitlyConvertsNetField(context, node.Right);
+                BinaryExpressionSyntax binaryExpression = (BinaryExpressionSyntax)context.Node;
+                foreach (var pair in new[] { Tuple.Create(binaryExpression.Left, binaryExpression.Right), Tuple.Create(binaryExpression.Right, binaryExpression.Left) })
+                {
+                    // get node info
+                    ExpressionSyntax curExpression = pair.Item1; // the side of the comparison being examined
+                    ExpressionSyntax otherExpression = pair.Item2; // the other side
+                    TypeInfo typeInfo = context.SemanticModel.GetTypeInfo(curExpression);
+                    if (!this.IsNetType(typeInfo.Type))
+                        continue;
+
+                    // warn for implicit conversion
+                    if (!this.IsNetType(typeInfo.ConvertedType))
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(this.Rules["SMAPI001"], context.Node.GetLocation(), curExpression, typeInfo.Type.Name, typeInfo.ConvertedType));
+                        break;
+                    }
+
+                    // warn for comparison to null
+                    // An expression like `building.indoors != null` will sometimes convert `building.indoors` to NetFieldBase instead of object before comparison. Haven't reproduced this in unit tests yet.
+                    Optional<object> otherValue = context.SemanticModel.GetConstantValue(otherExpression);
+                    if (otherValue.HasValue && otherValue.Value == null)
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(this.Rules["SMAPI001"], context.Node.GetLocation(), curExpression, typeInfo.Type.Name, "null"));
+                        break;
+                    }
+                }
             }
             catch (Exception ex)
             {
                 throw new InvalidOperationException($"Failed processing expression: '{context.Node}'. Exception details: {ex.ToString().Replace('\r', ' ').Replace('\n', ' ')}");
             }
-        }
-
-        /// <summary>Analyse one operand in a binary expression (like <c>a</c> and <c>b</c> in <c>a == b</c>) and add a diagnostic message if applicable.</summary>
-        /// <param name="context">The analysis context.</param>
-        /// <param name="operand">The operand expression.</param>
-        /// <returns>Returns whether a diagnostic message was raised.</returns>
-        private bool WarnIfOperandImplicitlyConvertsNetField(SyntaxNodeAnalysisContext context, ExpressionSyntax operand)
-        {
-            TypeInfo operandType = context.SemanticModel.GetTypeInfo(operand);
-            if (this.IsNetType(operandType.Type) && !this.IsNetType(operandType.ConvertedType))
-            {
-                context.ReportDiagnostic(Diagnostic.Create(this.Rules["SMAPI001"], context.Node.GetLocation(), operand, operandType.Type.Name, operandType.ConvertedType));
-                return true;
-            }
-
-            return false;
         }
 
         /// <summary>Get whether a type symbol references a <c>Netcode</c> type.</summary>
