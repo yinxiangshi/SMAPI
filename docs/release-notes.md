@@ -8,6 +8,7 @@
   * Fixed SMAPI update checks not showing newer beta versions when using a beta version.
 
 * For modders:
+  * Added code analysis to mod build config package to flag common issues as warnings.
   * Dropped some deprecated APIs.
   * Fixed assets loaded by temporary content managers not being editable.
   * Fixed issue where assets didn't reload correctly when the player switches language.
