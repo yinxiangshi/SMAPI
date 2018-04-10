@@ -34,7 +34,9 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
             {
                 class Item
                 {
-                    public NetInt category { get; } = new NetInt { Value = 42 };
+                    public NetInt category { get; } = new NetInt { Value = 42 }; // SMAPI002: use Category instead
+                    public NetInt type { get; } = new NetInt { Value = 42 };
+                    public NetRef refField { get; } = null;
                 }
             }
 
@@ -44,15 +46,13 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
                 {
                     public void Entry()
                     {
-                        NetInt intField = new NetInt { Value = 42 };
-                        NetRef refField = new NetRef { Value = null };
                         Item item = null;
 
                         // this line should raise diagnostics
                         {{test-code}} // line 36
 
                         // these lines should not
-                        if ((int)intField != 42);
+                        if (item.type.Value != 42);
                     }
                 }
             }
@@ -85,14 +85,14 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
         /// <param name="expression">The expression which should be reported.</param>
         /// <param name="fromType">The source type name which should be reported.</param>
         /// <param name="toType">The target type name which should be reported.</param>
-        [TestCase("if (intField < 42);", 4, "intField", "NetInt", "Int32")]
-        [TestCase("if (intField <= 42);", 4, "intField", "NetInt", "Int32")]
-        [TestCase("if (intField > 42);", 4, "intField", "NetInt", "Int32")]
-        [TestCase("if (intField >= 42);", 4, "intField", "NetInt", "Int32")]
-        [TestCase("if (intField == 42);", 4, "intField", "NetInt", "Int32")]
-        [TestCase("if (intField != 42);", 4, "intField", "NetInt", "Int32")]
-        [TestCase("if (refField != null);", 4, "refField", "NetRef", "Object")]
-        [TestCase("if (item?.category != 42);", 4, "item?.category", "NetInt", "Int32")]
+        [TestCase("if (item.type < 42);", 4, "item.type", "NetInt", "int")]
+        [TestCase("if (item.type <= 42);", 4, "item.type", "NetInt", "int")]
+        [TestCase("if (item.type > 42);", 4, "item.type", "NetInt", "int")]
+        [TestCase("if (item.type >= 42);", 4, "item.type", "NetInt", "int")]
+        [TestCase("if (item.type == 42);", 4, "item.type", "NetInt", "int")]
+        [TestCase("if (item.type != 42);", 4, "item.type", "NetInt", "int")]
+        [TestCase("if (item.refField != null);", 4, "item.refField", "NetRef", "object")]
+        [TestCase("if (item?.type != 42);", 4, "item?.type", "NetInt", "int")]
         public void AvoidImplicitNetFieldComparisons_RaisesDiagnostic(string codeText, int column, string expression, string fromType, string toType)
         {
             // arrange

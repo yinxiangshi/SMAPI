@@ -246,9 +246,7 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
             TypeInfo operandType = context.SemanticModel.GetTypeInfo(operand);
             if (this.IsNetType(operandType.Type) && !this.IsNetType(operandType.ConvertedType))
             {
-                string fromTypeName = operandType.Type.Name;
-                string toTypeName = operandType.ConvertedType.Name;
-                context.ReportDiagnostic(Diagnostic.Create(this.Rules["SMAPI001"], context.Node.GetLocation(), operand, fromTypeName, toTypeName));
+                context.ReportDiagnostic(Diagnostic.Create(this.Rules["SMAPI001"], context.Node.GetLocation(), operand, operandType.Type.Name, operandType.ConvertedType));
                 return true;
             }
 
