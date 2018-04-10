@@ -26,21 +26,14 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
                 {
                     public void Entry()
                     {
-                        Item item = null;
-                        SObject obj = null;
-
-                        // this line should raise diagnostics
                         {{test-code}}
-
-                        // these lines should not
-                        if (item.type.Value != 42);
                     }
                 }
             }
         ";
 
         /// <summary>The line number where the unit tested code is injected into <see cref="SampleProgram"/>.</summary>
-        private const int SampleCodeLine = 17;
+        private const int SampleCodeLine = 13;
 
         /// <summary>The column number where the unit tested code is injected into <see cref="SampleProgram"/>.</summary>
         private const int SampleCodeColumn = 25;
@@ -66,15 +59,32 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
         /// <param name="expression">The expression which should be reported.</param>
         /// <param name="fromType">The source type name which should be reported.</param>
         /// <param name="toType">The target type name which should be reported.</param>
-        [TestCase("if (item.type < 42);", 4, "item.type", "NetInt", "int")]
-        [TestCase("if (item.type <= 42);", 4, "item.type", "NetInt", "int")]
-        [TestCase("if (item.type > 42);", 4, "item.type", "NetInt", "int")]
-        [TestCase("if (item.type >= 42);", 4, "item.type", "NetInt", "int")]
-        [TestCase("if (item.type == 42);", 4, "item.type", "NetInt", "int")]
-        [TestCase("if (item.type != 42);", 4, "item.type", "NetInt", "int")]
-        [TestCase("if (item.refField != null);", 4, "item.refField", "NetRef", "object")]
-        [TestCase("if (item?.type != 42);", 4, "item?.type", "NetInt", "int")]
-        [TestCase("if (obj.type != 42);", 4, "obj.type", "NetInt", "int")]
+        [TestCase("Item item = null; if (item.netIntField < 42);", 22, "item.netIntField", "NetInt", "int")]
+        [TestCase("Item item = null; if (item.netIntField <= 42);", 22, "item.netIntField", "NetInt", "int")]
+        [TestCase("Item item = null; if (item.netIntField > 42);", 22, "item.netIntField", "NetInt", "int")]
+        [TestCase("Item item = null; if (item.netIntField >= 42);", 22, "item.netIntField", "NetInt", "int")]
+        [TestCase("Item item = null; if (item.netIntField == 42);", 22, "item.netIntField", "NetInt", "int")]
+        [TestCase("Item item = null; if (item.netIntField != 42);", 22, "item.netIntField", "NetInt", "int")]
+        [TestCase("Item item = null; if (item?.netIntField != 42);", 22, "item?.netIntField", "NetInt", "int")]
+        [TestCase("Item item = null; if (item?.netIntField != null);", 22, "item?.netIntField", "NetInt", "object")]
+        [TestCase("Item item = null; if (item.netIntProperty < 42);", 22, "item.netIntProperty", "NetInt", "int")]
+        [TestCase("Item item = null; if (item.netIntProperty <= 42);", 22, "item.netIntProperty", "NetInt", "int")]
+        [TestCase("Item item = null; if (item.netIntProperty > 42);", 22, "item.netIntProperty", "NetInt", "int")]
+        [TestCase("Item item = null; if (item.netIntProperty >= 42);", 22, "item.netIntProperty", "NetInt", "int")]
+        [TestCase("Item item = null; if (item.netIntProperty == 42);", 22, "item.netIntProperty", "NetInt", "int")]
+        [TestCase("Item item = null; if (item.netIntProperty != 42);", 22, "item.netIntProperty", "NetInt", "int")]
+        [TestCase("Item item = null; if (item?.netIntProperty != 42);", 22, "item?.netIntProperty", "NetInt", "int")]
+        [TestCase("Item item = null; if (item?.netIntProperty != null);", 22, "item?.netIntProperty", "NetInt", "object")]
+        [TestCase("Item item = null; if (item.netRefField == null);", 22, "item.netRefField", "NetRef", "object")]
+        [TestCase("Item item = null; if (item.netRefField != null);", 22, "item.netRefField", "NetRef", "object")]
+        [TestCase("Item item = null; if (item.netRefProperty == null);", 22, "item.netRefProperty", "NetRef", "object")]
+        [TestCase("Item item = null; if (item.netRefProperty != null);", 22, "item.netRefProperty", "NetRef", "object")]
+        [TestCase("SObject obj = null; if (obj.netIntField != 42);", 24, "obj.netIntField", "NetInt", "int")] // ↓ same as above, but inherited from base class
+        [TestCase("SObject obj = null; if (obj.netIntProperty != 42);", 24, "obj.netIntProperty", "NetInt", "int")]
+        [TestCase("SObject obj = null; if (obj.netRefField == null);", 24, "obj.netRefField", "NetRef", "object")]
+        [TestCase("SObject obj = null; if (obj.netRefField != null);", 24, "obj.netRefField", "NetRef", "object")]
+        [TestCase("SObject obj = null; if (obj.netRefProperty == null);", 24, "obj.netRefProperty", "NetRef", "object")]
+        [TestCase("SObject obj = null; if (obj.netRefProperty != null);", 24, "obj.netRefProperty", "NetRef", "object")]
         public void AvoidImplicitNetFieldComparisons_RaisesDiagnostic(string codeText, int column, string expression, string fromType, string toType)
         {
             // arrange
@@ -97,10 +107,10 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
         /// <param name="expression">The expression which should be reported.</param>
         /// <param name="netType">The net type name which should be reported.</param>
         /// <param name="suggestedProperty">The suggested property name which should be reported.</param>
-        [TestCase("int category = item.category;", 15, "item.category", "NetInt", "Category")]
-        [TestCase("int category = (item).category;", 15, "(item).category", "NetInt", "Category")]
-        [TestCase("int category = ((Item)item).category;", 15, "((Item)item).category", "NetInt", "Category")]
-        [TestCase("int category = obj.category;", 15, "obj.category", "NetInt", "Category")]
+        [TestCase("Item item = null; int category = item.category;", 33, "item.category", "NetInt", "Category")]
+        [TestCase("Item item = null; int category = (item).category;", 33, "(item).category", "NetInt", "Category")]
+        [TestCase("Item item = null; int category = ((Item)item).category;", 33, "((Item)item).category", "NetInt", "Category")]
+        [TestCase("SObject obj = null; int category = obj.category;", 35, "obj.category", "NetInt", "Category")]
         public void AvoidNetFields_RaisesDiagnostic(string codeText, int column, string expression, string netType, string suggestedProperty)
         {
             // arrange

@@ -7,12 +7,18 @@ namespace StardewValley
     public class Item
     {
         /// <summary>A net int field with an equivalent non-net <c>Category</c> property.</summary>
-        public NetInt category { get; } = new NetInt { Value = 42 };
+        public readonly NetInt category = new NetInt { Value = 42 };
 
-        /// <summary>A net int field with no equivalent non-net property.</summary>
-        public NetInt type { get; } = new NetInt { Value = 42 };
+        /// <summary>A generic net int field with no equivalent non-net property.</summary>
+        public readonly NetInt netIntField = new NetInt { Value = 42 };
 
-        /// <summary>A net reference field.</summary>
-        public NetRef refField { get; } = null;
+        /// <summary>A generic net ref field with no equivalent non-net property.</summary>
+        public readonly NetRef<object> netRefField = new NetRef<object>();
+
+        /// <summary>A generic net int property with no equivalent non-net property.</summary>
+        public NetInt netIntProperty = new NetInt { Value = 42 };
+
+        /// <summary>A generic net ref property with no equivalent non-net property.</summary>
+        public NetRef<object> netRefProperty { get; } = new NetRef<object>();
     }
 }
