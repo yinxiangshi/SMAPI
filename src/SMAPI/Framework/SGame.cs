@@ -262,7 +262,11 @@ namespace StardewModdingAPI.Framework
                 // a small chance that the task will finish after we defer but before the game checks,
                 // which means technically events should be raised, but the effects of missing one
                 // update tick are neglible and not worth the complications of bypassing Game1.Update.
+#if STARDEW_VALLEY_1_3
                 if (Game1._newDayTask != null)
+#else
+                if (SGame._newDayTask != null)
+#endif
                 {
                     base.Update(gameTime);
                     this.Events.Specialised_UnvalidatedUpdateTick.Raise();
