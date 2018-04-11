@@ -19,9 +19,10 @@
 
 ## 2.5.5
 * For players:
-  * Fixed mods not being loaded if an optional dependency is installed but skipped.
-  * Fixed rare crash when the game duplicates an item.
+  * Fixed mod not loaded if it has an optional dependency that's loaded but skipped.
+  * Fixed mod update alerts not shown if one mod has an invalid remote version.
   * Fixed SMAPI update alerts linking to the GitHub repository instead of [smapi.io](https://smapi.io).
+  * Fixed rare crash if the game duplicates an item.
 
 * For the [log parser][]:
   * Tweaked UI.
