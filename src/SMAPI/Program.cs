@@ -736,7 +736,7 @@ namespace StardewModdingAPI
                 // get content packs by mod ID
                 IDictionary<string, IContentPack[]> contentPacksByModID =
                     loadedContentPacks
-                    .GroupBy(p => p.Manifest.ContentPackFor.UniqueID)
+                    .GroupBy(p => p.Manifest.ContentPackFor.UniqueID, StringComparer.InvariantCultureIgnoreCase)
                     .ToDictionary(
                             group => group.Key,
                             group => group.Select(metadata => metadata.ContentPack).ToArray(),

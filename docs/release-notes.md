@@ -22,6 +22,7 @@
   * Fixed mod not loaded if it has an optional dependency that's loaded but skipped.
   * Fixed mod update alerts not shown if one mod has an invalid remote version.
   * Fixed SMAPI update alerts linking to the GitHub repository instead of [smapi.io](https://smapi.io).
+  * Fixed error when two content packs use different capitalisation for the same required mod ID.
   * Fixed rare crash if the game duplicates an item.
 
 * For the [log parser][]:
