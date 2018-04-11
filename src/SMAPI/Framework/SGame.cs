@@ -569,7 +569,7 @@ namespace StardewModdingAPI.Framework
                     this.PreviousForagingLevel = Game1.player.foragingLevel;
                     this.PreviousMiningLevel = Game1.player.miningLevel;
                     this.PreviousLuckLevel = Game1.player.luckLevel;
-                    this.PreviousItems = Game1.player.items.Where(n => n != null).ToDictionary(n => n, n => n.Stack);
+                    this.PreviousItems = Game1.player.items.Where(n => n != null).Distinct().ToDictionary(n => n, n => n.Stack);
                     this.PreviousLocationObjects = this.GetHash(Game1.currentLocation.objects);
                     this.PreviousTime = Game1.timeOfDay;
                     this.PreviousMineLevel = Game1.mine?.mineLevel ?? 0;

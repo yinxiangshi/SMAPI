@@ -4,7 +4,6 @@
 * For players:
   * Added support for Stardew Valley 1.3+; no longer compatible with earlier versions.
   * Added `Context.IsMultiplayer` and `Context.IsMainPlayer` flags.
-  * Fixed SMAPI update alerts linking to the GitHub repository instead of [smapi.io](https://smapi.io).
   * Fixed SMAPI update checks not showing newer beta versions when using a beta version.
 
 * For modders:
@@ -21,6 +20,8 @@
 ## 2.5.5
 * For players:
   * Fixed mods not being loaded if an optional dependency is installed but skipped.
+  * Fixed rare crash when the game duplicates an item.
+  * Fixed SMAPI update alerts linking to the GitHub repository instead of [smapi.io](https://smapi.io).
 
 * For the [log parser][]:
   * Tweaked UI.
