@@ -136,8 +136,10 @@ namespace StardewModdingAPI.Framework
         /// <summary>Whether this is the very first update tick since the game started.</summary>
         private bool FirstUpdate;
 
+#if !STARDEW_VALLEY_1_3
         /// <summary>The current game instance.</summary>
         private static SGame Instance;
+#endif
 
         /// <summary>A callback to invoke after the game finishes initialising.</summary>
         private readonly Action OnGameInitialised;
@@ -148,6 +150,7 @@ namespace StardewModdingAPI.Framework
         /// <summary>Simplifies access to private game code.</summary>
         private static Reflector Reflection;
 
+#if !STARDEW_VALLEY_1_3
         // ReSharper disable ArrangeStaticMemberQualifier, ArrangeThisQualifier, InconsistentNaming
         /// <summary>Used to access private fields and methods.</summary>
         private static List<float> _fpsList => SGame.Reflection.GetField<List<float>>(typeof(Game1), nameof(_fpsList)).GetValue();
@@ -163,12 +166,13 @@ namespace StardewModdingAPI.Framework
         private readonly Action drawFarmBuildings = () => SGame.Reflection.GetMethod(SGame.Instance, nameof(drawFarmBuildings)).Invoke();
         private readonly Action drawHUD = () => SGame.Reflection.GetMethod(SGame.Instance, nameof(drawHUD)).Invoke();
         private readonly Action drawDialogueBox = () => SGame.Reflection.GetMethod(SGame.Instance, nameof(drawDialogueBox)).Invoke();
-#if STARDEW_VALLEY_1_3
-        private readonly Action<SpriteBatch> drawOverlays = spriteBatch => SGame.Reflection.GetMethod(SGame.Instance, nameof(SGame.drawOverlays)).Invoke(spriteBatch);
-        private static StringBuilder _debugStringBuilder => SGame.Reflection.GetField<StringBuilder>(typeof(Game1), nameof(_debugStringBuilder)).GetValue();
-#endif
         private readonly Action renderScreenBuffer = () => SGame.Reflection.GetMethod(SGame.Instance, nameof(renderScreenBuffer)).Invoke();
         // ReSharper restore ArrangeStaticMemberQualifier, ArrangeThisQualifier, InconsistentNaming
+#endif
+
+#if STARDEW_VALLEY_1_3
+        private static StringBuilder _debugStringBuilder => SGame.Reflection.GetField<StringBuilder>(typeof(Game1), nameof(_debugStringBuilder)).GetValue();
+#endif
 
 
         /*********
@@ -195,7 +199,9 @@ namespace StardewModdingAPI.Framework
             this.Monitor = monitor;
             this.Events = eventManager;
             this.FirstUpdate = true;
+#if !STARDEW_VALLEY_1_3
             SGame.Instance = this;
+#endif
             SGame.Reflection = reflection;
             this.OnGameInitialised = onGameInitialised;
             if (this.ContentCore == null) // shouldn't happen since CreateContentManager is called first, but let's init here just in case
@@ -256,7 +262,7 @@ namespace StardewModdingAPI.Framework
                 // a small chance that the task will finish after we defer but before the game checks,
                 // which means technically events should be raised, but the effects of missing one
                 // update tick are neglible and not worth the complications of bypassing Game1.Update.
-                if (SGame._newDayTask != null)
+                if (Game1._newDayTask != null)
                 {
                     base.Update(gameTime);
                     this.Events.Specialised_UnvalidatedUpdateTick.Raise();
@@ -681,27 +687,27 @@ namespace StardewModdingAPI.Framework
         {
             if (Game1.debugMode)
             {
-                if (SGame._fpsStopwatch.IsRunning)
+                if (Game1._fpsStopwatch.IsRunning)
                 {
-                    float totalSeconds = (float)SGame._fpsStopwatch.Elapsed.TotalSeconds;
-                    SGame._fpsList.Add(totalSeconds);
-                    while (SGame._fpsList.Count >= 120)
-                        SGame._fpsList.RemoveAt(0);
+                    float totalSeconds = (float)Game1._fpsStopwatch.Elapsed.TotalSeconds;
+                    Game1._fpsList.Add(totalSeconds);
+                    while (Game1._fpsList.Count >= 120)
+                        Game1._fpsList.RemoveAt(0);
                     float num = 0.0f;
-                    foreach (float fps in SGame._fpsList)
+                    foreach (float fps in Game1._fpsList)
                         num += fps;
-                    SGame._fps = (float)(1.0 / ((double)num / (double)SGame._fpsList.Count));
+                    Game1._fps = (float)(1.0 / ((double)num / (double)Game1._fpsList.Count));
                 }
-                SGame._fpsStopwatch.Restart();
+                Game1._fpsStopwatch.Restart();
             }
             else
             {
-                if (SGame._fpsStopwatch.IsRunning)
-                    SGame._fpsStopwatch.Reset();
-                SGame._fps = 0.0f;
-                SGame._fpsList.Clear();
+                if (Game1._fpsStopwatch.IsRunning)
+                    Game1._fpsStopwatch.Reset();
+                Game1._fps = 0.0f;
+                Game1._fpsList.Clear();
             }
-            if (SGame._newDayTask != null)
+            if (Game1._newDayTask != null)
             {
                 this.GraphicsDevice.Clear(this.bgColor);
                 //base.Draw(gameTime);
@@ -709,7 +715,7 @@ namespace StardewModdingAPI.Framework
             else
             {
                 if ((double)Game1.options.zoomLevel != 1.0)
-                    this.GraphicsDevice.SetRenderTarget(this.screenWrapper);
+                    this.GraphicsDevice.SetRenderTarget(this.screen);
                 if (this.IsSaving)
                 {
                     this.GraphicsDevice.Clear(this.bgColor);
@@ -765,7 +771,7 @@ namespace StardewModdingAPI.Framework
                             this.GraphicsDevice.SetRenderTarget((RenderTarget2D)null);
                             this.GraphicsDevice.Clear(this.bgColor);
                             Game1.spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
-                            Game1.spriteBatch.Draw((Texture2D)this.screenWrapper, Vector2.Zero, new Microsoft.Xna.Framework.Rectangle?(this.screenWrapper.Bounds), Color.White, 0.0f, Vector2.Zero, Game1.options.zoomLevel, SpriteEffects.None, 1f);
+                            Game1.spriteBatch.Draw((Texture2D)this.screen, Vector2.Zero, new Microsoft.Xna.Framework.Rectangle?(this.screen.Bounds), Color.White, 0.0f, Vector2.Zero, Game1.options.zoomLevel, SpriteEffects.None, 1f);
                             Game1.spriteBatch.End();
                         }
                         this.drawOverlays(Game1.spriteBatch);
@@ -794,7 +800,7 @@ namespace StardewModdingAPI.Framework
                             this.GraphicsDevice.SetRenderTarget((RenderTarget2D)null);
                             this.GraphicsDevice.Clear(this.bgColor);
                             Game1.spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
-                            Game1.spriteBatch.Draw((Texture2D)this.screenWrapper, Vector2.Zero, new Microsoft.Xna.Framework.Rectangle?(this.screenWrapper.Bounds), Color.White, 0.0f, Vector2.Zero, Game1.options.zoomLevel, SpriteEffects.None, 1f);
+                            Game1.spriteBatch.Draw((Texture2D)this.screen, Vector2.Zero, new Microsoft.Xna.Framework.Rectangle?(this.screen.Bounds), Color.White, 0.0f, Vector2.Zero, Game1.options.zoomLevel, SpriteEffects.None, 1f);
                             Game1.spriteBatch.End();
                         }
                         this.drawOverlays(Game1.spriteBatch);
@@ -823,7 +829,7 @@ namespace StardewModdingAPI.Framework
                             this.GraphicsDevice.SetRenderTarget((RenderTarget2D)null);
                             this.GraphicsDevice.Clear(this.bgColor);
                             Game1.spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
-                            Game1.spriteBatch.Draw((Texture2D)this.screenWrapper, Vector2.Zero, new Microsoft.Xna.Framework.Rectangle?(this.screenWrapper.Bounds), Color.White, 0.0f, Vector2.Zero, Game1.options.zoomLevel, SpriteEffects.None, 1f);
+                            Game1.spriteBatch.Draw((Texture2D)this.screen, Vector2.Zero, new Microsoft.Xna.Framework.Rectangle?(this.screen.Bounds), Color.White, 0.0f, Vector2.Zero, Game1.options.zoomLevel, SpriteEffects.None, 1f);
                             Game1.spriteBatch.End();
                         }
                         this.drawOverlays(Game1.spriteBatch);
@@ -863,7 +869,7 @@ namespace StardewModdingAPI.Framework
                                 this.GraphicsDevice.SetRenderTarget((RenderTarget2D)null);
                                 this.GraphicsDevice.Clear(this.bgColor);
                                 Game1.spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
-                                Game1.spriteBatch.Draw((Texture2D)this.screenWrapper, Vector2.Zero, new Microsoft.Xna.Framework.Rectangle?(this.screenWrapper.Bounds), Color.White, 0.0f, Vector2.Zero, Game1.options.zoomLevel, SpriteEffects.None, 1f);
+                                Game1.spriteBatch.Draw((Texture2D)this.screen, Vector2.Zero, new Microsoft.Xna.Framework.Rectangle?(this.screen.Bounds), Color.White, 0.0f, Vector2.Zero, Game1.options.zoomLevel, SpriteEffects.None, 1f);
                                 Game1.spriteBatch.End();
                             }
                             this.drawOverlays(Game1.spriteBatch);
@@ -907,7 +913,7 @@ namespace StardewModdingAPI.Framework
                                         }
                                     }
                                     Game1.spriteBatch.End();
-                                    this.GraphicsDevice.SetRenderTarget((double)Game1.options.zoomLevel == 1.0 ? (RenderTarget2D)null : this.screenWrapper);
+                                    this.GraphicsDevice.SetRenderTarget((double)Game1.options.zoomLevel == 1.0 ? (RenderTarget2D)null : this.screen);
                                 }
                                 if (Game1.bloomDay && Game1.bloom != null)
                                     Game1.bloom.BeginDraw();
