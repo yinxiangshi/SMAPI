@@ -500,9 +500,9 @@ namespace StardewModdingAPI.Framework
                             this.Events.Player_LeveledUp.Raise(new EventArgsLevelUp(EventArgsLevelUp.LevelType.Luck, Game1.player.luckLevel));
 
                         // raise player inventory changed
-                        ItemStackChange[] changedItems = this.GetInventoryChanges(Game1.player.items, this.PreviousItems).ToArray();
+                        ItemStackChange[] changedItems = this.GetInventoryChanges(Game1.player.Items, this.PreviousItems).ToArray();
                         if (changedItems.Any())
-                            this.Events.Player_InventoryChanged.Raise(new EventArgsInventoryChanged(Game1.player.items, changedItems.ToList()));
+                            this.Events.Player_InventoryChanged.Raise(new EventArgsInventoryChanged(Game1.player.Items, changedItems.ToList()));
 
                         // raise current location's object list changed
                         if (this.GetHash(Game1.currentLocation.objects) != this.PreviousLocationObjects)
@@ -526,7 +526,7 @@ namespace StardewModdingAPI.Framework
                     this.PreviousForagingLevel = Game1.player.foragingLevel;
                     this.PreviousMiningLevel = Game1.player.miningLevel;
                     this.PreviousLuckLevel = Game1.player.luckLevel;
-                    this.PreviousItems = Game1.player.items.Where(n => n != null).Distinct().ToDictionary(n => n, n => n.Stack);
+                    this.PreviousItems = Game1.player.Items.Where(n => n != null).Distinct().ToDictionary(n => n, n => n.Stack);
                     this.PreviousLocationObjects = this.GetHash(Game1.currentLocation.objects);
                     this.PreviousTime = Game1.timeOfDay;
                     this.PreviousMineLevel = Game1.mine?.mineLevel ?? 0;
@@ -633,6 +633,7 @@ namespace StardewModdingAPI.Framework
         [SuppressMessage("ReSharper", "RedundantCast", Justification = "copied from game code as-is")]
         [SuppressMessage("ReSharper", "RedundantExplicitNullableCreation", Justification = "copied from game code as-is")]
         [SuppressMessage("ReSharper", "RedundantTypeArgumentsOfMethod", Justification = "copied from game code as-is")]
+        [SuppressMessage("SMAPI.CommonErrors", "SMAPI002", Justification = "copied from game code as-is")]
         private void DrawImpl(GameTime gameTime)
         {
             if (Game1.debugMode)

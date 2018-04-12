@@ -90,12 +90,12 @@ namespace StardewModdingAPI.Metadata
                     return FarmerRenderer.accessoriesTexture = content.Load<Texture2D>(key);
 
                 case "characters\\farmer\\farmer_base": // Farmer
-                    if (Game1.player == null || !Game1.player.isMale)
+                    if (Game1.player == null || !Game1.player.IsMale)
                         return false;
                     return Game1.player.FarmerRenderer = new FarmerRenderer(key);
 
                 case "characters\\farmer\\farmer_girl_base": // Farmer
-                    if (Game1.player == null || Game1.player.isMale)
+                    if (Game1.player == null || Game1.player.IsMale)
                         return false;
                     return Game1.player.FarmerRenderer = new FarmerRenderer(key);
 
@@ -372,16 +372,16 @@ namespace StardewModdingAPI.Metadata
             foreach (FarmAnimal animal in animals)
             {
                 // get expected key
-                string expectedKey = animal.age < animal.ageWhenMature
-                    ? $"Baby{(animal.type == "Duck" ? "White Chicken" : animal.type)}"
+                string expectedKey = animal.age.Value < animal.ageWhenMature.Value
+                    ? $"Baby{(animal.type.Value == "Duck" ? "White Chicken" : animal.type.Value)}"
                     : animal.type;
-                if (animal.showDifferentTextureWhenReadyForHarvest && animal.currentProduce <= 0)
+                if (animal.showDifferentTextureWhenReadyForHarvest && animal.currentProduce.Value <= 0)
                     expectedKey = $"Sheared{expectedKey}";
                 expectedKey = $"Animals\\{expectedKey}";
 
                 // reload asset
                 if (expectedKey == key)
-                    this.SetSpriteTexture(animal.sprite, texture.Value);
+                    this.SetSpriteTexture(animal.Sprite, texture.Value);
             }
             return texture.IsValueCreated;
         }
@@ -397,7 +397,7 @@ namespace StardewModdingAPI.Metadata
             Building[] buildings = Game1.locations
                 .OfType<BuildableGameLocation>()
                 .SelectMany(p => p.buildings)
-                .Where(p => p.buildingType == type)
+                .Where(p => p.buildingType.Value == type)
                 .ToArray();
 
             // reload buildings
@@ -427,7 +427,7 @@ namespace StardewModdingAPI.Metadata
                     from fence in location.Objects.Values.OfType<Fence>()
                     where fenceType == 1
                         ? fence.isGate
-                        : fence.whichType == fenceType
+                        : fence.whichType.Value == fenceType
                     select fence
                 )
                 .ToArray();
@@ -447,7 +447,7 @@ namespace StardewModdingAPI.Metadata
         {
             // get NPCs
             string name = this.GetNpcNameFromFileName(Path.GetFileName(key));
-            NPC[] characters = this.GetCharacters().Where(npc => npc.name == name && npc.IsMonster == monster).ToArray();
+            NPC[] characters = this.GetCharacters().Where(npc => npc.Name == name && npc.IsMonster == monster).ToArray();
             if (!characters.Any())
                 return false;
 
@@ -466,7 +466,7 @@ namespace StardewModdingAPI.Metadata
         {
             // get NPCs
             string name = this.GetNpcNameFromFileName(Path.GetFileName(key));
-            NPC[] villagers = this.GetCharacters().Where(npc => npc.name == name && npc.isVillager()).ToArray();
+            NPC[] villagers = this.GetCharacters().Where(npc => npc.Name == name && npc.isVillager()).ToArray();
             if (!villagers.Any())
                 return false;
 
@@ -486,7 +486,7 @@ namespace StardewModdingAPI.Metadata
         {
             Tree[] trees = Game1.locations
                 .SelectMany(p => p.terrainFeatures.Values.OfType<Tree>())
-                .Where(tree => tree.treeType == type)
+                .Where(tree => tree.treeType.Value == type)
                 .ToArray();
 
             if (trees.Any())
@@ -562,8 +562,9 @@ namespace StardewModdingAPI.Metadata
                 {
                     foreach (Building building in buildableLocation.buildings)
                     {
-                        if (building.indoors != null)
-                            yield return building.indoors;
+                        GameLocation indoors = building.indoors;
+                        if (indoors != null)
+                            yield return indoors;
                     }
                 }
             }

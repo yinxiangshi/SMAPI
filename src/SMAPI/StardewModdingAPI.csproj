@@ -288,6 +288,9 @@
       <Name>StardewModdingAPI.AssemblyRewriters</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\SMAPI.ModBuildConfig.Analyzer\bin\netstandard1.3\StardewModdingAPI.ModBuildConfig.Analyzer.dll" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\..\build\common.targets" />
 </Project>
