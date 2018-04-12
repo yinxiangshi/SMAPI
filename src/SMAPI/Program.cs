@@ -629,7 +629,7 @@ namespace StardewModdingAPI
 
                             // compare versions
                             bool isUpdate = remoteVersion.IsNewerThan(localVersion);
-                            this.VerboseLog($"   {mod.DisplayName} ({result.Key}): {(isUpdate ? $"{mod.Manifest.Version}{(!localVersion.Equals(mod.Manifest.Version) ? $" [{localVersion}]" : "")} => {remoteInfo.Version}{(!remoteVersion.Equals(new SemanticVersion(remoteInfo.Version)) ? $" [{remoteVersion}]" : "")}" : "okay")}.");
+                            this.VerboseLog($"   {mod.DisplayName} ({result.Key}): {(isUpdate ? $"{mod.Manifest.Version}{(!localVersion.Equals(mod.Manifest.Version) ? $" [{localVersion}]" : "")} => {remoteInfo.Version}" : "okay")}.");
                             if (isUpdate)
                             {
                                 if (!updatesByMod.TryGetValue(mod, out ModInfoModel other) || remoteVersion.IsNewerThan(other.Version))
@@ -736,7 +736,7 @@ namespace StardewModdingAPI
                 // get content packs by mod ID
                 IDictionary<string, IContentPack[]> contentPacksByModID =
                     loadedContentPacks
-                    .GroupBy(p => p.Manifest.ContentPackFor.UniqueID)
+                    .GroupBy(p => p.Manifest.ContentPackFor.UniqueID, StringComparer.InvariantCultureIgnoreCase)
                     .ToDictionary(
                             group => group.Key,
                             group => group.Select(metadata => metadata.ContentPack).ToArray(),

@@ -92,7 +92,9 @@ smapi.logParser = function (data, sectionUrl) {
     *********/
     var error = $("#error");
     
-    $("#upload-button").on("click", function() {
+    $("#upload-button").on("click", function(e) {
+        e.preventDefault();
+
         $("#input").val("");
         $("#popup-upload").fadeIn();
     });

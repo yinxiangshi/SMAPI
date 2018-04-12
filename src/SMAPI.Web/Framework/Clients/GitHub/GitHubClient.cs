@@ -59,7 +59,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.GitHub
                     GitRelease[] results = await this.Client
                         .GetAsync(string.Format(this.AnyReleaseUrlFormat, repo))
                         .AsArray<GitRelease>();
-                    return results.FirstOrDefault();
+                    return results.FirstOrDefault(p => !p.IsDraft);
                 }
 
                 return await this.Client

@@ -41,7 +41,7 @@ namespace StardewModdingAPI
 #if STARDEW_VALLEY_1_3
             new SemanticVersion($"2.6-alpha.{DateTime.UtcNow:yyyyMMddHHmm}");
 #else
-            new SemanticVersion("2.5.4");
+            new SemanticVersion("2.5.5");
 #endif
 
         /// <summary>The minimum supported version of Stardew Valley.</summary>
@@ -186,7 +186,7 @@ namespace StardewModdingAPI
         {
             string prefix =
 #if STARDEW_VALLEY_1_3
-                new string(Game1.player.name.Value.Where(char.IsLetterOrDigit).ToArray());
+                new string(Game1.player.Name.Where(char.IsLetterOrDigit).ToArray());
 #else
                 new string(Game1.player.name.Where(char.IsLetterOrDigit).ToArray());
 #endif

@@ -12,11 +12,8 @@ namespace StardewModdingAPI.Web.Framework.RewriteRules
         /*********
         ** Properties
         *********/
-        /// <summary>A predicate which indicates when the rule should be applied.</summary>
-        private readonly Func<HttpRequest, bool> ShouldRewrite;
-
-        /// <summary>The new URL to which to redirect.</summary>
-        private readonly string NewUrl;
+        /// <summary>Get the new URL to which to redirect (or <c>null</c> to skip).</summary>
+        private readonly Func<HttpRequest, string> NewUrl;
 
 
         /*********
@@ -27,8 +24,7 @@ namespace StardewModdingAPI.Web.Framework.RewriteRules
         /// <param name="url">The new URL to which to redirect.</param>
         public RedirectToUrlRule(Func<HttpRequest, bool> shouldRewrite, string url)
         {
-            this.ShouldRewrite = shouldRewrite ?? (req => true);
-            this.NewUrl = url;
+            this.NewUrl = req => shouldRewrite(req) ? url : null;
         }
 
         /// <summary>Construct an instance.</summary>
@@ -37,8 +33,7 @@ namespace StardewModdingAPI.Web.Framework.RewriteRules
         public RedirectToUrlRule(string pathRegex, string url)
         {
             Regex regex = new Regex(pathRegex, RegexOptions.IgnoreCase | RegexOptions.Compiled);
-            this.ShouldRewrite = req => req.Path.HasValue && regex.IsMatch(req.Path.Value);
-            this.NewUrl = url;
+            this.NewUrl = req => req.Path.HasValue ? regex.Replace(req.Path.Value, url) : null;
         }
 
         /// <summary>Applies the rule. Implementations of ApplyRule should set the value for <see cref="RewriteContext.Result" /> (defaults to RuleResult.ContinueRules).</summary>
@@ -47,14 +42,15 @@ namespace StardewModdingAPI.Web.Framework.RewriteRules
         {
             HttpRequest request = context.HttpContext.Request;
 
-            // check condition
-            if (!this.ShouldRewrite(request))
+            // check rewrite
+            string newUrl = this.NewUrl(request);
+            if (newUrl == null || newUrl == request.Path.Value)
                 return;
 
             // redirect request
             HttpResponse response = context.HttpContext.Response;
             response.StatusCode = (int)HttpStatusCode.Redirect;
-            response.Headers["Location"] = this.NewUrl;
+            response.Headers["Location"] = newUrl;
             context.Result = RuleResult.EndResponse;
         }
     }

@@ -352,6 +352,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                     {
                         // sorted successfully
                         case ModDependencyStatus.Sorted:
+                        case ModDependencyStatus.Failed when !dependency.IsRequired: // ignore failed optional dependency
                             break;
 
                         // failed, which means this mod can't be loaded either

@@ -45,9 +45,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{09CF91E5
 		..\build\common.targets = ..\build\common.targets
 		..\build\GlobalAssemblyInfo.cs = ..\build\GlobalAssemblyInfo.cs
 		..\build\prepare-install-package.targets = ..\build\prepare-install-package.targets
+		..\build\prepare-nuget-package.targets = ..\build\prepare-nuget-package.targets
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StardewModdingAPI.ModBuildConfig", "SMAPI.ModBuildConfig\StardewModdingAPI.ModBuildConfig.csproj", "{EA4F1E80-743F-4A1D-9757-AE66904A196A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{80AD8528-AA49-4731-B4A6-C691845815A1} = {80AD8528-AA49-4731-B4A6-C691845815A1}
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StardewModdingAPI.ModBuildConfig.Analyzer", "SMAPI.ModBuildConfig.Analyzer\StardewModdingAPI.ModBuildConfig.Analyzer.csproj", "{80AD8528-AA49-4731-B4A6-C691845815A1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMAPI.ModBuildConfig.Analyzer.Tests", "SMAPI.ModBuildConfig.Analyzer.Tests\SMAPI.ModBuildConfig.Analyzer.Tests.csproj", "{0CF97929-B0D0-4D73-B7BF-4FF7191035F9}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -137,6 +145,30 @@ Global
 		{EA4F1E80-743F-4A1D-9757-AE66904A196A}.Release|Mixed Platforms.Build.0 = Release|x86
 		{EA4F1E80-743F-4A1D-9757-AE66904A196A}.Release|x86.ActiveCfg = Release|x86
 		{EA4F1E80-743F-4A1D-9757-AE66904A196A}.Release|x86.Build.0 = Release|x86
+		{80AD8528-AA49-4731-B4A6-C691845815A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80AD8528-AA49-4731-B4A6-C691845815A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80AD8528-AA49-4731-B4A6-C691845815A1}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{80AD8528-AA49-4731-B4A6-C691845815A1}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{80AD8528-AA49-4731-B4A6-C691845815A1}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{80AD8528-AA49-4731-B4A6-C691845815A1}.Debug|x86.Build.0 = Debug|Any CPU
+		{80AD8528-AA49-4731-B4A6-C691845815A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80AD8528-AA49-4731-B4A6-C691845815A1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80AD8528-AA49-4731-B4A6-C691845815A1}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{80AD8528-AA49-4731-B4A6-C691845815A1}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{80AD8528-AA49-4731-B4A6-C691845815A1}.Release|x86.ActiveCfg = Release|Any CPU
+		{80AD8528-AA49-4731-B4A6-C691845815A1}.Release|x86.Build.0 = Release|Any CPU
+		{0CF97929-B0D0-4D73-B7BF-4FF7191035F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0CF97929-B0D0-4D73-B7BF-4FF7191035F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0CF97929-B0D0-4D73-B7BF-4FF7191035F9}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{0CF97929-B0D0-4D73-B7BF-4FF7191035F9}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{0CF97929-B0D0-4D73-B7BF-4FF7191035F9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0CF97929-B0D0-4D73-B7BF-4FF7191035F9}.Debug|x86.Build.0 = Debug|Any CPU
+		{0CF97929-B0D0-4D73-B7BF-4FF7191035F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0CF97929-B0D0-4D73-B7BF-4FF7191035F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0CF97929-B0D0-4D73-B7BF-4FF7191035F9}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{0CF97929-B0D0-4D73-B7BF-4FF7191035F9}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{0CF97929-B0D0-4D73-B7BF-4FF7191035F9}.Release|x86.ActiveCfg = Release|Any CPU
+		{0CF97929-B0D0-4D73-B7BF-4FF7191035F9}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -147,6 +179,7 @@ Global
 		{2AA02FB6-FF03-41CF-A215-2EE60AB4F5DC} = {82D22ED7-A0A7-4D64-8E92-4B6A5E74ED11}
 		{EB35A917-67B9-4EFA-8DFC-4FB49B3949BB} = {86C452BE-D2D8-45B4-B63F-E329EB06CEDA}
 		{09CF91E5-5BAB-4650-A200-E5EA9A633046} = {86C452BE-D2D8-45B4-B63F-E329EB06CEDA}
+		{0CF97929-B0D0-4D73-B7BF-4FF7191035F9} = {82D22ED7-A0A7-4D64-8E92-4B6A5E74ED11}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {70143042-A862-47A8-A677-7C819DDC90DC}

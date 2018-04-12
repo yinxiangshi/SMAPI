@@ -59,7 +59,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
    *          - A JSON structure containing any of four manifest fields (ID, Name, Author, and
    *            EntryDll) to match.
    *
-   *   - MapLocalVersions and MapRemoteVersions crrect local manifest versions and remote versions
+   *   - MapLocalVersions and MapRemoteVersions correct local manifest versions and remote versions
    *     during update checks. For example, if the API returns version '1.1-1078' where '1078' is
    *     intended to be a build number, MapRemoteVersions can map it to '1.1' when comparing to the
    *     mod's current version. This is only meant to support legacy mods with injected update keys.

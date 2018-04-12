@@ -44,6 +44,11 @@ namespace StardewModdingAPI.Framework
         /// <summary>The underlying asset cache.</summary>
         private readonly ContentCache Cache;
 
+#if STARDEW_VALLEY_1_3
+        /// <summary>A lookup which indicates whether the asset is localisable (i.e. the filename contains the locale), if previously loaded.</summary>
+        private readonly IDictionary<string, bool> IsLocalisableLookup;
+#endif
+
         /// <summary>The locale codes used in asset keys indexed by enum value.</summary>
         private readonly IDictionary<LocalizedContentManager.LanguageCode, string> Locales;
 
@@ -106,6 +111,9 @@ namespace StardewModdingAPI.Framework
             this.CoreAssets = new CoreAssetPropagator(this.NormaliseAssetName, reflection);
             this.Locales = this.GetKeyLocales(reflection);
             this.LanguageCodes = this.Locales.ToDictionary(p => p.Value, p => p.Key, StringComparer.InvariantCultureIgnoreCase);
+#if STARDEW_VALLEY_1_3
+            this.IsLocalisableLookup = reflection.GetField<IDictionary<string, bool>>(this.Content, "_localizedAsset").GetValue();
+#endif
         }
 
         /// <summary>Get a new content manager which defers loading to the content core.</summary>
@@ -512,8 +520,18 @@ namespace StardewModdingAPI.Framework
         /// <param name="normalisedAssetName">The normalised asset name.</param>
         private bool IsNormalisedKeyLoaded(string normalisedAssetName)
         {
-            return this.Cache.ContainsKey(normalisedAssetName)
+#if STARDEW_VALLEY_1_3
+            if (!this.IsLocalisableLookup.TryGetValue(normalisedAssetName, out bool localisable))
+                return false;
+
+            return localisable
+                ? this.Cache.ContainsKey($"{normalisedAssetName}.{this.Locales[this.Content.GetCurrentLanguage()]}")
+                : this.Cache.ContainsKey(normalisedAssetName);
+#else
+            return
+                this.Cache.ContainsKey(normalisedAssetName)
                 || this.Cache.ContainsKey($"{normalisedAssetName}.{this.Locales[this.Content.GetCurrentLanguage()]}"); // translated asset
+#endif
         }
 
         /// <summary>Track that a content manager loaded an asset.</summary>
