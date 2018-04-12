@@ -38,7 +38,7 @@
         <Reference Include="Microsoft.Xna.Framework.Xact, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
           <Private>False</Private>
         </Reference>
-        <Reference Include="Netcode" Condition="Exists('$(GamePath)\Netcode.dll')">
+        <Reference Include="Netcode">
           <HintPath>$(GamePath)\Netcode.dll</HintPath>
           <Private Condition="'$(MSBuildProjectName)' != 'StardewModdingAPI.Tests'">False</Private>
         </Reference>

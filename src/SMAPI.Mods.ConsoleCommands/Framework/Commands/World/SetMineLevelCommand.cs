@@ -26,11 +26,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
             // handle
             level = Math.Max(1, level);
             monitor.Log($"OK, warping you to mine level {level}.", LogLevel.Info);
-#if STARDEW_VALLEY_1_3
             Game1.enterMine(level);
-#else
-            Game1.enterMine(true, level, "");
-#endif
         }
     }
 }

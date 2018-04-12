@@ -49,10 +49,8 @@ namespace StardewModdingAPI.Framework
         /// <param name="gameVersion">The game version string.</param>
         private static string GetSemanticVersionString(string gameVersion)
         {
-#if STARDEW_VALLEY_1_3
-            if(gameVersion.StartsWith("1.3.0."))
+            if (gameVersion.StartsWith("1.3.0."))
                 return new SemanticVersion(1, 3, 0, "alpha." + gameVersion.Substring("1.3.0.".Length)).ToString();
-#endif
 
             return GameVersion.VersionMap.TryGetValue(gameVersion, out string semanticVersion)
                 ? semanticVersion
@@ -63,10 +61,8 @@ namespace StardewModdingAPI.Framework
         /// <param name="semanticVersion">The semantic version string.</param>
         private static string GetGameVersionString(string semanticVersion)
         {
-            #if STARDEW_VALLEY_1_3
-            if(semanticVersion.StartsWith("1.3-alpha."))
+            if (semanticVersion.StartsWith("1.3-alpha."))
                 return "1.3.0." + semanticVersion.Substring("1.3-alpha.".Length);
-            #endif
 
             foreach (var mapping in GameVersion.VersionMap)
             {

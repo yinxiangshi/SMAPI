@@ -43,14 +43,9 @@ namespace StardewModdingAPI.Framework
         /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
         public override T Load<T>(string assetName)
         {
-#if STARDEW_VALLEY_1_3
             return this.Load<T>(assetName, LocalizedContentManager.CurrentLanguageCode);
-#else
-            return this.ContentCore.Load<T>(assetName, this);
-#endif
         }
 
-#if STARDEW_VALLEY_1_3
         /// <summary>Load an asset that has been processed by the content pipeline.</summary>
         /// <typeparam name="T">The type of asset to load.</typeparam>
         /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
@@ -67,7 +62,6 @@ namespace StardewModdingAPI.Framework
         {
             return this.Load<T>(assetName, LanguageCode.en);
         }
-#endif
 
         /// <summary>Inject an asset into the cache.</summary>
         /// <typeparam name="T">The type of asset to inject.</typeparam>
@@ -78,13 +72,11 @@ namespace StardewModdingAPI.Framework
             this.ContentCore.Inject<T>(assetName, value, this);
         }
 
-#if STARDEW_VALLEY_1_3
         /// <summary>Create a new content manager for temporary use.</summary>
         public override LocalizedContentManager CreateTemporary()
         {
             return this.ContentCore.CreateContentManager("(temporary)");
         }
-#endif
 
 
         /*********

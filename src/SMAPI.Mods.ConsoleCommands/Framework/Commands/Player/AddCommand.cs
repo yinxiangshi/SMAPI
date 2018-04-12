@@ -54,11 +54,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
 
             // apply quality
             if (match.Item is Object obj)
-#if STARDEW_VALLEY_1_3
                 obj.Quality = quality;
-#else
-                obj.quality = quality;
-#endif
             else if (match.Item is Tool tool)
                 tool.UpgradeLevel = quality;
 

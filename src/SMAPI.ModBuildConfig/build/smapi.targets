@@ -76,7 +76,7 @@
           <Private>false</Private>
           <Private Condition="$(ModUnitTests)">true</Private>
         </Reference>
-        <Reference Include="Netcode" Condition="Exists('$(GamePath)\Netcode.dll')">
+        <Reference Include="Netcode">
           <HintPath>$(GamePath)\Netcode.dll</HintPath>
           <Private>False</Private>
           <Private Condition="$(ModUnitTests)">true</Private>

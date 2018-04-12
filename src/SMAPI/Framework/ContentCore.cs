@@ -44,10 +44,8 @@ namespace StardewModdingAPI.Framework
         /// <summary>The underlying asset cache.</summary>
         private readonly ContentCache Cache;
 
-#if STARDEW_VALLEY_1_3
         /// <summary>A lookup which indicates whether the asset is localisable (i.e. the filename contains the locale), if previously loaded.</summary>
         private readonly IDictionary<string, bool> IsLocalisableLookup;
-#endif
 
         /// <summary>The locale codes used in asset keys indexed by enum value.</summary>
         private readonly IDictionary<LocalizedContentManager.LanguageCode, string> Locales;
@@ -111,9 +109,7 @@ namespace StardewModdingAPI.Framework
             this.CoreAssets = new CoreAssetPropagator(this.NormaliseAssetName, reflection);
             this.Locales = this.GetKeyLocales(reflection);
             this.LanguageCodes = this.Locales.ToDictionary(p => p.Value, p => p.Key, StringComparer.InvariantCultureIgnoreCase);
-#if STARDEW_VALLEY_1_3
             this.IsLocalisableLookup = reflection.GetField<IDictionary<string, bool>>(this.Content, "_localizedAsset").GetValue();
-#endif
         }
 
         /// <summary>Get a new content manager which defers loading to the content core.</summary>
@@ -209,11 +205,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="language">The language code for which to load content.</param>
         /// <exception cref="ArgumentException">The <paramref name="assetName"/> is empty or contains invalid characters.</exception>
         /// <exception cref="ContentLoadException">The content asset couldn't be loaded (e.g. because it doesn't exist).</exception>
-        public T Load<T>(string assetName, ContentManager instance
-#if STARDEW_VALLEY_1_3
-            , LocalizedContentManager.LanguageCode language
-#endif
-            )
+        public T Load<T>(string assetName, ContentManager instance, LocalizedContentManager.LanguageCode language)
         {
             // normalise asset key
             this.AssertValidAssetKeyFormat(assetName);
@@ -221,11 +213,7 @@ namespace StardewModdingAPI.Framework
 
             // load game content
             if (!assetName.StartsWith(this.ModContentPrefix))
-#if STARDEW_VALLEY_1_3
                 return this.LoadImpl<T>(assetName, instance, language);
-#else
-                return this.LoadImpl<T>(assetName, instance);
-#endif
 
             // load mod content
             SContentLoadException GetContentError(string reasonPhrase) => new SContentLoadException($"Failed loading content asset '{assetName}': {reasonPhrase}");
@@ -235,11 +223,7 @@ namespace StardewModdingAPI.Framework
                 {
                     // try cache
                     if (this.IsLoaded(assetName))
-#if STARDEW_VALLEY_1_3
                         return this.LoadImpl<T>(assetName, instance, language);
-#else
-                        return this.LoadImpl<T>(assetName, instance);
-#endif
 
                     // get file
                     FileInfo file = this.GetModFile(assetName);
@@ -251,11 +235,7 @@ namespace StardewModdingAPI.Framework
                     {
                         // XNB file
                         case ".xnb":
-#if STARDEW_VALLEY_1_3
                             return this.LoadImpl<T>(assetName, instance, language);
-#else
-                            return this.LoadImpl<T>(assetName, instance);
-#endif
 
                         // unpacked map
                         case ".tbin":
@@ -436,10 +416,6 @@ namespace StardewModdingAPI.Framework
         /// <param name="reflection">Simplifies access to private game code.</param>
         private IDictionary<LocalizedContentManager.LanguageCode, string> GetKeyLocales(Reflector reflection)
         {
-#if !STARDEW_VALLEY_1_3
-            IReflectedField<LocalizedContentManager.LanguageCode> codeField = reflection.GetField<LocalizedContentManager.LanguageCode>(typeof(LocalizedContentManager), "_currentLangCode");
-            LocalizedContentManager.LanguageCode previousCode = codeField.GetValue();
-#endif
             string previousOverride = this.Content.LanguageCodeOverride;
 
             try
@@ -448,21 +424,11 @@ namespace StardewModdingAPI.Framework
                 this.Content.LanguageCodeOverride = null;
 
                 // create locale => code map
-                IReflectedMethod languageCodeString = reflection
-#if STARDEW_VALLEY_1_3
-                    .GetMethod(this.Content, "languageCodeString");
-#else
-                    .GetMethod(this.Content, "languageCode");
-#endif
+                IReflectedMethod languageCodeString = reflection.GetMethod(this.Content, "languageCodeString");
                 IDictionary<LocalizedContentManager.LanguageCode, string> map = new Dictionary<LocalizedContentManager.LanguageCode, string>();
                 foreach (LocalizedContentManager.LanguageCode code in Enum.GetValues(typeof(LocalizedContentManager.LanguageCode)))
                 {
-#if STARDEW_VALLEY_1_3
                     map[code] = languageCodeString.Invoke<string>(code);
-#else
-                    codeField.SetValue(code);
-                    map[code] = languageCodeString.Invoke<string>();
-#endif
                 }
 
                 return map;
@@ -471,10 +437,6 @@ namespace StardewModdingAPI.Framework
             {
                 // restore previous settings
                 this.Content.LanguageCodeOverride = previousOverride;
-#if !STARDEW_VALLEY_1_3
-                codeField.SetValue(previousCode);
-#endif
-
             }
         }
 
@@ -520,18 +482,12 @@ namespace StardewModdingAPI.Framework
         /// <param name="normalisedAssetName">The normalised asset name.</param>
         private bool IsNormalisedKeyLoaded(string normalisedAssetName)
         {
-#if STARDEW_VALLEY_1_3
             if (!this.IsLocalisableLookup.TryGetValue(normalisedAssetName, out bool localisable))
                 return false;
 
             return localisable
                 ? this.Cache.ContainsKey($"{normalisedAssetName}.{this.Locales[this.Content.GetCurrentLanguage()]}")
                 : this.Cache.ContainsKey(normalisedAssetName);
-#else
-            return
-                this.Cache.ContainsKey(normalisedAssetName)
-                || this.Cache.ContainsKey($"{normalisedAssetName}.{this.Locales[this.Content.GetCurrentLanguage()]}"); // translated asset
-#endif
         }
 
         /// <summary>Track that a content manager loaded an asset.</summary>
@@ -552,11 +508,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
         /// <param name="instance">The content manager instance for which to load the asset.</param>
         /// <param name="language">The language code for which to load content.</param>
-        private T LoadImpl<T>(string assetName, ContentManager instance
-#if STARDEW_VALLEY_1_3
-            , LocalizedContentManager.LanguageCode language
-#endif
-    )
+        private T LoadImpl<T>(string assetName, ContentManager instance, LocalizedContentManager.LanguageCode language)
         {
             return this.WithWriteLock(() =>
             {
@@ -564,13 +516,7 @@ namespace StardewModdingAPI.Framework
                 if (this.IsNormalisedKeyLoaded(assetName))
                 {
                     this.TrackAssetLoader(assetName, instance);
-                    return this.Content
-
-#if STARDEW_VALLEY_1_3
-                        .Load<T>(assetName, language);
-#else
-                        .Load<T>(assetName);
-#endif
+                    return this.Content.Load<T>(assetName, language);
                 }
 
                 // load asset
@@ -579,30 +525,17 @@ namespace StardewModdingAPI.Framework
                 {
                     this.Monitor.Log($"Broke loop while loading asset '{assetName}'.", LogLevel.Warn);
                     this.Monitor.Log($"Bypassing mod loaders for this asset. Stack trace:\n{Environment.StackTrace}", LogLevel.Trace);
-                    data = this.Content
-#if STARDEW_VALLEY_1_3
-                        .Load<T>(assetName, language);
-#else
-                        .Load<T>(assetName);
-#endif
+                    data = this.Content.Load<T>(assetName, language);
                 }
                 else
                 {
                     data = this.AssetsBeingLoaded.Track(assetName, () =>
                     {
-                        string locale =
-#if STARDEW_VALLEY_1_3
-                            this.GetLocale(language);
-#else
-                            this.GetLocale();
-#endif
+                        string locale = this.GetLocale(language);
                         IAssetInfo info = new AssetInfo(locale, assetName, typeof(T), this.NormaliseAssetName);
-                        IAssetData asset = this.ApplyLoader<T>(info)
-#if STARDEW_VALLEY_1_3
+                        IAssetData asset =
+                            this.ApplyLoader<T>(info)
                             ?? new AssetDataForObject(info, this.Content.Load<T>(assetName, language), this.NormaliseAssetName);
-#else
-                            ?? new AssetDataForObject(info, this.Content.Load<T>(assetName), this.NormaliseAssetName);
-#endif
                         asset = this.ApplyEditors<T>(info, asset);
                         return (T)asset.Data;
                     });

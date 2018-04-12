@@ -80,17 +80,8 @@ namespace StardewModdingAPI.Metadata
                 ** Buildings
                 ****/
                 case "buildings\\houses": // Farm
-#if STARDEW_VALLEY_1_3
                     reflection.GetField<Texture2D>(typeof(Farm), nameof(Farm.houseTextures)).SetValue(content.Load<Texture2D>(key));
                     return true;
-#else
-                    {
-                        Farm farm = Game1.getFarm();
-                        if (farm == null)
-                            return false;
-                        return farm.houseTextures = content.Load<Texture2D>(key);
-                    }
-#endif
 
                 /****
                 ** Content\Characters\Farmer
@@ -101,20 +92,12 @@ namespace StardewModdingAPI.Metadata
                 case "characters\\farmer\\farmer_base": // Farmer
                     if (Game1.player == null || !Game1.player.isMale)
                         return false;
-#if STARDEW_VALLEY_1_3
                     return Game1.player.FarmerRenderer = new FarmerRenderer(key);
-#else
-                    return Game1.player.FarmerRenderer = new FarmerRenderer(content.Load<Texture2D>(key));
-#endif
 
                 case "characters\\farmer\\farmer_girl_base": // Farmer
                     if (Game1.player == null || Game1.player.isMale)
                         return false;
-#if STARDEW_VALLEY_1_3
                     return Game1.player.FarmerRenderer = new FarmerRenderer(key);
-#else
-                    return Game1.player.FarmerRenderer = new FarmerRenderer(content.Load<Texture2D>(key));
-#endif
 
                 case "characters\\farmer\\hairstyles": // Game1.loadContent
                     return FarmerRenderer.hairStylesTexture = content.Load<Texture2D>(key);
@@ -206,11 +189,6 @@ namespace StardewModdingAPI.Metadata
                 /****
                 ** Content\Critters
                 ****/
-#if !STARDEW_VALLEY_1_3
-                case "tilesheets\\critters": // Criter.InitShared
-                    return Critter.critterTexture = content.Load<Texture2D>(key);
-#endif
-
                 case "tilesheets\\crops": // Game1.loadContent
                     return Game1.cropSpriteSheet = content.Load<Texture2D>(key);
 
@@ -265,11 +243,7 @@ namespace StardewModdingAPI.Metadata
                         Texture2D texture = content.Load<Texture2D>(key);
                         reflection.GetField<Texture2D>(titleMenu, "titleButtonsTexture").SetValue(texture);
                         foreach (TemporaryAnimatedSprite bird in reflection.GetField<List<TemporaryAnimatedSprite>>(titleMenu, "birds").GetValue())
-#if STARDEW_VALLEY_1_3
                             bird.texture = texture;
-#else
-                            bird.Texture = texture;
-#endif
                         return true;
                     }
                     return false;
@@ -284,12 +258,8 @@ namespace StardewModdingAPI.Metadata
                     return Game1.buffsIcons = content.Load<Texture2D>(key);
 
                 case "tilesheets\\bushes": // new Bush()
-#if STARDEW_VALLEY_1_3
                     reflection.GetField<Lazy<Texture2D>>(typeof(Bush), "texture").SetValue(new Lazy<Texture2D>(() => content.Load<Texture2D>(key)));
                     return true;
-#else
-                    return Bush.texture = content.Load<Texture2D>(key);
-#endif
 
                 case "tilesheets\\craftables": // Game1.loadContent
                     return Game1.bigCraftableSpriteSheet = content.Load<Texture2D>(key);
@@ -350,7 +320,7 @@ namespace StardewModdingAPI.Metadata
                 return this.ReloadNpcSprites(content, key, monster: true);
 
             if (key.StartsWith(this.GetNormalisedPath("LooseSprites\\Fence"), StringComparison.InvariantCultureIgnoreCase))
-                return this.ReloadFenceTextures(content, key);
+                return this.ReloadFenceTextures(key);
 
             if (this.IsInFolder(key, "Portraits"))
                 return this.ReloadNpcPortraits(content, key);
@@ -435,21 +405,16 @@ namespace StardewModdingAPI.Metadata
             {
                 Lazy<Texture2D> texture = new Lazy<Texture2D>(() => content.Load<Texture2D>(key));
                 foreach (Building building in buildings)
-#if STARDEW_VALLEY_1_3
                     building.texture = texture;
-#else
-                    building.texture = texture.Value;
-#endif
                 return true;
             }
             return false;
         }
 
         /// <summary>Reload the sprites for a fence type.</summary>
-        /// <param name="content">The content manager through which to reload the asset.</param>
         /// <param name="key">The asset key to reload.</param>
         /// <returns>Returns whether any textures were reloaded.</returns>
-        private bool ReloadFenceTextures(LocalizedContentManager content, string key)
+        private bool ReloadFenceTextures(string key)
         {
             // get fence type
             if (!int.TryParse(this.GetSegments(key)[1].Substring("Fence".Length), out int fenceType))
@@ -528,11 +493,7 @@ namespace StardewModdingAPI.Metadata
             {
                 Lazy<Texture2D> texture = new Lazy<Texture2D>(() => content.Load<Texture2D>(key));
                 foreach (Tree tree in trees)
-#if STARDEW_VALLEY_1_3
                     this.Reflection.GetField<Lazy<Texture2D>>(tree, "texture").SetValue(texture);
-#else
-                    this.Reflection.GetField<Texture2D>(tree, "texture").SetValue(texture.Value);
-#endif
                 return true;
             }
 
@@ -547,11 +508,7 @@ namespace StardewModdingAPI.Metadata
         /// <param name="texture">The texture to set.</param>
         private void SetSpriteTexture(AnimatedSprite sprite, Texture2D texture)
         {
-#if STARDEW_VALLEY_1_3
             this.Reflection.GetField<Texture2D>(sprite, "spriteTexture").SetValue(texture);
-#else
-            sprite.Texture = texture;
-#endif
         }
 
         /// <summary>Get an NPC name from the name of their file under <c>Content/Characters</c>.</summary>
