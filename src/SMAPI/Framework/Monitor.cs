@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using StardewModdingAPI.Common;
 using StardewModdingAPI.Framework.Logging;
 using StardewModdingAPI.Framework.Models;
 
@@ -153,7 +154,12 @@ namespace StardewModdingAPI.Framework
         {
             // auto detect color scheme
             if (colorScheme == MonitorColorScheme.AutoDetect)
-                colorScheme = Monitor.IsDark(Console.BackgroundColor) ? MonitorColorScheme.DarkBackground : MonitorColorScheme.LightBackground;
+            {
+                if (Constants.TargetPlatform == Platform.Mac)
+                    colorScheme = MonitorColorScheme.LightBackground; // MacOS doesn't provide console background color info, but it's usually white.
+                else
+                    colorScheme = Monitor.IsDark(Console.BackgroundColor) ? MonitorColorScheme.DarkBackground : MonitorColorScheme.LightBackground;
+            }
 
             // get colors for scheme
             switch (colorScheme)
