@@ -153,8 +153,8 @@ You can hide the warnings...
 
 See below for help with each specific warning.
 
-### SMAPI001
-**Implicit net field conversion:**
+### Avoid implicit net field cast
+Warning text:
 > This implicitly converts '{{expression}}' from {{net type}} to {{other type}}, but
 > {{net type}} has unintuitive implicit conversion rules. Consider comparing against the actual
 > value instead to avoid bugs.
@@ -185,8 +185,8 @@ Suggested fix:
   if (item != null && item.category.Value == 0)
   ```
 
-### SMAPI002
-**Avoid net fields when possible:**
+### Avoid net field
+Warning text:
 > '{{expression}}' is a {{net type}} field; consider using the {{property name}} property instead.
 
 Your code accesses a net field, which has some unusual behavior (see [SMAPI001](#smapi001)). This
@@ -194,8 +194,8 @@ field has an equivalent non-net property that avoids those issues.
 
 Suggested fix: access the suggested property name instead.
 
-### SMAPI003
-**Avoid obsolete fields:**
+### Avoid obsolete field
+Warning text:
 > The '{{old field}}' field is obsolete and should be replaced with '{{new field}}'.
 
 Your code accesses a field which is obsolete or no longer works. Use the suggested field instead.

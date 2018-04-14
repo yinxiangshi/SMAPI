@@ -91,8 +91,8 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
             string code = NetFieldAnalyzerTests.SampleProgram.Replace("{{test-code}}", codeText);
             DiagnosticResult expected = new DiagnosticResult
             {
-                Id = "SMAPI001",
-                Message = $"This implicitly converts '{expression}' from {fromType} to {toType}, but {fromType} has unintuitive implicit conversion rules. Consider comparing against the actual value instead to avoid bugs. See https://smapi.io/buildmsg/smapi001 for details.",
+                Id = "AvoidImplicitNetFieldCast",
+                Message = $"This implicitly converts '{expression}' from {fromType} to {toType}, but {fromType} has unintuitive implicit conversion rules. Consider comparing against the actual value instead to avoid bugs. See https://smapi.io/buildmsg/avoid-implicit-net-field-cast for details.",
                 Severity = DiagnosticSeverity.Warning,
                 Locations = new[] { new DiagnosticResultLocation("Test0.cs", NetFieldAnalyzerTests.SampleCodeLine, NetFieldAnalyzerTests.SampleCodeColumn + column) }
             };
@@ -117,8 +117,8 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
             string code = NetFieldAnalyzerTests.SampleProgram.Replace("{{test-code}}", codeText);
             DiagnosticResult expected = new DiagnosticResult
             {
-                Id = "SMAPI002",
-                Message = $"'{expression}' is a {netType} field; consider using the {suggestedProperty} property instead. See https://smapi.io/buildmsg/smapi002 for details.",
+                Id = "AvoidNetField",
+                Message = $"'{expression}' is a {netType} field; consider using the {suggestedProperty} property instead. See https://smapi.io/buildmsg/avoid-net-field for details.",
                 Severity = DiagnosticSeverity.Warning,
                 Locations = new[] { new DiagnosticResultLocation("Test0.cs", NetFieldAnalyzerTests.SampleCodeLine, NetFieldAnalyzerTests.SampleCodeColumn + column) }
             };

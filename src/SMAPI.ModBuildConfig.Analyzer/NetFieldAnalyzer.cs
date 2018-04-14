@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace StardewModdingAPI.ModBuildConfig.Analyzer
@@ -127,23 +126,23 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
         /// <summary>Describes the diagnostic rule covered by the analyzer.</summary>
         private readonly IDictionary<string, DiagnosticDescriptor> Rules = new Dictionary<string, DiagnosticDescriptor>
         {
-            ["SMAPI001"] = new DiagnosticDescriptor(
-                id: "SMAPI001",
+            ["AvoidImplicitNetFieldCast"] = new DiagnosticDescriptor(
+                id: "AvoidImplicitNetFieldCast",
                 title: "Netcode types shouldn't be implicitly converted",
-                messageFormat: "This implicitly converts '{0}' from {1} to {2}, but {1} has unintuitive implicit conversion rules. Consider comparing against the actual value instead to avoid bugs. See https://smapi.io/buildmsg/smapi001 for details.",
+                messageFormat: "This implicitly converts '{0}' from {1} to {2}, but {1} has unintuitive implicit conversion rules. Consider comparing against the actual value instead to avoid bugs. See https://smapi.io/buildmsg/avoid-implicit-net-field-cast for details.",
                 category: "SMAPI.CommonErrors",
                 defaultSeverity: DiagnosticSeverity.Warning,
                 isEnabledByDefault: true,
-                helpLinkUri: "https://smapi.io/buildmsg/smapi001"
+                helpLinkUri: "https://smapi.io/buildmsg/avoid-implicit-net-field-cast"
             ),
-            ["SMAPI002"] = new DiagnosticDescriptor(
-                id: "SMAPI002",
+            ["AvoidNetField"] = new DiagnosticDescriptor(
+                id: "AvoidNetField",
                 title: "Avoid Netcode types when possible",
-                messageFormat: "'{0}' is a {1} field; consider using the {2} property instead. See https://smapi.io/buildmsg/smapi002 for details.",
+                messageFormat: "'{0}' is a {1} field; consider using the {2} property instead. See https://smapi.io/buildmsg/avoid-net-field for details.",
                 category: "SMAPI.CommonErrors",
                 defaultSeverity: DiagnosticSeverity.Warning,
                 isEnabledByDefault: true,
-                helpLinkUri: "https://smapi.io/buildmsg/smapi001"
+                helpLinkUri: "https://smapi.io/buildmsg/avoid-net-field"
             )
         };
 
@@ -170,19 +169,9 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
         {
             // SMAPI002: avoid net fields if possible
             context.RegisterSyntaxNodeAction(
-                this.AnalyzeAvoidableNetField,
-                SyntaxKind.SimpleMemberAccessExpression
-            );
-
-            // SMAPI001: avoid implicit net field conversion
-            context.RegisterSyntaxNodeAction(
-                this.AnalyseNetFieldConversions,
-                SyntaxKind.EqualsExpression,
-                SyntaxKind.NotEqualsExpression,
-                SyntaxKind.GreaterThanExpression,
-                SyntaxKind.GreaterThanOrEqualExpression,
-                SyntaxKind.LessThanExpression,
-                SyntaxKind.LessThanOrEqualExpression
+                this.AnalyzeMemberAccess,
+                SyntaxKind.SimpleMemberAccessExpression,
+                SyntaxKind.ConditionalAccessExpression
             );
         }
 
@@ -192,68 +181,30 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
         *********/
         /// <summary>Analyse a syntax node and add a diagnostic message if it references a net field when there's a non-net equivalent available.</summary>
         /// <param name="context">The analysis context.</param>
-        private void AnalyzeAvoidableNetField(SyntaxNodeAnalysisContext context)
+        private void AnalyzeMemberAccess(SyntaxNodeAnalysisContext context)
         {
             try
             {
-                // check member type
-                MemberAccessExpressionSyntax node = (MemberAccessExpressionSyntax)context.Node;
-                TypeInfo memberType = context.SemanticModel.GetTypeInfo(node);
+                // get member access info
+                if (!AnalyzerUtilities.GetMemberInfo(context.Node, context.SemanticModel, out ITypeSymbol declaringType, out TypeInfo memberType, out string memberName))
+                    return;
                 if (!this.IsNetType(memberType.Type))
                     return;
+                bool isConverted = !this.IsNetType(memberType.ConvertedType);
 
-                // get reference info
-                ITypeSymbol declaringType = context.SemanticModel.GetTypeInfo(node.Expression).Type;
-                string propertyName = node.Name.Identifier.Text;
-
-                // suggest replacement
+                // warn: use property wrapper if available
                 for (ITypeSymbol type = declaringType; type != null; type = type.BaseType)
                 {
-                    if (this.NetFieldWrapperProperties.TryGetValue($"{type}::{propertyName}", out string suggestedPropertyName))
+                    if (this.NetFieldWrapperProperties.TryGetValue($"{type}::{memberName}", out string suggestedPropertyName))
                     {
-                        context.ReportDiagnostic(Diagnostic.Create(this.Rules["SMAPI002"], context.Node.GetLocation(), node, memberType.Type.Name, suggestedPropertyName));
-                        break;
+                        context.ReportDiagnostic(Diagnostic.Create(this.Rules["AvoidNetField"], context.Node.GetLocation(), context.Node, memberType.Type.Name, suggestedPropertyName));
+                        return;
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException($"Failed processing expression: '{context.Node}'. Exception details: {ex.ToString().Replace('\r', ' ').Replace('\n', ' ')}");
-            }
-        }
 
-        /// <summary>Analyse a syntax node and add a diagnostic message if it implicitly converts a net field.</summary>
-        /// <param name="context">The analysis context.</param>
-        private void AnalyseNetFieldConversions(SyntaxNodeAnalysisContext context)
-        {
-            try
-            {
-                BinaryExpressionSyntax binaryExpression = (BinaryExpressionSyntax)context.Node;
-                foreach (var pair in new[] { Tuple.Create(binaryExpression.Left, binaryExpression.Right), Tuple.Create(binaryExpression.Right, binaryExpression.Left) })
-                {
-                    // get node info
-                    ExpressionSyntax curExpression = pair.Item1; // the side of the comparison being examined
-                    ExpressionSyntax otherExpression = pair.Item2; // the other side
-                    TypeInfo typeInfo = context.SemanticModel.GetTypeInfo(curExpression);
-                    if (!this.IsNetType(typeInfo.Type))
-                        continue;
-
-                    // warn for implicit conversion
-                    if (!this.IsNetType(typeInfo.ConvertedType))
-                    {
-                        context.ReportDiagnostic(Diagnostic.Create(this.Rules["SMAPI001"], context.Node.GetLocation(), curExpression, typeInfo.Type.Name, typeInfo.ConvertedType));
-                        break;
-                    }
-
-                    // warn for comparison to null
-                    // An expression like `building.indoors != null` will sometimes convert `building.indoors` to NetFieldBase instead of object before comparison. Haven't reproduced this in unit tests yet.
-                    Optional<object> otherValue = context.SemanticModel.GetConstantValue(otherExpression);
-                    if (otherValue.HasValue && otherValue.Value == null)
-                    {
-                        context.ReportDiagnostic(Diagnostic.Create(this.Rules["SMAPI001"], context.Node.GetLocation(), curExpression, typeInfo.Type.Name, "null"));
-                        break;
-                    }
-                }
+                // warn: implicit conversion
+                if (isConverted)
+                    context.ReportDiagnostic(Diagnostic.Create(this.Rules["AvoidImplicitNetFieldCast"], context.Node.GetLocation(), context.Node, memberType.Type.Name, memberType.ConvertedType));
             }
             catch (Exception ex)
             {
