@@ -54,15 +54,14 @@ namespace StardewModdingAPI
         /// <summary>Simplifies access to private game code.</summary>
         private readonly Reflector Reflection = new Reflector();
 
+        /// <summary>The SMAPI configuration settings.</summary>
+        private readonly SConfig Settings;
+
         /// <summary>The underlying game instance.</summary>
         private SGame GameInstance;
 
         /// <summary>The underlying content manager.</summary>
         private ContentCore ContentCore => this.GameInstance.ContentCore;
-
-        /// <summary>The SMAPI configuration settings.</summary>
-        /// <remarks>This is initialised after the game starts.</remarks>
-        private SConfig Settings;
 
         /// <summary>Tracks the installed mods.</summary>
         /// <remarks>This is initialised after the game starts.</remarks>
@@ -133,8 +132,14 @@ namespace StardewModdingAPI
         public Program(bool writeToConsole, string logPath)
         {
             // init basics
+            this.Settings = JsonConvert.DeserializeObject<SConfig>(File.ReadAllText(Constants.ApiConfigPath));
             this.LogFile = new LogFileManager(logPath);
-            this.Monitor = new Monitor("SMAPI", this.ConsoleManager, this.LogFile, this.CancellationTokenSource) { WriteToConsole = writeToConsole };
+            this.Monitor = new Monitor("SMAPI", this.ConsoleManager, this.LogFile, this.CancellationTokenSource)
+            {
+                WriteToConsole = writeToConsole,
+                ShowTraceInConsole = this.Settings.DeveloperMode,
+                ShowFullStampInConsole = this.Settings.DeveloperMode
+            };
             this.EventManager = new EventManager(this.Monitor, this.ModRegistry);
 
             // hook up events
@@ -345,7 +350,6 @@ namespace StardewModdingAPI
         private void InitialiseAfterGameStart()
         {
             // load settings
-            this.Settings = JsonConvert.DeserializeObject<SConfig>(File.ReadAllText(Constants.ApiConfigPath));
             this.GameInstance.VerboseLogging = this.Settings.VerboseLogging;
 
             // load core components
@@ -361,11 +365,7 @@ namespace StardewModdingAPI
 
             // add headers
             if (this.Settings.DeveloperMode)
-            {
-                this.Monitor.ShowTraceInConsole = true;
-                this.Monitor.ShowFullStampInConsole = true;
                 this.Monitor.Log($"You configured SMAPI to run in developer mode. The console may be much more verbose. You can disable developer mode by installing the non-developer version of SMAPI, or by editing {Constants.ApiConfigPath}.", LogLevel.Info);
-            }
             if (!this.Settings.CheckForUpdates)
                 this.Monitor.Log($"You configured SMAPI to not check for updates. Running an old version of SMAPI is not recommended. You can enable update checks by reinstalling SMAPI or editing {Constants.ApiConfigPath}.", LogLevel.Warn);
             if (!this.Monitor.WriteToConsole)
@@ -377,7 +377,8 @@ namespace StardewModdingAPI
                 this.Monitor.Log("SMAPI found problems in your game's content files which are likely to cause errors or crashes. Consider uninstalling XNB mods or reinstalling the game.", LogLevel.Error);
 
             // load mod data
-            ModDatabase modDatabase = new ModDatabase(this.Settings.ModData, Constants.GetUpdateUrl);
+            SMetadata metadata = JsonConvert.DeserializeObject<SMetadata>(File.ReadAllText(Constants.ApiMetadataPath));
+            ModDatabase modDatabase = new ModDatabase(metadata.ModData, Constants.GetUpdateUrl);
 
             // load mods
             {

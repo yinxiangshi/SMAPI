@@ -15,6 +15,7 @@
 * For SMAPI developers:
   * Added prerelease versions to the mod update-check API response where available (GitHub only).
   * Added support for beta releases on the home page.
+  * Split mod DB out of `StardewModdingAPI.config.json`, so we can load config earlier and reduce unnecessary memory usage later.
 -->
 
 ## 2.5.5

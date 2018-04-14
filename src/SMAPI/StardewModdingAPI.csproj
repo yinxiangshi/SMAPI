@@ -100,6 +100,7 @@
     <Compile Include="Framework\ModData\ModDataFieldKey.cs" />
     <Compile Include="Framework\ModData\ParsedModDataRecord.cs" />
     <Compile Include="Framework\Models\ManifestContentPackFor.cs" />
+    <Compile Include="Framework\Models\SMetadata.cs" />
     <Compile Include="Framework\ModLoading\Finders\EventFinder.cs" />
     <Compile Include="Framework\ModLoading\Finders\FieldFinder.cs" />
     <Compile Include="Framework\ModLoading\Finders\MethodFinder.cs" />
@@ -261,6 +262,9 @@
     </None>
     <Content Include="StardewModdingAPI.config.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="StardewModdingAPI.metadata.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
