@@ -6,6 +6,7 @@
   * Added `Context.IsMultiplayer` and `Context.IsMainPlayer` flags.
   * Fixed SMAPI update checks not showing newer beta versions when using a beta version.
   * Fixed console color scheme on Mac or PowerShell, and added override option to `StardewModdingAPI.config.json`.
+  * Fixed `world_settime` console command sometimes breaking NPC schedules (e.g. so they stay in bed).
 
 * For modders:
   * Added code analysis to mod build config package to flag common issues as warnings.
