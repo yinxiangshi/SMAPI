@@ -20,5 +20,8 @@ namespace StardewModdingAPI.Framework.Models
 
         /// <summary>Whether SMAPI should log more information about the game context.</summary>
         public bool VerboseLogging { get; set; }
+
+        /// <summary>The console color scheme to use.</summary>
+        public MonitorColorScheme ColorScheme { get; set; }
     }
 }

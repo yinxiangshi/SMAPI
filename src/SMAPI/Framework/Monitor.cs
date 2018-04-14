@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using StardewModdingAPI.Framework.Logging;
+using StardewModdingAPI.Framework.Models;
 
 namespace StardewModdingAPI.Framework
 {
@@ -25,7 +26,7 @@ namespace StardewModdingAPI.Framework
         private static readonly int MaxLevelLength = (from level in Enum.GetValues(typeof(LogLevel)).Cast<LogLevel>() select level.ToString().Length).Max();
 
         /// <summary>The console text color for each log level.</summary>
-        private static readonly IDictionary<LogLevel, ConsoleColor> Colors = Monitor.GetConsoleColorScheme();
+        private readonly IDictionary<LogLevel, ConsoleColor> Colors;
 
         /// <summary>Propagates notification that SMAPI should exit.</summary>
         private readonly CancellationTokenSource ExitTokenSource;
@@ -58,13 +59,15 @@ namespace StardewModdingAPI.Framework
         /// <param name="consoleManager">Manages access to the console output.</param>
         /// <param name="logFile">The log file to which to write messages.</param>
         /// <param name="exitTokenSource">Propagates notification that SMAPI should exit.</param>
-        public Monitor(string source, ConsoleInterceptionManager consoleManager, LogFileManager logFile, CancellationTokenSource exitTokenSource)
+        /// <param name="colorScheme">The console color scheme to use.</param>
+        public Monitor(string source, ConsoleInterceptionManager consoleManager, LogFileManager logFile, CancellationTokenSource exitTokenSource, MonitorColorScheme colorScheme)
         {
             // validate
             if (string.IsNullOrWhiteSpace(source))
                 throw new ArgumentException("The log source cannot be empty.");
 
             // initialise
+            this.Colors = Monitor.GetConsoleColorScheme(colorScheme);
             this.Source = source;
             this.LogFile = logFile ?? throw new ArgumentNullException(nameof(logFile), "The log file manager cannot be null.");
             this.ConsoleManager = consoleManager;
@@ -76,7 +79,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="level">The log severity level.</param>
         public void Log(string message, LogLevel level = LogLevel.Debug)
         {
-            this.LogImpl(this.Source, message, level, Monitor.Colors[level]);
+            this.LogImpl(this.Source, message, level, this.Colors[level]);
         }
 
         /// <summary>Immediately exit the game without saving. This should only be invoked when an irrecoverable fatal error happens that risks save corruption or game-breaking bugs.</summary>
@@ -145,32 +148,41 @@ namespace StardewModdingAPI.Framework
         }
 
         /// <summary>Get the color scheme to use for the current console.</summary>
-        private static IDictionary<LogLevel, ConsoleColor> GetConsoleColorScheme()
+        /// <param name="colorScheme">The console color scheme to use.</param>
+        private static IDictionary<LogLevel, ConsoleColor> GetConsoleColorScheme(MonitorColorScheme colorScheme)
         {
-            // scheme for dark console background
-            if (Monitor.IsDark(Console.BackgroundColor))
-            {
-                return new Dictionary<LogLevel, ConsoleColor>
-                {
-                    [LogLevel.Trace] = ConsoleColor.DarkGray,
-                    [LogLevel.Debug] = ConsoleColor.DarkGray,
-                    [LogLevel.Info] = ConsoleColor.White,
-                    [LogLevel.Warn] = ConsoleColor.Yellow,
-                    [LogLevel.Error] = ConsoleColor.Red,
-                    [LogLevel.Alert] = ConsoleColor.Magenta
-                };
-            }
+            // auto detect color scheme
+            if (colorScheme == MonitorColorScheme.AutoDetect)
+                colorScheme = Monitor.IsDark(Console.BackgroundColor) ? MonitorColorScheme.DarkBackground : MonitorColorScheme.LightBackground;
 
-            // scheme for light console background
-            return new Dictionary<LogLevel, ConsoleColor>
+            // get colors for scheme
+            switch (colorScheme)
             {
-                [LogLevel.Trace] = ConsoleColor.DarkGray,
-                [LogLevel.Debug] = ConsoleColor.DarkGray,
-                [LogLevel.Info] = ConsoleColor.Black,
-                [LogLevel.Warn] = ConsoleColor.DarkYellow,
-                [LogLevel.Error] = ConsoleColor.Red,
-                [LogLevel.Alert] = ConsoleColor.DarkMagenta
-            };
+                case MonitorColorScheme.DarkBackground:
+                    return new Dictionary<LogLevel, ConsoleColor>
+                    {
+                        [LogLevel.Trace] = ConsoleColor.DarkGray,
+                        [LogLevel.Debug] = ConsoleColor.DarkGray,
+                        [LogLevel.Info] = ConsoleColor.White,
+                        [LogLevel.Warn] = ConsoleColor.Yellow,
+                        [LogLevel.Error] = ConsoleColor.Red,
+                        [LogLevel.Alert] = ConsoleColor.Magenta
+                    };
+
+                case MonitorColorScheme.LightBackground:
+                    return new Dictionary<LogLevel, ConsoleColor>
+                    {
+                        [LogLevel.Trace] = ConsoleColor.DarkGray,
+                        [LogLevel.Debug] = ConsoleColor.DarkGray,
+                        [LogLevel.Info] = ConsoleColor.Black,
+                        [LogLevel.Warn] = ConsoleColor.DarkYellow,
+                        [LogLevel.Error] = ConsoleColor.Red,
+                        [LogLevel.Alert] = ConsoleColor.DarkMagenta
+                    };
+
+                default:
+                    throw new NotSupportedException($"Unknown color scheme '{colorScheme}'.");
+            }
         }
 
         /// <summary>Get whether a console color should be considered dark, which is subjectively defined as 'white looks better than black on this text'.</summary>
@@ -182,6 +194,7 @@ namespace StardewModdingAPI.Framework
                 case ConsoleColor.Black:
                 case ConsoleColor.Blue:
                 case ConsoleColor.DarkBlue:
+                case ConsoleColor.DarkMagenta: // Powershell
                 case ConsoleColor.DarkRed:
                 case ConsoleColor.Red:
                     return true;

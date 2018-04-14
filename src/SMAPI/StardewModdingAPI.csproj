@@ -123,6 +123,7 @@
     <Compile Include="Framework\ContentManagerShim.cs" />
     <Compile Include="Framework\Exceptions\SAssemblyLoadFailedException.cs" />
     <Compile Include="Framework\ModLoading\AssemblyLoadStatus.cs" />
+    <Compile Include="Framework\Models\MonitorColorScheme.cs" />
     <Compile Include="Framework\Reflection\InterfaceProxyBuilder.cs" />
     <Compile Include="Framework\Reflection\InterfaceProxyFactory.cs" />
     <Compile Include="Framework\Serialisation\SmapiConverters\ManifestContentPackForConverter.cs" />

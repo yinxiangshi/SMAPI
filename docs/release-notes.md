@@ -5,6 +5,7 @@
   * Added support for Stardew Valley 1.3+; no longer compatible with earlier versions.
   * Added `Context.IsMultiplayer` and `Context.IsMainPlayer` flags.
   * Fixed SMAPI update checks not showing newer beta versions when using a beta version.
+  * Fixed console color scheme for PowerShell and added override option to `StardewModdingAPI.config.json`.
 
 * For modders:
   * Added code analysis to mod build config package to flag common issues as warnings.
