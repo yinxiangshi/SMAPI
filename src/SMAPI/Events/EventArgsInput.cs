@@ -44,7 +44,7 @@ namespace StardewModdingAPI.Events
             this.IsUseToolButton = isUseToolButton;
         }
 
-        /// <summary>Prevent the game from handling the vurrent button press. This doesn't prevent other mods from receiving the event.</summary>
+        /// <summary>Prevent the game from handling the current button press. This doesn't prevent other mods from receiving the event.</summary>
         public void SuppressButton()
         {
             this.SuppressButton(this.Button);
