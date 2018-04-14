@@ -14,7 +14,8 @@
   * Fixed issue where assets didn't reload correctly when the player switches language.
 
 * For SMAPI developers:
-  * Added MacOS detection to `Constants.Platform`.
+  * Added more consistent crossplatform handling using a new `EnvironmentUtility`.
+  * Added MacOS detection.
   * Added prerelease versions to the mod update-check API response where available (GitHub only).
   * Added support for beta releases on the home page.
   * Split mod DB out of `StardewModdingAPI.config.json`, so we can load config earlier and reduce unnecessary memory usage later.

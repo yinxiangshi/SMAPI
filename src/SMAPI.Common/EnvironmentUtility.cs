@@ -61,6 +61,21 @@ namespace StardewModdingAPI.Common
             return (platform == Platform.Mac ? "MacOS " : "") + Environment.OSVersion;
         }
 
+        /// <summary>Get the name of the Stardew Valley executable.</summary>
+        /// <param name="platform">The current platform.</param>
+        public static string GetExecutableName(Platform platform)
+        {
+            return platform == Platform.Windows
+                ? "Stardew Valley.exe"
+                : "StardewValley.exe";
+        }
+
+        /// <summary>Get whether the platform uses Mono.</summary>
+        /// <param name="platform">The current platform.</param>
+        public static bool IsMono(this Platform platform)
+        {
+            return platform == Platform.Linux || platform == Platform.Mac;
+        }
 
         /*********
         ** Private methods

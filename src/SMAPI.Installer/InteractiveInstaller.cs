@@ -142,7 +142,7 @@ namespace StardewModdingApi.Installer
             ** Get platform & set window title
             ****/
             Platform platform = EnvironmentUtility.DetectPlatform();
-            Console.Title = $"SMAPI {new SemanticVersionImpl(this.GetType().Assembly.GetName().Version)} installer on {platform}";
+            Console.Title = $"SMAPI {new SemanticVersionImpl(this.GetType().Assembly.GetName().Version)} installer on {platform} {EnvironmentUtility.GetFriendlyPlatformName(platform)}";
             Console.WriteLine();
 
             /****
@@ -179,11 +179,11 @@ namespace StardewModdingApi.Installer
             }
 
             // get folders
-            DirectoryInfo packageDir = new DirectoryInfo(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "internal", platform.ToString()));
+            DirectoryInfo packageDir = new DirectoryInfo(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "internal", platform.IsMono() ? "Mono" : "Windows"));
             DirectoryInfo modsDir = new DirectoryInfo(Path.Combine(installDir.FullName, "Mods"));
             var paths = new
             {
-                executable = Path.Combine(installDir.FullName, platform == Platform.Windows ? "Stardew Valley.exe" : "StardewValley.exe"),
+                executable = Path.Combine(installDir.FullName, EnvironmentUtility.GetExecutableName(platform)),
                 unixSmapiLauncher = Path.Combine(installDir.FullName, "StardewModdingAPI"),
                 unixLauncher = Path.Combine(installDir.FullName, "StardewValley"),
                 unixLauncherBackup = Path.Combine(installDir.FullName, "StardewValley-original")
@@ -199,7 +199,7 @@ namespace StardewModdingApi.Installer
             {
                 this.PrintError(platform == Platform.Windows && packageDir.FullName.Contains(Path.GetTempPath()) && packageDir.FullName.Contains(".zip")
                     ? "The installer is missing some files. It looks like you're running the installer from inside the downloaded zip; make sure you unzip the downloaded file first, then run the installer from the unzipped folder."
-                    : $"The 'internal/{platform}' package folder is missing (should be at {packageDir})."
+                    : $"The 'internal/{packageDir.Name}' package folder is missing (should be at {packageDir})."
                 );
                 Console.ReadLine();
                 return;
@@ -272,7 +272,7 @@ namespace StardewModdingApi.Installer
             ** Always uninstall old files
             ****/
             // restore game launcher
-            if ((platform == Platform.Linux || platform == Platform.Mac) && File.Exists(paths.unixLauncherBackup))
+            if (platform.IsMono() && File.Exists(paths.unixLauncherBackup))
             {
                 this.PrintDebug("Removing SMAPI launcher...");
                 this.InteractivelyDelete(paths.unixLauncher);
@@ -305,7 +305,7 @@ namespace StardewModdingApi.Installer
                 }
 
                 // replace mod launcher (if possible)
-                if (platform == Platform.Linux || platform == Platform.Mac)
+                if (platform.IsMono())
                 {
                     this.PrintDebug("Safely replacing game launcher...");
                     if (!File.Exists(paths.unixLauncherBackup))
@@ -554,9 +554,7 @@ namespace StardewModdingApi.Installer
         private DirectoryInfo InteractivelyGetInstallPath(Platform platform, string specifiedPath)
         {
             // get executable name
-            string executableFilename = platform == Platform.Windows
-                ? "Stardew Valley.exe"
-                : "StardewValley.exe";
+            string executableFilename = EnvironmentUtility.GetExecutableName(platform);
 
             // validate specified path
             if (specifiedPath != null)
@@ -662,10 +660,7 @@ namespace StardewModdingApi.Installer
             string[] packagedModNames = packagedModsDir.GetDirectories().Select(p => p.Name).ToArray();
 
             // get path
-            string homePath = platform == Platform.Windows
-                ? Environment.GetEnvironmentVariable("APPDATA")
-                : Path.Combine(Environment.GetEnvironmentVariable("HOME"), ".config");
-            string appDataPath = Path.Combine(homePath, "StardewValley");
+            string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley");
             DirectoryInfo modDir = new DirectoryInfo(Path.Combine(appDataPath, "Mods"));
 
             // check if migration needed
