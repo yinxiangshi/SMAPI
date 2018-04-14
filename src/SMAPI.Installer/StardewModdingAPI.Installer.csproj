@@ -40,7 +40,6 @@
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Enums\ScriptAction.cs" />
-    <Compile Include="Enums\Platform.cs" />
     <Compile Include="InteractiveInstaller.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

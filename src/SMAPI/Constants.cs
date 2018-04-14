@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using StardewModdingAPI.Common;
 using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.ModLoading;
 using StardewValley;
@@ -91,12 +92,7 @@ namespace StardewModdingAPI
         internal static ISemanticVersion GameVersion { get; } = new GameVersion(Constants.GetGameVersion());
 
         /// <summary>The target game platform.</summary>
-        internal static Platform TargetPlatform { get; } =
-#if SMAPI_FOR_WINDOWS
-        Platform.Windows;
-#else
-        Platform.Mono;
-#endif
+        internal static Platform TargetPlatform { get; } = EnvironmentUtility.DetectPlatform();
 
 
         /*********
@@ -111,7 +107,8 @@ namespace StardewModdingAPI
             Assembly[] targetAssemblies;
             switch (targetPlatform)
             {
-                case Platform.Mono:
+                case Platform.Linux:
+                case Platform.Mac:
                     removeAssemblyReferences = new[]
                     {
                         "Stardew Valley",

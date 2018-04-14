@@ -10,10 +10,10 @@ using System.Security;
 using System.Text.RegularExpressions;
 using System.Threading;
 #if SMAPI_FOR_WINDOWS
-using System.Management;
 using System.Windows.Forms;
 #endif
 using Newtonsoft.Json;
+using StardewModdingAPI.Common;
 using StardewModdingAPI.Common.Models;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework;
@@ -165,7 +165,7 @@ namespace StardewModdingAPI
             try
             {
                 // init logging
-                this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GameVersion} on {this.GetFriendlyPlatformName()}", LogLevel.Info);
+                this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GameVersion} on {EnvironmentUtility.GetFriendlyPlatformName(Constants.TargetPlatform)}", LogLevel.Info);
                 this.Monitor.Log($"Mods go here: {Constants.ModPath}");
                 this.Monitor.Log($"Log started at {DateTime.UtcNow:s} UTC", LogLevel.Trace);
 
@@ -1155,24 +1155,6 @@ namespace StardewModdingAPI
                 ShowTraceInConsole = this.Settings.DeveloperMode,
                 ShowFullStampInConsole = this.Settings.DeveloperMode
             };
-        }
-
-        /// <summary>Get a human-readable name for the current platform.</summary>
-        [SuppressMessage("ReSharper", "EmptyGeneralCatchClause", Justification = "Error suppressed deliberately to fallback to default behaviour.")]
-        private string GetFriendlyPlatformName()
-        {
-#if SMAPI_FOR_WINDOWS
-            try
-            {
-                return new ManagementObjectSearcher("SELECT Caption FROM Win32_OperatingSystem")
-                    .Get()
-                    .Cast<ManagementObject>()
-                    .Select(entry => entry.GetPropertyValue("Caption").ToString())
-                    .FirstOrDefault();
-            }
-            catch { }
-#endif
-            return Environment.OSVersion.ToString();
         }
 
         /// <summary>Log a message if verbose mode is enabled.</summary>

@@ -27,7 +27,8 @@ namespace StardewModdingApi.Installer
         {
             switch (platform)
             {
-                case Platform.Mono:
+                case Platform.Linux:
+                case Platform.Mac:
                     {
                         string home = Environment.GetEnvironmentVariable("HOME");
 
@@ -140,7 +141,7 @@ namespace StardewModdingApi.Installer
             /****
             ** Get platform & set window title
             ****/
-            Platform platform = this.DetectPlatform();
+            Platform platform = EnvironmentUtility.DetectPlatform();
             Console.Title = $"SMAPI {new SemanticVersionImpl(this.GetType().Assembly.GetName().Version)} installer on {platform}";
             Console.WriteLine();
 
@@ -182,7 +183,7 @@ namespace StardewModdingApi.Installer
             DirectoryInfo modsDir = new DirectoryInfo(Path.Combine(installDir.FullName, "Mods"));
             var paths = new
             {
-                executable = Path.Combine(installDir.FullName, platform == Platform.Mono ? "StardewValley.exe" : "Stardew Valley.exe"),
+                executable = Path.Combine(installDir.FullName, platform == Platform.Windows ? "Stardew Valley.exe" : "StardewValley.exe"),
                 unixSmapiLauncher = Path.Combine(installDir.FullName, "StardewModdingAPI"),
                 unixLauncher = Path.Combine(installDir.FullName, "StardewValley"),
                 unixLauncherBackup = Path.Combine(installDir.FullName, "StardewValley-original")
@@ -271,7 +272,7 @@ namespace StardewModdingApi.Installer
             ** Always uninstall old files
             ****/
             // restore game launcher
-            if (platform == Platform.Mono && File.Exists(paths.unixLauncherBackup))
+            if ((platform == Platform.Linux || platform == Platform.Mac) && File.Exists(paths.unixLauncherBackup))
             {
                 this.PrintDebug("Removing SMAPI launcher...");
                 this.InteractivelyDelete(paths.unixLauncher);
@@ -304,7 +305,7 @@ namespace StardewModdingApi.Installer
                 }
 
                 // replace mod launcher (if possible)
-                if (platform == Platform.Mono)
+                if (platform == Platform.Linux || platform == Platform.Mac)
                 {
                     this.PrintDebug("Safely replacing game launcher...");
                     if (!File.Exists(paths.unixLauncherBackup))
@@ -379,21 +380,6 @@ namespace StardewModdingApi.Installer
         /*********
         ** Private methods
         *********/
-        /// <summary>Detect the game's platform.</summary>
-        /// <exception cref="NotSupportedException">The platform is not supported.</exception>
-        private Platform DetectPlatform()
-        {
-            switch (Environment.OSVersion.Platform)
-            {
-                case PlatformID.MacOSX:
-                case PlatformID.Unix:
-                    return Platform.Mono;
-
-                default:
-                    return Platform.Windows;
-            }
-        }
-
         /// <summary>Test whether the current console supports color formatting.</summary>
         private static bool GetConsoleSupportsColor()
         {
@@ -635,7 +621,7 @@ namespace StardewModdingApi.Installer
                 // normalise path
                 if (platform == Platform.Windows)
                     path = path.Replace("\"", ""); // in Windows, quotes are used to escape spaces and aren't part of the file path
-                if (platform == Platform.Mono)
+                if (platform == Platform.Linux || platform == Platform.Mac)
                     path = path.Replace("\\ ", " "); // in Linux/Mac, spaces in paths may be escaped if copied from the command line
                 if (path.StartsWith("~/"))
                 {

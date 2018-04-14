@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using Microsoft.Xna.Framework;
-using StardewModdingAPI.Framework.ModLoading;
+using StardewModdingAPI.Common;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Utilities;
 using StardewValley;
