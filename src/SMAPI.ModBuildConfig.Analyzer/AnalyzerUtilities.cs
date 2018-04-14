@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -41,6 +42,17 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
             memberType = default(TypeInfo);
             memberName = null;
             return false;
+        }
+
+        /// <summary>Get the class types in a type's inheritance chain, including itself.</summary>
+        /// <param name="type">The initial type.</param>
+        public static IEnumerable<ITypeSymbol> GetConcreteTypes(ITypeSymbol type)
+        {
+            while (type != null)
+            {
+                yield return type;
+                type = type.BaseType;
+            }
         }
     }
 }

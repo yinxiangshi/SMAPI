@@ -79,7 +79,7 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
                     return;
 
                 // suggest replacement
-                for (ITypeSymbol type = declaringType; type != null; type = type.BaseType)
+                foreach (ITypeSymbol type in AnalyzerUtilities.GetConcreteTypes(declaringType))
                 {
                     if (this.ReplacedFields.TryGetValue($"{type}::{memberName}", out string replacement))
                     {

@@ -1,6 +1,8 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -16,6 +18,9 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
         *********/
         /// <summary>The namespace for Stardew Valley's <c>Netcode</c> types.</summary>
         private const string NetcodeNamespace = "Netcode";
+
+        /// <summary>The full name for Stardew Valley's <c>Netcode.NetList</c> type.</summary>
+        private readonly string NetListTypeFullName = "Netcode.NetList";
 
         /// <summary>Maps net fields to their equivalent non-net properties where available.</summary>
         private readonly IDictionary<string, string> NetFieldWrapperProperties = new Dictionary<string, string>
@@ -190,10 +195,9 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
                     return;
                 if (!this.IsNetType(memberType.Type))
                     return;
-                bool isConverted = !this.IsNetType(memberType.ConvertedType);
 
                 // warn: use property wrapper if available
-                for (ITypeSymbol type = declaringType; type != null; type = type.BaseType)
+                foreach (ITypeSymbol type in AnalyzerUtilities.GetConcreteTypes(declaringType))
                 {
                     if (this.NetFieldWrapperProperties.TryGetValue($"{type}::{memberName}", out string suggestedPropertyName))
                     {
@@ -203,13 +207,33 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
                 }
 
                 // warn: implicit conversion
-                if (isConverted)
+                if (this.IsInvalidConversion(memberType))
                     context.ReportDiagnostic(Diagnostic.Create(this.Rules["AvoidImplicitNetFieldCast"], context.Node.GetLocation(), context.Node, memberType.Type.Name, memberType.ConvertedType));
             }
             catch (Exception ex)
             {
                 throw new InvalidOperationException($"Failed processing expression: '{context.Node}'. Exception details: {ex.ToString().Replace('\r', ' ').Replace('\n', ' ')}");
             }
+        }
+
+        /// <summary>Get whether a net field was converted in an error-prone way.</summary>
+        /// <param name="typeInfo">The member access type info.</param>
+        private bool IsInvalidConversion(TypeInfo typeInfo)
+        {
+            // no conversion
+            if (!this.IsNetType(typeInfo.Type) || this.IsNetType(typeInfo.ConvertedType))
+                return false;
+
+            // list conversion to an implemented interface is OK
+            if (AnalyzerUtilities.GetConcreteTypes(typeInfo.Type).Any(p => p.ToString().StartsWith(this.NetListTypeFullName))) // StartsWith to ignore generics
+            {
+                string toType = typeInfo.ConvertedType.ToString();
+                if (toType.StartsWith(typeof(IEnumerable<>).Namespace) || toType == typeof(IEnumerable).FullName)
+                    return false;
+            }
+
+            // avoid any other conversions
+            return true;
         }
 
         /// <summary>Get whether a type symbol references a <c>Netcode</c> type.</summary>

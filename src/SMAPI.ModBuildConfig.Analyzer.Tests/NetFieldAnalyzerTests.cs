@@ -19,6 +19,7 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
             using StardewValley;
             using Netcode;
             using SObject = StardewValley.Object;
+            using SFarmer = StardewValley.Farmer;
 
             namespace SampleMod
             {
@@ -33,7 +34,7 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
         ";
 
         /// <summary>The line number where the unit tested code is injected into <see cref="SampleProgram"/>.</summary>
-        private const int SampleCodeLine = 13;
+        private const int SampleCodeLine = 14;
 
         /// <summary>The column number where the unit tested code is injected into <see cref="SampleProgram"/>.</summary>
         private const int SampleCodeColumn = 25;
@@ -85,6 +86,7 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
         [TestCase("SObject obj = null; if (obj.netRefField != null);", 24, "obj.netRefField", "NetRef", "object")]
         [TestCase("SObject obj = null; if (obj.netRefProperty == null);", 24, "obj.netRefProperty", "NetRef", "object")]
         [TestCase("SObject obj = null; if (obj.netRefProperty != null);", 24, "obj.netRefProperty", "NetRef", "object")]
+        [TestCase("SFarmer farmer = new SFarmer(); object list = farmer.eventsSeen;", 46, "farmer.eventsSeen", "NetList", "object")] // ↓ NetList field converted to a non-interface type
         public void AvoidImplicitNetFieldComparisons_RaisesDiagnostic(string codeText, int column, string expression, string fromType, string toType)
         {
             // arrange
@@ -99,6 +101,21 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
 
             // assert
             this.VerifyCSharpDiagnostic(code, expected);
+        }
+
+        /// <summary>Test that the net field analyzer doesn't raise any warnings for safe member access.</summary>
+        /// <param name="codeText">The code line to test.</param>
+        [TestCase("SFarmer farmer = new SFarmer(); System.Collections.IEnumerable list = farmer.eventsSeen;")]
+        [TestCase("SFarmer farmer = new SFarmer(); System.Collections.Generic.IEnumerable<int> list = farmer.eventsSeen;")]
+        [TestCase("SFarmer farmer = new SFarmer(); System.Collections.Generic.IList<int> list = farmer.eventsSeen;")]
+        [TestCase("SFarmer farmer = new SFarmer(); System.Collections.Generic.IList<int> list = farmer.netObjectList;")] // subclass of NetList
+        public void AvoidImplicitNetFieldComparisons_AllowsSafeAccess(string codeText)
+        {
+            // arrange
+            string code = NetFieldAnalyzerTests.SampleProgram.Replace("{{test-code}}", codeText);
+
+            // assert
+            this.VerifyCSharpDiagnostic(code);
         }
 
         /// <summary>Test that the expected diagnostic message is raised for avoidable net field references.</summary>
