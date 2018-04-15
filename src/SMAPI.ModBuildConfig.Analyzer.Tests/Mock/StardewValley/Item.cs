@@ -20,5 +20,14 @@ namespace StardewValley
 
         /// <summary>A generic net ref property with no equivalent non-net property.</summary>
         public NetRef<object> netRefProperty { get; } = new NetRef<object>();
+
+        /// <summary>A sample net list.</summary>
+        public readonly NetList<int> netList = new NetList<int>();
+
+        /// <summary>A sample net object list.</summary>
+        public readonly NetObjectList<int> netObjectList = new NetObjectList<int>();
+
+        /// <summary>A sample net collection.</summary>
+        public readonly NetCollection<int> netCollection = new NetCollection<int>();
     }
 }

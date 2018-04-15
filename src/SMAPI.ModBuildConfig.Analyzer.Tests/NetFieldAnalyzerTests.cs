@@ -86,7 +86,8 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
         [TestCase("SObject obj = null; if (obj.netRefField != null);", 24, "obj.netRefField", "NetRef", "object")]
         [TestCase("SObject obj = null; if (obj.netRefProperty == null);", 24, "obj.netRefProperty", "NetRef", "object")]
         [TestCase("SObject obj = null; if (obj.netRefProperty != null);", 24, "obj.netRefProperty", "NetRef", "object")]
-        [TestCase("SFarmer farmer = new SFarmer(); object list = farmer.eventsSeen;", 46, "farmer.eventsSeen", "NetList", "object")] // ↓ NetList field converted to a non-interface type
+        [TestCase("Item item = new Item(); object list = item.netList;", 38, "item.netList", "NetList", "object")] // ↓ NetList field converted to a non-interface type
+        [TestCase("Item item = new Item(); object list = item.netCollection;", 38, "item.netCollection", "NetCollection", "object")]
         public void AvoidImplicitNetFieldComparisons_RaisesDiagnostic(string codeText, int column, string expression, string fromType, string toType)
         {
             // arrange
@@ -105,10 +106,11 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
 
         /// <summary>Test that the net field analyzer doesn't raise any warnings for safe member access.</summary>
         /// <param name="codeText">The code line to test.</param>
-        [TestCase("SFarmer farmer = new SFarmer(); System.Collections.IEnumerable list = farmer.eventsSeen;")]
-        [TestCase("SFarmer farmer = new SFarmer(); System.Collections.Generic.IEnumerable<int> list = farmer.eventsSeen;")]
-        [TestCase("SFarmer farmer = new SFarmer(); System.Collections.Generic.IList<int> list = farmer.eventsSeen;")]
-        [TestCase("SFarmer farmer = new SFarmer(); System.Collections.Generic.IList<int> list = farmer.netObjectList;")] // subclass of NetList
+        [TestCase("Item item = new Item(); System.Collections.IEnumerable list = farmer.eventsSeen;")]
+        [TestCase("Item item = new Item(); System.Collections.Generic.IEnumerable<int> list = farmer.netList;")]
+        [TestCase("Item item = new Item(); System.Collections.Generic.IList<int> list = farmer.netList;")]
+        [TestCase("Item item = new Item(); System.Collections.Generic.ICollection<int> list = farmer.netCollection;")]
+        [TestCase("Item item = new Item(); System.Collections.Generic.IList<int> list = farmer.netObjectList;")] // subclass of NetList
         public void AvoidImplicitNetFieldComparisons_AllowsSafeAccess(string codeText)
         {
             // arrange

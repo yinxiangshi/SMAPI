@@ -22,6 +22,9 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
         /// <summary>The full name for Stardew Valley's <c>Netcode.NetList</c> type.</summary>
         private readonly string NetListTypeFullName = "Netcode.NetList";
 
+        /// <summary>The full name for Stardew Valley's <c>Netcode.NetCollection</c> type.</summary>
+        private readonly string NetCollectionTypeFullName = "Netcode.NetCollection";
+
         /// <summary>Maps net fields to their equivalent non-net properties where available.</summary>
         private readonly IDictionary<string, string> NetFieldWrapperProperties = new Dictionary<string, string>
         {
@@ -226,6 +229,14 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
 
             // list conversion to an implemented interface is OK
             if (AnalyzerUtilities.GetConcreteTypes(typeInfo.Type).Any(p => p.ToString().StartsWith(this.NetListTypeFullName))) // StartsWith to ignore generics
+            {
+                string toType = typeInfo.ConvertedType.ToString();
+                if (toType.StartsWith(typeof(IEnumerable<>).Namespace) || toType == typeof(IEnumerable).FullName)
+                    return false;
+            }
+
+            // collection conversion to an implemented interface is OK
+            if (AnalyzerUtilities.GetConcreteTypes(typeInfo.Type).Any(p => p.ToString().StartsWith(this.NetCollectionTypeFullName))) // StartsWith to ignore generics
             {
                 string toType = typeInfo.ConvertedType.ToString();
                 if (toType.StartsWith(typeof(IEnumerable<>).Namespace) || toType == typeof(IEnumerable).FullName)
