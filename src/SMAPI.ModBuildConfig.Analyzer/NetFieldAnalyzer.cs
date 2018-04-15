@@ -175,7 +175,6 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
         /// <param name="context">The analysis context.</param>
         public override void Initialize(AnalysisContext context)
         {
-            // SMAPI002: avoid net fields if possible
             context.RegisterSyntaxNodeAction(
                 this.AnalyzeMemberAccess,
                 SyntaxKind.SimpleMemberAccessExpression,

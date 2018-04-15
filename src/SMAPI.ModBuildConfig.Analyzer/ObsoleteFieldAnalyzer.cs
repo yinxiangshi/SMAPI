@@ -56,7 +56,6 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
         /// <param name="context">The analysis context.</param>
         public override void Initialize(AnalysisContext context)
         {
-            // SMAPI003: avoid obsolete fields
             context.RegisterSyntaxNodeAction(
                 this.AnalyzeObsoleteFields,
                 SyntaxKind.SimpleMemberAccessExpression,

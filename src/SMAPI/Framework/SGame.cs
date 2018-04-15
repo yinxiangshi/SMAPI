@@ -633,7 +633,7 @@ namespace StardewModdingAPI.Framework
         [SuppressMessage("ReSharper", "RedundantCast", Justification = "copied from game code as-is")]
         [SuppressMessage("ReSharper", "RedundantExplicitNullableCreation", Justification = "copied from game code as-is")]
         [SuppressMessage("ReSharper", "RedundantTypeArgumentsOfMethod", Justification = "copied from game code as-is")]
-        [SuppressMessage("SMAPI.CommonErrors", "SMAPI002", Justification = "copied from game code as-is")]
+        [SuppressMessage("SMAPI.CommonErrors", "AvoidNetField", Justification = "copied from game code as-is")]
         private void DrawImpl(GameTime gameTime)
         {
             if (Game1.debugMode)
