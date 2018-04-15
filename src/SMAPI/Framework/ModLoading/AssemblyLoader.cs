@@ -99,13 +99,13 @@ namespace StardewModdingAPI.Framework.ModLoading
                     continue;
 
                 // rewrite assembly
-                bool changed = this.RewriteAssembly(mod, assembly.Definition, assumeCompatible, loggedMessages, logPrefix: "   ");
+                bool changed = this.RewriteAssembly(mod, assembly.Definition, assumeCompatible, loggedMessages, logPrefix: "      ");
 
                 // load assembly
                 if (changed)
                 {
                     if (!oneAssembly)
-                        this.Monitor.Log($"   Loading {assembly.File.Name} (rewritten in memory)...", LogLevel.Trace);
+                        this.Monitor.Log($"      Loading {assembly.File.Name} (rewritten in memory)...", LogLevel.Trace);
                     using (MemoryStream outStream = new MemoryStream())
                     {
                         assembly.Definition.Write(outStream);
@@ -116,7 +116,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 else
                 {
                     if (!oneAssembly)
-                        this.Monitor.Log($"   Loading {assembly.File.Name}...", LogLevel.Trace);
+                        this.Monitor.Log($"      Loading {assembly.File.Name}...", LogLevel.Trace);
                     lastAssembly = Assembly.UnsafeLoadFrom(assembly.File.FullName);
                 }
 
@@ -290,22 +290,22 @@ namespace StardewModdingAPI.Framework.ModLoading
 
                 case InstructionHandleResult.DetectedGamePatch:
                     this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Detected game patcher ({handler.NounPhrase}) in assembly {filename}.");
-                    this.Monitor.LogOnce(loggedMessages, $"{mod.DisplayName} patches the game, which may impact game stability. If you encounter problems, try removing this mod first.", LogLevel.Warn);
+                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}{mod.DisplayName} patches the game, which may impact game stability. If you encounter problems, try removing this mod first.", LogLevel.Warn);
                     break;
 
                 case InstructionHandleResult.DetectedSaveSerialiser:
                     this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Detected possible save serialiser change ({handler.NounPhrase}) in assembly {filename}.");
-                    this.Monitor.LogOnce(loggedMessages, $"{mod.DisplayName} seems to change the save serialiser. It may change your saves in such a way that they won't work without this mod in the future.", LogLevel.Warn);
+                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}{mod.DisplayName} seems to change the save serialiser. It may change your saves in such a way that they won't work without this mod in the future.", LogLevel.Warn);
                     break;
 
                 case InstructionHandleResult.DetectedUnvalidatedUpdateTick:
                     this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Detected reference to {handler.NounPhrase} in assembly {filename}.");
-                    this.Monitor.LogOnce(loggedMessages, $"{mod.DisplayName} uses a specialised SMAPI event that may crash the game or corrupt your save file. If you encounter problems, try removing this mod first.", LogLevel.Warn);
+                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}{mod.DisplayName} uses a specialised SMAPI event that may crash the game or corrupt your save file. If you encounter problems, try removing this mod first.", LogLevel.Warn);
                     break;
 
                 case InstructionHandleResult.DetectedDynamic:
                     this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Detected 'dynamic' keyword ({handler.NounPhrase}) in assembly {filename}.");
-                    this.Monitor.LogOnce(loggedMessages, $"{mod.DisplayName} uses the 'dynamic' keyword, which isn't compatible with Stardew Valley on Linux or Mac.",
+                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}{mod.DisplayName} uses the 'dynamic' keyword, which isn't compatible with Stardew Valley on Linux or Mac.",
 #if SMAPI_FOR_WINDOWS
                         this.IsDeveloperMode ? LogLevel.Warn : LogLevel.Debug
 #else

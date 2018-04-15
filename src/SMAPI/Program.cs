@@ -712,12 +712,12 @@ namespace StardewModdingAPI
             {
                 // get basic info
                 IManifest manifest = metadata.Manifest;
-                this.Monitor.Log($"Loading {metadata.DisplayName} from {PathUtilities.GetRelativePath(Constants.ModPath, metadata.DirectoryPath)} (content pack)...", LogLevel.Trace);
+                this.Monitor.Log($"   {metadata.DisplayName} (content pack, {PathUtilities.GetRelativePath(Constants.ModPath, metadata.DirectoryPath)})...", LogLevel.Trace);
 
                 // validate status
                 if (metadata.Status == ModMetadataStatus.Failed)
                 {
-                    this.Monitor.Log($"   Failed: {metadata.Error}", LogLevel.Trace);
+                    this.Monitor.Log($"      Failed: {metadata.Error}", LogLevel.Trace);
                     TrackSkip(metadata, metadata.Error);
                     continue;
                 }
@@ -755,13 +755,13 @@ namespace StardewModdingAPI
                     // get basic info
                     IManifest manifest = metadata.Manifest;
                     this.Monitor.Log(metadata.Manifest?.EntryDll != null
-                        ? $"Loading {metadata.DisplayName} from {PathUtilities.GetRelativePath(Constants.ModPath, metadata.DirectoryPath)}{Path.DirectorySeparatorChar}{metadata.Manifest.EntryDll}..." // don't use Path.Combine here, since EntryDLL might not be valid
-                        : $"Loading {metadata.DisplayName}...", LogLevel.Trace);
+                        ? $"   {metadata.DisplayName} ({PathUtilities.GetRelativePath(Constants.ModPath, metadata.DirectoryPath)}{Path.DirectorySeparatorChar}{metadata.Manifest.EntryDll})..." // don't use Path.Combine here, since EntryDLL might not be valid
+                        : $"   {metadata.DisplayName}...", LogLevel.Trace);
 
                     // validate status
                     if (metadata.Status == ModMetadataStatus.Failed)
                     {
-                        this.Monitor.Log($"   Failed: {metadata.Error}", LogLevel.Trace);
+                        this.Monitor.Log($"      Failed: {metadata.Error}", LogLevel.Trace);
                         TrackSkip(metadata, metadata.Error);
                         continue;
                     }
