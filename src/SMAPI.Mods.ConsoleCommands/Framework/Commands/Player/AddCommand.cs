@@ -16,6 +16,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
         /// <summary>Provides methods for searching and constructing items.</summary>
         private readonly ItemRepository Items = new ItemRepository();
 
+        private readonly string[] ItemTypeAndName = Enum.GetNames(typeof(ItemType)).Union(new string[] { "Name" }).ToArray();
 
         /*********
         ** Public methods
@@ -32,23 +33,21 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
         public override void Handle(IMonitor monitor, string command, ArgumentParser args)
         {
             SearchableItem match;
-            int optionalArgStartIndex;
 
-            if (!args.TryGet(0, "item type or name", out string typeOrName, required: true))
+            //read arguments
+            if (!args.TryGet(0, "item type", out string typeOrName, oneOf: this.ItemTypeAndName))
                 return;
-
-            // read arguments
             if (Enum.GetNames(typeof(ItemType)).Contains(typeOrName, StringComparer.InvariantCultureIgnoreCase))
-                this.FindItemByTypeAndId(monitor, args, typeOrName, out optionalArgStartIndex, out match);
+                this.FindItemByTypeAndId(monitor, args, typeOrName, out match);
             else
-                this.FindItemByName(monitor, args, typeOrName, out optionalArgStartIndex, out match);
-          
+                this.FindItemByName(monitor, args, out match);
+
             if (match == null)
                 return;
 
-            if (!args.TryGetInt(optionalArgStartIndex, "count", out int count, min: 1, required: false))
+            if (!args.TryGetInt(2, "count", out int count, min: 1, required: false))
                 count = 1;
-            if (!args.TryGetInt(optionalArgStartIndex + 1, "quality", out int quality, min: Object.lowQuality, max: Object.bestQuality, required: false))
+            if (!args.TryGetInt(3, "quality", out int quality, min: Object.lowQuality, max: Object.bestQuality, required: false))
                 quality = Object.lowQuality;
 
             // apply count
@@ -75,12 +74,10 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
         /// <param name="monitor">Writes messages to the console and log file.</param>
         /// <param name="args">The command arguments.</param>
         /// <param name="rawType">The raw item type.</param>
-        /// <param name="nextArgIndex">The index of subsequent arguments.</param>
         /// <param name="match">The matching item.</param>
-        private void FindItemByTypeAndId(IMonitor monitor, ArgumentParser args, string rawType, out int nextArgIndex, out SearchableItem match)
+        private void FindItemByTypeAndId(IMonitor monitor, ArgumentParser args, string rawType, out SearchableItem match)
         {
             match = null;
-            nextArgIndex = 2;
 
             // read arguments
             if (!args.TryGetInt(1, "item ID", out int id, min: 0))
@@ -103,18 +100,17 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
         /// <param name="monitor">Writes messages to the console and log file.</param>
         /// <param name="args">The command arguments.</param>
         /// <param name="name">The item name.</param>
-        /// <param name="nextArgIndex">The index of subsequent arguments.</param>
         /// <param name="match">The matching item.</param>
-        private void FindItemByName(IMonitor monitor, ArgumentParser args, string name, out int nextArgIndex, out SearchableItem match)
+        private void FindItemByName(IMonitor monitor, ArgumentParser args, out SearchableItem match)
         {
             match = null;
-            nextArgIndex = 1;
 
-            // interpret names with underscores as spaces
-            name = name.Replace('_', ' ');
+            // read arguments
+            if (!args.TryGet(1, "item name", out string name))
+                return;
 
             // find matching items
-            IEnumerable<SearchableItem> matching = this.Items.GetAll().Where(p => p.DisplayName.Equals(name, StringComparison.CurrentCultureIgnoreCase));
+            IEnumerable<SearchableItem> matching = this.Items.GetAll().Where(p => p.DisplayName.IndexOf(name, StringComparison.InvariantCultureIgnoreCase) != -1);
             int numberOfMatches = matching.Count();
 
             // handle unique requirement
@@ -128,7 +124,10 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
             }
             else
             {
-                monitor.Log($"There are {numberOfMatches} items with name {name}. Try specifying a type and id instead.", LogLevel.Error);
+                string options = this.GetTableString(matching, new string[] { "type", "name", "command" }, item => new string[] { item.Type.ToString(), item.DisplayName, $"player_add {item.Type} {item.ID}" });
+
+                monitor.Log($"Found multiple item names containing '{name}'. Type one of these commands for the one you want:", LogLevel.Error);
+                monitor.Log($"\n{options}", LogLevel.Info);
             }
         }
 
@@ -137,10 +136,10 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
             string[] typeValues = Enum.GetNames(typeof(ItemType));
             return "Gives the player an item.\n"
                 + "\n"
-                + "Usage: player_add (<type> <item>|<name>) [count] [quality]\n"
-                + $"- type: the item type (one of {string.Join(", ", typeValues)}).\n"
+                + "Usage: player_add <type> (<item>|<name>) [count] [quality]\n"
+                + $"- type: the item type (either Name or one of {string.Join(", ", typeValues)}).\n"
                 + "- item: the item ID (use the 'list_items' command to see a list).\n"
-                + "- name: the display name of the item (only if there is exactly one such item).\n"
+                + "- name: the display name of the item (when using type Name).\n"
                 + "- count (optional): how many of the item to give.\n"
                 + $"- quality (optional): one of {Object.lowQuality} (normal), {Object.medQuality} (silver), {Object.highQuality} (gold), or {Object.bestQuality} (iridium).\n"
                 + "\n"
