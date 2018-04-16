@@ -65,6 +65,10 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
             monitor.Log($"OK, added {match.Name} ({match.Type} #{match.ID}) to your inventory.", LogLevel.Info);
         }
 
+        /*********
+        ** Private methods
+        *********/
+
         /// <summary>
         /// Finds a matching item by item type and id.
         /// </summary>
@@ -128,9 +132,6 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
             }
         }
 
-        /*********
-        ** Private methods
-        *********/
         private static string GetDescription()
         {
             string[] typeValues = Enum.GetNames(typeof(ItemType));
