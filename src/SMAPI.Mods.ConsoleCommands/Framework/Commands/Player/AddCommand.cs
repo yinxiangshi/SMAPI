@@ -32,6 +32,13 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
         /// <param name="args">The command arguments.</param>
         public override void Handle(IMonitor monitor, string command, ArgumentParser args)
         {
+            // validate
+            if (!Context.IsWorldReady)
+            {
+                monitor.Log("You need to load a save to use this command.", LogLevel.Error);
+                return;
+            }
+
             SearchableItem match;
 
             //read arguments
@@ -111,16 +118,22 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
 
             // find matching items
             IEnumerable<SearchableItem> matching = this.Items.GetAll().Where(p => p.DisplayName.IndexOf(name, StringComparison.InvariantCultureIgnoreCase) != -1);
+            SearchableItem exactMatch = matching.FirstOrDefault(item => item.DisplayName.Equals(name, StringComparison.InvariantCultureIgnoreCase));
+
             int numberOfMatches = matching.Count();
 
             // handle unique requirement
-            if (numberOfMatches == 0)
+            if (exactMatch != null)
             {
-                monitor.Log($"There's no item with name {name}.", LogLevel.Error);
+                match = matching.ElementAt(0);
+            }
+            else if (numberOfMatches == 0)
+            {
+                monitor.Log($"There's no item with name '{name}'. You can use the 'list_items [name]' command to search for items.", LogLevel.Error);
             }
             else if (numberOfMatches == 1)
             {
-                match = matching.ElementAt(0);
+                monitor.Log($"There's no item with name '{name}'. Did you mean '{matching.ElementAt(0).DisplayName}'? If so, type 'player_add name {matching.ElementAt(0).DisplayName}'.", LogLevel.Error);
             }
             else
             {
