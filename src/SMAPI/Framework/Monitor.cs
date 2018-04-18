@@ -100,6 +100,17 @@ namespace StardewModdingAPI.Framework
                 this.LogFile.WriteLine("");
         }
 
+        /// <summary>Writes user input to the log file.</summary>
+        /// <param name="input">The input to write.</param>
+        internal void LogUserInputToFile(string input)
+        {
+            if (this.WriteToFile)
+            {
+                string prefix = this.GenerateMessagePrefix(this.Source, LogLevel.Info);
+                this.LogFile.WriteLine($"{prefix} $>{input}");
+            }
+        }
+
 
         /*********
         ** Private methods
@@ -120,9 +131,8 @@ namespace StardewModdingAPI.Framework
         private void LogImpl(string source, string message, LogLevel level, ConsoleColor color, ConsoleColor? background = null)
         {
             // generate message
-            string levelStr = level.ToString().ToUpper().PadRight(Monitor.MaxLevelLength);
-
-            string fullMessage = $"[{DateTime.Now:HH:mm:ss} {levelStr} {source}] {message}";
+            string prefix = this.GenerateMessagePrefix(source, level);
+            string fullMessage = $"{prefix} {message}";
             string consoleMessage = this.ShowFullStampInConsole ? fullMessage : $"[{source}] {message}";
 
             // write to console
@@ -146,6 +156,15 @@ namespace StardewModdingAPI.Framework
             // write to log file
             if (this.WriteToFile)
                 this.LogFile.WriteLine(fullMessage);
+        }
+
+        /// <summary>Generates a message prefix for the current time.</summary>
+        /// <param name="source">The name of the mod logging the message.</param>
+        /// <param name="level">The log level.</param>
+        private string GenerateMessagePrefix(string source, LogLevel level)
+        {
+            string levelStr = level.ToString().ToUpper().PadRight(Monitor.MaxLevelLength);
+            return $"[{DateTime.Now:HH:mm:ss} {levelStr} {source}]";
         }
 
         /// <summary>Get the color scheme to use for the current console.</summary>
