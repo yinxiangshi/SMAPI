@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using StardewModdingAPI.Framework.ModData;
 
 namespace StardewModdingAPI.Framework.ModLoading
@@ -101,6 +102,14 @@ namespace StardewModdingAPI.Framework.ModLoading
         {
             this.Api = api;
             return this;
+        }
+
+        /// <summary>Whether the mod has at least one update key set.</summary>
+        public bool HasUpdateKeys()
+        {
+            return
+                this.Manifest?.UpdateKeys != null
+                && this.Manifest.UpdateKeys.Any(key => !string.IsNullOrWhiteSpace(key));
         }
     }
 }

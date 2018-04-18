@@ -722,6 +722,10 @@ namespace StardewModdingAPI
                     continue;
                 }
 
+                // show warnings
+                if (this.Settings.DeveloperMode && !metadata.HasUpdateKeys())
+                    this.Monitor.Log($"      {metadata.DisplayName} has no {nameof(IManifest.UpdateKeys)} in its manifest. You may not see update alerts for this mod.", LogLevel.Warn);
+
                 // load mod as content pack
                 IMonitor monitor = this.GetSecondaryMonitor(metadata.DisplayName);
                 ContentManagerShim contentManager = this.ContentCore.CreateContentManager($"Mods.{metadata.Manifest.UniqueID}", metadata.DirectoryPath);
@@ -765,6 +769,10 @@ namespace StardewModdingAPI
                         TrackSkip(metadata, metadata.Error);
                         continue;
                     }
+
+                    // show warnings
+                    if (this.Settings.DeveloperMode && !metadata.HasUpdateKeys() && metadata.Manifest.UniqueID != "SMAPI.ConsoleCommands")
+                        this.Monitor.Log($"      {metadata.DisplayName} has no {nameof(IManifest.UpdateKeys)} in its manifest. You may not see update alerts for this mod.", LogLevel.Warn);
 
                     // load mod
                     string assemblyPath = metadata.Manifest?.EntryDll != null

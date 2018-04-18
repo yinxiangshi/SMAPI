@@ -10,6 +10,7 @@
 
 * For modders:
   * Added code analysis to mod build config package to flag common issues as warnings.
+  * Added warning when a mod doesn't have update keys (currently only shown in developer mode).
   * Dropped some deprecated APIs.
   * Fixed assets loaded by temporary content managers not being editable.
   * Fixed issue where assets didn't reload correctly when the player switches language.

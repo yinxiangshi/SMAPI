@@ -64,5 +64,8 @@ namespace StardewModdingAPI.Framework
         /// <summary>Set the mod-provided API instance.</summary>
         /// <param name="api">The mod-provided API.</param>
         IModMetadata SetApi(object api);
+
+        /// <summary>Whether the mod has at least one update key set.</summary>
+        bool HasUpdateKeys();
     }
 }
