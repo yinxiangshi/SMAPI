@@ -59,10 +59,6 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
             FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);
             if (fieldRef != null && this.ShouldValidate(fieldRef.DeclaringType))
             {
-                // can't compare generic type parameters between definition and reference
-                if (fieldRef.FieldType.IsGenericInstance || fieldRef.FieldType.IsGenericParameter)
-                    return InstructionHandleResult.None;
-
                 // get target field
                 FieldDefinition targetField = fieldRef.DeclaringType.Resolve()?.Fields.FirstOrDefault(p => p.Name == fieldRef.Name);
                 if (targetField == null)
