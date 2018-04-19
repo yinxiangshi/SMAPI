@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StardewModdingAPI.Mods.ConsoleCommands", "SMAPI.Mods.ConsoleCommands\StardewModdingAPI.Mods.ConsoleCommands.csproj", "{28480467-1A48-46A7-99F8-236D95225359}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StardewModdingAPI", "SMAPI\StardewModdingAPI.csproj", "{F1A573B0-F436-472C-AE29-0B91EA6B9F8F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{80AD8528-AA49-4731-B4A6-C691845815A1} = {80AD8528-AA49-4731-B4A6-C691845815A1}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".root", ".root", "{86C452BE-D2D8-45B4-B63F-E329EB06CEDA}"
 	ProjectSection(SolutionItems) = preProject
