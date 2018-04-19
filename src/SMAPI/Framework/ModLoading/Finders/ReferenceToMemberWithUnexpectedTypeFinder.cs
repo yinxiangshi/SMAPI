@@ -78,10 +78,6 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
             MethodReference methodReference = RewriteHelper.AsMethodReference(instruction);
             if (methodReference != null && this.ShouldValidate(methodReference.DeclaringType))
             {
-                // can't compare generic type parameters between definition and reference
-                if (methodReference.ReturnType.IsGenericInstance || methodReference.ReturnType.IsGenericParameter)
-                    return InstructionHandleResult.None;
-
                 // get potential targets
                 MethodDefinition[] candidateMethods = methodReference.DeclaringType.Resolve()?.Methods.Where(found => found.Name == methodReference.Name).ToArray();
                 if (candidateMethods == null || !candidateMethods.Any())
