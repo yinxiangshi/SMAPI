@@ -30,9 +30,8 @@ namespace StardewModdingAPI.Framework
         /// <param name="serviceProvider">The service provider to use to locate services.</param>
         /// <param name="rootDirectory">The root directory to search for content.</param>
         /// <param name="currentCulture">The current culture for which to localise content.</param>
-        /// <param name="languageCodeOverride">The current language code for which to localise content.</param>
-        public ContentManagerShim(ContentCore contentCore, string name, IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, string languageCodeOverride)
-                : base(serviceProvider, rootDirectory, currentCulture, languageCodeOverride)
+        public ContentManagerShim(ContentCore contentCore, string name, IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture)
+                : base(serviceProvider, rootDirectory, currentCulture)
         {
             this.ContentCore = contentCore;
             this.Name = name;

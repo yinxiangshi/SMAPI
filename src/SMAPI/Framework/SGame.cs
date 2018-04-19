@@ -131,15 +131,8 @@ namespace StardewModdingAPI.Framework
         /// <summary>A callback to invoke after the game finishes initialising.</summary>
         private readonly Action OnGameInitialised;
 
-        /****
-        ** Private wrappers
-        ****/
         /// <summary>Simplifies access to private game code.</summary>
-        private static Reflector Reflection;
-
-        // ReSharper disable ArrangeStaticMemberQualifier, ArrangeThisQualifier, InconsistentNaming
-        private static StringBuilder _debugStringBuilder => SGame.Reflection.GetField<StringBuilder>(typeof(Game1), nameof(_debugStringBuilder)).GetValue();
-        // ReSharper restore ArrangeStaticMemberQualifier, ArrangeThisQualifier, InconsistentNaming
+        private readonly Reflector Reflection;
 
 
         /*********
@@ -166,10 +159,10 @@ namespace StardewModdingAPI.Framework
             this.Monitor = monitor;
             this.Events = eventManager;
             this.FirstUpdate = true;
-            SGame.Reflection = reflection;
+            this.Reflection = reflection;
             this.OnGameInitialised = onGameInitialised;
             if (this.ContentCore == null) // shouldn't happen since CreateContentManager is called first, but let's init here just in case
-                this.ContentCore = new ContentCore(this.Content.ServiceProvider, this.Content.RootDirectory, Thread.CurrentThread.CurrentUICulture, null, this.Monitor, reflection);
+                this.ContentCore = new ContentCore(this.Content.ServiceProvider, this.Content.RootDirectory, Thread.CurrentThread.CurrentUICulture, this.Monitor, reflection);
 
             // set XNA option required by Stardew Valley
             Game1.graphics.GraphicsProfile = GraphicsProfile.HiDef;
@@ -187,7 +180,7 @@ namespace StardewModdingAPI.Framework
             // Don't depend on anything being initialised at this point.
             if (this.ContentCore == null)
             {
-                this.ContentCore = new ContentCore(serviceProvider, rootDirectory, Thread.CurrentThread.CurrentUICulture, null, SGame.MonitorDuringInitialisation, SGame.ReflectorDuringInitialisation);
+                this.ContentCore = new ContentCore(serviceProvider, rootDirectory, Thread.CurrentThread.CurrentUICulture, SGame.MonitorDuringInitialisation, SGame.ReflectorDuringInitialisation);
                 SGame.MonitorDuringInitialisation = null;
             }
             return this.ContentCore.CreateContentManager("(generated)", rootDirectory);
@@ -609,7 +602,7 @@ namespace StardewModdingAPI.Framework
                 // recover sprite batch
                 try
                 {
-                    if (Game1.spriteBatch.IsOpen(SGame.Reflection))
+                    if (Game1.spriteBatch.IsOpen(this.Reflection))
                     {
                         this.Monitor.Log("Recovering sprite batch from error...", LogLevel.Trace);
                         Game1.spriteBatch.End();
@@ -1206,7 +1199,7 @@ namespace StardewModdingAPI.Framework
                                 overlayTempSprite.draw(Game1.spriteBatch, true, 0, 0, 1f);
                             if (Game1.debugMode)
                             {
-                                StringBuilder debugStringBuilder = SGame._debugStringBuilder;
+                                StringBuilder debugStringBuilder = Game1._debugStringBuilder;
                                 debugStringBuilder.Clear();
                                 if (Game1.panMode)
                                 {

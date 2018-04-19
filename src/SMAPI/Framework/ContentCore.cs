@@ -47,9 +47,6 @@ namespace StardewModdingAPI.Framework
         /// <summary>A lookup which indicates whether the asset is localisable (i.e. the filename contains the locale), if previously loaded.</summary>
         private readonly IDictionary<string, bool> IsLocalisableLookup;
 
-        /// <summary>The locale codes used in asset keys indexed by enum value.</summary>
-        private readonly IDictionary<LocalizedContentManager.LanguageCode, string> Locales;
-
         /// <summary>The language enum values indexed by locale code.</summary>
         private readonly IDictionary<string, LocalizedContentManager.LanguageCode> LanguageCodes;
 
@@ -94,21 +91,19 @@ namespace StardewModdingAPI.Framework
         /// <param name="serviceProvider">The service provider to use to locate services.</param>
         /// <param name="rootDirectory">The root directory to search for content.</param>
         /// <param name="currentCulture">The current culture for which to localise content.</param>
-        /// <param name="languageCodeOverride">The current language code for which to localise content.</param>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="reflection">Simplifies access to private code.</param>
-        public ContentCore(IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, string languageCodeOverride, IMonitor monitor, Reflector reflection)
+        public ContentCore(IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, IMonitor monitor, Reflector reflection)
         {
             // init
             this.Monitor = monitor ?? throw new ArgumentNullException(nameof(monitor));
-            this.Content = new LocalizedContentManager(serviceProvider, rootDirectory, currentCulture, languageCodeOverride);
+            this.Content = new LocalizedContentManager(serviceProvider, rootDirectory, currentCulture);
             this.Cache = new ContentCache(this.Content, reflection);
             this.ModContentPrefix = this.GetAssetNameFromFilePath(Constants.ModPath);
 
             // get asset data
             this.CoreAssets = new CoreAssetPropagator(this.NormaliseAssetName, reflection);
-            this.Locales = this.GetKeyLocales(reflection);
-            this.LanguageCodes = this.Locales.ToDictionary(p => p.Value, p => p.Key, StringComparer.InvariantCultureIgnoreCase);
+            this.LanguageCodes = this.GetKeyLocales().ToDictionary(p => p.Value, p => p.Key, StringComparer.InvariantCultureIgnoreCase);
             this.IsLocalisableLookup = reflection.GetField<IDictionary<string, bool>>(this.Content, "_localizedAsset").GetValue();
         }
 
@@ -117,7 +112,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="rootDirectory">The root directory to search for content (or <c>null</c>. for the default)</param>
         public ContentManagerShim CreateContentManager(string name, string rootDirectory = null)
         {
-            return new ContentManagerShim(this, name, this.Content.ServiceProvider, rootDirectory ?? this.Content.RootDirectory, this.Content.CurrentCulture, this.Content.LanguageCodeOverride);
+            return new ContentManagerShim(this, name, this.Content.ServiceProvider, rootDirectory ?? this.Content.RootDirectory, this.Content.CurrentCulture);
         }
 
         /****
@@ -177,7 +172,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="language">The language.</param>
         public string GetLocale(LocalizedContentManager.LanguageCode language)
         {
-            return this.Locales[language];
+            return this.Content.LanguageCodeString(language);
         }
 
         /// <summary>Get whether the content manager has already loaded and cached the given asset.</summary>
@@ -413,31 +408,14 @@ namespace StardewModdingAPI.Framework
         }
 
         /// <summary>Get the locale codes (like <c>ja-JP</c>) used in asset keys.</summary>
-        /// <param name="reflection">Simplifies access to private game code.</param>
-        private IDictionary<LocalizedContentManager.LanguageCode, string> GetKeyLocales(Reflector reflection)
+        private IDictionary<LocalizedContentManager.LanguageCode, string> GetKeyLocales()
         {
-            string previousOverride = this.Content.LanguageCodeOverride;
+            // create locale => code map
+            IDictionary<LocalizedContentManager.LanguageCode, string> map = new Dictionary<LocalizedContentManager.LanguageCode, string>();
+            foreach (LocalizedContentManager.LanguageCode code in Enum.GetValues(typeof(LocalizedContentManager.LanguageCode)))
+                map[code] = this.Content.LanguageCodeString(code);
 
-            try
-            {
-                // temporarily disable language override
-                this.Content.LanguageCodeOverride = null;
-
-                // create locale => code map
-                IReflectedMethod languageCodeString = reflection.GetMethod(this.Content, "languageCodeString");
-                IDictionary<LocalizedContentManager.LanguageCode, string> map = new Dictionary<LocalizedContentManager.LanguageCode, string>();
-                foreach (LocalizedContentManager.LanguageCode code in Enum.GetValues(typeof(LocalizedContentManager.LanguageCode)))
-                {
-                    map[code] = languageCodeString.Invoke<string>(code);
-                }
-
-                return map;
-            }
-            finally
-            {
-                // restore previous settings
-                this.Content.LanguageCodeOverride = previousOverride;
-            }
+            return map;
         }
 
         /// <summary>Get the asset name from a cache key.</summary>
@@ -486,7 +464,7 @@ namespace StardewModdingAPI.Framework
                 return false;
 
             return localisable
-                ? this.Cache.ContainsKey($"{normalisedAssetName}.{this.Locales[this.Content.GetCurrentLanguage()]}")
+                ? this.Cache.ContainsKey($"{normalisedAssetName}.{this.GetLocale(this.Content.GetCurrentLanguage())}")
                 : this.Cache.ContainsKey(normalisedAssetName);
         }
 
