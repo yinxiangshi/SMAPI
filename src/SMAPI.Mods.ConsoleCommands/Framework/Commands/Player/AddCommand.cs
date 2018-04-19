@@ -16,6 +16,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
         /// <summary>Provides methods for searching and constructing items.</summary>
         private readonly ItemRepository Items = new ItemRepository();
 
+        /// <summary>All possible item types along with Name.</summary>
         private readonly string[] ItemTypeAndName = Enum.GetNames(typeof(ItemType)).Union(new string[] { "Name" }).ToArray();
 
         /*********
@@ -75,9 +76,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
         ** Private methods
         *********/
 
-        /// <summary>
-        /// Finds a matching item by item type and id.
-        /// </summary>
+        /// <summary>Finds a matching item by item type and id.</summary>
         /// <param name="monitor">Writes messages to the console and log file.</param>
         /// <param name="args">The command arguments.</param>
         /// <param name="rawType">The raw item type.</param>
@@ -101,9 +100,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
             }
         }
 
-        /// <summary>
-        /// Finds a matching item by name.
-        /// </summary>
+        /// <summary>Finds a matching item by name.</summary>
         /// <param name="monitor">Writes messages to the console and log file.</param>
         /// <param name="args">The command arguments.</param>
         /// <param name="name">The item name.</param>
