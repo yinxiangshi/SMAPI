@@ -14,6 +14,7 @@
   * Dropped some deprecated APIs.
   * Fixed assets loaded by temporary content managers not being editable.
   * Fixed issue where assets didn't reload correctly when the player switches language.
+  * Fixed `helper.ModRegistry.GetApi` interface validation errors not mentioning which interface caused the issue.
 
 * For SMAPI developers:
   * Added more consistent crossplatform handling using a new `EnvironmentUtility`.
