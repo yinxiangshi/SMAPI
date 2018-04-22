@@ -460,9 +460,13 @@ namespace StardewModdingAPI.Framework
         /// <param name="normalisedAssetName">The normalised asset name.</param>
         private bool IsNormalisedKeyLoaded(string normalisedAssetName)
         {
+            // default English
+            if (this.Language == LocalizedContentManager.LanguageCode.en)
+                return this.Cache.ContainsKey(normalisedAssetName);
+
+            // translated
             if (!this.IsLocalisableLookup.TryGetValue(normalisedAssetName, out bool localisable))
                 return false;
-
             return localisable
                 ? this.Cache.ContainsKey($"{normalisedAssetName}.{this.GetLocale(this.Content.GetCurrentLanguage())}")
                 : this.Cache.ContainsKey(normalisedAssetName);
