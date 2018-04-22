@@ -114,6 +114,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>A callback to invoke after the game finishes initialising.</summary>
         private readonly Action OnGameInitialised;
 
+        /// <summary>A callback to invoke when the game exits.</summary>
+        private readonly Action OnGameExiting;
+
         /// <summary>Simplifies access to private game code.</summary>
         private readonly Reflector Reflection;
 
@@ -136,7 +139,8 @@ namespace StardewModdingAPI.Framework
         /// <param name="reflection">Simplifies access to private game code.</param>
         /// <param name="eventManager">Manages SMAPI events for mods.</param>
         /// <param name="onGameInitialised">A callback to invoke after the game finishes initialising.</param>
-        internal SGame(IMonitor monitor, Reflector reflection, EventManager eventManager, Action onGameInitialised)
+        /// <param name="onGameExiting">A callback to invoke when the game exits.</param>
+        internal SGame(IMonitor monitor, Reflector reflection, EventManager eventManager, Action onGameInitialised, Action onGameExiting)
         {
             // init XNA
             Game1.graphics.GraphicsProfile = GraphicsProfile.HiDef;
@@ -147,6 +151,7 @@ namespace StardewModdingAPI.Framework
             this.FirstUpdate = true;
             this.Reflection = reflection;
             this.OnGameInitialised = onGameInitialised;
+            this.OnGameExiting = onGameExiting;
             if (this.ContentCore == null) // shouldn't happen since CreateContentManager is called first, but let's init here just in case
                 this.ContentCore = new ContentCore(this.Content.ServiceProvider, this.Content.RootDirectory, Thread.CurrentThread.CurrentUICulture, this.Monitor, reflection);
 
@@ -165,6 +170,16 @@ namespace StardewModdingAPI.Framework
                 this.ActiveMenuWatcher,
                 this.LocationsWatcher
             });
+        }
+
+        /// <summary>Perform cleanup logic when the game exits.</summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="args">The event args.</param>
+        /// <remarks>This overrides the logic in <see cref="Game1.OnExiting"/> and <see cref="Game1.exitEvent"/> to let SMAPI clean up before exit.</remarks>
+        protected override void OnExiting(object sender, EventArgs args)
+        {
+            Game1.multiplayer.Disconnect();
+            this.OnGameExiting?.Invoke();
         }
 
         /****

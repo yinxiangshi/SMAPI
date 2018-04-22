@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -30,6 +31,7 @@ using StardewModdingAPI.Framework.Utilities;
 using StardewValley;
 using Monitor = StardewModdingAPI.Framework.Monitor;
 using SObject = StardewValley.Object;
+using ThreadState = System.Threading.ThreadState;
 
 namespace StardewModdingAPI
 {
@@ -197,7 +199,7 @@ namespace StardewModdingAPI
                 // override game
                 SGame.MonitorDuringInitialisation = this.Monitor;
                 SGame.ReflectorDuringInitialisation = this.Reflection;
-                this.GameInstance = new SGame(this.Monitor, this.Reflection, this.EventManager, this.InitialiseAfterGameStart);
+                this.GameInstance = new SGame(this.Monitor, this.Reflection, this.EventManager, this.InitialiseAfterGameStart, this.Dispose);
                 StardewValley.Program.gamePtr = this.GameInstance;
 
                 // add exit handler
@@ -221,10 +223,6 @@ namespace StardewModdingAPI
                 }).Start();
 
                 // hook into game events
-#if SMAPI_FOR_WINDOWS
-                ((Form)Control.FromHandle(this.GameInstance.Window.Handle)).FormClosing += (sender, args) => this.Dispose();
-#endif
-                this.GameInstance.Exiting += (sender, e) => this.Dispose();
                 ContentEvents.AfterLocaleChanged += (sender, e) => this.OnLocaleChanged();
 
                 // set window titles
@@ -271,12 +269,11 @@ namespace StardewModdingAPI
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
         public void Dispose()
         {
-            this.Monitor.Log("Disposing...", LogLevel.Trace);
-
             // skip if already disposed
             if (this.IsDisposed)
                 return;
             this.IsDisposed = true;
+            this.Monitor.Log("Disposing...", LogLevel.Trace);
 
             // dispose mod data
             foreach (IModMetadata mod in this.ModRegistry.GetAll())
@@ -298,6 +295,9 @@ namespace StardewModdingAPI
             this.CancellationTokenSource?.Dispose();
             this.GameInstance?.Dispose();
             this.LogFile?.Dispose();
+
+            // end game (moved from Game1.OnExiting to let us clean up first)
+            Process.GetCurrentProcess().Kill();
         }
 
 
