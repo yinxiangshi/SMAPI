@@ -1,5 +1,4 @@
 # Release notes
-<!--
 ## 2.6 alpha
 * For players:
   * Added support for Stardew Valley 1.3+; no longer compatible with earlier versions.
@@ -22,7 +21,10 @@
   * Added prerelease versions to the mod update-check API response where available (GitHub only).
   * Added support for beta releases on the home page.
   * Split mod DB out of `StardewModdingAPI.config.json`, so we can load config earlier and reduce unnecessary memory usage later.
--->
+  * Overhauled world/player state tracking:
+    * much more efficient than previous method;
+    * uses net field events where available;
+    * lays groundwork for tracking events for multiple players.
 
 ## 2.5.5
 * For players:

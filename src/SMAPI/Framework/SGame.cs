@@ -1,6 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
@@ -13,6 +13,8 @@ using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.Events;
 using StardewModdingAPI.Framework.Input;
 using StardewModdingAPI.Framework.Reflection;
+using StardewModdingAPI.Framework.StateTracking;
+using StardewModdingAPI.Framework.StateTracking.FieldWatchers;
 using StardewModdingAPI.Framework.Utilities;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
@@ -22,6 +24,7 @@ using StardewValley.Tools;
 using xTile.Dimensions;
 using xTile.Layers;
 using SFarmer = StardewValley.Farmer;
+using SObject = StardewValley.Object;
 
 namespace StardewModdingAPI.Framework
 {
@@ -60,6 +63,9 @@ namespace StardewModdingAPI.Framework
         /// <remarks>Skipping a few frames ensures the game finishes initialising the world before mods try to change it.</remarks>
         private int AfterLoadTimer = 5;
 
+        /// <summary>Whether the after-load events were raised for this session.</summary>
+        private bool RaisedAfterLoadEvent;
+
         /// <summary>Whether the game is returning to the menu.</summary>
         private bool IsExitingToTitle;
 
@@ -75,50 +81,26 @@ namespace StardewModdingAPI.Framework
         /// <summary>The player input as of the previous tick.</summary>
         private InputState PreviousInput = new InputState();
 
-        /// <summary>The window size value at last check.</summary>
-        private Point PreviousWindowSize;
+        /// <summary>The underlying watchers for convenience. These are accessible individually as separate properties.</summary>
+        private readonly List<IWatcher> Watchers = new List<IWatcher>();
 
-        /// <summary>The save ID at last check.</summary>
-        private ulong PreviousSaveID;
+        /// <summary>Tracks changes to the window size.</summary>
+        private readonly IValueWatcher<Point> WindowSizeWatcher;
 
-        /// <summary>A hash of <see cref="Game1.locations"/> at last check.</summary>
-        private int PreviousGameLocations;
+        /// <summary>Tracks changes to the current player.</summary>
+        private PlayerTracker CurrentPlayerTracker;
 
-        /// <summary>A hash of the current location's <see cref="GameLocation.objects"/> at last check.</summary>
-        private int PreviousLocationObjects;
+        /// <summary>Tracks changes to the time of day (in 24-hour military format).</summary>
+        private readonly IValueWatcher<int> TimeWatcher;
 
-        /// <summary>The player's inventory at last check.</summary>
-        private IDictionary<Item, int> PreviousItems;
+        /// <summary>Tracks changes to the save ID.</summary>
+        private readonly IValueWatcher<ulong> SaveIdWatcher;
 
-        /// <summary>The player's combat skill level at last check.</summary>
-        private int PreviousCombatLevel;
+        /// <summary>Tracks changes to the location list.</summary>
+        private readonly ICollectionWatcher<GameLocation> LocationsWatcher;
 
-        /// <summary>The player's farming skill level at last check.</summary>
-        private int PreviousFarmingLevel;
-
-        /// <summary>The player's fishing skill level at last check.</summary>
-        private int PreviousFishingLevel;
-
-        /// <summary>The player's foraging skill level at last check.</summary>
-        private int PreviousForagingLevel;
-
-        /// <summary>The player's mining skill level at last check.</summary>
-        private int PreviousMiningLevel;
-
-        /// <summary>The player's luck skill level at last check.</summary>
-        private int PreviousLuckLevel;
-
-        /// <summary>The player's location at last check.</summary>
-        private GameLocation PreviousGameLocation;
-
-        /// <summary>The active game menu at last check.</summary>
-        private IClickableMenu PreviousActiveMenu;
-
-        /// <summary>The mine level at last check.</summary>
-        private int PreviousMineLevel;
-
-        /// <summary>The time of day (in 24-hour military format) at last check.</summary>
-        private int PreviousTime;
+        /// <summary>Tracks changes to <see cref="Game1.activeClickableMenu"/>.</summary>
+        private readonly IValueWatcher<IClickableMenu> ActiveMenuWatcher;
 
         /// <summary>The previous content locale.</summary>
         private LocalizedContentManager.LanguageCode? PreviousLocale;
@@ -156,7 +138,10 @@ namespace StardewModdingAPI.Framework
         /// <param name="onGameInitialised">A callback to invoke after the game finishes initialising.</param>
         internal SGame(IMonitor monitor, Reflector reflection, EventManager eventManager, Action onGameInitialised)
         {
-            // initialise
+            // init XNA
+            Game1.graphics.GraphicsProfile = GraphicsProfile.HiDef;
+
+            // init SMAPI
             this.Monitor = monitor;
             this.Events = eventManager;
             this.FirstUpdate = true;
@@ -165,8 +150,21 @@ namespace StardewModdingAPI.Framework
             if (this.ContentCore == null) // shouldn't happen since CreateContentManager is called first, but let's init here just in case
                 this.ContentCore = new ContentCore(this.Content.ServiceProvider, this.Content.RootDirectory, Thread.CurrentThread.CurrentUICulture, this.Monitor, reflection);
 
-            // set XNA option required by Stardew Valley
-            Game1.graphics.GraphicsProfile = GraphicsProfile.HiDef;
+            // init watchers
+            Game1.locations = new ObservableCollection<GameLocation>();
+            this.SaveIdWatcher = WatcherFactory.ForEquatable(() => Game1.hasLoadedGame ? Game1.uniqueIDForThisGame : 0);
+            this.WindowSizeWatcher = WatcherFactory.ForEquatable(() => new Point(Game1.viewport.Width, Game1.viewport.Height));
+            this.TimeWatcher = WatcherFactory.ForEquatable(() => Game1.timeOfDay);
+            this.ActiveMenuWatcher = WatcherFactory.ForReference(() => Game1.activeClickableMenu);
+            this.LocationsWatcher = WatcherFactory.ForObservableCollection((ObservableCollection<GameLocation>)Game1.locations);
+            this.Watchers.AddRange(new IWatcher[]
+            {
+                this.SaveIdWatcher,
+                this.WindowSizeWatcher,
+                this.TimeWatcher,
+                this.ActiveMenuWatcher,
+                this.LocationsWatcher
+            });
         }
 
         /****
@@ -203,30 +201,57 @@ namespace StardewModdingAPI.Framework
                     return;
                 }
 
-                // While a background new-day task is in progress, the game skips its own update logic
-                // and defers to the XNA Update method. Running mod code in parallel to the background
-                // update is risky, because data changes can conflict (e.g. collection changed during
-                // enumeration errors) and data may change unexpectedly from one mod instruction to the
-                // next.
+                // While a background task is in progress, the game may make changes to the game
+                // state while mods are running their code. This is risky, because data changes can
+                // conflict (e.g. collection changed during enumeration errors) and data may change
+                // unexpectedly from one mod instruction to the next.
                 // 
                 // Therefore we can just run Game1.Update here without raising any SMAPI events. There's
                 // a small chance that the task will finish after we defer but before the game checks,
                 // which means technically events should be raised, but the effects of missing one
                 // update tick are neglible and not worth the complications of bypassing Game1.Update.
-                if (Game1._newDayTask != null)
+                if (Game1._newDayTask != null || Game1.gameMode == Game1.loadingMode)
                 {
                     base.Update(gameTime);
                     this.Events.Specialised_UnvalidatedUpdateTick.Raise();
                     return;
                 }
 
-                // game is asynchronously loading a save, block mod events to avoid conflicts
-                if (Game1.gameMode == Game1.loadingMode)
+                /*********
+                ** Update context
+                *********/
+                if (Context.IsSaveLoaded && !SaveGame.IsProcessing /*still loading save*/ && this.AfterLoadTimer >= 0)
                 {
-                    base.Update(gameTime);
-                    this.Events.Specialised_UnvalidatedUpdateTick.Raise();
-                    return;
+                    if (Game1.dayOfMonth != 0) // wait until new-game intro finishes (world not fully initialised yet)
+                        this.AfterLoadTimer--;
+                    Context.IsWorldReady = this.AfterLoadTimer <= 0;
                 }
+
+                /*********
+                ** Update watchers
+                *********/
+                // reset player
+                if (Context.IsWorldReady)
+                {
+                    if (this.CurrentPlayerTracker == null || this.CurrentPlayerTracker.Player != Game1.player)
+                    {
+                        this.CurrentPlayerTracker?.Dispose();
+                        this.CurrentPlayerTracker = new PlayerTracker(Game1.player);
+                    }
+                }
+                else
+                {
+                    if (this.CurrentPlayerTracker != null)
+                    {
+                        this.CurrentPlayerTracker.Dispose();
+                        this.CurrentPlayerTracker = null;
+                    }
+                }
+
+                // update values
+                foreach (IWatcher watcher in this.Watchers)
+                    watcher.Update();
+                this.CurrentPlayerTracker?.Update();
 
                 /*********
                 ** Save events + suppress events during save
@@ -300,19 +325,12 @@ namespace StardewModdingAPI.Framework
                 /*********
                 ** After load events
                 *********/
-                if (Context.IsSaveLoaded && !SaveGame.IsProcessing /*still loading save*/ && this.AfterLoadTimer >= 0)
+                if (!this.RaisedAfterLoadEvent && Context.IsWorldReady)
                 {
-                    if (Game1.dayOfMonth != 0) // wait until new-game intro finishes (world not fully initialised yet)
-                        this.AfterLoadTimer--;
-
-                    if (this.AfterLoadTimer == 0)
-                    {
-                        this.Monitor.Log($"Context: loaded saved game '{Constants.SaveFolderName}', starting {Game1.currentSeason} {Game1.dayOfMonth} Y{Game1.year}.", LogLevel.Trace);
-                        Context.IsWorldReady = true;
-
-                        this.Events.Save_AfterLoad.Raise();
-                        this.Events.Time_AfterDayStarted.Raise();
-                    }
+                    this.RaisedAfterLoadEvent = true;
+                    this.Monitor.Log($"Context: loaded saved game '{Constants.SaveFolderName}', starting {Game1.currentSeason} {Game1.dayOfMonth} Y{Game1.year}.", LogLevel.Trace);
+                    this.Events.Save_AfterLoad.Raise();
+                    this.Events.Time_AfterDayStarted.Raise();
                 }
 
                 /*********
@@ -339,11 +357,10 @@ namespace StardewModdingAPI.Framework
                 // event because we need to notify mods after the game handles the resize, so the
                 // game's metadata (like Game1.viewport) are updated. That's a bit complicated
                 // since the game adds & removes its own handler on the fly.
-                if (Game1.viewport.Width != this.PreviousWindowSize.X || Game1.viewport.Height != this.PreviousWindowSize.Y)
+                if (this.WindowSizeWatcher.IsChanged)
                 {
-                    Point size = new Point(Game1.viewport.Width, Game1.viewport.Height);
                     this.Events.Graphics_Resize.Raise();
-                    this.PreviousWindowSize = size;
+                    this.WindowSizeWatcher.Reset();
                 }
 
                 /*********
@@ -431,10 +448,11 @@ namespace StardewModdingAPI.Framework
                 /*********
                 ** Menu events
                 *********/
-                if (Game1.activeClickableMenu != this.PreviousActiveMenu)
+                if (this.ActiveMenuWatcher.IsChanged)
                 {
-                    IClickableMenu previousMenu = this.PreviousActiveMenu;
-                    IClickableMenu newMenu = Game1.activeClickableMenu;
+                    IClickableMenu previousMenu = this.ActiveMenuWatcher.PreviousValue;
+                    IClickableMenu newMenu = this.ActiveMenuWatcher.CurrentValue;
+                    this.ActiveMenuWatcher.Reset(); // reset here so a mod changing the menu will be raised as a new event afterwards
 
                     // log context
                     if (this.VerboseLogging)
@@ -452,10 +470,6 @@ namespace StardewModdingAPI.Framework
                         this.Events.Menu_Changed.Raise(new EventArgsClickableMenuChanged(previousMenu, newMenu));
                     else
                         this.Events.Menu_Closed.Raise(new EventArgsClickableMenuClosed(previousMenu));
-
-                    // update previous menu
-                    // (if the menu was changed in one of the handlers, deliberately defer detection until the next update so mods can be notified of the new menu change)
-                    this.PreviousActiveMenu = newMenu;
                 }
 
                 /*********
@@ -463,69 +477,55 @@ namespace StardewModdingAPI.Framework
                 *********/
                 if (Context.IsWorldReady)
                 {
+                    // update player info
+                    PlayerTracker curPlayer = this.CurrentPlayerTracker;
+
                     // raise current location changed
-                    // ReSharper disable once PossibleUnintendedReferenceComparison
-                    if (Game1.currentLocation != this.PreviousGameLocation)
+                    if (curPlayer.TryGetNewLocation(out GameLocation newLocation))
                     {
                         if (this.VerboseLogging)
-                            this.Monitor.Log($"Context: set location to {Game1.currentLocation?.Name ?? "(none)"}.", LogLevel.Trace);
-                        this.Events.Location_CurrentLocationChanged.Raise(new EventArgsCurrentLocationChanged(this.PreviousGameLocation, Game1.currentLocation));
+                            this.Monitor.Log($"Context: set location to {newLocation.Name}.", LogLevel.Trace);
+                        this.Events.Location_CurrentLocationChanged.Raise(new EventArgsCurrentLocationChanged(curPlayer.LocationWatcher.PreviousValue, newLocation));
                     }
 
                     // raise location list changed
-                    if (this.GetHash(Game1.locations) != this.PreviousGameLocations)
+                    if (this.LocationsWatcher.IsChanged)
                         this.Events.Location_LocationsChanged.Raise(new EventArgsGameLocationsChanged(Game1.locations));
 
                     // raise events that shouldn't be triggered on initial load
-                    if (Game1.uniqueIDForThisGame == this.PreviousSaveID)
+                    if (!this.SaveIdWatcher.IsChanged)
                     {
                         // raise player leveled up a skill
-                        if (Game1.player.combatLevel != this.PreviousCombatLevel)
-                            this.Events.Player_LeveledUp.Raise(new EventArgsLevelUp(EventArgsLevelUp.LevelType.Combat, Game1.player.combatLevel));
-                        if (Game1.player.farmingLevel != this.PreviousFarmingLevel)
-                            this.Events.Player_LeveledUp.Raise(new EventArgsLevelUp(EventArgsLevelUp.LevelType.Farming, Game1.player.farmingLevel));
-                        if (Game1.player.fishingLevel != this.PreviousFishingLevel)
-                            this.Events.Player_LeveledUp.Raise(new EventArgsLevelUp(EventArgsLevelUp.LevelType.Fishing, Game1.player.fishingLevel));
-                        if (Game1.player.foragingLevel != this.PreviousForagingLevel)
-                            this.Events.Player_LeveledUp.Raise(new EventArgsLevelUp(EventArgsLevelUp.LevelType.Foraging, Game1.player.foragingLevel));
-                        if (Game1.player.miningLevel != this.PreviousMiningLevel)
-                            this.Events.Player_LeveledUp.Raise(new EventArgsLevelUp(EventArgsLevelUp.LevelType.Mining, Game1.player.miningLevel));
-                        if (Game1.player.luckLevel != this.PreviousLuckLevel)
-                            this.Events.Player_LeveledUp.Raise(new EventArgsLevelUp(EventArgsLevelUp.LevelType.Luck, Game1.player.luckLevel));
+                        foreach (KeyValuePair<EventArgsLevelUp.LevelType, IValueWatcher<int>> pair in curPlayer.GetChangedSkills())
+                            this.Events.Player_LeveledUp.Raise(new EventArgsLevelUp(pair.Key, pair.Value.CurrentValue));
 
                         // raise player inventory changed
-                        ItemStackChange[] changedItems = this.GetInventoryChanges(Game1.player.Items, this.PreviousItems).ToArray();
+                        ItemStackChange[] changedItems = curPlayer.GetInventoryChanges().ToArray();
                         if (changedItems.Any())
                             this.Events.Player_InventoryChanged.Raise(new EventArgsInventoryChanged(Game1.player.Items, changedItems.ToList()));
 
                         // raise current location's object list changed
-                        if (this.GetHash(Game1.currentLocation.objects) != this.PreviousLocationObjects)
-                            this.Events.Location_LocationObjectsChanged.Raise(new EventArgsLocationObjectsChanged(Game1.currentLocation.objects.FieldDict));
+                        if (curPlayer.TryGetLocationChanges(out IDictionaryWatcher<Vector2, SObject> _))
+                            this.Events.Location_LocationObjectsChanged.Raise(new EventArgsLocationObjectsChanged(curPlayer.GetCurrentLocation().objects.FieldDict));
 
                         // raise time changed
-                        if (Game1.timeOfDay != this.PreviousTime)
-                            this.Events.Time_TimeOfDayChanged.Raise(new EventArgsIntChanged(this.PreviousTime, Game1.timeOfDay));
+                        if (this.TimeWatcher.IsChanged)
+                            this.Events.Time_TimeOfDayChanged.Raise(new EventArgsIntChanged(this.TimeWatcher.PreviousValue, this.TimeWatcher.CurrentValue));
 
                         // raise mine level changed
-                        if (Game1.mine != null && Game1.mine.mineLevel != this.PreviousMineLevel)
-                            this.Events.Mine_LevelChanged.Raise(new EventArgsMineLevelChanged(this.PreviousMineLevel, Game1.mine.mineLevel));
+                        if (curPlayer.TryGetNewMineLevel(out int mineLevel))
+                        {
+                            this.Monitor.Log("curPlayer mine level changed", LogLevel.Alert);
+                            this.Events.Mine_LevelChanged.Raise(new EventArgsMineLevelChanged(curPlayer.MineLevelWatcher.PreviousValue, mineLevel));
+                        }
                     }
-
-                    // update state
-                    this.PreviousGameLocations = this.GetHash(Game1.locations);
-                    this.PreviousGameLocation = Game1.currentLocation;
-                    this.PreviousCombatLevel = Game1.player.combatLevel;
-                    this.PreviousFarmingLevel = Game1.player.farmingLevel;
-                    this.PreviousFishingLevel = Game1.player.fishingLevel;
-                    this.PreviousForagingLevel = Game1.player.foragingLevel;
-                    this.PreviousMiningLevel = Game1.player.miningLevel;
-                    this.PreviousLuckLevel = Game1.player.luckLevel;
-                    this.PreviousItems = Game1.player.Items.Where(n => n != null).Distinct().ToDictionary(n => n, n => n.Stack);
-                    this.PreviousLocationObjects = this.GetHash(Game1.currentLocation.objects);
-                    this.PreviousTime = Game1.timeOfDay;
-                    this.PreviousMineLevel = Game1.mine?.mineLevel ?? 0;
-                    this.PreviousSaveID = Game1.uniqueIDForThisGame;
                 }
+
+                // update state
+                this.CurrentPlayerTracker?.Reset();
+                this.LocationsWatcher.Reset();
+                this.SaveIdWatcher.Reset();
+                this.TimeWatcher.Reset();
 
                 /*********
                 ** Game update
@@ -982,7 +982,7 @@ namespace StardewModdingAPI.Framework
                                 }
                                 Game1.drawPlayerHeldObject(Game1.player);
                             }
-label_140:
+                            label_140:
                             if ((Game1.player.UsingTool || Game1.pickingTool) && Game1.player.CurrentTool != null && ((!Game1.player.CurrentTool.Name.Equals("Seeds") || Game1.pickingTool) && (Game1.currentLocation.Map.GetLayer("Front").PickTile(new Location(Game1.player.getStandingX(), (int)Game1.player.Position.Y - 38), Game1.viewport.Size) != null && Game1.currentLocation.Map.GetLayer("Front").PickTile(new Location(Game1.player.getStandingX(), Game1.player.getStandingY()), Game1.viewport.Size) == null)))
                                 Game1.drawTool(Game1.player);
                             if (Game1.currentLocation.Map.GetLayer("AlwaysFront") != null)
@@ -1204,52 +1204,7 @@ label_140:
         {
             Context.IsWorldReady = false;
             this.AfterLoadTimer = 5;
-            this.PreviousSaveID = 0;
-        }
-
-
-
-        /// <summary>Get the player inventory changes between two states.</summary>
-        /// <param name="current">The player's current inventory.</param>
-        /// <param name="previous">The player's previous inventory.</param>
-        private IEnumerable<ItemStackChange> GetInventoryChanges(IEnumerable<Item> current, IDictionary<Item, int> previous)
-        {
-            current = current.Where(n => n != null).ToArray();
-            foreach (Item item in current)
-            {
-                // stack size changed
-                if (previous != null && previous.ContainsKey(item))
-                {
-                    if (previous[item] != item.Stack)
-                        yield return new ItemStackChange { Item = item, StackChange = item.Stack - previous[item], ChangeType = ChangeType.StackChange };
-                }
-
-                // new item
-                else
-                    yield return new ItemStackChange { Item = item, StackChange = item.Stack, ChangeType = ChangeType.Added };
-            }
-
-            // removed items
-            if (previous != null)
-            {
-                foreach (var entry in previous)
-                {
-                    if (current.Any(i => i == entry.Key))
-                        continue;
-
-                    yield return new ItemStackChange { Item = entry.Key, StackChange = -entry.Key.Stack, ChangeType = ChangeType.Removed };
-                }
-            }
-        }
-
-        /// <summary>Get a hash value for an enumeration.</summary>
-        /// <param name="enumerable">The enumeration of items to hash.</param>
-        private int GetHash(IEnumerable enumerable)
-        {
-            int hash = 0;
-            foreach (object v in enumerable)
-                hash ^= v.GetHashCode();
-            return hash;
+            this.RaisedAfterLoadEvent = false;
         }
 
         /// <summary>Raise the <see cref="GraphicsEvents.OnPostRenderEvent"/> if there are any listeners.</summary>
