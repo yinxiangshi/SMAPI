@@ -10,10 +10,11 @@
 * For modders:
   * Added code analysis to mod build config package to flag common issues as warnings.
   * Added warning when a mod doesn't have update keys (currently only shown in developer mode).
-  * Dropped some deprecated APIs.
   * Fixed assets loaded by temporary content managers not being editable.
   * Fixed issue where assets didn't reload correctly when the player switches language.
   * Fixed `helper.ModRegistry.GetApi` interface validation errors not mentioning which interface caused the issue.
+  * **Breaking change**: dropped some deprecated APIs.
+  * **Breaking change**: mods can't intercept chatbox input, including the game's hotkey to toggle the chatbox (default `T`).
 
 * For SMAPI developers:
   * Added more consistent crossplatform handling using a new `EnvironmentUtility`.

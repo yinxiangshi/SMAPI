@@ -72,6 +72,13 @@ namespace StardewModdingAPI.Framework.Input
             return this.GetStatus(button).IsDown();
         }
 
+        /// <summary>Get whether any of the given buttons were pressed or held.</summary>
+        /// <param name="buttons">The buttons to check.</param>
+        public bool IsAnyDown(InputButton[] buttons)
+        {
+            return buttons.Any(button => this.IsDown(button.ToSButton()));
+        }
+
         /// <summary>Get the current input state.</summary>
         /// <param name="previousState">The previous input state.</param>
         public static InputState GetState(InputState previousState)

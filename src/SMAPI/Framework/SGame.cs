@@ -175,7 +175,7 @@ namespace StardewModdingAPI.Framework
         /// <summary>Perform cleanup logic when the game exits.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="args">The event args.</param>
-        /// <remarks>This overrides the logic in <see cref="Game1.OnExiting"/> and <see cref="Game1.exitEvent"/> to let SMAPI clean up before exit.</remarks>
+        /// <remarks>This overrides the logic in <see cref="Game1.exitEvent"/> to let SMAPI clean up before exit.</remarks>
         protected override void OnExiting(object sender, EventArgs args)
         {
             Game1.multiplayer.Disconnect();
@@ -396,67 +396,72 @@ namespace StardewModdingAPI.Framework
                         inputState = this.PreviousInput;
                     }
 
-                    // get cursor position
-                    ICursorPosition cursor;
+                    // raise events
+                    bool isChatInput = Game1.IsChatting || (Context.IsMultiplayer && Context.IsWorldReady && Game1.activeClickableMenu == null && Game1.currentMinigame == null && inputState.IsAnyDown(Game1.options.chatButton));
+                    if (!isChatInput)
                     {
-                        // cursor position
-                        Vector2 screenPixels = new Vector2(Game1.getMouseX(), Game1.getMouseY());
-                        Vector2 tile = new Vector2((int)((Game1.viewport.X + screenPixels.X) / Game1.tileSize), (int)((Game1.viewport.Y + screenPixels.Y) / Game1.tileSize));
-                        Vector2 grabTile = (Game1.mouseCursorTransparency > 0 && Utility.tileWithinRadiusOfPlayer((int)tile.X, (int)tile.Y, 1, Game1.player)) // derived from Game1.pressActionButton
-                            ? tile
-                            : Game1.player.GetGrabTile();
-                        cursor = new CursorPosition(screenPixels, tile, grabTile);
-                    }
-
-                    // raise input events
-                    foreach (var pair in inputState.ActiveButtons)
-                    {
-                        SButton button = pair.Key;
-                        InputStatus status = pair.Value;
-
-                        if (status == InputStatus.Pressed)
+                        // get cursor position
+                        ICursorPosition cursor;
                         {
-                            this.Events.Input_ButtonPressed.Raise(new EventArgsInput(button, cursor, button.IsActionButton(), button.IsUseToolButton()));
+                            // cursor position
+                            Vector2 screenPixels = new Vector2(Game1.getMouseX(), Game1.getMouseY());
+                            Vector2 tile = new Vector2((int)((Game1.viewport.X + screenPixels.X) / Game1.tileSize), (int)((Game1.viewport.Y + screenPixels.Y) / Game1.tileSize));
+                            Vector2 grabTile = (Game1.mouseCursorTransparency > 0 && Utility.tileWithinRadiusOfPlayer((int)tile.X, (int)tile.Y, 1, Game1.player)) // derived from Game1.pressActionButton
+                                ? tile
+                                : Game1.player.GetGrabTile();
+                            cursor = new CursorPosition(screenPixels, tile, grabTile);
+                        }
 
-                            // legacy events
-                            if (button.TryGetKeyboard(out Keys key))
+                        // raise input events
+                        foreach (var pair in inputState.ActiveButtons)
+                        {
+                            SButton button = pair.Key;
+                            InputStatus status = pair.Value;
+
+                            if (status == InputStatus.Pressed)
                             {
-                                if (key != Keys.None)
-                                    this.Events.Control_KeyPressed.Raise(new EventArgsKeyPressed(key));
+                                this.Events.Input_ButtonPressed.Raise(new EventArgsInput(button, cursor, button.IsActionButton(), button.IsUseToolButton()));
+
+                                // legacy events
+                                if (button.TryGetKeyboard(out Keys key))
+                                {
+                                    if (key != Keys.None)
+                                        this.Events.Control_KeyPressed.Raise(new EventArgsKeyPressed(key));
+                                }
+                                else if (button.TryGetController(out Buttons controllerButton))
+                                {
+                                    if (controllerButton == Buttons.LeftTrigger || controllerButton == Buttons.RightTrigger)
+                                        this.Events.Control_ControllerTriggerPressed.Raise(new EventArgsControllerTriggerPressed(PlayerIndex.One, controllerButton, controllerButton == Buttons.LeftTrigger ? inputState.ControllerState.Triggers.Left : inputState.ControllerState.Triggers.Right));
+                                    else
+                                        this.Events.Control_ControllerButtonPressed.Raise(new EventArgsControllerButtonPressed(PlayerIndex.One, controllerButton));
+                                }
                             }
-                            else if (button.TryGetController(out Buttons controllerButton))
+                            else if (status == InputStatus.Released)
                             {
-                                if (controllerButton == Buttons.LeftTrigger || controllerButton == Buttons.RightTrigger)
-                                    this.Events.Control_ControllerTriggerPressed.Raise(new EventArgsControllerTriggerPressed(PlayerIndex.One, controllerButton, controllerButton == Buttons.LeftTrigger ? inputState.ControllerState.Triggers.Left : inputState.ControllerState.Triggers.Right));
-                                else
-                                    this.Events.Control_ControllerButtonPressed.Raise(new EventArgsControllerButtonPressed(PlayerIndex.One, controllerButton));
+                                this.Events.Input_ButtonReleased.Raise(new EventArgsInput(button, cursor, button.IsActionButton(), button.IsUseToolButton()));
+
+                                // legacy events
+                                if (button.TryGetKeyboard(out Keys key))
+                                {
+                                    if (key != Keys.None)
+                                        this.Events.Control_KeyReleased.Raise(new EventArgsKeyPressed(key));
+                                }
+                                else if (button.TryGetController(out Buttons controllerButton))
+                                {
+                                    if (controllerButton == Buttons.LeftTrigger || controllerButton == Buttons.RightTrigger)
+                                        this.Events.Control_ControllerTriggerReleased.Raise(new EventArgsControllerTriggerReleased(PlayerIndex.One, controllerButton, controllerButton == Buttons.LeftTrigger ? inputState.ControllerState.Triggers.Left : inputState.ControllerState.Triggers.Right));
+                                    else
+                                        this.Events.Control_ControllerButtonReleased.Raise(new EventArgsControllerButtonReleased(PlayerIndex.One, controllerButton));
+                                }
                             }
                         }
-                        else if (status == InputStatus.Released)
-                        {
-                            this.Events.Input_ButtonReleased.Raise(new EventArgsInput(button, cursor, button.IsActionButton(), button.IsUseToolButton()));
 
-                            // legacy events
-                            if (button.TryGetKeyboard(out Keys key))
-                            {
-                                if (key != Keys.None)
-                                    this.Events.Control_KeyReleased.Raise(new EventArgsKeyPressed(key));
-                            }
-                            else if (button.TryGetController(out Buttons controllerButton))
-                            {
-                                if (controllerButton == Buttons.LeftTrigger || controllerButton == Buttons.RightTrigger)
-                                    this.Events.Control_ControllerTriggerReleased.Raise(new EventArgsControllerTriggerReleased(PlayerIndex.One, controllerButton, controllerButton == Buttons.LeftTrigger ? inputState.ControllerState.Triggers.Left : inputState.ControllerState.Triggers.Right));
-                                else
-                                    this.Events.Control_ControllerButtonReleased.Raise(new EventArgsControllerButtonReleased(PlayerIndex.One, controllerButton));
-                            }
-                        }
+                        // raise legacy state-changed events
+                        if (inputState.KeyboardState != this.PreviousInput.KeyboardState)
+                            this.Events.Control_KeyboardChanged.Raise(new EventArgsKeyboardStateChanged(this.PreviousInput.KeyboardState, inputState.KeyboardState));
+                        if (inputState.MouseState != this.PreviousInput.MouseState)
+                            this.Events.Control_MouseChanged.Raise(new EventArgsMouseStateChanged(this.PreviousInput.MouseState, inputState.MouseState, this.PreviousInput.MousePosition, inputState.MousePosition));
                     }
-
-                    // raise legacy state-changed events
-                    if (inputState.KeyboardState != this.PreviousInput.KeyboardState)
-                        this.Events.Control_KeyboardChanged.Raise(new EventArgsKeyboardStateChanged(this.PreviousInput.KeyboardState, inputState.KeyboardState));
-                    if (inputState.MouseState != this.PreviousInput.MouseState)
-                        this.Events.Control_MouseChanged.Raise(new EventArgsMouseStateChanged(this.PreviousInput.MouseState, inputState.MouseState, this.PreviousInput.MousePosition, inputState.MousePosition));
 
                     // track state
                     this.PreviousInput = inputState;
