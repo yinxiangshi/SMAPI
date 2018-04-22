@@ -359,6 +359,8 @@ namespace StardewModdingAPI.Framework
                 // since the game adds & removes its own handler on the fly.
                 if (this.WindowSizeWatcher.IsChanged)
                 {
+                    if (this.VerboseLogging)
+                        this.Monitor.Log($"Context: window size changed to {this.WindowSizeWatcher.CurrentValue}.", LogLevel.Trace);
                     this.Events.Graphics_Resize.Raise();
                     this.WindowSizeWatcher.Reset();
                 }
@@ -454,16 +456,8 @@ namespace StardewModdingAPI.Framework
                     IClickableMenu newMenu = this.ActiveMenuWatcher.CurrentValue;
                     this.ActiveMenuWatcher.Reset(); // reset here so a mod changing the menu will be raised as a new event afterwards
 
-                    // log context
                     if (this.VerboseLogging)
-                    {
-                        if (previousMenu == null)
-                            this.Monitor.Log($"Context: opened menu {newMenu?.GetType().FullName ?? "(none)"}.", LogLevel.Trace);
-                        else if (newMenu == null)
-                            this.Monitor.Log($"Context: closed menu {previousMenu.GetType().FullName}.", LogLevel.Trace);
-                        else
-                            this.Monitor.Log($"Context: changed menu from {previousMenu.GetType().FullName} to {newMenu.GetType().FullName}.", LogLevel.Trace);
-                    }
+                        this.Monitor.Log($"Context: menu changed from {previousMenu?.GetType().FullName ?? "none"} to {newMenu?.GetType().FullName ?? "none"}.", LogLevel.Trace);
 
                     // raise menu events
                     if (newMenu != null)
@@ -490,32 +484,59 @@ namespace StardewModdingAPI.Framework
 
                     // raise location list changed
                     if (this.LocationsWatcher.IsChanged)
+                    {
+                        if (this.VerboseLogging)
+                        {
+                            string added = this.LocationsWatcher.Added.Any() ? string.Join(", ", this.LocationsWatcher.Added.Select(p => p.Name)) : "none";
+                            string removed = this.LocationsWatcher.Removed.Any() ? string.Join(", ", this.LocationsWatcher.Removed.Select(p => p.Name)) : "none";
+                            this.Monitor.Log($"Context: location list changed (added {added}; removed {removed}).", LogLevel.Trace);
+                        }
+
                         this.Events.Location_LocationsChanged.Raise(new EventArgsGameLocationsChanged(Game1.locations));
+                    }
 
                     // raise events that shouldn't be triggered on initial load
                     if (!this.SaveIdWatcher.IsChanged)
                     {
                         // raise player leveled up a skill
                         foreach (KeyValuePair<EventArgsLevelUp.LevelType, IValueWatcher<int>> pair in curPlayer.GetChangedSkills())
+                        {
+                            if (this.VerboseLogging)
+                                this.Monitor.Log($"Context: player skill '{pair.Key}' changed from {pair.Value.PreviousValue} to {pair.Value.CurrentValue}.", LogLevel.Trace);
                             this.Events.Player_LeveledUp.Raise(new EventArgsLevelUp(pair.Key, pair.Value.CurrentValue));
+                        }
 
                         // raise player inventory changed
                         ItemStackChange[] changedItems = curPlayer.GetInventoryChanges().ToArray();
                         if (changedItems.Any())
+                        {
+                            if (this.VerboseLogging)
+                                this.Monitor.Log("Context: player inventory changed.", LogLevel.Trace);
                             this.Events.Player_InventoryChanged.Raise(new EventArgsInventoryChanged(Game1.player.Items, changedItems.ToList()));
+                        }
 
                         // raise current location's object list changed
                         if (curPlayer.TryGetLocationChanges(out IDictionaryWatcher<Vector2, SObject> _))
+                        {
+                            if (this.VerboseLogging)
+                                this.Monitor.Log($"Context: current location objects changed.", LogLevel.Trace);
+
                             this.Events.Location_LocationObjectsChanged.Raise(new EventArgsLocationObjectsChanged(curPlayer.GetCurrentLocation().objects.FieldDict));
+                        }
 
                         // raise time changed
                         if (this.TimeWatcher.IsChanged)
+                        {
+                            if (this.VerboseLogging)
+                                this.Monitor.Log($"Context: time changed from {this.TimeWatcher.PreviousValue} to {this.TimeWatcher.CurrentValue}.", LogLevel.Trace);
                             this.Events.Time_TimeOfDayChanged.Raise(new EventArgsIntChanged(this.TimeWatcher.PreviousValue, this.TimeWatcher.CurrentValue));
+                        }
 
                         // raise mine level changed
                         if (curPlayer.TryGetNewMineLevel(out int mineLevel))
                         {
-                            this.Monitor.Log("curPlayer mine level changed", LogLevel.Alert);
+                            if (this.VerboseLogging)
+                                this.Monitor.Log($"Context: mine level changed to {mineLevel}.", LogLevel.Trace);
                             this.Events.Mine_LevelChanged.Raise(new EventArgsMineLevelChanged(curPlayer.MineLevelWatcher.PreviousValue, mineLevel));
                         }
                     }
