@@ -12,6 +12,16 @@ namespace StardewModdingAPI.Framework.Input
         /*********
         ** Accessors
         *********/
+        /// <summary>The maximum amount of direction to ignore for the left thumbstick.</summary>
+        private const float LeftThumbstickDeadZone = 0.2f;
+
+        /// <summary>The maximum amount of direction to ignore for the right thumbstick.</summary>
+        private const float RightThumbstickDeadZone = 0f;
+
+
+        /*********
+        ** Accessors
+        *********/
         /// <summary>The underlying controller state.</summary>
         public GamePadState ControllerState { get; }
 
@@ -48,7 +58,7 @@ namespace StardewModdingAPI.Framework.Input
             this.MousePosition = new Point((int)(mouseState.X * (1.0 / Game1.options.zoomLevel)), (int)(mouseState.Y * (1.0 / Game1.options.zoomLevel))); // derived from Game1::getMouseX
 
             // get button states
-            SButton[] down = InputState.GetPressedButtons(keyboardState, mouseState, controllerState).ToArray();
+            SButton[] down = this.GetPressedButtons(keyboardState, mouseState, controllerState).ToArray();
             foreach (SButton button in down)
                 this.ActiveButtons[button] = this.GetStatus(previousState.GetStatus(button), isDown: true);
             foreach (KeyValuePair<SButton, InputStatus> prev in previousState.ActiveButtons)
@@ -109,7 +119,8 @@ namespace StardewModdingAPI.Framework.Input
         /// <param name="keyboard">The keyboard state.</param>
         /// <param name="mouse">The mouse state.</param>
         /// <param name="controller">The controller state.</param>
-        private static IEnumerable<SButton> GetPressedButtons(KeyboardState keyboard, MouseState mouse, GamePadState controller)
+        /// <remarks>Thumbstick direction logic derived from <see cref="ButtonCollection"/>.</remarks>
+        private IEnumerable<SButton> GetPressedButtons(KeyboardState keyboard, MouseState mouse, GamePadState controller)
         {
             // keyboard
             foreach (Keys key in keyboard.GetPressedKeys())
@@ -130,28 +141,23 @@ namespace StardewModdingAPI.Framework.Input
             // controller
             if (controller.IsConnected)
             {
+                // main buttons
                 if (controller.Buttons.A == ButtonState.Pressed)
                     yield return SButton.ControllerA;
                 if (controller.Buttons.B == ButtonState.Pressed)
                     yield return SButton.ControllerB;
-                if (controller.Buttons.Back == ButtonState.Pressed)
-                    yield return SButton.ControllerBack;
-                if (controller.Buttons.BigButton == ButtonState.Pressed)
-                    yield return SButton.BigButton;
-                if (controller.Buttons.LeftShoulder == ButtonState.Pressed)
-                    yield return SButton.LeftShoulder;
-                if (controller.Buttons.LeftStick == ButtonState.Pressed)
-                    yield return SButton.LeftStick;
-                if (controller.Buttons.RightShoulder == ButtonState.Pressed)
-                    yield return SButton.RightShoulder;
-                if (controller.Buttons.RightStick == ButtonState.Pressed)
-                    yield return SButton.RightStick;
-                if (controller.Buttons.Start == ButtonState.Pressed)
-                    yield return SButton.ControllerStart;
                 if (controller.Buttons.X == ButtonState.Pressed)
                     yield return SButton.ControllerX;
                 if (controller.Buttons.Y == ButtonState.Pressed)
                     yield return SButton.ControllerY;
+                if (controller.Buttons.LeftStick == ButtonState.Pressed)
+                    yield return SButton.LeftStick;
+                if (controller.Buttons.RightStick == ButtonState.Pressed)
+                    yield return SButton.RightStick;
+                if (controller.Buttons.Start == ButtonState.Pressed)
+                    yield return SButton.ControllerStart;
+
+                // directional pad
                 if (controller.DPad.Up == ButtonState.Pressed)
                     yield return SButton.DPadUp;
                 if (controller.DPad.Down == ButtonState.Pressed)
@@ -160,11 +166,55 @@ namespace StardewModdingAPI.Framework.Input
                     yield return SButton.DPadLeft;
                 if (controller.DPad.Right == ButtonState.Pressed)
                     yield return SButton.DPadRight;
+
+                // secondary buttons
+                if (controller.Buttons.Back == ButtonState.Pressed)
+                    yield return SButton.ControllerBack;
+                if (controller.Buttons.BigButton == ButtonState.Pressed)
+                    yield return SButton.BigButton;
+
+                // shoulders
+                if (controller.Buttons.LeftShoulder == ButtonState.Pressed)
+                    yield return SButton.LeftShoulder;
+                if (controller.Buttons.RightShoulder == ButtonState.Pressed)
+                    yield return SButton.RightShoulder;
+
+                // triggers
                 if (controller.Triggers.Left > 0.2f)
                     yield return SButton.LeftTrigger;
                 if (controller.Triggers.Right > 0.2f)
                     yield return SButton.RightTrigger;
+
+                // left thumbstick direction
+                if (controller.ThumbSticks.Left.Y > InputState.LeftThumbstickDeadZone)
+                    yield return SButton.LeftThumbstickUp;
+                if (controller.ThumbSticks.Left.Y < -InputState.LeftThumbstickDeadZone)
+                    yield return SButton.LeftThumbstickDown;
+                if (controller.ThumbSticks.Left.X > InputState.LeftThumbstickDeadZone)
+                    yield return SButton.LeftThumbstickRight;
+                if (controller.ThumbSticks.Left.X < -InputState.LeftThumbstickDeadZone)
+                    yield return SButton.LeftThumbstickLeft;
+
+                // right thumbstick direction
+                if (this.IsRightThumbstickOutsideDeadZone(controller.ThumbSticks.Right))
+                {
+                    if (controller.ThumbSticks.Right.Y > 0)
+                        yield return SButton.RightThumbstickUp;
+                    if (controller.ThumbSticks.Right.Y < 0)
+                        yield return SButton.RightThumbstickDown;
+                    if (controller.ThumbSticks.Right.X > 0)
+                        yield return SButton.RightThumbstickRight;
+                    if (controller.ThumbSticks.Right.X < 0)
+                        yield return SButton.RightThumbstickLeft;
+                }
             }
+        }
+
+        /// <summary>Get whether the right thumbstick should be considered outside the dead zone.</summary>
+        /// <param name="direction">The right thumbstick value.</param>
+        private bool IsRightThumbstickOutsideDeadZone(Vector2 direction)
+        {
+            return direction.Length() > 0.9f;
         }
     }
 }

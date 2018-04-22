@@ -120,6 +120,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>Simplifies access to private game code.</summary>
         private readonly Reflector Reflection;
 
+        /// <summary>The buttons to suppress when the game next handles input. Each button is suppressed until it's released.</summary>
+        private readonly HashSet<SButton> SuppressButtons = new HashSet<SButton>();
+
 
         /*********
         ** Accessors
@@ -154,6 +157,7 @@ namespace StardewModdingAPI.Framework
             this.OnGameExiting = onGameExiting;
             if (this.ContentCore == null) // shouldn't happen since CreateContentManager is called first, but let's init here just in case
                 this.ContentCore = new ContentCore(this.Content.ServiceProvider, this.Content.RootDirectory, Thread.CurrentThread.CurrentUICulture, this.Monitor, reflection);
+            Game1.hooks = new SModHooks(this.UpdateControlInput);
 
             // init watchers
             Game1.locations = new ObservableCollection<GameLocation>();
@@ -420,7 +424,7 @@ namespace StardewModdingAPI.Framework
 
                             if (status == InputStatus.Pressed)
                             {
-                                this.Events.Input_ButtonPressed.Raise(new EventArgsInput(button, cursor, button.IsActionButton(), button.IsUseToolButton()));
+                                this.Events.Input_ButtonPressed.Raise(new EventArgsInput(button, cursor, button.IsActionButton(), button.IsUseToolButton(), this.SuppressButtons));
 
                                 // legacy events
                                 if (button.TryGetKeyboard(out Keys key))
@@ -438,7 +442,7 @@ namespace StardewModdingAPI.Framework
                             }
                             else if (status == InputStatus.Released)
                             {
-                                this.Events.Input_ButtonReleased.Raise(new EventArgsInput(button, cursor, button.IsActionButton(), button.IsUseToolButton()));
+                                this.Events.Input_ButtonReleased.Raise(new EventArgsInput(button, cursor, button.IsActionButton(), button.IsUseToolButton(), this.SuppressButtons));
 
                                 // legacy events
                                 if (button.TryGetKeyboard(out Keys key))
@@ -539,7 +543,7 @@ namespace StardewModdingAPI.Framework
                         if (curPlayer.TryGetLocationChanges(out IDictionaryWatcher<Vector2, SObject> _))
                         {
                             if (this.VerboseLogging)
-                                this.Monitor.Log($"Context: current location objects changed.", LogLevel.Trace);
+                                this.Monitor.Log("Context: current location objects changed.", LogLevel.Trace);
 
                             this.Events.Location_LocationObjectsChanged.Raise(new EventArgsLocationObjectsChanged(curPlayer.GetCurrentLocation().objects.FieldDict));
                         }
@@ -617,6 +621,17 @@ namespace StardewModdingAPI.Framework
                 if (!this.UpdateCrashTimer.Decrement())
                     this.Monitor.ExitGameImmediately("the game crashed when updating, and SMAPI was unable to recover the game.");
             }
+        }
+
+        /// <summary>Read the current input state for handling.</summary>
+        /// <param name="keyboardState">The game's keyboard state for the current tick.</param>
+        /// <param name="mouseState">The game's mouse state for the current tick.</param>
+        /// <param name="gamePadState">The game's controller state for the current tick.</param>
+        /// <param name="defaultLogic">The game's default logic.</param>
+        public void UpdateControlInput(ref KeyboardState keyboardState, ref MouseState mouseState, ref GamePadState gamePadState, Action defaultLogic)
+        {
+            this.ApplySuppression(ref keyboardState, ref mouseState, ref gamePadState);
+            defaultLogic();
         }
 
         /// <summary>The method called to draw everything to the screen.</summary>
@@ -1240,6 +1255,63 @@ namespace StardewModdingAPI.Framework
         /****
         ** Methods
         ****/
+        /// <summary>Apply input suppression for the given input states.</summary>
+        /// <param name="keyboardState">The game's keyboard state for the current tick.</param>
+        /// <param name="mouseState">The game's mouse state for the current tick.</param>
+        /// <param name="gamePadState">The game's controller state for the current tick.</param>
+        private void ApplySuppression(ref KeyboardState keyboardState, ref MouseState mouseState, ref GamePadState gamePadState)
+        {
+            // stop suppressing buttons once released
+            if (this.SuppressButtons.Count != 0)
+            {
+                InputState inputState = new InputState(this.PreviousInput, gamePadState, keyboardState, mouseState);
+                this.SuppressButtons.RemoveWhere(p => !inputState.IsDown(p));
+            }
+            if (this.SuppressButtons.Count == 0)
+                return;
+
+            // gather info
+            HashSet<Keys> keyboardButtons = new HashSet<Keys>();
+            HashSet<SButton> controllerButtons = new HashSet<SButton>();
+            HashSet<SButton> mouseButtons = new HashSet<SButton>();
+            foreach (SButton button in this.SuppressButtons)
+            {
+                if (button == SButton.MouseLeft || button == SButton.MouseMiddle || button == SButton.MouseRight || button == SButton.MouseX1 || button == SButton.MouseX2)
+                    mouseButtons.Add(button);
+                else if (button.TryGetKeyboard(out Keys key))
+                    keyboardButtons.Add(key);
+                else if (gamePadState.IsConnected && button.TryGetController(out Buttons _))
+                    controllerButtons.Add(button);
+            }
+
+            // suppress keyboard keys
+            if (keyboardState.GetPressedKeys().Any() && keyboardButtons.Any())
+                keyboardState = new KeyboardState(keyboardState.GetPressedKeys().Except(keyboardButtons).ToArray());
+
+            // suppress controller keys
+            if (gamePadState.IsConnected && controllerButtons.Any())
+            {
+                GamePadStateBuilder builder = new GamePadStateBuilder(gamePadState);
+                builder.SuppressButtons(controllerButtons);
+                gamePadState = builder.ToGamePadState();
+            }
+
+            // suppress mouse buttons
+            if (mouseButtons.Any())
+            {
+                mouseState = new MouseState(
+                    x: mouseState.X,
+                    y: mouseState.Y,
+                    scrollWheel: mouseState.ScrollWheelValue,
+                    leftButton: mouseButtons.Contains(SButton.MouseLeft) ? ButtonState.Pressed : mouseState.LeftButton,
+                    middleButton: mouseButtons.Contains(SButton.MouseMiddle) ? ButtonState.Pressed : mouseState.MiddleButton,
+                    rightButton: mouseButtons.Contains(SButton.MouseRight) ? ButtonState.Pressed : mouseState.RightButton,
+                    xButton1: mouseButtons.Contains(SButton.MouseX1) ? ButtonState.Pressed : mouseState.XButton1,
+                    xButton2: mouseButtons.Contains(SButton.MouseX2) ? ButtonState.Pressed : mouseState.XButton2
+                );
+            }
+        }
+
         /// <summary>Perform any cleanup needed when the player unloads a save and returns to the title screen.</summary>
         private void CleanupAfterReturnToTitle()
         {
