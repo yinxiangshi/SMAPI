@@ -362,7 +362,7 @@ namespace StardewModdingAPI
 
             // redirect direct console output
             {
-                Monitor monitor = this.GetSecondaryMonitor("Console.Out");
+                Monitor monitor = this.GetSecondaryMonitor("game");
                 if (monitor.WriteToConsole)
                     this.ConsoleManager.OnMessageIntercepted += message => this.HandleConsoleMessage(monitor, message);
             }
