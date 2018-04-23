@@ -237,42 +237,6 @@ namespace StardewModdingAPI.Framework
                 }
 
                 /*********
-                ** Update context
-                *********/
-                if (Context.IsSaveLoaded && !SaveGame.IsProcessing /*still loading save*/ && this.AfterLoadTimer >= 0)
-                {
-                    if (Game1.dayOfMonth != 0) // wait until new-game intro finishes (world not fully initialised yet)
-                        this.AfterLoadTimer--;
-                    Context.IsWorldReady = this.AfterLoadTimer <= 0;
-                }
-
-                /*********
-                ** Update watchers
-                *********/
-                // reset player
-                if (Context.IsWorldReady)
-                {
-                    if (this.CurrentPlayerTracker == null || this.CurrentPlayerTracker.Player != Game1.player)
-                    {
-                        this.CurrentPlayerTracker?.Dispose();
-                        this.CurrentPlayerTracker = new PlayerTracker(Game1.player);
-                    }
-                }
-                else
-                {
-                    if (this.CurrentPlayerTracker != null)
-                    {
-                        this.CurrentPlayerTracker.Dispose();
-                        this.CurrentPlayerTracker = null;
-                    }
-                }
-
-                // update values
-                foreach (IWatcher watcher in this.Watchers)
-                    watcher.Update();
-                this.CurrentPlayerTracker?.Update();
-
-                /*********
                 ** Save events + suppress events during save
                 *********/
                 // While the game is writing to the save file in the background, mods can unexpectedly
@@ -324,6 +288,43 @@ namespace StardewModdingAPI.Framework
                 *********/
                 if (this.FirstUpdate)
                     this.OnGameInitialised();
+
+                
+                /*********
+                ** Update context
+                *********/
+                if (Context.IsSaveLoaded && !SaveGame.IsProcessing /*still loading save*/ && this.AfterLoadTimer >= 0)
+                {
+                    if (Game1.dayOfMonth != 0) // wait until new-game intro finishes (world not fully initialised yet)
+                        this.AfterLoadTimer--;
+                    Context.IsWorldReady = this.AfterLoadTimer <= 0;
+                }
+
+                /*********
+                ** Update watchers
+                *********/
+                // reset player
+                if (Context.IsWorldReady)
+                {
+                    if (this.CurrentPlayerTracker == null || this.CurrentPlayerTracker.Player != Game1.player)
+                    {
+                        this.CurrentPlayerTracker?.Dispose();
+                        this.CurrentPlayerTracker = new PlayerTracker(Game1.player);
+                    }
+                }
+                else
+                {
+                    if (this.CurrentPlayerTracker != null)
+                    {
+                        this.CurrentPlayerTracker.Dispose();
+                        this.CurrentPlayerTracker = null;
+                    }
+                }
+
+                // update values
+                foreach (IWatcher watcher in this.Watchers)
+                    watcher.Update();
+                this.CurrentPlayerTracker?.Update();
 
                 /*********
                 ** Locale changed events
