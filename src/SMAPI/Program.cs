@@ -582,25 +582,8 @@ namespace StardewModdingAPI
                                 StringComparer.InvariantCultureIgnoreCase
                             );
 
-                        // report update keys
-                        {
-                            IModMetadata[] modsWithoutKeys = (
-                                from mod in mods
-                                where
-                                    mod.Manifest != null
-                                    && (mod.Manifest.UpdateKeys == null || !mod.Manifest.UpdateKeys.Any())
-                                    && (mod.Manifest?.UniqueID != "SMAPI.ConsoleCommands" && mod.Manifest?.UniqueID != "SMAPI.TrainerMod")
-                                orderby mod.DisplayName
-                                select mod
-                            ).ToArray();
-
-                            string message = $"Checking {modsByKey.Count} mod update keys.";
-                            if (modsWithoutKeys.Any())
-                                message += $" {modsWithoutKeys.Length} mods have no update keys: {string.Join(", ", modsWithoutKeys.Select(p => p.DisplayName))}.";
-                            this.Monitor.Log($"   {message}", LogLevel.Trace);
-                        }
-
                         // fetch results
+                        this.Monitor.Log($"   Checking {modsByKey.Count} mod update keys.", LogLevel.Trace);
                         var results =
                             (
                                 from entry in client.GetModInfo(modsByKey.Keys.ToArray())
@@ -714,9 +697,11 @@ namespace StardewModdingAPI
             // load content packs
             foreach (IModMetadata metadata in mods.Where(p => p.IsContentPack))
             {
-                // get basic info
-                IManifest manifest = metadata.Manifest;
                 this.Monitor.Log($"   {metadata.DisplayName} (content pack, {PathUtilities.GetRelativePath(Constants.ModPath, metadata.DirectoryPath)})...", LogLevel.Trace);
+
+                // show warning for missing update key
+                if (metadata.HasManifest() && !metadata.HasUpdateKeys())
+                    this.Monitor.Log($"      {metadata.DisplayName} has no {nameof(IManifest.UpdateKeys)} in its manifest. You may not see update alerts for this mod.", LogLevel.Warn);
 
                 // validate status
                 if (metadata.Status == ModMetadataStatus.Failed)
@@ -726,11 +711,8 @@ namespace StardewModdingAPI
                     continue;
                 }
 
-                // show warnings
-                if (this.Settings.DeveloperMode && !metadata.HasUpdateKeys())
-                    this.Monitor.Log($"      {metadata.DisplayName} has no {nameof(IManifest.UpdateKeys)} in its manifest. You may not see update alerts for this mod.", LogLevel.Warn);
-
                 // load mod as content pack
+                IManifest manifest = metadata.Manifest;
                 IMonitor monitor = this.GetSecondaryMonitor(metadata.DisplayName);
                 ContentManagerShim contentManager = this.ContentCore.CreateContentManager($"Mods.{metadata.Manifest.UniqueID}", metadata.DirectoryPath);
                 IContentHelper contentHelper = new ContentHelper(this.ContentCore, contentManager, metadata.DirectoryPath, manifest.UniqueID, metadata.DisplayName, monitor);
@@ -766,6 +748,10 @@ namespace StardewModdingAPI
                         ? $"   {metadata.DisplayName} ({PathUtilities.GetRelativePath(Constants.ModPath, metadata.DirectoryPath)}{Path.DirectorySeparatorChar}{metadata.Manifest.EntryDll})..." // don't use Path.Combine here, since EntryDLL might not be valid
                         : $"   {metadata.DisplayName}...", LogLevel.Trace);
 
+                    // show warnings
+                    if (metadata.HasManifest() && !metadata.HasUpdateKeys() && metadata.Manifest.UniqueID != "SMAPI.ConsoleCommands")
+                        this.Monitor.Log($"      {metadata.DisplayName} has no {nameof(IManifest.UpdateKeys)} in its manifest. You may not see update alerts for this mod.", LogLevel.Warn);
+
                     // validate status
                     if (metadata.Status == ModMetadataStatus.Failed)
                     {
@@ -773,10 +759,6 @@ namespace StardewModdingAPI
                         TrackSkip(metadata, metadata.Error);
                         continue;
                     }
-
-                    // show warnings
-                    if (this.Settings.DeveloperMode && !metadata.HasUpdateKeys() && metadata.Manifest.UniqueID != "SMAPI.ConsoleCommands")
-                        this.Monitor.Log($"      {metadata.DisplayName} has no {nameof(IManifest.UpdateKeys)} in its manifest. You may not see update alerts for this mod.", LogLevel.Warn);
 
                     // load mod
                     string assemblyPath = metadata.Manifest?.EntryDll != null

@@ -65,6 +65,9 @@ namespace StardewModdingAPI.Framework
         /// <param name="api">The mod-provided API.</param>
         IModMetadata SetApi(object api);
 
+        /// <summary>Whether the mod manifest was loaded (regardless of whether the mod itself was loaded).</summary>
+        bool HasManifest();
+
         /// <summary>Whether the mod has at least one update key set.</summary>
         bool HasUpdateKeys();
     }

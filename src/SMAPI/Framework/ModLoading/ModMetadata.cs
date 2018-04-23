@@ -104,11 +104,18 @@ namespace StardewModdingAPI.Framework.ModLoading
             return this;
         }
 
+        /// <summary>Whether the mod manifest was loaded (regardless of whether the mod itself was loaded).</summary>
+        public bool HasManifest()
+        {
+            return this.Manifest != null;
+        }
+
         /// <summary>Whether the mod has at least one update key set.</summary>
         public bool HasUpdateKeys()
         {
             return
-                this.Manifest?.UpdateKeys != null
+                this.HasManifest()
+                && this.Manifest.UpdateKeys != null
                 && this.Manifest.UpdateKeys.Any(key => !string.IsNullOrWhiteSpace(key));
         }
     }
