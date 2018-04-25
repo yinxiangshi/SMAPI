@@ -92,7 +92,7 @@
     <Compile Include="Framework\Content\ContentCache.cs" />
     <Compile Include="Framework\Events\ManagedEventBase.cs" />
     <Compile Include="Framework\Input\GamePadStateBuilder.cs" />
-    <Compile Include="Framework\Input\InputState.cs" />
+    <Compile Include="Framework\Input\SInputState.cs" />
     <Compile Include="Framework\Input\InputStatus.cs" />
     <Compile Include="Framework\LegacyManifestVersion.cs" />
     <Compile Include="Framework\ModData\ModDatabase.cs" />
@@ -263,7 +263,6 @@
     <Compile Include="Framework\SGame.cs" />
     <Compile Include="IReflectionHelper.cs" />
     <Compile Include="SemanticVersion.cs" />
-    <Compile Include="SModHooks.cs" />
     <Compile Include="Translation.cs" />
     <Compile Include="ICursorPosition.cs" />
     <Compile Include="Utilities\SDate.cs" />
