@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace StardewModdingAPI.Framework
 {
@@ -103,31 +104,27 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Private methods
         *********/
-        /// <summary>
-        /// Parses a string into an array of arguments.
-        /// </summary>
+        /// <summary>Parse a string into command arguments.</summary>
         /// <param name="input">The string to parse.</param>
         private string[] ParseArgs(string input)
         {
             bool inQuotes = false;
             IList<string> args = new List<string>();
-            IList<char> currentArg = new List<char>();
-            foreach (char c in input)
+            StringBuilder currentArg = new StringBuilder();
+            foreach (char ch in input)
             {
-                if (c == '"')
-                {
+                if (ch == '"')
                     inQuotes = !inQuotes;
-                }
-                else if (!inQuotes && char.IsWhiteSpace(c))
+                else if (!inQuotes && char.IsWhiteSpace(ch))
                 {
-                    args.Add(string.Concat(currentArg));
+                    args.Add(currentArg.ToString());
                     currentArg.Clear();
                 }
                 else
-                    currentArg.Add(c);
+                    currentArg.Append(ch);
             }
 
-            args.Add(string.Concat(currentArg));
+            args.Add(currentArg.ToString());
 
             return args.Where(item => !string.IsNullOrWhiteSpace(item)).ToArray();
         }

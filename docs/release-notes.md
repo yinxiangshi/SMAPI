@@ -11,6 +11,7 @@
 * For modders:
   * Added code analysis to mod build config package to flag common issues as warnings.
   * Added `Context.IsMultiplayer` and `Context.IsMainPlayer` flags.
+  * Added `player_add name` console command, which lets you add items to your inventory by name instead of ID.
   * Fixed assets loaded by temporary content managers not being editable.
   * Fixed issue where assets didn't reload correctly when the player switches language.
   * Fixed user command input not saved to log file.

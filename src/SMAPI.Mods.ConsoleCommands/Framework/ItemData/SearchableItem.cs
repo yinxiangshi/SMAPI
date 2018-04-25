@@ -1,4 +1,5 @@
-﻿using StardewValley;
+using System;
+using StardewValley;
 
 namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.ItemData
 {
@@ -36,6 +37,24 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.ItemData
             this.Type = type;
             this.ID = id;
             this.Item = item;
+        }
+
+        /// <summary>Get whether the item name contains a case-insensitive substring.</summary>
+        /// <param name="substring">The substring to find.</param>
+        public bool NameContains(string substring)
+        {
+            return
+                this.Name.IndexOf(substring, StringComparison.InvariantCultureIgnoreCase) != -1
+                || this.DisplayName.IndexOf(substring, StringComparison.InvariantCultureIgnoreCase) != -1;
+        }
+
+        /// <summary>Get whether the item name is exactly equal to a case-insensitive string.</summary>
+        /// <param name="name">The substring to find.</param>
+        public bool NameEquivalentTo(string name)
+        {
+            return
+                this.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase)
+                || this.DisplayName.Equals(name, StringComparison.InvariantCultureIgnoreCase);
         }
     }
 }

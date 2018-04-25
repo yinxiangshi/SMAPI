@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using StardewModdingAPI.Mods.ConsoleCommands.Framework.ItemData;
 using StardewValley;
@@ -16,16 +15,16 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
         /// <summary>Provides methods for searching and constructing items.</summary>
         private readonly ItemRepository Items = new ItemRepository();
 
-        /// <summary>All possible item types along with Name.</summary>
-        private readonly string[] ItemTypeAndName = Enum.GetNames(typeof(ItemType)).Union(new string[] { "Name" }).ToArray();
+        /// <summary>The type names recognised by this command.</summary>
+        private readonly string[] ValidTypes = Enum.GetNames(typeof(ItemType)).Concat(new[] { "Name" }).ToArray();
+
 
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
         public AddCommand()
-            : base("player_add", AddCommand.GetDescription())
-        { }
+            : base("player_add", AddCommand.GetDescription()) { }
 
         /// <summary>Handle the command.</summary>
         /// <param name="monitor">Writes messages to the console and log file.</param>
@@ -40,23 +39,20 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
                 return;
             }
 
-            SearchableItem match;
-
-            //read arguments
-            if (!args.TryGet(0, "item type", out string typeOrName, oneOf: this.ItemTypeAndName))
+            // read arguments
+            if (!args.TryGet(0, "item type", out string type, oneOf: this.ValidTypes))
                 return;
-            if (Enum.GetNames(typeof(ItemType)).Contains(typeOrName, StringComparer.InvariantCultureIgnoreCase))
-                this.FindItemByTypeAndId(monitor, args, typeOrName, out match);
-            else
-                this.FindItemByName(monitor, args, out match);
-
-            if (match == null)
-                return;
-
             if (!args.TryGetInt(2, "count", out int count, min: 1, required: false))
                 count = 1;
             if (!args.TryGetInt(3, "quality", out int quality, min: Object.lowQuality, max: Object.bestQuality, required: false))
                 quality = Object.lowQuality;
+
+            // find matching item
+            SearchableItem match = Enum.TryParse(type, true, out ItemType itemType)
+                ? this.FindItemByID(monitor, args, itemType)
+                : this.FindItemByName(monitor, args);
+            if (match == null)
+                return;
 
             // apply count
             match.Item.Stack = count;
@@ -72,90 +68,81 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
             monitor.Log($"OK, added {match.Name} ({match.Type} #{match.ID}) to your inventory.", LogLevel.Info);
         }
 
+
         /*********
         ** Private methods
         *********/
-
-        /// <summary>Finds a matching item by item type and id.</summary>
+        /// <summary>Get a matching item by its ID.</summary>
         /// <param name="monitor">Writes messages to the console and log file.</param>
         /// <param name="args">The command arguments.</param>
-        /// <param name="rawType">The raw item type.</param>
-        /// <param name="match">The matching item.</param>
-        private void FindItemByTypeAndId(IMonitor monitor, ArgumentParser args, string rawType, out SearchableItem match)
+        /// <param name="type">The item type.</param>
+        private SearchableItem FindItemByID(IMonitor monitor, ArgumentParser args, ItemType type)
         {
-            match = null;
-
             // read arguments
             if (!args.TryGetInt(1, "item ID", out int id, min: 0))
-                return;
-
-            ItemType type = (ItemType)Enum.Parse(typeof(ItemType), rawType, ignoreCase: true);
+                return null;
 
             // find matching item
-            match = this.Items.GetAll().FirstOrDefault(p => p.Type == type && p.ID == id);
-
-            if (match == null)
-            {
+            SearchableItem item = this.Items.GetAll().FirstOrDefault(p => p.Type == type && p.ID == id);
+            if (item == null)
                 monitor.Log($"There's no {type} item with ID {id}.", LogLevel.Error);
-            }
+            return item;
         }
 
-        /// <summary>Finds a matching item by name.</summary>
+        /// <summary>Get a matching item by its name.</summary>
         /// <param name="monitor">Writes messages to the console and log file.</param>
         /// <param name="args">The command arguments.</param>
-        /// <param name="name">The item name.</param>
-        /// <param name="match">The matching item.</param>
-        private void FindItemByName(IMonitor monitor, ArgumentParser args, out SearchableItem match)
+        private SearchableItem FindItemByName(IMonitor monitor, ArgumentParser args)
         {
-            match = null;
-
             // read arguments
             if (!args.TryGet(1, "item name", out string name))
-                return;
+                return null;
 
             // find matching items
-            IEnumerable<SearchableItem> matching = this.Items.GetAll().Where(p => p.DisplayName.IndexOf(name, StringComparison.InvariantCultureIgnoreCase) != -1);
-            match = matching.FirstOrDefault(item => item.DisplayName.Equals(name, StringComparison.InvariantCultureIgnoreCase));
-
-            // handle unique requirement
-            if (match != null)
+            SearchableItem[] matches = this.Items.GetAll().Where(p => p.NameContains(name)).ToArray();
+            switch (matches.Length)
             {
-                return;
-            }
+                // none found
+                case 0:
+                    monitor.Log($"There's no item with name '{name}'. You can use the 'list_items [name]' command to search for items.", LogLevel.Error);
+                    return null;
 
-            int numberOfMatches = matching.Count();
+                // exact match
+                case 1 when matches[0].NameEquivalentTo(name):
+                    return matches[0];
 
-            if (numberOfMatches == 0)
-            {
-                monitor.Log($"There's no item with name '{name}'. You can use the 'list_items [name]' command to search for items.", LogLevel.Error);
-            }
-            else if (numberOfMatches == 1)
-            {
-                monitor.Log($"There's no item with name '{name}'. Did you mean '{matching.ElementAt(0).DisplayName}'? If so, type 'player_add name {matching.ElementAt(0).DisplayName}'.", LogLevel.Error);
-            }
-            else
-            {
-                string options = this.GetTableString(matching, new string[] { "type", "name", "command" }, item => new string[] { item.Type.ToString(), item.DisplayName, $"player_add {item.Type} {item.ID}" });
-
-                monitor.Log($"Found multiple item names containing '{name}'. Type one of these commands for the one you want:", LogLevel.Error);
-                monitor.Log($"\n{options}", LogLevel.Info);
+                // list matches
+                default:
+                    string options = this.GetTableString(
+                        data: matches,
+                        header: new[] { "type", "name", "command" },
+                        getRow: item => new[] { item.Type.ToString(), item.DisplayName, $"player_add {item.Type} {item.ID}" }
+                    );
+                    monitor.Log($"There's no item with name '{name}'. Do you mean one of these?\n\n{options}", LogLevel.Info);
+                    return null;
             }
         }
 
+        /// <summary>Get the command description.</summary>
         private static string GetDescription()
         {
             string[] typeValues = Enum.GetNames(typeof(ItemType));
             return "Gives the player an item.\n"
                 + "\n"
-                + "Usage: player_add <type> (<item>|<name>) [count] [quality]\n"
-                + $"- type: the item type (either Name or one of {string.Join(", ", typeValues)}).\n"
+                + "Usage: player_add <type> <item> [count] [quality]\n"
+                + $"- type: the item type (one of {string.Join(", ", typeValues)}).\n"
                 + "- item: the item ID (use the 'list_items' command to see a list).\n"
-                + "- name: the display name of the item (when using type Name).\n"
                 + "- count (optional): how many of the item to give.\n"
                 + $"- quality (optional): one of {Object.lowQuality} (normal), {Object.medQuality} (silver), {Object.highQuality} (gold), or {Object.bestQuality} (iridium).\n"
                 + "\n"
-                + "This example adds the galaxy sword to your inventory:\n"
-                + "  player_add weapon 4";
+                + "Usage: player_add name \"<name>\" [count] [quality]\n"
+                + "- name: the item name to search (use the 'list_items' command to see a list). This will add the item immediately if it's an exact match, else show a table of matching items.\n"
+                + "- count (optional): how many of the item to give.\n"
+                + $"- quality (optional): one of {Object.lowQuality} (normal), {Object.medQuality} (silver), {Object.highQuality} (gold), or {Object.bestQuality} (iridium).\n"
+                + "\n"
+                + "These examples both add the galaxy sword to your inventory:\n"
+                + "  player_add weapon 4\n"
+                + "  player_add name \"Galaxy Sword\"";
         }
     }
 }
