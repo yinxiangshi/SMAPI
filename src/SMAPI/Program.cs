@@ -448,6 +448,9 @@ namespace StardewModdingAPI
                     if (string.IsNullOrWhiteSpace(input))
                         continue;
 
+                    // write input to log file
+                    this.Monitor.LogUserInputToFile(input);
+
                     // parse input
                     try
                     {
