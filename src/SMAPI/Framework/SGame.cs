@@ -533,7 +533,7 @@ namespace StardewModdingAPI.Framework
                             if (this.VerboseLogging)
                                 this.Monitor.Log("Context: current location objects changed.", LogLevel.Trace);
 
-                            this.Events.Location_LocationObjectsChanged.Raise(new EventArgsLocationObjectsChanged(curPlayer.GetCurrentLocation().objects.FieldDict));
+                            this.Events.Location_LocationObjectsChanged.Raise(new EventArgsLocationObjectsChanged(curPlayer.GetCurrentLocation().netObjects.FieldDict));
                         }
 
                         // raise time changed

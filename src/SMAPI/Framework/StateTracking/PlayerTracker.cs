@@ -62,7 +62,7 @@ namespace StardewModdingAPI.Framework.StateTracking
 
             // init trackers
             this.LocationWatcher = WatcherFactory.ForReference(this.GetCurrentLocation);
-            this.LocationObjectsWatcher = WatcherFactory.ForNetDictionary(this.GetCurrentLocation().objects);
+            this.LocationObjectsWatcher = WatcherFactory.ForNetDictionary(this.GetCurrentLocation().netObjects);
             this.MineLevelWatcher = WatcherFactory.ForEquatable(() => this.LastValidLocation is MineShaft mine ? mine.mineLevel : 0);
             this.SkillWatchers = new Dictionary<EventArgsLevelUp.LevelType, IValueWatcher<int>>
             {
@@ -100,7 +100,7 @@ namespace StardewModdingAPI.Framework.StateTracking
                 this.Watchers.Remove(this.LocationObjectsWatcher);
                 this.LocationObjectsWatcher.Dispose();
 
-                this.LocationObjectsWatcher = WatcherFactory.ForNetDictionary(this.GetCurrentLocation().objects);
+                this.LocationObjectsWatcher = WatcherFactory.ForNetDictionary(this.GetCurrentLocation().netObjects);
                 this.Watchers.Add(this.LocationObjectsWatcher);
             }
 
