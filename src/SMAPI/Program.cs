@@ -449,7 +449,7 @@ namespace StardewModdingAPI
                         continue;
 
                     // write input to log file
-                    this.Monitor.LogUserInputToFile(input);
+                    this.Monitor.LogUserInput(input);
 
                     // parse input
                     try

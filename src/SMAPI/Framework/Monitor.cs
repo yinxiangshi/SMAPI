@@ -100,10 +100,11 @@ namespace StardewModdingAPI.Framework
                 this.LogFile.WriteLine("");
         }
 
-        /// <summary>Writes user input to the log file.</summary>
-        /// <param name="input">The input to write.</param>
-        internal void LogUserInputToFile(string input)
+        /// <summary>Log console input from the user.</summary>
+        /// <param name="input">The user input to log.</param>
+        internal void LogUserInput(string input)
         {
+            // user input already appears in the console, so just need to write to file
             if (this.WriteToFile)
             {
                 string prefix = this.GenerateMessagePrefix(this.Source, LogLevel.Info);
@@ -158,7 +159,7 @@ namespace StardewModdingAPI.Framework
                 this.LogFile.WriteLine(fullMessage);
         }
 
-        /// <summary>Generates a message prefix for the current time.</summary>
+        /// <summary>Generate a message prefix for the current time.</summary>
         /// <param name="source">The name of the mod logging the message.</param>
         /// <param name="level">The log level.</param>
         private string GenerateMessagePrefix(string source, LogLevel level)

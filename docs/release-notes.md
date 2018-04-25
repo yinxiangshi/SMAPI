@@ -13,6 +13,7 @@
   * Added `Context.IsMultiplayer` and `Context.IsMainPlayer` flags.
   * Fixed assets loaded by temporary content managers not being editable.
   * Fixed issue where assets didn't reload correctly when the player switches language.
+  * Fixed user command input not saved to log file.
   * Fixed `helper.ModRegistry.GetApi` interface validation errors not mentioning which interface caused the issue.
   * **Breaking change**: dropped some deprecated APIs.
   * **Breaking change**: mods can't intercept chatbox input, including the game's hotkey to toggle the chatbox (default `T`).
