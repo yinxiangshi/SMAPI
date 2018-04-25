@@ -48,9 +48,6 @@ namespace StardewModdingAPI.Framework
         /// <summary>Whether to write anything to the console. This should be disabled if no console is available.</summary>
         internal bool WriteToConsole { get; set; } = true;
 
-        /// <summary>Whether to write anything to the log file. This should almost always be enabled.</summary>
-        internal bool WriteToFile { get; set; } = true;
-
 
         /*********
         ** Public methods
@@ -96,8 +93,7 @@ namespace StardewModdingAPI.Framework
         {
             if (this.WriteToConsole)
                 this.ConsoleManager.ExclusiveWriteWithoutInterception(Console.WriteLine);
-            if (this.WriteToFile)
-                this.LogFile.WriteLine("");
+            this.LogFile.WriteLine("");
         }
 
         /// <summary>Log console input from the user.</summary>
@@ -105,11 +101,8 @@ namespace StardewModdingAPI.Framework
         internal void LogUserInput(string input)
         {
             // user input already appears in the console, so just need to write to file
-            if (this.WriteToFile)
-            {
-                string prefix = this.GenerateMessagePrefix(this.Source, LogLevel.Info);
-                this.LogFile.WriteLine($"{prefix} $>{input}");
-            }
+            string prefix = this.GenerateMessagePrefix(this.Source, LogLevel.Info);
+            this.LogFile.WriteLine($"{prefix} $>{input}");
         }
 
 
@@ -155,8 +148,7 @@ namespace StardewModdingAPI.Framework
             }
 
             // write to log file
-            if (this.WriteToFile)
-                this.LogFile.WriteLine(fullMessage);
+            this.LogFile.WriteLine(fullMessage);
         }
 
         /// <summary>Generate a message prefix for the current time.</summary>
