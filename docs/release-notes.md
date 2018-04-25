@@ -18,6 +18,9 @@
   * **Breaking change**: dropped some deprecated APIs.
   * **Breaking change**: mods can't intercept chatbox input, including the game's hotkey to toggle the chatbox (default `T`).
 
+* For the log parser:
+  * The pufferchick is now more stylish.
+
 * For SMAPI developers:
   * Added more consistent crossplatform handling using a new `EnvironmentUtility`.
   * Added MacOS detection.
