@@ -351,7 +351,7 @@ namespace StardewModdingAPI.Metadata
             // update sprites
             Texture2D texture = content.Load<Texture2D>(key);
             foreach (TAnimal animal in animals)
-                this.SetSpriteTexture(animal.sprite, texture);
+                this.SetSpriteTexture(animal.Sprite, texture);
             return true;
         }
 
@@ -374,8 +374,8 @@ namespace StardewModdingAPI.Metadata
                 // get expected key
                 string expectedKey = animal.age.Value < animal.ageWhenMature.Value
                     ? $"Baby{(animal.type.Value == "Duck" ? "White Chicken" : animal.type.Value)}"
-                    : animal.type;
-                if (animal.showDifferentTextureWhenReadyForHarvest && animal.currentProduce.Value <= 0)
+                    : animal.type.Value;
+                if (animal.showDifferentTextureWhenReadyForHarvest.Value && animal.currentProduce.Value <= 0)
                     expectedKey = $"Sheared{expectedKey}";
                 expectedKey = $"Animals\\{expectedKey}";
 
@@ -426,7 +426,7 @@ namespace StardewModdingAPI.Metadata
                     from location in this.GetLocations()
                     from fence in location.Objects.Values.OfType<Fence>()
                     where fenceType == 1
-                        ? fence.isGate
+                        ? fence.isGate.Value
                         : fence.whichType.Value == fenceType
                     select fence
                 )
@@ -562,7 +562,7 @@ namespace StardewModdingAPI.Metadata
                 {
                     foreach (Building building in buildableLocation.buildings)
                     {
-                        GameLocation indoors = building.indoors;
+                        GameLocation indoors = building.indoors.Value;
                         if (indoors != null)
                             yield return indoors;
                     }
