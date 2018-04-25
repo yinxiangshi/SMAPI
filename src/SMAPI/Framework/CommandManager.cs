@@ -72,7 +72,7 @@ namespace StardewModdingAPI.Framework
             if (string.IsNullOrWhiteSpace(input))
                 return false;
 
-            string[] args = input.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] args = this.ParseArgs(input);
             string name = args[0];
             args = args.Skip(1).ToArray();
 
@@ -103,6 +103,35 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Private methods
         *********/
+        /// <summary>
+        /// Parses a string into an array of arguments.
+        /// </summary>
+        /// <param name="input">The string to parse.</param>
+        private string[] ParseArgs(string input)
+        {
+            bool inQuotes = false;
+            IList<string> args = new List<string>();
+            IList<char> currentArg = new List<char>();
+            foreach (char c in input)
+            {
+                if (c == '"')
+                {
+                    inQuotes = !inQuotes;
+                }
+                else if (!inQuotes && char.IsWhiteSpace(c))
+                {
+                    args.Add(string.Concat(currentArg));
+                    currentArg.Clear();
+                }
+                else
+                    currentArg.Add(c);
+            }
+
+            args.Add(string.Concat(currentArg));
+
+            return args.Where(item => !string.IsNullOrWhiteSpace(item)).ToArray();
+        }
+
         /// <summary>Get a normalised command name.</summary>
         /// <param name="name">The command name.</param>
         private string GetNormalisedName(string name)
