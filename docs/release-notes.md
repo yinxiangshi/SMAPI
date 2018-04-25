@@ -2,7 +2,6 @@
 ## 2.6 alpha
 * For players:
   * Added support for Stardew Valley 1.3+; no longer compatible with earlier versions.
-  * Added `Context.IsMultiplayer` and `Context.IsMainPlayer` flags.
   * Added warning for mods which don't have update checks configured.
   * Fixed SMAPI update checks not showing newer beta versions when using a beta version.
   * Fixed console color scheme on Mac or PowerShell, and added override option to `StardewModdingAPI.config.json`.
@@ -10,6 +9,7 @@
 
 * For modders:
   * Added code analysis to mod build config package to flag common issues as warnings.
+  * Added `Context.IsMultiplayer` and `Context.IsMainPlayer` flags.
   * Fixed assets loaded by temporary content managers not being editable.
   * Fixed issue where assets didn't reload correctly when the player switches language.
   * Fixed `helper.ModRegistry.GetApi` interface validation errors not mentioning which interface caused the issue.
