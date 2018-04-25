@@ -126,6 +126,9 @@ namespace StardewModdingAPI.Framework
                 else
                     currentArg.Add(c);
             }
+
+            args.Add(string.Concat(currentArg));
+
             return args.Where(item => !string.IsNullOrWhiteSpace(item)).ToArray();
         }
 
