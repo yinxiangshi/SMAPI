@@ -3,6 +3,7 @@
 * For players:
   * Added support for Stardew Valley 1.3+; no longer compatible with earlier versions.
   * Added warning for mods which don't have update checks configured.
+  * Added friendly error when game can't start audio.
   * Fixed detection of GOG install path in rare cases.
   * Fixed SMAPI update checks not showing newer beta versions when using a beta version.
   * Fixed console color scheme on Mac or PowerShell, and added override option to `StardewModdingAPI.config.json`.

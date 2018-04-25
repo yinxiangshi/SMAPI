@@ -259,6 +259,12 @@ namespace StardewModdingAPI
                 StardewValley.Program.releaseBuild = true; // game's debug logic interferes with SMAPI opening the game window
                 this.GameInstance.Run();
             }
+            catch (InvalidOperationException ex) when (ex.Source == "Microsoft.Xna.Framework.Xact" && ex.StackTrace.Contains("Microsoft.Xna.Framework.Audio.AudioEngine..ctor"))
+            {
+                this.Monitor.Log("The game couldn't load audio. Do you have speakers or headphones plugged in?", LogLevel.Error);
+                this.Monitor.Log($"Technical details: {ex.GetLogSummary()}", LogLevel.Trace);
+                this.PressAnyKeyToExit();
+            }
             catch (Exception ex)
             {
                 this.Monitor.Log($"The game failed unexpectedly: {ex.GetLogSummary()}", LogLevel.Error);
