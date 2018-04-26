@@ -22,6 +22,12 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
   "CheckForUpdates": true,
 
   /**
+   * Whether SMAPI should show newer beta versions as an available update. If not specified, SMAPI
+   * will only show beta updates if the current version is beta.
+   */
+  //"UseBetaChannel": true,
+
+  /**
    * SMAPI's GitHub project name, used to perform update checks.
    */
   "GitHubProjectName": "Pathoschild/SMAPI",

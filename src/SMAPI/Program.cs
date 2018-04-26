@@ -550,15 +550,18 @@ namespace StardewModdingAPI
                 try
                 {
                     ModInfoModel response = client.GetModInfo($"GitHub:{this.Settings.GitHubProjectName}").Single().Value;
+                    ISemanticVersion latestStable = response.Version != null ? new SemanticVersion(response.Version) : null;
+                    ISemanticVersion latestBeta = response.PreviewVersion != null ? new SemanticVersion(response.PreviewVersion) : null;
+
                     if (response.Error != null)
                     {
                         this.Monitor.Log("Couldn't check for a new version of SMAPI. This won't affect your game, but you may not be notified of new versions if this keeps happening.", LogLevel.Warn);
                         this.Monitor.Log($"Error: {response.Error}");
                     }
-                    else if (this.IsValidUpdate(Constants.ApiVersion, new SemanticVersion(response.Version)))
-                        this.Monitor.Log($"You can update SMAPI to {response.Version}: {Constants.HomePageUrl}", LogLevel.Alert);
-                    else if (response.PreviewVersion != null && this.IsValidUpdate(Constants.ApiVersion, new SemanticVersion(response.PreviewVersion)))
-                        this.Monitor.Log($"You can update SMAPI to {response.PreviewVersion}: {Constants.HomePageUrl}", LogLevel.Alert);
+                    else if (this.IsValidUpdate(Constants.ApiVersion, latestBeta, this.Settings.UseBetaChannel))
+                        this.Monitor.Log($"You can update SMAPI to {latestBeta}: {Constants.HomePageUrl}", LogLevel.Alert);
+                    else if (this.IsValidUpdate(Constants.ApiVersion, latestStable, this.Settings.UseBetaChannel))
+                        this.Monitor.Log($"You can update SMAPI to {latestStable}: {Constants.HomePageUrl}", LogLevel.Alert);
                     else
                         this.Monitor.Log("   SMAPI okay.", LogLevel.Trace);
                 }
@@ -658,22 +661,12 @@ namespace StardewModdingAPI
         /// <summary>Get whether a given version should be offered to the user as an update.</summary>
         /// <param name="currentVersion">The current semantic version.</param>
         /// <param name="newVersion">The target semantic version.</param>
-        private bool IsValidUpdate(ISemanticVersion currentVersion, ISemanticVersion newVersion)
+        /// <param name="useBetaChannel">Whether the user enabled the beta channel and should be offered pre-release updates.</param>
+        private bool IsValidUpdate(ISemanticVersion currentVersion, ISemanticVersion newVersion, bool useBetaChannel)
         {
-            // basic eligibility
-            bool isNewer = newVersion.IsNewerThan(currentVersion);
-            bool isPrerelease = newVersion.Build != null;
-            bool isEquallyStable = !isPrerelease || currentVersion.Build != null; // don't update stable => prerelease
-            if (!isNewer || !isEquallyStable)
-                return false;
-            if (!isPrerelease)
-                return true;
-
-            // prerelease eligible if same version (excluding prerelease tag)
             return
-                newVersion.MajorVersion == currentVersion.MajorVersion
-                && newVersion.MinorVersion == currentVersion.MinorVersion
-                && newVersion.PatchVersion == currentVersion.PatchVersion;
+                newVersion.IsNewerThan(currentVersion)
+                && (useBetaChannel || newVersion.Build == null);
         }
 
         /// <summary>Create a directory path if it doesn't exist.</summary>
