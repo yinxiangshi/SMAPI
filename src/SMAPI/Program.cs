@@ -665,7 +665,8 @@ namespace StardewModdingAPI
         private bool IsValidUpdate(ISemanticVersion currentVersion, ISemanticVersion newVersion, bool useBetaChannel)
         {
             return
-                newVersion.IsNewerThan(currentVersion)
+                newVersion != null
+                && newVersion.IsNewerThan(currentVersion)
                 && (useBetaChannel || newVersion.Build == null);
         }
 
