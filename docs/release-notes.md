@@ -1,34 +1,32 @@
 # Release notes
-## 2.6 alpha
+## 2.6 beta
 * For players:
-  * Added support for Stardew Valley 1.3+; no longer compatible with earlier versions.
-  * Added warning for mods which don't have update checks configured.
-  * Added friendly error when game can't start audio.
+  * Updated for Stardew Valley 1.3 (no longer compatible with earlier versions).
   * Added beta update channel.
-  * Fixed detection of GOG install path in rare cases.
-  * Fixed console color scheme on Mac or PowerShell, and added override option to `StardewModdingAPI.config.json`.
-  * Fixed `world_settime` console command sometimes breaking NPC schedules (e.g. so they stay in bed).
+  * Added friendly error when game can't start audio.
+  * Added console warning for mods which don't have update checks configured.
+  * Fixed console color scheme on Mac or in PowerShell, configurable via `StardewModdingAPI.config.json`.
+  * Fixed detection of GOG Galaxy install path in rare cases.
 
 * For modders:
   * Added code analysis to mod build config package to flag common issues as warnings.
   * Added `Context.IsMultiplayer` and `Context.IsMainPlayer` flags.
-  * Added `player_add name` console command, which lets you add items to your inventory by name instead of ID.
-  * Fixed assets loaded by temporary content managers not being editable.
-  * Fixed issue where assets didn't reload correctly when the player switches language.
-  * Fixed user command input not saved to log file.
+  * Fixed assets loaded by temporary content managers not being editable by mods.
+  * Fixed assets not reloaded consistently when the player switches language.
+  * Fixed console command input not saved to the log.
   * Fixed `helper.ModRegistry.GetApi` interface validation errors not mentioning which interface caused the issue.
   * **Breaking change**: dropped some deprecated APIs.
-  * **Breaking change**: mods can't intercept chatbox input, including the game's hotkey to toggle the chatbox (default `T`).
+  * **Breaking change**: mods can't intercept chatbox input, including the game's hotkeys to toggle the chatbox (default `T` and `?`).
 
-* For the log parser:
-  * The pufferchick is now more stylish.
+* In console commands:
+  * Added `player_add name`, which lets you add items to your inventory by name instead of ID.
+  * Fixed `world_settime` sometimes breaking NPC schedules (e.g. so they stay in bed).
 
 * For SMAPI developers:
-  * Added more consistent crossplatform handling using a new `EnvironmentUtility`.
-  * Added MacOS detection.
-  * Added prerelease versions to the mod update-check API response where available (GitHub only).
-  * Added support for beta releases on the home page.
-  * Split mod DB out of `StardewModdingAPI.config.json`, so we can load config earlier and reduce unnecessary memory usage later.
+  * Added more consistent crossplatform handling using a new `EnvironmentUtility`, including MacOS detection.
+  * Added beta update channel to SMAPI, the web API, and home page.
+  * Added more stylish pufferchick on the home page.
+  * Split mod DB out of `StardewModdingAPI.config.json` into its own file.
   * Rewrote input suppression using new SDV 1.3 APIs.
   * Rewrote world/player state tracking:
     * much more efficient than previous method;
