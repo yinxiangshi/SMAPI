@@ -1561,6 +1561,12 @@
       "Default | UpdateKey": "Nexus:691"
     },
 
+    "Summit Rain Fix": {
+      "ID": "KoihimeNakamura.summitreborn",
+      "FormerIDs": "emissaryofinfinity.summitreborn", // changed in 1.0.2
+      "~1.0.2 | Status": "AssumeBroken" // broke in SDV 1.3 (runtime errors)
+    },
+
     "Super Greenhouse Warp Modifier": {
       "ID": "SuperGreenhouse",
       "Default | UpdateKey": "Chucklefish:4334",
