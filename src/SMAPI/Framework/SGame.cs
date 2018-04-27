@@ -23,7 +23,6 @@ using StardewValley.Menus;
 using StardewValley.Tools;
 using xTile.Dimensions;
 using xTile.Layers;
-using SFarmer = StardewValley.Farmer;
 using SObject = StardewValley.Object;
 
 namespace StardewModdingAPI.Framework
@@ -872,10 +871,10 @@ namespace StardewModdingAPI.Framework
                             Game1.mapDisplayDevice.BeginScene(Game1.spriteBatch);
                             Game1.currentLocation.Map.GetLayer("Back").Draw(Game1.mapDisplayDevice, Game1.viewport, Location.Origin, false, 4);
                             Game1.currentLocation.drawWater(Game1.spriteBatch);
-                            IEnumerable<SFarmer> source = Game1.currentLocation.farmers;
+                            IEnumerable<Farmer> source = Game1.currentLocation.farmers;
                             if (Game1.currentLocation.currentEvent != null && !Game1.currentLocation.currentEvent.isFestival && Game1.currentLocation.currentEvent.farmerActors.Count > 0)
-                                source = (IEnumerable<SFarmer>)Game1.currentLocation.currentEvent.farmerActors;
-                            IEnumerable<SFarmer> farmers = source.Where<SFarmer>((Func<SFarmer, bool>)(farmer =>
+                                source = (IEnumerable<Farmer>)Game1.currentLocation.currentEvent.farmerActors;
+                            IEnumerable<Farmer> farmers = source.Where<Farmer>((Func<Farmer, bool>)(farmer =>
                             {
                                 if (!farmer.IsLocalPlayer)
                                     return !(bool)((NetFieldBase<bool, NetBool>)farmer.hidden);
@@ -899,7 +898,7 @@ namespace StardewModdingAPI.Framework
                                             Game1.spriteBatch.Draw(Game1.shadowTexture, Game1.GlobalToLocal(Game1.viewport, actor.Position + new Vector2((float)(actor.Sprite.SpriteWidth * 4) / 2f, (float)(actor.GetBoundingBox().Height + (actor.IsMonster ? 0 : (actor.Sprite.SpriteHeight <= 16 ? -4 : 12))))), new Microsoft.Xna.Framework.Rectangle?(Game1.shadowTexture.Bounds), Color.White, 0.0f, new Vector2((float)Game1.shadowTexture.Bounds.Center.X, (float)Game1.shadowTexture.Bounds.Center.Y), (float)(4.0 + (double)actor.yJumpOffset / 40.0) * (float)((NetFieldBase<float, NetFloat>)actor.scale), SpriteEffects.None, Math.Max(0.0f, (float)actor.getStandingY() / 10000f) - 1E-06f);
                                     }
                                 }
-                                foreach (SFarmer farmer in farmers)
+                                foreach (Farmer farmer in farmers)
                                 {
                                     if (!(bool)((NetFieldBase<bool, NetBool>)farmer.swimming) && !farmer.isRidingHorse() && (Game1.currentLocation == null || !Game1.currentLocation.shouldShadowBeDrawnAboveBuildingsLayer(farmer.getTileLocation())))
                                     {
@@ -943,7 +942,7 @@ namespace StardewModdingAPI.Framework
                                             Game1.spriteBatch.Draw(Game1.shadowTexture, Game1.GlobalToLocal(Game1.viewport, actor.Position + new Vector2((float)(actor.Sprite.SpriteWidth * 4) / 2f, (float)(actor.GetBoundingBox().Height + (actor.IsMonster ? 0 : 12)))), new Microsoft.Xna.Framework.Rectangle?(Game1.shadowTexture.Bounds), Color.White, 0.0f, new Vector2((float)Game1.shadowTexture.Bounds.Center.X, (float)Game1.shadowTexture.Bounds.Center.Y), (float)(4.0 + (double)actor.yJumpOffset / 40.0) * (float)((NetFieldBase<float, NetFloat>)actor.scale), SpriteEffects.None, Math.Max(0.0f, (float)actor.getStandingY() / 10000f) - 1E-06f);
                                     }
                                 }
-                                foreach (SFarmer farmer in farmers)
+                                foreach (Farmer farmer in farmers)
                                 {
                                     if (!(bool)((NetFieldBase<bool, NetBool>)farmer.swimming) && !farmer.isRidingHorse() && (Game1.currentLocation != null && Game1.currentLocation.shouldShadowBeDrawnAboveBuildingsLayer(farmer.getTileLocation())))
                                     {

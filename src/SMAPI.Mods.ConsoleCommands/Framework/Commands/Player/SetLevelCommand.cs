@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using StardewValley;
-using SFarmer = StardewValley.Farmer;
 
 namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
 {
@@ -11,7 +10,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
         ** Properties
         *********/
         /// <summary>The experience points needed to reach each level.</summary>
-        /// <remarks>Derived from <see cref="SFarmer.checkForLevelGain"/>.</remarks>
+        /// <remarks>Derived from <see cref="Farmer.checkForLevelGain"/>.</remarks>
         private readonly IDictionary<int, int> LevelExp = new Dictionary<int, int>
         {
             [0] = 0,
@@ -52,37 +51,37 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
             {
                 case "luck":
                     Game1.player.LuckLevel = level;
-                    Game1.player.experiencePoints[SFarmer.luckSkill] = this.LevelExp[level];
+                    Game1.player.experiencePoints[Farmer.luckSkill] = this.LevelExp[level];
                     monitor.Log($"OK, your luck skill is now {Game1.player.LuckLevel}.", LogLevel.Info);
                     break;
 
                 case "mining":
                     Game1.player.MiningLevel = level;
-                    Game1.player.experiencePoints[SFarmer.miningSkill] = this.LevelExp[level];
+                    Game1.player.experiencePoints[Farmer.miningSkill] = this.LevelExp[level];
                     monitor.Log($"OK, your mining skill is now {Game1.player.MiningLevel}.", LogLevel.Info);
                     break;
 
                 case "combat":
                     Game1.player.CombatLevel = level;
-                    Game1.player.experiencePoints[SFarmer.combatSkill] = this.LevelExp[level];
+                    Game1.player.experiencePoints[Farmer.combatSkill] = this.LevelExp[level];
                     monitor.Log($"OK, your combat skill is now {Game1.player.CombatLevel}.", LogLevel.Info);
                     break;
 
                 case "farming":
                     Game1.player.FarmingLevel = level;
-                    Game1.player.experiencePoints[SFarmer.farmingSkill] = this.LevelExp[level];
+                    Game1.player.experiencePoints[Farmer.farmingSkill] = this.LevelExp[level];
                     monitor.Log($"OK, your farming skill is now {Game1.player.FarmingLevel}.", LogLevel.Info);
                     break;
 
                 case "fishing":
                     Game1.player.FishingLevel = level;
-                    Game1.player.experiencePoints[SFarmer.fishingSkill] = this.LevelExp[level];
+                    Game1.player.experiencePoints[Farmer.fishingSkill] = this.LevelExp[level];
                     monitor.Log($"OK, your fishing skill is now {Game1.player.FishingLevel}.", LogLevel.Info);
                     break;
 
                 case "foraging":
                     Game1.player.ForagingLevel = level;
-                    Game1.player.experiencePoints[SFarmer.foragingSkill] = this.LevelExp[level];
+                    Game1.player.experiencePoints[Farmer.foragingSkill] = this.LevelExp[level];
                     monitor.Log($"OK, your foraging skill is now {Game1.player.ForagingLevel}.", LogLevel.Info);
                     break;
             }

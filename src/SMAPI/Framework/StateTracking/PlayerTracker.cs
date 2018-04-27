@@ -6,7 +6,6 @@ using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.StateTracking.FieldWatchers;
 using StardewValley;
 using StardewValley.Locations;
-using SFarmer = StardewValley.Farmer;
 using SObject = StardewValley.Object;
 
 namespace StardewModdingAPI.Framework.StateTracking
@@ -34,7 +33,7 @@ namespace StardewModdingAPI.Framework.StateTracking
         ** Accessors
         *********/
         /// <summary>The player being tracked.</summary>
-        public SFarmer Player { get; }
+        public Farmer Player { get; }
 
         /// <summary>The player's current location.</summary>
         public IValueWatcher<GameLocation> LocationWatcher { get; }
@@ -54,7 +53,7 @@ namespace StardewModdingAPI.Framework.StateTracking
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="player">The player to track.</param>
-        public PlayerTracker(SFarmer player)
+        public PlayerTracker(Farmer player)
         {
             // init player data
             this.Player = player;

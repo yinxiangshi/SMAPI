@@ -19,7 +19,6 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
             using StardewValley;
             using Netcode;
             using SObject = StardewValley.Object;
-            using SFarmer = StardewValley.Farmer;
 
             namespace SampleMod
             {
@@ -34,7 +33,7 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
         ";
 
         /// <summary>The line number where the unit tested code is injected into <see cref="SampleProgram"/>.</summary>
-        private const int SampleCodeLine = 14;
+        private const int SampleCodeLine = 13;
 
         /// <summary>The column number where the unit tested code is injected into <see cref="SampleProgram"/>.</summary>
         private const int SampleCodeColumn = 25;
