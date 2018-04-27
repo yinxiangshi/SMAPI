@@ -157,6 +157,7 @@ namespace StardewModdingAPI
             LocationEvents.Init(this.EventManager);
             MenuEvents.Init(this.EventManager);
             MineEvents.Init(this.EventManager);
+            MultiplayerEvents.Init(this.EventManager);
             PlayerEvents.Init(this.EventManager);
             SaveEvents.Init(this.EventManager);
             SpecialisedEvents.Init(this.EventManager);

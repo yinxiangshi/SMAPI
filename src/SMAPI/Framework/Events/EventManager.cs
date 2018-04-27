@@ -126,6 +126,21 @@ namespace StardewModdingAPI.Framework.Events
         public readonly ManagedEvent<EventArgsClickableMenuClosed> Menu_Closed;
 
         /****
+        ** MultiplayerEvents
+        ****/
+        /// <summary>Raised before the game syncs changes from other players.</summary>
+        public readonly ManagedEvent Multiplayer_BeforeMainSync;
+
+        /// <summary>Raised after the game syncs changes from other players.</summary>
+        public readonly ManagedEvent Multiplayer_AfterMainSync;
+
+        /// <summary>Raised before the game broadcasts changes to other players.</summary>
+        public readonly ManagedEvent Multiplayer_BeforeMainBroadcast;
+
+        /// <summary>Raised after the game broadcasts changes to other players.</summary>
+        public readonly ManagedEvent Multiplayer_AfterMainBroadcast;
+
+        /****
         ** MineEvents
         ****/
         /// <summary>Raised after the player warps to a new level of the mine.</summary>
@@ -227,6 +242,11 @@ namespace StardewModdingAPI.Framework.Events
 
             this.Menu_Changed = ManageEventOf<EventArgsClickableMenuChanged>(nameof(MenuEvents), nameof(MenuEvents.MenuChanged));
             this.Menu_Closed = ManageEventOf<EventArgsClickableMenuClosed>(nameof(MenuEvents), nameof(MenuEvents.MenuClosed));
+
+            this.Multiplayer_BeforeMainBroadcast = ManageEvent(nameof(MultiplayerEvents), nameof(MultiplayerEvents.BeforeMainBroadcast));
+            this.Multiplayer_AfterMainBroadcast = ManageEvent(nameof(MultiplayerEvents), nameof(MultiplayerEvents.AfterMainBroadcast));
+            this.Multiplayer_BeforeMainSync = ManageEvent(nameof(MultiplayerEvents), nameof(MultiplayerEvents.BeforeMainSync));
+            this.Multiplayer_AfterMainSync = ManageEvent(nameof(MultiplayerEvents), nameof(MultiplayerEvents.AfterMainSync));
 
             this.Mine_LevelChanged = ManageEventOf<EventArgsMineLevelChanged>(nameof(MineEvents), nameof(MineEvents.MineLevelChanged));
 

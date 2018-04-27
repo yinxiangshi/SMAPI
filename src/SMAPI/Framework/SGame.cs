@@ -155,6 +155,7 @@ namespace StardewModdingAPI.Framework
             if (this.ContentCore == null) // shouldn't happen since CreateContentManager is called first, but let's init here just in case
                 this.ContentCore = new ContentCore(this.Content.ServiceProvider, this.Content.RootDirectory, Thread.CurrentThread.CurrentUICulture, this.Monitor, reflection);
             Game1.input = new SInputState();
+            Game1.multiplayer = new SMultiplayer(monitor, eventManager);
 
             // init watchers
             Game1.locations = new ObservableCollection<GameLocation>();

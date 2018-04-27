@@ -85,6 +85,7 @@
     <Compile Include="..\..\build\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Events\MultiplayerEvents.cs" />
     <Compile Include="Framework\Events\EventManager.cs" />
     <Compile Include="Framework\Events\ManagedEvent.cs" />
     <Compile Include="Events\SpecialisedEvents.cs" />
@@ -132,6 +133,7 @@
     <Compile Include="Framework\Serialisation\CrossplatformConverters\RectangleConverter.cs" />
     <Compile Include="Framework\Serialisation\CrossplatformConverters\ColorConverter.cs" />
     <Compile Include="Framework\Serialisation\CrossplatformConverters\PointConverter.cs" />
+    <Compile Include="Framework\SMultiplayer.cs" />
     <Compile Include="Framework\StateTracking\Comparers\EquatableComparer.cs" />
     <Compile Include="Framework\StateTracking\Comparers\ObjectReferenceComparer.cs" />
     <Compile Include="Framework\StateTracking\FieldWatchers\BaseDisposableWatcher.cs" />
