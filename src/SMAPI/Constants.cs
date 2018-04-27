@@ -41,7 +41,7 @@ namespace StardewModdingAPI
         public static ISemanticVersion ApiVersion { get; } = new SemanticVersion("2.6-beta");
 
         /// <summary>The minimum supported version of Stardew Valley.</summary>
-        public static ISemanticVersion MinimumGameVersion { get; } = new GameVersion("1.3.0.38");
+        public static ISemanticVersion MinimumGameVersion { get; } = new GameVersion("1.3.1");
 
         /// <summary>The maximum supported version of Stardew Valley.</summary>
         public static ISemanticVersion MaximumGameVersion { get; } = null;
