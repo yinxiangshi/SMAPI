@@ -59,7 +59,7 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
         /// <param name="expression">The expression which should be reported.</param>
         /// <param name="fromType">The source type name which should be reported.</param>
         /// <param name="toType">The target type name which should be reported.</param>
-        [TestCase("Item item = null; if (item.netIntField < 42);", 22, "item.netIntField", "NetInt", "int")]
+        [TestCase("Item item = null; if (item.netIntField < 42);", 22, "item.netIntField", "NetInt", "int")] // ↓ implicit conversion
         [TestCase("Item item = null; if (item.netIntField <= 42);", 22, "item.netIntField", "NetInt", "int")]
         [TestCase("Item item = null; if (item.netIntField > 42);", 22, "item.netIntField", "NetInt", "int")]
         [TestCase("Item item = null; if (item.netIntField >= 42);", 22, "item.netIntField", "NetInt", "int")]
@@ -79,7 +79,7 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
         [TestCase("Item item = null; if (item.netRefField != null);", 22, "item.netRefField", "NetRef", "object")]
         [TestCase("Item item = null; if (item.netRefProperty == null);", 22, "item.netRefProperty", "NetRef", "object")]
         [TestCase("Item item = null; if (item.netRefProperty != null);", 22, "item.netRefProperty", "NetRef", "object")]
-        [TestCase("SObject obj = null; if (obj.netIntField != 42);", 24, "obj.netIntField", "NetInt", "int")] // ↓ same as above, but inherited from base class
+        [TestCase("SObject obj = null; if (obj.netIntField != 42);", 24, "obj.netIntField", "NetInt", "int")] // ↓ implicit conversion for parent field
         [TestCase("SObject obj = null; if (obj.netIntProperty != 42);", 24, "obj.netIntProperty", "NetInt", "int")]
         [TestCase("SObject obj = null; if (obj.netRefField == null);", 24, "obj.netRefField", "NetRef", "object")]
         [TestCase("SObject obj = null; if (obj.netRefField != null);", 24, "obj.netRefField", "NetRef", "object")]
@@ -87,6 +87,8 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
         [TestCase("SObject obj = null; if (obj.netRefProperty != null);", 24, "obj.netRefProperty", "NetRef", "object")]
         [TestCase("Item item = new Item(); object list = item.netList;", 38, "item.netList", "NetList", "object")] // ↓ NetList field converted to a non-interface type
         [TestCase("Item item = new Item(); object list = item.netCollection;", 38, "item.netCollection", "NetCollection", "object")]
+        [TestCase("Item item = new Item(); int x = (int)item.netIntField;", 32, "item.netIntField", "NetInt", "int")] // ↓ explicit conversion to invalid type
+        [TestCase("Item item = new Item(); int x = item.netRefField as object;", 32, "item.netRefField", "NetRef", "object")]
         public void AvoidImplicitNetFieldComparisons_RaisesDiagnostic(string codeText, int column, string expression, string fromType, string toType)
         {
             // arrange

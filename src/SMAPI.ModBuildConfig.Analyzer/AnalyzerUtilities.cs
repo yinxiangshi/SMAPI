@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace StardewModdingAPI.ModBuildConfig.Analyzer
@@ -10,6 +11,40 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
         /*********
         ** Public methods
         *********/
+        /// <summary>Get the metadata for an explicit cast or 'x as y' expression.</summary>
+        /// <param name="node">The member access expression.</param>
+        /// <param name="semanticModel">provides methods for asking semantic questions about syntax nodes.</param>
+        /// <param name="fromExpression">The expression whose value is being converted.</param>
+        /// <param name="fromType">The type being converted from.</param>
+        /// <param name="toType">The type being converted to.</param>
+        /// <returns>Returns true if the node is a matched expression, else false.</returns>
+        public static bool TryGetCastOrAsInfo(SyntaxNode node, SemanticModel semanticModel, out ExpressionSyntax fromExpression, out TypeInfo fromType, out TypeInfo toType)
+        {
+            // (type)x
+            if (node is CastExpressionSyntax cast)
+            {
+                fromExpression = cast.Expression;
+                fromType = semanticModel.GetTypeInfo(fromExpression);
+                toType = semanticModel.GetTypeInfo(cast.Type);
+                return true;
+            }
+
+            // x as y
+            if (node is BinaryExpressionSyntax binary && binary.Kind() == SyntaxKind.AsExpression)
+            {
+                fromExpression = binary.Left;
+                fromType = semanticModel.GetTypeInfo(fromExpression);
+                toType = semanticModel.GetTypeInfo(binary.Right);
+                return true;
+            }
+
+            // invalid
+            fromExpression = null;
+            fromType = default(TypeInfo);
+            toType = default(TypeInfo);
+            return false;
+        }
+
         /// <summary>Get the metadata for a member access expression.</summary>
         /// <param name="node">The member access expression.</param>
         /// <param name="semanticModel">provides methods for asking semantic questions about syntax nodes.</param>
@@ -17,7 +52,7 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
         /// <param name="memberType">The type of the accessed member.</param>
         /// <param name="memberName">The name of the accessed member.</param>
         /// <returns>Returns true if the node is a member access expression, else false.</returns>
-        public static bool GetMemberInfo(SyntaxNode node, SemanticModel semanticModel, out ITypeSymbol declaringType, out TypeInfo memberType, out string memberName)
+        public static bool TryGetMemberInfo(SyntaxNode node, SemanticModel semanticModel, out ITypeSymbol declaringType, out TypeInfo memberType, out string memberName)
         {
             // simple access
             if (node is MemberAccessExpressionSyntax memberAccess)

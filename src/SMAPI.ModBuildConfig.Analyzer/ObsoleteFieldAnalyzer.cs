@@ -74,7 +74,7 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
             try
             {
                 // get reference info
-                if (!AnalyzerUtilities.GetMemberInfo(context.Node, context.SemanticModel, out ITypeSymbol declaringType, out TypeInfo memberType, out string memberName))
+                if (!AnalyzerUtilities.TryGetMemberInfo(context.Node, context.SemanticModel, out ITypeSymbol declaringType, out TypeInfo memberType, out string memberName))
                     return;
 
                 // suggest replacement
