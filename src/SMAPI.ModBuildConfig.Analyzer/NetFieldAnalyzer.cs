@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace StardewModdingAPI.ModBuildConfig.Analyzer
@@ -173,14 +174,24 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
                 SyntaxKind.SimpleMemberAccessExpression,
                 SyntaxKind.ConditionalAccessExpression
             );
+            context.RegisterSyntaxNodeAction(
+                this.AnalyzeBinaryComparison,
+                SyntaxKind.EqualsExpression,
+                SyntaxKind.NotEqualsExpression,
+                SyntaxKind.GreaterThanExpression,
+                SyntaxKind.GreaterThanOrEqualExpression,
+                SyntaxKind.LessThanExpression,
+                SyntaxKind.LessThanOrEqualExpression
+            );
         }
 
 
         /*********
         ** Private methods
         *********/
-        /// <summary>Analyse a syntax node and add a diagnostic message if it references a net field when there's a non-net equivalent available.</summary>
+        /// <summary>Analyse a member access syntax node and add a diagnostic message if it references a net field when there's a non-net equivalent available.</summary>
         /// <param name="context">The analysis context.</param>
+        /// <returns>Returns whether any warnings were added.</returns>
         private void AnalyzeMemberAccess(SyntaxNodeAnalysisContext context)
         {
             try
@@ -203,7 +214,53 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
 
                 // warn: implicit conversion
                 if (this.IsInvalidConversion(memberType))
+                {
                     context.ReportDiagnostic(Diagnostic.Create(this.Rules["AvoidImplicitNetFieldCast"], context.Node.GetLocation(), context.Node, memberType.Type.Name, memberType.ConvertedType));
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed processing expression: '{context.Node}'. Exception details: {ex.ToString().Replace('\r', ' ').Replace('\n', ' ')}");
+            }
+        }
+
+        /// <summary>Analyse a binary comparison syntax node and add a diagnostic message if it references a net field when there's a non-net equivalent available.</summary>
+        /// <param name="context">The analysis context.</param>
+        /// <returns>Returns whether any warnings were added.</returns>
+        private void AnalyzeBinaryComparison(SyntaxNodeAnalysisContext context)
+        {
+            // NOTE: implicit conversion within an operand is detected by the member access checks.
+            // This method is only concerned with the conversion of each side's final value.
+            try
+            {
+                BinaryExpressionSyntax expression = (BinaryExpressionSyntax)context.Node;
+                foreach (var pair in new[] { Tuple.Create(expression.Left, expression.Right), Tuple.Create(expression.Right, expression.Left) })
+                {
+                    // get node info
+                    ExpressionSyntax curExpression = pair.Item1; // the side of the comparison being examined
+                    ExpressionSyntax otherExpression = pair.Item2; // the other side
+                    TypeInfo curType = context.SemanticModel.GetTypeInfo(curExpression);
+                    TypeInfo otherType = context.SemanticModel.GetTypeInfo(otherExpression);
+                    if (!this.IsNetType(curType.ConvertedType))
+                        continue;
+
+                    // warn for comparison to null
+                    // An expression like `building.indoors != null` will sometimes convert `building.indoors` to NetFieldBase instead of object before comparison. Haven't reproduced this in unit tests yet.
+                    Optional<object> otherValue = context.SemanticModel.GetConstantValue(otherExpression);
+                    if (otherValue.HasValue && otherValue.Value == null)
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(this.Rules["AvoidImplicitNetFieldCast"], context.Node.GetLocation(), curExpression, curType.Type.Name, "null"));
+                        break;
+                    }
+
+                    // warn for implicit conversion
+                    if (!this.IsNetType(otherType.ConvertedType))
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(this.Rules["AvoidImplicitNetFieldCast"], context.Node.GetLocation(), curExpression, curType.Type.Name, curType.ConvertedType));
+                        break;
+                    }
+                }
             }
             catch (Exception ex)
             {
