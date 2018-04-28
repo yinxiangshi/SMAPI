@@ -225,7 +225,7 @@ namespace StardewModdingAPI.Framework.Input
                 activeButtons[button] = this.DeriveStatus(this.GetStatus(previousStatuses, button), isDown: true);
 
             // handle released keys
-            foreach (KeyValuePair<SButton, InputStatus> prev in activeButtons)
+            foreach (KeyValuePair<SButton, InputStatus> prev in previousStatuses)
             {
                 if (prev.Value.IsDown() && !activeButtons.ContainsKey(prev.Key))
                     activeButtons[prev.Key] = InputStatus.Released;
