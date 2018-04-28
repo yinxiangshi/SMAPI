@@ -126,6 +126,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>SMAPI's content manager.</summary>
         public ContentCore ContentCore { get; private set; }
 
+        /// <summary>The game's core multiplayer utility.</summary>
+        public SMultiplayer Multiplayer => (SMultiplayer)Game1.multiplayer;
+
         /// <summary>Whether SMAPI should log more information about the game context.</summary>
         public bool VerboseLogging { get; set; }
 

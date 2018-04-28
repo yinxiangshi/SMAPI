@@ -21,6 +21,9 @@ namespace StardewModdingAPI
         /// <summary>Metadata about loaded mods.</summary>
         IModRegistry ModRegistry { get; }
 
+        /// <summary>Provides multiplayer utilities.</summary>
+        IMultiplayerHelper Multiplayer { get; }
+
         /// <summary>An API for managing console commands.</summary>
         ICommandHelper ConsoleCommands { get; }
 

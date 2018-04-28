@@ -102,6 +102,7 @@
     <Compile Include="Framework\ModData\ParsedModDataRecord.cs" />
     <Compile Include="Framework\Models\ManifestContentPackFor.cs" />
     <Compile Include="Framework\Models\SMetadata.cs" />
+    <Compile Include="Framework\ModHelpers\MultiplayerHelper.cs" />
     <Compile Include="Framework\ModLoading\Finders\EventFinder.cs" />
     <Compile Include="Framework\ModLoading\Finders\FieldFinder.cs" />
     <Compile Include="Framework\ModLoading\Finders\MethodFinder.cs" />
@@ -151,6 +152,7 @@
     <Compile Include="Framework\Utilities\PathUtilities.cs" />
     <Compile Include="IContentPack.cs" />
     <Compile Include="IManifestContentPackFor.cs" />
+    <Compile Include="IMultiplayerHelper.cs" />
     <Compile Include="IReflectedField.cs" />
     <Compile Include="IReflectedMethod.cs" />
     <Compile Include="IReflectedProperty.cs" />
