@@ -22,6 +22,13 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
         /// <summary>Maps net fields to their equivalent non-net properties where available.</summary>
         private readonly IDictionary<string, string> NetFieldWrapperProperties = new Dictionary<string, string>
         {
+            // AnimatedSprite
+            ["StardewValley.AnimatedSprite::currentAnimation"] = "CurrentAnimation",
+            ["StardewValley.AnimatedSprite::currentFrame"] = "CurrentFrame",
+            ["StardewValley.AnimatedSprite::sourceRect"] = "SourceRect",
+            ["StardewValley.AnimatedSprite::spriteHeight"] = "SpriteHeight",
+            ["StardewValley.AnimatedSprite::spriteWidth"] = "SpriteWidth",
+
             // Character
             ["StardewValley.Character::currentLocationRef"] = "currentLocation",
             ["StardewValley.Character::facingDirection"] = "FacingDirection",
