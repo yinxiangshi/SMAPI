@@ -646,6 +646,8 @@ namespace StardewModdingAPI
                             foreach (var entry in updatesByMod.OrderBy(p => p.Key.DisplayName))
                                 this.Monitor.Log($"   {entry.Key.DisplayName} {entry.Value.Version}: {entry.Value.Url}", LogLevel.Alert);
                         }
+                        else
+                            this.Monitor.Log("   All mods up to date.", LogLevel.Trace);
                     }
                     catch (Exception ex)
                     {
