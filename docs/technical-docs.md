@@ -44,7 +44,7 @@ executed. This doesn't work in MonoDevelop on Linux, unfortunately.
 
 ### Preparing a release
 To prepare a crossplatform SMAPI release, you'll need to compile it on two platforms. See
-[crossplatforming info](http://stardewvalleywiki.com/Modding:Creating_a_SMAPI_mod#Test_on_all_platforms)
+[crossplatforming info](https://stardewvalleywiki.com/Modding:Creating_a_SMAPI_mod#Test_on_all_platforms)
 on the wiki for the first-time setup.
 
 1. Update the version number in `GlobalAssemblyInfo.cs` and `Constants::Version`. Make sure you use a

@@ -354,8 +354,8 @@ For players:
 * Updated mod compatibility list.
 
 For modders:
-* Added `SDate` utility for in-game date calculations (see [API reference](http://stardewvalleywiki.com/Modding:SMAPI_APIs#Dates)).
-* Added support for minimum dependency versions in `manifest.json` (see [API reference](http://stardewvalleywiki.com/Modding:SMAPI_APIs#Manifest)).
+* Added `SDate` utility for in-game date calculations (see [API reference](https://stardewvalleywiki.com/Modding:SMAPI_APIs#Dates)).
+* Added support for minimum dependency versions in `manifest.json` (see [API reference](https://stardewvalleywiki.com/Modding:SMAPI_APIs#Manifest)).
 * Added more useful logging when loading mods.
 * Added a `ModID` property to all mod helpers for extension methods.
 * Changed `manifest.MinimumApiVersion` from string to `ISemanticVersion`. This shouldn't affect mods unless they referenced that field in code.
@@ -387,8 +387,8 @@ For players:
 * Updated mod compatibility list.
 
 For modders:
-* You can now add dependencies to `manifest.json` (see [API reference](http://stardewvalleywiki.com/Modding:SMAPI_APIs#Manifest)).
-* You can now translate your mod (see [API reference](http://stardewvalleywiki.com/Modding:SMAPI_APIs#Translation)).
+* You can now add dependencies to `manifest.json` (see [API reference](https://stardewvalleywiki.com/Modding:SMAPI_APIs#Manifest)).
+* You can now translate your mod (see [API reference](https://stardewvalleywiki.com/Modding:SMAPI_APIs#Translation)).
 * You can now load unpacked `.tbin` files from your mod folder through the content API.  
 * SMAPI now automatically fixes tilesheet references for maps loaded from the mod folder.  
   <small>_When loading a map from the mod folder, SMAPI will automatically use tilesheets relative to the map file if they exists. Otherwise it will default to tilesheets in the game content._</small>

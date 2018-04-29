@@ -14,15 +14,9 @@
 SMAPI lets you run Stardew Valley with mods. Don't forget to download mods separately.
 
 
-Install guide
+Player's guide
 --------------------------------
-See http://stardewvalleywiki.com/Modding:Installing_SMAPI.
-
-
-Need help?
---------------------------------
-- FAQs: http://stardewvalleywiki.com/Modding:Player_FAQs
-- Ask for help: https://discord.gg/kH55QXP
+See https://stardewvalleywiki.com/Modding:Player_Guide.
 
 
 Manual install

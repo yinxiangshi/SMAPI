@@ -34,7 +34,7 @@ Have questions? Come [chat on Discord](https://discord.gg/KCJHWhX) with SMAPI de
 modders!
 
 ### For players
-* [Modding guides](https://stardewvalleywiki.com/Modding:Index#For_players)
+* [Player guide](https://stardewvalleywiki.com/Modding:Player_Guide)
 
 ### For modders
 * [Modding documentation](https://stardewvalleywiki.com/Modding:Index)
