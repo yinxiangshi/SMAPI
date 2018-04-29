@@ -293,7 +293,7 @@ namespace StardewModdingAPI.Framework
                 /*********
                 ** Update context
                 *********/
-                if (Context.IsSaveLoaded && !SaveGame.IsProcessing /*still loading save*/ && this.AfterLoadTimer >= 0)
+                if (Context.IsSaveLoaded && !SaveGame.IsProcessing /*still loading save*/ && this.AfterLoadTimer >= 0 && Game1.currentLocation != null)
                 {
                     if (Game1.dayOfMonth != 0) // wait until new-game intro finishes (world not fully initialised yet)
                         this.AfterLoadTimer--;
