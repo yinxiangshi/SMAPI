@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
@@ -133,7 +132,7 @@ namespace StardewModdingAPI.Framework.Input
                 rightThumbStick: this.RightStickPos,
                 leftTrigger: this.LeftTrigger,
                 rightTrigger: this.RightTrigger,
-                buttons: this.GetPressedButtons().ToArray()
+                buttons: this.GetBitmask(this.GetPressedButtons()) // MonoDevelop requires one bitmask here; don't specify multiple values
             );
         }
 
@@ -148,6 +147,16 @@ namespace StardewModdingAPI.Framework.Input
                 if (pair.Value == ButtonState.Pressed && pair.Key.TryGetController(out Buttons button))
                     yield return button;
             }
+        }
+
+        /// <summary>Get a bitmask representing the given buttons.</summary>
+        /// <param name="buttons">The buttons to represent.</param>
+        private Buttons GetBitmask(IEnumerable<Buttons> buttons)
+        {
+            Buttons flag = 0;
+            foreach (Buttons button in buttons)
+                flag |= button;
+            return flag;
         }
     }
 }
