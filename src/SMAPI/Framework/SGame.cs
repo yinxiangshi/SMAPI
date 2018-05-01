@@ -68,9 +68,6 @@ namespace StardewModdingAPI.Framework
         /// <summary>Whether the after-load events were raised for this session.</summary>
         private bool RaisedAfterLoadEvent;
 
-        /// <summary>Whether the game is returning to the menu.</summary>
-        private bool IsExitingToTitle;
-
         /// <summary>Whether the game is saving and SMAPI has already raised <see cref="SaveEvents.BeforeSave"/>.</summary>
         private bool IsBetweenSaveEvents;
 
@@ -300,11 +297,12 @@ namespace StardewModdingAPI.Framework
                 if (this.FirstUpdate)
                     this.OnGameInitialised();
 
-
                 /*********
                 ** Update context
                 *********/
-                if (Context.IsSaveLoaded && !SaveGame.IsProcessing /*still loading save*/ && this.AfterLoadTimer >= 0 && Game1.currentLocation != null)
+                if (Context.IsWorldReady && !Context.IsSaveLoaded)
+                    this.MarkWorldNotReady();
+                else if (Context.IsSaveLoaded && !SaveGame.IsProcessing /*still loading save*/ && this.AfterLoadTimer >= 0 && Game1.currentLocation != null)
                 {
                     if (Game1.dayOfMonth != 0) // wait until new-game intro finishes (world not fully initialised yet)
                         this.AfterLoadTimer--;
@@ -367,17 +365,9 @@ namespace StardewModdingAPI.Framework
                 /*********
                 ** Exit to title events
                 *********/
-                // before exit to title
                 if (Game1.exitToTitle)
-                    this.IsExitingToTitle = true;
-
-                // after exit to title
-                if (Context.IsWorldReady && this.IsExitingToTitle && Game1.activeClickableMenu is TitleMenu)
                 {
                     this.Monitor.Log("Context: returned to title", LogLevel.Trace);
-
-                    this.IsExitingToTitle = false;
-                    this.CleanupAfterReturnToTitle();
                     this.Events.Save_AfterReturnToTitle.Raise();
                 }
 
@@ -1242,8 +1232,8 @@ namespace StardewModdingAPI.Framework
         /****
         ** Methods
         ****/
-        /// <summary>Perform any cleanup needed when the player unloads a save and returns to the title screen.</summary>
-        private void CleanupAfterReturnToTitle()
+        /// <summary>Perform any cleanup needed when a save is unloaded.</summary>
+        private void MarkWorldNotReady()
         {
             Context.IsWorldReady = false;
             this.AfterLoadTimer = 5;
