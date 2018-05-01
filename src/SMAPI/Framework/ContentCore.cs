@@ -379,7 +379,7 @@ namespace StardewModdingAPI.Framework
             {
                 foreach (var entry in this.ContentManagersByAssetKey)
                     entry.Value.Remove(shim);
-                this.InvalidateCache((key, type) => !this.ContentManagersByAssetKey[key].Any(), dispose: true);
+                this.InvalidateCache((key, type) => !this.ContentManagersByAssetKey.TryGetValue(key, out var managers) || !managers.Any(), dispose: true);
             });
         }
 
