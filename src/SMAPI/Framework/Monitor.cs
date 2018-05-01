@@ -167,7 +167,7 @@ namespace StardewModdingAPI.Framework
             // auto detect color scheme
             if (colorScheme == MonitorColorScheme.AutoDetect)
             {
-                if (Constants.TargetPlatform == Platform.Mac)
+                if (Constants.Platform == Platform.Mac)
                     colorScheme = MonitorColorScheme.LightBackground; // MacOS doesn't provide console background color info, but it's usually white.
                 else
                     colorScheme = Monitor.IsDark(Console.BackgroundColor) ? MonitorColorScheme.DarkBackground : MonitorColorScheme.LightBackground;

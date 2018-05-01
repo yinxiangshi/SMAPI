@@ -262,6 +262,7 @@
     <Compile Include="Metadata\InstructionMetadata.cs" />
     <Compile Include="Mod.cs" />
     <Compile Include="PatchMode.cs" />
+    <Compile Include="GamePlatform.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Framework\SGame.cs" />

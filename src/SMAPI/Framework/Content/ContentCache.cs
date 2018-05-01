@@ -53,7 +53,7 @@ namespace StardewModdingAPI.Framework.Content
             this.Cache = reflection.GetField<Dictionary<string, object>>(contentManager, "loadedAssets").GetValue();
 
             // get key normalisation logic
-            if (Constants.TargetPlatform == Platform.Windows)
+            if (Constants.Platform == Platform.Windows)
             {
                 IReflectedMethod method = reflection.GetMethod(typeof(TitleContainer), "GetCleanPath");
                 this.NormaliseAssetNameForPlatform = path => method.Invoke<string>(path);

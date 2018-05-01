@@ -46,6 +46,9 @@ namespace StardewModdingAPI
         /// <summary>The maximum supported version of Stardew Valley.</summary>
         public static ISemanticVersion MaximumGameVersion { get; } = null;
 
+        /// <summary>The target game platform.</summary>
+        public static GamePlatform TargetPlatform => (GamePlatform)Constants.Platform;
+
         /// <summary>The path to the game folder.</summary>
         public static string ExecutionPath { get; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
@@ -92,7 +95,7 @@ namespace StardewModdingAPI
         internal static ISemanticVersion GameVersion { get; } = new GameVersion(Constants.GetGameVersion());
 
         /// <summary>The target game platform.</summary>
-        internal static Platform TargetPlatform { get; } = EnvironmentUtility.DetectPlatform();
+        internal static Platform Platform { get; } = EnvironmentUtility.DetectPlatform();
 
 
         /*********

@@ -172,7 +172,7 @@ namespace StardewModdingAPI
             try
             {
                 // init logging
-                this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GameVersion} on {EnvironmentUtility.GetFriendlyPlatformName(Constants.TargetPlatform)}", LogLevel.Info);
+                this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GameVersion} on {EnvironmentUtility.GetFriendlyPlatformName(Constants.Platform)}", LogLevel.Info);
                 this.Monitor.Log($"Mods go here: {Constants.ModPath}");
                 this.Monitor.Log($"Log started at {DateTime.UtcNow:s} UTC", LogLevel.Trace);
 
@@ -741,7 +741,7 @@ namespace StardewModdingAPI
                     );
 
                 // get assembly loaders
-                AssemblyLoader modAssemblyLoader = new AssemblyLoader(Constants.TargetPlatform, this.Monitor, this.Settings.DeveloperMode);
+                AssemblyLoader modAssemblyLoader = new AssemblyLoader(Constants.Platform, this.Monitor, this.Settings.DeveloperMode);
                 AppDomain.CurrentDomain.AssemblyResolve += (sender, e) => modAssemblyLoader.ResolveAssembly(e.Name);
                 InterfaceProxyFactory proxyFactory = new InterfaceProxyFactory();
 
