@@ -211,6 +211,17 @@ namespace StardewModdingAPI.Framework
             try
             {
                 /*********
+                ** Update input
+                *********/
+                // This should *always* run, even when suppressing mod events, since the game uses
+                // this too. For example, doing this after mod event suppression would prevent the
+                // user from doing anything on the overnight shipping screen.
+                SInputState previousInputState = this.Input.Clone();
+                SInputState inputState = this.Input;
+                if (this.IsActive)
+                    inputState.TrueUpdate();
+
+                /*********
                 ** Skip conditions
                 *********/
                 // SMAPI exiting, stop processing game updates
@@ -388,12 +399,8 @@ namespace StardewModdingAPI.Framework
                 /*********
                 ** Input events (if window has focus)
                 *********/
-                if (Game1.game1.IsActive)
+                if (this.IsActive)
                 {
-                    SInputState previousInputState = this.Input.Clone();
-                    SInputState inputState = this.Input;
-                    inputState.TrueUpdate();
-
                     // raise events
                     bool isChatInput = Game1.IsChatting || (Context.IsMultiplayer && Context.IsWorldReady && Game1.activeClickableMenu == null && Game1.currentMinigame == null && inputState.IsAnyDown(Game1.options.chatButton));
                     if (!isChatInput)
