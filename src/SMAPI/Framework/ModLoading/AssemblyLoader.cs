@@ -5,8 +5,8 @@ using System.Linq;
 using System.Reflection;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using StardewModdingAPI.Common;
 using StardewModdingAPI.Framework.Exceptions;
+using StardewModdingAPI.Internal;
 using StardewModdingAPI.Metadata;
 
 namespace StardewModdingAPI.Framework.ModLoading

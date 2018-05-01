@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Routing.Constraints;
-using StardewModdingAPI.Common;
+using StardewModdingAPI.Internal;
 
 namespace StardewModdingAPI.Web.Framework
 {

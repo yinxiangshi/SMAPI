@@ -1,6 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using StardewModdingAPI.Common.Models;
+using StardewModdingAPI.Internal.Models;
 using StardewModdingAPI.Web.Framework.Clients.Nexus;
 
 namespace StardewModdingAPI.Web.Framework.ModRepositories

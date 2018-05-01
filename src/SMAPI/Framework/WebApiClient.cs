@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using Newtonsoft.Json;
-using StardewModdingAPI.Common.Models;
+using StardewModdingAPI.Internal.Models;
 
 namespace StardewModdingAPI.Framework
 {

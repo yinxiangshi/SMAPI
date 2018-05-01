@@ -1,6 +1,6 @@
 using System;
 using Newtonsoft.Json;
-using StardewModdingAPI.Common;
+using StardewModdingAPI.Internal;
 
 namespace StardewModdingAPI
 {

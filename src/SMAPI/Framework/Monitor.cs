@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using StardewModdingAPI.Common;
 using StardewModdingAPI.Framework.Logging;
 using StardewModdingAPI.Framework.Models;
+using StardewModdingAPI.Internal;
 
 namespace StardewModdingAPI.Framework
 {

@@ -1,4 +1,4 @@
-namespace StardewModdingAPI.Common
+namespace StardewModdingAPI.Internal
 {
     /// <summary>The game's platform version.</summary>
     internal enum Platform

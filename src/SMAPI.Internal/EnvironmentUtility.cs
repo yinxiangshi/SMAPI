@@ -6,7 +6,7 @@ using System.Management;
 #endif
 using System.Runtime.InteropServices;
 
-namespace StardewModdingAPI.Common
+namespace StardewModdingAPI.Internal
 {
     /// <summary>Provides methods for fetching environment information.</summary>
     internal static class EnvironmentUtility
@@ -91,7 +91,7 @@ namespace StardewModdingAPI.Common
             try
             {
                 buffer = Marshal.AllocHGlobal(8192);
-                if (uname(buffer) == 0)
+                if (EnvironmentUtility.uname(buffer) == 0)
                 {
                     string os = Marshal.PtrToStringAnsi(buffer);
                     return os == "Darwin";

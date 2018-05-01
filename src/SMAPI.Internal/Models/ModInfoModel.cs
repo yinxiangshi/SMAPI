@@ -1,4 +1,4 @@
-namespace StardewModdingAPI.Common.Models
+namespace StardewModdingAPI.Internal.Models
 {
     /// <summary>Generic metadata about a mod.</summary>
     internal class ModInfoModel
