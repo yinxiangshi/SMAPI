@@ -23,6 +23,9 @@
   * Added `player_add name`, which lets you add items to your inventory by name instead of ID.
   * Fixed `world_settime` sometimes breaking NPC schedules (e.g. so they stay in bed).
 
+* For the log parser:
+  * Fixed issue parsing content packs with no description.
+
 * For SMAPI developers:
   * Added more consistent crossplatform handling using a new `EnvironmentUtility`, including MacOS detection.
   * Added beta update channel to SMAPI, the web API, and home page.
