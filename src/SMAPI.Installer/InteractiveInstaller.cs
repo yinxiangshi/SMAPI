@@ -17,6 +17,9 @@ namespace StardewModdingApi.Installer
         /*********
         ** Properties
         *********/
+        /// <summary>The name of the installer file in the package.</summary>
+        private readonly string InstallerFileName = "install.exe";
+
         /// <summary>The <see cref="Environment.OSVersion"/> value that represents Windows 7.</summary>
         private readonly Version Windows7Version = new Version(6, 1);
 
@@ -82,7 +85,7 @@ namespace StardewModdingApi.Installer
             yield return GetInstallPath("Newtonsoft.Json.dll");
             yield return GetInstallPath("StardewModdingAPI.exe");
             yield return GetInstallPath("StardewModdingAPI.config.json");
-            yield return GetInstallPath("StardewModdingAPI.data.json");
+            yield return GetInstallPath("StardewModdingAPI.metadata.json");
             yield return GetInstallPath("StardewModdingAPI.Internal.dll");
             yield return GetInstallPath("System.ValueTuple.dll");
             yield return GetInstallPath("steam_appid.txt");
@@ -180,7 +183,9 @@ namespace StardewModdingApi.Installer
             }
 
             // get folders
-            DirectoryInfo packageDir = new DirectoryInfo(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "internal", platform.IsMono() ? "Mono" : "Windows"));
+            DirectoryInfo packageDir = platform.IsMono()
+                ? new DirectoryInfo(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)) // installer runs from internal folder on Mono
+                : new DirectoryInfo(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "internal", "Windows"));
             DirectoryInfo modsDir = new DirectoryInfo(Path.Combine(installDir.FullName, "Mods"));
             var paths = new
             {
@@ -300,6 +305,9 @@ namespace StardewModdingApi.Installer
                 this.PrintDebug("Adding SMAPI files...");
                 foreach (FileInfo sourceFile in packageDir.EnumerateFiles().Where(this.ShouldCopyFile))
                 {
+                    if (sourceFile.Name == this.InstallerFileName)
+                        continue;
+
                     string targetPath = Path.Combine(installDir.FullName, sourceFile.Name);
                     this.InteractivelyDelete(targetPath);
                     sourceFile.CopyTo(targetPath);
