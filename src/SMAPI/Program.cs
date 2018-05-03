@@ -241,6 +241,23 @@ namespace StardewModdingAPI
                 return;
             }
 
+            // check update marker
+            if (File.Exists(Constants.UpdateMarker))
+            {
+                string rawUpdateFound = File.ReadAllText(Constants.UpdateMarker);
+                if (SemanticVersion.TryParse(rawUpdateFound, out ISemanticVersion updateFound))
+                {
+                    if (Constants.ApiVersion.IsPrerelease() && updateFound.IsNewerThan(Constants.ApiVersion))
+                    {
+                        this.Monitor.Log("A new version of SMAPI was detected last time you played.", LogLevel.Error);
+                        this.Monitor.Log($"You can update to {updateFound}: https://smapi.io.", LogLevel.Error);
+                        this.Monitor.Log("Press any key to continue playing anyway. (This only appears when using a SMAPI beta.)", LogLevel.Info);
+                        Console.ReadKey();
+                    }
+                }
+                File.Delete(Constants.UpdateMarker);
+            }
+
             // show details if game crashed during last session
             if (File.Exists(Constants.FatalCrashMarker))
             {
@@ -548,6 +565,7 @@ namespace StardewModdingAPI
                 this.Monitor.Log("Checking for updates...", LogLevel.Trace);
 
                 // check SMAPI version
+                ISemanticVersion updateFound = null;
                 try
                 {
                     ModInfoModel response = client.GetModInfo($"GitHub:{this.Settings.GitHubProjectName}").Single().Value;
@@ -560,9 +578,15 @@ namespace StardewModdingAPI
                         this.Monitor.Log($"Error: {response.Error}");
                     }
                     else if (this.IsValidUpdate(Constants.ApiVersion, latestBeta, this.Settings.UseBetaChannel))
+                    {
+                        updateFound = latestBeta;
                         this.Monitor.Log($"You can update SMAPI to {latestBeta}: {Constants.HomePageUrl}", LogLevel.Alert);
+                    }
                     else if (this.IsValidUpdate(Constants.ApiVersion, latestStable, this.Settings.UseBetaChannel))
+                    {
+                        updateFound = latestStable;
                         this.Monitor.Log($"You can update SMAPI to {latestStable}: {Constants.HomePageUrl}", LogLevel.Alert);
+                    }
                     else
                         this.Monitor.Log("   SMAPI okay.", LogLevel.Trace);
                 }
@@ -574,6 +598,10 @@ namespace StardewModdingAPI
                         : $"Error: {ex.GetLogSummary()}"
                     );
                 }
+
+                // show update message on next launch
+                if (updateFound != null)
+                    File.WriteAllText(Constants.UpdateMarker, updateFound.ToString());
 
                 // check mod versions
                 if (mods.Any())
