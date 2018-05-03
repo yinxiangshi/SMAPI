@@ -305,15 +305,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SMAPI.Internal\StardewModdingAPI.Internal.csproj">
-      <Project>{10db0676-9fc1-4771-a2c8-e2519f091e49}</Project>
-      <Name>StardewModdingAPI.Internal</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Analyzer Include="..\SMAPI.ModBuildConfig.Analyzer\bin\netstandard1.3\StardewModdingAPI.ModBuildConfig.Analyzer.dll" />
   </ItemGroup>
+  <Import Project="..\SMAPI.Internal\SMAPI.Internal.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\..\build\constants.targets" />
-  <Import Project="..\..\build\build.targets" />
+  <Import Project="..\..\build\common.targets" />
 </Project>
