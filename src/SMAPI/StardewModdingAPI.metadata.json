@@ -315,8 +315,8 @@
     "CJB Cheats Menu": {
       "ID": "CJBok.CheatsMenu",
       "FormerIDs": "CJBCheatsMenu", // changed in 1.14
-      "Default | UpdateKey": "Nexus:4",
-      "~1.17   | Status": "AssumeBroken" // broke in SDV 1.3
+      "Default    | UpdateKey": "Nexus:4",
+      "~1.18-beta | Status": "AssumeBroken" // broke in SDV 1.3, first beta causes significant friendship bugs
     },
 
     "CJB Item Spawner": {
