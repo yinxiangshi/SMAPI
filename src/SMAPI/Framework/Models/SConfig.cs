@@ -13,7 +13,7 @@ namespace StardewModdingAPI.Framework.Models
         public bool CheckForUpdates { get; set; }
 
         /// <summary>Whether to show beta versions as valid updates.</summary>
-        public bool UseBetaChannel { get; set; } = Constants.ApiVersion.Build != null;
+        public bool UseBetaChannel { get; set; } = Constants.ApiVersion.IsPrerelease();
 
         /// <summary>SMAPI's GitHub project name, used to perform update checks.</summary>
         public string GitHubProjectName { get; set; }

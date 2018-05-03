@@ -670,7 +670,7 @@ namespace StardewModdingAPI
             return
                 newVersion != null
                 && newVersion.IsNewerThan(currentVersion)
-                && (useBetaChannel || newVersion.Build == null);
+                && (useBetaChannel || !newVersion.IsPrerelease());
         }
 
         /// <summary>Create a directory path if it doesn't exist.</summary>

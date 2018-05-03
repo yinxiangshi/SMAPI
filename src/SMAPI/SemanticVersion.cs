@@ -55,6 +55,12 @@ namespace StardewModdingAPI
         public SemanticVersion(Version version)
             : this(new SemanticVersionImpl(version)) { }
 
+        /// <summary>Whether this is a pre-release version.</summary>
+        public bool IsPrerelease()
+        {
+            return !string.IsNullOrWhiteSpace(this.Build);
+        }
+
         /// <summary>Get an integer indicating whether this version precedes (less than 0), supercedes (more than 0), or is equivalent to (0) the specified version.</summary>
         /// <param name="other">The version to compare with this instance.</param>
         /// <exception cref="ArgumentNullException">The <paramref name="other"/> value is null.</exception>

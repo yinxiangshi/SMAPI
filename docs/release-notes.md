@@ -12,6 +12,7 @@
   * Added code analysis to mod build config package to flag common issues as warnings.
   * Added `Context.IsMultiplayer` and `Context.IsMainPlayer` flags.
   * Added `Constants.TargetPlatform` which says whether the game is running on Linux, Mac, or Windows.
+  * Added `semanticVersion.IsPrerelease()` method.
   * Fixed assets loaded by temporary content managers not being editable by mods.
   * Fixed assets not reloaded consistently when the player switches language.
   * Fixed console command input not saved to the log.
