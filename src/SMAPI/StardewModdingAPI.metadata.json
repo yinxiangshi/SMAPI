@@ -798,7 +798,8 @@
 
     "Horse Whistle (icepuente)": {
       "ID": "icepuente.HorseWhistle",
-      "Default | UpdateKey": "Nexus:1131"
+      "Default | UpdateKey": "Nexus:1131",
+      "~1.1.2-unofficial.1-pathoschild | Status": "AssumeBroken" // causes significant lag, fixed in unofficial.2
     },
 
     "Hunger (Yyeadude)": {
