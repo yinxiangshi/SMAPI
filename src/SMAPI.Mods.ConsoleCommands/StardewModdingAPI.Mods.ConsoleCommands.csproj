@@ -94,5 +94,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\..\build\common.targets" />
+  <Import Project="..\..\build\constants.targets" />
+  <Import Project="..\..\build\build.targets" />
 </Project>

@@ -127,6 +127,7 @@
     <Compile Include="Framework\Models\MonitorColorScheme.cs" />
     <Compile Include="Framework\Reflection\InterfaceProxyBuilder.cs" />
     <Compile Include="Framework\Reflection\InterfaceProxyFactory.cs" />
+    <Compile Include="Framework\RewriteFacades\SpriteBatchMethods.cs" />
     <Compile Include="Framework\Serialisation\SmapiConverters\ManifestContentPackForConverter.cs" />
     <Compile Include="Framework\Serialisation\SmapiConverters\ManifestDependencyArrayConverter.cs" />
     <Compile Include="Framework\Serialisation\SmapiConverters\SemanticVersionConverter.cs" />
@@ -313,5 +314,6 @@
     <Analyzer Include="..\SMAPI.ModBuildConfig.Analyzer\bin\netstandard1.3\StardewModdingAPI.ModBuildConfig.Analyzer.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\..\build\common.targets" />
+  <Import Project="..\..\build\constants.targets" />
+  <Import Project="..\..\build\build.targets" />
 </Project>

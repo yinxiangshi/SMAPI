@@ -4,7 +4,7 @@ using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Framework.ModLoading.Finders;
 using StardewModdingAPI.Framework.ModLoading.Rewriters;
-using StardewModdingAPI.Internal.RewriteFacades;
+using StardewModdingAPI.Framework.RewriteFacades;
 using StardewValley;
 
 namespace StardewModdingAPI.Metadata

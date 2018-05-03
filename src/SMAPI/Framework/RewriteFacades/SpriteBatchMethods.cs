@@ -2,9 +2,10 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace StardewModdingAPI.Internal.RewriteFacades
+namespace StardewModdingAPI.Framework.RewriteFacades
 {
     /// <summary>Provides <see cref="SpriteBatch"/> method signatures that can be injected into mod code for compatibility between Linux/Mac or Windows.</summary>
+    /// <remarks>This is public to support SMAPI rewriting and should not be referenced directly by mods.</remarks>
     public class SpriteBatchMethods : SpriteBatch
     {
         /*********
