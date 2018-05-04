@@ -114,7 +114,6 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
             ["StardewValley.Object::netName"] = "name",
             ["StardewValley.Object::price"] = "Price",
             ["StardewValley.Object::quality"] = "Quality",
-            ["StardewValley.Object::scale"] = "Scale",
             ["StardewValley.Object::stack"] = "Stack",
             ["StardewValley.Object::tileLocation"] = "TileLocation",
             ["StardewValley.Object::type"] = "Type",
