@@ -219,6 +219,20 @@ namespace StardewModdingAPI.Framework
                     inputState.TrueUpdate();
 
                 /*********
+                ** Load game synchronously
+                *********/
+                if (Game1.gameMode == Game1.loadingMode)
+                {
+                    this.Monitor.Log("Running game loader...", LogLevel.Trace);
+                    while (Game1.gameMode == Game1.loadingMode)
+                    {
+                        base.Update(gameTime);
+                        this.Events.Specialised_UnvalidatedUpdateTick.Raise();
+                    }
+                    this.Monitor.Log("Game loader OK.", LogLevel.Trace);
+                }
+
+                /*********
                 ** Skip conditions
                 *********/
                 // SMAPI exiting, stop processing game updates
