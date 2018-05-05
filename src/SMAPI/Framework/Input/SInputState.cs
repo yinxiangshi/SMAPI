@@ -81,27 +81,35 @@ namespace StardewModdingAPI.Framework.Input
                 Point mousePosition = new Point((int)(this.RealMouse.X * (1.0 / Game1.options.zoomLevel)), (int)(this.RealMouse.Y * (1.0 / Game1.options.zoomLevel))); // derived from Game1::getMouseX
                 var activeButtons = this.DeriveStatuses(this.ActiveButtons, realKeyboard, realMouse, realController);
 
-                // get suppressed states
-                GamePadState suppressedController = realController;
-                KeyboardState suppressedKeyboard = realKeyboard;
-                MouseState suppressedMouse = realMouse;
-                if (this.SuppressButtons.Count > 0)
-                    this.UpdateSuppression(activeButtons, ref suppressedKeyboard, ref suppressedMouse, ref suppressedController);
-
-                // update
+                // update real states
                 this.ActiveButtons = activeButtons;
                 this.RealController = realController;
                 this.RealKeyboard = realKeyboard;
                 this.RealMouse = realMouse;
-                this.SuppressedController = suppressedController;
-                this.SuppressedKeyboard = suppressedKeyboard;
-                this.SuppressedMouse = suppressedMouse;
                 this.MousePosition = mousePosition;
+
+                // update suppressed states
+                this.SuppressButtons.RemoveWhere(p => !this.GetStatus(activeButtons, p).IsDown());
+                this.UpdateSuppression();
             }
             catch (InvalidOperationException)
             {
                 // GetState() may crash for some players if window doesn't have focus but game1.IsActive == true
             }
+        }
+
+        /// <summary>Apply input suppression to current input.</summary>
+        public void UpdateSuppression()
+        {
+            GamePadState suppressedController = this.RealController;
+            KeyboardState suppressedKeyboard = this.RealKeyboard;
+            MouseState suppressedMouse = this.RealMouse;
+
+            this.SuppressGivenStates(this.ActiveButtons, ref suppressedKeyboard, ref suppressedMouse, ref suppressedController);
+
+            this.SuppressedController = suppressedController;
+            this.SuppressedKeyboard = suppressedKeyboard;
+            this.SuppressedMouse = suppressedMouse;
         }
 
         /// <summary>Get the gamepad state visible to the game.</summary>
@@ -145,61 +153,6 @@ namespace StardewModdingAPI.Framework.Input
             return buttons.Any(button => this.IsDown(button.ToSButton()));
         }
 
-        /// <summary>Apply input suppression for the given input states.</summary>
-        /// <param name="activeButtons">The current button states to check.</param>
-        /// <param name="keyboardState">The game's keyboard state for the current tick.</param>
-        /// <param name="mouseState">The game's mouse state for the current tick.</param>
-        /// <param name="gamePadState">The game's controller state for the current tick.</param>
-        public void UpdateSuppression(IDictionary<SButton, InputStatus> activeButtons, ref KeyboardState keyboardState, ref MouseState mouseState, ref GamePadState gamePadState)
-        {
-            // stop suppressing buttons once released
-            if (this.SuppressButtons.Count != 0)
-                this.SuppressButtons.RemoveWhere(p => !this.GetStatus(activeButtons, p).IsDown());
-            if (this.SuppressButtons.Count == 0)
-                return;
-
-            // gather info
-            HashSet<Keys> keyboardButtons = new HashSet<Keys>();
-            HashSet<SButton> controllerButtons = new HashSet<SButton>();
-            HashSet<SButton> mouseButtons = new HashSet<SButton>();
-            foreach (SButton button in this.SuppressButtons)
-            {
-                if (button == SButton.MouseLeft || button == SButton.MouseMiddle || button == SButton.MouseRight || button == SButton.MouseX1 || button == SButton.MouseX2)
-                    mouseButtons.Add(button);
-                else if (button.TryGetKeyboard(out Keys key))
-                    keyboardButtons.Add(key);
-                else if (gamePadState.IsConnected && button.TryGetController(out Buttons _))
-                    controllerButtons.Add(button);
-            }
-
-            // suppress keyboard keys
-            if (keyboardState.GetPressedKeys().Any() && keyboardButtons.Any())
-                keyboardState = new KeyboardState(keyboardState.GetPressedKeys().Except(keyboardButtons).ToArray());
-
-            // suppress controller keys
-            if (gamePadState.IsConnected && controllerButtons.Any())
-            {
-                GamePadStateBuilder builder = new GamePadStateBuilder(gamePadState);
-                builder.SuppressButtons(controllerButtons);
-                gamePadState = builder.ToGamePadState();
-            }
-
-            // suppress mouse buttons
-            if (mouseButtons.Any())
-            {
-                mouseState = new MouseState(
-                    x: mouseState.X,
-                    y: mouseState.Y,
-                    scrollWheel: mouseState.ScrollWheelValue,
-                    leftButton: mouseButtons.Contains(SButton.MouseLeft) ? ButtonState.Pressed : mouseState.LeftButton,
-                    middleButton: mouseButtons.Contains(SButton.MouseMiddle) ? ButtonState.Pressed : mouseState.MiddleButton,
-                    rightButton: mouseButtons.Contains(SButton.MouseRight) ? ButtonState.Pressed : mouseState.RightButton,
-                    xButton1: mouseButtons.Contains(SButton.MouseX1) ? ButtonState.Pressed : mouseState.XButton1,
-                    xButton2: mouseButtons.Contains(SButton.MouseX2) ? ButtonState.Pressed : mouseState.XButton2
-                );
-            }
-        }
-
 
         /*********
         ** Private methods
@@ -208,6 +161,58 @@ namespace StardewModdingAPI.Framework.Input
         private bool ShouldSuppressNow()
         {
             return Game1.chatBox != null && !Game1.chatBox.isActive();
+        }
+
+        /// <summary>Apply input suppression to the given input states.</summary>
+        /// <param name="activeButtons">The current button states to check.</param>
+        /// <param name="keyboardState">The game's keyboard state for the current tick.</param>
+        /// <param name="mouseState">The game's mouse state for the current tick.</param>
+        /// <param name="gamePadState">The game's controller state for the current tick.</param>
+        private void SuppressGivenStates(IDictionary<SButton, InputStatus> activeButtons, ref KeyboardState keyboardState, ref MouseState mouseState, ref GamePadState gamePadState)
+        {
+            if (this.SuppressButtons.Count == 0)
+                return;
+
+            // gather info
+            HashSet<Keys> suppressKeys = new HashSet<Keys>();
+            HashSet<SButton> suppressButtons = new HashSet<SButton>();
+            HashSet<SButton> suppressMouse = new HashSet<SButton>();
+            foreach (SButton button in this.SuppressButtons)
+            {
+                if (button == SButton.MouseLeft || button == SButton.MouseMiddle || button == SButton.MouseRight || button == SButton.MouseX1 || button == SButton.MouseX2)
+                    suppressMouse.Add(button);
+                else if (button.TryGetKeyboard(out Keys key))
+                    suppressKeys.Add(key);
+                else if (gamePadState.IsConnected && button.TryGetController(out Buttons _))
+                    suppressButtons.Add(button);
+            }
+
+            // suppress keyboard keys
+            if (keyboardState.GetPressedKeys().Any() && suppressKeys.Any())
+                keyboardState = new KeyboardState(keyboardState.GetPressedKeys().Except(suppressKeys).ToArray());
+
+            // suppress controller keys
+            if (gamePadState.IsConnected && suppressButtons.Any())
+            {
+                GamePadStateBuilder builder = new GamePadStateBuilder(gamePadState);
+                builder.SuppressButtons(suppressButtons);
+                gamePadState = builder.ToGamePadState();
+            }
+
+            // suppress mouse buttons
+            if (suppressMouse.Any())
+            {
+                mouseState = new MouseState(
+                    x: mouseState.X,
+                    y: mouseState.Y,
+                    scrollWheel: mouseState.ScrollWheelValue,
+                    leftButton: suppressMouse.Contains(SButton.MouseLeft) ? ButtonState.Released : mouseState.LeftButton,
+                    middleButton: suppressMouse.Contains(SButton.MouseMiddle) ? ButtonState.Released : mouseState.MiddleButton,
+                    rightButton: suppressMouse.Contains(SButton.MouseRight) ? ButtonState.Released : mouseState.RightButton,
+                    xButton1: suppressMouse.Contains(SButton.MouseX1) ? ButtonState.Released : mouseState.XButton1,
+                    xButton2: suppressMouse.Contains(SButton.MouseX2) ? ButtonState.Released : mouseState.XButton2
+                );
+            }
         }
 
         /// <summary>Get the status of all pressed or released buttons relative to their previous status.</summary>

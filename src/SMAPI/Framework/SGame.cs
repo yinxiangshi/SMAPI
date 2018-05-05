@@ -613,6 +613,7 @@ namespace StardewModdingAPI.Framework
                 /*********
                 ** Game update
                 *********/
+                this.Input.UpdateSuppression();
                 try
                 {
                     base.Update(gameTime);

@@ -23,6 +23,7 @@
   * Fixed error if a mod loads a PNG while the game is loading (e.g. custom map tilesheets via `IAssetLoader`).
   * Fixed assets loaded by temporary content managers not being editable by mods.
   * Fixed assets not reloaded consistently when the player switches language.
+  * Fixed input suppression not working consistently for clicks.
   * Fixed console command input not saved to the log.
   * Fixed `helper.ModRegistry.GetApi` interface validation errors not mentioning which interface caused the issue.
   * **Breaking changes** (see [migration guide](https://stardewvalleywiki.com/Modding:Migrate_to_Stardew_Valley_1.3)):
