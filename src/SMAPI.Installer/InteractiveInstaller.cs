@@ -233,7 +233,7 @@ namespace StardewModdingApi.Installer
                     Console.ReadLine();
                     return;
                 }
-                if (!this.HasXNA(platform))
+                if (!this.HasXna(platform))
                 {
                     this.PrintError("You don't seem to have XNA Framework installed. Please run the game at least once before installing SMAPI, so it can perform its first-time setup.");
                     Console.ReadLine();
@@ -317,10 +317,13 @@ namespace StardewModdingApi.Installer
                 if (platform.IsMono())
                 {
                     this.PrintDebug("Safely replacing game launcher...");
-                    if (!File.Exists(paths.unixLauncherBackup))
-                        File.Move(paths.unixLauncher, paths.unixLauncherBackup);
-                    else if (File.Exists(paths.unixLauncher))
-                        this.InteractivelyDelete(paths.unixLauncher);
+                    if (File.Exists(paths.unixLauncher))
+                    {
+                        if (!File.Exists(paths.unixLauncherBackup))
+                            File.Move(paths.unixLauncher, paths.unixLauncherBackup);
+                        else
+                            this.InteractivelyDelete(paths.unixLauncher);
+                    }
 
                     File.Move(paths.unixSmapiLauncher, paths.unixLauncher);
                 }
@@ -471,7 +474,7 @@ namespace StardewModdingApi.Installer
         /// <summary>Get whether the current system has XNA Framework installed. This only applies on Windows.</summary>
         /// <param name="platform">The current platform.</param>
         /// <exception cref="NotSupportedException">The current platform is not Windows.</exception>
-        private bool HasXNA(Platform platform)
+        private bool HasXna(Platform platform)
         {
             switch (platform)
             {
@@ -514,8 +517,7 @@ namespace StardewModdingApi.Installer
                 return;
 
             // delete children
-            var folder = entry as DirectoryInfo;
-            if (folder != null)
+            if (entry is DirectoryInfo folder)
             {
                 foreach (FileSystemInfo child in folder.GetFileSystemInfos())
                     this.ForceDelete(child);

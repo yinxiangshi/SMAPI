@@ -8,6 +8,7 @@
   * Added console warning for mods which don't have update checks configured.
   * Fixed console color scheme on Mac or in PowerShell, configurable via `StardewModdingAPI.config.json`.
   * Fixed detection of GOG Galaxy install path in rare cases.
+  * Fixed install error on Linux/Mac in some cases.
 
 * For modders:
   * Added code analysis to mod build config package to flag common issues as warnings.
