@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework.Input;
 using StardewModdingAPI.Events;
@@ -114,7 +115,11 @@ namespace StardewModdingAPI.Framework.Events
         public readonly ManagedEvent<EventArgsGameLocationsChanged> Location_LocationsChanged;
 
         /// <summary>Raised after the list of objects in the current location changes (e.g. an object is added or removed).</summary>
+        [Obsolete]
         public readonly ManagedEvent<EventArgsLocationObjectsChanged> Location_LocationObjectsChanged;
+
+        /// <summary>Raised after the list of objects in a location changes (e.g. an object is added or removed).</summary>
+        public readonly ManagedEvent<EventArgsLocationObjectsChanged> Location_ObjectsChanged;
 
         /****
         ** MenuEvents
@@ -239,6 +244,7 @@ namespace StardewModdingAPI.Framework.Events
             this.Location_CurrentLocationChanged = ManageEventOf<EventArgsCurrentLocationChanged>(nameof(LocationEvents), nameof(LocationEvents.CurrentLocationChanged));
             this.Location_LocationsChanged = ManageEventOf<EventArgsGameLocationsChanged>(nameof(LocationEvents), nameof(LocationEvents.LocationsChanged));
             this.Location_LocationObjectsChanged = ManageEventOf<EventArgsLocationObjectsChanged>(nameof(LocationEvents), nameof(LocationEvents.LocationObjectsChanged));
+            this.Location_ObjectsChanged = ManageEventOf<EventArgsLocationObjectsChanged>(nameof(LocationEvents), nameof(LocationEvents.ObjectsChanged));
 
             this.Menu_Changed = ManageEventOf<EventArgsClickableMenuChanged>(nameof(MenuEvents), nameof(MenuEvents.MenuChanged));
             this.Menu_Closed = ManageEventOf<EventArgsClickableMenuClosed>(nameof(MenuEvents), nameof(MenuEvents.MenuClosed));

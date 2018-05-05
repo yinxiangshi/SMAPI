@@ -148,6 +148,7 @@
     <Compile Include="Framework\StateTracking\IDictionaryWatcher.cs" />
     <Compile Include="Framework\StateTracking\IValueWatcher.cs" />
     <Compile Include="Framework\StateTracking\IWatcher.cs" />
+    <Compile Include="Framework\StateTracking\LocationTracker.cs" />
     <Compile Include="Framework\StateTracking\PlayerTracker.cs" />
     <Compile Include="Framework\Utilities\ContextHash.cs" />
     <Compile Include="Framework\Utilities\PathUtilities.cs" />

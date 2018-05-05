@@ -31,10 +31,18 @@ namespace StardewModdingAPI.Events
         }
 
         /// <summary>Raised after the list of objects in the current location changes (e.g. an object is added or removed).</summary>
+        [Obsolete("Use " + nameof(LocationEvents) + "." + nameof(LocationEvents.ObjectsChanged) + " instead")]
         public static event EventHandler<EventArgsLocationObjectsChanged> LocationObjectsChanged
         {
             add => LocationEvents.EventManager.Location_LocationObjectsChanged.Add(value);
             remove => LocationEvents.EventManager.Location_LocationObjectsChanged.Remove(value);
+        }
+
+        /// <summary>Raised after the list of objects in a location changes (e.g. an object is added or removed).</summary>
+        public static event EventHandler<EventArgsLocationObjectsChanged> ObjectsChanged
+        {
+            add => LocationEvents.EventManager.Location_ObjectsChanged.Add(value);
+            remove => LocationEvents.EventManager.Location_ObjectsChanged.Remove(value);
         }
 
 

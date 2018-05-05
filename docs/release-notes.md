@@ -11,6 +11,7 @@
 
 * For modders:
   * Added code analysis to mod build config package to flag common issues as warnings.
+  * Added `LocationEvents.ObjectsChanged`, raised when an object is added/removed in any location.
   * Added `Context.IsMultiplayer` and `Context.IsMainPlayer` flags.
   * Added `Constants.TargetPlatform` which says whether the game is running on Linux, Mac, or Windows.
   * Added `semanticVersion.IsPrerelease()` method.
