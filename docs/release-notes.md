@@ -12,7 +12,11 @@
 
 * For modders:
   * Added code analysis to mod build config package to flag common issues as warnings.
-  * Added `LocationEvents.ObjectsChanged`, raised when an object is added/removed in any location.
+  * Replaced `LocationEvents` with a more powerful set of events for multiplayer:
+    * now raised for all locations;
+    * now includes added/removed building interiors;
+    * each event now provides a list of added/removed values;
+    * added buildings-changed event.
   * Added `Context.IsMultiplayer` and `Context.IsMainPlayer` flags.
   * Added `Constants.TargetPlatform` which says whether the game is running on Linux, Mac, or Windows.
   * Added `semanticVersion.IsPrerelease()` method.
@@ -21,8 +25,10 @@
   * Fixed assets not reloaded consistently when the player switches language.
   * Fixed console command input not saved to the log.
   * Fixed `helper.ModRegistry.GetApi` interface validation errors not mentioning which interface caused the issue.
-  * **Breaking change**: dropped some deprecated APIs.
-  * **Breaking change**: mods can't intercept chatbox input, including the game's hotkeys to toggle the chatbox (default `T` and `?`).
+  * **Breaking changes** (see [migration guide](https://stardewvalleywiki.com/Modding:Migrate_to_Stardew_Valley_1.3)):
+     * dropped some deprecated APIs;
+     * `LocationEvents` have been rewritten (see above);
+     * mods can't intercept chatbox input, including the game's hotkeys to toggle the chatbox (default `T` and `?`).
 
 * In console commands:
   * Added `player_add name`, which lets you add items to your inventory by name instead of ID.

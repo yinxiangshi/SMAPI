@@ -108,17 +108,13 @@ namespace StardewModdingAPI.Framework.Events
         /****
         ** LocationEvents
         ****/
-        /// <summary>Raised after the player warps to a new location.</summary>
-        public readonly ManagedEvent<EventArgsCurrentLocationChanged> Location_CurrentLocationChanged;
-
         /// <summary>Raised after a game location is added or removed.</summary>
-        public readonly ManagedEvent<EventArgsGameLocationsChanged> Location_LocationsChanged;
+        public readonly ManagedEvent<EventArgsLocationsChanged> Location_LocationsChanged;
 
-        /// <summary>Raised after the list of objects in the current location changes (e.g. an object is added or removed).</summary>
-        [Obsolete]
-        public readonly ManagedEvent<EventArgsLocationObjectsChanged> Location_LocationObjectsChanged;
+        /// <summary>Raised after buildings are added or removed in a location.</summary>
+        public readonly ManagedEvent<EventArgsLocationBuildingsChanged> Location_BuildingsChanged;
 
-        /// <summary>Raised after the list of objects in a location changes (e.g. an object is added or removed).</summary>
+        /// <summary>Raised after objects are added or removed in a location.</summary>
         public readonly ManagedEvent<EventArgsLocationObjectsChanged> Location_ObjectsChanged;
 
         /****
@@ -159,6 +155,10 @@ namespace StardewModdingAPI.Framework.Events
 
         /// <summary> Raised after the player levels up a skill. This happens as soon as they level up, not when the game notifies the player after their character goes to bed.</summary>
         public readonly ManagedEvent<EventArgsLevelUp> Player_LeveledUp;
+
+        /// <summary>Raised after the player warps to a new location.</summary>
+        public readonly ManagedEvent<EventArgsPlayerWarped> Player_Warped;
+
 
         /****
         ** SaveEvents
@@ -241,9 +241,8 @@ namespace StardewModdingAPI.Framework.Events
             this.Input_ButtonPressed = ManageEventOf<EventArgsInput>(nameof(InputEvents), nameof(InputEvents.ButtonPressed));
             this.Input_ButtonReleased = ManageEventOf<EventArgsInput>(nameof(InputEvents), nameof(InputEvents.ButtonReleased));
 
-            this.Location_CurrentLocationChanged = ManageEventOf<EventArgsCurrentLocationChanged>(nameof(LocationEvents), nameof(LocationEvents.CurrentLocationChanged));
-            this.Location_LocationsChanged = ManageEventOf<EventArgsGameLocationsChanged>(nameof(LocationEvents), nameof(LocationEvents.LocationsChanged));
-            this.Location_LocationObjectsChanged = ManageEventOf<EventArgsLocationObjectsChanged>(nameof(LocationEvents), nameof(LocationEvents.LocationObjectsChanged));
+            this.Location_LocationsChanged = ManageEventOf<EventArgsLocationsChanged>(nameof(LocationEvents), nameof(LocationEvents.LocationsChanged));
+            this.Location_BuildingsChanged = ManageEventOf<EventArgsLocationBuildingsChanged>(nameof(LocationEvents), nameof(LocationEvents.BuildingsChanged));
             this.Location_ObjectsChanged = ManageEventOf<EventArgsLocationObjectsChanged>(nameof(LocationEvents), nameof(LocationEvents.ObjectsChanged));
 
             this.Menu_Changed = ManageEventOf<EventArgsClickableMenuChanged>(nameof(MenuEvents), nameof(MenuEvents.MenuChanged));
@@ -258,6 +257,7 @@ namespace StardewModdingAPI.Framework.Events
 
             this.Player_InventoryChanged = ManageEventOf<EventArgsInventoryChanged>(nameof(PlayerEvents), nameof(PlayerEvents.InventoryChanged));
             this.Player_LeveledUp = ManageEventOf<EventArgsLevelUp>(nameof(PlayerEvents), nameof(PlayerEvents.LeveledUp));
+            this.Player_Warped = ManageEventOf<EventArgsPlayerWarped>(nameof(PlayerEvents), nameof(PlayerEvents.Warped));
 
             this.Save_BeforeCreate = ManageEvent(nameof(SaveEvents), nameof(SaveEvents.BeforeCreate));
             this.Save_AfterCreate = ManageEvent(nameof(SaveEvents), nameof(SaveEvents.AfterCreate));

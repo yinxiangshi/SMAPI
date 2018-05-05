@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Xna.Framework;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.StateTracking.FieldWatchers;
 using StardewValley;
 using StardewValley.Locations;
-using SObject = StardewValley.Object;
 
 namespace StardewModdingAPI.Framework.StateTracking
 {
@@ -38,9 +36,6 @@ namespace StardewModdingAPI.Framework.StateTracking
         /// <summary>The player's current location.</summary>
         public IValueWatcher<GameLocation> LocationWatcher { get; }
 
-        /// <summary>Tracks changes to the player's current location's objects.</summary>
-        public IDictionaryWatcher<Vector2, SObject> LocationObjectsWatcher { get; private set; }
-
         /// <summary>The player's current mine level.</summary>
         public IValueWatcher<int> MineLevelWatcher { get; }
 
@@ -61,7 +56,6 @@ namespace StardewModdingAPI.Framework.StateTracking
 
             // init trackers
             this.LocationWatcher = WatcherFactory.ForReference(this.GetCurrentLocation);
-            this.LocationObjectsWatcher = WatcherFactory.ForNetDictionary(this.GetCurrentLocation().netObjects);
             this.MineLevelWatcher = WatcherFactory.ForEquatable(() => this.LastValidLocation is MineShaft mine ? mine.mineLevel : 0);
             this.SkillWatchers = new Dictionary<EventArgsLevelUp.LevelType, IValueWatcher<int>>
             {
@@ -77,7 +71,6 @@ namespace StardewModdingAPI.Framework.StateTracking
             this.Watchers.AddRange(new IWatcher[]
             {
                 this.LocationWatcher,
-                this.LocationObjectsWatcher,
                 this.MineLevelWatcher
             });
             this.Watchers.AddRange(this.SkillWatchers.Values);
@@ -92,16 +85,6 @@ namespace StardewModdingAPI.Framework.StateTracking
             // update watchers
             foreach (IWatcher watcher in this.Watchers)
                 watcher.Update();
-
-            // replace location objects watcher
-            if (this.LocationWatcher.IsChanged)
-            {
-                this.Watchers.Remove(this.LocationObjectsWatcher);
-                this.LocationObjectsWatcher.Dispose();
-
-                this.LocationObjectsWatcher = WatcherFactory.ForNetDictionary(this.GetCurrentLocation().netObjects);
-                this.Watchers.Add(this.LocationObjectsWatcher);
-            }
 
             // update inventory
             this.CurrentInventory = this.GetInventory();
@@ -152,21 +135,6 @@ namespace StardewModdingAPI.Framework.StateTracking
         {
             location = this.LocationWatcher.CurrentValue;
             return this.LocationWatcher.IsChanged;
-        }
-
-        /// <summary>Get object changes to the player's current location if they there as of the last reset.</summary>
-        /// <param name="watcher">The object change watcher.</param>
-        /// <returns>Returns whether it changed.</returns>
-        public bool TryGetLocationChanges(out IDictionaryWatcher<Vector2, SObject> watcher)
-        {
-            if (this.LocationWatcher.IsChanged)
-            {
-                watcher = null;
-                return false;
-            }
-
-            watcher = this.LocationObjectsWatcher;
-            return watcher.IsChanged;
         }
 
         /// <summary>Get the player's new mine level if it changed.</summary>

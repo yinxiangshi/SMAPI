@@ -1,8 +1,11 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI.Framework.StateTracking.FieldWatchers;
 using StardewValley;
+using StardewValley.Buildings;
+using StardewValley.Locations;
 using Object = StardewValley.Object;
 
 namespace StardewModdingAPI.Framework.StateTracking
@@ -26,8 +29,11 @@ namespace StardewModdingAPI.Framework.StateTracking
         /// <summary>The tracked location.</summary>
         public GameLocation Location { get; }
 
-        /// <summary>Tracks changes to the current location's objects.</summary>
-        public IDictionaryWatcher<Vector2, Object> LocationObjectsWatcher { get; }
+        /// <summary>Tracks changes to the location's buildings.</summary>
+        public ICollectionWatcher<Building> BuildingsWatcher { get; }
+
+        /// <summary>Tracks changes to the location's objects.</summary>
+        public IDictionaryWatcher<Vector2, Object> ObjectsWatcher { get; }
 
 
         /*********
@@ -40,10 +46,15 @@ namespace StardewModdingAPI.Framework.StateTracking
             this.Location = location;
 
             // init watchers
-            this.LocationObjectsWatcher = WatcherFactory.ForNetDictionary(location.netObjects);
-            this.Watchers.AddRange(new[]
+            this.ObjectsWatcher = WatcherFactory.ForNetDictionary(location.netObjects);
+            this.BuildingsWatcher = location is BuildableGameLocation buildableLocation
+                ? WatcherFactory.ForNetCollection(buildableLocation.buildings)
+                : (ICollectionWatcher<Building>)WatcherFactory.ForObservableCollection(new ObservableCollection<Building>());
+
+            this.Watchers.AddRange(new IWatcher[]
             {
-                this.LocationObjectsWatcher
+                this.BuildingsWatcher,
+                this.ObjectsWatcher
             });
         }
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace StardewModdingAPI.Events
 {
@@ -13,6 +13,7 @@ namespace StardewModdingAPI.Events
 
         /// <summary>The current value.</summary>
         public int NewInt { get; }
+
 
         /*********
         ** Public methods

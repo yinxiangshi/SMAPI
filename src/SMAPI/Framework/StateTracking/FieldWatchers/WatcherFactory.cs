@@ -36,6 +36,14 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
             return new ObservableCollectionWatcher<T>(collection);
         }
 
+        /// <summary>Get a watcher for a net collection.</summary>
+        /// <typeparam name="T">The value type.</typeparam>
+        /// <param name="collection">The net collection.</param>
+        public static NetCollectionWatcher<T> ForNetCollection<T>(NetCollection<T> collection) where T : INetObject<INetSerializable>
+        {
+            return new NetCollectionWatcher<T>(collection);
+        }
+
         /// <summary>Get a watcher for a net dictionary.</summary>
         /// <typeparam name="TKey">The dictionary key type.</typeparam>
         /// <typeparam name="TValue">The dictionary value type.</typeparam>

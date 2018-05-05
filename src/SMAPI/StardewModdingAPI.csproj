@@ -85,6 +85,7 @@
     <Compile Include="..\..\build\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Events\EventArgsLocationBuildingsChanged.cs" />
     <Compile Include="Events\MultiplayerEvents.cs" />
     <Compile Include="Framework\Events\EventManager.cs" />
     <Compile Include="Framework\Events\ManagedEvent.cs" />
@@ -142,12 +143,14 @@
     <Compile Include="Framework\StateTracking\FieldWatchers\ComparableWatcher.cs" />
     <Compile Include="Framework\StateTracking\FieldWatchers\NetDictionaryWatcher.cs" />
     <Compile Include="Framework\StateTracking\FieldWatchers\NetValueWatcher.cs" />
+    <Compile Include="Framework\StateTracking\FieldWatchers\NetCollectionWatcher.cs" />
     <Compile Include="Framework\StateTracking\FieldWatchers\ObservableCollectionWatcher.cs" />
     <Compile Include="Framework\StateTracking\FieldWatchers\WatcherFactory.cs" />
     <Compile Include="Framework\StateTracking\ICollectionWatcher.cs" />
     <Compile Include="Framework\StateTracking\IDictionaryWatcher.cs" />
     <Compile Include="Framework\StateTracking\IValueWatcher.cs" />
     <Compile Include="Framework\StateTracking\IWatcher.cs" />
+    <Compile Include="Framework\StateTracking\WorldLocationsTracker.cs" />
     <Compile Include="Framework\StateTracking\LocationTracker.cs" />
     <Compile Include="Framework\StateTracking\PlayerTracker.cs" />
     <Compile Include="Framework\Utilities\ContextHash.cs" />
@@ -175,8 +178,8 @@
     <Compile Include="Events\EventArgsControllerButtonReleased.cs" />
     <Compile Include="Events\EventArgsControllerTriggerPressed.cs" />
     <Compile Include="Events\EventArgsControllerTriggerReleased.cs" />
-    <Compile Include="Events\EventArgsCurrentLocationChanged.cs" />
-    <Compile Include="Events\EventArgsGameLocationsChanged.cs" />
+    <Compile Include="Events\EventArgsPlayerWarped.cs" />
+    <Compile Include="Events\EventArgsLocationsChanged.cs" />
     <Compile Include="Events\EventArgsIntChanged.cs" />
     <Compile Include="Events\EventArgsInventoryChanged.cs" />
     <Compile Include="Events\EventArgsKeyboardStateChanged.cs" />

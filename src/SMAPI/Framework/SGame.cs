@@ -23,7 +23,6 @@ using StardewValley.Menus;
 using StardewValley.Tools;
 using xTile.Dimensions;
 using xTile.Layers;
-using SObject = StardewValley.Object;
 
 namespace StardewModdingAPI.Framework
 {
@@ -92,11 +91,8 @@ namespace StardewModdingAPI.Framework
         /// <summary>Tracks changes to the save ID.</summary>
         private readonly IValueWatcher<ulong> SaveIdWatcher;
 
-        /// <summary>Tracks changes to the location list.</summary>
-        private readonly ICollectionWatcher<GameLocation> LocationListWatcher;
-
-        /// <summary>Tracks changes to each location.</summary>
-        private readonly IDictionary<GameLocation, LocationTracker> LocationWatchers = new Dictionary<GameLocation, LocationTracker>();
+        /// <summary>Tracks changes to the game's locations.</summary>
+        private readonly WorldLocationsTracker LocationsWatcher;
 
         /// <summary>Tracks changes to <see cref="Game1.activeClickableMenu"/>.</summary>
         private readonly IValueWatcher<IClickableMenu> ActiveMenuWatcher;
@@ -165,14 +161,14 @@ namespace StardewModdingAPI.Framework
             this.WindowSizeWatcher = WatcherFactory.ForEquatable(() => new Point(Game1.viewport.Width, Game1.viewport.Height));
             this.TimeWatcher = WatcherFactory.ForEquatable(() => Game1.timeOfDay);
             this.ActiveMenuWatcher = WatcherFactory.ForReference(() => Game1.activeClickableMenu);
-            this.LocationListWatcher = WatcherFactory.ForObservableCollection((ObservableCollection<GameLocation>)Game1.locations);
+            this.LocationsWatcher = new WorldLocationsTracker((ObservableCollection<GameLocation>)Game1.locations);
             this.Watchers.AddRange(new IWatcher[]
             {
                 this.SaveIdWatcher,
                 this.WindowSizeWatcher,
                 this.TimeWatcher,
                 this.ActiveMenuWatcher,
-                this.LocationListWatcher
+                this.LocationsWatcher
             });
         }
 
@@ -351,22 +347,7 @@ namespace StardewModdingAPI.Framework
                 foreach (IWatcher watcher in this.Watchers)
                     watcher.Update();
                 this.CurrentPlayerTracker?.Update();
-
-                // update location watchers
-                if (this.LocationListWatcher.IsChanged)
-                {
-                    foreach (GameLocation location in this.LocationListWatcher.Removed.Union(this.LocationListWatcher.Added))
-                    {
-                        if (this.LocationWatchers.TryGetValue(location, out LocationTracker watcher))
-                        {
-                            this.Watchers.Remove(watcher);
-                            this.LocationWatchers.Remove(location);
-                            watcher.Dispose();
-                        }
-                    }
-                    foreach (GameLocation location in this.LocationListWatcher.Added)
-                        this.LocationWatchers[location] = new LocationTracker(location);
-                }
+                this.LocationsWatcher.Update();
 
                 /*********
                 ** Locale changed events
@@ -516,45 +497,86 @@ namespace StardewModdingAPI.Framework
                 *********/
                 if (Context.IsWorldReady)
                 {
-                    // update player info
-                    PlayerTracker curPlayer = this.CurrentPlayerTracker;
+                    bool raiseWorldEvents = !this.SaveIdWatcher.IsChanged; // don't report changes from unloaded => loaded
 
-                    // raise current location changed
-                    if (curPlayer.TryGetNewLocation(out GameLocation newLocation))
+                    // raise location changes
+                    if (this.LocationsWatcher.IsChanged)
                     {
-                        if (this.VerboseLogging)
-                            this.Monitor.Log($"Context: set location to {newLocation.Name}.", LogLevel.Trace);
-                        this.Events.Location_CurrentLocationChanged.Raise(new EventArgsCurrentLocationChanged(curPlayer.LocationWatcher.PreviousValue, newLocation));
-                    }
-
-                    // raise location list changed
-                    if (this.LocationListWatcher.IsChanged)
-                    {
-                        if (this.VerboseLogging)
+                        // location list changes
+                        if (this.LocationsWatcher.IsLocationListChanged)
                         {
-                            string added = this.LocationListWatcher.Added.Any() ? string.Join(", ", this.LocationListWatcher.Added.Select(p => p.Name)) : "none";
-                            string removed = this.LocationListWatcher.Removed.Any() ? string.Join(", ", this.LocationListWatcher.Removed.Select(p => p.Name)) : "none";
-                            this.Monitor.Log($"Context: location list changed (added {added}; removed {removed}).", LogLevel.Trace);
+                            GameLocation[] added = this.LocationsWatcher.Added.ToArray();
+                            GameLocation[] removed = this.LocationsWatcher.Removed.ToArray();
+                            this.LocationsWatcher.ResetLocationList();
+
+                            if (this.VerboseLogging)
+                            {
+                                string addedText = this.LocationsWatcher.Added.Any() ? string.Join(", ", added.Select(p => p.Name)) : "none";
+                                string removedText = this.LocationsWatcher.Removed.Any() ? string.Join(", ", removed.Select(p => p.Name)) : "none";
+                                this.Monitor.Log($"Context: location list changed (added {addedText}; removed {removedText}).", LogLevel.Trace);
+                            }
+
+                            this.Events.Location_LocationsChanged.Raise(new EventArgsLocationsChanged(added, removed));
                         }
 
-                        this.Events.Location_LocationsChanged.Raise(new EventArgsGameLocationsChanged(Game1.locations));
+                        // raise location contents changed
+                        if (raiseWorldEvents)
+                        {
+                            foreach (LocationTracker watcher in this.LocationsWatcher.Locations)
+                            {
+                                // objects changed
+                                if (watcher.ObjectsWatcher.IsChanged)
+                                {
+                                    GameLocation location = watcher.Location;
+                                    var added = watcher.ObjectsWatcher.Added;
+                                    var removed = watcher.ObjectsWatcher.Removed;
+                                    watcher.ObjectsWatcher.Reset();
+
+                                    this.Events.Location_ObjectsChanged.Raise(new EventArgsLocationObjectsChanged(location, added, removed));
+                                }
+
+                                // buildings changed
+                                if (watcher.BuildingsWatcher.IsChanged)
+                                {
+                                    GameLocation location = watcher.Location;
+                                    var added = watcher.BuildingsWatcher.Added;
+                                    var removed = watcher.BuildingsWatcher.Removed;
+                                    watcher.BuildingsWatcher.Reset();
+
+                                    this.Events.Location_BuildingsChanged.Raise(new EventArgsLocationBuildingsChanged(location, added, removed));
+                                }
+                            }
+                        }
+                        else
+                            this.LocationsWatcher.Reset();
                     }
 
-                    // raise events that shouldn't be triggered on initial load
-                    if (!this.SaveIdWatcher.IsChanged)
+                    // raise time changed
+                    if (raiseWorldEvents && this.TimeWatcher.IsChanged)
                     {
-                        // raise location objects changed
-                        foreach (LocationTracker watcher in this.LocationWatchers.Values)
-                        {
-                            if (watcher.LocationObjectsWatcher.IsChanged)
-                            {
-                                GameLocation location = watcher.Location;
-                                var added = watcher.LocationObjectsWatcher.Added;
-                                var removed = watcher.LocationObjectsWatcher.Removed;
-                                watcher.Reset();
+                        int was = this.TimeWatcher.PreviousValue;
+                        int now = this.TimeWatcher.CurrentValue;
+                        this.TimeWatcher.Reset();
 
-                                this.Events.Location_ObjectsChanged.Raise(new EventArgsLocationObjectsChanged(location, added, removed, watcher.Location.netObjects.FieldDict));
-                            }
+                        if (this.VerboseLogging)
+                            this.Monitor.Log($"Context: time changed from {was} to {now}.", LogLevel.Trace);
+
+                        this.Events.Time_TimeOfDayChanged.Raise(new EventArgsIntChanged(was, now));
+                    }
+                    else
+                        this.TimeWatcher.Reset();
+
+                    // raise player events
+                    if (raiseWorldEvents)
+                    {
+                        PlayerTracker curPlayer = this.CurrentPlayerTracker;
+
+                        // raise current location changed
+                        if (curPlayer.TryGetNewLocation(out GameLocation newLocation))
+                        {
+                            if (this.VerboseLogging)
+                                this.Monitor.Log($"Context: set location to {newLocation.Name}.", LogLevel.Trace);
+                            this.Events.Player_Warped.Raise(new EventArgsPlayerWarped(curPlayer.LocationWatcher.PreviousValue, newLocation));
                         }
 
                         // raise player leveled up a skill
@@ -574,27 +596,6 @@ namespace StardewModdingAPI.Framework
                             this.Events.Player_InventoryChanged.Raise(new EventArgsInventoryChanged(Game1.player.Items, changedItems.ToList()));
                         }
 
-                        // raise current location's object list changed
-                        {
-                            if (curPlayer.TryGetLocationChanges(out IDictionaryWatcher<Vector2, SObject> watcher))
-                            {
-                                if (this.VerboseLogging)
-                                    this.Monitor.Log("Context: current location objects changed.", LogLevel.Trace);
-
-                                GameLocation location = curPlayer.GetCurrentLocation();
-
-                                this.Events.Location_LocationObjectsChanged.Raise(new EventArgsLocationObjectsChanged(location, watcher.Added, watcher.Removed, location.netObjects.FieldDict));
-                            }
-                        }
-
-                        // raise time changed
-                        if (this.TimeWatcher.IsChanged)
-                        {
-                            if (this.VerboseLogging)
-                                this.Monitor.Log($"Context: time changed from {this.TimeWatcher.PreviousValue} to {this.TimeWatcher.CurrentValue}.", LogLevel.Trace);
-                            this.Events.Time_TimeOfDayChanged.Raise(new EventArgsIntChanged(this.TimeWatcher.PreviousValue, this.TimeWatcher.CurrentValue));
-                        }
-
                         // raise mine level changed
                         if (curPlayer.TryGetNewMineLevel(out int mineLevel))
                         {
@@ -603,18 +604,11 @@ namespace StardewModdingAPI.Framework
                             this.Events.Mine_LevelChanged.Raise(new EventArgsMineLevelChanged(curPlayer.MineLevelWatcher.PreviousValue, mineLevel));
                         }
                     }
+                    this.CurrentPlayerTracker?.Reset();
                 }
 
-                // update state
-                this.CurrentPlayerTracker?.Reset();
-                this.LocationListWatcher.Reset();
+                // update save ID watcher
                 this.SaveIdWatcher.Reset();
-                this.TimeWatcher.Reset();
-                if (!Context.IsWorldReady)
-                {
-                    foreach (LocationTracker watcher in this.LocationWatchers.Values)
-                        watcher.Reset();
-                }
 
                 /*********
                 ** Game update
