@@ -320,7 +320,7 @@ namespace StardewModdingAPI.Metadata
                 return this.ReloadNpcSprites(content, key, monster: true);
 
             if (key.StartsWith(this.GetNormalisedPath("LooseSprites\\Fence"), StringComparison.InvariantCultureIgnoreCase))
-                return this.ReloadFenceTextures(key);
+                return this.ReloadFenceTextures(content, key);
 
             if (this.IsInFolder(key, "Portraits"))
                 return this.ReloadNpcPortraits(content, key);
@@ -412,9 +412,10 @@ namespace StardewModdingAPI.Metadata
         }
 
         /// <summary>Reload the sprites for a fence type.</summary>
+        /// <param name="content">The content manager through which to reload the asset.</param>
         /// <param name="key">The asset key to reload.</param>
         /// <returns>Returns whether any textures were reloaded.</returns>
-        private bool ReloadFenceTextures(string key)
+        private bool ReloadFenceTextures(LocalizedContentManager content, string key)
         {
             // get fence type
             if (!int.TryParse(this.GetSegments(key)[1].Substring("Fence".Length), out int fenceType))
@@ -425,16 +426,16 @@ namespace StardewModdingAPI.Metadata
                 (
                     from location in this.GetLocations()
                     from fence in location.Objects.Values.OfType<Fence>()
-                    where fenceType == 1
-                        ? fence.isGate.Value
-                        : fence.whichType.Value == fenceType
+                    where
+                        fence.whichType.Value == fenceType
+                        || (fence.isGate.Value && fenceType == 1) // gates are hardcoded to draw fence type 1
                     select fence
                 )
                 .ToArray();
 
             // update fence textures
             foreach (Fence fence in fences)
-                fence.reloadSprite();
+                this.Reflection.GetField<Lazy<Texture2D>>(fence, "fenceTexture").SetValue(new Lazy<Texture2D>(fence.loadFenceTexture));
             return true;
         }
 
