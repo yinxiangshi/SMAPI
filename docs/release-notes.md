@@ -27,9 +27,10 @@
   * Fixed console command input not saved to the log.
   * Fixed `helper.ModRegistry.GetApi` interface validation errors not mentioning which interface caused the issue.
   * **Breaking changes** (see [migration guide](https://stardewvalleywiki.com/Modding:Migrate_to_Stardew_Valley_1.3)):
-     * dropped some deprecated APIs;
-     * `LocationEvents` have been rewritten (see above);
-     * mods can't intercept chatbox input, including the game's hotkeys to toggle the chatbox (default `T` and `?`).
+     * Dropped some deprecated APIs.
+     * `LocationEvents` have been rewritten (see above).
+     * Mods can't intercept chatbox input, including the game's hotkeys to toggle the chatbox (default `T` and `?`).
+     * Mod IDs should only contain letters, numbers, hyphens, dots, and underscores (so they can be safely used in many contexts like URLs); this restriction is now enforced.
 
 * In console commands:
   * Added `player_add name`, which lets you add items to your inventory by name instead of ID.

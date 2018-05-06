@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.ModData;
 using StardewModdingAPI.Framework.Models;
@@ -194,8 +195,15 @@ namespace StardewModdingAPI.Framework.ModLoading
                         missingFields.Add(nameof(IManifest.UniqueID));
 
                     if (missingFields.Any())
+                    {
                         mod.SetStatus(ModMetadataStatus.Failed, $"its manifest is missing required fields ({string.Join(", ", missingFields)}).");
+                        continue;
+                    }
                 }
+
+                // validate ID format
+                if (Regex.IsMatch(mod.Manifest.UniqueID, "[^a-z0-9_.-]", RegexOptions.IgnoreCase))
+                    mod.SetStatus(ModMetadataStatus.Failed, "its manifest specifies an invalid ID (IDs must only contain letters, numbers, underscores, periods, or hyphens).");
             }
 
             // validate IDs are unique
