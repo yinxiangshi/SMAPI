@@ -149,6 +149,15 @@ namespace StardewModdingApi.Installer
             Console.Title = $"SMAPI {new SemanticVersionImpl(this.GetType().Assembly.GetName().Version)} installer on {platform} {EnvironmentUtility.GetFriendlyPlatformName(platform)}";
             Console.WriteLine();
 
+#if SMAPI_FOR_WINDOWS
+            if (platform == Platform.Linux || platform == Platform.Mac)
+            {
+                this.PrintError($"This is the installer for Windows. Run the 'install on {platform}.{(platform == Platform.Linux ? "sh" : "command")}' file instead.");
+                Console.ReadLine();
+                return;
+            }
+#endif
+
             /****
             ** read command-line arguments
             ****/
