@@ -528,8 +528,8 @@ namespace StardewModdingAPI.Framework
                                 if (watcher.ObjectsWatcher.IsChanged)
                                 {
                                     GameLocation location = watcher.Location;
-                                    var added = watcher.ObjectsWatcher.Added;
-                                    var removed = watcher.ObjectsWatcher.Removed;
+                                    var added = watcher.ObjectsWatcher.Added.ToArray();
+                                    var removed = watcher.ObjectsWatcher.Removed.ToArray();
                                     watcher.ObjectsWatcher.Reset();
 
                                     this.Events.Location_ObjectsChanged.Raise(new EventArgsLocationObjectsChanged(location, added, removed));
@@ -539,8 +539,8 @@ namespace StardewModdingAPI.Framework
                                 if (watcher.BuildingsWatcher.IsChanged)
                                 {
                                     GameLocation location = watcher.Location;
-                                    var added = watcher.BuildingsWatcher.Added;
-                                    var removed = watcher.BuildingsWatcher.Removed;
+                                    var added = watcher.BuildingsWatcher.Added.ToArray();
+                                    var removed = watcher.BuildingsWatcher.Removed.ToArray();
                                     watcher.BuildingsWatcher.Reset();
 
                                     this.Events.Location_BuildingsChanged.Raise(new EventArgsLocationBuildingsChanged(location, added, removed));
