@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using StardewValley;
+
 namespace StardewModdingAPI.Framework.ModHelpers
 {
     /// <summary>Provides multiplayer utilities.</summary>
@@ -20,6 +23,12 @@ namespace StardewModdingAPI.Framework.ModHelpers
             : base(modID)
         {
             this.Multiplayer = multiplayer;
+        }
+
+        /// <summary>Get the locations which are being actively synced from the host.</summary>
+        public IEnumerable<GameLocation> GetActiveLocations()
+        {
+            return this.Multiplayer.activeLocations();
         }
 
         /// <summary>Get a new multiplayer ID.</summary>
