@@ -30,6 +30,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>The loaded content managers (including the <see cref="MainContentManager"/>).</summary>
         private readonly IList<SContentManager> ContentManagers = new List<SContentManager>();
 
+        /// <summary>Whether the content coordinator has been disposed.</summary>
+        private bool IsDisposed;
+
 
         /*********
         ** Accessors
@@ -65,7 +68,7 @@ namespace StardewModdingAPI.Framework
             this.Reflection = reflection;
             this.FullRootDirectory = Path.Combine(Constants.ExecutionPath, rootDirectory);
             this.ContentManagers.Add(
-                this.MainContentManager = new SContentManager("Game1.content", serviceProvider, rootDirectory, currentCulture, this, monitor, reflection, isModFolder: false)
+                this.MainContentManager = new SContentManager("Game1.content", serviceProvider, rootDirectory, currentCulture, this, monitor, reflection, this.OnDisposing, isModFolder: false)
             );
             this.CoreAssets = new CoreAssetPropagator(this.MainContentManager.NormaliseAssetName, reflection);
         }
@@ -76,7 +79,9 @@ namespace StardewModdingAPI.Framework
         /// <param name="rootDirectory">The root directory to search for content (or <c>null</c>. for the default)</param>
         public SContentManager CreateContentManager(string name, bool isModFolder, string rootDirectory = null)
         {
-            return new SContentManager(name, this.MainContentManager.ServiceProvider, rootDirectory ?? this.MainContentManager.RootDirectory, this.MainContentManager.CurrentCulture, this, this.Monitor, this.Reflection, isModFolder);
+            SContentManager manager = new SContentManager(name, this.MainContentManager.ServiceProvider, rootDirectory ?? this.MainContentManager.RootDirectory, this.MainContentManager.CurrentCulture, this, this.Monitor, this.Reflection, this.OnDisposing, isModFolder);
+            this.ContentManagers.Add(manager);
+            return manager;
         }
 
         /// <summary>Get the current content locale.</summary>
@@ -162,14 +167,29 @@ namespace StardewModdingAPI.Framework
         /// <summary>Dispose held resources.</summary>
         public void Dispose()
         {
-            if (this.MainContentManager == null)
-                return; // already disposed
+            if (this.IsDisposed)
+                return;
+            this.IsDisposed = true;
 
             this.Monitor.Log("Disposing the content coordinator. Content managers will no longer be usable after this point.", LogLevel.Trace);
             foreach (SContentManager contentManager in this.ContentManagers)
                 contentManager.Dispose();
             this.ContentManagers.Clear();
             this.MainContentManager = null;
+        }
+
+
+        /*********
+        ** Private methods
+        *********/
+        /// <summary>A callback invoked when a content manager is disposed.</summary>
+        /// <param name="contentManager">The content manager being disposed.</param>
+        private void OnDisposing(SContentManager contentManager)
+        {
+            if (this.IsDisposed)
+                return;
+
+            this.ContentManagers.Remove(contentManager);
         }
     }
 }

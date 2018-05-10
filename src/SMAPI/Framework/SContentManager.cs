@@ -43,11 +43,17 @@ namespace StardewModdingAPI.Framework
         /// <summary>The path prefix for assets in mod folders.</summary>
         private readonly string ModContentPrefix;
 
+        /// <summary>A callback to invoke when the content manager is being disposed.</summary>
+        private readonly Action<SContentManager> OnDisposing;
+
         /// <summary>Interceptors which provide the initial versions of matching assets.</summary>
         private IDictionary<IModMetadata, IList<IAssetLoader>> Loaders => this.Coordinator.Loaders;
 
         /// <summary>Interceptors which edit matching assets after they're loaded.</summary>
         private IDictionary<IModMetadata, IList<IAssetEditor>> Editors => this.Coordinator.Editors;
+
+        /// <summary>Whether the content coordinator has been disposed.</summary>
+        private bool IsDisposed;
 
 
         /*********
@@ -78,7 +84,8 @@ namespace StardewModdingAPI.Framework
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="reflection">Simplifies access to private code.</param>
         /// <param name="isModFolder">Whether this content manager is wrapped around a mod folder.</param>
-        public SContentManager(string name, IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, bool isModFolder)
+        /// <param name="onDisposing">A callback to invoke when the content manager is being disposed.</param>
+        public SContentManager(string name, IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, Action<SContentManager> onDisposing, bool isModFolder)
                 : base(serviceProvider, rootDirectory, currentCulture)
         {
             // init
@@ -88,6 +95,7 @@ namespace StardewModdingAPI.Framework
             this.Cache = new ContentCache(this, reflection);
             this.Monitor = monitor ?? throw new ArgumentNullException(nameof(monitor));
             this.ModContentPrefix = this.GetAssetNameFromFilePath(Constants.ModPath, ContentSource.GameContent);
+            this.OnDisposing = onDisposing;
 
             // get asset data
             this.LanguageCodes = this.GetKeyLocales().ToDictionary(p => p.Value, p => p.Key, StringComparer.InvariantCultureIgnoreCase);
@@ -289,6 +297,27 @@ namespace StardewModdingAPI.Framework
             });
 
             return removeAssetNames;
+        }
+
+        /// <summary>Dispose held resources.</summary>
+        /// <param name="isDisposing">Whether the content manager is being disposed (rather than finalized).</param>
+        protected override void Dispose(bool isDisposing)
+        {
+            if (this.IsDisposed)
+                return;
+            this.IsDisposed = true;
+
+            this.OnDisposing(this);
+            base.Dispose(isDisposing);
+        }
+
+        /// <inheritdoc />
+        public override void Unload()
+        {
+            if (this.IsDisposed)
+                return; // base logic doesn't allow unloading twice, which happens due to SMAPI and the game both unloading
+
+            base.Unload();
         }
 
 

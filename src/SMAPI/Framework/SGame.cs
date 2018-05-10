@@ -209,7 +209,7 @@ namespace StardewModdingAPI.Framework
             if (this.NextContentManagerIsMain)
             {
                 this.NextContentManagerIsMain = false;
-                return this.ContentCore.CreateContentManager("Game1.content", isModFolder: false, rootDirectory: rootDirectory);
+                return this.ContentCore.MainContentManager;
             }
 
             // any other content manager
