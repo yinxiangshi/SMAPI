@@ -63,6 +63,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="commandHelper">An API for managing console commands.</param>
         /// <param name="modRegistry">an API for fetching metadata about loaded mods.</param>
         /// <param name="reflectionHelper">An API for accessing private game code.</param>
+        /// <param name="multiplayer">Provides multiplayer utilities.</param>
         /// <param name="translationHelper">An API for reading translations stored in the mod's <c>i18n</c> folder.</param>
         /// <param name="contentPacks">The content packs loaded for this mod.</param>
         /// <param name="createContentPack">Create a transitional content pack.</param>
