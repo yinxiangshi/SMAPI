@@ -211,7 +211,7 @@ namespace StardewModdingApi.Installer
             };
 
             // show output
-            Console.WriteLine($"Your game folder: {installDir}.");
+            this.PrintInfo($"Your game folder: {installDir}.");
 
             /****
             ** validate assumptions
@@ -269,9 +269,9 @@ namespace StardewModdingApi.Installer
                 action = ScriptAction.Uninstall;
             else
             {
-                Console.WriteLine("You can....");
-                Console.WriteLine("[1] Install SMAPI.");
-                Console.WriteLine("[2] Uninstall SMAPI.");
+                this.PrintInfo("You can....");
+                this.PrintInfo("[1] Install SMAPI.");
+                this.PrintInfo("[2] Uninstall SMAPI.");
                 Console.WriteLine();
 
                 string choice = this.InteractivelyChoose("What do you want to do? Type 1 or 2, then press enter.", "1", "2");
@@ -424,6 +424,10 @@ namespace StardewModdingApi.Installer
         /// <param name="text">The text to print.</param>
         private void PrintDebug(string text) => this.ConsoleWriter.WriteLine(text, ConsoleLogLevel.Debug);
 
+        /// <summary>Print a debug message.</summary>
+        /// <param name="text">The text to print.</param>
+        private void PrintInfo(string text) => this.ConsoleWriter.WriteLine(text, ConsoleLogLevel.Info);
+
         /// <summary>Print a warning message.</summary>
         /// <param name="text">The text to print.</param>
         private void PrintWarning(string text) => this.ConsoleWriter.WriteLine(text, ConsoleLogLevel.Warn);
@@ -529,11 +533,11 @@ namespace StardewModdingApi.Installer
         {
             while (true)
             {
-                Console.WriteLine(message);
+                this.PrintInfo(message);
                 string input = Console.ReadLine()?.Trim().ToLowerInvariant();
                 if (!options.Contains(input))
                 {
-                    Console.WriteLine("That's not a valid option.");
+                    this.PrintInfo("That's not a valid option.");
                     continue;
                 }
                 return input;
@@ -584,9 +588,9 @@ namespace StardewModdingApi.Installer
 
                 // let user choose path
                 Console.WriteLine();
-                Console.WriteLine("Found multiple copies of the game:");
+                this.PrintInfo("Found multiple copies of the game:");
                 for (int i = 0; i < defaultPaths.Length; i++)
-                    Console.WriteLine($"[{i + 1}] {defaultPaths[i].FullName}");
+                    this.PrintInfo($"[{i + 1}] {defaultPaths[i].FullName}");
                 Console.WriteLine();
 
                 string[] validOptions = Enumerable.Range(1, defaultPaths.Length).Select(p => p.ToString(CultureInfo.InvariantCulture)).ToArray();
@@ -596,15 +600,15 @@ namespace StardewModdingApi.Installer
             }
 
             // ask user
-            Console.WriteLine("Oops, couldn't find the game automatically.");
+            this.PrintInfo("Oops, couldn't find the game automatically.");
             while (true)
             {
                 // get path from user
-                Console.WriteLine($"Type the file path to the game directory (the one containing '{executableFilename}'), then press enter.");
+                this.PrintInfo($"Type the file path to the game directory (the one containing '{executableFilename}'), then press enter.");
                 string path = Console.ReadLine()?.Trim();
                 if (string.IsNullOrWhiteSpace(path))
                 {
-                    Console.WriteLine("   You must specify a directory path to continue.");
+                    this.PrintInfo("   You must specify a directory path to continue.");
                     continue;
                 }
 
@@ -627,17 +631,17 @@ namespace StardewModdingApi.Installer
                 // validate path
                 if (!directory.Exists)
                 {
-                    Console.WriteLine("   That directory doesn't seem to exist.");
+                    this.PrintInfo("   That directory doesn't seem to exist.");
                     continue;
                 }
                 if (!directory.EnumerateFiles(executableFilename).Any())
                 {
-                    Console.WriteLine("   That directory doesn't contain a Stardew Valley executable.");
+                    this.PrintInfo("   That directory doesn't contain a Stardew Valley executable.");
                     continue;
                 }
 
                 // looks OK
-                Console.WriteLine("   OK!");
+                this.PrintInfo("   OK!");
                 return directory;
             }
         }
