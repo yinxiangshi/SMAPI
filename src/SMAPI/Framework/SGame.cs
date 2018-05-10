@@ -115,12 +115,15 @@ namespace StardewModdingAPI.Framework
         /// <summary>Simplifies access to private game code.</summary>
         private readonly Reflector Reflection;
 
+        /// <summary>Whether the next content manager requested by the game will be for <see cref="Game1.content"/>.</summary>
+        private bool NextContentManagerIsMain;
+
 
         /*********
         ** Accessors
         *********/
         /// <summary>SMAPI's content manager.</summary>
-        public ContentCore ContentCore { get; private set; }
+        public ContentCoordinator ContentCore { get; private set; }
 
         /// <summary>The game's core multiplayer utility.</summary>
         public SMultiplayer Multiplayer => (SMultiplayer)Game1.multiplayer;
@@ -140,6 +143,10 @@ namespace StardewModdingAPI.Framework
         /// <param name="onGameExiting">A callback to invoke when the game exits.</param>
         internal SGame(IMonitor monitor, Reflector reflection, EventManager eventManager, Action onGameInitialised, Action onGameExiting)
         {
+            // check expectations
+            if (this.ContentCore == null)
+                throw new InvalidOperationException($"The game didn't initialise its first content manager before SMAPI's {nameof(SGame)} constructor. This indicates an incompatible lifecycle change.");
+
             // init XNA
             Game1.graphics.GraphicsProfile = GraphicsProfile.HiDef;
 
@@ -150,8 +157,6 @@ namespace StardewModdingAPI.Framework
             this.Reflection = reflection;
             this.OnGameInitialised = onGameInitialised;
             this.OnGameExiting = onGameExiting;
-            if (this.ContentCore == null) // shouldn't happen since CreateContentManager is called first, but let's init here just in case
-                this.ContentCore = new ContentCore(this.Content.ServiceProvider, this.Content.RootDirectory, Thread.CurrentThread.CurrentUICulture, this.Monitor, reflection);
             Game1.input = new SInputState();
             Game1.multiplayer = new SMultiplayer(monitor, eventManager);
 
@@ -190,14 +195,25 @@ namespace StardewModdingAPI.Framework
         /// <param name="rootDirectory">The root directory to search for content.</param>
         protected override LocalizedContentManager CreateContentManager(IServiceProvider serviceProvider, string rootDirectory)
         {
-            // NOTE: this method is called from the Game1 constructor, before the SGame constructor runs.
-            // Don't depend on anything being initialised at this point.
+            // Game1._temporaryContent initialising from SGame constructor
+            // NOTE: this method is called before the SGame constructor runs. Don't depend on anything being initialised at this point.
             if (this.ContentCore == null)
             {
-                this.ContentCore = new ContentCore(serviceProvider, rootDirectory, Thread.CurrentThread.CurrentUICulture, SGame.MonitorDuringInitialisation, SGame.ReflectorDuringInitialisation);
+                this.ContentCore = new ContentCoordinator(serviceProvider, rootDirectory, Thread.CurrentThread.CurrentUICulture, SGame.MonitorDuringInitialisation, SGame.ReflectorDuringInitialisation);
                 SGame.MonitorDuringInitialisation = null;
+                this.NextContentManagerIsMain = true;
+                return this.ContentCore.CreateContentManager("Game1._temporaryContent", isModFolder: false);
             }
-            return this.ContentCore.CreateContentManager("(generated)", rootDirectory);
+
+            // Game1.content initialising from LoadContent
+            if (this.NextContentManagerIsMain)
+            {
+                this.NextContentManagerIsMain = false;
+                return this.ContentCore.CreateContentManager("Game1.content", isModFolder: false, rootDirectory: rootDirectory);
+            }
+
+            // any other content manager
+            return this.ContentCore.CreateContentManager("(generated)", isModFolder: false, rootDirectory: rootDirectory);
         }
 
         /// <summary>The method called when the game is updating its state. This happens roughly 60 times per second.</summary>

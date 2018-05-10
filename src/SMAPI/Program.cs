@@ -63,7 +63,7 @@ namespace StardewModdingAPI
         private SGame GameInstance;
 
         /// <summary>The underlying content manager.</summary>
-        private ContentCore ContentCore => this.GameInstance.ContentCore;
+        private ContentCoordinator ContentCore => this.GameInstance.ContentCore;
 
         /// <summary>Tracks the installed mods.</summary>
         /// <remarks>This is initialised after the game starts.</remarks>
@@ -721,7 +721,7 @@ namespace StardewModdingAPI
         /// <param name="jsonHelper">The JSON helper with which to read mods' JSON files.</param>
         /// <param name="contentCore">The content manager to use for mod content.</param>
         /// <param name="modDatabase">Handles access to SMAPI's internal mod metadata list.</param>
-        private void LoadMods(IModMetadata[] mods, JsonHelper jsonHelper, ContentCore contentCore, ModDatabase modDatabase)
+        private void LoadMods(IModMetadata[] mods, JsonHelper jsonHelper, ContentCoordinator contentCore, ModDatabase modDatabase)
         {
             this.Monitor.Log("Loading mods...", LogLevel.Trace);
 
@@ -748,7 +748,7 @@ namespace StardewModdingAPI
                 // load mod as content pack
                 IManifest manifest = metadata.Manifest;
                 IMonitor monitor = this.GetSecondaryMonitor(metadata.DisplayName);
-                ContentManagerShim contentManager = this.ContentCore.CreateContentManager($"Mods.{metadata.Manifest.UniqueID}", metadata.DirectoryPath);
+                SContentManager contentManager = this.ContentCore.CreateContentManager($"Mods.{metadata.Manifest.UniqueID}", isModFolder: true, rootDirectory: metadata.DirectoryPath);
                 IContentHelper contentHelper = new ContentHelper(this.ContentCore, contentManager, metadata.DirectoryPath, manifest.UniqueID, metadata.DisplayName, monitor);
                 IContentPack contentPack = new ContentPack(metadata.DirectoryPath, manifest, contentHelper, jsonHelper);
                 metadata.SetMod(contentPack, monitor);
@@ -833,7 +833,7 @@ namespace StardewModdingAPI
                         IModHelper modHelper;
                         {
                             ICommandHelper commandHelper = new CommandHelper(manifest.UniqueID, metadata.DisplayName, this.CommandManager);
-                            ContentManagerShim contentManager = this.ContentCore.CreateContentManager($"Mods.{metadata.Manifest.UniqueID}", metadata.DirectoryPath);
+                            SContentManager contentManager = this.ContentCore.CreateContentManager($"Mods.{metadata.Manifest.UniqueID}", isModFolder: true, rootDirectory: metadata.DirectoryPath);
                             IContentHelper contentHelper = new ContentHelper(contentCore, contentManager, metadata.DirectoryPath, manifest.UniqueID, metadata.DisplayName, monitor);
                             IReflectionHelper reflectionHelper = new ReflectionHelper(manifest.UniqueID, metadata.DisplayName, this.Reflection, this.DeprecationManager);
                             IModRegistry modRegistryHelper = new ModRegistryHelper(manifest.UniqueID, this.ModRegistry, proxyFactory, monitor);
@@ -843,7 +843,7 @@ namespace StardewModdingAPI
                             IContentPack CreateTransitionalContentPack(string packDirPath, IManifest packManifest)
                             {
                                 IMonitor packMonitor = this.GetSecondaryMonitor(packManifest.Name);
-                                ContentManagerShim packContentManager = this.ContentCore.CreateContentManager($"Mods.{packManifest.UniqueID}", packDirPath);
+                                SContentManager packContentManager = this.ContentCore.CreateContentManager($"Mods.{packManifest.UniqueID}", isModFolder: true, rootDirectory: packDirPath);
                                 IContentHelper packContentHelper = new ContentHelper(contentCore, packContentManager, packDirPath, packManifest.UniqueID, packManifest.Name, packMonitor);
                                 return new ContentPack(packDirPath, packManifest, packContentHelper, this.JsonHelper);
                             }
