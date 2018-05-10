@@ -1,3 +1,5 @@
+using StardewModdingAPI.Internal.ConsoleWriting;
+
 namespace StardewModdingAPI.Framework.Models
 {
     /// <summary>The SMAPI configuration settings.</summary>

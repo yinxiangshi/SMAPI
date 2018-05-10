@@ -1,4 +1,4 @@
-namespace StardewModdingAPI.Framework.Models
+namespace StardewModdingAPI.Internal.ConsoleWriting
 {
     /// <summary>A monitor color scheme to use.</summary>
     internal enum MonitorColorScheme
