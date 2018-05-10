@@ -22,6 +22,9 @@ namespace StardewModdingAPI.Internal.ConsoleWriting
         Alert,
 
         /// <summary>A critical issue that generally signals an immediate end to the application.</summary>
-        Critical
+        Critical,
+
+        /// <summary>A success message that generally signals a successful end to a task.</summary>
+        Success
     }
 }

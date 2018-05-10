@@ -95,7 +95,8 @@ namespace StardewModdingAPI.Internal.ConsoleWriting
                         [ConsoleLogLevel.Info] = ConsoleColor.White,
                         [ConsoleLogLevel.Warn] = ConsoleColor.Yellow,
                         [ConsoleLogLevel.Error] = ConsoleColor.Red,
-                        [ConsoleLogLevel.Alert] = ConsoleColor.Magenta
+                        [ConsoleLogLevel.Alert] = ConsoleColor.Magenta,
+                        [ConsoleLogLevel.Success] = ConsoleColor.DarkGreen
                     };
 
                 case MonitorColorScheme.LightBackground:
@@ -106,7 +107,8 @@ namespace StardewModdingAPI.Internal.ConsoleWriting
                         [ConsoleLogLevel.Info] = ConsoleColor.Black,
                         [ConsoleLogLevel.Warn] = ConsoleColor.DarkYellow,
                         [ConsoleLogLevel.Error] = ConsoleColor.Red,
-                        [ConsoleLogLevel.Alert] = ConsoleColor.DarkMagenta
+                        [ConsoleLogLevel.Alert] = ConsoleColor.DarkMagenta,
+                        [ConsoleLogLevel.Success] = ConsoleColor.DarkGreen
                     };
 
                 default:

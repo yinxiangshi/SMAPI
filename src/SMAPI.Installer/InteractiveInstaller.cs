@@ -8,6 +8,7 @@ using System.Threading;
 using Microsoft.Win32;
 using StardewModdingApi.Installer.Enums;
 using StardewModdingAPI.Internal;
+using StardewModdingAPI.Internal.ConsoleWriting;
 
 namespace StardewModdingApi.Installer
 {
@@ -114,13 +115,19 @@ namespace StardewModdingApi.Installer
             yield return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley", "ErrorLogs"); // remove old log files
         }
 
-        /// <summary>Whether the current console supports color formatting.</summary>
-        private static readonly bool ConsoleSupportsColor = InteractiveInstaller.GetConsoleSupportsColor();
+        /// <summary>Handles writing color-coded text to the console.</summary>
+        private readonly ColorfulConsoleWriter ConsoleWriter;
 
 
         /*********
         ** Public methods
         *********/
+        /// <summary>Construct an instance.</summary>
+        public InteractiveInstaller()
+        {
+            this.ConsoleWriter = new ColorfulConsoleWriter(EnvironmentUtility.DetectPlatform(), MonitorColorScheme.AutoDetect);
+        }
+
         /// <summary>Run the install or uninstall script.</summary>
         /// <param name="args">The command line arguments.</param>
         /// <remarks>
@@ -366,7 +373,7 @@ namespace StardewModdingApi.Installer
                 }
 
                 // remove obsolete appdata mods
-                this.InteractivelyRemoveAppDataMods(platform, modsDir, packagedModsDir);
+                this.InteractivelyRemoveAppDataMods(modsDir, packagedModsDir);
             }
             Console.WriteLine();
             Console.WriteLine();
@@ -378,20 +385,20 @@ namespace StardewModdingApi.Installer
             {
                 if (action == ScriptAction.Install)
                 {
-                    this.PrintColor("SMAPI is installed! If you use Steam, set your launch options to enable achievements (see smapi.io/install):", ConsoleColor.DarkGreen);
-                    this.PrintColor($"    \"{Path.Combine(installDir.FullName, "StardewModdingAPI.exe")}\" %command%", ConsoleColor.DarkGreen);
+                    this.PrintSuccess("SMAPI is installed! If you use Steam, set your launch options to enable achievements (see smapi.io/install):");
+                    this.PrintSuccess($"    \"{Path.Combine(installDir.FullName, "StardewModdingAPI.exe")}\" %command%");
                     Console.WriteLine();
-                    this.PrintColor("If you don't use Steam, launch StardewModdingAPI.exe in your game folder to play with mods.", ConsoleColor.DarkGreen);
+                    this.PrintSuccess("If you don't use Steam, launch StardewModdingAPI.exe in your game folder to play with mods.");
                 }
                 else
-                    this.PrintColor("SMAPI is removed! If you configured Steam to launch SMAPI, don't forget to clear your launch options.", ConsoleColor.DarkGreen);
+                    this.PrintSuccess("SMAPI is removed! If you configured Steam to launch SMAPI, don't forget to clear your launch options.");
             }
             else
             {
-                if (action == ScriptAction.Install)
-                    this.PrintColor("SMAPI is installed! Launch the game the same way as before to play with mods.", ConsoleColor.DarkGreen);
-                else
-                    this.PrintColor("SMAPI is removed! Launch the game the same way as before to play without mods.", ConsoleColor.DarkGreen);
+                this.PrintSuccess(action == ScriptAction.Install
+                    ? "SMAPI is installed! Launch the game the same way as before to play with mods."
+                    : "SMAPI is removed! Launch the game the same way as before to play without mods."
+                );
             }
 
             Console.ReadKey();
@@ -401,20 +408,6 @@ namespace StardewModdingApi.Installer
         /*********
         ** Private methods
         *********/
-        /// <summary>Test whether the current console supports color formatting.</summary>
-        private static bool GetConsoleSupportsColor()
-        {
-            try
-            {
-                Console.ForegroundColor = Console.ForegroundColor;
-                return true;
-            }
-            catch (Exception)
-            {
-                return false; // Mono bug
-            }
-        }
-
         /// <summary>Get the value of a key in the Windows registry.</summary>
         /// <param name="key">The full path of the registry key relative to HKLM.</param>
         /// <param name="name">The name of the value.</param>
@@ -430,39 +423,19 @@ namespace StardewModdingApi.Installer
 
         /// <summary>Print a debug message.</summary>
         /// <param name="text">The text to print.</param>
-        private void PrintDebug(string text)
-        {
-            this.PrintColor(text, ConsoleColor.DarkGray);
-        }
+        private void PrintDebug(string text) => this.ConsoleWriter.WriteLine(text, ConsoleLogLevel.Debug);
 
         /// <summary>Print a warning message.</summary>
         /// <param name="text">The text to print.</param>
-        private void PrintWarning(string text)
-        {
-            this.PrintColor(text, ConsoleColor.DarkYellow);
-        }
+        private void PrintWarning(string text) => this.ConsoleWriter.WriteLine(text, ConsoleLogLevel.Warn);
 
         /// <summary>Print a warning message.</summary>
         /// <param name="text">The text to print.</param>
-        private void PrintError(string text)
-        {
-            this.PrintColor(text, ConsoleColor.Red);
-        }
+        private void PrintError(string text) => this.ConsoleWriter.WriteLine(text, ConsoleLogLevel.Error);
 
-        /// <summary>Print a message to the console.</summary>
-        /// <param name="text">The message text.</param>
-        /// <param name="color">The text foreground color.</param>
-        private void PrintColor(string text, ConsoleColor color)
-        {
-            if (InteractiveInstaller.ConsoleSupportsColor)
-            {
-                Console.ForegroundColor = color;
-                Console.WriteLine(text);
-                Console.ResetColor();
-            }
-            else
-                Console.WriteLine(text);
-        }
+        /// <summary>Print a success message.</summary>
+        /// <param name="text">The text to print.</param>
+        private void PrintSuccess(string text) => this.ConsoleWriter.WriteLine(text, ConsoleLogLevel.Success);
 
         /// <summary>Get whether the current system has .NET Framework 4.5 or later installed. This only applies on Windows.</summary>
         /// <param name="platform">The current platform.</param>
@@ -671,10 +644,9 @@ namespace StardewModdingApi.Installer
         }
 
         /// <summary>Interactively move mods out of the appdata directory.</summary>
-        /// <param name="platform">The current platform.</param>
         /// <param name="properModsDir">The directory which should contain all mods.</param>
         /// <param name="packagedModsDir">The installer directory containing packaged mods.</param>
-        private void InteractivelyRemoveAppDataMods(Platform platform, DirectoryInfo properModsDir, DirectoryInfo packagedModsDir)
+        private void InteractivelyRemoveAppDataMods(DirectoryInfo properModsDir, DirectoryInfo packagedModsDir)
         {
             // get packaged mods to delete
             string[] packagedModNames = packagedModsDir.GetDirectories().Select(p => p.Name).ToArray();
