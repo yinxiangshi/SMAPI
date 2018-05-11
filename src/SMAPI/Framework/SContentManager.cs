@@ -393,11 +393,16 @@ namespace StardewModdingAPI.Framework
                 return this.Cache.ContainsKey(normalisedAssetName);
 
             // translated
-            if (!this.IsLocalisableLookup.TryGetValue(normalisedAssetName, out bool localisable))
-                return false;
-            return localisable
-                ? this.Cache.ContainsKey($"{normalisedAssetName}.{this.GetLocale(this.GetCurrentLanguage())}")
-                : this.Cache.ContainsKey(normalisedAssetName);
+            string localeKey = $"{normalisedAssetName}.{this.GetLocale(this.GetCurrentLanguage())}";
+            if (this.IsLocalisableLookup.TryGetValue(localeKey, out bool localisable))
+            {
+                return localisable
+                    ? this.Cache.ContainsKey(localeKey)
+                    : this.Cache.ContainsKey(normalisedAssetName);
+            }
+
+            // not loaded yet
+            return false;
         }
 
         /****
