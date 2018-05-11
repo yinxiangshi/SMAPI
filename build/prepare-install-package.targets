@@ -18,7 +18,7 @@
     <RemoveDir Directories="$(PackagePath)" />
     
     <!-- copy installer files -->
-    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(TargetDir)\$(TargetName).exe" DestinationFiles="$(PackagePath)\install.exe" />
+    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(TargetDir)\$(TargetName).exe" DestinationFiles="$(PackagePath)\install on Windows.exe" />
     <Copy SourceFiles="$(TargetDir)\readme.txt" DestinationFiles="$(PackagePath)\README.txt" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(TargetDir)\unix-launcher.sh" DestinationFiles="$(PackageInternalPath)\Mono\StardewModdingAPI" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(TargetDir)\unix-install.sh" DestinationFiles="$(PackagePath)\install.sh" />
