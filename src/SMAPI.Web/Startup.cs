@@ -153,9 +153,10 @@ namespace StardewModdingAPI.Web
             ));
 
             // shortcut redirects
+            redirects.Add(new RedirectToUrlRule(@"^/buildmsg(?:/?(.*))$", "https://github.com/Pathoschild/SMAPI/blob/develop/docs/mod-build-config.md#$1"));
             redirects.Add(new RedirectToUrlRule(@"^/compat\.?$", "https://stardewvalleywiki.com/Modding:SMAPI_compatibility"));
             redirects.Add(new RedirectToUrlRule(@"^/docs\.?$", "https://stardewvalleywiki.com/Modding:Index"));
-            redirects.Add(new RedirectToUrlRule(@"^/buildmsg(?:/?(.*))$", "https://github.com/Pathoschild/SMAPI/blob/develop/docs/mod-build-config.md#$1"));
+            redirects.Add(new RedirectToUrlRule(@"^/install\.?$", "https://stardewvalleywiki.com/Modding:Player_Guide/Getting_Started#Install_SMAPI"));
 
             // redirect legacy canimod.com URLs
             var wikiRedirects = new Dictionary<string, string[]>

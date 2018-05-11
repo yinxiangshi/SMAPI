@@ -9,6 +9,7 @@
   * Fixed console color scheme on Mac or in PowerShell, configurable via `StardewModdingAPI.config.json`.
   * Fixed detection of GOG Galaxy install path in rare cases.
   * Fixed install error on Linux/Mac in some cases.
+  * Fixed `smapi.io/install` not linking to a useful page.
   * Renamed `install.exe` to `install on Windows.exe` to avoid confusion.
 
 * For modders:
