@@ -218,14 +218,16 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Assert that the given key has a valid format.</summary>
         /// <param name="key">The asset key to check.</param>
-        /// <exception cref="ArgumentException">The asset key is empty or contains invalid characters.</exception>
+        /// <exception cref="SContentLoadException">The asset key is empty or contains invalid characters.</exception>
         [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "Parameter is only used for assertion checks by design.")]
         public void AssertValidAssetKeyFormat(string key)
         {
+            // NOTE: the game checks for ContentLoadException to handle invalid keys, so avoid
+            // throwing other types like ArgumentException here.
             if (string.IsNullOrWhiteSpace(key))
-                throw new ArgumentException("The asset key or local path is empty.");
+                throw new SContentLoadException("The asset key or local path is empty.");
             if (key.Intersect(Path.GetInvalidPathChars()).Any())
-                throw new ArgumentException("The asset key or local path contains invalid characters.");
+                throw new SContentLoadException("The asset key or local path contains invalid characters.");
         }
 
         /// <summary>Convert an absolute file path into an appropriate asset name.</summary>
