@@ -30,7 +30,7 @@
 
   <!-- add game references-->
   <Choose>
-    <When Condition="'$(MSBuildProjectName)' == 'StardewModdingAPI' OR '$(MSBuildProjectName)' == 'StardewModdingAPI.Mods.ConsoleCommands'">
+    <When Condition="'$(MSBuildProjectName)' == 'StardewModdingAPI' OR '$(MSBuildProjectName)' == 'StardewModdingAPI.Mods.ConsoleCommands' OR '$(MSBuildProjectName)' == 'StardewModdingAPI.Tests'">
       <Choose>
         <When Condition="$(OS) == 'Windows_NT'">
           <ItemGroup>
