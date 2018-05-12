@@ -30,7 +30,7 @@
 
   <!-- add game references-->
   <Choose>
-    <When Condition="'$(MSBuildProjectName)' == 'StardewModdingAPI' OR '$(MSBuildProjectName)' == 'StardewModdingAPI.Mods.ConsoleCommands' OR '$(MSBuildProjectName)' == 'StardewModdingAPI.Tests'">
+    <When Condition="'$(MSBuildProjectName)' == 'StardewModdingAPI' OR '$(MSBuildProjectName)' == 'StardewModdingAPI.Mods.ConsoleCommands' OR '$(MSBuildProjectName)' == 'StardewModdingAPI.Mods.SaveBackup' OR '$(MSBuildProjectName)' == 'StardewModdingAPI.Tests'">
       <Choose>
         <When Condition="$(OS) == 'Windows_NT'">
           <ItemGroup>
@@ -95,7 +95,7 @@
 
   <!-- copy files into game directory and enable debugging (only in debug mode) -->
   <Target Name="AfterBuild">
-    <CallTarget Targets="CopySMAPI;CopyDefaultMod" Condition="'$(Configuration)' == 'Debug'" />
+    <CallTarget Targets="CopySMAPI;CopyDefaultMods" Condition="'$(Configuration)' == 'Debug'" />
   </Target>
   <Target Name="CopySMAPI" Condition="'$(MSBuildProjectName)' == 'StardewModdingAPI'">
     <Copy SourceFiles="$(TargetDir)\$(TargetName).exe" DestinationFolder="$(GamePath)" />
@@ -106,10 +106,10 @@
     <Copy SourceFiles="$(TargetDir)\Newtonsoft.Json.dll" DestinationFolder="$(GamePath)" />
     <Copy SourceFiles="$(TargetDir)\Mono.Cecil.dll" DestinationFolder="$(GamePath)" />
   </Target>
-  <Target Name="CopyDefaultMod" Condition="'$(MSBuildProjectName)' == 'StardewModdingAPI.Mods.ConsoleCommands'">
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).dll" DestinationFolder="$(GamePath)\Mods\ConsoleCommands" />
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)\Mods\ConsoleCommands" Condition="Exists('$(TargetDir)\$(TargetName).pdb')" />
-    <Copy SourceFiles="$(TargetDir)\manifest.json" DestinationFolder="$(GamePath)\Mods\ConsoleCommands" />
+  <Target Name="CopyDefaultMods" Condition="'$(MSBuildProjectName)' == 'StardewModdingAPI.Mods.ConsoleCommands' OR '$(MSBuildProjectName)' == 'StardewModdingAPI.Mods.SaveBackup'">
+    <Copy SourceFiles="$(TargetDir)\$(TargetName).dll" DestinationFolder="$(GamePath)\Mods\$(AssemblyName)" />
+    <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)\Mods\$(AssemblyName)" Condition="Exists('$(TargetDir)\$(TargetName).pdb')" />
+    <Copy SourceFiles="$(TargetDir)\manifest.json" DestinationFolder="$(GamePath)\Mods\$(AssemblyName)" />
   </Target>
 
   <!-- launch SMAPI on debug -->

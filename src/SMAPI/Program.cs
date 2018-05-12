@@ -100,7 +100,8 @@ namespace StardewModdingAPI
         /// <summary>The mod IDs for which to not show missing update key warnings.</summary>
         private readonly string[] AllowMissingUpdateKeys =
         {
-            "SMAPI.ConsoleCommands"
+            "SMAPI.ConsoleCommands",
+            "SMAPI.SaveBackup"
         };
 
         /// <summary>Encapsulates SMAPI's JSON file parsing.</summary>

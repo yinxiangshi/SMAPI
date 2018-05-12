@@ -58,6 +58,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMAPI.ModBuildConfig.Analyz
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "StardewModdingAPI.Internal", "SMAPI.Internal\StardewModdingAPI.Internal.shproj", "{85208F8D-6FD1-4531-BE05-7142490F59FE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StardewModdingAPI.Mods.SaveBackup", "SMAPI.Mods.SaveBackup\StardewModdingAPI.Mods.SaveBackup.csproj", "{E272EB5D-8C57-417E-8E60-C1079D3F53C4}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		SMAPI.Internal\SMAPI.Internal.projitems*{443ddf81-6aaf-420a-a610-3459f37e5575}*SharedItemsImports = 4
@@ -102,6 +104,10 @@ Global
 		{0CF97929-B0D0-4D73-B7BF-4FF7191035F9}.Debug|x86.Build.0 = Debug|Any CPU
 		{0CF97929-B0D0-4D73-B7BF-4FF7191035F9}.Release|x86.ActiveCfg = Release|Any CPU
 		{0CF97929-B0D0-4D73-B7BF-4FF7191035F9}.Release|x86.Build.0 = Release|Any CPU
+		{E272EB5D-8C57-417E-8E60-C1079D3F53C4}.Debug|x86.ActiveCfg = Debug|x86
+		{E272EB5D-8C57-417E-8E60-C1079D3F53C4}.Debug|x86.Build.0 = Debug|x86
+		{E272EB5D-8C57-417E-8E60-C1079D3F53C4}.Release|x86.ActiveCfg = Release|x86
+		{E272EB5D-8C57-417E-8E60-C1079D3F53C4}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
