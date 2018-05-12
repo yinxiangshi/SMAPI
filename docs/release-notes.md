@@ -10,6 +10,7 @@
   * Fixed detection of GOG Galaxy install path in rare cases.
   * Fixed install error on Linux/Mac in some cases.
   * Fixed `smapi.io/install` not linking to a useful page.
+  * Fixed `world_setseason` command not running season-change logic.
   * Renamed `install.exe` to `install on Windows.exe` to avoid confusion.
 
 * For modders:
