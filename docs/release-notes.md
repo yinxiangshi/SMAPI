@@ -2,6 +2,7 @@
 ## 2.6 beta
 * For players:
   * Updated for Stardew Valley 1.3 (no longer compatible with earlier versions).
+  * Added a bundled save backup mod.
   * Added beta update channel.
   * Added prompt when in beta channel and a new version is found.
   * Added friendly error when game can't start audio.
