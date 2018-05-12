@@ -200,6 +200,12 @@ table#metadata, table#mods {
     color: #f00;
 }
 
+#log .critical {
+    background-color: #c00;
+    color: #fff;
+    font-weight: bold;
+}
+
 #log {
     border-spacing: 0;
 }
