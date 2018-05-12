@@ -97,6 +97,12 @@ namespace StardewModdingAPI
             new Regex(@"^DebugOutput: added CLOUD", RegexOptions.Compiled | RegexOptions.CultureInvariant)
         };
 
+        /// <summary>The mod IDs for which to not show missing update key warnings.</summary>
+        private readonly string[] AllowMissingUpdateKeys =
+        {
+            "SMAPI.ConsoleCommands"
+        };
+
         /// <summary>Encapsulates SMAPI's JSON file parsing.</summary>
         private readonly JsonHelper JsonHelper = new JsonHelper();
 
@@ -783,7 +789,7 @@ namespace StardewModdingAPI
                         : $"   {metadata.DisplayName}...", LogLevel.Trace);
 
                     // show warnings
-                    if (metadata.HasManifest() && !metadata.HasUpdateKeys() && metadata.Manifest.UniqueID != "SMAPI.ConsoleCommands")
+                    if (metadata.HasManifest() && !metadata.HasUpdateKeys() && !this.AllowMissingUpdateKeys.Contains(metadata.Manifest.UniqueID))
                         this.Monitor.Log($"      {metadata.DisplayName} has no {nameof(IManifest.UpdateKeys)} in its manifest. You may not see update alerts for this mod.", LogLevel.Warn);
 
                     // validate status

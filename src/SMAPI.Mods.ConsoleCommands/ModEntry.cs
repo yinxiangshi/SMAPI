@@ -7,7 +7,7 @@ using StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands;
 namespace StardewModdingAPI.Mods.ConsoleCommands
 {
     /// <summary>The main entry point for the mod.</summary>
-    public class ConsoleCommandsMod : Mod
+    public class ModEntry : Mod
     {
         /*********
         ** Properties
