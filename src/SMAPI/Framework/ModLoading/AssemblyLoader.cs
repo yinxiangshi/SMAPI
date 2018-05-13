@@ -285,33 +285,27 @@ namespace StardewModdingAPI.Framework.ModLoading
                     this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Broken code in {filename}: {handler.NounPhrase}.");
                     if (!assumeCompatible)
                         throw new IncompatibleInstructionException(handler.NounPhrase, $"Found an incompatible CIL instruction ({handler.NounPhrase}) while loading assembly {filename}.");
-                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Found broken code ({handler.NounPhrase}) while loading assembly {filename}, but SMAPI is configured to allow it anyway. The mod may crash or behave unexpectedly.", LogLevel.Warn);
+                    mod.SetWarning(ModWarning.BrokenCodeLoaded);
                     break;
 
                 case InstructionHandleResult.DetectedGamePatch:
                     this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Detected game patcher ({handler.NounPhrase}) in assembly {filename}.");
-                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}{mod.DisplayName} patches the game, which may impact game stability. If you encounter problems, try removing this mod first.", LogLevel.Warn);
+                    mod.SetWarning(ModWarning.PatchesGame);
                     break;
 
                 case InstructionHandleResult.DetectedSaveSerialiser:
                     this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Detected possible save serialiser change ({handler.NounPhrase}) in assembly {filename}.");
-                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}{mod.DisplayName} seems to change the save serialiser. It may change your saves in such a way that they won't work without this mod in the future.", LogLevel.Warn);
+                    mod.SetWarning(ModWarning.ChangesSaveSerialiser);
                     break;
 
                 case InstructionHandleResult.DetectedUnvalidatedUpdateTick:
                     this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Detected reference to {handler.NounPhrase} in assembly {filename}.");
-                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}{mod.DisplayName} uses a specialised SMAPI event that may crash the game or corrupt your save file. If you encounter problems, try removing this mod first.", LogLevel.Warn);
+                    mod.SetWarning(ModWarning.UsesUnvalidatedUpdateTick);
                     break;
 
                 case InstructionHandleResult.DetectedDynamic:
                     this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Detected 'dynamic' keyword ({handler.NounPhrase}) in assembly {filename}.");
-                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}{mod.DisplayName} uses the 'dynamic' keyword, which isn't compatible with Stardew Valley on Linux or Mac.",
-#if SMAPI_FOR_WINDOWS
-                        this.IsDeveloperMode ? LogLevel.Warn : LogLevel.Debug
-#else
-                        LogLevel.Warn
-#endif
-                    );
+                    mod.SetWarning(ModWarning.UsesDynamic);
                     break;
 
                 case InstructionHandleResult.None:

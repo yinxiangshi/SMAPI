@@ -7,6 +7,7 @@
   * Added prompt when in beta channel and a new version is found.
   * Added friendly error when game can't start audio.
   * Added console warning for mods which don't have update checks configured.
+  * Improved how mod warnings are shown in the console.
   * Fixed console color scheme on Mac or in PowerShell, configurable via `StardewModdingAPI.config.json`.
   * Fixed detection of GOG Galaxy install path in rare cases.
   * Fixed install error on Linux/Mac in some cases.

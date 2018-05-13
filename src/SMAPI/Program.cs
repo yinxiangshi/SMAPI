@@ -742,7 +742,7 @@ namespace StardewModdingAPI
 
                 // show warning for missing update key
                 if (metadata.HasManifest() && !metadata.HasUpdateKeys())
-                    this.Monitor.Log($"      {metadata.DisplayName} has no {nameof(IManifest.UpdateKeys)} in its manifest. You may not see update alerts for this mod.", LogLevel.Warn);
+                    metadata.SetWarning(ModWarning.NoUpdateKeys);
 
                 // validate status
                 if (metadata.Status == ModMetadataStatus.Failed)
@@ -791,7 +791,7 @@ namespace StardewModdingAPI
 
                     // show warnings
                     if (metadata.HasManifest() && !metadata.HasUpdateKeys() && !this.AllowMissingUpdateKeys.Contains(metadata.Manifest.UniqueID))
-                        this.Monitor.Log($"      {metadata.DisplayName} has no {nameof(IManifest.UpdateKeys)} in its manifest. You may not see update alerts for this mod.", LogLevel.Warn);
+                        metadata.SetWarning(ModWarning.NoUpdateKeys);
 
                     // validate status
                     if (metadata.Status == ModMetadataStatus.Failed)
@@ -831,6 +831,10 @@ namespace StardewModdingAPI
                     // initialise mod
                     try
                     {
+                        // get mod instance
+                        if (!this.TryLoadModEntry(modAssembly, error => TrackSkip(metadata, error), out Mod mod))
+                            continue;
+
                         // get content packs
                         if (!contentPacksByModID.TryGetValue(manifest.UniqueID, out IContentPack[] contentPacks))
                             contentPacks = new IContentPack[0];
@@ -857,10 +861,6 @@ namespace StardewModdingAPI
 
                             modHelper = new ModHelper(manifest.UniqueID, metadata.DirectoryPath, jsonHelper, contentHelper, commandHelper, modRegistryHelper, reflectionHelper, multiplayerHelper, translationHelper, contentPacks, CreateTransitionalContentPack, this.DeprecationManager);
                         }
-
-                        // get mod instance
-                        if (!this.TryLoadModEntry(modAssembly, error => TrackSkip(metadata, error), out Mod mod))
-                            continue;
 
                         // init mod
                         mod.ModManifest = manifest;
@@ -929,6 +929,28 @@ namespace StardewModdingAPI
                     );
                 }
                 this.Monitor.Newline();
+            }
+
+            // log warnings
+            {
+                IModMetadata[] modsWithWarnings = this.ModRegistry.GetAll().Where(p => p.Warnings != ModWarning.None).ToArray();
+                if (modsWithWarnings.Any())
+                {
+                    this.Monitor.Log($"Found issues with {modsWithWarnings.Length} mods:", LogLevel.Warn);
+                    foreach (IModMetadata metadata in modsWithWarnings)
+                    {
+                        string[] warnings = this.GetWarningText(metadata.Warnings).ToArray();
+                        if (warnings.Length == 1)
+                            this.Monitor.Log($"   {metadata.DisplayName}: {warnings[0]}", LogLevel.Warn);
+                        else
+                        {
+                            this.Monitor.Log($"   {metadata.DisplayName}:", LogLevel.Warn);
+                            foreach (string warning in warnings)
+                                this.Monitor.Log("      - " + warning, LogLevel.Warn);
+                        }
+                    }
+                    this.Monitor.Newline();
+                }
             }
 
             // initialise translations
@@ -1018,6 +1040,25 @@ namespace StardewModdingAPI
 
             // unlock mod integrations
             this.ModRegistry.AreAllModsInitialised = true;
+        }
+
+        /// <summary>Get the warning text for a mod warning bit mask.</summary>
+        /// <param name="mask">The mod warning bit mask.</param>
+        private IEnumerable<string> GetWarningText(ModWarning mask)
+        {
+            if (mask.HasFlag(ModWarning.BrokenCodeLoaded))
+                yield return "has broken code, but SMAPI is configured to allow it anyway. The mod may crash or behave unexpectedly.";
+            if (mask.HasFlag(ModWarning.ChangesSaveSerialiser))
+                yield return "accesses the save serialiser and may break your saves.";
+            if (mask.HasFlag(ModWarning.PatchesGame))
+                yield return "patches the game. This may cause errors or bugs in-game. If you have issues, try removing this mod first.";
+            if (mask.HasFlag(ModWarning.UsesUnvalidatedUpdateTick))
+                yield return "bypasses normal SMAPI event protections. This may cause errors or save corruption. If you have issues, try removing this mod first.";
+            if (mask.HasFlag(ModWarning.UsesDynamic))
+                yield return "uses the 'dynamic' keyword. This won't work on Linux/Mac.";
+            if (mask.HasFlag(ModWarning.NoUpdateKeys))
+                yield return "has no update keys in its manifest. SMAPI won't show update alerts for this mod.";
+
         }
 
         /// <summary>Load a mod's entry class.</summary>

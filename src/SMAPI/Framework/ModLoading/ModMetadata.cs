@@ -25,6 +25,9 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>The metadata resolution status.</summary>
         public ModMetadataStatus Status { get; private set; }
 
+        /// <summary>Indicates non-error issues with the mod.</summary>
+        public ModWarning Warnings { get; private set; }
+
         /// <summary>The reason the metadata is invalid, if any.</summary>
         public string Error { get; private set; }
 
@@ -68,6 +71,14 @@ namespace StardewModdingAPI.Framework.ModLoading
         {
             this.Status = status;
             this.Error = error;
+            return this;
+        }
+
+        /// <summary>Set a warning flag for the mod.</summary>
+        /// <param name="warning">The warning to set.</param>
+        public IModMetadata SetWarning(ModWarning warning)
+        {
+            this.Warnings |= warning;
             return this;
         }
 

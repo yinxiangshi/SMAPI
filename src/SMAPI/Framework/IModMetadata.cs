@@ -24,6 +24,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>The metadata resolution status.</summary>
         ModMetadataStatus Status { get; }
 
+        /// <summary>Indicates non-error issues with the mod.</summary>
+        ModWarning Warnings { get; }
+
         /// <summary>The reason the metadata is invalid, if any.</summary>
         string Error { get; }
 
@@ -51,6 +54,10 @@ namespace StardewModdingAPI.Framework
         /// <param name="error">The reason the metadata is invalid, if any.</param>
         /// <returns>Return the instance for chaining.</returns>
         IModMetadata SetStatus(ModMetadataStatus status, string error = null);
+
+        /// <summary>Set a warning flag for the mod.</summary>
+        /// <param name="warning">The warning to set.</param>
+        IModMetadata SetWarning(ModWarning warning);
 
         /// <summary>Set the mod instance.</summary>
         /// <param name="mod">The mod instance to set.</param>
