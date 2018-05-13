@@ -814,7 +814,7 @@ namespace StardewModdingAPI
                     {
                         string[] updateUrls = new[] { modDatabase.GetModPageUrlFor(metadata.Manifest.UniqueID), "https://smapi.io/compat" }.Where(p => p != null).ToArray();
 
-                        TrackSkip(metadata, $"it's outdated. Please check for a new version at {string.Join(" or ", updateUrls)}.");
+                        TrackSkip(metadata, $"it's not compatible. Please check for a new version at {string.Join(" or ", updateUrls)}.");
                         continue;
                     }
                     catch (SAssemblyLoadFailedException ex)
