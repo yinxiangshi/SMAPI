@@ -394,8 +394,8 @@
 
     "Content Patcher": {
       "ID": "Pathoschild.ContentPatcher",
-      "Default | UpdateKey": "Nexus:1915",
-      "~1.3.1  | Status": "AssumeBroken" // broke in SDV 1.3 (in-game errors)
+      "Default     | UpdateKey": "Nexus:1915",
+      "~1.4-beta.2 | Status": "AssumeBroken" // broke in SDV 1.3 (in-game errors)
     },
 
     "Cooking Skill": {
@@ -1655,8 +1655,8 @@
     "TractorMod": {
       "ID": "Pathoschild.TractorMod",
       "FormerIDs": "BlueMod_TractorMod | PhthaloBlue.TractorMod | community.TractorMod", // changed in 3.2, 4.0 beta, and 4.0
-      "Default | UpdateKey": "Nexus:1401",
-      "~4.4.1  | Status": "AssumeBroken" // broke in SDV 1.3
+      "Default   | UpdateKey": "Nexus:1401",
+      "~4.5-beta | Status": "AssumeBroken" // broke in SDV 1.3
     },
 
     "TrainerMod": {
