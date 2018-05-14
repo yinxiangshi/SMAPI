@@ -99,7 +99,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                     case ModStatus.AssumeBroken:
                         {
                             // get reason
-                            string reasonPhrase = mod.DataRecord.StatusReasonPhrase ?? "it's outdated";
+                            string reasonPhrase = mod.DataRecord.StatusReasonPhrase ?? "it's no longer compatible";
 
                             // get update URLs
                             List<string> updateUrls = new List<string>();
