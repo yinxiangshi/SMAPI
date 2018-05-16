@@ -125,8 +125,7 @@ namespace StardewModdingAPI
                     };
                     targetAssemblies = new[]
                     {
-                        typeof(Netcode.NetBool).Assembly,
-                        typeof(StardewValley.Game1).Assembly,
+                        typeof(StardewValley.Game1).Assembly, // note: includes Netcode types on Linux/Mac
                         typeof(Microsoft.Xna.Framework.Vector2).Assembly
                     };
                     break;
