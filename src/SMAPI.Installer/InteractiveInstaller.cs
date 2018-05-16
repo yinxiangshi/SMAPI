@@ -351,11 +351,25 @@ namespace StardewModdingApi.Installer
                 }
 
                 // add or replace bundled mods
-                Directory.CreateDirectory(Path.Combine(installDir.FullName, "Mods"));
+                modsDir.Create();
                 DirectoryInfo packagedModsDir = new DirectoryInfo(Path.Combine(packageDir.FullName, "Mods"));
                 if (packagedModsDir.Exists && packagedModsDir.EnumerateDirectories().Any())
                 {
                     this.PrintDebug("Adding bundled mods...");
+
+                    // special case: rename Omegasis' SaveBackup mod
+                    {
+                        DirectoryInfo oldFolder = new DirectoryInfo(Path.Combine(modsDir.FullName, "SaveBackup"));
+                        DirectoryInfo newFolder = new DirectoryInfo(Path.Combine(modsDir.FullName, "SaveBackup (Omegasis)"));
+                        FileInfo manifest = new FileInfo(Path.Combine(oldFolder.FullName, "manifest.json"));
+                        if (manifest.Exists && !newFolder.Exists && File.ReadLines(manifest.FullName).Any(p => p.IndexOf("Omegasis", StringComparison.InvariantCultureIgnoreCase) != -1))
+                        {
+                            this.PrintDebug($"   moving {oldFolder.Name} to {newFolder.Name}...");
+                            this.Move(oldFolder, newFolder.FullName);
+                        }
+                    }
+
+                    // add bundled mods
                     foreach (DirectoryInfo sourceDir in packagedModsDir.EnumerateDirectories())
                     {
                         this.PrintDebug($"   adding {sourceDir.Name}...");
