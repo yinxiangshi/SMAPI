@@ -117,6 +117,7 @@ namespace StardewModdingAPI
                 case Platform.Mac:
                     removeAssemblyReferences = new[]
                     {
+                        "Netcode",
                         "Stardew Valley",
                         "Microsoft.Xna.Framework",
                         "Microsoft.Xna.Framework.Game",
@@ -124,6 +125,7 @@ namespace StardewModdingAPI
                     };
                     targetAssemblies = new[]
                     {
+                        typeof(Netcode.NetBool).Assembly,
                         typeof(StardewValley.Game1).Assembly,
                         typeof(Microsoft.Xna.Framework.Vector2).Assembly
                     };
@@ -132,11 +134,13 @@ namespace StardewModdingAPI
                 case Platform.Windows:
                     removeAssemblyReferences = new[]
                     {
+                        "Netcode",
                         "StardewValley",
                         "MonoGame.Framework"
                     };
                     targetAssemblies = new[]
                     {
+                        typeof(Netcode.NetBool).Assembly,
                         typeof(StardewValley.Game1).Assembly,
                         typeof(Microsoft.Xna.Framework.Vector2).Assembly,
                         typeof(Microsoft.Xna.Framework.Game).Assembly,
