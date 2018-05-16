@@ -360,7 +360,7 @@ namespace StardewModdingApi.Installer
                     // special case: rename Omegasis' SaveBackup mod
                     {
                         DirectoryInfo oldFolder = new DirectoryInfo(Path.Combine(modsDir.FullName, "SaveBackup"));
-                        DirectoryInfo newFolder = new DirectoryInfo(Path.Combine(modsDir.FullName, "SaveBackup (Omegasis)"));
+                        DirectoryInfo newFolder = new DirectoryInfo(Path.Combine(modsDir.FullName, "AdvancedSaveBackup"));
                         FileInfo manifest = new FileInfo(Path.Combine(oldFolder.FullName, "manifest.json"));
                         if (manifest.Exists && !newFolder.Exists && File.ReadLines(manifest.FullName).Any(p => p.IndexOf("Omegasis", StringComparison.InvariantCultureIgnoreCase) != -1))
                         {
