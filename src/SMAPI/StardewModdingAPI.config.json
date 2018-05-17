@@ -46,7 +46,7 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
 
   /**
    * The console color theme to use. The possible values are:
-   *  - AutoDetect: SMAPI will assume a light background on Mac, and detect the background color automatically on Linux or Mac.
+   *  - AutoDetect: SMAPI will assume a light background on Mac, and detect the background color automatically on Linux or Windows.
    *  - LightBackground: use darker text colors that look better on a white or light background.
    *  - DarkBackground: use lighter text colors that look better on a black or dark background.
    */
