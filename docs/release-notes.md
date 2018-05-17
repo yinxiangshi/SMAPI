@@ -13,6 +13,7 @@
   * Fixed install error on Linux/Mac in some cases.
   * Fixed `smapi.io/install` not linking to a useful page.
   * Fixed `world_setseason` command not running season-change logic.
+  * Fixed mod update checks failing if a mod only has prerelease versions on GitHub.
   * Renamed `install.exe` to `install on Windows.exe` to avoid confusion.
 
 * For modders:
