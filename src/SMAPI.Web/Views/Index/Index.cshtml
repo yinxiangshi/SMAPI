@@ -86,6 +86,10 @@ else
 <h2>For mod creators</h2>
 <ul>
     <li><a href="@Model.StableVersion.DevDownloadUrl">SMAPI @Model.StableVersion.Version for developers</a> (includes <a href="https://docs.microsoft.com/en-us/visualstudio/ide/using-intellisense">intellisense</a> and full console output)</li>
+    @if (Model.BetaVersion != null)
+    {
+        <li><a href="@Model.BetaVersion.DevDownloadUrl">SMAPI @Model.BetaVersion.Version for developers</a> (includes <a href="https://docs.microsoft.com/en-us/visualstudio/ide/using-intellisense">intellisense</a> and full console output)</li>
+    }
     <li><a href="https://stardewvalleywiki.com/Modding:Index">Modding documentation</a></li>
     <li>Need help? Come <a href="https://stardewvalleywiki.com/Modding:Community#Discord">chat on Discord</a>.</li>
 </ul>

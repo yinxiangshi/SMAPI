@@ -5,7 +5,7 @@ namespace StardewModdingAPI.Internal
 {
     /// <summary>A low-level implementation of a semantic version with an optional release tag.</summary>
     /// <remarks>The implementation is defined by Semantic Version 2.0 (http://semver.org/).</remarks>
-    internal class SemanticVersionImpl
+    internal class SemanticVersionImpl : IComparable<SemanticVersionImpl>
     {
         /*********
         ** Accessors

@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -46,24 +48,23 @@ namespace StardewModdingAPI.Web.Controllers
         [HttpGet]
         public async Task<ViewResult> Index()
         {
-            // fetch SMAPI releases
-            IndexVersionModel stableVersion = await this.Cache.GetOrCreateAsync("stable-version", async entry =>
-            {
-                entry.AbsoluteExpiration = DateTimeOffset.UtcNow.Add(this.CacheTime);
-                GitRelease release = await this.GitHub.GetLatestReleaseAsync(this.RepositoryName, includePrerelease: false);
-                return new IndexVersionModel(release.Name, release.Body, this.GetMainDownloadUrl(release), this.GetDevDownloadUrl(release));
-            });
-            IndexVersionModel betaVersion = await this.Cache.GetOrCreateAsync("beta-version", async entry =>
-            {
-                entry.AbsoluteExpiration = DateTimeOffset.UtcNow.Add(this.CacheTime);
-                GitRelease release = await this.GitHub.GetLatestReleaseAsync(this.RepositoryName, includePrerelease: true);
-                return release.IsPrerelease
-                    ? this.GetBetaDownload(release)
-                    : null;
-            });
+            // choose versions
+            ReleaseVersion[] versions = await this.GetReleaseVersionsAsync();
+            ReleaseVersion stableVersion = versions.LastOrDefault(version => !version.IsBeta && !version.IsForDevs);
+            ReleaseVersion stableVersionForDevs = versions.LastOrDefault(version => !version.IsBeta && version.IsForDevs);
+            ReleaseVersion betaVersion = versions.LastOrDefault(version => version.IsBeta && !version.IsForDevs);
+            ReleaseVersion betaVersionForDevs = versions.LastOrDefault(version => version.IsBeta && version.IsForDevs);
 
             // render view
-            var model = new IndexModel(stableVersion, betaVersion);
+            IndexVersionModel stableVersionModel = stableVersion != null
+                ? new IndexVersionModel(stableVersion.Version.ToString(), stableVersion.Release.Body, stableVersion.Asset.DownloadUrl, stableVersionForDevs?.Asset.DownloadUrl)
+                : new IndexVersionModel("unknown", "", "https://github.com/Pathoschild/SMAPI/releases", null); // just in case something goes wrong)
+            IndexVersionModel betaVersionModel = betaVersion != null
+                ? new IndexVersionModel(betaVersion.Version.ToString(), betaVersion.Release.Body, betaVersion.Asset.DownloadUrl, betaVersionForDevs?.Asset.DownloadUrl)
+                : null;
+
+            // render view
+            var model = new IndexModel(stableVersionModel, betaVersionModel);
             return this.View(model);
         }
 
@@ -71,62 +72,87 @@ namespace StardewModdingAPI.Web.Controllers
         /*********
         ** Private methods
         *********/
-        /// <summary>Get the main download URL for a SMAPI release.</summary>
-        /// <param name="release">The SMAPI release.</param>
-        private string GetMainDownloadUrl(GitRelease release)
+        /// <summary>Get a sorted, parsed list of SMAPI downloads for the latest releases.</summary>
+        private async Task<ReleaseVersion[]> GetReleaseVersionsAsync()
         {
-            // get main download URL
-            foreach (GitAsset asset in release.Assets ?? new GitAsset[0])
+            return await this.Cache.GetOrCreateAsync("available-versions", async entry =>
             {
-                if (Regex.IsMatch(asset.FileName, @"SMAPI-[\d\.]+-installer.zip"))
-                    return asset.DownloadUrl;
-            }
+                entry.AbsoluteExpiration = DateTimeOffset.UtcNow.Add(this.CacheTime);
 
-            // fallback just in case
-            return "https://github.com/pathoschild/SMAPI/releases";
+                // get releases
+                GitRelease stableRelease = await this.GitHub.GetLatestReleaseAsync(this.RepositoryName, includePrerelease: false);
+                GitRelease betaRelease = await this.GitHub.GetLatestReleaseAsync(this.RepositoryName, includePrerelease: true);
+                if (stableRelease.Tag == betaRelease.Tag)
+                    betaRelease = null;
+
+                // get versions
+                ReleaseVersion[] stableVersions = this.ParseReleaseVersions(stableRelease).ToArray();
+                ReleaseVersion[] betaVersions = this.ParseReleaseVersions(betaRelease).ToArray();
+                return stableVersions
+                    .Concat(betaVersions)
+                    .OrderBy(p => p.Version)
+                    .ToArray();
+            });
         }
 
-        /// <summary>Get the for-developers download URL for a SMAPI release.</summary>
-        /// <param name="release">The SMAPI release.</param>
-        private string GetDevDownloadUrl(GitRelease release)
+        /// <summary>Get a parsed list of SMAPI downloads for a release.</summary>
+        /// <param name="release">The GitHub release.</param>
+        private IEnumerable<ReleaseVersion> ParseReleaseVersions(GitRelease release)
         {
-            // get dev download URL
-            foreach (GitAsset asset in release.Assets ?? new GitAsset[0])
-            {
-                if (Regex.IsMatch(asset.FileName, @"SMAPI-[\d\.]+-installer-for-developers.zip"))
-                    return asset.DownloadUrl;
-            }
+            if (release?.Assets == null)
+                yield break;
 
-            // fallback just in case
-            return "https://github.com/pathoschild/SMAPI/releases";
-        }
-
-        /// <summary>Get the latest beta download for a SMAPI release.</summary>
-        /// <param name="release">The SMAPI release.</param>
-        private IndexVersionModel GetBetaDownload(GitRelease release)
-        {
-            // get download with the latest version
-            SemanticVersionImpl latestVersion = null;
-            string latestUrl = null;
-            foreach (GitAsset asset in release.Assets ?? new GitAsset[0])
+            foreach (GitAsset asset in release.Assets)
             {
-                // parse version
-                Match versionMatch = Regex.Match(asset.FileName, @"SMAPI-([\d\.]+(?:-.+)?)-installer.zip");
-                if (!versionMatch.Success || !SemanticVersionImpl.TryParse(versionMatch.Groups[1].Value, out SemanticVersionImpl version))
+                Match match = Regex.Match(asset.FileName, @"SMAPI-(?<version>[\d\.]+(?:-.+)?)-installer(?<forDevs>-for-developers)?.zip");
+                if (!match.Success || !SemanticVersionImpl.TryParse(match.Groups["version"].Value, out SemanticVersionImpl version))
                     continue;
+                bool isBeta = version.Tag != null;
+                bool isForDevs = match.Groups["forDevs"].Success;
 
-                // save latest version
-                if (latestVersion == null || latestVersion.CompareTo(version) < 0)
-                {
-                    latestVersion = version;
-                    latestUrl = asset.DownloadUrl;
-                }
+                yield return new ReleaseVersion(release, asset, version, isBeta, isForDevs);
             }
+        }
 
-            // return if prerelease
-            return latestVersion?.Tag != null
-                ? new IndexVersionModel(latestVersion.ToString(), release.Body, latestUrl, null)
-                : null;
+        /// <summary>A parsed release download.</summary>
+        private class ReleaseVersion
+        {
+            /*********
+            ** Accessors
+            *********/
+            /// <summary>The underlying GitHub release.</summary>
+            public GitRelease Release { get; }
+
+            /// <summary>The underlying download asset.</summary>
+            public GitAsset Asset { get; }
+
+            /// <summary>The SMAPI version.</summary>
+            public SemanticVersionImpl Version { get; }
+
+            /// <summary>Whether this is a beta download.</summary>
+            public bool IsBeta { get; }
+
+            /// <summary>Whether this is a 'for developers' download.</summary>
+            public bool IsForDevs { get; }
+
+
+            /*********
+            ** Public methods
+            *********/
+            /// <summary>Construct an instance.</summary>
+            /// <param name="release">The underlying GitHub release.</param>
+            /// <param name="asset">The underlying download asset.</param>
+            /// <param name="version">The SMAPI version.</param>
+            /// <param name="isBeta">Whether this is a beta download.</param>
+            /// <param name="isForDevs">Whether this is a 'for developers' download.</param>
+            public ReleaseVersion(GitRelease release, GitAsset asset, SemanticVersionImpl version, bool isBeta, bool isForDevs)
+            {
+                this.Release = release;
+                this.Asset = asset;
+                this.Version = version;
+                this.IsBeta = isBeta;
+                this.IsForDevs = isForDevs;
+            }
         }
     }
 }
