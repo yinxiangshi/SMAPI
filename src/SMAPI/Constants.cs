@@ -133,7 +133,6 @@ namespace StardewModdingAPI
                 case Platform.Windows:
                     removeAssemblyReferences = new[]
                     {
-                        "Netcode",
                         "StardewValley",
                         "MonoGame.Framework"
                     };
