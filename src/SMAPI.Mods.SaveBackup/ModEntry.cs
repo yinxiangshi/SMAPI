@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -27,36 +26,15 @@ namespace StardewModdingAPI.Mods.SaveBackup
         {
             try
             {
-                // read config
                 ModConfig config = this.Helper.ReadConfig<ModConfig>();
 
                 // init backup folder
-                DirectoryInfo folder = new DirectoryInfo(Path.Combine(this.Helper.DirectoryPath, "backups"));
-                folder.Create();
+                DirectoryInfo backupFolder = new DirectoryInfo(Path.Combine(this.Helper.DirectoryPath, "backups"));
+                backupFolder.Create();
 
                 // back up saves
-                {
-                    FileInfo file = new FileInfo(Path.Combine(folder.FullName, this.FileName));
-                    if (!file.Exists)
-                    {
-                        this.Monitor.Log($"Adding {file.Name}...", LogLevel.Trace);
-                        ZipFile.CreateFromDirectory(Constants.SavesPath, file.FullName, CompressionLevel.Fastest, includeBaseDirectory: false);
-                    }
-                }
-
-                // prune old saves
-                foreach (FileInfo file in this.GetOldBackups(folder, config.BackupsToKeep))
-                {
-                    try
-                    {
-                        this.Monitor.Log($"Deleting {file.Name}...", LogLevel.Trace);
-                        file.Delete();
-                    }
-                    catch (Exception ex)
-                    {
-                        this.Monitor.Log($"Error deleting old save backup '{file.Name}': {ex}");
-                    }
-                }
+                this.CreateBackup(backupFolder);
+                this.PruneBackups(backupFolder, config.BackupsToKeep);
             }
             catch (Exception ex)
             {
@@ -68,15 +46,40 @@ namespace StardewModdingAPI.Mods.SaveBackup
         /*********
         ** Private methods
         *********/
-        /// <summary>Get backups ordered by creation date.</summary>
-        /// <param name="folder">The folder to search.</param>
-        /// <param name="skip">The number of backups to skip.</param>
-        private IEnumerable<FileInfo> GetOldBackups(DirectoryInfo folder, int skip)
+        /// <summary>Back up the current saves.</summary>
+        /// <param name="backupFolder">The folder containing save backups.</param>
+        private void CreateBackup(DirectoryInfo backupFolder)
         {
-            return folder
+            FileInfo file = new FileInfo(Path.Combine(backupFolder.FullName, this.FileName));
+            if (!file.Exists)
+            {
+                this.Monitor.Log($"Adding {file.Name}...", LogLevel.Trace);
+                ZipFile.CreateFromDirectory(Constants.SavesPath, file.FullName, CompressionLevel.Fastest, includeBaseDirectory: false);
+            }
+        }
+
+        /// <summary>Remove old backups if we've exceeded the limit.</summary>
+        /// <param name="backupFolder">The folder containing save backups.</param>
+        /// <param name="backupsToKeep">The number of backups to keep.</param>
+        private void PruneBackups(DirectoryInfo backupFolder, int backupsToKeep)
+        {
+            var oldBackups = backupFolder
                 .GetFiles()
                 .OrderByDescending(p => p.CreationTimeUtc)
-                .Skip(skip);
+                .Skip(backupsToKeep);
+
+            foreach (FileInfo file in oldBackups)
+            {
+                try
+                {
+                    this.Monitor.Log($"Deleting {file.Name}...", LogLevel.Trace);
+                    file.Delete();
+                }
+                catch (Exception ex)
+                {
+                    this.Monitor.Log($"Error deleting old save backup '{file.Name}': {ex}");
+                }
+            }
         }
     }
 }
