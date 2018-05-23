@@ -1,7 +1,9 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Reflection;
 using StardewModdingAPI.Mods.SaveBackup.Framework;
 using StardewValley;
 
@@ -50,11 +52,49 @@ namespace StardewModdingAPI.Mods.SaveBackup
         /// <param name="backupFolder">The folder containing save backups.</param>
         private void CreateBackup(DirectoryInfo backupFolder)
         {
-            FileInfo file = new FileInfo(Path.Combine(backupFolder.FullName, this.FileName));
-            if (!file.Exists)
+            try
             {
-                this.Monitor.Log($"Adding {file.Name}...", LogLevel.Trace);
-                ZipFile.CreateFromDirectory(Constants.SavesPath, file.FullName, CompressionLevel.Fastest, includeBaseDirectory: false);
+                // get target path
+                FileInfo targetFile = new FileInfo(Path.Combine(backupFolder.FullName, this.FileName));
+                if (targetFile.Exists)
+                    targetFile.Delete(); //return;
+
+                // create zip
+                // due to limitations with the bundled Mono on Mac, we can't reference System.IO.Compression.
+                this.Monitor.Log($"Adding {targetFile.Name}...", LogLevel.Trace);
+                switch (Constants.TargetPlatform)
+                {
+                    case GamePlatform.Linux:
+                    case GamePlatform.Windows:
+                        {
+                            Assembly coreAssembly = Assembly.Load("System.IO.Compression, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089") ?? throw new InvalidOperationException("Can't load System.IO.Compression assembly.");
+                            Assembly fsAssembly = Assembly.Load("System.IO.Compression.FileSystem, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089") ?? throw new InvalidOperationException("Can't load System.IO.Compression assembly.");
+                            Type compressionLevelType = coreAssembly.GetType("System.IO.Compression.CompressionLevel") ?? throw new InvalidOperationException("Can't load CompressionLevel type.");
+                            Type zipFileType = fsAssembly.GetType("System.IO.Compression.ZipFile") ?? throw new InvalidOperationException("Can't load ZipFile type.");
+                            MethodInfo createMethod = zipFileType.GetMethod("CreateFromDirectory", new[] { typeof(string), typeof(string), compressionLevelType, typeof(bool) }) ?? throw new InvalidOperationException("Can't load ZipFile.CreateFromDirectory method.");
+                            createMethod.Invoke(null, new object[] { Constants.SavesPath, targetFile.FullName, CompressionLevel.Fastest, false });
+                        }
+                        break;
+
+                    case GamePlatform.Mac:
+                        {
+                            DirectoryInfo saveFolder = new DirectoryInfo(Constants.SavesPath);
+                            ProcessStartInfo startInfo = new ProcessStartInfo
+                            {
+                                FileName = "zip",
+                                Arguments = $"-rq \"{targetFile.FullName}\" \"{saveFolder.Name}\" -x \"*.DS_Store\" -x \"__MACOSX\"",
+                                WorkingDirectory = $"{Constants.SavesPath}/../",
+                                CreateNoWindow = true
+                            };
+                            new Process { StartInfo = startInfo }.Start();
+                        }
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                this.Monitor.Log("Couldn't back up save files (see log file for details).", LogLevel.Warn);
+                this.Monitor.Log(ex.ToString(), LogLevel.Trace);
             }
         }
 
@@ -63,22 +103,30 @@ namespace StardewModdingAPI.Mods.SaveBackup
         /// <param name="backupsToKeep">The number of backups to keep.</param>
         private void PruneBackups(DirectoryInfo backupFolder, int backupsToKeep)
         {
-            var oldBackups = backupFolder
-                .GetFiles()
-                .OrderByDescending(p => p.CreationTimeUtc)
-                .Skip(backupsToKeep);
-
-            foreach (FileInfo file in oldBackups)
+            try
             {
-                try
+                var oldBackups = backupFolder
+                    .GetFiles()
+                    .OrderByDescending(p => p.CreationTimeUtc)
+                    .Skip(backupsToKeep);
+
+                foreach (FileInfo file in oldBackups)
                 {
-                    this.Monitor.Log($"Deleting {file.Name}...", LogLevel.Trace);
-                    file.Delete();
+                    try
+                    {
+                        this.Monitor.Log($"Deleting {file.Name}...", LogLevel.Trace);
+                        file.Delete();
+                    }
+                    catch (Exception ex)
+                    {
+                        this.Monitor.Log($"Error deleting old save backup '{file.Name}': {ex}");
+                    }
                 }
-                catch (Exception ex)
-                {
-                    this.Monitor.Log($"Error deleting old save backup '{file.Name}': {ex}");
-                }
+            }
+            catch (Exception ex)
+            {
+                this.Monitor.Log("Couldn't remove old backups (see log file for details).", LogLevel.Warn);
+                this.Monitor.Log(ex.ToString(), LogLevel.Trace);
             }
         }
     }
