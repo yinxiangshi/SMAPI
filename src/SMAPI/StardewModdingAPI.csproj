@@ -87,6 +87,10 @@
     </Compile>
     <Compile Include="Events\EventArgsLocationBuildingsChanged.cs" />
     <Compile Include="Events\MultiplayerEvents.cs" />
+    <Compile Include="Framework\ContentManagers\BaseContentManager.cs" />
+    <Compile Include="Framework\ContentManagers\GameContentManager.cs" />
+    <Compile Include="Framework\ContentManagers\IContentManager.cs" />
+    <Compile Include="Framework\ContentManagers\ModContentManager.cs" />
     <Compile Include="Framework\Events\EventManager.cs" />
     <Compile Include="Framework\Events\ManagedEvent.cs" />
     <Compile Include="Events\SpecialisedEvents.cs" />
@@ -123,7 +127,6 @@
     <Compile Include="Framework\ModLoading\Rewriters\VirtualEntryCallRemover.cs" />
     <Compile Include="Framework\ModLoading\Rewriters\MethodParentRewriter.cs" />
     <Compile Include="Framework\ModLoading\Rewriters\TypeReferenceRewriter.cs" />
-    <Compile Include="Framework\SContentManager.cs" />
     <Compile Include="Framework\Exceptions\SAssemblyLoadFailedException.cs" />
     <Compile Include="Framework\ModLoading\AssemblyLoadStatus.cs" />
     <Compile Include="Framework\Reflection\InterfaceProxyBuilder.cs" />

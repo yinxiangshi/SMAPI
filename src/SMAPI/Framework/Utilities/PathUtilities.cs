@@ -23,9 +23,12 @@ namespace StardewModdingAPI.Framework.Utilities
         *********/
         /// <summary>Get the segments from a path (e.g. <c>/usr/bin/boop</c> => <c>usr</c>, <c>bin</c>, and <c>boop</c>).</summary>
         /// <param name="path">The path to split.</param>
-        public static string[] GetSegments(string path)
+        /// <param name="limit">The number of segments to match. Any additional segments will be merged into the last returned part.</param>
+        public static string[] GetSegments(string path, int? limit = null)
         {
-            return path.Split(PathUtilities.PossiblePathSeparators, StringSplitOptions.RemoveEmptyEntries);
+            return limit.HasValue
+                ? path.Split(PathUtilities.PossiblePathSeparators, limit.Value, StringSplitOptions.RemoveEmptyEntries)
+                : path.Split(PathUtilities.PossiblePathSeparators, StringSplitOptions.RemoveEmptyEntries);
         }
 
         /// <summary>Normalise path separators in a file path.</summary>

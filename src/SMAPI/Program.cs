@@ -755,8 +755,7 @@ namespace StardewModdingAPI
                 // load mod as content pack
                 IManifest manifest = metadata.Manifest;
                 IMonitor monitor = this.GetSecondaryMonitor(metadata.DisplayName);
-                SContentManager contentManager = this.ContentCore.CreateContentManager($"Mods.{metadata.Manifest.UniqueID}", isModFolder: true, rootDirectory: metadata.DirectoryPath);
-                IContentHelper contentHelper = new ContentHelper(this.ContentCore, contentManager, metadata.DirectoryPath, manifest.UniqueID, metadata.DisplayName, monitor);
+                IContentHelper contentHelper = new ContentHelper(this.ContentCore, metadata.DirectoryPath, manifest.UniqueID, metadata.DisplayName, monitor);
                 IContentPack contentPack = new ContentPack(metadata.DirectoryPath, manifest, contentHelper, jsonHelper);
                 metadata.SetMod(contentPack, monitor);
                 this.ModRegistry.Add(metadata);
@@ -844,8 +843,7 @@ namespace StardewModdingAPI
                         IModHelper modHelper;
                         {
                             ICommandHelper commandHelper = new CommandHelper(manifest.UniqueID, metadata.DisplayName, this.CommandManager);
-                            SContentManager contentManager = this.ContentCore.CreateContentManager($"Mods.{metadata.Manifest.UniqueID}", isModFolder: true, rootDirectory: metadata.DirectoryPath);
-                            IContentHelper contentHelper = new ContentHelper(contentCore, contentManager, metadata.DirectoryPath, manifest.UniqueID, metadata.DisplayName, monitor);
+                            IContentHelper contentHelper = new ContentHelper(contentCore, metadata.DirectoryPath, manifest.UniqueID, metadata.DisplayName, monitor);
                             IReflectionHelper reflectionHelper = new ReflectionHelper(manifest.UniqueID, metadata.DisplayName, this.Reflection, this.DeprecationManager);
                             IModRegistry modRegistryHelper = new ModRegistryHelper(manifest.UniqueID, this.ModRegistry, proxyFactory, monitor);
                             IMultiplayerHelper multiplayerHelper = new MultiplayerHelper(manifest.UniqueID, this.GameInstance.Multiplayer);
@@ -854,8 +852,7 @@ namespace StardewModdingAPI
                             IContentPack CreateTransitionalContentPack(string packDirPath, IManifest packManifest)
                             {
                                 IMonitor packMonitor = this.GetSecondaryMonitor(packManifest.Name);
-                                SContentManager packContentManager = this.ContentCore.CreateContentManager($"Mods.{packManifest.UniqueID}", isModFolder: true, rootDirectory: packDirPath);
-                                IContentHelper packContentHelper = new ContentHelper(contentCore, packContentManager, packDirPath, packManifest.UniqueID, packManifest.Name, packMonitor);
+                                IContentHelper packContentHelper = new ContentHelper(contentCore, packDirPath, packManifest.UniqueID, packManifest.Name, packMonitor);
                                 return new ContentPack(packDirPath, packManifest, packContentHelper, this.JsonHelper);
                             }
 

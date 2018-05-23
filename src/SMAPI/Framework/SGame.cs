@@ -202,7 +202,7 @@ namespace StardewModdingAPI.Framework
                 this.ContentCore = new ContentCoordinator(serviceProvider, rootDirectory, Thread.CurrentThread.CurrentUICulture, SGame.MonitorDuringInitialisation, SGame.ReflectorDuringInitialisation);
                 SGame.MonitorDuringInitialisation = null;
                 this.NextContentManagerIsMain = true;
-                return this.ContentCore.CreateContentManager("Game1._temporaryContent", isModFolder: false);
+                return this.ContentCore.CreateGameContentManager("Game1._temporaryContent");
             }
 
             // Game1.content initialising from LoadContent
@@ -213,7 +213,7 @@ namespace StardewModdingAPI.Framework
             }
 
             // any other content manager
-            return this.ContentCore.CreateContentManager("(generated)", isModFolder: false, rootDirectory: rootDirectory);
+            return this.ContentCore.CreateGameContentManager("(generated)");
         }
 
         /// <summary>The method called when the game is updating its state. This happens roughly 60 times per second.</summary>
