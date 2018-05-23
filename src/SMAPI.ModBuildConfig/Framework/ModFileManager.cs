@@ -73,11 +73,7 @@ namespace StardewModdingAPI.ModBuildConfig.Framework
                     continue;
 
                 // ignore release zips
-                if (this.EqualsInvariant(file.Extension, ".zip"))
-                    continue;
-
-                // ignore Json.NET (bundled into SMAPI)
-                if (this.EqualsInvariant(file.Name, "Newtonsoft.Json.dll") || this.EqualsInvariant(file.Name, "Newtonsoft.Json.xml"))
+                if (this.ShouldIgnore(file))
                     continue;
 
                 // add file
@@ -145,6 +141,27 @@ namespace StardewModdingAPI.ModBuildConfig.Framework
         /*********
         ** Private methods
         *********/
+        /// <summary>Get whether a build output file should be ignored.</summary>
+        /// <param name="file">The file info.</param>
+        private bool ShouldIgnore(FileInfo file)
+        {
+            return
+                // release zips
+                this.EqualsInvariant(file.Extension, ".zip")
+
+                // Json.NET (bundled into SMAPI)
+                || this.EqualsInvariant(file.Name, "Newtonsoft.Json.dll")
+                || this.EqualsInvariant(file.Name, "Newtonsoft.Json.xml")
+
+                // code analysis files
+                || file.Name.EndsWith(".CodeAnalysisLog.xml", StringComparison.InvariantCultureIgnoreCase)
+                || file.Name.EndsWith(".lastcodeanalysissucceeded", StringComparison.InvariantCultureIgnoreCase)
+
+                // OS metadata files
+                || this.EqualsInvariant(file.Name, ".DS_Store")
+                || this.EqualsInvariant(file.Name, "Thumbs.db");
+        }
+
         /// <summary>Get a case-insensitive dictionary matching the given JSON.</summary>
         /// <param name="json">The JSON to parse.</param>
         private IDictionary<string, object> Parse(string json)
