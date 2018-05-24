@@ -160,7 +160,7 @@ namespace StardewModdingAPI.Framework.Input
         /// <summary>Whether input should be suppressed in the current context.</summary>
         private bool ShouldSuppressNow()
         {
-            return Game1.chatBox != null && !Game1.chatBox.isActive();
+            return Game1.chatBox == null || !Game1.chatBox.isActive();
         }
 
         /// <summary>Apply input suppression to the given input states.</summary>
