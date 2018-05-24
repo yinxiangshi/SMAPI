@@ -28,5 +28,8 @@ namespace StardewModdingAPI.Framework.Models
 
         /// <summary>The console color scheme to use.</summary>
         public MonitorColorScheme ColorScheme { get; set; }
+
+        /// <summary>The mod IDs SMAPI should ignore when performing update checks or validating update keys.</summary>
+        public string[] SuppressUpdateChecks { get; set; }
     }
 }

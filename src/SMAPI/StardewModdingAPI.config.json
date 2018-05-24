@@ -50,5 +50,13 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
    *  - LightBackground: use darker text colors that look better on a white or light background.
    *  - DarkBackground: use lighter text colors that look better on a black or dark background.
    */
-  "ColorScheme": "AutoDetect"
+  "ColorScheme": "AutoDetect",
+
+  /**
+   * The mod IDs SMAPI should ignore when performing update checks or validating update keys.
+   */
+  "SuppressUpdateChecks": [
+    "SMAPI.ConsoleCommands",
+    "SMAPI.SaveBackup"
+  ]
 }

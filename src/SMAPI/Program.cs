@@ -97,13 +97,6 @@ namespace StardewModdingAPI
             new Regex(@"^DebugOutput: added CLOUD", RegexOptions.Compiled | RegexOptions.CultureInvariant)
         };
 
-        /// <summary>The mod IDs for which to not show missing update key warnings.</summary>
-        private readonly string[] AllowMissingUpdateKeys =
-        {
-            "SMAPI.ConsoleCommands",
-            "SMAPI.SaveBackup"
-        };
-
         /// <summary>Encapsulates SMAPI's JSON file parsing.</summary>
         private readonly JsonHelper JsonHelper = new JsonHelper();
 
@@ -615,11 +608,15 @@ namespace StardewModdingAPI
                 {
                     try
                     {
+                        HashSet<string> suppressUpdateChecks = new HashSet<string>(this.Settings.SuppressUpdateChecks, StringComparer.InvariantCultureIgnoreCase);
+
                         // prepare update keys
                         Dictionary<string, IModMetadata[]> modsByKey =
                             (
                                 from mod in mods
-                                where mod.Manifest?.UpdateKeys != null
+                                where
+                                    mod.Manifest?.UpdateKeys != null
+                                    && !suppressUpdateChecks.Contains(mod.Manifest.UniqueID)
                                 from key in mod.Manifest.UpdateKeys
                                 select new { key, mod }
                             )
@@ -732,6 +729,7 @@ namespace StardewModdingAPI
         {
             this.Monitor.Log("Loading mods...", LogLevel.Trace);
 
+            HashSet<string> suppressUpdateChecks = new HashSet<string>(this.Settings.SuppressUpdateChecks, StringComparer.InvariantCultureIgnoreCase);
             IDictionary<IModMetadata, string[]> skippedMods = new Dictionary<IModMetadata, string[]>();
             void TrackSkip(IModMetadata mod, string userReasonPhrase, string devReasonPhrase = null) => skippedMods[mod] = new[] { userReasonPhrase, devReasonPhrase };
 
@@ -790,7 +788,7 @@ namespace StardewModdingAPI
                         : $"   {metadata.DisplayName}...", LogLevel.Trace);
 
                     // show warnings
-                    if (metadata.HasManifest() && !metadata.HasUpdateKeys() && !this.AllowMissingUpdateKeys.Contains(metadata.Manifest.UniqueID))
+                    if (metadata.HasManifest() && !metadata.HasUpdateKeys() && !suppressUpdateChecks.Contains(metadata.Manifest.UniqueID))
                         metadata.SetWarning(ModWarning.NoUpdateKeys);
 
                     // validate status

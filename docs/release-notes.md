@@ -34,6 +34,7 @@
   * Fixed console command input not saved to the log.
   * Fixed `helper.ModRegistry.GetApi` interface validation errors not mentioning which interface caused the issue.
   * Fixed some common non-mod build output being included in release zip.
+  * Added option to suppress update checks for a specific mod in `StardewModdingAPI.config.json`.
   * **Breaking changes** (see [migration guide](https://stardewvalleywiki.com/Modding:Migrate_to_Stardew_Valley_1.3)):
      * Dropped some deprecated APIs.
      * `LocationEvents` have been rewritten (see above).
