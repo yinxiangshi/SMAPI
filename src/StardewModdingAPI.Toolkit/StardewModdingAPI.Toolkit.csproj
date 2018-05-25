@@ -17,6 +17,6 @@
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
   </ItemGroup>
 
-  <Import Project="..\..\build\common.targets" Label="Shared" />
+  <Import Project="..\..\build\common.targets" />
 
 </Project>
