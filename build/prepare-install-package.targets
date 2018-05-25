@@ -7,7 +7,9 @@
   -->
   <Target Name="AfterBuild">
     <PropertyGroup>
-      <CompiledSmapiPath>$(SolutionDir)\..\bin\$(Configuration)\SMAPI</CompiledSmapiPath>
+      <CompiledRootPath>$(SolutionDir)\..\bin\$(Configuration)</CompiledRootPath>
+      <CompiledSmapiPath>$(CompiledRootPath)\SMAPI</CompiledSmapiPath>
+      <CompiledToolkitPath>$(CompiledRootPath)\SMAPI.Toolkit\net4.5</CompiledToolkitPath>
       <PackagePath>$(SolutionDir)\..\bin\Packaged</PackagePath>
       <PackageInternalPath>$(PackagePath)\internal</PackageInternalPath>
     </PropertyGroup>
@@ -35,6 +37,8 @@
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\System.Numerics.dll" DestinationFolder="$(PackageInternalPath)\Mono" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\System.Runtime.Caching.dll" DestinationFolder="$(PackageInternalPath)\Mono" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\steam_appid.txt" DestinationFolder="$(PackageInternalPath)\Mono" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.dll" DestinationFolder="$(PackageInternalPath)\Mono" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.pdb" DestinationFolder="$(PackageInternalPath)\Mono" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="@(CompiledMods)" DestinationFolder="$(PackageInternalPath)\Mono\Mods\%(RecursiveDir)" />
 
     <!-- copy SMAPI files for Windows -->
@@ -46,6 +50,8 @@
     <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.config.json" DestinationFolder="$(PackageInternalPath)\Windows" />
     <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.metadata.json" DestinationFolder="$(PackageInternalPath)\Windows" />
     <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\steam_appid.txt" DestinationFolder="$(PackageInternalPath)\Windows" />
+    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.dll" DestinationFolder="$(PackageInternalPath)\Windows" />
+    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.pdb" DestinationFolder="$(PackageInternalPath)\Windows" />
     <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="@(CompiledMods)" DestinationFolder="$(PackageInternalPath)\Windows\Mods\%(RecursiveDir)" />
   </Target>
 </Project>
