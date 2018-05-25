@@ -157,7 +157,6 @@
     <Compile Include="Framework\StateTracking\LocationTracker.cs" />
     <Compile Include="Framework\StateTracking\PlayerTracker.cs" />
     <Compile Include="Framework\Utilities\ContextHash.cs" />
-    <Compile Include="Framework\Utilities\PathUtilities.cs" />
     <Compile Include="IContentPack.cs" />
     <Compile Include="IManifestContentPackFor.cs" />
     <Compile Include="IMultiplayerHelper.cs" />

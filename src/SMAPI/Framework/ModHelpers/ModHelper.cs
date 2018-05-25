@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using StardewModdingAPI.Framework.Models;
 using StardewModdingAPI.Framework.Serialisation;
-using StardewModdingAPI.Framework.Utilities;
+using StardewModdingAPI.Toolkit.Utilities;
 
 namespace StardewModdingAPI.Framework.ModHelpers
 {
@@ -157,13 +157,13 @@ namespace StardewModdingAPI.Framework.ModHelpers
             this.DeprecationManager.Warn($"{nameof(IModHelper)}.{nameof(IModHelper.CreateTransitionalContentPack)}", "2.5", DeprecationLevel.Notice);
 
             // validate
-            if(string.IsNullOrWhiteSpace(directoryPath))
+            if (string.IsNullOrWhiteSpace(directoryPath))
                 throw new ArgumentNullException(nameof(directoryPath));
-            if(string.IsNullOrWhiteSpace(id))
+            if (string.IsNullOrWhiteSpace(id))
                 throw new ArgumentNullException(nameof(id));
-            if(string.IsNullOrWhiteSpace(name))
+            if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentNullException(nameof(name));
-            if(!Directory.Exists(directoryPath))
+            if (!Directory.Exists(directoryPath))
                 throw new ArgumentException($"Can't create content pack for directory path '{directoryPath}' because no such directory exists.");
 
             // create manifest
