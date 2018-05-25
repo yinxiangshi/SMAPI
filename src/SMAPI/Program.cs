@@ -94,7 +94,7 @@ namespace StardewModdingAPI
             new Regex(@"^loadPreferences\(\); begin", RegexOptions.Compiled | RegexOptions.CultureInvariant),
             new Regex(@"^savePreferences\(\); async=", RegexOptions.Compiled | RegexOptions.CultureInvariant),
             new Regex(@"^Multiplayer auth success$", RegexOptions.Compiled | RegexOptions.CultureInvariant),
-            new Regex(@"^DebugOutput: added CLOUD", RegexOptions.Compiled | RegexOptions.CultureInvariant)
+            new Regex(@"^DebugOutput: (?:added CLOUD|dismount tile|Ping|playerPos)", RegexOptions.Compiled | RegexOptions.CultureInvariant)
         };
 
         /// <summary>Encapsulates SMAPI's JSON file parsing.</summary>
