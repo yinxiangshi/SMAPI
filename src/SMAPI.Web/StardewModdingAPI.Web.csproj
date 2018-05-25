@@ -23,5 +23,8 @@
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="1.0.1" />
   </ItemGroup>
   <Import Project="..\SMAPI.Internal\SMAPI.Internal.projitems" Label="Shared" />
+  <ItemGroup>
+    <ProjectReference Include="..\StardewModdingAPI.Toolkit\StardewModdingAPI.Toolkit.csproj" />
+  </ItemGroup>
 
 </Project>

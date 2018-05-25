@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using StardewModdingAPI.Internal;
+using StardewModdingAPI.Toolkit;
 using StardewModdingAPI.Web.Framework.LogParsing.Models;
 
 namespace StardewModdingAPI.Web.Framework.LogParsing
@@ -31,7 +31,7 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
 
         /// <summary>A regex pattern matching an entry in SMAPI's mod list.</summary>
         /// <remarks>The author name and description are optional.</remarks>
-        private readonly Regex ModListEntryPattern = new Regex(@"^   (?<name>.+?) (?<version>" + SemanticVersionImpl.UnboundedVersionPattern + @")(?: by (?<author>[^\|]+))?(?: \| (?<description>.+))?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex ModListEntryPattern = new Regex(@"^   (?<name>.+?) (?<version>" + SemanticVersion.UnboundedVersionPattern + @")(?: by (?<author>[^\|]+))?(?: \| (?<description>.+))?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>A regex pattern matching the start of SMAPI's content pack list.</summary>
         private readonly Regex ContentPackListStartPattern = new Regex(@"^Loaded \d+ content packs:$", RegexOptions.Compiled | RegexOptions.IgnoreCase);

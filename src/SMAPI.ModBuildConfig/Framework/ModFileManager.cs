@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Web.Script.Serialization;
-using StardewModdingAPI.Internal;
+using StardewModdingAPI.Toolkit;
 
 namespace StardewModdingAPI.ModBuildConfig.Framework
 {
@@ -132,9 +132,9 @@ namespace StardewModdingAPI.ModBuildConfig.Framework
                 int minor = versionFields.ContainsKey("MinorVersion") ? (int)versionFields["MinorVersion"] : 0;
                 int patch = versionFields.ContainsKey("PatchVersion") ? (int)versionFields["PatchVersion"] : 0;
                 string tag = versionFields.ContainsKey("Build") ? (string)versionFields["Build"] : null;
-                return new SemanticVersionImpl(major, minor, patch, tag).ToString();
+                return new SemanticVersion(major, minor, patch, tag).ToString();
             }
-            return new SemanticVersionImpl(versionObj.ToString()).ToString(); // SMAPI 2.0+
+            return new SemanticVersion(versionObj.ToString()).ToString(); // SMAPI 2.0+
         }
 
 

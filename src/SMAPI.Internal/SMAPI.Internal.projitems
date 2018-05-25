@@ -16,6 +16,5 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\ModSeachModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ConsoleWriting\MonitorColorScheme.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Platform.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)SemanticVersionImpl.cs" />
   </ItemGroup>
 </Project>
