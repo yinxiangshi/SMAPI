@@ -35,6 +35,8 @@
   * Fixed `helper.ModRegistry.GetApi` interface validation errors not mentioning which interface caused the issue.
   * Fixed some common non-mod build output being included in release zip.
   * Added option to suppress update checks for a specific mod in `StardewModdingAPI.config.json`.
+  * Fixed mods able to intercept other mods' assets via the internal asset keys.
+  * Fixed mods able to indirectly change other mods' data through shared content caches.
   * **Breaking changes** (see [migration guide](https://stardewvalleywiki.com/Modding:Migrate_to_Stardew_Valley_1.3)):
      * Dropped some deprecated APIs.
      * `LocationEvents` have been rewritten (see above).
