@@ -386,8 +386,19 @@ namespace StardewModdingAPI.Framework
                 *********/
                 if (!this.RaisedAfterLoadEvent && Context.IsWorldReady)
                 {
+                    // print context
+                    string context = $"Context: loaded saved game '{Constants.SaveFolderName}', starting {Game1.currentSeason} {Game1.dayOfMonth} Y{Game1.year}.";
+                    if (Context.IsMultiplayer)
+                    {
+                        int onlineCount = Game1.getOnlineFarmers().Count();
+                        context += $" {(Context.IsMainPlayer ? "Main player" : "Farmhand")} with {onlineCount} {(onlineCount == 1 ? "player" : "players")} online.";
+                    }
+                    else
+                        context += " Single-player.";
+                    this.Monitor.Log(context, LogLevel.Trace);
+
+                    // raise events
                     this.RaisedAfterLoadEvent = true;
-                    this.Monitor.Log($"Context: loaded saved game '{Constants.SaveFolderName}', starting {Game1.currentSeason} {Game1.dayOfMonth} Y{Game1.year}.", LogLevel.Trace);
                     this.Events.Save_AfterLoad.Raise();
                     this.Events.Time_AfterDayStarted.Raise();
                 }
