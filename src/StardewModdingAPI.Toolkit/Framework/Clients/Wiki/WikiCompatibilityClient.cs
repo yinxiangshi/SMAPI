@@ -91,19 +91,25 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
                 }
 
                 // parse other fields
+                string name = node.Descendants("td").FirstOrDefault()?.InnerText?.Trim();
+                string[] ids = this.GetAttribute(node, "data-id")?.Split(new [] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim()).ToArray() ?? new string[0];
                 int? nexusID = this.GetNullableIntAttribute(node, "data-nexus-id");
                 int? chucklefishID = this.GetNullableIntAttribute(node, "data-chucklefish-id");
-                string githubRepo = node.GetAttributeValue("data-github", null);
-                string customSourceUrl = node.GetAttributeValue("data-custom-source", null);
+                string githubRepo = this.GetAttribute(node, "data-github");
+                string customSourceUrl = this.GetAttribute(node, "data-custom-source");
+                string customUrl = this.GetAttribute(node, "data-custom-url");
 
                 // yield model
                 yield return new WikiCompatibilityEntry
                 {
+                    ID = ids,
+                    Name = name,
                     Status = status,
                     NexusID = nexusID,
                     ChucklefishID = chucklefishID,
                     GitHubRepo = githubRepo,
                     CustomSourceUrl = customSourceUrl,
+                    CustomUrl = customUrl,
                     UnofficialVersion = unofficialVersion
                 };
             }
@@ -114,10 +120,21 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
         /// <param name="attributeName">The attribute name.</param>
         private int? GetNullableIntAttribute(HtmlNode node, string attributeName)
         {
-            string raw = node.GetAttributeValue(attributeName, null);
+            string raw = this.GetAttribute(node, attributeName);
             if (raw != null && int.TryParse(raw, out int value))
                 return value;
             return null;
+        }
+
+        /// <summary>Get a strings attribute value.</summary>
+        /// <param name="node">The HTML node.</param>
+        /// <param name="attributeName">The attribute name.</param>
+        private string GetAttribute(HtmlNode node, string attributeName)
+        {
+            string raw = node.GetAttributeValue(attributeName, null);
+            if (raw != null)
+                raw = HtmlEntity.DeEntitize(raw);
+            return raw;
         }
 
         /// <summary>The response model for the MediaWiki parse API.</summary>
