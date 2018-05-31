@@ -29,5 +29,8 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
 
         /// <summary>The compatibility status.</summary>
         public WikiCompatibilityStatus Status { get; set; }
+
+        /// <summary>The human-readable summary of the compatibility status or workaround, without HTML formatitng.</summary>
+        public string Summary { get; set; }
     }
 }

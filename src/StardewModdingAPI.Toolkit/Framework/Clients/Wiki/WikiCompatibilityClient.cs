@@ -92,7 +92,8 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
 
                 // parse other fields
                 string name = node.Descendants("td").FirstOrDefault()?.InnerText?.Trim();
-                string[] ids = this.GetAttribute(node, "data-id")?.Split(new [] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim()).ToArray() ?? new string[0];
+                string summary = node.Descendants("td").FirstOrDefault(p => p.GetAttributeValue("class", null) == "summary")?.InnerText.Trim();
+                string[] ids = this.GetAttribute(node, "data-id")?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim()).ToArray() ?? new string[0];
                 int? nexusID = this.GetNullableIntAttribute(node, "data-nexus-id");
                 int? chucklefishID = this.GetNullableIntAttribute(node, "data-chucklefish-id");
                 string githubRepo = this.GetAttribute(node, "data-github");
@@ -110,7 +111,8 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
                     GitHubRepo = githubRepo,
                     CustomSourceUrl = customSourceUrl,
                     CustomUrl = customUrl,
-                    UnofficialVersion = unofficialVersion
+                    UnofficialVersion = unofficialVersion,
+                    Summary = summary
                 };
             }
         }
