@@ -878,8 +878,8 @@
     },
 
     "Level Extender": {
-      "ID": "Devin Lematty.Level Extender",
-      "MapRemoteVersions": { "1.1": "1.0" }, // manifest not updated
+      "ID":  "DevinLematty.LevelExtender",
+      "FormerIDs": "Devin Lematty.Level Extender", // changed in 1.3
       "Default | UpdateKey": "Nexus:1471"
     },
 
@@ -1090,7 +1090,8 @@
     },
 
     "NPC Map Locations": {
-      "ID": "NPCMapLocationsMod",
+      "ID": "Bouhm.NPCMapLocations",
+      "FormerIDs": "NPCMapLocationsMod", // changed in 2.0
       "Default   | UpdateKey": "Nexus:239"
     },
 
@@ -1403,7 +1404,7 @@
     },
 
     "Siv's Marriage Mod": {
-      "ID": "6266959802",
+      "FormerIDs": "6266959802 | Siv.MarriageMod | medoli900.Siv's Marriage Mod", // changed in 1.2.3-unofficial versions
       "MapLocalVersions": { "0.0": "1.4" },
       "Default | UpdateKey": "Nexus:366"
     },
@@ -1484,7 +1485,7 @@
 
     "Sprint and Dash": {
       "ID": "SPDSprintAndDash",
-      "Default | UpdateKey": "Chucklefish:3531",
+      "Default | UpdateKey": "Nexus:235",
       "~1.0    | Status": "AssumeBroken" // broke in SDV 1.2
     },
 
