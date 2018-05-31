@@ -936,7 +936,7 @@ namespace StardewModdingAPI
                     {
                         string[] warnings = this.GetWarningText(metadata.Warnings).ToArray();
                         if (warnings.Length == 1)
-                            this.Monitor.Log($"   {metadata.DisplayName}: {warnings[0]}", LogLevel.Warn);
+                            this.Monitor.Log($"   {metadata.DisplayName} {warnings[0]}", LogLevel.Warn);
                         else
                         {
                             this.Monitor.Log($"   {metadata.DisplayName}:", LogLevel.Warn);
