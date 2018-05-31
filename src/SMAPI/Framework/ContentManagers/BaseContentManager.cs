@@ -6,6 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.Reflection;
@@ -107,6 +108,34 @@ namespace StardewModdingAPI.Framework.ContentManagers
             assetName = this.AssertAndNormaliseAssetName(assetName);
             this.Cache[assetName] = value;
 
+        }
+
+        /// <summary>Get a copy of the given asset if supported.</summary>
+        /// <typeparam name="T">The asset type.</typeparam>
+        /// <param name="asset">The asset to clone.</param>
+        public T CloneIfPossible<T>(T asset)
+        {
+            switch (asset as object)
+            {
+                case Texture2D source:
+                    {
+                        int[] pixels = new int[source.Width * source.Height];
+                        source.GetData(pixels);
+
+                        Texture2D clone = new Texture2D(source.GraphicsDevice, source.Width, source.Height);
+                        clone.SetData(pixels);
+                        return (T)(object)clone;
+                    }
+
+                case Dictionary<string, string> source:
+                    return (T)(object)new Dictionary<string, string>(source);
+
+                case Dictionary<int, string> source:
+                    return (T)(object)new Dictionary<int, string>(source);
+
+                default:
+                    return asset;
+            }
         }
 
         /// <summary>Normalise path separators in a file path. For asset keys, see <see cref="AssertAndNormaliseAssetName"/> instead.</summary>

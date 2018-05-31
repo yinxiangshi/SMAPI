@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.ContentManagers;
 using StardewModdingAPI.Framework.Reflection;
@@ -157,27 +156,7 @@ namespace StardewModdingAPI.Framework
 
             // get cloned asset
             T data = contentManager.Load<T>(internalKey, language);
-            switch (data as object)
-            {
-                case Texture2D source:
-                    {
-                        int[] pixels = new int[source.Width * source.Height];
-                        source.GetData(pixels);
-
-                        Texture2D clone = new Texture2D(source.GraphicsDevice, source.Width, source.Height);
-                        clone.SetData(pixels);
-                        return (T)(object)clone;
-                    }
-
-                case Dictionary<string, string> source:
-                    return (T)(object)new Dictionary<string, string>(source);
-
-                case Dictionary<int, string> source:
-                    return (T)(object)new Dictionary<int, string>(source);
-
-                default:
-                    return data;
-            }
+            return contentManager.CloneIfPossible(data);
         }
 
         /// <summary>Purge assets from the cache that match one of the interceptors.</summary>

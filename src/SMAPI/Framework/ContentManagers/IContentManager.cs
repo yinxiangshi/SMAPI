@@ -47,6 +47,11 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="value">The asset value.</param>
         void Inject<T>(string assetName, T value);
 
+        /// <summary>Get a copy of the given asset if supported.</summary>
+        /// <typeparam name="T">The asset type.</typeparam>
+        /// <param name="asset">The asset to clone.</param>
+        T CloneIfPossible<T>(T asset);
+
         /// <summary>Normalise path separators in a file path. For asset keys, see <see cref="AssertAndNormaliseAssetName"/> instead.</summary>
         /// <param name="path">The file path to normalise.</param>
         [Pure]

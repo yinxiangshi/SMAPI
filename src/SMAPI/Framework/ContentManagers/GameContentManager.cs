@@ -161,7 +161,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             T data;
             try
             {
-                data = loader.Load<T>(info);
+                data = this.CloneIfPossible(loader.Load<T>(info));
                 this.Monitor.Log($"{mod.DisplayName} loaded asset '{info.AssetName}'.", LogLevel.Trace);
             }
             catch (Exception ex)
