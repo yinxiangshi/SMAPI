@@ -20,6 +20,9 @@ namespace StardewModdingAPI.Framework.Events
         /// <summary>Raised after buildings are added or removed in a location.</summary>
         public readonly ManagedEvent<WorldBuildingListChangedEventArgs> World_BuildingListChanged;
 
+        /// <summary>Raised after NPCs are added or removed in a location.</summary>
+        public readonly ManagedEvent<WorldNpcListChangedEventArgs> World_NpcListChanged;
+
         /// <summary>Raised after objects are added or removed in a location.</summary>
         public readonly ManagedEvent<WorldObjectListChangedEventArgs> World_ObjectListChanged;
 
@@ -230,6 +233,7 @@ namespace StardewModdingAPI.Framework.Events
             // init events (new)
             this.World_BuildingListChanged = ManageEventOf<WorldBuildingListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.LocationListChanged));
             this.World_LocationListChanged = ManageEventOf<WorldLocationListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.BuildingListChanged));
+            this.World_NpcListChanged = ManageEventOf<WorldNpcListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.NpcListChanged));
             this.World_ObjectListChanged = ManageEventOf<WorldObjectListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.ObjectListChanged));
             this.World_TerrainFeatureListChanged = ManageEventOf<WorldTerrainFeatureListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.TerrainFeatureListChanged));
 

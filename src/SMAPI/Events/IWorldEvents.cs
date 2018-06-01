@@ -14,6 +14,9 @@ namespace StardewModdingAPI.Events
         /// <summary>Raised after buildings are added or removed in a location.</summary>
         event EventHandler<WorldBuildingListChangedEventArgs> BuildingListChanged;
 
+        /// <summary>Raised after NPCs are added or removed in a location.</summary>
+        event EventHandler<WorldNpcListChangedEventArgs> NpcListChanged;
+
         /// <summary>Raised after objects are added or removed in a location.</summary>
         event EventHandler<WorldObjectListChangedEventArgs> ObjectListChanged;
 

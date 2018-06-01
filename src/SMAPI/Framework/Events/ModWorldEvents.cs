@@ -33,6 +33,13 @@ namespace StardewModdingAPI.Framework.Events
             remove => this.EventManager.World_BuildingListChanged.Remove(value);
         }
 
+        /// <summary>Raised after NPCs are added or removed in a location.</summary>
+        public event EventHandler<WorldNpcListChangedEventArgs> NpcListChanged
+        {
+            add => this.EventManager.World_NpcListChanged.Add(value);
+            remove => this.EventManager.World_NpcListChanged.Remove(value);
+        }
+
         /// <summary>Raised after objects are added or removed in a location.</summary>
         public event EventHandler<WorldObjectListChangedEventArgs> ObjectListChanged
         {

@@ -555,18 +555,6 @@ namespace StardewModdingAPI.Framework
                         {
                             foreach (LocationTracker watcher in this.LocationsWatcher.Locations)
                             {
-                                // objects changed
-                                if (watcher.ObjectsWatcher.IsChanged)
-                                {
-                                    GameLocation location = watcher.Location;
-                                    KeyValuePair<Vector2, Object>[] added = watcher.ObjectsWatcher.Added.ToArray();
-                                    KeyValuePair<Vector2, Object>[] removed = watcher.ObjectsWatcher.Removed.ToArray();
-                                    watcher.ObjectsWatcher.Reset();
-
-                                    this.Events.World_ObjectListChanged.Raise(new WorldObjectListChangedEventArgs(location, added, removed));
-                                    this.Events.Location_ObjectsChanged.Raise(new EventArgsLocationObjectsChanged(location, added, removed));
-                                }
-
                                 // buildings changed
                                 if (watcher.BuildingsWatcher.IsChanged)
                                 {
@@ -577,6 +565,29 @@ namespace StardewModdingAPI.Framework
 
                                     this.Events.World_BuildingListChanged.Raise(new WorldBuildingListChangedEventArgs(location, added, removed));
                                     this.Events.Location_BuildingsChanged.Raise(new EventArgsLocationBuildingsChanged(location, added, removed));
+                                }
+
+                                // NPCs changed
+                                if (watcher.NpcsWatcher.IsChanged)
+                                {
+                                    GameLocation location = watcher.Location;
+                                    NPC[] added = watcher.NpcsWatcher.Added.ToArray();
+                                    NPC[] removed = watcher.NpcsWatcher.Removed.ToArray();
+                                    watcher.NpcsWatcher.Reset();
+
+                                    this.Events.World_NpcListChanged.Raise(new WorldNpcListChangedEventArgs(location, added, removed));
+                                }
+
+                                // objects changed
+                                if (watcher.ObjectsWatcher.IsChanged)
+                                {
+                                    GameLocation location = watcher.Location;
+                                    KeyValuePair<Vector2, Object>[] added = watcher.ObjectsWatcher.Added.ToArray();
+                                    KeyValuePair<Vector2, Object>[] removed = watcher.ObjectsWatcher.Removed.ToArray();
+                                    watcher.ObjectsWatcher.Reset();
+
+                                    this.Events.World_ObjectListChanged.Raise(new WorldObjectListChangedEventArgs(location, added, removed));
+                                    this.Events.Location_ObjectsChanged.Raise(new EventArgsLocationObjectsChanged(location, added, removed));
                                 }
 
                                 // terrain features changed

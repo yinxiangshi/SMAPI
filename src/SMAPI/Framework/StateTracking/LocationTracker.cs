@@ -33,6 +33,9 @@ namespace StardewModdingAPI.Framework.StateTracking
         /// <summary>Tracks added or removed buildings.</summary>
         public ICollectionWatcher<Building> BuildingsWatcher { get; }
 
+        /// <summary>Tracks added or removed NPCs.</summary>
+        public ICollectionWatcher<NPC> NpcsWatcher { get; }
+
         /// <summary>Tracks added or removed objects.</summary>
         public IDictionaryWatcher<Vector2, Object> ObjectsWatcher { get; }
 
@@ -50,15 +53,17 @@ namespace StardewModdingAPI.Framework.StateTracking
             this.Location = location;
 
             // init watchers
-            this.ObjectsWatcher = WatcherFactory.ForNetDictionary(location.netObjects);
             this.BuildingsWatcher = location is BuildableGameLocation buildableLocation
                 ? WatcherFactory.ForNetCollection(buildableLocation.buildings)
                 : (ICollectionWatcher<Building>)WatcherFactory.ForObservableCollection(new ObservableCollection<Building>());
+            this.NpcsWatcher = WatcherFactory.ForNetCollection(location.characters);
+            this.ObjectsWatcher = WatcherFactory.ForNetDictionary(location.netObjects);
             this.TerrainFeaturesWatcher = WatcherFactory.ForNetDictionary(location.terrainFeatures);
 
             this.Watchers.AddRange(new IWatcher[]
             {
                 this.BuildingsWatcher,
+                this.NpcsWatcher,
                 this.ObjectsWatcher,
                 this.TerrainFeaturesWatcher
             });
