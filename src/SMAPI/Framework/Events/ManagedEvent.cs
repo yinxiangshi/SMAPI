@@ -28,8 +28,16 @@ namespace StardewModdingAPI.Framework.Events
         /// <param name="handler">The event handler.</param>
         public void Add(EventHandler<TEventArgs> handler)
         {
+            this.Add(handler, this.ModRegistry.GetFromStack());
+        }
+
+        /// <summary>Add an event handler.</summary>
+        /// <param name="handler">The event handler.</param>
+        /// <param name="mod">The mod which added the event handler.</param>
+        public void Add(EventHandler<TEventArgs> handler, IModMetadata mod)
+        {
             this.Event += handler;
-            this.AddTracking(handler, this.Event?.GetInvocationList().Cast<EventHandler<TEventArgs>>());
+            this.AddTracking(mod, handler, this.Event?.GetInvocationList().Cast<EventHandler<TEventArgs>>());
         }
 
         /// <summary>Remove an event handler.</summary>
@@ -85,8 +93,16 @@ namespace StardewModdingAPI.Framework.Events
         /// <param name="handler">The event handler.</param>
         public void Add(EventHandler handler)
         {
+            this.Add(handler, this.ModRegistry.GetFromStack());
+        }
+
+        /// <summary>Add an event handler.</summary>
+        /// <param name="handler">The event handler.</param>
+        /// <param name="mod">The mod which added the event handler.</param>
+        public void Add(EventHandler handler, IModMetadata mod)
+        {
             this.Event += handler;
-            this.AddTracking(handler, this.Event?.GetInvocationList().Cast<EventHandler>());
+            this.AddTracking(mod, handler, this.Event?.GetInvocationList().Cast<EventHandler>());
         }
 
         /// <summary>Remove an event handler.</summary>

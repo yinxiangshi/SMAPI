@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using StardewModdingAPI.Events;
 
 namespace StardewModdingAPI
 {
@@ -11,6 +12,10 @@ namespace StardewModdingAPI
         *********/
         /// <summary>The full path to the mod's folder.</summary>
         string DirectoryPath { get; }
+
+        /// <summary>Manages access to events raised by SMAPI, which let your mod react when something happens in the game.</summary>
+        [Obsolete("This is an experimental interface which may change at any time. Don't depend on this for released mods.")]
+        IModEvents Events { get; }
 
         /// <summary>An API for loading content assets.</summary>
         IContentHelper Content { get; }

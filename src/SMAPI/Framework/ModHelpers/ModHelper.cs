@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.Models;
 using StardewModdingAPI.Framework.Serialisation;
 using StardewModdingAPI.Framework.Utilities;
@@ -33,6 +34,9 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <summary>The full path to the mod's folder.</summary>
         public string DirectoryPath { get; }
 
+        /// <summary>Manages access to events raised by SMAPI, which let your mod react when something happens in the game.</summary>
+        public IModEvents Events { get; }
+
         /// <summary>An API for loading content assets.</summary>
         public IContentHelper Content { get; }
 
@@ -59,6 +63,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="modID">The mod's unique ID.</param>
         /// <param name="modDirectory">The full path to the mod's folder.</param>
         /// <param name="jsonHelper">Encapsulate SMAPI's JSON parsing.</param>
+        /// <param name="events">Manages access to events raised by SMAPI.</param>
         /// <param name="contentHelper">An API for loading content assets.</param>
         /// <param name="commandHelper">An API for managing console commands.</param>
         /// <param name="modRegistry">an API for fetching metadata about loaded mods.</param>
@@ -70,7 +75,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="deprecationManager">Manages deprecation warnings.</param>
         /// <exception cref="ArgumentNullException">An argument is null or empty.</exception>
         /// <exception cref="InvalidOperationException">The <paramref name="modDirectory"/> path does not exist on disk.</exception>
-        public ModHelper(string modID, string modDirectory, JsonHelper jsonHelper, IContentHelper contentHelper, ICommandHelper commandHelper, IModRegistry modRegistry, IReflectionHelper reflectionHelper, IMultiplayerHelper multiplayer, ITranslationHelper translationHelper, IEnumerable<IContentPack> contentPacks, Func<string, IManifest, IContentPack> createContentPack, DeprecationManager deprecationManager)
+        public ModHelper(string modID, string modDirectory, JsonHelper jsonHelper, IModEvents events, IContentHelper contentHelper, ICommandHelper commandHelper, IModRegistry modRegistry, IReflectionHelper reflectionHelper, IMultiplayerHelper multiplayer, ITranslationHelper translationHelper, IEnumerable<IContentPack> contentPacks, Func<string, IManifest, IContentPack> createContentPack, DeprecationManager deprecationManager)
             : base(modID)
         {
             // validate directory
@@ -91,6 +96,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
             this.ContentPacks = contentPacks.ToArray();
             this.CreateContentPack = createContentPack;
             this.DeprecationManager = deprecationManager;
+            this.Events = events;
         }
 
         /****
@@ -157,13 +163,13 @@ namespace StardewModdingAPI.Framework.ModHelpers
             this.DeprecationManager.Warn($"{nameof(IModHelper)}.{nameof(IModHelper.CreateTransitionalContentPack)}", "2.5", DeprecationLevel.Notice);
 
             // validate
-            if(string.IsNullOrWhiteSpace(directoryPath))
+            if (string.IsNullOrWhiteSpace(directoryPath))
                 throw new ArgumentNullException(nameof(directoryPath));
-            if(string.IsNullOrWhiteSpace(id))
+            if (string.IsNullOrWhiteSpace(id))
                 throw new ArgumentNullException(nameof(id));
-            if(string.IsNullOrWhiteSpace(name))
+            if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentNullException(nameof(name));
-            if(!Directory.Exists(directoryPath))
+            if (!Directory.Exists(directoryPath))
                 throw new ArgumentException($"Can't create content pack for directory path '{directoryPath}' because no such directory exists.");
 
             // create manifest

@@ -1,4 +1,3 @@
-using System;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework.Input;
 using StardewModdingAPI.Events;
@@ -10,7 +9,23 @@ namespace StardewModdingAPI.Framework.Events
     internal class EventManager
     {
         /*********
-        ** Properties
+        ** Events (new)
+        *********/
+        /****
+        ** World
+        ****/
+        /// <summary>Raised after a game location is added or removed.</summary>
+        public readonly ManagedEvent<WorldLocationsChangedEventArgs> World_LocationsChanged;
+
+        /// <summary>Raised after buildings are added or removed in a location.</summary>
+        public readonly ManagedEvent<WorldBuildingsChangedEventArgs> World_BuildingsChanged;
+
+        /// <summary>Raised after objects are added or removed in a location.</summary>
+        public readonly ManagedEvent<WorldObjectsChangedEventArgs> World_ObjectsChanged;
+
+
+        /*********
+        ** Events (old)
         *********/
         /****
         ** ContentEvents
@@ -209,7 +224,12 @@ namespace StardewModdingAPI.Framework.Events
             ManagedEvent<TEventArgs> ManageEventOf<TEventArgs>(string typeName, string eventName) => new ManagedEvent<TEventArgs>($"{typeName}.{eventName}", monitor, modRegistry);
             ManagedEvent ManageEvent(string typeName, string eventName) => new ManagedEvent($"{typeName}.{eventName}", monitor, modRegistry);
 
-            // init events
+            // init events (new)
+            this.World_BuildingsChanged = ManageEventOf<WorldBuildingsChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.LocationsChanged));
+            this.World_LocationsChanged = ManageEventOf<WorldLocationsChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.BuildingsChanged));
+            this.World_ObjectsChanged = ManageEventOf<WorldObjectsChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.ObjectsChanged));
+
+            // init events (old)
             this.Content_LocaleChanged = ManageEventOf<EventArgsValueChanged<string>>(nameof(ContentEvents), nameof(ContentEvents.AfterLocaleChanged));
 
             this.Control_ControllerButtonPressed = ManageEventOf<EventArgsControllerButtonPressed>(nameof(ControlEvents), nameof(ControlEvents.ControllerButtonPressed));

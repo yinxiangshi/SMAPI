@@ -86,17 +86,23 @@
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Events\EventArgsLocationBuildingsChanged.cs" />
+    <Compile Include="Events\IWorldEvents.cs" />
     <Compile Include="Events\MultiplayerEvents.cs" />
+    <Compile Include="Events\WorldBuildingsChangedEventArgs.cs" />
+    <Compile Include="Events\WorldLocationsChangedEventArgs.cs" />
+    <Compile Include="Events\WorldObjectsChangedEventArgs.cs" />
     <Compile Include="Framework\ContentManagers\BaseContentManager.cs" />
     <Compile Include="Framework\ContentManagers\GameContentManager.cs" />
     <Compile Include="Framework\ContentManagers\IContentManager.cs" />
     <Compile Include="Framework\ContentManagers\ModContentManager.cs" />
     <Compile Include="Framework\Events\EventManager.cs" />
+    <Compile Include="Events\IModEvents.cs" />
     <Compile Include="Framework\Events\ManagedEvent.cs" />
     <Compile Include="Events\SpecialisedEvents.cs" />
     <Compile Include="Framework\ContentPack.cs" />
     <Compile Include="Framework\Content\ContentCache.cs" />
     <Compile Include="Framework\Events\ManagedEventBase.cs" />
+    <Compile Include="Framework\Events\ModEvents.cs" />
     <Compile Include="Framework\Input\GamePadStateBuilder.cs" />
     <Compile Include="Framework\Input\SInputState.cs" />
     <Compile Include="Framework\Input\InputStatus.cs" />
@@ -129,6 +135,7 @@
     <Compile Include="Framework\ModLoading\Rewriters\TypeReferenceRewriter.cs" />
     <Compile Include="Framework\Exceptions\SAssemblyLoadFailedException.cs" />
     <Compile Include="Framework\ModLoading\AssemblyLoadStatus.cs" />
+    <Compile Include="Framework\Events\ModWorldEvents.cs" />
     <Compile Include="Framework\Reflection\InterfaceProxyBuilder.cs" />
     <Compile Include="Framework\Reflection\InterfaceProxyFactory.cs" />
     <Compile Include="Framework\RewriteFacades\SpriteBatchMethods.cs" />

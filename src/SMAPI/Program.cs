@@ -840,6 +840,7 @@ namespace StardewModdingAPI
                         IMonitor monitor = this.GetSecondaryMonitor(metadata.DisplayName);
                         IModHelper modHelper;
                         {
+                            IModEvents events = new ModEvents(metadata, this.EventManager);
                             ICommandHelper commandHelper = new CommandHelper(manifest.UniqueID, metadata.DisplayName, this.CommandManager);
                             IContentHelper contentHelper = new ContentHelper(contentCore, metadata.DirectoryPath, manifest.UniqueID, metadata.DisplayName, monitor);
                             IReflectionHelper reflectionHelper = new ReflectionHelper(manifest.UniqueID, metadata.DisplayName, this.Reflection, this.DeprecationManager);
@@ -854,7 +855,7 @@ namespace StardewModdingAPI
                                 return new ContentPack(packDirPath, packManifest, packContentHelper, this.JsonHelper);
                             }
 
-                            modHelper = new ModHelper(manifest.UniqueID, metadata.DirectoryPath, jsonHelper, contentHelper, commandHelper, modRegistryHelper, reflectionHelper, multiplayerHelper, translationHelper, contentPacks, CreateTransitionalContentPack, this.DeprecationManager);
+                            modHelper = new ModHelper(manifest.UniqueID, metadata.DirectoryPath, jsonHelper, events, contentHelper, commandHelper, modRegistryHelper, reflectionHelper, multiplayerHelper, translationHelper, contentPacks, CreateTransitionalContentPack, this.DeprecationManager);
                         }
 
                         // init mod
