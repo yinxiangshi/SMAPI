@@ -6,8 +6,8 @@ using StardewValley.Buildings;
 
 namespace StardewModdingAPI.Events
 {
-    /// <summary>Event arguments for a <see cref="IWorldEvents.BuildingsChanged"/> event.</summary>
-    public class WorldBuildingsChangedEventArgs : EventArgs
+    /// <summary>Event arguments for a <see cref="IWorldEvents.BuildingListChanged"/> event.</summary>
+    public class WorldBuildingListChangedEventArgs : EventArgs
     {
         /*********
         ** Accessors
@@ -29,7 +29,7 @@ namespace StardewModdingAPI.Events
         /// <param name="location">The location which changed.</param>
         /// <param name="added">The buildings added to the location.</param>
         /// <param name="removed">The buildings removed from the location.</param>
-        public WorldBuildingsChangedEventArgs(GameLocation location, IEnumerable<Building> added, IEnumerable<Building> removed)
+        public WorldBuildingListChangedEventArgs(GameLocation location, IEnumerable<Building> added, IEnumerable<Building> removed)
         {
             this.Location = location;
             this.Added = added.ToArray();

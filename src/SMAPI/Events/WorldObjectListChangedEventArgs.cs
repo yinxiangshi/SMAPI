@@ -7,8 +7,8 @@ using Object = StardewValley.Object;
 
 namespace StardewModdingAPI.Events
 {
-    /// <summary>Event arguments for a <see cref="IWorldEvents.ObjectsChanged"/> event.</summary>
-    public class WorldObjectsChangedEventArgs : EventArgs
+    /// <summary>Event arguments for a <see cref="IWorldEvents.ObjectListChanged"/> event.</summary>
+    public class WorldObjectListChangedEventArgs : EventArgs
     {
         /*********
         ** Accessors
@@ -30,7 +30,7 @@ namespace StardewModdingAPI.Events
         /// <param name="location">The location which changed.</param>
         /// <param name="added">The objects added to the location.</param>
         /// <param name="removed">The objects removed from the location.</param>
-        public WorldObjectsChangedEventArgs(GameLocation location, IEnumerable<KeyValuePair<Vector2, Object>> added, IEnumerable<KeyValuePair<Vector2, Object>> removed)
+        public WorldObjectListChangedEventArgs(GameLocation location, IEnumerable<KeyValuePair<Vector2, Object>> added, IEnumerable<KeyValuePair<Vector2, Object>> removed)
         {
             this.Location = location;
             this.Added = added.ToArray();

@@ -88,9 +88,9 @@
     <Compile Include="Events\EventArgsLocationBuildingsChanged.cs" />
     <Compile Include="Events\IWorldEvents.cs" />
     <Compile Include="Events\MultiplayerEvents.cs" />
-    <Compile Include="Events\WorldBuildingsChangedEventArgs.cs" />
-    <Compile Include="Events\WorldLocationsChangedEventArgs.cs" />
-    <Compile Include="Events\WorldObjectsChangedEventArgs.cs" />
+    <Compile Include="Events\WorldBuildingListChangedEventArgs.cs" />
+    <Compile Include="Events\WorldLocationListChangedEventArgs.cs" />
+    <Compile Include="Events\WorldObjectListChangedEventArgs.cs" />
     <Compile Include="Framework\ContentManagers\BaseContentManager.cs" />
     <Compile Include="Framework\ContentManagers\GameContentManager.cs" />
     <Compile Include="Framework\ContentManagers\IContentManager.cs" />

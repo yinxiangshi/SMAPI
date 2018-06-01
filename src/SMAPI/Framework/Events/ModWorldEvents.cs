@@ -20,24 +20,24 @@ namespace StardewModdingAPI.Framework.Events
         ** Accessors
         *********/
         /// <summary>Raised after a game location is added or removed.</summary>
-        public event EventHandler<WorldLocationsChangedEventArgs> LocationsChanged
+        public event EventHandler<WorldLocationListChangedEventArgs> LocationListChanged
         {
-            add => this.EventManager.World_LocationsChanged.Add(value, this.Mod);
-            remove => this.EventManager.World_LocationsChanged.Remove(value);
+            add => this.EventManager.World_LocationListChanged.Add(value, this.Mod);
+            remove => this.EventManager.World_LocationListChanged.Remove(value);
         }
 
         /// <summary>Raised after buildings are added or removed in a location.</summary>
-        public event EventHandler<WorldBuildingsChangedEventArgs> BuildingsChanged
+        public event EventHandler<WorldBuildingListChangedEventArgs> BuildingListChanged
         {
-            add => this.EventManager.World_BuildingsChanged.Add(value, this.Mod);
-            remove => this.EventManager.World_BuildingsChanged.Remove(value);
+            add => this.EventManager.World_BuildingListChanged.Add(value, this.Mod);
+            remove => this.EventManager.World_BuildingListChanged.Remove(value);
         }
 
         /// <summary>Raised after objects are added or removed in a location.</summary>
-        public event EventHandler<WorldObjectsChangedEventArgs> ObjectsChanged
+        public event EventHandler<WorldObjectListChangedEventArgs> ObjectListChanged
         {
-            add => this.EventManager.World_ObjectsChanged.Add(value);
-            remove => this.EventManager.World_ObjectsChanged.Remove(value);
+            add => this.EventManager.World_ObjectListChanged.Add(value);
+            remove => this.EventManager.World_ObjectListChanged.Remove(value);
         }
 
 

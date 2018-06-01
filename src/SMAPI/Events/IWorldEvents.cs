@@ -9,12 +9,12 @@ namespace StardewModdingAPI.Events
         ** Events
         *********/
         /// <summary>Raised after a game location is added or removed.</summary>
-        event EventHandler<WorldLocationsChangedEventArgs> LocationsChanged;
+        event EventHandler<WorldLocationListChangedEventArgs> LocationListChanged;
 
         /// <summary>Raised after buildings are added or removed in a location.</summary>
-        event EventHandler<WorldBuildingsChangedEventArgs> BuildingsChanged;
+        event EventHandler<WorldBuildingListChangedEventArgs> BuildingListChanged;
 
         /// <summary>Raised after objects are added or removed in a location.</summary>
-        event EventHandler<WorldObjectsChangedEventArgs> ObjectsChanged;
+        event EventHandler<WorldObjectListChangedEventArgs> ObjectListChanged;
     }
 }

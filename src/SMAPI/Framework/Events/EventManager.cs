@@ -15,13 +15,13 @@ namespace StardewModdingAPI.Framework.Events
         ** World
         ****/
         /// <summary>Raised after a game location is added or removed.</summary>
-        public readonly ManagedEvent<WorldLocationsChangedEventArgs> World_LocationsChanged;
+        public readonly ManagedEvent<WorldLocationListChangedEventArgs> World_LocationListChanged;
 
         /// <summary>Raised after buildings are added or removed in a location.</summary>
-        public readonly ManagedEvent<WorldBuildingsChangedEventArgs> World_BuildingsChanged;
+        public readonly ManagedEvent<WorldBuildingListChangedEventArgs> World_BuildingListChanged;
 
         /// <summary>Raised after objects are added or removed in a location.</summary>
-        public readonly ManagedEvent<WorldObjectsChangedEventArgs> World_ObjectsChanged;
+        public readonly ManagedEvent<WorldObjectListChangedEventArgs> World_ObjectListChanged;
 
 
         /*********
@@ -225,9 +225,9 @@ namespace StardewModdingAPI.Framework.Events
             ManagedEvent ManageEvent(string typeName, string eventName) => new ManagedEvent($"{typeName}.{eventName}", monitor, modRegistry);
 
             // init events (new)
-            this.World_BuildingsChanged = ManageEventOf<WorldBuildingsChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.LocationsChanged));
-            this.World_LocationsChanged = ManageEventOf<WorldLocationsChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.BuildingsChanged));
-            this.World_ObjectsChanged = ManageEventOf<WorldObjectsChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.ObjectsChanged));
+            this.World_BuildingListChanged = ManageEventOf<WorldBuildingListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.LocationListChanged));
+            this.World_LocationListChanged = ManageEventOf<WorldLocationListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.BuildingListChanged));
+            this.World_ObjectListChanged = ManageEventOf<WorldObjectListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.ObjectListChanged));
 
             // init events (old)
             this.Content_LocaleChanged = ManageEventOf<EventArgsValueChanged<string>>(nameof(ContentEvents), nameof(ContentEvents.AfterLocaleChanged));

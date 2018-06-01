@@ -5,8 +5,8 @@ using StardewValley;
 
 namespace StardewModdingAPI.Events
 {
-    /// <summary>Event arguments for a <see cref="IWorldEvents.LocationsChanged"/> event.</summary>
-    public class WorldLocationsChangedEventArgs : EventArgs
+    /// <summary>Event arguments for a <see cref="IWorldEvents.LocationListChanged"/> event.</summary>
+    public class WorldLocationListChangedEventArgs : EventArgs
     {
         /*********
         ** Accessors
@@ -24,7 +24,7 @@ namespace StardewModdingAPI.Events
         /// <summary>Construct an instance.</summary>
         /// <param name="added">The added locations.</param>
         /// <param name="removed">The removed locations.</param>
-        public WorldLocationsChangedEventArgs(IEnumerable<GameLocation> added, IEnumerable<GameLocation> removed)
+        public WorldLocationListChangedEventArgs(IEnumerable<GameLocation> added, IEnumerable<GameLocation> removed)
         {
             this.Added = added.ToArray();
             this.Removed = removed.ToArray();

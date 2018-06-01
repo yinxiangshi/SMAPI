@@ -543,7 +543,7 @@ namespace StardewModdingAPI.Framework
                                 this.Monitor.Log($"Context: location list changed (added {addedText}; removed {removedText}).", LogLevel.Trace);
                             }
 
-                            this.Events.World_LocationsChanged.Raise(new WorldLocationsChangedEventArgs(added, removed));
+                            this.Events.World_LocationListChanged.Raise(new WorldLocationListChangedEventArgs(added, removed));
                             this.Events.Location_LocationsChanged.Raise(new EventArgsLocationsChanged(added, removed));
                         }
 
@@ -560,7 +560,7 @@ namespace StardewModdingAPI.Framework
                                     var removed = watcher.ObjectsWatcher.Removed.ToArray();
                                     watcher.ObjectsWatcher.Reset();
 
-                                    this.Events.World_ObjectsChanged.Raise(new WorldObjectsChangedEventArgs(location, added, removed));
+                                    this.Events.World_ObjectListChanged.Raise(new WorldObjectListChangedEventArgs(location, added, removed));
                                     this.Events.Location_ObjectsChanged.Raise(new EventArgsLocationObjectsChanged(location, added, removed));
                                 }
 
@@ -572,7 +572,7 @@ namespace StardewModdingAPI.Framework
                                     var removed = watcher.BuildingsWatcher.Removed.ToArray();
                                     watcher.BuildingsWatcher.Reset();
 
-                                    this.Events.World_BuildingsChanged.Raise(new WorldBuildingsChangedEventArgs(location, added, removed));
+                                    this.Events.World_BuildingListChanged.Raise(new WorldBuildingListChangedEventArgs(location, added, removed));
                                     this.Events.Location_BuildingsChanged.Raise(new EventArgsLocationBuildingsChanged(location, added, removed));
                                 }
                             }
