@@ -88,6 +88,7 @@
     <Compile Include="Events\EventArgsLocationBuildingsChanged.cs" />
     <Compile Include="Events\IWorldEvents.cs" />
     <Compile Include="Events\MultiplayerEvents.cs" />
+    <Compile Include="Events\WorldTerrainFeatureListChangedEventArgs.cs" />
     <Compile Include="Events\WorldBuildingListChangedEventArgs.cs" />
     <Compile Include="Events\WorldLocationListChangedEventArgs.cs" />
     <Compile Include="Events\WorldObjectListChangedEventArgs.cs" />

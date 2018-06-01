@@ -6,6 +6,7 @@ using StardewModdingAPI.Framework.StateTracking.FieldWatchers;
 using StardewValley;
 using StardewValley.Buildings;
 using StardewValley.Locations;
+using StardewValley.TerrainFeatures;
 using Object = StardewValley.Object;
 
 namespace StardewModdingAPI.Framework.StateTracking
@@ -29,11 +30,14 @@ namespace StardewModdingAPI.Framework.StateTracking
         /// <summary>The tracked location.</summary>
         public GameLocation Location { get; }
 
-        /// <summary>Tracks changes to the location's buildings.</summary>
+        /// <summary>Tracks added or removed buildings.</summary>
         public ICollectionWatcher<Building> BuildingsWatcher { get; }
 
-        /// <summary>Tracks changes to the location's objects.</summary>
+        /// <summary>Tracks added or removed objects.</summary>
         public IDictionaryWatcher<Vector2, Object> ObjectsWatcher { get; }
+
+        /// <summary>Tracks added or removed terrain features.</summary>
+        public IDictionaryWatcher<Vector2, TerrainFeature> TerrainFeaturesWatcher { get; }
 
 
         /*********
@@ -50,11 +54,13 @@ namespace StardewModdingAPI.Framework.StateTracking
             this.BuildingsWatcher = location is BuildableGameLocation buildableLocation
                 ? WatcherFactory.ForNetCollection(buildableLocation.buildings)
                 : (ICollectionWatcher<Building>)WatcherFactory.ForObservableCollection(new ObservableCollection<Building>());
+            this.TerrainFeaturesWatcher = WatcherFactory.ForNetDictionary(location.terrainFeatures);
 
             this.Watchers.AddRange(new IWatcher[]
             {
                 this.BuildingsWatcher,
-                this.ObjectsWatcher
+                this.ObjectsWatcher,
+                this.TerrainFeaturesWatcher
             });
         }
 

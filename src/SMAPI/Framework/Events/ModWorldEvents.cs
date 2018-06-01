@@ -40,6 +40,13 @@ namespace StardewModdingAPI.Framework.Events
             remove => this.EventManager.World_ObjectListChanged.Remove(value);
         }
 
+        /// <summary>Raised after terrain features are added or removed in a location.</summary>
+        public event EventHandler<WorldTerrainFeatureListChangedEventArgs> TerrainFeatureListChanged
+        {
+            add => this.EventManager.World_TerrainFeatureListChanged.Add(value);
+            remove => this.EventManager.World_TerrainFeatureListChanged.Remove(value);
+        }
+
 
         /*********
         ** Public methods

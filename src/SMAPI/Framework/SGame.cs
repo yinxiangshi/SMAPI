@@ -18,11 +18,14 @@ using StardewModdingAPI.Framework.StateTracking.FieldWatchers;
 using StardewModdingAPI.Framework.Utilities;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
+using StardewValley.Buildings;
 using StardewValley.Locations;
 using StardewValley.Menus;
+using StardewValley.TerrainFeatures;
 using StardewValley.Tools;
 using xTile.Dimensions;
 using xTile.Layers;
+using Object = StardewValley.Object;
 
 namespace StardewModdingAPI.Framework
 {
@@ -556,8 +559,8 @@ namespace StardewModdingAPI.Framework
                                 if (watcher.ObjectsWatcher.IsChanged)
                                 {
                                     GameLocation location = watcher.Location;
-                                    var added = watcher.ObjectsWatcher.Added.ToArray();
-                                    var removed = watcher.ObjectsWatcher.Removed.ToArray();
+                                    KeyValuePair<Vector2, Object>[] added = watcher.ObjectsWatcher.Added.ToArray();
+                                    KeyValuePair<Vector2, Object>[] removed = watcher.ObjectsWatcher.Removed.ToArray();
                                     watcher.ObjectsWatcher.Reset();
 
                                     this.Events.World_ObjectListChanged.Raise(new WorldObjectListChangedEventArgs(location, added, removed));
@@ -568,12 +571,23 @@ namespace StardewModdingAPI.Framework
                                 if (watcher.BuildingsWatcher.IsChanged)
                                 {
                                     GameLocation location = watcher.Location;
-                                    var added = watcher.BuildingsWatcher.Added.ToArray();
-                                    var removed = watcher.BuildingsWatcher.Removed.ToArray();
+                                    Building[] added = watcher.BuildingsWatcher.Added.ToArray();
+                                    Building[] removed = watcher.BuildingsWatcher.Removed.ToArray();
                                     watcher.BuildingsWatcher.Reset();
 
                                     this.Events.World_BuildingListChanged.Raise(new WorldBuildingListChangedEventArgs(location, added, removed));
                                     this.Events.Location_BuildingsChanged.Raise(new EventArgsLocationBuildingsChanged(location, added, removed));
+                                }
+
+                                // terrain features changed
+                                if (watcher.TerrainFeaturesWatcher.IsChanged)
+                                {
+                                    GameLocation location = watcher.Location;
+                                    KeyValuePair<Vector2, TerrainFeature>[] added = watcher.TerrainFeaturesWatcher.Added.ToArray();
+                                    KeyValuePair<Vector2, TerrainFeature>[] removed = watcher.TerrainFeaturesWatcher.Removed.ToArray();
+                                    watcher.TerrainFeaturesWatcher.Reset();
+
+                                    this.Events.World_TerrainFeatureListChanged.Raise(new WorldTerrainFeatureListChangedEventArgs(location, added, removed));
                                 }
                             }
                         }
