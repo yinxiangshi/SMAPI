@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using StardewModdingAPI.Framework.Input;
 
 namespace StardewModdingAPI.Events
 {
@@ -9,8 +9,8 @@ namespace StardewModdingAPI.Events
         /*********
         ** Properties
         *********/
-        /// <summary>The buttons to suppress.</summary>
-        private readonly HashSet<SButton> SuppressButtons;
+        /// <summary>The game's current input state.</summary>
+        private readonly SInputState InputState;
 
 
         /*********
@@ -22,9 +22,6 @@ namespace StardewModdingAPI.Events
         /// <summary>The current cursor position.</summary>
         public ICursorPosition Cursor { get; }
 
-        /// <summary>Whether a mod has indicated the key was already handled.</summary>
-        public bool IsSuppressed => this.SuppressButtons.Contains(this.Button);
-
 
         /*********
         ** Public methods
@@ -32,25 +29,32 @@ namespace StardewModdingAPI.Events
         /// <summary>Construct an instance.</summary>
         /// <param name="button">The button on the controller, keyboard, or mouse.</param>
         /// <param name="cursor">The cursor position.</param>
-        /// <param name="suppressButtons">The buttons to suppress.</param>
-        public InputButtonReleasedArgsInput(SButton button, ICursorPosition cursor, HashSet<SButton> suppressButtons)
+        /// <param name="inputState">The game's current input state.</param>
+        internal InputButtonReleasedArgsInput(SButton button, ICursorPosition cursor, SInputState inputState)
         {
             this.Button = button;
             this.Cursor = cursor;
-            this.SuppressButtons = suppressButtons;
+            this.InputState = inputState;
         }
 
-        /// <summary>Prevent the game from handling the current button press. This doesn't prevent other mods from receiving the event.</summary>
-        public void SuppressButton()
+        /// <summary>Whether a mod has indicated the key was already handled, so the game should handle it.</summary>
+        public bool IsSuppressed()
         {
-            this.SuppressButton(this.Button);
+            return this.IsSuppressed(this.Button);
         }
 
-        /// <summary>Prevent the game from handling a button press. This doesn't prevent other mods from receiving the event.</summary>
-        /// <param name="button">The button to suppress.</param>
-        public void SuppressButton(SButton button)
+        /// <summary>Whether a mod has indicated the key was already handled, so the game should handle it.</summary>
+        /// <param name="button">The button to check.</param>
+        public bool IsSuppressed(SButton button)
         {
-            this.SuppressButtons.Add(button);
+            return this.InputState.SuppressButtons.Contains(button);
+        }
+
+        /// <summary>Get whether a given button was pressed or held.</summary>
+        /// <param name="button">The button to check.</param>
+        public bool IsDown(SButton button)
+        {
+            return this.InputState.IsDown(button);
         }
     }
 }

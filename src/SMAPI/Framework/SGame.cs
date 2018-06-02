@@ -480,7 +480,7 @@ namespace StardewModdingAPI.Framework
 
                             if (status == InputStatus.Pressed)
                             {
-                                this.Events.Input_ButtonPressed.Raise(new InputButtonPressedArgsInput(button, cursor, inputState.SuppressButtons));
+                                this.Events.Input_ButtonPressed.Raise(new InputButtonPressedArgsInput(button, cursor, inputState));
                                 this.Events.Legacy_Input_ButtonPressed.Raise(new EventArgsInput(button, cursor, inputState.SuppressButtons));
 
                                 // legacy events
@@ -499,7 +499,7 @@ namespace StardewModdingAPI.Framework
                             }
                             else if (status == InputStatus.Released)
                             {
-                                this.Events.Input_ButtonReleased.Raise(new InputButtonReleasedArgsInput(button, cursor, inputState.SuppressButtons));
+                                this.Events.Input_ButtonReleased.Raise(new InputButtonReleasedArgsInput(button, cursor, inputState));
                                 this.Events.Legacy_Input_ButtonReleased.Raise(new EventArgsInput(button, cursor, inputState.SuppressButtons));
 
                                 // legacy events
