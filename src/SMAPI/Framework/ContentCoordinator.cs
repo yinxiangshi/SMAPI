@@ -11,7 +11,6 @@ using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Utilities;
 using StardewModdingAPI.Metadata;
 using StardewValley;
-using xTile;
 
 namespace StardewModdingAPI.Framework
 {
@@ -179,12 +178,36 @@ namespace StardewModdingAPI.Framework
             {
                 // check loaders
                 MethodInfo canLoadGeneric = canLoad.MakeGenericMethod(asset.DataType);
-                if (loaders.Any(loader => (bool)canLoadGeneric.Invoke(loader, new object[] { asset })))
-                    return true;
+                foreach (IAssetLoader loader in loaders)
+                {
+                    try
+                    {
+                        if ((bool)canLoadGeneric.Invoke(loader, new object[] { asset }))
+                            return true;
+                    }
+                    catch (Exception ex)
+                    {
+                        this.GetModFor(loader).LogAsMod($"Mod failed when checking whether it could load asset '{asset.AssetName}'. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
+                    }
+                }
 
                 // check editors
                 MethodInfo canEditGeneric = canEdit.MakeGenericMethod(asset.DataType);
-                return editors.Any(editor => (bool)canEditGeneric.Invoke(editor, new object[] { asset }));
+                foreach (IAssetEditor editor in editors)
+                {
+                    try
+                    {
+                        if ((bool)canEditGeneric.Invoke(editor, new object[] { asset }))
+                            return true;
+                    }
+                    catch (Exception ex)
+                    {
+                        this.GetModFor(editor).LogAsMod($"Mod failed when checking whether it could edit asset '{asset.AssetName}'. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
+                    }
+                }
+
+                // asset not affected by a loader or editor
+                return false;
             });
         }
 
@@ -258,6 +281,34 @@ namespace StardewModdingAPI.Framework
                 return;
 
             this.ContentManagers.Remove(contentManager);
+        }
+
+        /// <summary>Get the mod which registered an asset loader.</summary>
+        /// <param name="loader">The asset loader.</param>
+        /// <exception cref="KeyNotFoundException">The given loader couldn't be matched to a mod.</exception>
+        private IModMetadata GetModFor(IAssetLoader loader)
+        {
+            foreach (var pair in this.Loaders)
+            {
+                if (pair.Value.Contains(loader))
+                    return pair.Key;
+            }
+
+            throw new KeyNotFoundException("This loader isn't associated with a known mod.");
+        }
+
+        /// <summary>Get the mod which registered an asset editor.</summary>
+        /// <param name="editor">The asset editor.</param>
+        /// <exception cref="KeyNotFoundException">The given editor couldn't be matched to a mod.</exception>
+        private IModMetadata GetModFor(IAssetEditor editor)
+        {
+            foreach (var pair in this.Editors)
+            {
+                if (pair.Value.Contains(editor))
+                    return pair.Key;
+            }
+
+            throw new KeyNotFoundException("This editor isn't associated with a known mod.");
         }
     }
 }

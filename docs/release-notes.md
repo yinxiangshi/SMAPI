@@ -38,6 +38,7 @@
   * Added option to suppress update checks for a specific mod in `StardewModdingAPI.config.json`.
   * Fixed mods able to intercept other mods' assets via the internal asset keys.
   * Fixed mods able to indirectly change other mods' data through shared content caches.
+  * Fixed issue where a mod crashing in `CanEdit` or `CanLoad` could cause an abort-retry loop.
   * **Breaking changes** (see [migration guide](https://stardewvalleywiki.com/Modding:Migrate_to_Stardew_Valley_1.3)):
      * Dropped some deprecated APIs.
      * `LocationEvents` have been rewritten (see above).
