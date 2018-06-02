@@ -24,14 +24,14 @@ namespace StardewModdingAPI.Events
             remove => ControlEvents.EventManager.Legacy_Control_KeyboardChanged.Remove(value);
         }
 
-        /// <summary>Raised when the player presses a keyboard key.</summary>
+        /// <summary>Raised after the player presses a keyboard key.</summary>
         public static event EventHandler<EventArgsKeyPressed> KeyPressed
         {
             add => ControlEvents.EventManager.Legacy_Control_KeyPressed.Add(value);
             remove => ControlEvents.EventManager.Legacy_Control_KeyPressed.Remove(value);
         }
 
-        /// <summary>Raised when the player releases a keyboard key.</summary>
+        /// <summary>Raised after the player releases a keyboard key.</summary>
         public static event EventHandler<EventArgsKeyPressed> KeyReleased
         {
             add => ControlEvents.EventManager.Legacy_Control_KeyReleased.Add(value);
@@ -41,8 +41,8 @@ namespace StardewModdingAPI.Events
         /// <summary>Raised when the <see cref="MouseState"/> changes. That happens when the player moves the mouse, scrolls the mouse wheel, or presses/releases a button.</summary>
         public static event EventHandler<EventArgsMouseStateChanged> MouseChanged
         {
-            add => ControlEvents.EventManager.Control_MouseChanged.Add(value);
-            remove => ControlEvents.EventManager.Control_MouseChanged.Remove(value);
+            add => ControlEvents.EventManager.Legacy_Control_MouseChanged.Add(value);
+            remove => ControlEvents.EventManager.Legacy_Control_MouseChanged.Remove(value);
         }
 
         /// <summary>The player pressed a controller button. This event isn't raised for trigger buttons.</summary>

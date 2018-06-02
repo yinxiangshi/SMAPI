@@ -103,6 +103,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>The previous content locale.</summary>
         private LocalizedContentManager.LanguageCode? PreviousLocale;
 
+        /// <summary>The previous cursor position.</summary>
+        private ICursorPosition PreviousCursorPosition;
+
         /// <summary>An index incremented on every tick and reset every 60th tick (0–59).</summary>
         private int CurrentUpdateTick;
 
@@ -444,14 +447,24 @@ namespace StardewModdingAPI.Framework
                         {
                             // cursor position
                             Vector2 screenPixels = new Vector2(Game1.getMouseX(), Game1.getMouseY());
-                            Vector2 tile = new Vector2((int)((Game1.viewport.X + screenPixels.X) / Game1.tileSize), (int)((Game1.viewport.Y + screenPixels.Y) / Game1.tileSize));
-                            Vector2 grabTile = (Game1.mouseCursorTransparency > 0 && Utility.tileWithinRadiusOfPlayer((int)tile.X, (int)tile.Y, 1, Game1.player)) // derived from Game1.pressActionButton
-                                ? tile
-                                : Game1.player.GetGrabTile();
-                            cursor = new CursorPosition(screenPixels, tile, grabTile);
+                            if (this.PreviousCursorPosition == null || screenPixels != this.PreviousCursorPosition.ScreenPixels)
+                            {
+                                Vector2 tile = new Vector2((int)((Game1.viewport.X + screenPixels.X) / Game1.tileSize), (int)((Game1.viewport.Y + screenPixels.Y) / Game1.tileSize));
+                                Vector2 grabTile = (Game1.mouseCursorTransparency > 0 && Utility.tileWithinRadiusOfPlayer((int)tile.X, (int)tile.Y, 1, Game1.player)) // derived from Game1.pressActionButton
+                                    ? tile
+                                    : Game1.player.GetGrabTile();
+                                cursor = new CursorPosition(screenPixels, tile, grabTile);
+                            }
+                            else
+                                cursor = this.PreviousCursorPosition;
                         }
 
-                        // raise input events
+                        // raise cursor moved event
+                        if (this.PreviousCursorPosition != null && cursor.ScreenPixels != this.PreviousCursorPosition.ScreenPixels)
+                            this.Events.Input_CursorMoved.Raise(new InputCursorMovedArgsInput(this.PreviousCursorPosition, cursor));
+                        this.PreviousCursorPosition = cursor;
+
+                        // raise input button events
                         foreach (var pair in inputState.ActiveButtons)
                         {
                             SButton button = pair.Key;
@@ -501,7 +514,7 @@ namespace StardewModdingAPI.Framework
                         if (inputState.RealKeyboard != previousInputState.RealKeyboard)
                             this.Events.Legacy_Control_KeyboardChanged.Raise(new EventArgsKeyboardStateChanged(previousInputState.RealKeyboard, inputState.RealKeyboard));
                         if (inputState.RealMouse != previousInputState.RealMouse)
-                            this.Events.Control_MouseChanged.Raise(new EventArgsMouseStateChanged(previousInputState.RealMouse, inputState.RealMouse, previousInputState.MousePosition, inputState.MousePosition));
+                            this.Events.Legacy_Control_MouseChanged.Raise(new EventArgsMouseStateChanged(previousInputState.RealMouse, inputState.RealMouse, previousInputState.MousePosition, inputState.MousePosition));
                     }
                 }
 

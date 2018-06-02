@@ -35,11 +35,14 @@ namespace StardewModdingAPI.Framework.Events
         /****
         ** Input
         ****/
-        /// <summary>Raised when the player presses a button on the keyboard, controller, or mouse.</summary>
+        /// <summary>Raised after the player presses a button on the keyboard, controller, or mouse.</summary>
         public readonly ManagedEvent<InputButtonPressedArgsInput> Input_ButtonPressed;
 
-        /// <summary>Raised when the player released a button on the keyboard, controller, or mouse.</summary>
+        /// <summary>Raised after the player released a button on the keyboard, controller, or mouse.</summary>
         public readonly ManagedEvent<InputButtonReleasedArgsInput> Input_ButtonReleased;
+
+        /// <summary>Raised after the player moves the in-game cursor.</summary>
+        public readonly ManagedEvent<InputCursorMovedArgsInput> Input_CursorMoved;
 
 
         /*********
@@ -57,14 +60,14 @@ namespace StardewModdingAPI.Framework.Events
         /// <summary>Raised when the <see cref="KeyboardState"/> changes. That happens when the player presses or releases a key.</summary>
         public readonly ManagedEvent<EventArgsKeyboardStateChanged> Legacy_Control_KeyboardChanged;
 
-        /// <summary>Raised when the player presses a keyboard key.</summary>
+        /// <summary>Raised after the player presses a keyboard key.</summary>
         public readonly ManagedEvent<EventArgsKeyPressed> Legacy_Control_KeyPressed;
 
-        /// <summary>Raised when the player releases a keyboard key.</summary>
+        /// <summary>Raised after the player releases a keyboard key.</summary>
         public readonly ManagedEvent<EventArgsKeyPressed> Legacy_Control_KeyReleased;
 
         /// <summary>Raised when the <see cref="MouseState"/> changes. That happens when the player moves the mouse, scrolls the mouse wheel, or presses/releases a button.</summary>
-        public readonly ManagedEvent<EventArgsMouseStateChanged> Control_MouseChanged;
+        public readonly ManagedEvent<EventArgsMouseStateChanged> Legacy_Control_MouseChanged;
 
         /// <summary>The player pressed a controller button. This event isn't raised for trigger buttons.</summary>
         public readonly ManagedEvent<EventArgsControllerButtonPressed> Legacy_Control_ControllerButtonPressed;
@@ -132,10 +135,10 @@ namespace StardewModdingAPI.Framework.Events
         /****
         ** InputEvents
         ****/
-        /// <summary>Raised when the player presses a button on the keyboard, controller, or mouse.</summary>
+        /// <summary>Raised after the player presses a button on the keyboard, controller, or mouse.</summary>
         public readonly ManagedEvent<EventArgsInput> Legacy_Input_ButtonPressed;
 
-        /// <summary>Raised when the player releases a keyboard key on the keyboard, controller, or mouse.</summary>
+        /// <summary>Raised after the player releases a keyboard key on the keyboard, controller, or mouse.</summary>
         public readonly ManagedEvent<EventArgsInput> Legacy_Input_ButtonReleased;
 
         /****
@@ -245,6 +248,7 @@ namespace StardewModdingAPI.Framework.Events
             // init events (new)
             this.Input_ButtonPressed = ManageEventOf<InputButtonPressedArgsInput>(nameof(IModEvents.Input), nameof(IInputEvents.ButtonPressed));
             this.Input_ButtonReleased = ManageEventOf<InputButtonReleasedArgsInput>(nameof(IModEvents.Input), nameof(IInputEvents.ButtonReleased));
+            this.Input_CursorMoved = ManageEventOf<InputCursorMovedArgsInput>(nameof(IModEvents.Input), nameof(IInputEvents.CursorMoved));
 
             this.World_BuildingListChanged = ManageEventOf<WorldBuildingListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.LocationListChanged));
             this.World_LargeTerrainFeatureListChanged = ManageEventOf<WorldLargeTerrainFeatureListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.LargeTerrainFeatureListChanged));
@@ -263,7 +267,7 @@ namespace StardewModdingAPI.Framework.Events
             this.Legacy_Control_KeyboardChanged = ManageEventOf<EventArgsKeyboardStateChanged>(nameof(ControlEvents), nameof(ControlEvents.KeyboardChanged));
             this.Legacy_Control_KeyPressed = ManageEventOf<EventArgsKeyPressed>(nameof(ControlEvents), nameof(ControlEvents.KeyPressed));
             this.Legacy_Control_KeyReleased = ManageEventOf<EventArgsKeyPressed>(nameof(ControlEvents), nameof(ControlEvents.KeyReleased));
-            this.Control_MouseChanged = ManageEventOf<EventArgsMouseStateChanged>(nameof(ControlEvents), nameof(ControlEvents.MouseChanged));
+            this.Legacy_Control_MouseChanged = ManageEventOf<EventArgsMouseStateChanged>(nameof(ControlEvents), nameof(ControlEvents.MouseChanged));
 
             this.Game_FirstUpdateTick = ManageEvent(nameof(GameEvents), nameof(GameEvents.FirstUpdateTick));
             this.Game_UpdateTick = ManageEvent(nameof(GameEvents), nameof(GameEvents.UpdateTick));
