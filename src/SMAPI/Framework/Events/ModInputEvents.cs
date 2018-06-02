@@ -30,6 +30,13 @@ namespace StardewModdingAPI.Framework.Events
             remove => this.EventManager.Input_CursorMoved.Remove(value);
         }
 
+        /// <summary>Raised after the player scrolls the mouse wheel.</summary>
+        public event EventHandler<InputMouseWheelScrolledEventArgs> MouseWheelScrolled
+        {
+            add => this.EventManager.Input_MouseWheelScrolled.Add(value);
+            remove => this.EventManager.Input_MouseWheelScrolled.Remove(value);
+        }
+
 
         /*********
         ** Public methods

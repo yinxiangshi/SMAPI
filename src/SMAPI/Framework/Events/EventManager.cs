@@ -44,6 +44,9 @@ namespace StardewModdingAPI.Framework.Events
         /// <summary>Raised after the player moves the in-game cursor.</summary>
         public readonly ManagedEvent<InputCursorMovedArgsInput> Input_CursorMoved;
 
+        /// <summary>Raised after the player scrolls the mouse wheel.</summary>
+        public readonly ManagedEvent<InputMouseWheelScrolledEventArgs> Input_MouseWheelScrolled;
+
 
         /*********
         ** Events (old)
@@ -249,6 +252,7 @@ namespace StardewModdingAPI.Framework.Events
             this.Input_ButtonPressed = ManageEventOf<InputButtonPressedArgsInput>(nameof(IModEvents.Input), nameof(IInputEvents.ButtonPressed));
             this.Input_ButtonReleased = ManageEventOf<InputButtonReleasedArgsInput>(nameof(IModEvents.Input), nameof(IInputEvents.ButtonReleased));
             this.Input_CursorMoved = ManageEventOf<InputCursorMovedArgsInput>(nameof(IModEvents.Input), nameof(IInputEvents.CursorMoved));
+            this.Input_MouseWheelScrolled = ManageEventOf<InputMouseWheelScrolledEventArgs>(nameof(IModEvents.Input), nameof(IInputEvents.MouseWheelScrolled));
 
             this.World_BuildingListChanged = ManageEventOf<WorldBuildingListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.LocationListChanged));
             this.World_LargeTerrainFeatureListChanged = ManageEventOf<WorldLargeTerrainFeatureListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.LargeTerrainFeatureListChanged));

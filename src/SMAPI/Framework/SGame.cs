@@ -103,6 +103,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>Tracks changes to the cursor position.</summary>
         private readonly IValueWatcher<Point> CursorWatcher;
 
+        /// <summary>Tracks changes to the mouse wheel scroll.</summary>
+        private readonly IValueWatcher<int> MouseWheelScrollWatcher;
+
         /// <summary>The previous content locale.</summary>
         private LocalizedContentManager.LanguageCode? PreviousLocale;
 
@@ -172,6 +175,7 @@ namespace StardewModdingAPI.Framework
             // init watchers
             Game1.locations = new ObservableCollection<GameLocation>();
             this.CursorWatcher = WatcherFactory.ForEquatable(() => this.Input.MousePosition);
+            this.MouseWheelScrollWatcher = WatcherFactory.ForEquatable(() => this.Input.RealMouse.ScrollWheelValue);
             this.SaveIdWatcher = WatcherFactory.ForEquatable(() => Game1.hasLoadedGame ? Game1.uniqueIDForThisGame : 0);
             this.WindowSizeWatcher = WatcherFactory.ForEquatable(() => new Point(Game1.viewport.Width, Game1.viewport.Height));
             this.TimeWatcher = WatcherFactory.ForEquatable(() => Game1.timeOfDay);
@@ -180,6 +184,7 @@ namespace StardewModdingAPI.Framework
             this.Watchers.AddRange(new IWatcher[]
             {
                 this.CursorWatcher,
+                this.MouseWheelScrollWatcher,
                 this.SaveIdWatcher,
                 this.WindowSizeWatcher,
                 this.TimeWatcher,
@@ -467,6 +472,16 @@ namespace StardewModdingAPI.Framework
                             this.Events.Input_CursorMoved.Raise(new InputCursorMovedArgsInput(this.PreviousCursorPosition, cursor));
                         }
                         this.PreviousCursorPosition = cursor;
+
+                        // raise mouse wheel scrolled
+                        if (this.MouseWheelScrollWatcher.IsChanged)
+                        {
+                            int oldValue = this.MouseWheelScrollWatcher.PreviousValue;
+                            int newValue = this.MouseWheelScrollWatcher.CurrentValue;
+                            this.MouseWheelScrollWatcher.Reset();
+
+                            this.Events.Input_MouseWheelScrolled.Raise(new InputMouseWheelScrolledEventArgs(cursor, oldValue, newValue));
+                        }
 
                         // raise input button events
                         foreach (var pair in inputState.ActiveButtons)

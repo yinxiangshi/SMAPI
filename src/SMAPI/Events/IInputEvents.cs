@@ -13,5 +13,8 @@ namespace StardewModdingAPI.Events
 
         /// <summary>Raised after the player moves the in-game cursor.</summary>
         event EventHandler<InputCursorMovedArgsInput> CursorMoved;
+
+        /// <summary>Raised after the player scrolls the mouse wheel.</summary>
+        event EventHandler<InputMouseWheelScrolledEventArgs> MouseWheelScrolled;
     }
 }
