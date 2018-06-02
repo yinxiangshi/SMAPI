@@ -100,6 +100,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>Tracks changes to <see cref="Game1.activeClickableMenu"/>.</summary>
         private readonly IValueWatcher<IClickableMenu> ActiveMenuWatcher;
 
+        /// <summary>Tracks changes to the cursor position.</summary>
+        private readonly IValueWatcher<Point> CursorWatcher;
+
         /// <summary>The previous content locale.</summary>
         private LocalizedContentManager.LanguageCode? PreviousLocale;
 
@@ -168,6 +171,7 @@ namespace StardewModdingAPI.Framework
 
             // init watchers
             Game1.locations = new ObservableCollection<GameLocation>();
+            this.CursorWatcher = WatcherFactory.ForEquatable(() => this.Input.MousePosition);
             this.SaveIdWatcher = WatcherFactory.ForEquatable(() => Game1.hasLoadedGame ? Game1.uniqueIDForThisGame : 0);
             this.WindowSizeWatcher = WatcherFactory.ForEquatable(() => new Point(Game1.viewport.Width, Game1.viewport.Height));
             this.TimeWatcher = WatcherFactory.ForEquatable(() => Game1.timeOfDay);
@@ -175,6 +179,7 @@ namespace StardewModdingAPI.Framework
             this.LocationsWatcher = new WorldLocationsTracker((ObservableCollection<GameLocation>)Game1.locations);
             this.Watchers.AddRange(new IWatcher[]
             {
+                this.CursorWatcher,
                 this.SaveIdWatcher,
                 this.WindowSizeWatcher,
                 this.TimeWatcher,
@@ -443,25 +448,24 @@ namespace StardewModdingAPI.Framework
                     if (!isChatInput)
                     {
                         // get cursor position
-                        ICursorPosition cursor;
+                        ICursorPosition cursor = this.PreviousCursorPosition;
+                        if (this.CursorWatcher.IsChanged)
                         {
                             // cursor position
-                            Vector2 screenPixels = new Vector2(Game1.getMouseX(), Game1.getMouseY());
-                            if (this.PreviousCursorPosition == null || screenPixels != this.PreviousCursorPosition.ScreenPixels)
-                            {
-                                Vector2 tile = new Vector2((int)((Game1.viewport.X + screenPixels.X) / Game1.tileSize), (int)((Game1.viewport.Y + screenPixels.Y) / Game1.tileSize));
-                                Vector2 grabTile = (Game1.mouseCursorTransparency > 0 && Utility.tileWithinRadiusOfPlayer((int)tile.X, (int)tile.Y, 1, Game1.player)) // derived from Game1.pressActionButton
-                                    ? tile
-                                    : Game1.player.GetGrabTile();
-                                cursor = new CursorPosition(screenPixels, tile, grabTile);
-                            }
-                            else
-                                cursor = this.PreviousCursorPosition;
+                            Vector2 screenPixels = new Vector2(this.CursorWatcher.CurrentValue.X, this.CursorWatcher.CurrentValue.Y);
+                            Vector2 tile = new Vector2((int)((Game1.viewport.X + screenPixels.X) / Game1.tileSize), (int)((Game1.viewport.Y + screenPixels.Y) / Game1.tileSize));
+                            Vector2 grabTile = (Game1.mouseCursorTransparency > 0 && Utility.tileWithinRadiusOfPlayer((int)tile.X, (int)tile.Y, 1, Game1.player)) // derived from Game1.pressActionButton
+                                ? tile
+                                : Game1.player.GetGrabTile();
+                            cursor = new CursorPosition(screenPixels, tile, grabTile);
                         }
 
                         // raise cursor moved event
-                        if (this.PreviousCursorPosition != null && cursor.ScreenPixels != this.PreviousCursorPosition.ScreenPixels)
+                        if (this.CursorWatcher.IsChanged && this.PreviousCursorPosition != null)
+                        {
+                            this.CursorWatcher.Reset();
                             this.Events.Input_CursorMoved.Raise(new InputCursorMovedArgsInput(this.PreviousCursorPosition, cursor));
+                        }
                         this.PreviousCursorPosition = cursor;
 
                         // raise input button events
