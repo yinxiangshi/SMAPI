@@ -152,7 +152,7 @@ namespace StardewModdingApi.Installer
             ** Get platform & set window title
             ****/
             Platform platform = EnvironmentUtility.DetectPlatform();
-            Console.Title = $"SMAPI {new SemanticVersionImpl(this.GetType().Assembly.GetName().Version)} installer on {platform} {EnvironmentUtility.GetFriendlyPlatformName(platform)}";
+            Console.Title = $"SMAPI {this.GetDisplayVersion(this.GetType().Assembly.GetName().Version)} installer on {platform} {EnvironmentUtility.GetFriendlyPlatformName(platform)}";
             Console.WriteLine();
 
 #if SMAPI_FOR_WINDOWS
@@ -421,6 +421,16 @@ namespace StardewModdingApi.Installer
         /*********
         ** Private methods
         *********/
+        /// <summary>Get the display text for an assembly version.</summary>
+        /// <param name="version">The assembly version.</param>
+        private string GetDisplayVersion(Version version)
+        {
+            string str = $"{version.Major}.{version.Minor}";
+            if (version.Build != 0)
+                str += $".{version.Build}";
+            return str;
+        }
+
         /// <summary>Get the value of a key in the Windows registry.</summary>
         /// <param name="key">The full path of the registry key relative to HKLM.</param>
         /// <param name="name">The name of the value.</param>

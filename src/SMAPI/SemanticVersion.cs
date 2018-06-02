@@ -1,6 +1,5 @@
 using System;
 using Newtonsoft.Json;
-using StardewModdingAPI.Internal;
 
 namespace StardewModdingAPI
 {
@@ -11,7 +10,7 @@ namespace StardewModdingAPI
         ** Properties
         *********/
         /// <summary>The underlying semantic version implementation.</summary>
-        private readonly SemanticVersionImpl Version;
+        private readonly Toolkit.ISemanticVersion Version;
 
 
         /*********
@@ -40,20 +39,20 @@ namespace StardewModdingAPI
         /// <param name="build">An optional build tag.</param>
         [JsonConstructor]
         public SemanticVersion(int majorVersion, int minorVersion, int patchVersion, string build = null)
-            : this(new SemanticVersionImpl(majorVersion, minorVersion, patchVersion, build)) { }
+            : this(new Toolkit.SemanticVersion(majorVersion, minorVersion, patchVersion, build)) { }
 
         /// <summary>Construct an instance.</summary>
         /// <param name="version">The semantic version string.</param>
         /// <exception cref="ArgumentNullException">The <paramref name="version"/> is null.</exception>
         /// <exception cref="FormatException">The <paramref name="version"/> is not a valid semantic version.</exception>
         public SemanticVersion(string version)
-            : this(new SemanticVersionImpl(version)) { }
+            : this(new Toolkit.SemanticVersion(version)) { }
 
         /// <summary>Construct an instance.</summary>
         /// <param name="version">The assembly version.</param>
         /// <exception cref="ArgumentNullException">The <paramref name="version"/> is null.</exception>
         public SemanticVersion(Version version)
-            : this(new SemanticVersionImpl(version)) { }
+            : this(new Toolkit.SemanticVersion(version)) { }
 
         /// <summary>Whether this is a pre-release version.</summary>
         public bool IsPrerelease()
@@ -67,7 +66,8 @@ namespace StardewModdingAPI
         /// <remarks>The implementation is defined by Semantic Version 2.0 (http://semver.org/).</remarks>
         public int CompareTo(ISemanticVersion other)
         {
-            return this.Version.CompareTo(other.MajorVersion, other.MinorVersion, other.PatchVersion, other.Build);
+            Toolkit.ISemanticVersion toolkitOther = new Toolkit.SemanticVersion(other.MajorVersion, other.MinorVersion, other.PatchVersion, other.Build);
+            return this.Version.CompareTo(toolkitOther);
         }
 
         /// <summary>Get whether this version is older than the specified version.</summary>
@@ -137,7 +137,7 @@ namespace StardewModdingAPI
         /// <returns>Returns whether parsing the version succeeded.</returns>
         internal static bool TryParse(string version, out ISemanticVersion parsed)
         {
-            if (SemanticVersionImpl.TryParse(version, out SemanticVersionImpl versionImpl))
+            if (Toolkit.SemanticVersion.TryParse(version, out Toolkit.ISemanticVersion versionImpl))
             {
                 parsed = new SemanticVersion(versionImpl);
                 return true;
@@ -153,7 +153,7 @@ namespace StardewModdingAPI
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="version">The underlying semantic version implementation.</param>
-        private SemanticVersion(SemanticVersionImpl version)
+        private SemanticVersion(Toolkit.ISemanticVersion version)
         {
             this.Version = version;
         }

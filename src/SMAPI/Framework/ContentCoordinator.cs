@@ -8,8 +8,8 @@ using Microsoft.Xna.Framework.Content;
 using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.ContentManagers;
 using StardewModdingAPI.Framework.Reflection;
-using StardewModdingAPI.Framework.Utilities;
 using StardewModdingAPI.Metadata;
+using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
 
 namespace StardewModdingAPI.Framework

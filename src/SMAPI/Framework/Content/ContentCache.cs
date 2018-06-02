@@ -4,8 +4,8 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI.Framework.Reflection;
-using StardewModdingAPI.Framework.Utilities;
 using StardewModdingAPI.Internal;
+using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
 
 namespace StardewModdingAPI.Framework.Content

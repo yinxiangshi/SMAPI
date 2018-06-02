@@ -176,7 +176,6 @@
     <Compile Include="Framework\StateTracking\LocationTracker.cs" />
     <Compile Include="Framework\StateTracking\PlayerTracker.cs" />
     <Compile Include="Framework\Utilities\ContextHash.cs" />
-    <Compile Include="Framework\Utilities\PathUtilities.cs" />
     <Compile Include="IContentPack.cs" />
     <Compile Include="IManifestContentPackFor.cs" />
     <Compile Include="IMultiplayerHelper.cs" />
@@ -332,6 +331,12 @@
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\SMAPI.ModBuildConfig.Analyzer\bin\netstandard1.3\StardewModdingAPI.ModBuildConfig.Analyzer.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\StardewModdingAPI.Toolkit\StardewModdingAPI.Toolkit.csproj">
+      <Project>{ea5cfd2e-9453-4d29-b80f-8e0ea23f4ac6}</Project>
+      <Name>StardewModdingAPI.Toolkit</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="..\SMAPI.Internal\SMAPI.Internal.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

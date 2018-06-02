@@ -17,11 +17,14 @@
     <PackageReference Include="Microsoft.AspNetCore.Rewrite" Version="2.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.2" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.1" />
-    <PackageReference Include="Pathoschild.Http.FluentClient" Version="3.1.0" />
+    <PackageReference Include="Pathoschild.Http.FluentClient" Version="3.2.0" />
   </ItemGroup>
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="1.0.1" />
   </ItemGroup>
   <Import Project="..\SMAPI.Internal\SMAPI.Internal.projitems" Label="Shared" />
+  <ItemGroup>
+    <ProjectReference Include="..\StardewModdingAPI.Toolkit\StardewModdingAPI.Toolkit.csproj" />
+  </ItemGroup>
 
 </Project>

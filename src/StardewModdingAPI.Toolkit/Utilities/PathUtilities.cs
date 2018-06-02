@@ -3,10 +3,10 @@ using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
 
-namespace StardewModdingAPI.Framework.Utilities
+namespace StardewModdingAPI.Toolkit.Utilities
 {
     /// <summary>Provides utilities for normalising file paths.</summary>
-    internal static class PathUtilities
+    public static class PathUtilities
     {
         /*********
         ** Properties

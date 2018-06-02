@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Framework.ContentManagers;
 using StardewModdingAPI.Framework.Exceptions;
-using StardewModdingAPI.Framework.Utilities;
+using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
 using xTile;
 using xTile.Format;

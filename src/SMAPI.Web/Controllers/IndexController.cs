@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
-using StardewModdingAPI.Internal;
+using StardewModdingAPI.Toolkit;
 using StardewModdingAPI.Web.Framework.Clients.GitHub;
 using StardewModdingAPI.Web.ViewModels;
 
@@ -105,7 +105,7 @@ namespace StardewModdingAPI.Web.Controllers
             foreach (GitAsset asset in release.Assets)
             {
                 Match match = Regex.Match(asset.FileName, @"SMAPI-(?<version>[\d\.]+(?:-.+)?)-installer(?<forDevs>-for-developers)?.zip");
-                if (!match.Success || !SemanticVersionImpl.TryParse(match.Groups["version"].Value, out SemanticVersionImpl version))
+                if (!match.Success || !SemanticVersion.TryParse(match.Groups["version"].Value, out ISemanticVersion version))
                     continue;
                 bool isBeta = version.Tag != null;
                 bool isForDevs = match.Groups["forDevs"].Success;
@@ -127,7 +127,7 @@ namespace StardewModdingAPI.Web.Controllers
             public GitAsset Asset { get; }
 
             /// <summary>The SMAPI version.</summary>
-            public SemanticVersionImpl Version { get; }
+            public ISemanticVersion Version { get; }
 
             /// <summary>Whether this is a beta download.</summary>
             public bool IsBeta { get; }
@@ -145,7 +145,7 @@ namespace StardewModdingAPI.Web.Controllers
             /// <param name="version">The SMAPI version.</param>
             /// <param name="isBeta">Whether this is a beta download.</param>
             /// <param name="isForDevs">Whether this is a 'for developers' download.</param>
-            public ReleaseVersion(GitRelease release, GitAsset asset, SemanticVersionImpl version, bool isBeta, bool isForDevs)
+            public ReleaseVersion(GitRelease release, GitAsset asset, ISemanticVersion version, bool isBeta, bool isForDevs)
             {
                 this.Release = release;
                 this.Asset = asset;
