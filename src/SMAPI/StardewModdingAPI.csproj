@@ -98,6 +98,7 @@
     <Compile Include="Framework\ContentManagers\GameContentManager.cs" />
     <Compile Include="Framework\ContentManagers\IContentManager.cs" />
     <Compile Include="Framework\ContentManagers\ModContentManager.cs" />
+    <Compile Include="Framework\Events\ModEventsBase.cs" />
     <Compile Include="Framework\Events\EventManager.cs" />
     <Compile Include="Events\IModEvents.cs" />
     <Compile Include="Framework\Events\ManagedEvent.cs" />

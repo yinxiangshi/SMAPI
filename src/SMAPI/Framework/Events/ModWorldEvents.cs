@@ -4,18 +4,8 @@ using StardewModdingAPI.Events;
 namespace StardewModdingAPI.Framework.Events
 {
     /// <summary>Events raised when something changes in the world.</summary>
-    public class ModWorldEvents : IWorldEvents
+    internal class ModWorldEvents : ModEventsBase, IWorldEvents
     {
-        /*********
-        ** Properties
-        *********/
-        /// <summary>The underlying event manager.</summary>
-        private readonly EventManager EventManager;
-
-        /// <summary>The mod which uses this instance.</summary>
-        private readonly IModMetadata Mod;
-
-
         /*********
         ** Accessors
         *********/
@@ -69,9 +59,6 @@ namespace StardewModdingAPI.Framework.Events
         /// <param name="mod">The mod which uses this instance.</param>
         /// <param name="eventManager">The underlying event manager.</param>
         internal ModWorldEvents(IModMetadata mod, EventManager eventManager)
-        {
-            this.Mod = mod;
-            this.EventManager = eventManager;
-        }
+            : base(mod, eventManager) { }
     }
 }
