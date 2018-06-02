@@ -54,9 +54,6 @@ namespace StardewModdingAPI.Framework
         /// <summary>Manages SMAPI events for mods.</summary>
         private readonly EventManager Events;
 
-        /// <summary>Manages input visible to the game.</summary>
-        private SInputState Input => (SInputState)Game1.input;
-
         /// <summary>The maximum number of consecutive attempts SMAPI should make to recover from a draw error.</summary>
         private readonly Countdown DrawCrashTimer = new Countdown(60); // 60 ticks = roughly one second
 
@@ -101,7 +98,7 @@ namespace StardewModdingAPI.Framework
         private readonly IValueWatcher<IClickableMenu> ActiveMenuWatcher;
 
         /// <summary>Tracks changes to the cursor position.</summary>
-        private readonly IValueWatcher<Point> CursorWatcher;
+        private readonly IValueWatcher<Vector2> CursorWatcher;
 
         /// <summary>Tracks changes to the mouse wheel scroll.</summary>
         private readonly IValueWatcher<int> MouseWheelScrollWatcher;
@@ -136,6 +133,9 @@ namespace StardewModdingAPI.Framework
         *********/
         /// <summary>SMAPI's content manager.</summary>
         public ContentCoordinator ContentCore { get; private set; }
+
+        /// <summary>Manages input visible to the game.</summary>
+        public SInputState Input => (SInputState)Game1.input;
 
         /// <summary>The game's core multiplayer utility.</summary>
         public SMultiplayer Multiplayer => (SMultiplayer)Game1.multiplayer;
@@ -174,7 +174,7 @@ namespace StardewModdingAPI.Framework
 
             // init watchers
             Game1.locations = new ObservableCollection<GameLocation>();
-            this.CursorWatcher = WatcherFactory.ForEquatable(() => this.Input.MousePosition);
+            this.CursorWatcher = WatcherFactory.ForEquatable(() => this.Input.CursorPosition.ScreenPixels);
             this.MouseWheelScrollWatcher = WatcherFactory.ForEquatable(() => this.Input.RealMouse.ScrollWheelValue);
             this.SaveIdWatcher = WatcherFactory.ForEquatable(() => Game1.hasLoadedGame ? Game1.uniqueIDForThisGame : 0);
             this.WindowSizeWatcher = WatcherFactory.ForEquatable(() => new Point(Game1.viewport.Width, Game1.viewport.Height));
@@ -452,18 +452,7 @@ namespace StardewModdingAPI.Framework
                     bool isChatInput = Game1.IsChatting || (Context.IsMultiplayer && Context.IsWorldReady && Game1.activeClickableMenu == null && Game1.currentMinigame == null && inputState.IsAnyDown(Game1.options.chatButton));
                     if (!isChatInput)
                     {
-                        // get cursor position
-                        ICursorPosition cursor = this.PreviousCursorPosition;
-                        if (this.CursorWatcher.IsChanged)
-                        {
-                            // cursor position
-                            Vector2 screenPixels = new Vector2(this.CursorWatcher.CurrentValue.X, this.CursorWatcher.CurrentValue.Y);
-                            Vector2 tile = new Vector2((int)((Game1.viewport.X + screenPixels.X) / Game1.tileSize), (int)((Game1.viewport.Y + screenPixels.Y) / Game1.tileSize));
-                            Vector2 grabTile = (Game1.mouseCursorTransparency > 0 && Utility.tileWithinRadiusOfPlayer((int)tile.X, (int)tile.Y, 1, Game1.player)) // derived from Game1.pressActionButton
-                                ? tile
-                                : Game1.player.GetGrabTile();
-                            cursor = new CursorPosition(screenPixels, tile, grabTile);
-                        }
+                        ICursorPosition cursor = this.Input.CursorPosition;
 
                         // raise cursor moved event
                         if (this.CursorWatcher.IsChanged && this.PreviousCursorPosition != null)
@@ -533,7 +522,7 @@ namespace StardewModdingAPI.Framework
                         if (inputState.RealKeyboard != previousInputState.RealKeyboard)
                             this.Events.Legacy_Control_KeyboardChanged.Raise(new EventArgsKeyboardStateChanged(previousInputState.RealKeyboard, inputState.RealKeyboard));
                         if (inputState.RealMouse != previousInputState.RealMouse)
-                            this.Events.Legacy_Control_MouseChanged.Raise(new EventArgsMouseStateChanged(previousInputState.RealMouse, inputState.RealMouse, previousInputState.MousePosition, inputState.MousePosition));
+                            this.Events.Legacy_Control_MouseChanged.Raise(new EventArgsMouseStateChanged(previousInputState.RealMouse, inputState.RealMouse, new Point((int)previousInputState.CursorPosition.ScreenPixels.X, (int)previousInputState.CursorPosition.ScreenPixels.Y), new Point((int)inputState.CursorPosition.ScreenPixels.X, (int)inputState.CursorPosition.ScreenPixels.Y)));
                     }
                 }
 

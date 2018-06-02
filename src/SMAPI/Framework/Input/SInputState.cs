@@ -8,7 +8,7 @@ using StardewValley;
 #pragma warning disable 809 // obsolete override of non-obsolete method (this is deliberate)
 namespace StardewModdingAPI.Framework.Input
 {
-    /// <summary>A summary of input changes during an update frame.</summary>
+    /// <summary>Manages the game's input state.</summary>
     internal sealed class SInputState : InputState
     {
         /*********
@@ -16,6 +16,9 @@ namespace StardewModdingAPI.Framework.Input
         *********/
         /// <summary>The maximum amount of direction to ignore for the left thumbstick.</summary>
         private const float LeftThumbstickDeadZone = 0.2f;
+
+        /// <summary>The cursor position on the screen adjusted for the zoom level.</summary>
+        private CursorPosition CursorPositionImpl;
 
 
         /*********
@@ -39,8 +42,8 @@ namespace StardewModdingAPI.Framework.Input
         /// <summary>A derivative of <see cref="RealMouse"/> which suppresses the buttons in <see cref="SuppressButtons"/>.</summary>
         public MouseState SuppressedMouse { get; private set; }
 
-        /// <summary>The mouse position on the screen adjusted for the zoom level.</summary>
-        public Point MousePosition { get; private set; }
+        /// <summary>The cursor position on the screen adjusted for the zoom level.</summary>
+        public ICursorPosition CursorPosition => this.CursorPositionImpl;
 
         /// <summary>The buttons which were pressed, held, or released.</summary>
         public IDictionary<SButton, InputStatus> ActiveButtons { get; private set; } = new Dictionary<SButton, InputStatus>();
@@ -61,7 +64,7 @@ namespace StardewModdingAPI.Framework.Input
                 RealController = this.RealController,
                 RealKeyboard = this.RealKeyboard,
                 RealMouse = this.RealMouse,
-                MousePosition = this.MousePosition
+                CursorPositionImpl = this.CursorPositionImpl
             };
         }
 
@@ -78,15 +81,16 @@ namespace StardewModdingAPI.Framework.Input
                 GamePadState realController = GamePad.GetState(PlayerIndex.One);
                 KeyboardState realKeyboard = Keyboard.GetState();
                 MouseState realMouse = Mouse.GetState();
-                Point mousePosition = new Point((int)(this.RealMouse.X * (1.0 / Game1.options.zoomLevel)), (int)(this.RealMouse.Y * (1.0 / Game1.options.zoomLevel))); // derived from Game1::getMouseX
                 var activeButtons = this.DeriveStatuses(this.ActiveButtons, realKeyboard, realMouse, realController);
+                Vector2 cursorRawPixelPos = new Vector2(this.RealMouse.X, this.RealMouse.Y);
 
                 // update real states
                 this.ActiveButtons = activeButtons;
                 this.RealController = realController;
                 this.RealKeyboard = realKeyboard;
                 this.RealMouse = realMouse;
-                this.MousePosition = mousePosition;
+                if (this.CursorPositionImpl?.RawPixels != cursorRawPixelPos)
+                    this.CursorPositionImpl = this.GetCursorPosition(cursorRawPixelPos);
 
                 // update suppressed states
                 this.SuppressButtons.RemoveWhere(p => !this.GetStatus(activeButtons, p).IsDown());
@@ -157,6 +161,18 @@ namespace StardewModdingAPI.Framework.Input
         /*********
         ** Private methods
         *********/
+        /// <summary>Get the current cursor position.</summary>
+        /// <remarks>The raw pixel position from the mouse state.</remarks>
+        private CursorPosition GetCursorPosition(Vector2 rawPixelPos)
+        {
+            Vector2 screenPixels = new Vector2((int)(rawPixelPos.X * (1.0 / Game1.options.zoomLevel)), (int)(rawPixelPos.Y * (1.0 / Game1.options.zoomLevel))); // derived from Game1::getMouseX
+            Vector2 tile = new Vector2((int)((Game1.viewport.X + screenPixels.X) / Game1.tileSize), (int)((Game1.viewport.Y + screenPixels.Y) / Game1.tileSize));
+            Vector2 grabTile = (Game1.mouseCursorTransparency > 0 && Utility.tileWithinRadiusOfPlayer((int)tile.X, (int)tile.Y, 1, Game1.player)) // derived from Game1.pressActionButton
+                ? tile
+                : Game1.player.GetGrabTile();
+            return new CursorPosition(rawPixelPos, screenPixels, tile, grabTile);
+        }
+
         /// <summary>Whether input should be suppressed in the current context.</summary>
         private bool ShouldSuppressNow()
         {

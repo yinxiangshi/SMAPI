@@ -8,6 +8,9 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Accessors
         *********/
+        /// <summary>The raw pixel position, not adjusted for the game zoom.</summary>
+        public Vector2 RawPixels { get; }
+
         /// <summary>The pixel position relative to the top-left corner of the visible screen.</summary>
         public Vector2 ScreenPixels { get; }
 
@@ -22,11 +25,13 @@ namespace StardewModdingAPI.Framework
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
+        /// <param name="rawPixels">The raw pixel position, not adjusted for the game zoom.</param>
         /// <param name="screenPixels">The pixel position relative to the top-left corner of the visible screen.</param>
         /// <param name="tile">The tile position relative to the top-left corner of the map.</param>
         /// <param name="grabTile">The tile position that the game considers under the cursor for purposes of clicking actions.</param>
-        public CursorPosition(Vector2 screenPixels, Vector2 tile, Vector2 grabTile)
+        public CursorPosition(Vector2 rawPixels, Vector2 screenPixels, Vector2 tile, Vector2 grabTile)
         {
+            this.RawPixels = rawPixels;
             this.ScreenPixels = screenPixels;
             this.Tile = tile;
             this.GrabTile = grabTile;

@@ -114,6 +114,8 @@
     <Compile Include="Framework\Events\ModEvents.cs" />
     <Compile Include="Framework\Events\ModInputEvents.cs" />
     <Compile Include="Framework\Input\GamePadStateBuilder.cs" />
+    <Compile Include="Framework\ModHelpers\InputHelper.cs" />
+    <Compile Include="IInputHelper.cs" />
     <Compile Include="Framework\Input\SInputState.cs" />
     <Compile Include="Framework\Input\InputStatus.cs" />
     <Compile Include="Framework\LegacyManifestVersion.cs" />

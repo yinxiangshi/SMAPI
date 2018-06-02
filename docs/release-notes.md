@@ -19,6 +19,7 @@
   * Renamed `install.exe` to `install on Windows.exe` to avoid confusion.
 
 * For modders:
+  * Added [input API](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Input) for reading and suppressing keyboard, controller, and mouse input.
   * Added code analysis to mod build config package to flag common issues as warnings.
   * Replaced `LocationEvents` with a more powerful set of events for multiplayer:
     * now raised for all locations;
