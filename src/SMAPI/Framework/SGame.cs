@@ -567,6 +567,17 @@ namespace StardewModdingAPI.Framework
                                     this.Events.Location_BuildingsChanged.Raise(new EventArgsLocationBuildingsChanged(location, added, removed));
                                 }
 
+                                // large terrain features changed
+                                if (watcher.LargeTerrainFeaturesWatcher.IsChanged)
+                                {
+                                    GameLocation location = watcher.Location;
+                                    LargeTerrainFeature[] added = watcher.LargeTerrainFeaturesWatcher.Added.ToArray();
+                                    LargeTerrainFeature[] removed = watcher.LargeTerrainFeaturesWatcher.Removed.ToArray();
+                                    watcher.LargeTerrainFeaturesWatcher.Reset();
+
+                                    this.Events.World_LargeTerrainFeatureListChanged.Raise(new WorldLargeTerrainFeatureListChangedEventArgs(location, added, removed));
+                                }
+
                                 // NPCs changed
                                 if (watcher.NpcsWatcher.IsChanged)
                                 {

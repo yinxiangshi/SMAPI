@@ -33,6 +33,13 @@ namespace StardewModdingAPI.Framework.Events
             remove => this.EventManager.World_BuildingListChanged.Remove(value);
         }
 
+        /// <summary>Raised after large terrain features (like bushes) are added or removed in a location.</summary>
+        public event EventHandler<WorldLargeTerrainFeatureListChangedEventArgs> LargeTerrainFeatureListChanged
+        {
+            add => this.EventManager.World_LargeTerrainFeatureListChanged.Add(value, this.Mod);
+            remove => this.EventManager.World_LargeTerrainFeatureListChanged.Remove(value);
+        }
+
         /// <summary>Raised after NPCs are added or removed in a location.</summary>
         public event EventHandler<WorldNpcListChangedEventArgs> NpcListChanged
         {
@@ -47,7 +54,7 @@ namespace StardewModdingAPI.Framework.Events
             remove => this.EventManager.World_ObjectListChanged.Remove(value);
         }
 
-        /// <summary>Raised after terrain features are added or removed in a location.</summary>
+        /// <summary>Raised after terrain features (like floors and trees) are added or removed in a location.</summary>
         public event EventHandler<WorldTerrainFeatureListChangedEventArgs> TerrainFeatureListChanged
         {
             add => this.EventManager.World_TerrainFeatureListChanged.Add(value);
