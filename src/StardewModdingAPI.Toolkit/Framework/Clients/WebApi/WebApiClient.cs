@@ -2,9 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using Newtonsoft.Json;
-using StardewModdingAPI.Internal.Models;
 
-namespace StardewModdingAPI.Framework
+namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
 {
     /// <summary>Provides methods for interacting with the SMAPI web API.</summary>
     internal class WebApiClient
@@ -55,9 +54,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="content">The body content to post.</param>
         private TResult Post<TBody, TResult>(string url, TBody content)
         {
-            /***
-            ** Note: avoid HttpClient for Mac compatibility.
-            ***/
+            // note: avoid HttpClient for Mac compatibility
             using (WebClient client = new WebClient())
             {
                 Uri fullUrl = new Uri(this.BaseUrl, url);

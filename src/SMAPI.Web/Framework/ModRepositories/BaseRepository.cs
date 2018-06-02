@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using StardewModdingAPI.Internal.Models;
+using StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
 
 namespace StardewModdingAPI.Web.Framework.ModRepositories
 {

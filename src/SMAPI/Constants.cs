@@ -38,10 +38,10 @@ namespace StardewModdingAPI
         ** Public
         ****/
         /// <summary>SMAPI's current semantic version.</summary>
-        public static ISemanticVersion ApiVersion { get; } = new SemanticVersion("2.6-beta.15");
+        public static ISemanticVersion ApiVersion { get; }
 
         /// <summary>The minimum supported version of Stardew Valley.</summary>
-        public static ISemanticVersion MinimumGameVersion { get; } = new GameVersion("1.3.13");
+        public static ISemanticVersion MinimumGameVersion { get; }
 
         /// <summary>The maximum supported version of Stardew Valley.</summary>
         public static ISemanticVersion MaximumGameVersion { get; } = null;
@@ -70,6 +70,9 @@ namespace StardewModdingAPI
         /****
         ** Internal
         ****/
+        /// <summary>SMAPI's current semantic version as a mod toolkit version.</summary>
+        internal static Toolkit.ISemanticVersion ApiVersionForToolkit { get; }
+
         /// <summary>The URL of the SMAPI home page.</summary>
         internal const string HomePageUrl = "https://smapi.io";
 
@@ -104,6 +107,15 @@ namespace StardewModdingAPI
         /*********
         ** Internal methods
         *********/
+        /// <summary>Initialise the static values.</summary>
+        static Constants()
+        {
+            Constants.ApiVersionForToolkit = new Toolkit.SemanticVersion("2.6-beta.15");
+            Constants.MinimumGameVersion = new GameVersion("1.3.13");
+
+            Constants.ApiVersion = new SemanticVersion(Constants.ApiVersionForToolkit);
+        }
+
         /// <summary>Get metadata for mapping assemblies to the current platform.</summary>
         /// <param name="targetPlatform">The target game platform.</param>
         internal static PlatformAssemblyMap GetAssemblyMap(Platform targetPlatform)

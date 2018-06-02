@@ -26,7 +26,7 @@ using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Serialisation;
 using StardewModdingAPI.Internal;
-using StardewModdingAPI.Internal.Models;
+using StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
 using Monitor = StardewModdingAPI.Framework.Monitor;
@@ -561,7 +561,7 @@ namespace StardewModdingAPI
             new Thread(() =>
             {
                 // create client
-                WebApiClient client = new WebApiClient(this.Settings.WebApiBaseUrl, Constants.ApiVersion);
+                WebApiClient client = new WebApiClient(this.Settings.WebApiBaseUrl, Constants.ApiVersionForToolkit);
                 this.Monitor.Log("Checking for updates...", LogLevel.Trace);
 
                 // check SMAPI version

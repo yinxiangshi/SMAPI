@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
-using StardewModdingAPI.Internal.Models;
+using StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
 using StardewModdingAPI.Web.Framework.Clients.Chucklefish;
 using StardewModdingAPI.Web.Framework.Clients.GitHub;
 using StardewModdingAPI.Web.Framework.Clients.Nexus;

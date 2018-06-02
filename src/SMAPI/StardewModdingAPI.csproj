@@ -279,7 +279,6 @@
     <Compile Include="ITranslationHelper.cs" />
     <Compile Include="LogLevel.cs" />
     <Compile Include="Framework\ModRegistry.cs" />
-    <Compile Include="Framework\WebApiClient.cs" />
     <Compile Include="IMonitor.cs" />
     <Compile Include="Events\ChangeType.cs" />
     <Compile Include="Events\ItemStackChange.cs" />

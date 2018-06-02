@@ -54,6 +54,13 @@ namespace StardewModdingAPI
         public SemanticVersion(Version version)
             : this(new Toolkit.SemanticVersion(version)) { }
 
+        /// <summary>Construct an instance.</summary>
+        /// <param name="version">The underlying semantic version implementation.</param>
+        internal SemanticVersion(Toolkit.ISemanticVersion version)
+        {
+            this.Version = version;
+        }
+
         /// <summary>Whether this is a pre-release version.</summary>
         public bool IsPrerelease()
         {
@@ -146,17 +153,5 @@ namespace StardewModdingAPI
             parsed = null;
             return false;
         }
-
-
-        /*********
-        ** Private methods
-        *********/
-        /// <summary>Construct an instance.</summary>
-        /// <param name="version">The underlying semantic version implementation.</param>
-        private SemanticVersion(Toolkit.ISemanticVersion version)
-        {
-            this.Version = version;
-        }
-
     }
 }

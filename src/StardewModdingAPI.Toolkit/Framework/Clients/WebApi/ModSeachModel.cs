@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace StardewModdingAPI.Internal.Models
+namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
 {
     /// <summary>Specifies mods whose update-check info to fetch.</summary>
-    internal class ModSearchModel
+    public class ModSearchModel
     {
         /*********
         ** Accessors
