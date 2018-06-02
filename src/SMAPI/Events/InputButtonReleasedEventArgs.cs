@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 namespace StardewModdingAPI.Events
 {
-    /// <summary>Event arguments when a button is pressed or released.</summary>
-    public class EventArgsInput : EventArgs
+    /// <summary>Event arguments when a button is released.</summary>
+    public class InputButtonReleasedArgsInput : EventArgs
     {
         /*********
         ** Properties
@@ -22,12 +22,6 @@ namespace StardewModdingAPI.Events
         /// <summary>The current cursor position.</summary>
         public ICursorPosition Cursor { get; }
 
-        /// <summary>Whether the input should trigger actions on the affected tile.</summary>
-        public bool IsActionButton => this.Button.IsActionButton();
-
-        /// <summary>Whether the input should use tools on the affected tile.</summary>
-        public bool IsUseToolButton => this.Button.IsUseToolButton();
-
         /// <summary>Whether a mod has indicated the key was already handled.</summary>
         public bool IsSuppressed => this.SuppressButtons.Contains(this.Button);
 
@@ -39,7 +33,7 @@ namespace StardewModdingAPI.Events
         /// <param name="button">The button on the controller, keyboard, or mouse.</param>
         /// <param name="cursor">The cursor position.</param>
         /// <param name="suppressButtons">The buttons to suppress.</param>
-        public EventArgsInput(SButton button, ICursorPosition cursor, HashSet<SButton> suppressButtons)
+        public InputButtonReleasedArgsInput(SButton button, ICursorPosition cursor, HashSet<SButton> suppressButtons)
         {
             this.Button = button;
             this.Cursor = cursor;

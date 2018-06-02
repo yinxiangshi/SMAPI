@@ -459,45 +459,47 @@ namespace StardewModdingAPI.Framework
 
                             if (status == InputStatus.Pressed)
                             {
-                                this.Events.Input_ButtonPressed.Raise(new EventArgsInput(button, cursor, button.IsActionButton(), button.IsUseToolButton(), inputState.SuppressButtons));
+                                this.Events.Input_ButtonPressed.Raise(new InputButtonPressedArgsInput(button, cursor, inputState.SuppressButtons));
+                                this.Events.Legacy_Input_ButtonPressed.Raise(new EventArgsInput(button, cursor, inputState.SuppressButtons));
 
                                 // legacy events
                                 if (button.TryGetKeyboard(out Keys key))
                                 {
                                     if (key != Keys.None)
-                                        this.Events.Control_KeyPressed.Raise(new EventArgsKeyPressed(key));
+                                        this.Events.Legacy_Control_KeyPressed.Raise(new EventArgsKeyPressed(key));
                                 }
                                 else if (button.TryGetController(out Buttons controllerButton))
                                 {
                                     if (controllerButton == Buttons.LeftTrigger || controllerButton == Buttons.RightTrigger)
-                                        this.Events.Control_ControllerTriggerPressed.Raise(new EventArgsControllerTriggerPressed(PlayerIndex.One, controllerButton, controllerButton == Buttons.LeftTrigger ? inputState.RealController.Triggers.Left : inputState.RealController.Triggers.Right));
+                                        this.Events.Legacy_Control_ControllerTriggerPressed.Raise(new EventArgsControllerTriggerPressed(PlayerIndex.One, controllerButton, controllerButton == Buttons.LeftTrigger ? inputState.RealController.Triggers.Left : inputState.RealController.Triggers.Right));
                                     else
-                                        this.Events.Control_ControllerButtonPressed.Raise(new EventArgsControllerButtonPressed(PlayerIndex.One, controllerButton));
+                                        this.Events.Legacy_Control_ControllerButtonPressed.Raise(new EventArgsControllerButtonPressed(PlayerIndex.One, controllerButton));
                                 }
                             }
                             else if (status == InputStatus.Released)
                             {
-                                this.Events.Input_ButtonReleased.Raise(new EventArgsInput(button, cursor, button.IsActionButton(), button.IsUseToolButton(), inputState.SuppressButtons));
+                                this.Events.Input_ButtonReleased.Raise(new InputButtonReleasedArgsInput(button, cursor, inputState.SuppressButtons));
+                                this.Events.Legacy_Input_ButtonReleased.Raise(new EventArgsInput(button, cursor, inputState.SuppressButtons));
 
                                 // legacy events
                                 if (button.TryGetKeyboard(out Keys key))
                                 {
                                     if (key != Keys.None)
-                                        this.Events.Control_KeyReleased.Raise(new EventArgsKeyPressed(key));
+                                        this.Events.Legacy_Control_KeyReleased.Raise(new EventArgsKeyPressed(key));
                                 }
                                 else if (button.TryGetController(out Buttons controllerButton))
                                 {
                                     if (controllerButton == Buttons.LeftTrigger || controllerButton == Buttons.RightTrigger)
-                                        this.Events.Control_ControllerTriggerReleased.Raise(new EventArgsControllerTriggerReleased(PlayerIndex.One, controllerButton, controllerButton == Buttons.LeftTrigger ? inputState.RealController.Triggers.Left : inputState.RealController.Triggers.Right));
+                                        this.Events.Legacy_Control_ControllerTriggerReleased.Raise(new EventArgsControllerTriggerReleased(PlayerIndex.One, controllerButton, controllerButton == Buttons.LeftTrigger ? inputState.RealController.Triggers.Left : inputState.RealController.Triggers.Right));
                                     else
-                                        this.Events.Control_ControllerButtonReleased.Raise(new EventArgsControllerButtonReleased(PlayerIndex.One, controllerButton));
+                                        this.Events.Legacy_Control_ControllerButtonReleased.Raise(new EventArgsControllerButtonReleased(PlayerIndex.One, controllerButton));
                                 }
                             }
                         }
 
                         // raise legacy state-changed events
                         if (inputState.RealKeyboard != previousInputState.RealKeyboard)
-                            this.Events.Control_KeyboardChanged.Raise(new EventArgsKeyboardStateChanged(previousInputState.RealKeyboard, inputState.RealKeyboard));
+                            this.Events.Legacy_Control_KeyboardChanged.Raise(new EventArgsKeyboardStateChanged(previousInputState.RealKeyboard, inputState.RealKeyboard));
                         if (inputState.RealMouse != previousInputState.RealMouse)
                             this.Events.Control_MouseChanged.Raise(new EventArgsMouseStateChanged(previousInputState.RealMouse, inputState.RealMouse, previousInputState.MousePosition, inputState.MousePosition));
                     }

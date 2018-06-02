@@ -20,22 +20,22 @@ namespace StardewModdingAPI.Events
         /// <summary>Raised when the <see cref="KeyboardState"/> changes. That happens when the player presses or releases a key.</summary>
         public static event EventHandler<EventArgsKeyboardStateChanged> KeyboardChanged
         {
-            add => ControlEvents.EventManager.Control_KeyboardChanged.Add(value);
-            remove => ControlEvents.EventManager.Control_KeyboardChanged.Remove(value);
+            add => ControlEvents.EventManager.Legacy_Control_KeyboardChanged.Add(value);
+            remove => ControlEvents.EventManager.Legacy_Control_KeyboardChanged.Remove(value);
         }
 
         /// <summary>Raised when the player presses a keyboard key.</summary>
         public static event EventHandler<EventArgsKeyPressed> KeyPressed
         {
-            add => ControlEvents.EventManager.Control_KeyPressed.Add(value);
-            remove => ControlEvents.EventManager.Control_KeyPressed.Remove(value);
+            add => ControlEvents.EventManager.Legacy_Control_KeyPressed.Add(value);
+            remove => ControlEvents.EventManager.Legacy_Control_KeyPressed.Remove(value);
         }
 
         /// <summary>Raised when the player releases a keyboard key.</summary>
         public static event EventHandler<EventArgsKeyPressed> KeyReleased
         {
-            add => ControlEvents.EventManager.Control_KeyReleased.Add(value);
-            remove => ControlEvents.EventManager.Control_KeyReleased.Remove(value);
+            add => ControlEvents.EventManager.Legacy_Control_KeyReleased.Add(value);
+            remove => ControlEvents.EventManager.Legacy_Control_KeyReleased.Remove(value);
         }
 
         /// <summary>Raised when the <see cref="MouseState"/> changes. That happens when the player moves the mouse, scrolls the mouse wheel, or presses/releases a button.</summary>
@@ -48,29 +48,29 @@ namespace StardewModdingAPI.Events
         /// <summary>The player pressed a controller button. This event isn't raised for trigger buttons.</summary>
         public static event EventHandler<EventArgsControllerButtonPressed> ControllerButtonPressed
         {
-            add => ControlEvents.EventManager.Control_ControllerButtonPressed.Add(value);
-            remove => ControlEvents.EventManager.Control_ControllerButtonPressed.Remove(value);
+            add => ControlEvents.EventManager.Legacy_Control_ControllerButtonPressed.Add(value);
+            remove => ControlEvents.EventManager.Legacy_Control_ControllerButtonPressed.Remove(value);
         }
 
         /// <summary>The player released a controller button. This event isn't raised for trigger buttons.</summary>
         public static event EventHandler<EventArgsControllerButtonReleased> ControllerButtonReleased
         {
-            add => ControlEvents.EventManager.Control_ControllerButtonReleased.Add(value);
-            remove => ControlEvents.EventManager.Control_ControllerButtonReleased.Remove(value);
+            add => ControlEvents.EventManager.Legacy_Control_ControllerButtonReleased.Add(value);
+            remove => ControlEvents.EventManager.Legacy_Control_ControllerButtonReleased.Remove(value);
         }
 
         /// <summary>The player pressed a controller trigger button.</summary>
         public static event EventHandler<EventArgsControllerTriggerPressed> ControllerTriggerPressed
         {
-            add => ControlEvents.EventManager.Control_ControllerTriggerPressed.Add(value);
-            remove => ControlEvents.EventManager.Control_ControllerTriggerPressed.Remove(value);
+            add => ControlEvents.EventManager.Legacy_Control_ControllerTriggerPressed.Add(value);
+            remove => ControlEvents.EventManager.Legacy_Control_ControllerTriggerPressed.Remove(value);
         }
 
         /// <summary>The player released a controller trigger button.</summary>
         public static event EventHandler<EventArgsControllerTriggerReleased> ControllerTriggerReleased
         {
-            add => ControlEvents.EventManager.Control_ControllerTriggerReleased.Add(value);
-            remove => ControlEvents.EventManager.Control_ControllerTriggerReleased.Remove(value);
+            add => ControlEvents.EventManager.Legacy_Control_ControllerTriggerReleased.Add(value);
+            remove => ControlEvents.EventManager.Legacy_Control_ControllerTriggerReleased.Remove(value);
         }
 
 

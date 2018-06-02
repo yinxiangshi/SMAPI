@@ -19,15 +19,15 @@ namespace StardewModdingAPI.Events
         /// <summary>Raised when the player presses a button on the keyboard, controller, or mouse.</summary>
         public static event EventHandler<EventArgsInput> ButtonPressed
         {
-            add => InputEvents.EventManager.Input_ButtonPressed.Add(value);
-            remove => InputEvents.EventManager.Input_ButtonPressed.Remove(value);
+            add => InputEvents.EventManager.Legacy_Input_ButtonPressed.Add(value);
+            remove => InputEvents.EventManager.Legacy_Input_ButtonPressed.Remove(value);
         }
 
         /// <summary>Raised when the player releases a keyboard key on the keyboard, controller, or mouse.</summary>
         public static event EventHandler<EventArgsInput> ButtonReleased
         {
-            add => InputEvents.EventManager.Input_ButtonReleased.Add(value);
-            remove => InputEvents.EventManager.Input_ButtonReleased.Remove(value);
+            add => InputEvents.EventManager.Legacy_Input_ButtonReleased.Add(value);
+            remove => InputEvents.EventManager.Legacy_Input_ButtonReleased.Remove(value);
         }
 
 
