@@ -2,12 +2,9 @@ using System;
 
 namespace StardewModdingAPI.Events
 {
-    /// <summary>Provides events raised when something changes in the world.</summary>
+    /// <summary>Events raised when something changes in the world.</summary>
     public interface IWorldEvents
     {
-        /*********
-        ** Events
-        *********/
         /// <summary>Raised after a game location is added or removed.</summary>
         event EventHandler<WorldLocationListChangedEventArgs> LocationListChanged;
 

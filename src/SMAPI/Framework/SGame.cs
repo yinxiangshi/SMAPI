@@ -547,7 +547,7 @@ namespace StardewModdingAPI.Framework
                             }
 
                             this.Events.World_LocationListChanged.Raise(new WorldLocationListChangedEventArgs(added, removed));
-                            this.Events.Location_LocationsChanged.Raise(new EventArgsLocationsChanged(added, removed));
+                            this.Events.Legacy_Location_LocationsChanged.Raise(new EventArgsLocationsChanged(added, removed));
                         }
 
                         // raise location contents changed
@@ -564,7 +564,7 @@ namespace StardewModdingAPI.Framework
                                     watcher.BuildingsWatcher.Reset();
 
                                     this.Events.World_BuildingListChanged.Raise(new WorldBuildingListChangedEventArgs(location, added, removed));
-                                    this.Events.Location_BuildingsChanged.Raise(new EventArgsLocationBuildingsChanged(location, added, removed));
+                                    this.Events.Legacy_Location_BuildingsChanged.Raise(new EventArgsLocationBuildingsChanged(location, added, removed));
                                 }
 
                                 // large terrain features changed
@@ -598,7 +598,7 @@ namespace StardewModdingAPI.Framework
                                     watcher.ObjectsWatcher.Reset();
 
                                     this.Events.World_ObjectListChanged.Raise(new WorldObjectListChangedEventArgs(location, added, removed));
-                                    this.Events.Location_ObjectsChanged.Raise(new EventArgsLocationObjectsChanged(location, added, removed));
+                                    this.Events.Legacy_Location_ObjectsChanged.Raise(new EventArgsLocationObjectsChanged(location, added, removed));
                                 }
 
                                 // terrain features changed

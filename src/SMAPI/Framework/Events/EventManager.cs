@@ -133,13 +133,13 @@ namespace StardewModdingAPI.Framework.Events
         ** LocationEvents
         ****/
         /// <summary>Raised after a game location is added or removed.</summary>
-        public readonly ManagedEvent<EventArgsLocationsChanged> Location_LocationsChanged;
+        public readonly ManagedEvent<EventArgsLocationsChanged> Legacy_Location_LocationsChanged;
 
         /// <summary>Raised after buildings are added or removed in a location.</summary>
-        public readonly ManagedEvent<EventArgsLocationBuildingsChanged> Location_BuildingsChanged;
+        public readonly ManagedEvent<EventArgsLocationBuildingsChanged> Legacy_Location_BuildingsChanged;
 
         /// <summary>Raised after objects are added or removed in a location.</summary>
-        public readonly ManagedEvent<EventArgsLocationObjectsChanged> Location_ObjectsChanged;
+        public readonly ManagedEvent<EventArgsLocationObjectsChanged> Legacy_Location_ObjectsChanged;
 
         /****
         ** MenuEvents
@@ -273,9 +273,9 @@ namespace StardewModdingAPI.Framework.Events
             this.Input_ButtonPressed = ManageEventOf<EventArgsInput>(nameof(InputEvents), nameof(InputEvents.ButtonPressed));
             this.Input_ButtonReleased = ManageEventOf<EventArgsInput>(nameof(InputEvents), nameof(InputEvents.ButtonReleased));
 
-            this.Location_LocationsChanged = ManageEventOf<EventArgsLocationsChanged>(nameof(LocationEvents), nameof(LocationEvents.LocationsChanged));
-            this.Location_BuildingsChanged = ManageEventOf<EventArgsLocationBuildingsChanged>(nameof(LocationEvents), nameof(LocationEvents.BuildingsChanged));
-            this.Location_ObjectsChanged = ManageEventOf<EventArgsLocationObjectsChanged>(nameof(LocationEvents), nameof(LocationEvents.ObjectsChanged));
+            this.Legacy_Location_LocationsChanged = ManageEventOf<EventArgsLocationsChanged>(nameof(LocationEvents), nameof(LocationEvents.LocationsChanged));
+            this.Legacy_Location_BuildingsChanged = ManageEventOf<EventArgsLocationBuildingsChanged>(nameof(LocationEvents), nameof(LocationEvents.BuildingsChanged));
+            this.Legacy_Location_ObjectsChanged = ManageEventOf<EventArgsLocationObjectsChanged>(nameof(LocationEvents), nameof(LocationEvents.ObjectsChanged));
 
             this.Menu_Changed = ManageEventOf<EventArgsClickableMenuChanged>(nameof(MenuEvents), nameof(MenuEvents.MenuChanged));
             this.Menu_Closed = ManageEventOf<EventArgsClickableMenuClosed>(nameof(MenuEvents), nameof(MenuEvents.MenuClosed));
