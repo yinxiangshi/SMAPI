@@ -73,6 +73,15 @@ namespace StardewModdingAPI.Framework
         /// <summary>Whether the game is creating the save file and SMAPI has already raised <see cref="SaveEvents.BeforeCreate"/>.</summary>
         private bool IsBetweenCreateEvents;
 
+        /// <summary>A callback to invoke after the game finishes initialising.</summary>
+        private readonly Action OnGameInitialised;
+
+        /// <summary>A callback to invoke when the game exits.</summary>
+        private readonly Action OnGameExiting;
+
+        /// <summary>Simplifies access to private game code.</summary>
+        private readonly Reflector Reflection;
+
         /****
         ** Game state
         ****/
@@ -80,28 +89,28 @@ namespace StardewModdingAPI.Framework
         private readonly List<IWatcher> Watchers = new List<IWatcher>();
 
         /// <summary>Tracks changes to the window size.</summary>
-        private readonly IValueWatcher<Point> WindowSizeWatcher;
+        private IValueWatcher<Point> WindowSizeWatcher;
 
         /// <summary>Tracks changes to the current player.</summary>
         private PlayerTracker CurrentPlayerTracker;
 
         /// <summary>Tracks changes to the time of day (in 24-hour military format).</summary>
-        private readonly IValueWatcher<int> TimeWatcher;
+        private IValueWatcher<int> TimeWatcher;
 
         /// <summary>Tracks changes to the save ID.</summary>
-        private readonly IValueWatcher<ulong> SaveIdWatcher;
+        private IValueWatcher<ulong> SaveIdWatcher;
 
         /// <summary>Tracks changes to the game's locations.</summary>
-        private readonly WorldLocationsTracker LocationsWatcher;
+        private WorldLocationsTracker LocationsWatcher;
 
         /// <summary>Tracks changes to <see cref="Game1.activeClickableMenu"/>.</summary>
-        private readonly IValueWatcher<IClickableMenu> ActiveMenuWatcher;
+        private IValueWatcher<IClickableMenu> ActiveMenuWatcher;
 
         /// <summary>Tracks changes to the cursor position.</summary>
-        private readonly IValueWatcher<Vector2> CursorWatcher;
+        private IValueWatcher<Vector2> CursorWatcher;
 
         /// <summary>Tracks changes to the mouse wheel scroll.</summary>
-        private readonly IValueWatcher<int> MouseWheelScrollWatcher;
+        private IValueWatcher<int> MouseWheelScrollWatcher;
 
         /// <summary>The previous content locale.</summary>
         private LocalizedContentManager.LanguageCode? PreviousLocale;
@@ -112,17 +121,11 @@ namespace StardewModdingAPI.Framework
         /// <summary>An index incremented on every tick and reset every 60th tick (0–59).</summary>
         private int CurrentUpdateTick;
 
+        /// <summary>Whether post-game-startup initialisation has been performed.</summary>
+        private bool IsInitialised;
+
         /// <summary>Whether this is the very first update tick since the game started.</summary>
         private bool FirstUpdate;
-
-        /// <summary>A callback to invoke after the game finishes initialising.</summary>
-        private readonly Action OnGameInitialised;
-
-        /// <summary>A callback to invoke when the game exits.</summary>
-        private readonly Action OnGameExiting;
-
-        /// <summary>Simplifies access to private game code.</summary>
-        private readonly Reflector Reflection;
 
         /// <summary>Whether the next content manager requested by the game will be for <see cref="Game1.content"/>.</summary>
         private bool NextContentManagerIsMain;
@@ -172,8 +175,17 @@ namespace StardewModdingAPI.Framework
             Game1.input = new SInputState();
             Game1.multiplayer = new SMultiplayer(monitor, eventManager);
 
-            // init watchers
+            // init observables
             Game1.locations = new ObservableCollection<GameLocation>();
+        }
+
+        /// <summary>Initialise just before the game's first update tick.</summary>
+        private void InitialiseAfterGameStarted()
+        {
+            // set initial state
+            this.Input.TrueUpdate();
+
+            // init watchers
             this.CursorWatcher = WatcherFactory.ForEquatable(() => this.Input.CursorPosition.ScreenPixels);
             this.MouseWheelScrollWatcher = WatcherFactory.ForEquatable(() => this.Input.RealMouse.ScrollWheelValue);
             this.SaveIdWatcher = WatcherFactory.ForEquatable(() => Game1.hasLoadedGame ? Game1.uniqueIDForThisGame : 0);
@@ -191,6 +203,9 @@ namespace StardewModdingAPI.Framework
                 this.ActiveMenuWatcher,
                 this.LocationsWatcher
             });
+
+            // raise callback
+            this.OnGameInitialised();
         }
 
         /// <summary>Perform cleanup logic when the game exits.</summary>
@@ -239,19 +254,24 @@ namespace StardewModdingAPI.Framework
             try
             {
                 /*********
-                ** Update input
+                ** Special cases
                 *********/
-                // This should *always* run, even when suppressing mod events, since the game uses
-                // this too. For example, doing this after mod event suppression would prevent the
-                // user from doing anything on the overnight shipping screen.
-                SInputState previousInputState = this.Input.Clone();
-                SInputState inputState = this.Input;
-                if (this.IsActive)
-                    inputState.TrueUpdate();
+                // Perform first-tick initialisation.
+                if (!this.IsInitialised)
+                {
+                    this.IsInitialised = true;
+                    this.InitialiseAfterGameStarted();
+                }
 
-                /*********
-                ** Load game synchronously
-                *********/
+                // Abort if SMAPI is exiting.
+                if (this.Monitor.IsExiting)
+                {
+                    this.Monitor.Log("SMAPI shutting down: aborting update.", LogLevel.Trace);
+                    return;
+                }
+
+                // Load saves synchronously to avoid issues due to mod events triggering
+                // concurrently with game code.
                 if (Game1.gameMode == Game1.loadingMode)
                 {
                     this.Monitor.Log("Running game loader...", LogLevel.Trace);
@@ -261,16 +281,6 @@ namespace StardewModdingAPI.Framework
                         this.Events.Specialised_UnvalidatedUpdateTick.Raise();
                     }
                     this.Monitor.Log("Game loader OK.", LogLevel.Trace);
-                }
-
-                /*********
-                ** Skip conditions
-                *********/
-                // SMAPI exiting, stop processing game updates
-                if (this.Monitor.IsExiting)
-                {
-                    this.Monitor.Log("SMAPI shutting down: aborting update.", LogLevel.Trace);
-                    return;
                 }
 
                 // While a background task is in progress, the game may make changes to the game
@@ -288,6 +298,17 @@ namespace StardewModdingAPI.Framework
                     this.Events.Specialised_UnvalidatedUpdateTick.Raise();
                     return;
                 }
+
+                /*********
+                ** Update input
+                *********/
+                // This should *always* run, even when suppressing mod events, since the game uses
+                // this too. For example, doing this after mod event suppression would prevent the
+                // user from doing anything on the overnight shipping screen.
+                SInputState previousInputState = this.Input.Clone();
+                SInputState inputState = this.Input;
+                if (this.IsActive)
+                    inputState.TrueUpdate();
 
                 /*********
                 ** Save events + suppress events during save
@@ -335,12 +356,6 @@ namespace StardewModdingAPI.Framework
                     this.Events.Save_AfterSave.Raise();
                     this.Events.Time_AfterDayStarted.Raise();
                 }
-
-                /*********
-                ** Notify SMAPI that game is initialised
-                *********/
-                if (this.FirstUpdate)
-                    this.OnGameInitialised();
 
                 /*********
                 ** Update context
