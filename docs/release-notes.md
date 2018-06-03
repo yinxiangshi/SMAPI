@@ -54,6 +54,7 @@
   * Redesigned upload page to make it more intuitive for new players.
   * Changed filters to show `DEBUG` messages by default.
   * Fixed issue parsing content packs with no description.
+  * Fixed mangled crossplatform paths in some cases.
 
 * For SMAPI developers:
   * Added more consistent crossplatform handling using a new `EnvironmentUtility`, including MacOS detection.
