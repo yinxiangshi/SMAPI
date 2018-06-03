@@ -270,7 +270,7 @@ namespace StardewModdingAPI
             }
 
             // start game
-            this.Monitor.Log("Starting game...", LogLevel.Trace);
+            this.Monitor.Log("Starting game...", LogLevel.Debug);
             try
             {
                 this.IsGameRunning = true;
