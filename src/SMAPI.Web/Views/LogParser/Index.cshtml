@@ -1,23 +1,14 @@
-@{
-    ViewData["Title"] = "SMAPI log parser";
-
-    IDictionary<string, LogModInfo[]> contentPacks = Model.ParsedLog?.Mods
-        ?.GroupBy(mod => mod.ContentPackFor)
-        .Where(group => group.Key != null)
-        .ToDictionary(group => group.Key, group => group.ToArray());
-
-    Regex slugInvalidCharPattern = new Regex("[^a-z0-9]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-    string GetSlug(string modName)
-    {
-        return slugInvalidCharPattern.Replace(modName, "");
-    }
-}
-@using System.Text.RegularExpressions
 @using Newtonsoft.Json
 @using StardewModdingAPI.Web.Framework.LogParsing.Models
 @model StardewModdingAPI.Web.ViewModels.LogParserModel
+
+@{
+    ViewData["Title"] = "SMAPI log parser";
+    IDictionary<string, LogModInfo[]> contentPacks = Model.GetContentPacksByMod();
+}
+
 @section Head {
-    <link rel="stylesheet" href="~/Content/css/log-parser.css?r=20180225" />
+    <link rel="stylesheet" href="~/Content/css/log-parser.css?r=20180603" />
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" crossorigin="anonymous"></script>
     <script src="~/Content/js/log-parser.js?r=20180225"></script>
@@ -26,51 +17,104 @@
             smapi.logParser({
                 logStarted: new Date(@Json.Serialize(Model.ParsedLog?.Timestamp)),
                 showPopup: @Json.Serialize(Model.ParsedLog == null),
-                showMods: @Json.Serialize(Model.ParsedLog?.Mods?.Select(p => GetSlug(p.Name)).Distinct().ToDictionary(slug => slug, slug => true), new JsonSerializerSettings { Formatting = Formatting.None }),
+                showMods: @Json.Serialize(Model.ParsedLog?.Mods?.Select(p => Model.GetSlug(p.Name)).Distinct().ToDictionary(slug => slug, slug => true), new JsonSerializerSettings { Formatting = Formatting.None }),
                 showLevels: {
-                    trace: false,
-                    debug: false,
-                    info: true,
-                    alert: true,
-                    warn: true,
-                    error: true
+                    @LogLevel.Trace.ToString().ToLower(): false,
+                    @LogLevel.Debug.ToString().ToLower(): false,
+                    @LogLevel.Info.ToString().ToLower(): true,
+                    @LogLevel.Alert.ToString().ToLower(): true,
+                    @LogLevel.Warn.ToString().ToLower(): true,
+                    @LogLevel.Error.ToString().ToLower(): true
                 }
             }, '@Model.SectionUrl');
         });
     </script>
 }
 
-@*********
-** Intro
-*********@
+@* intro and upload result banner *@
 <p id="blurb">This page lets you upload, view, and share a SMAPI log to help troubleshoot mod issues.</p>
-
-@if (Model.ParsedLog?.IsValid == true)
-{
-    <div class="banner success" v-pre>
-        <strong>The log was uploaded successfully!</strong><br/>
-        Share this URL when asking for help: <code>@(new Uri(new Uri(Model.SectionUrl), Model.PasteID))</code><br/>
-        (Or <a id="upload-button" href="#">upload a new log</a>.)
-    </div>
-}
-else if (Model.ParsedLog?.IsValid == false)
+@if (Model.UploadError != null)
 {
     <div class="banner error" v-pre>
-        <strong>Oops, couldn't parse that file. (Make sure you upload the log file, not the console text.)</strong><br />
-        Share this URL when asking for help: <code>@(new Uri(new Uri(Model.SectionUrl), Model.PasteID))</code><br />
-        (Or <a id="upload-button" href="#">upload a new log</a>.)<br />
-        <br />
-        <small v-pre>Error details: @Model.ParsedLog.Error</small>
+        <strong>Oops, the server ran into trouble saving that file.</strong><br />
+        <small v-pre>Error details: @Model.UploadError</small>
     </div>
 }
-else
+else if (Model.ParseError != null)
 {
-    <input type="button" id="upload-button" value="Share a new log" />
+    <div class="banner error" v-pre>
+        <strong>Oops, couldn't parse that log. (Make sure you upload the log file, not the console text.)</strong><br />
+        Share this URL when asking for help: <code>@(new Uri(new Uri(Model.SectionUrl), Model.PasteID))</code><br />
+        (Or <a href="@Model.SectionUrl">upload a new log</a>.)<br />
+        <br />
+        <small v-pre>Error details: @Model.ParseError</small>
+    </div>
+}
+else if (Model.ParsedLog?.IsValid == true)
+{
+    <div class="banner success" v-pre>
+        <strong>The log was uploaded successfully!</strong><br />
+        Share this URL when asking for help: <code>@(new Uri(new Uri(Model.SectionUrl), Model.PasteID))</code><br />
+        (Or <a href="@Model.SectionUrl">upload a new log</a>.)
+    </div>
 }
 
-@*********
-** Parsed log
-*********@
+@* upload new log *@
+@if (Model.ParsedLog == null)
+{
+    <h2>FAQs</h2>
+    <h3>Where do I find my SMAPI log?</h3>
+    <div>What system do you use?</div>
+    <ul id="os-list">
+        <li><input type="radio" name="os" value="linux" id="os-linux" /> <label for="os-linux">Linux</label></li>
+        <li><input type="radio" name="os" value="mac" id="os-mac" /> <label for="os-mac">Mac</label></li>
+        <li><input type="radio" name="os" value="windows" id="os-windows" /> <label for="os-windows">Windows</label></li>
+    </ul>
+    <div data-os="linux">
+        On Linux:
+        <ol>
+            <li>Open the Files app.</li>
+            <li>Click the options menu (might be labeled <em>Go</em> or <code>⋮</code>).</li>
+            <li>Choose <em>Enter Location</em>.</li>
+            <li>Enter this exact text: <pre>~/.config/StardewValley/ErrorLogs</pre></li>
+            <li>The log file is <code>SMAPI-latest.txt</code>.</li>
+        </ol>
+    </div>
+    <div data-os="mac">
+        On Mac:
+        <ol>
+            <li>Open the Finder app.</li>
+            <li>Click <em>Go</em> at the top, then <em>Enter Location</em>.</li>
+            <li>Enter this exact text: <pre>~/.config/StardewValley/ErrorLogs</pre></li>
+            <li>The log file is <code>SMAPI-latest.txt</code>.</li>
+        </ol>
+    </div>
+    <div data-os="windows">
+        On Windows:
+        <ol>
+            <li>Press the <code>Windows</code> and <code>R</code> buttons at the same time.</li>
+            <li>In the 'run' box that appears, enter this exact text: <pre>%appdata%\StardewValley\ErrorLogs</pre></li>
+            <li>The log file is <code>SMAPI-latest.txt</code>.</li>
+        </ol>
+    </div>
+
+    <h3>How do I share my log?</h3>
+    <form action="@Model.SectionUrl" method="post">
+        <ol>
+            <li>
+                Drag the file onto this textbox (or paste the text in):<br />
+                <textarea id="input" name="input" placeholder="paste log here"></textarea>
+            </li>
+            <li>
+                Click this button:<br />
+                <input type="submit" id="submit" value="save log" />
+            </li>
+            <li>On the new page, copy the URL and send it to the person helping you.</li>
+        </ol>
+    </form>
+}
+
+@* parsed log *@
 @if (Model.ParsedLog?.IsValid == true)
 {
     <h2>Log info</h2>
@@ -104,8 +148,8 @@ else
             </caption>
             @foreach (var mod in Model.ParsedLog.Mods.Where(p => p.ContentPackFor == null))
             {
-                <tr v-on:click="toggleMod('@GetSlug(mod.Name)')" class="mod-entry" v-bind:class="{ hidden: !showMods['@GetSlug(mod.Name)'] }">
-                    <td><input type="checkbox" v-bind:checked="showMods['@GetSlug(mod.Name)']" v-show="anyModsHidden" /></td>
+                <tr v-on:click="toggleMod('@Model.GetSlug(mod.Name)')" class="mod-entry" v-bind:class="{ hidden: !showMods['@Model.GetSlug(mod.Name)'] }">
+                    <td><input type="checkbox" v-bind:checked="showMods['@Model.GetSlug(mod.Name)']" v-show="anyModsHidden" /></td>
                     <td v-pre>
                         <strong>@mod.Name</strong> @mod.Version
                         @if (contentPacks != null && contentPacks.TryGetValue(mod.Name, out LogModInfo[] contentPackList))
@@ -149,7 +193,7 @@ else
             {
                 string levelStr = message.Level.ToString().ToLower();
 
-                <tr class="@levelStr mod" v-show="filtersAllow('@GetSlug(message.Mod)', '@levelStr')">
+                <tr class="@levelStr mod" v-show="filtersAllow('@Model.GetSlug(message.Mod)', '@levelStr')">
                     <td v-pre>@message.Time</td>
                     <td v-pre>@message.Level.ToString().ToUpper()</td>
                     <td v-pre data-title="@message.Mod">@message.Mod</td>
@@ -157,7 +201,7 @@ else
                 </tr>
                 if (message.Repeated > 0)
                 {
-                    <tr class="@levelStr mod mod-repeat" v-show="filtersAllow('@GetSlug(message.Mod)', '@levelStr')">
+                    <tr class="@levelStr mod mod-repeat" v-show="filtersAllow('@Model.GetSlug(message.Mod)', '@levelStr')">
                         <td colspan="3"></td>
                         <td v-pre><i>repeats [@message.Repeated] times.</i></td>
                     </tr>
@@ -171,22 +215,3 @@ else if (Model.ParsedLog?.IsValid == false)
     <h3>Raw log</h3>
     <pre v-pre>@Model.ParsedLog.RawText</pre>
 }
-
-<div id="upload-area">
-    <div id="popup-upload" class="popup">
-        <h1>Upload log file</h1>
-        <div class="frame">
-            <ol>
-                <li><a href="https://stardewvalleywiki.com/Modding:Player_Guide/Troubleshooting#Find_your_SMAPI_log" target="_blank">Find your SMAPI log file</a> (not the console text).</li>
-                <li>Drag the file onto the textbox below (or paste the text in).</li>
-                <li>Click <em>Parse</em>.</li>
-            </ol>
-            <textarea id="input" placeholder="Paste or drag the log here"></textarea>
-            <div class="buttons">
-                <input type="button" id="submit" value="Parse" />
-                <input type="button" id="cancel" value="Cancel" />
-            </div>
-        </div>
-    </div>
-    <div id="uploader"></div>
-</div>

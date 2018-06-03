@@ -51,6 +51,7 @@
   * Fixed `world_settime` sometimes breaking NPC schedules (e.g. so they stay in bed).
 
 * For the log parser:
+  * Redesigned upload page to make it more intuitive for new players.
   * Fixed issue parsing content packs with no description.
 
 * For SMAPI developers:
