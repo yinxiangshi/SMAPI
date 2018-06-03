@@ -31,8 +31,7 @@
     </script>
 }
 
-@* intro and upload result banner *@
-<p id="blurb">This page lets you upload, view, and share a SMAPI log to help troubleshoot mod issues.</p>
+@* upload result banner *@
 @if (Model.UploadError != null)
 {
     <div class="banner error" v-pre>
@@ -53,8 +52,7 @@ else if (Model.ParseError != null)
 else if (Model.ParsedLog?.IsValid == true)
 {
     <div class="banner success" v-pre>
-        <strong>The log was uploaded successfully!</strong><br />
-        Share this URL when asking for help: <code>@(new Uri(new Uri(Model.SectionUrl), Model.PasteID))</code><br />
+        <strong>Share this link to let someone else see the log:</strong> <code>@(new Uri(new Uri(Model.SectionUrl), Model.PasteID))</code><br />
         (Or <a href="@Model.SectionUrl">upload a new log</a>.)
     </div>
 }
@@ -62,8 +60,7 @@ else if (Model.ParsedLog?.IsValid == true)
 @* upload new log *@
 @if (Model.ParsedLog == null)
 {
-    <h2>FAQs</h2>
-    <h3>Where do I find my SMAPI log?</h3>
+    <h2>Where do I find my SMAPI log?</h2>
     <div>What system do you use?</div>
     <ul id="os-list">
         <li><input type="radio" name="os" value="linux" id="os-linux" /> <label for="os-linux">Linux</label></li>
@@ -98,7 +95,7 @@ else if (Model.ParsedLog?.IsValid == true)
         </ol>
     </div>
 
-    <h3>How do I share my log?</h3>
+    <h2>How do I share my log?</h2>
     <form action="@Model.SectionUrl" method="post">
         <ol>
             <li>
