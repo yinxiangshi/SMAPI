@@ -52,6 +52,7 @@
 
 * For the log parser:
   * Redesigned upload page to make it more intuitive for new players.
+  * Changed filters to show `DEBUG` messages by default.
   * Fixed issue parsing content packs with no description.
 
 * For SMAPI developers:

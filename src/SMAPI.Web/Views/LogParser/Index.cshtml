@@ -20,7 +20,7 @@
                 showMods: @Json.Serialize(Model.ParsedLog?.Mods?.Select(p => Model.GetSlug(p.Name)).Distinct().ToDictionary(slug => slug, slug => true), new JsonSerializerSettings { Formatting = Formatting.None }),
                 showLevels: {
                     @LogLevel.Trace.ToString().ToLower(): false,
-                    @LogLevel.Debug.ToString().ToLower(): false,
+                    @LogLevel.Debug.ToString().ToLower(): true,
                     @LogLevel.Info.ToString().ToLower(): true,
                     @LogLevel.Alert.ToString().ToLower(): true,
                     @LogLevel.Warn.ToString().ToLower(): true,
