@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using Newtonsoft.Json;
 
 namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
 {
     /// <summary>Provides methods for interacting with the SMAPI web API.</summary>
-    internal class WebApiClient
+    public class WebApiClient
     {
         /*********
         ** Properties
@@ -26,9 +27,6 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
         /// <param name="version">The web API version.</param>
         public WebApiClient(string baseUrl, ISemanticVersion version)
         {
-#if !SMAPI_FOR_WINDOWS
-            baseUrl = baseUrl.Replace("https://", "http://"); // workaround for OpenSSL issues with the game's bundled Mono on Linux/Mac
-#endif
             this.BaseUrl = new Uri(baseUrl);
             this.Version = version;
         }
@@ -41,6 +39,34 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
                 $"v{this.Version}/mods",
                 new ModSearchModel(modKeys, allowInvalidVersions: true)
             );
+        }
+
+        /// <summary>Get the latest version for a mod.</summary>
+        /// <param name="updateKeys">The update keys to search.</param>
+        public ISemanticVersion GetLatestVersion(string[] updateKeys)
+        {
+            if (!updateKeys.Any())
+                return null;
+
+            // fetch update results
+            ModInfoModel[] results = this
+                .GetModInfo(updateKeys)
+                .Values
+                .Where(p => p.Error == null)
+                .ToArray();
+            if (!results.Any())
+                return null;
+
+            ISemanticVersion latest = null;
+            foreach (ModInfoModel result in results)
+            {
+                if (!SemanticVersion.TryParse(result.PreviewVersion ?? result.Version, out ISemanticVersion cur))
+                    continue;
+
+                if (latest == null || cur.IsNewerThan(latest))
+                    latest = cur;
+            }
+            return latest;
         }
 
 

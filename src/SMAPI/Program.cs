@@ -577,7 +577,11 @@ namespace StardewModdingAPI
             new Thread(() =>
             {
                 // create client
-                WebApiClient client = new WebApiClient(this.Settings.WebApiBaseUrl, Constants.ApiVersionForToolkit);
+                string url = this.Settings.WebApiBaseUrl;
+#if !SMAPI_FOR_WINDOWS
+                url = url.Replace("https://", "http://"); // workaround for OpenSSL issues with the game's bundled Mono on Linux/Mac
+#endif
+                WebApiClient client = new WebApiClient(url, Constants.ApiVersionForToolkit);
                 this.Monitor.Log("Checking for updates...", LogLevel.Trace);
 
                 // check SMAPI version
