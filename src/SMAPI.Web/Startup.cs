@@ -82,11 +82,6 @@ namespace StardewModdingAPI.Web
                     password: api.GitHubPassword
                 ));
 
-                //services.AddSingleton<INexusClient>(new NexusClient(
-                //    userAgent: api.NexusUserAgent,
-                //    baseUrl: api.NexusBaseUrl,
-                //    modUrlFormat: api.NexusModUrlFormat
-                //));
                 services.AddSingleton<INexusClient>(new NexusWebScrapeClient(
                     userAgent: userAgent,
                     baseUrl: api.NexusBaseUrl,
