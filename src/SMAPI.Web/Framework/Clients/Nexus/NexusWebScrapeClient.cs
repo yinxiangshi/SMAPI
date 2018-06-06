@@ -83,6 +83,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.Nexus
             string url = this.GetModUrl(id);
             string name = doc.DocumentNode.SelectSingleNode("//h1")?.InnerText.Trim();
             string version = doc.DocumentNode.SelectSingleNode("//ul[contains(@class, 'stats')]//li[@class='stat-version']//div[@class='stat']")?.InnerText.Trim();
+            SemanticVersion.TryParse(version, out ISemanticVersion parsedVersion);
 
             // extract file versions
             List<string> rawVersions = new List<string>();
@@ -105,16 +106,19 @@ namespace StardewModdingAPI.Web.Framework.Clients.Nexus
             {
                 if (!SemanticVersion.TryParse(rawVersion, out ISemanticVersion cur))
                     continue;
+                if (parsedVersion != null && !cur.IsNewerThan(parsedVersion))
+                    continue;
+                if (latestFileVersion != null && !cur.IsNewerThan(latestFileVersion))
+                    continue;
 
-                if (latestFileVersion == null || cur.IsNewerThan(latestFileVersion))
-                    latestFileVersion = cur;
+                latestFileVersion = cur;
             }
 
             // yield info
             return new NexusMod
             {
                 Name = name,
-                Version = version,
+                Version = parsedVersion?.ToString() ?? version,
                 LatestFileVersion = latestFileVersion,
                 Url = url
             };
