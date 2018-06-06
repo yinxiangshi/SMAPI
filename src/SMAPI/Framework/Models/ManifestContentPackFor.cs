@@ -21,7 +21,7 @@ namespace StardewModdingAPI.Framework.Models
         public ManifestContentPackFor(Toolkit.Serialisation.Models.ManifestContentPackFor contentPackFor)
         {
             this.UniqueID = contentPackFor.UniqueID;
-            this.MinimumVersion = new SemanticVersion(contentPackFor.MinimumVersion);
+            this.MinimumVersion = contentPackFor.MinimumVersion != null ? new SemanticVersion(contentPackFor.MinimumVersion) : null;
         }
 
         /// <summary>Construct an instance.</summary>

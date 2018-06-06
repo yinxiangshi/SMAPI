@@ -159,7 +159,8 @@ namespace StardewModdingAPI
                 new StringEnumConverter<SButton>(),
                 new ColorConverter(),
                 new PointConverter(),
-                new RectangleConverter()
+                new RectangleConverter(),
+                new Framework.Serialisation.SemanticVersionConverter()
             };
             foreach (JsonConverter converter in converters)
                 this.JsonHelper.JsonSettings.Converters.Add(converter);

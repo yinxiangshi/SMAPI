@@ -3,7 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using StardewModdingAPI.Framework;
-using StardewModdingAPI.Toolkit.Serialisation.Models;
 
 namespace StardewModdingAPI.Tests.Utilities
 {
@@ -270,22 +269,6 @@ namespace StardewModdingAPI.Tests.Utilities
             // assert
             Assert.AreEqual(versionStr, version.ToString(), "The game version did not round-trip to the same value.");
             Assert.IsTrue(version.IsOlderThan(new SemanticVersion("1.2.30")), "The game version should be considered older than the later semantic versions.");
-        }
-
-        /****
-        ** LegacyManifestVersion
-        ****/
-        [Test(Description = "Assert that the LegacyManifestVersion subclass correctly parses legacy manifest versions.")]
-        [TestCase(1, 0, 0, null, ExpectedResult = "1.0")]
-        [TestCase(3000, 4000, 5000, null, ExpectedResult = "3000.4000.5000")]
-        [TestCase(1, 2, 3, "", ExpectedResult = "1.2.3")]
-        [TestCase(1, 2, 3, "    ", ExpectedResult = "1.2.3")]
-        [TestCase(1, 2, 3, "0", ExpectedResult = "1.2.3")]  // special case: drop '0' tag for legacy manifest versions
-        [TestCase(1, 2, 3, "some-tag.4", ExpectedResult = "1.2.3-some-tag.4")]
-        [TestCase(1, 2, 3, "some-tag.4   ", ExpectedResult = "1.2.3-some-tag.4")]
-        public string LegacyManifestVersion(int major, int minor, int patch, string tag)
-        {
-            return new LegacyManifestVersion(major, minor, patch, tag).ToString();
         }
 
 

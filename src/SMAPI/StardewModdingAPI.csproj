@@ -121,6 +121,7 @@
     <Compile Include="Framework\Models\ManifestContentPackFor.cs" />
     <Compile Include="Framework\Models\ManifestDependency.cs" />
     <Compile Include="Framework\ModHelpers\InputHelper.cs" />
+    <Compile Include="Framework\Serialisation\SemanticVersionConverter.cs" />
     <Compile Include="IInputHelper.cs" />
     <Compile Include="Framework\Input\SInputState.cs" />
     <Compile Include="Framework\Input\InputStatus.cs" />
