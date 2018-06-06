@@ -59,6 +59,7 @@
 * For SMAPI developers:
   * Added more consistent crossplatform handling using a new `EnvironmentUtility`, including MacOS detection.
   * Added beta update channel to SMAPI, the web API, and home page.
+  * Added latest mod file version (including optional files) to Nexus API results.
   * Added more stylish pufferchick on the home page.
   * Split mod DB out of `StardewModdingAPI.config.json` into its own file.
   * Rewrote input suppression using new SDV 1.3 APIs.

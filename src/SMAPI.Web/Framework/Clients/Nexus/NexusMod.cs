@@ -1,4 +1,5 @@
 using Newtonsoft.Json;
+using StardewModdingAPI.Toolkit;
 
 namespace StardewModdingAPI.Web.Framework.Clients.Nexus
 {
@@ -13,6 +14,9 @@ namespace StardewModdingAPI.Web.Framework.Clients.Nexus
 
         /// <summary>The mod's semantic version number.</summary>
         public string Version { get; set; }
+
+        /// <summary>The latest file version.</summary>
+        public ISemanticVersion LatestFileVersion { get; set; }
 
         /// <summary>The mod's web URL.</summary>
         [JsonProperty("mod_page_uri")]

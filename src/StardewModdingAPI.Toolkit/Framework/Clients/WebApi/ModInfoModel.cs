@@ -9,10 +9,10 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
         /// <summary>The mod name.</summary>
         public string Name { get; set; }
 
-        /// <summary>The semantic version for the mod's latest release.</summary>
+        /// <summary>The mod's latest release number.</summary>
         public string Version { get; set; }
 
-        /// <summary>The semantic version for the mod's latest preview release, if available and different from <see cref="Version"/>.</summary>
+        /// <summary>The mod's latest optional release, if newer than <see cref="Version"/>.</summary>
         public string PreviewVersion { get; set; }
 
         /// <summary>The mod's web URL.</summary>

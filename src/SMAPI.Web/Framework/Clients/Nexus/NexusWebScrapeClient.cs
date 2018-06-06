@@ -1,8 +1,11 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Pathoschild.Http.Client;
+using StardewModdingAPI.Toolkit;
 
 namespace StardewModdingAPI.Web.Framework.Clients.Nexus
 {
@@ -12,8 +15,11 @@ namespace StardewModdingAPI.Web.Framework.Clients.Nexus
         /*********
         ** Properties
         *********/
-        /// <summary>The URL for a Nexus web page excluding the base URL, where {0} is the mod ID.</summary>
+        /// <summary>The URL for a Nexus mod page for the user, excluding the base URL, where {0} is the mod ID.</summary>
         private readonly string ModUrlFormat;
+
+        /// <summary>The URL for a Nexus mod page to scrape for versions, excluding the base URL, where {0} is the mod ID.</summary>
+        public string ModScrapeUrlFormat { get; set; }
 
         /// <summary>The underlying HTTP client.</summary>
         private readonly IClient Client;
@@ -25,10 +31,12 @@ namespace StardewModdingAPI.Web.Framework.Clients.Nexus
         /// <summary>Construct an instance.</summary>
         /// <param name="userAgent">The user agent for the Nexus Mods API client.</param>
         /// <param name="baseUrl">The base URL for the Nexus Mods site.</param>
-        /// <param name="modUrlFormat">The URL for a Nexus Mods web page excluding the <paramref name="baseUrl"/>, where {0} is the mod ID.</param>
-        public NexusWebScrapeClient(string userAgent, string baseUrl, string modUrlFormat)
+        /// <param name="modUrlFormat">The URL for a Nexus Mods mod page for the user, excluding the <paramref name="baseUrl"/>, where {0} is the mod ID.</param>
+        /// <param name="modScrapeUrlFormat">The URL for a Nexus mod page to scrape for versions, excluding the base URL, where {0} is the mod ID.</param>
+        public NexusWebScrapeClient(string userAgent, string baseUrl, string modUrlFormat, string modScrapeUrlFormat)
         {
             this.ModUrlFormat = modUrlFormat;
+            this.ModScrapeUrlFormat = modScrapeUrlFormat;
             this.Client = new FluentClient(baseUrl).SetUserAgent(userAgent);
         }
 
@@ -42,7 +50,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.Nexus
             try
             {
                 html = await this.Client
-                    .GetAsync(string.Format(this.ModUrlFormat, id))
+                    .GetAsync(string.Format(this.ModScrapeUrlFormat, id))
                     .AsString();
             }
             catch (ApiException ex) when (ex.Status == HttpStatusCode.NotFound)
@@ -76,10 +84,38 @@ namespace StardewModdingAPI.Web.Framework.Clients.Nexus
             string name = doc.DocumentNode.SelectSingleNode("//h1")?.InnerText.Trim();
             string version = doc.DocumentNode.SelectSingleNode("//ul[contains(@class, 'stats')]//li[@class='stat-version']//div[@class='stat']")?.InnerText.Trim();
 
+            // extract file versions
+            List<string> rawVersions = new List<string>();
+            foreach (var fileSection in doc.DocumentNode.SelectNodes("//div[contains(@class, 'files-tabs')]"))
+            {
+                string sectionName = fileSection.Descendants("h2").First().InnerText;
+                if (sectionName != "Main files" && sectionName != "Optional files")
+                    continue;
+
+                rawVersions.AddRange(
+                    from statBox in fileSection.Descendants().Where(p => p.HasClass("stat-version"))
+                    from versionStat in statBox.Descendants().Where(p => p.HasClass("stat"))
+                    select versionStat.InnerText.Trim()
+                );
+            }
+
+            // choose latest file version
+            ISemanticVersion latestFileVersion = null;
+            foreach (string rawVersion in rawVersions)
+            {
+                if (!SemanticVersion.TryParse(rawVersion, out ISemanticVersion cur))
+                    continue;
+
+                if (latestFileVersion == null || cur.IsNewerThan(latestFileVersion))
+                    latestFileVersion = cur;
+            }
+
+            // yield info
             return new NexusMod
             {
                 Name = name,
                 Version = version,
+                LatestFileVersion = latestFileVersion,
                 Url = url
             };
         }
