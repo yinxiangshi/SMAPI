@@ -1,9 +1,8 @@
 using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using StardewModdingAPI.Framework.Exceptions;
 
-namespace StardewModdingAPI.Framework.Serialisation
+namespace StardewModdingAPI.Toolkit.Serialisation.Converters
 {
     /// <summary>The base implementation for simplified converters which deserialise <typeparamref name="T"/> without overriding serialisation.</summary>
     /// <typeparam name="T">The type to deserialise.</typeparam>

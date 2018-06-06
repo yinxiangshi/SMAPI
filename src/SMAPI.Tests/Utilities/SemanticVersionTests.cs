@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using StardewModdingAPI.Framework;
+using StardewModdingAPI.Toolkit.Serialisation.Models;
 
 namespace StardewModdingAPI.Tests.Utilities
 {

@@ -5,7 +5,7 @@ using System.Linq;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.Input;
 using StardewModdingAPI.Framework.Models;
-using StardewModdingAPI.Framework.Serialisation;
+using StardewModdingAPI.Toolkit.Serialisation;
 using StardewModdingAPI.Toolkit.Utilities;
 
 namespace StardewModdingAPI.Framework.ModHelpers
@@ -179,16 +179,14 @@ namespace StardewModdingAPI.Framework.ModHelpers
                 throw new ArgumentException($"Can't create content pack for directory path '{directoryPath}' because no such directory exists.");
 
             // create manifest
-            IManifest manifest = new Manifest
-            {
-                Name = name,
-                Author = author,
-                Description = description,
-                Version = version,
-                UniqueID = id,
-                UpdateKeys = new string[0],
-                ContentPackFor = new ManifestContentPackFor { UniqueID = this.ModID }
-            };
+            IManifest manifest = new Manifest(
+                uniqueID: id,
+                name: name,
+                author: author,
+                description: description,
+                version: version,
+                contentPackFor: new ManifestContentPackFor(this.ModID)
+            );
 
             // create content pack
             return this.CreateContentPack(directoryPath, manifest);

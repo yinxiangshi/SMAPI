@@ -1,9 +1,10 @@
 using System;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json.Linq;
-using StardewModdingAPI.Framework.Exceptions;
+using StardewModdingAPI.Toolkit.Serialisation;
+using StardewModdingAPI.Toolkit.Serialisation.Converters;
 
-namespace StardewModdingAPI.Framework.Serialisation.CrossplatformConverters
+namespace StardewModdingAPI.Framework.Serialisation
 {
     /// <summary>Handles deserialisation of <see cref="PointConverter"/> for crossplatform compatibility.</summary>
     /// <remarks>

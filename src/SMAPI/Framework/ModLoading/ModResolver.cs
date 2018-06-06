@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.ModData;
 using StardewModdingAPI.Framework.Models;
-using StardewModdingAPI.Framework.Serialisation;
+using StardewModdingAPI.Toolkit.Serialisation;
 using StardewModdingAPI.Toolkit.Utilities;
+using ToolkitManifest = StardewModdingAPI.Toolkit.Serialisation.Models.Manifest;
 
 namespace StardewModdingAPI.Framework.ModLoading
 {
@@ -28,25 +28,28 @@ namespace StardewModdingAPI.Framework.ModLoading
             {
                 // read file
                 Manifest manifest = null;
-                string path = Path.Combine(modDir.FullName, "manifest.json");
                 string error = null;
-                try
                 {
-                    manifest = jsonHelper.ReadJsonFile<Manifest>(path);
-                    if (manifest == null)
+                    string path = Path.Combine(modDir.FullName, "manifest.json");
+                    try
                     {
-                        error = File.Exists(path)
-                            ? "its manifest is invalid."
-                            : "it doesn't have a manifest.";
+                        ToolkitManifest rawManifest = jsonHelper.ReadJsonFile<ToolkitManifest>(path);
+                        if (rawManifest == null)
+                        {
+                            error = File.Exists(path)
+                                ? "its manifest is invalid."
+                                : "it doesn't have a manifest.";
+                        }
+                        manifest = new Manifest(rawManifest);
                     }
-                }
-                catch (SParseException ex)
-                {
-                    error = $"parsing its manifest failed: {ex.Message}";
-                }
-                catch (Exception ex)
-                {
-                    error = $"parsing its manifest failed:\n{ex.GetLogSummary()}";
+                    catch (SParseException ex)
+                    {
+                        error = $"parsing its manifest failed: {ex.Message}";
+                    }
+                    catch (Exception ex)
+                    {
+                        error = $"parsing its manifest failed:\n{ex.GetLogSummary()}";
+                    }
                 }
 
                 // parse internal data record (if any)

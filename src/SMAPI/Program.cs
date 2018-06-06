@@ -10,6 +10,7 @@ using System.Runtime.ExceptionServices;
 using System.Security;
 using System.Text.RegularExpressions;
 using System.Threading;
+using Microsoft.Xna.Framework.Input;
 #if SMAPI_FOR_WINDOWS
 using System.Windows.Forms;
 #endif
@@ -27,8 +28,11 @@ using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Serialisation;
 using StardewModdingAPI.Internal;
 using StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
+using StardewModdingAPI.Toolkit.Serialisation;
+using StardewModdingAPI.Toolkit.Serialisation.Converters;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
+using Keys = System.Windows.Forms.Keys;
 using Monitor = StardewModdingAPI.Framework.Monitor;
 using SObject = StardewValley.Object;
 using ThreadState = System.Threading.ThreadState;
@@ -147,6 +151,18 @@ namespace StardewModdingAPI
                 ShowFullStampInConsole = this.Settings.DeveloperMode
             };
             this.EventManager = new EventManager(this.Monitor, this.ModRegistry);
+
+            // init JSON parser
+            JsonConverter[] converters = {
+                new StringEnumConverter<Buttons>(),
+                new StringEnumConverter<Keys>(),
+                new StringEnumConverter<SButton>(),
+                new ColorConverter(),
+                new PointConverter(),
+                new RectangleConverter()
+            };
+            foreach (JsonConverter converter in converters)
+                this.JsonHelper.JsonSettings.Converters.Add(converter);
 
             // hook up events
             ContentEvents.Init(this.EventManager);
@@ -1093,7 +1109,7 @@ namespace StardewModdingAPI
         /// <param name="mods">The mods for which to reload translations.</param>
         private void ReloadTranslations(IEnumerable<IModMetadata> mods)
         {
-            JsonHelper jsonHelper = new JsonHelper();
+            JsonHelper jsonHelper = this.JsonHelper;
             foreach (IModMetadata metadata in mods)
             {
                 if (metadata.IsContentPack)

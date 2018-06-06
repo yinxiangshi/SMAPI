@@ -7,9 +7,30 @@ namespace StardewModdingAPI.Framework.Models
         ** Accessors
         *********/
         /// <summary>The unique ID of the mod which can read this content pack.</summary>
-        public string UniqueID { get; set; }
+        public string UniqueID { get; }
 
         /// <summary>The minimum required version (if any).</summary>
-        public ISemanticVersion MinimumVersion { get; set; }
+        public ISemanticVersion MinimumVersion { get; }
+
+
+        /*********
+        ** Public methods
+        *********/
+        /// <summary>Construct an instance.</summary>
+        /// <param name="contentPackFor">The toolkit instance.</param>
+        public ManifestContentPackFor(Toolkit.Serialisation.Models.ManifestContentPackFor contentPackFor)
+        {
+            this.UniqueID = contentPackFor.UniqueID;
+            this.MinimumVersion = new SemanticVersion(contentPackFor.MinimumVersion);
+        }
+
+        /// <summary>Construct an instance.</summary>
+        /// <param name="uniqueID">The unique ID of the mod which can read this content pack.</param>
+        /// <param name="minimumVersion">The minimum required version (if any).</param>
+        public ManifestContentPackFor(string uniqueID, ISemanticVersion minimumVersion = null)
+        {
+            this.UniqueID = uniqueID;
+            this.MinimumVersion = minimumVersion;
+        }
     }
 }

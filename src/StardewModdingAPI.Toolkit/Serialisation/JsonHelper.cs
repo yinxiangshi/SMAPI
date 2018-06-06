@@ -1,39 +1,23 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.Xna.Framework.Input;
 using Newtonsoft.Json;
-using StardewModdingAPI.Framework.Serialisation.CrossplatformConverters;
-using StardewModdingAPI.Framework.Serialisation.SmapiConverters;
+using StardewModdingAPI.Toolkit.Serialisation.Converters;
 
-namespace StardewModdingAPI.Framework.Serialisation
+namespace StardewModdingAPI.Toolkit.Serialisation
 {
     /// <summary>Encapsulates SMAPI's JSON file parsing.</summary>
-    internal class JsonHelper
+    public class JsonHelper
     {
         /*********
         ** Accessors
         *********/
         /// <summary>The JSON settings to use when serialising and deserialising files.</summary>
-        private readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
+        public JsonSerializerSettings JsonSettings { get; } = new JsonSerializerSettings
         {
             Formatting = Formatting.Indented,
             ObjectCreationHandling = ObjectCreationHandling.Replace, // avoid issue where default ICollection<T> values are duplicated each time the config is loaded
-            Converters = new List<JsonConverter>
-            {
-                // SMAPI types
-                new SemanticVersionConverter(),
-
-                // enums
-                new StringEnumConverter<Buttons>(),
-                new StringEnumConverter<Keys>(),
-                new StringEnumConverter<SButton>(),
-
-                // crossplatform compatibility
-                new ColorConverter(),
-                new PointConverter(),
-                new RectangleConverter()
-            }
+            Converters = new List<JsonConverter> { new SemanticVersionConverter() }
         };
 
 

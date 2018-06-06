@@ -1,29 +1,24 @@
-namespace StardewModdingAPI.Framework.Models
+namespace StardewModdingAPI.Toolkit.Serialisation.Models
 {
     /// <summary>A mod dependency listed in a mod manifest.</summary>
-    internal class ManifestDependency : IManifestDependency
+    public class ManifestDependency
     {
         /*********
         ** Accessors
         *********/
         /// <summary>The unique mod ID to require.</summary>
-        public string UniqueID { get; }
+        public string UniqueID { get; set; }
 
         /// <summary>The minimum required version (if any).</summary>
-        public ISemanticVersion MinimumVersion { get; }
+        public SemanticVersion MinimumVersion { get; set; }
 
         /// <summary>Whether the dependency must be installed to use the mod.</summary>
-        public bool IsRequired { get; }
+        public bool IsRequired { get; set; }
 
 
         /*********
         ** Public methods
         *********/
-        /// <summary>Construct an instance.</summary>
-        /// <param name="dependency">The toolkit instance.</param>
-        public ManifestDependency(Toolkit.Serialisation.Models.ManifestDependency dependency)
-            : this(dependency.UniqueID, dependency.MinimumVersion?.ToString(), dependency.IsRequired) { }
-
         /// <summary>Construct an instance.</summary>
         /// <param name="uniqueID">The unique mod ID to require.</param>
         /// <param name="minimumVersion">The minimum required version (if any).</param>

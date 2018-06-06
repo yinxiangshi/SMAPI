@@ -1,11 +1,11 @@
 using System;
 using Newtonsoft.Json;
-using StardewModdingAPI.Framework.Models;
+using StardewModdingAPI.Toolkit.Serialisation.Models;
 
-namespace StardewModdingAPI.Framework.Serialisation.SmapiConverters
+namespace StardewModdingAPI.Toolkit.Serialisation.Converters
 {
-    /// <summary>Handles deserialisation of <see cref="IManifestContentPackFor"/> arrays.</summary>
-    internal class ManifestContentPackForConverter : JsonConverter
+    /// <summary>Handles deserialisation of <see cref="ManifestContentPackFor"/> arrays.</summary>
+    public class ManifestContentPackForConverter : JsonConverter
     {
         /*********
         ** Accessors
@@ -21,7 +21,7 @@ namespace StardewModdingAPI.Framework.Serialisation.SmapiConverters
         /// <param name="objectType">The object type.</param>
         public override bool CanConvert(Type objectType)
         {
-            return objectType == typeof(IManifestContentPackFor[]);
+            return objectType == typeof(ManifestContentPackFor[]);
         }
 
 

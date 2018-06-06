@@ -36,7 +36,7 @@ namespace StardewModdingAPI
         IManifestDependency[] Dependencies { get; }
 
         /// <summary>The namespaced mod IDs to query for updates (like <c>Nexus:541</c>).</summary>
-        string[] UpdateKeys { get; set; }
+        string[] UpdateKeys { get; }
 
         /// <summary>Any manifest fields which didn't match a valid field.</summary>
         IDictionary<string, object> ExtraFields { get; }

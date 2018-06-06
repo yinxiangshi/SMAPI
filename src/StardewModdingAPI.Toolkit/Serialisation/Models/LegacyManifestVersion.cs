@@ -1,9 +1,9 @@
 using Newtonsoft.Json;
 
-namespace StardewModdingAPI.Framework
+namespace StardewModdingAPI.Toolkit.Serialisation.Models
 {
-    /// <summary>An implementation of <see cref="ISemanticVersion"/> that hamdles the legacy <see cref="IManifest"/> version format.</summary>
-    internal class LegacyManifestVersion : SemanticVersion
+    /// <summary>An implementation of <see cref="ISemanticVersion"/> that hamdles the legacy <see cref="Manifest"/> version format.</summary>
+    public class LegacyManifestVersion : SemanticVersion
     {
         /*********
         ** Public methods
