@@ -37,7 +37,7 @@ namespace StardewModdingAPI.Framework.Patching
         /// <summary>An implementation of <see cref="GameLocation.updateSeasonalTileSheets"/> which correctly handles custom map tilesheets.</summary>
         /// <param name="__instance">The location instance being patched.</param>
         [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Argument name is defined by Harmony.")]
-        private static bool Prefix(ref GameLocation __instance)
+        private static bool Prefix(GameLocation __instance)
         {
             if (!__instance.IsOutdoors || __instance.Name.Equals("Desert"))
                 return false;
