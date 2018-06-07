@@ -82,6 +82,8 @@ namespace StardewModdingApi.Installer
             string GetInstallPath(string path) => Path.Combine(installDir.FullName, path);
 
             // common
+            yield return GetInstallPath("0Harmony.dll");
+            yield return GetInstallPath("0Harmony.pdb");
             yield return GetInstallPath("Mono.Cecil.dll");
             yield return GetInstallPath("Newtonsoft.Json.dll");
             yield return GetInstallPath("StardewModdingAPI.exe");
