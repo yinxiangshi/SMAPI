@@ -16,6 +16,7 @@
   * Fixed mod update checks failing if a mod only has prerelease versions on GitHub.
   * Fixed launch issue for Linux players with some terminals. (Thanks to HanFox and kurumushi!)
   * Fixed Nexus mod update alerts not showing HTTPS links.
+  * Fixed uninstaller not removing some SMAPI files.
   * Renamed `install.exe` to `install on Windows.exe` to avoid confusion.
 
 * For modders:
