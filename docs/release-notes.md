@@ -29,6 +29,8 @@
   * Added `Context.IsMultiplayer` and `Context.IsMainPlayer` flags.
   * Added `Constants.TargetPlatform` which says whether the game is running on Linux, Mac, or Windows.
   * Added `semanticVersion.IsPrerelease()` method.
+  * Added Harmony DLL managed by SMAPI.
+  * Fixed error when loading an unpacked `.tbin` map that references custom seasonal tilesheets.
   * Fixed error if a mod loads a PNG while the game is loading (e.g. custom map tilesheets via `IAssetLoader`).
   * Fixed assets loaded by temporary content managers not being editable by mods.
   * Fixed assets not reloaded consistently when the player switches language.
