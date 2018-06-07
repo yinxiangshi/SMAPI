@@ -24,6 +24,7 @@ using StardewModdingAPI.Framework.ModData;
 using StardewModdingAPI.Framework.Models;
 using StardewModdingAPI.Framework.ModHelpers;
 using StardewModdingAPI.Framework.ModLoading;
+using StardewModdingAPI.Framework.Patching;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Serialisation;
 using StardewModdingAPI.Internal;
@@ -151,6 +152,10 @@ namespace StardewModdingAPI
                 ShowFullStampInConsole = this.Settings.DeveloperMode
             };
             this.EventManager = new EventManager(this.Monitor, this.ModRegistry);
+
+            // apply game patches
+            new GamePatcher(this.Monitor).Apply(
+            );
 
             // init JSON parser
             JsonConverter[] converters = {
@@ -359,14 +364,7 @@ namespace StardewModdingAPI
                 Console.ResetColor();
                 Program.PressAnyKeyToExit(showMessage: true);
             }
-
-            // get game assembly name
-            const string gameAssemblyName =
-#if SMAPI_FOR_WINDOWS
-                "Stardew Valley";
-#else
-                "StardewValley";
-#endif
+            string gameAssemblyName = Constants.GameAssemblyName;
 
             // game not present
             if (Type.GetType($"StardewValley.Game1, {gameAssemblyName}", throwOnError: false) == null)

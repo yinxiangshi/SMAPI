@@ -103,6 +103,9 @@ namespace StardewModdingAPI
         /// <summary>The target game platform.</summary>
         internal static Platform Platform { get; } = EnvironmentUtility.DetectPlatform();
 
+        /// <summary>The game's assembly name.</summary>
+        internal static string GameAssemblyName => Constants.Platform == Platform.Windows ? "Stardew Valley" : "StardewValley";
+
 
         /*********
         ** Internal methods
