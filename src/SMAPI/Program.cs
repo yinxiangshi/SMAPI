@@ -33,7 +33,7 @@ using StardewModdingAPI.Toolkit.Serialisation;
 using StardewModdingAPI.Toolkit.Serialisation.Converters;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
-using Keys = System.Windows.Forms.Keys;
+using Keys = Microsoft.Xna.Framework.Input.Keys;
 using Monitor = StardewModdingAPI.Framework.Monitor;
 using SObject = StardewValley.Object;
 using ThreadState = System.Threading.ThreadState;
