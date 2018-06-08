@@ -117,30 +117,19 @@ namespace StardewModdingAPI
             // get flags from arguments
             bool writeToConsole = !args.Contains("--no-terminal");
 
-            // get log path from arguments
-            string logPath = null;
-            {
-                int pathIndex = Array.LastIndexOf(args, "--log-path") + 1;
-                if (pathIndex >= 1 && args.Length >= pathIndex)
-                {
-                    logPath = args[pathIndex];
-                    if (!Path.IsPathRooted(logPath))
-                        logPath = Path.Combine(Constants.LogDir, logPath);
-                }
-            }
-            if (string.IsNullOrWhiteSpace(logPath))
-                logPath = Constants.DefaultLogPath;
-
             // load SMAPI
-            using (Program program = new Program(writeToConsole, logPath))
+            using (Program program = new Program(writeToConsole))
                 program.RunInteractively();
         }
 
         /// <summary>Construct an instance.</summary>
         /// <param name="writeToConsole">Whether to output log messages to the console.</param>
-        /// <param name="logPath">The full file path to which to write log messages.</param>
-        public Program(bool writeToConsole, string logPath)
+        public Program(bool writeToConsole)
         {
+            // init log file
+            this.PurgeLogFiles();
+            string logPath = this.GetLogPath();
+
             // init basics
             this.Settings = JsonConvert.DeserializeObject<SConfig>(File.ReadAllText(Constants.ApiConfigPath));
             this.LogFile = new LogFileManager(logPath);
@@ -1257,6 +1246,48 @@ namespace StardewModdingAPI
         {
             if (this.Settings.VerboseLogging)
                 this.Monitor.Log(message, LogLevel.Trace);
+        }
+
+        /// <summary>Get the absolute path to the next available log file.</summary>
+        private string GetLogPath()
+        {
+            // default path
+            {
+                FileInfo defaultFile = new FileInfo(Path.Combine(Constants.LogDir, $"{Constants.LogNamePrefix}.{Constants.LogNameExtension}"));
+                if (!defaultFile.Exists)
+                    return defaultFile.FullName;
+            }
+
+            // get first disambiguated path
+            for (int i = 2; i < int.MaxValue; i++)
+            {
+                FileInfo file = new FileInfo(Path.Combine(Constants.LogDir, $"{Constants.LogNamePrefix}.player-{i}.{Constants.LogNameExtension}"));
+                if (!file.Exists)
+                    return file.FullName;
+            }
+
+            // should never happen
+            throw new InvalidOperationException("Could not find an available log path.");
+        }
+
+        /// <summary>Delete all log files created by SMAPI.</summary>
+        private void PurgeLogFiles()
+        {
+            DirectoryInfo logsDir = new DirectoryInfo(Constants.LogDir);
+            foreach (FileInfo logFile in logsDir.EnumerateFiles("*.txt"))
+            {
+                if (logFile.Name.StartsWith(Constants.LogNamePrefix, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    try
+                    {
+                        FileUtilities.ForceDelete(logFile);
+                    }
+                    catch (Exception ex)
+                    {
+                        // leave file if it's locked
+                    }
+                }
+            }
         }
     }
 }

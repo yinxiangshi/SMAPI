@@ -137,7 +137,6 @@ change without warning.
 
 argument | purpose
 -------- | -------
-`--log-path "path"` | The relative or absolute path of the log file SMAPI should write.
 `--no-terminal` | SMAPI won't write anything to the console window. (Messages will still be written to the log file.)
 
 ### Compile flags

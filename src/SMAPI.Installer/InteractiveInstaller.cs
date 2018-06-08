@@ -518,6 +518,7 @@ namespace StardewModdingApi.Installer
 
         /// <summary>Delete a file or folder regardless of file permissions, and block until deletion completes.</summary>
         /// <param name="entry">The file or folder to reset.</param>
+        /// <remarks>This method is mirred from <c>FileUtilities.ForceDelete</c> in the toolkit.</remarks>
         private void ForceDelete(FileSystemInfo entry)
         {
             // ignore if already deleted
