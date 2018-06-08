@@ -113,8 +113,8 @@ namespace StardewModdingAPI
         /// <summary>Initialise the static values.</summary>
         static Constants()
         {
-            Constants.ApiVersionForToolkit = new Toolkit.SemanticVersion("2.6-beta.15");
-            Constants.MinimumGameVersion = new GameVersion("1.3.13");
+            Constants.ApiVersionForToolkit = new Toolkit.SemanticVersion("2.6-beta.16");
+            Constants.MinimumGameVersion = new GameVersion("1.3.17");
 
             Constants.ApiVersion = new SemanticVersion(Constants.ApiVersionForToolkit);
         }
