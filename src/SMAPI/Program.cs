@@ -1274,6 +1274,9 @@ namespace StardewModdingAPI
         private void PurgeLogFiles()
         {
             DirectoryInfo logsDir = new DirectoryInfo(Constants.LogDir);
+            if (!logsDir.Exists)
+                return;
+
             foreach (FileInfo logFile in logsDir.EnumerateFiles("*.txt"))
             {
                 if (logFile.Name.StartsWith(Constants.LogNamePrefix, StringComparison.InvariantCultureIgnoreCase))
@@ -1282,9 +1285,9 @@ namespace StardewModdingAPI
                     {
                         FileUtilities.ForceDelete(logFile);
                     }
-                    catch (Exception ex)
+                    catch (IOException)
                     {
-                        // leave file if it's locked
+                        // ignore file if it's in use
                     }
                 }
             }
