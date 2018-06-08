@@ -66,6 +66,11 @@ namespace StardewModdingApi.Installer
                             if (!string.IsNullOrWhiteSpace(path))
                                 yield return path;
                         }
+
+                        // via Steam library path
+                        string steampath = this.GetCurrentUserRegistryValue(@"Software\Valve\Steam", "SteamPath");
+                        if (steampath != null)
+                            yield return Path.Combine(steampath.Replace('/', '\\'), @"steamapps\common\Stardew Valley");
                     }
                     break;
 
@@ -133,11 +138,11 @@ namespace StardewModdingApi.Installer
         /// Initialisation flow:
         ///     1. Collect information (mainly OS and install path) and validate it.
         ///     2. Ask the user whether to install or uninstall.
-        /// 
+        ///
         /// Uninstall logic:
         ///     1. On Linux/Mac: if a backup of the launcher exists, delete the launcher and restore the backup.
         ///     2. Delete all files and folders in the game directory matching one of the values returned by <see cref="GetUninstallPaths"/>.
-        /// 
+        ///
         /// Install flow:
         ///     1. Run the uninstall flow.
         ///     2. Copy the SMAPI files from package/Windows or package/Mono into the game directory.
@@ -431,13 +436,26 @@ namespace StardewModdingApi.Installer
             return str;
         }
 
-        /// <summary>Get the value of a key in the Windows registry.</summary>
+        /// <summary>Get the value of a key in the Windows HKLM registry.</summary>
         /// <param name="key">The full path of the registry key relative to HKLM.</param>
         /// <param name="name">The name of the value.</param>
         private string GetLocalMachineRegistryValue(string key, string name)
         {
             RegistryKey localMachine = Environment.Is64BitOperatingSystem ? RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64) : Registry.LocalMachine;
             RegistryKey openKey = localMachine.OpenSubKey(key);
+            if (openKey == null)
+                return null;
+            using (openKey)
+                return (string)openKey.GetValue(name);
+        }
+
+        /// <summary>Get the value of a key in the Windows HKCU registry.</summary>
+        /// <param name="key">The full path of the registry key relative to HKCU.</param>
+        /// <param name="name">The name of the value.</param>
+        private string GetCurrentUserRegistryValue(string key, string name)
+        {
+            RegistryKey currentuser = Environment.Is64BitOperatingSystem ? RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Registry64) : Registry.CurrentUser;
+            RegistryKey openKey = currentuser.OpenSubKey(key);
             if (openKey == null)
                 return null;
             using (openKey)
@@ -602,6 +620,8 @@ namespace StardewModdingApi.Installer
                     where dir.Exists && dir.EnumerateFiles(executableFilename).Any()
                     select dir
                 )
+                .GroupBy(p => p.FullName, StringComparer.InvariantCultureIgnoreCase) // ignore duplicate paths
+                .Select(p => p.First())
                 .ToArray();
 
             // choose where to install
