@@ -11,6 +11,8 @@
   * Fixed console color scheme on Mac or in PowerShell, configurable via `StardewModdingAPI.config.json`.
   * Fixed detection of GOG Galaxy install path in rare cases.
   * Fixed install error on Linux/Mac in some cases.
+  * Fixed installer not finding game path in some cases.
+  * Fixed installer showing duplicate game paths in some cases.
   * Fixed `smapi.io/install` not linking to a useful page.
   * Fixed `world_setseason` command not running season-change logic.
   * Fixed mod update checks failing if a mod only has prerelease versions on GitHub.
