@@ -2,28 +2,29 @@
 ## 2.6 beta
 * For players:
   * Updated for Stardew Valley 1.3 (no longer compatible with earlier versions).
-  * Added a bundled save backup mod.
+  * Added a bundled Save Backup mod.
   * Added beta update channel.
   * Added prompt when in beta channel and a new version is found.
   * Added friendly error when game can't start audio.
   * Added console warning for mods which don't have update checks configured.
   * Improved how mod warnings are shown in the console.
   * Fixed console color scheme on Mac or in PowerShell, configurable via `StardewModdingAPI.config.json`.
-  * Fixed detection of GOG Galaxy install path in rare cases.
-  * Fixed install error on Linux/Mac in some cases.
-  * Fixed installer not finding game path in some cases.
+  * Fixed installer error on Linux/Mac in some cases.
+  * Fixed installer not finding some game paths.
   * Fixed installer showing duplicate game paths in some cases.
+  * Fixed installer not removing some SMAPI files.
   * Fixed `smapi.io/install` not linking to a useful page.
   * Fixed `world_setseason` command not running season-change logic.
   * Fixed mod update checks failing if a mod only has prerelease versions on GitHub.
   * Fixed launch issue for Linux players with some terminals. (Thanks to HanFox and kurumushi!)
   * Fixed Nexus mod update alerts not showing HTTPS links.
-  * Fixed uninstaller not removing some SMAPI files.
+  * Fixed issue where a mod crashing in `CanEdit` or `CanLoad` could cause an abort-retry loop.
   * Renamed `install.exe` to `install on Windows.exe` to avoid confusion.
+  * Updated compatibility list.
 
 * For modders:
   * Added [input API](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Input) for reading and suppressing keyboard, controller, and mouse input.
-  * Added code analysis to mod build config package to flag common issues as warnings.
+  * Added code analysis in NuGet package to flag common net field issues as warnings.
   * Replaced `LocationEvents` with a more powerful set of events for multiplayer:
     * now raised for all locations;
     * now includes added/removed building interiors;
@@ -33,8 +34,9 @@
   * Added `Constants.TargetPlatform` which says whether the game is running on Linux, Mac, or Windows.
   * Added `semanticVersion.IsPrerelease()` method.
   * Added support for launching multiple instances transparently. This removes the former `--log-path` command-line argument.
-  * Added Harmony DLL managed by SMAPI.
-  * Fixed error when loading an unpacked `.tbin` map that references custom seasonal tilesheets.
+  * Added support for custom seasonal tilesheets when loading an unpacked `.tbin` map.
+  * Added Harmony DLL for internal use by SMAPI. (Mods should still include their own copy for backwards compatibility, and in case it's removed later. SMAPI will always load its own version though.)
+  * Added option to suppress update checks for a specific mod in `StardewModdingAPI.config.json`.
   * Fixed error if a mod loads a PNG while the game is loading (e.g. custom map tilesheets via `IAssetLoader`).
   * Fixed assets loaded by temporary content managers not being editable by mods.
   * Fixed assets not reloaded consistently when the player switches language.
@@ -42,15 +44,13 @@
   * Fixed console command input not saved to the log.
   * Fixed `helper.ModRegistry.GetApi` interface validation errors not mentioning which interface caused the issue.
   * Fixed some common non-mod build output being included in release zip.
-  * Added option to suppress update checks for a specific mod in `StardewModdingAPI.config.json`.
   * Fixed mods able to intercept other mods' assets via the internal asset keys.
   * Fixed mods able to indirectly change other mods' data through shared content caches.
-  * Fixed issue where a mod crashing in `CanEdit` or `CanLoad` could cause an abort-retry loop.
   * **Breaking changes** (see [migration guide](https://stardewvalleywiki.com/Modding:Migrate_to_Stardew_Valley_1.3)):
      * Dropped some deprecated APIs.
-     * `LocationEvents` have been rewritten (see above).
-     * Mods can't intercept chatbox input, including the game's hotkeys to toggle the chatbox (default `T` and `?`).
-     * Mod IDs should only contain letters, numbers, hyphens, dots, and underscores (so they can be safely used in many contexts like URLs); this restriction is now enforced.
+     * `LocationEvents` have been rewritten.
+     * Mods can't intercept chatbox input.
+     * Mod IDs should only contain letters, numbers, hyphens, dots, and underscores. That allows their use in many contexts like URLs. This restriction is now enforced. (In regex form: `^[a-zA-Z0-9_.-]+$`.)
 
 * In console commands:
   * Added `player_add name`, which lets you add items to your inventory by name instead of ID.
@@ -67,12 +67,15 @@
   * Added beta update channel to SMAPI, the web API, and home page.
   * Added latest mod file version (including optional files) to Nexus API results.
   * Added more stylish pufferchick on the home page.
-  * Split mod DB out of `StardewModdingAPI.config.json` into its own file.
+  * Added prototype SMAPI 3.0 events accessible via `helper.Events`.
+  * Added prototype mod handler toolkit.
+  * Added Harmony for SMAPI's internal use to patch game functions for events.
   * Rewrote input suppression using new SDV 1.3 APIs.
   * Rewrote world/player state tracking:
     * much more efficient than previous method;
     * uses net field events where available;
     * lays groundwork for tracking events for multiple players.
+  * Split mod DB out of `StardewModdingAPI.config.json` into its own file.
 
 ## 2.5.5
 * For players:
