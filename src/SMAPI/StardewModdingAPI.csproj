@@ -53,6 +53,10 @@
     <ApplicationIcon>icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="0Harmony, Version=1.0.9.1, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\0Harmony.dll</HintPath>
+    </Reference>
     <Reference Include="Mono.Cecil, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <HintPath>..\packages\Mono.Cecil.0.9.6.4\lib\net45\Mono.Cecil.dll</HintPath>
       <Private>True</Private>
@@ -103,6 +107,8 @@
     <Compile Include="Framework\ContentManagers\GameContentManager.cs" />
     <Compile Include="Framework\ContentManagers\IContentManager.cs" />
     <Compile Include="Framework\ContentManagers\ModContentManager.cs" />
+    <Compile Include="Framework\Patching\GamePatcher.cs" />
+    <Compile Include="Framework\Patching\IHarmonyPatch.cs" />
     <Compile Include="Framework\Serialisation\ColorConverter.cs" />
     <Compile Include="Framework\Serialisation\PointConverter.cs" />
     <Compile Include="Framework\Serialisation\RectangleConverter.cs" />
@@ -279,6 +285,7 @@
     <Compile Include="Framework\Monitor.cs" />
     <Compile Include="Metadata\InstructionMetadata.cs" />
     <Compile Include="Mod.cs" />
+    <Compile Include="Framework\Patching\GameLocationPatch.cs" />
     <Compile Include="PatchMode.cs" />
     <Compile Include="GamePlatform.cs" />
     <Compile Include="Program.cs" />

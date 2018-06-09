@@ -18,6 +18,7 @@
   * Fixed mod update checks failing if a mod only has prerelease versions on GitHub.
   * Fixed launch issue for Linux players with some terminals. (Thanks to HanFox and kurumushi!)
   * Fixed Nexus mod update alerts not showing HTTPS links.
+  * Fixed uninstaller not removing some SMAPI files.
   * Renamed `install.exe` to `install on Windows.exe` to avoid confusion.
 
 * For modders:
@@ -32,6 +33,8 @@
   * Added `Constants.TargetPlatform` which says whether the game is running on Linux, Mac, or Windows.
   * Added `semanticVersion.IsPrerelease()` method.
   * Added support for launching multiple instances transparently. This removes the former `--log-path` command-line argument.
+  * Added Harmony DLL managed by SMAPI.
+  * Fixed error when loading an unpacked `.tbin` map that references custom seasonal tilesheets.
   * Fixed error if a mod loads a PNG while the game is loading (e.g. custom map tilesheets via `IAssetLoader`).
   * Fixed assets loaded by temporary content managers not being editable by mods.
   * Fixed assets not reloaded consistently when the player switches language.
