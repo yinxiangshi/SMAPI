@@ -57,11 +57,12 @@
   * Fixed `world_settime` sometimes breaking NPC schedules (e.g. so they stay in bed).
   * Fixed `world_setseason` not normalising the season value.
 
-* For the log parser:
-  * Redesigned upload page to make it more intuitive for new players.
-  * Changed filters to show `DEBUG` messages by default.
-  * Fixed issue parsing content packs with no description.
-  * Fixed mangled crossplatform paths in some cases.
+* For the web UI:
+  * Redesigned log parser upload page to make it more intuitive for new players.
+  * Changed log parser filters to show `DEBUG` messages by default.
+  * Improved layout on small screens.
+  * Fixed log parser issue when content packs have no description.
+  * Fixed log parser mangling crossplatform paths in some cases.
 
 * For SMAPI developers:
   * Added more consistent crossplatform handling using a new `EnvironmentUtility`, including MacOS detection.
