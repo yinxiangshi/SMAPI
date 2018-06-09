@@ -55,6 +55,7 @@
 * In console commands:
   * Added `player_add name`, which lets you add items to your inventory by name instead of ID.
   * Fixed `world_settime` sometimes breaking NPC schedules (e.g. so they stay in bed).
+  * Fixed `world_setseason` not normalising the season value.
 
 * For the log parser:
   * Redesigned upload page to make it more intuitive for new players.
