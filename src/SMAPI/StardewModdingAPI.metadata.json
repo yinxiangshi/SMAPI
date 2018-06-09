@@ -64,7 +64,7 @@
       "~1.1    | Status": "AssumeBroken"
     },
 
-    "AdjustArtisanPrices": {
+    "Adjust Artisan Prices": {
       "ID": "ThatNorthernMonkey.AdjustArtisanPrices",
       "FormerIDs": "1e36d4ca-c7ef-4dfb-9927-d27a6c3c8bdc", // changed in 0.0.2-pathoschild-update
       "MapRemoteVersions": { "0.01": "0.0.1" },
@@ -128,6 +128,11 @@
       "FormerIDs": "{EntryDll: 'AnimalSitter.dll'}", // changed in 1.0.9
       "Default | UpdateKey": "Nexus:581",
       "~1.0.8  | Status": "AssumeBroken" // broke in SMAPI 2.0
+    },
+
+    "Arcade Pong": {
+      "ID": "Platonymous.ArcadePong",
+      "~1.0.2 | Status": "AssumeBroken" // broke in SMAPI 2.6-beta.16 due to reflection into SMAPI internals
     },
 
     "Ashley Mod": {
@@ -1472,6 +1477,11 @@
     "Speedster": {
       "ID": "Platonymous.Speedster",
       "Default | UpdateKey": "Nexus:1102" // added in 1.3.1
+    },
+
+    "Split Screen": {
+      "ID": "Ilyaki.SplitScreen",
+      "~3.0.1 | Status": "AssumeBroken" // broke in SMAPI 2.6-beta.16 due to reflection into SMAPI internals
     },
 
     "Sprinkler Range": {
