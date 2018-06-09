@@ -26,6 +26,9 @@ namespace StardewModdingAPI.Framework.Models
         /// <summary>Whether SMAPI should log more information about the game context.</summary>
         public bool VerboseLogging { get; set; }
 
+        /// <summary>Whether to generate a file in the mods folder with detailed metadata about the detected mods.</summary>
+        public bool DumpMetadata { get; set; }
+
         /// <summary>The console color scheme to use.</summary>
         public MonitorColorScheme ColorScheme { get; set; }
 

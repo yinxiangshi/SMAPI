@@ -45,6 +45,12 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
   "VerboseLogging": false,
 
   /**
+   * Whether to generate a 'SMAPI-latest.metadata-dump.json' file in the logs folder with the full mod
+   * metadata for detected mods. This is only needed when troubleshooting some cases.
+   */
+  "DumpMetadata": false,
+
+  /**
    * The console color theme to use. The possible values are:
    *  - AutoDetect: SMAPI will assume a light background on Mac, and detect the background color automatically on Linux or Windows.
    *  - LightBackground: use darker text colors that look better on a white or light background.

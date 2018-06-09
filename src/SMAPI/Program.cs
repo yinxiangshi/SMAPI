@@ -428,6 +428,20 @@ namespace StardewModdingAPI
                 // load mods
                 this.LoadMods(mods, this.JsonHelper, this.ContentCore, modDatabase);
 
+                // write metadata file
+                if (this.Settings.DumpMetadata)
+                {
+                    ModFolderExport export = new ModFolderExport
+                    {
+                        Exported = DateTime.UtcNow.ToString("O"),
+                        ApiVersion = Constants.ApiVersion.ToString(),
+                        GameVersion = Constants.GameVersion.ToString(),
+                        ModFolderPath = Constants.ModPath,
+                        Mods = mods
+                    };
+                    this.JsonHelper.WriteJsonFile(Path.Combine(Constants.LogDir, $"{Constants.LogNamePrefix}.metadata-dump.json"), export);
+                }
+
                 // check for updates
                 this.CheckForUpdatesAsync(mods);
             }
@@ -1276,7 +1290,7 @@ namespace StardewModdingAPI
             if (!logsDir.Exists)
                 return;
 
-            foreach (FileInfo logFile in logsDir.EnumerateFiles("*.txt"))
+            foreach (FileInfo logFile in logsDir.EnumerateFiles())
             {
                 if (logFile.Name.StartsWith(Constants.LogNamePrefix, StringComparison.InvariantCultureIgnoreCase))
                 {

@@ -72,6 +72,7 @@
   * Added prototype SMAPI 3.0 events accessible via `helper.Events`.
   * Added prototype mod handler toolkit.
   * Added Harmony for SMAPI's internal use to patch game functions for events.
+  * Added metadata dump option in `StardewModdingAPI.config.json` for troubleshooting some cases.
   * Rewrote input suppression using new SDV 1.3 APIs.
   * Rewrote world/player state tracking:
     * much more efficient than previous method;
