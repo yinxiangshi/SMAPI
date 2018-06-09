@@ -40,7 +40,8 @@ namespace StardewModdingAPI.Framework.ModLoading
                                 ? "its manifest is invalid."
                                 : "it doesn't have a manifest.";
                         }
-                        manifest = new Manifest(rawManifest);
+                        else
+                            manifest = new Manifest(rawManifest);
                     }
                     catch (SParseException ex)
                     {
