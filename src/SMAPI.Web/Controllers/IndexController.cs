@@ -26,7 +26,7 @@ namespace StardewModdingAPI.Web.Controllers
         private readonly IGitHubClient GitHub;
 
         /// <summary>The cache time for release info.</summary>
-        private readonly TimeSpan CacheTime = TimeSpan.FromSeconds(1);
+        private readonly TimeSpan CacheTime = TimeSpan.FromMinutes(10);
 
         /// <summary>The GitHub repository name to check for update.</summary>
         private readonly string RepositoryName = "Pathoschild/SMAPI";
@@ -79,11 +79,20 @@ namespace StardewModdingAPI.Web.Controllers
             {
                 entry.AbsoluteExpiration = DateTimeOffset.UtcNow.Add(this.CacheTime);
 
-                // get releases
-                GitRelease stableRelease = await this.GitHub.GetLatestReleaseAsync(this.RepositoryName, includePrerelease: false);
-                GitRelease betaRelease = await this.GitHub.GetLatestReleaseAsync(this.RepositoryName, includePrerelease: true);
-                if (stableRelease.Tag == betaRelease.Tag)
-                    betaRelease = null;
+                // get latest release (whether preview or stable)
+                GitRelease stableRelease = await this.GitHub.GetLatestReleaseAsync(this.RepositoryName, includePrerelease: true);
+
+                // split stable/prerelease if applicable
+                GitRelease betaRelease = null;
+                if (stableRelease.IsPrerelease)
+                {
+                    GitRelease result = await this.GitHub.GetLatestReleaseAsync(this.RepositoryName, includePrerelease: false);
+                    if (result != null)
+                    {
+                        betaRelease = stableRelease;
+                        stableRelease = result;
+                    }
+                }
 
                 // get versions
                 ReleaseVersion[] stableVersions = this.ParseReleaseVersions(stableRelease).ToArray();
