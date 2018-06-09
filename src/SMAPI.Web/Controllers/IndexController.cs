@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using HtmlAgilityPack;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using StardewModdingAPI.Toolkit;
@@ -92,6 +93,19 @@ namespace StardewModdingAPI.Web.Controllers
                         betaRelease = stableRelease;
                         stableRelease = result;
                     }
+                }
+
+                // strip 'noinclude' blocks from release descriptions
+                foreach (GitRelease release in new[] { stableRelease, betaRelease })
+                {
+                    if (release == null)
+                        continue;
+
+                    HtmlDocument doc = new HtmlDocument();
+                    doc.LoadHtml(release.Body);
+                    foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//*[@class='noinclude']")?.ToArray() ?? new HtmlNode[0])
+                        node.Remove();
+                    release.Body = doc.DocumentNode.InnerHtml.Trim();
                 }
 
                 // get versions
