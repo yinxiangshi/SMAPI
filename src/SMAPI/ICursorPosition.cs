@@ -1,9 +1,10 @@
+using System;
 using Microsoft.Xna.Framework;
 
 namespace StardewModdingAPI
 {
     /// <summary>Represents a cursor position in the different coordinate systems.</summary>
-    public interface ICursorPosition
+    public interface ICursorPosition : IEquatable<ICursorPosition>
     {
         /// <summary>The pixel position relative to the top-left corner of the visible screen.</summary>
         Vector2 ScreenPixels { get; }

@@ -14,7 +14,6 @@ using StardewModdingAPI.Framework.Events;
 using StardewModdingAPI.Framework.Input;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.StateTracking;
-using StardewModdingAPI.Framework.StateTracking.FieldWatchers;
 using StardewModdingAPI.Framework.Utilities;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
@@ -85,38 +84,8 @@ namespace StardewModdingAPI.Framework
         /****
         ** Game state
         ****/
-        /// <summary>The underlying watchers for convenience. These are accessible individually as separate properties.</summary>
-        private readonly List<IWatcher> Watchers = new List<IWatcher>();
-
-        /// <summary>Tracks changes to the window size.</summary>
-        private IValueWatcher<Point> WindowSizeWatcher;
-
-        /// <summary>Tracks changes to the current player.</summary>
-        private PlayerTracker CurrentPlayerTracker;
-
-        /// <summary>Tracks changes to the time of day (in 24-hour military format).</summary>
-        private IValueWatcher<int> TimeWatcher;
-
-        /// <summary>Tracks changes to the save ID.</summary>
-        private IValueWatcher<ulong> SaveIdWatcher;
-
-        /// <summary>Tracks changes to the game's locations.</summary>
-        private WorldLocationsTracker LocationsWatcher;
-
-        /// <summary>Tracks changes to <see cref="Game1.activeClickableMenu"/>.</summary>
-        private IValueWatcher<IClickableMenu> ActiveMenuWatcher;
-
-        /// <summary>Tracks changes to the cursor position.</summary>
-        private IValueWatcher<Vector2> CursorWatcher;
-
-        /// <summary>Tracks changes to the mouse wheel scroll.</summary>
-        private IValueWatcher<int> MouseWheelScrollWatcher;
-
-        /// <summary>The previous content locale.</summary>
-        private LocalizedContentManager.LanguageCode? PreviousLocale;
-
-        /// <summary>The previous cursor position.</summary>
-        private ICursorPosition PreviousCursorPosition;
+        /// <summary>Monitors the entire game state for changes.</summary>
+        private WatcherCore Watchers;
 
         /// <summary>An index incremented on every tick and reset every 60th tick (0–59).</summary>
         private int CurrentUpdateTick;
@@ -186,23 +155,7 @@ namespace StardewModdingAPI.Framework
             this.Input.TrueUpdate();
 
             // init watchers
-            this.CursorWatcher = WatcherFactory.ForEquatable(() => this.Input.CursorPosition.ScreenPixels);
-            this.MouseWheelScrollWatcher = WatcherFactory.ForEquatable(() => this.Input.RealMouse.ScrollWheelValue);
-            this.SaveIdWatcher = WatcherFactory.ForEquatable(() => Game1.hasLoadedGame ? Game1.uniqueIDForThisGame : 0);
-            this.WindowSizeWatcher = WatcherFactory.ForEquatable(() => new Point(Game1.viewport.Width, Game1.viewport.Height));
-            this.TimeWatcher = WatcherFactory.ForEquatable(() => Game1.timeOfDay);
-            this.ActiveMenuWatcher = WatcherFactory.ForReference(() => Game1.activeClickableMenu);
-            this.LocationsWatcher = new WorldLocationsTracker((ObservableCollection<GameLocation>)Game1.locations);
-            this.Watchers.AddRange(new IWatcher[]
-            {
-                this.CursorWatcher,
-                this.MouseWheelScrollWatcher,
-                this.SaveIdWatcher,
-                this.WindowSizeWatcher,
-                this.TimeWatcher,
-                this.ActiveMenuWatcher,
-                this.LocationsWatcher
-            });
+            this.Watchers = new WatcherCore(this.Input);
 
             // raise callback
             this.OnGameInitialised();
@@ -372,44 +325,20 @@ namespace StardewModdingAPI.Framework
                 /*********
                 ** Update watchers
                 *********/
-                // reset player
-                if (Context.IsWorldReady)
-                {
-                    if (this.CurrentPlayerTracker == null || this.CurrentPlayerTracker.Player != Game1.player)
-                    {
-                        this.CurrentPlayerTracker?.Dispose();
-                        this.CurrentPlayerTracker = new PlayerTracker(Game1.player);
-                    }
-                }
-                else
-                {
-                    if (this.CurrentPlayerTracker != null)
-                    {
-                        this.CurrentPlayerTracker.Dispose();
-                        this.CurrentPlayerTracker = null;
-                    }
-                }
-
-                // update values
-                foreach (IWatcher watcher in this.Watchers)
-                    watcher.Update();
-                this.CurrentPlayerTracker?.Update();
-                this.LocationsWatcher.Update();
+                this.Watchers.Update();
 
                 /*********
                 ** Locale changed events
                 *********/
-                if (this.PreviousLocale != LocalizedContentManager.CurrentLanguageCode)
+                if (this.Watchers.LocaleWatcher.IsChanged)
                 {
-                    var oldValue = this.PreviousLocale;
-                    var newValue = LocalizedContentManager.CurrentLanguageCode;
+                    var was = this.Watchers.LocaleWatcher.PreviousValue;
+                    var now = this.Watchers.LocaleWatcher.CurrentValue;
 
-                    this.Monitor.Log($"Context: locale set to {newValue}.", LogLevel.Trace);
+                    this.Monitor.Log($"Context: locale set to {now}.", LogLevel.Trace);
+                    this.Events.Content_LocaleChanged.Raise(new EventArgsValueChanged<string>(was.ToString(), now.ToString()));
 
-                    if (oldValue != null)
-                        this.Events.Content_LocaleChanged.Raise(new EventArgsValueChanged<string>(oldValue.ToString(), newValue.ToString()));
-
-                    this.PreviousLocale = newValue;
+                    this.Watchers.LocaleWatcher.Reset();
                 }
 
                 /*********
@@ -450,12 +379,12 @@ namespace StardewModdingAPI.Framework
                 // event because we need to notify mods after the game handles the resize, so the
                 // game's metadata (like Game1.viewport) are updated. That's a bit complicated
                 // since the game adds & removes its own handler on the fly.
-                if (this.WindowSizeWatcher.IsChanged)
+                if (this.Watchers.WindowSizeWatcher.IsChanged)
                 {
                     if (this.VerboseLogging)
-                        this.Monitor.Log($"Context: window size changed to {this.WindowSizeWatcher.CurrentValue}.", LogLevel.Trace);
+                        this.Monitor.Log($"Context: window size changed to {this.Watchers.WindowSizeWatcher.CurrentValue}.", LogLevel.Trace);
                     this.Events.Graphics_Resize.Raise();
-                    this.WindowSizeWatcher.Reset();
+                    this.Watchers.WindowSizeWatcher.Reset();
                 }
 
                 /*********
@@ -470,21 +399,23 @@ namespace StardewModdingAPI.Framework
                         ICursorPosition cursor = this.Input.CursorPosition;
 
                         // raise cursor moved event
-                        if (this.CursorWatcher.IsChanged && this.PreviousCursorPosition != null)
+                        if (this.Watchers.CursorWatcher.IsChanged)
                         {
-                            this.CursorWatcher.Reset();
-                            this.Events.Input_CursorMoved.Raise(new InputCursorMovedArgsInput(this.PreviousCursorPosition, cursor));
+                            ICursorPosition was = this.Watchers.CursorWatcher.PreviousValue;
+                            ICursorPosition now = this.Watchers.CursorWatcher.CurrentValue;
+                            this.Watchers.CursorWatcher.Reset();
+
+                            this.Events.Input_CursorMoved.Raise(new InputCursorMovedArgsInput(was, now));
                         }
-                        this.PreviousCursorPosition = cursor;
 
                         // raise mouse wheel scrolled
-                        if (this.MouseWheelScrollWatcher.IsChanged)
+                        if (this.Watchers.MouseWheelScrollWatcher.IsChanged)
                         {
-                            int oldValue = this.MouseWheelScrollWatcher.PreviousValue;
-                            int newValue = this.MouseWheelScrollWatcher.CurrentValue;
-                            this.MouseWheelScrollWatcher.Reset();
+                            int was = this.Watchers.MouseWheelScrollWatcher.PreviousValue;
+                            int now = this.Watchers.MouseWheelScrollWatcher.CurrentValue;
+                            this.Watchers.MouseWheelScrollWatcher.Reset();
 
-                            this.Events.Input_MouseWheelScrolled.Raise(new InputMouseWheelScrolledEventArgs(cursor, oldValue, newValue));
+                            this.Events.Input_MouseWheelScrolled.Raise(new InputMouseWheelScrolledEventArgs(cursor, was, now));
                         }
 
                         // raise input button events
@@ -544,20 +475,20 @@ namespace StardewModdingAPI.Framework
                 /*********
                 ** Menu events
                 *********/
-                if (this.ActiveMenuWatcher.IsChanged)
+                if (this.Watchers.ActiveMenuWatcher.IsChanged)
                 {
-                    IClickableMenu previousMenu = this.ActiveMenuWatcher.PreviousValue;
-                    IClickableMenu newMenu = this.ActiveMenuWatcher.CurrentValue;
-                    this.ActiveMenuWatcher.Reset(); // reset here so a mod changing the menu will be raised as a new event afterwards
+                    IClickableMenu was = this.Watchers.ActiveMenuWatcher.PreviousValue;
+                    IClickableMenu now = this.Watchers.ActiveMenuWatcher.CurrentValue;
+                    this.Watchers.ActiveMenuWatcher.Reset(); // reset here so a mod changing the menu will be raised as a new event afterwards
 
                     if (this.VerboseLogging)
-                        this.Monitor.Log($"Context: menu changed from {previousMenu?.GetType().FullName ?? "none"} to {newMenu?.GetType().FullName ?? "none"}.", LogLevel.Trace);
+                        this.Monitor.Log($"Context: menu changed from {was?.GetType().FullName ?? "none"} to {now?.GetType().FullName ?? "none"}.", LogLevel.Trace);
 
                     // raise menu events
-                    if (newMenu != null)
-                        this.Events.Menu_Changed.Raise(new EventArgsClickableMenuChanged(previousMenu, newMenu));
+                    if (now != null)
+                        this.Events.Menu_Changed.Raise(new EventArgsClickableMenuChanged(was, now));
                     else
-                        this.Events.Menu_Closed.Raise(new EventArgsClickableMenuClosed(previousMenu));
+                        this.Events.Menu_Closed.Raise(new EventArgsClickableMenuClosed(was));
                 }
 
                 /*********
@@ -565,22 +496,22 @@ namespace StardewModdingAPI.Framework
                 *********/
                 if (Context.IsWorldReady)
                 {
-                    bool raiseWorldEvents = !this.SaveIdWatcher.IsChanged; // don't report changes from unloaded => loaded
+                    bool raiseWorldEvents = !this.Watchers.SaveIdWatcher.IsChanged; // don't report changes from unloaded => loaded
 
                     // raise location changes
-                    if (this.LocationsWatcher.IsChanged)
+                    if (this.Watchers.LocationsWatcher.IsChanged)
                     {
                         // location list changes
-                        if (this.LocationsWatcher.IsLocationListChanged)
+                        if (this.Watchers.LocationsWatcher.IsLocationListChanged)
                         {
-                            GameLocation[] added = this.LocationsWatcher.Added.ToArray();
-                            GameLocation[] removed = this.LocationsWatcher.Removed.ToArray();
-                            this.LocationsWatcher.ResetLocationList();
+                            GameLocation[] added = this.Watchers.LocationsWatcher.Added.ToArray();
+                            GameLocation[] removed = this.Watchers.LocationsWatcher.Removed.ToArray();
+                            this.Watchers.LocationsWatcher.ResetLocationList();
 
                             if (this.VerboseLogging)
                             {
-                                string addedText = this.LocationsWatcher.Added.Any() ? string.Join(", ", added.Select(p => p.Name)) : "none";
-                                string removedText = this.LocationsWatcher.Removed.Any() ? string.Join(", ", removed.Select(p => p.Name)) : "none";
+                                string addedText = this.Watchers.LocationsWatcher.Added.Any() ? string.Join(", ", added.Select(p => p.Name)) : "none";
+                                string removedText = this.Watchers.LocationsWatcher.Removed.Any() ? string.Join(", ", removed.Select(p => p.Name)) : "none";
                                 this.Monitor.Log($"Context: location list changed (added {addedText}; removed {removedText}).", LogLevel.Trace);
                             }
 
@@ -591,7 +522,7 @@ namespace StardewModdingAPI.Framework
                         // raise location contents changed
                         if (raiseWorldEvents)
                         {
-                            foreach (LocationTracker watcher in this.LocationsWatcher.Locations)
+                            foreach (LocationTracker watcher in this.Watchers.LocationsWatcher.Locations)
                             {
                                 // buildings changed
                                 if (watcher.BuildingsWatcher.IsChanged)
@@ -652,15 +583,15 @@ namespace StardewModdingAPI.Framework
                             }
                         }
                         else
-                            this.LocationsWatcher.Reset();
+                            this.Watchers.LocationsWatcher.Reset();
                     }
 
                     // raise time changed
-                    if (raiseWorldEvents && this.TimeWatcher.IsChanged)
+                    if (raiseWorldEvents && this.Watchers.TimeWatcher.IsChanged)
                     {
-                        int was = this.TimeWatcher.PreviousValue;
-                        int now = this.TimeWatcher.CurrentValue;
-                        this.TimeWatcher.Reset();
+                        int was = this.Watchers.TimeWatcher.PreviousValue;
+                        int now = this.Watchers.TimeWatcher.CurrentValue;
+                        this.Watchers.TimeWatcher.Reset();
 
                         if (this.VerboseLogging)
                             this.Monitor.Log($"Context: time changed from {was} to {now}.", LogLevel.Trace);
@@ -668,12 +599,12 @@ namespace StardewModdingAPI.Framework
                         this.Events.Time_TimeOfDayChanged.Raise(new EventArgsIntChanged(was, now));
                     }
                     else
-                        this.TimeWatcher.Reset();
+                        this.Watchers.TimeWatcher.Reset();
 
                     // raise player events
                     if (raiseWorldEvents)
                     {
-                        PlayerTracker curPlayer = this.CurrentPlayerTracker;
+                        PlayerTracker curPlayer = this.Watchers.CurrentPlayerTracker;
 
                         // raise current location changed
                         if (curPlayer.TryGetNewLocation(out GameLocation newLocation))
@@ -708,11 +639,11 @@ namespace StardewModdingAPI.Framework
                             this.Events.Mine_LevelChanged.Raise(new EventArgsMineLevelChanged(curPlayer.MineLevelWatcher.PreviousValue, mineLevel));
                         }
                     }
-                    this.CurrentPlayerTracker?.Reset();
+                    this.Watchers.CurrentPlayerTracker?.Reset();
                 }
 
                 // update save ID watcher
-                this.SaveIdWatcher.Reset();
+                this.Watchers.SaveIdWatcher.Reset();
 
                 /*********
                 ** Game update

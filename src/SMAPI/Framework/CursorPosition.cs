@@ -36,5 +36,12 @@ namespace StardewModdingAPI.Framework
             this.Tile = tile;
             this.GrabTile = grabTile;
         }
+
+        /// <summary>Get whether the current object is equal to another object of the same type.</summary>
+        /// <param name="other">An object to compare with this object.</param>
+        public bool Equals(ICursorPosition other)
+        {
+            return other != null && this.ScreenPixels == other.ScreenPixels;
+        }
     }
 }

@@ -12,6 +12,14 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         /*********
         ** Public methods
         *********/
+        /// <summary>Get a watcher which compares values using their <see cref="object.Equals(object)"/> method. This method should only be used when <see cref="ForEquatable{T}"/> won't work, since this doesn't validate whether they're comparable.</summary>
+        /// <typeparam name="T">The value type.</typeparam>
+        /// <param name="getValue">Get the current value.</param>
+        public static ComparableWatcher<T> ForGenericEquality<T>(Func<T> getValue) where T : struct
+        {
+            return new ComparableWatcher<T>(getValue, new GenericEqualsComparer<T>());
+        }
+
         /// <summary>Get a watcher for an <see cref="IEquatable{T}"/> value.</summary>
         /// <typeparam name="T">The value type.</typeparam>
         /// <param name="getValue">Get the current value.</param>
