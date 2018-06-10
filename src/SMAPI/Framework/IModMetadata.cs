@@ -45,6 +45,14 @@ namespace StardewModdingAPI.Framework
         /// <summary>Whether the mod is a content pack.</summary>
         bool IsContentPack { get; }
 
+        /// <summary>The latest version of the mod.</summary>
+        ISemanticVersion LatestVersion { get; }
+
+        /// <summary>The latest preview version of the mod, if any.</summary>
+        ISemanticVersion LatestPreviewVersion { get; }
+
+        /// <summary>The error checking for updates for this mod, if any.</summary>
+        string UpdateCheckError { get; }
 
         /*********
         ** Public methods
@@ -71,6 +79,15 @@ namespace StardewModdingAPI.Framework
         /// <summary>Set the mod-provided API instance.</summary>
         /// <param name="api">The mod-provided API.</param>
         IModMetadata SetApi(object api);
+
+        /// <summary>Set the update status, indicating no errors happened.</summary>
+        /// <param name="latestVersion">The latest version.</param>
+        /// <param name="latestPreviewVersion">The latest preview version.</param>
+        IModMetadata SetUpdateStatus(ISemanticVersion latestVersion, ISemanticVersion latestPreviewVersion);
+
+        /// <summary>Set the update status, indicating an error happened.</summary>
+        /// <param name="updateCheckError">The error checking for updates, if any.</param>
+        IModMetadata SetUpdateStatus(string updateCheckError);
 
         /// <summary>Whether the mod manifest was loaded (regardless of whether the mod itself was loaded).</summary>
         bool HasManifest();

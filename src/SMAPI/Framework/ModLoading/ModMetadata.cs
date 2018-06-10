@@ -43,6 +43,15 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>The mod-provided API (if any).</summary>
         public object Api { get; private set; }
 
+        /// <summary>The latest version of the mod.</summary>
+        public ISemanticVersion LatestVersion { get; private set; }
+
+        /// <summary>The latest preview version of the mod, if any.</summary>
+        public ISemanticVersion LatestPreviewVersion { get; private set; }
+
+        /// <summary>The error checking for updates for this mod, if any.</summary>
+        public string UpdateCheckError { get; private set; }
+
         /// <summary>Whether the mod is a content pack.</summary>
         public bool IsContentPack => this.Manifest?.ContentPackFor != null;
 
@@ -112,6 +121,24 @@ namespace StardewModdingAPI.Framework.ModLoading
         public IModMetadata SetApi(object api)
         {
             this.Api = api;
+            return this;
+        }
+
+        /// <summary>Set the update status.</summary>
+        /// <param name="latestVersion">The latest version.</param>
+        /// <param name="latestPreviewVersion">The latest preview version.</param>
+        public IModMetadata SetUpdateStatus(ISemanticVersion latestVersion, ISemanticVersion latestPreviewVersion)
+        {
+            this.LatestVersion = latestVersion;
+            this.LatestPreviewVersion = latestPreviewVersion;
+            return this;
+        }
+
+        // <summary>Set the update status, indicating an error happened.</summary>
+        /// <param name="updateCheckError">The error checking for updates, if any.</param>
+        public IModMetadata SetUpdateStatus(string updateCheckError)
+        {
+            this.UpdateCheckError = updateCheckError;
             return this;
         }
 
