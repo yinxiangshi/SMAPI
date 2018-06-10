@@ -28,5 +28,10 @@ namespace StardewModdingAPI.Framework.ModUpdateChecking
         {
             this.Error = error;
         }
+
+        /// <summary>Construct an instance.</summary>
+        public ModUpdateStatus()
+        {
+        }
     }
 }

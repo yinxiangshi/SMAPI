@@ -716,6 +716,14 @@ namespace StardewModdingAPI
                             }
                         }
 
+                        // set mods to have no updates
+                        foreach (IModMetadata mod in results.Select(item => item.Mod)
+                            .Where(item => !updatesByMod.ContainsKey(item)))
+                        {
+                            mod.SetUpdateStatus(new ModUpdateStatus());
+                            mod.SetPreviewUpdateStatus(new ModUpdateStatus());
+                        }
+
                         // output
                         if (updatesByMod.Any())
                         {
