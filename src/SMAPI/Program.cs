@@ -127,6 +127,10 @@ namespace StardewModdingAPI
         /// <param name="writeToConsole">Whether to output log messages to the console.</param>
         public Program(bool writeToConsole)
         {
+            // init paths
+            this.VerifyPath(Constants.ModPath);
+            this.VerifyPath(Constants.LogDir);
+
             // init log file
             this.PurgeLogFiles();
             string logPath = this.GetLogPath();
@@ -142,38 +146,29 @@ namespace StardewModdingAPI
             };
             this.EventManager = new EventManager(this.Monitor, this.ModRegistry);
 
+            // init logging
+            this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GameVersion} on {EnvironmentUtility.GetFriendlyPlatformName(Constants.Platform)}", LogLevel.Info);
+            this.Monitor.Log($"Mods go here: {Constants.ModPath}");
+            this.Monitor.Log($"Log started at {DateTime.UtcNow:s} UTC", LogLevel.Trace);
+
+            // validate game version
+            if (Constants.GameVersion.IsOlderThan(Constants.MinimumGameVersion))
+            {
+                this.Monitor.Log($"Oops! You're running Stardew Valley {Constants.GameVersion}, but the oldest supported version is {Constants.MinimumGameVersion}. Please update your game before using SMAPI.", LogLevel.Error);
+                this.PressAnyKeyToExit();
+                return;
+            }
+            if (Constants.MaximumGameVersion != null && Constants.GameVersion.IsNewerThan(Constants.MaximumGameVersion))
+            {
+                this.Monitor.Log($"Oops! You're running Stardew Valley {Constants.GameVersion}, but this version of SMAPI is only compatible up to Stardew Valley {Constants.MaximumGameVersion}. Please check for a newer version of SMAPI: https://smapi.io.", LogLevel.Error);
+                this.PressAnyKeyToExit();
+                return;
+            }
+
             // apply game patches
             new GamePatcher(this.Monitor).Apply(
                 new GameLocationPatch()
             );
-
-            // init JSON parser
-            JsonConverter[] converters = {
-                new StringEnumConverter<Buttons>(),
-                new StringEnumConverter<Keys>(),
-                new StringEnumConverter<SButton>(),
-                new ColorConverter(),
-                new PointConverter(),
-                new RectangleConverter(),
-                new Framework.Serialisation.SemanticVersionConverter()
-            };
-            foreach (JsonConverter converter in converters)
-                this.JsonHelper.JsonSettings.Converters.Add(converter);
-
-            // hook up events
-            ContentEvents.Init(this.EventManager);
-            ControlEvents.Init(this.EventManager);
-            GameEvents.Init(this.EventManager);
-            GraphicsEvents.Init(this.EventManager);
-            InputEvents.Init(this.EventManager);
-            LocationEvents.Init(this.EventManager);
-            MenuEvents.Init(this.EventManager);
-            MineEvents.Init(this.EventManager);
-            MultiplayerEvents.Init(this.EventManager);
-            PlayerEvents.Init(this.EventManager);
-            SaveEvents.Init(this.EventManager);
-            SpecialisedEvents.Init(this.EventManager);
-            TimeEvents.Init(this.EventManager);
         }
 
         /// <summary>Launch SMAPI.</summary>
@@ -183,28 +178,33 @@ namespace StardewModdingAPI
             // initialise SMAPI
             try
             {
-                // init logging
-                this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GameVersion} on {EnvironmentUtility.GetFriendlyPlatformName(Constants.Platform)}", LogLevel.Info);
-                this.Monitor.Log($"Mods go here: {Constants.ModPath}");
-                this.Monitor.Log($"Log started at {DateTime.UtcNow:s} UTC", LogLevel.Trace);
+                // hook up events
+                ContentEvents.Init(this.EventManager);
+                ControlEvents.Init(this.EventManager);
+                GameEvents.Init(this.EventManager);
+                GraphicsEvents.Init(this.EventManager);
+                InputEvents.Init(this.EventManager);
+                LocationEvents.Init(this.EventManager);
+                MenuEvents.Init(this.EventManager);
+                MineEvents.Init(this.EventManager);
+                MultiplayerEvents.Init(this.EventManager);
+                PlayerEvents.Init(this.EventManager);
+                SaveEvents.Init(this.EventManager);
+                SpecialisedEvents.Init(this.EventManager);
+                TimeEvents.Init(this.EventManager);
 
-                // validate paths
-                this.VerifyPath(Constants.ModPath);
-                this.VerifyPath(Constants.LogDir);
-
-                // validate game version
-                if (Constants.GameVersion.IsOlderThan(Constants.MinimumGameVersion))
-                {
-                    this.Monitor.Log($"Oops! You're running Stardew Valley {Constants.GameVersion}, but the oldest supported version is {Constants.MinimumGameVersion}. Please update your game before using SMAPI.", LogLevel.Error);
-                    this.PressAnyKeyToExit();
-                    return;
-                }
-                if (Constants.MaximumGameVersion != null && Constants.GameVersion.IsNewerThan(Constants.MaximumGameVersion))
-                {
-                    this.Monitor.Log($"Oops! You're running Stardew Valley {Constants.GameVersion}, but this version of SMAPI is only compatible up to Stardew Valley {Constants.MaximumGameVersion}. Please check for a newer version of SMAPI: https://smapi.io.", LogLevel.Error);
-                    this.PressAnyKeyToExit();
-                    return;
-                }
+                // init JSON parser
+                JsonConverter[] converters = {
+                    new StringEnumConverter<Buttons>(),
+                    new StringEnumConverter<Keys>(),
+                    new StringEnumConverter<SButton>(),
+                    new ColorConverter(),
+                    new PointConverter(),
+                    new RectangleConverter(),
+                    new Framework.Serialisation.SemanticVersionConverter()
+                };
+                foreach (JsonConverter converter in converters)
+                    this.JsonHelper.JsonSettings.Converters.Add(converter);
 
                 // add error handlers
 #if SMAPI_FOR_WINDOWS
