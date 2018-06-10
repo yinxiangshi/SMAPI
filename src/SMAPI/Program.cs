@@ -671,34 +671,47 @@ namespace StardewModdingAPI
                             // handle error
                             if (remoteInfo.Error != null)
                             {
-                                mod.SetUpdateStatus(remoteInfo.Error);
+                                if(mod.LatestVersion == null && mod.LatestPreviewVersion == null)
+                                    mod.SetUpdateError(remoteInfo.Error);
                                 this.Monitor.Log($"   {mod.DisplayName} ({result.Key}): update error: {remoteInfo.Error}", LogLevel.Trace);
                                 continue;
                             }
 
                             // normalise versions
                             ISemanticVersion localVersion = mod.DataRecord?.GetLocalVersionForUpdateChecks(mod.Manifest.Version) ?? mod.Manifest.Version;
-                            if (!SemanticVersion.TryParse(mod.DataRecord?.GetRemoteVersionForUpdateChecks(remoteInfo.Version) ?? remoteInfo.Version, out ISemanticVersion remoteVersion))
-                            {
-                                string errorInfo = $"Mod has invalid version {remoteInfo.Version}";
 
-                                mod.SetUpdateStatus(errorInfo);
+                            bool validVersion = SemanticVersion.TryParse(mod.DataRecord?.GetRemoteVersionForUpdateChecks(remoteInfo.Version) ?? remoteInfo.Version, out ISemanticVersion remoteVersion);
+                            bool validPreviewVersion = SemanticVersion.TryParse(remoteInfo.PreviewVersion, out ISemanticVersion remotePreviewVersion);
+
+                            if (!validVersion && !validPreviewVersion)
+                            {
+                                string errorInfo = $"Mod has invalid versions. version: {remoteInfo.Version}, preview version: {remoteInfo.PreviewVersion}";
+
+                                if (mod.LatestVersion == null && mod.LatestPreviewVersion == null)
+                                    mod.SetUpdateError(errorInfo);
                                 this.Monitor.Log($"   {mod.DisplayName} ({result.Key}): update error: {errorInfo}", LogLevel.Trace);
                                 continue;
                             }
 
-                            SemanticVersion.TryParse(remoteInfo.PreviewVersion, out ISemanticVersion remotePreviewVersion);
-                            mod.SetUpdateStatus(remoteVersion, remotePreviewVersion);
-
                             // compare versions
-                            bool isNonPreviewUpdate = remoteVersion.IsNewerThan(localVersion);
+                            bool isNonPreviewUpdate = validVersion && remoteVersion.IsNewerThan(localVersion);
+
                             bool isUpdate = isNonPreviewUpdate ||
-                                            (localVersion.IsNewerThan(remoteVersion) && remotePreviewVersion.IsNewerThan(localVersion));
+                                            (validPreviewVersion && localVersion.IsNewerThan(remoteVersion) && remotePreviewVersion.IsNewerThan(localVersion));
                             this.VerboseLog($"   {mod.DisplayName} ({result.Key}): {(isUpdate ? $"{mod.Manifest.Version}{(!localVersion.Equals(mod.Manifest.Version) ? $" [{localVersion}]" : "")} => {(isNonPreviewUpdate ? remoteInfo.Version : remoteInfo.PreviewVersion)}" : "okay")}.");
                             if (isUpdate)
                             {
                                 if (!updatesByMod.TryGetValue(mod, out Tuple<ModInfoModel, bool> other) || (isNonPreviewUpdate ? remoteVersion : remotePreviewVersion).IsNewerThan(other.Item2 ? other.Item1.PreviewVersion : other.Item1.Version))
+                                {
                                     updatesByMod[mod] = new Tuple<ModInfoModel, bool>(remoteInfo, !isNonPreviewUpdate);
+
+                                    if (isNonPreviewUpdate)
+                                        mod.SetUpdateVersion(remoteVersion);
+                                    else
+                                        mod.SetPreviewUpdateVersion(remotePreviewVersion);
+
+                                    mod.SetUpdateError(null);
+                                }
                             }
                         }
 

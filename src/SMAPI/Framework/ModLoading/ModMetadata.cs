@@ -124,19 +124,25 @@ namespace StardewModdingAPI.Framework.ModLoading
             return this;
         }
 
-        /// <summary>Set the update status.</summary>
+        /// <summary>Set the update version.</summary>
         /// <param name="latestVersion">The latest version.</param>
-        /// <param name="latestPreviewVersion">The latest preview version.</param>
-        public IModMetadata SetUpdateStatus(ISemanticVersion latestVersion, ISemanticVersion latestPreviewVersion)
+        public IModMetadata SetUpdateVersion(ISemanticVersion latestVersion)
         {
             this.LatestVersion = latestVersion;
+            return this;
+        }
+
+        /// <summary>Set the preview update version.</summary>
+        /// <param name="latestPreviewVersion">The latest preview version.</param>
+        public IModMetadata SetPreviewUpdateVersion(ISemanticVersion latestPreviewVersion)
+        {
             this.LatestPreviewVersion = latestPreviewVersion;
             return this;
         }
 
-        // <summary>Set the update status, indicating an error happened.</summary>
-        /// <param name="updateCheckError">The error checking for updates, if any.</param>
-        public IModMetadata SetUpdateStatus(string updateCheckError)
+        /// <summary>Set the error that occured while checking for updates.</summary>
+        /// <param name="updateCheckError">The error checking for updates.</param>
+        public IModMetadata SetUpdateError(string updateCheckError)
         {
             this.UpdateCheckError = updateCheckError;
             return this;

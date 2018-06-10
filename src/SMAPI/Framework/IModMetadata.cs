@@ -80,14 +80,17 @@ namespace StardewModdingAPI.Framework
         /// <param name="api">The mod-provided API.</param>
         IModMetadata SetApi(object api);
 
-        /// <summary>Set the update status, indicating no errors happened.</summary>
+        /// <summary>Set the update version.</summary>
         /// <param name="latestVersion">The latest version.</param>
-        /// <param name="latestPreviewVersion">The latest preview version.</param>
-        IModMetadata SetUpdateStatus(ISemanticVersion latestVersion, ISemanticVersion latestPreviewVersion);
+        IModMetadata SetUpdateVersion(ISemanticVersion latestVersion);
 
-        /// <summary>Set the update status, indicating an error happened.</summary>
-        /// <param name="updateCheckError">The error checking for updates, if any.</param>
-        IModMetadata SetUpdateStatus(string updateCheckError);
+        /// <summary>Set the preview update version.</summary>
+        /// <param name="latestPreviewVersion">The latest preview version.</param>
+        IModMetadata SetPreviewUpdateVersion(ISemanticVersion latestPreviewVersion);
+
+        /// <summary>Set the error that occured while checking for updates.</summary>
+        /// <param name="updateCheckError">The error checking for updates.</param>
+        IModMetadata SetUpdateError(string updateCheckError);
 
         /// <summary>Whether the mod manifest was loaded (regardless of whether the mod itself was loaded).</summary>
         bool HasManifest();
