@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using StardewModdingAPI.Framework.ModData;
+using StardewModdingAPI.Framework.ModUpdateChecking;
 
 namespace StardewModdingAPI.Framework.ModLoading
 {
@@ -43,14 +44,11 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>The mod-provided API (if any).</summary>
         public object Api { get; private set; }
 
-        /// <summary>The latest version of the mod.</summary>
-        public ISemanticVersion LatestVersion { get; private set; }
+        /// <summary>The update status of this mod (if any).</summary>
+        public ModUpdateStatus UpdateStatus { get; private set; }
 
-        /// <summary>The latest preview version of the mod, if any.</summary>
-        public ISemanticVersion LatestPreviewVersion { get; private set; }
-
-        /// <summary>The error checking for updates for this mod, if any.</summary>
-        public string UpdateCheckError { get; private set; }
+        /// <summary>The preview update status of this mod (if any).</summary>
+        public ModUpdateStatus PreviewUpdateStatus { get; private set; }
 
         /// <summary>Whether the mod is a content pack.</summary>
         public bool IsContentPack => this.Manifest?.ContentPackFor != null;
@@ -124,27 +122,19 @@ namespace StardewModdingAPI.Framework.ModLoading
             return this;
         }
 
-        /// <summary>Set the update version.</summary>
-        /// <param name="latestVersion">The latest version.</param>
-        public IModMetadata SetUpdateVersion(ISemanticVersion latestVersion)
+        /// <summary>Set the update status.</summary>
+        /// <param name="updateStatus">The mod update status.</param>
+        public IModMetadata SetUpdateStatus(ModUpdateStatus updateStatus)
         {
-            this.LatestVersion = latestVersion;
+            this.UpdateStatus = updateStatus;
             return this;
         }
 
-        /// <summary>Set the preview update version.</summary>
-        /// <param name="latestPreviewVersion">The latest preview version.</param>
-        public IModMetadata SetPreviewUpdateVersion(ISemanticVersion latestPreviewVersion)
+        /// <summary>Set the preview update status.</summary>
+        /// <param name="previewUpdateStatus">The mod preview update status.</param>
+        public IModMetadata SetPreviewUpdateStatus(ModUpdateStatus previewUpdateStatus)
         {
-            this.LatestPreviewVersion = latestPreviewVersion;
-            return this;
-        }
-
-        /// <summary>Set the error that occured while checking for updates.</summary>
-        /// <param name="updateCheckError">The error checking for updates.</param>
-        public IModMetadata SetUpdateError(string updateCheckError)
-        {
-            this.UpdateCheckError = updateCheckError;
+            this.PreviewUpdateStatus = previewUpdateStatus;
             return this;
         }
 

@@ -24,6 +24,7 @@ using StardewModdingAPI.Framework.ModData;
 using StardewModdingAPI.Framework.Models;
 using StardewModdingAPI.Framework.ModHelpers;
 using StardewModdingAPI.Framework.ModLoading;
+using StardewModdingAPI.Framework.ModUpdateChecking;
 using StardewModdingAPI.Framework.Patching;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Serialisation;
@@ -671,46 +672,46 @@ namespace StardewModdingAPI
                             // handle error
                             if (remoteInfo.Error != null)
                             {
-                                if(mod.LatestVersion == null && mod.LatestPreviewVersion == null)
-                                    mod.SetUpdateError(remoteInfo.Error);
+                                if (mod.UpdateStatus?.Version == null)
+                                    mod.SetUpdateStatus(new ModUpdateStatus(remoteInfo.Error));
+                                if (mod.PreviewUpdateStatus?.Version == null)
+                                    mod.SetUpdateStatus(new ModUpdateStatus(remoteInfo.Error));
+
                                 this.Monitor.Log($"   {mod.DisplayName} ({result.Key}): update error: {remoteInfo.Error}", LogLevel.Trace);
                                 continue;
                             }
 
                             // normalise versions
                             ISemanticVersion localVersion = mod.DataRecord?.GetLocalVersionForUpdateChecks(mod.Manifest.Version) ?? mod.Manifest.Version;
-
                             bool validVersion = SemanticVersion.TryParse(mod.DataRecord?.GetRemoteVersionForUpdateChecks(remoteInfo.Version) ?? remoteInfo.Version, out ISemanticVersion remoteVersion);
                             bool validPreviewVersion = SemanticVersion.TryParse(remoteInfo.PreviewVersion, out ISemanticVersion remotePreviewVersion);
 
+                            if (!validVersion && mod.UpdateStatus?.Version == null)
+                                mod.SetUpdateStatus(new ModUpdateStatus($"Version is invalid: {remoteInfo.Version}"));
+                            if (!validPreviewVersion && mod.PreviewUpdateStatus?.Version == null)
+                                mod.SetPreviewUpdateStatus(new ModUpdateStatus($"Version is invalid: {remoteInfo.PreviewVersion}"));
+
                             if (!validVersion && !validPreviewVersion)
                             {
-                                string errorInfo = $"Mod has invalid versions. version: {remoteInfo.Version}, preview version: {remoteInfo.PreviewVersion}";
-
-                                if (mod.LatestVersion == null && mod.LatestPreviewVersion == null)
-                                    mod.SetUpdateError(errorInfo);
-                                this.Monitor.Log($"   {mod.DisplayName} ({result.Key}): update error: {errorInfo}", LogLevel.Trace);
+                                this.Monitor.Log($"   {mod.DisplayName} ({result.Key}): update error: Mod has invalid versions. version: {remoteInfo.Version}, preview version: {remoteInfo.PreviewVersion}", LogLevel.Trace);
                                 continue;
                             }
 
                             // compare versions
-                            bool isNonPreviewUpdate = validVersion && remoteVersion.IsNewerThan(localVersion);
+                            bool isPreviewUpdate = validPreviewVersion && localVersion.IsNewerThan(remoteVersion) && remotePreviewVersion.IsNewerThan(localVersion);
+                            bool isUpdate = (validVersion && remoteVersion.IsNewerThan(localVersion)) || isPreviewUpdate;
 
-                            bool isUpdate = isNonPreviewUpdate ||
-                                            (validPreviewVersion && localVersion.IsNewerThan(remoteVersion) && remotePreviewVersion.IsNewerThan(localVersion));
-                            this.VerboseLog($"   {mod.DisplayName} ({result.Key}): {(isUpdate ? $"{mod.Manifest.Version}{(!localVersion.Equals(mod.Manifest.Version) ? $" [{localVersion}]" : "")} => {(isNonPreviewUpdate ? remoteInfo.Version : remoteInfo.PreviewVersion)}" : "okay")}.");
+                            this.VerboseLog($"   {mod.DisplayName} ({result.Key}): {(isUpdate ? $"{mod.Manifest.Version}{(!localVersion.Equals(mod.Manifest.Version) ? $" [{localVersion}]" : "")} => {(isPreviewUpdate ? remoteInfo.PreviewVersion : remoteInfo.Version)}" : "okay")}.");
                             if (isUpdate)
                             {
-                                if (!updatesByMod.TryGetValue(mod, out Tuple<ModInfoModel, bool> other) || (isNonPreviewUpdate ? remoteVersion : remotePreviewVersion).IsNewerThan(other.Item2 ? other.Item1.PreviewVersion : other.Item1.Version))
+                                if (!updatesByMod.TryGetValue(mod, out Tuple<ModInfoModel, bool> other) || (isPreviewUpdate ? remotePreviewVersion : remoteVersion).IsNewerThan(other.Item2 ? other.Item1.PreviewVersion : other.Item1.Version))
                                 {
-                                    updatesByMod[mod] = new Tuple<ModInfoModel, bool>(remoteInfo, !isNonPreviewUpdate);
+                                    updatesByMod[mod] = new Tuple<ModInfoModel, bool>(remoteInfo, isPreviewUpdate);
 
-                                    if (isNonPreviewUpdate)
-                                        mod.SetUpdateVersion(remoteVersion);
+                                    if (isPreviewUpdate)
+                                        mod.SetPreviewUpdateStatus(new ModUpdateStatus(remotePreviewVersion));
                                     else
-                                        mod.SetPreviewUpdateVersion(remotePreviewVersion);
-
-                                    mod.SetUpdateError(null);
+                                        mod.SetUpdateStatus(new ModUpdateStatus(remoteVersion));
                                 }
                             }
                         }

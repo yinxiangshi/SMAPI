@@ -1,5 +1,6 @@
 using StardewModdingAPI.Framework.ModData;
 using StardewModdingAPI.Framework.ModLoading;
+using StardewModdingAPI.Framework.ModUpdateChecking;
 
 namespace StardewModdingAPI.Framework
 {
@@ -45,14 +46,11 @@ namespace StardewModdingAPI.Framework
         /// <summary>Whether the mod is a content pack.</summary>
         bool IsContentPack { get; }
 
-        /// <summary>The latest version of the mod.</summary>
-        ISemanticVersion LatestVersion { get; }
+        /// <summary>The update status of this mod (if any).</summary>
+        ModUpdateStatus UpdateStatus { get; }
 
-        /// <summary>The latest preview version of the mod, if any.</summary>
-        ISemanticVersion LatestPreviewVersion { get; }
-
-        /// <summary>The error checking for updates for this mod, if any.</summary>
-        string UpdateCheckError { get; }
+        /// <summary>The preview update status of this mod (if any).</summary>
+        ModUpdateStatus PreviewUpdateStatus { get; }
 
         /*********
         ** Public methods
@@ -80,17 +78,13 @@ namespace StardewModdingAPI.Framework
         /// <param name="api">The mod-provided API.</param>
         IModMetadata SetApi(object api);
 
-        /// <summary>Set the update version.</summary>
-        /// <param name="latestVersion">The latest version.</param>
-        IModMetadata SetUpdateVersion(ISemanticVersion latestVersion);
+        /// <summary>Set the update status.</summary>
+        /// <param name="updateStatus">The mod update status.</param>
+        IModMetadata SetUpdateStatus(ModUpdateStatus updateStatus);
 
-        /// <summary>Set the preview update version.</summary>
-        /// <param name="latestPreviewVersion">The latest preview version.</param>
-        IModMetadata SetPreviewUpdateVersion(ISemanticVersion latestPreviewVersion);
-
-        /// <summary>Set the error that occured while checking for updates.</summary>
-        /// <param name="updateCheckError">The error checking for updates.</param>
-        IModMetadata SetUpdateError(string updateCheckError);
+        /// <summary>Set the preview update status.</summary>
+        /// <param name="previewUpdateStatus">The mod preview update status.</param>
+        IModMetadata SetPreviewUpdateStatus(ModUpdateStatus previewUpdateStatus);
 
         /// <summary>Whether the mod manifest was loaded (regardless of whether the mod itself was loaded).</summary>
         bool HasManifest();
