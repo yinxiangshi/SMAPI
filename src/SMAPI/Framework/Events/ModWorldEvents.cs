@@ -23,6 +23,13 @@ namespace StardewModdingAPI.Framework.Events
             remove => this.EventManager.World_BuildingListChanged.Remove(value);
         }
 
+        /// <summary>Raised after debris are added or removed in a location.</summary>
+        public event EventHandler<WorldDebrisListChangedEventArgs> DebrisListChanged
+        {
+            add => this.EventManager.World_DebrisListChanged.Add(value, this.Mod);
+            remove => this.EventManager.World_DebrisListChanged.Remove(value);
+        }
+
         /// <summary>Raised after large terrain features (like bushes) are added or removed in a location.</summary>
         public event EventHandler<WorldLargeTerrainFeatureListChangedEventArgs> LargeTerrainFeatureListChanged
         {

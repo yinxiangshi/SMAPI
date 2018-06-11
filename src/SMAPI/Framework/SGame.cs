@@ -536,6 +536,17 @@ namespace StardewModdingAPI.Framework
                                     this.Events.Legacy_Location_BuildingsChanged.Raise(new EventArgsLocationBuildingsChanged(location, added, removed));
                                 }
 
+                                // debris changed
+                                if (watcher.DebrisWatcher.IsChanged)
+                                {
+                                    GameLocation location = watcher.Location;
+                                    Debris[] added = watcher.DebrisWatcher.Added.ToArray();
+                                    Debris[] removed = watcher.DebrisWatcher.Removed.ToArray();
+                                    watcher.DebrisWatcher.Reset();
+
+                                    this.Events.World_DebrisListChanged.Raise(new WorldDebrisListChangedEventArgs(location, added, removed));
+                                }
+
                                 // large terrain features changed
                                 if (watcher.LargeTerrainFeaturesWatcher.IsChanged)
                                 {

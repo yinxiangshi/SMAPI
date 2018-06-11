@@ -97,6 +97,7 @@
     <Compile Include="Events\IInputEvents.cs" />
     <Compile Include="Events\IWorldEvents.cs" />
     <Compile Include="Events\MultiplayerEvents.cs" />
+    <Compile Include="Events\WorldDebrisListChangedEventArgs.cs" />
     <Compile Include="Events\WorldNpcListChangedEventArgs.cs" />
     <Compile Include="Events\WorldLargeTerrainFeatureListChangedEventArgs.cs" />
     <Compile Include="Events\WorldTerrainFeatureListChangedEventArgs.cs" />

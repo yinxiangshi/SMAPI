@@ -20,6 +20,9 @@ namespace StardewModdingAPI.Framework.Events
         /// <summary>Raised after buildings are added or removed in a location.</summary>
         public readonly ManagedEvent<WorldBuildingListChangedEventArgs> World_BuildingListChanged;
 
+        /// <summary>Raised after debris are added or removed in a location.</summary>
+        public readonly ManagedEvent<WorldDebrisListChangedEventArgs> World_DebrisListChanged;
+
         /// <summary>Raised after large terrain features (like bushes) are added or removed in a location.</summary>
         public readonly ManagedEvent<WorldLargeTerrainFeatureListChangedEventArgs> World_LargeTerrainFeatureListChanged;
 
@@ -255,6 +258,7 @@ namespace StardewModdingAPI.Framework.Events
             this.Input_MouseWheelScrolled = ManageEventOf<InputMouseWheelScrolledEventArgs>(nameof(IModEvents.Input), nameof(IInputEvents.MouseWheelScrolled));
 
             this.World_BuildingListChanged = ManageEventOf<WorldBuildingListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.LocationListChanged));
+            this.World_DebrisListChanged = ManageEventOf<WorldDebrisListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.DebrisListChanged));
             this.World_LargeTerrainFeatureListChanged = ManageEventOf<WorldLargeTerrainFeatureListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.LargeTerrainFeatureListChanged));
             this.World_LocationListChanged = ManageEventOf<WorldLocationListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.BuildingListChanged));
             this.World_NpcListChanged = ManageEventOf<WorldNpcListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.NpcListChanged));
