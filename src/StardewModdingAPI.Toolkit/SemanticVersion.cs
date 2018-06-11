@@ -256,7 +256,7 @@ namespace StardewModdingAPI.Toolkit
             {
                 if (this.Tag.Trim() == "")
                     throw new FormatException($"{this} isn't a valid semantic version. The tag cannot be a blank string (but may be omitted).");
-                if (!Regex.IsMatch(this.Tag, $"^{SemanticVersion.TagPattern}$"))
+                if (!Regex.IsMatch(this.Tag, $"^{SemanticVersion.TagPattern}$", RegexOptions.IgnoreCase))
                     throw new FormatException($"{this} isn't a valid semantic version. The tag is invalid.");
             }
         }

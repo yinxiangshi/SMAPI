@@ -22,6 +22,7 @@ namespace StardewModdingAPI.Tests.Utilities
         [TestCase("3000.4000.5000", ExpectedResult = "3000.4000.5000")]
         [TestCase("1.2-some-tag.4", ExpectedResult = "1.2-some-tag.4")]
         [TestCase("1.2.3-some-tag.4", ExpectedResult = "1.2.3-some-tag.4")]
+        [TestCase("1.2.3-SoME-tAg.4", ExpectedResult = "1.2.3-SoME-tAg.4")]
         [TestCase("1.2.3-some-tag.4      ", ExpectedResult = "1.2.3-some-tag.4")]
         public string Constructor_FromString(string input)
         {
@@ -35,6 +36,7 @@ namespace StardewModdingAPI.Tests.Utilities
         [TestCase(1, 2, 3, "    ", ExpectedResult = "1.2.3")]
         [TestCase(1, 2, 3, "0", ExpectedResult = "1.2.3-0")]
         [TestCase(1, 2, 3, "some-tag.4", ExpectedResult = "1.2.3-some-tag.4")]
+        [TestCase(1, 2, 3, "sOMe-TaG.4", ExpectedResult = "1.2.3-sOMe-TaG.4")]
         [TestCase(1, 2, 3, "some-tag.4   ", ExpectedResult = "1.2.3-some-tag.4")]
         public string Constructor_FromParts(int major, int minor, int patch, string tag)
         {
