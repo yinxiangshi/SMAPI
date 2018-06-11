@@ -10,8 +10,11 @@ namespace StardewModdingAPI.Toolkit
         /*********
         ** Properties
         *********/
+        /// <summary>A regex pattern matching a valid prerelease tag.</summary>
+        internal const string TagPattern = @"(?>[a-z0-9]+[\-\.]?)+";
+
         /// <summary>A regex pattern matching a version within a larger string.</summary>
-        internal const string UnboundedVersionPattern = @"(?>(?<major>0|[1-9]\d*))\.(?>(?<minor>0|[1-9]\d*))(?>(?:\.(?<patch>0|[1-9]\d*))?)(?:-(?<prerelease>(?>[a-z0-9]+[\-\.]?)+))?";
+        internal const string UnboundedVersionPattern = @"(?>(?<major>0|[1-9]\d*))\.(?>(?<minor>0|[1-9]\d*))(?>(?:\.(?<patch>0|[1-9]\d*))?)(?:-(?<prerelease>" + SemanticVersion.TagPattern + "))?";
 
         /// <summary>A regular expression matching a semantic version string.</summary>
         /// <remarks>
@@ -54,6 +57,8 @@ namespace StardewModdingAPI.Toolkit
             this.Minor = minor;
             this.Patch = patch;
             this.Tag = this.GetNormalisedTag(tag);
+
+            this.AssertValid();
         }
 
         /// <summary>Construct an instance.</summary>
@@ -67,6 +72,8 @@ namespace StardewModdingAPI.Toolkit
             this.Major = version.Major;
             this.Minor = version.Minor;
             this.Patch = version.Build;
+
+            this.AssertValid();
         }
 
         /// <summary>Construct an instance.</summary>
@@ -87,6 +94,8 @@ namespace StardewModdingAPI.Toolkit
             this.Minor = match.Groups["minor"].Success ? int.Parse(match.Groups["minor"].Value) : 0;
             this.Patch = match.Groups["patch"].Success ? int.Parse(match.Groups["patch"].Value) : 0;
             this.Tag = match.Groups["prerelease"].Success ? this.GetNormalisedTag(match.Groups["prerelease"].Value) : null;
+
+            this.AssertValid();
         }
 
         /// <summary>Get an integer indicating whether this version precedes (less than 0), supercedes (more than 0), or is equivalent to (0) the specified version.</summary>
@@ -234,6 +243,22 @@ namespace StardewModdingAPI.Toolkit
 
             // fallback (this should never happen)
             return string.Compare(this.ToString(), new SemanticVersion(otherMajor, otherMinor, otherPatch, otherTag).ToString(), StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        /// <summary>Assert that the current version is valid.</summary>
+        private void AssertValid()
+        {
+            if (this.Major < 0 || this.Minor < 0 || this.Patch < 0)
+                throw new FormatException($"{this} isn't a valid semantic version. The major, minor, and patch numbers can't be negative.");
+            if (this.Major == 0 && this.Minor == 0 && this.Patch == 0)
+                throw new FormatException($"{this} isn't a valid semantic version. At least one of the major, minor, and patch numbers must be more than zero.");
+            if (this.Tag != null)
+            {
+                if (this.Tag.Trim() == "")
+                    throw new FormatException($"{this} isn't a valid semantic version. The tag cannot be a blank string (but may be omitted).");
+                if (!Regex.IsMatch(this.Tag, $"^{SemanticVersion.TagPattern}$"))
+                    throw new FormatException($"{this} isn't a valid semantic version. The tag is invalid.");
+            }
         }
     }
 }

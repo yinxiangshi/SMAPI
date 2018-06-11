@@ -46,6 +46,7 @@
   * Fixed some common non-mod build output being included in release zip.
   * Fixed mods able to intercept other mods' assets via the internal asset keys.
   * Fixed mods able to indirectly change other mods' data through shared content caches.
+  * Fixed `SemanticVersion` allowing invalid versions in some cases.
   * **Breaking changes** (see [migration guide](https://stardewvalleywiki.com/Modding:Migrate_to_Stardew_Valley_1.3)):
      * Dropped some deprecated APIs.
      * `LocationEvents` have been rewritten.

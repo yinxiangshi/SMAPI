@@ -49,6 +49,19 @@ namespace StardewModdingAPI.Tests.Utilities
             return version.ToString();
         }
 
+        [Test(Description = "Assert that the constructor throws the expected exception for invalid versions when constructed from the individual numbers.")]
+        [TestCase(0, 0, 0, null)]
+        [TestCase(-1, 0, 0, null)]
+        [TestCase(0, -1, 0, null)]
+        [TestCase(0, 0, -1, null)]
+        [TestCase(1, 0, 0, "-tag")]
+        [TestCase(1, 0, 0, "tag spaces")]
+        [TestCase(1, 0, 0, "tag~")]
+        public void Constructor_FromParts_WithInvalidValues(int major, int minor, int patch, string tag)
+        {
+            this.AssertAndLogException<FormatException>(() => new SemanticVersion(major, minor, patch, tag));
+        }
+
         [Test(Description = "Assert that the constructor sets the expected values for all valid versions when constructed from an assembly version.")]
         [TestCase(1, 0, 0, ExpectedResult = "1.0")]
         [TestCase(1, 2, 3, ExpectedResult = "1.2.3")]
@@ -79,6 +92,7 @@ namespace StardewModdingAPI.Tests.Utilities
         [TestCase("1.2.3.apple")]
         [TestCase("1..2..3")]
         [TestCase("1.2.3-")]
+        [TestCase("1.2.3--some-tag")]
         [TestCase("1.2.3-some-tag...")]
         [TestCase("1.2.3-some-tag...4")]
         [TestCase("apple")]
