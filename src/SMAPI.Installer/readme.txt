@@ -16,7 +16,7 @@ SMAPI lets you run Stardew Valley with mods. Don't forget to download mods separ
 
 Player's guide
 --------------------------------
-See https://stardewvalleywiki.com/Modding:Player_Guide.
+See https://stardewvalleywiki.com/Modding:Player_Guide
 
 
 Manual install
@@ -24,7 +24,7 @@ Manual install
 THIS IS NOT RECOMMENDED FOR MOST PLAYERS. See instructions above instead.
 If you really want to install SMAPI manually, here's how.
 
-1. Download the latest version of SMAPI: https://github.com/Pathoschild/SMAPI/releases.
+1. Download the latest version of SMAPI: https://github.com/Pathoschild/SMAPI/releases
 2. Unzip the .zip file somewhere (not in your game folder).
 3. Copy the files from the "internal/Windows" folder (on Windows) or "internal/Mono" folder (on
    Linux/Mac) into your game folder. The `StardewModdingAPI.exe` file should be right next to the
