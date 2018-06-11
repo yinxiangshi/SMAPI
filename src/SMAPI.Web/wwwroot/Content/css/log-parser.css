@@ -1,6 +1,10 @@
 /*********
 ** Main layout
 *********/
+#content {
+    max-width: 100%;
+}
+
 caption {
     text-align: left;
     padding-top: 2px;
