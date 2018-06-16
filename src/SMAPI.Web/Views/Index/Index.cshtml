@@ -37,7 +37,7 @@
     <img id="pufferchick" src="Content/images/pufferchick.png" />
 </div>
 
-<h2>Get help</h2>
+<h2 id="help">Get help</h2>
 <ul>
     <li><a href="https://stardewvalleywiki.com/Modding:SMAPI_compatibility">Mod compatibility list</a></li>
     <li>Get help <a href="https://stardewvalleywiki.com/Modding:Community#Discord">on Discord</a> or <a href="https://community.playstarbound.com/threads/smapi-stardew-modding-api.108375/">in the forums</a></li>
@@ -45,7 +45,7 @@
 
 @if (Model.BetaVersion == null)
 {
-    <h2>What's new in SMAPI @Model.StableVersion.Version?</h2>
+    <h2 id="whatsnew">What's new in SMAPI @Model.StableVersion.Version?</h2>
     <div class="github-description">
         @Html.Raw(Markdig.Markdown.ToHtml(Model.StableVersion.Description))
     </div>
@@ -53,7 +53,7 @@
 }
 else
 {
-    <h2>What's new in...</h2>
+    <h2 id="whatsnew">What's new in...</h2>
     <h3>SMAPI @Model.StableVersion.Version?</h3>
     <div class="github-description">
         @Html.Raw(Markdig.Markdown.ToHtml(Model.StableVersion.Description))
@@ -67,7 +67,7 @@ else
     <p>See the <a href="https://github.com/Pathoschild/SMAPI/blob/develop/docs/release-notes.md#release-notes">release notes</a> and <a href="https://stardewvalleywiki.com/Modding:SMAPI_compatibility">mod compatibility list</a> for more info.</p>
 }
 
-<h2>Donate to support SMAPI ♥</h2>
+<h2 id="donate">Donate to support SMAPI ♥</h2>
 <p>
     SMAPI is an open-source project by Pathoschild. It will always be free, but donations
     are much appreciated to help pay for development, server hosting, domain fees, coffee, etc.
@@ -98,7 +98,7 @@ else
     and a few anonymous users for their ongoing support; you're awesome! 🏅
 </p>
 
-<h2>For mod creators</h2>
+<h2 id="modcreators">For mod creators</h2>
 <ul>
     <li><a href="@Model.StableVersion.DevDownloadUrl">SMAPI @Model.StableVersion.Version for developers</a> (includes <a href="https://docs.microsoft.com/en-us/visualstudio/ide/using-intellisense">intellisense</a> and full console output)</li>
     @if (Model.BetaVersion != null)
