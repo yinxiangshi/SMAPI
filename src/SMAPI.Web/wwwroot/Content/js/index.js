@@ -6,7 +6,7 @@ $(document).ready(function () {
             pufferchick.attr("src", "Content/images/pufferchick-cool.png");
         },
         function () {
-            pufferchick.attr("src", "favicon.ico");
+            pufferchick.attr("src", "Content/images/pufferchick.png");
         }
     );
 
