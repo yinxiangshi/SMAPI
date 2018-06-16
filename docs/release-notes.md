@@ -59,9 +59,10 @@
   * Fixed `world_setseason` not normalising the season value.
 
 * For the web UI:
-  * Redesigned log parser upload page to make it more intuitive for new players.
-  * Changed log parser filters to show `DEBUG` messages by default.
+  * Improved log parser design to make it more intuitive.
   * Improved layout on small screens.
+  * Added option to download from Nexus.
+  * Changed log parser filters to show `DEBUG` messages by default.
   * Fixed log parser issue when content packs have no description.
   * Fixed log parser mangling crossplatform paths in some cases.
 
