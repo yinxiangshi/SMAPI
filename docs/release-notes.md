@@ -8,6 +8,7 @@
   * Added friendly error when game can't start audio.
   * Added console warning for mods which don't have update checks configured.
   * Improved how mod warnings are shown in the console.
+  * Fixed `SEHException` errors and performance issues in some cases.
   * Fixed console color scheme on Mac or in PowerShell, configurable via `StardewModdingAPI.config.json`.
   * Fixed installer error on Linux/Mac in some cases.
   * Fixed installer not finding some game paths.
