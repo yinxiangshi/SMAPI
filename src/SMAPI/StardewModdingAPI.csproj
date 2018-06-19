@@ -110,6 +110,7 @@
     <Compile Include="Framework\ContentManagers\IContentManager.cs" />
     <Compile Include="Framework\ContentManagers\ModContentManager.cs" />
     <Compile Include="Framework\Models\ModFolderExport.cs" />
+    <Compile Include="Framework\ModUpdateChecking\ModUpdateStatus.cs" />
     <Compile Include="Framework\Patching\GamePatcher.cs" />
     <Compile Include="Framework\Patching\IHarmonyPatch.cs" />
     <Compile Include="Framework\Serialisation\ColorConverter.cs" />

@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using StardewModdingAPI.Framework.ModData;
+using StardewModdingAPI.Framework.ModUpdateChecking;
 
 namespace StardewModdingAPI.Framework.ModLoading
 {
@@ -42,6 +43,12 @@ namespace StardewModdingAPI.Framework.ModLoading
 
         /// <summary>The mod-provided API (if any).</summary>
         public object Api { get; private set; }
+
+        /// <summary>The update status of this mod (if any).</summary>
+        public ModUpdateStatus UpdateStatus { get; private set; }
+
+        /// <summary>The preview update status of this mod (if any).</summary>
+        public ModUpdateStatus PreviewUpdateStatus { get; private set; }
 
         /// <summary>Whether the mod is a content pack.</summary>
         public bool IsContentPack => this.Manifest?.ContentPackFor != null;
@@ -112,6 +119,22 @@ namespace StardewModdingAPI.Framework.ModLoading
         public IModMetadata SetApi(object api)
         {
             this.Api = api;
+            return this;
+        }
+
+        /// <summary>Set the update status.</summary>
+        /// <param name="updateStatus">The mod update status.</param>
+        public IModMetadata SetUpdateStatus(ModUpdateStatus updateStatus)
+        {
+            this.UpdateStatus = updateStatus;
+            return this;
+        }
+
+        /// <summary>Set the preview update status.</summary>
+        /// <param name="previewUpdateStatus">The mod preview update status.</param>
+        public IModMetadata SetPreviewUpdateStatus(ModUpdateStatus previewUpdateStatus)
+        {
+            this.PreviewUpdateStatus = previewUpdateStatus;
             return this;
         }
 

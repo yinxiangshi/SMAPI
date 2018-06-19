@@ -1,5 +1,6 @@
 using StardewModdingAPI.Framework.ModData;
 using StardewModdingAPI.Framework.ModLoading;
+using StardewModdingAPI.Framework.ModUpdateChecking;
 
 namespace StardewModdingAPI.Framework
 {
@@ -45,6 +46,11 @@ namespace StardewModdingAPI.Framework
         /// <summary>Whether the mod is a content pack.</summary>
         bool IsContentPack { get; }
 
+        /// <summary>The update status of this mod (if any).</summary>
+        ModUpdateStatus UpdateStatus { get; }
+
+        /// <summary>The preview update status of this mod (if any).</summary>
+        ModUpdateStatus PreviewUpdateStatus { get; }
 
         /*********
         ** Public methods
@@ -71,6 +77,14 @@ namespace StardewModdingAPI.Framework
         /// <summary>Set the mod-provided API instance.</summary>
         /// <param name="api">The mod-provided API.</param>
         IModMetadata SetApi(object api);
+
+        /// <summary>Set the update status.</summary>
+        /// <param name="updateStatus">The mod update status.</param>
+        IModMetadata SetUpdateStatus(ModUpdateStatus updateStatus);
+
+        /// <summary>Set the preview update status.</summary>
+        /// <param name="previewUpdateStatus">The mod preview update status.</param>
+        IModMetadata SetPreviewUpdateStatus(ModUpdateStatus previewUpdateStatus);
 
         /// <summary>Whether the mod manifest was loaded (regardless of whether the mod itself was loaded).</summary>
         bool HasManifest();
