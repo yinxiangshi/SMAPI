@@ -100,16 +100,18 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
 
             // find matching items
             SearchableItem[] matches = this.Items.GetAll().Where(p => p.NameContains(name)).ToArray();
+
+            // if exactly one item with the exact same name, use that item
+            SearchableItem[] exactNameMatches = matches.Where(p => p.NameEquivalentTo(name)).ToArray();
+            if (exactNameMatches.Length == 1)
+                return exactNameMatches[0];
+
             switch (matches.Length)
             {
                 // none found
                 case 0:
                     monitor.Log($"There's no item with name '{name}'. You can use the 'list_items [name]' command to search for items.", LogLevel.Error);
                     return null;
-
-                // exact match
-                case 1 when matches[0].NameEquivalentTo(name):
-                    return matches[0];
 
                 // list matches
                 default:
