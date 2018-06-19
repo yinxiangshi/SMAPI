@@ -100,29 +100,25 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
 
             // find matching items
             SearchableItem[] matches = this.Items.GetAll().Where(p => p.NameContains(name)).ToArray();
-
-            // if exactly one item with the exact same name, use that item
-            SearchableItem[] exactNameMatches = matches.Where(p => p.NameEquivalentTo(name)).ToArray();
-            if (exactNameMatches.Length == 1)
-                return exactNameMatches[0];
-
-            switch (matches.Length)
+            if (!matches.Any())
             {
-                // none found
-                case 0:
-                    monitor.Log($"There's no item with name '{name}'. You can use the 'list_items [name]' command to search for items.", LogLevel.Error);
-                    return null;
-
-                // list matches
-                default:
-                    string options = this.GetTableString(
-                        data: matches,
-                        header: new[] { "type", "name", "command" },
-                        getRow: item => new[] { item.Type.ToString(), item.DisplayName, $"player_add {item.Type} {item.ID}" }
-                    );
-                    monitor.Log($"There's no item with name '{name}'. Do you mean one of these?\n\n{options}", LogLevel.Info);
-                    return null;
+                monitor.Log($"There's no item with name '{name}'. You can use the 'list_items [name]' command to search for items.", LogLevel.Error);
+                return null;
             }
+
+            // handle single exact match
+            SearchableItem[] exactMatches = matches.Where(p => p.NameEquivalentTo(name)).ToArray();
+            if (exactMatches.Length == 1)
+                return exactMatches[0];
+
+            // handle ambiguous results
+            string options = this.GetTableString(
+                data: matches,
+                header: new[] { "type", "name", "command" },
+                getRow: item => new[] { item.Type.ToString(), item.DisplayName, $"player_add {item.Type} {item.ID}" }
+            );
+            monitor.Log($"There's no item with name '{name}'. Do you mean one of these?\n\n{options}", LogLevel.Info);
+            return null;
         }
 
         /// <summary>Get the command description.</summary>
