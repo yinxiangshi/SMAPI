@@ -82,15 +82,15 @@ namespace StardewModdingAPI.Framework.Input
                 KeyboardState realKeyboard = Keyboard.GetState();
                 MouseState realMouse = Mouse.GetState();
                 var activeButtons = this.DeriveStatuses(this.ActiveButtons, realKeyboard, realMouse, realController);
-                Vector2 cursorRawPixelPos = new Vector2(this.RealMouse.X, this.RealMouse.Y);
+                Vector2 cursorAbsolutePos = new Vector2(realMouse.X + Game1.viewport.X, realMouse.Y + Game1.viewport.Y);
 
                 // update real states
                 this.ActiveButtons = activeButtons;
                 this.RealController = realController;
                 this.RealKeyboard = realKeyboard;
                 this.RealMouse = realMouse;
-                if (this.CursorPositionImpl?.RawPixels != cursorRawPixelPos)
-                    this.CursorPositionImpl = this.GetCursorPosition(cursorRawPixelPos);
+                if (this.CursorPositionImpl?.AbsolutePixels != cursorAbsolutePos)
+                    this.CursorPositionImpl = this.GetCursorPosition(realMouse, cursorAbsolutePos);
 
                 // update suppressed states
                 this.SuppressButtons.RemoveWhere(p => !this.GetStatus(activeButtons, p).IsDown());
@@ -162,15 +162,17 @@ namespace StardewModdingAPI.Framework.Input
         ** Private methods
         *********/
         /// <summary>Get the current cursor position.</summary>
-        /// <remarks>The raw pixel position from the mouse state.</remarks>
-        private CursorPosition GetCursorPosition(Vector2 rawPixelPos)
+        /// <param name="mouseState">The current mouse state.</param>
+        /// <param name="absolutePixels">The absolute pixel position relative to the map.</param>
+        private CursorPosition GetCursorPosition(MouseState mouseState, Vector2 absolutePixels)
         {
-            Vector2 screenPixels = new Vector2((int)(rawPixelPos.X * (1.0 / Game1.options.zoomLevel)), (int)(rawPixelPos.Y * (1.0 / Game1.options.zoomLevel))); // derived from Game1::getMouseX
+            Vector2 rawPixels = new Vector2(mouseState.X, mouseState.Y);
+            Vector2 screenPixels = rawPixels * new Vector2((float)1.0 / Game1.options.zoomLevel); // derived from Game1::getMouseX
             Vector2 tile = new Vector2((int)((Game1.viewport.X + screenPixels.X) / Game1.tileSize), (int)((Game1.viewport.Y + screenPixels.Y) / Game1.tileSize));
             Vector2 grabTile = (Game1.mouseCursorTransparency > 0 && Utility.tileWithinRadiusOfPlayer((int)tile.X, (int)tile.Y, 1, Game1.player)) // derived from Game1.pressActionButton
                 ? tile
                 : Game1.player.GetGrabTile();
-            return new CursorPosition(rawPixelPos, screenPixels, tile, grabTile);
+            return new CursorPosition(absolutePixels, screenPixels, tile, grabTile);
         }
 
         /// <summary>Whether input should be suppressed in the current context.</summary>

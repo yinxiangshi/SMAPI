@@ -42,6 +42,7 @@
   * Added support for custom seasonal tilesheets when loading an unpacked `.tbin` map.
   * Added Harmony DLL for internal use by SMAPI. (Mods should still include their own copy for backwards compatibility, and in case it's removed later. SMAPI will always load its own version though.)
   * Added option to suppress update checks for a specific mod in `StardewModdingAPI.config.json`.
+  * Added absolute pixels to `ICursorPosition`.
   * Update checks now use the update key order when deciding which to link to.
   * Fixed error if a mod loads a PNG while the game is loading (e.g. custom map tilesheets via `IAssetLoader`).
   * Fixed assets loaded by temporary content managers not being editable by mods.

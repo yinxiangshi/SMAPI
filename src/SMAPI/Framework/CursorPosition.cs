@@ -8,8 +8,8 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Accessors
         *********/
-        /// <summary>The raw pixel position, not adjusted for the game zoom.</summary>
-        public Vector2 RawPixels { get; }
+        /// <summary>The pixel position relative to the top-left corner of the in-game map.</summary>
+        public Vector2 AbsolutePixels { get; }
 
         /// <summary>The pixel position relative to the top-left corner of the visible screen.</summary>
         public Vector2 ScreenPixels { get; }
@@ -25,13 +25,13 @@ namespace StardewModdingAPI.Framework
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="rawPixels">The raw pixel position, not adjusted for the game zoom.</param>
+        /// <param name="absolutePixels">The pixel position relative to the top-left corner of the in-game map.</param>
         /// <param name="screenPixels">The pixel position relative to the top-left corner of the visible screen.</param>
         /// <param name="tile">The tile position relative to the top-left corner of the map.</param>
         /// <param name="grabTile">The tile position that the game considers under the cursor for purposes of clicking actions.</param>
-        public CursorPosition(Vector2 rawPixels, Vector2 screenPixels, Vector2 tile, Vector2 grabTile)
+        public CursorPosition(Vector2 absolutePixels, Vector2 screenPixels, Vector2 tile, Vector2 grabTile)
         {
-            this.RawPixels = rawPixels;
+            this.AbsolutePixels = absolutePixels;
             this.ScreenPixels = screenPixels;
             this.Tile = tile;
             this.GrabTile = grabTile;
@@ -41,7 +41,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="other">An object to compare with this object.</param>
         public bool Equals(ICursorPosition other)
         {
-            return other != null && this.ScreenPixels == other.ScreenPixels;
+            return other != null && this.AbsolutePixels == other.AbsolutePixels;
         }
     }
 }
