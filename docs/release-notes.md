@@ -7,6 +7,8 @@
   * Added prompt when in beta channel and a new version is found.
   * Added friendly error when game can't start audio.
   * Added console warning for mods which don't have update checks configured.
+  * Added update checks for optional mod files on Nexus.
+  * Added `player_add name` command, which lets you add items to your inventory by name instead of ID.
   * Improved how mod warnings are shown in the console.
   * Fixed `SEHException` errors and performance issues in some cases.
   * Fixed console color scheme on Mac or in PowerShell, configurable via `StardewModdingAPI.config.json`.
@@ -16,6 +18,8 @@
   * Fixed installer not removing some SMAPI files.
   * Fixed `smapi.io/install` not linking to a useful page.
   * Fixed `world_setseason` command not running season-change logic.
+  * Fixed `world_setseason` command not normalising the season value.
+  * Fixed `world_settime` sometimes breaking NPC schedules (e.g. so they stay in bed).
   * Fixed mod update checks failing if a mod only has prerelease versions on GitHub.
   * Fixed launch issue for Linux players with some terminals. (Thanks to HanFox and kurumushi!)
   * Fixed Nexus mod update alerts not showing HTTPS links.
@@ -38,6 +42,7 @@
   * Added support for custom seasonal tilesheets when loading an unpacked `.tbin` map.
   * Added Harmony DLL for internal use by SMAPI. (Mods should still include their own copy for backwards compatibility, and in case it's removed later. SMAPI will always load its own version though.)
   * Added option to suppress update checks for a specific mod in `StardewModdingAPI.config.json`.
+  * Update checks now use the update key order when deciding which to link to.
   * Fixed error if a mod loads a PNG while the game is loading (e.g. custom map tilesheets via `IAssetLoader`).
   * Fixed assets loaded by temporary content managers not being editable by mods.
   * Fixed assets not reloaded consistently when the player switches language.
@@ -54,14 +59,9 @@
      * Mods can't intercept chatbox input.
      * Mod IDs should only contain letters, numbers, hyphens, dots, and underscores. That allows their use in many contexts like URLs. This restriction is now enforced. (In regex form: `^[a-zA-Z0-9_.-]+$`.)
 
-* In console commands:
-  * Added `player_add name`, which lets you add items to your inventory by name instead of ID.
-  * Fixed `world_settime` sometimes breaking NPC schedules (e.g. so they stay in bed).
-  * Fixed `world_setseason` not normalising the season value.
-
 * For the web UI:
-  * Improved log parser design to make it more intuitive.
-  * Improved layout on small screens.
+  * Redesigned log parser to make it more intuitive.
+  * Redesigned UI to be more mobile-friendly.
   * Added option to download from Nexus.
   * Changed log parser filters to show `DEBUG` messages by default.
   * Fixed log parser issue when content packs have no description.

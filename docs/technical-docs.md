@@ -161,7 +161,7 @@ The log parser lives at https://log.smapi.io.
 ### Mods API
 The mods API provides version info for mods hosted by Chucklefish, GitHub, or Nexus Mods. It's used
 by SMAPI to perform update checks. The `{version}` URL token is the version of SMAPI making the
-request; it doesn't do anything currently, but lets us version breaking changes if needed.
+request, and is used when needed for backwards compatibility.
 
 Each mod is identified by a repository key and unique identifier (like `nexus:541`). The following
 repositories are supported:
@@ -173,32 +173,37 @@ key           | repository
 `nexus`       | A mod page on [Nexus Mods](https://www.nexusmods.com/stardewvalley), identified by the mod ID in the page URL.
 
 
-The API accepts either `GET` or `POST` for convenience:
-> ```
->GET https://api.smapi.io/v2.0/mods?modKeys=nexus:541,chucklefish:4228
->```
-
+The API accepts a `POST` request with the mods to match, each of which **must** specify an ID and
+update keys.
 >```
 >POST https://api.smapi.io/v2.0/mods
 >{
->   "ModKeys": [ "nexus:541", "chucklefish:4228" ]
+>   "mods": [
+>      {
+>         "id": "Pathoschild.LookupAnything",
+>         "updateKeys": [ "nexus:541", "chucklefish:4250" ]
+>      }
+>   ]
 >}
 >```
 
-It returns a response like this:
+The API will automatically aggregate versions and errors, and return a response like this. The
+latest version is the main mod version (e.g. 'latest version' field on Nexus); if available and
+newer, the latest optional version will be shown as the 'preview version'.
 >```
 >{
->  "chucklefish:4228": {
->    "name": "Entoarox Framework",
->    "version": "1.8.0",
->    "url": "https://community.playstarbound.com/resources/4228"
->  },
->  "nexus:541": {
->    "name": "Lookup Anything",
->    "version": "1.16",
->    "url": "http://www.nexusmods.com/stardewvalley/mods/541"
->  }
->}
+>   "Pathoschild.LookupAnything": {
+>      "id": "Pathoschild.LookupAnything",
+>      "name": "Lookup Anything",
+>      "version": "1.18",
+>      "url": "https://www.nexusmods.com/stardewvalley/mods/541",
+>      "previewVersion": "1.19-beta",
+>      "previewUrl": "https://www.nexusmods.com/stardewvalley/mods/541",
+>      "errors": [
+>         "The update key 'chucklefish:4250' matches a mod with invalid semantic version '*'."
+>      ]
+>   }
+}
 >```
 
 ## Development

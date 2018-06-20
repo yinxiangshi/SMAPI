@@ -8,6 +8,7 @@ using System.Net;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Security;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Microsoft.Xna.Framework.Input;
@@ -24,7 +25,6 @@ using StardewModdingAPI.Framework.ModData;
 using StardewModdingAPI.Framework.Models;
 using StardewModdingAPI.Framework.ModHelpers;
 using StardewModdingAPI.Framework.ModLoading;
-using StardewModdingAPI.Framework.ModUpdateChecking;
 using StardewModdingAPI.Framework.Patching;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Serialisation;
@@ -592,14 +592,14 @@ namespace StardewModdingAPI
                 ISemanticVersion updateFound = null;
                 try
                 {
-                    ModInfoModel response = client.GetModInfo($"GitHub:{this.Settings.GitHubProjectName}").Single().Value;
+                    ModEntryModel response = client.GetModInfo(new ModSearchEntryModel("Pathoschild.SMAPI", new[] { $"GitHub:{this.Settings.GitHubProjectName}" })).Single().Value;
                     ISemanticVersion latestStable = response.Version != null ? new SemanticVersion(response.Version) : null;
                     ISemanticVersion latestBeta = response.PreviewVersion != null ? new SemanticVersion(response.PreviewVersion) : null;
 
-                    if (response.Error != null)
+                    if (latestStable == null && response.Errors.Any())
                     {
                         this.Monitor.Log("Couldn't check for a new version of SMAPI. This won't affect your game, but you may not be notified of new versions if this keeps happening.", LogLevel.Warn);
-                        this.Monitor.Log($"Error: {response.Error}");
+                        this.Monitor.Log($"Error: {string.Join("\n", response.Errors)}");
                     }
                     else if (this.IsValidUpdate(Constants.ApiVersion, latestBeta, this.Settings.UseBetaChannel))
                     {
@@ -634,103 +634,72 @@ namespace StardewModdingAPI
                     {
                         HashSet<string> suppressUpdateChecks = new HashSet<string>(this.Settings.SuppressUpdateChecks, StringComparer.InvariantCultureIgnoreCase);
 
-                        // prepare update keys
-                        Dictionary<string, IModMetadata[]> modsByKey =
-                            (
-                                from mod in mods
-                                where
-                                    mod.Manifest?.UpdateKeys != null
-                                    && !suppressUpdateChecks.Contains(mod.Manifest.UniqueID)
-                                from key in mod.Manifest.UpdateKeys
-                                select new { key, mod }
-                            )
-                            .GroupBy(p => p.key, StringComparer.InvariantCultureIgnoreCase)
-                            .ToDictionary(
-                                group => group.Key,
-                                group => group.Select(p => p.mod).ToArray(),
-                                StringComparer.InvariantCultureIgnoreCase
-                            );
+                        // prepare search model
+                        List<ModSearchEntryModel> searchMods = new List<ModSearchEntryModel>();
+                        foreach (IModMetadata mod in mods)
+                        {
+                            if (!mod.HasManifest())
+                                continue;
+
+                            string[] updateKeys = mod.Manifest.UpdateKeys ?? new string[0];
+                            searchMods.Add(new ModSearchEntryModel(mod.Manifest.UniqueID, updateKeys.Except(suppressUpdateChecks).ToArray()));
+                        }
 
                         // fetch results
-                        this.Monitor.Log($"   Checking {modsByKey.Count} mod update keys.", LogLevel.Trace);
-                        var results =
-                            (
-                                from entry in client.GetModInfo(modsByKey.Keys.ToArray())
-                                from mod in modsByKey[entry.Key]
-                                orderby mod.DisplayName
-                                select new { entry.Key, Mod = mod, Info = entry.Value }
-                            )
-                            .ToArray();
+                        this.Monitor.Log($"   Checking for updates to {searchMods.Count} mods...", LogLevel.Trace);
+                        IDictionary<string, ModEntryModel> results = client.GetModInfo(searchMods.ToArray());
 
-                        // extract latest versions
-                        IDictionary<IModMetadata, Tuple<ModInfoModel, bool>> updatesByMod = new Dictionary<IModMetadata, Tuple<ModInfoModel, bool>>();
-                        foreach (var result in results)
+                        // extract update alerts & errors
+                        var updates = new List<Tuple<IModMetadata, ISemanticVersion, string>>();
+                        var errors = new StringBuilder();
+                        foreach (IModMetadata mod in mods.OrderBy(p => p.DisplayName))
                         {
-                            IModMetadata mod = result.Mod;
-                            ModInfoModel remoteInfo = result.Info;
-
-                            // handle error
-                            if (remoteInfo.Error != null)
-                            {
-                                if (mod.UpdateStatus?.Version == null)
-                                    mod.SetUpdateStatus(new ModUpdateStatus(remoteInfo.Error));
-                                if (mod.PreviewUpdateStatus?.Version == null)
-                                    mod.SetUpdateStatus(new ModUpdateStatus(remoteInfo.Error));
-
-                                this.Monitor.Log($"   {mod.DisplayName} ({result.Key}): update error: {remoteInfo.Error}", LogLevel.Trace);
+                            // link to update-check data
+                            if (!mod.HasManifest() || !results.TryGetValue(mod.Manifest.UniqueID, out ModEntryModel result))
                                 continue;
+                            mod.SetUpdateData(result);
+
+                            // handle errors
+                            if (result.Errors != null && result.Errors.Any())
+                            {
+                                errors.AppendLine(result.Errors.Length == 1
+                                    ? $"   {mod.DisplayName} update error: {result.Errors[0]}"
+                                    : $"   {mod.DisplayName} update errors:\n      - {string.Join("\n      - ", result.Errors)}"
+                                );
                             }
 
-                            // normalise versions
+                            // parse versions
                             ISemanticVersion localVersion = mod.DataRecord?.GetLocalVersionForUpdateChecks(mod.Manifest.Version) ?? mod.Manifest.Version;
-                            bool validVersion = SemanticVersion.TryParse(mod.DataRecord?.GetRemoteVersionForUpdateChecks(remoteInfo.Version) ?? remoteInfo.Version, out ISemanticVersion remoteVersion);
-                            bool validPreviewVersion = SemanticVersion.TryParse(remoteInfo.PreviewVersion, out ISemanticVersion remotePreviewVersion);
+                            ISemanticVersion latestVersion = result.Version != null
+                                ? mod.DataRecord?.GetRemoteVersionForUpdateChecks(result.Version) ?? new SemanticVersion(result.Version)
+                                : null;
+                            ISemanticVersion optionalVersion = result.PreviewVersion != null
+                                ? (mod.DataRecord?.GetRemoteVersionForUpdateChecks(result.PreviewVersion) ?? new SemanticVersion(result.PreviewVersion))
+                                : null;
 
-                            if (!validVersion && mod.UpdateStatus?.Version == null)
-                                mod.SetUpdateStatus(new ModUpdateStatus($"Version is invalid: {remoteInfo.Version}"));
-                            if (!validPreviewVersion && mod.PreviewUpdateStatus?.Version == null)
-                                mod.SetPreviewUpdateStatus(new ModUpdateStatus($"Version is invalid: {remoteInfo.PreviewVersion}"));
-
-                            if (!validVersion && !validPreviewVersion)
-                            {
-                                this.Monitor.Log($"   {mod.DisplayName} ({result.Key}): update error: Mod has invalid versions. version: {remoteInfo.Version}, preview version: {remoteInfo.PreviewVersion}", LogLevel.Trace);
-                                continue;
-                            }
-
-                            // compare versions
-                            bool isPreviewUpdate = validPreviewVersion && localVersion.IsNewerThan(remoteVersion) && remotePreviewVersion.IsNewerThan(localVersion);
-                            bool isUpdate = (validVersion && remoteVersion.IsNewerThan(localVersion)) || isPreviewUpdate;
-
-                            this.VerboseLog($"   {mod.DisplayName} ({result.Key}): {(isUpdate ? $"{mod.Manifest.Version}{(!localVersion.Equals(mod.Manifest.Version) ? $" [{localVersion}]" : "")} => {(isPreviewUpdate ? remoteInfo.PreviewVersion : remoteInfo.Version)}" : "okay")}.");
-                            if (isUpdate)
-                            {
-                                if (!updatesByMod.TryGetValue(mod, out Tuple<ModInfoModel, bool> other) || (isPreviewUpdate ? remotePreviewVersion : remoteVersion).IsNewerThan(other.Item2 ? other.Item1.PreviewVersion : other.Item1.Version))
-                                {
-                                    updatesByMod[mod] = new Tuple<ModInfoModel, bool>(remoteInfo, isPreviewUpdate);
-
-                                    if (isPreviewUpdate)
-                                        mod.SetPreviewUpdateStatus(new ModUpdateStatus(remotePreviewVersion));
-                                    else
-                                        mod.SetUpdateStatus(new ModUpdateStatus(remoteVersion));
-                                }
-                            }
+                            // show update alerts
+                            if (this.IsValidUpdate(localVersion, latestVersion, useBetaChannel: true))
+                                updates.Add(Tuple.Create(mod, latestVersion, result.Url));
+                            else if (this.IsValidUpdate(localVersion, optionalVersion, useBetaChannel: localVersion.IsPrerelease()))
+                                updates.Add(Tuple.Create(mod, optionalVersion, result.Url));
                         }
 
-                        // set mods to have no updates
-                        foreach (IModMetadata mod in results.Select(item => item.Mod)
-                            .Where(item => !updatesByMod.ContainsKey(item)))
-                        {
-                            mod.SetUpdateStatus(new ModUpdateStatus());
-                            mod.SetPreviewUpdateStatus(new ModUpdateStatus());
-                        }
+                        // show update errors
+                        if (errors.Length != 0)
+                            this.Monitor.Log("Encountered errors fetching updates for some mods:\n" + errors.ToString(), LogLevel.Trace);
 
-                        // output
-                        if (updatesByMod.Any())
+                        // show update alerts
+                        if (updates.Any())
                         {
                             this.Monitor.Newline();
-                            this.Monitor.Log($"You can update {updatesByMod.Count} mod{(updatesByMod.Count != 1 ? "s" : "")}:", LogLevel.Alert);
-                            foreach (var entry in updatesByMod.OrderBy(p => p.Key.DisplayName))
-                                this.Monitor.Log($"   {entry.Key.DisplayName} {(entry.Value.Item2 ? entry.Value.Item1.PreviewVersion : entry.Value.Item1.Version)}: {entry.Value.Item1.Url}", LogLevel.Alert);
+                            this.Monitor.Log($"You can update {updates.Count} mod{(updates.Count != 1 ? "s" : "")}:", LogLevel.Alert);
+                            foreach (var entry in updates)
+                            {
+                                IModMetadata mod = entry.Item1;
+                                ISemanticVersion newVersion = entry.Item2;
+                                string newUrl = entry.Item3;
+                                this.Monitor.Log($"   {mod.DisplayName} {newVersion}: {newUrl}", LogLevel.Alert);
+                            }
                         }
                         else
                             this.Monitor.Log("   All mods up to date.", LogLevel.Trace);

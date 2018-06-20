@@ -1,4 +1,4 @@
-namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
+namespace StardewModdingAPI.Web.Framework.ModRepositories
 {
     /// <summary>Generic metadata about a mod.</summary>
     public class ModInfoModel
@@ -43,7 +43,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
             this.Version = version;
             this.PreviewVersion = previewVersion;
             this.Url = url;
-            this.Error = error; // mainly initialised here for the JSON deserialiser
+            this.Error = error;
         }
 
         /// <summary>Construct an instance.</summary>

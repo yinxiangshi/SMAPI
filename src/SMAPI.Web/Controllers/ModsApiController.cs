@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
+using StardewModdingAPI.Toolkit;
 using StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
 using StardewModdingAPI.Web.Framework.Clients.Chucklefish;
 using StardewModdingAPI.Web.Framework.Clients.GitHub;
@@ -67,70 +68,89 @@ namespace StardewModdingAPI.Web.Controllers
         }
 
         /// <summary>Fetch version metadata for the given mods.</summary>
-        /// <param name="modKeys">The namespaced mod keys to search as a comma-delimited array.</param>
-        /// <param name="allowInvalidVersions">Whether to allow non-semantic versions, instead of returning an error for those.</param>
-        [HttpGet]
-        public async Task<IDictionary<string, ModInfoModel>> GetAsync(string modKeys, bool allowInvalidVersions = false)
-        {
-            string[] modKeysArray = modKeys?.Split(',').ToArray();
-            if (modKeysArray == null || !modKeysArray.Any())
-                return new Dictionary<string, ModInfoModel>();
-
-            return await this.PostAsync(new ModSearchModel(modKeysArray, allowInvalidVersions));
-        }
-
-        /// <summary>Fetch version metadata for the given mods.</summary>
-        /// <param name="search">The mod search criteria.</param>
+        /// <param name="model">The mod search criteria.</param>
         [HttpPost]
-        public async Task<IDictionary<string, ModInfoModel>> PostAsync([FromBody] ModSearchModel search)
+        public async Task<IDictionary<string, ModEntryModel>> PostAsync([FromBody] ModSearchModel model)
         {
-            // parse model
-            bool allowInvalidVersions = search?.AllowInvalidVersions ?? false;
-            string[] modKeys = (search?.ModKeys?.ToArray() ?? new string[0])
-                .Distinct(StringComparer.CurrentCultureIgnoreCase)
-                .OrderBy(p => p, StringComparer.CurrentCultureIgnoreCase)
-                .ToArray();
-
-            // fetch mod info
-            IDictionary<string, ModInfoModel> result = new Dictionary<string, ModInfoModel>(StringComparer.CurrentCultureIgnoreCase);
-            foreach (string modKey in modKeys)
+            ModSearchEntryModel[] searchMods = this.GetSearchMods(model).ToArray();
+            IDictionary<string, ModEntryModel> mods = new Dictionary<string, ModEntryModel>(StringComparer.CurrentCultureIgnoreCase);
+            foreach (ModSearchEntryModel mod in searchMods)
             {
-                // parse mod key
-                if (!this.TryParseModKey(modKey, out string vendorKey, out string modID))
-                {
-                    result[modKey] = new ModInfoModel("The mod key isn't in a valid format. It should contain the site key and mod ID like 'Nexus:541'.");
+                if (string.IsNullOrWhiteSpace(mod.ID))
                     continue;
-                }
 
-                // get matching repository
-                if (!this.Repositories.TryGetValue(vendorKey, out IModRepository repository))
+                // get latest versions
+                ModEntryModel result = new ModEntryModel { ID = mod.ID };
+                IList<string> errors = new List<string>();
+                foreach (string updateKey in mod.UpdateKeys ?? new string[0])
                 {
-                    result[modKey] = new ModInfoModel($"There's no mod site with key '{vendorKey}'. Expected one of [{string.Join(", ", this.Repositories.Keys)}].");
-                    continue;
-                }
-
-                // fetch mod info
-                result[modKey] = await this.Cache.GetOrCreateAsync($"{repository.VendorKey}:{modID}".ToLower(), async entry =>
-                {
-                    // fetch info
-                    ModInfoModel info = await repository.GetModInfoAsync(modID);
-
-                    // validate
-                    if (info.Error == null)
+                    // fetch data
+                    ModInfoModel data = await this.GetInfoForUpdateKeyAsync(updateKey);
+                    if (data.Error != null)
                     {
-                        if (info.Version == null)
-                            info = new ModInfoModel(name: info.Name, version: info.Version, url: info.Url, error: "Mod has no version number.");
-                        if (!allowInvalidVersions && !Regex.IsMatch(info.Version, this.VersionRegex, RegexOptions.CultureInvariant | RegexOptions.IgnoreCase))
-                            info = new ModInfoModel(name: info.Name, version: info.Version, url: info.Url, error: $"Mod has invalid semantic version '{info.Version}'.");
+                        errors.Add(data.Error);
+                        continue;
                     }
 
-                    // cache & return
-                    entry.AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(info.Error == null ? this.SuccessCacheMinutes : this.ErrorCacheMinutes);
-                    return info;
-                });
+                    // handle main version
+                    if (data.Version != null)
+                    {
+                        if (!SemanticVersion.TryParse(data.Version, out ISemanticVersion version))
+                        {
+                            errors.Add($"The update key '{updateKey}' matches a mod with invalid semantic version '{data.Version}'.");
+                            continue;
+                        }
+
+                        if (result.Version == null || version.IsNewerThan(new SemanticVersion(result.Version)))
+                        {
+                            result.Name = data.Name;
+                            result.Url = data.Url;
+                            result.Version = version.ToString();
+                        }
+                    }
+
+                    // handle optional version
+                    if (data.PreviewVersion != null)
+                    {
+                        if (!SemanticVersion.TryParse(data.PreviewVersion, out ISemanticVersion version))
+                        {
+                            errors.Add($"The update key '{updateKey}' matches a mod with invalid optional semantic version '{data.PreviewVersion}'.");
+                            continue;
+                        }
+
+                        if (result.PreviewVersion == null || version.IsNewerThan(new SemanticVersion(data.PreviewVersion)))
+                        {
+                            result.Name = result.Name ?? data.Name;
+                            result.PreviewUrl = data.Url;
+                            result.PreviewVersion = version.ToString();
+                        }
+                    }
+                }
+
+                // fallback to preview if latest is invalid
+                if (result.Version == null && result.PreviewVersion != null)
+                {
+                    result.Version = result.PreviewVersion;
+                    result.Url = result.PreviewUrl;
+                    result.PreviewVersion = null;
+                    result.PreviewUrl = null;
+                }
+
+                // special cases
+                if (mod.ID == "Pathoschild.SMAPI")
+                {
+                    result.Name = "SMAPI";
+                    result.Url = "https://smapi.io/";
+                    if (result.PreviewUrl != null)
+                        result.PreviewUrl = "https://smapi.io/";
+                }
+
+                // add result
+                result.Errors = errors.ToArray();
+                mods[mod.ID] = result;
             }
 
-            return result;
+            return mods;
         }
 
 
@@ -157,6 +177,64 @@ namespace StardewModdingAPI.Web.Controllers
             vendorKey = parts[0].Trim();
             modID = parts[1].Trim();
             return true;
+        }
+
+        /// <summary>Get the mods for which the API should return data.</summary>
+        /// <param name="model">The search model.</param>
+        private IEnumerable<ModSearchEntryModel> GetSearchMods(ModSearchModel model)
+        {
+            if (model == null)
+                yield break;
+
+            // yield standard entries
+            if (model.Mods != null)
+            {
+                foreach (ModSearchEntryModel mod in model.Mods)
+                    yield return mod;
+            }
+
+            // yield mod update keys if backwards compatible
+            if (model.ModKeys != null && model.ModKeys.Any() && this.ShouldBeBackwardsCompatible("2.6-beta.17"))
+            {
+                foreach (string updateKey in model.ModKeys.Distinct())
+                    yield return new ModSearchEntryModel(updateKey, new[] { updateKey });
+            }
+        }
+
+        /// <summary>Get the mod info for an update key.</summary>
+        /// <param name="updateKey">The namespaced update key.</param>
+        private async Task<ModInfoModel> GetInfoForUpdateKeyAsync(string updateKey)
+        {
+            // parse update key
+            if (!this.TryParseModKey(updateKey, out string vendorKey, out string modID))
+                return new ModInfoModel($"The update key '{updateKey}' isn't in a valid format. It should contain the site key and mod ID like 'Nexus:541'.");
+
+            // get matching repository
+            if (!this.Repositories.TryGetValue(vendorKey, out IModRepository repository))
+                return new ModInfoModel($"There's no mod site with key '{vendorKey}'. Expected one of [{string.Join(", ", this.Repositories.Keys)}].");
+
+            // fetch mod info
+            return await this.Cache.GetOrCreateAsync($"{repository.VendorKey}:{modID}".ToLower(), async entry =>
+            {
+                ModInfoModel result = await repository.GetModInfoAsync(modID);
+                if (result.Error != null)
+                {
+                    if (result.Version == null)
+                        result.Error = $"The update key '{updateKey}' matches a mod with no version number.";
+                    else if (!Regex.IsMatch(result.Version, this.VersionRegex, RegexOptions.CultureInvariant | RegexOptions.IgnoreCase))
+                        result.Error = $"The update key '{updateKey}' matches a mod with invalid semantic version '{result.Version}'.";
+                }
+                entry.AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(result.Error == null ? this.SuccessCacheMinutes : this.ErrorCacheMinutes);
+                return result;
+            });
+        }
+
+        /// <summary>Get whether the API should return data in a backwards compatible way.</summary>
+        /// <param name="maxVersion">The last version for which data should be backwards compatible.</param>
+        private bool ShouldBeBackwardsCompatible(string maxVersion)
+        {
+            string actualVersion = (string)this.RouteData.Values["version"];
+            return !new SemanticVersion(actualVersion).IsNewerThan(new SemanticVersion(maxVersion));
         }
     }
 }

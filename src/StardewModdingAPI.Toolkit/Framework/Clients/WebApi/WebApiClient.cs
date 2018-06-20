@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using Newtonsoft.Json;
 
@@ -31,42 +30,14 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
             this.Version = version;
         }
 
-        /// <summary>Get the latest SMAPI version.</summary>
-        /// <param name="modKeys">The mod keys for which to fetch the latest version.</param>
-        public IDictionary<string, ModInfoModel> GetModInfo(params string[] modKeys)
+        /// <summary>Get metadata about a set of mods from the web API.</summary>
+        /// <param name="mods">The mod keys for which to fetch the latest version.</param>
+        public IDictionary<string, ModEntryModel> GetModInfo(params ModSearchEntryModel[] mods)
         {
-            return this.Post<ModSearchModel, Dictionary<string, ModInfoModel>>(
+            return this.Post<ModSearchModel, Dictionary<string, ModEntryModel>>(
                 $"v{this.Version}/mods",
-                new ModSearchModel(modKeys, allowInvalidVersions: true)
+                new ModSearchModel(mods)
             );
-        }
-
-        /// <summary>Get the latest version for a mod.</summary>
-        /// <param name="updateKeys">The update keys to search.</param>
-        public ISemanticVersion GetLatestVersion(string[] updateKeys)
-        {
-            if (!updateKeys.Any())
-                return null;
-
-            // fetch update results
-            ModInfoModel[] results = this
-                .GetModInfo(updateKeys)
-                .Values
-                .Where(p => p.Error == null)
-                .ToArray();
-            if (!results.Any())
-                return null;
-
-            ISemanticVersion latest = null;
-            foreach (ModInfoModel result in results)
-            {
-                if (!SemanticVersion.TryParse(result.PreviewVersion ?? result.Version, out ISemanticVersion cur))
-                    continue;
-
-                if (latest == null || cur.IsNewerThan(latest))
-                    latest = cur;
-            }
-            return latest;
         }
 
 

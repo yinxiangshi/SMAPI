@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System;
 using System.Linq;
 
 namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
@@ -10,10 +10,11 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
         ** Accessors
         *********/
         /// <summary>The namespaced mod keys to search.</summary>
+        [Obsolete]
         public string[] ModKeys { get; set; }
 
-        /// <summary>Whether to allow non-semantic versions, instead of returning an error for those.</summary>
-        public bool AllowInvalidVersions { get; set; }
+        /// <summary>The mods for which to find data.</summary>
+        public ModSearchEntryModel[] Mods { get; set; }
 
 
         /*********
@@ -26,12 +27,10 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
         }
 
         /// <summary>Construct an instance.</summary>
-        /// <param name="modKeys">The namespaced mod keys to search.</param>
-        /// <param name="allowInvalidVersions">Whether to allow non-semantic versions, instead of returning an error for those.</param>
-        public ModSearchModel(IEnumerable<string> modKeys, bool allowInvalidVersions)
+        /// <param name="mods">The mods to search.</param>
+        public ModSearchModel(ModSearchEntryModel[] mods)
         {
-            this.ModKeys = modKeys.ToArray();
-            this.AllowInvalidVersions = allowInvalidVersions;
+            this.Mods = mods.ToArray();
         }
     }
 }
