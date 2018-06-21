@@ -83,9 +83,19 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework
             foreach (int id in Game1.bigCraftablesInformation.Keys)
                 yield return new SearchableItem(ItemType.BigCraftable, id, new SObject(Vector2.Zero, id));
 
+            // secret notes
+            foreach (int id in Game1.content.Load<Dictionary<int, string>>("Data\\SecretNotes").Keys)
+            {
+                SObject note = new SObject(79, 1);
+                note.name = $"{note.name} #{id}";
+                yield return new SearchableItem(ItemType.Object, this.CustomIDOffset + id, note);
+            }
+
             // objects
             foreach (int id in Game1.objectInformation.Keys)
             {
+                if (id == 79)
+                    continue; // secret note handled above
                 if (id >= Ring.ringLowerIndexRange && id <= Ring.ringUpperIndexRange)
                     continue; // handled separated
 
@@ -103,7 +113,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework
                     };
                     wine.preserve.Value = SObject.PreserveType.Wine;
                     wine.preservedParentSheetIndex.Value = item.parentSheetIndex;
-                    yield return new SearchableItem(ItemType.Object, this.CustomIDOffset + id, wine);
+                    yield return new SearchableItem(ItemType.Object, this.CustomIDOffset * 2 + id, wine);
 
                     // jelly
                     SObject jelly = new SObject(344, 1)
@@ -113,7 +123,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework
                     };
                     jelly.preserve.Value = SObject.PreserveType.Jelly;
                     jelly.preservedParentSheetIndex.Value = item.parentSheetIndex;
-                    yield return new SearchableItem(ItemType.Object, this.CustomIDOffset * 2 + id, jelly);
+                    yield return new SearchableItem(ItemType.Object, this.CustomIDOffset * 3 + id, jelly);
                 }
 
                 // vegetable products
@@ -127,7 +137,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework
                     };
                     juice.preserve.Value = SObject.PreserveType.Juice;
                     juice.preservedParentSheetIndex.Value = item.parentSheetIndex;
-                    yield return new SearchableItem(ItemType.Object, this.CustomIDOffset * 3 + id, juice);
+                    yield return new SearchableItem(ItemType.Object, this.CustomIDOffset * 4 + id, juice);
 
                     // pickled
                     SObject pickled = new SObject(342, 1)
@@ -137,7 +147,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework
                     };
                     pickled.preserve.Value = SObject.PreserveType.Pickle;
                     pickled.preservedParentSheetIndex.Value = item.parentSheetIndex;
-                    yield return new SearchableItem(ItemType.Object, this.CustomIDOffset * 4 + id, pickled);
+                    yield return new SearchableItem(ItemType.Object, this.CustomIDOffset * 5 + id, pickled);
                 }
 
                 // flower honey
