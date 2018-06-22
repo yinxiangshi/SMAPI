@@ -168,7 +168,7 @@ namespace StardewModdingAPI
 
             // apply game patches
             new GamePatcher(this.Monitor).Apply(
-                new GameLocationPatch()
+            //    new GameLocationPatch()
             );
         }
 

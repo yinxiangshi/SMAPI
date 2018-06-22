@@ -290,7 +290,6 @@
     <Compile Include="Framework\Monitor.cs" />
     <Compile Include="Metadata\InstructionMetadata.cs" />
     <Compile Include="Mod.cs" />
-    <Compile Include="Framework\Patching\GameLocationPatch.cs" />
     <Compile Include="PatchMode.cs" />
     <Compile Include="GamePlatform.cs" />
     <Compile Include="Program.cs" />
