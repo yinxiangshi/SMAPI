@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Newtonsoft.Json;
 
 namespace StardewModdingAPI.Framework.ModData
 {
@@ -40,7 +38,7 @@ namespace StardewModdingAPI.Framework.ModData
         public ParsedModDataRecord GetParsed(IManifest manifest)
         {
             // get raw record
-            if (!this.TryGetRaw(manifest, out string displayName, out ModDataRecord record))
+            if (!this.TryGetRaw(manifest?.UniqueID, out string displayName, out ModDataRecord record))
                 return null;
 
             // parse fields
@@ -111,27 +109,7 @@ namespace StardewModdingAPI.Framework.ModData
         /// <param name="record">The raw mod record.</param>
         private bool TryGetRaw(string id, out string displayName, out ModDataRecord record)
         {
-            foreach (var entry in this.Records)
-            {
-                if (entry.Value.ID != null && entry.Value.ID.Equals(id, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    displayName = entry.Key;
-                    record = entry.Value;
-                    return true;
-                }
-            }
-
-            displayName = null;
-            record = null;
-            return false;
-        }
-        /// <summary>Get a raw data record.</summary>
-        /// <param name="manifest">The mod manifest whose fields to match.</param>
-        /// <param name="displayName">The mod's default display name.</param>
-        /// <param name="record">The raw mod record.</param>
-        private bool TryGetRaw(IManifest manifest, out string displayName, out ModDataRecord record)
-        {
-            if (manifest != null)
+            if (!string.IsNullOrWhiteSpace(id))
             {
                 foreach (var entry in this.Records)
                 {
@@ -139,7 +117,7 @@ namespace StardewModdingAPI.Framework.ModData
                     record = entry.Value;
 
                     // try main ID
-                    if (record.ID != null && record.ID.Equals(manifest.UniqueID, StringComparison.InvariantCultureIgnoreCase))
+                    if (record.ID != null && record.ID.Equals(id, StringComparison.InvariantCultureIgnoreCase))
                         return true;
 
                     // try former IDs
@@ -147,26 +125,7 @@ namespace StardewModdingAPI.Framework.ModData
                     {
                         foreach (string part in record.FormerIDs.Split('|'))
                         {
-                            // packed field snapshot
-                            if (part.StartsWith("{"))
-                            {
-                                FieldSnapshot snapshot = JsonConvert.DeserializeObject<FieldSnapshot>(part);
-                                bool isMatch =
-                                    (snapshot.ID == null || snapshot.ID.Equals(manifest.UniqueID, StringComparison.InvariantCultureIgnoreCase))
-                                    && (snapshot.EntryDll == null || snapshot.EntryDll.Equals(manifest.EntryDll, StringComparison.InvariantCultureIgnoreCase))
-                                    && (
-                                        snapshot.Author == null
-                                        || snapshot.Author.Equals(manifest.Author, StringComparison.InvariantCultureIgnoreCase)
-                                        || (manifest.ExtraFields != null && manifest.ExtraFields.ContainsKey("Authour") && snapshot.Author.Equals(manifest.ExtraFields["Authour"].ToString(), StringComparison.InvariantCultureIgnoreCase))
-                                    )
-                                    && (snapshot.Name == null || snapshot.Name.Equals(manifest.Name, StringComparison.InvariantCultureIgnoreCase));
-
-                                if (isMatch)
-                                    return true;
-                            }
-
-                            // plain ID
-                            else if (part.Equals(manifest.UniqueID, StringComparison.InvariantCultureIgnoreCase))
+                            if (part.Trim().Equals(id, StringComparison.InvariantCultureIgnoreCase))
                                 return true;
                         }
                     }
@@ -176,31 +135,6 @@ namespace StardewModdingAPI.Framework.ModData
             displayName = null;
             record = null;
             return false;
-        }
-
-
-        /*********
-        ** Private models
-        *********/
-        /// <summary>A unique set of fields which identifies the mod.</summary>
-        [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local", Justification = "Used via JSON deserialisation.")]
-        [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local", Justification = "Used via JSON deserialisation.")]
-        private class FieldSnapshot
-        {
-            /*********
-            ** Accessors
-            *********/
-            /// <summary>The unique mod ID  (or <c>null</c> to ignore it).</summary>
-            public string ID { get; set; }
-
-            /// <summary>The entry DLL (or <c>null</c> to ignore it).</summary>
-            public string EntryDll { get; set; }
-
-            /// <summary>The mod name (or <c>null</c> to ignore it).</summary>
-            public string Name { get; set; }
-
-            /// <summary>The author name (or <c>null</c> to ignore it).</summary>
-            public string Author { get; set; }
         }
     }
 }

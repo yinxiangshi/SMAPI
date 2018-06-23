@@ -11,14 +11,8 @@
    *   - ID: the mod's latest unique ID (if any).
    *
    *   - FormerIDs: uniquely identifies the mod across multiple versions, and supports matching
-   *     other fields if no ID was specified. This doesn't include the latest ID, if any.
-   *     Format rules:
-   *       1. If the mod's ID changed over time, multiple variants can be separated by the '|'
-   *          character.
-   *       2. Each variant can take one of two forms:
-   *          - A simple string matching the mod's UniqueID value.
-   *          - A JSON structure containing any of four manifest fields (ID, Name, Author, and
-   *            EntryDll) to match.
+   *     other fields if no ID was specified. This doesn't include the latest ID, if any. Multiple
+   *     variants can be separated with '|'.
    *
    *   - MapLocalVersions and MapRemoteVersions correct local manifest versions and remote versions
    *     during update checks. For example, if the API returns version '1.1-1078' where '1078' is
@@ -106,7 +100,6 @@
 
     "Almighty Farming Tool": {
       "ID": "439",
-      "FormerIDs": "{EntryDll: 'AlmightyTool.dll'}", // changed in 1.2.1
       "MapRemoteVersions": { "1.21": "1.2.1" },
       "Default | UpdateKey": "Nexus:439"
     },
@@ -125,7 +118,6 @@
 
     "Animal Sitter": {
       "ID": "jwdred.AnimalSitter",
-      "FormerIDs": "{EntryDll: 'AnimalSitter.dll'}", // changed in 1.0.9
       "Default | UpdateKey": "Nexus:581",
       "~1.0.8  | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
@@ -133,11 +125,6 @@
     "Arcade Pong": {
       "ID": "Platonymous.ArcadePong",
       "~1.0.2 | Status": "AssumeBroken" // broke in SMAPI 2.6-beta.16 due to reflection into SMAPI internals
-    },
-
-    "Ashley Mod": {
-      "FormerIDs": "{EntryDll: 'AshleyMod.dll'}",
-      "~1.0.1 | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "A Tapper's Dream": {
@@ -180,7 +167,6 @@
 
     "AutoSpeed": {
       "ID": "Omegasis.AutoSpeed",
-      "FormerIDs": "{ID:'4be88c18-b6f3-49b0-ba96-f94b1a5be890', Name:'AutoSpeed'}", // changed in 1.4; disambiguate from other Alpha_Omegasis mods
       "Default | UpdateKey": "Nexus:443" // added in 1.4.1
     },
 
@@ -224,7 +210,6 @@
 
     "Billboard Anywhere": {
       "ID": "Omegasis.BillboardAnywhere",
-      "FormerIDs": "{ID:'7ad4f6f7-c3de-4729-a40f-7a11d2b2a358', Name:'Billboard Anywhere'}", // changed in 1.4; disambiguate from other mods by Alpha_Omegasis
       "Default | UpdateKey": "Nexus:492" // added in 1.4.1
     },
 
@@ -242,13 +227,11 @@
 
     "Build Endurance": {
       "ID": "Omegasis.BuildEndurance",
-      "FormerIDs": "{ID:'4be88c18-b6f3-49b0-ba96-f94b1a5be890', Name:'BuildEndurance'}", // changed in 1.4; disambiguate from other Alpha_Omegasis mods
       "Default | UpdateKey": "Nexus:445" // added in 1.4.1
     },
 
     "Build Health": {
       "ID": "Omegasis.BuildHealth",
-      "FormerIDs": "{ID:'4be88c18-b6f3-49b0-ba96-f94b1a5be890', Name:'BuildHealth'}", // changed in 1.4; disambiguate from other Alpha_Omegasis mods
       "Default | UpdateKey": "Nexus:446" // added in 1.4.1
     },
 
@@ -293,7 +276,6 @@
 
     "Chest Pooling": {
       "ID": "mralbobo.ChestPooling",
-      "FormerIDs": "{EntryDll: 'ChestPooling.dll'}", // changed in 1.3
       "Default | UpdateKey": "GitHub:mralbobo/stardew-chest-pooling"
     },
 
@@ -302,12 +284,6 @@
       "FormerIDs": "ChestsAnywhere", // changed in 1.9
       "Default   | UpdateKey": "Nexus:518",
       "~1.12.4   | Status": "AssumeBroken" // broke in SDV 1.3
-    },
-
-    "Choose Baby Gender": {
-      "FormerIDs": "{EntryDll: 'ChooseBabyGender.dll'}",
-      "Default | UpdateKey": "Nexus:590",
-      "~1.0.2  | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "CJB Automation": {
@@ -411,7 +387,6 @@
 
     "CrabNet": {
       "ID": "jwdred.CrabNet",
-      "FormerIDs": "{EntryDll: 'CrabNet.dll'}", // changed in 1.0.5
       "Default | UpdateKey": "Nexus:584"
     },
 
@@ -617,7 +592,6 @@
 
     "Extended Minecart": {
       "ID": "Entoarox.ExtendedMinecart",
-      "FormerIDs": "{ID:'EntoaroxFurnitureAnywhere', Name:'Extended Minecart'}", // changed in 1.6.1
       "~1.7.1 | UpdateKey": "Chucklefish:4359" // only enable update checks up to 1.7.1 by request (has its own update-check feature)
     },
 
@@ -628,19 +602,8 @@
 
     "Fall 28 Snow Day": {
       "ID": "Omegasis.Fall28SnowDay",
-      "FormerIDs": "{ID:'7ad4f6f7-c3de-4729-a40f-7a11d2b2a358', Name:'Fall28 Snow Day'}", // changed in 1.4; disambiguate from other mods by Alpha_Omegasis
       "Default | UpdateKey": "Nexus:486", // added in 1.4.1
       "~1.4.1  | Status": "AssumeBroken" // broke in SMAPI 2.0, and update for SMAPI 2.0 doesn't do anything
-    },
-
-    "Farm Automation: Barn Door Automation": {
-      "FormerIDs": "{EntryDll: 'FarmAutomation.BarnDoorAutomation.dll'}",
-      "~1.0 | Status": "AssumeBroken" // broke in SMAPI 2.0
-    },
-
-    "Farm Automation: Item Collector": {
-      "FormerIDs": "{EntryDll: 'FarmAutomation.ItemCollector.dll'}",
-      "~1.0 | Status": "AssumeBroken" // broke in SDV 1.2
     },
 
     "Farm Automation Unofficial: Item Collector": {
@@ -652,12 +615,6 @@
       "ID": "Advize.FarmExpansion",
       "FormerIDs": "3888bdfd-73f6-4776-8bb7-8ad45aea1915 | AdvizeFarmExpansionMod-2-0 | AdvizeFarmExpansionMod-2-0-5", // changed in 2.0, 2.0.5, and 3.0
       "Default | UpdateKey": "Nexus:130"
-    },
-
-    "Farm Resource Generator": {
-      "FormerIDs": "{EntryDll: 'FarmResourceGenerator.dll'}",
-      "Default | UpdateKey": "Nexus:647",
-      "~1.0.4  | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Fast Animations": {
@@ -673,14 +630,8 @@
 
     "Faster Paths": {
       "ID": "Entoarox.FasterPaths",
-      "FormerIDs": "{ID:'821ce8f6-e629-41ad-9fde-03b54f68b0b6', Name:'Faster Paths'} | 615f85f8-5c89-44ee-aecc-c328f172e413", // changed in 1.2 and 1.3; disambiguate from Shop Expander
+      "FormerIDs": "615f85f8-5c89-44ee-aecc-c328f172e413", // changed in 1.3
       "~1.3.3 | UpdateKey": "Chucklefish:3641" // only enable update checks up to 1.3.3 by request (has its own update-check feature)
-    },
-
-    "Faster Run": {
-      "ID": "KathrynHazuka.FasterRun",
-      "FormerIDs": "{EntryDll: 'FasterRun.dll'}", // changed in 1.1.1-pathoschild-update
-      "Default | UpdateKey": "Nexus:733" // added in 1.1.1-pathoschild-update
     },
 
     "Fishing Adjust": {
@@ -699,13 +650,6 @@
       "Default | UpdateKey": "Nexus:1941"
     },
 
-    "FlorenceMod": {
-      "FormerIDs": "{EntryDll: 'FlorenceMod.dll'}",
-      "MapLocalVersions": { "1.0.1": "1.1" },
-      "Default | UpdateKey": "Nexus:591",
-      "~1.1    | Status": "AssumeBroken" // broke in SMAPI 2.0
-    },
-
     "Flower Color Picker": {
       "ID": "spacechase0.FlowerColorPicker",
       "Default | UpdateKey": "Nexus:1229"
@@ -719,7 +663,6 @@
 
     "Furniture Anywhere": {
       "ID": "Entoarox.FurnitureAnywhere",
-      "FormerIDs": "{ID:'EntoaroxFurnitureAnywhere', Name:'Furniture Anywhere'}", // changed in 1.1; disambiguate from Extended Minecart
       "~1.1.5 | UpdateKey": "Chucklefish:4324" // only enable update checks up to 1.1.5 by request (has its own update-check feature)
     },
 
@@ -730,7 +673,6 @@
 
     "Gate Opener": {
       "ID": "mralbobo.GateOpener",
-      "FormerIDs": "{EntryDll: 'GateOpener.dll'}", // changed in 1.1
       "Default | UpdateKey": "GitHub:mralbobo/stardew-gate-opener"
     },
 
@@ -746,7 +688,6 @@
 
     "Get Dressed": {
       "ID": "Advize.GetDressed",
-      "FormerIDs": "{EntryDll: 'GetDressed.dll'}", // changed in 3.3
       "Default | UpdateKey": "Nexus:331"
     },
 
@@ -773,13 +714,7 @@
 
     "Happy Birthday (Omegasis)": {
       "ID": "Omegasis.HappyBirthday",
-      "FormerIDs": "{ID:'HappyBirthday', Author:'Alpha_Omegasis'}", // changed in 1.4; disambiguate from Oxyligen's fork
       "Default | UpdateKey": "Nexus:520" // added in 1.4.1
-    },
-
-    "Happy Birthday (Oxyligen fork)": {
-      "FormerIDs": "{ID:'HappyBirthday', Author:'Alpha_Omegasis/Oxyligen'}", // disambiguate from Oxyligen's fork
-      "Default | UpdateKey": "Nexus:1064" // missing key reported: https://www.nexusmods.com/stardewvalley/mods/1064?tab=bugs
     },
 
     "Hardcore Mines": {
@@ -859,12 +794,6 @@
       "Default | UpdateKey": "Nexus:1184"
     },
 
-    "Jiggly Junimo Bundles": {
-      "ID": "Greger.JigglyJunimoBundles",
-      "FormerIDs": "{EntryDll: 'JJB.dll'}", // changed in 1.1.2-pathoschild-update
-      "Default | UpdateKey": "GitHub:gr3ger/Stardew_JJB" // added in 1.0.4-pathoschild-update
-    },
-
     "Json Assets": {
       "ID": "spacechase0.JsonAssets",
       "Default | UpdateKey": "Nexus:1720"
@@ -920,7 +849,6 @@
 
     "Loved Labels": {
       "ID": "Advize.LovedLabels",
-      "FormerIDs": "{EntryDll: 'LovedLabels.dll'}", // changed in 2.1
       "Default | UpdateKey": "Nexus:279"
     },
 
@@ -942,7 +870,6 @@
 
     "MailOrderPigs": {
       "ID": "jwdred.MailOrderPigs",
-      "FormerIDs": "{EntryDll: 'MailOrderPigs.dll'}", // changed in 1.0.2
       "Default | UpdateKey": "Nexus:632"
     },
 
@@ -1005,7 +932,6 @@
 
     "More Rain": {
       "ID": "Omegasis.MoreRain",
-      "FormerIDs": "{ID:'4108e859-333c-4fec-a1a7-d2e18c1019fe', Name:'More_Rain'}", // changed in 1.5; disambiguate from other mods by Alpha_Omegasis
       "Default | UpdateKey": "Nexus:441", // added in 1.5.1
       "~1.4    | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
@@ -1030,7 +956,6 @@
 
     "Museum Rearranger": {
       "ID": "Omegasis.MuseumRearranger",
-      "FormerIDs": "{ID:'7ad4f6f7-c3de-4729-a40f-7a11d2b2a358', Name:'Museum Rearranger'}", // changed in 1.4; disambiguate from other mods by Alpha_Omegasis
       "Default | UpdateKey": "Nexus:428" // added in 1.4.1
     },
 
@@ -1047,7 +972,6 @@
 
     "Night Owl": {
       "ID": "Omegasis.NightOwl",
-      "FormerIDs": "{ID:'SaveAnywhere', Name:'Stardew_NightOwl'}", // changed in 1.4; disambiguate from Save Anywhere
       "MapLocalVersions": { "2.1": "1.3" }, // 1.3 had wrong version in manifest
       "Default | UpdateKey": "Nexus:433" // added in 1.4.1
     },
@@ -1101,12 +1025,6 @@
       "Default   | UpdateKey": "Nexus:239"
     },
 
-    "NPC Speak": {
-      "FormerIDs": "{EntryDll: 'NpcEcho.dll'}",
-      "Default | UpdateKey": "Nexus:694",
-      "~1.0    | Status": "AssumeBroken" // broke in SMAPI 2.0
-    },
-
     "Object Time Left": {
       "ID": "spacechase0.ObjectTimeLeft",
       "Default | UpdateKey": "Nexus:1315"
@@ -1135,7 +1053,6 @@
 
     "PelicanFiber": {
       "ID": "jwdred.PelicanFiber",
-      "FormerIDs": "{EntryDll: 'PelicanFiber.dll'}", // changed in 3.0.1
       "Default | UpdateKey": "Nexus:631"
     },
 
@@ -1154,12 +1071,6 @@
       "Default | UpdateKey": "Nexus:1778"
     },
 
-    "Persival's BundleMod": {
-      "FormerIDs": "{EntryDll: 'BundleMod.dll'}",
-      "Default | UpdateKey": "Nexus:438",
-      "~1.0    | Status": "AssumeBroken" // broke in SDV 1.1
-    },
-
     "Plant on Grass": {
       "ID": "Demiacle.PlantOnGrass",
       "Default | UpdateKey": "Nexus:1026"
@@ -1172,7 +1083,6 @@
 
     "Point-and-Plant": {
       "ID": "jwdred.PointAndPlant",
-      "FormerIDs": "{EntryDll: 'PointAndPlant.dll'}", // changed in 1.0.3
       "Default | UpdateKey": "Nexus:572",
       "MapRemoteVersions": { "1.0.3": "1.0.2" } // manifest not updated
     },
@@ -1189,7 +1099,6 @@
 
     "Prairie King Made Easy": {
       "ID": "Mucchan.PrairieKingMadeEasy",
-      "FormerIDs": "{EntryDll: 'PrairieKingMadeEasy.dll'}", // changed in 1.0.1
       "Default | UpdateKey": "Chucklefish:3594",
       "~1.0    | Status": "AssumeBroken" // broke in SDV 1.2
     },
@@ -1202,11 +1111,6 @@
     "Quest Delay": {
       "ID": "BadNetCode.QuestDelay",
       "Default | UpdateKey": "Nexus:1239"
-    },
-
-    "Rain Randomizer": {
-      "FormerIDs": "{EntryDll: 'RainRandomizer.dll'}",
-      "~1.0.3 | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Recatch Legendary Fish": {
@@ -1245,7 +1149,6 @@
 
     "Replanter": {
       "ID": "jwdred.Replanter",
-      "FormerIDs": "{EntryDll: 'Replanter.dll'}", // changed in 1.0.5
       "Default | UpdateKey": "Nexus:589"
     },
 
@@ -1271,12 +1174,6 @@
       "Default | UpdateKey": "Nexus:1166" // added in 1.0.1
     },
 
-    "Rise and Shine": {
-      "ID": "Yoshify.RiseAndShine",
-      "FormerIDs": "{EntryDll: 'RiseAndShine.dll'}", // changed in 1.1.1-whisk-update
-      "Default | UpdateKey": "Nexus:3"
-    },
-
     "Rope Bridge": {
       "ID": "RopeBridge",
       "Default | UpdateKey": "Nexus:824"
@@ -1296,14 +1193,12 @@
 
     "Save Anywhere": {
       "ID": "Omegasis.SaveAnywhere",
-      "FormerIDs": "{ID:'SaveAnywhere', Name:'Save Anywhere'}", // changed in 2.5; disambiguate from Night Owl
       "Default | UpdateKey": "Nexus:444", // added in 2.6.1
       "MapRemoteVersions": { "2.6.2": "2.6.1" } // not updated in manifest
     },
 
     "Save Backup": {
       "ID": "Omegasis.SaveBackup",
-      "FormerIDs": "{ID:'4be88c18-b6f3-49b0-ba96-f94b1a5be890', Name:'Stardew_Save_Backup'}", // changed in 1.3; disambiguate from other Alpha_Omegasis mods
       "Default | UpdateKey": "Nexus:435", // added in 1.3.1
       "~1.2    | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
@@ -1376,7 +1271,7 @@
 
     "Shop Expander": {
       "ID": "Entoarox.ShopExpander",
-      "FormerIDs": "{ID:'821ce8f6-e629-41ad-9fde-03b54f68b0b6', Name:'Shop Expander'} | EntoaroxShopExpander", // changed in 1.5 and 1.5.2; disambiguate from Faster Paths
+      "FormerIDs": "EntoaroxShopExpander", // changed in 1.5 and 1.5.2; disambiguate from Faster Paths
       "MapRemoteVersions": { "1.6.0b": "1.6.0" },
       "~1.6   | UpdateKey": "Chucklefish:4381" // only enable update checks up to 1.6 by request (has its own update-check feature)
     },
@@ -1405,7 +1300,6 @@
 
     "Simple Sprinklers": {
       "ID": "tZed.SimpleSprinkler",
-      "FormerIDs": "{EntryDll: 'SimpleSprinkler.dll'}", // changed in 1.5
       "Default | UpdateKey": "Nexus:76"
     },
 
@@ -1507,22 +1401,9 @@
       "Default | UpdateKey": "Chucklefish:4201"
     },
 
-    "Sprinting Mod": {
-      "FormerIDs": "{EntryDll: 'SprintingMod.dll', Author: 'Patrick'}",
-      "MapLocalVersions": { "2.0": "3.0" }, // not updated in manifest
-      "Default | UpdateKey": "GitHub:oliverpl/SprintingMod",
-      "~2.1    | Status": "AssumeBroken" // broke in SDV 1.2
-    },
-
     "StackSplitX": {
       "ID": "tstaples.StackSplitX",
-      "FormerIDs": "{EntryDll: 'StackSplitX.dll'}", // changed circa 1.3.1
       "Default | UpdateKey": "Nexus:798"
-    },
-
-    "StaminaRegen": {
-      "FormerIDs": "{EntryDll: 'StaminaRegen.dll'}",
-      "~1.0.3 | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Stardew Config Menu": {
@@ -1548,7 +1429,6 @@
 
     "Stardew Symphony": {
       "ID": "Omegasis.StardewSymphony",
-      "FormerIDs": "{ID:'4108e859-333c-4fec-a1a7-d2e18c1019fe', Name:'Stardew_Symphony'}", // changed in 1.4; disambiguate other mods by Alpha_Omegasis
       "Default | UpdateKey": "Nexus:425" // added in 1.4.1
     },
 
@@ -1576,13 +1456,6 @@
       "Default | UpdateKey": "Chucklefish:4314"
     },
 
-    "Stone Bridge Over Pond (PondWithBridge)": {
-      "FormerIDs": "{EntryDll: 'PondWithBridge.dll'}",
-      "MapLocalVersions": { "0.0": "1.0" },
-      "Default | UpdateKey": "Nexus:316",
-      "~1.0    | Status": "AssumeBroken" // broke in SMAPI 2.0
-    },
-
     "Stumps to Hardwood Stumps": {
       "ID": "StumpsToHardwoodStumps",
       "Default | UpdateKey": "Nexus:691"
@@ -1603,11 +1476,6 @@
     "Swim Almost Anywhere / Swim Suit": {
       "ID": "Platonymous.SwimSuit",
       "Default | UpdateKey": "Nexus:1215" // added in 0.5.1
-    },
-
-    "Tainted Cellar": {
-      "ID": "TaintedCellar",
-      "FormerIDs": "{EntryDll: 'TaintedCellar.dll'}" // changed in 1.1
     },
 
     "Tapper Ready": {
@@ -1651,7 +1519,7 @@
 
     "TimeSpeed": {
       "ID": "cantorsdust.TimeSpeed",
-      "FormerIDs": "{EntryDll: 'TimeSpeed.dll'} | {ID:'4108e859-333c-4fec-a1a7-d2e18c1019fe', Name:'TimeSpeed'} | {ID:'4108e859-333c-4fec-a1a7-d2e18c1019fe', Name:'TimeSpeed Mod (unofficial)'} | community.TimeSpeed", // changed in 2.0.3, 2.1, and 2.3.3; disambiguate other mods by Alpha_Omegasis
+      "FormerIDs": "community.TimeSpeed", // changed in 2.3.3
       "Default | UpdateKey": "Nexus:169"
     },
 
@@ -1705,25 +1573,9 @@
       "Default | UpdateKey": "Nexus:943"
     },
 
-    "WakeUp": {
-      "FormerIDs": "{EntryDll: 'WakeUp.dll'}",
-      "~1.0.2 | Status": "AssumeBroken" // broke in SMAPI 2.0
-    },
-
-    "Wallpaper Fix": {
-      "FormerIDs": "{EntryDll: 'WallpaperFix.dll'}",
-      "Default | UpdateKey": "Chucklefish:4211",
-      "~1.1    | Status": "AssumeBroken" // broke in SMAPI 2.0
-    },
-
     "WarpAnimals": {
       "ID": "Symen.WarpAnimals",
       "Default | UpdateKey": "Nexus:1400"
-    },
-
-    "Weather Controller": {
-      "FormerIDs": "{EntryDll: 'WeatherController.dll'}",
-      "~1.0.2 | Status": "AssumeBroken" // broke in SDV 1.2
     },
 
     "What Farm Cave / WhatAMush": {
@@ -1739,16 +1591,6 @@
     "Winter Grass": {
       "ID": "cat.wintergrass",
       "Default | UpdateKey": "Nexus:1601"
-    },
-
-    "Wonderful Farm Life": {
-      "FormerIDs": "{EntryDll: 'WonderfulFarmLife.dll'}"
-    },
-
-    "XmlSerializerRetool": {
-      "FormerIDs": "{EntryDll: 'XmlSerializerRetool.dll'}",
-      "~ | Status": "Obsolete",
-      "~ | StatusReasonPhrase": "it's no longer maintained or used."
     },
 
     "Xnb Loader": {
@@ -1791,7 +1633,6 @@
 
     "Zoryn's Health Bars": {
       "ID": "Zoryn.HealthBars",
-      "FormerIDs": "{EntryDll: 'HealthBars.dll'}", // changed in 1.6
       "Default | UpdateKey": "GitHub:Zoryn4163/SMAPI-Mods",
       "~1.6    | Status": "AssumeBroken" // broke in SDV 1.2
     },
