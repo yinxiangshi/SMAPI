@@ -686,7 +686,7 @@ namespace StardewModdingAPI
 
                         // show update errors
                         if (errors.Length != 0)
-                            this.Monitor.Log("Encountered errors fetching updates for some mods:\n" + errors.ToString(), LogLevel.Trace);
+                            this.Monitor.Log("Encountered errors fetching updates for some mods:\n" + errors, LogLevel.Trace);
 
                         // show update alerts
                         if (updates.Any())
@@ -796,7 +796,7 @@ namespace StardewModdingAPI
                     );
 
                 // get assembly loaders
-                AssemblyLoader modAssemblyLoader = new AssemblyLoader(Constants.Platform, this.Monitor, this.Settings.DeveloperMode);
+                AssemblyLoader modAssemblyLoader = new AssemblyLoader(Constants.Platform, this.Monitor);
                 AppDomain.CurrentDomain.AssemblyResolve += (sender, e) => modAssemblyLoader.ResolveAssembly(e.Name);
                 InterfaceProxyFactory proxyFactory = new InterfaceProxyFactory();
 

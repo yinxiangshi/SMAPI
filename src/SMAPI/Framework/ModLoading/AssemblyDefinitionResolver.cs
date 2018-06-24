@@ -36,15 +36,6 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="parameters">The assembly reader parameters.</param>
         public override AssemblyDefinition Resolve(AssemblyNameReference name, ReaderParameters parameters) => this.ResolveName(name.Name) ?? base.Resolve(name, parameters);
 
-        /// <summary>Resolve an assembly reference.</summary>
-        /// <param name="fullName">The assembly full name (including version, etc).</param>
-        public override AssemblyDefinition Resolve(string fullName) => this.ResolveName(fullName) ?? base.Resolve(fullName);
-
-        /// <summary>Resolve an assembly reference.</summary>
-        /// <param name="fullName">The assembly full name (including version, etc).</param>
-        /// <param name="parameters">The assembly reader parameters.</param>
-        public override AssemblyDefinition Resolve(string fullName, ReaderParameters parameters) => this.ResolveName(fullName) ?? base.Resolve(fullName, parameters);
-
 
         /*********
         ** Private methods

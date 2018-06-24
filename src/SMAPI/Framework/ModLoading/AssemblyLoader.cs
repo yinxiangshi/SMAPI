@@ -12,16 +12,13 @@ using StardewModdingAPI.Metadata;
 namespace StardewModdingAPI.Framework.ModLoading
 {
     /// <summary>Preprocesses and loads mod assemblies.</summary>
-    internal class AssemblyLoader
+    internal class AssemblyLoader : IDisposable
     {
         /*********
         ** Properties
         *********/
         /// <summary>Encapsulates monitoring and logging.</summary>
         private readonly IMonitor Monitor;
-
-        /// <summary>Whether to enable developer mode logging.</summary>
-        private readonly bool IsDeveloperMode;
 
         /// <summary>Metadata for mapping assemblies to the current platform.</summary>
         private readonly PlatformAssemblyMap AssemblyMap;
@@ -32,6 +29,9 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>A minimal assembly definition resolver which resolves references to known loaded assemblies.</summary>
         private readonly AssemblyDefinitionResolver AssemblyDefinitionResolver;
 
+        /// <summary>The objects to dispose as part of this instance.</summary>
+        private readonly HashSet<IDisposable> Disposables = new HashSet<IDisposable>();
+
 
         /*********
         ** Public methods
@@ -39,13 +39,11 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>Construct an instance.</summary>
         /// <param name="targetPlatform">The current game platform.</param>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        /// <param name="isDeveloperMode">Whether to enable developer mode logging.</param>
-        public AssemblyLoader(Platform targetPlatform, IMonitor monitor, bool isDeveloperMode)
+        public AssemblyLoader(Platform targetPlatform, IMonitor monitor)
         {
             this.Monitor = monitor;
-            this.IsDeveloperMode = isDeveloperMode;
-            this.AssemblyMap = Constants.GetAssemblyMap(targetPlatform);
-            this.AssemblyDefinitionResolver = new AssemblyDefinitionResolver();
+            this.AssemblyMap = this.TrackForDisposal(Constants.GetAssemblyMap(targetPlatform));
+            this.AssemblyDefinitionResolver = this.TrackForDisposal(new AssemblyDefinitionResolver());
 
             // generate type => assembly lookup for types which should be rewritten
             this.TypeAssemblies = new Dictionary<string, Assembly>();
@@ -144,10 +142,26 @@ namespace StardewModdingAPI.Framework.ModLoading
                 .FirstOrDefault(p => p.GetName().Name == shortName);
         }
 
+        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
+        public void Dispose()
+        {
+            foreach (IDisposable instance in this.Disposables)
+                instance.Dispose();
+        }
+
 
         /*********
         ** Private methods
         *********/
+        /// <summary>Track an object for disposal as part of the assembly loader.</summary>
+        /// <typeparam name="T">The instance type.</typeparam>
+        /// <param name="instance">The disposable instance.</param>
+        private T TrackForDisposal<T>(T instance) where T : IDisposable
+        {
+            this.Disposables.Add(instance);
+            return instance;
+        }
+
         /****
         ** Assembly parsing
         ****/
@@ -166,9 +180,8 @@ namespace StardewModdingAPI.Framework.ModLoading
 
             // read assembly
             byte[] assemblyBytes = File.ReadAllBytes(file.FullName);
-            AssemblyDefinition assembly;
-            using (Stream readStream = new MemoryStream(assemblyBytes))
-                assembly = AssemblyDefinition.ReadAssembly(readStream, new ReaderParameters(ReadingMode.Deferred) { AssemblyResolver = assemblyResolver });
+            Stream readStream = this.TrackForDisposal(new MemoryStream(assemblyBytes));
+            AssemblyDefinition assembly = this.TrackForDisposal(AssemblyDefinition.ReadAssembly(readStream, new ReaderParameters(ReadingMode.Immediate) { AssemblyResolver = assemblyResolver, InMemory = true }));
 
             // skip if already visited
             if (visitedAssemblyNames.Contains(assembly.Name.Name))

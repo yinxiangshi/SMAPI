@@ -83,6 +83,7 @@
     * uses net field events where available;
     * lays groundwork for tracking events for multiple players.
   * Split mod DB out of `StardewModdingAPI.config.json` into its own file.
+  * Updated to Mono.Cecil 0.10.
 
 ## 2.5.5
 * For players:

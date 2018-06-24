@@ -64,7 +64,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                 return InstructionHandleResult.None;
 
             MethodReference methodRef = (MethodReference)instruction.Operand;
-            methodRef.DeclaringType = module.Import(this.ToType);
+            methodRef.DeclaringType = module.ImportReference(this.ToType);
             return InstructionHandleResult.Rewritten;
         }
 

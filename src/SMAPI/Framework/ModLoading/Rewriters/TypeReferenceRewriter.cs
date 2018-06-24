@@ -135,7 +135,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         {
             // root type
             if (type.FullName == this.FromTypeName)
-                return module.Import(this.ToType);
+                return module.ImportReference(this.ToType);
 
             // generic arguments
             if (type is GenericInstanceType genericType)
