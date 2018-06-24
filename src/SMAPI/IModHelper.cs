@@ -20,6 +20,9 @@ namespace StardewModdingAPI
         /// <summary>An API for loading content assets.</summary>
         IContentHelper Content { get; }
 
+        /// <summary>An API for checking and changing input state.</summary>
+        IInputHelper Input { get; }
+
         /// <summary>Simplifies access to private game code.</summary>
         IReflectionHelper Reflection { get; }
 
