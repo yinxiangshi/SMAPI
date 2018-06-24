@@ -12,7 +12,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
         /// <summary>The mod name.</summary>
         public string Name { get; set; }
 
-        /// <summary>The mod's latest release number.</summary>
+        /// <summary>The mod's latest version number.</summary>
         public string Version { get; set; }
 
         /// <summary>The mod's web URL.</summary>

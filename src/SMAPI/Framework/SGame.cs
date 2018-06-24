@@ -382,7 +382,7 @@ namespace StardewModdingAPI.Framework
                 if (this.Watchers.WindowSizeWatcher.IsChanged)
                 {
                     if (this.VerboseLogging)
-                        this.Monitor.Log($"Context: window size changed to {this.Watchers.WindowSizeWatcher.CurrentValue}.", LogLevel.Trace);
+                        this.Monitor.Log($"Events: window size changed to {this.Watchers.WindowSizeWatcher.CurrentValue}.", LogLevel.Trace);
                     this.Events.Graphics_Resize.Raise();
                     this.Watchers.WindowSizeWatcher.Reset();
                 }
@@ -415,6 +415,8 @@ namespace StardewModdingAPI.Framework
                             int now = this.Watchers.MouseWheelScrollWatcher.CurrentValue;
                             this.Watchers.MouseWheelScrollWatcher.Reset();
 
+                            if (this.VerboseLogging)
+                                this.Monitor.Log($"Events: mouse wheel scrolled to {now}.", LogLevel.Trace);
                             this.Events.Input_MouseWheelScrolled.Raise(new InputMouseWheelScrolledEventArgs(cursor, was, now));
                         }
 
@@ -426,6 +428,9 @@ namespace StardewModdingAPI.Framework
 
                             if (status == InputStatus.Pressed)
                             {
+                                if (this.VerboseLogging)
+                                    this.Monitor.Log($"Events: button {button} pressed.", LogLevel.Trace);
+
                                 this.Events.Input_ButtonPressed.Raise(new InputButtonPressedArgsInput(button, cursor, inputState));
                                 this.Events.Legacy_Input_ButtonPressed.Raise(new EventArgsInput(button, cursor, inputState.SuppressButtons));
 
@@ -445,6 +450,9 @@ namespace StardewModdingAPI.Framework
                             }
                             else if (status == InputStatus.Released)
                             {
+                                if (this.VerboseLogging)
+                                    this.Monitor.Log($"Events: button {button} released.", LogLevel.Trace);
+
                                 this.Events.Input_ButtonReleased.Raise(new InputButtonReleasedArgsInput(button, cursor, inputState));
                                 this.Events.Legacy_Input_ButtonReleased.Raise(new EventArgsInput(button, cursor, inputState.SuppressButtons));
 
@@ -605,7 +613,7 @@ namespace StardewModdingAPI.Framework
                         this.Watchers.TimeWatcher.Reset();
 
                         if (this.VerboseLogging)
-                            this.Monitor.Log($"Context: time changed from {was} to {now}.", LogLevel.Trace);
+                            this.Monitor.Log($"Events: time changed from {was} to {now}.", LogLevel.Trace);
 
                         this.Events.Time_TimeOfDayChanged.Raise(new EventArgsIntChanged(was, now));
                     }
@@ -629,7 +637,7 @@ namespace StardewModdingAPI.Framework
                         foreach (KeyValuePair<EventArgsLevelUp.LevelType, IValueWatcher<int>> pair in curPlayer.GetChangedSkills())
                         {
                             if (this.VerboseLogging)
-                                this.Monitor.Log($"Context: player skill '{pair.Key}' changed from {pair.Value.PreviousValue} to {pair.Value.CurrentValue}.", LogLevel.Trace);
+                                this.Monitor.Log($"Events: player skill '{pair.Key}' changed from {pair.Value.PreviousValue} to {pair.Value.CurrentValue}.", LogLevel.Trace);
                             this.Events.Player_LeveledUp.Raise(new EventArgsLevelUp(pair.Key, pair.Value.CurrentValue));
                         }
 
@@ -638,7 +646,7 @@ namespace StardewModdingAPI.Framework
                         if (changedItems.Any())
                         {
                             if (this.VerboseLogging)
-                                this.Monitor.Log("Context: player inventory changed.", LogLevel.Trace);
+                                this.Monitor.Log("Events: player inventory changed.", LogLevel.Trace);
                             this.Events.Player_InventoryChanged.Raise(new EventArgsInventoryChanged(Game1.player.Items, changedItems.ToList()));
                         }
 
@@ -1113,7 +1121,7 @@ namespace StardewModdingAPI.Framework
                                 }
                                 Game1.drawPlayerHeldObject(Game1.player);
                             }
-                            label_140:
+                        label_140:
                             if ((Game1.player.UsingTool || Game1.pickingTool) && Game1.player.CurrentTool != null && ((!Game1.player.CurrentTool.Name.Equals("Seeds") || Game1.pickingTool) && (Game1.currentLocation.Map.GetLayer("Front").PickTile(new Location(Game1.player.getStandingX(), (int)Game1.player.Position.Y - 38), Game1.viewport.Size) != null && Game1.currentLocation.Map.GetLayer("Front").PickTile(new Location(Game1.player.getStandingX(), Game1.player.getStandingY()), Game1.viewport.Size) == null)))
                                 Game1.drawTool(Game1.player);
                             if (Game1.currentLocation.Map.GetLayer("AlwaysFront") != null)
