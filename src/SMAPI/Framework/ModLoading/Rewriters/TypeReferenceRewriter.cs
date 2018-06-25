@@ -17,9 +17,6 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <summary>The new type to reference.</summary>
         private readonly Type ToType;
 
-        /// <summary>A lambda which indicates whether a matching type reference should be rewritten.</summary>
-        private readonly Func<TypeReference, bool> ShouldRewrite;
-
 
         /*********
         ** Public methods
@@ -27,13 +24,12 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <summary>Construct an instance.</summary>
         /// <param name="fromTypeFullName">The full type name to which to find references.</param>
         /// <param name="toType">The new type to reference.</param>
-        /// <param name="shouldRewrite">A lambda which indicates whether a matching type reference should be rewritten.</param>
-        public TypeReferenceRewriter(string fromTypeFullName, Type toType, Func<TypeReference, bool> shouldRewrite = null)
-            : base(fromTypeFullName, InstructionHandleResult.None)
+        /// <param name="shouldIgnore">A lambda which overrides a matched type.</param>
+        public TypeReferenceRewriter(string fromTypeFullName, Type toType, Func<TypeReference, bool> shouldIgnore = null)
+            : base(fromTypeFullName, InstructionHandleResult.None, shouldIgnore)
         {
             this.FromTypeName = fromTypeFullName;
             this.ToType = toType;
-            this.ShouldRewrite = shouldRewrite ?? (type => true);
         }
 
         /// <summary>Perform the predefined logic for a method if applicable.</summary>
@@ -138,22 +134,22 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <param name="type">The type to replace if it matches.</param>
         private TypeReference RewriteIfNeeded(ModuleDefinition module, TypeReference type)
         {
-            // root type
+            // current type
             if (type.FullName == this.FromTypeName)
             {
-                if (!this.ShouldRewrite(type))
+                if (this.ShouldIgnore(type))
                     return type;
                 return module.ImportReference(this.ToType);
             }
 
-            // generic arguments
+            // recurse into generic arguments
             if (type is GenericInstanceType genericType)
             {
                 for (int i = 0; i < genericType.GenericArguments.Count; i++)
                     genericType.GenericArguments[i] = this.RewriteIfNeeded(module, genericType.GenericArguments[i]);
             }
 
-            // generic parameters (e.g. constraints)
+            // recurse into generic parameters (e.g. constraints)
             for (int i = 0; i < type.GenericParameters.Count; i++)
                 type.GenericParameters[i] = new GenericParameter(this.RewriteIfNeeded(module, type.GenericParameters[i]));
 

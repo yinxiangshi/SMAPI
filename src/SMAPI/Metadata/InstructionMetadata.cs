@@ -38,10 +38,10 @@ namespace StardewModdingAPI.Metadata
                 new VirtualEntryCallRemover(),
 
                 // rewrite for SMAPI 2.6 (types moved into SMAPI.Toolkit.CoreInterfaces)
-                new TypeReferenceRewriter("StardewModdingAPI.IManifest", typeof(IManifest), type => type.Scope.Name == "StardewModdingAPI"),
-                new TypeReferenceRewriter("StardewModdingAPI.IManifestContentPackFor", typeof(IManifestContentPackFor), type => type.Scope.Name == "StardewModdingAPI"),
-                new TypeReferenceRewriter("StardewModdingAPI.IManifestDependency", typeof(IManifestDependency), type => type.Scope.Name == "StardewModdingAPI"),
-                new TypeReferenceRewriter("StardewModdingAPI.ISemanticVersion", typeof(ISemanticVersion), type => type.Scope.Name == "StardewModdingAPI"),
+                new TypeReferenceRewriter("StardewModdingAPI.IManifest", typeof(IManifest), shouldIgnore: type => type.Scope.Name != "StardewModdingAPI"),
+                new TypeReferenceRewriter("StardewModdingAPI.IManifestContentPackFor", typeof(IManifestContentPackFor), shouldIgnore: type => type.Scope.Name != "StardewModdingAPI"),
+                new TypeReferenceRewriter("StardewModdingAPI.IManifestDependency", typeof(IManifestDependency), shouldIgnore: type => type.Scope.Name != "StardewModdingAPI"),
+                new TypeReferenceRewriter("StardewModdingAPI.ISemanticVersion", typeof(ISemanticVersion), shouldIgnore: type => type.Scope.Name != "StardewModdingAPI"),
 
                 // rewrite for Stardew Valley 1.3
                 new StaticFieldToConstantRewriter<int>(typeof(Game1), "tileSize", Game1.tileSize),
