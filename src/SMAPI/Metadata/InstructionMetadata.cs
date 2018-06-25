@@ -37,6 +37,9 @@ namespace StardewModdingAPI.Metadata
                 // rewrite for SMAPI 2.0
                 new VirtualEntryCallRemover(),
 
+                // rewrite for SMAPI 2.6
+                new TypeReferenceRewriter("StardewModdingAPI.ISemanticVersion", typeof(ISemanticVersion), type => type.Scope.Name == "StardewModdingAPI"), // moved to SMAPI.Toolkit.CoreInterfaces
+
                 // rewrite for Stardew Valley 1.3
                 new StaticFieldToConstantRewriter<int>(typeof(Game1), "tileSize", Game1.tileSize),
 

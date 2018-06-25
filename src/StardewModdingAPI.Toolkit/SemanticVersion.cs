@@ -31,16 +31,16 @@ namespace StardewModdingAPI.Toolkit
         ** Accessors
         *********/
         /// <summary>The major version incremented for major API changes.</summary>
-        public int Major { get; }
+        public int MajorVersion { get; }
 
         /// <summary>The minor version incremented for backwards-compatible changes.</summary>
-        public int Minor { get; }
+        public int MinorVersion { get; }
 
         /// <summary>The patch version for backwards-compatible bug fixes.</summary>
-        public int Patch { get; }
+        public int PatchVersion { get; }
 
         /// <summary>An optional prerelease tag.</summary>
-        public string Tag { get; }
+        public string Build { get; }
 
 
         /*********
@@ -53,10 +53,10 @@ namespace StardewModdingAPI.Toolkit
         /// <param name="tag">An optional prerelease tag.</param>
         public SemanticVersion(int major, int minor, int patch, string tag = null)
         {
-            this.Major = major;
-            this.Minor = minor;
-            this.Patch = patch;
-            this.Tag = this.GetNormalisedTag(tag);
+            this.MajorVersion = major;
+            this.MinorVersion = minor;
+            this.PatchVersion = patch;
+            this.Build = this.GetNormalisedTag(tag);
 
             this.AssertValid();
         }
@@ -69,9 +69,9 @@ namespace StardewModdingAPI.Toolkit
             if (version == null)
                 throw new ArgumentNullException(nameof(version), "The input version can't be null.");
 
-            this.Major = version.Major;
-            this.Minor = version.Minor;
-            this.Patch = version.Build;
+            this.MajorVersion = version.Major;
+            this.MinorVersion = version.Minor;
+            this.PatchVersion = version.Build;
 
             this.AssertValid();
         }
@@ -90,10 +90,10 @@ namespace StardewModdingAPI.Toolkit
                 throw new FormatException($"The input '{version}' isn't a valid semantic version.");
 
             // initialise
-            this.Major = int.Parse(match.Groups["major"].Value);
-            this.Minor = match.Groups["minor"].Success ? int.Parse(match.Groups["minor"].Value) : 0;
-            this.Patch = match.Groups["patch"].Success ? int.Parse(match.Groups["patch"].Value) : 0;
-            this.Tag = match.Groups["prerelease"].Success ? this.GetNormalisedTag(match.Groups["prerelease"].Value) : null;
+            this.MajorVersion = int.Parse(match.Groups["major"].Value);
+            this.MinorVersion = match.Groups["minor"].Success ? int.Parse(match.Groups["minor"].Value) : 0;
+            this.PatchVersion = match.Groups["patch"].Success ? int.Parse(match.Groups["patch"].Value) : 0;
+            this.Build = match.Groups["prerelease"].Success ? this.GetNormalisedTag(match.Groups["prerelease"].Value) : null;
 
             this.AssertValid();
         }
@@ -105,7 +105,7 @@ namespace StardewModdingAPI.Toolkit
         {
             if (other == null)
                 throw new ArgumentNullException(nameof(other));
-            return this.CompareTo(other.Major, other.Minor, other.Patch, other.Tag);
+            return this.CompareTo(other.MajorVersion, other.MinorVersion, other.PatchVersion, other.Build);
         }
 
         /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
@@ -119,7 +119,7 @@ namespace StardewModdingAPI.Toolkit
         /// <summary>Whether this is a pre-release version.</summary>
         public bool IsPrerelease()
         {
-            return !string.IsNullOrWhiteSpace(this.Tag);
+            return !string.IsNullOrWhiteSpace(this.Build);
         }
 
         /// <summary>Get whether this version is older than the specified version.</summary>
@@ -129,11 +129,27 @@ namespace StardewModdingAPI.Toolkit
             return this.CompareTo(other) < 0;
         }
 
+        /// <summary>Get whether this version is older than the specified version.</summary>
+        /// <param name="other">The version to compare with this instance.</param>
+        /// <exception cref="FormatException">The specified version is not a valid semantic version.</exception>
+        public bool IsOlderThan(string other)
+        {
+            return this.IsOlderThan(new SemanticVersion(other));
+        }
+
         /// <summary>Get whether this version is newer than the specified version.</summary>
         /// <param name="other">The version to compare with this instance.</param>
         public bool IsNewerThan(ISemanticVersion other)
         {
             return this.CompareTo(other) > 0;
+        }
+
+        /// <summary>Get whether this version is newer than the specified version.</summary>
+        /// <param name="other">The version to compare with this instance.</param>
+        /// <exception cref="FormatException">The specified version is not a valid semantic version.</exception>
+        public bool IsNewerThan(string other)
+        {
+            return this.IsNewerThan(new SemanticVersion(other));
         }
 
         /// <summary>Get whether this version is between two specified versions (inclusively).</summary>
@@ -144,16 +160,25 @@ namespace StardewModdingAPI.Toolkit
             return this.CompareTo(min) >= 0 && this.CompareTo(max) <= 0;
         }
 
+        /// <summary>Get whether this version is between two specified versions (inclusively).</summary>
+        /// <param name="min">The minimum version.</param>
+        /// <param name="max">The maximum version.</param>
+        /// <exception cref="FormatException">One of the specified versions is not a valid semantic version.</exception>
+        public bool IsBetween(string min, string max)
+        {
+            return this.IsBetween(new SemanticVersion(min), new SemanticVersion(max));
+        }
+
         /// <summary>Get a string representation of the version.</summary>
         public override string ToString()
         {
             // version
-            string result = this.Patch != 0
-                ? $"{this.Major}.{this.Minor}.{this.Patch}"
-                : $"{this.Major}.{this.Minor}";
+            string result = this.PatchVersion != 0
+                ? $"{this.MajorVersion}.{this.MinorVersion}.{this.PatchVersion}"
+                : $"{this.MajorVersion}.{this.MinorVersion}";
 
             // tag
-            string tag = this.Tag;
+            string tag = this.Build;
             if (tag != null)
                 result += $"-{tag}";
             return result;
@@ -201,17 +226,17 @@ namespace StardewModdingAPI.Toolkit
             const int curOlder = -1;
 
             // compare stable versions
-            if (this.Major != otherMajor)
-                return this.Major.CompareTo(otherMajor);
-            if (this.Minor != otherMinor)
-                return this.Minor.CompareTo(otherMinor);
-            if (this.Patch != otherPatch)
-                return this.Patch.CompareTo(otherPatch);
-            if (this.Tag == otherTag)
+            if (this.MajorVersion != otherMajor)
+                return this.MajorVersion.CompareTo(otherMajor);
+            if (this.MinorVersion != otherMinor)
+                return this.MinorVersion.CompareTo(otherMinor);
+            if (this.PatchVersion != otherPatch)
+                return this.PatchVersion.CompareTo(otherPatch);
+            if (this.Build == otherTag)
                 return same;
 
             // stable supercedes pre-release
-            bool curIsStable = string.IsNullOrWhiteSpace(this.Tag);
+            bool curIsStable = string.IsNullOrWhiteSpace(this.Build);
             bool otherIsStable = string.IsNullOrWhiteSpace(otherTag);
             if (curIsStable)
                 return curNewer;
@@ -219,7 +244,7 @@ namespace StardewModdingAPI.Toolkit
                 return curOlder;
 
             // compare two pre-release tag values
-            string[] curParts = this.Tag.Split('.', '-');
+            string[] curParts = this.Build.Split('.', '-');
             string[] otherParts = otherTag.Split('.', '-');
             for (int i = 0; i < curParts.Length; i++)
             {
@@ -248,15 +273,15 @@ namespace StardewModdingAPI.Toolkit
         /// <summary>Assert that the current version is valid.</summary>
         private void AssertValid()
         {
-            if (this.Major < 0 || this.Minor < 0 || this.Patch < 0)
+            if (this.MajorVersion < 0 || this.MinorVersion < 0 || this.PatchVersion < 0)
                 throw new FormatException($"{this} isn't a valid semantic version. The major, minor, and patch numbers can't be negative.");
-            if (this.Major == 0 && this.Minor == 0 && this.Patch == 0)
+            if (this.MajorVersion == 0 && this.MinorVersion == 0 && this.PatchVersion == 0)
                 throw new FormatException($"{this} isn't a valid semantic version. At least one of the major, minor, and patch numbers must be more than zero.");
-            if (this.Tag != null)
+            if (this.Build != null)
             {
-                if (this.Tag.Trim() == "")
+                if (this.Build.Trim() == "")
                     throw new FormatException($"{this} isn't a valid semantic version. The tag cannot be a blank string (but may be omitted).");
-                if (!Regex.IsMatch(this.Tag, $"^{SemanticVersion.TagPattern}$", RegexOptions.IgnoreCase))
+                if (!Regex.IsMatch(this.Build, $"^{SemanticVersion.TagPattern}$", RegexOptions.IgnoreCase))
                     throw new FormatException($"{this} isn't a valid semantic version. The tag is invalid.");
             }
         }

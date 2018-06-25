@@ -10,23 +10,23 @@ namespace StardewModdingAPI
         ** Properties
         *********/
         /// <summary>The underlying semantic version implementation.</summary>
-        private readonly Toolkit.ISemanticVersion Version;
+        private readonly ISemanticVersion Version;
 
 
         /*********
         ** Accessors
         *********/
         /// <summary>The major version incremented for major API changes.</summary>
-        public int MajorVersion => this.Version.Major;
+        public int MajorVersion => this.Version.MajorVersion;
 
         /// <summary>The minor version incremented for backwards-compatible changes.</summary>
-        public int MinorVersion => this.Version.Minor;
+        public int MinorVersion => this.Version.MinorVersion;
 
         /// <summary>The patch version for backwards-compatible bug fixes.</summary>
-        public int PatchVersion => this.Version.Patch;
+        public int PatchVersion => this.Version.PatchVersion;
 
         /// <summary>An optional build tag.</summary>
-        public string Build => this.Version.Tag;
+        public string Build => this.Version.Build;
 
 
         /*********
@@ -56,7 +56,7 @@ namespace StardewModdingAPI
 
         /// <summary>Construct an instance.</summary>
         /// <param name="version">The underlying semantic version implementation.</param>
-        internal SemanticVersion(Toolkit.ISemanticVersion version)
+        internal SemanticVersion(ISemanticVersion version)
         {
             this.Version = version;
         }
@@ -64,7 +64,7 @@ namespace StardewModdingAPI
         /// <summary>Whether this is a pre-release version.</summary>
         public bool IsPrerelease()
         {
-            return !string.IsNullOrWhiteSpace(this.Build);
+            return this.Version.IsPrerelease();
         }
 
         /// <summary>Get an integer indicating whether this version precedes (less than 0), supercedes (more than 0), or is equivalent to (0) the specified version.</summary>
@@ -73,15 +73,14 @@ namespace StardewModdingAPI
         /// <remarks>The implementation is defined by Semantic Version 2.0 (http://semver.org/).</remarks>
         public int CompareTo(ISemanticVersion other)
         {
-            Toolkit.ISemanticVersion toolkitOther = new Toolkit.SemanticVersion(other.MajorVersion, other.MinorVersion, other.PatchVersion, other.Build);
-            return this.Version.CompareTo(toolkitOther);
+            return this.Version.CompareTo(other);
         }
 
         /// <summary>Get whether this version is older than the specified version.</summary>
         /// <param name="other">The version to compare with this instance.</param>
         public bool IsOlderThan(ISemanticVersion other)
         {
-            return this.CompareTo(other) < 0;
+            return this.Version.IsOlderThan(other);
         }
 
         /// <summary>Get whether this version is older than the specified version.</summary>
@@ -89,14 +88,14 @@ namespace StardewModdingAPI
         /// <exception cref="FormatException">The specified version is not a valid semantic version.</exception>
         public bool IsOlderThan(string other)
         {
-            return this.IsOlderThan(new SemanticVersion(other));
+            return this.Version.IsOlderThan(other);
         }
 
         /// <summary>Get whether this version is newer than the specified version.</summary>
         /// <param name="other">The version to compare with this instance.</param>
         public bool IsNewerThan(ISemanticVersion other)
         {
-            return this.CompareTo(other) > 0;
+            return this.Version.IsNewerThan(other);
         }
 
         /// <summary>Get whether this version is newer than the specified version.</summary>
@@ -104,7 +103,7 @@ namespace StardewModdingAPI
         /// <exception cref="FormatException">The specified version is not a valid semantic version.</exception>
         public bool IsNewerThan(string other)
         {
-            return this.IsNewerThan(new SemanticVersion(other));
+            return this.Version.IsNewerThan(other);
         }
 
         /// <summary>Get whether this version is between two specified versions (inclusively).</summary>
@@ -112,7 +111,7 @@ namespace StardewModdingAPI
         /// <param name="max">The maximum version.</param>
         public bool IsBetween(ISemanticVersion min, ISemanticVersion max)
         {
-            return this.CompareTo(min) >= 0 && this.CompareTo(max) <= 0;
+            return this.Version.IsBetween(min, max);
         }
 
         /// <summary>Get whether this version is between two specified versions (inclusively).</summary>
@@ -121,7 +120,7 @@ namespace StardewModdingAPI
         /// <exception cref="FormatException">One of the specified versions is not a valid semantic version.</exception>
         public bool IsBetween(string min, string max)
         {
-            return this.IsBetween(new SemanticVersion(min), new SemanticVersion(max));
+            return this.Version.IsBetween(min, max);
         }
 
         /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
@@ -144,7 +143,7 @@ namespace StardewModdingAPI
         /// <returns>Returns whether parsing the version succeeded.</returns>
         internal static bool TryParse(string version, out ISemanticVersion parsed)
         {
-            if (Toolkit.SemanticVersion.TryParse(version, out Toolkit.ISemanticVersion versionImpl))
+            if (Toolkit.SemanticVersion.TryParse(version, out ISemanticVersion versionImpl))
             {
                 parsed = new SemanticVersion(versionImpl);
                 return true;

@@ -51,6 +51,10 @@
       <Name>StardewModdingAPI</Name>
       <Private>False</Private>
     </ProjectReference>
+    <ProjectReference Include="..\StardewModdingAPI.Toolkit.CoreInterfaces\StardewModdingAPI.Toolkit.CoreInterfaces.csproj">
+      <Project>{d5cfd923-37f1-4bc3-9be8-e506e202ac28}</Project>
+      <Name>StardewModdingAPI.Toolkit.CoreInterfaces</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\..\build\common.targets" />

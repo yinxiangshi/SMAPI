@@ -17,6 +17,9 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <summary>The new type to reference.</summary>
         private readonly Type ToType;
 
+        /// <summary>A lambda which indicates whether a matching type reference should be rewritten.</summary>
+        private readonly Func<TypeReference, bool> ShouldRewrite;
+
 
         /*********
         ** Public methods
@@ -24,11 +27,13 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <summary>Construct an instance.</summary>
         /// <param name="fromTypeFullName">The full type name to which to find references.</param>
         /// <param name="toType">The new type to reference.</param>
-        public TypeReferenceRewriter(string fromTypeFullName, Type toType)
+        /// <param name="shouldRewrite">A lambda which indicates whether a matching type reference should be rewritten.</param>
+        public TypeReferenceRewriter(string fromTypeFullName, Type toType, Func<TypeReference, bool> shouldRewrite = null)
             : base(fromTypeFullName, InstructionHandleResult.None)
         {
             this.FromTypeName = fromTypeFullName;
             this.ToType = toType;
+            this.ShouldRewrite = shouldRewrite ?? (type => true);
         }
 
         /// <summary>Perform the predefined logic for a method if applicable.</summary>
@@ -135,7 +140,11 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         {
             // root type
             if (type.FullName == this.FromTypeName)
+            {
+                if (!this.ShouldRewrite(type))
+                    return type;
                 return module.ImportReference(this.ToType);
+            }
 
             // generic arguments
             if (type is GenericInstanceType genericType)

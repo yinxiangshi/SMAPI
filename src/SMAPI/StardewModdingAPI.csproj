@@ -280,7 +280,6 @@
     <Compile Include="IModHelper.cs" />
     <Compile Include="IModLinked.cs" />
     <Compile Include="Framework\Logging\LogFileManager.cs" />
-    <Compile Include="ISemanticVersion.cs" />
     <Compile Include="ITranslationHelper.cs" />
     <Compile Include="LogLevel.cs" />
     <Compile Include="Framework\ModRegistry.cs" />

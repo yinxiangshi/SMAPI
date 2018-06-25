@@ -130,7 +130,7 @@ namespace StardewModdingAPI.Web.Controllers
                 Match match = Regex.Match(asset.FileName, @"SMAPI-(?<version>[\d\.]+(?:-.+)?)-installer(?<forDevs>-for-developers)?.zip");
                 if (!match.Success || !SemanticVersion.TryParse(match.Groups["version"].Value, out ISemanticVersion version))
                     continue;
-                bool isBeta = version.Tag != null;
+                bool isBeta = version.IsPrerelease();
                 bool isForDevs = match.Groups["forDevs"].Success;
 
                 yield return new ReleaseVersion(release, asset, version, isBeta, isForDevs);
