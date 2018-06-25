@@ -44,7 +44,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             // return type
             if (this.IsMatch(method.ReturnType))
             {
-                method.ReturnType = this.RewriteIfNeeded(module, method.ReturnType);
+                this.RewriteIfNeeded(module, method.ReturnType, newType => method.ReturnType = newType);
                 rewritten = true;
             }
 
@@ -53,7 +53,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             {
                 if (this.IsMatch(parameter.ParameterType))
                 {
-                    parameter.ParameterType = this.RewriteIfNeeded(module, parameter.ParameterType);
+                    this.RewriteIfNeeded(module, parameter.ParameterType, newType => parameter.ParameterType = newType);
                     rewritten = true;
                 }
             }
@@ -64,9 +64,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                 var parameter = method.GenericParameters[i];
                 if (this.IsMatch(parameter))
                 {
-                    TypeReference newType = this.RewriteIfNeeded(module, parameter);
-                    if (newType != parameter)
-                        method.GenericParameters[i] = new GenericParameter(parameter.Name, newType);
+                    this.RewriteIfNeeded(module, parameter, newType => method.GenericParameters[i] = new GenericParameter(parameter.Name, newType));
                     rewritten = true;
                 }
             }
@@ -76,7 +74,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             {
                 if (this.IsMatch(variable.VariableType))
                 {
-                    variable.VariableType = this.RewriteIfNeeded(module, variable.VariableType);
+                    this.RewriteIfNeeded(module, variable.VariableType, newType => variable.VariableType = newType);
                     rewritten = true;
                 }
             }
@@ -101,27 +99,23 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);
             if (fieldRef != null)
             {
-                fieldRef.DeclaringType = this.RewriteIfNeeded(module, fieldRef.DeclaringType);
-                fieldRef.FieldType = this.RewriteIfNeeded(module, fieldRef.FieldType);
+                this.RewriteIfNeeded(module, fieldRef.DeclaringType, newType => fieldRef.DeclaringType = newType);
+                this.RewriteIfNeeded(module, fieldRef.FieldType, newType => fieldRef.FieldType = newType);
             }
 
             // method reference
             MethodReference methodRef = RewriteHelper.AsMethodReference(instruction);
             if (methodRef != null)
             {
-                methodRef.DeclaringType = this.RewriteIfNeeded(module, methodRef.DeclaringType);
-                methodRef.ReturnType = this.RewriteIfNeeded(module, methodRef.ReturnType);
+                this.RewriteIfNeeded(module, methodRef.DeclaringType, newType => methodRef.DeclaringType = newType);
+                this.RewriteIfNeeded(module, methodRef.ReturnType, newType => methodRef.ReturnType = newType);
                 foreach (var parameter in methodRef.Parameters)
-                    parameter.ParameterType = this.RewriteIfNeeded(module, parameter.ParameterType);
+                    this.RewriteIfNeeded(module, parameter.ParameterType, newType => parameter.ParameterType = newType);
             }
 
             // type reference
             if (instruction.Operand is TypeReference typeRef)
-            {
-                TypeReference newRef = this.RewriteIfNeeded(module, typeRef);
-                if (typeRef != newRef)
-                    cil.Replace(instruction, cil.Create(instruction.OpCode, newRef));
-            }
+                this.RewriteIfNeeded(module, typeRef, newType => cil.Replace(instruction, cil.Create(instruction.OpCode, newType)));
 
             return InstructionHandleResult.Rewritten;
         }
@@ -129,31 +123,30 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /*********
         ** Private methods
         *********/
-        /// <summary>Get the adjusted type reference if it matches, else the same value.</summary>
+        /// <summary>Change a type reference if needed.</summary>
         /// <param name="module">The assembly module containing the instruction.</param>
         /// <param name="type">The type to replace if it matches.</param>
-        private TypeReference RewriteIfNeeded(ModuleDefinition module, TypeReference type)
+        /// <param name="set">Assign the new type reference.</param>
+        private void RewriteIfNeeded(ModuleDefinition module, TypeReference type, Action<TypeReference> set)
         {
             // current type
             if (type.FullName == this.FromTypeName)
             {
-                if (this.ShouldIgnore(type))
-                    return type;
-                return module.ImportReference(this.ToType);
+                if (!this.ShouldIgnore(type))
+                    set(module.ImportReference(this.ToType));
+                return;
             }
 
             // recurse into generic arguments
             if (type is GenericInstanceType genericType)
             {
                 for (int i = 0; i < genericType.GenericArguments.Count; i++)
-                    genericType.GenericArguments[i] = this.RewriteIfNeeded(module, genericType.GenericArguments[i]);
+                    this.RewriteIfNeeded(module, genericType.GenericArguments[i], typeRef => genericType.GenericArguments[i] = typeRef);
             }
 
             // recurse into generic parameters (e.g. constraints)
             for (int i = 0; i < type.GenericParameters.Count; i++)
-                type.GenericParameters[i] = new GenericParameter(this.RewriteIfNeeded(module, type.GenericParameters[i]));
-
-            return type;
+                this.RewriteIfNeeded(module, type.GenericParameters[i], typeRef => type.GenericParameters[i] = new GenericParameter(typeRef));
         }
     }
 }
