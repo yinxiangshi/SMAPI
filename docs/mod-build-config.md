@@ -121,6 +121,16 @@ or you have multiple installs, you can specify the path yourself. There's two wa
 The configuration will check your custom path first, then fall back to the default paths (so it'll
 still compile on a different computer).
 
+### Ignore files
+If you don't want to include a file in the mod folder or release zip:
+* Make sure it's not copied to the build output. For a DLL, make sure the reference is [not marked 'copy local'](https://msdn.microsoft.com/en-us/library/t1zz5y8c(v=vs.100).aspx).
+* Or add this to your `.csproj` file under the `<Project` line:
+  ```xml
+  <IgnoreModFilePatterns>\.txt$, \.pdf$</IgnoreModFilePatterns>
+  ```
+  This is a comma-delimited list of regular expression patterns. If any pattern matches a file's
+  relative path in your mod folder, that file won't be included.
+
 ### Unit test projects
 **(upcoming in 2.1)**
 

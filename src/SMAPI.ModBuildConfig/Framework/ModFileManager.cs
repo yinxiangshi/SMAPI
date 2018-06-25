@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Web.Script.Serialization;
 using StardewModdingAPI.Toolkit;
 
@@ -26,8 +27,9 @@ namespace StardewModdingAPI.ModBuildConfig.Framework
         /// <summary>Construct an instance.</summary>
         /// <param name="projectDir">The folder containing the project files.</param>
         /// <param name="targetDir">The folder containing the build output.</param>
+        /// <param name="ignoreFilePatterns">Custom regex patterns matching files to ignore when deploying or zipping the mod.</param>
         /// <exception cref="UserErrorException">The mod package isn't valid.</exception>
-        public ModFileManager(string projectDir, string targetDir)
+        public ModFileManager(string projectDir, string targetDir, Regex[] ignoreFilePatterns)
         {
             this.Files = new Dictionary<string, FileInfo>(StringComparer.InvariantCultureIgnoreCase);
 
@@ -72,8 +74,8 @@ namespace StardewModdingAPI.ModBuildConfig.Framework
                 if (hasProjectTranslations && this.EqualsInvariant(relativeDirPath, "i18n"))
                     continue;
 
-                // ignore release zips
-                if (this.ShouldIgnore(file))
+                // handle ignored files
+                if (this.ShouldIgnore(file, relativePath, ignoreFilePatterns))
                     continue;
 
                 // add file
@@ -142,8 +144,10 @@ namespace StardewModdingAPI.ModBuildConfig.Framework
         ** Private methods
         *********/
         /// <summary>Get whether a build output file should be ignored.</summary>
-        /// <param name="file">The file info.</param>
-        private bool ShouldIgnore(FileInfo file)
+        /// <param name="file">The file to check.</param>
+        /// <param name="relativePath">The file's relative path in the package.</param>
+        /// <param name="ignoreFilePatterns">Custom regex patterns matching files to ignore when deploying or zipping the mod.</param>
+        private bool ShouldIgnore(FileInfo file, string relativePath, Regex[] ignoreFilePatterns)
         {
             return
                 // release zips
@@ -159,7 +163,10 @@ namespace StardewModdingAPI.ModBuildConfig.Framework
 
                 // OS metadata files
                 || this.EqualsInvariant(file.Name, ".DS_Store")
-                || this.EqualsInvariant(file.Name, "Thumbs.db");
+                || this.EqualsInvariant(file.Name, "Thumbs.db")
+
+                // custom ignore patterns
+                || ignoreFilePatterns.Any(p => p.IsMatch(relativePath));
         }
 
         /// <summary>Get a case-insensitive dictionary matching the given JSON.</summary>

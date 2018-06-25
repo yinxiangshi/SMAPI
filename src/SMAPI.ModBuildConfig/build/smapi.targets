@@ -166,6 +166,7 @@
       ProjectDir="$(ProjectDir)"
       TargetDir="$(TargetDir)"
       GameDir="$(GamePath)"
+      IgnoreModFilePatterns="$(IgnoreModFilePatterns)"
     />
   </Target>
 </Project>
