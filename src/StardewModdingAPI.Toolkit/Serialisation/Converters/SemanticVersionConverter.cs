@@ -2,8 +2,8 @@ using Newtonsoft.Json.Linq;
 
 namespace StardewModdingAPI.Toolkit.Serialisation.Converters
 {
-    /// <summary>Handles deserialisation of <see cref="SemanticVersion"/>.</summary>
-    internal class SemanticVersionConverter : SimpleReadOnlyConverter<SemanticVersion>
+    /// <summary>Handles deserialisation of <see cref="ISemanticVersion"/>.</summary>
+    internal class SemanticVersionConverter : SimpleReadOnlyConverter<ISemanticVersion>
     {
         /*********
         ** Protected methods
@@ -11,7 +11,7 @@ namespace StardewModdingAPI.Toolkit.Serialisation.Converters
         /// <summary>Read a JSON object.</summary>
         /// <param name="obj">The JSON object to read.</param>
         /// <param name="path">The path to the current JSON node.</param>
-        protected override SemanticVersion ReadObject(JObject obj, string path)
+        protected override ISemanticVersion ReadObject(JObject obj, string path)
         {
             int major = obj.ValueIgnoreCase<int>("MajorVersion");
             int minor = obj.ValueIgnoreCase<int>("MinorVersion");
@@ -26,7 +26,7 @@ namespace StardewModdingAPI.Toolkit.Serialisation.Converters
         /// <summary>Read a JSON string.</summary>
         /// <param name="str">The JSON string value.</param>
         /// <param name="path">The path to the current JSON node.</param>
-        protected override SemanticVersion ReadString(string str, string path)
+        protected override ISemanticVersion ReadString(string str, string path)
         {
             if (string.IsNullOrWhiteSpace(str))
                 return null;

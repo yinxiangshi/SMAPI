@@ -1,6 +1,3 @@
-using Newtonsoft.Json;
-using StardewModdingAPI.Toolkit.Serialisation.Converters;
-
 namespace StardewModdingAPI.Toolkit.Serialisation.Models
 {
     /// <summary>Indicates which mod can read the content pack represented by the containing manifest.</summary>
@@ -13,7 +10,6 @@ namespace StardewModdingAPI.Toolkit.Serialisation.Models
         public string UniqueID { get; set; }
 
         /// <summary>The minimum required version (if any).</summary>
-        [JsonConverter(typeof(SemanticVersionConverter))]
         public ISemanticVersion MinimumVersion { get; set; }
     }
 }
