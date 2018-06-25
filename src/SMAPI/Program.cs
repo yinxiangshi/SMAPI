@@ -213,6 +213,9 @@ namespace StardewModdingAPI
 #endif
                 AppDomain.CurrentDomain.UnhandledException += (sender, e) => this.Monitor.Log($"Critical app domain exception: {e.ExceptionObject}", LogLevel.Error);
 
+                // add more leniant assembly resolvers
+                AppDomain.CurrentDomain.AssemblyResolve += (sender, e) => AssemblyLoader.ResolveAssembly(e.Name);
+
                 // override game
                 SGame.MonitorDuringInitialisation = this.Monitor;
                 SGame.ReflectorDuringInitialisation = this.Reflection;
@@ -794,104 +797,103 @@ namespace StardewModdingAPI
                             StringComparer.InvariantCultureIgnoreCase
                     );
 
-                // get assembly loaders
-                AssemblyLoader modAssemblyLoader = new AssemblyLoader(Constants.Platform, this.Monitor);
-                AppDomain.CurrentDomain.AssemblyResolve += (sender, e) => modAssemblyLoader.ResolveAssembly(e.Name);
-                InterfaceProxyFactory proxyFactory = new InterfaceProxyFactory();
-
-                // load from metadata
-                foreach (IModMetadata metadata in mods.Where(p => !p.IsContentPack))
+                // load mods from metadata
+                using (AssemblyLoader modAssemblyLoader = new AssemblyLoader(Constants.Platform, this.Monitor))
                 {
-                    // get basic info
-                    IManifest manifest = metadata.Manifest;
-                    this.Monitor.Log(metadata.Manifest?.EntryDll != null
-                        ? $"   {metadata.DisplayName} ({PathUtilities.GetRelativePath(Constants.ModPath, metadata.DirectoryPath)}{Path.DirectorySeparatorChar}{metadata.Manifest.EntryDll})..." // don't use Path.Combine here, since EntryDLL might not be valid
-                        : $"   {metadata.DisplayName}...", LogLevel.Trace);
-
-                    // show warnings
-                    if (metadata.HasManifest() && !metadata.HasUpdateKeys() && !suppressUpdateChecks.Contains(metadata.Manifest.UniqueID))
-                        metadata.SetWarning(ModWarning.NoUpdateKeys);
-
-                    // validate status
-                    if (metadata.Status == ModMetadataStatus.Failed)
+                    InterfaceProxyFactory proxyFactory = new InterfaceProxyFactory();
+                    foreach (IModMetadata metadata in mods.Where(p => !p.IsContentPack))
                     {
-                        this.Monitor.Log($"      Failed: {metadata.Error}", LogLevel.Trace);
-                        TrackSkip(metadata, metadata.Error);
-                        continue;
-                    }
+                        // get basic info
+                        IManifest manifest = metadata.Manifest;
+                        this.Monitor.Log(metadata.Manifest?.EntryDll != null
+                            ? $"   {metadata.DisplayName} ({PathUtilities.GetRelativePath(Constants.ModPath, metadata.DirectoryPath)}{Path.DirectorySeparatorChar}{metadata.Manifest.EntryDll})..." // don't use Path.Combine here, since EntryDLL might not be valid
+                            : $"   {metadata.DisplayName}...", LogLevel.Trace);
 
-                    // load mod
-                    string assemblyPath = metadata.Manifest?.EntryDll != null
-                        ? Path.Combine(metadata.DirectoryPath, metadata.Manifest.EntryDll)
-                        : null;
-                    Assembly modAssembly;
-                    try
-                    {
-                        modAssembly = modAssemblyLoader.Load(metadata, assemblyPath, assumeCompatible: metadata.DataRecord?.Status == ModStatus.AssumeCompatible);
-                    }
-                    catch (IncompatibleInstructionException) // details already in trace logs
-                    {
-                        string[] updateUrls = new[] { modDatabase.GetModPageUrlFor(metadata.Manifest.UniqueID), "https://smapi.io/compat" }.Where(p => p != null).ToArray();
+                        // show warnings
+                        if (metadata.HasManifest() && !metadata.HasUpdateKeys() && !suppressUpdateChecks.Contains(metadata.Manifest.UniqueID))
+                            metadata.SetWarning(ModWarning.NoUpdateKeys);
 
-                        TrackSkip(metadata, $"it's no longer compatible. Please check for a new version at {string.Join(" or ", updateUrls)}.");
-                        continue;
-                    }
-                    catch (SAssemblyLoadFailedException ex)
-                    {
-                        TrackSkip(metadata, $"it DLL couldn't be loaded: {ex.Message}");
-                        continue;
-                    }
-                    catch (Exception ex)
-                    {
-                        TrackSkip(metadata, "its DLL couldn't be loaded.", $"Error: {ex.GetLogSummary()}");
-                        continue;
-                    }
-
-                    // initialise mod
-                    try
-                    {
-                        // get mod instance
-                        if (!this.TryLoadModEntry(modAssembly, error => TrackSkip(metadata, error), out Mod mod))
-                            continue;
-
-                        // get content packs
-                        if (!contentPacksByModID.TryGetValue(manifest.UniqueID, out IContentPack[] contentPacks))
-                            contentPacks = new IContentPack[0];
-
-                        // init mod helpers
-                        IMonitor monitor = this.GetSecondaryMonitor(metadata.DisplayName);
-                        IModHelper modHelper;
+                        // validate status
+                        if (metadata.Status == ModMetadataStatus.Failed)
                         {
-                            IModEvents events = new ModEvents(metadata, this.EventManager);
-                            ICommandHelper commandHelper = new CommandHelper(manifest.UniqueID, metadata.DisplayName, this.CommandManager);
-                            IContentHelper contentHelper = new ContentHelper(contentCore, metadata.DirectoryPath, manifest.UniqueID, metadata.DisplayName, monitor);
-                            IReflectionHelper reflectionHelper = new ReflectionHelper(manifest.UniqueID, metadata.DisplayName, this.Reflection, this.DeprecationManager);
-                            IModRegistry modRegistryHelper = new ModRegistryHelper(manifest.UniqueID, this.ModRegistry, proxyFactory, monitor);
-                            IMultiplayerHelper multiplayerHelper = new MultiplayerHelper(manifest.UniqueID, this.GameInstance.Multiplayer);
-                            ITranslationHelper translationHelper = new TranslationHelper(manifest.UniqueID, manifest.Name, contentCore.GetLocale(), contentCore.Language);
-
-                            IContentPack CreateTransitionalContentPack(string packDirPath, IManifest packManifest)
-                            {
-                                IMonitor packMonitor = this.GetSecondaryMonitor(packManifest.Name);
-                                IContentHelper packContentHelper = new ContentHelper(contentCore, packDirPath, packManifest.UniqueID, packManifest.Name, packMonitor);
-                                return new ContentPack(packDirPath, packManifest, packContentHelper, this.JsonHelper);
-                            }
-
-                            modHelper = new ModHelper(manifest.UniqueID, metadata.DirectoryPath, jsonHelper, this.GameInstance.Input, events, contentHelper, commandHelper, modRegistryHelper, reflectionHelper, multiplayerHelper, translationHelper, contentPacks, CreateTransitionalContentPack, this.DeprecationManager);
+                            this.Monitor.Log($"      Failed: {metadata.Error}", LogLevel.Trace);
+                            TrackSkip(metadata, metadata.Error);
+                            continue;
                         }
 
-                        // init mod
-                        mod.ModManifest = manifest;
-                        mod.Helper = modHelper;
-                        mod.Monitor = monitor;
+                        // load mod
+                        string assemblyPath = metadata.Manifest?.EntryDll != null
+                            ? Path.Combine(metadata.DirectoryPath, metadata.Manifest.EntryDll)
+                            : null;
+                        Assembly modAssembly;
+                        try
+                        {
+                            modAssembly = modAssemblyLoader.Load(metadata, assemblyPath, assumeCompatible: metadata.DataRecord?.Status == ModStatus.AssumeCompatible);
+                        }
+                        catch (IncompatibleInstructionException) // details already in trace logs
+                        {
+                            string[] updateUrls = new[] { modDatabase.GetModPageUrlFor(metadata.Manifest.UniqueID), "https://smapi.io/compat" }.Where(p => p != null).ToArray();
 
-                        // track mod
-                        metadata.SetMod(mod);
-                        this.ModRegistry.Add(metadata);
-                    }
-                    catch (Exception ex)
-                    {
-                        TrackSkip(metadata, $"initialisation failed:\n{ex.GetLogSummary()}");
+                            TrackSkip(metadata, $"it's no longer compatible. Please check for a new version at {string.Join(" or ", updateUrls)}.");
+                            continue;
+                        }
+                        catch (SAssemblyLoadFailedException ex)
+                        {
+                            TrackSkip(metadata, $"it DLL couldn't be loaded: {ex.Message}");
+                            continue;
+                        }
+                        catch (Exception ex)
+                        {
+                            TrackSkip(metadata, "its DLL couldn't be loaded.", $"Error: {ex.GetLogSummary()}");
+                            continue;
+                        }
+
+                        // initialise mod
+                        try
+                        {
+                            // get mod instance
+                            if (!this.TryLoadModEntry(modAssembly, error => TrackSkip(metadata, error), out Mod mod))
+                                continue;
+
+                            // get content packs
+                            if (!contentPacksByModID.TryGetValue(manifest.UniqueID, out IContentPack[] contentPacks))
+                                contentPacks = new IContentPack[0];
+
+                            // init mod helpers
+                            IMonitor monitor = this.GetSecondaryMonitor(metadata.DisplayName);
+                            IModHelper modHelper;
+                            {
+                                IModEvents events = new ModEvents(metadata, this.EventManager);
+                                ICommandHelper commandHelper = new CommandHelper(manifest.UniqueID, metadata.DisplayName, this.CommandManager);
+                                IContentHelper contentHelper = new ContentHelper(contentCore, metadata.DirectoryPath, manifest.UniqueID, metadata.DisplayName, monitor);
+                                IReflectionHelper reflectionHelper = new ReflectionHelper(manifest.UniqueID, metadata.DisplayName, this.Reflection, this.DeprecationManager);
+                                IModRegistry modRegistryHelper = new ModRegistryHelper(manifest.UniqueID, this.ModRegistry, proxyFactory, monitor);
+                                IMultiplayerHelper multiplayerHelper = new MultiplayerHelper(manifest.UniqueID, this.GameInstance.Multiplayer);
+                                ITranslationHelper translationHelper = new TranslationHelper(manifest.UniqueID, manifest.Name, contentCore.GetLocale(), contentCore.Language);
+
+                                IContentPack CreateTransitionalContentPack(string packDirPath, IManifest packManifest)
+                                {
+                                    IMonitor packMonitor = this.GetSecondaryMonitor(packManifest.Name);
+                                    IContentHelper packContentHelper = new ContentHelper(contentCore, packDirPath, packManifest.UniqueID, packManifest.Name, packMonitor);
+                                    return new ContentPack(packDirPath, packManifest, packContentHelper, this.JsonHelper);
+                                }
+
+                                modHelper = new ModHelper(manifest.UniqueID, metadata.DirectoryPath, jsonHelper, this.GameInstance.Input, events, contentHelper, commandHelper, modRegistryHelper, reflectionHelper, multiplayerHelper, translationHelper, contentPacks, CreateTransitionalContentPack, this.DeprecationManager);
+                            }
+
+                            // init mod
+                            mod.ModManifest = manifest;
+                            mod.Helper = modHelper;
+                            mod.Monitor = monitor;
+
+                            // track mod
+                            metadata.SetMod(mod);
+                            this.ModRegistry.Add(metadata);
+                        }
+                        catch (Exception ex)
+                        {
+                            TrackSkip(metadata, $"initialisation failed:\n{ex.GetLogSummary()}");
+                        }
                     }
                 }
             }

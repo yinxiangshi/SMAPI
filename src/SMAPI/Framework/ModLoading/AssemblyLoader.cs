@@ -134,7 +134,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// assemblies (especially with Mono). Since this is meant to be called on <see cref="AppDomain.AssemblyResolve"/>,
         /// the implicit assumption is that loading the exact assembly failed.
         /// </remarks>
-        public Assembly ResolveAssembly(string name)
+        public static Assembly ResolveAssembly(string name)
         {
             string shortName = name.Split(new[] { ',' }, 2).First(); // get simple name (without version and culture)
             return AppDomain.CurrentDomain
