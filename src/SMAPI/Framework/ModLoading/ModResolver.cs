@@ -4,10 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using StardewModdingAPI.Framework.ModData;
-using StardewModdingAPI.Framework.Models;
 using StardewModdingAPI.Toolkit.Serialisation;
+using StardewModdingAPI.Toolkit.Serialisation.Models;
 using StardewModdingAPI.Toolkit.Utilities;
-using ToolkitManifest = StardewModdingAPI.Toolkit.Serialisation.Models.Manifest;
 
 namespace StardewModdingAPI.Framework.ModLoading
 {
@@ -33,15 +32,13 @@ namespace StardewModdingAPI.Framework.ModLoading
                     string path = Path.Combine(modDir.FullName, "manifest.json");
                     try
                     {
-                        ToolkitManifest rawManifest = jsonHelper.ReadJsonFile<ToolkitManifest>(path);
-                        if (rawManifest == null)
+                        manifest = jsonHelper.ReadJsonFile<Manifest>(path);
+                        if (manifest == null)
                         {
                             error = File.Exists(path)
                                 ? "its manifest is invalid."
                                 : "it doesn't have a manifest.";
                         }
-                        else
-                            manifest = new Manifest(rawManifest);
                     }
                     catch (SParseException ex)
                     {

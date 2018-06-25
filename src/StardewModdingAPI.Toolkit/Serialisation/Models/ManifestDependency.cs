@@ -1,7 +1,10 @@
+using Newtonsoft.Json;
+using StardewModdingAPI.Toolkit.Serialisation.Converters;
+
 namespace StardewModdingAPI.Toolkit.Serialisation.Models
 {
     /// <summary>A mod dependency listed in a mod manifest.</summary>
-    public class ManifestDependency
+    public class ManifestDependency : IManifestDependency
     {
         /*********
         ** Accessors
@@ -10,7 +13,8 @@ namespace StardewModdingAPI.Toolkit.Serialisation.Models
         public string UniqueID { get; set; }
 
         /// <summary>The minimum required version (if any).</summary>
-        public SemanticVersion MinimumVersion { get; set; }
+        [JsonConverter(typeof(SemanticVersionConverter))]
+        public ISemanticVersion MinimumVersion { get; set; }
 
         /// <summary>Whether the dependency must be installed to use the mod.</summary>
         public bool IsRequired { get; set; }

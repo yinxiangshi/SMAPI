@@ -1,7 +1,10 @@
+using Newtonsoft.Json;
+using StardewModdingAPI.Toolkit.Serialisation.Converters;
+
 namespace StardewModdingAPI.Toolkit.Serialisation.Models
 {
     /// <summary>Indicates which mod can read the content pack represented by the containing manifest.</summary>
-    public class ManifestContentPackFor
+    public class ManifestContentPackFor : IManifestContentPackFor
     {
         /*********
         ** Accessors
@@ -10,6 +13,7 @@ namespace StardewModdingAPI.Toolkit.Serialisation.Models
         public string UniqueID { get; set; }
 
         /// <summary>The minimum required version (if any).</summary>
-        public SemanticVersion MinimumVersion { get; set; }
+        [JsonConverter(typeof(SemanticVersionConverter))]
+        public ISemanticVersion MinimumVersion { get; set; }
     }
 }

@@ -1,5 +1,4 @@
 using Newtonsoft.Json.Linq;
-using StardewModdingAPI.Toolkit.Serialisation.Models;
 
 namespace StardewModdingAPI.Toolkit.Serialisation.Converters
 {

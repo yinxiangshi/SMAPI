@@ -5,7 +5,7 @@ using StardewModdingAPI.Toolkit.Serialisation.Converters;
 namespace StardewModdingAPI.Toolkit.Serialisation.Models
 {
     /// <summary>A manifest which describes a mod for SMAPI.</summary>
-    public class Manifest
+    public class Manifest : IManifest
     {
         /*********
         ** Accessors
@@ -20,21 +20,23 @@ namespace StardewModdingAPI.Toolkit.Serialisation.Models
         public string Author { get; set; }
 
         /// <summary>The mod version.</summary>
-        public SemanticVersion Version { get; set; }
+        [JsonConverter(typeof(SemanticVersionConverter))]
+        public ISemanticVersion Version { get; set; }
 
         /// <summary>The minimum SMAPI version required by this mod, if any.</summary>
-        public SemanticVersion MinimumApiVersion { get; set; }
+        [JsonConverter(typeof(SemanticVersionConverter))]
+        public ISemanticVersion MinimumApiVersion { get; set; }
 
         /// <summary>The name of the DLL in the directory that has the <c>Entry</c> method. Mutually exclusive with <see cref="ContentPackFor"/>.</summary>
         public string EntryDll { get; set; }
 
         /// <summary>The mod which will read this as a content pack. Mutually exclusive with <see cref="Manifest.EntryDll"/>.</summary>
         [JsonConverter(typeof(ManifestContentPackForConverter))]
-        public ManifestContentPackFor ContentPackFor { get; set; }
+        public IManifestContentPackFor ContentPackFor { get; set; }
 
         /// <summary>The other mods that must be loaded before this mod.</summary>
         [JsonConverter(typeof(ManifestDependencyArrayConverter))]
-        public ManifestDependency[] Dependencies { get; set; }
+        public IManifestDependency[] Dependencies { get; set; }
 
         /// <summary>The namespaced mod IDs to query for updates (like <c>Nexus:541</c>).</summary>
         public string[] UpdateKeys { get; set; }
@@ -45,5 +47,30 @@ namespace StardewModdingAPI.Toolkit.Serialisation.Models
         /// <summary>Any manifest fields which didn't match a valid field.</summary>
         [JsonExtensionData]
         public IDictionary<string, object> ExtraFields { get; set; }
+
+
+        /*********
+        ** Public methods
+        *********/
+        /// <summary>Construct an instance.</summary>
+        public Manifest() { }
+
+        /// <summary>Construct an instance for a transitional content pack.</summary>
+        /// <param name="uniqueID">The unique mod ID.</param>
+        /// <param name="name">The mod name.</param>
+        /// <param name="author">The mod author's name.</param>
+        /// <param name="description">A brief description of the mod.</param>
+        /// <param name="version">The mod version.</param>
+        /// <param name="contentPackFor">The modID which will read this as a content pack.</param>
+        public Manifest(string uniqueID, string name, string author, string description, ISemanticVersion version, string contentPackFor = null)
+        {
+            this.Name = name;
+            this.Author = author;
+            this.Description = description;
+            this.Version = version;
+            this.UniqueID = uniqueID;
+            this.UpdateKeys = new string[0];
+            this.ContentPackFor = new ManifestContentPackFor { UniqueID = contentPackFor };
+        }
     }
 }

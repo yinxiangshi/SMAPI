@@ -7,9 +7,9 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.ModData;
-using StardewModdingAPI.Framework.Models;
 using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Toolkit.Serialisation;
+using StardewModdingAPI.Toolkit.Serialisation.Models;
 
 namespace StardewModdingAPI.Tests.Core
 {
@@ -472,17 +472,18 @@ namespace StardewModdingAPI.Tests.Core
         /// <param name="dependencies">The <see cref="IManifest.Dependencies"/> value.</param>
         private Manifest GetManifest(string id = null, string name = null, string version = null, string entryDll = null, string contentPackForID = null, string minimumApiVersion = null, IManifestDependency[] dependencies = null)
         {
-            return new Manifest(
-                uniqueID: id ?? $"{Sample.String()}.{Sample.String()}",
-                name: name ?? id ?? Sample.String(),
-                author: Sample.String(),
-                description: Sample.String(),
-                version: version != null ? new SemanticVersion(version) : new SemanticVersion(Sample.Int(), Sample.Int(), Sample.Int(), Sample.String()),
-                entryDll: entryDll ?? $"{Sample.String()}.dll",
-                contentPackFor: contentPackForID != null ? new ManifestContentPackFor(contentPackForID) : null,
-                minimumApiVersion: minimumApiVersion != null ? new SemanticVersion(minimumApiVersion) : null,
-                dependencies: dependencies
-            );
+            return new Manifest
+            {
+                UniqueID = id ?? $"{Sample.String()}.{Sample.String()}",
+                Name = name ?? id ?? Sample.String(),
+                Author = Sample.String(),
+                Description = Sample.String(),
+                Version = version != null ? new SemanticVersion(version) : new SemanticVersion(Sample.Int(), Sample.Int(), Sample.Int(), Sample.String()),
+                EntryDll = entryDll ?? $"{Sample.String()}.dll",
+                ContentPackFor = contentPackForID != null ? new ManifestContentPackFor { UniqueID = contentPackForID } : null,
+                MinimumApiVersion = minimumApiVersion != null ? new SemanticVersion(minimumApiVersion) : null,
+                Dependencies = dependencies
+            };
         }
 
         /// <summary>Get a randomised basic manifest.</summary>

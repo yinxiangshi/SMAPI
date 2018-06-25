@@ -4,8 +4,8 @@ using System.IO;
 using System.Linq;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.Input;
-using StardewModdingAPI.Framework.Models;
 using StardewModdingAPI.Toolkit.Serialisation;
+using StardewModdingAPI.Toolkit.Serialisation.Models;
 using StardewModdingAPI.Toolkit.Utilities;
 
 namespace StardewModdingAPI.Framework.ModHelpers
@@ -185,7 +185,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
                 author: author,
                 description: description,
                 version: version,
-                contentPackFor: new ManifestContentPackFor(this.ModID)
+                contentPackFor: this.ModID
             );
 
             // create content pack

@@ -126,11 +126,7 @@
     <Compile Include="Framework\Events\ModEvents.cs" />
     <Compile Include="Framework\Events\ModInputEvents.cs" />
     <Compile Include="Framework\Input\GamePadStateBuilder.cs" />
-    <Compile Include="Framework\Models\Manifest.cs" />
-    <Compile Include="Framework\Models\ManifestContentPackFor.cs" />
-    <Compile Include="Framework\Models\ManifestDependency.cs" />
     <Compile Include="Framework\ModHelpers\InputHelper.cs" />
-    <Compile Include="Framework\Serialisation\SemanticVersionConverter.cs" />
     <Compile Include="Framework\StateTracking\Comparers\GenericEqualsComparer.cs" />
     <Compile Include="Framework\WatcherCore.cs" />
     <Compile Include="IInputHelper.cs" />
@@ -186,7 +182,6 @@
     <Compile Include="Framework\StateTracking\PlayerTracker.cs" />
     <Compile Include="Framework\Utilities\ContextHash.cs" />
     <Compile Include="IContentPack.cs" />
-    <Compile Include="IManifestContentPackFor.cs" />
     <Compile Include="IMultiplayerHelper.cs" />
     <Compile Include="IReflectedField.cs" />
     <Compile Include="IReflectedMethod.cs" />
@@ -258,7 +253,6 @@
     <Compile Include="IAssetDataForDictionary.cs" />
     <Compile Include="IAssetDataForImage.cs" />
     <Compile Include="IContentHelper.cs" />
-    <Compile Include="IManifestDependency.cs" />
     <Compile Include="IModRegistry.cs" />
     <Compile Include="Events\LocationEvents.cs" />
     <Compile Include="Events\MenuEvents.cs" />
@@ -275,7 +269,6 @@
     <Compile Include="Framework\Reflection\ReflectedField.cs" />
     <Compile Include="Framework\Reflection\ReflectedMethod.cs" />
     <Compile Include="Framework\Reflection\Reflector.cs" />
-    <Compile Include="IManifest.cs" />
     <Compile Include="IMod.cs" />
     <Compile Include="IModHelper.cs" />
     <Compile Include="IModLinked.cs" />
