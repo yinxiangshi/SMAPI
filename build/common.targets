@@ -25,7 +25,7 @@
 
   <!-- add common references -->
   <ItemGroup>
-    <Reference Condition="'$(OS)' == 'Windows_NT' AND '$(MSBuildProjectName)' != 'StardewModdingAPI.Toolkit'" Include="System.Management" />
+    <Reference Condition="'$(OS)' == 'Windows_NT' AND '$(MSBuildProjectName)' != 'StardewModdingAPI.Toolkit' AND '$(MSBuildProjectName)' != 'StardewModdingAPI.Toolkit.CoreInterfaces'" Include="System.Management" />
   </ItemGroup>
 
   <!-- add game references-->
@@ -113,9 +113,13 @@
     <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)\Mods\$(AssemblyName)" Condition="Exists('$(TargetDir)\$(TargetName).pdb')" />
     <Copy SourceFiles="$(TargetDir)\manifest.json" DestinationFolder="$(GamePath)\Mods\$(AssemblyName)" />
   </Target>
-  <Target Name="CopyToolkit" Condition="'$(MSBuildProjectName)' == 'StardewModdingAPI.Toolkit' AND '$(Configuration)' == 'Debug'" AfterTargets="PostBuildEvent">
+  <Target Name="CopyToolkit" Condition="'$(MSBuildProjectName)' == 'StardewModdingAPI.Toolkit' AND '$(Configuration)' == 'Debug' AND $(TargetFramework) == 'net4.5'" AfterTargets="PostBuildEvent">
       <Copy SourceFiles="$(TargetDir)\$(TargetName).dll" DestinationFolder="$(GamePath)" />
       <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)" />
+  </Target>
+  <Target Name="CopyToolkitCoreInterfaces" Condition="'$(MSBuildProjectName)' == 'StardewModdingAPI.Toolkit.CoreInterfaces' AND '$(Configuration)' == 'Debug' AND $(TargetFramework) == 'net4.5'" AfterTargets="PostBuildEvent">
+    <Copy SourceFiles="$(TargetDir)\$(TargetName).dll" DestinationFolder="$(GamePath)" />
+    <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)" />
   </Target>
 
   <!-- launch SMAPI on debug -->

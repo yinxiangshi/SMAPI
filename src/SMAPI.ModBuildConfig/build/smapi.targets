@@ -92,6 +92,11 @@
           <Private>false</Private>
           <Private Condition="$(ModUnitTests)">true</Private>
         </Reference>
+        <Reference Include="StardewModdingAPI.Toolkit.CoreInterfaces">
+          <HintPath>$(GamePath)\StardewModdingAPI.Toolkit.CoreInterfaces.dll</HintPath>
+          <Private>false</Private>
+          <Private Condition="$(ModUnitTests)">true</Private>
+        </Reference>
         <Reference Include="xTile, Version=2.0.4.0, Culture=neutral, processorArchitecture=x86">
           <HintPath>$(GamePath)\xTile.dll</HintPath>
           <Private>false</Private>
