@@ -83,6 +83,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>Whether the mod manifest was loaded (regardless of whether the mod itself was loaded).</summary>
         bool HasManifest();
 
+        /// <summary>Whether the mod has an ID (regardless of whether the ID is valid or the mod itself was loaded).</summary>
+        bool HasID();
+
         /// <summary>Whether the mod has at least one update key set.</summary>
         bool HasUpdateKeys();
     }

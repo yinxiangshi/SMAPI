@@ -640,7 +640,7 @@ namespace StardewModdingAPI
                         List<ModSearchEntryModel> searchMods = new List<ModSearchEntryModel>();
                         foreach (IModMetadata mod in mods)
                         {
-                            if (!mod.HasManifest())
+                            if (!mod.HasID())
                                 continue;
 
                             string[] updateKeys = mod.Manifest.UpdateKeys ?? new string[0];
@@ -657,7 +657,7 @@ namespace StardewModdingAPI
                         foreach (IModMetadata mod in mods.OrderBy(p => p.DisplayName))
                         {
                             // link to update-check data
-                            if (!mod.HasManifest() || !results.TryGetValue(mod.Manifest.UniqueID, out ModEntryModel result))
+                            if (!mod.HasID() || !results.TryGetValue(mod.Manifest.UniqueID, out ModEntryModel result))
                                 continue;
                             mod.SetUpdateData(result);
 
@@ -665,8 +665,8 @@ namespace StardewModdingAPI
                             if (result.Errors != null && result.Errors.Any())
                             {
                                 errors.AppendLine(result.Errors.Length == 1
-                                    ? $"   {mod.DisplayName} update error: {result.Errors[0]}"
-                                    : $"   {mod.DisplayName} update errors:\n      - {string.Join("\n      - ", result.Errors)}"
+                                    ? $"   {mod.DisplayName}: {result.Errors[0]}"
+                                    : $"   {mod.DisplayName}:\n      - {string.Join("\n      - ", result.Errors)}"
                                 );
                             }
 
@@ -688,7 +688,7 @@ namespace StardewModdingAPI
 
                         // show update errors
                         if (errors.Length != 0)
-                            this.Monitor.Log("Encountered errors fetching updates for some mods:\n" + errors, LogLevel.Trace);
+                            this.Monitor.Log("Got update-check errors for some mods:\n" + errors.ToString().TrimEnd(), LogLevel.Trace);
 
                         // show update alerts
                         if (updates.Any())

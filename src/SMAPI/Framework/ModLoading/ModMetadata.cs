@@ -133,6 +133,14 @@ namespace StardewModdingAPI.Framework.ModLoading
             return this.Manifest != null;
         }
 
+        /// <summary>Whether the mod has an ID (regardless of whether the ID is valid or the mod itself was loaded).</summary>
+        public bool HasID()
+        {
+            return
+                this.HasManifest()
+                && !string.IsNullOrWhiteSpace(this.Manifest.UniqueID);
+        }
+
         /// <summary>Whether the mod has at least one update key set.</summary>
         public bool HasUpdateKeys()
         {
