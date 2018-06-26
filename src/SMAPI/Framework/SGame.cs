@@ -850,6 +850,7 @@ namespace StardewModdingAPI.Framework
                         }
                         this.RaisePostRender();
                         Game1.spriteBatch.End();
+                        this.drawOverlays(Game1.spriteBatch);
                         if ((double)Game1.options.zoomLevel != 1.0)
                         {
                             this.GraphicsDevice.SetRenderTarget((RenderTarget2D)null);
@@ -858,9 +859,8 @@ namespace StardewModdingAPI.Framework
                             Game1.spriteBatch.Draw((Texture2D)this.screen, Vector2.Zero, new Microsoft.Xna.Framework.Rectangle?(this.screen.Bounds), Color.White, 0.0f, Vector2.Zero, Game1.options.zoomLevel, SpriteEffects.None, 1f);
                             Game1.spriteBatch.End();
                         }
-                        this.drawOverlays(Game1.spriteBatch);
                     }
-                    else if ((int)Game1.gameMode == 11)
+                    else if (Game1.gameMode == (byte)11)
                     {
                         Game1.spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, (DepthStencilState)null, (RasterizerState)null);
                         Game1.spriteBatch.DrawString(Game1.dialogueFont, Game1.content.LoadString("Strings\\StringsFromCSFiles:Game1.cs.3685"), new Vector2(16f, 16f), Color.HotPink);
@@ -875,9 +875,10 @@ namespace StardewModdingAPI.Framework
                         if (Game1.globalFade && !Game1.menuUp && (!Game1.nameSelectUp || Game1.messagePause))
                         {
                             Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, (DepthStencilState)null, (RasterizerState)null);
-                            Game1.spriteBatch.Draw(Game1.fadeToBlackRect, Game1.graphics.GraphicsDevice.Viewport.Bounds, Color.Black * ((int)Game1.gameMode == 0 ? 1f - Game1.fadeToBlackAlpha : Game1.fadeToBlackAlpha));
+                            Game1.spriteBatch.Draw(Game1.fadeToBlackRect, Game1.graphics.GraphicsDevice.Viewport.Bounds, Color.Black * (Game1.gameMode == (byte)0 ? 1f - Game1.fadeToBlackAlpha : Game1.fadeToBlackAlpha));
                             Game1.spriteBatch.End();
                         }
+                        this.drawOverlays(Game1.spriteBatch);
                         this.RaisePostRender(needsNewBatch: true);
                         if ((double)Game1.options.zoomLevel != 1.0)
                         {
@@ -887,7 +888,6 @@ namespace StardewModdingAPI.Framework
                             Game1.spriteBatch.Draw((Texture2D)this.screen, Vector2.Zero, new Microsoft.Xna.Framework.Rectangle?(this.screen.Bounds), Color.White, 0.0f, Vector2.Zero, Game1.options.zoomLevel, SpriteEffects.None, 1f);
                             Game1.spriteBatch.End();
                         }
-                        this.drawOverlays(Game1.spriteBatch);
                     }
                     else if (Game1.showingEndOfNightStuff)
                     {
@@ -908,6 +908,7 @@ namespace StardewModdingAPI.Framework
                         }
                         this.RaisePostRender();
                         Game1.spriteBatch.End();
+                        this.drawOverlays(Game1.spriteBatch);
                         if ((double)Game1.options.zoomLevel != 1.0)
                         {
                             this.GraphicsDevice.SetRenderTarget((RenderTarget2D)null);
@@ -916,9 +917,8 @@ namespace StardewModdingAPI.Framework
                             Game1.spriteBatch.Draw((Texture2D)this.screen, Vector2.Zero, new Microsoft.Xna.Framework.Rectangle?(this.screen.Bounds), Color.White, 0.0f, Vector2.Zero, Game1.options.zoomLevel, SpriteEffects.None, 1f);
                             Game1.spriteBatch.End();
                         }
-                        this.drawOverlays(Game1.spriteBatch);
                     }
-                    else if ((int)Game1.gameMode == 6 || (int)Game1.gameMode == 3 && Game1.currentLocation == null)
+                    else if (Game1.gameMode == (byte)6 || Game1.gameMode == (byte)3 && Game1.currentLocation == null)
                     {
                         Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, (DepthStencilState)null, (RasterizerState)null);
                         string str1 = "";
@@ -933,6 +933,7 @@ namespace StardewModdingAPI.Framework
                         int y = Game1.graphics.GraphicsDevice.Viewport.GetTitleSafeArea().Bottom - height;
                         SpriteText.drawString(Game1.spriteBatch, s, x, y, 999999, widthOfString, height, 1f, 0.88f, false, 0, str3, -1);
                         Game1.spriteBatch.End();
+                        this.drawOverlays(Game1.spriteBatch);
                         if ((double)Game1.options.zoomLevel != 1.0)
                         {
                             this.GraphicsDevice.SetRenderTarget((RenderTarget2D)null);
@@ -941,13 +942,12 @@ namespace StardewModdingAPI.Framework
                             Game1.spriteBatch.Draw((Texture2D)this.screen, Vector2.Zero, new Microsoft.Xna.Framework.Rectangle?(this.screen.Bounds), Color.White, 0.0f, Vector2.Zero, Game1.options.zoomLevel, SpriteEffects.None, 1f);
                             Game1.spriteBatch.End();
                         }
-                        this.drawOverlays(Game1.spriteBatch);
                         //base.Draw(gameTime);
                     }
                     else
                     {
                         Microsoft.Xna.Framework.Rectangle rectangle;
-                        if ((int)Game1.gameMode == 0)
+                        if (Game1.gameMode == (byte)0)
                         {
                             Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, (DepthStencilState)null, (RasterizerState)null);
                         }
@@ -1114,14 +1114,14 @@ namespace StardewModdingAPI.Framework
                                         Location mapDisplayLocation2 = new Location(rectangle.Right, (int)Game1.player.Position.Y - 38);
                                         Size size2 = Game1.viewport.Size;
                                         if (layer2.PickTile(mapDisplayLocation2, size2).TileIndexProperties.ContainsKey("FrontAlways"))
-                                            goto label_140;
+                                            goto label_139;
                                     }
                                     else
-                                        goto label_140;
+                                        goto label_139;
                                 }
                                 Game1.drawPlayerHeldObject(Game1.player);
                             }
-                        label_140:
+                            label_139:
                             if ((Game1.player.UsingTool || Game1.pickingTool) && Game1.player.CurrentTool != null && ((!Game1.player.CurrentTool.Name.Equals("Seeds") || Game1.pickingTool) && (Game1.currentLocation.Map.GetLayer("Front").PickTile(new Location(Game1.player.getStandingX(), (int)Game1.player.Position.Y - 38), Game1.viewport.Size) != null && Game1.currentLocation.Map.GetLayer("Front").PickTile(new Location(Game1.player.getStandingX(), Game1.player.getStandingY()), Game1.viewport.Size) == null)))
                                 Game1.drawTool(Game1.player);
                             if (Game1.currentLocation.Map.GetLayer("AlwaysFront") != null)
@@ -1217,7 +1217,7 @@ namespace StardewModdingAPI.Framework
                             }
                             if (Game1.currentBillboard != 0)
                                 this.drawBillboard();
-                            if ((Game1.displayHUD || Game1.eventUp) && (Game1.currentBillboard == 0 && (int)Game1.gameMode == 3) && (!Game1.freezeControls && !Game1.panMode && !Game1.HostPaused))
+                            if ((Game1.displayHUD || Game1.eventUp) && (Game1.currentBillboard == 0 && Game1.gameMode == (byte)3) && (!Game1.freezeControls && !Game1.panMode && !Game1.HostPaused))
                             {
                                 this.Events.Graphics_OnPreRenderHudEvent.Raise();
                                 this.drawHUD();
@@ -1263,7 +1263,7 @@ namespace StardewModdingAPI.Framework
                         if (Game1.isRaining && Game1.currentLocation != null && ((bool)((NetFieldBase<bool, NetBool>)Game1.currentLocation.isOutdoors) && !(Game1.currentLocation is Desert)))
                             Game1.spriteBatch.Draw(Game1.staminaRect, Game1.graphics.GraphicsDevice.Viewport.Bounds, Color.Blue * 0.2f);
                         if ((Game1.fadeToBlack || Game1.globalFade) && !Game1.menuUp && (!Game1.nameSelectUp || Game1.messagePause))
-                            Game1.spriteBatch.Draw(Game1.fadeToBlackRect, Game1.graphics.GraphicsDevice.Viewport.Bounds, Color.Black * ((int)Game1.gameMode == 0 ? 1f - Game1.fadeToBlackAlpha : Game1.fadeToBlackAlpha));
+                            Game1.spriteBatch.Draw(Game1.fadeToBlackRect, Game1.graphics.GraphicsDevice.Viewport.Bounds, Color.Black * (Game1.gameMode == (byte)0 ? 1f - Game1.fadeToBlackAlpha : Game1.fadeToBlackAlpha));
                         else if ((double)Game1.flashAlpha > 0.0)
                         {
                             if (Game1.options.screenFlash)
