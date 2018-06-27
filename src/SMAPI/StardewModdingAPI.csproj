@@ -132,11 +132,6 @@
     <Compile Include="IInputHelper.cs" />
     <Compile Include="Framework\Input\SInputState.cs" />
     <Compile Include="Framework\Input\InputStatus.cs" />
-    <Compile Include="Framework\ModData\ModDatabase.cs" />
-    <Compile Include="Framework\ModData\ModDataField.cs" />
-    <Compile Include="Framework\ModData\ModDataFieldKey.cs" />
-    <Compile Include="Framework\ModData\ParsedModDataRecord.cs" />
-    <Compile Include="Framework\Models\SMetadata.cs" />
     <Compile Include="Framework\ModHelpers\MultiplayerHelper.cs" />
     <Compile Include="Framework\ModLoading\Finders\EventFinder.cs" />
     <Compile Include="Framework\ModLoading\Finders\FieldFinder.cs" />
@@ -239,7 +234,6 @@
     <Compile Include="Context.cs" />
     <Compile Include="Framework\Logging\ConsoleInterceptionManager.cs" />
     <Compile Include="Framework\Logging\InterceptingTextWriter.cs" />
-    <Compile Include="Framework\ModData\ModStatus.cs" />
     <Compile Include="Framework\Models\SConfig.cs" />
     <Compile Include="Framework\ModLoading\ModMetadata.cs" />
     <Compile Include="Framework\Reflection\ReflectedProperty.cs" />
@@ -263,7 +257,6 @@
     <Compile Include="Framework\DeprecationLevel.cs" />
     <Compile Include="Framework\DeprecationManager.cs" />
     <Compile Include="Framework\InternalExtensions.cs" />
-    <Compile Include="Framework\ModData\ModDataRecord.cs" />
     <Compile Include="Framework\ModLoading\AssemblyLoader.cs" />
     <Compile Include="Framework\Reflection\CacheEntry.cs" />
     <Compile Include="Framework\Reflection\ReflectedField.cs" />

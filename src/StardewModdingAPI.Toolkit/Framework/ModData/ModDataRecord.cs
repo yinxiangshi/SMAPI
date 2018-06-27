@@ -5,10 +5,10 @@ using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace StardewModdingAPI.Framework.ModData
+namespace StardewModdingAPI.Toolkit.Framework.ModData
 {
     /// <summary>Raw mod metadata from SMAPI's internal mod list.</summary>
-    internal class ModDataRecord
+    public class ModDataRecord
     {
         /*********
         ** Properties

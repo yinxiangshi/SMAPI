@@ -1,7 +1,7 @@
-namespace StardewModdingAPI.Framework.ModData
+namespace StardewModdingAPI.Toolkit.Framework.ModData
 {
     /// <summary>A parsed representation of the fields from a <see cref="ModDataRecord"/> for a specific manifest.</summary>
-    internal class ParsedModDataRecord
+    public class ParsedModDataRecord
     {
         /*********
         ** Accessors

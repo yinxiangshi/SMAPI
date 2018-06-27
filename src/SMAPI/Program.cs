@@ -21,7 +21,6 @@ using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.Events;
 using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.Logging;
-using StardewModdingAPI.Framework.ModData;
 using StardewModdingAPI.Framework.Models;
 using StardewModdingAPI.Framework.ModHelpers;
 using StardewModdingAPI.Framework.ModLoading;
@@ -29,7 +28,9 @@ using StardewModdingAPI.Framework.Patching;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Serialisation;
 using StardewModdingAPI.Internal;
+using StardewModdingAPI.Toolkit;
 using StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
+using StardewModdingAPI.Toolkit.Framework.ModData;
 using StardewModdingAPI.Toolkit.Serialisation;
 using StardewModdingAPI.Toolkit.Serialisation.Converters;
 using StardewModdingAPI.Toolkit.Utilities;
@@ -413,8 +414,8 @@ namespace StardewModdingAPI
                 this.Monitor.Log("SMAPI found problems in your game's content files which are likely to cause errors or crashes. Consider uninstalling XNB mods or reinstalling the game.", LogLevel.Error);
 
             // load mod data
-            SMetadata metadata = JsonConvert.DeserializeObject<SMetadata>(File.ReadAllText(Constants.ApiMetadataPath));
-            ModDatabase modDatabase = new ModDatabase(metadata.ModData, Constants.GetUpdateUrl);
+            ModToolkit toolkit = new ModToolkit();
+            ModDatabase modDatabase = toolkit.GetModDatabase(Constants.ApiMetadataPath, toolkit.GetUpdateUrl);
 
             // load mods
             {
@@ -423,7 +424,7 @@ namespace StardewModdingAPI
 
                 // load manifests
                 IModMetadata[] mods = resolver.ReadManifests(Constants.ModPath, this.JsonHelper, modDatabase).ToArray();
-                resolver.ValidateManifests(mods, Constants.ApiVersion, Constants.GetUpdateUrl);
+                resolver.ValidateManifests(mods, Constants.ApiVersion, toolkit.GetUpdateUrl);
 
                 // process dependencies
                 mods = resolver.ProcessDependencies(mods, modDatabase).ToArray();

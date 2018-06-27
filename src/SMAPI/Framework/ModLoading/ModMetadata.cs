@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
-using StardewModdingAPI.Framework.ModData;
 using StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
+using StardewModdingAPI.Toolkit.Framework.ModData;
 
 namespace StardewModdingAPI.Framework.ModLoading
 {

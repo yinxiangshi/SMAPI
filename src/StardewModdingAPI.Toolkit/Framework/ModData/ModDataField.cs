@@ -1,9 +1,9 @@
 using System.Linq;
 
-namespace StardewModdingAPI.Framework.ModData
+namespace StardewModdingAPI.Toolkit.Framework.ModData
 {
     /// <summary>A versioned mod metadata field.</summary>
-    internal class ModDataField
+    public class ModDataField
     {
         /*********
         ** Accessors

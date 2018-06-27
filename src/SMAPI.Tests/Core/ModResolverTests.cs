@@ -6,8 +6,8 @@ using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using StardewModdingAPI.Framework;
-using StardewModdingAPI.Framework.ModData;
 using StardewModdingAPI.Framework.ModLoading;
+using StardewModdingAPI.Toolkit.Framework.ModData;
 using StardewModdingAPI.Toolkit.Serialisation;
 using StardewModdingAPI.Toolkit.Serialisation.Models;
 
