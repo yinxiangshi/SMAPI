@@ -27,6 +27,9 @@ namespace StardewModdingAPI.Web.ViewModels
         /// <summary>The parsed log info.</summary>
         public ParsedLog ParsedLog { get; set; }
 
+        /// <summary>Whether to show the raw unparsed log.</summary>
+        public bool ShowRaw { get; set; }
+
         /// <summary>An error which occurred while uploading the log to Pastebin.</summary>
         public string UploadError { get; set; }
 
@@ -43,12 +46,24 @@ namespace StardewModdingAPI.Web.ViewModels
         /// <summary>Construct an instance.</summary>
         /// <param name="sectionUrl">The root URL for the log parser controller.</param>
         /// <param name="pasteID">The paste ID.</param>
-        /// <param name="parsedLog">The parsed log info.</param>
-        public LogParserModel(string sectionUrl, string pasteID, ParsedLog parsedLog)
+        public LogParserModel(string sectionUrl, string pasteID)
         {
             this.SectionUrl = sectionUrl;
             this.PasteID = pasteID;
+            this.ParsedLog = null;
+            this.ShowRaw = false;
+        }
+
+        /// <summary>Construct an instance.</summary>
+        /// <param name="sectionUrl">The root URL for the log parser controller.</param>
+        /// <param name="pasteID">The paste ID.</param>
+        /// <param name="parsedLog">The parsed log info.</param>
+        /// <param name="showRaw">Whether to show the raw unparsed log.</param>
+        public LogParserModel(string sectionUrl, string pasteID, ParsedLog parsedLog, bool showRaw)
+            : this(sectionUrl, pasteID)
+        {
             this.ParsedLog = parsedLog;
+            this.ShowRaw = showRaw;
         }
 
         /// <summary>Get all content packs in the log grouped by the mod they're for.</summary>

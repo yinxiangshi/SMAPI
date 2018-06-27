@@ -65,6 +65,7 @@
   * Redesigned UI to be more mobile-friendly.
   * Added option to download from Nexus.
   * Changed log parser filters to show `DEBUG` messages by default.
+  * Added log parser option to view raw log.
   * Fixed log parser issue when content packs have no description.
   * Fixed log parser mangling crossplatform paths in some cases.
 

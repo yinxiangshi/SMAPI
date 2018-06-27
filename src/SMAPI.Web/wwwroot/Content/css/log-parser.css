@@ -79,6 +79,10 @@ table#metadata, table#mods {
     cursor: pointer;
 }
 
+#mods.filters-disabled tr {
+    cursor: default;
+}
+
 #metadata tr,
 #mods tr {
     background: #eee

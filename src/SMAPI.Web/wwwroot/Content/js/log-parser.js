@@ -39,11 +39,17 @@ smapi.logParser = function (data, sectionUrl) {
             }
         },
         methods: {
-            toggleLevel: function(id) {
+            toggleLevel: function (id) {
+                if (!data.enableFilters)
+                    return;
+
                 this.showLevels[id] = !this.showLevels[id];
             },
 
             toggleMod: function (id) {
+                if (!data.enableFilters)
+                    return;
+
                 var curShown = this.showMods[id];
 
                 // first filter: only show this by default
@@ -64,6 +70,9 @@ smapi.logParser = function (data, sectionUrl) {
             },
 
             showAllMods: function () {
+                if (!data.enableFilters)
+                    return;
+
                 for (var key in this.showMods) {
                     if (this.showMods.hasOwnProperty(key)) {
                         this.showMods[key] = true;
@@ -73,6 +82,9 @@ smapi.logParser = function (data, sectionUrl) {
             },
 
             hideAllMods: function () {
+                if (!data.enableFilters)
+                    return;
+
                 for (var key in this.showMods) {
                     if (this.showMods.hasOwnProperty(key)) {
                         this.showMods[key] = false;

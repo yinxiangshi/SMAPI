@@ -52,21 +52,22 @@ namespace StardewModdingAPI.Web.Controllers
         ***/
         /// <summary>Render the log parser UI.</summary>
         /// <param name="id">The paste ID.</param>
+        /// <param name="raw">Whether to display the raw unparsed log.</param>
         [HttpGet]
         [Route("log")]
         [Route("log/{id}")]
-        public async Task<ViewResult> Index(string id = null)
+        public async Task<ViewResult> Index(string id = null, bool raw = false)
         {
             // fresh page
             if (string.IsNullOrWhiteSpace(id))
-                return this.View("Index", new LogParserModel(this.Config.LogParserUrl, id, null));
+                return this.View("Index", new LogParserModel(this.Config.LogParserUrl, id));
 
             // log page
             PasteInfo paste = await this.GetAsync(id);
             ParsedLog log = paste.Success
                 ? new LogParser().Parse(paste.Content)
                 : new ParsedLog { IsValid = false, Error = "Pastebin error: " + paste.Error };
-            return this.View("Index", new LogParserModel(this.Config.LogParserUrl, id, log));
+            return this.View("Index", new LogParserModel(this.Config.LogParserUrl, id, log, raw));
         }
 
         /***
@@ -80,7 +81,7 @@ namespace StardewModdingAPI.Web.Controllers
             // get raw log text
             string input = this.Request.Form["input"].FirstOrDefault();
             if (string.IsNullOrWhiteSpace(input))
-                return this.View("Index", new LogParserModel(this.Config.LogParserUrl, null, null) { UploadError = "The log file seems to be empty." });
+                return this.View("Index", new LogParserModel(this.Config.LogParserUrl, null) { UploadError = "The log file seems to be empty." });
 
             // upload log
             input = this.CompressString(input);
@@ -88,7 +89,7 @@ namespace StardewModdingAPI.Web.Controllers
 
             // handle errors
             if (!result.Success)
-                return this.View("Index", new LogParserModel(this.Config.LogParserUrl, result.ID, null) { UploadError = $"Pastebin error: {result.Error ?? "unknown error"}" });
+                return this.View("Index", new LogParserModel(this.Config.LogParserUrl, result.ID) { UploadError = $"Pastebin error: {result.Error ?? "unknown error"}" });
 
             // redirect to view
             UriBuilder uri = new UriBuilder(new Uri(this.Config.LogParserUrl));
