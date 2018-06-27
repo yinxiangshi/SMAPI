@@ -1305,7 +1305,8 @@
     },
 
     "Siv's Marriage Mod": {
-      "FormerIDs": "6266959802 | Siv.MarriageMod | medoli900.Siv's Marriage Mod", // changed in 1.2.3-unofficial versions
+      "ID": "6266959802", // official version
+      "FormerIDs": "Siv.MarriageMod | medoli900.Siv's Marriage Mod", // 1.2.3-unofficial versions
       "MapLocalVersions": { "0.0": "1.4" },
       "Default | UpdateKey": "Nexus:366"
     },
