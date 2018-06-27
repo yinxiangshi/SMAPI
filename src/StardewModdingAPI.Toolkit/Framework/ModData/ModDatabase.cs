@@ -33,6 +33,12 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
             this.GetUpdateUrl = getUpdateUrl;
         }
 
+        /// <summary>Get all mod data records.</summary>
+        public IEnumerable<ModDataRecord> GetAll()
+        {
+            return this.Records;
+        }
+
         /// <summary>Get a mod data record.</summary>
         /// <param name="modID">The unique mod ID.</param>
         public ModDataRecord Get(string modID)
