@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using StardewModdingAPI.Toolkit.Framework.Clients.Wiki;
@@ -48,8 +49,9 @@ namespace StardewModdingAPI.Toolkit
         /// <param name="getUpdateUrl">Get an update URL for an update key (if valid).</param>
         public ModDatabase GetModDatabase(string metadataPath, Func<string, string> getUpdateUrl)
         {
-            SMetadata metadata = JsonConvert.DeserializeObject<SMetadata>(File.ReadAllText(metadataPath));
-            return new ModDatabase(metadata.ModData, getUpdateUrl);
+            MetadataModel metadata = JsonConvert.DeserializeObject<MetadataModel>(File.ReadAllText(metadataPath));
+            ModDataRecord[] records = metadata.ModData.Select(pair => new ModDataRecord(pair.Key, pair.Value)).ToArray();
+            return new ModDatabase(records, getUpdateUrl);
         }
 
         /// <summary>Get an update URL for an update key (if valid).</summary>

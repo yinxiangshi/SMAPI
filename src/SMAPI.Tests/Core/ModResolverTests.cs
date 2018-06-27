@@ -142,7 +142,7 @@ namespace StardewModdingAPI.Tests.Core
         {
             // arrange
             Mock<IModMetadata> mock = this.GetMetadata("Mod A", new string[0], allowStatusChange: true);
-            this.SetupMetadataForValidation(mock, new ParsedModDataRecord
+            this.SetupMetadataForValidation(mock, new ModDataRecordVersionedFields
             {
                 Status = ModStatus.AssumeBroken,
                 AlternativeUrl = "http://example.org"
@@ -526,7 +526,7 @@ namespace StardewModdingAPI.Tests.Core
         /// <summary>Set up a mock mod metadata for <see cref="ModResolver.ValidateManifests"/>.</summary>
         /// <param name="mod">The mock mod metadata.</param>
         /// <param name="modRecord">The extra metadata about the mod from SMAPI's internal data (if any).</param>
-        private void SetupMetadataForValidation(Mock<IModMetadata> mod, ParsedModDataRecord modRecord = null)
+        private void SetupMetadataForValidation(Mock<IModMetadata> mod, ModDataRecordVersionedFields modRecord = null)
         {
             mod.Setup(p => p.Status).Returns(ModMetadataStatus.Found);
             mod.Setup(p => p.DataRecord).Returns(() => null);

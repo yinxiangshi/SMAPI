@@ -21,7 +21,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         public IManifest Manifest { get; }
 
         /// <summary>Metadata about the mod from SMAPI's internal data (if any).</summary>
-        public ParsedModDataRecord DataRecord { get; }
+        public ModDataRecordVersionedFields DataRecord { get; }
 
         /// <summary>The metadata resolution status.</summary>
         public ModMetadataStatus Status { get; private set; }
@@ -59,7 +59,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="directoryPath">The mod's full directory path.</param>
         /// <param name="manifest">The mod manifest.</param>
         /// <param name="dataRecord">Metadata about the mod from SMAPI's internal data (if any).</param>
-        public ModMetadata(string displayName, string directoryPath, IManifest manifest, ParsedModDataRecord dataRecord)
+        public ModMetadata(string displayName, string directoryPath, IManifest manifest, ModDataRecordVersionedFields dataRecord)
         {
             this.DisplayName = displayName;
             this.DirectoryPath = directoryPath;

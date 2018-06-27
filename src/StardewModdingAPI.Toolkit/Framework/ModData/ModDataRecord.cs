@@ -1,107 +1,66 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace StardewModdingAPI.Toolkit.Framework.ModData
 {
-    /// <summary>Raw mod metadata from SMAPI's internal mod list.</summary>
+    /// <summary>The parsed mod metadata from SMAPI's internal mod list.</summary>
     public class ModDataRecord
     {
         /*********
-        ** Properties
-        *********/
-        /// <summary>This field stores properties that aren't mapped to another field before they're parsed into <see cref="Fields"/>.</summary>
-        [JsonExtensionData]
-        private IDictionary<string, JToken> ExtensionData;
-
-
-        /*********
         ** Accessors
         *********/
+        /// <summary>The mod's default display name.</summary>
+        public string DisplayName { get; }
+
         /// <summary>The mod's current unique ID.</summary>
-        public string ID { get; set; }
+        public string ID { get; }
 
         /// <summary>The former mod IDs (if any).</summary>
-        /// <remarks>
-        /// This uses a custom format which uniquely identifies a mod across multiple versions and
-        /// supports matching other fields if no ID was specified. This doesn't include the latest
-        /// ID, if any. Format rules:
-        ///   1. If the mod's ID changed over time, multiple variants can be separated by the
-        ///      <c>|</c> character.
-        ///   2. Each variant can take one of two forms:
-        ///      - A simple string matching the mod's UniqueID value.
-        ///      - A JSON structure containing any of four manifest fields (ID, Name, Author, and
-        ///        EntryDll) to match.
-        /// </remarks>
-        public string FormerIDs { get; set; }
+        public string[] FormerIDs { get; }
 
         /// <summary>Maps local versions to a semantic version for update checks.</summary>
-        public IDictionary<string, string> MapLocalVersions { get; set; } = new Dictionary<string, string>();
+        public IDictionary<string, string> MapLocalVersions { get; }
 
         /// <summary>Maps remote versions to a semantic version for update checks.</summary>
-        public IDictionary<string, string> MapRemoteVersions { get; set; } = new Dictionary<string, string>();
+        public IDictionary<string, string> MapRemoteVersions { get; }
 
         /// <summary>The versioned field data.</summary>
-        /// <remarks>
-        /// This maps field names to values. This should be accessed via <see cref="GetFields"/>.
-        /// Format notes:
-        ///   - Each key consists of a field name prefixed with any combination of version range
-        ///     and <c>Default</c>, separated by pipes (whitespace trimmed). For example, <c>Name</c>
-        ///     will always override the name, <c>Default | Name</c> will only override a blank
-        ///     name, and <c>~1.1 | Default | Name</c> will override blank names up to version 1.1.
-        ///   - The version format is <c>min~max</c> (where either side can be blank for unbounded), or
-        ///     a single version number.
-        ///   - The field name itself corresponds to a <see cref="ModDataFieldKey"/> value.
-        /// </remarks>
-        public IDictionary<string, string> Fields { get; set; } = new Dictionary<string, string>();
+        public ModDataField[] Fields { get; }
 
 
         /*********
         ** Public methods
         *********/
-        /// <summary>Get a parsed representation of the <see cref="Fields"/>.</summary>
-        public IEnumerable<ModDataField> GetFields()
+        /// <summary>Construct an instance.</summary>
+        /// <param name="displayName">The mod's default display name.</param>
+        /// <param name="model">The raw data model.</param>
+        internal ModDataRecord(string displayName, ModDataModel model)
         {
-            foreach (KeyValuePair<string, string> pair in this.Fields)
+            this.DisplayName = displayName;
+            this.ID = model.ID;
+            this.FormerIDs = model.GetFormerIDs().ToArray();
+            this.MapLocalVersions = new Dictionary<string, string>(model.MapLocalVersions, StringComparer.InvariantCultureIgnoreCase);
+            this.MapRemoteVersions = new Dictionary<string, string>(model.MapRemoteVersions, StringComparer.InvariantCultureIgnoreCase);
+            this.Fields = model.GetFields().ToArray();
+        }
+
+        /// <summary>Get whether the mod has (or previously had) the given ID.</summary>
+        /// <param name="id">The mod ID.</param>
+        public bool HasID(string id)
+        {
+            // try main ID
+            if (this.ID.Equals(id, StringComparison.InvariantCultureIgnoreCase))
+                return true;
+
+            // try former IDs
+            foreach (string formerID in this.FormerIDs)
             {
-                // init fields
-                string packedKey = pair.Key;
-                string value = pair.Value;
-                bool isDefault = false;
-                ISemanticVersion lowerVersion = null;
-                ISemanticVersion upperVersion = null;
-
-                // parse
-                string[] parts = packedKey.Split('|').Select(p => p.Trim()).ToArray();
-                ModDataFieldKey fieldKey = (ModDataFieldKey)Enum.Parse(typeof(ModDataFieldKey), parts.Last(), ignoreCase: true);
-                foreach (string part in parts.Take(parts.Length - 1))
-                {
-                    // 'default'
-                    if (part.Equals("Default", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        isDefault = true;
-                        continue;
-                    }
-
-                    // version range
-                    if (part.Contains("~"))
-                    {
-                        string[] versionParts = part.Split(new[] { '~' }, 2);
-                        lowerVersion = versionParts[0] != "" ? new SemanticVersion(versionParts[0]) : null;
-                        upperVersion = versionParts[1] != "" ? new SemanticVersion(versionParts[1]) : null;
-                        continue;
-                    }
-
-                    // single version
-                    lowerVersion = new SemanticVersion(part);
-                    upperVersion = new SemanticVersion(part);
-                }
-
-                yield return new ModDataField(fieldKey, value, isDefault, lowerVersion, upperVersion);
+                if (formerID.Equals(id, StringComparison.InvariantCultureIgnoreCase))
+                    return true;
             }
+
+            return false;
         }
 
         /// <summary>Get a semantic local version for update checks.</summary>
@@ -127,20 +86,39 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
                 : version;
         }
 
-
-        /*********
-        ** Private methods
-        *********/
-        /// <summary>The method invoked after JSON deserialisation.</summary>
-        /// <param name="context">The deserialisation context.</param>
-        [OnDeserialized]
-        private void OnDeserialized(StreamingContext context)
+        /// <summary>Get a parsed representation of the <see cref="ModDataRecord.Fields"/> which match a given manifest.</summary>
+        /// <param name="manifest">The manifest to match.</param>
+        public ModDataRecordVersionedFields GetVersionedFields(IManifest manifest)
         {
-            if (this.ExtensionData != null)
+            ModDataRecordVersionedFields parsed = new ModDataRecordVersionedFields { DisplayName = this.DisplayName, DataRecord = this };
+            foreach (ModDataField field in this.Fields.Where(field => field.IsMatch(manifest)))
             {
-                this.Fields = this.ExtensionData.ToDictionary(p => p.Key, p => p.Value.ToString());
-                this.ExtensionData = null;
+                switch (field.Key)
+                {
+                    // update key
+                    case ModDataFieldKey.UpdateKey:
+                        parsed.UpdateKey = field.Value;
+                        break;
+
+                    // alternative URL
+                    case ModDataFieldKey.AlternativeUrl:
+                        parsed.AlternativeUrl = field.Value;
+                        break;
+
+                    // status
+                    case ModDataFieldKey.Status:
+                        parsed.Status = (ModStatus)Enum.Parse(typeof(ModStatus), field.Value, ignoreCase: true);
+                        parsed.StatusUpperVersion = field.UpperVersion;
+                        break;
+
+                    // status reason phrase
+                    case ModDataFieldKey.StatusReasonPhrase:
+                        parsed.StatusReasonPhrase = field.Value;
+                        break;
+                }
             }
+
+            return parsed;
         }
     }
 }

@@ -51,7 +51,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 }
 
                 // parse internal data record (if any)
-                ParsedModDataRecord dataRecord = modDatabase.GetParsed(manifest);
+                ModDataRecordVersionedFields dataRecord = modDatabase.Get(manifest?.UniqueID)?.GetVersionedFields(manifest);
 
                 // get display name
                 string displayName = manifest?.Name;
@@ -301,7 +301,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 string[] failedModNames = (
                     from entry in dependencies
                     where entry.IsRequired && entry.Mod == null
-                    let displayName = modDatabase.GetDisplayNameFor(entry.ID) ?? entry.ID
+                    let displayName = modDatabase.Get(entry.ID)?.DisplayName ?? entry.ID
                     let modUrl = modDatabase.GetModPageUrlFor(entry.ID)
                     orderby displayName
                     select modUrl != null
