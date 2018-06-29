@@ -83,7 +83,7 @@ namespace StardewModdingAPI.Web.Controllers
         /// <summary>Fetch version metadata for the given mods.</summary>
         /// <param name="model">The mod search criteria.</param>
         [HttpPost]
-        public async Task<IDictionary<string, ModEntryModel>> PostAsync([FromBody] ModSearchModel model)
+        public async Task<object> PostAsync([FromBody] ModSearchModel model)
         {
             // parse request data
             ISemanticVersion apiVersion = this.GetApiVersion();
@@ -92,101 +92,115 @@ namespace StardewModdingAPI.Web.Controllers
             // fetch wiki data
             WikiCompatibilityEntry[] wikiData = await this.GetWikiDataAsync();
 
-            // perform checks
+            // fetch data
             IDictionary<string, ModEntryModel> mods = new Dictionary<string, ModEntryModel>(StringComparer.CurrentCultureIgnoreCase);
             foreach (ModSearchEntryModel mod in searchMods)
             {
                 if (string.IsNullOrWhiteSpace(mod.ID))
                     continue;
 
-                // resolve update keys
-                var updateKeys = new HashSet<string>(mod.UpdateKeys ?? new string[0], StringComparer.InvariantCultureIgnoreCase);
-                ModDataRecord record = this.ModDatabase.Get(mod.ID);
-                if (record?.Fields != null)
-                {
-                    string defaultUpdateKey = record.Fields.FirstOrDefault(p => p.Key == ModDataFieldKey.UpdateKey && p.IsDefault)?.Value;
-                    if (!string.IsNullOrWhiteSpace(defaultUpdateKey))
-                        updateKeys.Add(defaultUpdateKey);
-                }
-
-                // get latest versions
-                ModEntryModel result = new ModEntryModel { ID = mod.ID };
-                IList<string> errors = new List<string>();
-                foreach (string updateKey in updateKeys)
-                {
-                    // fetch data
-                    ModInfoModel data = await this.GetInfoForUpdateKeyAsync(updateKey);
-                    if (data.Error != null)
-                    {
-                        errors.Add(data.Error);
-                        continue;
-                    }
-
-                    // handle main version
-                    if (data.Version != null)
-                    {
-                        if (!SemanticVersion.TryParse(data.Version, out ISemanticVersion version))
-                        {
-                            errors.Add($"The update key '{updateKey}' matches a mod with invalid semantic version '{data.Version}'.");
-                            continue;
-                        }
-
-                        if (this.IsNewer(version, result.Main?.Version))
-                            result.Main = new ModEntryVersionModel(version, data.Url);
-                    }
-
-                    // handle optional version
-                    if (data.PreviewVersion != null)
-                    {
-                        if (!SemanticVersion.TryParse(data.PreviewVersion, out ISemanticVersion version))
-                        {
-                            errors.Add($"The update key '{updateKey}' matches a mod with invalid optional semantic version '{data.PreviewVersion}'.");
-                            continue;
-                        }
-
-                        if (this.IsNewer(version, result.Optional?.Version))
-                            result.Optional = new ModEntryVersionModel(version, data.Url);
-                    }
-                }
-
-                // get unofficial version
-                WikiCompatibilityEntry wikiEntry = wikiData.FirstOrDefault(entry => entry.ID.Contains(result.ID.Trim(), StringComparer.InvariantCultureIgnoreCase));
-                if (wikiEntry?.UnofficialVersion != null && this.IsNewer(wikiEntry.UnofficialVersion, result.Main?.Version) && this.IsNewer(wikiEntry.UnofficialVersion, result.Optional?.Version))
-                    result.Unofficial = new ModEntryVersionModel(wikiEntry.UnofficialVersion, this.WikiCompatibilityPageUrl);
-
-                // fallback to preview if latest is invalid
-                if (result.Main == null && result.Optional != null)
-                {
-                    result.Main = result.Optional;
-                    result.Optional = null;
-                }
-
-                // special cases
-                if (mod.ID == "Pathoschild.SMAPI")
-                {
-                    if (result.Main != null)
-                        result.Main.Url = "https://smapi.io/";
-                    if (result.Optional != null)
-                        result.Optional.Url = "https://smapi.io/";
-                }
-
-                // add extended metadata
-                if (model.IncludeExtendedMetadata && (wikiEntry != null || record != null))
-                    result.Metadata = new ModExtendedMetadataModel(wikiEntry, record);
-
-                // add result
-                result.Errors = errors.ToArray();
+                ModEntryModel result = await this.GetModData(mod, wikiData, model.IncludeExtendedMetadata);
                 result.SetBackwardsCompatibility(apiVersion);
                 mods[mod.ID] = result;
             }
 
-            return mods;
+            // return in expected structure
+            return apiVersion.IsNewerThan("2.6-beta.18")
+                ? mods.Values
+                : (object)mods;
         }
 
 
         /*********
         ** Private methods
         *********/
+        /// <summary>Get the metadata for a mod.</summary>
+        /// <param name="search">The mod data to match.</param>
+        /// <param name="wikiData">The wiki data.</param>
+        /// <param name="includeExtendedMetadata">Whether to include extended metadata for each mod.</param>
+        /// <returns>Returns the mod data if found, else <c>null</c>.</returns>
+        private async Task<ModEntryModel> GetModData(ModSearchEntryModel search, WikiCompatibilityEntry[] wikiData, bool includeExtendedMetadata)
+        {
+            // resolve update keys
+            var updateKeys = new HashSet<string>(search.UpdateKeys ?? new string[0], StringComparer.InvariantCultureIgnoreCase);
+            ModDataRecord record = this.ModDatabase.Get(search.ID);
+            if (record?.Fields != null)
+            {
+                string defaultUpdateKey = record.Fields.FirstOrDefault(p => p.Key == ModDataFieldKey.UpdateKey && p.IsDefault)?.Value;
+                if (!string.IsNullOrWhiteSpace(defaultUpdateKey))
+                    updateKeys.Add(defaultUpdateKey);
+            }
+
+            // get latest versions
+            ModEntryModel result = new ModEntryModel { ID = search.ID };
+            IList<string> errors = new List<string>();
+            foreach (string updateKey in updateKeys)
+            {
+                // fetch data
+                ModInfoModel data = await this.GetInfoForUpdateKeyAsync(updateKey);
+                if (data.Error != null)
+                {
+                    errors.Add(data.Error);
+                    continue;
+                }
+
+                // handle main version
+                if (data.Version != null)
+                {
+                    if (!SemanticVersion.TryParse(data.Version, out ISemanticVersion version))
+                    {
+                        errors.Add($"The update key '{updateKey}' matches a mod with invalid semantic version '{data.Version}'.");
+                        continue;
+                    }
+
+                    if (this.IsNewer(version, result.Main?.Version))
+                        result.Main = new ModEntryVersionModel(version, data.Url);
+                }
+
+                // handle optional version
+                if (data.PreviewVersion != null)
+                {
+                    if (!SemanticVersion.TryParse(data.PreviewVersion, out ISemanticVersion version))
+                    {
+                        errors.Add($"The update key '{updateKey}' matches a mod with invalid optional semantic version '{data.PreviewVersion}'.");
+                        continue;
+                    }
+
+                    if (this.IsNewer(version, result.Optional?.Version))
+                        result.Optional = new ModEntryVersionModel(version, data.Url);
+                }
+            }
+
+            // get unofficial version
+            WikiCompatibilityEntry wikiEntry = wikiData.FirstOrDefault(entry => entry.ID.Contains(result.ID.Trim(), StringComparer.InvariantCultureIgnoreCase));
+            if (wikiEntry?.UnofficialVersion != null && this.IsNewer(wikiEntry.UnofficialVersion, result.Main?.Version) && this.IsNewer(wikiEntry.UnofficialVersion, result.Optional?.Version))
+                result.Unofficial = new ModEntryVersionModel(wikiEntry.UnofficialVersion, this.WikiCompatibilityPageUrl);
+
+            // fallback to preview if latest is invalid
+            if (result.Main == null && result.Optional != null)
+            {
+                result.Main = result.Optional;
+                result.Optional = null;
+            }
+
+            // special cases
+            if (result.ID == "Pathoschild.SMAPI")
+            {
+                if (result.Main != null)
+                    result.Main.Url = "https://smapi.io/";
+                if (result.Optional != null)
+                    result.Optional.Url = "https://smapi.io/";
+            }
+
+            // add extended metadata
+            if (includeExtendedMetadata && (wikiEntry != null || record != null))
+                result.Metadata = new ModExtendedMetadataModel(wikiEntry, record);
+
+            // add result
+            result.Errors = errors.ToArray();
+            return result;
+        }
+
         /// <summary>Parse a namespaced mod ID.</summary>
         /// <param name="raw">The raw mod ID to parse.</param>
         /// <param name="vendorKey">The parsed vendor key.</param>

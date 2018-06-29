@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using Newtonsoft.Json;
 
@@ -34,10 +35,10 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
         /// <param name="mods">The mod keys for which to fetch the latest version.</param>
         public IDictionary<string, ModEntryModel> GetModInfo(params ModSearchEntryModel[] mods)
         {
-            return this.Post<ModSearchModel, Dictionary<string, ModEntryModel>>(
+            return this.Post<ModSearchModel, ModEntryModel[]>(
                 $"v{this.Version}/mods",
                 new ModSearchModel(mods)
-            );
+            ).ToDictionary(p => p.ID);
         }
 
 
