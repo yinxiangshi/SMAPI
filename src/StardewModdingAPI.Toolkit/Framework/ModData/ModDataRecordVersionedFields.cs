@@ -40,12 +40,15 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
 
         /// <summary>Get a semantic remote version for update checks.</summary>
         /// <param name="version">The remote version to normalise.</param>
-        public ISemanticVersion GetRemoteVersionForUpdateChecks(string version)
+        public ISemanticVersion GetRemoteVersionForUpdateChecks(ISemanticVersion version)
         {
-            string rawVersion = this.DataRecord.GetRemoteVersionForUpdateChecks(version);
+            if (version == null)
+                return null;
+
+            string rawVersion = this.DataRecord.GetRemoteVersionForUpdateChecks(version.ToString());
             return rawVersion != null
                 ? new SemanticVersion(rawVersion)
-                : null;
+                : version;
         }
     }
 }

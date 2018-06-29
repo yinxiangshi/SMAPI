@@ -80,7 +80,11 @@ namespace StardewModdingAPI.Web.Controllers
         [HttpPost]
         public async Task<IDictionary<string, ModEntryModel>> PostAsync([FromBody] ModSearchModel model)
         {
-            ModSearchEntryModel[] searchMods = this.GetSearchMods(model).ToArray();
+            // parse request data
+            ISemanticVersion apiVersion = this.GetApiVersion();
+            ModSearchEntryModel[] searchMods = this.GetSearchMods(model, apiVersion).ToArray();
+
+            // perform checks
             IDictionary<string, ModEntryModel> mods = new Dictionary<string, ModEntryModel>(StringComparer.CurrentCultureIgnoreCase);
             foreach (ModSearchEntryModel mod in searchMods)
             {
@@ -119,11 +123,10 @@ namespace StardewModdingAPI.Web.Controllers
                             continue;
                         }
 
-                        if (result.Version == null || version.IsNewerThan(new SemanticVersion(result.Version)))
+                        if (result.Main == null || result.Main.Version.IsOlderThan(version))
                         {
                             result.Name = data.Name;
-                            result.Url = data.Url;
-                            result.Version = version.ToString();
+                            result.Main = new ModEntryVersionModel(version, data.Url);
                         }
                     }
 
@@ -136,35 +139,34 @@ namespace StardewModdingAPI.Web.Controllers
                             continue;
                         }
 
-                        if (result.PreviewVersion == null || version.IsNewerThan(new SemanticVersion(data.PreviewVersion)))
+                        if (result.Optional == null || result.Optional.Version.IsOlderThan(version))
                         {
                             result.Name = result.Name ?? data.Name;
-                            result.PreviewUrl = data.Url;
-                            result.PreviewVersion = version.ToString();
+                            result.Optional = new ModEntryVersionModel(version, data.Url);
                         }
                     }
                 }
 
                 // fallback to preview if latest is invalid
-                if (result.Version == null && result.PreviewVersion != null)
+                if (result.Main == null && result.Optional != null)
                 {
-                    result.Version = result.PreviewVersion;
-                    result.Url = result.PreviewUrl;
-                    result.PreviewVersion = null;
-                    result.PreviewUrl = null;
+                    result.Main = result.Optional;
+                    result.Optional = null;
                 }
 
                 // special cases
                 if (mod.ID == "Pathoschild.SMAPI")
                 {
                     result.Name = "SMAPI";
-                    result.Url = "https://smapi.io/";
-                    if (result.PreviewUrl != null)
-                        result.PreviewUrl = "https://smapi.io/";
+                    if (result.Main != null)
+                        result.Main.Url = "https://smapi.io/";
+                    if (result.Optional != null)
+                        result.Optional.Url = "https://smapi.io/";
                 }
 
                 // add result
                 result.Errors = errors.ToArray();
+                result.SetBackwardsCompatibility(apiVersion);
                 mods[mod.ID] = result;
             }
 
@@ -199,7 +201,8 @@ namespace StardewModdingAPI.Web.Controllers
 
         /// <summary>Get the mods for which the API should return data.</summary>
         /// <param name="model">The search model.</param>
-        private IEnumerable<ModSearchEntryModel> GetSearchMods(ModSearchModel model)
+        /// <param name="apiVersion">The requested API version.</param>
+        private IEnumerable<ModSearchEntryModel> GetSearchMods(ModSearchModel model, ISemanticVersion apiVersion)
         {
             if (model == null)
                 yield break;
@@ -212,7 +215,7 @@ namespace StardewModdingAPI.Web.Controllers
             }
 
             // yield mod update keys if backwards compatible
-            if (model.ModKeys != null && model.ModKeys.Any() && this.ShouldBeBackwardsCompatible("2.6-beta.17"))
+            if (model.ModKeys != null && model.ModKeys.Any() && !apiVersion.IsNewerThan("2.6-beta.17"))
             {
                 foreach (string updateKey in model.ModKeys.Distinct())
                     yield return new ModSearchEntryModel(updateKey, new[] { updateKey });
@@ -247,12 +250,11 @@ namespace StardewModdingAPI.Web.Controllers
             });
         }
 
-        /// <summary>Get whether the API should return data in a backwards compatible way.</summary>
-        /// <param name="maxVersion">The last version for which data should be backwards compatible.</param>
-        private bool ShouldBeBackwardsCompatible(string maxVersion)
+        /// <summary>Get the requested API version.</summary>
+        private ISemanticVersion GetApiVersion()
         {
             string actualVersion = (string)this.RouteData.Values["version"];
-            return !new SemanticVersion(actualVersion).IsNewerThan(new SemanticVersion(maxVersion));
+            return new SemanticVersion(actualVersion);
         }
     }
 }

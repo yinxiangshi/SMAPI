@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
 
 namespace StardewModdingAPI.Web.Framework.ModRepositories
 {

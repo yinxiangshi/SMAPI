@@ -596,8 +596,8 @@ namespace StardewModdingAPI
                 try
                 {
                     ModEntryModel response = client.GetModInfo(new ModSearchEntryModel("Pathoschild.SMAPI", new[] { $"GitHub:{this.Settings.GitHubProjectName}" })).Single().Value;
-                    ISemanticVersion latestStable = response.Version != null ? new SemanticVersion(response.Version) : null;
-                    ISemanticVersion latestBeta = response.PreviewVersion != null ? new SemanticVersion(response.PreviewVersion) : null;
+                    ISemanticVersion latestStable = response.Main?.Version;
+                    ISemanticVersion latestBeta = response.Optional?.Version;
 
                     if (latestStable == null && response.Errors.Any())
                     {
@@ -673,18 +673,14 @@ namespace StardewModdingAPI
 
                             // parse versions
                             ISemanticVersion localVersion = mod.DataRecord?.GetLocalVersionForUpdateChecks(mod.Manifest.Version) ?? mod.Manifest.Version;
-                            ISemanticVersion latestVersion = result.Version != null
-                                ? mod.DataRecord?.GetRemoteVersionForUpdateChecks(result.Version) ?? new SemanticVersion(result.Version)
-                                : null;
-                            ISemanticVersion optionalVersion = result.PreviewVersion != null
-                                ? (mod.DataRecord?.GetRemoteVersionForUpdateChecks(result.PreviewVersion) ?? new SemanticVersion(result.PreviewVersion))
-                                : null;
+                            ISemanticVersion latestVersion = mod.DataRecord?.GetRemoteVersionForUpdateChecks(result.Main?.Version) ?? result.Main?.Version;
+                            ISemanticVersion optionalVersion = mod.DataRecord?.GetRemoteVersionForUpdateChecks(result.Optional?.Version) ?? result.Optional?.Version;
 
                             // show update alerts
                             if (this.IsValidUpdate(localVersion, latestVersion, useBetaChannel: true))
-                                updates.Add(Tuple.Create(mod, latestVersion, result.Url));
+                                updates.Add(Tuple.Create(mod, latestVersion, result.Main?.Url));
                             else if (this.IsValidUpdate(localVersion, optionalVersion, useBetaChannel: localVersion.IsPrerelease()))
-                                updates.Add(Tuple.Create(mod, optionalVersion, result.Url));
+                                updates.Add(Tuple.Create(mod, optionalVersion, result.Optional?.Url));
                         }
 
                         // show update errors
