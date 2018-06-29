@@ -26,5 +26,10 @@
   <ItemGroup>
     <ProjectReference Include="..\StardewModdingAPI.Toolkit\StardewModdingAPI.Toolkit.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Update="wwwroot\StardewModdingAPI.metadata.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 
 </Project>

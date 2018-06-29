@@ -1,13 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using StardewModdingAPI.Toolkit;
 using StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
+using StardewModdingAPI.Toolkit.Framework.ModData;
 using StardewModdingAPI.Web.Framework.Clients.Chucklefish;
 using StardewModdingAPI.Web.Framework.Clients.GitHub;
 using StardewModdingAPI.Web.Framework.Clients.Nexus;
@@ -39,18 +42,23 @@ namespace StardewModdingAPI.Web.Controllers
         /// <summary>A regex which matches SMAPI-style semantic version.</summary>
         private readonly string VersionRegex;
 
+        /// <summary>The internal mod metadata list.</summary>
+        private readonly ModDatabase ModDatabase;
+
 
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
+        /// <param name="environment">The web hosting environment.</param>
         /// <param name="cache">The cache in which to store mod metadata.</param>
         /// <param name="configProvider">The config settings for mod update checks.</param>
         /// <param name="chucklefish">The Chucklefish API client.</param>
         /// <param name="github">The GitHub API client.</param>
         /// <param name="nexus">The Nexus API client.</param>
-        public ModsApiController(IMemoryCache cache, IOptions<ModUpdateCheckConfig> configProvider, IChucklefishClient chucklefish, IGitHubClient github, INexusClient nexus)
+        public ModsApiController(IHostingEnvironment environment, IMemoryCache cache, IOptions<ModUpdateCheckConfig> configProvider, IChucklefishClient chucklefish, IGitHubClient github, INexusClient nexus)
         {
+            this.ModDatabase = new ModToolkit().GetModDatabase(Path.Combine(environment.WebRootPath, "StardewModdingAPI.metadata.json"));
             ModUpdateCheckConfig config = configProvider.Value;
 
             this.Cache = cache;
@@ -79,10 +87,20 @@ namespace StardewModdingAPI.Web.Controllers
                 if (string.IsNullOrWhiteSpace(mod.ID))
                     continue;
 
+                // resolve update keys
+                var updateKeys = new HashSet<string>(mod.UpdateKeys ?? new string[0], StringComparer.InvariantCultureIgnoreCase);
+                ModDataRecord record = this.ModDatabase.Get(mod.ID);
+                if (record?.Fields != null)
+                {
+                    string defaultUpdateKey = record.Fields.FirstOrDefault(p => p.Key == ModDataFieldKey.UpdateKey && p.IsDefault)?.Value;
+                    if (!string.IsNullOrWhiteSpace(defaultUpdateKey))
+                        updateKeys.Add(defaultUpdateKey);
+                }
+
                 // get latest versions
                 ModEntryModel result = new ModEntryModel { ID = mod.ID };
                 IList<string> errors = new List<string>();
-                foreach (string updateKey in mod.UpdateKeys ?? new string[0])
+                foreach (string updateKey in updateKeys)
                 {
                     // fetch data
                     ModInfoModel data = await this.GetInfoForUpdateKeyAsync(updateKey);

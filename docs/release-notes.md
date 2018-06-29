@@ -3,13 +3,16 @@
 * For players:
   * Updated for Stardew Valley 1.3 (no longer compatible with earlier versions).
   * Added a bundled Save Backup mod.
-  * Added beta update channel.
   * Added prompt when in beta channel and a new version is found.
   * Added friendly error when game can't start audio.
-  * Added console warning for mods which don't have update checks configured.
-  * Added update checks for optional mod files on Nexus.
   * Added `player_add name` command, which lets you add items to your inventory by name instead of ID.
   * Improved how mod warnings are shown in the console.
+  * Improved update checks:
+    * added beta update channel;
+    * added support for optional files on Nexus;
+    * added console warning for mods which don't have update checks configured;
+    * fixed mod update checks failing if a mod only has prerelease versions on GitHub;
+    * fixed Nexus mod update alerts not showing HTTPS links.
   * Fixed `SEHException` errors and performance issues in some cases.
   * Fixed console color scheme on Mac or in PowerShell, configurable via `StardewModdingAPI.config.json`.
   * Fixed installer error on Linux/Mac in some cases.
@@ -20,9 +23,7 @@
   * Fixed `world_setseason` command not running season-change logic.
   * Fixed `world_setseason` command not normalising the season value.
   * Fixed `world_settime` sometimes breaking NPC schedules (e.g. so they stay in bed).
-  * Fixed mod update checks failing if a mod only has prerelease versions on GitHub.
   * Fixed launch issue for Linux players with some terminals. (Thanks to HanFox and kurumushi!)
-  * Fixed Nexus mod update alerts not showing HTTPS links.
   * Fixed issue where a mod crashing in `CanEdit` or `CanLoad` could cause an abort-retry loop.
   * Renamed `install.exe` to `install on Windows.exe` to avoid confusion.
   * Updated compatibility list.
@@ -79,6 +80,10 @@
   * Added Harmony for SMAPI's internal use to patch game functions for events.
   * Added metadata dump option in `StardewModdingAPI.config.json` for troubleshooting some cases.
   * Rewrote input suppression using new SDV 1.3 APIs.
+  * Rewrote update checks:
+    * Moved most logic into the web API.
+    * Changed web API to require mod ID.
+    * Changed web API to also fetch update keys from SMAPI's internal mod DB.
   * Rewrote world/player state tracking:
     * much more efficient than previous method;
     * uses net field events where available;
