@@ -46,17 +46,16 @@ namespace StardewModdingAPI.Toolkit
 
         /// <summary>Get SMAPI's internal mod database.</summary>
         /// <param name="metadataPath">The file path for the SMAPI metadata file.</param>
-        /// <param name="getUpdateUrl">Get an update URL for an update key (if valid).</param>
-        public ModDatabase GetModDatabase(string metadataPath, Func<string, string> getUpdateUrl)
+        public ModDatabase GetModDatabase(string metadataPath)
         {
             MetadataModel metadata = JsonConvert.DeserializeObject<MetadataModel>(File.ReadAllText(metadataPath));
             ModDataRecord[] records = metadata.ModData.Select(pair => new ModDataRecord(pair.Key, pair.Value)).ToArray();
-            return new ModDatabase(records, getUpdateUrl);
+            return new ModDatabase(records, this.GetUpdateUrl);
         }
 
         /// <summary>Get an update URL for an update key (if valid).</summary>
         /// <param name="updateKey">The update key.</param>
-        internal string GetUpdateUrl(string updateKey)
+        public string GetUpdateUrl(string updateKey)
         {
             string[] parts = updateKey.Split(new[] { ':' }, 2);
             if (parts.Length != 2)

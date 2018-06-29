@@ -415,7 +415,7 @@ namespace StardewModdingAPI
 
             // load mod data
             ModToolkit toolkit = new ModToolkit();
-            ModDatabase modDatabase = toolkit.GetModDatabase(Constants.ApiMetadataPath, toolkit.GetUpdateUrl);
+            ModDatabase modDatabase = toolkit.GetModDatabase(Constants.ApiMetadataPath);
 
             // load mods
             {
