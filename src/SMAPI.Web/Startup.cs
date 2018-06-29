@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using StardewModdingAPI.Toolkit.Serialisation;
 using StardewModdingAPI.Web.Framework;
 using StardewModdingAPI.Web.Framework.Clients.Chucklefish;
 using StardewModdingAPI.Web.Framework.Clients.GitHub;
@@ -56,6 +57,9 @@ namespace StardewModdingAPI.Web
                 .ConfigureApplicationPartManager(manager => manager.FeatureProviders.Add(new InternalControllerFeatureProvider()))
                 .AddJsonOptions(options =>
                 {
+                    foreach (JsonConverter converter in new JsonHelper().JsonSettings.Converters)
+                        options.SerializerSettings.Converters.Add(converter);
+
                     options.SerializerSettings.Formatting = Formatting.Indented;
                     options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
                 });
