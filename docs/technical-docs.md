@@ -158,53 +158,66 @@ persisted in a compressed form to Pastebin.
 
 The log parser lives at https://log.smapi.io.
 
-### Mods API
-The mods API provides version info for mods hosted by Chucklefish, GitHub, or Nexus Mods. It's used
-by SMAPI to perform update checks. The `{version}` URL token is the version of SMAPI making the
-request, and is used when needed for backwards compatibility.
+### Web API
+SMAPI provides a web API at `api.smapi.io` for use by SMAPI and external tools. The URL includes a
+`{version}` token, which is the SMAPI version for backwards compatibility. This API is publicly
+accessible but not officially released; it may change at any time.
 
-Each mod is identified by a repository key and unique identifier (like `nexus:541`). The following
-repositories are supported:
-
-key           | repository
-------------- | ----------
-`chucklefish` | A mod page on the [Chucklefish mod site](https://community.playstarbound.com/resources/categories/22), identified by the mod ID in the page URL.
-`github`      | A repository on [GitHub](https://github.com), identified by its owner and repository name (like `Zoryn4163/SMAPI-Mods`). This checks the version of the latest repository release.
-`nexus`       | A mod page on [Nexus Mods](https://www.nexusmods.com/stardewvalley), identified by the mod ID in the page URL.
-
+The API has one `/mods` endpoint. This provides mod info, including official versions and URLs
+(from Chucklefish, GitHub, or Nexus), unofficial versions from the wiki, and optional mod metadata
+from the wiki and SMAPI's internal data. This is used by SMAPI to perform update checks, and by
+external tools to fetch mod data.
 
 The API accepts a `POST` request with the mods to match, each of which **must** specify an ID and
-update keys.
->```
->POST https://api.smapi.io/v2.0/mods
->{
->   "mods": [
->      {
->         "id": "Pathoschild.LookupAnything",
->         "updateKeys": [ "nexus:541", "chucklefish:4250" ]
->      }
->   ]
->}
->```
+may _optionally_ specify [update keys](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Manifest#Update_checks).
+The API will automatically try to fetch known update keys from the wiki and internal data based on
+the given ID.
 
-The API will automatically aggregate versions and errors, and return a response like this. The
-latest version is the main mod version (e.g. 'latest version' field on Nexus); if available and
-newer, the latest optional version will be shown as the 'preview version'.
->```
->{
->   "Pathoschild.LookupAnything": {
->      "id": "Pathoschild.LookupAnything",
->      "name": "Lookup Anything",
->      "version": "1.18",
->      "url": "https://www.nexusmods.com/stardewvalley/mods/541",
->      "previewVersion": "1.19-beta",
->      "previewUrl": "https://www.nexusmods.com/stardewvalley/mods/541",
->      "errors": [
->         "The update key 'chucklefish:4250' matches a mod with invalid semantic version '*'."
->      ]
->   }
+```
+POST https://api.smapi.io/v2.0/mods
+{
+   "mods": [
+      {
+         "id": "Pathoschild.LookupAnything",
+         "updateKeys": [ "nexus:541", "chucklefish:4250" ]
+      }
+   ],
+   "includeExtendedMetadata": true
 }
->```
+```
+
+The API will automatically aggregate versions and errors. Each mod will include...
+* an `id` (matching what you passed in);
+* up to three versions: `main` (e.g. 'latest version' field on Nexus), `optional` if newer (e.g.
+  optional files on Nexus), and `unofficial` if newer (from the wiki);
+* `metadata` with mod info crossreferenced from the wiki and internal data (only if you specified
+  `includeExtendedMetadata: true`);
+* and `errors` containing any error messages that occurred while fetching data.
+
+For example:
+```
+[
+   {
+      "id": "Pathoschild.LookupAnything",
+      "main": {
+         "version": "1.19",
+         "url": "https://www.nexusmods.com/stardewvalley/mods/541"
+      },
+      "metadata": {
+         "id": [
+            "Pathoschild.LookupAnything",
+            "LookupAnything"
+         ],
+         "name": "Lookup Anything",
+         "nexusID": 541,
+         "gitHubRepo": "Pathoschild/StardewMods",
+         "compatibilityStatus": "Ok",
+         "compatibilitySummary": "✓ use latest version."
+      },
+      "errors": []
+   }
+]
+```
 
 ## Development
 ### Local development
