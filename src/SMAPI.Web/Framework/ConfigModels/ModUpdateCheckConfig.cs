@@ -24,5 +24,8 @@ namespace StardewModdingAPI.Web.Framework.ConfigModels
 
         /// <summary>The repository key for Nexus Mods.</summary>
         public string NexusKey { get; set; }
+
+        /// <summary>The web URL for the wiki compatibility list.</summary>
+        public string WikiCompatibilityPageUrl { get; set; }
     }
 }

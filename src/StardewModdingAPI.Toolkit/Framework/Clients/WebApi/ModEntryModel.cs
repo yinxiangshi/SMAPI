@@ -20,6 +20,9 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
         /// <summary>The latest optional version, if newer than <see cref="Main"/>.</summary>
         public ModEntryVersionModel Optional { get; set; }
 
+        /// <summary>The latest unofficial version, if newer than <see cref="Main"/> and <see cref="Optional"/>.</summary>
+        public ModEntryVersionModel Unofficial { get; set; }
+
         /// <summary>The errors that occurred while fetching update data.</summary>
         public string[] Errors { get; set; } = new string[0];
 

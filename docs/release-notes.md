@@ -10,6 +10,7 @@
   * Improved update checks:
     * added beta update channel;
     * added support for optional files on Nexus;
+    * added support for unofficial updates from the wiki (only if the installed version is incompatible);
     * added console warning for mods which don't have update checks configured;
     * fixed mod update checks failing if a mod only has prerelease versions on GitHub;
     * fixed Nexus mod update alerts not showing HTTPS links.
