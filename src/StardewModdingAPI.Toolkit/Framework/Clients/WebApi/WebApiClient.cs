@@ -33,11 +33,12 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
 
         /// <summary>Get metadata about a set of mods from the web API.</summary>
         /// <param name="mods">The mod keys for which to fetch the latest version.</param>
-        public IDictionary<string, ModEntryModel> GetModInfo(params ModSearchEntryModel[] mods)
+        /// <param name="includeExtendedMetadata">Whether to include extended metadata for each mod.</param>
+        public IDictionary<string, ModEntryModel> GetModInfo(ModSearchEntryModel[] mods, bool includeExtendedMetadata = false)
         {
             return this.Post<ModSearchModel, ModEntryModel[]>(
                 $"v{this.Version}/mods",
-                new ModSearchModel(mods)
+                new ModSearchModel(mods, includeExtendedMetadata)
             ).ToDictionary(p => p.ID);
         }
 

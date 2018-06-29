@@ -31,9 +31,11 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
 
         /// <summary>Construct an instance.</summary>
         /// <param name="mods">The mods to search.</param>
-        public ModSearchModel(ModSearchEntryModel[] mods)
+        /// <param name="includeExtendedMetadata">Whether to include extended metadata for each mod.</param>
+        public ModSearchModel(ModSearchEntryModel[] mods, bool includeExtendedMetadata)
         {
             this.Mods = mods.ToArray();
+            this.IncludeExtendedMetadata = includeExtendedMetadata;
         }
     }
 }

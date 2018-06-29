@@ -595,7 +595,7 @@ namespace StardewModdingAPI
                 ISemanticVersion updateFound = null;
                 try
                 {
-                    ModEntryModel response = client.GetModInfo(new ModSearchEntryModel("Pathoschild.SMAPI", new[] { $"GitHub:{this.Settings.GitHubProjectName}" })).Single().Value;
+                    ModEntryModel response = client.GetModInfo(new[] { new ModSearchEntryModel("Pathoschild.SMAPI", new[] { $"GitHub:{this.Settings.GitHubProjectName}" }) }).Single().Value;
                     ISemanticVersion latestStable = response.Main?.Version;
                     ISemanticVersion latestBeta = response.Optional?.Version;
 
