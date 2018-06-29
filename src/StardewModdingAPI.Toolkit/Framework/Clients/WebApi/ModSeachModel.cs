@@ -16,6 +16,9 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
         /// <summary>The mods for which to find data.</summary>
         public ModSearchEntryModel[] Mods { get; set; }
 
+        /// <summary>Whether to include extended metadata for each mod.</summary>
+        public bool IncludeExtendedMetadata { get; set; }
+
 
         /*********
         ** Public methods

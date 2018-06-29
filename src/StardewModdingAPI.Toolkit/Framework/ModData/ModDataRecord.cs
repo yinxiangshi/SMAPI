@@ -86,6 +86,16 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
                 : version;
         }
 
+        /// <summary>Get the possible mod IDs.</summary>
+        public IEnumerable<string> GetIDs()
+        {
+            return this.FormerIDs
+                .Concat(new[] { this.ID })
+                .Where(p => !string.IsNullOrWhiteSpace(p))
+                .Select(p => p.Trim())
+                .Distinct();
+        }
+
         /// <summary>Get a parsed representation of the <see cref="ModDataRecord.Fields"/> which match a given manifest.</summary>
         /// <param name="manifest">The manifest to match.</param>
         public ModDataRecordVersionedFields GetVersionedFields(IManifest manifest)

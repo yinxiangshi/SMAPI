@@ -132,10 +132,7 @@ namespace StardewModdingAPI.Web.Controllers
                         }
 
                         if (this.IsNewer(version, result.Main?.Version))
-                        {
-                            result.Name = data.Name;
                             result.Main = new ModEntryVersionModel(version, data.Url);
-                        }
                     }
 
                     // handle optional version
@@ -148,19 +145,14 @@ namespace StardewModdingAPI.Web.Controllers
                         }
 
                         if (this.IsNewer(version, result.Optional?.Version))
-                        {
-                            result.Name = result.Name ?? data.Name;
                             result.Optional = new ModEntryVersionModel(version, data.Url);
-                        }
                     }
                 }
 
                 // get unofficial version
-                {
-                    WikiCompatibilityEntry wikiEntry = wikiData.FirstOrDefault(entry => entry.ID.Contains(result.ID.Trim(), StringComparer.InvariantCultureIgnoreCase));
-                    if (wikiEntry?.UnofficialVersion != null && this.IsNewer(wikiEntry.UnofficialVersion, result.Main?.Version) && this.IsNewer(wikiEntry.UnofficialVersion, result.Optional?.Version))
-                        result.Unofficial = new ModEntryVersionModel(wikiEntry.UnofficialVersion, this.WikiCompatibilityPageUrl);
-                }
+                WikiCompatibilityEntry wikiEntry = wikiData.FirstOrDefault(entry => entry.ID.Contains(result.ID.Trim(), StringComparer.InvariantCultureIgnoreCase));
+                if (wikiEntry?.UnofficialVersion != null && this.IsNewer(wikiEntry.UnofficialVersion, result.Main?.Version) && this.IsNewer(wikiEntry.UnofficialVersion, result.Optional?.Version))
+                    result.Unofficial = new ModEntryVersionModel(wikiEntry.UnofficialVersion, this.WikiCompatibilityPageUrl);
 
                 // fallback to preview if latest is invalid
                 if (result.Main == null && result.Optional != null)
@@ -172,12 +164,15 @@ namespace StardewModdingAPI.Web.Controllers
                 // special cases
                 if (mod.ID == "Pathoschild.SMAPI")
                 {
-                    result.Name = "SMAPI";
                     if (result.Main != null)
                         result.Main.Url = "https://smapi.io/";
                     if (result.Optional != null)
                         result.Optional.Url = "https://smapi.io/";
                 }
+
+                // add extended metadata
+                if (model.IncludeExtendedMetadata && (wikiEntry != null || record != null))
+                    result.Metadata = new ModExtendedMetadataModel(wikiEntry, record);
 
                 // add result
                 result.Errors = errors.ToArray();
