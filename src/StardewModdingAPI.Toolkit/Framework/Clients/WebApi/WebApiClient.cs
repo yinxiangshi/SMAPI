@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using Newtonsoft.Json;
+using StardewModdingAPI.Toolkit.Serialisation;
 
 namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
 {
@@ -17,6 +18,9 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
 
         /// <summary>The API version number.</summary>
         private readonly ISemanticVersion Version;
+
+        /// <summary>The JSON serializer settings to use.</summary>
+        private readonly JsonSerializerSettings JsonSettings = new JsonHelper().JsonSettings;
 
 
         /*********
@@ -62,7 +66,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
                 client.Headers["Content-Type"] = "application/json";
                 client.Headers["User-Agent"] = $"SMAPI/{this.Version}";
                 string response = client.UploadString(fullUrl, data);
-                return JsonConvert.DeserializeObject<TResult>(response);
+                return JsonConvert.DeserializeObject<TResult>(response, this.JsonSettings);
             }
         }
     }
