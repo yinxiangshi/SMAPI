@@ -19,14 +19,10 @@
 
     <!-- set default settings -->
     <ModFolderName Condition="'$(ModFolderName)' == ''">$(MSBuildProjectName)</ModFolderName>
-    <ModUnitTests Condition="'$(ModUnitTests)' == ''">False</ModUnitTests>
     <ModZipPath Condition="'$(ModZipPath)' == ''">$(TargetDir)</ModZipPath>
     <EnableModDeploy Condition="'$(EnableModDeploy)' == ''">True</EnableModDeploy>
     <EnableModZip Condition="'$(EnableModZip)' == ''">True</EnableModZip>
-
-    <!-- disable mod deploy in unit test project -->
-    <EnableModDeploy Condition="'$(ModUnitTests)' == true">False</EnableModDeploy>
-    <EnableModZip Condition="'$(ModUnitTests)' == true">False</EnableModZip>
+    <CopyModReferencesToBuildOutput Condition="'$(CopyModReferencesToBuildOutput)' == ''">False</CopyModReferencesToBuildOutput>
   </PropertyGroup>
 
   <!-- find platform + game path -->
@@ -63,45 +59,45 @@
       <ItemGroup>
         <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
           <Private>false</Private>
-          <Private Condition="$(ModUnitTests)">true</Private>
+          <Private Condition="$(CopyModReferencesToBuildOutput)">true</Private>
         </Reference>
         <Reference Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
           <Private>false</Private>
-          <Private Condition="$(ModUnitTests)">true</Private>
+          <Private Condition="$(CopyModReferencesToBuildOutput)">true</Private>
         </Reference>
         <Reference Include="Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
           <Private>false</Private>
-          <Private Condition="$(ModUnitTests)">true</Private>
+          <Private Condition="$(CopyModReferencesToBuildOutput)">true</Private>
         </Reference>
         <Reference Include="Microsoft.Xna.Framework.Xact, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
           <Private>false</Private>
-          <Private Condition="$(ModUnitTests)">true</Private>
+          <Private Condition="$(CopyModReferencesToBuildOutput)">true</Private>
         </Reference>
         <Reference Include="Netcode">
           <HintPath>$(GamePath)\Netcode.dll</HintPath>
           <Private>False</Private>
-          <Private Condition="$(ModUnitTests)">true</Private>
+          <Private Condition="$(CopyModReferencesToBuildOutput)">true</Private>
         </Reference>
         <Reference Include="Stardew Valley">
           <HintPath>$(GamePath)\Stardew Valley.exe</HintPath>
           <Private>false</Private>
-          <Private Condition="$(ModUnitTests)">true</Private>
+          <Private Condition="$(CopyModReferencesToBuildOutput)">true</Private>
         </Reference>
         <Reference Include="StardewModdingAPI">
           <HintPath>$(GamePath)\StardewModdingAPI.exe</HintPath>
           <Private>false</Private>
-          <Private Condition="$(ModUnitTests)">true</Private>
+          <Private Condition="$(CopyModReferencesToBuildOutput)">true</Private>
         </Reference>
         <Reference Include="StardewModdingAPI.Toolkit.CoreInterfaces">
           <HintPath>$(GamePath)\StardewModdingAPI.Toolkit.CoreInterfaces.dll</HintPath>
           <Private>false</Private>
-          <Private Condition="$(ModUnitTests)">true</Private>
+          <Private Condition="$(CopyModReferencesToBuildOutput)">true</Private>
         </Reference>
         <Reference Include="xTile, Version=2.0.4.0, Culture=neutral, processorArchitecture=x86">
           <HintPath>$(GamePath)\xTile.dll</HintPath>
           <Private>false</Private>
           <SpecificVersion>False</SpecificVersion>
-          <Private Condition="$(ModUnitTests)">true</Private>
+          <Private Condition="$(CopyModReferencesToBuildOutput)">true</Private>
         </Reference>
       </ItemGroup>
 
@@ -119,27 +115,27 @@
           <HintPath>$(GamePath)\MonoGame.Framework.dll</HintPath>
           <Private>false</Private>
           <SpecificVersion>False</SpecificVersion>
-          <Private Condition="$(ModUnitTests)">true</Private>
+          <Private Condition="$(CopyModReferencesToBuildOutput)">true</Private>
         </Reference>
         <Reference Include="StardewValley">
           <HintPath>$(GamePath)\StardewValley.exe</HintPath>
           <Private>false</Private>
-          <Private Condition="$(ModUnitTests)">true</Private>
+          <Private Condition="$(CopyModReferencesToBuildOutput)">true</Private>
         </Reference>
         <Reference Include="StardewModdingAPI">
           <HintPath>$(GamePath)\StardewModdingAPI.exe</HintPath>
           <Private>false</Private>
-          <Private Condition="$(ModUnitTests)">true</Private>
+          <Private Condition="$(CopyModReferencesToBuildOutput)">true</Private>
         </Reference>
         <Reference Include="StardewModdingAPI.Toolkit.CoreInterfaces">
           <HintPath>$(GamePath)\StardewModdingAPI.Toolkit.CoreInterfaces.dll</HintPath>
           <Private>false</Private>
-          <Private Condition="$(ModUnitTests)">true</Private>
+          <Private Condition="$(CopyModReferencesToBuildOutput)">true</Private>
         </Reference>
         <Reference Include="xTile">
           <HintPath>$(GamePath)\xTile.dll</HintPath>
           <Private>false</Private>
-          <Private Condition="$(ModUnitTests)">true</Private>
+          <Private Condition="$(CopyModReferencesToBuildOutput)">true</Private>
         </Reference>
       </ItemGroup>
     </Otherwise>

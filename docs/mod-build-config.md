@@ -131,18 +131,20 @@ If you don't want to include a file in the mod folder or release zip:
   This is a comma-delimited list of regular expression patterns. If any pattern matches a file's
   relative path in your mod folder, that file won't be included.
 
-### Unit test projects
+### Non-mod projects
 **(upcoming in 2.1)**
 
-You can use the package in unit test projects too. Its optional unit test mode...
+You can use the package in non-mod projects too (e.g. unit tests or framework DLLs). You'll need to
+disable deploying the mod and creating a release zip:
 
-1. disables deploying the project as a mod;
-2. disables creating a release zip;
-2. and copies the referenced DLLs into the build output for unit test frameworks.
-
-To enable it, add this above the first `</PropertyGroup>` in your `.csproj`:
 ```xml
-<ModUnitTests>True</ModUnitTests>
+<EnableModDeploy>False</EnableModDeploy>
+<EnableModZip>False</EnableModZip>
+```
+
+If this is for unit tests, you may need to copy the referenced DLLs into your build output too:
+```xml
+<CopyModReferencesToBuildOutput>True</CopyModReferencesToBuildOutput>
 ```
 
 ## Code warnings

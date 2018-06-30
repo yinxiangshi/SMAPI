@@ -14,7 +14,7 @@
     <releaseNotes>
       2.1:
       - Added support for Stardew Valley 1.3.
-      - Added support for unit test projects.
+      - Added support for non-mod projects.
       - Added C# analyzers to warn about implicit conversions of Netcode fields in Stardew Valley 1.3.
       - Added option to ignore files by regex pattern.
       - Added reference to new SMAPI DLL.
