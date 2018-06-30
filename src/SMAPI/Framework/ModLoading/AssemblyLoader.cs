@@ -99,6 +99,19 @@ namespace StardewModdingAPI.Framework.ModLoading
                 // rewrite assembly
                 bool changed = this.RewriteAssembly(mod, assembly.Definition, assumeCompatible, loggedMessages, logPrefix: "      ");
 
+                // detect broken assembly reference
+                foreach (AssemblyNameReference reference in assembly.Definition.MainModule.AssemblyReferences)
+                {
+                    if (!this.IsAssemblyLoaded(reference))
+                    {
+                        this.Monitor.LogOnce(loggedMessages, $"      Broken code in {assembly.File.Name}: reference to missing assembly '{reference.FullName}'.");
+                        if (!assumeCompatible)
+                            throw new IncompatibleInstructionException($"assembly reference to {reference.FullName}", $"Found a reference to missing assembly '{reference.FullName}' while loading assembly {assembly.File.Name}.");
+                        mod.SetWarning(ModWarning.BrokenCodeLoaded);
+                        break;
+                    }
+                }
+
                 // load assembly
                 if (changed)
                 {
@@ -124,6 +137,20 @@ namespace StardewModdingAPI.Framework.ModLoading
 
             // last assembly loaded is the root
             return lastAssembly;
+        }
+
+        /// <summary>Get whether an assembly is loaded.</summary>
+        /// <param name="reference">The assembly name reference.</param>
+        public bool IsAssemblyLoaded(AssemblyNameReference reference)
+        {
+            try
+            {
+                return this.AssemblyDefinitionResolver.Resolve(reference) != null;
+            }
+            catch (AssemblyResolutionException)
+            {
+                return false;
+            }
         }
 
         /// <summary>Resolve an assembly by its name.</summary>
