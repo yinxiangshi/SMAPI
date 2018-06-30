@@ -92,7 +92,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
         public override InstructionHandleResult Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, PlatformAssemblyMap assemblyMap, bool platformChanged)
         {
-            if (!this.IsMatch(instruction) && !instruction.ToString().Contains(this.FromTypeName))
+            if (!this.IsMatch(instruction))
                 return InstructionHandleResult.None;
 
             // field reference
