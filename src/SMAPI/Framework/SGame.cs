@@ -61,7 +61,7 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>The number of ticks until SMAPI should notify mods that the game has loaded.</summary>
         /// <remarks>Skipping a few frames ensures the game finishes initialising the world before mods try to change it.</remarks>
-        private int AfterLoadTimer = 5;
+        private readonly Countdown AfterLoadTimer = new Countdown(5);
 
         /// <summary>Whether the after-load events were raised for this session.</summary>
         private bool RaisedAfterLoadEvent;
@@ -313,13 +313,14 @@ namespace StardewModdingAPI.Framework
                 /*********
                 ** Update context
                 *********/
-                if (Context.IsWorldReady && !Context.IsSaveLoaded)
+                bool wasWorldReady = Context.IsWorldReady;
+                if ((Context.IsWorldReady && !Context.IsSaveLoaded) || Game1.exitToTitle)
                     this.MarkWorldNotReady();
-                else if (Context.IsSaveLoaded && !SaveGame.IsProcessing /*still loading save*/ && this.AfterLoadTimer >= 0 && Game1.currentLocation != null)
+                else if (Context.IsSaveLoaded && !SaveGame.IsProcessing /*still loading save*/ && this.AfterLoadTimer.Current > 0 && Game1.currentLocation != null)
                 {
                     if (Game1.dayOfMonth != 0) // wait until new-game intro finishes (world not fully initialised yet)
-                        this.AfterLoadTimer--;
-                    Context.IsWorldReady = this.AfterLoadTimer <= 0;
+                        this.AfterLoadTimer.Decrement();
+                    Context.IsWorldReady = this.AfterLoadTimer.Current == 0;
                 }
 
                 /*********
@@ -342,9 +343,14 @@ namespace StardewModdingAPI.Framework
                 }
 
                 /*********
-                ** After load events
+                ** Load / return-to-title events
                 *********/
-                if (!this.RaisedAfterLoadEvent && Context.IsWorldReady)
+                if (wasWorldReady && !Context.IsWorldReady)
+                {
+                    this.Monitor.Log("Context: returned to title", LogLevel.Trace);
+                    this.Events.Save_AfterReturnToTitle.Raise();
+                }
+                else if (!this.RaisedAfterLoadEvent && Context.IsWorldReady)
                 {
                     // print context
                     string context = $"Context: loaded saved game '{Constants.SaveFolderName}', starting {Game1.currentSeason} {Game1.dayOfMonth} Y{Game1.year}.";
@@ -361,15 +367,6 @@ namespace StardewModdingAPI.Framework
                     this.RaisedAfterLoadEvent = true;
                     this.Events.Save_AfterLoad.Raise();
                     this.Events.Time_AfterDayStarted.Raise();
-                }
-
-                /*********
-                ** Exit to title events
-                *********/
-                if (Game1.exitToTitle)
-                {
-                    this.Monitor.Log("Context: returned to title", LogLevel.Trace);
-                    this.Events.Save_AfterReturnToTitle.Raise();
                 }
 
                 /*********
@@ -1342,7 +1339,7 @@ namespace StardewModdingAPI.Framework
         private void MarkWorldNotReady()
         {
             Context.IsWorldReady = false;
-            this.AfterLoadTimer = 5;
+            this.AfterLoadTimer.Reset();
             this.RaisedAfterLoadEvent = false;
         }
 

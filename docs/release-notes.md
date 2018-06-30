@@ -26,6 +26,7 @@
   * Fixed `world_settime` sometimes breaking NPC schedules (e.g. so they stay in bed).
   * Fixed launch issue for Linux players with some terminals. (Thanks to HanFox and kurumushi!)
   * Fixed issue where a mod crashing in `CanEdit` or `CanLoad` could cause an abort-retry loop.
+  * Fixed many mods not working if the player name is blank.
   * Renamed `install.exe` to `install on Windows.exe` to avoid confusion.
   * Updated compatibility list.
 
