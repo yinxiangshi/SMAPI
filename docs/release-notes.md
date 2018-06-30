@@ -48,11 +48,12 @@
   * Added absolute pixels to `ICursorPosition`.
   * Added support for reading/writing `ISemanticVersion` to JSON.
   * Update checks now use the update key order when deciding which to link to.
-  * Fixed error if a mod loads a PNG while the game is loading (e.g. custom map tilesheets via `IAssetLoader`).
   * Fixed assets loaded by temporary content managers not being editable by mods.
   * Fixed assets not reloaded consistently when the player switches language.
+  * Fixed error if a mod loads a PNG while the game is loading (e.g. custom map tilesheets via `IAssetLoader`).
   * Fixed input suppression not working consistently for clicks.
   * Fixed console command input not saved to the log.
+  * Fixed `Context.IsPlayerFree` being false during festivals.
   * Fixed `helper.ModRegistry.GetApi` interface validation errors not mentioning which interface caused the issue.
   * Fixed some common non-mod build output being included in release zip.
   * Fixed mods able to intercept other mods' assets via the internal asset keys.
