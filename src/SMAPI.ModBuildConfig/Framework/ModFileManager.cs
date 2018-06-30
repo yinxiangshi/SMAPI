@@ -28,8 +28,9 @@ namespace StardewModdingAPI.ModBuildConfig.Framework
         /// <param name="projectDir">The folder containing the project files.</param>
         /// <param name="targetDir">The folder containing the build output.</param>
         /// <param name="ignoreFilePatterns">Custom regex patterns matching files to ignore when deploying or zipping the mod.</param>
+        /// <param name="validateRequiredModFiles">Whether to validate that required mod files like the manifest are present.</param>
         /// <exception cref="UserErrorException">The mod package isn't valid.</exception>
-        public ModFileManager(string projectDir, string targetDir, Regex[] ignoreFilePatterns)
+        public ModFileManager(string projectDir, string targetDir, Regex[] ignoreFilePatterns, bool validateRequiredModFiles)
         {
             this.Files = new Dictionary<string, FileInfo>(StringComparer.InvariantCultureIgnoreCase);
 
@@ -82,14 +83,18 @@ namespace StardewModdingAPI.ModBuildConfig.Framework
                 this.Files[relativePath] = file;
             }
 
-            // check for missing manifest
-            if (!this.Files.ContainsKey(this.ManifestFileName))
-                throw new UserErrorException($"Could not create mod package because no {this.ManifestFileName} was found in the project or build output.");
+            // check for required files
+            if (validateRequiredModFiles)
+            {
+                // manifest
+                if (!this.Files.ContainsKey(this.ManifestFileName))
+                    throw new UserErrorException($"Could not create mod package because no {this.ManifestFileName} was found in the project or build output.");
 
-            // check for missing DLL
-            // ReSharper disable once SimplifyLinqExpression
-            if (!this.Files.Any(p => !p.Key.EndsWith(".dll")))
-                throw new UserErrorException("Could not create mod package because no .dll file was found in the project or build output.");
+                // DLL
+                // ReSharper disable once SimplifyLinqExpression
+                if (!this.Files.Any(p => !p.Key.EndsWith(".dll")))
+                    throw new UserErrorException("Could not create mod package because no .dll file was found in the project or build output.");
+            }
         }
 
         /// <summary>Get the files in the mod package.</summary>

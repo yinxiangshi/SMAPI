@@ -64,7 +64,7 @@ namespace StardewModdingAPI.ModBuildConfig
                 Regex[] ignoreFilePatterns = this.GetCustomIgnorePatterns().ToArray();
 
                 // get mod info
-                ModFileManager package = new ModFileManager(this.ProjectDir, this.TargetDir, ignoreFilePatterns);
+                ModFileManager package = new ModFileManager(this.ProjectDir, this.TargetDir, ignoreFilePatterns, validateRequiredModFiles: this.EnableModDeploy || this.EnableModZip);
 
                 // deploy mod files
                 if (this.EnableModDeploy)
