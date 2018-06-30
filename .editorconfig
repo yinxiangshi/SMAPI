@@ -12,15 +12,11 @@ insert_final_newline = true
 trim_trailing_whitespace = true
 charset = utf-8
 
+[*.{csproj,json,nuspec,targets}]
+indent_size = 2
+
 [*.csproj]
-indent_size = 2
 insert_final_newline = false
-
-[*.json]
-indent_size = 2
-
-[*.targets]
-indent_size = 2
 
 ##########
 ## C# formatting
