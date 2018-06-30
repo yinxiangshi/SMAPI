@@ -56,8 +56,6 @@
     <Compile Include="Framework\Commands\Player\AddCommand.cs" />
     <Compile Include="Framework\Commands\Player\SetStyleCommand.cs" />
     <Compile Include="Framework\Commands\Player\SetColorCommand.cs" />
-    <Compile Include="Framework\Commands\Player\SetSpeedCommand.cs" />
-    <Compile Include="Framework\Commands\Player\SetLevelCommand.cs" />
     <Compile Include="Framework\Commands\Player\SetMaxHealthCommand.cs" />
     <Compile Include="Framework\Commands\Player\SetMaxStaminaCommand.cs" />
     <Compile Include="Framework\Commands\Player\SetHealthCommand.cs" />

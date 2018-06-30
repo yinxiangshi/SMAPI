@@ -28,6 +28,7 @@
   * Fixed issue where a mod crashing in `CanEdit` or `CanLoad` could cause an abort-retry loop.
   * Fixed many mods not working if the player name is blank.
   * Renamed `install.exe` to `install on Windows.exe` to avoid confusion.
+  * Removed the `player_setspeed` and `player_setlevel` commands, which weren't implemented in a useful way. Use a mod like CJB Cheats Menu if you need those.
   * Updated compatibility list.
 
 * For modders:
