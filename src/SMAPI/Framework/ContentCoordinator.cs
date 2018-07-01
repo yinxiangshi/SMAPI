@@ -250,7 +250,8 @@ namespace StardewModdingAPI.Framework
             // report result
             if (removedAssetNames.Any())
                 this.Monitor.Log($"Invalidated {removedAssetNames.Count} asset names: {string.Join(", ", removedAssetNames.OrderBy(p => p, StringComparer.InvariantCultureIgnoreCase))}. Reloaded {reloaded} core assets.", LogLevel.Trace);
-            this.Monitor.Log("Invalidated 0 cache entries.", LogLevel.Trace);
+            else
+                this.Monitor.Log("Invalidated 0 cache entries.", LogLevel.Trace);
 
             return removedAssetNames;
         }
