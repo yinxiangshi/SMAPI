@@ -10,7 +10,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         ** Properties
         *********/
         /// <summary>The known assemblies.</summary>
-        private readonly IDictionary<string, AssemblyDefinition> Loaded = new Dictionary<string, AssemblyDefinition>();
+        private readonly IDictionary<string, AssemblyDefinition> Lookup = new Dictionary<string, AssemblyDefinition>();
 
 
         /*********
@@ -22,8 +22,9 @@ namespace StardewModdingAPI.Framework.ModLoading
         {
             foreach (AssemblyDefinition assembly in assemblies)
             {
-                this.Loaded[assembly.Name.Name] = assembly;
-                this.Loaded[assembly.Name.FullName] = assembly;
+                this.RegisterAssembly(assembly);
+                this.Lookup[assembly.Name.Name] = assembly;
+                this.Lookup[assembly.Name.FullName] = assembly;
             }
         }
 
@@ -44,8 +45,8 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="name">The assembly's short or full name.</param>
         private AssemblyDefinition ResolveName(string name)
         {
-            return this.Loaded.ContainsKey(name)
-                ? this.Loaded[name]
+            return this.Lookup.TryGetValue(name, out AssemblyDefinition match)
+                ? match
                 : null;
         }
     }
