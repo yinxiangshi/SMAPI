@@ -104,8 +104,8 @@ namespace StardewModdingAPI
             new Regex(@"^DebugOutput: (?:added CLOUD|dismount tile|Ping|playerPos)", RegexOptions.Compiled | RegexOptions.CultureInvariant)
         };
 
-        /// <summary>Encapsulates SMAPI's JSON file parsing.</summary>
-        private readonly JsonHelper JsonHelper = new JsonHelper();
+        /// <summary>The mod toolkit used for generic mod interactions.</summary>
+        private readonly ModToolkit Toolkit = new ModToolkit();
 
 
         /*********
@@ -205,7 +205,7 @@ namespace StardewModdingAPI
                     new RectangleConverter()
                 };
                 foreach (JsonConverter converter in converters)
-                    this.JsonHelper.JsonSettings.Converters.Add(converter);
+                    this.Toolkit.JsonHelper.JsonSettings.Converters.Add(converter);
 
                 // add error handlers
 #if SMAPI_FOR_WINDOWS
@@ -423,14 +423,14 @@ namespace StardewModdingAPI
                 ModResolver resolver = new ModResolver();
 
                 // load manifests
-                IModMetadata[] mods = resolver.ReadManifests(Constants.ModPath, this.JsonHelper, modDatabase).ToArray();
+                IModMetadata[] mods = resolver.ReadManifests(toolkit, Constants.ModPath, modDatabase).ToArray();
                 resolver.ValidateManifests(mods, Constants.ApiVersion, toolkit.GetUpdateUrl);
 
                 // process dependencies
                 mods = resolver.ProcessDependencies(mods, modDatabase).ToArray();
 
                 // load mods
-                this.LoadMods(mods, this.JsonHelper, this.ContentCore, modDatabase);
+                this.LoadMods(mods, this.Toolkit.JsonHelper, this.ContentCore, modDatabase);
 
                 // write metadata file
                 if (this.Settings.DumpMetadata)
@@ -443,7 +443,7 @@ namespace StardewModdingAPI
                         ModFolderPath = Constants.ModPath,
                         Mods = mods
                     };
-                    this.JsonHelper.WriteJsonFile(Path.Combine(Constants.LogDir, $"{Constants.LogNamePrefix}.metadata-dump.json"), export);
+                    this.Toolkit.JsonHelper.WriteJsonFile(Path.Combine(Constants.LogDir, $"{Constants.LogNamePrefix}.metadata-dump.json"), export);
                 }
 
                 // check for updates
@@ -875,7 +875,7 @@ namespace StardewModdingAPI
                                 {
                                     IMonitor packMonitor = this.GetSecondaryMonitor(packManifest.Name);
                                     IContentHelper packContentHelper = new ContentHelper(contentCore, packDirPath, packManifest.UniqueID, packManifest.Name, packMonitor);
-                                    return new ContentPack(packDirPath, packManifest, packContentHelper, this.JsonHelper);
+                                    return new ContentPack(packDirPath, packManifest, packContentHelper, this.Toolkit.JsonHelper);
                                 }
 
                                 modHelper = new ModHelper(manifest.UniqueID, metadata.DirectoryPath, jsonHelper, this.GameInstance.Input, events, contentHelper, commandHelper, modRegistryHelper, reflectionHelper, multiplayerHelper, translationHelper, contentPacks, CreateTransitionalContentPack, this.DeprecationManager);
@@ -1117,7 +1117,7 @@ namespace StardewModdingAPI
         /// <param name="mods">The mods for which to reload translations.</param>
         private void ReloadTranslations(IEnumerable<IModMetadata> mods)
         {
-            JsonHelper jsonHelper = this.JsonHelper;
+            JsonHelper jsonHelper = this.Toolkit.JsonHelper;
             foreach (IModMetadata metadata in mods)
             {
                 if (metadata.IsContentPack)

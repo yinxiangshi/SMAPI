@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using StardewModdingAPI.Toolkit.Framework.Clients.Wiki;
 using StardewModdingAPI.Toolkit.Framework.ModData;
+using StardewModdingAPI.Toolkit.Framework.ModScanning;
+using StardewModdingAPI.Toolkit.Serialisation;
 
 namespace StardewModdingAPI.Toolkit
 {
@@ -25,6 +27,13 @@ namespace StardewModdingAPI.Toolkit
             ["GitHub"] = "https://github.com/{0}/releases",
             ["Nexus"] = "https://www.nexusmods.com/stardewvalley/mods/{0}"
         };
+
+
+        /*********
+        ** Accessors
+        *********/
+        /// <summary>Encapsulates SMAPI's JSON parsing.</summary>
+        public JsonHelper JsonHelper { get; } = new JsonHelper();
 
 
         /*********
@@ -51,6 +60,13 @@ namespace StardewModdingAPI.Toolkit
             MetadataModel metadata = JsonConvert.DeserializeObject<MetadataModel>(File.ReadAllText(metadataPath));
             ModDataRecord[] records = metadata.ModData.Select(pair => new ModDataRecord(pair.Key, pair.Value)).ToArray();
             return new ModDatabase(records, this.GetUpdateUrl);
+        }
+
+        /// <summary>Extract information about all mods in the given folder.</summary>
+        /// <param name="rootPath">The root folder containing mods.</param>
+        public IEnumerable<ModFolder> GetModFolders(string rootPath)
+        {
+            return new ModScanner(this.JsonHelper).GetModFolders(rootPath);
         }
 
         /// <summary>Get an update URL for an update key (if valid).</summary>

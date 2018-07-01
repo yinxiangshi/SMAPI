@@ -7,8 +7,8 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.ModLoading;
+using StardewModdingAPI.Toolkit;
 using StardewModdingAPI.Toolkit.Framework.ModData;
-using StardewModdingAPI.Toolkit.Serialisation;
 using StardewModdingAPI.Toolkit.Serialisation.Models;
 
 namespace StardewModdingAPI.Tests.Core
@@ -31,7 +31,7 @@ namespace StardewModdingAPI.Tests.Core
             Directory.CreateDirectory(rootFolder);
 
             // act
-            IModMetadata[] mods = new ModResolver().ReadManifests(rootFolder, new JsonHelper(), new ModDatabase()).ToArray();
+            IModMetadata[] mods = new ModResolver().ReadManifests(new ModToolkit(), rootFolder, new ModDatabase()).ToArray();
 
             // assert
             Assert.AreEqual(0, mods.Length, 0, $"Expected to find zero manifests, found {mods.Length} instead.");
@@ -46,7 +46,7 @@ namespace StardewModdingAPI.Tests.Core
             Directory.CreateDirectory(modFolder);
 
             // act
-            IModMetadata[] mods = new ModResolver().ReadManifests(rootFolder, new JsonHelper(), new ModDatabase()).ToArray();
+            IModMetadata[] mods = new ModResolver().ReadManifests(new ModToolkit(), rootFolder, new ModDatabase()).ToArray();
             IModMetadata mod = mods.FirstOrDefault();
 
             // assert
@@ -85,7 +85,7 @@ namespace StardewModdingAPI.Tests.Core
             File.WriteAllText(filename, JsonConvert.SerializeObject(original));
 
             // act
-            IModMetadata[] mods = new ModResolver().ReadManifests(rootFolder, new JsonHelper(), new ModDatabase()).ToArray();
+            IModMetadata[] mods = new ModResolver().ReadManifests(new ModToolkit(), rootFolder, new ModDatabase()).ToArray();
             IModMetadata mod = mods.FirstOrDefault();
 
             // assert
