@@ -44,6 +44,7 @@ namespace StardewModdingAPI.Framework.ModLoading
             this.Monitor = monitor;
             this.AssemblyMap = this.TrackForDisposal(Constants.GetAssemblyMap(targetPlatform));
             this.AssemblyDefinitionResolver = this.TrackForDisposal(new AssemblyDefinitionResolver());
+            this.AssemblyDefinitionResolver.AddSearchDirectory(Constants.ExecutionPath);
 
             // generate type => assembly lookup for types which should be rewritten
             this.TypeAssemblies = new Dictionary<string, Assembly>();
