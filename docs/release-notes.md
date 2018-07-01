@@ -48,6 +48,7 @@
   * Added option to suppress update checks for a specific mod in `StardewModdingAPI.config.json`.
   * Added absolute pixels to `ICursorPosition`.
   * Added support for reading/writing `ISemanticVersion` to JSON.
+  * Added support for reloading NPC schedules through the content API.
   * Improved update alerts to use update key order when choosing a display URL.
   * Fixed assets loaded by temporary content managers not being editable by mods.
   * Fixed assets not reloaded consistently when the player switches language.

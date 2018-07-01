@@ -325,6 +325,10 @@ namespace StardewModdingAPI.Metadata
             if (this.IsInFolder(key, "Portraits"))
                 return this.ReloadNpcPortraits(content, key);
 
+            // dynamic data
+            if (this.IsInFolder(key, "Characters\\schedules"))
+                return this.ReloadNpcSchedules(content, key);
+
             return false;
         }
 
@@ -333,7 +337,7 @@ namespace StardewModdingAPI.Metadata
         ** Private methods
         *********/
         /****
-        ** Reload methods
+        ** Reload texture methods
         ****/
         /// <summary>Reload the sprites for matching pets or horses.</summary>
         /// <typeparam name="TAnimal">The animal type.</typeparam>
@@ -499,6 +503,38 @@ namespace StardewModdingAPI.Metadata
             }
 
             return false;
+        }
+
+        /****
+        ** Reload data methods
+        ****/
+        /// <summary>Reload the schedules for matching NPCs.</summary>
+        /// <param name="content">The content manager through which to reload the asset.</param>
+        /// <param name="key">The asset key to reload.</param>
+        /// <returns>Returns whether any assets were reloaded.</returns>
+        private bool ReloadNpcSchedules(LocalizedContentManager content, string key)
+        {
+            // get NPCs
+            string name = Path.GetFileName(key);
+            NPC[] villagers = this.GetCharacters().Where(npc => npc.Name == name && npc.isVillager()).ToArray();
+            if (!villagers.Any())
+                return false;
+
+            // update schedule
+            foreach (NPC villager in villagers)
+            {
+                // reload schedule
+                villager.Schedule = villager.getSchedule(Game1.dayOfMonth);
+
+                // switch to new schedule if needed
+                int lastScheduleTime = villager.Schedule.Keys.Where(p => p <= Game1.timeOfDay).OrderByDescending(p => p).FirstOrDefault();
+                if (lastScheduleTime != 0)
+                {
+                    this.Reflection.GetField<int>(villager, "scheduleTimeToTry").SetValue(this.Reflection.GetField<int>(typeof(NPC), "NO_TRY").GetValue()); // use time that's passed in to checkSchedule
+                    villager.checkSchedule(lastScheduleTime);
+                }
+            }
+            return true;
         }
 
         /****
