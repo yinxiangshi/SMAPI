@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -72,6 +73,17 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
                 this.ID = this.ID.Union(db.FormerIDs).ToArray();
                 this.Name = this.Name ?? db.DisplayName;
             }
+        }
+
+        /// <summary>Get update keys based on the metadata.</summary>
+        public IEnumerable<string> GetUpdateKeys()
+        {
+            if (this.NexusID.HasValue)
+                yield return $"Nexus:{this.NexusID}";
+            if (this.ChucklefishID.HasValue)
+                yield return $"Chucklefish:{this.ChucklefishID}";
+            if (this.GitHubRepo != null)
+                yield return $"GitHub:{this.GitHubRepo}";
         }
     }
 }
