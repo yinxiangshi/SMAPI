@@ -27,13 +27,6 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         /*********
         ** Public methods
         *********/
-        /// <summary>Construct an instance when a mod wasn't found in a folder.</summary>
-        /// <param name="searchDirectory">The directory that was searched.</param>
-        public ModFolder(DirectoryInfo searchDirectory)
-        {
-            this.SearchDirectory = searchDirectory;
-        }
-
         /// <summary>Construct an instance.</summary>
         /// <param name="searchDirectory">The Mods subfolder containing this mod.</param>
         /// <param name="actualDirectory">The folder containing manifest.json.</param>

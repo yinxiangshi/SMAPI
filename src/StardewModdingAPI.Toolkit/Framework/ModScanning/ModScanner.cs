@@ -43,7 +43,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
             // find manifest.json
             FileInfo manifestFile = this.FindManifest(searchFolder);
             if (manifestFile == null)
-                return new ModFolder(searchFolder);
+                return new ModFolder(searchFolder, null, null, "it doesn't have a manifest.");
 
             // read mod info
             Manifest manifest = null;
@@ -53,11 +53,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
                 {
                     manifest = this.JsonHelper.ReadJsonFile<Manifest>(manifestFile.FullName);
                     if (manifest == null)
-                    {
-                        manifestError = File.Exists(manifestFile.FullName)
-                            ? "its manifest is invalid."
-                            : "it doesn't have a manifest.";
-                    }
+                        manifestError = "its manifest is invalid.";
                 }
                 catch (SParseException ex)
                 {
