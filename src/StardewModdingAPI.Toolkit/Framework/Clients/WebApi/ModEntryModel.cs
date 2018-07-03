@@ -1,4 +1,5 @@
 using System;
+using Newtonsoft.Json;
 
 namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
 {
@@ -31,18 +32,22 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
         ****/
         /// <summary>The mod's latest version number.</summary>
         [Obsolete("Use " + nameof(ModEntryModel.Main))]
+        [JsonProperty]
         internal string Version { get; private set; }
 
         /// <summary>The mod's web URL.</summary>
         [Obsolete("Use " + nameof(ModEntryModel.Main))]
+        [JsonProperty]
         internal string Url { get; private set; }
 
         /// <summary>The mod's latest optional release, if newer than <see cref="Version"/>.</summary>
         [Obsolete("Use " + nameof(ModEntryModel.Optional))]
+        [JsonProperty]
         internal string PreviewVersion { get; private set; }
 
         /// <summary>The web URL to the mod's latest optional release, if newer than <see cref="Version"/>.</summary>
         [Obsolete("Use " + nameof(ModEntryModel.Optional))]
+        [JsonProperty]
         internal string PreviewUrl { get; private set; }
 
 
