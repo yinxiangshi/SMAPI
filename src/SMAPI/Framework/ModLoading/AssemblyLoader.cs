@@ -103,7 +103,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 // detect broken assembly reference
                 foreach (AssemblyNameReference reference in assembly.Definition.MainModule.AssemblyReferences)
                 {
-                    if (!this.IsAssemblyLoaded(reference))
+                    if (!reference.Name.StartsWith("System.") && !this.IsAssemblyLoaded(reference))
                     {
                         this.Monitor.LogOnce(loggedMessages, $"      Broken code in {assembly.File.Name}: reference to missing assembly '{reference.FullName}'.");
                         if (!assumeCompatible)
