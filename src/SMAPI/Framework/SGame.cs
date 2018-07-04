@@ -223,17 +223,15 @@ namespace StardewModdingAPI.Framework
                     return;
                 }
 
-                // Load saves synchronously to avoid issues due to mod events triggering
+                // Run loaders synchronously to avoid issues due to mod events triggering
                 // concurrently with game code.
-                if (Game1.gameMode == Game1.loadingMode)
+                if (Game1.currentLoader != null)
                 {
-                    this.Monitor.Log("Running game loader...", LogLevel.Trace);
-                    while (Game1.gameMode == Game1.loadingMode)
-                    {
-                        base.Update(gameTime);
-                        this.Events.Specialised_UnvalidatedUpdateTick.Raise();
-                    }
-                    this.Monitor.Log("Game loader OK.", LogLevel.Trace);
+                    this.Monitor.Log("Game loader synchronising...", LogLevel.Trace);
+                    while (Game1.currentLoader?.MoveNext() == true)
+                        continue;
+                    Game1.currentLoader = null;
+                    this.Monitor.Log("Game loader done.", LogLevel.Trace);
                 }
 
                 // While a background task is in progress, the game may make changes to the game
