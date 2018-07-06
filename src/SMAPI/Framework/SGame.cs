@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -223,7 +224,7 @@ namespace StardewModdingAPI.Framework
                     return;
                 }
 
-                // Run loaders synchronously to avoid issues due to mod events triggering
+                // Run async tasks synchronously to avoid issues due to mod events triggering
                 // concurrently with game code.
                 if (Game1.currentLoader != null)
                 {
@@ -232,6 +233,12 @@ namespace StardewModdingAPI.Framework
                         continue;
                     Game1.currentLoader = null;
                     this.Monitor.Log("Game loader done.", LogLevel.Trace);
+                }
+                if (Game1._newDayTask?.Status == TaskStatus.Created)
+                {
+                    this.Monitor.Log("New day task synchronising...", LogLevel.Trace);
+                    Game1._newDayTask.RunSynchronously();
+                    this.Monitor.Log("New day task done.", LogLevel.Trace);
                 }
 
                 // While a background task is in progress, the game may make changes to the game
