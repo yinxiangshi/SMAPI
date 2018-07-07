@@ -216,7 +216,6 @@ namespace StardewModdingAPI.Framework.ModLoading
                 if (symbolBoundaries.Contains(c))
                 {
                     bool match = RewriteHelper.SymbolsMatch(new SymbolLocation(symbol, depth), typeSymbols[symbolCount], placeholderMap);
-                    System.Console.Write($"match: {match}");
                     if (typeSymbols.Count <= symbolCount ||
                         !match)
                         return false;
