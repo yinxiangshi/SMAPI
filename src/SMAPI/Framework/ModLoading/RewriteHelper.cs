@@ -183,7 +183,6 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <returns>true if the symbols match, false if not.</returns>
         private static bool SymbolsMatch(SymbolLocation symbolA, SymbolLocation symbolB, Dictionary<string, string> placeholderMap)
         {
-            System.Console.Write($"comparing {symbolA.symbol} at depth {symbolA.depth} to {symbolB.symbol} at {symbolB.depth}");
             if (symbolA.depth != symbolB.depth)
                 return false;
 
