@@ -67,7 +67,8 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
                 // validate return type
                 string actualReturnTypeID = this.GetComparableTypeID(targetField.FieldType);
                 string expectedReturnTypeID = this.GetComparableTypeID(fieldRef.FieldType);
-                if (actualReturnTypeID != expectedReturnTypeID)
+
+                if (!RewriteHelper.LooksLikeSameType(expectedReturnTypeID, actualReturnTypeID))
                 {
                     this.NounPhrase = $"reference to {fieldRef.DeclaringType.FullName}.{fieldRef.Name} (field returns {this.GetFriendlyTypeName(targetField.FieldType, actualReturnTypeID)}, not {this.GetFriendlyTypeName(fieldRef.FieldType, expectedReturnTypeID)})";
                     return InstructionHandleResult.NotCompatible;
@@ -110,8 +111,8 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         /// <param name="type">The type reference.</param>
         private bool ShouldValidate(TypeReference type)
         {
-            if (type == null)
-                return false;
+            if (type != null)
+                return true;
                 
             // Extract scope name from type string representation for compatibility
             // Under Linux, type.Scope.Name sometimes reports incorrectly
