@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -10,6 +11,13 @@ namespace StardewModdingAPI.Framework.ModLoading
     /// <summary>Provides helper methods for field rewriters.</summary>
     internal static class RewriteHelper
     {
+        /*********
+        ** Properties
+        *********/
+        /// <summary>A pattern matching type name substrings to strip for display.</summary>
+        private static readonly Regex StripTypeNamePattern = new Regex(@"`\d+(?=<)", RegexOptions.Compiled);
+
+
         /*********
         ** Public methods
         *********/
@@ -109,27 +117,37 @@ namespace StardewModdingAPI.Framework.ModLoading
         }
 
         /// <summary>Determine whether two type IDs look like the same type, accounting for placeholder values such as !0.</summary>
-        /// <param name="typeA">The type ID to compare.</param>
-        /// <param name="typeB">The other type ID to compare.</param>
+        /// <param name="a">The type ID to compare.</param>
+        /// <param name="b">The other type ID to compare.</param>
         /// <returns>true if the type IDs look like the same type, false if not.</returns>
-        public static bool LooksLikeSameType(string typeA, string typeB)
+        public static bool LooksLikeSameType(TypeReference a, TypeReference b)
         {
+            string typeA = RewriteHelper.GetComparableTypeID(a);
+            string typeB = RewriteHelper.GetComparableTypeID(b);
+
             string placeholderType = "", actualType = "";
 
             if (RewriteHelper.HasPlaceholder(typeA))
             {
                 placeholderType = typeA;
                 actualType = typeB;
-            } else if (RewriteHelper.HasPlaceholder(typeB))
+            }
+            else if (RewriteHelper.HasPlaceholder(typeB))
             {
                 placeholderType = typeB;
                 actualType = typeA;
-            } else
-            {
-                return typeA == typeB;
             }
+            else
+                return typeA == typeB;
 
             return RewriteHelper.PlaceholderTypeValidates(placeholderType, actualType);
+        }
+
+        /// <summary>Get a unique string representation of a type.</summary>
+        /// <param name="type">The type reference.</param>
+        private static string GetComparableTypeID(TypeReference type)
+        {
+            return RewriteHelper.StripTypeNamePattern.Replace(type.FullName, "");
         }
 
         protected class SymbolLocation
@@ -144,7 +162,7 @@ namespace StardewModdingAPI.Framework.ModLoading
             }
         }
 
-        private static List<char> symbolBoundaries = new List<char>{'<', '>', ','};
+        private static List<char> symbolBoundaries = new List<char> { '<', '>', ',' };
 
         /// <summary> Traverses and parses out symbols from a type which does not contain placeholder values.</summary>
         /// <param name="type">The type to traverse.</param>
@@ -160,7 +178,8 @@ namespace StardewModdingAPI.Framework.ModLoading
                 {
                     typeSymbols.Add(new SymbolLocation(symbol, depth));
                     symbol = "";
-                    switch (c) {
+                    switch (c)
+                    {
                         case '<':
                             depth++;
                             break;
@@ -186,7 +205,8 @@ namespace StardewModdingAPI.Framework.ModLoading
             if (symbolA.depth != symbolB.depth)
                 return false;
 
-            if (!RewriteHelper.IsPlaceholder(symbolA.symbol)) {
+            if (!RewriteHelper.IsPlaceholder(symbolA.symbol))
+            {
                 return symbolA.symbol == symbolB.symbol;
             }
 
@@ -245,7 +265,8 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="placeholderType">The type with placeholders in it.</param>
         /// <param name="actualType">The type without placeholders.</param>
         /// <returns>true if the placeholder type can resolve to the actual type, false if not.</returns>
-        private static bool PlaceholderTypeValidates(string placeholderType, string actualType) {
+        private static bool PlaceholderTypeValidates(string placeholderType, string actualType)
+        {
             List<SymbolLocation> typeSymbols = new List<SymbolLocation>();
 
             RewriteHelper.TraverseActualType(actualType, typeSymbols);
