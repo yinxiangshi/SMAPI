@@ -93,7 +93,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
                 }
 
                 string expectedReturnType = this.GetComparableTypeID(methodDef.ReturnType);
-                if (candidateMethods.All(method => this.GetComparableTypeID(method.ReturnType) != expectedReturnType))
+                if (candidateMethods.All(method => !RewriteHelper.LooksLikeSameType(this.GetComparableTypeID(method.ReturnType), expectedReturnType)))
                 {
                     this.NounPhrase = $"reference to {methodDef.DeclaringType.FullName}.{methodDef.Name} (no such method returns {this.GetFriendlyTypeName(methodDef.ReturnType, expectedReturnType)})";
                     return InstructionHandleResult.NotCompatible;
