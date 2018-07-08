@@ -114,7 +114,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <returns>true if the type IDs look like the same type, false if not.</returns>
         public static bool LooksLikeSameType(string typeA, string typeB)
         {
-            string placeholderType, actualType = "";
+            string placeholderType = "", actualType = "";
 
             if (RewriteHelper.HasPlaceholder(typeA))
             {
