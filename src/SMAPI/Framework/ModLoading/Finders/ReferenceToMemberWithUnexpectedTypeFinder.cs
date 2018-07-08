@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -15,9 +14,6 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         *********/
         /// <summary>The assembly names to which to heuristically detect broken references.</summary>
         private readonly HashSet<string> ValidateReferencesToAssemblies;
-
-        /// <summary>A pattern matching type name substrings to strip for display.</summary>
-        private readonly Regex StripTypeNamePattern = new Regex(@"`\d+(?=<)", RegexOptions.Compiled);
 
 
         /*********
@@ -65,11 +61,9 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
                     return InstructionHandleResult.None;
 
                 // validate return type
-                string actualReturnTypeID = this.GetComparableTypeID(targetField.FieldType);
-                string expectedReturnTypeID = this.GetComparableTypeID(fieldRef.FieldType);
-                if (actualReturnTypeID != expectedReturnTypeID)
+                if (!RewriteHelper.LooksLikeSameType(fieldRef.FieldType, targetField.FieldType))
                 {
-                    this.NounPhrase = $"reference to {fieldRef.DeclaringType.FullName}.{fieldRef.Name} (field returns {this.GetFriendlyTypeName(targetField.FieldType, actualReturnTypeID)}, not {this.GetFriendlyTypeName(fieldRef.FieldType, expectedReturnTypeID)})";
+                    this.NounPhrase = $"reference to {fieldRef.DeclaringType.FullName}.{fieldRef.Name} (field returns {this.GetFriendlyTypeName(targetField.FieldType)}, not {this.GetFriendlyTypeName(fieldRef.FieldType)})";
                     return InstructionHandleResult.NotCompatible;
                 }
             }
@@ -91,10 +85,9 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
                     return InstructionHandleResult.NotCompatible;
                 }
 
-                string expectedReturnType = this.GetComparableTypeID(methodDef.ReturnType);
-                if (candidateMethods.All(method => this.GetComparableTypeID(method.ReturnType) != expectedReturnType))
+                if (candidateMethods.All(method => !RewriteHelper.LooksLikeSameType(method.ReturnType, methodDef.ReturnType)))
                 {
-                    this.NounPhrase = $"reference to {methodDef.DeclaringType.FullName}.{methodDef.Name} (no such method returns {this.GetFriendlyTypeName(methodDef.ReturnType, expectedReturnType)})";
+                    this.NounPhrase = $"reference to {methodDef.DeclaringType.FullName}.{methodDef.Name} (no such method returns {this.GetFriendlyTypeName(methodDef.ReturnType)})";
                     return InstructionHandleResult.NotCompatible;
                 }
             }
@@ -113,17 +106,9 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
             return type != null && this.ValidateReferencesToAssemblies.Contains(type.Scope.Name);
         }
 
-        /// <summary>Get a unique string representation of a type.</summary>
-        /// <param name="type">The type reference.</param>
-        private string GetComparableTypeID(TypeReference type)
-        {
-            return this.StripTypeNamePattern.Replace(type.FullName, "");
-        }
-
         /// <summary>Get a shorter type name for display.</summary>
         /// <param name="type">The type reference.</param>
-        /// <param name="typeID">The comparable type ID from <see cref="GetComparableTypeID"/>.</param>
-        private string GetFriendlyTypeName(TypeReference type, string typeID)
+        private string GetFriendlyTypeName(TypeReference type)
         {
             // most common built-in types
             switch (type.FullName)
@@ -140,10 +125,10 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
             foreach (string @namespace in new[] { "Microsoft.Xna.Framework", "Netcode", "System", "System.Collections.Generic" })
             {
                 if (type.Namespace == @namespace)
-                    return typeID.Substring(@namespace.Length + 1);
+                    return type.Name;
             }
 
-            return typeID;
+            return type.FullName;
         }
     }
 }
