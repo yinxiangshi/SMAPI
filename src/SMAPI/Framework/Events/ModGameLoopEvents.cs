@@ -10,7 +10,11 @@ namespace StardewModdingAPI.Framework.Events
         ** Accessors
         *********/
         /// <summary>Raised after the game is launched, right before the first update tick.</summary>
-        public event EventHandler<GameLoopLaunchedEventArgs> Launched;
+        public event EventHandler<GameLoopLaunchedEventArgs> Launched
+        {
+            add => this.EventManager.GameLoop_Launched.Add(value);
+            remove => this.EventManager.GameLoop_Launched.Remove(value);
+        }
 
         /// <summary>Raised before the game performs its overall update tick (≈60 times per second).</summary>
         public event EventHandler<GameLoopUpdatingEventArgs> Updating
