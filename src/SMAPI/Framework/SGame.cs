@@ -94,8 +94,8 @@ namespace StardewModdingAPI.Framework
         /// <summary>Whether post-game-startup initialisation has been performed.</summary>
         private bool IsInitialised;
 
-        /// <summary>Whether this is the very first update tick since the game started.</summary>
-        private bool FirstUpdate;
+        /// <summary>The number of update ticks which have already executed.</summary>
+        private uint TicksElapsed = 0;
 
         /// <summary>Whether the next content manager requested by the game will be for <see cref="Game1.content"/>.</summary>
         private bool NextContentManagerIsMain;
@@ -138,7 +138,6 @@ namespace StardewModdingAPI.Framework
             // init SMAPI
             this.Monitor = monitor;
             this.Events = eventManager;
-            this.FirstUpdate = true;
             this.Reflection = reflection;
             this.OnGameInitialised = onGameInitialised;
             this.OnGameExiting = onGameExiting;
@@ -669,25 +668,27 @@ namespace StardewModdingAPI.Framework
                 /*********
                 ** Game update
                 *********/
-                this.Input.UpdateSuppression();
+                this.TicksElapsed++;
+                if (this.TicksElapsed == 1)
+                    this.Events.GameLoop_Launched.Raise(new GameLoopLaunchedEventArgs());
+                this.Events.GameLoop_Updating.Raise(new GameLoopUpdatingEventArgs(this.TicksElapsed));
                 try
                 {
+                    this.Input.UpdateSuppression();
                     base.Update(gameTime);
                 }
                 catch (Exception ex)
                 {
                     this.Monitor.Log($"An error occured in the base update loop: {ex.GetLogSummary()}", LogLevel.Error);
                 }
+                this.Events.GameLoop_Updated.Raise(new GameLoopUpdatedEventArgs(this.TicksElapsed));
 
                 /*********
                 ** Update events
                 *********/
                 this.Events.Specialised_UnvalidatedUpdateTick.Raise();
-                if (this.FirstUpdate)
-                {
-                    this.FirstUpdate = false;
+                if (this.TicksElapsed == 1)
                     this.Events.Game_FirstUpdateTick.Raise();
-                }
                 this.Events.Game_UpdateTick.Raise();
                 if (this.CurrentUpdateTick % 2 == 0)
                     this.Events.Game_SecondUpdateTick.Raise();

@@ -12,6 +12,33 @@ namespace StardewModdingAPI.Framework.Events
         ** Events (new)
         *********/
         /****
+        ** Game loop
+        ****/
+        /// <summary>Raised after the game is launched, right before the first update tick.</summary>
+        public readonly ManagedEvent<GameLoopLaunchedEventArgs> GameLoop_Launched;
+
+        /// <summary>Raised before the game performs its overall update tick (≈60 times per second).</summary>
+        public readonly ManagedEvent<GameLoopUpdatingEventArgs> GameLoop_Updating;
+
+        /// <summary>Raised after the game performs its overall update tick (≈60 times per second).</summary>
+        public readonly ManagedEvent<GameLoopUpdatedEventArgs> GameLoop_Updated;
+
+        /****
+        ** Input
+        ****/
+        /// <summary>Raised after the player presses a button on the keyboard, controller, or mouse.</summary>
+        public readonly ManagedEvent<InputButtonPressedArgsInput> Input_ButtonPressed;
+
+        /// <summary>Raised after the player released a button on the keyboard, controller, or mouse.</summary>
+        public readonly ManagedEvent<InputButtonReleasedArgsInput> Input_ButtonReleased;
+
+        /// <summary>Raised after the player moves the in-game cursor.</summary>
+        public readonly ManagedEvent<InputCursorMovedArgsInput> Input_CursorMoved;
+
+        /// <summary>Raised after the player scrolls the mouse wheel.</summary>
+        public readonly ManagedEvent<InputMouseWheelScrolledEventArgs> Input_MouseWheelScrolled;
+
+        /****
         ** World
         ****/
         /// <summary>Raised after a game location is added or removed.</summary>
@@ -34,21 +61,6 @@ namespace StardewModdingAPI.Framework.Events
 
         /// <summary>Raised after terrain features (like floors and trees) are added or removed in a location.</summary>
         public readonly ManagedEvent<WorldTerrainFeatureListChangedEventArgs> World_TerrainFeatureListChanged;
-
-        /****
-        ** Input
-        ****/
-        /// <summary>Raised after the player presses a button on the keyboard, controller, or mouse.</summary>
-        public readonly ManagedEvent<InputButtonPressedArgsInput> Input_ButtonPressed;
-
-        /// <summary>Raised after the player released a button on the keyboard, controller, or mouse.</summary>
-        public readonly ManagedEvent<InputButtonReleasedArgsInput> Input_ButtonReleased;
-
-        /// <summary>Raised after the player moves the in-game cursor.</summary>
-        public readonly ManagedEvent<InputCursorMovedArgsInput> Input_CursorMoved;
-
-        /// <summary>Raised after the player scrolls the mouse wheel.</summary>
-        public readonly ManagedEvent<InputMouseWheelScrolledEventArgs> Input_MouseWheelScrolled;
 
 
         /*********
@@ -252,6 +264,9 @@ namespace StardewModdingAPI.Framework.Events
             ManagedEvent ManageEvent(string typeName, string eventName) => new ManagedEvent($"{typeName}.{eventName}", monitor, modRegistry);
 
             // init events (new)
+            this.GameLoop_Updating = ManageEventOf<GameLoopUpdatingEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.Updating));
+            this.GameLoop_Updated = ManageEventOf<GameLoopUpdatedEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.Updated));
+
             this.Input_ButtonPressed = ManageEventOf<InputButtonPressedArgsInput>(nameof(IModEvents.Input), nameof(IInputEvents.ButtonPressed));
             this.Input_ButtonReleased = ManageEventOf<InputButtonReleasedArgsInput>(nameof(IModEvents.Input), nameof(IInputEvents.ButtonReleased));
             this.Input_CursorMoved = ManageEventOf<InputCursorMovedArgsInput>(nameof(IModEvents.Input), nameof(IInputEvents.CursorMoved));
