@@ -264,6 +264,7 @@ namespace StardewModdingAPI.Framework.Events
             ManagedEvent ManageEvent(string typeName, string eventName) => new ManagedEvent($"{typeName}.{eventName}", monitor, modRegistry);
 
             // init events (new)
+            this.GameLoop_Launched = ManageEventOf<GameLoopLaunchedEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.Launched));
             this.GameLoop_Updating = ManageEventOf<GameLoopUpdatingEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.Updating));
             this.GameLoop_Updated = ManageEventOf<GameLoopUpdatedEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.Updated));
 
