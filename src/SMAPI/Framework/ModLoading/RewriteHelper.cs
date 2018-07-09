@@ -32,7 +32,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="instruction">The IL instruction.</param>
         public static MethodReference AsMethodReference(Instruction instruction)
         {
-            return instruction.OpCode == OpCodes.Call || instruction.OpCode == OpCodes.Callvirt
+            return instruction.OpCode == OpCodes.Call || instruction.OpCode == OpCodes.Callvirt || instruction.OpCode == OpCodes.Newobj
                 ? (MethodReference)instruction.Operand
                 : null;
         }
