@@ -1143,8 +1143,17 @@ namespace StardewModdingAPI
                 }
 
                 // validate translations
-                foreach (string locale in translations.Keys)
+                foreach (string locale in translations.Keys.ToArray())
                 {
+                    // skip empty files
+                    if (translations[locale] == null || !translations[locale].Keys.Any())
+                    {
+                        metadata.LogAsMod($"Mod's i18n/{locale}.json is empty and will be ignored.", LogLevel.Warn);
+                        translations.Remove(locale);
+                        continue;
+                    }
+
+                    // handle duplicates
                     HashSet<string> keys = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
                     HashSet<string> duplicateKeys = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
                     foreach (string key in translations[locale].Keys.ToArray())
@@ -1155,7 +1164,6 @@ namespace StardewModdingAPI
                             translations[locale].Remove(key);
                         }
                     }
-
                     if (duplicateKeys.Any())
                         metadata.LogAsMod($"Mod's i18n/{locale}.json has duplicate translation keys: [{string.Join(", ", duplicateKeys)}]. Keys are case-insensitive.", LogLevel.Warn);
                 }

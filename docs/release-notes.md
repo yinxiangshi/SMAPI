@@ -53,6 +53,7 @@
   * Fixed assets loaded by temporary content managers not being editable by mods.
   * Fixed assets not reloaded consistently when the player switches language.
   * Fixed error if a mod loads a PNG while the game is loading (e.g. custom map tilesheets via `IAssetLoader`).
+  * Fixed error if a mod translation file is empty.
   * Fixed input suppression not working consistently for clicks.
   * Fixed console command input not saved to the log.
   * Fixed `Context.IsPlayerFree` being false during festivals.
