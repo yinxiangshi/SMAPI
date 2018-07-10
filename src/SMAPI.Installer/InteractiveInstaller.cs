@@ -21,6 +21,12 @@ namespace StardewModdingApi.Installer
         /// <summary>The name of the installer file in the package.</summary>
         private readonly string InstallerFileName = "install.exe";
 
+        /// <summary>Mod files which shouldn't be deleted when deploying bundled mods (mod folder name => file names).</summary>
+        private readonly IDictionary<string, HashSet<string>> ProtectBundledFiles = new Dictionary<string, HashSet<string>>(StringComparer.InvariantCultureIgnoreCase)
+        {
+            ["SaveBackup"] = new HashSet<string>(new[] { "backups", "config.json" }, StringComparer.InvariantCultureIgnoreCase)
+        };
+
         /// <summary>The <see cref="Environment.OSVersion"/> value that represents Windows 7.</summary>
         private readonly Version Windows7Version = new Version(6, 1);
 
@@ -386,10 +392,19 @@ namespace StardewModdingApi.Installer
                     {
                         this.PrintDebug($"   adding {sourceDir.Name}...");
 
-                        // initialise target dir
+                        // init/clear target dir
                         DirectoryInfo targetDir = new DirectoryInfo(Path.Combine(modsDir.FullName, sourceDir.Name));
-                        this.InteractivelyDelete(targetDir.FullName);
-                        targetDir.Create();
+                        if (targetDir.Exists)
+                        {
+                            this.ProtectBundledFiles.TryGetValue(targetDir.Name, out HashSet<string> protectedFiles);
+                            foreach (FileSystemInfo entry in targetDir.EnumerateFileSystemInfos())
+                            {
+                                if (protectedFiles == null || !protectedFiles.Contains(entry.Name))
+                                    this.InteractivelyDelete(entry.FullName);
+                            }
+                        }
+                        else
+                            targetDir.Create();
 
                         // copy files
                         foreach (FileInfo sourceFile in sourceDir.EnumerateFiles().Where(this.ShouldCopyFile))
