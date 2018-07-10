@@ -43,7 +43,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
     <OutputPath>$(SolutionDir)\..\bin\Release\SMAPI</OutputPath>
-    <DocumentationFile>$(SolutionDir)\..\bin\Debug\SMAPI\StardewModdingAPI.xml</DocumentationFile>
+    <DocumentationFile>$(SolutionDir)\..\bin\Release\SMAPI\StardewModdingAPI.xml</DocumentationFile>
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
