@@ -118,7 +118,8 @@ namespace StardewModdingAPI
                         "Stardew Valley",
                         "Microsoft.Xna.Framework",
                         "Microsoft.Xna.Framework.Game",
-                        "Microsoft.Xna.Framework.Graphics"
+                        "Microsoft.Xna.Framework.Graphics",
+                        "Microsoft.Xna.Framework.Xact"
                     };
                     targetAssemblies = new[]
                     {
