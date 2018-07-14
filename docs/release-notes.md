@@ -58,6 +58,7 @@
   * Fixed console command input not saved to the log.
   * Fixed `Context.IsPlayerFree` being false during festivals.
   * Fixed `helper.ModRegistry.GetApi` errors not always mentioning which interface caused the issue.
+  * Fixed console commands being invoked asynchronously.
   * Fixed mods able to intercept other mods' assets via the internal asset keys.
   * Fixed mods able to indirectly change other mods' data through shared content caches.
   * Fixed `SemanticVersion` allowing invalid versions in some cases.

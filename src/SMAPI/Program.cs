@@ -80,10 +80,6 @@ namespace StardewModdingAPI
         /// <remarks>This is initialised after the game starts.</remarks>
         private DeprecationManager DeprecationManager;
 
-        /// <summary>Manages console commands.</summary>
-        /// <remarks>This is initialised after the game starts.</remarks>
-        private CommandManager CommandManager;
-
         /// <summary>Manages SMAPI events for mods.</summary>
         private readonly EventManager EventManager;
 
@@ -394,7 +390,6 @@ namespace StardewModdingAPI
 
             // load core components
             this.DeprecationManager = new DeprecationManager(this.Monitor, this.ModRegistry);
-            this.CommandManager = new CommandManager();
 
             // redirect direct console output
             {
@@ -485,8 +480,8 @@ namespace StardewModdingAPI
         {
             // prepare console
             this.Monitor.Log("Type 'help' for help, or 'help <cmd>' for a command's usage", LogLevel.Info);
-            this.CommandManager.Add("SMAPI", "help", "Lists command documentation.\n\nUsage: help\nLists all available commands.\n\nUsage: help <cmd>\n- cmd: The name of a command whose documentation to display.", this.HandleCommand);
-            this.CommandManager.Add("SMAPI", "reload_i18n", "Reloads translation files for all mods.\n\nUsage: reload_i18n", this.HandleCommand);
+            this.GameInstance.CommandManager.Add("SMAPI", "help", "Lists command documentation.\n\nUsage: help\nLists all available commands.\n\nUsage: help <cmd>\n- cmd: The name of a command whose documentation to display.", this.HandleCommand);
+            this.GameInstance.CommandManager.Add("SMAPI", "reload_i18n", "Reloads translation files for all mods.\n\nUsage: reload_i18n", this.HandleCommand);
 
             // start handling command line input
             Thread inputThread = new Thread(() =>
@@ -498,19 +493,9 @@ namespace StardewModdingAPI
                     if (string.IsNullOrWhiteSpace(input))
                         continue;
 
-                    // write input to log file
+                    // handle command
                     this.Monitor.LogUserInput(input);
-
-                    // parse input
-                    try
-                    {
-                        if (!this.CommandManager.Trigger(input))
-                            this.Monitor.Log("Unknown command; type 'help' for a list of available commands.", LogLevel.Error);
-                    }
-                    catch (Exception ex)
-                    {
-                        this.Monitor.Log($"The handler registered for that command failed:\n{ex.GetLogSummary()}", LogLevel.Error);
-                    }
+                    this.GameInstance.CommandQueue.Enqueue(input);
                 }
             });
             inputThread.Start();
@@ -867,7 +852,7 @@ namespace StardewModdingAPI
                             IModHelper modHelper;
                             {
                                 IModEvents events = new ModEvents(metadata, this.EventManager);
-                                ICommandHelper commandHelper = new CommandHelper(manifest.UniqueID, metadata.DisplayName, this.CommandManager);
+                                ICommandHelper commandHelper = new CommandHelper(manifest.UniqueID, metadata.DisplayName, this.GameInstance.CommandManager);
                                 IContentHelper contentHelper = new ContentHelper(contentCore, metadata.DirectoryPath, manifest.UniqueID, metadata.DisplayName, monitor);
                                 IReflectionHelper reflectionHelper = new ReflectionHelper(manifest.UniqueID, metadata.DisplayName, this.Reflection, this.DeprecationManager);
                                 IModRegistry modRegistryHelper = new ModRegistryHelper(manifest.UniqueID, this.ModRegistry, proxyFactory, monitor);
@@ -1187,7 +1172,7 @@ namespace StardewModdingAPI
                 case "help":
                     if (arguments.Any())
                     {
-                        Command result = this.CommandManager.Get(arguments[0]);
+                        Command result = this.GameInstance.CommandManager.Get(arguments[0]);
                         if (result == null)
                             this.Monitor.Log("There's no command with that name.", LogLevel.Error);
                         else
@@ -1196,7 +1181,7 @@ namespace StardewModdingAPI
                     else
                     {
                         string message = "The following commands are registered:\n";
-                        IGrouping<string, string>[] groups = (from command in this.CommandManager.GetAll() orderby command.ModName, command.Name group command.Name by command.ModName).ToArray();
+                        IGrouping<string, string>[] groups = (from command in this.GameInstance.CommandManager.GetAll() orderby command.ModName, command.Name group command.Name by command.ModName).ToArray();
                         foreach (var group in groups)
                         {
                             string modName = group.Key;

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
@@ -95,7 +96,7 @@ namespace StardewModdingAPI.Framework
         private bool IsInitialised;
 
         /// <summary>The number of update ticks which have already executed.</summary>
-        private uint TicksElapsed = 0;
+        private uint TicksElapsed;
 
         /// <summary>Whether the next content manager requested by the game will be for <see cref="Game1.content"/>.</summary>
         private bool NextContentManagerIsMain;
@@ -107,6 +108,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>SMAPI's content manager.</summary>
         public ContentCoordinator ContentCore { get; private set; }
 
+        /// <summary>Manages console commands.</summary>
+        public CommandManager CommandManager { get; } = new CommandManager();
+
         /// <summary>Manages input visible to the game.</summary>
         public SInputState Input => (SInputState)Game1.input;
 
@@ -115,6 +119,10 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Whether SMAPI should log more information about the game context.</summary>
         public bool VerboseLogging { get; set; }
+
+        /// <summary>A list of queued commands to execute.</summary>
+        /// <remarks>This property must be threadsafe, since it's accessed from a separate console input thread.</remarks>
+        public ConcurrentQueue<string> CommandQueue { get; } = new ConcurrentQueue<string>();
 
 
         /*********
@@ -229,7 +237,7 @@ namespace StardewModdingAPI.Framework
                 {
                     this.Monitor.Log("Game loader synchronising...", LogLevel.Trace);
                     while (Game1.currentLoader?.MoveNext() == true)
-                        continue;
+                        ;
                     Game1.currentLoader = null;
                     this.Monitor.Log("Game loader done.", LogLevel.Trace);
                 }
@@ -254,6 +262,22 @@ namespace StardewModdingAPI.Framework
                     base.Update(gameTime);
                     this.Events.Specialised_UnvalidatedUpdateTick.Raise();
                     return;
+                }
+
+                /*********
+                ** Execute commands
+                *********/
+                while (this.CommandQueue.TryDequeue(out string rawInput))
+                {
+                    try
+                    {
+                        if (!this.CommandManager.Trigger(rawInput))
+                            this.Monitor.Log("Unknown command; type 'help' for a list of available commands.", LogLevel.Error);
+                    }
+                    catch (Exception ex)
+                    {
+                        this.Monitor.Log($"The handler registered for that command failed:\n{ex.GetLogSummary()}", LogLevel.Error);
+                    }
                 }
 
                 /*********
