@@ -6,13 +6,13 @@ namespace StardewModdingAPI.Events
     public interface IInputEvents
     {
         /// <summary>Raised after the player presses a button on the keyboard, controller, or mouse.</summary>
-        event EventHandler<InputButtonPressedArgsInput> ButtonPressed;
+        event EventHandler<InputButtonPressedEventArgs> ButtonPressed;
 
         /// <summary>Raised after the player releases a button on the keyboard, controller, or mouse.</summary>
-        event EventHandler<InputButtonReleasedArgsInput> ButtonReleased;
+        event EventHandler<InputButtonReleasedEventArgs> ButtonReleased;
 
         /// <summary>Raised after the player moves the in-game cursor.</summary>
-        event EventHandler<InputCursorMovedArgsInput> CursorMoved;
+        event EventHandler<InputCursorMovedEventArgs> CursorMoved;
 
         /// <summary>Raised after the player scrolls the mouse wheel.</summary>
         event EventHandler<InputMouseWheelScrolledEventArgs> MouseWheelScrolled;

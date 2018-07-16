@@ -27,13 +27,13 @@ namespace StardewModdingAPI.Framework.Events
         ** Input
         ****/
         /// <summary>Raised after the player presses a button on the keyboard, controller, or mouse.</summary>
-        public readonly ManagedEvent<InputButtonPressedArgsInput> Input_ButtonPressed;
+        public readonly ManagedEvent<InputButtonPressedEventArgs> Input_ButtonPressed;
 
         /// <summary>Raised after the player released a button on the keyboard, controller, or mouse.</summary>
-        public readonly ManagedEvent<InputButtonReleasedArgsInput> Input_ButtonReleased;
+        public readonly ManagedEvent<InputButtonReleasedEventArgs> Input_ButtonReleased;
 
         /// <summary>Raised after the player moves the in-game cursor.</summary>
-        public readonly ManagedEvent<InputCursorMovedArgsInput> Input_CursorMoved;
+        public readonly ManagedEvent<InputCursorMovedEventArgs> Input_CursorMoved;
 
         /// <summary>Raised after the player scrolls the mouse wheel.</summary>
         public readonly ManagedEvent<InputMouseWheelScrolledEventArgs> Input_MouseWheelScrolled;
@@ -268,9 +268,9 @@ namespace StardewModdingAPI.Framework.Events
             this.GameLoop_Updating = ManageEventOf<GameLoopUpdatingEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.Updating));
             this.GameLoop_Updated = ManageEventOf<GameLoopUpdatedEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.Updated));
 
-            this.Input_ButtonPressed = ManageEventOf<InputButtonPressedArgsInput>(nameof(IModEvents.Input), nameof(IInputEvents.ButtonPressed));
-            this.Input_ButtonReleased = ManageEventOf<InputButtonReleasedArgsInput>(nameof(IModEvents.Input), nameof(IInputEvents.ButtonReleased));
-            this.Input_CursorMoved = ManageEventOf<InputCursorMovedArgsInput>(nameof(IModEvents.Input), nameof(IInputEvents.CursorMoved));
+            this.Input_ButtonPressed = ManageEventOf<InputButtonPressedEventArgs>(nameof(IModEvents.Input), nameof(IInputEvents.ButtonPressed));
+            this.Input_ButtonReleased = ManageEventOf<InputButtonReleasedEventArgs>(nameof(IModEvents.Input), nameof(IInputEvents.ButtonReleased));
+            this.Input_CursorMoved = ManageEventOf<InputCursorMovedEventArgs>(nameof(IModEvents.Input), nameof(IInputEvents.CursorMoved));
             this.Input_MouseWheelScrolled = ManageEventOf<InputMouseWheelScrolledEventArgs>(nameof(IModEvents.Input), nameof(IInputEvents.MouseWheelScrolled));
 
             this.World_BuildingListChanged = ManageEventOf<WorldBuildingListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.LocationListChanged));

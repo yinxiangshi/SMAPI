@@ -3,7 +3,7 @@ using System;
 namespace StardewModdingAPI.Events
 {
     /// <summary>Event arguments when the in-game cursor is moved.</summary>
-    public class InputCursorMovedArgsInput : EventArgs
+    public class InputCursorMovedEventArgs : EventArgs
     {
         /*********
         ** Accessors
@@ -21,7 +21,7 @@ namespace StardewModdingAPI.Events
         /// <summary>Construct an instance.</summary>
         /// <param name="oldPosition">The previous cursor position.</param>
         /// <param name="newPosition">The new cursor position.</param>
-        public InputCursorMovedArgsInput(ICursorPosition oldPosition, ICursorPosition newPosition)
+        public InputCursorMovedEventArgs(ICursorPosition oldPosition, ICursorPosition newPosition)
         {
             this.OldPosition = oldPosition;
             this.NewPosition = newPosition;

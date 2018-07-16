@@ -430,7 +430,7 @@ namespace StardewModdingAPI.Framework
                             ICursorPosition now = this.Watchers.CursorWatcher.CurrentValue;
                             this.Watchers.CursorWatcher.Reset();
 
-                            this.Events.Input_CursorMoved.Raise(new InputCursorMovedArgsInput(was, now));
+                            this.Events.Input_CursorMoved.Raise(new InputCursorMovedEventArgs(was, now));
                         }
 
                         // raise mouse wheel scrolled
@@ -456,7 +456,7 @@ namespace StardewModdingAPI.Framework
                                 if (this.VerboseLogging)
                                     this.Monitor.Log($"Events: button {button} pressed.", LogLevel.Trace);
 
-                                this.Events.Input_ButtonPressed.Raise(new InputButtonPressedArgsInput(button, cursor, inputState));
+                                this.Events.Input_ButtonPressed.Raise(new InputButtonPressedEventArgs(button, cursor, inputState));
                                 this.Events.Legacy_Input_ButtonPressed.Raise(new EventArgsInput(button, cursor, inputState.SuppressButtons));
 
                                 // legacy events
@@ -478,7 +478,7 @@ namespace StardewModdingAPI.Framework
                                 if (this.VerboseLogging)
                                     this.Monitor.Log($"Events: button {button} released.", LogLevel.Trace);
 
-                                this.Events.Input_ButtonReleased.Raise(new InputButtonReleasedArgsInput(button, cursor, inputState));
+                                this.Events.Input_ButtonReleased.Raise(new InputButtonReleasedEventArgs(button, cursor, inputState));
                                 this.Events.Legacy_Input_ButtonReleased.Raise(new EventArgsInput(button, cursor, inputState.SuppressButtons));
 
                                 // legacy events
