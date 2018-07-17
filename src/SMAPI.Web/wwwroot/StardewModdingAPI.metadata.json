@@ -505,7 +505,7 @@
     "Data Maps": {
       "ID": "Pathoschild.DataMaps",
       "Default | UpdateKey": "Nexus:1691",
-      "~1.3    | Status": "AssumeBroken" // broke in SDV 1.3
+      "~1.4    | Status": "AssumeBroken" // replaced by Data Layers
     },
 
     "Debug Mode": {
@@ -652,6 +652,11 @@
     "Fixed Secret Woods Debris": {
       "ID": "f4iTh.WoodsDebrisFix",
       "Default | UpdateKey": "Nexus:1941"
+    },
+
+    "Fix Scythe Exp": {
+      "ID": "bcmpinc.FixScytheExp",
+      "~0.2 | Status": "AssumeBroken" // Exception from HarmonyInstance "bcmpinc.FixScytheExp" [...] Bad label content in ILGenerator.
     },
 
     "Flower Color Picker": {
