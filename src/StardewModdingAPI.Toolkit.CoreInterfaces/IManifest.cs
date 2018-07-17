@@ -26,7 +26,7 @@ namespace StardewModdingAPI
         /// <summary>The unique mod ID.</summary>
         string UniqueID { get; }
 
-        /// <summary>The name of the DLL in the directory that has the <see cref="IMod.Entry"/> method. Mutually exclusive with <see cref="EntryDll"/>.</summary>
+        /// <summary>The name of the DLL in the directory that has the <c>Entry</c> method. Mutually exclusive with <see cref="ContentPackFor"/>.</summary>
         string EntryDll { get; }
 
         /// <summary>The mod which will read this as a content pack. Mutually exclusive with <see cref="EntryDll"/>.</summary>
