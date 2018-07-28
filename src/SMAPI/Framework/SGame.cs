@@ -344,7 +344,7 @@ namespace StardewModdingAPI.Framework
                 bool wasWorldReady = Context.IsWorldReady;
                 if ((Context.IsWorldReady && !Context.IsSaveLoaded) || Game1.exitToTitle)
                     this.MarkWorldNotReady();
-                else if (Context.IsSaveLoaded && !SaveGame.IsProcessing /*still loading save*/ && this.AfterLoadTimer.Current > 0 && Game1.currentLocation != null)
+                else if (Context.IsSaveLoaded && this.AfterLoadTimer.Current > 0 && Game1.currentLocation != null)
                 {
                     if (Game1.dayOfMonth != 0) // wait until new-game intro finishes (world not fully initialised yet)
                         this.AfterLoadTimer.Decrement();
