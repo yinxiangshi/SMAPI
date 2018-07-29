@@ -21,8 +21,8 @@ namespace StardewModdingAPI.Web.Controllers
         /*********
         ** Properties
         *********/
-        /// <summary>The log parser config settings.</summary>
-        private readonly ContextConfig Config;
+        /// <summary>The site config settings.</summary>
+        private readonly SiteConfig Config;
 
         /// <summary>The underlying Pastebin client.</summary>
         private readonly IPastebinClient Pastebin;
@@ -39,11 +39,11 @@ namespace StardewModdingAPI.Web.Controllers
         ** Constructor
         ***/
         /// <summary>Construct an instance.</summary>
-        /// <param name="contextProvider">The context config settings.</param>
+        /// <param name="siteConfig">The context config settings.</param>
         /// <param name="pastebin">The Pastebin API client.</param>
-        public LogParserController(IOptions<ContextConfig> contextProvider, IPastebinClient pastebin)
+        public LogParserController(IOptions<SiteConfig> siteConfig, IPastebinClient pastebin)
         {
-            this.Config = contextProvider.Value;
+            this.Config = siteConfig.Value;
             this.Pastebin = pastebin;
         }
 

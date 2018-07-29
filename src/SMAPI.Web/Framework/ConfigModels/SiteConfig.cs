@@ -1,7 +1,7 @@
 namespace StardewModdingAPI.Web.Framework.ConfigModels
 {
-    /// <summary>The config settings for the app context.</summary>
-    public class ContextConfig // must be public to pass into views
+    /// <summary>The site config settings.</summary>
+    public class SiteConfig // must be public to pass into views
     {
         /*********
         ** Accessors
@@ -11,5 +11,8 @@ namespace StardewModdingAPI.Web.Framework.ConfigModels
 
         /// <summary>The root URL for the log parser.</summary>
         public string LogParserUrl { get; set; }
+
+        /// <summary>Whether to show SMAPI beta versions on the main page, if any.</summary>
+        public bool EnableSmapiBeta { get; set; }
     }
 }

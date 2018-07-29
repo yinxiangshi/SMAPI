@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 using StardewModdingAPI.Toolkit;
 using StardewModdingAPI.Web.Framework.Clients.GitHub;
+using StardewModdingAPI.Web.Framework.ConfigModels;
 using StardewModdingAPI.Web.ViewModels;
 
 namespace StardewModdingAPI.Web.Controllers
@@ -20,6 +22,9 @@ namespace StardewModdingAPI.Web.Controllers
         /*********
         ** Properties
         *********/
+        /// <summary>The site config settings.</summary>
+        private readonly SiteConfig SiteConfig;
+
         /// <summary>The cache in which to store release data.</summary>
         private readonly IMemoryCache Cache;
 
@@ -39,10 +44,12 @@ namespace StardewModdingAPI.Web.Controllers
         /// <summary>Construct an instance.</summary>
         /// <param name="cache">The cache in which to store release data.</param>
         /// <param name="github">The GitHub API client.</param>
-        public IndexController(IMemoryCache cache, IGitHubClient github)
+        /// <param name="siteConfig">The context config settings.</param>
+        public IndexController(IMemoryCache cache, IGitHubClient github, IOptions<SiteConfig> siteConfig)
         {
             this.Cache = cache;
             this.GitHub = github;
+            this.SiteConfig = siteConfig.Value;
         }
 
         /// <summary>Display the index page.</summary>
@@ -60,7 +67,7 @@ namespace StardewModdingAPI.Web.Controllers
             IndexVersionModel stableVersionModel = stableVersion != null
                 ? new IndexVersionModel(stableVersion.Version.ToString(), stableVersion.Release.Body, stableVersion.Asset.DownloadUrl, stableVersionForDevs?.Asset.DownloadUrl)
                 : new IndexVersionModel("unknown", "", "https://github.com/Pathoschild/SMAPI/releases", null); // just in case something goes wrong)
-            IndexVersionModel betaVersionModel = betaVersion != null
+            IndexVersionModel betaVersionModel = betaVersion != null && this.SiteConfig.EnableSmapiBeta
                 ? new IndexVersionModel(betaVersion.Version.ToString(), betaVersion.Release.Body, betaVersion.Asset.DownloadUrl, betaVersionForDevs?.Asset.DownloadUrl)
                 : null;
 
