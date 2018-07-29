@@ -152,10 +152,7 @@ namespace StardewModdingAPI
             // validate game version
             if (Constants.GameVersion.IsOlderThan(Constants.MinimumGameVersion))
             {
-                if (Constants.GameVersion.IsBetween("1.2.30", "1.2.33") && Constants.ApiVersion.IsBetween("2.6-beta", "2.6")) // TODO: remove once SMAPI 2.6 is out of beta
-                    this.Monitor.Log($"Oops! You're running Stardew Valley {Constants.GameVersion}. Make sure you install SMAPI 2.5.5 instead (SMAPI 2.6 beta is only for Stardew Valley 1.3 beta).", LogLevel.Error);
-                else
-                    this.Monitor.Log($"Oops! You're running Stardew Valley {Constants.GameVersion}, but the oldest supported version is {Constants.MinimumGameVersion}. Please update your game before using SMAPI.", LogLevel.Error);
+                this.Monitor.Log($"Oops! You're running Stardew Valley {Constants.GameVersion}, but the oldest supported version is {Constants.MinimumGameVersion}. Please update your game before using SMAPI.", LogLevel.Error);
                 this.PressAnyKeyToExit();
                 return;
             }
