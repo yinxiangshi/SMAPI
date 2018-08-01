@@ -59,14 +59,15 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
         /// <param name="oldName">The old field name which should be reported.</param>
         /// <param name="newName">The new field name which should be reported.</param>
         [TestCase("var x = new Farmer().friendships;", 8, "StardewValley.Farmer.friendships", "friendshipData")]
+        [TestCase("var x = new Farmer()?.friendships;", 8, "StardewValley.Farmer.friendships", "friendshipData")]
         public void AvoidObsoleteField_RaisesDiagnostic(string codeText, int column, string oldName, string newName)
         {
             // arrange
             string code = ObsoleteFieldAnalyzerTests.SampleProgram.Replace("{{test-code}}", codeText);
             DiagnosticResult expected = new DiagnosticResult
             {
-                Id = "SMAPI003",
-                Message = $"The '{oldName}' field is obsolete and should be replaced with '{newName}'. See https://smapi.io/buildmsg/smapi003 for details.",
+                Id = "AvoidObsoleteField",
+                Message = $"The '{oldName}' field is obsolete and should be replaced with '{newName}'. See https://smapi.io/buildmsg/avoid-obsolete-field for details.",
                 Severity = DiagnosticSeverity.Warning,
                 Locations = new[] { new DiagnosticResultLocation("Test0.cs", ObsoleteFieldAnalyzerTests.SampleCodeLine, ObsoleteFieldAnalyzerTests.SampleCodeColumn + column) }
             };

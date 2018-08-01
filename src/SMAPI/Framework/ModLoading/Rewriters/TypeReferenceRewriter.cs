@@ -24,8 +24,9 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <summary>Construct an instance.</summary>
         /// <param name="fromTypeFullName">The full type name to which to find references.</param>
         /// <param name="toType">The new type to reference.</param>
-        public TypeReferenceRewriter(string fromTypeFullName, Type toType)
-            : base(fromTypeFullName, InstructionHandleResult.None)
+        /// <param name="shouldIgnore">A lambda which overrides a matched type.</param>
+        public TypeReferenceRewriter(string fromTypeFullName, Type toType, Func<TypeReference, bool> shouldIgnore = null)
+            : base(fromTypeFullName, InstructionHandleResult.None, shouldIgnore)
         {
             this.FromTypeName = fromTypeFullName;
             this.ToType = toType;
@@ -43,7 +44,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             // return type
             if (this.IsMatch(method.ReturnType))
             {
-                method.ReturnType = this.RewriteIfNeeded(module, method.ReturnType);
+                this.RewriteIfNeeded(module, method.ReturnType, newType => method.ReturnType = newType);
                 rewritten = true;
             }
 
@@ -52,7 +53,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             {
                 if (this.IsMatch(parameter.ParameterType))
                 {
-                    parameter.ParameterType = this.RewriteIfNeeded(module, parameter.ParameterType);
+                    this.RewriteIfNeeded(module, parameter.ParameterType, newType => parameter.ParameterType = newType);
                     rewritten = true;
                 }
             }
@@ -63,9 +64,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                 var parameter = method.GenericParameters[i];
                 if (this.IsMatch(parameter))
                 {
-                    TypeReference newType = this.RewriteIfNeeded(module, parameter);
-                    if (newType != parameter)
-                        method.GenericParameters[i] = new GenericParameter(parameter.Name, newType);
+                    this.RewriteIfNeeded(module, parameter, newType => method.GenericParameters[i] = new GenericParameter(parameter.Name, newType));
                     rewritten = true;
                 }
             }
@@ -75,7 +74,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             {
                 if (this.IsMatch(variable.VariableType))
                 {
-                    variable.VariableType = this.RewriteIfNeeded(module, variable.VariableType);
+                    this.RewriteIfNeeded(module, variable.VariableType, newType => variable.VariableType = newType);
                     rewritten = true;
                 }
             }
@@ -93,34 +92,30 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
         public override InstructionHandleResult Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, PlatformAssemblyMap assemblyMap, bool platformChanged)
         {
-            if (!this.IsMatch(instruction) && !instruction.ToString().Contains(this.FromTypeName))
+            if (!this.IsMatch(instruction))
                 return InstructionHandleResult.None;
 
             // field reference
             FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);
             if (fieldRef != null)
             {
-                fieldRef.DeclaringType = this.RewriteIfNeeded(module, fieldRef.DeclaringType);
-                fieldRef.FieldType = this.RewriteIfNeeded(module, fieldRef.FieldType);
+                this.RewriteIfNeeded(module, fieldRef.DeclaringType, newType => fieldRef.DeclaringType = newType);
+                this.RewriteIfNeeded(module, fieldRef.FieldType, newType => fieldRef.FieldType = newType);
             }
 
             // method reference
             MethodReference methodRef = RewriteHelper.AsMethodReference(instruction);
             if (methodRef != null)
             {
-                methodRef.DeclaringType = this.RewriteIfNeeded(module, methodRef.DeclaringType);
-                methodRef.ReturnType = this.RewriteIfNeeded(module, methodRef.ReturnType);
+                this.RewriteIfNeeded(module, methodRef.DeclaringType, newType => methodRef.DeclaringType = newType);
+                this.RewriteIfNeeded(module, methodRef.ReturnType, newType => methodRef.ReturnType = newType);
                 foreach (var parameter in methodRef.Parameters)
-                    parameter.ParameterType = this.RewriteIfNeeded(module, parameter.ParameterType);
+                    this.RewriteIfNeeded(module, parameter.ParameterType, newType => parameter.ParameterType = newType);
             }
 
             // type reference
             if (instruction.Operand is TypeReference typeRef)
-            {
-                TypeReference newRef = this.RewriteIfNeeded(module, typeRef);
-                if (typeRef != newRef)
-                    cil.Replace(instruction, cil.Create(instruction.OpCode, newRef));
-            }
+                this.RewriteIfNeeded(module, typeRef, newType => cil.Replace(instruction, cil.Create(instruction.OpCode, newType)));
 
             return InstructionHandleResult.Rewritten;
         }
@@ -128,27 +123,30 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /*********
         ** Private methods
         *********/
-        /// <summary>Get the adjusted type reference if it matches, else the same value.</summary>
+        /// <summary>Change a type reference if needed.</summary>
         /// <param name="module">The assembly module containing the instruction.</param>
         /// <param name="type">The type to replace if it matches.</param>
-        private TypeReference RewriteIfNeeded(ModuleDefinition module, TypeReference type)
+        /// <param name="set">Assign the new type reference.</param>
+        private void RewriteIfNeeded(ModuleDefinition module, TypeReference type, Action<TypeReference> set)
         {
-            // root type
+            // current type
             if (type.FullName == this.FromTypeName)
-                return module.Import(this.ToType);
+            {
+                if (!this.ShouldIgnore(type))
+                    set(module.ImportReference(this.ToType));
+                return;
+            }
 
-            // generic arguments
+            // recurse into generic arguments
             if (type is GenericInstanceType genericType)
             {
                 for (int i = 0; i < genericType.GenericArguments.Count; i++)
-                    genericType.GenericArguments[i] = this.RewriteIfNeeded(module, genericType.GenericArguments[i]);
+                    this.RewriteIfNeeded(module, genericType.GenericArguments[i], typeRef => genericType.GenericArguments[i] = typeRef);
             }
 
-            // generic parameters (e.g. constraints)
+            // recurse into generic parameters (e.g. constraints)
             for (int i = 0; i < type.GenericParameters.Count; i++)
-                type.GenericParameters[i] = new GenericParameter(this.RewriteIfNeeded(module, type.GenericParameters[i]));
-
-            return type;
+                this.RewriteIfNeeded(module, type.GenericParameters[i], typeRef => type.GenericParameters[i] = new GenericParameter(typeRef));
         }
     }
 }

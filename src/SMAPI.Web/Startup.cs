@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using StardewModdingAPI.Toolkit.Serialisation;
 using StardewModdingAPI.Web.Framework;
 using StardewModdingAPI.Web.Framework.Clients.Chucklefish;
 using StardewModdingAPI.Web.Framework.Clients.GitHub;
@@ -49,13 +50,16 @@ namespace StardewModdingAPI.Web
             // init configuration
             services
                 .Configure<ModUpdateCheckConfig>(this.Configuration.GetSection("ModUpdateCheck"))
-                .Configure<ContextConfig>(this.Configuration.GetSection("Context"))
+                .Configure<SiteConfig>(this.Configuration.GetSection("Site"))
                 .Configure<RouteOptions>(options => options.ConstraintMap.Add("semanticVersion", typeof(VersionConstraint)))
                 .AddMemoryCache()
                 .AddMvc()
                 .ConfigureApplicationPartManager(manager => manager.FeatureProviders.Add(new InternalControllerFeatureProvider()))
                 .AddJsonOptions(options =>
                 {
+                    foreach (JsonConverter converter in new JsonHelper().JsonSettings.Converters)
+                        options.SerializerSettings.Converters.Add(converter);
+
                     options.SerializerSettings.Formatting = Formatting.Indented;
                     options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
                 });
@@ -82,15 +86,11 @@ namespace StardewModdingAPI.Web
                     password: api.GitHubPassword
                 ));
 
-                //services.AddSingleton<INexusClient>(new NexusClient(
-                //    userAgent: api.NexusUserAgent,
-                //    baseUrl: api.NexusBaseUrl,
-                //    modUrlFormat: api.NexusModUrlFormat
-                //));
                 services.AddSingleton<INexusClient>(new NexusWebScrapeClient(
                     userAgent: userAgent,
                     baseUrl: api.NexusBaseUrl,
-                    modUrlFormat: api.NexusModUrlFormat
+                    modUrlFormat: api.NexusModUrlFormat,
+                    modScrapeUrlFormat: api.NexusModScrapeUrlFormat
                 ));
 
                 services.AddSingleton<IPastebinClient>(new PastebinClient(
@@ -153,23 +153,23 @@ namespace StardewModdingAPI.Web
             ));
 
             // shortcut redirects
+            redirects.Add(new RedirectToUrlRule(@"^/buildmsg(?:/?(.*))$", "https://github.com/Pathoschild/SMAPI/blob/develop/docs/mod-build-config.md#$1"));
             redirects.Add(new RedirectToUrlRule(@"^/compat\.?$", "https://stardewvalleywiki.com/Modding:SMAPI_compatibility"));
             redirects.Add(new RedirectToUrlRule(@"^/docs\.?$", "https://stardewvalleywiki.com/Modding:Index"));
-            redirects.Add(new RedirectToUrlRule(@"^/buildmsg(?:/?(.*))$", "https://github.com/Pathoschild/SMAPI/blob/develop/docs/mod-build-config.md#$1"));
+            redirects.Add(new RedirectToUrlRule(@"^/install\.?$", "https://stardewvalleywiki.com/Modding:Player_Guide/Getting_Started#Install_SMAPI"));
 
             // redirect legacy canimod.com URLs
             var wikiRedirects = new Dictionary<string, string[]>
             {
-                ["Modding:Creating_a_SMAPI_mod"] = new[] { "^/for-devs/creating-a-smapi-mod", "^/guides/creating-a-smapi-mod" },
+                ["Modding:Index#Migration_guides"] = new[] { "^/for-devs/updating-a-smapi-mod", "^/guides/updating-a-smapi-mod" },
+                ["Modding:Modder_Guide"] = new[] { "^/for-devs/creating-a-smapi-mod", "^/guides/creating-a-smapi-mod", "^/for-devs/creating-a-smapi-mod-advanced-config" },
+                ["Modding:Player_Guide"] = new[] { "^/for-players/install-smapi", "^/guides/using-mods", "^/for-players/faqs", "^/for-players/intro", "^/for-players/use-mods", "^/guides/asking-for-help", "^/guides/smapi-faq" },
+
                 ["Modding:Editing_XNB_files"] = new[] { "^/for-devs/creating-an-xnb-mod", "^/guides/creating-an-xnb-mod" },
                 ["Modding:Event_data"] = new[] { "^/for-devs/events", "^/guides/events" },
                 ["Modding:Gift_taste_data"] = new[] { "^/for-devs/npc-gift-tastes", "^/guides/npc-gift-tastes" },
                 ["Modding:IDE_reference"] = new[] { "^/for-devs/creating-a-smapi-mod-ide-primer" },
-                ["Modding:Installing_SMAPI"] = new[] { "^/for-players/install-smapi", "^/guides/using-mods" },
                 ["Modding:Object_data"] = new[] { "^/for-devs/object-data", "^/guides/object-data" },
-                ["Modding:Player_FAQs"] = new[] { "^/for-players/faqs", "^/for-players/intro", "^/for-players/use-mods", "^/guides/asking-for-help", "^/guides/smapi-faq" },
-                ["Modding:SMAPI_APIs"] = new[] { "^/for-devs/creating-a-smapi-mod-advanced-config" },
-                ["Modding:Updating_deprecated_SMAPI_code"] = new[] { "^/for-devs/updating-a-smapi-mod", "^/guides/updating-a-smapi-mod" },
                 ["Modding:Weather_data"] = new[] { "^/for-devs/weather", "^/guides/weather" }
             };
             foreach (KeyValuePair<string, string[]> pair in wikiRedirects)

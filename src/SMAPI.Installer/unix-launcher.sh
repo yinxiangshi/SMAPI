@@ -74,11 +74,11 @@ else
     elif $COMMAND xterm 2>/dev/null; then
         xterm -e "$LAUNCHER"
     elif $COMMAND xfce4-terminal 2>/dev/null; then
-        xfce4-terminal -e "$LAUNCHER"
+        xfce4-terminal -e "env TERM=xterm; $LAUNCHER"
     elif $COMMAND gnome-terminal 2>/dev/null; then
-        gnome-terminal -e "$LAUNCHER"
+        gnome-terminal -e "env TERM=xterm; $LAUNCHER"
     elif $COMMAND konsole 2>/dev/null; then
-        konsole -e "$LAUNCHER"
+        konsole -p Environment=TERM=xterm -e "$LAUNCHER"
     elif $COMMAND terminal 2>/dev/null; then
         terminal -e "$LAUNCHER"
     else

@@ -7,8 +7,9 @@ using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI.Framework.ContentManagers;
 using StardewModdingAPI.Framework.Exceptions;
-using StardewModdingAPI.Framework.Utilities;
+using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
 using xTile;
 using xTile.Format;
@@ -23,10 +24,13 @@ namespace StardewModdingAPI.Framework.ModHelpers
         ** Properties
         *********/
         /// <summary>SMAPI's core content logic.</summary>
-        private readonly ContentCore ContentCore;
+        private readonly ContentCoordinator ContentCore;
 
-        /// <summary>The content manager for this mod.</summary>
-        private readonly ContentManagerShim ContentManager;
+        /// <summary>A content manager for this mod which manages files from the game's Content folder.</summary>
+        private readonly IContentManager GameContentManager;
+
+        /// <summary>A content manager for this mod which manages files from the mod's folder.</summary>
+        private readonly IContentManager ModContentManager;
 
         /// <summary>The absolute path to the mod folder.</summary>
         private readonly string ModFolderPath;
@@ -42,10 +46,10 @@ namespace StardewModdingAPI.Framework.ModHelpers
         ** Accessors
         *********/
         /// <summary>The game's current locale code (like <c>pt-BR</c>).</summary>
-        public string CurrentLocale => this.ContentCore.GetLocale();
+        public string CurrentLocale => this.GameContentManager.GetLocale();
 
         /// <summary>The game's current locale as an enum value.</summary>
-        public LocalizedContentManager.LanguageCode CurrentLocaleConstant => this.ContentCore.Language;
+        public LocalizedContentManager.LanguageCode CurrentLocaleConstant => this.GameContentManager.Language;
 
         /// <summary>The observable implementation of <see cref="AssetEditors"/>.</summary>
         internal ObservableCollection<IAssetEditor> ObservableAssetEditors { get; } = new ObservableCollection<IAssetEditor>();
@@ -65,16 +69,16 @@ namespace StardewModdingAPI.Framework.ModHelpers
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="contentCore">SMAPI's core content logic.</param>
-        /// <param name="contentManager">The content manager for this mod.</param>
         /// <param name="modFolderPath">The absolute path to the mod folder.</param>
         /// <param name="modID">The unique ID of the relevant mod.</param>
         /// <param name="modName">The friendly mod name for use in errors.</param>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        public ContentHelper(ContentCore contentCore, ContentManagerShim contentManager, string modFolderPath, string modID, string modName, IMonitor monitor)
+        public ContentHelper(ContentCoordinator contentCore, string modFolderPath, string modID, string modName, IMonitor monitor)
             : base(modID)
         {
             this.ContentCore = contentCore;
-            this.ContentManager = contentManager;
+            this.GameContentManager = contentCore.CreateGameContentManager(this.ContentCore.GetManagedAssetPrefix(modID) + ".content");
+            this.ModContentManager = contentCore.CreateModContentManager(this.ContentCore.GetManagedAssetPrefix(modID), rootDirectory: modFolderPath);
             this.ModFolderPath = modFolderPath;
             this.ModName = modName;
             this.Monitor = monitor;
@@ -92,24 +96,22 @@ namespace StardewModdingAPI.Framework.ModHelpers
 
             try
             {
-                this.AssertValidAssetKeyFormat(key);
+                this.AssertAndNormaliseAssetName(key);
                 switch (source)
                 {
                     case ContentSource.GameContent:
-                        return this.ContentManager.Load<T>(key);
+                        return this.GameContentManager.Load<T>(key);
 
                     case ContentSource.ModFolder:
                         // get file
                         FileInfo file = this.GetModFile(key);
                         if (!file.Exists)
                             throw GetContentError($"there's no matching file at path '{file.FullName}'.");
-
-                        // get asset path
-                        string assetName = this.ContentCore.GetAssetNameFromFilePath(file.FullName);
+                        string internalKey = this.GetInternalModAssetKey(file);
 
                         // try cache
-                        if (this.ContentCore.IsLoaded(assetName))
-                            return this.ContentManager.Load<T>(assetName);
+                        if (this.ModContentManager.IsLoaded(internalKey))
+                            return this.ModContentManager.Load<T>(internalKey);
 
                         // fix map tilesheets
                         if (file.Extension.ToLower() == ".tbin")
@@ -121,15 +123,15 @@ namespace StardewModdingAPI.Framework.ModHelpers
                             // fetch & cache
                             FormatManager formatManager = FormatManager.Instance;
                             Map map = formatManager.LoadMap(file.FullName);
-                            this.FixCustomTilesheetPaths(map, key);
+                            this.FixCustomTilesheetPaths(map, relativeMapPath: key);
 
                             // inject map
-                            this.ContentManager.Inject(assetName, map);
+                            this.ModContentManager.Inject(internalKey, map);
                             return (T)(object)map;
                         }
 
                         // load through content manager
-                        return this.ContentManager.Load<T>(assetName);
+                        return this.ModContentManager.Load<T>(internalKey);
 
                     default:
                         throw GetContentError($"unknown content source '{source}'.");
@@ -146,7 +148,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         [Pure]
         public string NormaliseAssetName(string assetName)
         {
-            return this.ContentCore.NormaliseAssetName(assetName);
+            return this.ModContentManager.AssertAndNormaliseAssetName(assetName);
         }
 
         /// <summary>Get the underlying key in the game's content cache for an asset. This can be used to load custom map tilesheets, but should be avoided when you can use the content API instead. This does not validate whether the asset exists.</summary>
@@ -158,11 +160,11 @@ namespace StardewModdingAPI.Framework.ModHelpers
             switch (source)
             {
                 case ContentSource.GameContent:
-                    return this.ContentCore.NormaliseAssetName(key);
+                    return this.GameContentManager.AssertAndNormaliseAssetName(key);
 
                 case ContentSource.ModFolder:
                     FileInfo file = this.GetModFile(key);
-                    return this.ContentCore.NormaliseAssetName(this.ContentCore.GetAssetNameFromFilePath(file.FullName));
+                    return this.GetInternalModAssetKey(file);
 
                 default:
                     throw new NotSupportedException($"Unknown content source '{source}'.");
@@ -177,7 +179,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         {
             string actualKey = this.GetActualAssetKey(key, ContentSource.GameContent);
             this.Monitor.Log($"Requested cache invalidation for '{actualKey}'.", LogLevel.Trace);
-            return this.ContentCore.InvalidateCache(asset => asset.AssetNameEquals(actualKey));
+            return this.ContentCore.InvalidateCache(asset => asset.AssetNameEquals(actualKey)).Any();
         }
 
         /// <summary>Remove all assets of the given type from the cache so they're reloaded on the next request. <b>This can be a very expensive operation and should only be used in very specific cases.</b> This will reload core game assets if needed, but references to the former assets will still show the previous content.</summary>
@@ -186,7 +188,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         public bool InvalidateCache<T>()
         {
             this.Monitor.Log($"Requested cache invalidation for all assets of type {typeof(T)}. This is an expensive operation and should be avoided if possible.", LogLevel.Trace);
-            return this.ContentCore.InvalidateCache((key, type) => typeof(T).IsAssignableFrom(type));
+            return this.ContentCore.InvalidateCache((key, type) => typeof(T).IsAssignableFrom(type)).Any();
         }
 
         /// <summary>Remove matching assets from the content cache so they're reloaded on the next request. This will reload core game assets if needed, but references to the former asset will still show the previous content.</summary>
@@ -195,7 +197,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         public bool InvalidateCache(Func<IAssetInfo, bool> predicate)
         {
             this.Monitor.Log("Requested cache invalidation for all assets matching a predicate.", LogLevel.Trace);
-            return this.ContentCore.InvalidateCache(predicate);
+            return this.ContentCore.InvalidateCache(predicate).Any();
         }
 
         /*********
@@ -205,16 +207,24 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="key">The asset key to check.</param>
         /// <exception cref="ArgumentException">The asset key is empty or contains invalid characters.</exception>
         [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "Parameter is only used for assertion checks by design.")]
-        private void AssertValidAssetKeyFormat(string key)
+        private void AssertAndNormaliseAssetName(string key)
         {
-            this.ContentCore.AssertValidAssetKeyFormat(key);
+            this.ModContentManager.AssertAndNormaliseAssetName(key);
             if (Path.IsPathRooted(key))
                 throw new ArgumentException("The asset key must not be an absolute path.");
         }
 
+        /// <summary>Get the internal key in the content cache for a mod asset.</summary>
+        /// <param name="modFile">The asset file.</param>
+        private string GetInternalModAssetKey(FileInfo modFile)
+        {
+            string relativePath = PathUtilities.GetRelativePath(this.ModFolderPath, modFile.FullName);
+            return Path.Combine(this.ModContentManager.Name, relativePath);
+        }
+
         /// <summary>Fix custom map tilesheet paths so they can be found by the content manager.</summary>
         /// <param name="map">The map whose tilesheets to fix.</param>
-        /// <param name="mapKey">The map asset key within the mod folder.</param>
+        /// <param name="relativeMapPath">The relative map path within the mod folder.</param>
         /// <exception cref="ContentLoadException">A map tilesheet couldn't be resolved.</exception>
         /// <remarks>
         /// The game's logic for tilesheets in <see cref="Game1.setGraphicsForSeason"/> is a bit specialised. It boils
@@ -230,13 +240,13 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// 
         /// While that doesn't exactly match the game logic, it's close enough that it's unlikely to make a difference.
         /// </remarks>
-        private void FixCustomTilesheetPaths(Map map, string mapKey)
+        private void FixCustomTilesheetPaths(Map map, string relativeMapPath)
         {
             // get map info
             if (!map.TileSheets.Any())
                 return;
-            mapKey = this.ContentCore.NormaliseAssetName(mapKey); // Mono's Path.GetDirectoryName doesn't handle Windows dir separators
-            string relativeMapFolder = Path.GetDirectoryName(mapKey) ?? ""; // folder path containing the map, relative to the mod folder
+            relativeMapPath = this.ModContentManager.AssertAndNormaliseAssetName(relativeMapPath); // Mono's Path.GetDirectoryName doesn't handle Windows dir separators
+            string relativeMapFolder = Path.GetDirectoryName(relativeMapPath) ?? ""; // folder path containing the map, relative to the mod folder
 
             // fix tilesheets
             foreach (TileSheet tilesheet in map.TileSheets)
@@ -251,7 +261,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
                 string seasonalImageSource = null;
                 if (Game1.currentSeason != null)
                 {
-                    string filename = Path.GetFileName(imageSource);
+                    string filename = Path.GetFileName(imageSource) ?? throw new InvalidOperationException($"The '{imageSource}' tilesheet couldn't be loaded: filename is unexpectedly null.");
                     bool hasSeasonalPrefix =
                         filename.StartsWith("spring_", StringComparison.CurrentCultureIgnoreCase)
                         || filename.StartsWith("summer_", StringComparison.CurrentCultureIgnoreCase)
@@ -341,7 +351,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         private FileInfo GetModFile(string path)
         {
             // try exact match
-            path = Path.Combine(this.ModFolderPath, this.ContentCore.NormalisePathSeparators(path));
+            path = Path.Combine(this.ModFolderPath, this.ModContentManager.NormalisePathSeparators(path));
             FileInfo file = new FileInfo(path);
 
             // try with default extension
@@ -360,7 +370,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         private FileInfo GetContentFolderFile(string key)
         {
             // get file path
-            string path = Path.Combine(this.ContentCore.FullRootDirectory, key);
+            string path = Path.Combine(this.GameContentManager.FullRootDirectory, key);
             if (!path.EndsWith(".xnb"))
                 path += ".xnb";
 

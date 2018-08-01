@@ -15,9 +15,6 @@ namespace StardewModdingAPI.Framework.Logging
         /*********
         ** Accessors
         *********/
-        /// <summary>Whether the current console supports color formatting.</summary>
-        public bool SupportsColor { get; }
-
         /// <summary>The event raised when a message is written to the console directly.</summary>
         public event Action<string> OnMessageIntercepted;
 
@@ -32,9 +29,6 @@ namespace StardewModdingAPI.Framework.Logging
             this.Output = new InterceptingTextWriter(Console.Out);
             this.Output.OnMessageIntercepted += line => this.OnMessageIntercepted?.Invoke(line);
             Console.SetOut(this.Output);
-
-            // test color support
-            this.SupportsColor = this.TestColorSupport();
         }
 
         /// <summary>Get an exclusive lock and write to the console output without interception.</summary>
@@ -60,27 +54,6 @@ namespace StardewModdingAPI.Framework.Logging
         {
             Console.SetOut(this.Output.Out);
             this.Output.Dispose();
-        }
-
-
-        /*********
-        ** private methods
-        *********/
-        /// <summary>Test whether the current console supports color formatting.</summary>
-        private bool TestColorSupport()
-        {
-            try
-            {
-                this.ExclusiveWriteWithoutInterception(() =>
-                {
-                    Console.ForegroundColor = Console.ForegroundColor;
-                });
-                return true;
-            }
-            catch (Exception)
-            {
-                return false; // Mono bug
-            }
         }
     }
 }

@@ -47,23 +47,20 @@ namespace StardewModdingAPI.Web.Framework.ConfigModels
         /****
         ** Nexus Mods
         ****/
-        /// <summary>The user agent for the Nexus Mods API client.</summary>
-        public string NexusUserAgent { get; set; }
-
         /// <summary>The base URL for the Nexus Mods API.</summary>
         public string NexusBaseUrl { get; set; }
 
-        /// <summary>The URL for a Nexus Mods API query excluding the <see cref="NexusBaseUrl"/>, where {0} is the mod ID.</summary>
+        /// <summary>The URL for a Nexus mod page for the user, excluding the <see cref="NexusBaseUrl"/>, where {0} is the mod ID.</summary>
         public string NexusModUrlFormat { get; set; }
+
+        /// <summary>The URL for a Nexus mod page to scrape for versions, excluding the <see cref="NexusBaseUrl"/>, where {0} is the mod ID.</summary>
+        public string NexusModScrapeUrlFormat { get; set; }
 
         /****
         ** Pastebin
         ****/
         /// <summary>The base URL for the Pastebin API.</summary>
         public string PastebinBaseUrl { get; set; }
-
-        /// <summary>The user agent for the Pastebin API client, where {0} is the SMAPI version.</summary>
-        public string PastebinUserAgent { get; set; }
 
         /// <summary>The user key used to authenticate with the Pastebin API.</summary>
         public string PastebinUserKey { get; set; }

@@ -55,7 +55,14 @@
   <ItemGroup>
     <Content Include="assets\nuget-icon.png" />
   </ItemGroup>
-  <Import Project="..\SMAPI.Common\StardewModdingAPI.Common.projitems" Label="Shared" />
+  <ItemGroup>
+    <ProjectReference Include="..\StardewModdingAPI.Toolkit\StardewModdingAPI.Toolkit.csproj">
+      <Project>{ea5cfd2e-9453-4d29-b80f-8e0ea23f4ac6}</Project>
+      <Name>StardewModdingAPI.Toolkit</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="..\SMAPI.Internal\SMAPI.Internal.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\..\build\common.targets" />
   <Import Project="..\..\build\prepare-nuget-package.targets" />
 </Project>

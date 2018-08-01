@@ -10,6 +10,13 @@ namespace StardewModdingAPI.Framework.ModLoading
     internal static class RewriteHelper
     {
         /*********
+        ** Properties
+        *********/
+        /// <summary>The comparer which heuristically compares type definitions.</summary>
+        private static readonly TypeReferenceComparer TypeDefinitionComparer = new TypeReferenceComparer();
+
+
+        /*********
         ** Public methods
         *********/
         /// <summary>Get the field reference from an instruction if it matches.</summary>
@@ -25,7 +32,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="instruction">The IL instruction.</param>
         public static MethodReference AsMethodReference(Instruction instruction)
         {
-            return instruction.OpCode == OpCodes.Call || instruction.OpCode == OpCodes.Callvirt
+            return instruction.OpCode == OpCodes.Call || instruction.OpCode == OpCodes.Callvirt || instruction.OpCode == OpCodes.Newobj
                 ? (MethodReference)instruction.Operand
                 : null;
         }
@@ -57,6 +64,15 @@ namespace StardewModdingAPI.Framework.ModLoading
             }
 
             return true;
+        }
+
+        /// <summary>Determine whether two type IDs look like the same type, accounting for placeholder values such as !0.</summary>
+        /// <param name="typeA">The type ID to compare.</param>
+        /// <param name="typeB">The other type ID to compare.</param>
+        /// <returns>true if the type IDs look like the same type, false if not.</returns>
+        public static bool LooksLikeSameType(TypeReference typeA, TypeReference typeB)
+        {
+            return RewriteHelper.TypeDefinitionComparer.Equals(typeA, typeB);
         }
 
         /// <summary>Get whether a method definition matches the signature expected by a method reference.</summary>

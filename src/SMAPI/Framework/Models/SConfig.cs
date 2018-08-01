@@ -1,5 +1,4 @@
-using System.Collections.Generic;
-using StardewModdingAPI.Framework.ModData;
+using StardewModdingAPI.Internal.ConsoleWriting;
 
 namespace StardewModdingAPI.Framework.Models
 {
@@ -15,6 +14,9 @@ namespace StardewModdingAPI.Framework.Models
         /// <summary>Whether to check for newer versions of SMAPI and mods on startup.</summary>
         public bool CheckForUpdates { get; set; }
 
+        /// <summary>Whether to show beta versions as valid updates.</summary>
+        public bool UseBetaChannel { get; set; } = Constants.ApiVersion.IsPrerelease();
+
         /// <summary>SMAPI's GitHub project name, used to perform update checks.</summary>
         public string GitHubProjectName { get; set; }
 
@@ -24,7 +26,13 @@ namespace StardewModdingAPI.Framework.Models
         /// <summary>Whether SMAPI should log more information about the game context.</summary>
         public bool VerboseLogging { get; set; }
 
-        /// <summary>Extra metadata about mods.</summary>
-        public IDictionary<string, ModDataRecord> ModData { get; set; }
+        /// <summary>Whether to generate a file in the mods folder with detailed metadata about the detected mods.</summary>
+        public bool DumpMetadata { get; set; }
+
+        /// <summary>The console color scheme to use.</summary>
+        public MonitorColorScheme ColorScheme { get; set; }
+
+        /// <summary>The mod IDs SMAPI should ignore when performing update checks or validating update keys.</summary>
+        public string[] SuppressUpdateChecks { get; set; }
     }
 }

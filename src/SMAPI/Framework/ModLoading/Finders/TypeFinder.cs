@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -16,6 +17,9 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         /// <summary>The result to return for matching instructions.</summary>
         private readonly InstructionHandleResult Result;
 
+        /// <summary>A lambda which overrides a matched type.</summary>
+        protected readonly Func<TypeReference, bool> ShouldIgnore;
+
 
         /*********
         ** Accessors
@@ -30,11 +34,13 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         /// <summary>Construct an instance.</summary>
         /// <param name="fullTypeName">The full type name to match.</param>
         /// <param name="result">The result to return for matching instructions.</param>
-        public TypeFinder(string fullTypeName, InstructionHandleResult result)
+        /// <param name="shouldIgnore">A lambda which overrides a matched type.</param>
+        public TypeFinder(string fullTypeName, InstructionHandleResult result, Func<TypeReference, bool> shouldIgnore = null)
         {
             this.FullTypeName = fullTypeName;
             this.Result = result;
             this.NounPhrase = $"{fullTypeName} type";
+            this.ShouldIgnore = shouldIgnore ?? (p => false);
         }
 
         /// <summary>Perform the predefined logic for a method if applicable.</summary>
@@ -113,7 +119,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         protected bool IsMatch(TypeReference type)
         {
             // root type
-            if (type.FullName == this.FullTypeName)
+            if (type.FullName == this.FullTypeName && !this.ShouldIgnore(type))
                 return true;
 
             // generic arguments

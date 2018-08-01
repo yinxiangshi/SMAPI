@@ -17,7 +17,7 @@ namespace StardewModdingAPI
         public static bool IsWorldReady { get; internal set; }
 
         /// <summary>Whether <see cref="IsWorldReady"/> is true and the player is free to act in the world (no menu is displayed, no cutscene is in progress, etc).</summary>
-        public static bool IsPlayerFree => Context.IsWorldReady && Game1.activeClickableMenu == null && !Game1.dialogueUp && !Game1.eventUp;
+        public static bool IsPlayerFree => Context.IsWorldReady && Game1.activeClickableMenu == null && !Game1.dialogueUp && (!Game1.eventUp || Game1.isFestival());
 
         /// <summary>Whether <see cref="IsPlayerFree"/> is true and the player is free to move (e.g. not using a tool).</summary>
         public static bool CanPlayerMove => Context.IsPlayerFree && Game1.player.CanMove;
@@ -35,7 +35,7 @@ namespace StardewModdingAPI
         ** Internal
         ****/
         /// <summary>Whether a player save has been loaded.</summary>
-        internal static bool IsSaveLoaded => Game1.hasLoadedGame && !string.IsNullOrEmpty(Game1.player.name);
+        internal static bool IsSaveLoaded => Game1.hasLoadedGame && !(Game1.activeClickableMenu is TitleMenu);
 
         /// <summary>Whether the game is currently writing to the save file.</summary>
         internal static bool IsSaving => Game1.activeClickableMenu is SaveGameMenu || Game1.activeClickableMenu is ShippingMenu; // saving is performed by SaveGameMenu, but it's wrapped by ShippingMenu on days when the player shipping something

@@ -42,7 +42,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             if (!this.IsMatch(instruction))
                 return InstructionHandleResult.None;
 
-            FieldReference newRef = module.Import(this.ToField);
+            FieldReference newRef = module.ImportReference(this.ToField);
             cil.Replace(instruction, cil.Create(instruction.OpCode, newRef));
             return InstructionHandleResult.Rewritten;
         }

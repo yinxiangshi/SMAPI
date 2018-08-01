@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using StardewModdingAPI.Common;
+using StardewModdingAPI.Toolkit;
 using StardewModdingAPI.Web.Framework.LogParsing.Models;
 
 namespace StardewModdingAPI.Web.Framework.LogParsing
@@ -31,13 +31,13 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
 
         /// <summary>A regex pattern matching an entry in SMAPI's mod list.</summary>
         /// <remarks>The author name and description are optional.</remarks>
-        private readonly Regex ModListEntryPattern = new Regex(@"^   (?<name>.+?) (?<version>" + SemanticVersionImpl.UnboundedVersionPattern + @")(?: by (?<author>[^\|]+))?(?: \| (?<description>.+))?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex ModListEntryPattern = new Regex(@"^   (?<name>.+?) (?<version>" + SemanticVersion.UnboundedVersionPattern + @")(?: by (?<author>[^\|]+))?(?: \| (?<description>.+))?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>A regex pattern matching the start of SMAPI's content pack list.</summary>
         private readonly Regex ContentPackListStartPattern = new Regex(@"^Loaded \d+ content packs:$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>A regex pattern matching an entry in SMAPI's content pack list.</summary>
-        private readonly Regex ContentPackListEntryPattern = new Regex(@"^   (?<name>.+) (?<version>.+) by (?<author>.+) \| for (?<for>.+?) \| (?<description>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex ContentPackListEntryPattern = new Regex(@"^   (?<name>.+) (?<version>.+) by (?<author>.+) \| for (?<for>.+?)(?: \| (?<description>.+))?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
 
         /*********
@@ -135,7 +135,10 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                         {
                             Match match = this.ModPathPattern.Match(message.Text);
                             log.ModPath = match.Groups["path"].Value;
-                            log.GamePath = new FileInfo(log.ModPath).Directory.FullName;
+                            int lastDelimiterPos = log.ModPath.LastIndexOfAny(new char[] { '/', '\\' });
+                            log.GamePath = lastDelimiterPos >= 0
+                                ? log.ModPath.Substring(0, lastDelimiterPos)
+                                : log.ModPath;
                         }
 
                         // log UTC timestamp line

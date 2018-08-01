@@ -2,11 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using StardewModdingAPI.Framework.Exceptions;
-using StardewModdingAPI.Framework.ModData;
-using StardewModdingAPI.Framework.Models;
-using StardewModdingAPI.Framework.Serialisation;
-using StardewModdingAPI.Framework.Utilities;
+using System.Text.RegularExpressions;
+using StardewModdingAPI.Toolkit;
+using StardewModdingAPI.Toolkit.Framework.ModData;
+using StardewModdingAPI.Toolkit.Framework.ModScanning;
+using StardewModdingAPI.Toolkit.Serialisation.Models;
+using StardewModdingAPI.Toolkit.Utilities;
 
 namespace StardewModdingAPI.Framework.ModLoading
 {
@@ -17,46 +18,25 @@ namespace StardewModdingAPI.Framework.ModLoading
         ** Public methods
         *********/
         /// <summary>Get manifest metadata for each folder in the given root path.</summary>
+        /// <param name="toolkit">The mod toolkit.</param>
         /// <param name="rootPath">The root path to search for mods.</param>
-        /// <param name="jsonHelper">The JSON helper with which to read manifests.</param>
         /// <param name="modDatabase">Handles access to SMAPI's internal mod metadata list.</param>
         /// <returns>Returns the manifests by relative folder.</returns>
-        public IEnumerable<IModMetadata> ReadManifests(string rootPath, JsonHelper jsonHelper, ModDatabase modDatabase)
+        public IEnumerable<IModMetadata> ReadManifests(ModToolkit toolkit, string rootPath, ModDatabase modDatabase)
         {
-            foreach (DirectoryInfo modDir in this.GetModFolders(rootPath))
+            foreach (ModFolder folder in toolkit.GetModFolders(rootPath))
             {
-                // read file
-                Manifest manifest = null;
-                string path = Path.Combine(modDir.FullName, "manifest.json");
-                string error = null;
-                try
-                {
-                    manifest = jsonHelper.ReadJsonFile<Manifest>(path);
-                    if (manifest == null)
-                    {
-                        error = File.Exists(path)
-                            ? "its manifest is invalid."
-                            : "it doesn't have a manifest.";
-                    }
-                }
-                catch (SParseException ex)
-                {
-                    error = $"parsing its manifest failed: {ex.Message}";
-                }
-                catch (Exception ex)
-                {
-                    error = $"parsing its manifest failed:\n{ex.GetLogSummary()}";
-                }
+                Manifest manifest = folder.Manifest;
 
                 // parse internal data record (if any)
-                ParsedModDataRecord dataRecord = modDatabase.GetParsed(manifest);
+                ModDataRecordVersionedFields dataRecord = modDatabase.Get(manifest?.UniqueID)?.GetVersionedFields(manifest);
 
                 // get display name
                 string displayName = manifest?.Name;
                 if (string.IsNullOrWhiteSpace(displayName))
                     displayName = dataRecord?.DisplayName;
                 if (string.IsNullOrWhiteSpace(displayName))
-                    displayName = PathUtilities.GetRelativePath(rootPath, modDir.FullName);
+                    displayName = PathUtilities.GetRelativePath(rootPath, folder.ActualDirectory?.FullName ?? folder.SearchDirectory.FullName);
 
                 // apply defaults
                 if (manifest != null && dataRecord != null)
@@ -66,10 +46,10 @@ namespace StardewModdingAPI.Framework.ModLoading
                 }
 
                 // build metadata
-                ModMetadataStatus status = error == null
+                ModMetadataStatus status = folder.ManifestParseError == null
                     ? ModMetadataStatus.Found
                     : ModMetadataStatus.Failed;
-                yield return new ModMetadata(displayName, modDir.FullName, manifest, dataRecord).SetStatus(status, error);
+                yield return new ModMetadata(displayName, folder.ActualDirectory?.FullName, manifest, dataRecord).SetStatus(status, folder.ManifestParseError);
             }
         }
 
@@ -98,7 +78,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                     case ModStatus.AssumeBroken:
                         {
                             // get reason
-                            string reasonPhrase = mod.DataRecord.StatusReasonPhrase ?? "it's outdated";
+                            string reasonPhrase = mod.DataRecord.StatusReasonPhrase ?? "it's no longer compatible";
 
                             // get update URLs
                             List<string> updateUrls = new List<string>();
@@ -194,8 +174,15 @@ namespace StardewModdingAPI.Framework.ModLoading
                         missingFields.Add(nameof(IManifest.UniqueID));
 
                     if (missingFields.Any())
+                    {
                         mod.SetStatus(ModMetadataStatus.Failed, $"its manifest is missing required fields ({string.Join(", ", missingFields)}).");
+                        continue;
+                    }
                 }
+
+                // validate ID format
+                if (Regex.IsMatch(mod.Manifest.UniqueID, "[^a-z0-9_.-]", RegexOptions.IgnoreCase))
+                    mod.SetStatus(ModMetadataStatus.Failed, "its manifest specifies an invalid ID (IDs must only contain letters, numbers, underscores, periods, or hyphens).");
             }
 
             // validate IDs are unique
@@ -292,7 +279,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 string[] failedModNames = (
                     from entry in dependencies
                     where entry.IsRequired && entry.Mod == null
-                    let displayName = modDatabase.GetDisplayNameFor(entry.ID) ?? entry.ID
+                    let displayName = modDatabase.Get(entry.ID)?.DisplayName ?? entry.ID
                     let modUrl = modDatabase.GetModPageUrlFor(entry.ID)
                     orderby displayName
                     select modUrl != null

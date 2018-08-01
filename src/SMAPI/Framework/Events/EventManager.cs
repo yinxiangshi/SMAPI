@@ -9,7 +9,62 @@ namespace StardewModdingAPI.Framework.Events
     internal class EventManager
     {
         /*********
-        ** Properties
+        ** Events (new)
+        *********/
+        /****
+        ** Game loop
+        ****/
+        /// <summary>Raised after the game is launched, right before the first update tick.</summary>
+        public readonly ManagedEvent<GameLoopLaunchedEventArgs> GameLoop_Launched;
+
+        /// <summary>Raised before the game performs its overall update tick (≈60 times per second).</summary>
+        public readonly ManagedEvent<GameLoopUpdatingEventArgs> GameLoop_Updating;
+
+        /// <summary>Raised after the game performs its overall update tick (≈60 times per second).</summary>
+        public readonly ManagedEvent<GameLoopUpdatedEventArgs> GameLoop_Updated;
+
+        /****
+        ** Input
+        ****/
+        /// <summary>Raised after the player presses a button on the keyboard, controller, or mouse.</summary>
+        public readonly ManagedEvent<InputButtonPressedEventArgs> Input_ButtonPressed;
+
+        /// <summary>Raised after the player released a button on the keyboard, controller, or mouse.</summary>
+        public readonly ManagedEvent<InputButtonReleasedEventArgs> Input_ButtonReleased;
+
+        /// <summary>Raised after the player moves the in-game cursor.</summary>
+        public readonly ManagedEvent<InputCursorMovedEventArgs> Input_CursorMoved;
+
+        /// <summary>Raised after the player scrolls the mouse wheel.</summary>
+        public readonly ManagedEvent<InputMouseWheelScrolledEventArgs> Input_MouseWheelScrolled;
+
+        /****
+        ** World
+        ****/
+        /// <summary>Raised after a game location is added or removed.</summary>
+        public readonly ManagedEvent<WorldLocationListChangedEventArgs> World_LocationListChanged;
+
+        /// <summary>Raised after buildings are added or removed in a location.</summary>
+        public readonly ManagedEvent<WorldBuildingListChangedEventArgs> World_BuildingListChanged;
+
+        /// <summary>Raised after debris are added or removed in a location.</summary>
+        public readonly ManagedEvent<WorldDebrisListChangedEventArgs> World_DebrisListChanged;
+
+        /// <summary>Raised after large terrain features (like bushes) are added or removed in a location.</summary>
+        public readonly ManagedEvent<WorldLargeTerrainFeatureListChangedEventArgs> World_LargeTerrainFeatureListChanged;
+
+        /// <summary>Raised after NPCs are added or removed in a location.</summary>
+        public readonly ManagedEvent<WorldNpcListChangedEventArgs> World_NpcListChanged;
+
+        /// <summary>Raised after objects are added or removed in a location.</summary>
+        public readonly ManagedEvent<WorldObjectListChangedEventArgs> World_ObjectListChanged;
+
+        /// <summary>Raised after terrain features (like floors and trees) are added or removed in a location.</summary>
+        public readonly ManagedEvent<WorldTerrainFeatureListChangedEventArgs> World_TerrainFeatureListChanged;
+
+
+        /*********
+        ** Events (old)
         *********/
         /****
         ** ContentEvents
@@ -21,28 +76,28 @@ namespace StardewModdingAPI.Framework.Events
         ** ControlEvents
         ****/
         /// <summary>Raised when the <see cref="KeyboardState"/> changes. That happens when the player presses or releases a key.</summary>
-        public readonly ManagedEvent<EventArgsKeyboardStateChanged> Control_KeyboardChanged;
+        public readonly ManagedEvent<EventArgsKeyboardStateChanged> Legacy_Control_KeyboardChanged;
 
-        /// <summary>Raised when the player presses a keyboard key.</summary>
-        public readonly ManagedEvent<EventArgsKeyPressed> Control_KeyPressed;
+        /// <summary>Raised after the player presses a keyboard key.</summary>
+        public readonly ManagedEvent<EventArgsKeyPressed> Legacy_Control_KeyPressed;
 
-        /// <summary>Raised when the player releases a keyboard key.</summary>
-        public readonly ManagedEvent<EventArgsKeyPressed> Control_KeyReleased;
+        /// <summary>Raised after the player releases a keyboard key.</summary>
+        public readonly ManagedEvent<EventArgsKeyPressed> Legacy_Control_KeyReleased;
 
         /// <summary>Raised when the <see cref="MouseState"/> changes. That happens when the player moves the mouse, scrolls the mouse wheel, or presses/releases a button.</summary>
-        public readonly ManagedEvent<EventArgsMouseStateChanged> Control_MouseChanged;
+        public readonly ManagedEvent<EventArgsMouseStateChanged> Legacy_Control_MouseChanged;
 
         /// <summary>The player pressed a controller button. This event isn't raised for trigger buttons.</summary>
-        public readonly ManagedEvent<EventArgsControllerButtonPressed> Control_ControllerButtonPressed;
+        public readonly ManagedEvent<EventArgsControllerButtonPressed> Legacy_Control_ControllerButtonPressed;
 
         /// <summary>The player released a controller button. This event isn't raised for trigger buttons.</summary>
-        public readonly ManagedEvent<EventArgsControllerButtonReleased> Control_ControllerButtonReleased;
+        public readonly ManagedEvent<EventArgsControllerButtonReleased> Legacy_Control_ControllerButtonReleased;
 
         /// <summary>The player pressed a controller trigger button.</summary>
-        public readonly ManagedEvent<EventArgsControllerTriggerPressed> Control_ControllerTriggerPressed;
+        public readonly ManagedEvent<EventArgsControllerTriggerPressed> Legacy_Control_ControllerTriggerPressed;
 
         /// <summary>The player released a controller trigger button.</summary>
-        public readonly ManagedEvent<EventArgsControllerTriggerReleased> Control_ControllerTriggerReleased;
+        public readonly ManagedEvent<EventArgsControllerTriggerReleased> Legacy_Control_ControllerTriggerReleased;
 
         /****
         ** GameEvents
@@ -98,23 +153,23 @@ namespace StardewModdingAPI.Framework.Events
         /****
         ** InputEvents
         ****/
-        /// <summary>Raised when the player presses a button on the keyboard, controller, or mouse.</summary>
-        public readonly ManagedEvent<EventArgsInput> Input_ButtonPressed;
+        /// <summary>Raised after the player presses a button on the keyboard, controller, or mouse.</summary>
+        public readonly ManagedEvent<EventArgsInput> Legacy_Input_ButtonPressed;
 
-        /// <summary>Raised when the player releases a keyboard key on the keyboard, controller, or mouse.</summary>
-        public readonly ManagedEvent<EventArgsInput> Input_ButtonReleased;
+        /// <summary>Raised after the player releases a keyboard key on the keyboard, controller, or mouse.</summary>
+        public readonly ManagedEvent<EventArgsInput> Legacy_Input_ButtonReleased;
 
         /****
         ** LocationEvents
         ****/
-        /// <summary>Raised after the player warps to a new location.</summary>
-        public readonly ManagedEvent<EventArgsCurrentLocationChanged> Location_CurrentLocationChanged;
-
         /// <summary>Raised after a game location is added or removed.</summary>
-        public readonly ManagedEvent<EventArgsGameLocationsChanged> Location_LocationsChanged;
+        public readonly ManagedEvent<EventArgsLocationsChanged> Legacy_Location_LocationsChanged;
 
-        /// <summary>Raised after the list of objects in the current location changes (e.g. an object is added or removed).</summary>
-        public readonly ManagedEvent<EventArgsLocationObjectsChanged> Location_LocationObjectsChanged;
+        /// <summary>Raised after buildings are added or removed in a location.</summary>
+        public readonly ManagedEvent<EventArgsLocationBuildingsChanged> Legacy_Location_BuildingsChanged;
+
+        /// <summary>Raised after objects are added or removed in a location.</summary>
+        public readonly ManagedEvent<EventArgsLocationObjectsChanged> Legacy_Location_ObjectsChanged;
 
         /****
         ** MenuEvents
@@ -124,6 +179,21 @@ namespace StardewModdingAPI.Framework.Events
 
         /// <summary>Raised after a game menu is closed.</summary>
         public readonly ManagedEvent<EventArgsClickableMenuClosed> Menu_Closed;
+
+        /****
+        ** MultiplayerEvents
+        ****/
+        /// <summary>Raised before the game syncs changes from other players.</summary>
+        public readonly ManagedEvent Multiplayer_BeforeMainSync;
+
+        /// <summary>Raised after the game syncs changes from other players.</summary>
+        public readonly ManagedEvent Multiplayer_AfterMainSync;
+
+        /// <summary>Raised before the game broadcasts changes to other players.</summary>
+        public readonly ManagedEvent Multiplayer_BeforeMainBroadcast;
+
+        /// <summary>Raised after the game broadcasts changes to other players.</summary>
+        public readonly ManagedEvent Multiplayer_AfterMainBroadcast;
 
         /****
         ** MineEvents
@@ -139,6 +209,10 @@ namespace StardewModdingAPI.Framework.Events
 
         /// <summary> Raised after the player levels up a skill. This happens as soon as they level up, not when the game notifies the player after their character goes to bed.</summary>
         public readonly ManagedEvent<EventArgsLevelUp> Player_LeveledUp;
+
+        /// <summary>Raised after the player warps to a new location.</summary>
+        public readonly ManagedEvent<EventArgsPlayerWarped> Player_Warped;
+
 
         /****
         ** SaveEvents
@@ -189,17 +263,35 @@ namespace StardewModdingAPI.Framework.Events
             ManagedEvent<TEventArgs> ManageEventOf<TEventArgs>(string typeName, string eventName) => new ManagedEvent<TEventArgs>($"{typeName}.{eventName}", monitor, modRegistry);
             ManagedEvent ManageEvent(string typeName, string eventName) => new ManagedEvent($"{typeName}.{eventName}", monitor, modRegistry);
 
-            // init events
+            // init events (new)
+            this.GameLoop_Launched = ManageEventOf<GameLoopLaunchedEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.Launched));
+            this.GameLoop_Updating = ManageEventOf<GameLoopUpdatingEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.Updating));
+            this.GameLoop_Updated = ManageEventOf<GameLoopUpdatedEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.Updated));
+
+            this.Input_ButtonPressed = ManageEventOf<InputButtonPressedEventArgs>(nameof(IModEvents.Input), nameof(IInputEvents.ButtonPressed));
+            this.Input_ButtonReleased = ManageEventOf<InputButtonReleasedEventArgs>(nameof(IModEvents.Input), nameof(IInputEvents.ButtonReleased));
+            this.Input_CursorMoved = ManageEventOf<InputCursorMovedEventArgs>(nameof(IModEvents.Input), nameof(IInputEvents.CursorMoved));
+            this.Input_MouseWheelScrolled = ManageEventOf<InputMouseWheelScrolledEventArgs>(nameof(IModEvents.Input), nameof(IInputEvents.MouseWheelScrolled));
+
+            this.World_BuildingListChanged = ManageEventOf<WorldBuildingListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.LocationListChanged));
+            this.World_DebrisListChanged = ManageEventOf<WorldDebrisListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.DebrisListChanged));
+            this.World_LargeTerrainFeatureListChanged = ManageEventOf<WorldLargeTerrainFeatureListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.LargeTerrainFeatureListChanged));
+            this.World_LocationListChanged = ManageEventOf<WorldLocationListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.BuildingListChanged));
+            this.World_NpcListChanged = ManageEventOf<WorldNpcListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.NpcListChanged));
+            this.World_ObjectListChanged = ManageEventOf<WorldObjectListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.ObjectListChanged));
+            this.World_TerrainFeatureListChanged = ManageEventOf<WorldTerrainFeatureListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.TerrainFeatureListChanged));
+
+            // init events (old)
             this.Content_LocaleChanged = ManageEventOf<EventArgsValueChanged<string>>(nameof(ContentEvents), nameof(ContentEvents.AfterLocaleChanged));
 
-            this.Control_ControllerButtonPressed = ManageEventOf<EventArgsControllerButtonPressed>(nameof(ControlEvents), nameof(ControlEvents.ControllerButtonPressed));
-            this.Control_ControllerButtonReleased = ManageEventOf<EventArgsControllerButtonReleased>(nameof(ControlEvents), nameof(ControlEvents.ControllerButtonReleased));
-            this.Control_ControllerTriggerPressed = ManageEventOf<EventArgsControllerTriggerPressed>(nameof(ControlEvents), nameof(ControlEvents.ControllerTriggerPressed));
-            this.Control_ControllerTriggerReleased = ManageEventOf<EventArgsControllerTriggerReleased>(nameof(ControlEvents), nameof(ControlEvents.ControllerTriggerReleased));
-            this.Control_KeyboardChanged = ManageEventOf<EventArgsKeyboardStateChanged>(nameof(ControlEvents), nameof(ControlEvents.KeyboardChanged));
-            this.Control_KeyPressed = ManageEventOf<EventArgsKeyPressed>(nameof(ControlEvents), nameof(ControlEvents.KeyPressed));
-            this.Control_KeyReleased = ManageEventOf<EventArgsKeyPressed>(nameof(ControlEvents), nameof(ControlEvents.KeyReleased));
-            this.Control_MouseChanged = ManageEventOf<EventArgsMouseStateChanged>(nameof(ControlEvents), nameof(ControlEvents.MouseChanged));
+            this.Legacy_Control_ControllerButtonPressed = ManageEventOf<EventArgsControllerButtonPressed>(nameof(ControlEvents), nameof(ControlEvents.ControllerButtonPressed));
+            this.Legacy_Control_ControllerButtonReleased = ManageEventOf<EventArgsControllerButtonReleased>(nameof(ControlEvents), nameof(ControlEvents.ControllerButtonReleased));
+            this.Legacy_Control_ControllerTriggerPressed = ManageEventOf<EventArgsControllerTriggerPressed>(nameof(ControlEvents), nameof(ControlEvents.ControllerTriggerPressed));
+            this.Legacy_Control_ControllerTriggerReleased = ManageEventOf<EventArgsControllerTriggerReleased>(nameof(ControlEvents), nameof(ControlEvents.ControllerTriggerReleased));
+            this.Legacy_Control_KeyboardChanged = ManageEventOf<EventArgsKeyboardStateChanged>(nameof(ControlEvents), nameof(ControlEvents.KeyboardChanged));
+            this.Legacy_Control_KeyPressed = ManageEventOf<EventArgsKeyPressed>(nameof(ControlEvents), nameof(ControlEvents.KeyPressed));
+            this.Legacy_Control_KeyReleased = ManageEventOf<EventArgsKeyPressed>(nameof(ControlEvents), nameof(ControlEvents.KeyReleased));
+            this.Legacy_Control_MouseChanged = ManageEventOf<EventArgsMouseStateChanged>(nameof(ControlEvents), nameof(ControlEvents.MouseChanged));
 
             this.Game_FirstUpdateTick = ManageEvent(nameof(GameEvents), nameof(GameEvents.FirstUpdateTick));
             this.Game_UpdateTick = ManageEvent(nameof(GameEvents), nameof(GameEvents.UpdateTick));
@@ -218,20 +310,26 @@ namespace StardewModdingAPI.Framework.Events
             this.Graphics_OnPreRenderGuiEvent = ManageEvent(nameof(GraphicsEvents), nameof(GraphicsEvents.OnPreRenderGuiEvent));
             this.Graphics_OnPostRenderGuiEvent = ManageEvent(nameof(GraphicsEvents), nameof(GraphicsEvents.OnPostRenderGuiEvent));
 
-            this.Input_ButtonPressed = ManageEventOf<EventArgsInput>(nameof(InputEvents), nameof(InputEvents.ButtonPressed));
-            this.Input_ButtonReleased = ManageEventOf<EventArgsInput>(nameof(InputEvents), nameof(InputEvents.ButtonReleased));
+            this.Legacy_Input_ButtonPressed = ManageEventOf<EventArgsInput>(nameof(InputEvents), nameof(InputEvents.ButtonPressed));
+            this.Legacy_Input_ButtonReleased = ManageEventOf<EventArgsInput>(nameof(InputEvents), nameof(InputEvents.ButtonReleased));
 
-            this.Location_CurrentLocationChanged = ManageEventOf<EventArgsCurrentLocationChanged>(nameof(LocationEvents), nameof(LocationEvents.CurrentLocationChanged));
-            this.Location_LocationsChanged = ManageEventOf<EventArgsGameLocationsChanged>(nameof(LocationEvents), nameof(LocationEvents.LocationsChanged));
-            this.Location_LocationObjectsChanged = ManageEventOf<EventArgsLocationObjectsChanged>(nameof(LocationEvents), nameof(LocationEvents.LocationObjectsChanged));
+            this.Legacy_Location_LocationsChanged = ManageEventOf<EventArgsLocationsChanged>(nameof(LocationEvents), nameof(LocationEvents.LocationsChanged));
+            this.Legacy_Location_BuildingsChanged = ManageEventOf<EventArgsLocationBuildingsChanged>(nameof(LocationEvents), nameof(LocationEvents.BuildingsChanged));
+            this.Legacy_Location_ObjectsChanged = ManageEventOf<EventArgsLocationObjectsChanged>(nameof(LocationEvents), nameof(LocationEvents.ObjectsChanged));
 
             this.Menu_Changed = ManageEventOf<EventArgsClickableMenuChanged>(nameof(MenuEvents), nameof(MenuEvents.MenuChanged));
             this.Menu_Closed = ManageEventOf<EventArgsClickableMenuClosed>(nameof(MenuEvents), nameof(MenuEvents.MenuClosed));
+
+            this.Multiplayer_BeforeMainBroadcast = ManageEvent(nameof(MultiplayerEvents), nameof(MultiplayerEvents.BeforeMainBroadcast));
+            this.Multiplayer_AfterMainBroadcast = ManageEvent(nameof(MultiplayerEvents), nameof(MultiplayerEvents.AfterMainBroadcast));
+            this.Multiplayer_BeforeMainSync = ManageEvent(nameof(MultiplayerEvents), nameof(MultiplayerEvents.BeforeMainSync));
+            this.Multiplayer_AfterMainSync = ManageEvent(nameof(MultiplayerEvents), nameof(MultiplayerEvents.AfterMainSync));
 
             this.Mine_LevelChanged = ManageEventOf<EventArgsMineLevelChanged>(nameof(MineEvents), nameof(MineEvents.MineLevelChanged));
 
             this.Player_InventoryChanged = ManageEventOf<EventArgsInventoryChanged>(nameof(PlayerEvents), nameof(PlayerEvents.InventoryChanged));
             this.Player_LeveledUp = ManageEventOf<EventArgsLevelUp>(nameof(PlayerEvents), nameof(PlayerEvents.LeveledUp));
+            this.Player_Warped = ManageEventOf<EventArgsPlayerWarped>(nameof(PlayerEvents), nameof(PlayerEvents.Warped));
 
             this.Save_BeforeCreate = ManageEvent(nameof(SaveEvents), nameof(SaveEvents.BeforeCreate));
             this.Save_AfterCreate = ManageEvent(nameof(SaveEvents), nameof(SaveEvents.AfterCreate));

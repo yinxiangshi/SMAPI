@@ -1,5 +1,7 @@
 using System;
-using StardewModdingAPI.Framework.ModData;
+using System.Linq;
+using StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
+using StardewModdingAPI.Toolkit.Framework.ModData;
 
 namespace StardewModdingAPI.Framework.ModLoading
 {
@@ -19,10 +21,13 @@ namespace StardewModdingAPI.Framework.ModLoading
         public IManifest Manifest { get; }
 
         /// <summary>Metadata about the mod from SMAPI's internal data (if any).</summary>
-        public ParsedModDataRecord DataRecord { get; }
+        public ModDataRecordVersionedFields DataRecord { get; }
 
         /// <summary>The metadata resolution status.</summary>
         public ModMetadataStatus Status { get; private set; }
+
+        /// <summary>Indicates non-error issues with the mod.</summary>
+        public ModWarning Warnings { get; private set; }
 
         /// <summary>The reason the metadata is invalid, if any.</summary>
         public string Error { get; private set; }
@@ -39,6 +44,9 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>The mod-provided API (if any).</summary>
         public object Api { get; private set; }
 
+        /// <summary>The update-check metadata for this mod (if any).</summary>
+        public ModEntryModel UpdateCheckData { get; private set; }
+
         /// <summary>Whether the mod is a content pack.</summary>
         public bool IsContentPack => this.Manifest?.ContentPackFor != null;
 
@@ -51,7 +59,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="directoryPath">The mod's full directory path.</param>
         /// <param name="manifest">The mod manifest.</param>
         /// <param name="dataRecord">Metadata about the mod from SMAPI's internal data (if any).</param>
-        public ModMetadata(string displayName, string directoryPath, IManifest manifest, ParsedModDataRecord dataRecord)
+        public ModMetadata(string displayName, string directoryPath, IManifest manifest, ModDataRecordVersionedFields dataRecord)
         {
             this.DisplayName = displayName;
             this.DirectoryPath = directoryPath;
@@ -67,6 +75,14 @@ namespace StardewModdingAPI.Framework.ModLoading
         {
             this.Status = status;
             this.Error = error;
+            return this;
+        }
+
+        /// <summary>Set a warning flag for the mod.</summary>
+        /// <param name="warning">The warning to set.</param>
+        public IModMetadata SetWarning(ModWarning warning)
+        {
+            this.Warnings |= warning;
             return this;
         }
 
@@ -101,6 +117,37 @@ namespace StardewModdingAPI.Framework.ModLoading
         {
             this.Api = api;
             return this;
+        }
+
+        /// <summary>Set the update-check metadata for this mod.</summary>
+        /// <param name="data">The update-check metadata.</param>
+        public IModMetadata SetUpdateData(ModEntryModel data)
+        {
+            this.UpdateCheckData = data;
+            return this;
+        }
+
+        /// <summary>Whether the mod manifest was loaded (regardless of whether the mod itself was loaded).</summary>
+        public bool HasManifest()
+        {
+            return this.Manifest != null;
+        }
+
+        /// <summary>Whether the mod has an ID (regardless of whether the ID is valid or the mod itself was loaded).</summary>
+        public bool HasID()
+        {
+            return
+                this.HasManifest()
+                && !string.IsNullOrWhiteSpace(this.Manifest.UniqueID);
+        }
+
+        /// <summary>Whether the mod has at least one update key set.</summary>
+        public bool HasUpdateKeys()
+        {
+            return
+                this.HasManifest()
+                && this.Manifest.UpdateKeys != null
+                && this.Manifest.UpdateKeys.Any(key => !string.IsNullOrWhiteSpace(key));
         }
     }
 }

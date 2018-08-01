@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using StardewModdingAPI.Framework.Models;
-using StardewModdingAPI.Framework.Serialisation;
-using StardewModdingAPI.Framework.Utilities;
+using StardewModdingAPI.Events;
+using StardewModdingAPI.Framework.Input;
+using StardewModdingAPI.Toolkit.Serialisation;
+using StardewModdingAPI.Toolkit.Serialisation.Models;
+using StardewModdingAPI.Toolkit.Utilities;
 
 namespace StardewModdingAPI.Framework.ModHelpers
 {
@@ -33,8 +35,14 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <summary>The full path to the mod's folder.</summary>
         public string DirectoryPath { get; }
 
+        /// <summary>Manages access to events raised by SMAPI, which let your mod react when something happens in the game.</summary>
+        public IModEvents Events { get; }
+
         /// <summary>An API for loading content assets.</summary>
         public IContentHelper Content { get; }
+
+        /// <summary>An API for checking and changing input state.</summary>
+        public IInputHelper Input { get; }
 
         /// <summary>An API for accessing private game code.</summary>
         public IReflectionHelper Reflection { get; }
@@ -44,6 +52,9 @@ namespace StardewModdingAPI.Framework.ModHelpers
 
         /// <summary>An API for managing console commands.</summary>
         public ICommandHelper ConsoleCommands { get; }
+
+        /// <summary>Provides multiplayer utilities.</summary>
+        public IMultiplayerHelper Multiplayer { get; }
 
         /// <summary>An API for reading translations stored in the mod's <c>i18n</c> folder, with one file per locale (like <c>en.json</c>) containing a flat key => value structure. Translations are fetched with locale fallback, so missing translations are filled in from broader locales (like <c>pt-BR.json</c> &lt; <c>pt.json</c> &lt; <c>default.json</c>).</summary>
         public ITranslationHelper Translation { get; }
@@ -56,17 +67,20 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="modID">The mod's unique ID.</param>
         /// <param name="modDirectory">The full path to the mod's folder.</param>
         /// <param name="jsonHelper">Encapsulate SMAPI's JSON parsing.</param>
+        /// <param name="inputState">Manages the game's input state.</param>
+        /// <param name="events">Manages access to events raised by SMAPI.</param>
         /// <param name="contentHelper">An API for loading content assets.</param>
         /// <param name="commandHelper">An API for managing console commands.</param>
         /// <param name="modRegistry">an API for fetching metadata about loaded mods.</param>
         /// <param name="reflectionHelper">An API for accessing private game code.</param>
+        /// <param name="multiplayer">Provides multiplayer utilities.</param>
         /// <param name="translationHelper">An API for reading translations stored in the mod's <c>i18n</c> folder.</param>
         /// <param name="contentPacks">The content packs loaded for this mod.</param>
         /// <param name="createContentPack">Create a transitional content pack.</param>
         /// <param name="deprecationManager">Manages deprecation warnings.</param>
         /// <exception cref="ArgumentNullException">An argument is null or empty.</exception>
         /// <exception cref="InvalidOperationException">The <paramref name="modDirectory"/> path does not exist on disk.</exception>
-        public ModHelper(string modID, string modDirectory, JsonHelper jsonHelper, IContentHelper contentHelper, ICommandHelper commandHelper, IModRegistry modRegistry, IReflectionHelper reflectionHelper, ITranslationHelper translationHelper, IEnumerable<IContentPack> contentPacks, Func<string, IManifest, IContentPack> createContentPack, DeprecationManager deprecationManager)
+        public ModHelper(string modID, string modDirectory, JsonHelper jsonHelper, SInputState inputState, IModEvents events, IContentHelper contentHelper, ICommandHelper commandHelper, IModRegistry modRegistry, IReflectionHelper reflectionHelper, IMultiplayerHelper multiplayer, ITranslationHelper translationHelper, IEnumerable<IContentPack> contentPacks, Func<string, IManifest, IContentPack> createContentPack, DeprecationManager deprecationManager)
             : base(modID)
         {
             // validate directory
@@ -79,13 +93,16 @@ namespace StardewModdingAPI.Framework.ModHelpers
             this.DirectoryPath = modDirectory;
             this.JsonHelper = jsonHelper ?? throw new ArgumentNullException(nameof(jsonHelper));
             this.Content = contentHelper ?? throw new ArgumentNullException(nameof(contentHelper));
+            this.Input = new InputHelper(modID, inputState);
             this.ModRegistry = modRegistry ?? throw new ArgumentNullException(nameof(modRegistry));
             this.ConsoleCommands = commandHelper ?? throw new ArgumentNullException(nameof(commandHelper));
             this.Reflection = reflectionHelper ?? throw new ArgumentNullException(nameof(reflectionHelper));
+            this.Multiplayer = multiplayer ?? throw new ArgumentNullException(nameof(multiplayer));
             this.Translation = translationHelper ?? throw new ArgumentNullException(nameof(translationHelper));
             this.ContentPacks = contentPacks.ToArray();
             this.CreateContentPack = createContentPack;
             this.DeprecationManager = deprecationManager;
+            this.Events = events;
         }
 
         /****
@@ -152,26 +169,24 @@ namespace StardewModdingAPI.Framework.ModHelpers
             this.DeprecationManager.Warn($"{nameof(IModHelper)}.{nameof(IModHelper.CreateTransitionalContentPack)}", "2.5", DeprecationLevel.Notice);
 
             // validate
-            if(string.IsNullOrWhiteSpace(directoryPath))
+            if (string.IsNullOrWhiteSpace(directoryPath))
                 throw new ArgumentNullException(nameof(directoryPath));
-            if(string.IsNullOrWhiteSpace(id))
+            if (string.IsNullOrWhiteSpace(id))
                 throw new ArgumentNullException(nameof(id));
-            if(string.IsNullOrWhiteSpace(name))
+            if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentNullException(nameof(name));
-            if(!Directory.Exists(directoryPath))
+            if (!Directory.Exists(directoryPath))
                 throw new ArgumentException($"Can't create content pack for directory path '{directoryPath}' because no such directory exists.");
 
             // create manifest
-            IManifest manifest = new Manifest
-            {
-                Name = name,
-                Author = author,
-                Description = description,
-                Version = version,
-                UniqueID = id,
-                UpdateKeys = new string[0],
-                ContentPackFor = new ManifestContentPackFor { UniqueID = this.ModID }
-            };
+            IManifest manifest = new Manifest(
+                uniqueID: id,
+                name: name,
+                author: author,
+                description: description,
+                version: version,
+                contentPackFor: this.ModID
+            );
 
             // create content pack
             return this.CreateContentPack(directoryPath, manifest);

@@ -67,12 +67,15 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
             MethodReference methodRef = RewriteHelper.AsMethodReference(instruction);
             if (methodRef != null && this.ShouldValidate(methodRef.DeclaringType) && !this.IsUnsupported(methodRef))
             {
-                MethodDefinition target = methodRef.DeclaringType.Resolve()?.Methods.FirstOrDefault(p => p.Name == methodRef.Name);
+                MethodDefinition target = methodRef.Resolve();
                 if (target == null)
                 {
-                    this.NounPhrase = this.IsProperty(methodRef)
-                        ? $"reference to {methodRef.DeclaringType.FullName}.{methodRef.Name.Substring(4)} (no such property)"
-                        : $"reference to {methodRef.DeclaringType.FullName}.{methodRef.Name} (no such method)";
+                    if (this.IsProperty(methodRef))
+                        this.NounPhrase = $"reference to {methodRef.DeclaringType.FullName}.{methodRef.Name.Substring(4)} (no such property)";
+                    else if (methodRef.Name == ".ctor")
+                        this.NounPhrase = $"reference to {methodRef.DeclaringType.FullName}.{methodRef.Name} (no matching constructor)";
+                    else
+                        this.NounPhrase = $"reference to {methodRef.DeclaringType.FullName}.{methodRef.Name} (no such method)";
                     return InstructionHandleResult.NotCompatible;
                 }
             }

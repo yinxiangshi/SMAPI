@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace StardewModdingAPI.ModBuildConfig.Analyzer
@@ -25,14 +24,14 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
         /// <summary>Describes the diagnostic rule covered by the analyzer.</summary>
         private readonly IDictionary<string, DiagnosticDescriptor> Rules = new Dictionary<string, DiagnosticDescriptor>
         {
-            ["SMAPI003"] = new DiagnosticDescriptor(
-                id: "SMAPI003",
+            ["AvoidObsoleteField"] = new DiagnosticDescriptor(
+                id: "AvoidObsoleteField",
                 title: "Reference to obsolete field",
-                messageFormat: "The '{0}' field is obsolete and should be replaced with '{1}'. See https://smapi.io/buildmsg/smapi003 for details.",
+                messageFormat: "The '{0}' field is obsolete and should be replaced with '{1}'. See https://smapi.io/buildmsg/avoid-obsolete-field for details.",
                 category: "SMAPI.CommonErrors",
                 defaultSeverity: DiagnosticSeverity.Warning,
                 isEnabledByDefault: true,
-                helpLinkUri: "https://smapi.io/buildmsg/smapi003"
+                helpLinkUri: "https://smapi.io/buildmsg/avoid-obsolete-field"
             )
         };
 
@@ -57,10 +56,10 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
         /// <param name="context">The analysis context.</param>
         public override void Initialize(AnalysisContext context)
         {
-            // SMAPI003: avoid obsolete fields
             context.RegisterSyntaxNodeAction(
                 this.AnalyzeObsoleteFields,
-                SyntaxKind.SimpleMemberAccessExpression
+                SyntaxKind.SimpleMemberAccessExpression,
+                SyntaxKind.ConditionalAccessExpression
             );
         }
 
@@ -75,16 +74,15 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
             try
             {
                 // get reference info
-                MemberAccessExpressionSyntax node = (MemberAccessExpressionSyntax)context.Node;
-                ITypeSymbol declaringType = context.SemanticModel.GetTypeInfo(node.Expression).Type;
-                string propertyName = node.Name.Identifier.Text;
+                if (!AnalyzerUtilities.TryGetMemberInfo(context.Node, context.SemanticModel, out ITypeSymbol declaringType, out TypeInfo memberType, out string memberName))
+                    return;
 
                 // suggest replacement
-                for (ITypeSymbol type = declaringType; type != null; type = type.BaseType)
+                foreach (ITypeSymbol type in AnalyzerUtilities.GetConcreteTypes(declaringType))
                 {
-                    if (this.ReplacedFields.TryGetValue($"{type}::{propertyName}", out string replacement))
+                    if (this.ReplacedFields.TryGetValue($"{type}::{memberName}", out string replacement))
                     {
-                        context.ReportDiagnostic(Diagnostic.Create(this.Rules["SMAPI003"], context.Node.GetLocation(), $"{type}.{propertyName}", replacement));
+                        context.ReportDiagnostic(Diagnostic.Create(this.Rules["AvoidObsoleteField"], context.Node.GetLocation(), $"{type}.{memberName}", replacement));
                         break;
                     }
                 }

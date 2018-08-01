@@ -121,18 +121,30 @@ or you have multiple installs, you can specify the path yourself. There's two wa
 The configuration will check your custom path first, then fall back to the default paths (so it'll
 still compile on a different computer).
 
-### Unit test projects
+### Ignore files
+If you don't want to include a file in the mod folder or release zip:
+* Make sure it's not copied to the build output. For a DLL, make sure the reference is [not marked 'copy local'](https://msdn.microsoft.com/en-us/library/t1zz5y8c(v=vs.100).aspx).
+* Or add this to your `.csproj` file under the `<Project` line:
+  ```xml
+  <IgnoreModFilePatterns>\.txt$, \.pdf$</IgnoreModFilePatterns>
+  ```
+  This is a comma-delimited list of regular expression patterns. If any pattern matches a file's
+  relative path in your mod folder, that file won't be included.
+
+### Non-mod projects
 **(upcoming in 2.1)**
 
-You can use the package in unit test projects too. Its optional unit test mode...
+You can use the package in non-mod projects too (e.g. unit tests or framework DLLs). You'll need to
+disable deploying the mod and creating a release zip:
 
-1. disables deploying the project as a mod;
-2. disables creating a release zip;
-2. and copies the referenced DLLs into the build output for unit test frameworks.
-
-To enable it, add this above the first `</PropertyGroup>` in your `.csproj`:
 ```xml
-<ModUnitTests>True</ModUnitTests>
+<EnableModDeploy>False</EnableModDeploy>
+<EnableModZip>False</EnableModZip>
+```
+
+If this is for unit tests, you may need to copy the referenced DLLs into your build output too:
+```xml
+<CopyModReferencesToBuildOutput>True</CopyModReferencesToBuildOutput>
 ```
 
 ## Code warnings
@@ -140,11 +152,11 @@ To enable it, add this above the first `</PropertyGroup>` in your `.csproj`:
 The NuGet package adds code warnings in Visual Studio specific to Stardew Valley. For example:  
 ![](screenshots/code-analyzer-example.png)
 
-You can hide the warnings...
+You can hide the warnings using the warning ID (shown under 'code' in the Error List). See...
 * [for specific code](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/preprocessor-directives/preprocessor-pragma-warning);
 * for a method using this attribute:
   ```cs
-  [System.Diagnostics.CodeAnalysis.SuppressMessage("SMAPI.CommonErrors", "SMAPI001")] // implicit net field conversion
+  [System.Diagnostics.CodeAnalysis.SuppressMessage("SMAPI.CommonErrors", "AvoidNetField")]
   ```
 * for an entire project:
   1. Expand the _References_ node for the project in Visual Studio.
@@ -153,8 +165,8 @@ You can hide the warnings...
 
 See below for help with each specific warning.
 
-### SMAPI001
-**Implicit net field conversion:**
+### Avoid implicit net field cast
+Warning text:
 > This implicitly converts '{{expression}}' from {{net type}} to {{other type}}, but
 > {{net type}} has unintuitive implicit conversion rules. Consider comparing against the actual
 > value instead to avoid bugs.
@@ -163,11 +175,11 @@ Stardew Valley uses net types (like `NetBool` and `NetInt`) to handle multiplaye
 can implicitly convert to their equivalent normal values (like `bool x = new NetBool()`), but their
 conversion rules are unintuitive and error-prone. For example,
 `item?.category == null && item?.category != null` can both be true at once, and
-`building.indoors != null` will be true for a null value in some cases.
+`building.indoors != null` can be true for a null value.
 
 Suggested fix:
 * Some net fields have an equivalent non-net property like `monster.Health` (`int`) instead of
-  `monster.health` (`NetInt`). The package will add a separate [SMAPI002](#smapi002) warning for
+  `monster.health` (`NetInt`). The package will add a separate [AvoidNetField](#avoid-net-field) warning for
   these. Use the suggested property instead.
 * For a reference type (i.e. one that can contain `null`), you can use the `.Value` property:
   ```c#
@@ -185,17 +197,17 @@ Suggested fix:
   if (item != null && item.category.Value == 0)
   ```
 
-### SMAPI002
-**Avoid net fields when possible:**
+### Avoid net field
+Warning text:
 > '{{expression}}' is a {{net type}} field; consider using the {{property name}} property instead.
 
-Your code accesses a net field, which has some unusual behavior (see [SMAPI001](#smapi001)). This
-field has an equivalent non-net property that avoids those issues.
+Your code accesses a net field, which has some unusual behavior (see [AvoidImplicitNetFieldCast](#avoid-implicit-net-field-cast)).
+This field has an equivalent non-net property that avoids those issues.
 
 Suggested fix: access the suggested property name instead.
 
-### SMAPI003
-**Avoid obsolete fields:**
+### Avoid obsolete field
+Warning text:
 > The '{{old field}}' field is obsolete and should be replaced with '{{new field}}'.
 
 Your code accesses a field which is obsolete or no longer works. Use the suggested field instead.

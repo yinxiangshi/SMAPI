@@ -16,25 +16,25 @@ namespace StardewModdingAPI.Events
         /*********
         ** Events
         *********/
-        /// <summary>Raised after the player warps to a new location.</summary>
-        public static event EventHandler<EventArgsCurrentLocationChanged> CurrentLocationChanged
-        {
-            add => LocationEvents.EventManager.Location_CurrentLocationChanged.Add(value);
-            remove => LocationEvents.EventManager.Location_CurrentLocationChanged.Remove(value);
-        }
-
         /// <summary>Raised after a game location is added or removed.</summary>
-        public static event EventHandler<EventArgsGameLocationsChanged> LocationsChanged
+        public static event EventHandler<EventArgsLocationsChanged> LocationsChanged
         {
-            add => LocationEvents.EventManager.Location_LocationsChanged.Add(value);
-            remove => LocationEvents.EventManager.Location_LocationsChanged.Remove(value);
+            add => LocationEvents.EventManager.Legacy_Location_LocationsChanged.Add(value);
+            remove => LocationEvents.EventManager.Legacy_Location_LocationsChanged.Remove(value);
         }
 
-        /// <summary>Raised after the list of objects in the current location changes (e.g. an object is added or removed).</summary>
-        public static event EventHandler<EventArgsLocationObjectsChanged> LocationObjectsChanged
+        /// <summary>Raised after buildings are added or removed in a location.</summary>
+        public static event EventHandler<EventArgsLocationBuildingsChanged> BuildingsChanged
         {
-            add => LocationEvents.EventManager.Location_LocationObjectsChanged.Add(value);
-            remove => LocationEvents.EventManager.Location_LocationObjectsChanged.Remove(value);
+            add => LocationEvents.EventManager.Legacy_Location_BuildingsChanged.Add(value);
+            remove => LocationEvents.EventManager.Legacy_Location_BuildingsChanged.Remove(value);
+        }
+
+        /// <summary>Raised after objects are added or removed in a location.</summary>
+        public static event EventHandler<EventArgsLocationObjectsChanged> ObjectsChanged
+        {
+            add => LocationEvents.EventManager.Legacy_Location_ObjectsChanged.Add(value);
+            remove => LocationEvents.EventManager.Legacy_Location_ObjectsChanged.Remove(value);
         }
 
 

@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Web.Script.Serialization;
-using StardewModdingAPI.Common;
+using StardewModdingAPI.Toolkit;
 
 namespace StardewModdingAPI.ModBuildConfig.Framework
 {
@@ -26,8 +27,10 @@ namespace StardewModdingAPI.ModBuildConfig.Framework
         /// <summary>Construct an instance.</summary>
         /// <param name="projectDir">The folder containing the project files.</param>
         /// <param name="targetDir">The folder containing the build output.</param>
+        /// <param name="ignoreFilePatterns">Custom regex patterns matching files to ignore when deploying or zipping the mod.</param>
+        /// <param name="validateRequiredModFiles">Whether to validate that required mod files like the manifest are present.</param>
         /// <exception cref="UserErrorException">The mod package isn't valid.</exception>
-        public ModFileManager(string projectDir, string targetDir)
+        public ModFileManager(string projectDir, string targetDir, Regex[] ignoreFilePatterns, bool validateRequiredModFiles)
         {
             this.Files = new Dictionary<string, FileInfo>(StringComparer.InvariantCultureIgnoreCase);
 
@@ -72,26 +75,26 @@ namespace StardewModdingAPI.ModBuildConfig.Framework
                 if (hasProjectTranslations && this.EqualsInvariant(relativeDirPath, "i18n"))
                     continue;
 
-                // ignore release zips
-                if (this.EqualsInvariant(file.Extension, ".zip"))
-                    continue;
-
-                // ignore Json.NET (bundled into SMAPI)
-                if (this.EqualsInvariant(file.Name, "Newtonsoft.Json.dll") || this.EqualsInvariant(file.Name, "Newtonsoft.Json.xml"))
+                // handle ignored files
+                if (this.ShouldIgnore(file, relativePath, ignoreFilePatterns))
                     continue;
 
                 // add file
                 this.Files[relativePath] = file;
             }
 
-            // check for missing manifest
-            if (!this.Files.ContainsKey(this.ManifestFileName))
-                throw new UserErrorException($"Could not create mod package because no {this.ManifestFileName} was found in the project or build output.");
+            // check for required files
+            if (validateRequiredModFiles)
+            {
+                // manifest
+                if (!this.Files.ContainsKey(this.ManifestFileName))
+                    throw new UserErrorException($"Could not create mod package because no {this.ManifestFileName} was found in the project or build output.");
 
-            // check for missing DLL
-            // ReSharper disable once SimplifyLinqExpression
-            if (!this.Files.Any(p => !p.Key.EndsWith(".dll")))
-                throw new UserErrorException("Could not create mod package because no .dll file was found in the project or build output.");
+                // DLL
+                // ReSharper disable once SimplifyLinqExpression
+                if (!this.Files.Any(p => !p.Key.EndsWith(".dll")))
+                    throw new UserErrorException("Could not create mod package because no .dll file was found in the project or build output.");
+            }
         }
 
         /// <summary>Get the files in the mod package.</summary>
@@ -136,15 +139,41 @@ namespace StardewModdingAPI.ModBuildConfig.Framework
                 int minor = versionFields.ContainsKey("MinorVersion") ? (int)versionFields["MinorVersion"] : 0;
                 int patch = versionFields.ContainsKey("PatchVersion") ? (int)versionFields["PatchVersion"] : 0;
                 string tag = versionFields.ContainsKey("Build") ? (string)versionFields["Build"] : null;
-                return new SemanticVersionImpl(major, minor, patch, tag).ToString();
+                return new SemanticVersion(major, minor, patch, tag).ToString();
             }
-            return new SemanticVersionImpl(versionObj.ToString()).ToString(); // SMAPI 2.0+
+            return new SemanticVersion(versionObj.ToString()).ToString(); // SMAPI 2.0+
         }
 
 
         /*********
         ** Private methods
         *********/
+        /// <summary>Get whether a build output file should be ignored.</summary>
+        /// <param name="file">The file to check.</param>
+        /// <param name="relativePath">The file's relative path in the package.</param>
+        /// <param name="ignoreFilePatterns">Custom regex patterns matching files to ignore when deploying or zipping the mod.</param>
+        private bool ShouldIgnore(FileInfo file, string relativePath, Regex[] ignoreFilePatterns)
+        {
+            return
+                // release zips
+                this.EqualsInvariant(file.Extension, ".zip")
+
+                // Json.NET (bundled into SMAPI)
+                || this.EqualsInvariant(file.Name, "Newtonsoft.Json.dll")
+                || this.EqualsInvariant(file.Name, "Newtonsoft.Json.xml")
+
+                // code analysis files
+                || file.Name.EndsWith(".CodeAnalysisLog.xml", StringComparison.InvariantCultureIgnoreCase)
+                || file.Name.EndsWith(".lastcodeanalysissucceeded", StringComparison.InvariantCultureIgnoreCase)
+
+                // OS metadata files
+                || this.EqualsInvariant(file.Name, ".DS_Store")
+                || this.EqualsInvariant(file.Name, "Thumbs.db")
+
+                // custom ignore patterns
+                || ignoreFilePatterns.Any(p => p.IsMatch(relativePath));
+        }
+
         /// <summary>Get a case-insensitive dictionary matching the given JSON.</summary>
         /// <param name="json">The JSON to parse.</param>
         private IDictionary<string, object> Parse(string json)

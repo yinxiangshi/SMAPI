@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -21,6 +22,13 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
         /// <summary>Maps net fields to their equivalent non-net properties where available.</summary>
         private readonly IDictionary<string, string> NetFieldWrapperProperties = new Dictionary<string, string>
         {
+            // AnimatedSprite
+            ["StardewValley.AnimatedSprite::currentAnimation"] = "CurrentAnimation",
+            ["StardewValley.AnimatedSprite::currentFrame"] = "CurrentFrame",
+            ["StardewValley.AnimatedSprite::sourceRect"] = "SourceRect",
+            ["StardewValley.AnimatedSprite::spriteHeight"] = "SpriteHeight",
+            ["StardewValley.AnimatedSprite::spriteWidth"] = "SpriteWidth",
+
             // Character
             ["StardewValley.Character::currentLocationRef"] = "currentLocation",
             ["StardewValley.Character::facingDirection"] = "FacingDirection",
@@ -106,7 +114,6 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
             ["StardewValley.Object::netName"] = "name",
             ["StardewValley.Object::price"] = "Price",
             ["StardewValley.Object::quality"] = "Quality",
-            ["StardewValley.Object::scale"] = "Scale",
             ["StardewValley.Object::stack"] = "Stack",
             ["StardewValley.Object::tileLocation"] = "TileLocation",
             ["StardewValley.Object::type"] = "Type",
@@ -124,28 +131,27 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
             ["StardewValley.Tool::upgradeLevel"] = "UpgradeLevel"
         };
 
-        /// <summary>Describes the diagnostic rule covered by the analyzer.</summary>
-        private readonly IDictionary<string, DiagnosticDescriptor> Rules = new Dictionary<string, DiagnosticDescriptor>
-        {
-            ["SMAPI001"] = new DiagnosticDescriptor(
-                id: "SMAPI001",
-                title: "Netcode types shouldn't be implicitly converted",
-                messageFormat: "This implicitly converts '{0}' from {1} to {2}, but {1} has unintuitive implicit conversion rules. Consider comparing against the actual value instead to avoid bugs. See https://smapi.io/buildmsg/smapi001 for details.",
-                category: "SMAPI.CommonErrors",
-                defaultSeverity: DiagnosticSeverity.Warning,
-                isEnabledByDefault: true,
-                helpLinkUri: "https://smapi.io/buildmsg/smapi001"
-            ),
-            ["SMAPI002"] = new DiagnosticDescriptor(
-                id: "SMAPI002",
-                title: "Avoid Netcode types when possible",
-                messageFormat: "'{0}' is a {1} field; consider using the {2} property instead. See https://smapi.io/buildmsg/smapi002 for details.",
-                category: "SMAPI.CommonErrors",
-                defaultSeverity: DiagnosticSeverity.Warning,
-                isEnabledByDefault: true,
-                helpLinkUri: "https://smapi.io/buildmsg/smapi001"
-            )
-        };
+        /// <summary>The diagnostic info for an implicit net field cast.</summary>
+        private readonly DiagnosticDescriptor AvoidImplicitNetFieldCastRule = new DiagnosticDescriptor(
+            id: "AvoidImplicitNetFieldCast",
+            title: "Netcode types shouldn't be implicitly converted",
+            messageFormat: "This implicitly converts '{0}' from {1} to {2}, but {1} has unintuitive implicit conversion rules. Consider comparing against the actual value instead to avoid bugs. See https://smapi.io/buildmsg/avoid-implicit-net-field-cast for details.",
+            category: "SMAPI.CommonErrors",
+            defaultSeverity: DiagnosticSeverity.Warning,
+            isEnabledByDefault: true,
+            helpLinkUri: "https://smapi.io/buildmsg/avoid-implicit-net-field-cast"
+        );
+
+        /// <summary>The diagnostic info for an avoidable net field access.</summary>
+        private readonly DiagnosticDescriptor AvoidNetFieldRule = new DiagnosticDescriptor(
+            id: "AvoidNetField",
+            title: "Avoid Netcode types when possible",
+            messageFormat: "'{0}' is a {1} field; consider using the {2} property instead. See https://smapi.io/buildmsg/avoid-net-field for details.",
+            category: "SMAPI.CommonErrors",
+            defaultSeverity: DiagnosticSeverity.Warning,
+            isEnabledByDefault: true,
+            helpLinkUri: "https://smapi.io/buildmsg/avoid-net-field"
+        );
 
 
         /*********
@@ -161,22 +167,25 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
         /// <summary>Construct an instance.</summary>
         public NetFieldAnalyzer()
         {
-            this.SupportedDiagnostics = ImmutableArray.CreateRange(this.Rules.Values);
+            this.SupportedDiagnostics = ImmutableArray.CreateRange(new[] { this.AvoidNetFieldRule, this.AvoidImplicitNetFieldCastRule });
         }
 
         /// <summary>Called once at session start to register actions in the analysis context.</summary>
         /// <param name="context">The analysis context.</param>
         public override void Initialize(AnalysisContext context)
         {
-            // SMAPI002: avoid net fields if possible
             context.RegisterSyntaxNodeAction(
-                this.AnalyzeAvoidableNetField,
-                SyntaxKind.SimpleMemberAccessExpression
+                this.AnalyzeMemberAccess,
+                SyntaxKind.SimpleMemberAccessExpression,
+                SyntaxKind.ConditionalAccessExpression
             );
-
-            // SMAPI001: avoid implicit net field conversion
             context.RegisterSyntaxNodeAction(
-                this.AnalyseNetFieldConversions,
+                this.AnalyzeCast,
+                SyntaxKind.CastExpression,
+                SyntaxKind.AsExpression
+            );
+            context.RegisterSyntaxNodeAction(
+                this.AnalyzeBinaryComparison,
                 SyntaxKind.EqualsExpression,
                 SyntaxKind.NotEqualsExpression,
                 SyntaxKind.GreaterThanExpression,
@@ -190,75 +199,124 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
         /*********
         ** Private methods
         *********/
-        /// <summary>Analyse a syntax node and add a diagnostic message if it references a net field when there's a non-net equivalent available.</summary>
+        /// <summary>Analyse a member access syntax node and add a diagnostic message if applicable.</summary>
         /// <param name="context">The analysis context.</param>
-        private void AnalyzeAvoidableNetField(SyntaxNodeAnalysisContext context)
+        /// <returns>Returns whether any warnings were added.</returns>
+        private void AnalyzeMemberAccess(SyntaxNodeAnalysisContext context)
         {
-            try
+            this.HandleErrors(context.Node, () =>
             {
-                // check member type
-                MemberAccessExpressionSyntax node = (MemberAccessExpressionSyntax)context.Node;
-                TypeInfo memberType = context.SemanticModel.GetTypeInfo(node);
+                // get member access info
+                if (!AnalyzerUtilities.TryGetMemberInfo(context.Node, context.SemanticModel, out ITypeSymbol declaringType, out TypeInfo memberType, out string memberName))
+                    return;
                 if (!this.IsNetType(memberType.Type))
                     return;
 
-                // get reference info
-                ITypeSymbol declaringType = context.SemanticModel.GetTypeInfo(node.Expression).Type;
-                string propertyName = node.Name.Identifier.Text;
-
-                // suggest replacement
-                for (ITypeSymbol type = declaringType; type != null; type = type.BaseType)
+                // warn: use property wrapper if available
+                foreach (ITypeSymbol type in AnalyzerUtilities.GetConcreteTypes(declaringType))
                 {
-                    if (this.NetFieldWrapperProperties.TryGetValue($"{type}::{propertyName}", out string suggestedPropertyName))
+                    if (this.NetFieldWrapperProperties.TryGetValue($"{type}::{memberName}", out string suggestedPropertyName))
                     {
-                        context.ReportDiagnostic(Diagnostic.Create(this.Rules["SMAPI002"], context.Node.GetLocation(), node, memberType.Type.Name, suggestedPropertyName));
-                        break;
+                        context.ReportDiagnostic(Diagnostic.Create(this.AvoidNetFieldRule, context.Node.GetLocation(), context.Node, memberType.Type.Name, suggestedPropertyName));
+                        return;
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException($"Failed processing expression: '{context.Node}'. Exception details: {ex.ToString().Replace('\r', ' ').Replace('\n', ' ')}");
-            }
+
+                // warn: implicit conversion
+                if (this.IsInvalidConversion(memberType.Type, memberType.ConvertedType))
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(this.AvoidImplicitNetFieldCastRule, context.Node.GetLocation(), context.Node, memberType.Type.Name, memberType.ConvertedType));
+                    return;
+                }
+            });
         }
 
-        /// <summary>Analyse a syntax node and add a diagnostic message if it implicitly converts a net field.</summary>
+        /// <summary>Analyse an explicit cast or 'x as y' node and add a diagnostic message if applicable.</summary>
         /// <param name="context">The analysis context.</param>
-        private void AnalyseNetFieldConversions(SyntaxNodeAnalysisContext context)
+        /// <returns>Returns whether any warnings were added.</returns>
+        private void AnalyzeCast(SyntaxNodeAnalysisContext context)
         {
-            try
+            // NOTE: implicit conversion within the expression is detected by the member access
+            // checks. This method is only concerned with the conversion of its final value.
+            this.HandleErrors(context.Node, () =>
             {
-                BinaryExpressionSyntax binaryExpression = (BinaryExpressionSyntax)context.Node;
-                foreach (var pair in new[] { Tuple.Create(binaryExpression.Left, binaryExpression.Right), Tuple.Create(binaryExpression.Right, binaryExpression.Left) })
+                if (AnalyzerUtilities.TryGetCastOrAsInfo(context.Node, context.SemanticModel, out ExpressionSyntax fromExpression, out TypeInfo fromType, out TypeInfo toType))
+                {
+                    if (this.IsInvalidConversion(fromType.ConvertedType, toType.Type))
+                        context.ReportDiagnostic(Diagnostic.Create(this.AvoidImplicitNetFieldCastRule, context.Node.GetLocation(), fromExpression, fromType.ConvertedType.Name, toType.Type));
+                }
+            });
+        }
+
+        /// <summary>Analyse a binary comparison syntax node and add a diagnostic message if applicable.</summary>
+        /// <param name="context">The analysis context.</param>
+        /// <returns>Returns whether any warnings were added.</returns>
+        private void AnalyzeBinaryComparison(SyntaxNodeAnalysisContext context)
+        {
+            // NOTE: implicit conversion within an operand is detected by the member access checks.
+            // This method is only concerned with the conversion of each side's final value.
+            this.HandleErrors(context.Node, () =>
+            {
+                BinaryExpressionSyntax expression = (BinaryExpressionSyntax)context.Node;
+                foreach (var pair in new[] { Tuple.Create(expression.Left, expression.Right), Tuple.Create(expression.Right, expression.Left) })
                 {
                     // get node info
                     ExpressionSyntax curExpression = pair.Item1; // the side of the comparison being examined
                     ExpressionSyntax otherExpression = pair.Item2; // the other side
-                    TypeInfo typeInfo = context.SemanticModel.GetTypeInfo(curExpression);
-                    if (!this.IsNetType(typeInfo.Type))
+                    TypeInfo curType = context.SemanticModel.GetTypeInfo(curExpression);
+                    TypeInfo otherType = context.SemanticModel.GetTypeInfo(otherExpression);
+                    if (!this.IsNetType(curType.ConvertedType))
                         continue;
-
-                    // warn for implicit conversion
-                    if (!this.IsNetType(typeInfo.ConvertedType))
-                    {
-                        context.ReportDiagnostic(Diagnostic.Create(this.Rules["SMAPI001"], context.Node.GetLocation(), curExpression, typeInfo.Type.Name, typeInfo.ConvertedType));
-                        break;
-                    }
 
                     // warn for comparison to null
                     // An expression like `building.indoors != null` will sometimes convert `building.indoors` to NetFieldBase instead of object before comparison. Haven't reproduced this in unit tests yet.
                     Optional<object> otherValue = context.SemanticModel.GetConstantValue(otherExpression);
                     if (otherValue.HasValue && otherValue.Value == null)
                     {
-                        context.ReportDiagnostic(Diagnostic.Create(this.Rules["SMAPI001"], context.Node.GetLocation(), curExpression, typeInfo.Type.Name, "null"));
+                        context.ReportDiagnostic(Diagnostic.Create(this.AvoidImplicitNetFieldCastRule, context.Node.GetLocation(), curExpression, curType.Type.Name, "null"));
+                        break;
+                    }
+
+                    // warn for implicit conversion
+                    if (!this.IsNetType(otherType.ConvertedType))
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(this.AvoidImplicitNetFieldCastRule, context.Node.GetLocation(), curExpression, curType.Type.Name, curType.ConvertedType));
                         break;
                     }
                 }
+            });
+        }
+
+        /// <summary>Handle exceptions raised while analyzing a node.</summary>
+        /// <param name="node">The node being analysed.</param>
+        /// <param name="action">The callback to invoke.</param>
+        private void HandleErrors(SyntaxNode node, Action action)
+        {
+            try
+            {
+                action();
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException($"Failed processing expression: '{context.Node}'. Exception details: {ex.ToString().Replace('\r', ' ').Replace('\n', ' ')}");
+                throw new InvalidOperationException($"Failed processing expression: '{node}'. Exception details: {ex.ToString().Replace('\r', ' ').Replace('\n', ' ')}");
             }
+        }
+
+        /// <summary>Get whether a net field was converted in an error-prone way.</summary>
+        /// <param name="fromType">The source type.</param>
+        /// <param name="toType">The target type.</param>
+        private bool IsInvalidConversion(ITypeSymbol fromType, ITypeSymbol toType)
+        {
+            // no conversion
+            if (!this.IsNetType(fromType) || this.IsNetType(toType))
+                return false;
+
+            // conversion to implemented interface is OK
+            if (fromType.AllInterfaces.Contains(toType))
+                return false;
+
+            // avoid any other conversions
+            return true;
         }
 
         /// <summary>Get whether a type symbol references a <c>Netcode</c> type.</summary>

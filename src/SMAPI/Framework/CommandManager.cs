@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace StardewModdingAPI.Framework
 {
@@ -72,7 +73,7 @@ namespace StardewModdingAPI.Framework
             if (string.IsNullOrWhiteSpace(input))
                 return false;
 
-            string[] args = input.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] args = this.ParseArgs(input);
             string name = args[0];
             args = args.Skip(1).ToArray();
 
@@ -103,6 +104,31 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Private methods
         *********/
+        /// <summary>Parse a string into command arguments.</summary>
+        /// <param name="input">The string to parse.</param>
+        private string[] ParseArgs(string input)
+        {
+            bool inQuotes = false;
+            IList<string> args = new List<string>();
+            StringBuilder currentArg = new StringBuilder();
+            foreach (char ch in input)
+            {
+                if (ch == '"')
+                    inQuotes = !inQuotes;
+                else if (!inQuotes && char.IsWhiteSpace(ch))
+                {
+                    args.Add(currentArg.ToString());
+                    currentArg.Clear();
+                }
+                else
+                    currentArg.Append(ch);
+            }
+
+            args.Add(currentArg.ToString());
+
+            return args.Where(item => !string.IsNullOrWhiteSpace(item)).ToArray();
+        }
+
         /// <summary>Get a normalised command name.</summary>
         /// <param name="name">The command name.</param>
         private string GetNormalisedName(string name)

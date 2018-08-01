@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using Microsoft.Xna.Framework;
-using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Framework.Reflection;
-using StardewModdingAPI.Framework.Utilities;
+using StardewModdingAPI.Internal;
+using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
 
 namespace StardewModdingAPI.Framework.Content
@@ -53,7 +53,7 @@ namespace StardewModdingAPI.Framework.Content
             this.Cache = reflection.GetField<Dictionary<string, object>>(contentManager, "loadedAssets").GetValue();
 
             // get key normalisation logic
-            if (Constants.TargetPlatform == Platform.Windows)
+            if (Constants.Platform == Platform.Windows)
             {
                 IReflectedMethod method = reflection.GetMethod(typeof(TitleContainer), "GetCleanPath");
                 this.NormaliseAssetNameForPlatform = path => method.Invoke<string>(path);

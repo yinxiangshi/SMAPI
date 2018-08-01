@@ -44,7 +44,7 @@ executed. This doesn't work in MonoDevelop on Linux, unfortunately.
 
 ### Preparing a release
 To prepare a crossplatform SMAPI release, you'll need to compile it on two platforms. See
-[crossplatforming info](http://stardewvalleywiki.com/Modding:Creating_a_SMAPI_mod#Test_on_all_platforms)
+[crossplatforming info](https://stardewvalleywiki.com/Modding:Creating_a_SMAPI_mod#Test_on_all_platforms)
 on the wiki for the first-time setup.
 
 1. Update the version number in `GlobalAssemblyInfo.cs` and `Constants::Version`. Make sure you use a
@@ -78,8 +78,9 @@ on the wiki for the first-time setup.
                Mono.Cecil.dll
                Newtonsoft.Json.dll
                StardewModdingAPI
-               StardewModdingAPI.AssemblyRewriters.dll
                StardewModdingAPI.config.json
+               StardewModdingAPI.Internal.dll
+               StardewModdingAPI.metadata.json
                StardewModdingAPI.exe
                StardewModdingAPI.pdb
                StardewModdingAPI.xml
@@ -91,8 +92,9 @@ on the wiki for the first-time setup.
                Mods/*
                Mono.Cecil.dll
                Newtonsoft.Json.dll
-               StardewModdingAPI.AssemblyRewriters.dll
                StardewModdingAPI.config.json
+               StardewModdingAPI.Internal.dll
+               StardewModdingAPI.metadata.json
                StardewModdingAPI.exe
                StardewModdingAPI.pdb
                StardewModdingAPI.xml
@@ -135,7 +137,6 @@ change without warning.
 
 argument | purpose
 -------- | -------
-`--log-path "path"` | The relative or absolute path of the log file SMAPI should write.
 `--no-terminal` | SMAPI won't write anything to the console window. (Messages will still be written to the log file.)
 
 ### Compile flags
@@ -157,48 +158,66 @@ persisted in a compressed form to Pastebin.
 
 The log parser lives at https://log.smapi.io.
 
-### Mods API
-The mods API provides version info for mods hosted by Chucklefish, GitHub, or Nexus Mods. It's used
-by SMAPI to perform update checks. The `{version}` URL token is the version of SMAPI making the
-request; it doesn't do anything currently, but lets us version breaking changes if needed.
+### Web API
+SMAPI provides a web API at `api.smapi.io` for use by SMAPI and external tools. The URL includes a
+`{version}` token, which is the SMAPI version for backwards compatibility. This API is publicly
+accessible but not officially released; it may change at any time.
 
-Each mod is identified by a repository key and unique identifier (like `nexus:541`). The following
-repositories are supported:
+The API has one `/mods` endpoint. This provides mod info, including official versions and URLs
+(from Chucklefish, GitHub, or Nexus), unofficial versions from the wiki, and optional mod metadata
+from the wiki and SMAPI's internal data. This is used by SMAPI to perform update checks, and by
+external tools to fetch mod data.
 
-key           | repository
-------------- | ----------
-`chucklefish` | A mod page on the [Chucklefish mod site](https://community.playstarbound.com/resources/categories/22), identified by the mod ID in the page URL.
-`github`      | A repository on [GitHub](https://github.com), identified by its owner and repository name (like `Zoryn4163/SMAPI-Mods`). This checks the version of the latest repository release.
-`nexus`       | A mod page on [Nexus Mods](https://www.nexusmods.com/stardewvalley), identified by the mod ID in the page URL.
+The API accepts a `POST` request with the mods to match, each of which **must** specify an ID and
+may _optionally_ specify [update keys](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Manifest#Update_checks).
+The API will automatically try to fetch known update keys from the wiki and internal data based on
+the given ID.
 
+```
+POST https://api.smapi.io/v2.0/mods
+{
+   "mods": [
+      {
+         "id": "Pathoschild.LookupAnything",
+         "updateKeys": [ "nexus:541", "chucklefish:4250" ]
+      }
+   ],
+   "includeExtendedMetadata": true
+}
+```
 
-The API accepts either `GET` or `POST` for convenience:
-> ```
->GET https://api.smapi.io/v2.0/mods?modKeys=nexus:541,chucklefish:4228
->```
+The API will automatically aggregate versions and errors. Each mod will include...
+* an `id` (matching what you passed in);
+* up to three versions: `main` (e.g. 'latest version' field on Nexus), `optional` if newer (e.g.
+  optional files on Nexus), and `unofficial` if newer (from the wiki);
+* `metadata` with mod info crossreferenced from the wiki and internal data (only if you specified
+  `includeExtendedMetadata: true`);
+* and `errors` containing any error messages that occurred while fetching data.
 
->```
->POST https://api.smapi.io/v2.0/mods
->{
->   "ModKeys": [ "nexus:541", "chucklefish:4228" ]
->}
->```
-
-It returns a response like this:
->```
->{
->  "chucklefish:4228": {
->    "name": "Entoarox Framework",
->    "version": "1.8.0",
->    "url": "https://community.playstarbound.com/resources/4228"
->  },
->  "nexus:541": {
->    "name": "Lookup Anything",
->    "version": "1.16",
->    "url": "http://www.nexusmods.com/stardewvalley/mods/541"
->  }
->}
->```
+For example:
+```
+[
+   {
+      "id": "Pathoschild.LookupAnything",
+      "main": {
+         "version": "1.19",
+         "url": "https://www.nexusmods.com/stardewvalley/mods/541"
+      },
+      "metadata": {
+         "id": [
+            "Pathoschild.LookupAnything",
+            "LookupAnything"
+         ],
+         "name": "Lookup Anything",
+         "nexusID": 541,
+         "gitHubRepo": "Pathoschild/StardewMods",
+         "compatibilityStatus": "Ok",
+         "compatibilitySummary": "✓ use latest version."
+      },
+      "errors": []
+   }
+]
+```
 
 ## Development
 ### Local development

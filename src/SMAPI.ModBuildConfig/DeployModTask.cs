@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
+using System.Text.RegularExpressions;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using StardewModdingAPI.ModBuildConfig.Framework;
@@ -42,6 +44,9 @@ namespace StardewModdingAPI.ModBuildConfig
         [Required]
         public bool EnableModZip { get; set; }
 
+        /// <summary>Custom comma-separated regex patterns matching files to ignore when deploying or zipping the mod.</summary>
+        public string IgnoreModFilePatterns { get; set; }
+
 
         /*********
         ** Public methods
@@ -55,8 +60,11 @@ namespace StardewModdingAPI.ModBuildConfig
 
             try
             {
+                // parse ignore patterns
+                Regex[] ignoreFilePatterns = this.GetCustomIgnorePatterns().ToArray();
+
                 // get mod info
-                ModFileManager package = new ModFileManager(this.ProjectDir, this.TargetDir);
+                ModFileManager package = new ModFileManager(this.ProjectDir, this.TargetDir, ignoreFilePatterns, validateRequiredModFiles: this.EnableModDeploy || this.EnableModZip);
 
                 // deploy mod files
                 if (this.EnableModDeploy)
@@ -91,6 +99,29 @@ namespace StardewModdingAPI.ModBuildConfig
         /*********
         ** Private methods
         *********/
+        /// <summary>Get the custom ignore patterns provided by the user.</summary>
+        private IEnumerable<Regex> GetCustomIgnorePatterns()
+        {
+            if (string.IsNullOrWhiteSpace(this.IgnoreModFilePatterns))
+                yield break;
+
+            foreach (string raw in this.IgnoreModFilePatterns.Split(','))
+            {
+                Regex regex;
+                try
+                {
+                    regex = new Regex(raw.Trim(), RegexOptions.IgnoreCase);
+                }
+                catch (Exception ex)
+                {
+                    this.Log.LogWarning($"Ignored invalid <{nameof(this.IgnoreModFilePatterns)}> pattern {raw}:\n{ex}");
+                    continue;
+                }
+
+                yield return regex;
+            }
+        }
+
         /// <summary>Copy the mod files into the game's mod folder.</summary>
         /// <param name="files">The files to include.</param>
         /// <param name="modFolderPath">The folder path to create with the mod files.</param>

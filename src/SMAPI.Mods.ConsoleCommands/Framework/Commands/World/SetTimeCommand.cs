@@ -1,4 +1,5 @@
-﻿using System.Linq;
+using System;
+using System.Linq;
 using StardewValley;
 
 namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
@@ -31,9 +32,38 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
                 return;
 
             // handle
-            Game1.timeOfDay = time;
+            this.SafelySetTime(time);
             FreezeTimeCommand.FrozenTime = Game1.timeOfDay;
             monitor.Log($"OK, the time is now {Game1.timeOfDay.ToString().PadLeft(4, '0')}.", LogLevel.Info);
+        }
+
+
+        /*********
+        ** Private methods
+        *********/
+        /// <summary>Safely transition to the given time, allowing NPCs to update their schedule.</summary>
+        /// <param name="time">The time of day.</param>
+        private void SafelySetTime(int time)
+        {
+            // define conversion between game time and TimeSpan
+            TimeSpan ToTimeSpan(int value) => new TimeSpan(0, value / 100, value % 100, 0);
+            int FromTimeSpan(TimeSpan span) => (int)((span.Hours * 100) + span.Minutes);
+
+            // transition to new time
+            int intervals = (int)((ToTimeSpan(time) - ToTimeSpan(Game1.timeOfDay)).TotalMinutes / 10);
+            if (intervals > 0)
+            {
+                for (int i = 0; i < intervals; i++)
+                    Game1.performTenMinuteClockUpdate();
+            }
+            else if (intervals < 0)
+            {
+                for (int i = 0; i > intervals; i--)
+                {
+                    Game1.timeOfDay = FromTimeSpan(ToTimeSpan(Game1.timeOfDay).Subtract(TimeSpan.FromMinutes(20))); // offset 20 mins so game updates to next interval
+                    Game1.performTenMinuteClockUpdate();
+                }
+            }
         }
     }
 }

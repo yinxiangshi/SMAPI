@@ -50,7 +50,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                 return InstructionHandleResult.None;
 
             string methodPrefix = instruction.OpCode == OpCodes.Ldsfld || instruction.OpCode == OpCodes.Ldfld ? "get" : "set";
-            MethodReference propertyRef = module.Import(this.Type.GetMethod($"{methodPrefix}_{this.PropertyName}"));
+            MethodReference propertyRef = module.ImportReference(this.Type.GetMethod($"{methodPrefix}_{this.PropertyName}"));
             cil.Replace(instruction, cil.Create(OpCodes.Call, propertyRef));
 
             return InstructionHandleResult.Rewritten;

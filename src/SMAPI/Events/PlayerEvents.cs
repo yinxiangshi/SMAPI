@@ -23,12 +23,20 @@ namespace StardewModdingAPI.Events
             remove => PlayerEvents.EventManager.Player_InventoryChanged.Remove(value);
         }
 
-        /// <summary> Raised after the player levels up a skill. This happens as soon as they level up, not when the game notifies the player after their character goes to bed.</summary>
+        /// <summary>Raised after the player levels up a skill. This happens as soon as they level up, not when the game notifies the player after their character goes to bed.</summary>
         public static event EventHandler<EventArgsLevelUp> LeveledUp
         {
             add => PlayerEvents.EventManager.Player_LeveledUp.Add(value);
             remove => PlayerEvents.EventManager.Player_LeveledUp.Remove(value);
         }
+
+        /// <summary>Raised after the player warps to a new location.</summary>
+        public static event EventHandler<EventArgsPlayerWarped> Warped
+        {
+            add => PlayerEvents.EventManager.Player_Warped.Add(value);
+            remove => PlayerEvents.EventManager.Player_Warped.Remove(value);
+        }
+
 
 
         /*********

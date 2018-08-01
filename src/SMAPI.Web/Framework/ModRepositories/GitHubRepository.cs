@@ -1,6 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using StardewModdingAPI.Common.Models;
+using StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
 using StardewModdingAPI.Web.Framework.Clients.GitHub;
 
 namespace StardewModdingAPI.Web.Framework.ModRepositories
@@ -38,21 +38,25 @@ namespace StardewModdingAPI.Web.Framework.ModRepositories
             // fetch info
             try
             {
-                // get latest release
+                // get latest release (whether preview or stable)
                 GitRelease latest = await this.Client.GetLatestReleaseAsync(id, includePrerelease: true);
-                GitRelease preview = null;
                 if (latest == null)
                     return new ModInfoModel("Found no mod with this ID.");
 
-                // get latest stable release (if not latest)
+                // split stable/prerelease if applicable
+                GitRelease preview = null;
                 if (latest.IsPrerelease)
                 {
-                    preview = latest;
-                    latest = await this.Client.GetLatestReleaseAsync(id, includePrerelease: false);
+                    GitRelease result = await this.Client.GetLatestReleaseAsync(id, includePrerelease: false);
+                    if (result != null)
+                    {
+                        preview = latest;
+                        latest = result;
+                    }
                 }
 
                 // return data
-                return new ModInfoModel(name: id, version: this.NormaliseVersion(latest?.Tag), previewVersion: this.NormaliseVersion(preview?.Tag), url: $"https://github.com/{id}/releases");
+                return new ModInfoModel(name: id, version: this.NormaliseVersion(latest.Tag), previewVersion: this.NormaliseVersion(preview?.Tag), url: $"https://github.com/{id}/releases");
             }
             catch (Exception ex)
             {

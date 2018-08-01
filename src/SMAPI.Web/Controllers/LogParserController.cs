@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -20,8 +21,8 @@ namespace StardewModdingAPI.Web.Controllers
         /*********
         ** Properties
         *********/
-        /// <summary>The log parser config settings.</summary>
-        private readonly ContextConfig Config;
+        /// <summary>The site config settings.</summary>
+        private readonly SiteConfig Config;
 
         /// <summary>The underlying Pastebin client.</summary>
         private readonly IPastebinClient Pastebin;
@@ -38,11 +39,11 @@ namespace StardewModdingAPI.Web.Controllers
         ** Constructor
         ***/
         /// <summary>Construct an instance.</summary>
-        /// <param name="contextProvider">The context config settings.</param>
+        /// <param name="siteConfig">The context config settings.</param>
         /// <param name="pastebin">The Pastebin API client.</param>
-        public LogParserController(IOptions<ContextConfig> contextProvider, IPastebinClient pastebin)
+        public LogParserController(IOptions<SiteConfig> siteConfig, IPastebinClient pastebin)
         {
-            this.Config = contextProvider.Value;
+            this.Config = siteConfig.Value;
             this.Pastebin = pastebin;
         }
 
@@ -51,34 +52,49 @@ namespace StardewModdingAPI.Web.Controllers
         ***/
         /// <summary>Render the log parser UI.</summary>
         /// <param name="id">The paste ID.</param>
+        /// <param name="raw">Whether to display the raw unparsed log.</param>
         [HttpGet]
         [Route("log")]
         [Route("log/{id}")]
-        public async Task<ViewResult> Index(string id = null)
+        public async Task<ViewResult> Index(string id = null, bool raw = false)
         {
             // fresh page
             if (string.IsNullOrWhiteSpace(id))
-                return this.View("Index", new LogParserModel(this.Config.LogParserUrl, id, null));
+                return this.View("Index", new LogParserModel(this.Config.LogParserUrl, id));
 
             // log page
             PasteInfo paste = await this.GetAsync(id);
             ParsedLog log = paste.Success
                 ? new LogParser().Parse(paste.Content)
                 : new ParsedLog { IsValid = false, Error = "Pastebin error: " + paste.Error };
-            return this.View("Index", new LogParserModel(this.Config.LogParserUrl, id, log));
+            return this.View("Index", new LogParserModel(this.Config.LogParserUrl, id, log, raw));
         }
 
         /***
         ** JSON
         ***/
         /// <summary>Save raw log data.</summary>
-        /// <param name="content">The log content to save.</param>
-        [HttpPost, Produces("application/json"), AllowLargePosts]
-        [Route("log/save")]
-        public async Task<SavePasteResult> PostAsync([FromBody] string content)
+        [HttpPost, AllowLargePosts]
+        [Route("log")]
+        public async Task<ActionResult> PostAsync()
         {
-            content = this.CompressString(content);
-            return await this.Pastebin.PostAsync(content);
+            // get raw log text
+            string input = this.Request.Form["input"].FirstOrDefault();
+            if (string.IsNullOrWhiteSpace(input))
+                return this.View("Index", new LogParserModel(this.Config.LogParserUrl, null) { UploadError = "The log file seems to be empty." });
+
+            // upload log
+            input = this.CompressString(input);
+            SavePasteResult result = await this.Pastebin.PostAsync(input);
+
+            // handle errors
+            if (!result.Success)
+                return this.View("Index", new LogParserModel(this.Config.LogParserUrl, result.ID) { UploadError = $"Pastebin error: {result.Error ?? "unknown error"}" });
+
+            // redirect to view
+            UriBuilder uri = new UriBuilder(new Uri(this.Config.LogParserUrl));
+            uri.Path = uri.Path.TrimEnd('/') + '/' + result.ID;
+            return this.Redirect(uri.Uri.ToString());
         }
 
 
@@ -115,7 +131,7 @@ namespace StardewModdingAPI.Web.Controllers
             }
 
             // prefix length
-            var zipBuffer = new byte[compressedData.Length + 4];
+            byte[] zipBuffer = new byte[compressedData.Length + 4];
             Buffer.BlockCopy(compressedData, 0, zipBuffer, 4, compressedData.Length);
             Buffer.BlockCopy(BitConverter.GetBytes(buffer.Length), 0, zipBuffer, 0, 4);
 
@@ -151,7 +167,7 @@ namespace StardewModdingAPI.Web.Controllers
                 memoryStream.Write(zipBuffer, 4, zipBuffer.Length - 4);
 
                 // read data
-                var buffer = new byte[dataLength];
+                byte[] buffer = new byte[dataLength];
                 memoryStream.Position = 0;
                 using (GZipStream gZipStream = new GZipStream(memoryStream, CompressionMode.Decompress))
                     gZipStream.Read(buffer, 0, buffer.Length);

@@ -1,21 +1,103 @@
 # Release notes
-<!--
-## 2.6 alpha
+## 2.6
 * For players:
-  * Added support for Stardew Valley 1.3+; no longer compatible with earlier versions.
-  * Added `Context.IsMultiplayer` and `Context.IsMainPlayer` flags.
-  * Fixed SMAPI update checks not showing newer beta versions when using a beta version.
+  * Updated for Stardew Valley 1.3.
+  * Added automatic save backups.
+  * Improved update checks:
+    * added beta update channel;
+    * added update alerts for incompatible mods with an unofficial update on the wiki;
+    * added update alerts for optional files on Nexus;
+    * added console warning for mods which don't have update checks configured;
+    * added more visible prompt in beta channel for SMAPI updates;
+    * fixed mod update checks failing if a mod only has prerelease versions on GitHub;
+    * fixed Nexus mod update alerts not showing HTTPS links.
+  * Improved mod warnings in the console.
+  * Improved error when game can't start audio.
+  * Improved the Console Commands mod:
+    * Added `player_add name`, which adds items to your inventory by name instead of ID.
+    * Fixed `world_setseason` not running season-change logic.
+    * Fixed `world_setseason` not normalising the season value.
+    * Fixed `world_settime` sometimes breaking NPC schedules (e.g. so they stay in bed).
+    * Removed the `player_setlevel` and `player_setspeed` commands, which weren't implemented in a useful way. Use a mod like CJB Cheats Menu if you need those.
+  * Fixed `SEHException` errors for some players.
+  * Fixed performance issues for some players.
+  * Fixed default color scheme on Mac or in PowerShell (configurable via `StardewModdingAPI.config.json`).
+  * Fixed installer error on Linux/Mac in some cases.
+  * Fixed installer not finding some game paths or showing duplicate paths.
+  * Fixed installer not removing some SMAPI files.
+  * Fixed launch issue for Linux players with some terminals. (Thanks to HanFox and kurumushi!)
+  * Fixed abort-retry loop if a mod crashed when intercepting assets during startup.
+  * Fixed some mods failing if the player name is blank.
+  * Fixed errors when a mod references a missing assembly.
+  * Fixed `AssemblyResolutionException` errors in rare cases.
+  * Renamed `install.exe` to `install on Windows.exe` to avoid confusion.
+  * Updated compatibility list.
+
+* For the web UI:
+  * Added option to download SMAPI from Nexus.
+  * Added log parser redesign that should be more intuitive.
+  * Added log parser option to view raw log.
+  * Changed log parser filters to show `DEBUG` messages by default.
+  * Fixed design on smaller screens.
+  * Fixed log parser issue when content packs have no description.
+  * Fixed log parser mangling crossplatform paths in some cases.
+  * Fixed `smapi.io/install` not linking to a useful page.
 
 * For modders:
-  * Added code analysis to mod build config package to flag common issues as warnings.
-  * Dropped some deprecated APIs.
-  * Fixed assets loaded by temporary content managers not being editable.
-  * Fixed issue where assets didn't reload correctly when the player switches language.
+  * Added [input API](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Input) for reading and suppressing keyboard, controller, and mouse input.
+  * Added code analysis in the NuGet package to flag common issues as warnings.
+  * Replaced `LocationEvents` to support multiplayer:
+    * now raised for all locations;
+    * now includes added/removed building interiors;
+    * each event now provides a list of added/removed values;
+    * added buildings-changed event.
+  * Added `Context.IsMultiplayer` and `Context.IsMainPlayer` flags.
+  * Added `Constants.TargetPlatform` which says whether the game is running on Linux, Mac, or Windows.
+  * Added `semanticVersion.IsPrerelease()` method.
+  * Added support for launching multiple instances transparently. This removes the former `--log-path` command-line argument.
+  * Added support for custom seasonal tilesheets when loading an unpacked `.tbin` map.
+  * Added Harmony DLL for internal use by SMAPI. (Mods should still include their own copy for backwards compatibility, and in case it's removed later. SMAPI will always load its own version though.)
+  * Added option to suppress update checks for a specific mod in `StardewModdingAPI.config.json`.
+  * Added absolute pixels to `ICursorPosition`.
+  * Added support for reading/writing `ISemanticVersion` to JSON.
+  * Added support for reloading NPC schedules through the content API.
+  * Reimplemented the content API so it works more reliably in many edge cases.
+  * Reimplemented input suppression to work more consistently in many cases.
+  * The order of update keys now affects which URL players see in update alerts.
+  * Fixed assets loaded by temporary content managers not being editable by mods.
+  * Fixed assets not reloaded consistently when the player switches language.
+  * Fixed error if a mod loads a PNG while the game is loading (e.g. custom map tilesheets via `IAssetLoader`).
+  * Fixed error if a mod translation file is empty.
+  * Fixed input suppression not working consistently for clicks.
+  * Fixed console input not saved to the log.
+  * Fixed `Context.IsPlayerFree` being false during festivals.
+  * Fixed `helper.ModRegistry.GetApi` errors not always mentioning which interface caused the issue.
+  * Fixed console commands being invoked asynchronously.
+  * Fixed mods able to intercept other mods' assets via the internal asset keys.
+  * Fixed mods able to indirectly change other mods' data through shared content caches.
+  * Fixed `SemanticVersion` allowing invalid versions in some cases.
+  * **Breaking changes** (see [migration guide](https://stardewvalleywiki.com/Modding:Migrate_to_Stardew_Valley_1.3)):
+     * Dropped some deprecated APIs.
+     * `LocationEvents` have been rewritten.
+     * Mods can't intercept chatbox input.
+     * Mod IDs should only contain letters, numbers, hyphens, dots, and underscores. That allows their use in many contexts like URLs. This restriction is now enforced. (In regex form: `^[a-zA-Z0-9_.-]+$`.)
 
 * For SMAPI developers:
-  * Added prerelease versions to the mod update-check API response where available (GitHub only).
-  * Added support for beta releases on the home page.
--->
+  * Added more consistent crossplatform handling, including MacOS detection.
+  * Added beta update channel.
+  * Added optional mod metadata to the web API (including Nexus info, wiki metadata, etc).
+  * Added early prototype of SMAPI 3.0 events via `helper.Events`.
+  * Added early prototype of mod handler toolkit.
+  * Added Harmony for SMAPI's internal use.
+  * Added metadata dump option in `StardewModdingAPI.config.json` for troubleshooting some cases.
+  * Added more stylish pufferchick on the home page.
+  * Rewrote update checks:
+    * Moved most logic into the web API.
+    * Changed web API to require mod IDs.
+    * Changed web API to also fetch metadata from SMAPI's internal mod DB and the wiki.
+  * Rewrote world/player state tracking. The new implementation is much more efficient than previous method, uses net field events where available, and lays the groundwork for more advanced events in SMAPI 3.0.
+  * Split mod DB out of `StardewModdingAPI.config.json` into its own file.
+  * Updated to Mono.Cecil 0.10.
 
 ## 2.5.5
 * For players:
@@ -215,7 +297,7 @@
 
 * **New features for modders**  
   SMAPI 2.0 adds several features to enable new kinds of mods (see
-  [API documentation](https://stardewvalleywiki.com/Modding:SMAPI_APIs)).
+  [API documentation](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs)).
 
   The **content API** lets you edit, inject, and reload XNB data loaded by the game at any time. This lets SMAPI mods do
   anything previously only possible with XNB mods, and enables new mod scenarios not possible with XNB mods (e.g.
@@ -338,8 +420,8 @@ For players:
 * Updated mod compatibility list.
 
 For modders:
-* Added `SDate` utility for in-game date calculations (see [API reference](http://stardewvalleywiki.com/Modding:SMAPI_APIs#Dates)).
-* Added support for minimum dependency versions in `manifest.json` (see [API reference](http://stardewvalleywiki.com/Modding:SMAPI_APIs#Manifest)).
+* Added `SDate` utility for in-game date calculations (see [API reference](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Utilities#Dates)).
+* Added support for minimum dependency versions in `manifest.json` (see [API reference](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Manifest)).
 * Added more useful logging when loading mods.
 * Added a `ModID` property to all mod helpers for extension methods.
 * Changed `manifest.MinimumApiVersion` from string to `ISemanticVersion`. This shouldn't affect mods unless they referenced that field in code.
@@ -371,8 +453,8 @@ For players:
 * Updated mod compatibility list.
 
 For modders:
-* You can now add dependencies to `manifest.json` (see [API reference](http://stardewvalleywiki.com/Modding:SMAPI_APIs#Manifest)).
-* You can now translate your mod (see [API reference](http://stardewvalleywiki.com/Modding:SMAPI_APIs#Translation)).
+* You can now add dependencies to `manifest.json` (see [API reference](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Manifest)).
+* You can now translate your mod (see [API reference](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Translation)).
 * You can now load unpacked `.tbin` files from your mod folder through the content API.  
 * SMAPI now automatically fixes tilesheet references for maps loaded from the mod folder.  
   <small>_When loading a map from the mod folder, SMAPI will automatically use tilesheets relative to the map file if they exists. Otherwise it will default to tilesheets in the game content._</small>

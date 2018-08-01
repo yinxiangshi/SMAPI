@@ -6,21 +6,19 @@ using System.Reflection;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using StardewModdingAPI.Framework.Exceptions;
+using StardewModdingAPI.Internal;
 using StardewModdingAPI.Metadata;
 
 namespace StardewModdingAPI.Framework.ModLoading
 {
     /// <summary>Preprocesses and loads mod assemblies.</summary>
-    internal class AssemblyLoader
+    internal class AssemblyLoader : IDisposable
     {
         /*********
         ** Properties
         *********/
         /// <summary>Encapsulates monitoring and logging.</summary>
         private readonly IMonitor Monitor;
-
-        /// <summary>Whether to enable developer mode logging.</summary>
-        private readonly bool IsDeveloperMode;
 
         /// <summary>Metadata for mapping assemblies to the current platform.</summary>
         private readonly PlatformAssemblyMap AssemblyMap;
@@ -31,6 +29,9 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>A minimal assembly definition resolver which resolves references to known loaded assemblies.</summary>
         private readonly AssemblyDefinitionResolver AssemblyDefinitionResolver;
 
+        /// <summary>The objects to dispose as part of this instance.</summary>
+        private readonly HashSet<IDisposable> Disposables = new HashSet<IDisposable>();
+
 
         /*********
         ** Public methods
@@ -38,13 +39,12 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>Construct an instance.</summary>
         /// <param name="targetPlatform">The current game platform.</param>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        /// <param name="isDeveloperMode">Whether to enable developer mode logging.</param>
-        public AssemblyLoader(Platform targetPlatform, IMonitor monitor, bool isDeveloperMode)
+        public AssemblyLoader(Platform targetPlatform, IMonitor monitor)
         {
             this.Monitor = monitor;
-            this.IsDeveloperMode = isDeveloperMode;
-            this.AssemblyMap = Constants.GetAssemblyMap(targetPlatform);
-            this.AssemblyDefinitionResolver = new AssemblyDefinitionResolver();
+            this.AssemblyMap = this.TrackForDisposal(Constants.GetAssemblyMap(targetPlatform));
+            this.AssemblyDefinitionResolver = this.TrackForDisposal(new AssemblyDefinitionResolver());
+            this.AssemblyDefinitionResolver.AddSearchDirectory(Constants.ExecutionPath);
 
             // generate type => assembly lookup for types which should be rewritten
             this.TypeAssemblies = new Dictionary<string, Assembly>();
@@ -98,13 +98,26 @@ namespace StardewModdingAPI.Framework.ModLoading
                     continue;
 
                 // rewrite assembly
-                bool changed = this.RewriteAssembly(mod, assembly.Definition, assumeCompatible, loggedMessages, logPrefix: "   ");
+                bool changed = this.RewriteAssembly(mod, assembly.Definition, assumeCompatible, loggedMessages, logPrefix: "      ");
+
+                // detect broken assembly reference
+                foreach (AssemblyNameReference reference in assembly.Definition.MainModule.AssemblyReferences)
+                {
+                    if (!reference.Name.StartsWith("System.") && !this.IsAssemblyLoaded(reference))
+                    {
+                        this.Monitor.LogOnce(loggedMessages, $"      Broken code in {assembly.File.Name}: reference to missing assembly '{reference.FullName}'.");
+                        if (!assumeCompatible)
+                            throw new IncompatibleInstructionException($"assembly reference to {reference.FullName}", $"Found a reference to missing assembly '{reference.FullName}' while loading assembly {assembly.File.Name}.");
+                        mod.SetWarning(ModWarning.BrokenCodeLoaded);
+                        break;
+                    }
+                }
 
                 // load assembly
                 if (changed)
                 {
                     if (!oneAssembly)
-                        this.Monitor.Log($"   Loading {assembly.File.Name} (rewritten in memory)...", LogLevel.Trace);
+                        this.Monitor.Log($"      Loading {assembly.File.Name} (rewritten in memory)...", LogLevel.Trace);
                     using (MemoryStream outStream = new MemoryStream())
                     {
                         assembly.Definition.Write(outStream);
@@ -115,7 +128,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 else
                 {
                     if (!oneAssembly)
-                        this.Monitor.Log($"   Loading {assembly.File.Name}...", LogLevel.Trace);
+                        this.Monitor.Log($"      Loading {assembly.File.Name}...", LogLevel.Trace);
                     lastAssembly = Assembly.UnsafeLoadFrom(assembly.File.FullName);
                 }
 
@@ -127,6 +140,20 @@ namespace StardewModdingAPI.Framework.ModLoading
             return lastAssembly;
         }
 
+        /// <summary>Get whether an assembly is loaded.</summary>
+        /// <param name="reference">The assembly name reference.</param>
+        public bool IsAssemblyLoaded(AssemblyNameReference reference)
+        {
+            try
+            {
+                return this.AssemblyDefinitionResolver.Resolve(reference) != null;
+            }
+            catch (AssemblyResolutionException)
+            {
+                return false;
+            }
+        }
+
         /// <summary>Resolve an assembly by its name.</summary>
         /// <param name="name">The assembly name.</param>
         /// <remarks>
@@ -135,7 +162,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// assemblies (especially with Mono). Since this is meant to be called on <see cref="AppDomain.AssemblyResolve"/>,
         /// the implicit assumption is that loading the exact assembly failed.
         /// </remarks>
-        public Assembly ResolveAssembly(string name)
+        public static Assembly ResolveAssembly(string name)
         {
             string shortName = name.Split(new[] { ',' }, 2).First(); // get simple name (without version and culture)
             return AppDomain.CurrentDomain
@@ -143,10 +170,26 @@ namespace StardewModdingAPI.Framework.ModLoading
                 .FirstOrDefault(p => p.GetName().Name == shortName);
         }
 
+        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
+        public void Dispose()
+        {
+            foreach (IDisposable instance in this.Disposables)
+                instance.Dispose();
+        }
+
 
         /*********
         ** Private methods
         *********/
+        /// <summary>Track an object for disposal as part of the assembly loader.</summary>
+        /// <typeparam name="T">The instance type.</typeparam>
+        /// <param name="instance">The disposable instance.</param>
+        private T TrackForDisposal<T>(T instance) where T : IDisposable
+        {
+            this.Disposables.Add(instance);
+            return instance;
+        }
+
         /****
         ** Assembly parsing
         ****/
@@ -165,9 +208,8 @@ namespace StardewModdingAPI.Framework.ModLoading
 
             // read assembly
             byte[] assemblyBytes = File.ReadAllBytes(file.FullName);
-            AssemblyDefinition assembly;
-            using (Stream readStream = new MemoryStream(assemblyBytes))
-                assembly = AssemblyDefinition.ReadAssembly(readStream, new ReaderParameters(ReadingMode.Deferred) { AssemblyResolver = assemblyResolver });
+            Stream readStream = this.TrackForDisposal(new MemoryStream(assemblyBytes));
+            AssemblyDefinition assembly = this.TrackForDisposal(AssemblyDefinition.ReadAssembly(readStream, new ReaderParameters(ReadingMode.Immediate) { AssemblyResolver = assemblyResolver, InMemory = true }));
 
             // skip if already visited
             if (visitedAssemblyNames.Contains(assembly.Name.Name))
@@ -284,33 +326,27 @@ namespace StardewModdingAPI.Framework.ModLoading
                     this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Broken code in {filename}: {handler.NounPhrase}.");
                     if (!assumeCompatible)
                         throw new IncompatibleInstructionException(handler.NounPhrase, $"Found an incompatible CIL instruction ({handler.NounPhrase}) while loading assembly {filename}.");
-                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Found broken code ({handler.NounPhrase}) while loading assembly {filename}, but SMAPI is configured to allow it anyway. The mod may crash or behave unexpectedly.", LogLevel.Warn);
+                    mod.SetWarning(ModWarning.BrokenCodeLoaded);
                     break;
 
                 case InstructionHandleResult.DetectedGamePatch:
                     this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Detected game patcher ({handler.NounPhrase}) in assembly {filename}.");
-                    this.Monitor.LogOnce(loggedMessages, $"{mod.DisplayName} patches the game, which may impact game stability. If you encounter problems, try removing this mod first.", LogLevel.Warn);
+                    mod.SetWarning(ModWarning.PatchesGame);
                     break;
 
                 case InstructionHandleResult.DetectedSaveSerialiser:
                     this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Detected possible save serialiser change ({handler.NounPhrase}) in assembly {filename}.");
-                    this.Monitor.LogOnce(loggedMessages, $"{mod.DisplayName} seems to change the save serialiser. It may change your saves in such a way that they won't work without this mod in the future.", LogLevel.Warn);
+                    mod.SetWarning(ModWarning.ChangesSaveSerialiser);
                     break;
 
                 case InstructionHandleResult.DetectedUnvalidatedUpdateTick:
                     this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Detected reference to {handler.NounPhrase} in assembly {filename}.");
-                    this.Monitor.LogOnce(loggedMessages, $"{mod.DisplayName} uses a specialised SMAPI event that may crash the game or corrupt your save file. If you encounter problems, try removing this mod first.", LogLevel.Warn);
+                    mod.SetWarning(ModWarning.UsesUnvalidatedUpdateTick);
                     break;
 
                 case InstructionHandleResult.DetectedDynamic:
                     this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Detected 'dynamic' keyword ({handler.NounPhrase}) in assembly {filename}.");
-                    this.Monitor.LogOnce(loggedMessages, $"{mod.DisplayName} uses the 'dynamic' keyword, which isn't compatible with Stardew Valley on Linux or Mac.",
-#if SMAPI_FOR_WINDOWS
-                        this.IsDeveloperMode ? LogLevel.Warn : LogLevel.Debug
-#else
-                        LogLevel.Warn
-#endif
-                    );
+                    mod.SetWarning(ModWarning.UsesDynamic);
                     break;
 
                 case InstructionHandleResult.None:

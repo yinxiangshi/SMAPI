@@ -22,6 +22,7 @@ namespace StardewModdingAPI.Tests.Utilities
         [TestCase("3000.4000.5000", ExpectedResult = "3000.4000.5000")]
         [TestCase("1.2-some-tag.4", ExpectedResult = "1.2-some-tag.4")]
         [TestCase("1.2.3-some-tag.4", ExpectedResult = "1.2.3-some-tag.4")]
+        [TestCase("1.2.3-SoME-tAg.4", ExpectedResult = "1.2.3-SoME-tAg.4")]
         [TestCase("1.2.3-some-tag.4      ", ExpectedResult = "1.2.3-some-tag.4")]
         public string Constructor_FromString(string input)
         {
@@ -35,6 +36,7 @@ namespace StardewModdingAPI.Tests.Utilities
         [TestCase(1, 2, 3, "    ", ExpectedResult = "1.2.3")]
         [TestCase(1, 2, 3, "0", ExpectedResult = "1.2.3-0")]
         [TestCase(1, 2, 3, "some-tag.4", ExpectedResult = "1.2.3-some-tag.4")]
+        [TestCase(1, 2, 3, "sOMe-TaG.4", ExpectedResult = "1.2.3-sOMe-TaG.4")]
         [TestCase(1, 2, 3, "some-tag.4   ", ExpectedResult = "1.2.3-some-tag.4")]
         public string Constructor_FromParts(int major, int minor, int patch, string tag)
         {
@@ -47,6 +49,19 @@ namespace StardewModdingAPI.Tests.Utilities
             Assert.AreEqual(patch, version.PatchVersion, "The patch version doesn't match the given value.");
             Assert.AreEqual(string.IsNullOrWhiteSpace(tag) ? null : tag.Trim(), version.Build, "The tag doesn't match the given value.");
             return version.ToString();
+        }
+
+        [Test(Description = "Assert that the constructor throws the expected exception for invalid versions when constructed from the individual numbers.")]
+        [TestCase(0, 0, 0, null)]
+        [TestCase(-1, 0, 0, null)]
+        [TestCase(0, -1, 0, null)]
+        [TestCase(0, 0, -1, null)]
+        [TestCase(1, 0, 0, "-tag")]
+        [TestCase(1, 0, 0, "tag spaces")]
+        [TestCase(1, 0, 0, "tag~")]
+        public void Constructor_FromParts_WithInvalidValues(int major, int minor, int patch, string tag)
+        {
+            this.AssertAndLogException<FormatException>(() => new SemanticVersion(major, minor, patch, tag));
         }
 
         [Test(Description = "Assert that the constructor sets the expected values for all valid versions when constructed from an assembly version.")]
@@ -79,6 +94,7 @@ namespace StardewModdingAPI.Tests.Utilities
         [TestCase("1.2.3.apple")]
         [TestCase("1..2..3")]
         [TestCase("1.2.3-")]
+        [TestCase("1.2.3--some-tag")]
         [TestCase("1.2.3-some-tag...")]
         [TestCase("1.2.3-some-tag...4")]
         [TestCase("apple")]
@@ -269,22 +285,6 @@ namespace StardewModdingAPI.Tests.Utilities
             // assert
             Assert.AreEqual(versionStr, version.ToString(), "The game version did not round-trip to the same value.");
             Assert.IsTrue(version.IsOlderThan(new SemanticVersion("1.2.30")), "The game version should be considered older than the later semantic versions.");
-        }
-
-        /****
-        ** LegacyManifestVersion
-        ****/
-        [Test(Description = "Assert that the LegacyManifestVersion subclass correctly parses legacy manifest versions.")]
-        [TestCase(1, 0, 0, null, ExpectedResult = "1.0")]
-        [TestCase(3000, 4000, 5000, null, ExpectedResult = "3000.4000.5000")]
-        [TestCase(1, 2, 3, "", ExpectedResult = "1.2.3")]
-        [TestCase(1, 2, 3, "    ", ExpectedResult = "1.2.3")]
-        [TestCase(1, 2, 3, "0", ExpectedResult = "1.2.3")]  // special case: drop '0' tag for legacy manifest versions
-        [TestCase(1, 2, 3, "some-tag.4", ExpectedResult = "1.2.3-some-tag.4")]
-        [TestCase(1, 2, 3, "some-tag.4   ", ExpectedResult = "1.2.3-some-tag.4")]
-        public string LegacyManifestVersion(int major, int minor, int patch, string tag)
-        {
-            return new LegacyManifestVersion(major, minor, patch, tag).ToString();
         }
 
 

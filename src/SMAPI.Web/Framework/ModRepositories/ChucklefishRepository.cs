@@ -1,6 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using StardewModdingAPI.Common.Models;
+using StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
 using StardewModdingAPI.Web.Framework.Clients.Chucklefish;
 
 namespace StardewModdingAPI.Web.Framework.ModRepositories

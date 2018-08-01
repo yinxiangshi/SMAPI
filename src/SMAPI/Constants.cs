@@ -1,10 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.ModLoading;
+using StardewModdingAPI.Internal;
 using StardewValley;
 
 namespace StardewModdingAPI
@@ -21,14 +21,6 @@ namespace StardewModdingAPI
         /// <summary>Whether the directory containing the current save's data exists on disk.</summary>
         private static bool SavePathReady => Context.IsSaveLoaded && Directory.Exists(Constants.RawSavePath);
 
-        /// <summary>Maps vendor keys (like <c>Nexus</c>) to their mod URL template (where <c>{0}</c> is the mod ID). This doesn't affect update checks, which defer to the remote web API.</summary>
-        private static readonly IDictionary<string, string> VendorModUrls = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
-        {
-            ["Chucklefish"] = "https://community.playstarbound.com/resources/{0}",
-            ["GitHub"] = "https://github.com/{0}/releases",
-            ["Nexus"] = "https://www.nexusmods.com/stardewvalley/mods/{0}"
-        };
-
 
         /*********
         ** Accessors
@@ -37,28 +29,16 @@ namespace StardewModdingAPI
         ** Public
         ****/
         /// <summary>SMAPI's current semantic version.</summary>
-        public static ISemanticVersion ApiVersion { get; } =
-#if STARDEW_VALLEY_1_3
-            new SemanticVersion($"2.6-alpha.{DateTime.UtcNow:yyyyMMddHHmm}");
-#else
-            new SemanticVersion("2.5.5");
-#endif
+        public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("2.6.0");
 
         /// <summary>The minimum supported version of Stardew Valley.</summary>
-        public static ISemanticVersion MinimumGameVersion { get; } =
-#if STARDEW_VALLEY_1_3
-            new GameVersion("1.3.0.4");
-#else
-            new SemanticVersion("1.2.30");
-#endif
+        public static ISemanticVersion MinimumGameVersion { get; } = new GameVersion("1.3.27");
 
         /// <summary>The maximum supported version of Stardew Valley.</summary>
-        public static ISemanticVersion MaximumGameVersion { get; } =
-#if STARDEW_VALLEY_1_3
-            null;
-#else
-            new SemanticVersion("1.2.33");
-#endif
+        public static ISemanticVersion MaximumGameVersion { get; } = null;
+
+        /// <summary>The target game platform.</summary>
+        public static GamePlatform TargetPlatform => (GamePlatform)Constants.Platform;
 
         /// <summary>The path to the game folder.</summary>
         public static string ExecutionPath { get; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -87,14 +67,23 @@ namespace StardewModdingAPI
         /// <summary>The file path for the SMAPI configuration file.</summary>
         internal static string ApiConfigPath => Path.Combine(Constants.ExecutionPath, $"{typeof(Program).Assembly.GetName().Name}.config.json");
 
-        /// <summary>The file path to the log where the latest output should be saved.</summary>
-        internal static string DefaultLogPath => Path.Combine(Constants.LogDir, "SMAPI-latest.txt");
+        /// <summary>The file path for the SMAPI metadata file.</summary>
+        internal static string ApiMetadataPath => Path.Combine(Constants.ExecutionPath, $"{typeof(Program).Assembly.GetName().Name}.metadata.json");
+
+        /// <summary>The filename prefix for SMAPI log files.</summary>
+        internal static string LogNamePrefix { get; } = "SMAPI-latest";
+
+        /// <summary>The filename extension for SMAPI log files.</summary>
+        internal static string LogNameExtension { get; } = "txt";
 
         /// <summary>A copy of the log leading up to the previous fatal crash, if any.</summary>
         internal static string FatalCrashLog => Path.Combine(Constants.LogDir, "SMAPI-crash.txt");
 
         /// <summary>The file path which stores a fatal crash message for the next run.</summary>
         internal static string FatalCrashMarker => Path.Combine(Constants.ExecutionPath, "StardewModdingAPI.crash.marker");
+
+        /// <summary>The file path which stores the detected update version for the next run.</summary>
+        internal static string UpdateMarker => Path.Combine(Constants.ExecutionPath, "StardewModdingAPI.update.marker");
 
         /// <summary>The full path to the folder containing mods.</summary>
         internal static string ModPath { get; } = Path.Combine(Constants.ExecutionPath, "Mods");
@@ -103,12 +92,10 @@ namespace StardewModdingAPI
         internal static ISemanticVersion GameVersion { get; } = new GameVersion(Constants.GetGameVersion());
 
         /// <summary>The target game platform.</summary>
-        internal static Platform TargetPlatform { get; } =
-#if SMAPI_FOR_WINDOWS
-        Platform.Windows;
-#else
-        Platform.Mono;
-#endif
+        internal static Platform Platform { get; } = EnvironmentUtility.DetectPlatform();
+
+        /// <summary>The game's assembly name.</summary>
+        internal static string GameAssemblyName => Constants.Platform == Platform.Windows ? "Stardew Valley" : "StardewValley";
 
 
         /*********
@@ -123,17 +110,20 @@ namespace StardewModdingAPI
             Assembly[] targetAssemblies;
             switch (targetPlatform)
             {
-                case Platform.Mono:
+                case Platform.Linux:
+                case Platform.Mac:
                     removeAssemblyReferences = new[]
                     {
+                        "Netcode",
                         "Stardew Valley",
                         "Microsoft.Xna.Framework",
                         "Microsoft.Xna.Framework.Game",
-                        "Microsoft.Xna.Framework.Graphics"
+                        "Microsoft.Xna.Framework.Graphics",
+                        "Microsoft.Xna.Framework.Xact"
                     };
                     targetAssemblies = new[]
                     {
-                        typeof(StardewValley.Game1).Assembly,
+                        typeof(StardewValley.Game1).Assembly, // note: includes Netcode types on Linux/Mac
                         typeof(Microsoft.Xna.Framework.Vector2).Assembly
                     };
                     break;
@@ -146,6 +136,7 @@ namespace StardewModdingAPI
                     };
                     targetAssemblies = new[]
                     {
+                        typeof(Netcode.NetBool).Assembly,
                         typeof(StardewValley.Game1).Assembly,
                         typeof(Microsoft.Xna.Framework.Vector2).Assembly,
                         typeof(Microsoft.Xna.Framework.Game).Assembly,
@@ -160,23 +151,6 @@ namespace StardewModdingAPI
             return new PlatformAssemblyMap(targetPlatform, removeAssemblyReferences, targetAssemblies);
         }
 
-        /// <summary>Get an update URL for an update key (if valid).</summary>
-        /// <param name="updateKey">The update key.</param>
-        internal static string GetUpdateUrl(string updateKey)
-        {
-            string[] parts = updateKey.Split(new[] { ':' }, 2);
-            if (parts.Length != 2)
-                return null;
-
-            string vendorKey = parts[0].Trim();
-            string modID = parts[1].Trim();
-
-            if (Constants.VendorModUrls.TryGetValue(vendorKey, out string urlTemplate))
-                return string.Format(urlTemplate, modID);
-
-            return null;
-        }
-
 
         /*********
         ** Private methods
@@ -184,12 +158,7 @@ namespace StardewModdingAPI
         /// <summary>Get the name of a save directory for the current player.</summary>
         private static string GetSaveFolderName()
         {
-            string prefix =
-#if STARDEW_VALLEY_1_3
-                new string(Game1.player.Name.Where(char.IsLetterOrDigit).ToArray());
-#else
-                new string(Game1.player.name.Where(char.IsLetterOrDigit).ToArray());
-#endif
+            string prefix = new string(Game1.player.Name.Where(char.IsLetterOrDigit).ToArray());
             return $"{prefix}_{Game1.uniqueIDForThisGame}";
         }
 

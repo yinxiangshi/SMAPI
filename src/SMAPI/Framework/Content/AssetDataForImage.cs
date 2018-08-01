@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace StardewModdingAPI.Framework.Content
 {
-    /// <summary>Encapsulates access and changes to dictionary content being read from a data file.</summary>
+    /// <summary>Encapsulates access and changes to image content being read from a data file.</summary>
     internal class AssetDataForImage : AssetData<Texture2D>, IAssetDataForImage
     {
         /*********
@@ -29,6 +29,8 @@ namespace StardewModdingAPI.Framework.Content
         public void PatchImage(Texture2D source, Rectangle? sourceArea = null, Rectangle? targetArea = null, PatchMode patchMode = PatchMode.Replace)
         {
             // get texture
+            if (source == null)
+                throw new ArgumentNullException(nameof(source), "Can't patch from a null source texture.");
             Texture2D target = this.Data;
 
             // get areas
@@ -36,8 +38,6 @@ namespace StardewModdingAPI.Framework.Content
             targetArea = targetArea ?? new Rectangle(0, 0, Math.Min(sourceArea.Value.Width, target.Width), Math.Min(sourceArea.Value.Height, target.Height));
 
             // validate
-            if (source == null)
-                throw new ArgumentNullException(nameof(source), "Can't patch from a null source texture.");
             if (sourceArea.Value.X < 0 || sourceArea.Value.Y < 0 || sourceArea.Value.Right > source.Width || sourceArea.Value.Bottom > source.Height)
                 throw new ArgumentOutOfRangeException(nameof(sourceArea), "The source area is outside the bounds of the source texture.");
             if (targetArea.Value.X < 0 || targetArea.Value.Y < 0 || targetArea.Value.Right > target.Width || targetArea.Value.Bottom > target.Height)

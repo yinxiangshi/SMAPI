@@ -6,10 +6,10 @@ using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using StardewModdingAPI.Framework;
-using StardewModdingAPI.Framework.ModData;
-using StardewModdingAPI.Framework.Models;
 using StardewModdingAPI.Framework.ModLoading;
-using StardewModdingAPI.Framework.Serialisation;
+using StardewModdingAPI.Toolkit;
+using StardewModdingAPI.Toolkit.Framework.ModData;
+using StardewModdingAPI.Toolkit.Serialisation.Models;
 
 namespace StardewModdingAPI.Tests.Core
 {
@@ -31,7 +31,7 @@ namespace StardewModdingAPI.Tests.Core
             Directory.CreateDirectory(rootFolder);
 
             // act
-            IModMetadata[] mods = new ModResolver().ReadManifests(rootFolder, new JsonHelper(), new ModDatabase()).ToArray();
+            IModMetadata[] mods = new ModResolver().ReadManifests(new ModToolkit(), rootFolder, new ModDatabase()).ToArray();
 
             // assert
             Assert.AreEqual(0, mods.Length, 0, $"Expected to find zero manifests, found {mods.Length} instead.");
@@ -46,7 +46,7 @@ namespace StardewModdingAPI.Tests.Core
             Directory.CreateDirectory(modFolder);
 
             // act
-            IModMetadata[] mods = new ModResolver().ReadManifests(rootFolder, new JsonHelper(), new ModDatabase()).ToArray();
+            IModMetadata[] mods = new ModResolver().ReadManifests(new ModToolkit(), rootFolder, new ModDatabase()).ToArray();
             IModMetadata mod = mods.FirstOrDefault();
 
             // assert
@@ -85,7 +85,7 @@ namespace StardewModdingAPI.Tests.Core
             File.WriteAllText(filename, JsonConvert.SerializeObject(original));
 
             // act
-            IModMetadata[] mods = new ModResolver().ReadManifests(rootFolder, new JsonHelper(), new ModDatabase()).ToArray();
+            IModMetadata[] mods = new ModResolver().ReadManifests(new ModToolkit(), rootFolder, new ModDatabase()).ToArray();
             IModMetadata mod = mods.FirstOrDefault();
 
             // assert
@@ -93,8 +93,8 @@ namespace StardewModdingAPI.Tests.Core
             Assert.IsNotNull(mod, "The loaded manifest shouldn't be null.");
             Assert.AreEqual(null, mod.DataRecord, "The data record should be null since we didn't provide one.");
             Assert.AreEqual(modFolder, mod.DirectoryPath, "The directory path doesn't match.");
-            Assert.AreEqual(ModMetadataStatus.Found, mod.Status, "The status doesn't match.");
             Assert.AreEqual(null, mod.Error, "The error should be null since parsing should have succeeded.");
+            Assert.AreEqual(ModMetadataStatus.Found, mod.Status, "The status doesn't match.");
 
             Assert.AreEqual(original[nameof(IManifest.Name)], mod.DisplayName, "The display name should use the manifest name.");
             Assert.AreEqual(original[nameof(IManifest.Name)], mod.Manifest.Name, "The manifest's name doesn't match.");
@@ -142,7 +142,7 @@ namespace StardewModdingAPI.Tests.Core
         {
             // arrange
             Mock<IModMetadata> mock = this.GetMetadata("Mod A", new string[0], allowStatusChange: true);
-            this.SetupMetadataForValidation(mock, new ParsedModDataRecord
+            this.SetupMetadataForValidation(mock, new ModDataRecordVersionedFields
             {
                 Status = ModStatus.AssumeBroken,
                 AlternativeUrl = "http://example.org"
@@ -160,7 +160,7 @@ namespace StardewModdingAPI.Tests.Core
         {
             // arrange
             Mock<IModMetadata> mock = this.GetMetadata("Mod A", new string[0], allowStatusChange: true);
-            mock.Setup(p => p.Manifest).Returns(this.GetManifest(m => m.MinimumApiVersion = new SemanticVersion("1.1")));
+            mock.Setup(p => p.Manifest).Returns(this.GetManifest(minimumApiVersion: "1.1"));
             this.SetupMetadataForValidation(mock);
 
             // act
@@ -174,7 +174,7 @@ namespace StardewModdingAPI.Tests.Core
         public void ValidateManifests_MissingEntryDLL_Fails()
         {
             // arrange
-            Mock<IModMetadata> mock = this.GetMetadata(this.GetManifest("Mod A", "1.0", manifest => manifest.EntryDll = "Missing.dll"), allowStatusChange: true);
+            Mock<IModMetadata> mock = this.GetMetadata(this.GetManifest(id: "Mod A", version: "1.0", entryDll: "Missing.dll"), allowStatusChange: true);
             this.SetupMetadataForValidation(mock);
 
             // act
@@ -189,7 +189,7 @@ namespace StardewModdingAPI.Tests.Core
         {
             // arrange
             Mock<IModMetadata> modA = this.GetMetadata("Mod A", new string[0], allowStatusChange: true);
-            Mock<IModMetadata> modB = this.GetMetadata(this.GetManifest("Mod A", "1.0", manifest => manifest.Name = "Mod B"), allowStatusChange: true);
+            Mock<IModMetadata> modB = this.GetMetadata(this.GetManifest(id: "Mod A", name: "Mod B", version: "1.0"), allowStatusChange: true);
             Mock<IModMetadata> modC = this.GetMetadata("Mod C", new string[0], allowStatusChange: false);
             foreach (Mock<IModMetadata> mod in new[] { modA, modB, modC })
                 this.SetupMetadataForValidation(mod);
@@ -398,8 +398,8 @@ namespace StardewModdingAPI.Tests.Core
         {
             // arrange
             // A 1.0 ◀── B (need A 1.1)
-            Mock<IModMetadata> modA = this.GetMetadata(this.GetManifest("Mod A", "1.0"));
-            Mock<IModMetadata> modB = this.GetMetadata(this.GetManifest("Mod B", "1.0", new ManifestDependency("Mod A", "1.1")), allowStatusChange: true);
+            Mock<IModMetadata> modA = this.GetMetadata(this.GetManifest(id: "Mod A", version: "1.0"));
+            Mock<IModMetadata> modB = this.GetMetadata(this.GetManifest(id: "Mod B", version: "1.0", dependencies: new IManifestDependency[] { new ManifestDependency("Mod A", "1.1") }), allowStatusChange: true);
 
             // act
             IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modA.Object, modB.Object }, new ModDatabase()).ToArray();
@@ -414,8 +414,8 @@ namespace StardewModdingAPI.Tests.Core
         {
             // arrange
             // A 1.0 ◀── B (need A 1.0-beta)
-            Mock<IModMetadata> modA = this.GetMetadata(this.GetManifest("Mod A", "1.0"));
-            Mock<IModMetadata> modB = this.GetMetadata(this.GetManifest("Mod B", "1.0", new ManifestDependency("Mod A", "1.0-beta")), allowStatusChange: false);
+            Mock<IModMetadata> modA = this.GetMetadata(this.GetManifest(id: "Mod A", version: "1.0"));
+            Mock<IModMetadata> modB = this.GetMetadata(this.GetManifest(id: "Mod B", version: "1.0", dependencies: new IManifestDependency[] { new ManifestDependency("Mod A", "1.0-beta") }), allowStatusChange: false);
 
             // act
             IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modA.Object, modB.Object }, new ModDatabase()).ToArray();
@@ -431,8 +431,8 @@ namespace StardewModdingAPI.Tests.Core
         {
             // arrange
             // A ◀── B
-            Mock<IModMetadata> modA = this.GetMetadata(this.GetManifest("Mod A", "1.0"));
-            Mock<IModMetadata> modB = this.GetMetadata(this.GetManifest("Mod B", "1.0", new ManifestDependency("Mod A", "1.0", required: false)), allowStatusChange: false);
+            Mock<IModMetadata> modA = this.GetMetadata(this.GetManifest(id: "Mod A", version: "1.0"));
+            Mock<IModMetadata> modB = this.GetMetadata(this.GetManifest(id: "Mod B", version: "1.0", dependencies: new IManifestDependency[] { new ManifestDependency("Mod A", "1.0", required: false) }), allowStatusChange: false);
 
             // act
             IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modB.Object, modA.Object }, new ModDatabase()).ToArray();
@@ -448,7 +448,7 @@ namespace StardewModdingAPI.Tests.Core
         {
             // arrange
             // A ◀── B where A doesn't exist
-            Mock<IModMetadata> modB = this.GetMetadata(this.GetManifest("Mod B", "1.0", new ManifestDependency("Mod A", "1.0", required: false)), allowStatusChange: false);
+            Mock<IModMetadata> modB = this.GetMetadata(this.GetManifest(id: "Mod B", version: "1.0", dependencies: new IManifestDependency[] { new ManifestDependency("Mod A", "1.0", required: false) }), allowStatusChange: false);
 
             // act
             IModMetadata[] mods = new ModResolver().ProcessDependencies(new[] { modB.Object }, new ModDatabase()).ToArray();
@@ -463,46 +463,27 @@ namespace StardewModdingAPI.Tests.Core
         ** Private methods
         *********/
         /// <summary>Get a randomised basic manifest.</summary>
-        /// <param name="adjust">Adjust the generated manifest.</param>
-        private Manifest GetManifest(Action<Manifest> adjust = null)
+        /// <param name="id">The <see cref="IManifest.UniqueID"/> value, or <c>null</c> for a generated value.</param>
+        /// <param name="name">The <see cref="IManifest.Name"/> value, or <c>null</c> for a generated value.</param>
+        /// <param name="version">The <see cref="IManifest.Version"/> value, or <c>null</c> for a generated value.</param>
+        /// <param name="entryDll">The <see cref="IManifest.EntryDll"/> value, or <c>null</c> for a generated value.</param>
+        /// <param name="contentPackForID">The <see cref="IManifest.ContentPackFor"/> value.</param>
+        /// <param name="minimumApiVersion">The <see cref="IManifest.MinimumApiVersion"/> value.</param>
+        /// <param name="dependencies">The <see cref="IManifest.Dependencies"/> value.</param>
+        private Manifest GetManifest(string id = null, string name = null, string version = null, string entryDll = null, string contentPackForID = null, string minimumApiVersion = null, IManifestDependency[] dependencies = null)
         {
-            Manifest manifest = new Manifest
+            return new Manifest
             {
-                Name = Sample.String(),
+                UniqueID = id ?? $"{Sample.String()}.{Sample.String()}",
+                Name = name ?? id ?? Sample.String(),
                 Author = Sample.String(),
-                Version = new SemanticVersion(Sample.Int(), Sample.Int(), Sample.Int(), Sample.String()),
                 Description = Sample.String(),
-                UniqueID = $"{Sample.String()}.{Sample.String()}",
-                EntryDll = $"{Sample.String()}.dll"
+                Version = version != null ? new SemanticVersion(version) : new SemanticVersion(Sample.Int(), Sample.Int(), Sample.Int(), Sample.String()),
+                EntryDll = entryDll ?? $"{Sample.String()}.dll",
+                ContentPackFor = contentPackForID != null ? new ManifestContentPackFor { UniqueID = contentPackForID } : null,
+                MinimumApiVersion = minimumApiVersion != null ? new SemanticVersion(minimumApiVersion) : null,
+                Dependencies = dependencies
             };
-            adjust?.Invoke(manifest);
-            return manifest;
-        }
-
-        /// <summary>Get a randomised basic manifest.</summary>
-        /// <param name="uniqueID">The mod's name and unique ID.</param>
-        /// <param name="version">The mod version.</param>
-        /// <param name="adjust">Adjust the generated manifest.</param>
-        /// <param name="dependencies">The dependencies this mod requires.</param>
-        private IManifest GetManifest(string uniqueID, string version, Action<Manifest> adjust, params IManifestDependency[] dependencies)
-        {
-            return this.GetManifest(manifest =>
-            {
-                manifest.Name = uniqueID;
-                manifest.UniqueID = uniqueID;
-                manifest.Version = new SemanticVersion(version);
-                manifest.Dependencies = dependencies;
-                adjust?.Invoke(manifest);
-            });
-        }
-
-        /// <summary>Get a randomised basic manifest.</summary>
-        /// <param name="uniqueID">The mod's name and unique ID.</param>
-        /// <param name="version">The mod version.</param>
-        /// <param name="dependencies">The dependencies this mod requires.</param>
-        private IManifest GetManifest(string uniqueID, string version, params IManifestDependency[] dependencies)
-        {
-            return this.GetManifest(uniqueID, version, null, dependencies);
         }
 
         /// <summary>Get a randomised basic manifest.</summary>
@@ -518,7 +499,7 @@ namespace StardewModdingAPI.Tests.Core
         /// <param name="allowStatusChange">Whether the code being tested is allowed to change the mod status.</param>
         private Mock<IModMetadata> GetMetadata(string uniqueID, string[] dependencies, bool allowStatusChange = false)
         {
-            IManifest manifest = this.GetManifest(uniqueID, "1.0", dependencies?.Select(dependencyID => (IManifestDependency)new ManifestDependency(dependencyID, null)).ToArray());
+            IManifest manifest = this.GetManifest(id: uniqueID, version: "1.0", dependencies: dependencies?.Select(dependencyID => (IManifestDependency)new ManifestDependency(dependencyID, null)).ToArray());
             return this.GetMetadata(manifest, allowStatusChange);
         }
 
@@ -545,7 +526,7 @@ namespace StardewModdingAPI.Tests.Core
         /// <summary>Set up a mock mod metadata for <see cref="ModResolver.ValidateManifests"/>.</summary>
         /// <param name="mod">The mock mod metadata.</param>
         /// <param name="modRecord">The extra metadata about the mod from SMAPI's internal data (if any).</param>
-        private void SetupMetadataForValidation(Mock<IModMetadata> mod, ParsedModDataRecord modRecord = null)
+        private void SetupMetadataForValidation(Mock<IModMetadata> mod, ModDataRecordVersionedFields modRecord = null)
         {
             mod.Setup(p => p.Status).Returns(ModMetadataStatus.Found);
             mod.Setup(p => p.DataRecord).Returns(() => null);

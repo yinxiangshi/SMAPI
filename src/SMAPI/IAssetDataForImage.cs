@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace StardewModdingAPI
 {
-    /// <summary>Encapsulates access and changes to dictionary content being read from a data file.</summary>
+    /// <summary>Encapsulates access and changes to image content being read from a data file.</summary>
     public interface IAssetDataForImage : IAssetData<Texture2D>
     {
         /*********
