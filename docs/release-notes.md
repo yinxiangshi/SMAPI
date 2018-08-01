@@ -1,5 +1,5 @@
 # Release notes
-## 2.6 beta
+## 2.6
 * For players:
   * Updated for Stardew Valley 1.3.
   * Added automatic save backups.
