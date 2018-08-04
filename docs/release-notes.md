@@ -1,6 +1,7 @@
 # Release notes
 ## 2.6.1
 * For modders:
+  * Fixed false compatibility error when constructing multidimensional arrays.
   * Fixed `.ToSButton()` methods not being public.
 
 ## 2.6
