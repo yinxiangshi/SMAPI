@@ -1,4 +1,8 @@
 # Release notes
+## 2.6.1
+* For modders:
+  * Fixed `.ToSButton()` methods not being public.
+
 ## 2.6
 * For players:
   * Updated for Stardew Valley 1.3.
