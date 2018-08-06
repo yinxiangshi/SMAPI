@@ -3,6 +3,7 @@
 * For modders:
   * Fixed false compatibility error when constructing multidimensional arrays.
   * Fixed `.ToSButton()` methods not being public.
+  * Updated compatibility list.
 
 ## 2.6
 * For players:

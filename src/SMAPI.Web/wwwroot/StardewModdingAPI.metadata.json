@@ -566,6 +566,11 @@
       "~2.0.6 | Status": "AssumeBroken" // broke in SMAPI 2.5 (error reflecting into SMAPI internals)
     },
 
+    "Everytime Submarine": {
+      "ID": "MustafaDemirel.EverytimeSubmarine",
+      "~1.0.0 | Status": "AssumeBroken" // breaks player saves if their beach bridge is fixed
+    },
+
     "Expanded Fridge": {
       "ID": "Uwazouri.ExpandedFridge",
       "Default | UpdateKey": "Nexus:1191"
