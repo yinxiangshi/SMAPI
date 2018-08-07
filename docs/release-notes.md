@@ -1,5 +1,8 @@
 # Release notes
 ## 2.6.1
+* For players:
+  * Fixed custom festival maps always using spring tilesheets.
+
 * For modders:
   * Fixed false compatibility error when constructing multidimensional arrays.
   * Fixed `.ToSButton()` methods not being public.
