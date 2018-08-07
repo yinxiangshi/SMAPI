@@ -2,6 +2,8 @@
 ## 2.6.1
 * For players:
   * Fixed custom festival maps always using spring tilesheets.
+  * Fixed `player_add` command not recognising return scepter.
+  * Fixed `player_add` showing fish twice.
 
 * For modders:
   * Fixed false compatibility error when constructing multidimensional arrays.

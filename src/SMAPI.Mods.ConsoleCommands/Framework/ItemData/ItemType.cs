@@ -1,4 +1,4 @@
-﻿namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.ItemData
+namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.ItemData
 {
     /// <summary>An item type that can be searched and added to the player through the console.</summary>
     internal enum ItemType
@@ -8,9 +8,6 @@
 
         /// <summary>A <see cref="Boots"/> item.</summary>
         Boots,
-
-        /// <summary>A fish item.</summary>
-        Fish,
 
         /// <summary>A <see cref="Wallpaper"/> flooring item.</summary>
         Flooring,
