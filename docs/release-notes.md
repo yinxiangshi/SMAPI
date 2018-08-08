@@ -3,9 +3,10 @@
 * For players:
   * Fixed custom festival maps always using spring tilesheets.
   * Fixed `player_add` command not recognising return scepter.
-  * Fixed `player_add` showing fish twice.
+  * Fixed `player_add` command showing fish twice.
 
 * For modders:
+  * All enums in `config.json` are now serialised to string by default, since that's more user-friendly. Previously only certain predefined enums were serialised that way. Note that `config.json` files which already have integer enums will still be parsed fine.
   * Fixed false compatibility error when constructing multidimensional arrays.
   * Fixed `.ToSButton()` methods not being public.
   * Updated compatibility list.

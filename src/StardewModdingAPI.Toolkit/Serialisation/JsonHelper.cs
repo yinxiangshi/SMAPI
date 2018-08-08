@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using StardewModdingAPI.Toolkit.Serialisation.Converters;
 
 namespace StardewModdingAPI.Toolkit.Serialisation
@@ -17,7 +18,11 @@ namespace StardewModdingAPI.Toolkit.Serialisation
         {
             Formatting = Formatting.Indented,
             ObjectCreationHandling = ObjectCreationHandling.Replace, // avoid issue where default ICollection<T> values are duplicated each time the config is loaded
-            Converters = new List<JsonConverter> { new SemanticVersionConverter() }
+            Converters = new List<JsonConverter>
+            {
+                new SemanticVersionConverter(),
+                new StringEnumConverter()
+            }
         };
 
 

@@ -193,9 +193,6 @@ namespace StardewModdingAPI
 
                 // init JSON parser
                 JsonConverter[] converters = {
-                    new StringEnumConverter<Buttons>(),
-                    new StringEnumConverter<Keys>(),
-                    new StringEnumConverter<SButton>(),
                     new ColorConverter(),
                     new PointConverter(),
                     new RectangleConverter()
