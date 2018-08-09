@@ -4,6 +4,7 @@
   * Fixed custom festival maps always using spring tilesheets.
   * Fixed `player_add` command not recognising return scepter.
   * Fixed `player_add` command showing fish twice.
+  * Fixed some SMAPI logs not deleted when starting a new session.
 
 * For modders:
   * All enums in `config.json` are now serialised to string by default, since that's more user-friendly. Previously only certain predefined enums were serialised that way. Note that `config.json` files which already have integer enums will still be parsed fine.

@@ -435,7 +435,7 @@ namespace StardewModdingAPI
                         ModFolderPath = Constants.ModPath,
                         Mods = mods
                     };
-                    this.Toolkit.JsonHelper.WriteJsonFile(Path.Combine(Constants.LogDir, $"{Constants.LogNamePrefix}.metadata-dump.json"), export);
+                    this.Toolkit.JsonHelper.WriteJsonFile(Path.Combine(Constants.LogDir, $"{Constants.LogNamePrefix}metadata-dump.json"), export);
                 }
 
                 // check for updates
@@ -1060,7 +1060,6 @@ namespace StardewModdingAPI
                 yield return "uses the 'dynamic' keyword. This won't work on Linux/Mac.";
             if (mask.HasFlag(ModWarning.NoUpdateKeys))
                 yield return "has no update keys in its manifest. SMAPI won't show update alerts for this mod.";
-
         }
 
         /// <summary>Load a mod's entry class.</summary>
@@ -1257,7 +1256,7 @@ namespace StardewModdingAPI
         {
             // default path
             {
-                FileInfo defaultFile = new FileInfo(Path.Combine(Constants.LogDir, $"{Constants.LogNamePrefix}.{Constants.LogNameExtension}"));
+                FileInfo defaultFile = new FileInfo(Path.Combine(Constants.LogDir, $"{Constants.LogFilename}.{Constants.LogExtension}"));
                 if (!defaultFile.Exists)
                     return defaultFile.FullName;
             }
@@ -1265,7 +1264,7 @@ namespace StardewModdingAPI
             // get first disambiguated path
             for (int i = 2; i < int.MaxValue; i++)
             {
-                FileInfo file = new FileInfo(Path.Combine(Constants.LogDir, $"{Constants.LogNamePrefix}.player-{i}.{Constants.LogNameExtension}"));
+                FileInfo file = new FileInfo(Path.Combine(Constants.LogDir, $"{Constants.LogFilename}.player-{i}.{Constants.LogExtension}"));
                 if (!file.Exists)
                     return file.FullName;
             }
