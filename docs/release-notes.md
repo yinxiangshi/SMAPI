@@ -1,6 +1,7 @@
 # Release notes
 ## 2.6.1
 * For players:
+  * Improved how mod issues are listed in the console and log.
   * Fixed custom festival maps always using spring tilesheets.
   * Fixed `player_add` command not recognising return scepter.
   * Fixed `player_add` command showing fish twice.

@@ -11,7 +11,6 @@ using System.Security;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using Microsoft.Xna.Framework.Input;
 #if SMAPI_FOR_WINDOWS
 using System.Windows.Forms;
 #endif
@@ -32,10 +31,8 @@ using StardewModdingAPI.Toolkit;
 using StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
 using StardewModdingAPI.Toolkit.Framework.ModData;
 using StardewModdingAPI.Toolkit.Serialisation;
-using StardewModdingAPI.Toolkit.Serialisation.Converters;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
-using Keys = Microsoft.Xna.Framework.Input.Keys;
 using Monitor = StardewModdingAPI.Framework.Monitor;
 using SObject = StardewValley.Object;
 using ThreadState = System.Threading.ThreadState;
@@ -881,33 +878,15 @@ namespace StardewModdingAPI
             }
             IModMetadata[] loadedMods = this.ModRegistry.GetAll(contentPacks: false).ToArray();
 
-            // log skipped mods
-            this.Monitor.Newline();
-            if (skippedMods.Any())
-            {
-                this.Monitor.Log($"Skipped {skippedMods.Count} mods:", LogLevel.Error);
-                foreach (var pair in skippedMods.OrderBy(p => p.Key.DisplayName))
-                {
-                    IModMetadata mod = pair.Key;
-                    string[] reason = pair.Value;
-
-                    this.Monitor.Log($"   {mod.DisplayName}{(mod.Manifest?.Version != null ? " " + mod.Manifest.Version.ToString() : "")} because {reason[0]}", LogLevel.Error);
-                    if (reason[1] != null)
-                        this.Monitor.Log($"     {reason[1]}", LogLevel.Trace);
-                }
-                this.Monitor.Newline();
-            }
-
             // log loaded mods
             this.Monitor.Log($"Loaded {loadedMods.Length} mods" + (loadedMods.Length > 0 ? ":" : "."), LogLevel.Info);
-
             foreach (IModMetadata metadata in loadedMods.OrderBy(p => p.DisplayName))
             {
                 IManifest manifest = metadata.Manifest;
                 this.Monitor.Log(
                     $"   {metadata.DisplayName} {manifest.Version}"
-                        + (!string.IsNullOrWhiteSpace(manifest.Author) ? $" by {manifest.Author}" : "")
-                        + (!string.IsNullOrWhiteSpace(manifest.Description) ? $" | {manifest.Description}" : ""),
+                    + (!string.IsNullOrWhiteSpace(manifest.Author) ? $" by {manifest.Author}" : "")
+                    + (!string.IsNullOrWhiteSpace(manifest.Description) ? $" | {manifest.Description}" : ""),
                     LogLevel.Info
                 );
             }
@@ -933,27 +912,8 @@ namespace StardewModdingAPI
                 this.Monitor.Newline();
             }
 
-            // log warnings
-            {
-                IModMetadata[] modsWithWarnings = this.ModRegistry.GetAll().Where(p => p.Warnings != ModWarning.None).ToArray();
-                if (modsWithWarnings.Any())
-                {
-                    this.Monitor.Log($"Found issues with {modsWithWarnings.Length} mods:", LogLevel.Warn);
-                    foreach (IModMetadata metadata in modsWithWarnings)
-                    {
-                        string[] warnings = this.GetWarningText(metadata.Warnings).ToArray();
-                        if (warnings.Length == 1)
-                            this.Monitor.Log($"   {metadata.DisplayName} {warnings[0]}", LogLevel.Warn);
-                        else
-                        {
-                            this.Monitor.Log($"   {metadata.DisplayName}:", LogLevel.Warn);
-                            foreach (string warning in warnings)
-                                this.Monitor.Log("      - " + warning, LogLevel.Warn);
-                        }
-                    }
-                    this.Monitor.Newline();
-                }
-            }
+            // log mod warnings
+            this.LogModWarnings(this.ModRegistry.GetAll().ToArray(), skippedMods);
 
             // initialise translations
             this.ReloadTranslations(loadedMods);
@@ -1044,22 +1004,87 @@ namespace StardewModdingAPI
             this.ModRegistry.AreAllModsInitialised = true;
         }
 
-        /// <summary>Get the warning text for a mod warning bit mask.</summary>
-        /// <param name="mask">The mod warning bit mask.</param>
-        private IEnumerable<string> GetWarningText(ModWarning mask)
+        /// <summary>Write a summary of mod warnings to the console and log.</summary>
+        /// <param name="mods">The loaded mods.</param>
+        /// <param name="skippedMods">The mods which were skipped, along with the friendly and developer reasons.</param>
+        private void LogModWarnings(IModMetadata[] mods, IDictionary<IModMetadata, string[]> skippedMods)
         {
-            if (mask.HasFlag(ModWarning.BrokenCodeLoaded))
-                yield return "has broken code, but SMAPI is configured to allow it anyway. The mod may crash or behave unexpectedly.";
-            if (mask.HasFlag(ModWarning.ChangesSaveSerialiser))
-                yield return "accesses the save serialiser and may break your saves.";
-            if (mask.HasFlag(ModWarning.PatchesGame))
-                yield return "patches the game. This may cause errors or bugs in-game. If you have issues, try removing this mod first.";
-            if (mask.HasFlag(ModWarning.UsesUnvalidatedUpdateTick))
-                yield return "bypasses normal SMAPI event protections. This may cause errors or save corruption. If you have issues, try removing this mod first.";
-            if (mask.HasFlag(ModWarning.UsesDynamic))
-                yield return "uses the 'dynamic' keyword. This won't work on Linux/Mac.";
-            if (mask.HasFlag(ModWarning.NoUpdateKeys))
-                yield return "has no update keys in its manifest. SMAPI won't show update alerts for this mod.";
+            // get mods with warnings
+            IModMetadata[] modsWithWarnings = mods.Where(p => p.Warnings != ModWarning.None).ToArray();
+            if (!modsWithWarnings.Any() && !skippedMods.Any())
+                return;
+
+            // log intro
+            {
+                int count = modsWithWarnings.Union(skippedMods.Keys).Count();
+                this.Monitor.Log($"Found {count} mod{(count == 1 ? "" : "s")} with warnings:", LogLevel.Info);
+            }
+
+            // log skipped mods
+            if (skippedMods.Any())
+            {
+                this.Monitor.Log("   Skipped mods", LogLevel.Error);
+                this.Monitor.Log("   " + "".PadRight(50, '-'), LogLevel.Error);
+                this.Monitor.Log("      These mods could not be added to your game.", LogLevel.Error);
+                this.Monitor.Newline();
+
+                foreach (var pair in skippedMods.OrderBy(p => p.Key.DisplayName))
+                {
+                    IModMetadata mod = pair.Key;
+                    string[] reason = pair.Value;
+
+                    this.Monitor.Log($"      - {mod.DisplayName}{(mod.Manifest?.Version != null ? " " + mod.Manifest.Version.ToString() : "")} because {reason[0]}", LogLevel.Error);
+                    if (reason[1] != null)
+                        this.Monitor.Log($"        ({reason[1]})", LogLevel.Trace);
+                }
+                this.Monitor.Newline();
+            }
+
+            // log warnings
+            if (modsWithWarnings.Any())
+            {
+                // issue block format logic
+                void LogWarningGroup(ModWarning warning, LogLevel logLevel, string heading, params string[] blurb)
+                {
+                    IModMetadata[] matches = modsWithWarnings.Where(p => p.Warnings.HasFlag(warning)).ToArray();
+                    if (!matches.Any())
+                        return;
+
+                    this.Monitor.Log("   " + heading, logLevel);
+                    this.Monitor.Log("   " + "".PadRight(50, '-'), logLevel);
+                    foreach (string line in blurb)
+                        this.Monitor.Log("      " + line, logLevel);
+                    this.Monitor.Newline();
+                    foreach (IModMetadata match in matches)
+                        this.Monitor.Log($"      - {match.DisplayName}", logLevel);
+                    this.Monitor.Newline();
+                }
+
+                // supported issues
+                LogWarningGroup(ModWarning.BrokenCodeLoaded, LogLevel.Error, "Broken mods",
+                    "These mods have broken code, but you configured SMAPI to load them anyway. This may cause bugs,",
+                    "errors, or crashes in-game."
+                );
+                LogWarningGroup(ModWarning.ChangesSaveSerialiser, LogLevel.Warn, "Changed save serialiser",
+                    "These mods change the save serialiser. They may corrupt your save files, or make them unusable if",
+                    "you uninstall these mods."
+                );
+                LogWarningGroup(ModWarning.PatchesGame, LogLevel.Info, "Patched game code",
+                    "These mods directly change the game code. They're more likely to cause errors or bugs in-game; if",
+                    "your game has issues, try removing these first. Otherwise you can ignore this warning."
+                );
+                LogWarningGroup(ModWarning.UsesUnvalidatedUpdateTick, LogLevel.Info, "Bypassed safety checks",
+                    "These mods bypass SMAPI's normal safety checks, so they're more likely to cause errors or save",
+                    "corruption. If your game has issues, try removing these first."
+                );
+                LogWarningGroup(ModWarning.NoUpdateKeys, LogLevel.Debug, "No update keys",
+                    "These mods have no update keys in their manifest. SMAPI may not notify you about updates for these",
+                    "mods. Consider notifying the mod authors about this problem."
+                );
+                LogWarningGroup(ModWarning.UsesDynamic, LogLevel.Debug, "Not crossplatform",
+                    "These mods use the 'dynamic' keyword, and won't work on Linux/Mac."
+                );
+            }
         }
 
         /// <summary>Load a mod's entry class.</summary>
