@@ -8,7 +8,8 @@
   * Fixed some SMAPI logs not deleted when starting a new session.
 
 * For modders:
-  * All enums in `config.json` are now serialised to string by default, since that's more user-friendly. Previously only certain predefined enums were serialised that way. Note that `config.json` files which already have integer enums will still be parsed fine.
+  * Added `--mods-path` command-line argument to allow switching between mod folders.
+  * All enums are now JSON-serialised by name, since that's more user-friendly. Previously only certain predefined enums were serialised that way. JSON files which already have integer enums will still be parsed fine.
   * Fixed false compatibility error when constructing multidimensional arrays.
   * Fixed `.ToSButton()` methods not being public.
   * Updated compatibility list.

@@ -138,6 +138,7 @@ change without warning.
 argument | purpose
 -------- | -------
 `--no-terminal` | SMAPI won't write anything to the console window. (Messages will still be written to the log file.)
+`--mods-path` | The path to search for mods, if not the standard `Mods` folder. This can be a path relative to the game folder (like `--mods-path "Mods (test)"`) or an absolute path.
 
 ### Compile flags
 SMAPI uses a small number of conditional compilation constants, which you can set by editing the

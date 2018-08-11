@@ -100,6 +100,9 @@ namespace StardewModdingAPI
         /// <summary>The mod toolkit used for generic mod interactions.</summary>
         private readonly ModToolkit Toolkit = new ModToolkit();
 
+        /// <summary>The path to search for mods.</summary>
+        private readonly string ModsPath;
+
 
         /*********
         ** Public methods
@@ -113,18 +116,34 @@ namespace StardewModdingAPI
             // get flags from arguments
             bool writeToConsole = !args.Contains("--no-terminal");
 
+            // get mods path from arguments
+            string modsPath = null;
+            {
+                int pathIndex = Array.LastIndexOf(args, "--mods-path") + 1;
+                if (pathIndex >= 1 && args.Length >= pathIndex)
+                {
+                    modsPath = args[pathIndex];
+                    if (!string.IsNullOrWhiteSpace(modsPath) && !Path.IsPathRooted(modsPath))
+                        modsPath = Path.Combine(Constants.ExecutionPath, modsPath);
+                }
+                if (string.IsNullOrWhiteSpace(modsPath))
+                    modsPath = Constants.DefaultModsPath;
+            }
+
             // load SMAPI
-            using (Program program = new Program(writeToConsole))
+            using (Program program = new Program(modsPath, writeToConsole))
                 program.RunInteractively();
         }
 
         /// <summary>Construct an instance.</summary>
+        /// <param name="modsPath">The path to search for mods.</param>
         /// <param name="writeToConsole">Whether to output log messages to the console.</param>
-        public Program(bool writeToConsole)
+        public Program(string modsPath, bool writeToConsole)
         {
             // init paths
-            this.VerifyPath(Constants.ModPath);
+            this.VerifyPath(modsPath);
             this.VerifyPath(Constants.LogDir);
+            this.ModsPath = modsPath;
 
             // init log file
             this.PurgeLogFiles();
@@ -143,7 +162,9 @@ namespace StardewModdingAPI
 
             // init logging
             this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GameVersion} on {EnvironmentUtility.GetFriendlyPlatformName(Constants.Platform)}", LogLevel.Info);
-            this.Monitor.Log($"Mods go here: {Constants.ModPath}");
+            this.Monitor.Log($"Mods go here: {modsPath}");
+            if (modsPath != Constants.DefaultModsPath)
+                this.Monitor.Log("(Using custom --mods-path argument.)", LogLevel.Trace);
             this.Monitor.Log($"Log started at {DateTime.UtcNow:s} UTC", LogLevel.Trace);
 
             // validate game version
@@ -412,7 +433,7 @@ namespace StardewModdingAPI
                 ModResolver resolver = new ModResolver();
 
                 // load manifests
-                IModMetadata[] mods = resolver.ReadManifests(toolkit, Constants.ModPath, modDatabase).ToArray();
+                IModMetadata[] mods = resolver.ReadManifests(toolkit, this.ModsPath, modDatabase).ToArray();
                 resolver.ValidateManifests(mods, Constants.ApiVersion, toolkit.GetUpdateUrl);
 
                 // process dependencies
@@ -429,7 +450,7 @@ namespace StardewModdingAPI
                         Exported = DateTime.UtcNow.ToString("O"),
                         ApiVersion = Constants.ApiVersion.ToString(),
                         GameVersion = Constants.GameVersion.ToString(),
-                        ModFolderPath = Constants.ModPath,
+                        ModFolderPath = this.ModsPath,
                         Mods = mods
                     };
                     this.Toolkit.JsonHelper.WriteJsonFile(Path.Combine(Constants.LogDir, $"{Constants.LogNamePrefix}metadata-dump.json"), export);
@@ -740,7 +761,7 @@ namespace StardewModdingAPI
             // load content packs
             foreach (IModMetadata metadata in mods.Where(p => p.IsContentPack))
             {
-                this.Monitor.Log($"   {metadata.DisplayName} (content pack, {PathUtilities.GetRelativePath(Constants.ModPath, metadata.DirectoryPath)})...", LogLevel.Trace);
+                this.Monitor.Log($"   {metadata.DisplayName} (content pack, {PathUtilities.GetRelativePath(this.ModsPath, metadata.DirectoryPath)})...", LogLevel.Trace);
 
                 // show warning for missing update key
                 if (metadata.HasManifest() && !metadata.HasUpdateKeys())
@@ -785,7 +806,7 @@ namespace StardewModdingAPI
                         // get basic info
                         IManifest manifest = metadata.Manifest;
                         this.Monitor.Log(metadata.Manifest?.EntryDll != null
-                            ? $"   {metadata.DisplayName} ({PathUtilities.GetRelativePath(Constants.ModPath, metadata.DirectoryPath)}{Path.DirectorySeparatorChar}{metadata.Manifest.EntryDll})..." // don't use Path.Combine here, since EntryDLL might not be valid
+                            ? $"   {metadata.DisplayName} ({PathUtilities.GetRelativePath(this.ModsPath, metadata.DirectoryPath)}{Path.DirectorySeparatorChar}{metadata.Manifest.EntryDll})..." // don't use Path.Combine here, since EntryDLL might not be valid
                             : $"   {metadata.DisplayName}...", LogLevel.Trace);
 
                         // show warnings
