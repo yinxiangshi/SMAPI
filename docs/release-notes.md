@@ -1,5 +1,5 @@
 # Release notes
-## 2.6.1
+## 2.7
 * For players:
   * Improved how mod issues are listed in the console and log.
   * Fixed custom festival maps always using spring tilesheets.
