@@ -313,13 +313,10 @@ namespace StardewModdingAPI.Metadata
             if (this.IsInFolder(key, "Buildings"))
                 return this.ReloadBuildings(content, key);
 
-            if (this.IsInFolder(key, "Characters"))
-                return this.ReloadNpcSprites(content, key, monster: false);
+            if (this.IsInFolder(key, "Characters") || this.IsInFolder(key, "Characters\\Monsters"))
+                return this.ReloadNpcSprites(content, key);
 
-            if (this.IsInFolder(key, "Characters\\Monsters"))
-                return this.ReloadNpcSprites(content, key, monster: true);
-
-            if (key.StartsWith(this.GetNormalisedPath("LooseSprites\\Fence"), StringComparison.InvariantCultureIgnoreCase))
+            if (this.KeyStartsWith(key, "LooseSprites\\Fence"))
                 return this.ReloadFenceTextures(key);
 
             if (this.IsInFolder(key, "Portraits"))
@@ -328,6 +325,7 @@ namespace StardewModdingAPI.Metadata
             // dynamic data
             if (this.IsInFolder(key, "Characters\\Dialogue"))
                 return this.ReloadNpcDialogue(key);
+
             if (this.IsInFolder(key, "Characters\\schedules"))
                 return this.ReloadNpcSchedules(key);
 
@@ -447,13 +445,13 @@ namespace StardewModdingAPI.Metadata
         /// <summary>Reload the sprites for matching NPCs.</summary>
         /// <param name="content">The content manager through which to reload the asset.</param>
         /// <param name="key">The asset key to reload.</param>
-        /// <param name="monster">Whether to match monsters (<c>true</c>) or non-monsters (<c>false</c>).</param>
         /// <returns>Returns whether any textures were reloaded.</returns>
-        private bool ReloadNpcSprites(LocalizedContentManager content, string key, bool monster)
+        private bool ReloadNpcSprites(LocalizedContentManager content, string key)
         {
             // get NPCs
-            string name = this.GetNpcNameFromFileName(Path.GetFileName(key));
-            NPC[] characters = this.GetCharacters().Where(npc => npc.Name == name && npc.IsMonster == monster).ToArray();
+            NPC[] characters = this.GetCharacters()
+                .Where(npc => this.GetNormalisedPath(npc.Sprite.textureName.Value) == key)
+                .ToArray();
             if (!characters.Any())
                 return false;
 
@@ -471,15 +469,20 @@ namespace StardewModdingAPI.Metadata
         private bool ReloadNpcPortraits(LocalizedContentManager content, string key)
         {
             // get NPCs
-            string name = this.GetNpcNameFromFileName(Path.GetFileName(key));
-            NPC[] villagers = this.GetCharacters().Where(npc => npc.Name == name && npc.isVillager()).ToArray();
+            NPC[] villagers = this.GetCharacters()
+                .Where(npc => npc.isVillager() && this.GetNormalisedPath($"Portraits\\{this.Reflection.GetMethod(npc, "getTextureName").Invoke<string>()}") == key)
+                .ToArray();
             if (!villagers.Any())
                 return false;
 
             // update portrait
             Texture2D texture = content.Load<Texture2D>(key);
             foreach (NPC villager in villagers)
+            {
+                villager.resetPortrait();
                 villager.Portrait = texture;
+            }
+
             return true;
         }
 
@@ -624,6 +627,14 @@ namespace StardewModdingAPI.Metadata
             }
         }
 
+        /// <summary>Get whether a key starts with a substring after the substring is normalised.</summary>
+        /// <param name="key">The key to check.</param>
+        /// <param name="rawSubstring">The substring to normalise and find.</param>
+        private bool KeyStartsWith(string key, string rawSubstring)
+        {
+            return key.StartsWith(this.GetNormalisedPath(rawSubstring), StringComparison.InvariantCultureIgnoreCase);
+        }
+
         /// <summary>Get whether a normalised asset key is in the given folder.</summary>
         /// <param name="key">The normalised asset key (like <c>Animals/cat</c>).</param>
         /// <param name="folder">The key folder (like <c>Animals</c>); doesn't need to be normalised.</param>
@@ -631,7 +642,7 @@ namespace StardewModdingAPI.Metadata
         private bool IsInFolder(string key, string folder, bool allowSubfolders = false)
         {
             return
-                key.StartsWith(this.GetNormalisedPath($"{folder}\\"), StringComparison.InvariantCultureIgnoreCase)
+                this.KeyStartsWith(key, $"{folder}\\")
                 && (allowSubfolders || this.CountSegments(key) == this.CountSegments(folder) + 1);
         }
 
