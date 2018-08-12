@@ -320,14 +320,16 @@ namespace StardewModdingAPI.Metadata
                 return this.ReloadNpcSprites(content, key, monster: true);
 
             if (key.StartsWith(this.GetNormalisedPath("LooseSprites\\Fence"), StringComparison.InvariantCultureIgnoreCase))
-                return this.ReloadFenceTextures(content, key);
+                return this.ReloadFenceTextures(key);
 
             if (this.IsInFolder(key, "Portraits"))
                 return this.ReloadNpcPortraits(content, key);
 
             // dynamic data
+            if (this.IsInFolder(key, "Characters\\Dialogue"))
+                return this.ReloadNpcDialogue(key);
             if (this.IsInFolder(key, "Characters\\schedules"))
-                return this.ReloadNpcSchedules(content, key);
+                return this.ReloadNpcSchedules(key);
 
             return false;
         }
@@ -416,10 +418,9 @@ namespace StardewModdingAPI.Metadata
         }
 
         /// <summary>Reload the sprites for a fence type.</summary>
-        /// <param name="content">The content manager through which to reload the asset.</param>
         /// <param name="key">The asset key to reload.</param>
         /// <returns>Returns whether any textures were reloaded.</returns>
-        private bool ReloadFenceTextures(LocalizedContentManager content, string key)
+        private bool ReloadFenceTextures(string key)
         {
             // get fence type
             if (!int.TryParse(this.GetSegments(key)[1].Substring("Fence".Length), out int fenceType))
@@ -508,11 +509,27 @@ namespace StardewModdingAPI.Metadata
         /****
         ** Reload data methods
         ****/
-        /// <summary>Reload the schedules for matching NPCs.</summary>
-        /// <param name="content">The content manager through which to reload the asset.</param>
+        /// <summary>Reload the dialogue data for matching NPCs.</summary>
         /// <param name="key">The asset key to reload.</param>
         /// <returns>Returns whether any assets were reloaded.</returns>
-        private bool ReloadNpcSchedules(LocalizedContentManager content, string key)
+        private bool ReloadNpcDialogue(string key)
+        {
+            // get NPCs
+            string name = Path.GetFileName(key);
+            NPC[] villagers = this.GetCharacters().Where(npc => npc.Name == name && npc.isVillager()).ToArray();
+            if (!villagers.Any())
+                return false;
+
+            // update dialogue
+            foreach (NPC villager in villagers)
+                villager.resetSeasonalDialogue(); // doesn't only affect seasonal dialogue
+            return true;
+        }
+
+        /// <summary>Reload the schedules for matching NPCs.</summary>
+        /// <param name="key">The asset key to reload.</param>
+        /// <returns>Returns whether any assets were reloaded.</returns>
+        private bool ReloadNpcSchedules(string key)
         {
             // get NPCs
             string name = Path.GetFileName(key);
