@@ -379,7 +379,7 @@ namespace StardewModdingApi.Installer
                     this.PrintInfo("[2] Uninstall SMAPI.");
                     Console.WriteLine();
 
-                    string choice = this.InteractivelyChoose("What do you want to do? Type 1 or 2, then press enter.", new[] { "1", "2" });
+                    string choice = this.InteractivelyChoose("Type 1 or 2, then press enter.", new[] { "1", "2" });
                     switch (choice)
                     {
                         case "1":
