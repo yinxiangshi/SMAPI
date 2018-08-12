@@ -136,7 +136,7 @@ namespace StardewModdingApi.Installer
         }
 
         /// <summary>Handles writing color-coded text to the console.</summary>
-        private readonly ColorfulConsoleWriter ConsoleWriter;
+        private ColorfulConsoleWriter ConsoleWriter;
 
 
         /*********
@@ -245,7 +245,55 @@ namespace StardewModdingApi.Installer
 
 
             /*********
-            ** Step 2: find game folder
+            ** Step 2: choose a theme (can't auto-detect on Linux/Mac)
+            *********/
+            MonitorColorScheme scheme = MonitorColorScheme.AutoDetect;
+            if (platform == Platform.Linux || platform == Platform.Mac)
+            {
+                /****
+                ** print header
+                ****/
+                this.PrintPlain("Hi there! I'll help you install or remove SMAPI. Just a few questions first.");
+                this.PrintPlain("----------------------------------------------------------------------------");
+                Console.WriteLine();
+
+                /****
+                ** show theme selector
+                ****/
+                // get theme writers
+                var lightBackgroundWriter = new ColorfulConsoleWriter(EnvironmentUtility.DetectPlatform(), MonitorColorScheme.LightBackground);
+                var darkDarkgroundWriter = new ColorfulConsoleWriter(EnvironmentUtility.DetectPlatform(), MonitorColorScheme.DarkBackground);
+
+                // print question
+                this.PrintPlain("Which text looks more readable?");
+                Console.WriteLine();
+                Console.Write("   [1] ");
+                lightBackgroundWriter.WriteLine("Dark text on light background", ConsoleLogLevel.Info);
+                Console.Write("   [2] ");
+                darkDarkgroundWriter.WriteLine("Light text on dark background", ConsoleLogLevel.Info);
+                Console.WriteLine();
+
+                // handle choice
+                string choice = this.InteractivelyChoose("Type 1 or 2, then press enter.", new[] { "1", "2" });
+                switch (choice)
+                {
+                    case "1":
+                        scheme = MonitorColorScheme.LightBackground;
+                        this.ConsoleWriter = lightBackgroundWriter;
+                        break;
+                    case "2":
+                        scheme = MonitorColorScheme.DarkBackground;
+                        this.ConsoleWriter = darkDarkgroundWriter;
+                        break;
+                    default:
+                        throw new InvalidOperationException($"Unexpected action key '{choice}'.");
+                }
+            }
+            Console.Clear();
+
+
+            /*********
+            ** Step 3: find game folder
             *********/
             InstallerPaths paths;
             {
@@ -253,6 +301,7 @@ namespace StardewModdingApi.Installer
                 ** print header
                 ****/
                 this.PrintInfo("Hi there! I'll help you install or remove SMAPI. Just a few questions first.");
+                this.PrintDebug($"Color scheme: {this.GetDisplayText(scheme)}");
                 this.PrintDebug("----------------------------------------------------------------------------");
                 Console.WriteLine();
 
@@ -279,7 +328,7 @@ namespace StardewModdingApi.Installer
 
 
             /*********
-            ** Step 3: validate assumptions
+            ** Step 4: validate assumptions
             *********/
             {
                 if (!paths.PackageDir.Exists)
@@ -302,7 +351,7 @@ namespace StardewModdingApi.Installer
 
 
             /*********
-            ** Step 4: ask what to do
+            ** Step 5: ask what to do
             *********/
             ScriptAction action;
             {
@@ -311,6 +360,7 @@ namespace StardewModdingApi.Installer
                 ****/
                 this.PrintInfo("Hi there! I'll help you install or remove SMAPI. Just one question first.");
                 this.PrintDebug($"Game path: {paths.GamePath}");
+                this.PrintDebug($"Color scheme: {this.GetDisplayText(scheme)}");
                 this.PrintDebug("----------------------------------------------------------------------------");
                 Console.WriteLine();
 
@@ -347,7 +397,7 @@ namespace StardewModdingApi.Installer
 
 
             /*********
-            ** Step 5: apply
+            ** Step 6: apply
             *********/
             {
                 /****
@@ -355,6 +405,7 @@ namespace StardewModdingApi.Installer
                 ****/
                 this.PrintInfo($"That's all I need! I'll {action.ToString().ToLower()} SMAPI now.");
                 this.PrintDebug($"Game path: {paths.GamePath}");
+                this.PrintDebug($"Color scheme: {this.GetDisplayText(scheme)}");
                 this.PrintDebug("----------------------------------------------------------------------------");
                 Console.WriteLine();
 
@@ -460,6 +511,16 @@ namespace StardewModdingApi.Installer
                             foreach (FileInfo sourceFile in sourceDir.EnumerateFiles().Where(this.ShouldCopyFile))
                                 sourceFile.CopyTo(Path.Combine(targetDir.FullName, sourceFile.Name));
                         }
+
+                        // set SMAPI's color scheme if defined
+                        if (scheme != MonitorColorScheme.AutoDetect)
+                        {
+                            string configPath = Path.Combine(paths.GamePath, "StardewModdingAPI.config.json");
+                            string text = File
+                                .ReadAllText(configPath)
+                                .Replace(@"""ColorScheme"": ""AutoDetect""", $@"""ColorScheme"": ""{scheme}""");
+                            File.WriteAllText(configPath, text);
+                        }
                     }
 
                     // remove obsolete appdata mods
@@ -471,7 +532,7 @@ namespace StardewModdingApi.Installer
 
 
             /*********
-            ** Step 6: final instructions
+            ** Step 7: final instructions
             *********/
             if (platform == Platform.Windows)
             {
@@ -510,6 +571,23 @@ namespace StardewModdingApi.Installer
             return str;
         }
 
+        /// <summary>Get the display text for a color scheme.</summary>
+        /// <param name="scheme">The color scheme.</param>
+        private string GetDisplayText(MonitorColorScheme scheme)
+        {
+            switch (scheme)
+            {
+                case MonitorColorScheme.AutoDetect:
+                    return "auto-detect";
+                case MonitorColorScheme.DarkBackground:
+                    return "light text on dark background";
+                case MonitorColorScheme.LightBackground:
+                    return "dark text on light background";
+                default:
+                    return scheme.ToString();
+            }
+        }
+
         /// <summary>Get the value of a key in the Windows HKLM registry.</summary>
         /// <param name="key">The full path of the registry key relative to HKLM.</param>
         /// <param name="name">The name of the value.</param>
@@ -535,6 +613,10 @@ namespace StardewModdingApi.Installer
             using (openKey)
                 return (string)openKey.GetValue(name);
         }
+
+        /// <summary>Print a message without formatting.</summary>
+        /// <param name="text">The text to print.</param>
+        private void PrintPlain(string text) => Console.WriteLine(text);
 
         /// <summary>Print a debug message.</summary>
         /// <param name="text">The text to print.</param>
