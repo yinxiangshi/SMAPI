@@ -2,6 +2,9 @@
 ## 2.7
 * For players:
   * Improved how mod issues are listed in the console and log.
+  * Revamped installer. It now...
+    * uses a new format that should be more intuitive for players;
+    * and validates requirements earlier.
   * Fixed custom festival maps always using spring tilesheets.
   * Fixed `player_add` command not recognising return scepter.
   * Fixed `player_add` command showing fish twice.

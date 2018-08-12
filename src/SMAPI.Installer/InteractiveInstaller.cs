@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Threading;
 using Microsoft.Win32;
 using StardewModdingApi.Installer.Enums;
+using StardewModdingAPI.Installer.Framework;
 using StardewModdingAPI.Internal;
 using StardewModdingAPI.Internal.ConsoleWriting;
 
@@ -168,6 +169,9 @@ namespace StardewModdingApi.Installer
         /// </remarks>
         public void Run(string[] args)
         {
+            /*********
+            ** Step 1: initial setup
+            *********/
             /****
             ** Get platform & set window title
             ****/
@@ -175,6 +179,9 @@ namespace StardewModdingApi.Installer
             Console.Title = $"SMAPI {this.GetDisplayVersion(this.GetType().Assembly.GetName().Version)} installer on {platform} {EnvironmentUtility.GetFriendlyPlatformName(platform)}";
             Console.WriteLine();
 
+            /****
+            ** Check if correct installer
+            ****/
 #if SMAPI_FOR_WINDOWS
             if (platform == Platform.Linux || platform == Platform.Mac)
             {
@@ -182,78 +189,17 @@ namespace StardewModdingApi.Installer
                 Console.ReadLine();
                 return;
             }
+#else
+            if (platform == Platform.Windows)
+            {
+                this.PrintError($"This is the installer for Linux/Mac. Run the 'install on Windows.exe' file instead.");
+                Console.ReadLine();
+                return;
+            }
 #endif
 
             /****
-            ** read command-line arguments
-            ****/
-            // get action from CLI
-            bool installArg = args.Contains("--install");
-            bool uninstallArg = args.Contains("--uninstall");
-            if (installArg && uninstallArg)
-            {
-                this.PrintError("You can't specify both --install and --uninstall command-line flags.");
-                Console.ReadLine();
-                return;
-            }
-
-            // get game path from CLI
-            string gamePathArg = null;
-            {
-                int pathIndex = Array.LastIndexOf(args, "--game-path") + 1;
-                if (pathIndex >= 1 && args.Length >= pathIndex)
-                    gamePathArg = args[pathIndex];
-            }
-
-            /****
-            ** collect details
-            ****/
-            // get game path
-            DirectoryInfo installDir = this.InteractivelyGetInstallPath(platform, gamePathArg);
-            if (installDir == null)
-            {
-                this.PrintError("Failed finding your game path.");
-                Console.ReadLine();
-                return;
-            }
-
-            // get folders
-            DirectoryInfo packageDir = platform.IsMono()
-                ? new DirectoryInfo(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)) // installer runs from internal folder on Mono
-                : new DirectoryInfo(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "internal", "Windows"));
-            DirectoryInfo modsDir = new DirectoryInfo(Path.Combine(installDir.FullName, "Mods"));
-            var paths = new
-            {
-                executable = Path.Combine(installDir.FullName, EnvironmentUtility.GetExecutableName(platform)),
-                unixSmapiLauncher = Path.Combine(installDir.FullName, "StardewModdingAPI"),
-                unixLauncher = Path.Combine(installDir.FullName, "StardewValley"),
-                unixLauncherBackup = Path.Combine(installDir.FullName, "StardewValley-original")
-            };
-
-            // show output
-            this.PrintInfo($"Your game folder: {installDir}.");
-
-            /****
-            ** validate assumptions
-            ****/
-            if (!packageDir.Exists)
-            {
-                this.PrintError(platform == Platform.Windows && packageDir.FullName.Contains(Path.GetTempPath()) && packageDir.FullName.Contains(".zip")
-                    ? "The installer is missing some files. It looks like you're running the installer from inside the downloaded zip; make sure you unzip the downloaded file first, then run the installer from the unzipped folder."
-                    : $"The 'internal/{packageDir.Name}' package folder is missing (should be at {packageDir})."
-                );
-                Console.ReadLine();
-                return;
-            }
-            if (!File.Exists(paths.executable))
-            {
-                this.PrintError("The detected game install path doesn't contain a Stardew Valley executable.");
-                Console.ReadLine();
-                return;
-            }
-
-            /****
-            ** validate Windows dependencies
+            ** Check Windows dependencies
             ****/
             if (platform == Platform.Windows)
             {
@@ -276,159 +222,263 @@ namespace StardewModdingApi.Installer
                 }
             }
 
-            Console.WriteLine();
-
             /****
-            ** ask user what to do
+            ** read command-line arguments
             ****/
+            // get action from CLI
+            bool installArg = args.Contains("--install");
+            bool uninstallArg = args.Contains("--uninstall");
+            if (installArg && uninstallArg)
+            {
+                this.PrintError("You can't specify both --install and --uninstall command-line flags.");
+                Console.ReadLine();
+                return;
+            }
+
+            // get game path from CLI
+            string gamePathArg = null;
+            {
+                int pathIndex = Array.LastIndexOf(args, "--game-path") + 1;
+                if (pathIndex >= 1 && args.Length >= pathIndex)
+                    gamePathArg = args[pathIndex];
+            }
+
+
+            /*********
+            ** Step 2: find game folder
+            *********/
+            InstallerPaths paths;
+            {
+                /****
+                ** print header
+                ****/
+                this.PrintInfo("Hi there! I'll help you install or remove SMAPI. Just a few questions first.");
+                this.PrintDebug("----------------------------------------------------------------------------");
+                Console.WriteLine();
+
+                /****
+                ** collect details
+                ****/
+                // get game path
+                this.PrintInfo("Where is your game folder?");
+                DirectoryInfo installDir = this.InteractivelyGetInstallPath(platform, gamePathArg);
+                if (installDir == null)
+                {
+                    this.PrintError("Failed finding your game path.");
+                    Console.ReadLine();
+                    return;
+                }
+
+                // get folders
+                DirectoryInfo packageDir = platform.IsMono()
+                    ? new DirectoryInfo(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)) // installer runs from internal folder on Mono
+                    : new DirectoryInfo(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "internal", "Windows"));
+                paths = new InstallerPaths(packageDir, installDir, EnvironmentUtility.GetExecutableName(platform));
+            }
+            Console.Clear();
+
+
+            /*********
+            ** Step 3: validate assumptions
+            *********/
+            {
+                if (!paths.PackageDir.Exists)
+                {
+                    this.PrintError(platform == Platform.Windows && paths.PackagePath.Contains(Path.GetTempPath()) && paths.PackagePath.Contains(".zip")
+                        ? "The installer is missing some files. It looks like you're running the installer from inside the downloaded zip; make sure you unzip the downloaded file first, then run the installer from the unzipped folder."
+                        : $"The 'internal/{paths.PackageDir.Name}' package folder is missing (should be at {paths.PackagePath})."
+                    );
+                    Console.ReadLine();
+                    return;
+                }
+
+                if (!File.Exists(paths.ExecutablePath))
+                {
+                    this.PrintError("The detected game install path doesn't contain a Stardew Valley executable.");
+                    Console.ReadLine();
+                    return;
+                }
+            }
+
+
+            /*********
+            ** Step 4: ask what to do
+            *********/
             ScriptAction action;
-
-            if (installArg)
-                action = ScriptAction.Install;
-            else if (uninstallArg)
-                action = ScriptAction.Uninstall;
-            else
             {
-                this.PrintInfo("You can....");
-                this.PrintInfo("[1] Install SMAPI.");
-                this.PrintInfo("[2] Uninstall SMAPI.");
+                /****
+                ** print header
+                ****/
+                this.PrintInfo("Hi there! I'll help you install or remove SMAPI. Just one question first.");
+                this.PrintDebug($"Game path: {paths.GamePath}");
+                this.PrintDebug("----------------------------------------------------------------------------");
                 Console.WriteLine();
 
-                string choice = this.InteractivelyChoose("What do you want to do? Type 1 or 2, then press enter.", "1", "2");
-                switch (choice)
+                /****
+                ** ask what to do
+                ****/
+                if (installArg)
+                    action = ScriptAction.Install;
+                else if (uninstallArg)
+                    action = ScriptAction.Uninstall;
+                else
                 {
-                    case "1":
-                        action = ScriptAction.Install;
-                        break;
-                    case "2":
-                        action = ScriptAction.Uninstall;
-                        break;
-                    default:
-                        throw new InvalidOperationException($"Unexpected action key '{choice}'.");
-                }
-                Console.WriteLine();
-            }
+                    this.PrintInfo("What do you want to do?");
+                    Console.WriteLine();
+                    this.PrintInfo("[1] Install SMAPI.");
+                    this.PrintInfo("[2] Uninstall SMAPI.");
+                    Console.WriteLine();
 
-            /****
-            ** Always uninstall old files
-            ****/
-            // restore game launcher
-            if (platform.IsMono() && File.Exists(paths.unixLauncherBackup))
-            {
-                this.PrintDebug("Removing SMAPI launcher...");
-                this.InteractivelyDelete(paths.unixLauncher);
-                File.Move(paths.unixLauncherBackup, paths.unixLauncher);
-            }
-
-            // remove old files
-            string[] removePaths = this.GetUninstallPaths(installDir, modsDir)
-                .Where(path => Directory.Exists(path) || File.Exists(path))
-                .ToArray();
-            if (removePaths.Any())
-            {
-                this.PrintDebug(action == ScriptAction.Install ? "Removing previous SMAPI files..." : "Removing SMAPI files...");
-                foreach (string path in removePaths)
-                    this.InteractivelyDelete(path);
-            }
-
-            /****
-            ** Install new files
-            ****/
-            if (action == ScriptAction.Install)
-            {
-                // copy SMAPI files to game dir
-                this.PrintDebug("Adding SMAPI files...");
-                foreach (FileInfo sourceFile in packageDir.EnumerateFiles().Where(this.ShouldCopyFile))
-                {
-                    if (sourceFile.Name == this.InstallerFileName)
-                        continue;
-
-                    string targetPath = Path.Combine(installDir.FullName, sourceFile.Name);
-                    this.InteractivelyDelete(targetPath);
-                    sourceFile.CopyTo(targetPath);
-                }
-
-                // replace mod launcher (if possible)
-                if (platform.IsMono())
-                {
-                    this.PrintDebug("Safely replacing game launcher...");
-                    if (File.Exists(paths.unixLauncher))
+                    string choice = this.InteractivelyChoose("What do you want to do? Type 1 or 2, then press enter.", new[] { "1", "2" });
+                    switch (choice)
                     {
-                        if (!File.Exists(paths.unixLauncherBackup))
-                            File.Move(paths.unixLauncher, paths.unixLauncherBackup);
-                        else
-                            this.InteractivelyDelete(paths.unixLauncher);
+                        case "1":
+                            action = ScriptAction.Install;
+                            break;
+                        case "2":
+                            action = ScriptAction.Uninstall;
+                            break;
+                        default:
+                            throw new InvalidOperationException($"Unexpected action key '{choice}'.");
+                    }
+                }
+            }
+            Console.Clear();
+
+
+            /*********
+            ** Step 5: apply
+            *********/
+            {
+                /****
+                ** print header
+                ****/
+                this.PrintInfo($"That's all I need! I'll {action.ToString().ToLower()} SMAPI now.");
+                this.PrintDebug($"Game path: {paths.GamePath}");
+                this.PrintDebug("----------------------------------------------------------------------------");
+                Console.WriteLine();
+
+                /****
+                ** Always uninstall old files
+                ****/
+                // restore game launcher
+                if (platform.IsMono() && File.Exists(paths.UnixBackupLauncherPath))
+                {
+                    this.PrintDebug("Removing SMAPI launcher...");
+                    this.InteractivelyDelete(paths.UnixLauncherPath);
+                    File.Move(paths.UnixBackupLauncherPath, paths.UnixLauncherPath);
+                }
+
+                // remove old files
+                string[] removePaths = this.GetUninstallPaths(paths.GameDir, paths.ModsDir)
+                    .Where(path => Directory.Exists(path) || File.Exists(path))
+                    .ToArray();
+                if (removePaths.Any())
+                {
+                    this.PrintDebug(action == ScriptAction.Install ? "Removing previous SMAPI files..." : "Removing SMAPI files...");
+                    foreach (string path in removePaths)
+                        this.InteractivelyDelete(path);
+                }
+
+                /****
+                ** Install new files
+                ****/
+                if (action == ScriptAction.Install)
+                {
+                    // copy SMAPI files to game dir
+                    this.PrintDebug("Adding SMAPI files...");
+                    foreach (FileInfo sourceFile in paths.PackageDir.EnumerateFiles().Where(this.ShouldCopyFile))
+                    {
+                        if (sourceFile.Name == this.InstallerFileName)
+                            continue;
+
+                        string targetPath = Path.Combine(paths.GameDir.FullName, sourceFile.Name);
+                        this.InteractivelyDelete(targetPath);
+                        sourceFile.CopyTo(targetPath);
                     }
 
-                    File.Move(paths.unixSmapiLauncher, paths.unixLauncher);
-                }
-
-                // create mods directory (if needed)
-                if (!modsDir.Exists)
-                {
-                    this.PrintDebug("Creating mods directory...");
-                    modsDir.Create();
-                }
-
-                // add or replace bundled mods
-                modsDir.Create();
-                DirectoryInfo packagedModsDir = new DirectoryInfo(Path.Combine(packageDir.FullName, "Mods"));
-                if (packagedModsDir.Exists && packagedModsDir.EnumerateDirectories().Any())
-                {
-                    this.PrintDebug("Adding bundled mods...");
-
-                    // special case: rename Omegasis' SaveBackup mod
+                    // replace mod launcher (if possible)
+                    if (platform.IsMono())
                     {
-                        DirectoryInfo oldFolder = new DirectoryInfo(Path.Combine(modsDir.FullName, "SaveBackup"));
-                        DirectoryInfo newFolder = new DirectoryInfo(Path.Combine(modsDir.FullName, "AdvancedSaveBackup"));
-                        FileInfo manifest = new FileInfo(Path.Combine(oldFolder.FullName, "manifest.json"));
-                        if (manifest.Exists && !newFolder.Exists && File.ReadLines(manifest.FullName).Any(p => p.IndexOf("Omegasis", StringComparison.InvariantCultureIgnoreCase) != -1))
+                        this.PrintDebug("Safely replacing game launcher...");
+                        if (File.Exists(paths.UnixLauncherPath))
                         {
-                            this.PrintDebug($"   moving {oldFolder.Name} to {newFolder.Name}...");
-                            this.Move(oldFolder, newFolder.FullName);
+                            if (!File.Exists(paths.UnixBackupLauncherPath))
+                                File.Move(paths.UnixLauncherPath, paths.UnixBackupLauncherPath);
+                            else
+                                this.InteractivelyDelete(paths.UnixLauncherPath);
                         }
+
+                        File.Move(paths.UnixSmapiLauncherPath, paths.UnixLauncherPath);
                     }
 
-                    // add bundled mods
-                    foreach (DirectoryInfo sourceDir in packagedModsDir.EnumerateDirectories())
+                    // create mods directory (if needed)
+                    if (!paths.ModsDir.Exists)
                     {
-                        this.PrintDebug($"   adding {sourceDir.Name}...");
+                        this.PrintDebug("Creating mods directory...");
+                        paths.ModsDir.Create();
+                    }
 
-                        // init/clear target dir
-                        DirectoryInfo targetDir = new DirectoryInfo(Path.Combine(modsDir.FullName, sourceDir.Name));
-                        if (targetDir.Exists)
+                    // add or replace bundled mods
+                    DirectoryInfo packagedModsDir = new DirectoryInfo(Path.Combine(paths.PackageDir.FullName, "Mods"));
+                    if (packagedModsDir.Exists && packagedModsDir.EnumerateDirectories().Any())
+                    {
+                        this.PrintDebug("Adding bundled mods...");
+
+                        // special case: rename Omegasis' SaveBackup mod
                         {
-                            this.ProtectBundledFiles.TryGetValue(targetDir.Name, out HashSet<string> protectedFiles);
-                            foreach (FileSystemInfo entry in targetDir.EnumerateFileSystemInfos())
+                            DirectoryInfo oldFolder = new DirectoryInfo(Path.Combine(paths.ModsDir.FullName, "SaveBackup"));
+                            DirectoryInfo newFolder = new DirectoryInfo(Path.Combine(paths.ModsDir.FullName, "AdvancedSaveBackup"));
+                            FileInfo manifest = new FileInfo(Path.Combine(oldFolder.FullName, "manifest.json"));
+                            if (manifest.Exists && !newFolder.Exists && File.ReadLines(manifest.FullName).Any(p => p.IndexOf("Omegasis", StringComparison.InvariantCultureIgnoreCase) != -1))
                             {
-                                if (protectedFiles == null || !protectedFiles.Contains(entry.Name))
-                                    this.InteractivelyDelete(entry.FullName);
+                                this.PrintDebug($"   moving {oldFolder.Name} to {newFolder.Name}...");
+                                this.Move(oldFolder, newFolder.FullName);
                             }
                         }
-                        else
-                            targetDir.Create();
 
-                        // copy files
-                        foreach (FileInfo sourceFile in sourceDir.EnumerateFiles().Where(this.ShouldCopyFile))
-                            sourceFile.CopyTo(Path.Combine(targetDir.FullName, sourceFile.Name));
+                        // add bundled mods
+                        foreach (DirectoryInfo sourceDir in packagedModsDir.EnumerateDirectories())
+                        {
+                            this.PrintDebug($"   adding {sourceDir.Name}...");
+
+                            // init/clear target dir
+                            DirectoryInfo targetDir = new DirectoryInfo(Path.Combine(paths.ModsDir.FullName, sourceDir.Name));
+                            if (targetDir.Exists)
+                            {
+                                this.ProtectBundledFiles.TryGetValue(targetDir.Name, out HashSet<string> protectedFiles);
+                                foreach (FileSystemInfo entry in targetDir.EnumerateFileSystemInfos())
+                                {
+                                    if (protectedFiles == null || !protectedFiles.Contains(entry.Name))
+                                        this.InteractivelyDelete(entry.FullName);
+                                }
+                            }
+                            else
+                                targetDir.Create();
+
+                            // copy files
+                            foreach (FileInfo sourceFile in sourceDir.EnumerateFiles().Where(this.ShouldCopyFile))
+                                sourceFile.CopyTo(Path.Combine(targetDir.FullName, sourceFile.Name));
+                        }
                     }
-                }
 
-                // remove obsolete appdata mods
-                this.InteractivelyRemoveAppDataMods(modsDir, packagedModsDir);
+                    // remove obsolete appdata mods
+                    this.InteractivelyRemoveAppDataMods(paths.ModsDir, packagedModsDir);
+                }
             }
             Console.WriteLine();
             Console.WriteLine();
 
-            /****
-            ** final instructions
-            ****/
+
+            /*********
+            ** Step 6: final instructions
+            *********/
             if (platform == Platform.Windows)
             {
                 if (action == ScriptAction.Install)
                 {
                     this.PrintSuccess("SMAPI is installed! If you use Steam, set your launch options to enable achievements (see smapi.io/install):");
-                    this.PrintSuccess($"    \"{Path.Combine(installDir.FullName, "StardewModdingAPI.exe")}\" %command%");
+                    this.PrintSuccess($"    \"{Path.Combine(paths.GamePath, "StardewModdingAPI.exe")}\" %command%");
                     Console.WriteLine();
                     this.PrintSuccess("If you don't use Steam, launch StardewModdingAPI.exe in your game folder to play with mods.");
                 }
@@ -594,17 +644,22 @@ namespace StardewModdingApi.Installer
         }
 
         /// <summary>Interactively ask the user to choose a value.</summary>
+        /// <param name="print">A callback which prints a message to the console.</param>
         /// <param name="message">The message to print.</param>
         /// <param name="options">The allowed options (not case sensitive).</param>
-        private string InteractivelyChoose(string message, params string[] options)
+        /// <param name="indent">The indentation to prefix to output.</param>
+        private string InteractivelyChoose(string message, string[] options, string indent = "", Action<string> print = null)
         {
+            print = print ?? this.PrintInfo;
+
             while (true)
             {
-                this.PrintInfo(message);
+                print(indent + message);
+                Console.Write(indent);
                 string input = Console.ReadLine()?.Trim().ToLowerInvariant();
                 if (!options.Contains(input))
                 {
-                    this.PrintInfo("That's not a valid option.");
+                    print($"{indent}That's not a valid option.");
                     continue;
                 }
                 return input;
