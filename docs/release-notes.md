@@ -13,7 +13,10 @@
 
 * For modders:
   * Added support for `.json` data files in the content API (including Content Patcher).
-  * Fixed changes through the content API not propagating correctly for dialogue and child sprites.
+  * Added automatic propagation when changing assets through the content API for...
+    * child sprites;
+    * dialogue;
+    * map tilesheets.
   * Added `--mods-path` command-line argument to allow switching between mod folders.
   * All enums are now JSON-serialised by name, since that's more user-friendly. Previously only certain predefined enums were serialised that way. JSON files which already have integer enums will still be parsed fine.
   * Fixed false compatibility error when constructing multidimensional arrays.

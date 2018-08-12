@@ -13,6 +13,7 @@ using StardewValley.Menus;
 using StardewValley.Objects;
 using StardewValley.Projectiles;
 using StardewValley.TerrainFeatures;
+using xTile.Tiles;
 
 namespace StardewModdingAPI.Metadata
 {
@@ -63,6 +64,23 @@ namespace StardewModdingAPI.Metadata
         /// <returns>Returns any non-null value to indicate an asset was loaded.</returns>
         private object PropagateImpl(LocalizedContentManager content, string key)
         {
+            /****
+            ** Special case: current map tilesheet
+            ** We only need to do this for the current location, since tilesheets are reloaded when you enter a location.
+            ** Just in case, we should still propagate by key even if a tilesheet is matched.
+            ****/
+            if (Game1.currentLocation?.map?.TileSheets != null)
+            {
+                foreach (TileSheet tilesheet in Game1.currentLocation.map.TileSheets)
+                {
+                    if (this.GetNormalisedPath(tilesheet.ImageSource) == key)
+                        Game1.mapDisplayDevice.LoadTileSheet(tilesheet);
+                }
+            }
+
+            /****
+            ** Propagate by key
+            ****/
             Reflector reflection = this.Reflection;
             switch (key.ToLower().Replace("/", "\\")) // normalised key so we can compare statically
             {
