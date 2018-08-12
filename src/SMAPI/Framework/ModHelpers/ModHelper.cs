@@ -138,7 +138,9 @@ namespace StardewModdingAPI.Framework.ModHelpers
             where TModel : class
         {
             path = Path.Combine(this.DirectoryPath, PathUtilities.NormalisePathSeparators(path));
-            return this.JsonHelper.ReadJsonFile<TModel>(path);
+            return this.JsonHelper.ReadJsonFileIfExists(path, out TModel data)
+                ? data
+                : null;
         }
 
         /// <summary>Save to a JSON file.</summary>

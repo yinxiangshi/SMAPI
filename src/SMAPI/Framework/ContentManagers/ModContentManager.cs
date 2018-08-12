@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.Reflection;
+using StardewModdingAPI.Toolkit.Serialisation;
 using StardewValley;
 
 namespace StardewModdingAPI.Framework.ContentManagers
@@ -12,6 +13,13 @@ namespace StardewModdingAPI.Framework.ContentManagers
     /// <summary>A content manager which handles reading files from a SMAPI mod folder with support for unpacked files.</summary>
     internal class ModContentManager : BaseContentManager
     {
+        /*********
+        ** Properties
+        *********/
+        /// <summary>Encapsulates SMAPI's JSON file parsing.</summary>
+        private readonly JsonHelper JsonHelper;
+
+
         /*********
         ** Public methods
         *********/
@@ -23,9 +31,13 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="coordinator">The central coordinator which manages content managers.</param>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="reflection">Simplifies access to private code.</param>
+        /// <param name="jsonHelper">Encapsulates SMAPI's JSON file parsing.</param>
         /// <param name="onDisposing">A callback to invoke when the content manager is being disposed.</param>
-        public ModContentManager(string name, IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, Action<BaseContentManager> onDisposing)
-                : base(name, serviceProvider, rootDirectory, currentCulture, coordinator, monitor, reflection, onDisposing, isModFolder: true) { }
+        public ModContentManager(string name, IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action<BaseContentManager> onDisposing)
+            : base(name, serviceProvider, rootDirectory, currentCulture, coordinator, monitor, reflection, onDisposing, isModFolder: true)
+        {
+            this.JsonHelper = jsonHelper;
+        }
 
         /// <summary>Load an asset that has been processed by the content pipeline.</summary>
         /// <typeparam name="T">The type of asset to load.</typeparam>
@@ -95,9 +107,14 @@ namespace StardewModdingAPI.Framework.ContentManagers
                     case ".xnb":
                         return base.Load<T>(relativePath, language);
 
-                    // unpacked map
-                    case ".tbin":
-                        throw GetContentError($"can't read unpacked map file directly from the underlying content manager. It must be loaded through the mod's {typeof(IModHelper)}.{nameof(IModHelper.Content)} helper.");
+                    // unpacked data
+                    case ".json":
+                        {
+                            if (!this.JsonHelper.ReadJsonFileIfExists(file.FullName, out T data))
+                                throw GetContentError("the JSON file is invalid."); // should never happen since we check for file existence above
+
+                            return data;
+                        }
 
                     // unpacked image
                     case ".png":
@@ -113,6 +130,10 @@ namespace StardewModdingAPI.Framework.ContentManagers
                             this.Inject(internalKey, texture);
                             return (T)(object)texture;
                         }
+
+                    // unpacked map
+                    case ".tbin":
+                        throw GetContentError($"can't read unpacked map file directly from the underlying content manager. It must be loaded through the mod's {typeof(IModHelper)}.{nameof(IModHelper.Content)} helper.");
 
                     default:
                         throw GetContentError($"unknown file extension '{file.Extension}'; must be one of '.png', '.tbin', or '.xnb'.");

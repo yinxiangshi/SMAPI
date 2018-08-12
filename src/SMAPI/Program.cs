@@ -229,9 +229,8 @@ namespace StardewModdingAPI
                 AppDomain.CurrentDomain.AssemblyResolve += (sender, e) => AssemblyLoader.ResolveAssembly(e.Name);
 
                 // override game
-                SGame.MonitorDuringInitialisation = this.Monitor;
-                SGame.ReflectorDuringInitialisation = this.Reflection;
-                this.GameInstance = new SGame(this.Monitor, this.Reflection, this.EventManager, this.InitialiseAfterGameStart, this.Dispose);
+                SGame.ConstructorHack = new SGameConstructorHack(this.Monitor, this.Reflection, this.Toolkit.JsonHelper);
+                this.GameInstance = new SGame(this.Monitor, this.Reflection, this.EventManager, this.Toolkit.JsonHelper, this.InitialiseAfterGameStart, this.Dispose);
                 StardewValley.Program.gamePtr = this.GameInstance;
 
                 // add exit handler
@@ -1160,7 +1159,10 @@ namespace StardewModdingAPI
                         string locale = Path.GetFileNameWithoutExtension(file.Name.ToLower().Trim());
                         try
                         {
-                            translations[locale] = jsonHelper.ReadJsonFile<IDictionary<string, string>>(file.FullName);
+                            if (jsonHelper.ReadJsonFileIfExists(file.FullName, out IDictionary<string, string> data))
+                                translations[locale] = data;
+                            else
+                                metadata.LogAsMod($"Mod's i18n/{locale}.json file couldn't be parsed.");
                         }
                         catch (Exception ex)
                         {

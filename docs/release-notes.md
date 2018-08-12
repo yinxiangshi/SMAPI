@@ -8,6 +8,7 @@
   * Fixed some SMAPI logs not deleted when starting a new session.
 
 * For modders:
+  * Added support for `.json` data files in the content API (including Content Patcher).
   * Added `--mods-path` command-line argument to allow switching between mod folders.
   * All enums are now JSON-serialised by name, since that's more user-friendly. Previously only certain predefined enums were serialised that way. JSON files which already have integer enums will still be parsed fine.
   * Fixed false compatibility error when constructing multidimensional arrays.

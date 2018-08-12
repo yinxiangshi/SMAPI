@@ -54,7 +54,9 @@ namespace StardewModdingAPI.Framework
         public TModel ReadJsonFile<TModel>(string path) where TModel : class
         {
             path = Path.Combine(this.DirectoryPath, PathUtilities.NormalisePathSeparators(path));
-            return this.JsonHelper.ReadJsonFile<TModel>(path);
+            return this.JsonHelper.ReadJsonFileIfExists(path, out TModel model)
+                ? model
+                : null;
         }
 
         /// <summary>Load content from the content pack folder (if not already cached), and return it. When loading a <c>.png</c> file, this must be called outside the game's draw loop.</summary>
