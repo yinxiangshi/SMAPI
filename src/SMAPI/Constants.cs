@@ -29,10 +29,10 @@ namespace StardewModdingAPI
         ** Public
         ****/
         /// <summary>SMAPI's current semantic version.</summary>
-        public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("2.6.0");
+        public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("2.7.0");
 
         /// <summary>The minimum supported version of Stardew Valley.</summary>
-        public static ISemanticVersion MinimumGameVersion { get; } = new GameVersion("1.3.27");
+        public static ISemanticVersion MinimumGameVersion { get; } = new GameVersion("1.3.28");
 
         /// <summary>The maximum supported version of Stardew Valley.</summary>
         public static ISemanticVersion MaximumGameVersion { get; } = null;
@@ -70,11 +70,14 @@ namespace StardewModdingAPI
         /// <summary>The file path for the SMAPI metadata file.</summary>
         internal static string ApiMetadataPath => Path.Combine(Constants.ExecutionPath, $"{typeof(Program).Assembly.GetName().Name}.metadata.json");
 
-        /// <summary>The filename prefix for SMAPI log files.</summary>
-        internal static string LogNamePrefix { get; } = "SMAPI-latest";
+        /// <summary>The filename prefix used for all SMAPI logs.</summary>
+        internal static string LogNamePrefix { get; } = "SMAPI-";
+
+        /// <summary>The filename for SMAPI's main log, excluding the <see cref="LogExtension"/>.</summary>
+        internal static string LogFilename { get; } = $"{Constants.LogNamePrefix}latest";
 
         /// <summary>The filename extension for SMAPI log files.</summary>
-        internal static string LogNameExtension { get; } = "txt";
+        internal static string LogExtension { get; } = "txt";
 
         /// <summary>A copy of the log leading up to the previous fatal crash, if any.</summary>
         internal static string FatalCrashLog => Path.Combine(Constants.LogDir, "SMAPI-crash.txt");
@@ -86,7 +89,7 @@ namespace StardewModdingAPI
         internal static string UpdateMarker => Path.Combine(Constants.ExecutionPath, "StardewModdingAPI.update.marker");
 
         /// <summary>The full path to the folder containing mods.</summary>
-        internal static string ModPath { get; } = Path.Combine(Constants.ExecutionPath, "Mods");
+        internal static string DefaultModsPath { get; } = Path.Combine(Constants.ExecutionPath, "Mods");
 
         /// <summary>The game's current semantic version.</summary>
         internal static ISemanticVersion GameVersion { get; } = new GameVersion(Constants.GetGameVersion());

@@ -37,14 +37,15 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework
             yield return new SearchableItem(ItemType.Tool, this.CustomIDOffset, new MilkPail()); // these don't have any sort of ID, so we'll just assign some arbitrary ones
             yield return new SearchableItem(ItemType.Tool, this.CustomIDOffset + 1, new Shears());
             yield return new SearchableItem(ItemType.Tool, this.CustomIDOffset + 2, new Pan());
+            yield return new SearchableItem(ItemType.Tool, this.CustomIDOffset + 3, new Wand());
 
             // wallpapers
             for (int id = 0; id < 112; id++)
-                yield return new SearchableItem(ItemType.Wallpaper, id, new Wallpaper(id));
+                yield return new SearchableItem(ItemType.Wallpaper, id, new Wallpaper(id) { Category = SObject.furnitureCategory });
 
             // flooring
             for (int id = 0; id < 40; id++)
-                yield return new SearchableItem(ItemType.Flooring, id, new Wallpaper(id, isFloor: true));
+                yield return new SearchableItem(ItemType.Flooring, id, new Wallpaper(id, isFloor: true) { Category = SObject.furnitureCategory });
 
             // equipment
             foreach (int id in Game1.content.Load<Dictionary<int, string>>("Data\\Boots").Keys)
@@ -75,10 +76,6 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework
                     yield return new SearchableItem(ItemType.Furniture, id, new Furniture(id, Vector2.Zero));
             }
 
-            // fish
-            foreach (int id in Game1.content.Load<Dictionary<int, string>>("Data\\Fish").Keys)
-                yield return new SearchableItem(ItemType.Fish, id, new SObject(id, 999));
-
             // craftables
             foreach (int id in Game1.bigCraftablesInformation.Keys)
                 yield return new SearchableItem(ItemType.BigCraftable, id, new SObject(Vector2.Zero, id));
@@ -103,16 +100,16 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework
                 yield return new SearchableItem(ItemType.Object, id, item);
 
                 // fruit products
-                if (item.category == SObject.FruitsCategory)
+                if (item.Category == SObject.FruitsCategory)
                 {
                     // wine
                     SObject wine = new SObject(348, 1)
                     {
                         Name = $"{item.Name} Wine",
-                        Price = item.price * 3
+                        Price = item.Price * 3
                     };
                     wine.preserve.Value = SObject.PreserveType.Wine;
-                    wine.preservedParentSheetIndex.Value = item.parentSheetIndex;
+                    wine.preservedParentSheetIndex.Value = item.ParentSheetIndex;
                     yield return new SearchableItem(ItemType.Object, this.CustomIDOffset * 2 + id, wine);
 
                     // jelly
@@ -122,21 +119,21 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework
                         Price = 50 + item.Price * 2
                     };
                     jelly.preserve.Value = SObject.PreserveType.Jelly;
-                    jelly.preservedParentSheetIndex.Value = item.parentSheetIndex;
+                    jelly.preservedParentSheetIndex.Value = item.ParentSheetIndex;
                     yield return new SearchableItem(ItemType.Object, this.CustomIDOffset * 3 + id, jelly);
                 }
 
                 // vegetable products
-                else if (item.category == SObject.VegetableCategory)
+                else if (item.Category == SObject.VegetableCategory)
                 {
                     // juice
                     SObject juice = new SObject(350, 1)
                     {
                         Name = $"{item.Name} Juice",
-                        Price = (int)(item.price * 2.25d)
+                        Price = (int)(item.Price * 2.25d)
                     };
                     juice.preserve.Value = SObject.PreserveType.Juice;
-                    juice.preservedParentSheetIndex.Value = item.parentSheetIndex;
+                    juice.preservedParentSheetIndex.Value = item.ParentSheetIndex;
                     yield return new SearchableItem(ItemType.Object, this.CustomIDOffset * 4 + id, juice);
 
                     // pickled
@@ -146,16 +143,16 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework
                         Price = 50 + item.Price * 2
                     };
                     pickled.preserve.Value = SObject.PreserveType.Pickle;
-                    pickled.preservedParentSheetIndex.Value = item.parentSheetIndex;
+                    pickled.preservedParentSheetIndex.Value = item.ParentSheetIndex;
                     yield return new SearchableItem(ItemType.Object, this.CustomIDOffset * 5 + id, pickled);
                 }
 
                 // flower honey
-                else if (item.category == SObject.flowersCategory)
+                else if (item.Category == SObject.flowersCategory)
                 {
                     // get honey type
                     SObject.HoneyType? type = null;
-                    switch (item.parentSheetIndex)
+                    switch (item.ParentSheetIndex)
                     {
                         case 376:
                             type = SObject.HoneyType.Poppy;

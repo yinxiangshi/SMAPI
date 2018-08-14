@@ -1,6 +1,3 @@
-using System;
-using Newtonsoft.Json;
-
 namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
 {
     /// <summary>Metadata about a mod.</summary>
@@ -26,46 +23,5 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
 
         /// <summary>The errors that occurred while fetching update data.</summary>
         public string[] Errors { get; set; } = new string[0];
-
-        /****
-        ** Backwards-compatible fields
-        ****/
-        /// <summary>The mod's latest version number.</summary>
-        [Obsolete("Use " + nameof(ModEntryModel.Main))]
-        [JsonProperty]
-        internal string Version { get; private set; }
-
-        /// <summary>The mod's web URL.</summary>
-        [Obsolete("Use " + nameof(ModEntryModel.Main))]
-        [JsonProperty]
-        internal string Url { get; private set; }
-
-        /// <summary>The mod's latest optional release, if newer than <see cref="Version"/>.</summary>
-        [Obsolete("Use " + nameof(ModEntryModel.Optional))]
-        [JsonProperty]
-        internal string PreviewVersion { get; private set; }
-
-        /// <summary>The web URL to the mod's latest optional release, if newer than <see cref="Version"/>.</summary>
-        [Obsolete("Use " + nameof(ModEntryModel.Optional))]
-        [JsonProperty]
-        internal string PreviewUrl { get; private set; }
-
-
-        /*********
-        ** Public methods
-        *********/
-        /// <summary>Set backwards-compatible fields.</summary>
-        /// <param name="version">The requested API version.</param>
-        public void SetBackwardsCompatibility(ISemanticVersion version)
-        {
-            if (version.IsOlderThan("2.6-beta.19"))
-            {
-                this.Version = this.Main?.Version?.ToString();
-                this.Url = this.Main?.Url;
-
-                this.PreviewVersion = this.Optional?.Version?.ToString();
-                this.PreviewUrl = this.Optional?.Url;
-            }
-        }
     }
 }

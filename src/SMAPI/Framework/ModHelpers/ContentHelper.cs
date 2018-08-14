@@ -259,7 +259,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
 
                 // get seasonal name (if applicable)
                 string seasonalImageSource = null;
-                if (Game1.currentSeason != null)
+                if (Context.IsSaveLoaded && Game1.currentSeason != null)
                 {
                     string filename = Path.GetFileName(imageSource) ?? throw new InvalidOperationException($"The '{imageSource}' tilesheet couldn't be loaded: filename is unexpectedly null.");
                     bool hasSeasonalPrefix =

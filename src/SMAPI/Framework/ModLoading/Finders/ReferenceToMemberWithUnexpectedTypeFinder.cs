@@ -70,7 +70,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
 
             // method reference
             MethodReference methodReference = RewriteHelper.AsMethodReference(instruction);
-            if (methodReference != null && this.ShouldValidate(methodReference.DeclaringType))
+            if (methodReference != null && !this.IsUnsupported(methodReference) && this.ShouldValidate(methodReference.DeclaringType))
             {
                 // get potential targets
                 MethodDefinition[] candidateMethods = methodReference.DeclaringType.Resolve()?.Methods.Where(found => found.Name == methodReference.Name).ToArray();
@@ -104,6 +104,14 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         private bool ShouldValidate(TypeReference type)
         {
             return type != null && this.ValidateReferencesToAssemblies.Contains(type.Scope.Name);
+        }
+
+        /// <summary>Get whether a method reference is a special case that's not currently supported (e.g. array methods).</summary>
+        /// <param name="method">The method reference.</param>
+        private bool IsUnsupported(MethodReference method)
+        {
+            return
+                method.DeclaringType.Name.Contains("["); // array methods
         }
 
         /// <summary>Get a shorter type name for display.</summary>

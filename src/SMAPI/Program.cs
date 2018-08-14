@@ -11,7 +11,6 @@ using System.Security;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using Microsoft.Xna.Framework.Input;
 #if SMAPI_FOR_WINDOWS
 using System.Windows.Forms;
 #endif
@@ -32,10 +31,8 @@ using StardewModdingAPI.Toolkit;
 using StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
 using StardewModdingAPI.Toolkit.Framework.ModData;
 using StardewModdingAPI.Toolkit.Serialisation;
-using StardewModdingAPI.Toolkit.Serialisation.Converters;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
-using Keys = Microsoft.Xna.Framework.Input.Keys;
 using Monitor = StardewModdingAPI.Framework.Monitor;
 using SObject = StardewValley.Object;
 using ThreadState = System.Threading.ThreadState;
@@ -103,6 +100,9 @@ namespace StardewModdingAPI
         /// <summary>The mod toolkit used for generic mod interactions.</summary>
         private readonly ModToolkit Toolkit = new ModToolkit();
 
+        /// <summary>The path to search for mods.</summary>
+        private readonly string ModsPath;
+
 
         /*********
         ** Public methods
@@ -116,18 +116,34 @@ namespace StardewModdingAPI
             // get flags from arguments
             bool writeToConsole = !args.Contains("--no-terminal");
 
+            // get mods path from arguments
+            string modsPath = null;
+            {
+                int pathIndex = Array.LastIndexOf(args, "--mods-path") + 1;
+                if (pathIndex >= 1 && args.Length >= pathIndex)
+                {
+                    modsPath = args[pathIndex];
+                    if (!string.IsNullOrWhiteSpace(modsPath) && !Path.IsPathRooted(modsPath))
+                        modsPath = Path.Combine(Constants.ExecutionPath, modsPath);
+                }
+                if (string.IsNullOrWhiteSpace(modsPath))
+                    modsPath = Constants.DefaultModsPath;
+            }
+
             // load SMAPI
-            using (Program program = new Program(writeToConsole))
+            using (Program program = new Program(modsPath, writeToConsole))
                 program.RunInteractively();
         }
 
         /// <summary>Construct an instance.</summary>
+        /// <param name="modsPath">The path to search for mods.</param>
         /// <param name="writeToConsole">Whether to output log messages to the console.</param>
-        public Program(bool writeToConsole)
+        public Program(string modsPath, bool writeToConsole)
         {
             // init paths
-            this.VerifyPath(Constants.ModPath);
+            this.VerifyPath(modsPath);
             this.VerifyPath(Constants.LogDir);
+            this.ModsPath = modsPath;
 
             // init log file
             this.PurgeLogFiles();
@@ -146,7 +162,9 @@ namespace StardewModdingAPI
 
             // init logging
             this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GameVersion} on {EnvironmentUtility.GetFriendlyPlatformName(Constants.Platform)}", LogLevel.Info);
-            this.Monitor.Log($"Mods go here: {Constants.ModPath}");
+            this.Monitor.Log($"Mods go here: {modsPath}");
+            if (modsPath != Constants.DefaultModsPath)
+                this.Monitor.Log("(Using custom --mods-path argument.)", LogLevel.Trace);
             this.Monitor.Log($"Log started at {DateTime.UtcNow:s} UTC", LogLevel.Trace);
 
             // validate game version
@@ -193,9 +211,6 @@ namespace StardewModdingAPI
 
                 // init JSON parser
                 JsonConverter[] converters = {
-                    new StringEnumConverter<Buttons>(),
-                    new StringEnumConverter<Keys>(),
-                    new StringEnumConverter<SButton>(),
                     new ColorConverter(),
                     new PointConverter(),
                     new RectangleConverter()
@@ -214,9 +229,8 @@ namespace StardewModdingAPI
                 AppDomain.CurrentDomain.AssemblyResolve += (sender, e) => AssemblyLoader.ResolveAssembly(e.Name);
 
                 // override game
-                SGame.MonitorDuringInitialisation = this.Monitor;
-                SGame.ReflectorDuringInitialisation = this.Reflection;
-                this.GameInstance = new SGame(this.Monitor, this.Reflection, this.EventManager, this.InitialiseAfterGameStart, this.Dispose);
+                SGame.ConstructorHack = new SGameConstructorHack(this.Monitor, this.Reflection, this.Toolkit.JsonHelper);
+                this.GameInstance = new SGame(this.Monitor, this.Reflection, this.EventManager, this.Toolkit.JsonHelper, this.InitialiseAfterGameStart, this.Dispose);
                 StardewValley.Program.gamePtr = this.GameInstance;
 
                 // add exit handler
@@ -418,7 +432,7 @@ namespace StardewModdingAPI
                 ModResolver resolver = new ModResolver();
 
                 // load manifests
-                IModMetadata[] mods = resolver.ReadManifests(toolkit, Constants.ModPath, modDatabase).ToArray();
+                IModMetadata[] mods = resolver.ReadManifests(toolkit, this.ModsPath, modDatabase).ToArray();
                 resolver.ValidateManifests(mods, Constants.ApiVersion, toolkit.GetUpdateUrl);
 
                 // process dependencies
@@ -435,10 +449,10 @@ namespace StardewModdingAPI
                         Exported = DateTime.UtcNow.ToString("O"),
                         ApiVersion = Constants.ApiVersion.ToString(),
                         GameVersion = Constants.GameVersion.ToString(),
-                        ModFolderPath = Constants.ModPath,
+                        ModFolderPath = this.ModsPath,
                         Mods = mods
                     };
-                    this.Toolkit.JsonHelper.WriteJsonFile(Path.Combine(Constants.LogDir, $"{Constants.LogNamePrefix}.metadata-dump.json"), export);
+                    this.Toolkit.JsonHelper.WriteJsonFile(Path.Combine(Constants.LogDir, $"{Constants.LogNamePrefix}metadata-dump.json"), export);
                 }
 
                 // check for updates
@@ -746,7 +760,7 @@ namespace StardewModdingAPI
             // load content packs
             foreach (IModMetadata metadata in mods.Where(p => p.IsContentPack))
             {
-                this.Monitor.Log($"   {metadata.DisplayName} (content pack, {PathUtilities.GetRelativePath(Constants.ModPath, metadata.DirectoryPath)})...", LogLevel.Trace);
+                this.Monitor.Log($"   {metadata.DisplayName} (content pack, {PathUtilities.GetRelativePath(this.ModsPath, metadata.DirectoryPath)})...", LogLevel.Trace);
 
                 // show warning for missing update key
                 if (metadata.HasManifest() && !metadata.HasUpdateKeys())
@@ -791,7 +805,7 @@ namespace StardewModdingAPI
                         // get basic info
                         IManifest manifest = metadata.Manifest;
                         this.Monitor.Log(metadata.Manifest?.EntryDll != null
-                            ? $"   {metadata.DisplayName} ({PathUtilities.GetRelativePath(Constants.ModPath, metadata.DirectoryPath)}{Path.DirectorySeparatorChar}{metadata.Manifest.EntryDll})..." // don't use Path.Combine here, since EntryDLL might not be valid
+                            ? $"   {metadata.DisplayName} ({PathUtilities.GetRelativePath(this.ModsPath, metadata.DirectoryPath)}{Path.DirectorySeparatorChar}{metadata.Manifest.EntryDll})..." // don't use Path.Combine here, since EntryDLL might not be valid
                             : $"   {metadata.DisplayName}...", LogLevel.Trace);
 
                         // show warnings
@@ -884,33 +898,15 @@ namespace StardewModdingAPI
             }
             IModMetadata[] loadedMods = this.ModRegistry.GetAll(contentPacks: false).ToArray();
 
-            // log skipped mods
-            this.Monitor.Newline();
-            if (skippedMods.Any())
-            {
-                this.Monitor.Log($"Skipped {skippedMods.Count} mods:", LogLevel.Error);
-                foreach (var pair in skippedMods.OrderBy(p => p.Key.DisplayName))
-                {
-                    IModMetadata mod = pair.Key;
-                    string[] reason = pair.Value;
-
-                    this.Monitor.Log($"   {mod.DisplayName}{(mod.Manifest?.Version != null ? " " + mod.Manifest.Version.ToString() : "")} because {reason[0]}", LogLevel.Error);
-                    if (reason[1] != null)
-                        this.Monitor.Log($"     {reason[1]}", LogLevel.Trace);
-                }
-                this.Monitor.Newline();
-            }
-
             // log loaded mods
             this.Monitor.Log($"Loaded {loadedMods.Length} mods" + (loadedMods.Length > 0 ? ":" : "."), LogLevel.Info);
-
             foreach (IModMetadata metadata in loadedMods.OrderBy(p => p.DisplayName))
             {
                 IManifest manifest = metadata.Manifest;
                 this.Monitor.Log(
                     $"   {metadata.DisplayName} {manifest.Version}"
-                        + (!string.IsNullOrWhiteSpace(manifest.Author) ? $" by {manifest.Author}" : "")
-                        + (!string.IsNullOrWhiteSpace(manifest.Description) ? $" | {manifest.Description}" : ""),
+                    + (!string.IsNullOrWhiteSpace(manifest.Author) ? $" by {manifest.Author}" : "")
+                    + (!string.IsNullOrWhiteSpace(manifest.Description) ? $" | {manifest.Description}" : ""),
                     LogLevel.Info
                 );
             }
@@ -936,27 +932,8 @@ namespace StardewModdingAPI
                 this.Monitor.Newline();
             }
 
-            // log warnings
-            {
-                IModMetadata[] modsWithWarnings = this.ModRegistry.GetAll().Where(p => p.Warnings != ModWarning.None).ToArray();
-                if (modsWithWarnings.Any())
-                {
-                    this.Monitor.Log($"Found issues with {modsWithWarnings.Length} mods:", LogLevel.Warn);
-                    foreach (IModMetadata metadata in modsWithWarnings)
-                    {
-                        string[] warnings = this.GetWarningText(metadata.Warnings).ToArray();
-                        if (warnings.Length == 1)
-                            this.Monitor.Log($"   {metadata.DisplayName} {warnings[0]}", LogLevel.Warn);
-                        else
-                        {
-                            this.Monitor.Log($"   {metadata.DisplayName}:", LogLevel.Warn);
-                            foreach (string warning in warnings)
-                                this.Monitor.Log("      - " + warning, LogLevel.Warn);
-                        }
-                    }
-                    this.Monitor.Newline();
-                }
-            }
+            // log mod warnings
+            this.LogModWarnings(this.ModRegistry.GetAll().ToArray(), skippedMods);
 
             // initialise translations
             this.ReloadTranslations(loadedMods);
@@ -1047,23 +1024,87 @@ namespace StardewModdingAPI
             this.ModRegistry.AreAllModsInitialised = true;
         }
 
-        /// <summary>Get the warning text for a mod warning bit mask.</summary>
-        /// <param name="mask">The mod warning bit mask.</param>
-        private IEnumerable<string> GetWarningText(ModWarning mask)
+        /// <summary>Write a summary of mod warnings to the console and log.</summary>
+        /// <param name="mods">The loaded mods.</param>
+        /// <param name="skippedMods">The mods which were skipped, along with the friendly and developer reasons.</param>
+        private void LogModWarnings(IModMetadata[] mods, IDictionary<IModMetadata, string[]> skippedMods)
         {
-            if (mask.HasFlag(ModWarning.BrokenCodeLoaded))
-                yield return "has broken code, but SMAPI is configured to allow it anyway. The mod may crash or behave unexpectedly.";
-            if (mask.HasFlag(ModWarning.ChangesSaveSerialiser))
-                yield return "accesses the save serialiser and may break your saves.";
-            if (mask.HasFlag(ModWarning.PatchesGame))
-                yield return "patches the game. This may cause errors or bugs in-game. If you have issues, try removing this mod first.";
-            if (mask.HasFlag(ModWarning.UsesUnvalidatedUpdateTick))
-                yield return "bypasses normal SMAPI event protections. This may cause errors or save corruption. If you have issues, try removing this mod first.";
-            if (mask.HasFlag(ModWarning.UsesDynamic))
-                yield return "uses the 'dynamic' keyword. This won't work on Linux/Mac.";
-            if (mask.HasFlag(ModWarning.NoUpdateKeys))
-                yield return "has no update keys in its manifest. SMAPI won't show update alerts for this mod.";
+            // get mods with warnings
+            IModMetadata[] modsWithWarnings = mods.Where(p => p.Warnings != ModWarning.None).ToArray();
+            if (!modsWithWarnings.Any() && !skippedMods.Any())
+                return;
 
+            // log intro
+            {
+                int count = modsWithWarnings.Union(skippedMods.Keys).Count();
+                this.Monitor.Log($"Found {count} mod{(count == 1 ? "" : "s")} with warnings:", LogLevel.Info);
+            }
+
+            // log skipped mods
+            if (skippedMods.Any())
+            {
+                this.Monitor.Log("   Skipped mods", LogLevel.Error);
+                this.Monitor.Log("   " + "".PadRight(50, '-'), LogLevel.Error);
+                this.Monitor.Log("      These mods could not be added to your game.", LogLevel.Error);
+                this.Monitor.Newline();
+
+                foreach (var pair in skippedMods.OrderBy(p => p.Key.DisplayName))
+                {
+                    IModMetadata mod = pair.Key;
+                    string[] reason = pair.Value;
+
+                    this.Monitor.Log($"      - {mod.DisplayName}{(mod.Manifest?.Version != null ? " " + mod.Manifest.Version.ToString() : "")} because {reason[0]}", LogLevel.Error);
+                    if (reason[1] != null)
+                        this.Monitor.Log($"        ({reason[1]})", LogLevel.Trace);
+                }
+                this.Monitor.Newline();
+            }
+
+            // log warnings
+            if (modsWithWarnings.Any())
+            {
+                // issue block format logic
+                void LogWarningGroup(ModWarning warning, LogLevel logLevel, string heading, params string[] blurb)
+                {
+                    IModMetadata[] matches = modsWithWarnings.Where(p => p.Warnings.HasFlag(warning)).ToArray();
+                    if (!matches.Any())
+                        return;
+
+                    this.Monitor.Log("   " + heading, logLevel);
+                    this.Monitor.Log("   " + "".PadRight(50, '-'), logLevel);
+                    foreach (string line in blurb)
+                        this.Monitor.Log("      " + line, logLevel);
+                    this.Monitor.Newline();
+                    foreach (IModMetadata match in matches)
+                        this.Monitor.Log($"      - {match.DisplayName}", logLevel);
+                    this.Monitor.Newline();
+                }
+
+                // supported issues
+                LogWarningGroup(ModWarning.BrokenCodeLoaded, LogLevel.Error, "Broken mods",
+                    "These mods have broken code, but you configured SMAPI to load them anyway. This may cause bugs,",
+                    "errors, or crashes in-game."
+                );
+                LogWarningGroup(ModWarning.ChangesSaveSerialiser, LogLevel.Warn, "Changed save serialiser",
+                    "These mods change the save serialiser. They may corrupt your save files, or make them unusable if",
+                    "you uninstall these mods."
+                );
+                LogWarningGroup(ModWarning.PatchesGame, LogLevel.Info, "Patched game code",
+                    "These mods directly change the game code. They're more likely to cause errors or bugs in-game; if",
+                    "your game has issues, try removing these first. Otherwise you can ignore this warning."
+                );
+                LogWarningGroup(ModWarning.UsesUnvalidatedUpdateTick, LogLevel.Info, "Bypassed safety checks",
+                    "These mods bypass SMAPI's normal safety checks, so they're more likely to cause errors or save",
+                    "corruption. If your game has issues, try removing these first."
+                );
+                LogWarningGroup(ModWarning.NoUpdateKeys, LogLevel.Debug, "No update keys",
+                    "These mods have no update keys in their manifest. SMAPI may not notify you about updates for these",
+                    "mods. Consider notifying the mod authors about this problem."
+                );
+                LogWarningGroup(ModWarning.UsesDynamic, LogLevel.Debug, "Not crossplatform",
+                    "These mods use the 'dynamic' keyword, and won't work on Linux/Mac."
+                );
+            }
         }
 
         /// <summary>Load a mod's entry class.</summary>
@@ -1118,7 +1159,10 @@ namespace StardewModdingAPI
                         string locale = Path.GetFileNameWithoutExtension(file.Name.ToLower().Trim());
                         try
                         {
-                            translations[locale] = jsonHelper.ReadJsonFile<IDictionary<string, string>>(file.FullName);
+                            if (jsonHelper.ReadJsonFileIfExists(file.FullName, out IDictionary<string, string> data))
+                                translations[locale] = data;
+                            else
+                                metadata.LogAsMod($"Mod's i18n/{locale}.json file couldn't be parsed.");
                         }
                         catch (Exception ex)
                         {
@@ -1260,7 +1304,7 @@ namespace StardewModdingAPI
         {
             // default path
             {
-                FileInfo defaultFile = new FileInfo(Path.Combine(Constants.LogDir, $"{Constants.LogNamePrefix}.{Constants.LogNameExtension}"));
+                FileInfo defaultFile = new FileInfo(Path.Combine(Constants.LogDir, $"{Constants.LogFilename}.{Constants.LogExtension}"));
                 if (!defaultFile.Exists)
                     return defaultFile.FullName;
             }
@@ -1268,7 +1312,7 @@ namespace StardewModdingAPI
             // get first disambiguated path
             for (int i = 2; i < int.MaxValue; i++)
             {
-                FileInfo file = new FileInfo(Path.Combine(Constants.LogDir, $"{Constants.LogNamePrefix}.player-{i}.{Constants.LogNameExtension}"));
+                FileInfo file = new FileInfo(Path.Combine(Constants.LogDir, $"{Constants.LogFilename}.player-{i}.{Constants.LogExtension}"));
                 if (!file.Exists)
                     return file.FullName;
             }

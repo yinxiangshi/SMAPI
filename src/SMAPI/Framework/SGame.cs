@@ -17,6 +17,7 @@ using StardewModdingAPI.Framework.Input;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.StateTracking;
 using StardewModdingAPI.Framework.Utilities;
+using StardewModdingAPI.Toolkit.Serialisation;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
 using StardewValley.Buildings;
@@ -36,16 +37,6 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Properties
         *********/
-        /****
-        ** Constructor hack
-        ****/
-        /// <summary>A static instance of <see cref="Monitor"/> to use while <see cref="Game1"/> is initialising, which happens before the <see cref="SGame"/> constructor runs.</summary>
-        internal static IMonitor MonitorDuringInitialisation;
-
-        /// <summary>A static instance of <see cref="Reflection"/> to use while <see cref="Game1"/> is initialising, which happens before the <see cref="SGame"/> constructor runs.</summary>
-        internal static Reflector ReflectorDuringInitialisation;
-
-
         /****
         ** SMAPI state
         ****/
@@ -83,6 +74,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>Simplifies access to private game code.</summary>
         private readonly Reflector Reflection;
 
+        /// <summary>Encapsulates SMAPI's JSON file parsing.</summary>
+        private readonly JsonHelper JsonHelper;
+
         /****
         ** Game state
         ****/
@@ -105,6 +99,9 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Accessors
         *********/
+        /// <summary>Static state to use while <see cref="Game1"/> is initialising, which happens before the <see cref="SGame"/> constructor runs.</summary>
+        internal static SGameConstructorHack ConstructorHack { get; set; }
+
         /// <summary>SMAPI's content manager.</summary>
         public ContentCoordinator ContentCore { get; private set; }
 
@@ -132,10 +129,13 @@ namespace StardewModdingAPI.Framework
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="reflection">Simplifies access to private game code.</param>
         /// <param name="eventManager">Manages SMAPI events for mods.</param>
+        /// <param name="jsonHelper">Encapsulates SMAPI's JSON file parsing.</param>
         /// <param name="onGameInitialised">A callback to invoke after the game finishes initialising.</param>
         /// <param name="onGameExiting">A callback to invoke when the game exits.</param>
-        internal SGame(IMonitor monitor, Reflector reflection, EventManager eventManager, Action onGameInitialised, Action onGameExiting)
+        internal SGame(IMonitor monitor, Reflector reflection, EventManager eventManager, JsonHelper jsonHelper, Action onGameInitialised, Action onGameExiting)
         {
+            SGame.ConstructorHack = null;
+
             // check expectations
             if (this.ContentCore == null)
                 throw new InvalidOperationException($"The game didn't initialise its first content manager before SMAPI's {nameof(SGame)} constructor. This indicates an incompatible lifecycle change.");
@@ -147,6 +147,7 @@ namespace StardewModdingAPI.Framework
             this.Monitor = monitor;
             this.Events = eventManager;
             this.Reflection = reflection;
+            this.JsonHelper = jsonHelper;
             this.OnGameInitialised = onGameInitialised;
             this.OnGameExiting = onGameExiting;
             Game1.input = new SInputState();
@@ -191,8 +192,7 @@ namespace StardewModdingAPI.Framework
             // NOTE: this method is called before the SGame constructor runs. Don't depend on anything being initialised at this point.
             if (this.ContentCore == null)
             {
-                this.ContentCore = new ContentCoordinator(serviceProvider, rootDirectory, Thread.CurrentThread.CurrentUICulture, SGame.MonitorDuringInitialisation, SGame.ReflectorDuringInitialisation);
-                SGame.MonitorDuringInitialisation = null;
+                this.ContentCore = new ContentCoordinator(serviceProvider, rootDirectory, Thread.CurrentThread.CurrentUICulture, SGame.ConstructorHack.Monitor, SGame.ConstructorHack.Reflection, SGame.ConstructorHack.JsonHelper);
                 this.NextContentManagerIsMain = true;
                 return this.ContentCore.CreateGameContentManager("Game1._temporaryContent");
             }

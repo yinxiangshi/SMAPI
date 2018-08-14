@@ -13,6 +13,7 @@ using StardewValley.Menus;
 using StardewValley.Objects;
 using StardewValley.Projectiles;
 using StardewValley.TerrainFeatures;
+using xTile.Tiles;
 
 namespace StardewModdingAPI.Metadata
 {
@@ -63,6 +64,23 @@ namespace StardewModdingAPI.Metadata
         /// <returns>Returns any non-null value to indicate an asset was loaded.</returns>
         private object PropagateImpl(LocalizedContentManager content, string key)
         {
+            /****
+            ** Special case: current map tilesheet
+            ** We only need to do this for the current location, since tilesheets are reloaded when you enter a location.
+            ** Just in case, we should still propagate by key even if a tilesheet is matched.
+            ****/
+            if (Game1.currentLocation?.map?.TileSheets != null)
+            {
+                foreach (TileSheet tilesheet in Game1.currentLocation.map.TileSheets)
+                {
+                    if (this.GetNormalisedPath(tilesheet.ImageSource) == key)
+                        Game1.mapDisplayDevice.LoadTileSheet(tilesheet);
+                }
+            }
+
+            /****
+            ** Propagate by key
+            ****/
             Reflector reflection = this.Reflection;
             switch (key.ToLower().Replace("/", "\\")) // normalised key so we can compare statically
             {
@@ -313,21 +331,21 @@ namespace StardewModdingAPI.Metadata
             if (this.IsInFolder(key, "Buildings"))
                 return this.ReloadBuildings(content, key);
 
-            if (this.IsInFolder(key, "Characters"))
-                return this.ReloadNpcSprites(content, key, monster: false);
+            if (this.IsInFolder(key, "Characters") || this.IsInFolder(key, "Characters\\Monsters"))
+                return this.ReloadNpcSprites(content, key);
 
-            if (this.IsInFolder(key, "Characters\\Monsters"))
-                return this.ReloadNpcSprites(content, key, monster: true);
-
-            if (key.StartsWith(this.GetNormalisedPath("LooseSprites\\Fence"), StringComparison.InvariantCultureIgnoreCase))
-                return this.ReloadFenceTextures(content, key);
+            if (this.KeyStartsWith(key, "LooseSprites\\Fence"))
+                return this.ReloadFenceTextures(key);
 
             if (this.IsInFolder(key, "Portraits"))
                 return this.ReloadNpcPortraits(content, key);
 
             // dynamic data
+            if (this.IsInFolder(key, "Characters\\Dialogue"))
+                return this.ReloadNpcDialogue(key);
+
             if (this.IsInFolder(key, "Characters\\schedules"))
-                return this.ReloadNpcSchedules(content, key);
+                return this.ReloadNpcSchedules(key);
 
             return false;
         }
@@ -416,10 +434,9 @@ namespace StardewModdingAPI.Metadata
         }
 
         /// <summary>Reload the sprites for a fence type.</summary>
-        /// <param name="content">The content manager through which to reload the asset.</param>
         /// <param name="key">The asset key to reload.</param>
         /// <returns>Returns whether any textures were reloaded.</returns>
-        private bool ReloadFenceTextures(LocalizedContentManager content, string key)
+        private bool ReloadFenceTextures(string key)
         {
             // get fence type
             if (!int.TryParse(this.GetSegments(key)[1].Substring("Fence".Length), out int fenceType))
@@ -446,13 +463,13 @@ namespace StardewModdingAPI.Metadata
         /// <summary>Reload the sprites for matching NPCs.</summary>
         /// <param name="content">The content manager through which to reload the asset.</param>
         /// <param name="key">The asset key to reload.</param>
-        /// <param name="monster">Whether to match monsters (<c>true</c>) or non-monsters (<c>false</c>).</param>
         /// <returns>Returns whether any textures were reloaded.</returns>
-        private bool ReloadNpcSprites(LocalizedContentManager content, string key, bool monster)
+        private bool ReloadNpcSprites(LocalizedContentManager content, string key)
         {
             // get NPCs
-            string name = this.GetNpcNameFromFileName(Path.GetFileName(key));
-            NPC[] characters = this.GetCharacters().Where(npc => npc.Name == name && npc.IsMonster == monster).ToArray();
+            NPC[] characters = this.GetCharacters()
+                .Where(npc => this.GetNormalisedPath(npc.Sprite.textureName.Value) == key)
+                .ToArray();
             if (!characters.Any())
                 return false;
 
@@ -470,15 +487,20 @@ namespace StardewModdingAPI.Metadata
         private bool ReloadNpcPortraits(LocalizedContentManager content, string key)
         {
             // get NPCs
-            string name = this.GetNpcNameFromFileName(Path.GetFileName(key));
-            NPC[] villagers = this.GetCharacters().Where(npc => npc.Name == name && npc.isVillager()).ToArray();
+            NPC[] villagers = this.GetCharacters()
+                .Where(npc => npc.isVillager() && this.GetNormalisedPath($"Portraits\\{this.Reflection.GetMethod(npc, "getTextureName").Invoke<string>()}") == key)
+                .ToArray();
             if (!villagers.Any())
                 return false;
 
             // update portrait
             Texture2D texture = content.Load<Texture2D>(key);
             foreach (NPC villager in villagers)
+            {
+                villager.resetPortrait();
                 villager.Portrait = texture;
+            }
+
             return true;
         }
 
@@ -508,11 +530,27 @@ namespace StardewModdingAPI.Metadata
         /****
         ** Reload data methods
         ****/
-        /// <summary>Reload the schedules for matching NPCs.</summary>
-        /// <param name="content">The content manager through which to reload the asset.</param>
+        /// <summary>Reload the dialogue data for matching NPCs.</summary>
         /// <param name="key">The asset key to reload.</param>
         /// <returns>Returns whether any assets were reloaded.</returns>
-        private bool ReloadNpcSchedules(LocalizedContentManager content, string key)
+        private bool ReloadNpcDialogue(string key)
+        {
+            // get NPCs
+            string name = Path.GetFileName(key);
+            NPC[] villagers = this.GetCharacters().Where(npc => npc.Name == name && npc.isVillager()).ToArray();
+            if (!villagers.Any())
+                return false;
+
+            // update dialogue
+            foreach (NPC villager in villagers)
+                villager.resetSeasonalDialogue(); // doesn't only affect seasonal dialogue
+            return true;
+        }
+
+        /// <summary>Reload the schedules for matching NPCs.</summary>
+        /// <param name="key">The asset key to reload.</param>
+        /// <returns>Returns whether any assets were reloaded.</returns>
+        private bool ReloadNpcSchedules(string key)
         {
             // get NPCs
             string name = Path.GetFileName(key);
@@ -607,6 +645,14 @@ namespace StardewModdingAPI.Metadata
             }
         }
 
+        /// <summary>Get whether a key starts with a substring after the substring is normalised.</summary>
+        /// <param name="key">The key to check.</param>
+        /// <param name="rawSubstring">The substring to normalise and find.</param>
+        private bool KeyStartsWith(string key, string rawSubstring)
+        {
+            return key.StartsWith(this.GetNormalisedPath(rawSubstring), StringComparison.InvariantCultureIgnoreCase);
+        }
+
         /// <summary>Get whether a normalised asset key is in the given folder.</summary>
         /// <param name="key">The normalised asset key (like <c>Animals/cat</c>).</param>
         /// <param name="folder">The key folder (like <c>Animals</c>); doesn't need to be normalised.</param>
@@ -614,7 +660,7 @@ namespace StardewModdingAPI.Metadata
         private bool IsInFolder(string key, string folder, bool allowSubfolders = false)
         {
             return
-                key.StartsWith(this.GetNormalisedPath($"{folder}\\"), StringComparison.InvariantCultureIgnoreCase)
+                this.KeyStartsWith(key, $"{folder}\\")
                 && (allowSubfolders || this.CountSegments(key) == this.CountSegments(folder) + 1);
         }
 

@@ -83,31 +83,25 @@ namespace StardewModdingAPI.Web.Controllers
         /// <summary>Fetch version metadata for the given mods.</summary>
         /// <param name="model">The mod search criteria.</param>
         [HttpPost]
-        public async Task<object> PostAsync([FromBody] ModSearchModel model)
+        public async Task<IEnumerable<ModEntryModel>> PostAsync([FromBody] ModSearchModel model)
         {
-            // parse request data
-            ISemanticVersion apiVersion = this.GetApiVersion();
-            ModSearchEntryModel[] searchMods = this.GetSearchMods(model, apiVersion).ToArray();
+            if (model?.Mods == null)
+                return new ModEntryModel[0];
 
             // fetch wiki data
             WikiCompatibilityEntry[] wikiData = await this.GetWikiDataAsync();
-
-            // fetch data
             IDictionary<string, ModEntryModel> mods = new Dictionary<string, ModEntryModel>(StringComparer.CurrentCultureIgnoreCase);
-            foreach (ModSearchEntryModel mod in searchMods)
+            foreach (ModSearchEntryModel mod in model.Mods)
             {
                 if (string.IsNullOrWhiteSpace(mod.ID))
                     continue;
 
                 ModEntryModel result = await this.GetModData(mod, wikiData, model.IncludeExtendedMetadata);
-                result.SetBackwardsCompatibility(apiVersion);
                 mods[mod.ID] = result;
             }
 
-            // return in expected structure
-            return apiVersion.IsNewerThan("2.6-beta.18")
-                ? mods.Values
-                : (object)mods;
+            // return data
+            return mods.Values;
         }
 
 
@@ -229,29 +223,6 @@ namespace StardewModdingAPI.Web.Controllers
         private bool IsNewer(ISemanticVersion current, ISemanticVersion other)
         {
             return current != null && (other == null || other.IsOlderThan(current));
-        }
-
-        /// <summary>Get the mods for which the API should return data.</summary>
-        /// <param name="model">The search model.</param>
-        /// <param name="apiVersion">The requested API version.</param>
-        private IEnumerable<ModSearchEntryModel> GetSearchMods(ModSearchModel model, ISemanticVersion apiVersion)
-        {
-            if (model == null)
-                yield break;
-
-            // yield standard entries
-            if (model.Mods != null)
-            {
-                foreach (ModSearchEntryModel mod in model.Mods)
-                    yield return mod;
-            }
-
-            // yield mod update keys if backwards compatible
-            if (model.ModKeys != null && model.ModKeys.Any() && !apiVersion.IsNewerThan("2.6-beta.17"))
-            {
-                foreach (string updateKey in model.ModKeys.Distinct())
-                    yield return new ModSearchEntryModel(updateKey, new[] { updateKey });
-            }
         }
 
         /// <summary>Get mod data from the wiki compatibility list.</summary>

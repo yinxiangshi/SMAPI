@@ -1,4 +1,33 @@
 # Release notes
+## 2.7
+* For players:
+  * Updated for Stardew Valley 1.3.28.
+  * Improved how mod issues are listed in the console and log.
+  * Revamped installer. It now...
+    * uses a new format that should be more intuitive;
+    * lets players on Linux/Mac choose the console color scheme (SMAPI will auto-detect it on Windows);
+    * and validates requirements earlier.
+  * Fixed custom festival maps always using spring tilesheets.
+  * Fixed `player_add` command not recognising return scepter.
+  * Fixed `player_add` command showing fish twice.
+  * Fixed some SMAPI logs not deleted when starting a new session.
+
+* For modders:
+  * Added support for `.json` data files in the content API (including Content Patcher).
+  * Added propagation for asset changes through the content API for...
+    * child sprites;
+    * dialogue;
+    * map tilesheets.
+  * Added `--mods-path` CLI command-line argument to switch between mod folders.
+  * All enums are now JSON-serialised by name instead of numeric value. (Previously only a few enums were serialised that way. JSON files which already have numeric enum values will still be parsed fine.)
+  * Fixed false compatibility error when constructing multidimensional arrays.
+  * Fixed `.ToSButton()` methods not being public.
+  * Updated compatibility list.
+
+* For SMAPI developers:
+  * Dropped support for pre-SMAPI-2.6 update checks in the web API.  
+    _These are no longer useful, even if the player still has earlier versions of SMAPI. Older versions of SMAPI won't launch in Stardew Valley 1.3 (so they won't check for updates), and newer versions of SMAPI/mods won't work with older versions of the game._
+
 ## 2.6
 * For players:
   * Updated for Stardew Valley 1.3.

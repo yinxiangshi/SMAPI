@@ -9,6 +9,7 @@ using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.ContentManagers;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Metadata;
+using StardewModdingAPI.Toolkit.Serialisation;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
 
@@ -31,6 +32,9 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Simplifies access to private code.</summary>
         private readonly Reflector Reflection;
+
+        /// <summary>Encapsulates SMAPI's JSON file parsing.</summary>
+        private readonly JsonHelper JsonHelper;
 
         /// <summary>The loaded content managers (including the <see cref="MainContentManager"/>).</summary>
         private readonly IList<IContentManager> ContentManagers = new List<IContentManager>();
@@ -67,10 +71,12 @@ namespace StardewModdingAPI.Framework
         /// <param name="currentCulture">The current culture for which to localise content.</param>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="reflection">Simplifies access to private code.</param>
-        public ContentCoordinator(IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, IMonitor monitor, Reflector reflection)
+        /// <param name="jsonHelper">Encapsulates SMAPI's JSON file parsing.</param>
+        public ContentCoordinator(IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper)
         {
             this.Monitor = monitor ?? throw new ArgumentNullException(nameof(monitor));
             this.Reflection = reflection;
+            this.JsonHelper = jsonHelper;
             this.FullRootDirectory = Path.Combine(Constants.ExecutionPath, rootDirectory);
             this.ContentManagers.Add(
                 this.MainContentManager = new GameContentManager("Game1.content", serviceProvider, rootDirectory, currentCulture, this, monitor, reflection, this.OnDisposing)
@@ -92,7 +98,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="rootDirectory">The root directory to search for content (or <c>null</c> for the default).</param>
         public ModContentManager CreateModContentManager(string name, string rootDirectory)
         {
-            ModContentManager manager = new ModContentManager(name, this.MainContentManager.ServiceProvider, rootDirectory, this.MainContentManager.CurrentCulture, this, this.Monitor, this.Reflection, this.OnDisposing);
+            ModContentManager manager = new ModContentManager(name, this.MainContentManager.ServiceProvider, rootDirectory, this.MainContentManager.CurrentCulture, this, this.Monitor, this.Reflection, this.JsonHelper, this.OnDisposing);
             this.ContentManagers.Add(manager);
             return manager;
         }

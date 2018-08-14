@@ -51,6 +51,23 @@
    *     mod is no longer compatible.
    */
   "ModData": {
+    /*********
+    ** Content packs
+    *********/
+    "Canon-Friendly Dialogue Expansion": {
+      "ID": "gizzymo.canonfriendlyexpansion",
+      "~1.1.1 | Status": "AssumeBroken" // causes a save crash on certain dates
+    },
+
+    "Everytime Submarine": {
+      "ID": "MustafaDemirel.EverytimeSubmarine",
+      "~1.0.0 | Status": "AssumeBroken" // breaks player saves if their beach bridge is fixed
+    },
+
+
+    /*********
+    ** Mods
+    *********/
     "AccessChestAnywhere": {
       "ID": "AccessChestAnywhere",
       "MapLocalVersions": { "1.1-1078": "1.1" },
@@ -822,7 +839,7 @@
     },
 
     "Level Extender": {
-      "ID":  "DevinLematty.LevelExtender",
+      "ID": "DevinLematty.LevelExtender",
       "FormerIDs": "Devin Lematty.Level Extender", // changed in 1.3
       "Default | UpdateKey": "Nexus:1471"
     },
@@ -1046,7 +1063,7 @@
     },
 
     "One Click Shed": {
-      "ID":  "BitwiseJonMods.OneClickShedReloader",
+      "ID": "BitwiseJonMods.OneClickShedReloader",
       "Default | UpdateKey": "Nexus:2052"
     },
 

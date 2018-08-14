@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using StardewModdingAPI.Toolkit.Serialisation.Converters;
 
 namespace StardewModdingAPI.Toolkit.Serialisation
@@ -17,7 +18,11 @@ namespace StardewModdingAPI.Toolkit.Serialisation
         {
             Formatting = Formatting.Indented,
             ObjectCreationHandling = ObjectCreationHandling.Replace, // avoid issue where default ICollection<T> values are duplicated each time the config is loaded
-            Converters = new List<JsonConverter> { new SemanticVersionConverter() }
+            Converters = new List<JsonConverter>
+            {
+                new SemanticVersionConverter(),
+                new StringEnumConverter()
+            }
         };
 
 
@@ -27,10 +32,11 @@ namespace StardewModdingAPI.Toolkit.Serialisation
         /// <summary>Read a JSON file.</summary>
         /// <typeparam name="TModel">The model type.</typeparam>
         /// <param name="fullPath">The absolete file path.</param>
-        /// <returns>Returns the deserialised model, or <c>null</c> if the file doesn't exist or is empty.</returns>
-        /// <exception cref="InvalidOperationException">The given path is empty or invalid.</exception>
-        public TModel ReadJsonFile<TModel>(string fullPath)
-            where TModel : class
+        /// <param name="result">The parsed content model.</param>
+        /// <returns>Returns false if the file doesn't exist, else true.</returns>
+        /// <exception cref="ArgumentException">The given <paramref name="fullPath"/> is empty or invalid.</exception>
+        /// <exception cref="JsonReaderException">The file contains invalid JSON.</exception>
+        public bool ReadJsonFileIfExists<TModel>(string fullPath, out TModel result)
         {
             // validate
             if (string.IsNullOrWhiteSpace(fullPath))
@@ -44,13 +50,15 @@ namespace StardewModdingAPI.Toolkit.Serialisation
             }
             catch (Exception ex) when (ex is DirectoryNotFoundException || ex is FileNotFoundException)
             {
-                return null;
+                result = default(TModel);
+                return false;
             }
 
             // deserialise model
             try
             {
-                return this.Deserialise<TModel>(json);
+                result = this.Deserialise<TModel>(json);
+                return true;
             }
             catch (Exception ex)
             {
