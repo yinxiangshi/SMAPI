@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 
 namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
@@ -9,10 +8,6 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
         /*********
         ** Accessors
         *********/
-        /// <summary>The namespaced mod keys to search.</summary>
-        [Obsolete]
-        public string[] ModKeys { get; set; }
-
         /// <summary>The mods for which to find data.</summary>
         public ModSearchEntryModel[] Mods { get; set; }
 

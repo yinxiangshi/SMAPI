@@ -23,6 +23,10 @@
   * Fixed `.ToSButton()` methods not being public.
   * Updated compatibility list.
 
+* For SMAPI developers:
+  * Dropped support for pre-SMAPI-2.6 update checks in the web API.  
+    _These are no longer useful, even if the player still has earlier versions of SMAPI. Older versions of SMAPI won't launch in Stardew Valley 1.3 (so they won't check for updates), and newer versions of SMAPI/mods won't work with older versions of the game._
+
 ## 2.6
 * For players:
   * Updated for Stardew Valley 1.3.
