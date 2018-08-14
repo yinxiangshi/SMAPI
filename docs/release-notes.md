@@ -1,6 +1,7 @@
 # Release notes
 ## 2.7
 * For players:
+  * Updated for Stardew Valley 1.3.28.
   * Improved how mod issues are listed in the console and log.
   * Revamped installer. It now...
     * uses a new format that should be more intuitive;
@@ -13,12 +14,12 @@
 
 * For modders:
   * Added support for `.json` data files in the content API (including Content Patcher).
-  * Added automatic propagation when changing assets through the content API for...
+  * Added propagation for asset changes through the content API for...
     * child sprites;
     * dialogue;
     * map tilesheets.
-  * Added `--mods-path` command-line argument to allow switching between mod folders.
-  * All enums are now JSON-serialised by name, since that's more user-friendly. Previously only certain predefined enums were serialised that way. JSON files which already have integer enums will still be parsed fine.
+  * Added `--mods-path` CLI command-line argument to switch between mod folders.
+  * All enums are now JSON-serialised by name instead of numeric value. (Previously only a few enums were serialised that way. JSON files which already have numeric enum values will still be parsed fine.)
   * Fixed false compatibility error when constructing multidimensional arrays.
   * Fixed `.ToSButton()` methods not being public.
   * Updated compatibility list.
