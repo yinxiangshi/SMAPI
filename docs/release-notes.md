@@ -1,4 +1,7 @@
 # Release notes
+## 2.8 (upcoming)
+* Updated compatibility list.
+
 ## 2.7
 * For players:
   * Updated for Stardew Valley 1.3.28.
