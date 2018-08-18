@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using StardewModdingAPI.Toolkit;
 using StardewModdingAPI.Toolkit.Framework.ModData;
 using StardewModdingAPI.Toolkit.Framework.ModScanning;
@@ -181,7 +180,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 }
 
                 // validate ID format
-                if (Regex.IsMatch(mod.Manifest.UniqueID, "[^a-z0-9_.-]", RegexOptions.IgnoreCase))
+                if (!PathUtilities.IsSlug(mod.Manifest.UniqueID))
                     mod.SetStatus(ModMetadataStatus.Failed, "its manifest specifies an invalid ID (IDs must only contain letters, numbers, underscores, periods, or hyphens).");
             }
 
