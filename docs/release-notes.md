@@ -1,6 +1,10 @@
 # Release notes
 ## 2.8 (upcoming)
-* Updated compatibility list.
+* For players:
+  * Updated compatibility list.
+
+* For modders:
+  * Added `IContentPack.WriteJsonFile` method.
 
 ## 2.7
 * For players:
@@ -14,6 +18,7 @@
   * Fixed `player_add` command not recognising return scepter.
   * Fixed `player_add` command showing fish twice.
   * Fixed some SMAPI logs not deleted when starting a new session.
+  * Updated compatibility list.
 
 * For modders:
   * Added support for `.json` data files in the content API (including Content Patcher).
@@ -25,7 +30,6 @@
   * All enums are now JSON-serialised by name instead of numeric value. (Previously only a few enums were serialised that way. JSON files which already have numeric enum values will still be parsed fine.)
   * Fixed false compatibility error when constructing multidimensional arrays.
   * Fixed `.ToSButton()` methods not being public.
-  * Updated compatibility list.
 
 * For SMAPI developers:
   * Dropped support for pre-SMAPI-2.6 update checks in the web API.  
