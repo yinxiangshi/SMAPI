@@ -51,8 +51,12 @@ namespace StardewModdingAPI.Framework
         /// <typeparam name="TModel">The model type.</typeparam>
         /// <param name="path">The file path relative to the contnet directory.</param>
         /// <returns>Returns the deserialised model, or <c>null</c> if the file doesn't exist or is empty.</returns>
+        /// <exception cref="InvalidOperationException">The <paramref name="path"/> is not relative or contains directory climbing (../).</exception>
         public TModel ReadJsonFile<TModel>(string path) where TModel : class
         {
+            if (!PathUtilities.IsSafeRelativePath(path))
+                throw new InvalidOperationException($"You must call {nameof(IContentPack)}.{nameof(this.ReadJsonFile)} with a relative path.");
+
             path = Path.Combine(this.DirectoryPath, PathUtilities.NormalisePathSeparators(path));
             return this.JsonHelper.ReadJsonFileIfExists(path, out TModel model)
                 ? model
@@ -63,8 +67,12 @@ namespace StardewModdingAPI.Framework
         /// <typeparam name="TModel">The model type. This should be a plain class that has public properties for the data you want. The properties can be complex types.</typeparam>
         /// <param name="path">The file path relative to the mod folder.</param>
         /// <param name="data">The arbitrary data to save.</param>
+        /// <exception cref="InvalidOperationException">The <paramref name="path"/> is not relative or contains directory climbing (../).</exception>
         public void WriteJsonFile<TModel>(string path, TModel data) where TModel : class
         {
+            if (!PathUtilities.IsSafeRelativePath(path))
+                throw new InvalidOperationException($"You must call {nameof(IContentPack)}.{nameof(this.WriteJsonFile)} with a relative path.");
+
             path = Path.Combine(this.DirectoryPath, PathUtilities.NormalisePathSeparators(path));
             this.JsonHelper.WriteJsonFile(path, data);
         }

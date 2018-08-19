@@ -5,6 +5,7 @@
 
 * For modders:
   * Added `IContentPack.WriteJsonFile` method.
+  * Fixed `IContentPack.ReadJsonFile` allowing non-relative paths.
 
 ## 2.7
 * For players:
