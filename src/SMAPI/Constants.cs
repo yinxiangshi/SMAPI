@@ -64,11 +64,14 @@ namespace StardewModdingAPI
         /// <summary>The URL of the SMAPI home page.</summary>
         internal const string HomePageUrl = "https://smapi.io";
 
+        /// <summary>The absolute path to the folder containing SMAPI's internal files.</summary>
+        internal static readonly string InternalFilesPath = Program.DllSearchPath;
+
         /// <summary>The file path for the SMAPI configuration file.</summary>
-        internal static string ApiConfigPath => Path.Combine(Constants.ExecutionPath, $"{typeof(Program).Assembly.GetName().Name}.config.json");
+        internal static string ApiConfigPath => Path.Combine(Constants.InternalFilesPath, "StardewModdingAPI.config.json");
 
         /// <summary>The file path for the SMAPI metadata file.</summary>
-        internal static string ApiMetadataPath => Path.Combine(Constants.ExecutionPath, $"{typeof(Program).Assembly.GetName().Name}.metadata.json");
+        internal static string ApiMetadataPath => Path.Combine(Constants.InternalFilesPath, "StardewModdingAPI.metadata.json");
 
         /// <summary>The filename prefix used for all SMAPI logs.</summary>
         internal static string LogNamePrefix { get; } = "SMAPI-";

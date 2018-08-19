@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>Pathoschild.Stardew.ModBuildConfig</id>
-    <version>2.1.0</version>
+    <version>2.1.1</version>
     <title>Build package for SMAPI mods</title>
     <authors>Pathoschild</authors>
     <owners>Pathoschild</owners>
@@ -19,6 +19,9 @@
       - Added option to ignore files by regex pattern.
       - Added reference to new SMAPI DLL.
       - Fixed some game paths not detected by NuGet package.
+
+      2.1.1:
+      - Update for SMAPI 2.8.
     </releaseNotes>
   </metadata>
 </package>

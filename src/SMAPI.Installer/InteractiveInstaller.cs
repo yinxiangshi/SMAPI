@@ -93,40 +93,39 @@ namespace StardewModdingApi.Installer
         {
             string GetInstallPath(string path) => Path.Combine(installDir.FullName, path);
 
-            // common
-            yield return GetInstallPath("0Harmony.dll");
-            yield return GetInstallPath("0Harmony.pdb");
-            yield return GetInstallPath("Mono.Cecil.dll");
-            yield return GetInstallPath("Newtonsoft.Json.dll");
+            // current files
+            yield return GetInstallPath("libgdiplus.dylib");           // Linux/Mac only
+            yield return GetInstallPath("StardewModdingAPI");          // Linux/Mac only
             yield return GetInstallPath("StardewModdingAPI.exe");
-            yield return GetInstallPath("StardewModdingAPI.config.json");
-            yield return GetInstallPath("StardewModdingAPI.metadata.json");
-            yield return GetInstallPath("StardewModdingAPI.Toolkit.dll");
-            yield return GetInstallPath("StardewModdingAPI.Toolkit.pdb");
-            yield return GetInstallPath("StardewModdingAPI.Toolkit.xml");
-            yield return GetInstallPath("StardewModdingAPI.Toolkit.CoreInterfaces.dll");
-            yield return GetInstallPath("StardewModdingAPI.Toolkit.CoreInterfaces.pdb");
-            yield return GetInstallPath("StardewModdingAPI.Toolkit.CoreInterfaces.xml");
+            yield return GetInstallPath("StardewModdingAPI.exe.mdb");  // Linux/Mac only
+            yield return GetInstallPath("StardewModdingAPI.pdb");      // Windows only
             yield return GetInstallPath("StardewModdingAPI.xml");
-            yield return GetInstallPath("System.ValueTuple.dll");
-            yield return GetInstallPath("steam_appid.txt");
-
-            // Linux/Mac only
-            yield return GetInstallPath("libgdiplus.dylib");
-            yield return GetInstallPath("StardewModdingAPI");
-            yield return GetInstallPath("StardewModdingAPI.exe.mdb");
-            yield return GetInstallPath("System.Numerics.dll");
-            yield return GetInstallPath("System.Runtime.Caching.dll");
-
-            // Windows only
-            yield return GetInstallPath("StardewModdingAPI.pdb");
+            yield return GetInstallPath("smapi-internal");
 
             // obsolete
-            yield return GetInstallPath(Path.Combine("Mods", ".cache")); // 1.3-1.4
+            yield return GetInstallPath(Path.Combine("Mods", ".cache"));     // 1.3-1.4
             yield return GetInstallPath(Path.Combine("Mods", "TrainerMod")); // *–2.0 (renamed to ConsoleCommands)
-            yield return GetInstallPath("Mono.Cecil.Rocks.dll"); // 1.3–1.8
-            yield return GetInstallPath("StardewModdingAPI-settings.json"); // 1.0-1.4
+            yield return GetInstallPath("Mono.Cecil.Rocks.dll");             // 1.3–1.8
+            yield return GetInstallPath("StardewModdingAPI-settings.json");  // 1.0-1.4
             yield return GetInstallPath("StardewModdingAPI.AssemblyRewriters.dll"); // 1.3-2.5.5
+            yield return GetInstallPath("0Harmony.dll");                    // moved in 2.8
+            yield return GetInstallPath("0Harmony.pdb");                    // moved in 2.8
+            yield return GetInstallPath("Mono.Cecil.dll");                  // moved in 2.8
+            yield return GetInstallPath("Newtonsoft.Json.dll");             // moved in 2.8
+            yield return GetInstallPath("StardewModdingAPI.config.json");   // moved in 2.8
+            yield return GetInstallPath("StardewModdingAPI.metadata.json"); // moved in 2.8
+            yield return GetInstallPath("StardewModdingAPI.Toolkit.dll");   // moved in 2.8
+            yield return GetInstallPath("StardewModdingAPI.Toolkit.pdb");   // moved in 2.8
+            yield return GetInstallPath("StardewModdingAPI.Toolkit.xml");   // moved in 2.8
+            yield return GetInstallPath("StardewModdingAPI.Toolkit.CoreInterfaces.dll"); // moved in 2.8
+            yield return GetInstallPath("StardewModdingAPI.Toolkit.CoreInterfaces.pdb"); // moved in 2.8
+            yield return GetInstallPath("StardewModdingAPI.Toolkit.CoreInterfaces.xml"); // moved in 2.8
+            yield return GetInstallPath("StardewModdingAPI.xml");             // moved in 2.8
+            yield return GetInstallPath("System.Numerics.dll");               // moved in 2.8
+            yield return GetInstallPath("System.Runtime.Caching.dll");        // moved in 2.8
+            yield return GetInstallPath("System.ValueTuple.dll");             // moved in 2.8
+            yield return GetInstallPath("steam_appid.txt");                   // moved in 2.8
+
             if (modsDir.Exists)
             {
                 foreach (DirectoryInfo modDir in modsDir.EnumerateDirectories())
@@ -438,14 +437,13 @@ namespace StardewModdingApi.Installer
                 {
                     // copy SMAPI files to game dir
                     this.PrintDebug("Adding SMAPI files...");
-                    foreach (FileInfo sourceFile in paths.PackageDir.EnumerateFiles().Where(this.ShouldCopyFile))
+                    foreach (FileSystemInfo sourceEntry in paths.PackageDir.EnumerateFileSystemInfos().Where(this.ShouldCopy))
                     {
-                        if (sourceFile.Name == this.InstallerFileName)
+                        if (sourceEntry.Name == this.InstallerFileName)
                             continue;
 
-                        string targetPath = Path.Combine(paths.GameDir.FullName, sourceFile.Name);
-                        this.InteractivelyDelete(targetPath);
-                        sourceFile.CopyTo(targetPath);
+                        this.InteractivelyDelete(Path.Combine(paths.GameDir.FullName, sourceEntry.Name));
+                        this.RecursiveCopy(sourceEntry, paths.GameDir);
                     }
 
                     // replace mod launcher (if possible)
@@ -508,7 +506,7 @@ namespace StardewModdingApi.Installer
                                 targetDir.Create();
 
                             // copy files
-                            foreach (FileInfo sourceFile in sourceDir.EnumerateFiles().Where(this.ShouldCopyFile))
+                            foreach (FileInfo sourceFile in sourceDir.EnumerateFiles().Where(this.ShouldCopy))
                                 sourceFile.CopyTo(Path.Combine(targetDir.FullName, sourceFile.Name));
                         }
 
@@ -687,6 +685,31 @@ namespace StardewModdingApi.Installer
                     this.PrintError("Try rebooting your computer and then run the installer again. If that doesn't work, try deleting it yourself then press any key to retry.");
                     Console.ReadKey();
                 }
+            }
+        }
+
+        /// <summary>Recursively copy a directory or file.</summary>
+        /// <param name="source">The file or folder to copy.</param>
+        /// <param name="targetFolder">The folder to copy into.</param>
+        private void RecursiveCopy(FileSystemInfo source, DirectoryInfo targetFolder)
+        {
+            if (!targetFolder.Exists)
+                targetFolder.Create();
+
+            switch (source)
+            {
+                case FileInfo sourceFile:
+                    sourceFile.CopyTo(Path.Combine(targetFolder.FullName, sourceFile.Name));
+                    break;
+
+                case DirectoryInfo sourceDir:
+                    DirectoryInfo targetSubfolder = new DirectoryInfo(Path.Combine(targetFolder.FullName, sourceDir.Name));
+                    foreach (var entry in sourceDir.EnumerateFileSystemInfos())
+                        this.RecursiveCopy(entry, targetSubfolder);
+                    break;
+
+                default:
+                    throw new NotSupportedException($"Unknown filesystem info type '{source.GetType().FullName}'.");
             }
         }
 
@@ -871,7 +894,7 @@ namespace StardewModdingApi.Installer
             this.PrintDebug("   Support for mods here was dropped in SMAPI 1.0 (it was never officially supported).");
 
             // move mods if no conflicts (else warn)
-            foreach (FileSystemInfo entry in modDir.EnumerateFileSystemInfos().Where(this.ShouldCopyFile))
+            foreach (FileSystemInfo entry in modDir.EnumerateFileSystemInfos().Where(this.ShouldCopy))
             {
                 // get type
                 bool isDir = entry is DirectoryInfo;
@@ -928,22 +951,26 @@ namespace StardewModdingApi.Installer
                 Directory.CreateDirectory(newPath);
 
                 DirectoryInfo directory = (DirectoryInfo)entry;
-                foreach (FileSystemInfo child in directory.EnumerateFileSystemInfos().Where(this.ShouldCopyFile))
+                foreach (FileSystemInfo child in directory.EnumerateFileSystemInfos().Where(this.ShouldCopy))
                     this.Move(child, Path.Combine(newPath, child.Name));
 
                 directory.Delete(recursive: true);
             }
         }
 
-        /// <summary>Get whether a file should be copied when moving a folder.</summary>
-        /// <param name="file">The file info.</param>
-        private bool ShouldCopyFile(FileSystemInfo file)
+        /// <summary>Get whether a file or folder should be copied from the installer files.</summary>
+        /// <param name="entry">The file or folder info.</param>
+        private bool ShouldCopy(FileSystemInfo entry)
         {
-            // ignore Mac symlink
-            if (file is FileInfo && file.Name == "mcs")
-                return false;
-
-            return true;
+            switch (entry.Name)
+            {
+                case "mcs":
+                    return false; // ignore Mac symlink
+                case "Mods":
+                    return false; // Mods folder handled separately
+                default:
+                    return true;
+            }
         }
     }
 }

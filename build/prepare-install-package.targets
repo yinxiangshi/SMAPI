@@ -23,47 +23,50 @@
     <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(TargetDir)\$(TargetName).exe" DestinationFiles="$(PackagePath)\install on Windows.exe" />
     <Copy SourceFiles="$(TargetDir)\readme.txt" DestinationFiles="$(PackagePath)\README.txt" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(TargetDir)\unix-launcher.sh" DestinationFiles="$(PackageInternalPath)\Mono\StardewModdingAPI" />
-    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(TargetDir)\unix-install.sh" DestinationFiles="$(PackagePath)\install.sh" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(TargetDir)\unix-install.sh" DestinationFiles="$(PackagePath)\install on Linux.sh" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(TargetDir)\unix-install.sh" DestinationFiles="$(PackagePath)\install on Mac.command" />
     
     <!-- copy SMAPI files for Mono -->
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(TargetDir)\$(TargetName).exe" DestinationFiles="$(PackageInternalPath)\Mono\install.exe" />
-    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\0Harmony.dll" DestinationFolder="$(PackageInternalPath)\Mono" />
-    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\0Harmony.pdb" DestinationFolder="$(PackageInternalPath)\Mono" />
-    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\Mono.Cecil.dll" DestinationFolder="$(PackageInternalPath)\Mono" />
-    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\Newtonsoft.Json.dll" DestinationFolder="$(PackageInternalPath)\Mono" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.exe" DestinationFolder="$(PackageInternalPath)\Mono" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.pdb" DestinationFolder="$(PackageInternalPath)\Mono" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.xml" DestinationFolder="$(PackageInternalPath)\Mono" />
-    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.config.json" DestinationFolder="$(PackageInternalPath)\Mono" />
-    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.metadata.json" DestinationFolder="$(PackageInternalPath)\Mono" />
-    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\System.Numerics.dll" DestinationFolder="$(PackageInternalPath)\Mono" />
-    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\System.Runtime.Caching.dll" DestinationFolder="$(PackageInternalPath)\Mono" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\steam_appid.txt" DestinationFolder="$(PackageInternalPath)\Mono" />
-    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.dll" DestinationFolder="$(PackageInternalPath)\Mono" />
-    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.pdb" DestinationFolder="$(PackageInternalPath)\Mono" />
-    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.xml" DestinationFolder="$(PackageInternalPath)\Mono" />
-    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.CoreInterfaces.dll" DestinationFolder="$(PackageInternalPath)\Mono" />
-    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.CoreInterfaces.pdb" DestinationFolder="$(PackageInternalPath)\Mono" />
-    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.CoreInterfaces.xml" DestinationFolder="$(PackageInternalPath)\Mono" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="@(CompiledMods)" DestinationFolder="$(PackageInternalPath)\Mono\Mods\%(RecursiveDir)" />
 
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\0Harmony.dll" DestinationFolder="$(PackageInternalPath)\Mono\smapi-internal" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\0Harmony.pdb" DestinationFolder="$(PackageInternalPath)\Mono\smapi-internal" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\Mono.Cecil.dll" DestinationFolder="$(PackageInternalPath)\Mono\smapi-internal" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\Newtonsoft.Json.dll" DestinationFolder="$(PackageInternalPath)\Mono\smapi-internal" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.config.json" DestinationFolder="$(PackageInternalPath)\Mono\smapi-internal" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.metadata.json" DestinationFolder="$(PackageInternalPath)\Mono\smapi-internal" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\System.Numerics.dll" DestinationFolder="$(PackageInternalPath)\Mono\smapi-internal" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\System.Runtime.Caching.dll" DestinationFolder="$(PackageInternalPath)\Mono\smapi-internal" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.dll" DestinationFolder="$(PackageInternalPath)\Mono\smapi-internal" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.pdb" DestinationFolder="$(PackageInternalPath)\Mono\smapi-internal" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.xml" DestinationFolder="$(PackageInternalPath)\Mono\smapi-internal" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.CoreInterfaces.dll" DestinationFolder="$(PackageInternalPath)\Mono\smapi-internal" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.CoreInterfaces.pdb" DestinationFolder="$(PackageInternalPath)\Mono\smapi-internal" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.CoreInterfaces.xml" DestinationFolder="$(PackageInternalPath)\Mono\smapi-internal" />
+
     <!-- copy SMAPI files for Windows -->
-    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\Mono.Cecil.dll" DestinationFolder="$(PackageInternalPath)\Windows" />
-    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\0Harmony.dll" DestinationFolder="$(PackageInternalPath)\Windows" />
-    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\0Harmony.pdb" DestinationFolder="$(PackageInternalPath)\Windows" />
-    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\Newtonsoft.Json.dll" DestinationFolder="$(PackageInternalPath)\Windows" />
     <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.exe" DestinationFolder="$(PackageInternalPath)\Windows" />
     <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.pdb" DestinationFolder="$(PackageInternalPath)\Windows" />
     <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.xml" DestinationFolder="$(PackageInternalPath)\Windows" />
-    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.config.json" DestinationFolder="$(PackageInternalPath)\Windows" />
-    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.metadata.json" DestinationFolder="$(PackageInternalPath)\Windows" />
     <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\steam_appid.txt" DestinationFolder="$(PackageInternalPath)\Windows" />
-    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.dll" DestinationFolder="$(PackageInternalPath)\Windows" />
-    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.pdb" DestinationFolder="$(PackageInternalPath)\Windows" />
-    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.xml" DestinationFolder="$(PackageInternalPath)\Windows" />
-    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.CoreInterfaces.dll" DestinationFolder="$(PackageInternalPath)\Windows" />
-    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.CoreInterfaces.pdb" DestinationFolder="$(PackageInternalPath)\Windows" />
-    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.CoreInterfaces.xml" DestinationFolder="$(PackageInternalPath)\Windows" />
     <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="@(CompiledMods)" DestinationFolder="$(PackageInternalPath)\Windows\Mods\%(RecursiveDir)" />
+
+    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\Mono.Cecil.dll" DestinationFolder="$(PackageInternalPath)\Windows\smapi-internal" />
+    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\0Harmony.dll" DestinationFolder="$(PackageInternalPath)\Windows\smapi-internal" />
+    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\0Harmony.pdb" DestinationFolder="$(PackageInternalPath)\Windows\smapi-internal" />
+    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\Newtonsoft.Json.dll" DestinationFolder="$(PackageInternalPath)\Windows\smapi-internal" />
+    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.config.json" DestinationFolder="$(PackageInternalPath)\Windows\smapi-internal" />
+    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.metadata.json" DestinationFolder="$(PackageInternalPath)\Windows\smapi-internal" />
+    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.dll" DestinationFolder="$(PackageInternalPath)\Windows\smapi-internal" />
+    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.pdb" DestinationFolder="$(PackageInternalPath)\Windows\smapi-internal" />
+    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.xml" DestinationFolder="$(PackageInternalPath)\Windows\smapi-internal" />
+    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.CoreInterfaces.dll" DestinationFolder="$(PackageInternalPath)\Windows\smapi-internal" />
+    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.CoreInterfaces.pdb" DestinationFolder="$(PackageInternalPath)\Windows\smapi-internal" />
+    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.CoreInterfaces.xml" DestinationFolder="$(PackageInternalPath)\Windows\smapi-internal" />
   </Target>
 </Project>

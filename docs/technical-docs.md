@@ -50,15 +50,15 @@ on the wiki for the first-time setup.
 1. Update the version number in `GlobalAssemblyInfo.cs` and `Constants::Version`. Make sure you use a
    [semantic version](http://semver.org). Recommended format:
 
-   build type | format                            | example
-   :--------- | :-------------------------------- | :------
-   dev build  | `<version>-alpha.<timestamp>`     | `2.0-alpha.20171230`
-   prerelease | `<version>-prerelease.<ID>`       | `2.0-prerelease.2`
-   release    | `<version>`                       | `2.0`
+   build type | format                   | example
+   :--------- | :----------------------- | :------
+   dev build  | `<version>-alpha.<date>` | `3.0-alpha.20171230`
+   prerelease | `<version>-beta.<count>` | `3.0-beta.2`
+   release    | `<version>`              | `3.0`
 
 2. In Windows:
    1. Rebuild the solution in _Release_ mode.
-   2. Rename `bin/Packaged` to `SMAPI <version>` (e.g. `SMAPI 2.0`).
+   2. Rename `bin/Packaged` to `SMAPI <version>` (e.g. `SMAPI 3.0`).
    2. Transfer the `SMAPI <version>` folder to Linux or Mac.  
       _This adds the installer executable and Windows files. We'll do the rest in Linux or Mac,
       since we need to set Unix file permissions that Windows won't save._
@@ -69,36 +69,26 @@ on the wiki for the first-time setup.
    3. If you did everything right so far, you should have a folder like this:
 
       ```
-      SMAPI-2.x/
-         install.exe
-         readme.txt
+      SMAPI 3.0 installer/
+         install on Linux.sh
+         install on Mac.command
+         install on Windows.exe
+         README.txt
          internal/
             Mono/
                Mods/*
-               Mono.Cecil.dll
-               Newtonsoft.Json.dll
+               smapi-internal/*
                StardewModdingAPI
-               StardewModdingAPI.config.json
-               StardewModdingAPI.Internal.dll
-               StardewModdingAPI.metadata.json
                StardewModdingAPI.exe
                StardewModdingAPI.pdb
                StardewModdingAPI.xml
                steam_appid.txt
-               System.Numerics.dll
-               System.Runtime.Caching.dll
-               System.ValueTuple.dll
             Windows/
                Mods/*
-               Mono.Cecil.dll
-               Newtonsoft.Json.dll
-               StardewModdingAPI.config.json
-               StardewModdingAPI.Internal.dll
-               StardewModdingAPI.metadata.json
+               smapi-internal/*
                StardewModdingAPI.exe
                StardewModdingAPI.pdb
                StardewModdingAPI.xml
-               System.ValueTuple.dll
                steam_appid.txt
       ```
    4. Open a terminal in the `SMAPI <version>` folder and run `chmod 755 internal/Mono/StardewModdingAPI`.

@@ -1,12 +1,15 @@
 # Release notes
 ## 2.8 (upcoming)
 * For players:
+  * Moved most SMAPI files into a `smapi-internal` subfolder.
   * Updated compatibility list.
 
 * For modders:
   * Added [data API](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Data).
   * Added `IContentPack.WriteJsonFile` method.
+  * Added IntelliSense documentation when not using the 'for developers' version of SMAPI.
   * Fixed `IContentPack.ReadJsonFile` allowing non-relative paths.
+  * **Breaking change:** most SMAPI files have been moved into a `smapi-internal` subfolder. This won't affect compiled mods, but you'll need to update the mod build config NuGet package when compiling mods.
 
 ## 2.7
 * For players:

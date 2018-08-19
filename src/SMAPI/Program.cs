@@ -45,6 +45,11 @@ namespace StardewModdingAPI
         /*********
         ** Properties
         *********/
+        /// <summary>The absolute path to search for SMAPI's internal DLLs.</summary>
+        /// <remarks>We can't use <see cref="Constants.ExecutionPath"/> directly, since <see cref="Constants"/> depends on DLLs loaded from this folder.</remarks>
+        [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute", Justification = "The assembly location is never null in this context.")]
+        internal static readonly string DllSearchPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "smapi-internal");
+
         /// <summary>The log file to which to write messages.</summary>
         private readonly LogFileManager LogFile;
 
@@ -111,6 +116,8 @@ namespace StardewModdingAPI
         /// <param name="args">The command-line arguments.</param>
         public static void Main(string[] args)
         {
+            // initial setup
+            AppDomain.CurrentDomain.AssemblyResolve += Program.CurrentDomain_AssemblyResolve;
             Program.AssertMinimumCompatibility();
 
             // get flags from arguments
@@ -135,10 +142,48 @@ namespace StardewModdingAPI
                 program.RunInteractively();
         }
 
+        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
+        public void Dispose()
+        {
+            // skip if already disposed
+            if (this.IsDisposed)
+                return;
+            this.IsDisposed = true;
+            this.Monitor.Log("Disposing...", LogLevel.Trace);
+
+            // dispose mod data
+            foreach (IModMetadata mod in this.ModRegistry.GetAll())
+            {
+                try
+                {
+                    (mod.Mod as IDisposable)?.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    mod.LogAsMod($"Mod failed during disposal: {ex.GetLogSummary()}.", LogLevel.Warn);
+                }
+            }
+
+            // dispose core components
+            this.IsGameRunning = false;
+            this.ConsoleManager?.Dispose();
+            this.ContentCore?.Dispose();
+            this.CancellationTokenSource?.Dispose();
+            this.GameInstance?.Dispose();
+            this.LogFile?.Dispose();
+
+            // end game (moved from Game1.OnExiting to let us clean up first)
+            Process.GetCurrentProcess().Kill();
+        }
+
+
+        /*********
+        ** Private methods
+        *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="modsPath">The path to search for mods.</param>
         /// <param name="writeToConsole">Whether to output log messages to the console.</param>
-        public Program(string modsPath, bool writeToConsole)
+        private Program(string modsPath, bool writeToConsole)
         {
             // init paths
             this.VerifyPath(modsPath);
@@ -189,7 +234,7 @@ namespace StardewModdingAPI
 
         /// <summary>Launch SMAPI.</summary>
         [HandleProcessCorruptedStateExceptions, SecurityCritical] // let try..catch handle corrupted state exceptions
-        public void RunInteractively()
+        private void RunInteractively()
         {
             // initialise SMAPI
             try
@@ -320,44 +365,28 @@ namespace StardewModdingAPI
             }
         }
 
-        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
-        public void Dispose()
+        /// <summary>Method called when assembly resolution fails, which may return a manually resolved assembly.</summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event arguments.</param>
+        private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs e)
         {
-            // skip if already disposed
-            if (this.IsDisposed)
-                return;
-            this.IsDisposed = true;
-            this.Monitor.Log("Disposing...", LogLevel.Trace);
-
-            // dispose mod data
-            foreach (IModMetadata mod in this.ModRegistry.GetAll())
+            AssemblyName name = new AssemblyName(e.Name);
+            foreach (FileInfo dll in new DirectoryInfo(Program.DllSearchPath).EnumerateFiles("*.dll"))
             {
                 try
                 {
-                    (mod.Mod as IDisposable)?.Dispose();
+                    if (name.Name.Equals(AssemblyName.GetAssemblyName(dll.FullName).Name, StringComparison.InvariantCultureIgnoreCase))
+                        return Assembly.LoadFrom(dll.FullName);
                 }
                 catch (Exception ex)
                 {
-                    mod.LogAsMod($"Mod failed during disposal: {ex.GetLogSummary()}.", LogLevel.Warn);
+                    throw new InvalidOperationException($"Could not load dependency 'smapi-lib/{dll.Name}'. Consider deleting the smapi-lib folder and reinstalling SMAPI.", ex);
                 }
             }
 
-            // dispose core components
-            this.IsGameRunning = false;
-            this.ConsoleManager?.Dispose();
-            this.ContentCore?.Dispose();
-            this.CancellationTokenSource?.Dispose();
-            this.GameInstance?.Dispose();
-            this.LogFile?.Dispose();
-
-            // end game (moved from Game1.OnExiting to let us clean up first)
-            Process.GetCurrentProcess().Kill();
+            return null;
         }
 
-
-        /*********
-        ** Private methods
-        *********/
         /// <summary>Assert that the minimum conditions are present to initialise SMAPI without type load exceptions.</summary>
         private static void AssertMinimumCompatibility()
         {
