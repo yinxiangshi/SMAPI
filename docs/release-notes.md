@@ -4,6 +4,7 @@
   * Updated compatibility list.
 
 * For modders:
+  * Added [data API](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Data).
   * Added `IContentPack.WriteJsonFile` method.
   * Fixed `IContentPack.ReadJsonFile` allowing non-relative paths.
 

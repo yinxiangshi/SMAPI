@@ -17,8 +17,14 @@ namespace StardewModdingAPI
         [Obsolete("This is an experimental interface which may change at any time. Don't depend on this for released mods.")]
         IModEvents Events { get; }
 
+        /// <summary>An API for managing console commands.</summary>
+        ICommandHelper ConsoleCommands { get; }
+
         /// <summary>An API for loading content assets.</summary>
         IContentHelper Content { get; }
+
+        /// <summary>An API for reading and writing persistent mod data.</summary>
+        IDataHelper Data { get; }
 
         /// <summary>An API for checking and changing input state.</summary>
         IInputHelper Input { get; }
@@ -31,9 +37,6 @@ namespace StardewModdingAPI
 
         /// <summary>Provides multiplayer utilities.</summary>
         IMultiplayerHelper Multiplayer { get; }
-
-        /// <summary>An API for managing console commands.</summary>
-        ICommandHelper ConsoleCommands { get; }
 
         /// <summary>Provides translations stored in the mod's <c>i18n</c> folder, with one file per locale (like <c>en.json</c>) containing a flat key => value structure. Translations are fetched with locale fallback, so missing translations are filled in from broader locales (like <c>pt-BR.json</c> &lt; <c>pt.json</c> &lt; <c>default.json</c>).</summary>
         ITranslationHelper Translation { get; }
@@ -61,12 +64,14 @@ namespace StardewModdingAPI
         /// <typeparam name="TModel">The model type.</typeparam>
         /// <param name="path">The file path relative to the mod directory.</param>
         /// <returns>Returns the deserialised model, or <c>null</c> if the file doesn't exist or is empty.</returns>
+        [Obsolete("Use " + nameof(IModHelper.Data) + "." + nameof(IDataHelper.ReadJsonFile) + " instead")]
         TModel ReadJsonFile<TModel>(string path) where TModel : class;
 
         /// <summary>Save to a JSON file.</summary>
         /// <typeparam name="TModel">The model type.</typeparam>
         /// <param name="path">The file path relative to the mod directory.</param>
         /// <param name="model">The model to save.</param>
+        [Obsolete("Use " + nameof(IModHelper.Data) + "." + nameof(IDataHelper.WriteJsonFile) + " instead")]
         void WriteJsonFile<TModel>(string path, TModel model) where TModel : class;
 
         /****

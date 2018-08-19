@@ -4,9 +4,7 @@ using System.IO;
 using System.Linq;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.Input;
-using StardewModdingAPI.Toolkit.Serialisation;
 using StardewModdingAPI.Toolkit.Serialisation.Models;
-using StardewModdingAPI.Toolkit.Utilities;
 
 namespace StardewModdingAPI.Framework.ModHelpers
 {
@@ -16,9 +14,6 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /*********
         ** Properties
         *********/
-        /// <summary>Encapsulates SMAPI's JSON file parsing.</summary>
-        private readonly JsonHelper JsonHelper;
-
         /// <summary>The content packs loaded for this mod.</summary>
         private readonly IContentPack[] ContentPacks;
 
@@ -40,6 +35,9 @@ namespace StardewModdingAPI.Framework.ModHelpers
 
         /// <summary>An API for loading content assets.</summary>
         public IContentHelper Content { get; }
+
+        /// <summary>An API for reading and writing persistent mod data.</summary>
+        public IDataHelper Data { get; }
 
         /// <summary>An API for checking and changing input state.</summary>
         public IInputHelper Input { get; }
@@ -66,11 +64,11 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <summary>Construct an instance.</summary>
         /// <param name="modID">The mod's unique ID.</param>
         /// <param name="modDirectory">The full path to the mod's folder.</param>
-        /// <param name="jsonHelper">Encapsulate SMAPI's JSON parsing.</param>
         /// <param name="inputState">Manages the game's input state.</param>
         /// <param name="events">Manages access to events raised by SMAPI.</param>
         /// <param name="contentHelper">An API for loading content assets.</param>
         /// <param name="commandHelper">An API for managing console commands.</param>
+        /// <param name="dataHelper">An API for reading and writing persistent mod data.</param>
         /// <param name="modRegistry">an API for fetching metadata about loaded mods.</param>
         /// <param name="reflectionHelper">An API for accessing private game code.</param>
         /// <param name="multiplayer">Provides multiplayer utilities.</param>
@@ -80,7 +78,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="deprecationManager">Manages deprecation warnings.</param>
         /// <exception cref="ArgumentNullException">An argument is null or empty.</exception>
         /// <exception cref="InvalidOperationException">The <paramref name="modDirectory"/> path does not exist on disk.</exception>
-        public ModHelper(string modID, string modDirectory, JsonHelper jsonHelper, SInputState inputState, IModEvents events, IContentHelper contentHelper, ICommandHelper commandHelper, IModRegistry modRegistry, IReflectionHelper reflectionHelper, IMultiplayerHelper multiplayer, ITranslationHelper translationHelper, IEnumerable<IContentPack> contentPacks, Func<string, IManifest, IContentPack> createContentPack, DeprecationManager deprecationManager)
+        public ModHelper(string modID, string modDirectory, SInputState inputState, IModEvents events, IContentHelper contentHelper, ICommandHelper commandHelper, IDataHelper dataHelper, IModRegistry modRegistry, IReflectionHelper reflectionHelper, IMultiplayerHelper multiplayer, ITranslationHelper translationHelper, IEnumerable<IContentPack> contentPacks, Func<string, IManifest, IContentPack> createContentPack, DeprecationManager deprecationManager)
             : base(modID)
         {
             // validate directory
@@ -91,8 +89,8 @@ namespace StardewModdingAPI.Framework.ModHelpers
 
             // initialise
             this.DirectoryPath = modDirectory;
-            this.JsonHelper = jsonHelper ?? throw new ArgumentNullException(nameof(jsonHelper));
             this.Content = contentHelper ?? throw new ArgumentNullException(nameof(contentHelper));
+            this.Data = dataHelper ?? throw new ArgumentNullException(nameof(dataHelper));
             this.Input = new InputHelper(modID, inputState);
             this.ModRegistry = modRegistry ?? throw new ArgumentNullException(nameof(modRegistry));
             this.ConsoleCommands = commandHelper ?? throw new ArgumentNullException(nameof(commandHelper));
@@ -113,7 +111,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         public TConfig ReadConfig<TConfig>()
             where TConfig : class, new()
         {
-            TConfig config = this.ReadJsonFile<TConfig>("config.json") ?? new TConfig();
+            TConfig config = this.Data.ReadJsonFile<TConfig>("config.json") ?? new TConfig();
             this.WriteConfig(config); // create file or fill in missing fields
             return config;
         }
@@ -124,7 +122,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         public void WriteConfig<TConfig>(TConfig config)
             where TConfig : class, new()
         {
-            this.WriteJsonFile("config.json", config);
+            this.Data.WriteJsonFile("config.json", config);
         }
 
         /****
@@ -134,24 +132,22 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <typeparam name="TModel">The model type.</typeparam>
         /// <param name="path">The file path relative to the mod directory.</param>
         /// <returns>Returns the deserialised model, or <c>null</c> if the file doesn't exist or is empty.</returns>
+        [Obsolete("Use " + nameof(ModHelper.Data) + "." + nameof(IDataHelper.ReadJsonFile) + " instead")]
         public TModel ReadJsonFile<TModel>(string path)
             where TModel : class
         {
-            path = Path.Combine(this.DirectoryPath, PathUtilities.NormalisePathSeparators(path));
-            return this.JsonHelper.ReadJsonFileIfExists(path, out TModel data)
-                ? data
-                : null;
+            return this.Data.ReadJsonFile<TModel>(path);
         }
 
         /// <summary>Save to a JSON file.</summary>
         /// <typeparam name="TModel">The model type.</typeparam>
         /// <param name="path">The file path relative to the mod directory.</param>
         /// <param name="model">The model to save.</param>
+        [Obsolete("Use " + nameof(ModHelper.Data) + "." + nameof(IDataHelper.WriteJsonFile) + " instead")]
         public void WriteJsonFile<TModel>(string path, TModel model)
             where TModel : class
         {
-            path = Path.Combine(this.DirectoryPath, PathUtilities.NormalisePathSeparators(path));
-            this.JsonHelper.WriteJsonFile(path, model);
+            this.Data.WriteJsonFile(path, model);
         }
 
         /****

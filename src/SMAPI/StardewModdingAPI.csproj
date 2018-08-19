@@ -109,6 +109,7 @@
     <Compile Include="Events\WorldBuildingListChangedEventArgs.cs" />
     <Compile Include="Events\WorldLocationListChangedEventArgs.cs" />
     <Compile Include="Events\WorldObjectListChangedEventArgs.cs" />
+    <Compile Include="Framework\ModHelpers\DataHelper.cs" />
     <Compile Include="Framework\SGameConstructorHack.cs" />
     <Compile Include="Framework\ContentManagers\BaseContentManager.cs" />
     <Compile Include="Framework\ContentManagers\GameContentManager.cs" />
@@ -136,6 +137,7 @@
     <Compile Include="Framework\ModHelpers\InputHelper.cs" />
     <Compile Include="Framework\StateTracking\Comparers\GenericEqualsComparer.cs" />
     <Compile Include="Framework\WatcherCore.cs" />
+    <Compile Include="IDataHelper.cs" />
     <Compile Include="IInputHelper.cs" />
     <Compile Include="Framework\Input\SInputState.cs" />
     <Compile Include="Framework\Input\InputStatus.cs" />

@@ -127,9 +127,10 @@ namespace StardewModdingAPI.Toolkit.Serialisation
         /// <summary>Serialize a model to JSON text.</summary>
         /// <typeparam name="TModel">The model type.</typeparam>
         /// <param name="model">The model to serialise.</param>
-        public string Serialise<TModel>(TModel model)
+        /// <param name="formatting">The formatting to apply.</param>
+        public string Serialise<TModel>(TModel model, Formatting formatting = Formatting.Indented)
         {
-            return JsonConvert.SerializeObject(model, this.JsonSettings);
+            return JsonConvert.SerializeObject(model, formatting, this.JsonSettings);
         }
     }
 }
