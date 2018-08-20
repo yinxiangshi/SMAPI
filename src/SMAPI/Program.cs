@@ -370,21 +370,21 @@ namespace StardewModdingAPI
         /// <param name="e">The event arguments.</param>
         private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs e)
         {
-            AssemblyName name = new AssemblyName(e.Name);
-            foreach (FileInfo dll in new DirectoryInfo(Program.DllSearchPath).EnumerateFiles("*.dll"))
+            try
             {
-                try
+                AssemblyName name = new AssemblyName(e.Name);
+                foreach (FileInfo dll in new DirectoryInfo(Program.DllSearchPath).EnumerateFiles("*.dll"))
                 {
                     if (name.Name.Equals(AssemblyName.GetAssemblyName(dll.FullName).Name, StringComparison.InvariantCultureIgnoreCase))
                         return Assembly.LoadFrom(dll.FullName);
                 }
-                catch (Exception ex)
-                {
-                    throw new InvalidOperationException($"Could not load dependency 'smapi-lib/{dll.Name}'. Consider deleting the smapi-lib folder and reinstalling SMAPI.", ex);
-                }
+                return null;
             }
-
-            return null;
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error resolving assembly: {ex}");
+                return null;
+            }
         }
 
         /// <summary>Assert that the minimum conditions are present to initialise SMAPI without type load exceptions.</summary>
