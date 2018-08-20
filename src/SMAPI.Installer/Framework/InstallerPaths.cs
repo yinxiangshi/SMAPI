@@ -26,6 +26,9 @@ namespace StardewModdingAPI.Installer.Framework
         /// <summary>The full path to the directory into which to install mods.</summary>
         public string ModsPath => this.ModsDir.FullName;
 
+        /// <summary>The full path to SMAPI's internal configuration file.</summary>
+        public string ApiConfigPath { get; }
+
         /// <summary>The full path to the installed SMAPI executable file.</summary>
         public string ExecutablePath { get; }
 
@@ -56,6 +59,7 @@ namespace StardewModdingAPI.Installer.Framework
             this.UnixLauncherPath = Path.Combine(gameDir.FullName, "StardewValley");
             this.UnixSmapiLauncherPath = Path.Combine(gameDir.FullName, "StardewModdingAPI");
             this.UnixBackupLauncherPath = Path.Combine(gameDir.FullName, "StardewValley-original");
+            this.ApiConfigPath = Path.Combine(gameDir.FullName, "smapi-internal", "StardewModdingAPI.config.json");
         }
     }
 }

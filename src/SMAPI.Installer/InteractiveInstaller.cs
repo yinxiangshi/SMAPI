@@ -505,11 +505,10 @@ namespace StardewModdingApi.Installer
                     // set SMAPI's color scheme if defined
                     if (scheme != MonitorColorScheme.AutoDetect)
                     {
-                        string configPath = Path.Combine(paths.GamePath, "StardewModdingAPI.config.json");
                         string text = File
-                            .ReadAllText(configPath)
+                            .ReadAllText(paths.ApiConfigPath)
                             .Replace(@"""ColorScheme"": ""AutoDetect""", $@"""ColorScheme"": ""{scheme}""");
-                        File.WriteAllText(configPath, text);
+                        File.WriteAllText(paths.ApiConfigPath, text);
                     }
 
                     // remove obsolete appdata mods
