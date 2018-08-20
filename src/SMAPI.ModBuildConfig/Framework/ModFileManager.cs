@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Web.Script.Serialization;
-using StardewModdingAPI.Toolkit;
+using StardewModdingAPI.Toolkit.Serialisation;
+using StardewModdingAPI.Toolkit.Serialisation.Models;
 
 namespace StardewModdingAPI.ModBuildConfig.Framework
 {
@@ -107,41 +107,10 @@ namespace StardewModdingAPI.ModBuildConfig.Framework
         /// <exception cref="UserErrorException">The manifest is missing or invalid.</exception>
         public string GetManifestVersion()
         {
-            // get manifest file
-            if (!this.Files.TryGetValue(this.ManifestFileName, out FileInfo manifestFile))
+            if (!this.Files.TryGetValue(this.ManifestFileName, out FileInfo manifestFile) || !new JsonHelper().ReadJsonFileIfExists(manifestFile.FullName, out Manifest manifest))
                 throw new InvalidOperationException($"The mod does not have a {this.ManifestFileName} file."); // shouldn't happen since we validate in constructor
 
-            // read content
-            string json = File.ReadAllText(manifestFile.FullName);
-            if (string.IsNullOrWhiteSpace(json))
-                throw new UserErrorException("The mod's manifest must not be empty.");
-
-            // parse JSON
-            IDictionary<string, object> data;
-            try
-            {
-                data = this.Parse(json);
-            }
-            catch (Exception ex)
-            {
-                throw new UserErrorException($"The mod's manifest couldn't be parsed. It doesn't seem to be valid JSON.\n{ex}");
-            }
-
-            // get version field
-            object versionObj = data.ContainsKey("Version") ? data["Version"] : null;
-            if (versionObj == null)
-                throw new UserErrorException("The mod's manifest must have a version field.");
-
-            // get version string
-            if (versionObj is IDictionary<string, object> versionFields) // SMAPI 1.x
-            {
-                int major = versionFields.ContainsKey("MajorVersion") ? (int)versionFields["MajorVersion"] : 0;
-                int minor = versionFields.ContainsKey("MinorVersion") ? (int)versionFields["MinorVersion"] : 0;
-                int patch = versionFields.ContainsKey("PatchVersion") ? (int)versionFields["PatchVersion"] : 0;
-                string tag = versionFields.ContainsKey("Build") ? (string)versionFields["Build"] : null;
-                return new SemanticVersion(major, minor, patch, tag).ToString();
-            }
-            return new SemanticVersion(versionObj.ToString()).ToString(); // SMAPI 2.0+
+            return manifest.Version.ToString();
         }
 
 
@@ -172,24 +141,6 @@ namespace StardewModdingAPI.ModBuildConfig.Framework
 
                 // custom ignore patterns
                 || ignoreFilePatterns.Any(p => p.IsMatch(relativePath));
-        }
-
-        /// <summary>Get a case-insensitive dictionary matching the given JSON.</summary>
-        /// <param name="json">The JSON to parse.</param>
-        private IDictionary<string, object> Parse(string json)
-        {
-            IDictionary<string, object> MakeCaseInsensitive(IDictionary<string, object> dict)
-            {
-                foreach (var field in dict.ToArray())
-                {
-                    if (field.Value is IDictionary<string, object> value)
-                        dict[field.Key] = MakeCaseInsensitive(value);
-                }
-                return new Dictionary<string, object>(dict, StringComparer.InvariantCultureIgnoreCase);
-            }
-
-            IDictionary<string, object> data = (IDictionary<string, object>)new JavaScriptSerializer().DeserializeObject(json);
-            return MakeCaseInsensitive(data);
         }
 
         /// <summary>Get whether a string is equal to another case-insensitively.</summary>
