@@ -4,7 +4,6 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
-using StardewModdingAPI.Mods.SaveBackup.Framework;
 using StardewValley;
 
 namespace StardewModdingAPI.Mods.SaveBackup
@@ -15,6 +14,12 @@ namespace StardewModdingAPI.Mods.SaveBackup
         /*********
         ** Properties
         *********/
+        /// <summary>The number of backups to keep.</summary>
+        private readonly int BackupsToKeep = 10;
+
+        /// <summary>The absolute path to the folder in which to store save backups.</summary>
+        private readonly string BackupFolder = Path.Combine(Constants.ExecutionPath, "save-backups");
+
         /// <summary>The name of the save archive to create.</summary>
         private readonly string FileName = $"{DateTime.UtcNow:yyyy-MM-dd} - SMAPI {Constants.ApiVersion} with Stardew Valley {Game1.version}.zip";
 
@@ -28,15 +33,13 @@ namespace StardewModdingAPI.Mods.SaveBackup
         {
             try
             {
-                ModConfig config = this.Helper.ReadConfig<ModConfig>();
-
                 // init backup folder
-                DirectoryInfo backupFolder = new DirectoryInfo(Path.Combine(this.Helper.DirectoryPath, "backups"));
+                DirectoryInfo backupFolder = new DirectoryInfo(this.BackupFolder);
                 backupFolder.Create();
 
                 // back up saves
                 this.CreateBackup(backupFolder);
-                this.PruneBackups(backupFolder, config.BackupsToKeep);
+                this.PruneBackups(backupFolder, this.BackupsToKeep);
             }
             catch (Exception ex)
             {

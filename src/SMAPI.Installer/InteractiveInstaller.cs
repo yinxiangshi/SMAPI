@@ -22,12 +22,6 @@ namespace StardewModdingApi.Installer
         /// <summary>The name of the installer file in the package.</summary>
         private readonly string InstallerFileName = "install.exe";
 
-        /// <summary>Mod files which shouldn't be deleted when deploying bundled mods (mod folder name => file names).</summary>
-        private readonly IDictionary<string, HashSet<string>> ProtectBundledFiles = new Dictionary<string, HashSet<string>>(StringComparer.InvariantCultureIgnoreCase)
-        {
-            ["SaveBackup"] = new HashSet<string>(new[] { "backups", "config.json" }, StringComparer.InvariantCultureIgnoreCase)
-        };
-
         /// <summary>The <see cref="Environment.OSVersion"/> value that represents Windows 7.</summary>
         private readonly Version Windows7Version = new Version(6, 1);
 
@@ -474,18 +468,6 @@ namespace StardewModdingApi.Installer
                     {
                         this.PrintDebug("Adding bundled mods...");
 
-                        // special case: rename Omegasis' SaveBackup mod
-                        {
-                            DirectoryInfo oldFolder = new DirectoryInfo(Path.Combine(paths.ModsDir.FullName, "SaveBackup"));
-                            DirectoryInfo newFolder = new DirectoryInfo(Path.Combine(paths.ModsDir.FullName, "AdvancedSaveBackup"));
-                            FileInfo manifest = new FileInfo(Path.Combine(oldFolder.FullName, "manifest.json"));
-                            if (manifest.Exists && !newFolder.Exists && File.ReadLines(manifest.FullName).Any(p => p.IndexOf("Omegasis", StringComparison.InvariantCultureIgnoreCase) != -1))
-                            {
-                                this.PrintDebug($"   moving {oldFolder.Name} to {newFolder.Name}...");
-                                this.Move(oldFolder, newFolder.FullName);
-                            }
-                        }
-
                         // add bundled mods
                         foreach (DirectoryInfo sourceDir in packagedModsDir.EnumerateDirectories())
                         {
@@ -494,16 +476,8 @@ namespace StardewModdingApi.Installer
                             // init/clear target dir
                             DirectoryInfo targetDir = new DirectoryInfo(Path.Combine(paths.ModsDir.FullName, sourceDir.Name));
                             if (targetDir.Exists)
-                            {
-                                this.ProtectBundledFiles.TryGetValue(targetDir.Name, out HashSet<string> protectedFiles);
-                                foreach (FileSystemInfo entry in targetDir.EnumerateFileSystemInfos())
-                                {
-                                    if (protectedFiles == null || !protectedFiles.Contains(entry.Name))
-                                        this.InteractivelyDelete(entry.FullName);
-                                }
-                            }
-                            else
-                                targetDir.Create();
+                                this.InteractivelyDelete(targetDir.FullName);
+                            targetDir.Create();
 
                             // copy files
                             foreach (FileInfo sourceFile in sourceDir.EnumerateFiles().Where(this.ShouldCopy))
