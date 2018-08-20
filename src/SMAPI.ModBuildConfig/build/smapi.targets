@@ -97,7 +97,7 @@
           <Private Condition="$(CopyModReferencesToBuildOutput)">true</Private>
         </Reference>
         <Reference Include="StardewModdingAPI.Toolkit.CoreInterfaces">
-          <HintPath>$(GamePath)\StardewModdingAPI.Toolkit.CoreInterfaces.dll</HintPath>
+          <HintPath>$(GamePath)\smapi-internal\StardewModdingAPI.Toolkit.CoreInterfaces.dll</HintPath>
           <Private>false</Private>
           <Private Condition="$(CopyModReferencesToBuildOutput)">true</Private>
         </Reference>
