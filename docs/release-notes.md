@@ -3,7 +3,8 @@
 * For players:
   * Added support for subfolders under `Mods`, for players who want to organise their mods.
   * Moved most SMAPI files into a `smapi-internal` subfolder.
-  * Moved save backups into a `save-backups` subfolder (instead of `Mods/SaveBackup/backups`).
+  * Moved save backups into a `save-backups` subfolder (instead of `Mods/SaveBackup/backups`). Note that previous backups will be deleted when you update.
+  * Fixed installer duplicating bundled mods if you moved them after the last install.
   * Updated compatibility list.
 
 * For modders:
@@ -15,6 +16,7 @@
 
 * For SMAPI developers:
   * Adjusted `SaveBackup` mod to make it easier to account for custom mod subfolders in the installer.
+  * Installer no longer special-cases Omegasis' older `SaveBackup` mod (now named `AdvancedSaveBackup`).
 
 ## 2.7
 * For players:

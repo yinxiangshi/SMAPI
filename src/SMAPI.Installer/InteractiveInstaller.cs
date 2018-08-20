@@ -10,6 +10,9 @@ using StardewModdingApi.Installer.Enums;
 using StardewModdingAPI.Installer.Framework;
 using StardewModdingAPI.Internal;
 using StardewModdingAPI.Internal.ConsoleWriting;
+using StardewModdingAPI.Toolkit;
+using StardewModdingAPI.Toolkit.Framework.ModScanning;
+using StardewModdingAPI.Toolkit.Utilities;
 
 namespace StardewModdingApi.Installer
 {
@@ -468,31 +471,45 @@ namespace StardewModdingApi.Installer
                     {
                         this.PrintDebug("Adding bundled mods...");
 
-                        // add bundled mods
-                        foreach (DirectoryInfo sourceDir in packagedModsDir.EnumerateDirectories())
+                        ModToolkit toolkit = new ModToolkit();
+                        ModFolder[] targetMods = toolkit.GetModFolders(paths.ModsPath).ToArray();
+                        foreach (ModFolder sourceMod in toolkit.GetModFolders(packagedModsDir.FullName))
                         {
-                            this.PrintDebug($"   adding {sourceDir.Name}...");
+                            // validate source mod
+                            if (sourceMod.Manifest == null)
+                            {
+                                this.PrintWarning($"   ignored invalid bundled mod {sourceMod.DisplayName}: {sourceMod.ManifestParseError}");
+                                continue;
+                            }
 
-                            // init/clear target dir
-                            DirectoryInfo targetDir = new DirectoryInfo(Path.Combine(paths.ModsDir.FullName, sourceDir.Name));
-                            if (targetDir.Exists)
-                                this.InteractivelyDelete(targetDir.FullName);
-                            targetDir.Create();
+                            // find target folder
+                            ModFolder targetMod = targetMods.FirstOrDefault(p => p.Manifest?.UniqueID?.Equals(sourceMod.Manifest.UniqueID, StringComparison.InvariantCultureIgnoreCase) == true);
+                            DirectoryInfo defaultTargetFolder = new DirectoryInfo(Path.Combine(paths.ModsPath, sourceMod.Directory.Name));
+                            DirectoryInfo targetFolder = targetMod?.Directory ?? defaultTargetFolder;
+                            this.PrintDebug(targetFolder.FullName == defaultTargetFolder.FullName
+                                ? $"   adding {sourceMod.Manifest.Name}..."
+                                : $"   adding {sourceMod.Manifest.Name} to {Path.Combine(paths.ModsDir.Name, PathUtilities.GetRelativePath(paths.ModsPath, targetFolder.FullName))}..."
+                            );
+
+                            // (re)create target folder
+                            if (targetFolder.Exists)
+                                this.InteractivelyDelete(targetFolder.FullName);
+                            targetFolder.Create();
 
                             // copy files
-                            foreach (FileInfo sourceFile in sourceDir.EnumerateFiles().Where(this.ShouldCopy))
-                                sourceFile.CopyTo(Path.Combine(targetDir.FullName, sourceFile.Name));
+                            foreach (FileInfo sourceFile in sourceMod.Directory.EnumerateFiles().Where(this.ShouldCopy))
+                                sourceFile.CopyTo(Path.Combine(targetFolder.FullName, sourceFile.Name));
                         }
+                    }
 
-                        // set SMAPI's color scheme if defined
-                        if (scheme != MonitorColorScheme.AutoDetect)
-                        {
-                            string configPath = Path.Combine(paths.GamePath, "StardewModdingAPI.config.json");
-                            string text = File
-                                .ReadAllText(configPath)
-                                .Replace(@"""ColorScheme"": ""AutoDetect""", $@"""ColorScheme"": ""{scheme}""");
-                            File.WriteAllText(configPath, text);
-                        }
+                    // set SMAPI's color scheme if defined
+                    if (scheme != MonitorColorScheme.AutoDetect)
+                    {
+                        string configPath = Path.Combine(paths.GamePath, "StardewModdingAPI.config.json");
+                        string text = File
+                            .ReadAllText(configPath)
+                            .Replace(@"""ColorScheme"": ""AutoDetect""", $@"""ColorScheme"": ""{scheme}""");
+                        File.WriteAllText(configPath, text);
                     }
 
                     // remove obsolete appdata mods
