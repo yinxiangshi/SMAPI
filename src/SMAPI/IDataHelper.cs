@@ -32,14 +32,14 @@ namespace StardewModdingAPI
         /// <typeparam name="TModel">The model type. This should be a plain class that has public properties for the data you want. The properties can be complex types.</typeparam>
         /// <param name="key">The unique key identifying the data.</param>
         /// <returns>Returns the parsed data, or <c>null</c> if the entry doesn't exist or is empty.</returns>
-        /// <exception cref="InvalidOperationException">The player hasn't loaded a save file yet.</exception>
+        /// <exception cref="InvalidOperationException">The player hasn't loaded a save file yet or isn't the main player.</exception>
         TModel ReadSaveData<TModel>(string key) where TModel : class;
 
         /// <summary>Save arbitrary data to the current save slot. This is only possible if a save has been loaded, and the data will be lost if the player exits without saving the current day.</summary>
         /// <typeparam name="TModel">The model type. This should be a plain class that has public properties for the data you want. The properties can be complex types.</typeparam>
         /// <param name="key">The unique key identifying the data.</param>
         /// <param name="data">The arbitrary data to save.</param>
-        /// <exception cref="InvalidOperationException">The player hasn't loaded a save file yet.</exception>
+        /// <exception cref="InvalidOperationException">The player hasn't loaded a save file yet or isn't the main player.</exception>
         void WriteSaveData<TModel>(string key, TModel data) where TModel : class;
 
 

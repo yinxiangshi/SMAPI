@@ -61,7 +61,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         public void WriteJsonFile<TModel>(string path, TModel data) where TModel : class
         {
             if (!PathUtilities.IsSafeRelativePath(path))
-                throw new InvalidOperationException($"You must call {nameof(IModHelper.Data)}.{nameof(this.WriteJsonFile)} with a relative path.");
+                throw new InvalidOperationException($"You must call {nameof(IMod.Helper)}.{nameof(IModHelper.Data)}.{nameof(this.WriteJsonFile)} with a relative path (without directory climbing).");
 
             path = Path.Combine(this.ModFolderPath, PathUtilities.NormalisePathSeparators(path));
             this.JsonHelper.WriteJsonFile(path, data);
@@ -74,11 +74,13 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <typeparam name="TModel">The model type. This should be a plain class that has public properties for the data you want. The properties can be complex types.</typeparam>
         /// <param name="key">The unique key identifying the data.</param>
         /// <returns>Returns the parsed data, or <c>null</c> if the entry doesn't exist or is empty.</returns>
-        /// <exception cref="InvalidOperationException">The player hasn't loaded a save file yet.</exception>
+        /// <exception cref="InvalidOperationException">The player hasn't loaded a save file yet or isn't the main player.</exception>
         public TModel ReadSaveData<TModel>(string key) where TModel : class
         {
             if (!Context.IsSaveLoaded)
-                throw new InvalidOperationException($"Can't invoke {nameof(this.ReadSaveData)} when a save file isn't loaded.");
+                throw new InvalidOperationException($"Can't use {nameof(IMod.Helper)}.{nameof(IModHelper.Data)}.{nameof(this.ReadSaveData)} when a save file isn't loaded.");
+            if (!Context.IsMainPlayer)
+                throw new InvalidOperationException($"Can't use {nameof(IMod.Helper)}.{nameof(IModHelper.Data)}.{nameof(this.ReadSaveData)} because this isn't the main player. (Save files are stored on the main player's computer.)");
 
             return Game1.CustomData.TryGetValue(this.GetSaveFileKey(key), out string value)
                 ? this.JsonHelper.Deserialise<TModel>(value)
@@ -89,11 +91,13 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <typeparam name="TModel">The model type. This should be a plain class that has public properties for the data you want. The properties can be complex types.</typeparam>
         /// <param name="key">The unique key identifying the data.</param>
         /// <param name="data">The arbitrary data to save.</param>
-        /// <exception cref="InvalidOperationException">The player hasn't loaded a save file yet.</exception>
+        /// <exception cref="InvalidOperationException">The player hasn't loaded a save file yet or isn't the main player.</exception>
         public void WriteSaveData<TModel>(string key, TModel data) where TModel : class
         {
             if (!Context.IsSaveLoaded)
-                throw new InvalidOperationException($"Can't invoke {nameof(this.WriteSaveData)} when a save file isn't loaded.");
+                throw new InvalidOperationException($"Can't use {nameof(IMod.Helper)}.{nameof(IModHelper.Data)}.{nameof(this.WriteSaveData)} when a save file isn't loaded.");
+            if (!Context.IsMainPlayer)
+                throw new InvalidOperationException($"Can't use {nameof(IMod.Helper)}.{nameof(IModHelper.Data)}.{nameof(this.ReadSaveData)} because this isn't the main player. (Save files are stored on the main player's computer.)");
 
             Game1.CustomData[this.GetSaveFileKey(key)] = this.JsonHelper.Serialise(data, Formatting.None);
         }
