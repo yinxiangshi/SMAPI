@@ -1,6 +1,7 @@
 # Release notes
 ## 2.8 (upcoming)
 * For players:
+  * Added support for subfolders under `Mods`, for players who want to organise their mods.
   * Moved most SMAPI files into a `smapi-internal` subfolder.
   * Updated compatibility list.
 

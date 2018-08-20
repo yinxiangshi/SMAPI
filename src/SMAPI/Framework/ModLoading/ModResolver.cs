@@ -35,7 +35,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 if (string.IsNullOrWhiteSpace(displayName))
                     displayName = dataRecord?.DisplayName;
                 if (string.IsNullOrWhiteSpace(displayName))
-                    displayName = PathUtilities.GetRelativePath(rootPath, folder.ActualDirectory?.FullName ?? folder.SearchDirectory.FullName);
+                    displayName = PathUtilities.GetRelativePath(rootPath, folder.Directory.FullName);
 
                 // apply defaults
                 if (manifest != null && dataRecord != null)
@@ -48,7 +48,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 ModMetadataStatus status = folder.ManifestParseError == null
                     ? ModMetadataStatus.Found
                     : ModMetadataStatus.Failed;
-                yield return new ModMetadata(displayName, folder.ActualDirectory?.FullName, manifest, dataRecord).SetStatus(status, folder.ManifestParseError);
+                yield return new ModMetadata(displayName, folder.Directory.FullName, manifest, dataRecord).SetStatus(status, folder.ManifestParseError);
             }
         }
 

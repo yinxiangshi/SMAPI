@@ -11,11 +11,8 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         /*********
         ** Accessors
         *********/
-        /// <summary>The Mods subfolder containing this mod.</summary>
-        public DirectoryInfo SearchDirectory { get; }
-
-        /// <summary>The folder containing manifest.json.</summary>
-        public DirectoryInfo ActualDirectory { get; }
+        /// <summary>The folder containing the mod's manifest.json.</summary>
+        public DirectoryInfo Directory { get; }
 
         /// <summary>The mod manifest.</summary>
         public Manifest Manifest { get; }
@@ -28,14 +25,12 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="searchDirectory">The Mods subfolder containing this mod.</param>
-        /// <param name="actualDirectory">The folder containing manifest.json.</param>
+        /// <param name="directory">The folder containing the mod's manifest.json.</param>
         /// <param name="manifest">The mod manifest.</param>
         /// <param name="manifestParseError">The error which occurred parsing the manifest, if any.</param>
-        public ModFolder(DirectoryInfo searchDirectory, DirectoryInfo actualDirectory, Manifest manifest, string manifestParseError = null)
+        public ModFolder(DirectoryInfo directory, Manifest manifest, string manifestParseError = null)
         {
-            this.SearchDirectory = searchDirectory;
-            this.ActualDirectory = actualDirectory;
+            this.Directory = directory;
             this.Manifest = manifest;
             this.ManifestParseError = manifestParseError;
         }
