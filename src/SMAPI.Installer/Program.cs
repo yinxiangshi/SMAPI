@@ -26,7 +26,9 @@ namespace StardewModdingApi.Installer
         {
             // set up assembly resolution
             string installerPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            Program.DllSearchPath = Path.Combine(installerPath, "internal", EnvironmentUtility.DetectPlatform() == Platform.Windows ? "Windows" : "Mono", "smapi-internal");
+            Program.DllSearchPath = EnvironmentUtility.DetectPlatform() == Platform.Windows
+                ? Path.Combine(installerPath, "internal", "Windows", "smapi-internal")
+                : Path.Combine(installerPath, "smapi-internal");
             AppDomain.CurrentDomain.AssemblyResolve += Program.CurrentDomain_AssemblyResolve;
 
             // launch installer
