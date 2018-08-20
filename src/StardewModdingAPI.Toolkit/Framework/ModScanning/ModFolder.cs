@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using StardewModdingAPI.Toolkit.Serialisation.Models;
+using StardewModdingAPI.Toolkit.Utilities;
 
 namespace StardewModdingAPI.Toolkit.Framework.ModScanning
 {
@@ -11,6 +12,9 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         /*********
         ** Accessors
         *********/
+        /// <summary>A suggested display name for the mod folder.</summary>
+        public string DisplayName { get; }
+
         /// <summary>The folder containing the mod's manifest.json.</summary>
         public DirectoryInfo Directory { get; }
 
@@ -25,14 +29,21 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
+        /// <param name="root">The root folder containing mods.</param>
         /// <param name="directory">The folder containing the mod's manifest.json.</param>
         /// <param name="manifest">The mod manifest.</param>
         /// <param name="manifestParseError">The error which occurred parsing the manifest, if any.</param>
-        public ModFolder(DirectoryInfo directory, Manifest manifest, string manifestParseError = null)
+        public ModFolder(DirectoryInfo root, DirectoryInfo directory, Manifest manifest, string manifestParseError = null)
         {
+            // save info
             this.Directory = directory;
             this.Manifest = manifest;
             this.ManifestParseError = manifestParseError;
+
+            // set display name
+            this.DisplayName = manifest?.Name;
+            if (string.IsNullOrWhiteSpace(this.DisplayName))
+                this.DisplayName = PathUtilities.GetRelativePath(root.FullName, directory.FullName);
         }
 
         /// <summary>Get the update keys for a mod.</summary>

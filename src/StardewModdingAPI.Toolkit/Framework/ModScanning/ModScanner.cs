@@ -44,8 +44,9 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         }
 
         /// <summary>Extract information from a mod folder.</summary>
+        /// <param name="root">The root folder containing mods.</param>
         /// <param name="searchFolder">The folder to search for a mod.</param>
-        public ModFolder ReadFolder(DirectoryInfo searchFolder)
+        public ModFolder ReadFolder(DirectoryInfo root, DirectoryInfo searchFolder)
         {
             // find manifest.json
             FileInfo manifestFile = this.FindManifest(searchFolder);
@@ -53,8 +54,8 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
             {
                 bool isEmpty = !searchFolder.GetFileSystemInfos().Where(this.IsRelevant).Any();
                 if (isEmpty)
-                    return new ModFolder(searchFolder, null, "it's an empty folder.");
-                return new ModFolder(searchFolder, null, "it contains files, but none of them are manifest.json.");
+                    return new ModFolder(root, searchFolder, null, "it's an empty folder.");
+                return new ModFolder(root, searchFolder, null, "it contains files, but none of them are manifest.json.");
             }
 
             // read mod info
@@ -76,7 +77,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
                 }
             }
 
-            return new ModFolder(manifestFile.Directory, manifest, manifestError);
+            return new ModFolder(root, manifestFile.Directory, manifest, manifestError);
         }
 
 
@@ -100,7 +101,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
 
             // treat as mod folder
             else
-                yield return this.ReadFolder(folder);
+                yield return this.ReadFolder(root, folder);
         }
 
         /// <summary>Find the manifest for a mod folder.</summary>

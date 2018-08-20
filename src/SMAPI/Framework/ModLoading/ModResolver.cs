@@ -30,13 +30,6 @@ namespace StardewModdingAPI.Framework.ModLoading
                 // parse internal data record (if any)
                 ModDataRecordVersionedFields dataRecord = modDatabase.Get(manifest?.UniqueID)?.GetVersionedFields(manifest);
 
-                // get display name
-                string displayName = manifest?.Name;
-                if (string.IsNullOrWhiteSpace(displayName))
-                    displayName = dataRecord?.DisplayName;
-                if (string.IsNullOrWhiteSpace(displayName))
-                    displayName = PathUtilities.GetRelativePath(rootPath, folder.Directory.FullName);
-
                 // apply defaults
                 if (manifest != null && dataRecord != null)
                 {
@@ -48,7 +41,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 ModMetadataStatus status = folder.ManifestParseError == null
                     ? ModMetadataStatus.Found
                     : ModMetadataStatus.Failed;
-                yield return new ModMetadata(displayName, folder.Directory.FullName, manifest, dataRecord).SetStatus(status, folder.ManifestParseError);
+                yield return new ModMetadata(folder.DisplayName, folder.Directory.FullName, manifest, dataRecord).SetStatus(status, folder.ManifestParseError);
             }
         }
 
