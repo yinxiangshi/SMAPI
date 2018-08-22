@@ -5,6 +5,7 @@
   * Moved most SMAPI files into a `smapi-internal` subfolder.
   * Moved save backups into a `save-backups` subfolder (instead of `Mods/SaveBackup/backups`). Note that previous backups will be deleted when you update.
   * Fixed installer duplicating bundled mods if you moved them after the last install.
+  * Fixed crash when a mod manifest is corrupted.
   * Updated compatibility list.
 
 * For modders:

@@ -64,7 +64,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
             {
                 try
                 {
-                    if (!this.JsonHelper.ReadJsonFileIfExists<Manifest>(manifestFile.FullName, out manifest))
+                    if (!this.JsonHelper.ReadJsonFileIfExists<Manifest>(manifestFile.FullName, out manifest) || manifest == null)
                         manifestError = "its manifest is invalid.";
                 }
                 catch (SParseException ex)
