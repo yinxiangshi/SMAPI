@@ -5,7 +5,7 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
 {
     /// <summary>A watcher which detects changes to a Netcode collection.</summary>
     internal class NetCollectionWatcher<TValue> : BaseDisposableWatcher, ICollectionWatcher<TValue>
-        where TValue : INetObject<INetSerializable>
+        where TValue : class, INetObject<INetSerializable>
     {
         /*********
         ** Properties
