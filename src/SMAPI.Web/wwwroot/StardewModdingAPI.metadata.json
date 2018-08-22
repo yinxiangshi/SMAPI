@@ -962,6 +962,11 @@
       "~1.4    | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
+    "More Silo Storage": {
+      "ID": "OrneryWalrus.MoreSiloStorage",
+      "~1.0.1 | Status": "AssumeBroken" // broke in SDV 1.3
+    },
+
     "More Weapons": {
       "ID": "Joco80.MoreWeapons",
       "Default | UpdateKey": "Nexus:1168"
@@ -1481,7 +1486,8 @@
     "Stephan's Lots of Crops": {
       "ID": "stephansstardewcrops",
       "MapRemoteVersions": { "1.41": "1.1" }, // manifest not updated
-      "Default | UpdateKey": "Chucklefish:4314"
+      "Default | UpdateKey": "Chucklefish:4314",
+      "~1.1    | Status": "AssumeBroken" // broke in SDV 1.3 (overwrites vanilla items)
     },
 
     "Stumps to Hardwood Stumps": {
