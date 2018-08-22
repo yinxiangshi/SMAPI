@@ -907,7 +907,7 @@ namespace StardewModdingAPI
                                     return new ContentPack(packDirPath, packManifest, packContentHelper, this.Toolkit.JsonHelper);
                                 }
 
-                                modHelper = new ModHelper(manifest.UniqueID, metadata.DirectoryPath, this.GameInstance.Input, events, contentHelper, commandHelper, dataHelper, modRegistryHelper, reflectionHelper, multiplayerHelper, translationHelper, contentPacks, CreateTransitionalContentPack, this.DeprecationManager);
+                                modHelper = new ModHelper(manifest.UniqueID, metadata.DirectoryPath, this.Toolkit.JsonHelper, this.GameInstance.Input, events, contentHelper, commandHelper, dataHelper, modRegistryHelper, reflectionHelper, multiplayerHelper, translationHelper, contentPacks, CreateTransitionalContentPack, this.DeprecationManager);
                             }
 
                             // init mod

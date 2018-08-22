@@ -4,7 +4,9 @@ using System.IO;
 using System.Linq;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.Input;
+using StardewModdingAPI.Toolkit.Serialisation;
 using StardewModdingAPI.Toolkit.Serialisation.Models;
+using StardewModdingAPI.Toolkit.Utilities;
 
 namespace StardewModdingAPI.Framework.ModHelpers
 {
@@ -29,6 +31,9 @@ namespace StardewModdingAPI.Framework.ModHelpers
         *********/
         /// <summary>The full path to the mod's folder.</summary>
         public string DirectoryPath { get; }
+
+        /// <summary>Encapsulates SMAPI's JSON file parsing.</summary>
+        private readonly JsonHelper JsonHelper;
 
         /// <summary>Manages access to events raised by SMAPI, which let your mod react when something happens in the game.</summary>
         public IModEvents Events { get; }
@@ -64,6 +69,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <summary>Construct an instance.</summary>
         /// <param name="modID">The mod's unique ID.</param>
         /// <param name="modDirectory">The full path to the mod's folder.</param>
+        /// <param name="jsonHelper">Encapsulate SMAPI's JSON parsing.</param>
         /// <param name="inputState">Manages the game's input state.</param>
         /// <param name="events">Manages access to events raised by SMAPI.</param>
         /// <param name="contentHelper">An API for loading content assets.</param>
@@ -78,7 +84,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="deprecationManager">Manages deprecation warnings.</param>
         /// <exception cref="ArgumentNullException">An argument is null or empty.</exception>
         /// <exception cref="InvalidOperationException">The <paramref name="modDirectory"/> path does not exist on disk.</exception>
-        public ModHelper(string modID, string modDirectory, SInputState inputState, IModEvents events, IContentHelper contentHelper, ICommandHelper commandHelper, IDataHelper dataHelper, IModRegistry modRegistry, IReflectionHelper reflectionHelper, IMultiplayerHelper multiplayer, ITranslationHelper translationHelper, IEnumerable<IContentPack> contentPacks, Func<string, IManifest, IContentPack> createContentPack, DeprecationManager deprecationManager)
+        public ModHelper(string modID, string modDirectory, JsonHelper jsonHelper, SInputState inputState, IModEvents events, IContentHelper contentHelper, ICommandHelper commandHelper, IDataHelper dataHelper, IModRegistry modRegistry, IReflectionHelper reflectionHelper, IMultiplayerHelper multiplayer, ITranslationHelper translationHelper, IEnumerable<IContentPack> contentPacks, Func<string, IManifest, IContentPack> createContentPack, DeprecationManager deprecationManager)
             : base(modID)
         {
             // validate directory
@@ -89,6 +95,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
 
             // initialise
             this.DirectoryPath = modDirectory;
+            this.JsonHelper = jsonHelper ?? throw new ArgumentNullException(nameof(jsonHelper));
             this.Content = contentHelper ?? throw new ArgumentNullException(nameof(contentHelper));
             this.Data = dataHelper ?? throw new ArgumentNullException(nameof(dataHelper));
             this.Input = new InputHelper(modID, inputState);
@@ -136,7 +143,10 @@ namespace StardewModdingAPI.Framework.ModHelpers
         public TModel ReadJsonFile<TModel>(string path)
             where TModel : class
         {
-            return this.Data.ReadJsonFile<TModel>(path);
+            path = Path.Combine(this.DirectoryPath, PathUtilities.NormalisePathSeparators(path));
+            return this.JsonHelper.ReadJsonFileIfExists(path, out TModel data)
+                ? data
+                : null;
         }
 
         /// <summary>Save to a JSON file.</summary>
@@ -147,7 +157,8 @@ namespace StardewModdingAPI.Framework.ModHelpers
         public void WriteJsonFile<TModel>(string path, TModel model)
             where TModel : class
         {
-            this.Data.WriteJsonFile(path, model);
+            path = Path.Combine(this.DirectoryPath, PathUtilities.NormalisePathSeparators(path));
+            this.JsonHelper.WriteJsonFile(path, model);
         }
 
         /****
