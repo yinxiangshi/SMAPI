@@ -5,7 +5,7 @@ using StardewModdingAPI.Toolkit.Framework.ModData;
 namespace StardewModdingAPI.Framework
 {
     /// <summary>Metadata for a mod.</summary>
-    internal interface IModMetadata
+    internal interface IModMetadata : IModInfo
     {
         /*********
         ** Accessors
@@ -15,9 +15,6 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>The mod's full directory path.</summary>
         string DirectoryPath { get; }
-
-        /// <summary>The mod manifest.</summary>
-        IManifest Manifest { get; }
 
         /// <summary>Metadata about the mod from SMAPI's internal data (if any).</summary>
         ModDataRecordVersionedFields DataRecord { get; }

@@ -13,6 +13,7 @@
   * Added `IContentPack.WriteJsonFile` method.
   * Added IntelliSense documentation when not using the 'for developers' version of SMAPI.
   * Fixed `IContentPack.ReadJsonFile` allowing non-relative paths.
+  * **Breaking change:** `helper.ModRegistry` returns a new `IModInfo` interface instead of `IManifest` directly. This lets SMAPI return more metadata about mods in future versions.
   * **Breaking change:** most SMAPI files have been moved into a `smapi-internal` subfolder. This won't affect compiled mods, but you'll need to update the mod build config NuGet package when compiling mods.
 
 * For SMAPI developers:

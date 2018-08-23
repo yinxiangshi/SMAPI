@@ -186,6 +186,7 @@
     <Compile Include="Framework\StateTracking\PlayerTracker.cs" />
     <Compile Include="Framework\Utilities\ContextHash.cs" />
     <Compile Include="IContentPack.cs" />
+    <Compile Include="IModInfo.cs" />
     <Compile Include="IMultiplayerHelper.cs" />
     <Compile Include="IReflectedField.cs" />
     <Compile Include="IReflectedMethod.cs" />
