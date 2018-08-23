@@ -28,10 +28,10 @@ namespace StardewModdingAPI.Framework
         /// <summary>The reason the metadata is invalid, if any.</summary>
         string Error { get; }
 
-        /// <summary>The mod instance (if loaded and <see cref="IsContentPack"/> is false).</summary>
+        /// <summary>The mod instance (if loaded and <see cref="IModInfo.IsContentPack"/> is false).</summary>
         IMod Mod { get; }
 
-        /// <summary>The content pack instance (if loaded and <see cref="IsContentPack"/> is true).</summary>
+        /// <summary>The content pack instance (if loaded and <see cref="IModInfo.IsContentPack"/> is true).</summary>
         IContentPack ContentPack { get; }
 
         /// <summary>Writes messages to the console and log file as this mod.</summary>
@@ -39,9 +39,6 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>The mod-provided API (if any).</summary>
         object Api { get; }
-
-        /// <summary>Whether the mod is a content pack.</summary>
-        bool IsContentPack { get; }
 
         /// <summary>The update-check metadata for this mod (if any).</summary>
         ModEntryModel UpdateCheckData { get; }
