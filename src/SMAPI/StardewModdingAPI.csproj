@@ -110,6 +110,7 @@
     <Compile Include="Events\WorldLocationListChangedEventArgs.cs" />
     <Compile Include="Events\WorldObjectListChangedEventArgs.cs" />
     <Compile Include="Framework\ModHelpers\DataHelper.cs" />
+    <Compile Include="Framework\SCore.cs" />
     <Compile Include="Framework\SGameConstructorHack.cs" />
     <Compile Include="Framework\ContentManagers\BaseContentManager.cs" />
     <Compile Include="Framework\ContentManagers\GameContentManager.cs" />
