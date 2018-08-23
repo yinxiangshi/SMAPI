@@ -733,6 +733,11 @@
       "Default | UpdateKey": "Nexus:985"
     },
 
+    "Grass Growth": {
+      "ID": "bcmpinc.GrassGrowth",
+      "~0.3 | Status": "AssumeBroken" // broke in 1.3.29 (runtime errors: System.IndexOutOfRangeException: Could not find instruction sequence)
+    },
+
     "Happy Animals": {
       "ID": "HappyAnimals",
       "~1.0.3 | Status": "AssumeBroken" // broke in SMAPI 2.0
