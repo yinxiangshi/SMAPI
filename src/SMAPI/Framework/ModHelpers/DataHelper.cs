@@ -136,7 +136,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         private string GetSaveFileKey(string key)
         {
             this.AssertSlug(key, nameof(key));
-            return $"smapi-mod-data/{this.ModID}/{key}".ToLower();
+            return $"smapi/mod-data/{this.ModID}/{key}".ToLower();
         }
 
         /// <summary>Get the absolute path for a global data file.</summary>
@@ -144,7 +144,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         private string GetGlobalDataPath(string key)
         {
             this.AssertSlug(key, nameof(key));
-            return Path.Combine(Constants.SavesPath, ".smapi-mod-data", this.ModID.ToLower(), $"{key}.json".ToLower());
+            return Path.Combine(Constants.SavesPath, ".smapi", "mod-data", this.ModID.ToLower(), $"{key}.json".ToLower());
         }
 
         /// <summary>Assert that a key contains only characters that are safe in all contexts.</summary>
