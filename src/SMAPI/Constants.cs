@@ -29,10 +29,10 @@ namespace StardewModdingAPI
         ** Public
         ****/
         /// <summary>SMAPI's current semantic version.</summary>
-        public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("2.7.0");
+        public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("2.8.0-beta.1");
 
         /// <summary>The minimum supported version of Stardew Valley.</summary>
-        public static ISemanticVersion MinimumGameVersion { get; } = new GameVersion("1.3.28");
+        public static ISemanticVersion MinimumGameVersion { get; } = new GameVersion("1.3.29");
 
         /// <summary>The maximum supported version of Stardew Valley.</summary>
         public static ISemanticVersion MaximumGameVersion { get; } = null;
