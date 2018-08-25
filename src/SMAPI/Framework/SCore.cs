@@ -675,7 +675,8 @@ namespace StardewModdingAPI.Framework
             }
             catch (Exception ex)
             {
-                this.Monitor.Log($"Couldn't create a path: {path}\n\n{ex.GetLogSummary()}", LogLevel.Error);
+                // note: this happens before this.Monitor is initialised
+                Console.WriteLine($"Couldn't create a path: {path}\n\n{ex.GetLogSummary()}");
             }
         }
 
