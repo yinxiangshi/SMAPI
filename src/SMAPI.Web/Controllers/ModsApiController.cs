@@ -115,15 +115,10 @@ namespace StardewModdingAPI.Web.Controllers
         /// <returns>Returns the mod data if found, else <c>null</c>.</returns>
         private async Task<ModEntryModel> GetModData(ModSearchEntryModel search, WikiCompatibilityEntry[] wikiData, bool includeExtendedMetadata)
         {
-            // resolve update keys
-            var updateKeys = new HashSet<string>(search.UpdateKeys ?? new string[0], StringComparer.InvariantCultureIgnoreCase);
+            // crossreference data
             ModDataRecord record = this.ModDatabase.Get(search.ID);
-            if (record?.Fields != null)
-            {
-                string defaultUpdateKey = record.Fields.FirstOrDefault(p => p.Key == ModDataFieldKey.UpdateKey && p.IsDefault)?.Value;
-                if (!string.IsNullOrWhiteSpace(defaultUpdateKey))
-                    updateKeys.Add(defaultUpdateKey);
-            }
+            WikiCompatibilityEntry wikiEntry = wikiData.FirstOrDefault(entry => entry.ID.Contains(search.ID.Trim(), StringComparer.InvariantCultureIgnoreCase));
+            string[] updateKeys = this.GetUpdateKeys(search.UpdateKeys, record, wikiEntry).ToArray();
 
             // get latest versions
             ModEntryModel result = new ModEntryModel { ID = search.ID };
@@ -166,7 +161,6 @@ namespace StardewModdingAPI.Web.Controllers
             }
 
             // get unofficial version
-            WikiCompatibilityEntry wikiEntry = wikiData.FirstOrDefault(entry => entry.ID.Contains(result.ID.Trim(), StringComparer.InvariantCultureIgnoreCase));
             if (wikiEntry?.UnofficialVersion != null && this.IsNewer(wikiEntry.UnofficialVersion, result.Main?.Version) && this.IsNewer(wikiEntry.UnofficialVersion, result.Optional?.Version))
                 result.Unofficial = new ModEntryVersionModel(wikiEntry.UnofficialVersion, this.WikiCompatibilityPageUrl);
 
@@ -229,7 +223,7 @@ namespace StardewModdingAPI.Web.Controllers
         private async Task<WikiCompatibilityEntry[]> GetWikiDataAsync()
         {
             ModToolkit toolkit = new ModToolkit();
-            return await this.Cache.GetOrCreateAsync($"_wiki", async entry =>
+            return await this.Cache.GetOrCreateAsync("_wiki", async entry =>
             {
                 try
                 {
@@ -273,11 +267,42 @@ namespace StardewModdingAPI.Web.Controllers
             });
         }
 
-        /// <summary>Get the requested API version.</summary>
-        private ISemanticVersion GetApiVersion()
+        /// <summary>Get update keys based on the available mod metadata, while maintaining the precedence order.</summary>
+        /// <param name="specifiedKeys">The specified update keys.</param>
+        /// <param name="record">The mod's entry in SMAPI's internal database.</param>
+        /// <param name="entry">The mod's entry in the wiki list.</param>
+        public IEnumerable<string> GetUpdateKeys(string[] specifiedKeys, ModDataRecord record, WikiCompatibilityEntry entry)
         {
-            string actualVersion = (string)this.RouteData.Values["version"];
-            return new SemanticVersion(actualVersion);
+            IEnumerable<string> GetRaw()
+            {
+                // specified update keys
+                if (specifiedKeys != null)
+                {
+                    foreach (string key in specifiedKeys)
+                        yield return key?.Trim();
+                }
+
+                // default update key
+                string defaultKey = record?.GetDefaultUpdateKey();
+                if (defaultKey != null)
+                    yield return defaultKey;
+
+                // wiki metadata
+                if (entry != null)
+                {
+                    if (entry.NexusID.HasValue)
+                        yield return $"Nexus:{entry.NexusID}";
+                    if (entry.ChucklefishID.HasValue)
+                        yield return $"Chucklefish:{entry.ChucklefishID}";
+                }
+            }
+
+            HashSet<string> seen = new HashSet<string>(StringComparer.InvariantCulture);
+            foreach (string key in GetRaw())
+            {
+                if (!string.IsNullOrWhiteSpace(key) && seen.Add(key))
+                    yield return key;
+            }
         }
     }
 }

@@ -4,6 +4,7 @@
   * Added support for subfolders under `Mods`, for players who want to organise their mods.
   * Moved most SMAPI files into a `smapi-internal` subfolder.
   * Moved save backups into a `save-backups` subfolder (instead of `Mods/SaveBackup/backups`). Note that previous backups will be deleted when you update.
+  * Update checks now work even when the mod has no update keys in most cases.
   * Fixed installer duplicating bundled mods if you moved them after the last install.
   * Fixed crash when a mod manifest is corrupted.
   * Fixed error-handling when initialising paths.
