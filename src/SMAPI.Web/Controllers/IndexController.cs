@@ -67,12 +67,12 @@ namespace StardewModdingAPI.Web.Controllers
             IndexVersionModel stableVersionModel = stableVersion != null
                 ? new IndexVersionModel(stableVersion.Version.ToString(), stableVersion.Release.Body, stableVersion.Asset.DownloadUrl, stableVersionForDevs?.Asset.DownloadUrl)
                 : new IndexVersionModel("unknown", "", "https://github.com/Pathoschild/SMAPI/releases", null); // just in case something goes wrong)
-            IndexVersionModel betaVersionModel = betaVersion != null && this.SiteConfig.EnableSmapiBeta
+            IndexVersionModel betaVersionModel = betaVersion != null && this.SiteConfig.BetaEnabled
                 ? new IndexVersionModel(betaVersion.Version.ToString(), betaVersion.Release.Body, betaVersion.Asset.DownloadUrl, betaVersionForDevs?.Asset.DownloadUrl)
                 : null;
 
             // render view
-            var model = new IndexModel(stableVersionModel, betaVersionModel);
+            var model = new IndexModel(stableVersionModel, betaVersionModel, this.SiteConfig.BetaBlurb);
             return this.View(model);
         }
 

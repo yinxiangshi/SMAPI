@@ -13,6 +13,9 @@ namespace StardewModdingAPI.Web.Framework.ConfigModels
         public string LogParserUrl { get; set; }
 
         /// <summary>Whether to show SMAPI beta versions on the main page, if any.</summary>
-        public bool EnableSmapiBeta { get; set; }
+        public bool BetaEnabled { get; set; }
+
+        /// <summary>A short sentence shown under the beta download button, if any.</summary>
+        public string BetaBlurb { get; set; }
     }
 }
