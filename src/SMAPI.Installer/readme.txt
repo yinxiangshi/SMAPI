@@ -36,3 +36,10 @@ If you really want to install SMAPI manually, here's how.
   - Linux/Mac only: rename the "StardewValley" file (no extension) to "StardewValley-original", and
     "StardewModdingAPI" (no extension) to "StardewValley". Now just launch the game as usual to
     play with mods.
+
+When installing on Linux or Mac:
+- Make sure Mono is installed (normally the installer checks for you). While it's not required,
+  many mods won't work correctly without it. (Specifically, mods which load PNG images may crash or
+  freeze the game.)
+- To configure the color scheme, edit the `smapi-internal/StardewModdingAPI.config.json` file and
+  see instructions there for the 'ColorScheme' setting.
