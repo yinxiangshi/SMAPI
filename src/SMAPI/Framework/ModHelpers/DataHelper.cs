@@ -99,7 +99,11 @@ namespace StardewModdingAPI.Framework.ModHelpers
             if (!Context.IsMainPlayer)
                 throw new InvalidOperationException($"Can't use {nameof(IMod.Helper)}.{nameof(IModHelper.Data)}.{nameof(this.ReadSaveData)} because this isn't the main player. (Save files are stored on the main player's computer.)");
 
-            Game1.CustomData[this.GetSaveFileKey(key)] = this.JsonHelper.Serialise(data, Formatting.None);
+            string internalKey = this.GetSaveFileKey(key);
+            if (data != null)
+                Game1.CustomData[internalKey] = this.JsonHelper.Serialise(data, Formatting.None);
+            else
+                Game1.CustomData.Remove(internalKey);
         }
 
         /****
@@ -124,7 +128,10 @@ namespace StardewModdingAPI.Framework.ModHelpers
         public void WriteGlobalData<TModel>(string key, TModel data) where TModel : class
         {
             string path = this.GetGlobalDataPath(key);
-            this.JsonHelper.WriteJsonFile(path, data);
+            if (data != null)
+                this.JsonHelper.WriteJsonFile(path, data);
+            else
+                File.Delete(path);
         }
 
 
