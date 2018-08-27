@@ -55,8 +55,12 @@ namespace StardewModdingApi.Installer
                 case Platform.Windows:
                     {
                         // Windows
-                        yield return @"C:\Program Files (x86)\GalaxyClient\Games\Stardew Valley";
-                        yield return @"C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley";
+                        foreach (string programFiles in new[] { @"C:\Program Files", @"C:\Program Files (x86)" })
+                        {
+                            yield return $@"{programFiles}\GalaxyClient\Games\Stardew Valley";
+                            yield return $@"{programFiles}\GOG Galaxy\Games\Stardew Valley";
+                            yield return $@"{programFiles}\Steam\steamapps\common\Stardew Valley";
+                        }
 
                         // Windows registry
                         IDictionary<string, string> registryKeys = new Dictionary<string, string>
