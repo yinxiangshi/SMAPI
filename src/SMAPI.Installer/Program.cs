@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
-using StardewModdingAPI.Internal;
 
 namespace StardewModdingApi.Installer
 {
@@ -14,8 +13,7 @@ namespace StardewModdingApi.Installer
         *********/
         /// <summary>The absolute path to search for referenced assemblies.</summary>
         [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute", Justification = "The assembly location is never null in this context.")]
-        private static string DllSearchPath;
-
+        private static readonly string DllSearchPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "smapi-internal");
 
         /*********
         ** Public methods
@@ -25,10 +23,6 @@ namespace StardewModdingApi.Installer
         public static void Main(string[] args)
         {
             // set up assembly resolution
-            string installerPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            Program.DllSearchPath = EnvironmentUtility.DetectPlatform() == Platform.Windows
-                ? Path.Combine(installerPath, "internal", "Windows", "smapi-internal")
-                : Path.Combine(installerPath, "smapi-internal");
             AppDomain.CurrentDomain.AssemblyResolve += Program.CurrentDomain_AssemblyResolve;
 
             // launch installer

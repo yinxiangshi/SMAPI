@@ -440,7 +440,7 @@ namespace StardewModdingApi.Installer
                     this.PrintDebug("Adding SMAPI files...");
                     foreach (FileSystemInfo sourceEntry in paths.PackageDir.EnumerateFileSystemInfos().Where(this.ShouldCopy))
                     {
-                        if (sourceEntry.Name == this.InstallerFileName)
+                        if (sourceEntry.Name.StartsWith(this.InstallerFileName)) // e.g. install.exe or install.exe.config
                             continue;
 
                         this.InteractivelyDelete(Path.Combine(paths.GameDir.FullName, sourceEntry.Name));
