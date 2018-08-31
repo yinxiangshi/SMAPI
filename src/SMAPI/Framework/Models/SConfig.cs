@@ -14,6 +14,9 @@ namespace StardewModdingAPI.Framework.Models
         /// <summary>Whether to check for newer versions of SMAPI and mods on startup.</summary>
         public bool CheckForUpdates { get; set; }
 
+        /// <summary>Whether to add a section to the 'mod issues' list for mods which which directly use potentially sensitive .NET APIs like file or shell access.</summary>
+        public bool ParanoidWarnings { get; set; }
+
         /// <summary>Whether to show beta versions as valid updates.</summary>
         public bool UseBetaChannel { get; set; } = Constants.ApiVersion.IsPrerelease();
 

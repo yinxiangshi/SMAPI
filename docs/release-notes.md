@@ -21,6 +21,7 @@
   * **Breaking change:** most SMAPI files have been moved into a `smapi-internal` subfolder. This won't affect compiled mods, but you'll need to update the mod build config NuGet package when compiling mods.
 
 * For SMAPI developers:
+  * Added a 'paranoid warnings' option which reports mods using potentially sensitive .NET APIs (like file or shell access) in the mod issues list.
   * Adjusted `SaveBackup` mod to make it easier to account for custom mod subfolders in the installer.
   * Installer no longer special-cases Omegasis' older `SaveBackup` mod (now named `AdvancedSaveBackup`).
 

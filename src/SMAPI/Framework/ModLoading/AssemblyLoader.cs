@@ -350,6 +350,16 @@ namespace StardewModdingAPI.Framework.ModLoading
                     mod.SetWarning(ModWarning.UsesDynamic);
                     break;
 
+                case InstructionHandleResult.DetectedFilesystemAccess:
+                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Detected filesystem access ({handler.NounPhrase}) in assembly {filename}.");
+                    mod.SetWarning(ModWarning.AccessesFilesystem);
+                    break;
+
+                case InstructionHandleResult.DetectedShellAccess:
+                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Detected shell or process access ({handler.NounPhrase}) in assembly {filename}.");
+                    mod.SetWarning(ModWarning.AccessesShell);
+                    break;
+
                 case InstructionHandleResult.None:
                     break;
 

@@ -1026,6 +1026,17 @@ namespace StardewModdingAPI.Framework
                     "These mods change the save serialiser. They may corrupt your save files, or make them unusable if",
                     "you uninstall these mods."
                 );
+                if (this.Settings.ParanoidWarnings)
+                {
+                    LogWarningGroup(ModWarning.AccessesFilesystem, LogLevel.Warn, "Accesses filesystem directly",
+                        "These mods directly access the filesystem, and you enabled paranoid warnings. (Note that this may be",
+                        "legitimate and innocent usage; this warning is meaningless without further investigation.)"
+                    );
+                    LogWarningGroup(ModWarning.AccessesShell, LogLevel.Warn, "Accesses shell/process directly",
+                        "These mods directly access the OS shell or processes, and you enabled paranoid warnings. (Note that",
+                        "this may be legitimate and innocent usage; this warning is meaningless without further investigation.)"
+                    );
+                }
                 LogWarningGroup(ModWarning.PatchesGame, LogLevel.Info, "Patched game code",
                     "These mods directly change the game code. They're more likely to cause errors or bugs in-game; if",
                     "your game has issues, try removing these first. Otherwise you can ignore this warning."
