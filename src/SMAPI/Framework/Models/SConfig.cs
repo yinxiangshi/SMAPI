@@ -15,7 +15,12 @@ namespace StardewModdingAPI.Framework.Models
         public bool CheckForUpdates { get; set; }
 
         /// <summary>Whether to add a section to the 'mod issues' list for mods which which directly use potentially sensitive .NET APIs like file or shell access.</summary>
-        public bool ParanoidWarnings { get; set; }
+        public bool ParanoidWarnings { get; set; } =
+#if DEBUG
+            true;
+#else
+            false;
+#endif
 
         /// <summary>Whether to show beta versions as valid updates.</summary>
         public bool UseBetaChannel { get; set; } = Constants.ApiVersion.IsPrerelease();

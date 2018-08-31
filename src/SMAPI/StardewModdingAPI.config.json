@@ -33,13 +33,14 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
    * Whether to add a section to the 'mod issues' list for mods which directly use potentially
    * sensitive .NET APIs like file or shell access. Note that many mods do this legitimately as
    * part of their normal functionality, so these warnings are meaningless without further
-   * investigation.
+   * investigation. When this is commented out, it'll be true for local debug builds and false
+   * otherwise.
    */
-  "ParanoidWarnings": false,
+  //"ParanoidWarnings": true,
 
   /**
-   * Whether SMAPI should show newer beta versions as an available update. If not specified, SMAPI
-   * will only show beta updates if the current version is beta.
+   * Whether SMAPI should show newer beta versions as an available update. When this is commented
+   * out, it'll be true if the current SMAPI version is beta, and false otherwise.
    */
   //"UseBetaChannel": true,
 
