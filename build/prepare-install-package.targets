@@ -24,7 +24,7 @@
     <!-- copy installer files -->
     <Copy SourceFiles="$(TargetDir)\$(TargetName).exe" DestinationFiles="$(PackageInternalPath)\install.exe" />
     <Copy SourceFiles="$(TargetDir)\unix-launcher.sh" DestinationFiles="$(PackageInternalPath)\StardewModdingAPI" />
-    <Copy SourceFiles="$(TargetDir)\readme.txt" DestinationFiles="$(PackagePath)\README.txt" />
+    <Copy SourceFiles="$(TargetDir)\README.txt" DestinationFiles="$(PackagePath)\README.txt" />
     <Copy SourceFiles="$(TargetDir)\unix-install.sh" DestinationFiles="$(PackagePath)\install on Linux.sh" />
     <Copy SourceFiles="$(TargetDir)\unix-install.sh" DestinationFiles="$(PackagePath)\install on Mac.command" />
     <Copy SourceFiles="$(TargetDir)\windows-install.bat" DestinationFiles="$(PackagePath)\install on Windows.bat" />
