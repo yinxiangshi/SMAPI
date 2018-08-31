@@ -319,9 +319,7 @@ namespace StardewModdingApi.Installer
                 }
 
                 // get folders
-                DirectoryInfo packageDir = platform.IsMono()
-                    ? new DirectoryInfo(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)) // installer runs from internal folder on Mono
-                    : new DirectoryInfo(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "internal", "Windows"));
+                DirectoryInfo packageDir = new DirectoryInfo(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
                 paths = new InstallerPaths(packageDir, installDir, EnvironmentUtility.GetExecutableName(platform));
             }
             Console.Clear();
