@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
 using StardewModdingAPI.Toolkit.Framework.ModData;
+using StardewModdingAPI.Toolkit.Framework.UpdateData;
 
 namespace StardewModdingAPI.Framework.ModLoading
 {
@@ -141,13 +143,22 @@ namespace StardewModdingAPI.Framework.ModLoading
                 && !string.IsNullOrWhiteSpace(this.Manifest.UniqueID);
         }
 
-        /// <summary>Whether the mod has at least one update key set.</summary>
-        public bool HasUpdateKeys()
+        /// <summary>Get the defined update keys.</summary>
+        /// <param name="validOnly">Only return valid update keys.</param>
+        public IEnumerable<UpdateKey> GetUpdateKeys(bool validOnly = false)
         {
-            return
-                this.HasManifest()
-                && this.Manifest.UpdateKeys != null
-                && this.Manifest.UpdateKeys.Any(key => !string.IsNullOrWhiteSpace(key));
+            foreach (string rawKey in this.Manifest?.UpdateKeys ?? new string[0])
+            {
+                UpdateKey updateKey = UpdateKey.Parse(rawKey);
+                if (updateKey.LooksValid || !validOnly)
+                    yield return updateKey;
+            }
+        }
+
+        /// <summary>Whether the mod has at least one valid update key set.</summary>
+        public bool HasValidUpdateKeys()
+        {
+            return this.GetUpdateKeys(validOnly: true).Any();
         }
     }
 }

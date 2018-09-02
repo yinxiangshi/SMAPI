@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
 using StardewModdingAPI.Toolkit.Framework.ModData;
+using StardewModdingAPI.Toolkit.Framework.UpdateData;
 
 namespace StardewModdingAPI.Framework
 {
@@ -80,7 +82,11 @@ namespace StardewModdingAPI.Framework
         /// <summary>Whether the mod has an ID (regardless of whether the ID is valid or the mod itself was loaded).</summary>
         bool HasID();
 
-        /// <summary>Whether the mod has at least one update key set.</summary>
-        bool HasUpdateKeys();
+        /// <summary>Get the defined update keys.</summary>
+        /// <param name="validOnly">Only return valid update keys.</param>
+        IEnumerable<UpdateKey> GetUpdateKeys(bool validOnly = true);
+
+        /// <summary>Whether the mod has at least one valid update key set.</summary>
+        bool HasValidUpdateKeys();
     }
 }

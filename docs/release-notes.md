@@ -9,6 +9,7 @@
   * Fixed installer duplicating bundled mods if you moved them after the last install.
   * Fixed crash when a mod manifest is corrupted.
   * Fixed error-handling when initialising paths.
+  * Fixed 'no update keys' warning not shown for mods with only invalid update keys.
   * Updated compatibility list.
 
 * For modders:

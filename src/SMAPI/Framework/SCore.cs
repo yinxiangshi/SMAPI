@@ -575,11 +575,14 @@ namespace StardewModdingAPI.Framework
                         List<ModSearchEntryModel> searchMods = new List<ModSearchEntryModel>();
                         foreach (IModMetadata mod in mods)
                         {
-                            if (!mod.HasID())
+                            if (!mod.HasID() || suppressUpdateChecks.Contains(mod.Manifest.UniqueID))
                                 continue;
 
-                            string[] updateKeys = mod.Manifest.UpdateKeys ?? new string[0];
-                            searchMods.Add(new ModSearchEntryModel(mod.Manifest.UniqueID, updateKeys.Except(suppressUpdateChecks).ToArray()));
+                            string[] updateKeys = mod
+                                .GetUpdateKeys(validOnly: true)
+                                .Select(p => p.ToString())
+                                .ToArray();
+                            searchMods.Add(new ModSearchEntryModel(mod.Manifest.UniqueID, updateKeys.ToArray()));
                         }
 
                         // fetch results
@@ -699,7 +702,7 @@ namespace StardewModdingAPI.Framework
                 this.Monitor.Log($"   {metadata.DisplayName} (content pack, {PathUtilities.GetRelativePath(this.ModsPath, metadata.DirectoryPath)})...", LogLevel.Trace);
 
                 // show warning for missing update key
-                if (metadata.HasManifest() && !metadata.HasUpdateKeys())
+                if (metadata.HasManifest() && !metadata.HasValidUpdateKeys())
                     metadata.SetWarning(ModWarning.NoUpdateKeys);
 
                 // validate status
@@ -745,7 +748,7 @@ namespace StardewModdingAPI.Framework
                             : $"   {metadata.DisplayName}...", LogLevel.Trace);
 
                         // show warnings
-                        if (metadata.HasManifest() && !metadata.HasUpdateKeys() && !suppressUpdateChecks.Contains(metadata.Manifest.UniqueID))
+                        if (metadata.HasManifest() && !metadata.HasValidUpdateKeys() && !suppressUpdateChecks.Contains(metadata.Manifest.UniqueID))
                             metadata.SetWarning(ModWarning.NoUpdateKeys);
 
                         // validate status

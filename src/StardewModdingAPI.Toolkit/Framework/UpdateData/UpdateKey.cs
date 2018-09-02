@@ -61,5 +61,13 @@ namespace StardewModdingAPI.Toolkit.Framework.UpdateData
 
             return new UpdateKey(raw, repository, id);
         }
+
+        /// <summary>Get a string that represents the current object.</summary>
+        public override string ToString()
+        {
+            return this.LooksValid
+                ? $"{this.Repository}:{this.ID}"
+                : this.RawText;
+        }
     }
 }
