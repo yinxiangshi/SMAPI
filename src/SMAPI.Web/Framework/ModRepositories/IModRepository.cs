@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using StardewModdingAPI.Toolkit.Framework.UpdateData;
 
 namespace StardewModdingAPI.Web.Framework.ModRepositories
 {
@@ -10,7 +11,7 @@ namespace StardewModdingAPI.Web.Framework.ModRepositories
         ** Accessors
         *********/
         /// <summary>The unique key for this vendor.</summary>
-        string VendorKey { get; }
+        ModRepositoryKey VendorKey { get; }
 
 
         /*********

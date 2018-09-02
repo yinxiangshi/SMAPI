@@ -12,6 +12,7 @@ using StardewModdingAPI.Toolkit;
 using StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
 using StardewModdingAPI.Toolkit.Framework.Clients.Wiki;
 using StardewModdingAPI.Toolkit.Framework.ModData;
+using StardewModdingAPI.Toolkit.Framework.UpdateData;
 using StardewModdingAPI.Web.Framework.Clients.Chucklefish;
 using StardewModdingAPI.Web.Framework.Clients.GitHub;
 using StardewModdingAPI.Web.Framework.Clients.Nexus;
@@ -29,7 +30,7 @@ namespace StardewModdingAPI.Web.Controllers
         ** Properties
         *********/
         /// <summary>The mod repositories which provide mod metadata.</summary>
-        private readonly IDictionary<string, IModRepository> Repositories;
+        private readonly IDictionary<ModRepositoryKey, IModRepository> Repositories;
 
         /// <summary>The cache in which to store mod metadata.</summary>
         private readonly IMemoryCache Cache;
@@ -73,11 +74,11 @@ namespace StardewModdingAPI.Web.Controllers
             this.Repositories =
                 new IModRepository[]
                 {
-                    new ChucklefishRepository(config.ChucklefishKey, chucklefish),
-                    new GitHubRepository(config.GitHubKey, github),
-                    new NexusRepository(config.NexusKey, nexus)
+                    new ChucklefishRepository(chucklefish),
+                    new GitHubRepository(github),
+                    new NexusRepository(nexus)
                 }
-                .ToDictionary(p => p.VendorKey, StringComparer.CurrentCultureIgnoreCase);
+                .ToDictionary(p => p.VendorKey);
         }
 
         /// <summary>Fetch version metadata for the given mods.</summary>
@@ -189,28 +190,6 @@ namespace StardewModdingAPI.Web.Controllers
             return result;
         }
 
-        /// <summary>Parse a namespaced mod ID.</summary>
-        /// <param name="raw">The raw mod ID to parse.</param>
-        /// <param name="vendorKey">The parsed vendor key.</param>
-        /// <param name="modID">The parsed mod ID.</param>
-        /// <returns>Returns whether the value could be parsed.</returns>
-        private bool TryParseModKey(string raw, out string vendorKey, out string modID)
-        {
-            // split parts
-            string[] parts = raw?.Split(':');
-            if (parts == null || parts.Length != 2)
-            {
-                vendorKey = null;
-                modID = null;
-                return false;
-            }
-
-            // parse
-            vendorKey = parts[0].Trim();
-            modID = parts[1].Trim();
-            return true;
-        }
-
         /// <summary>Get whether a <paramref name="current"/> version is newer than an <paramref name="other"/> version.</summary>
         /// <param name="current">The current version.</param>
         /// <param name="other">The other version.</param>
@@ -244,17 +223,18 @@ namespace StardewModdingAPI.Web.Controllers
         private async Task<ModInfoModel> GetInfoForUpdateKeyAsync(string updateKey)
         {
             // parse update key
-            if (!this.TryParseModKey(updateKey, out string vendorKey, out string modID))
+            UpdateKey parsed = UpdateKey.Parse(updateKey);
+            if (!parsed.LooksValid)
                 return new ModInfoModel($"The update key '{updateKey}' isn't in a valid format. It should contain the site key and mod ID like 'Nexus:541'.");
 
             // get matching repository
-            if (!this.Repositories.TryGetValue(vendorKey, out IModRepository repository))
-                return new ModInfoModel($"There's no mod site with key '{vendorKey}'. Expected one of [{string.Join(", ", this.Repositories.Keys)}].");
+            if (!this.Repositories.TryGetValue(parsed.Repository, out IModRepository repository))
+                return new ModInfoModel($"There's no mod site with key '{parsed.Repository}'. Expected one of [{string.Join(", ", this.Repositories.Keys)}].");
 
             // fetch mod info
-            return await this.Cache.GetOrCreateAsync($"{repository.VendorKey}:{modID}".ToLower(), async entry =>
+            return await this.Cache.GetOrCreateAsync($"{repository.VendorKey}:{parsed.ID}".ToLower(), async entry =>
             {
-                ModInfoModel result = await repository.GetModInfoAsync(modID);
+                ModInfoModel result = await repository.GetModInfoAsync(parsed.ID);
                 if (result.Error != null)
                 {
                     if (result.Version == null)

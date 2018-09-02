@@ -1,6 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
+using StardewModdingAPI.Toolkit.Framework.UpdateData;
 using StardewModdingAPI.Web.Framework.Clients.Chucklefish;
 
 namespace StardewModdingAPI.Web.Framework.ModRepositories
@@ -19,10 +19,9 @@ namespace StardewModdingAPI.Web.Framework.ModRepositories
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="vendorKey">The unique key for this vendor.</param>
         /// <param name="client">The underlying HTTP client.</param>
-        public ChucklefishRepository(string vendorKey, IChucklefishClient client)
-            : base(vendorKey)
+        public ChucklefishRepository(IChucklefishClient client)
+            : base(ModRepositoryKey.Chucklefish)
         {
             this.Client = client;
         }

@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
+using StardewModdingAPI.Toolkit.Framework.UpdateData;
 
 namespace StardewModdingAPI.Web.Framework.ModRepositories
 {
@@ -10,7 +10,7 @@ namespace StardewModdingAPI.Web.Framework.ModRepositories
         ** Accessors
         *********/
         /// <summary>The unique key for this vendor.</summary>
-        public string VendorKey { get; }
+        public ModRepositoryKey VendorKey { get; }
 
 
         /*********
@@ -29,7 +29,7 @@ namespace StardewModdingAPI.Web.Framework.ModRepositories
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="vendorKey">The unique key for this vendor.</param>
-        protected RepositoryBase(string vendorKey)
+        protected RepositoryBase(ModRepositoryKey vendorKey)
         {
             this.VendorKey = vendorKey;
         }
