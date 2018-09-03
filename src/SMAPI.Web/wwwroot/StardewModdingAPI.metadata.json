@@ -222,21 +222,6 @@
       "MapRemoteVersions": { "1.0.1": "1.0" } // manifest not updated
     },
 
-    "Junimo Farm": {
-      "ID": "Platonymous.JunimoFarm",
-      "MapRemoteVersions": { "1.1.2": "1.1.1" } // manifest not updated
-    },
-
-    "Longevity": {
-      "ID": "RTGOAT.Longevity",
-      "MapRemoteVersions": { "1.6.8h": "1.6.8" }
-    },
-
-    "Magic": {
-      "ID": "spacechase0.Magic",
-      "MapRemoteVersions": { "0.1.2": "0.1.1" } // not updated in manifest
-    },
-
     "Modder Serialization Utility": {
       "ID": "SerializerUtils-0-1",
       "~ | Status": "Obsolete",
@@ -305,19 +290,9 @@
       "MapLocalVersions": { "1.1.2-release": "1.1.2" }
     },
 
-    "Save Anywhere": {
-      "ID": "Omegasis.SaveAnywhere",
-      "MapRemoteVersions": { "2.6.2": "2.6.1" } // not updated in manifest
-    },
-
     "Save Backup": {
       "ID": "Omegasis.SaveBackup",
       "~1.2    | Status": "AssumeBroken" // broke in SMAPI 2.0
-    },
-
-    "Self Service": {
-      "ID": "JarvieK.SelfService",
-      "MapRemoteVersions": { "0.2.1": "0.2" } // manifest not updated
     },
 
     "Shop Expander": {
@@ -389,11 +364,6 @@
     "Variable Grass": {
       "ID": "dantheman999.VariableGrass",
       "Default | UpdateKey": "GitHub:dantheman999301/StardewMods"
-    },
-
-    "zDailyIncrease": {
-      "ID": "zdailyincrease",
-      "MapRemoteVersions": { "1.3.5": "1.3.4" } // not updated in manifest
     },
 
     "Zoom Out Extreme": {
