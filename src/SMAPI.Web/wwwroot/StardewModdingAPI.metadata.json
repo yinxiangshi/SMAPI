@@ -68,21 +68,10 @@
     /*********
     ** Mods
     *********/
-    "AccessChestAnywhere": {
-      "ID": "AccessChestAnywhere",
-      "MapLocalVersions": { "1.1-1078": "1.1" },
-      "~1.1    | Status": "AssumeBroken"
-    },
-
     "Adjust Artisan Prices": {
       "ID": "ThatNorthernMonkey.AdjustArtisanPrices",
       "FormerIDs": "1e36d4ca-c7ef-4dfb-9927-d27a6c3c8bdc", // changed in 0.0.2-pathoschild-update
       "MapRemoteVersions": { "0.01": "0.0.1" }
-    },
-
-    "AgingMod": {
-      "ID": "skn.AgingMod",
-      "~1.0    | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Almighty Farming Tool": {
@@ -99,19 +88,9 @@
       "~ | StatusReasonPhrase": "the animal mood bugs were fixed in Stardew Valley 1.2."
     },
 
-    "Animal Sitter": {
-      "ID": "jwdred.AnimalSitter",
-      "~1.0.8  | Status": "AssumeBroken" // broke in SMAPI 2.0
-    },
-
     "Arcade Pong": {
       "ID": "Platonymous.ArcadePong",
       "~1.0.2 | Status": "AssumeBroken" // broke in SMAPI 2.6-beta.16 due to reflection into SMAPI internals
-    },
-
-    "Automate": {
-      "ID": "Pathoschild.Automate",
-      "~1.10-beta.7 | Status": "AssumeBroken" // broke in SDV 1.3.20
     },
 
     "Automated Doors": {
@@ -141,11 +120,6 @@
       "MapLocalVersions": { "1.1-alpha": "1.1" }
     },
 
-    "Categorize Chests": {
-      "ID": "CategorizeChests",
-      "~1.4.3-unofficial.2.mizzion | Status": "AssumeBroken" // broke in SMAPI 2.6-beta.18 (in-game errors)
-    },
-
     "Chefs Closet": {
       "ID": "Duder.ChefsCloset",
       "MapLocalVersions": { "1.3-1": "1.3" }
@@ -156,44 +130,9 @@
       "Default | UpdateKey": "GitHub:mralbobo/stardew-chest-pooling"
     },
 
-    "Chests Anywhere": {
-      "ID": "Pathoschild.ChestsAnywhere",
-      "FormerIDs": "ChestsAnywhere", // changed in 1.9
-      "~1.12.4   | Status": "AssumeBroken" // broke in SDV 1.3
-    },
-
-    "CJB Automation": {
-      "ID": "CJBAutomation",
-      "~1.4    | Status": "AssumeBroken", // broke in SDV 1.2
-      "~1.4    | AlternativeUrl": "http://www.nexusmods.com/stardewvalley/mods/1063"
-    },
-
-    "CJB Cheats Menu": {
-      "ID": "CJBok.CheatsMenu",
-      "FormerIDs": "CJBCheatsMenu", // changed in 1.14
-      "~1.18-beta | Status": "AssumeBroken" // broke in SDV 1.3, first beta causes significant friendship bugs
-    },
-
-    "CJB Item Spawner": {
-      "ID": "CJBok.ItemSpawner",
-      "FormerIDs": "CJBItemSpawner", // changed in 1.7
-      "~1.10   | Status": "AssumeBroken" // broke in SDV 1.3
-    },
-
-    "CJB Show Item Sell Price": {
-      "ID": "CJBok.ShowItemSellPrice",
-      "FormerIDs": "CJBShowItemSellPrice", // changed in 1.7
-      "~1.8    | Status": "AssumeBroken" // broke in SDV 1.3
-    },
-
     "Cobalt": {
       "ID": "spacechase0.Cobalt",
       "MapRemoteVersions": { "1.1.3": "1.1.2" } // not updated in manifest
-    },
-
-    "Cold Weather Haley": {
-      "ID": "LordXamon.ColdWeatherHaleyPRO",
-      "~1.0    | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Colored Chests": {
@@ -207,16 +146,6 @@
       "MapLocalVersions": { "1.2-beta": "1.2" }
     },
 
-    "Configurable Shipping Dates": {
-      "ID": "ConfigurableShippingDates",
-      "~1.1.1  | Status": "AssumeBroken" // broke in SMAPI 2.0
-    },
-
-    "Content Patcher": {
-      "ID": "Pathoschild.ContentPatcher",
-      "~1.4-beta.5 | Status": "AssumeBroken" // broke in SMAPI 2.6-beta.18 (in-game errors)
-    },
-
     "Crafting Counter": {
       "ID": "lolpcgaming.CraftingCounter",
       "MapRemoteVersions": { "1.1": "1.0" } // not updated in manifest
@@ -226,12 +155,6 @@
       "ID": "Platonymous.CFAutomate",
       "~1.0.1 | Status": "AssumeBroken", // no longer compatible with Automate
       "~1.0.1 | AlternativeUrl": "https://www.nexusmods.com/stardewvalley/mods/991"
-    },
-
-    "Customize Exterior": {
-      "ID": "spacechase0.CustomizeExterior",
-      "FormerIDs": "CustomizeExterior", // changed in 1.0.3
-      "~1.0.2  | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Customizable Cart Redux": {
@@ -244,17 +167,6 @@
       "MapRemoteVersions": { "1.1": "1.0" } // manifest not updated
     },
 
-    "Daily News": {
-      "ID": "bashNinja.DailyNews",
-      "~1.2    | Status": "AssumeBroken" // broke in Stardew Valley 1.3 (or depends on CustomTV which broke)
-    },
-
-    "Debug Mode": {
-      "ID": "Pathoschild.DebugMode",
-      "FormerIDs": "Pathoschild.Stardew.DebugMode", // changed in 1.4
-      "~1.8    | Status": "AssumeBroken" // broke in SDV 1.3
-    },
-
     "Dynamic Horses": {
       "ID": "Bpendragon-DynamicHorses",
       "MapRemoteVersions": { "1.2": "1.1-release" } // manifest not updated
@@ -262,8 +174,7 @@
 
     "Dynamic Machines": {
       "ID": "DynamicMachines",
-      "MapLocalVersions": { "1.1": "1.1.1" },
-      "~1.1.1  | Status": "AssumeBroken" // broke in SMAPI 2.0
+      "MapLocalVersions": { "1.1": "1.1.1" }
     },
 
     "Enemy Health Bars": {
@@ -271,25 +182,9 @@
       "FormerIDs": "SPDHealthBar" // changed in 1.7.1-pathoschild-update
     },
 
-    "Entoarox Framework": {
-      "ID": "Entoarox.EntoaroxFramework",
-      "FormerIDs": "eacdb74b-4080-4452-b16b-93773cda5cf9", // changed in ???
-      "~2.0.6 | Status": "AssumeBroken" // broke in SMAPI 2.5 (error reflecting into SMAPI internals)
-    },
-
     "Fall 28 Snow Day": {
       "ID": "Omegasis.Fall28SnowDay",
       "~1.4.1  | Status": "AssumeBroken" // broke in SMAPI 2.0, and update for SMAPI 2.0 doesn't do anything
-    },
-
-    "Farm Automation Unofficial: Item Collector": {
-      "ID": "Maddy99.FarmAutomation.ItemCollector",
-      "~0.5 | Status": "AssumeBroken" // broke in SMAPI 2.0
-    },
-
-    "Fast Animations": {
-      "ID": "Pathoschild.FastAnimations",
-      "~1.5    | Status": "AssumeBroken" // broke in SDV 1.3
     },
 
     "Fishing Adjust": {
@@ -312,21 +207,6 @@
       "~0.3 | Status": "AssumeBroken" // broke in 1.3.29 (runtime errors: System.IndexOutOfRangeException: Could not find instruction sequence)
     },
 
-    "Happy Animals": {
-      "ID": "HappyAnimals",
-      "~1.0.3 | Status": "AssumeBroken" // broke in SMAPI 2.0
-    },
-
-    "Horse Whistle (icepuente)": {
-      "ID": "icepuente.HorseWhistle",
-      "~1.1.2-unofficial.1-pathoschild | Status": "AssumeBroken" // causes significant lag, fixed in unofficial.2
-    },
-
-    "Hunger for Food (Tigerle)": {
-      "ID": "HungerForFoodByTigerle",
-      "~0.1.2  | Status": "AssumeBroken" // broke in SMAPI 2.0
-    },
-
     "Hunger Mod (skn)": {
       "ID": "skn.HungerMod",
       "MapRemoteVersions": { "1.2.1": "1.0" } // manifest not updated
@@ -335,16 +215,6 @@
     "Idle Pause": {
       "ID": "Veleek.IdlePause",
       "MapRemoteVersions": { "1.2": "1.1" } // manifest not updated
-    },
-
-    "Improved Quality of Life": {
-      "ID": "Demiacle.ImprovedQualityOfLife",
-      "~1.1    | Status": "AssumeBroken" // broke in SMAPI 2.0
-    },
-
-    "Instant Geode": {
-      "ID": "InstantGeode",
-      "~1.12 | Status": "AssumeBroken" // broke in SDV 1.2
     },
 
     "Item Auto Stacker": {
@@ -357,31 +227,14 @@
       "MapRemoteVersions": { "1.1.2": "1.1.1" } // manifest not updated
     },
 
-    "Less Strict Over-Exertion (AntiExhaustion)": {
-      "ID": "BALANCEMOD_AntiExhaustion",
-      "MapLocalVersions": { "0.0": "1.1" },
-      "~1.1 | Status": "AssumeBroken" // broke in SMAPI 2.0
-    },
-
     "Longevity": {
       "ID": "RTGOAT.Longevity",
       "MapRemoteVersions": { "1.6.8h": "1.6.8" }
     },
 
-    "Lookup Anything": {
-      "ID": "Pathoschild.LookupAnything",
-      "FormerIDs": "LookupAnything", // changed in 1.10.1
-      "~1.18.1 | Status": "AssumeBroken" // broke in SDV 1.3
-    },
-
     "Magic": {
       "ID": "spacechase0.Magic",
       "MapRemoteVersions": { "0.1.2": "0.1.1" } // not updated in manifest
-    },
-
-    "Message Box [API]? (ChatMod)": {
-      "ID": "Kithio:ChatMod",
-      "~1.0    | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Modder Serialization Utility": {
@@ -407,13 +260,7 @@
 
     "Multiple Sprites and Portraits On Rotation (File Loading)": {
       "ID": "FileLoading",
-      "MapLocalVersions": { "1.1": "1.12" },
-      "~1.12   | Status": "AssumeBroken" // broke in SMAPI 2.0
-    },
-
-    "New Machines": {
-      "ID": "F70D4FAB-0AB2-4B78-9F1B-AF2CA2236A59",
-      "~4.2.1343 | Status": "AssumeBroken" // broke in SMAPI 2.0
+      "MapLocalVersions": { "1.1": "1.12" }
     },
 
     "Night Owl": {
@@ -425,11 +272,6 @@
       "ID": "NoDebugMode",
       "~ | Status": "Obsolete",
       "~ | StatusReasonPhrase": "debug mode was removed in SMAPI 1.0."
-    },
-
-    "No Soil Decay": {
-      "ID": "289dee03-5f38-4d8e-8ffc-e440198e8610",
-      "~0.5    | Status": "AssumeBroken" // broke in SDV 1.2 and uses Assembly.GetExecutingAssembly().Location
     },
 
     "OmniFarm": {
@@ -453,30 +295,14 @@
       "~1.0    | Status": "AssumeBroken" // broke in SDV 1.2
     },
 
-    "RelationshipsEnhanced": {
-      "ID": "relationshipsenhanced",
-      "~1.0    | Status": "AssumeBroken" // broke in SMAPI 2.0
-    },
-
     "Relationship Status": {
       "ID": "relationshipstatus",
-      "MapRemoteVersions": { "1.0.5": "1.0.4" }, // not updated in manifest
-      "~1.0.5  | Status": "AssumeBroken" // broke in SMAPI 2.0
+      "MapRemoteVersions": { "1.0.5": "1.0.4" } // not updated in manifest
     },
 
     "ReRegeneration": {
       "ID": "lrsk_sdvm_rerg.0925160827",
       "MapLocalVersions": { "1.1.2-release": "1.1.2" }
-    },
-    
-    "Reusable Wallpapers and Floors (Wallpaper Retain)": {
-      "ID": "dae1b553-2e39-43e7-8400-c7c5c836134b",
-      "~1.5    | Status": "AssumeBroken" // broke in SMAPI 2.0
-    },
-
-    "Rotate Toolbar": {
-      "ID": "Pathoschild.RotateToolbar",
-      "~1.2.1  | Status": "AssumeBroken" // broke in SDV 1.3
     },
 
     "Save Anywhere": {
@@ -494,17 +320,6 @@
       "MapRemoteVersions": { "0.2.1": "0.2" } // manifest not updated
     },
 
-    "Shed Notifications (BuildingsNotifications)": {
-      "ID": "TheCroak.BuildingsNotifications",
-      "~0.4.1  | Status": "AssumeBroken" // broke in SMAPI 2.0
-    },
-
-    "Shenandoah Project": {
-      "ID": "Nishtra.ShenandoahProject",
-      "FormerIDs": "Shenandoah Project", // changed in 1.2
-      "MapRemoteVersions": { "1.1.1": "1.1" } // not updated in manifest
-    },
-
     "Shop Expander": {
       "ID": "Entoarox.ShopExpander",
       "FormerIDs": "EntoaroxShopExpander", // changed in 1.5.2
@@ -513,8 +328,7 @@
 
     "Showcase Mod": {
       "ID": "Igorious.Showcase",
-      "MapLocalVersions": { "0.9-500": "0.9" },
-      "~0.9 | Status": "AssumeBroken" // broke in SMAPI 2.0
+      "MapLocalVersions": { "0.9-500": "0.9" }
     },
 
     "Siv's Marriage Mod": {
@@ -529,27 +343,10 @@
       "MapRemoteVersions": { "1.2.3": "1.1" } // manifest not updated
     },
 
-    "Skip Intro": {
-      "ID": "Pathoschild.SkipIntro",
-      "FormerIDs": "SkipIntro", // changed in 1.4
-      "~1.7.2  | Status": "AssumeBroken" // broke in SDV 1.3
-    },
-
     "Skull Cave Saver": {
       "ID": "cantorsdust.SkullCaveSaver",
       "FormerIDs": "8ac06349-26f7-4394-806c-95d48fd35774 | community.SkullCaveSaver", // changed in 1.1 and 1.2.2
       "1.3-beta | Status": "AssumeBroken" // doesn't work in multiplayer, no longer maintained
-    },
-
-    "Slower Fence Decay": {
-      "ID": "Speeder.SlowerFenceDecay",
-      "FormerIDs": "SPDSlowFenceDecay", // changed in 0.5.2-pathoschild-update
-      "~0.5.1  | Status": "AssumeBroken" // broke in SMAPI 2.0
-    },
-
-    "Smart Mod": {
-      "ID": "KuroBear.SmartMod",
-      "~2.2 | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Solar Eclipse Event": {
@@ -557,41 +354,14 @@
       "MapLocalVersions": { "1.3.1-20180131": "1.3.1" }
     },
 
-    "SpaceCore": {
-      "ID": "spacechase0.SpaceCore",
-      "~1.1.2-unofficial.1-defenthenation | Status": "AssumeBroken" // causes .png.xnb content load errors and "MissingMethodException: Method 'DecoratableLocation.getWalls' not found."
-    },
-
     "Split Screen": {
       "ID": "Ilyaki.SplitScreen",
       "~3.0.1 | Status": "AssumeBroken" // broke in SMAPI 2.6-beta.16 due to reflection into SMAPI internals
     },
 
-    "Sprint and Dash": {
-      "ID": "SPDSprintAndDash",
-      "~1.0    | Status": "AssumeBroken" // broke in SDV 1.2
-    },
-
-    "Stardew Content Compatibility Layer (SCCL)": {
-      "ID": "SCCL",
-      "~0.1    | Status": "AssumeBroken" // broke in SDV 1.2
-    },
-
     "Stardew Notification": {
       "ID": "stardewnotification",
       "Default | UpdateKey": "GitHub:monopandora/StardewNotification"
-    },
-
-    "StarDustCore": {
-      "ID": "StarDustCore",
-      "~ | Status": "Obsolete",
-      "~ | StatusReasonPhrase": "it was only used by earlier versions of Save Anywhere, and is no longer used or maintained."
-    },
-
-    "StashItemsToChest": {
-      "ID": "BlueMod_StashItemsToChest",
-      "Default | UpdateKey": "GitHub:lambui/StardewValleyMod_StashItemsToChest",
-      "~1.0.1  | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
     "Stephan's Lots of Crops": {
@@ -606,16 +376,6 @@
       "~1.0.2 | Status": "AssumeBroken" // broke in SDV 1.3 (runtime errors)
     },
 
-    "Teleporter": {
-      "ID": "Teleporter",
-      "~1.0.2  | Status": "AssumeBroken" // broke in SDV 1.2
-    },
-
-    "The Long Night": {
-      "ID": "Pathoschild.TheLongNight",
-      "~1.1.1  | Status": "AssumeBroken" // broke in SDV 1.3
-    },
-
     "Time Reminder": {
       "ID": "KoihimeNakamura.TimeReminder",
       "MapLocalVersions": { "1.0-20170314": "1.0.2" }
@@ -624,24 +384,6 @@
     "Tool Charging": {
       "ID": "mralbobo.ToolCharging",
       "Default | UpdateKey": "GitHub:mralbobo/stardew-tool-charging"
-    },
-
-    "TractorMod": {
-      "ID": "Pathoschild.TractorMod",
-      "FormerIDs": "BlueMod_TractorMod | PhthaloBlue.TractorMod | community.TractorMod", // changed in 3.2, 4.0 beta, and 4.0
-      "~4.5-beta | Status": "AssumeBroken" // broke in SDV 1.3
-    },
-
-    "TrainerMod": {
-      "ID": "SMAPI.TrainerMod",
-      "~ | Status": "Obsolete",
-      "~ | StatusReasonPhrase": "replaced by ConsoleCommands, which is added by the SMAPI installer."
-    },
-
-    "UiModSuite": {
-      "ID": "Demiacle.UiModSuite",
-      "MapLocalVersions": { "0.5": "1.0" }, // not updated in manifest
-      "~1.0    | Status": "AssumeBroken" // broke in SDV 1.2
     },
 
     "Variable Grass": {
@@ -658,58 +400,6 @@
       "ID": "RockinMods.ZoomMod",
       "FormerIDs": "ZoomMod", // changed circa 1.2.1
       "~0.1 | Status": "AssumeBroken" // broke in SDV 1.2
-    },
-
-    "Zoryn's Better RNG": {
-      "ID": "Zoryn.BetterRNG",
-      "FormerIDs": "76b6d1e1-f7ba-4d72-8c32-5a1e6d2716f6", // changed in 1.6
-      "Default | UpdateKey": "GitHub:Zoryn4163/SMAPI-Mods",
-      "~1.6    | Status": "AssumeBroken" // broke in SDV 1.2
-    },
-
-    "Zoryn's Calendar Anywhere": {
-      "ID": "Zoryn.CalendarAnywhere",
-      "FormerIDs": "a41c01cd-0437-43eb-944f-78cb5a53002a", // changed in 1.6
-      "Default | UpdateKey": "GitHub:Zoryn4163/SMAPI-Mods",
-      "~1.6    | Status": "AssumeBroken" // broke in SDV 1.2
-    },
-
-    "Zoryn's Durable Fences": {
-      "ID": "Zoryn.DurableFences",
-      "FormerIDs": "56d3439c-7b9b-497e-9496-0c4890e8a00e", // changed in 1.6
-      "Default | UpdateKey": "GitHub:Zoryn4163/SMAPI-Mods"
-    },
-
-    "Zoryn's Health Bars": {
-      "ID": "Zoryn.HealthBars",
-      "Default | UpdateKey": "GitHub:Zoryn4163/SMAPI-Mods",
-      "~1.6    | Status": "AssumeBroken" // broke in SDV 1.2
-    },
-
-    "Zoryn's Fishing Mod": {
-      "ID": "Zoryn.FishingMod",
-      "FormerIDs": "fa277b1f-265e-47c3-a84f-cd320cc74949", // changed in 1.6
-      "Default | UpdateKey": "GitHub:Zoryn4163/SMAPI-Mods"
-    },
-
-    "Zoryn's Junimo Deposit Anywhere": {
-      "ID": "Zoryn.JunimoDepositAnywhere",
-      "FormerIDs": "f93a4fe8-cade-4146-9335-b5f82fbbf7bc", // changed in 1.6
-      "Default | UpdateKey": "GitHub:Zoryn4163/SMAPI-Mods",
-      "~1.7    | Status": "AssumeBroken" // broke in SDV 1.2
-    },
-
-    "Zoryn's Movement Mod": {
-      "ID": "Zoryn.MovementModifier",
-      "FormerIDs": "8a632929-8335-484f-87dd-c29d2ba3215d", // changed in 1.6
-      "Default | UpdateKey": "GitHub:Zoryn4163/SMAPI-Mods"
-    },
-
-    "Zoryn's Regen Mod": {
-      "ID": "Zoryn.RegenMod",
-      "FormerIDs": "dfac4383-1b6b-4f33-ae4e-37fc23e5252e", // changed in 1.6
-      "Default | UpdateKey": "GitHub:Zoryn4163/SMAPI-Mods",
-      "~1.6    | Status": "AssumeBroken" // broke in SDV 1.2
     }
   }
 }
