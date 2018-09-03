@@ -16,6 +16,7 @@
   * Added [data API](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Data).
   * Added `IContentPack.WriteJsonFile` method.
   * Added IntelliSense documentation when not using the 'for developers' version of SMAPI.
+  * Mods are no longer prevented from loading a PNG while the game is drawing.
   * Fixed `IContentPack.ReadJsonFile` allowing non-relative paths.
   * Suppressed the game's 'added crickets' debug output.
   * **Breaking change:** `helper.ModRegistry` now returns `IModInfo` instead of `IManifest` directly. This lets SMAPI return more metadata about mods in future versions.
