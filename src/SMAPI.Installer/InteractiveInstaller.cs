@@ -98,6 +98,7 @@ namespace StardewModdingApi.Installer
             yield return GetInstallPath("libgdiplus.dylib");           // Linux/Mac only
             yield return GetInstallPath("StardewModdingAPI");          // Linux/Mac only
             yield return GetInstallPath("StardewModdingAPI.exe");
+            yield return GetInstallPath("StardewModdingAPI.exe.config");
             yield return GetInstallPath("StardewModdingAPI.exe.mdb");  // Linux/Mac only
             yield return GetInstallPath("StardewModdingAPI.pdb");      // Windows only
             yield return GetInstallPath("StardewModdingAPI.xml");
