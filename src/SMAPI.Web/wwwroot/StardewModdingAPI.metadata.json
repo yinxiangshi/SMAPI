@@ -194,7 +194,7 @@
 
     "Fix Scythe Exp": {
       "ID": "bcmpinc.FixScytheExp",
-      "~0.2 | Status": "AssumeBroken" // Exception from HarmonyInstance "bcmpinc.FixScytheExp" [...] Bad label content in ILGenerator.
+      "~0.3 | Status": "AssumeBroken" // broke in 1.3: Exception from HarmonyInstance "bcmpinc.FixScytheExp" [...] Bad label content in ILGenerator.
     },
 
     "Gate Opener": {
