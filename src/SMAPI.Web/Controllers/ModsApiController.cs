@@ -165,6 +165,23 @@ namespace StardewModdingAPI.Web.Controllers
             if (wikiEntry?.UnofficialVersion != null && this.IsNewer(wikiEntry.UnofficialVersion, result.Main?.Version) && this.IsNewer(wikiEntry.UnofficialVersion, result.Optional?.Version))
                 result.Unofficial = new ModEntryVersionModel(wikiEntry.UnofficialVersion, this.WikiCompatibilityPageUrl);
 
+            // get unofficial version for beta
+            if (wikiEntry?.HasBetaInfo == true)
+            {
+                result.HasBetaInfo = true;
+                if (wikiEntry.BetaStatus == WikiCompatibilityStatus.Unofficial)
+                {
+                    if (wikiEntry.BetaUnofficialVersion != null)
+                    {
+                        result.UnofficialForBeta = (wikiEntry.BetaUnofficialVersion != null && this.IsNewer(wikiEntry.BetaUnofficialVersion, result.Main?.Version) && this.IsNewer(wikiEntry.BetaUnofficialVersion, result.Optional?.Version))
+                            ? new ModEntryVersionModel(wikiEntry.BetaUnofficialVersion, this.WikiCompatibilityPageUrl)
+                            : null;
+                    }
+                    else
+                        result.UnofficialForBeta = result.Unofficial;
+                }
+            }
+
             // fallback to preview if latest is invalid
             if (result.Main == null && result.Optional != null)
             {

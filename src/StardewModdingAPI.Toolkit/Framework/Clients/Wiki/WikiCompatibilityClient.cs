@@ -73,26 +73,8 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
         {
             foreach (HtmlNode node in nodes)
             {
-                // parse status
-                WikiCompatibilityStatus status;
-                {
-                    string rawStatus = node.GetAttributeValue("data-status", null);
-                    if (rawStatus == null)
-                        continue; // not a mod node?
-                    if (!Enum.TryParse(rawStatus, true, out status))
-                        throw new InvalidOperationException($"Unknown status '{rawStatus}' when parsing compatibility list.");
-                }
-
-                // parse unofficial version
-                ISemanticVersion unofficialVersion = null;
-                {
-                    string rawUnofficialVersion = node.GetAttributeValue("data-unofficial-version", null);
-                    SemanticVersion.TryParse(rawUnofficialVersion, out unofficialVersion);
-                }
-
-                // parse other fields
+                // parse mod info
                 string name = node.Descendants("td").FirstOrDefault()?.InnerText?.Trim();
-                string summary = node.Descendants("td").FirstOrDefault(p => p.GetAttributeValue("class", null) == "summary")?.InnerText.Trim();
                 string[] ids = this.GetAttribute(node, "data-id")?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim()).ToArray() ?? new string[0];
                 int? nexusID = this.GetNullableIntAttribute(node, "data-nexus-id");
                 int? chucklefishID = this.GetNullableIntAttribute(node, "data-chucklefish-id");
@@ -100,21 +82,63 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
                 string customSourceUrl = this.GetAttribute(node, "data-custom-source");
                 string customUrl = this.GetAttribute(node, "data-custom-url");
 
+                // parse stable compatibility
+                WikiCompatibilityStatus status = this.GetStatusAttribute(node, "data-status") ?? WikiCompatibilityStatus.Ok;
+                ISemanticVersion unofficialVersion = this.GetSemanticVersionAttribute(node, "data-unofficial-version");
+                string summary = node.Descendants().FirstOrDefault(p => p.HasClass("data-summary"))?.InnerText.Trim();
+
+                // parse beta compatibility
+                WikiCompatibilityStatus? betaStatus = this.GetStatusAttribute(node, "data-beta-status");
+                ISemanticVersion betaUnofficialVersion = betaStatus.HasValue ? this.GetSemanticVersionAttribute(node, "data-beta-unofficial-version") : null;
+                string betaSummary = betaStatus.HasValue ? node.Descendants().FirstOrDefault(p => p.HasClass("data-beta-summary"))?.InnerText.Trim() : null;
+
                 // yield model
                 yield return new WikiCompatibilityEntry
                 {
+                    // mod info
                     ID = ids,
                     Name = name,
-                    Status = status,
                     NexusID = nexusID,
                     ChucklefishID = chucklefishID,
                     GitHubRepo = githubRepo,
                     CustomSourceUrl = customSourceUrl,
                     CustomUrl = customUrl,
+
+                    // stable compatibility
+                    Status = status,
+                    Summary = summary,
                     UnofficialVersion = unofficialVersion,
-                    Summary = summary
+
+                    // beta compatibility
+                    BetaStatus = betaStatus,
+                    BetaSummary = betaSummary,
+                    BetaUnofficialVersion = betaUnofficialVersion
                 };
             }
+        }
+
+        /// <summary>Get a compatibility status attribute value.</summary>
+        /// <param name="node">The HTML node.</param>
+        /// <param name="attributeName">The attribute name.</param>
+        private WikiCompatibilityStatus? GetStatusAttribute(HtmlNode node, string attributeName)
+        {
+            string raw = node.GetAttributeValue(attributeName, null);
+            if (raw == null)
+                return null; // not a mod node?
+            if (!Enum.TryParse(raw, true, out WikiCompatibilityStatus status))
+                throw new InvalidOperationException($"Unknown status '{raw}' when parsing compatibility list.");
+            return status;
+        }
+
+        /// <summary>Get a semantic version attribute value.</summary>
+        /// <param name="node">The HTML node.</param>
+        /// <param name="attributeName">The attribute name.</param>
+        private ISemanticVersion GetSemanticVersionAttribute(HtmlNode node, string attributeName)
+        {
+            string raw = node.GetAttributeValue(attributeName, null);
+            return SemanticVersion.TryParse(raw, out ISemanticVersion version)
+                ? version
+                : null;
         }
 
         /// <summary>Get a nullable integer attribute value.</summary>

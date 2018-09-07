@@ -609,10 +609,11 @@ namespace StardewModdingAPI.Framework
                             }
 
                             // parse versions
+                            bool useBetaInfo = result.HasBetaInfo && Constants.ApiVersion.IsPrerelease();
                             ISemanticVersion localVersion = mod.DataRecord?.GetLocalVersionForUpdateChecks(mod.Manifest.Version) ?? mod.Manifest.Version;
                             ISemanticVersion latestVersion = mod.DataRecord?.GetRemoteVersionForUpdateChecks(result.Main?.Version) ?? result.Main?.Version;
                             ISemanticVersion optionalVersion = mod.DataRecord?.GetRemoteVersionForUpdateChecks(result.Optional?.Version) ?? result.Optional?.Version;
-                            ISemanticVersion unofficialVersion = result.Unofficial?.Version;
+                            ISemanticVersion unofficialVersion = useBetaInfo ? result.UnofficialForBeta?.Version : result.Unofficial?.Version;
 
                             // show update alerts
                             if (this.IsValidUpdate(localVersion, latestVersion, useBetaChannel: true))
@@ -620,7 +621,7 @@ namespace StardewModdingAPI.Framework
                             else if (this.IsValidUpdate(localVersion, optionalVersion, useBetaChannel: localVersion.IsPrerelease()))
                                 updates.Add(Tuple.Create(mod, optionalVersion, result.Optional?.Url));
                             else if (this.IsValidUpdate(localVersion, unofficialVersion, useBetaChannel: mod.Status == ModMetadataStatus.Failed))
-                                updates.Add(Tuple.Create(mod, unofficialVersion, result.Unofficial?.Url));
+                                updates.Add(Tuple.Create(mod, unofficialVersion, useBetaInfo ? result.UnofficialForBeta?.Url : result.Unofficial?.Url));
                         }
 
                         // show update errors
