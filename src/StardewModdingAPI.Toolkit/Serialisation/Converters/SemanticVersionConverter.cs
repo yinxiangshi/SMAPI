@@ -24,7 +24,7 @@ namespace StardewModdingAPI.Toolkit.Serialisation.Converters
         /// <param name="objectType">The object type.</param>
         public override bool CanConvert(Type objectType)
         {
-            return objectType == typeof(ISemanticVersion);
+            return typeof(ISemanticVersion).IsAssignableFrom(objectType);
         }
 
         /// <summary>Reads the JSON representation of the object.</summary>
