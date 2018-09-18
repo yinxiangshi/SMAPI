@@ -1114,11 +1114,11 @@ namespace StardewModdingAPI.Framework
                             if (jsonHelper.ReadJsonFileIfExists(file.FullName, out IDictionary<string, string> data))
                                 translations[locale] = data;
                             else
-                                metadata.LogAsMod($"Mod's i18n/{locale}.json file couldn't be parsed.");
+                                metadata.LogAsMod($"Mod's i18n/{locale}.json file couldn't be parsed.", LogLevel.Warn);
                         }
                         catch (Exception ex)
                         {
-                            metadata.LogAsMod($"Mod's i18n/{locale}.json file couldn't be parsed: {ex.GetLogSummary()}");
+                            metadata.LogAsMod($"Mod's i18n/{locale}.json file couldn't be parsed: {ex.GetLogSummary()}", LogLevel.Warn);
                         }
                     }
                 }

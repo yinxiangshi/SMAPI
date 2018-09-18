@@ -12,6 +12,7 @@
   * Fixed error-handling when initialising paths.
   * Fixed 'no update keys' warning not shown for mods with only invalid update keys.
   * Fixed transparency issues on Linux/Mac for some mod images.
+  * Fixed translation issues not shown as warnings.
   * Updated compatibility list.
 
 * For modders:
