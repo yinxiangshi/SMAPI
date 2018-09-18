@@ -91,10 +91,6 @@ namespace StardewModdingAPI.Framework
         /// <summary>Whether the next content manager requested by the game will be for <see cref="Game1.content"/>.</summary>
         private bool NextContentManagerIsMain;
 
-        /// <summary>A reference to the private <c>_farmerShadows</c> field on <see cref="Game1"/>.</summary>
-        [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Deliberately named to match original game code as closely as possible.")]
-        private readonly List<Farmer> __farmerShadows;
-
 
         /*********
         ** Accessors
@@ -150,9 +146,6 @@ namespace StardewModdingAPI.Framework
             this.OnGameExiting = onGameExiting;
             Game1.input = new SInputState();
             Game1.multiplayer = new SMultiplayer(monitor, eventManager);
-
-            // init reflection
-            this.__farmerShadows = reflection.GetField<List<Farmer>>(this, "_farmerShadows").GetValue();
 
             // init observables
             Game1.locations = new ObservableCollection<GameLocation>();
@@ -991,13 +984,13 @@ namespace StardewModdingAPI.Framework
                             Game1.mapDisplayDevice.BeginScene(Game1.spriteBatch);
                             Game1.currentLocation.Map.GetLayer("Back").Draw(Game1.mapDisplayDevice, Game1.viewport, Location.Origin, false, 4);
                             Game1.currentLocation.drawWater(Game1.spriteBatch);
-                            this.__farmerShadows.Clear();
+                            this._farmerShadows.Clear();
                             if (Game1.currentLocation.currentEvent != null && !Game1.currentLocation.currentEvent.isFestival && Game1.currentLocation.currentEvent.farmerActors.Count > 0)
                             {
                                 foreach (Farmer farmerActor in Game1.currentLocation.currentEvent.farmerActors)
                                 {
                                     if (farmerActor.IsLocalPlayer && Game1.displayFarmer || !(bool)((NetFieldBase<bool, NetBool>)farmerActor.hidden))
-                                        this.__farmerShadows.Add(farmerActor);
+                                        this._farmerShadows.Add(farmerActor);
                                 }
                             }
                             else
@@ -1005,7 +998,7 @@ namespace StardewModdingAPI.Framework
                                 foreach (Farmer farmer in Game1.currentLocation.farmers)
                                 {
                                     if (farmer.IsLocalPlayer && Game1.displayFarmer || !(bool)((NetFieldBase<bool, NetBool>)farmer.hidden))
-                                        this.__farmerShadows.Add(farmer);
+                                        this._farmerShadows.Add(farmer);
                                 }
                             }
                             if (!Game1.currentLocation.shouldHideCharacters())
@@ -1026,7 +1019,7 @@ namespace StardewModdingAPI.Framework
                                             Game1.spriteBatch.Draw(Game1.shadowTexture, Game1.GlobalToLocal(Game1.viewport, actor.Position + new Vector2((float)(actor.Sprite.SpriteWidth * 4) / 2f, (float)(actor.GetBoundingBox().Height + (actor.IsMonster ? 0 : (actor.Sprite.SpriteHeight <= 16 ? -4 : 12))))), new Microsoft.Xna.Framework.Rectangle?(Game1.shadowTexture.Bounds), Color.White, 0.0f, new Vector2((float)Game1.shadowTexture.Bounds.Center.X, (float)Game1.shadowTexture.Bounds.Center.Y), (float)(4.0 + (double)actor.yJumpOffset / 40.0) * (float)((NetFieldBase<float, NetFloat>)actor.scale), SpriteEffects.None, Math.Max(0.0f, (float)actor.getStandingY() / 10000f) - 1E-06f);
                                     }
                                 }
-                                foreach (Farmer farmerShadow in this.__farmerShadows)
+                                foreach (Farmer farmerShadow in this._farmerShadows)
                                 {
                                     if (!(bool)((NetFieldBase<bool, NetBool>)farmerShadow.swimming) && !farmerShadow.isRidingHorse() && (Game1.currentLocation == null || !Game1.currentLocation.shouldShadowBeDrawnAboveBuildingsLayer(farmerShadow.getTileLocation())))
                                     {
@@ -1070,7 +1063,7 @@ namespace StardewModdingAPI.Framework
                                             Game1.spriteBatch.Draw(Game1.shadowTexture, Game1.GlobalToLocal(Game1.viewport, actor.Position + new Vector2((float)(actor.Sprite.SpriteWidth * 4) / 2f, (float)(actor.GetBoundingBox().Height + (actor.IsMonster ? 0 : 12)))), new Microsoft.Xna.Framework.Rectangle?(Game1.shadowTexture.Bounds), Color.White, 0.0f, new Vector2((float)Game1.shadowTexture.Bounds.Center.X, (float)Game1.shadowTexture.Bounds.Center.Y), (float)(4.0 + (double)actor.yJumpOffset / 40.0) * (float)((NetFieldBase<float, NetFloat>)actor.scale), SpriteEffects.None, Math.Max(0.0f, (float)actor.getStandingY() / 10000f) - 1E-06f);
                                     }
                                 }
-                                foreach (Farmer farmerShadow in this.__farmerShadows)
+                                foreach (Farmer farmerShadow in this._farmerShadows)
                                 {
                                     if (!(bool)((NetFieldBase<bool, NetBool>)farmerShadow.swimming) && !farmerShadow.isRidingHorse() && (Game1.currentLocation != null && Game1.currentLocation.shouldShadowBeDrawnAboveBuildingsLayer(farmerShadow.getTileLocation())))
                                     {
