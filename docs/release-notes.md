@@ -5,6 +5,7 @@
   * Moved most SMAPI files into a `smapi-internal` subfolder.
   * Moved save backups into a `save-backups` subfolder (instead of `Mods/SaveBackup/backups`). Note that previous backups will be deleted when you update.
   * Update checks now work even when the mod has no update keys in most cases.
+  * Fixed compatibility issues for some Linux players. SMAPI will now always use xterm if it's available.
   * Fixed some game install paths not detected on Windows.
   * Fixed installer duplicating bundled mods if you moved them after the last install.
   * Fixed crash when a mod manifest is corrupted.
