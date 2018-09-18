@@ -13,6 +13,7 @@
   * Fixed 'no update keys' warning not shown for mods with only invalid update keys.
   * Fixed transparency issues on Linux/Mac for some mod images.
   * Fixed translation issues not shown as warnings.
+  * Fixed dependencies not correctly enforced if the dependency is installed but failed to load.
   * Updated compatibility list.
 
 * For modders:

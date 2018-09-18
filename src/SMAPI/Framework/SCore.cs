@@ -701,7 +701,7 @@ namespace StardewModdingAPI.Framework
                 InterfaceProxyFactory proxyFactory = new InterfaceProxyFactory();
                 foreach (IModMetadata mod in mods)
                 {
-                    if (!this.TryLoadMod(mod, modAssemblyLoader, proxyFactory, jsonHelper, contentCore, modDatabase, suppressUpdateChecks, out string errorPhrase, out string errorDetails))
+                    if (!this.TryLoadMod(mod, mods, modAssemblyLoader, proxyFactory, jsonHelper, contentCore, modDatabase, suppressUpdateChecks, out string errorPhrase, out string errorDetails))
                     {
                         skippedMods[mod] = Tuple.Create(errorPhrase, errorDetails);
                         if (mod.Status != ModMetadataStatus.Failed)
@@ -840,6 +840,7 @@ namespace StardewModdingAPI.Framework
         
         /// <summary>Load a given mod.</summary>
         /// <param name="mod">The mod to load.</param>
+        /// <param name="mods">The mods being loaded.</param>
         /// <param name="assemblyLoader">Preprocesses and loads mod assemblies</param>
         /// <param name="proxyFactory">Generates proxy classes to access mod APIs through an arbitrary interface.</param>
         /// <param name="jsonHelper">The JSON helper with which to read mods' JSON files.</param>
@@ -849,7 +850,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="errorReasonPhrase">The user-facing reason phrase explaining why the mod couldn't be loaded (if applicable).</param>
         /// <param name="errorDetails">More detailed details about the error intended for developers (if any).</param>
         /// <returns>Returns whether the mod was successfully loaded.</returns>
-        private bool TryLoadMod(IModMetadata mod, AssemblyLoader assemblyLoader, InterfaceProxyFactory proxyFactory, JsonHelper jsonHelper, ContentCoordinator contentCore, ModDatabase modDatabase, HashSet<string> suppressUpdateChecks, out string errorReasonPhrase, out string errorDetails)
+        private bool TryLoadMod(IModMetadata mod, IModMetadata[] mods, AssemblyLoader assemblyLoader, InterfaceProxyFactory proxyFactory, JsonHelper jsonHelper, ContentCoordinator contentCore, ModDatabase modDatabase, HashSet<string> suppressUpdateChecks, out string errorReasonPhrase, out string errorDetails)
         {
             errorDetails = null;
 
@@ -873,6 +874,23 @@ namespace StardewModdingAPI.Framework
                 this.Monitor.Log($"      Failed: {mod.Error}", LogLevel.Trace);
                 errorReasonPhrase = mod.Error;
                 return false;
+            }
+
+            // validate dependencies
+            // Although dependences are validated before mods are loaded, a dependency may have failed.
+            if (mod.Manifest.Dependencies?.Any() == true)
+            {
+                foreach (IManifestDependency dependency in mod.Manifest.Dependencies)
+                {
+                    if (this.ModRegistry.Get(dependency.UniqueID) == null)
+                    {
+                        string dependencyName = mods
+                            .FirstOrDefault(p => dependency.UniqueID.Equals(p.Manifest.UniqueID, StringComparison.InvariantCultureIgnoreCase))
+                            ?.DisplayName ?? dependency.UniqueID;
+                        errorReasonPhrase = $"it needs the '{dependencyName}' mod, which couldn't be loaded.";
+                        return false;
+                    }
+                }
             }
 
             // load as content pack
