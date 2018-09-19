@@ -697,16 +697,28 @@ namespace StardewModdingAPI.Framework
             IDictionary<IModMetadata, Tuple<string, string>> skippedMods = new Dictionary<IModMetadata, Tuple<string, string>>();
             using (AssemblyLoader modAssemblyLoader = new AssemblyLoader(Constants.Platform, this.Monitor))
             {
+                // init
                 HashSet<string> suppressUpdateChecks = new HashSet<string>(this.Settings.SuppressUpdateChecks, StringComparer.InvariantCultureIgnoreCase);
                 InterfaceProxyFactory proxyFactory = new InterfaceProxyFactory();
-                foreach (IModMetadata mod in mods)
+                void LogSkip(IModMetadata mod, string errorPhrase, string errorDetails)
                 {
-                    if (!this.TryLoadMod(mod, mods, modAssemblyLoader, proxyFactory, jsonHelper, contentCore, modDatabase, suppressUpdateChecks, out string errorPhrase, out string errorDetails))
-                    {
-                        skippedMods[mod] = Tuple.Create(errorPhrase, errorDetails);
-                        if (mod.Status != ModMetadataStatus.Failed)
-                            mod.SetStatus(ModMetadataStatus.Failed, errorPhrase);
-                    }
+                    skippedMods[mod] = Tuple.Create(errorPhrase, errorDetails);
+                    if (mod.Status != ModMetadataStatus.Failed)
+                        mod.SetStatus(ModMetadataStatus.Failed, errorPhrase);
+                }
+
+                // load content packs first (so they're available to mods)
+                foreach (IModMetadata contentPack in mods.Where(p => p.IsContentPack))
+                {
+                    if (!this.TryLoadMod(contentPack, mods, modAssemblyLoader, proxyFactory, jsonHelper, contentCore, modDatabase, suppressUpdateChecks, out string errorPhrase, out string errorDetails))
+                        LogSkip(contentPack, errorPhrase, errorDetails);
+                }
+
+                // load SMAPI mods
+                foreach (IModMetadata contentPack in mods.Where(p => !p.IsContentPack))
+                {
+                    if (!this.TryLoadMod(contentPack, mods, modAssemblyLoader, proxyFactory, jsonHelper, contentCore, modDatabase, suppressUpdateChecks, out string errorPhrase, out string errorDetails))
+                        LogSkip(contentPack, errorPhrase, errorDetails);
                 }
             }
             IModMetadata[] loadedContentPacks = this.ModRegistry.GetAll(assemblyMods: false).ToArray();
