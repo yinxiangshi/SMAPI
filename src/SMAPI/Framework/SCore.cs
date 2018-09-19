@@ -859,7 +859,7 @@ namespace StardewModdingAPI.Framework
                 string relativePath = PathUtilities.GetRelativePath(this.ModsPath, mod.DirectoryPath);
                 if (mod.IsContentPack)
                     this.Monitor.Log($"   {mod.DisplayName} ({relativePath}) [content pack]...", LogLevel.Trace);
-                else if (mod.Manifest.EntryDll != null)
+                else if (mod.Manifest?.EntryDll != null)
                     this.Monitor.Log($"   {mod.DisplayName} ({relativePath}{Path.DirectorySeparatorChar}{mod.Manifest.EntryDll})...", LogLevel.Trace); // don't use Path.Combine here, since EntryDLL might not be valid
                 else
                     this.Monitor.Log($"   {mod.DisplayName} ({relativePath})...", LogLevel.Trace);
