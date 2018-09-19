@@ -837,7 +837,7 @@ namespace StardewModdingAPI.Framework
             // unlock mod integrations
             this.ModRegistry.AreAllModsInitialised = true;
         }
-        
+
         /// <summary>Load a given mod.</summary>
         /// <param name="mod">The mod to load.</param>
         /// <param name="mods">The mods being loaded.</param>
@@ -855,13 +855,14 @@ namespace StardewModdingAPI.Framework
             errorDetails = null;
 
             // log entry
-            if (mod.IsContentPack)
-                this.Monitor.Log($"   {mod.DisplayName} (content pack, {PathUtilities.GetRelativePath(this.ModsPath, mod.DirectoryPath)})...", LogLevel.Trace);
-            else
             {
-                this.Monitor.Log(mod.Manifest?.EntryDll != null
-                    ? $"   {mod.DisplayName} ({PathUtilities.GetRelativePath(this.ModsPath, mod.DirectoryPath)}{Path.DirectorySeparatorChar}{mod.Manifest.EntryDll})..." // don't use Path.Combine here, since EntryDLL might not be valid
-                    : $"   {mod.DisplayName}...", LogLevel.Trace);
+                string relativePath = PathUtilities.GetRelativePath(this.ModsPath, mod.DirectoryPath);
+                if (mod.IsContentPack)
+                    this.Monitor.Log($"   {mod.DisplayName} ({relativePath}) [content pack]...", LogLevel.Trace);
+                else if (mod.Manifest.EntryDll != null)
+                    this.Monitor.Log($"   {mod.DisplayName} ({relativePath}{Path.DirectorySeparatorChar}{mod.Manifest.EntryDll})...", LogLevel.Trace); // don't use Path.Combine here, since EntryDLL might not be valid
+                else
+                    this.Monitor.Log($"   {mod.DisplayName} ({relativePath})...", LogLevel.Trace);
             }
 
             // add warning for missing update key

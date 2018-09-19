@@ -22,6 +22,7 @@
   * Added IntelliSense documentation when not using the 'for developers' version of SMAPI.
   * Mods are no longer prevented from loading a PNG while the game is drawing.
   * Fixed `IContentPack.ReadJsonFile` allowing non-relative paths.
+  * Fixed trace logs not showing path for invalid mods.
   * Suppressed the game's 'added crickets' debug output.
   * **Breaking change:** `helper.ModRegistry` now returns `IModInfo` instead of `IManifest` directly. This lets SMAPI return more metadata about mods in future versions.
   * **Breaking change:** most SMAPI files have been moved into a `smapi-internal` subfolder. This won't affect compiled mods, but you'll need to update the mod build config NuGet package when compiling mods.
