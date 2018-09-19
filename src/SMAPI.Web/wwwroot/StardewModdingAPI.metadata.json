@@ -167,6 +167,11 @@
       "MapRemoteVersions": { "1.1": "1.0" } // manifest not updated
     },
 
+    "Custom Shirts": {
+      "ID": "Platonymous.CustomShirts",
+      "Default | UpdateKey": "Nexus:2416" // keep for dependencies
+    },
+
     "Dynamic Horses": {
       "ID": "Bpendragon-DynamicHorses",
       "MapRemoteVersions": { "1.2": "1.1-release" } // manifest not updated
