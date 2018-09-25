@@ -19,6 +19,7 @@
 
 * For modders:
   * Added [data API](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Data).
+  * Added support for overlaying images with semi-transparency using `asset.AsImage().PatchImage`.
   * Added `IContentPack.WriteJsonFile` method.
   * Added IntelliSense documentation when not using the 'for developers' version of SMAPI.
   * Mods are no longer prevented from loading a PNG while the game is drawing.
