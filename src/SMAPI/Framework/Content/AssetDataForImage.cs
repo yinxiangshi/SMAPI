@@ -84,13 +84,13 @@ namespace StardewModdingAPI.Framework.Content
 
                     // merge pixels
                     // This performs a conventional alpha blend for the pixels, which are already
-                    // premultiplied by the content pipeline.
-                    float alphaAbove = above.A / 255f;
-                    float alphaBelow = (255 - above.A) / 255f;
+                    // premultiplied by the content pipeline. The formula is derived from
+                    // https://blogs.msdn.microsoft.com/shawnhar/2009/11/06/premultiplied-alpha/.
+                    float alphaBelow = 1 - (above.A / 255f);
                     newData[i] = new Color(
-                        r: (int)((above.R * alphaAbove) + (below.R * alphaBelow)),
-                        g: (int)((above.G * alphaAbove) + (below.G * alphaBelow)),
-                        b: (int)((above.B * alphaAbove) + (below.B * alphaBelow)),
+                        r: (int)(above.R + (below.R * alphaBelow)),
+                        g: (int)(above.G + (below.G * alphaBelow)),
+                        b: (int)(above.B + (below.B * alphaBelow)),
                         a: Math.Max(above.A, below.A)
                     );
                 }
