@@ -39,8 +39,11 @@ namespace StardewModdingAPI.Framework
         /****
         ** SMAPI state
         ****/
-        /// <summary>Encapsulates monitoring and logging.</summary>
+        /// <summary>Encapsulates monitoring and logging for SMAPI.</summary>
         private readonly IMonitor Monitor;
+
+        /// <summary>Encapsulates monitoring and logging on the game's behalf.</summary>
+        private readonly IMonitor MonitorForGame;
 
         /// <summary>Manages SMAPI events for mods.</summary>
         private readonly EventManager Events;
@@ -122,12 +125,13 @@ namespace StardewModdingAPI.Framework
         ** Protected methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
+        /// <param name="monitor">Encapsulates monitoring and logging for SMAPI.</param>
+        /// <param name="monitorForGame">Encapsulates monitoring and logging on the game's behalf.</param>
         /// <param name="reflection">Simplifies access to private game code.</param>
         /// <param name="eventManager">Manages SMAPI events for mods.</param>
         /// <param name="onGameInitialised">A callback to invoke after the game finishes initialising.</param>
         /// <param name="onGameExiting">A callback to invoke when the game exits.</param>
-        internal SGame(IMonitor monitor, Reflector reflection, EventManager eventManager, Action onGameInitialised, Action onGameExiting)
+        internal SGame(IMonitor monitor, IMonitor monitorForGame, Reflector reflection, EventManager eventManager, Action onGameInitialised, Action onGameExiting)
         {
             SGame.ConstructorHack = null;
 
@@ -140,6 +144,7 @@ namespace StardewModdingAPI.Framework
 
             // init SMAPI
             this.Monitor = monitor;
+            this.MonitorForGame = monitorForGame;
             this.Events = eventManager;
             this.Reflection = reflection;
             this.OnGameInitialised = onGameInitialised;
@@ -697,7 +702,7 @@ namespace StardewModdingAPI.Framework
                 }
                 catch (Exception ex)
                 {
-                    this.Monitor.Log($"An error occured in the base update loop: {ex.GetLogSummary()}", LogLevel.Error);
+                    this.MonitorForGame.Log($"An error occured in the base update loop: {ex.GetLogSummary()}", LogLevel.Error);
                 }
                 this.Events.GameLoop_Updated.Raise(new GameLoopUpdatedEventArgs(this.TicksElapsed));
 

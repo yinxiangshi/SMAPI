@@ -52,6 +52,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>The core logger and monitor for SMAPI.</summary>
         private readonly Monitor Monitor;
 
+        /// <summary>The core logger and monitor on behalf of the game.</summary>
+        private readonly Monitor MonitorForGame;
+
         /// <summary>Tracks whether the game should exit immediately and any pending initialisation should be cancelled.</summary>
         private readonly CancellationTokenSource CancellationTokenSource = new CancellationTokenSource();
 
@@ -128,6 +131,7 @@ namespace StardewModdingAPI.Framework
                 ShowTraceInConsole = this.Settings.DeveloperMode,
                 ShowFullStampInConsole = this.Settings.DeveloperMode
             };
+            this.MonitorForGame = this.GetSecondaryMonitor("game");
             this.EventManager = new EventManager(this.Monitor, this.ModRegistry);
 
             // init logging
@@ -200,7 +204,7 @@ namespace StardewModdingAPI.Framework
 
                 // override game
                 SGame.ConstructorHack = new SGameConstructorHack(this.Monitor, this.Reflection, this.Toolkit.JsonHelper);
-                this.GameInstance = new SGame(this.Monitor, this.Reflection, this.EventManager, this.InitialiseAfterGameStart, this.Dispose);
+                this.GameInstance = new SGame(this.Monitor, this.MonitorForGame, this.Reflection, this.EventManager, this.InitialiseAfterGameStart, this.Dispose);
                 StardewValley.Program.gamePtr = this.GameInstance;
 
                 // add exit handler
@@ -338,11 +342,8 @@ namespace StardewModdingAPI.Framework
             this.DeprecationManager = new DeprecationManager(this.Monitor, this.ModRegistry);
 
             // redirect direct console output
-            {
-                Monitor monitor = this.GetSecondaryMonitor("game");
-                if (monitor.WriteToConsole)
-                    this.ConsoleManager.OnMessageIntercepted += message => this.HandleConsoleMessage(monitor, message);
-            }
+            if (this.MonitorForGame.WriteToConsole)
+                this.ConsoleManager.OnMessageIntercepted += message => this.HandleConsoleMessage(this.MonitorForGame, message);
 
             // add headers
             if (this.Settings.DeveloperMode)
