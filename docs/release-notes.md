@@ -5,6 +5,7 @@
   * Moved most SMAPI files into a `smapi-internal` subfolder.
   * Moved save backups into a `save-backups` subfolder (instead of `Mods/SaveBackup/backups`). Note that previous backups will be deleted when you update.
   * Update checks now work even when the mod has no update keys in most cases.
+  * Improved error when you put an XNB mod in `Mods`.
   * Fixed error when mods add an invalid location with no name.
   * Fixed compatibility issues for some Linux players. SMAPI will now always use xterm if it's available.
   * Fixed some game install paths not detected on Windows.

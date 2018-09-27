@@ -24,6 +24,15 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
             "Thumbs.db"
         };
 
+        /// <summary>The extensions for files which an XNB mod may contain. If a mod contains *only* these file extensions, it should be considered an XNB mod.</summary>
+        private readonly HashSet<string> PotentialXnbModExtensions = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
+        {
+            ".md",
+            ".png",
+            ".txt",
+            ".xnb"
+        };
+
 
         /*********
         ** Public methods
@@ -50,11 +59,15 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         {
             // find manifest.json
             FileInfo manifestFile = this.FindManifest(searchFolder);
+
+            // set appropriate invalid-mod error
             if (manifestFile == null)
             {
-                bool isEmpty = !searchFolder.GetFileSystemInfos().Where(this.IsRelevant).Any();
-                if (isEmpty)
+                FileInfo[] files = searchFolder.GetFiles("*", SearchOption.AllDirectories).Where(this.IsRelevant).ToArray();
+                if (!files.Any())
                     return new ModFolder(root, searchFolder, null, "it's an empty folder.");
+                if (files.All(file => this.PotentialXnbModExtensions.Contains(file.Extension)))
+                    return new ModFolder(root, searchFolder, null, "it's an older XNB mod which replaces game files (not run through SMAPI).");
                 return new ModFolder(root, searchFolder, null, "it contains files, but none of them are manifest.json.");
             }
 
