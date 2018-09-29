@@ -35,6 +35,7 @@
   * Added a 'paranoid warnings' option which reports mods using potentially sensitive .NET APIs (like file or shell access) in the mod issues list.
   * Adjusted `SaveBackup` mod to make it easier to account for custom mod subfolders in the installer.
   * Installer no longer special-cases Omegasis' older `SaveBackup` mod (now named `AdvancedSaveBackup`).
+  * Fixed mod web API returning a concatenated name for mods with alternate names.
 
 ## 2.7
 * For players:

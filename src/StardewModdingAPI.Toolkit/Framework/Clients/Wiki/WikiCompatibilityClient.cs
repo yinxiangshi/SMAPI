@@ -74,7 +74,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
             foreach (HtmlNode node in nodes)
             {
                 // parse mod info
-                string name = node.Descendants("td").FirstOrDefault()?.InnerText?.Trim();
+                string name = node.Descendants("td").FirstOrDefault()?.Descendants("a")?.FirstOrDefault()?.InnerText?.Trim();
                 string[] ids = this.GetAttribute(node, "data-id")?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim()).ToArray() ?? new string[0];
                 int? nexusID = this.GetNullableIntAttribute(node, "data-nexus-id");
                 int? chucklefishID = this.GetNullableIntAttribute(node, "data-chucklefish-id");
