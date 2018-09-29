@@ -16,6 +16,7 @@
   * Fixed transparency issues on Linux/Mac for some mod images.
   * Fixed translation issues not shown as warnings.
   * Fixed dependencies not correctly enforced if the dependency is installed but failed to load.
+  * Fixed some errors logged as SMAPI instead of the affected mod.
   * Updated compatibility list.
 
 * For modders:

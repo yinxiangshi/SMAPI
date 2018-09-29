@@ -8,8 +8,8 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /*********
         ** Accessors
         *********/
-        /// <summary>The friendly mod name for this instance.</summary>
-        private readonly string ModName;
+        /// <summary>The mod using this instance.</summary>
+        private readonly IModMetadata Mod;
 
         /// <summary>Manages console commands.</summary>
         private readonly CommandManager CommandManager;
@@ -19,13 +19,12 @@ namespace StardewModdingAPI.Framework.ModHelpers
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="modID">The unique ID of the relevant mod.</param>
-        /// <param name="modName">The friendly mod name for this instance.</param>
+        /// <param name="mod">The mod using this instance.</param>
         /// <param name="commandManager">Manages console commands.</param>
-        public CommandHelper(string modID, string modName, CommandManager commandManager)
-            : base(modID)
+        public CommandHelper(IModMetadata mod, CommandManager commandManager)
+            : base(mod?.Manifest?.UniqueID ?? "SMAPI")
         {
-            this.ModName = modName;
+            this.Mod = mod;
             this.CommandManager = commandManager;
         }
 
@@ -38,7 +37,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <exception cref="ArgumentException">There's already a command with that name.</exception>
         public ICommandHelper Add(string name, string documentation, Action<string, string[]> callback)
         {
-            this.CommandManager.Add(this.ModName, name, documentation, callback);
+            this.CommandManager.Add(this.Mod, name, documentation, callback);
             return this;
         }
 

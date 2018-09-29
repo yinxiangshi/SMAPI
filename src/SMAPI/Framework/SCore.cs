@@ -427,8 +427,8 @@ namespace StardewModdingAPI.Framework
         {
             // prepare console
             this.Monitor.Log("Type 'help' for help, or 'help <cmd>' for a command's usage", LogLevel.Info);
-            this.GameInstance.CommandManager.Add("SMAPI", "help", "Lists command documentation.\n\nUsage: help\nLists all available commands.\n\nUsage: help <cmd>\n- cmd: The name of a command whose documentation to display.", this.HandleCommand);
-            this.GameInstance.CommandManager.Add("SMAPI", "reload_i18n", "Reloads translation files for all mods.\n\nUsage: reload_i18n", this.HandleCommand);
+            this.GameInstance.CommandManager.Add(null, "help", "Lists command documentation.\n\nUsage: help\nLists all available commands.\n\nUsage: help <cmd>\n- cmd: The name of a command whose documentation to display.", this.HandleCommand);
+            this.GameInstance.CommandManager.Add(null, "reload_i18n", "Reloads translation files for all mods.\n\nUsage: reload_i18n", this.HandleCommand);
 
             // start handling command line input
             Thread inputThread = new Thread(() =>
@@ -973,7 +973,7 @@ namespace StardewModdingAPI.Framework
                     IModHelper modHelper;
                     {
                         IModEvents events = new ModEvents(mod, this.EventManager);
-                        ICommandHelper commandHelper = new CommandHelper(manifest.UniqueID, mod.DisplayName, this.GameInstance.CommandManager);
+                        ICommandHelper commandHelper = new CommandHelper(mod, this.GameInstance.CommandManager);
                         IContentHelper contentHelper = new ContentHelper(contentCore, mod.DirectoryPath, manifest.UniqueID, mod.DisplayName, monitor);
                         IDataHelper dataHelper = new DataHelper(manifest.UniqueID, mod.DirectoryPath, jsonHelper);
                         IReflectionHelper reflectionHelper = new ReflectionHelper(manifest.UniqueID, mod.DisplayName, this.Reflection, this.DeprecationManager);
@@ -1216,15 +1216,15 @@ namespace StardewModdingAPI.Framework
                         if (result == null)
                             this.Monitor.Log("There's no command with that name.", LogLevel.Error);
                         else
-                            this.Monitor.Log($"{result.Name}: {result.Documentation}\n(Added by {result.ModName}.)", LogLevel.Info);
+                            this.Monitor.Log($"{result.Name}: {result.Documentation}{(result.Mod != null ? $"\n(Added by {result.Mod.DisplayName}.)" : "")}", LogLevel.Info);
                     }
                     else
                     {
                         string message = "The following commands are registered:\n";
-                        IGrouping<string, string>[] groups = (from command in this.GameInstance.CommandManager.GetAll() orderby command.ModName, command.Name group command.Name by command.ModName).ToArray();
+                        IGrouping<string, string>[] groups = (from command in this.GameInstance.CommandManager.GetAll() orderby command.Mod?.DisplayName, command.Name group command.Name by command.Mod?.DisplayName).ToArray();
                         foreach (var group in groups)
                         {
-                            string modName = group.Key;
+                            string modName = group.Key ?? "SMAPI";
                             string[] commandNames = group.ToArray();
                             message += $"{modName}:\n  {string.Join("\n  ", commandNames)}\n\n";
                         }

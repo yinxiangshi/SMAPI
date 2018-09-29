@@ -19,7 +19,7 @@ namespace StardewModdingAPI.Framework
         ** Public methods
         *********/
         /// <summary>Add a console command.</summary>
-        /// <param name="modName">The friendly mod name for this instance.</param>
+        /// <param name="mod">The mod adding the command (or <c>null</c> for a SMAPI command).</param>
         /// <param name="name">The command name, which the user must type to trigger it.</param>
         /// <param name="documentation">The human-readable documentation shown when the player runs the built-in 'help' command.</param>
         /// <param name="callback">The method to invoke when the command is triggered. This method is passed the command name and arguments submitted by the user.</param>
@@ -27,7 +27,7 @@ namespace StardewModdingAPI.Framework
         /// <exception cref="ArgumentNullException">The <paramref name="name"/> or <paramref name="callback"/> is null or empty.</exception>
         /// <exception cref="FormatException">The <paramref name="name"/> is not a valid format.</exception>
         /// <exception cref="ArgumentException">There's already a command with that name.</exception>
-        public void Add(string modName, string name, string documentation, Action<string, string[]> callback, bool allowNullCallback = false)
+        public void Add(IModMetadata mod, string name, string documentation, Action<string, string[]> callback, bool allowNullCallback = false)
         {
             name = this.GetNormalisedName(name);
 
@@ -44,7 +44,7 @@ namespace StardewModdingAPI.Framework
                 throw new ArgumentException(nameof(callback), $"Can't register the '{name}' command because there's already a command with that name.");
 
             // add command
-            this.Commands.Add(name, new Command(modName, name, documentation, callback));
+            this.Commands.Add(name, new Command(mod, name, documentation, callback));
         }
 
         /// <summary>Get a command by its unique name.</summary>
@@ -65,19 +65,30 @@ namespace StardewModdingAPI.Framework
                 .OrderBy(p => p.Name);
         }
 
-        /// <summary>Trigger a command.</summary>
-        /// <param name="input">The raw command input.</param>
-        /// <returns>Returns whether a matching command was triggered.</returns>
-        public bool Trigger(string input)
+        /// <summary>Try to parse a raw line of user input into an executable command.</summary>
+        /// <param name="input">The raw user input.</param>
+        /// <param name="name">The parsed command name.</param>
+        /// <param name="args">The parsed command arguments.</param>
+        /// <param name="command">The command which can handle the input.</param>
+        /// <returns>Returns true if the input was successfully parsed and matched to a command; else false.</returns>
+        public bool TryParse(string input, out string name, out string[] args, out Command command)
         {
+            // ignore if blank
             if (string.IsNullOrWhiteSpace(input))
+            {
+                name = null;
+                args = null;
+                command = null;
                 return false;
+            }
 
-            string[] args = this.ParseArgs(input);
-            string name = args[0];
+            // parse input
+            args = this.ParseArgs(input);
+            name = this.GetNormalisedName(args[0]);
             args = args.Skip(1).ToArray();
 
-            return this.Trigger(name, args);
+            // get command
+            return this.Commands.TryGetValue(name, out command);
         }
 
         /// <summary>Trigger a command.</summary>

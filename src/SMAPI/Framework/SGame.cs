@@ -268,14 +268,32 @@ namespace StardewModdingAPI.Framework
                 *********/
                 while (this.CommandQueue.TryDequeue(out string rawInput))
                 {
+                    // parse command
+                    string name;
+                    string[] args;
+                    Command command;
                     try
                     {
-                        if (!this.CommandManager.Trigger(rawInput))
+                        if (!this.CommandManager.TryParse(rawInput, out name, out args, out command))
                             this.Monitor.Log("Unknown command; type 'help' for a list of available commands.", LogLevel.Error);
                     }
                     catch (Exception ex)
                     {
-                        this.Monitor.Log($"The handler registered for that command failed:\n{ex.GetLogSummary()}", LogLevel.Error);
+                        this.Monitor.Log($"Failed parsing that command:\n{ex.GetLogSummary()}", LogLevel.Error);
+                        continue;
+                    }
+
+                    // execute command
+                    try
+                    {
+                        command.Callback.Invoke(name, args);
+                    }
+                    catch (Exception ex)
+                    {
+                        if (command.Mod != null)
+                            command.Mod.LogAsMod($"Mod failed handling that command:\n{ex.GetLogSummary()}", LogLevel.Error);
+                        else
+                            this.Monitor.Log($"Failed handling that command:\n{ex.GetLogSummary()}", LogLevel.Error);
                     }
                 }
 
