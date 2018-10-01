@@ -4,7 +4,13 @@ using System.Text.RegularExpressions;
 namespace StardewModdingAPI.Toolkit
 {
     /// <summary>A semantic version with an optional release tag.</summary>
-    /// <remarks>The implementation is defined by Semantic Version 2.0 (http://semver.org/).</remarks>
+    /// <remarks>
+    /// The implementation is defined by Semantic Version 2.0 (http://semver.org/), with a few deviations:
+    /// - short-form "x.y" versions are supported (equivalent to "x.y.0");
+    /// - hyphens are synonymous with dots in prerelease tags (like "-unofficial.3-pathoschild");
+    /// - +build suffixes are not supported;
+    /// - and "-unofficial" in prerelease tags is always lower-precedence (e.g. "1.0-beta" is newer than "1.0-unofficial").
+    /// </remarks>
     public class SemanticVersion : ISemanticVersion
     {
         /*********
@@ -17,13 +23,7 @@ namespace StardewModdingAPI.Toolkit
         internal const string UnboundedVersionPattern = @"(?>(?<major>0|[1-9]\d*))\.(?>(?<minor>0|[1-9]\d*))(?>(?:\.(?<patch>0|[1-9]\d*))?)(?:-(?<prerelease>" + SemanticVersion.TagPattern + "))?";
 
         /// <summary>A regular expression matching a semantic version string.</summary>
-        /// <remarks>
-        /// This pattern is derived from the BNF documentation in the <a href="https://github.com/mojombo/semver">semver repo</a>,
-        /// with three important deviations intended to support Stardew Valley mod conventions:
-        /// - allows short-form "x.y" versions;
-        /// - allows hyphens in prerelease tags as synonyms for dots (like "-unofficial-update.3");
-        /// - doesn't allow '+build' suffixes.
-        /// </remarks>
+        /// <remarks>This pattern is derived from the BNF documentation in the <a href="https://github.com/mojombo/semver">semver repo</a>, with deviations to support the Stardew Valley mod conventions (see remarks on <see cref="SemanticVersion"/>).</remarks>
         internal static readonly Regex Regex = new Regex($@"^{SemanticVersion.UnboundedVersionPattern}$", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
 
@@ -255,6 +255,12 @@ namespace StardewModdingAPI.Toolkit
                 // compare if different
                 if (curParts[i] != otherParts[i])
                 {
+                    // unofficial is always lower-precedence
+                    if (otherParts[i].Equals("unofficial", StringComparison.InvariantCultureIgnoreCase))
+                        return curNewer;
+                    if (curParts[i].Equals("unofficial", StringComparison.InvariantCultureIgnoreCase))
+                        return curOlder;
+
                     // compare numerically if possible
                     {
                         if (int.TryParse(curParts[i], out int curNum) && int.TryParse(otherParts[i], out int otherNum))

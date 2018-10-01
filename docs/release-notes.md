@@ -27,6 +27,7 @@
   * Added `IContentPack.WriteJsonFile` method.
   * Added IntelliSense documentation for the non-developers version of SMAPI.
   * Mods are no longer prevented from loading a PNG while the game is drawing.
+  * When comparing mod versions, SMAPI now considers `-unofficial` to be lower-precedence than any other value (e.g. `1.0-beta` is now considered newer than `1.0-unofficial` regardless of normal sorting).
   * Fixed `IContentPack.ReadJsonFile` allowing non-relative paths.
   * Fixed trace logs not showing path for invalid mods.
   * Fixed 'no update keys' warning not shown for mods with only invalid update keys.
