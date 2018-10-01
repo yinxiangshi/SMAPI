@@ -916,7 +916,7 @@ namespace StardewModdingAPI.Framework
                     if (this.ModRegistry.Get(dependency.UniqueID) == null)
                     {
                         string dependencyName = mods
-                            .FirstOrDefault(p => dependency.UniqueID.Equals(p.Manifest.UniqueID, StringComparison.InvariantCultureIgnoreCase))
+                            .FirstOrDefault(otherMod => otherMod.HasID() && dependency.UniqueID.Equals(otherMod.Manifest.UniqueID, StringComparison.InvariantCultureIgnoreCase))
                             ?.DisplayName ?? dependency.UniqueID;
                         errorReasonPhrase = $"it needs the '{dependencyName}' mod, which couldn't be loaded.";
                         return false;
