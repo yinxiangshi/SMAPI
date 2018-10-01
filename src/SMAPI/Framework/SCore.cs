@@ -141,6 +141,23 @@ namespace StardewModdingAPI.Framework
                 this.Monitor.Log("(Using custom --mods-path argument.)", LogLevel.Trace);
             this.Monitor.Log($"Log started at {DateTime.UtcNow:s} UTC", LogLevel.Trace);
 
+            // validate platform
+#if SMAPI_FOR_WINDOWS
+            if (Constants.Platform != Platform.Windows)
+            {
+                this.Monitor.Log("Oops! You're running Windows, but this version of SMAPI is for Linux or Mac. Please reinstall SMAPI to fix this.", LogLevel.Error);
+                this.PressAnyKeyToExit();
+                return;
+            }
+#else
+            if (Constants.Platform == Platform.Windows)
+            {
+                this.Monitor.Log("Oops! You're running {Constants.Platform}, but this version of SMAPI is for Windows. Please reinstall SMAPI to fix this.", LogLevel.Error);
+                this.PressAnyKeyToExit();
+                return;
+            }
+#endif
+
             // validate game version
             if (Constants.GameVersion.IsOlderThan(Constants.MinimumGameVersion))
             {

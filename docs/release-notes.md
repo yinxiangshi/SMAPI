@@ -1,19 +1,21 @@
 # Release notes
 ## 2.8 (upcoming)
 * For players:
-  * Added support for subfolders under `Mods`, for players who want to organise their mods.
-  * Moved most SMAPI files into a `smapi-internal` subfolder.
-  * Moved save backups into a `save-backups` subfolder (instead of `Mods/SaveBackup/backups`). Note that previous backups will be deleted when you update.
   * Update checks now work even when the mod has no update keys in most cases.
-  * Improved error when you put an XNB mod in `Mods`.
-  * Fixed error when mods add an invalid location with no name.
-  * Fixed compatibility issues for some Linux players. SMAPI will now always use xterm if it's available.
-  * Fixed some game install paths not detected on Windows.
-  * Fixed installer duplicating bundled mods if you moved them after the last install.
-  * Fixed crash when a mod manifest is corrupted.
-  * Fixed error-handling when initialising paths.
-  * Fixed 'no update keys' warning not shown for mods with only invalid update keys.
+  * Reorganised SMAPI files:
+    * You can now group mods into subfolders to organise them.
+    * Most SMAPI files are now tucked into a `smapi-internal` subfolder.
+    * Save backups are now in a `save-backups` subfolder, so they're easier to access. Note that previous backups will be deleted when you update.
+  * Improved error messages when...
+    * an XNB mod is added to `Mods`;
+    * you install the wrong version of SMAPI for your OS;
+    * SMAPI can't prepare its folders.
   * Fixed transparency issues on Linux/Mac for some mod images.
+  * Fixed error when a mod manifest is corrupted.
+  * Fixed error when a mod adds an unnamed location.
+  * Fixed some Windows install paths not detected.
+  * Fixed Linux compatibility issues for some players. SMAPI will now always use xterm if it's available.
+  * Fixed installer duplicating bundled mods if you moved them after the last install.
   * Fixed translation issues not shown as warnings.
   * Fixed dependencies not correctly enforced if the dependency is installed but failed to load.
   * Fixed some errors logged as SMAPI instead of the affected mod.
@@ -21,15 +23,16 @@
 
 * For modders:
   * Added [data API](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Data).
-  * Added support for overlaying images with semi-transparency using `asset.AsImage().PatchImage`.
+  * Added support for overlaying image assets with semi-transparency using the content API.
   * Added `IContentPack.WriteJsonFile` method.
-  * Added IntelliSense documentation when not using the 'for developers' version of SMAPI.
+  * Added IntelliSense documentation for the non-developers version of SMAPI.
   * Mods are no longer prevented from loading a PNG while the game is drawing.
   * Fixed `IContentPack.ReadJsonFile` allowing non-relative paths.
   * Fixed trace logs not showing path for invalid mods.
+  * Fixed 'no update keys' warning not shown for mods with only invalid update keys.
   * Suppressed the game's 'added crickets' debug output.
-  * **Breaking change:** `helper.ModRegistry` now returns `IModInfo` instead of `IManifest` directly. This lets SMAPI return more metadata about mods in future versions.
-  * **Breaking change:** most SMAPI files have been moved into a `smapi-internal` subfolder. This won't affect compiled mods, but you'll need to update the mod build config NuGet package when compiling mods.
+  * **Breaking change:** `helper.ModRegistry` now returns `IModInfo` instead of `IManifest` directly. This lets SMAPI return more metadata about mods.
+  * **Breaking change:** most SMAPI files have been moved into a `smapi-internal` subfolder. This won't affect compiled mod releases, but you'll need to update the build config NuGet package.
 
 * For SMAPI developers:
   * Added support for parallel stable/beta unofficial updates in update checks.
