@@ -6,24 +6,24 @@ namespace StardewModdingAPI.Events
     public interface IWorldEvents
     {
         /// <summary>Raised after a game location is added or removed.</summary>
-        event EventHandler<WorldLocationListChangedEventArgs> LocationListChanged;
+        event EventHandler<LocationListChangedEventArgs> LocationListChanged;
 
         /// <summary>Raised after buildings are added or removed in a location.</summary>
-        event EventHandler<WorldBuildingListChangedEventArgs> BuildingListChanged;
+        event EventHandler<BuildingListChangedEventArgs> BuildingListChanged;
 
         /// <summary>Raised after debris are added or removed in a location.</summary>
-        event EventHandler<WorldDebrisListChangedEventArgs> DebrisListChanged;
+        event EventHandler<DebrisListChangedEventArgs> DebrisListChanged;
 
         /// <summary>Raised after large terrain features (like bushes) are added or removed in a location.</summary>
-        event EventHandler<WorldLargeTerrainFeatureListChangedEventArgs> LargeTerrainFeatureListChanged;
+        event EventHandler<LargeTerrainFeatureListChangedEventArgs> LargeTerrainFeatureListChanged;
 
         /// <summary>Raised after NPCs are added or removed in a location.</summary>
-        event EventHandler<WorldNpcListChangedEventArgs> NpcListChanged;
+        event EventHandler<NpcListChangedEventArgs> NpcListChanged;
 
         /// <summary>Raised after objects are added or removed in a location.</summary>
-        event EventHandler<WorldObjectListChangedEventArgs> ObjectListChanged;
+        event EventHandler<ObjectListChangedEventArgs> ObjectListChanged;
 
         /// <summary>Raised after terrain features (like floors and trees) are added or removed in a location.</summary>
-        event EventHandler<WorldTerrainFeatureListChangedEventArgs> TerrainFeatureListChanged;
+        event EventHandler<TerrainFeatureListChangedEventArgs> TerrainFeatureListChanged;
     }
 }

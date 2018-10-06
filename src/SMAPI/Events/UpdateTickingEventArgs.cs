@@ -2,8 +2,8 @@ using System;
 
 namespace StardewModdingAPI.Events
 {
-    /// <summary>Event arguments for an <see cref="IGameLoopEvents.Updating"/> event.</summary>
-    public class GameLoopUpdatingEventArgs : EventArgs
+    /// <summary>Event arguments for an <see cref="IGameLoopEvents.UpdateTicking"/> event.</summary>
+    public class UpdateTickingEventArgs : EventArgs
     {
         /*********
         ** Accessors
@@ -20,7 +20,7 @@ namespace StardewModdingAPI.Events
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="ticks">The number of ticks elapsed since the game started, including the current tick.</param>
-        public GameLoopUpdatingEventArgs(uint ticks)
+        public UpdateTickingEventArgs(uint ticks)
         {
             this.Ticks = ticks;
             this.IsOneSecond = this.IsMultipleOf(60);

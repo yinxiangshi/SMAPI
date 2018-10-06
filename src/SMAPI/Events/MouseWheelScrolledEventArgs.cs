@@ -3,7 +3,7 @@ using System;
 namespace StardewModdingAPI.Events
 {
     /// <summary>Event arguments when the player scrolls the mouse wheel.</summary>
-    public class InputMouseWheelScrolledEventArgs : EventArgs
+    public class MouseWheelScrolledEventArgs : EventArgs
     {
         /*********
         ** Accessors
@@ -28,7 +28,7 @@ namespace StardewModdingAPI.Events
         /// <param name="position">The cursor position.</param>
         /// <param name="oldValue">The old scroll value.</param>
         /// <param name="newValue">The new scroll value.</param>
-        public InputMouseWheelScrolledEventArgs(ICursorPosition position, int oldValue, int newValue)
+        public MouseWheelScrolledEventArgs(ICursorPosition position, int oldValue, int newValue)
         {
             this.Position = position;
             this.OldValue = oldValue;

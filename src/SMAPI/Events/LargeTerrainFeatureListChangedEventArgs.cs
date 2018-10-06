@@ -7,7 +7,7 @@ using StardewValley.TerrainFeatures;
 namespace StardewModdingAPI.Events
 {
     /// <summary>Event arguments for a <see cref="IWorldEvents.LargeTerrainFeatureListChanged"/> event.</summary>
-    public class WorldLargeTerrainFeatureListChangedEventArgs : EventArgs
+    public class LargeTerrainFeatureListChangedEventArgs : EventArgs
     {
         /*********
         ** Accessors
@@ -29,7 +29,7 @@ namespace StardewModdingAPI.Events
         /// <param name="location">The location which changed.</param>
         /// <param name="added">The large terrain features added to the location.</param>
         /// <param name="removed">The large terrain features removed from the location.</param>
-        public WorldLargeTerrainFeatureListChangedEventArgs(GameLocation location, IEnumerable<LargeTerrainFeature> added, IEnumerable<LargeTerrainFeature> removed)
+        public LargeTerrainFeatureListChangedEventArgs(GameLocation location, IEnumerable<LargeTerrainFeature> added, IEnumerable<LargeTerrainFeature> removed)
         {
             this.Location = location;
             this.Added = added.ToArray();

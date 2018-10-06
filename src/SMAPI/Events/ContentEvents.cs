@@ -19,8 +19,8 @@ namespace StardewModdingAPI.Events
         /// <summary>Raised after the content language changes.</summary>
         public static event EventHandler<EventArgsValueChanged<string>> AfterLocaleChanged
         {
-            add => ContentEvents.EventManager.Content_LocaleChanged.Add(value);
-            remove => ContentEvents.EventManager.Content_LocaleChanged.Remove(value);
+            add => ContentEvents.EventManager.Legacy_LocaleChanged.Add(value);
+            remove => ContentEvents.EventManager.Legacy_LocaleChanged.Remove(value);
         }
 
 

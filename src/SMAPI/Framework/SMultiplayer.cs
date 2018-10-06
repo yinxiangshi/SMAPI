@@ -31,17 +31,17 @@ namespace StardewModdingAPI.Framework
         /// <summary>Handle sync messages from other players and perform other initial sync logic.</summary>
         public override void UpdateEarly()
         {
-            this.EventManager.Multiplayer_BeforeMainSync.Raise();
+            this.EventManager.Legacy_BeforeMainSync.Raise();
             base.UpdateEarly();
-            this.EventManager.Multiplayer_AfterMainSync.Raise();
+            this.EventManager.Legacy_AfterMainSync.Raise();
         }
 
         /// <summary>Broadcast sync messages to other players and perform other final sync logic.</summary>
         public override void UpdateLate(bool forceSync = false)
         {
-            this.EventManager.Multiplayer_BeforeMainBroadcast.Raise();
+            this.EventManager.Legacy_BeforeMainBroadcast.Raise();
             base.UpdateLate(forceSync);
-            this.EventManager.Multiplayer_AfterMainBroadcast.Raise();
+            this.EventManager.Legacy_AfterMainBroadcast.Raise();
         }
     }
 }

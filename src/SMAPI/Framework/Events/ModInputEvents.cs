@@ -10,31 +10,31 @@ namespace StardewModdingAPI.Framework.Events
         ** Accessors
         *********/
         /// <summary>Raised after the player presses a button on the keyboard, controller, or mouse.</summary>
-        public event EventHandler<InputButtonPressedEventArgs> ButtonPressed
+        public event EventHandler<ButtonPressedEventArgs> ButtonPressed
         {
-            add => this.EventManager.Input_ButtonPressed.Add(value);
-            remove => this.EventManager.Input_ButtonPressed.Remove(value);
+            add => this.EventManager.ButtonPressed.Add(value);
+            remove => this.EventManager.ButtonPressed.Remove(value);
         }
 
         /// <summary>Raised after the player releases a button on the keyboard, controller, or mouse.</summary>
-        public event EventHandler<InputButtonReleasedEventArgs> ButtonReleased
+        public event EventHandler<ButtonReleasedEventArgs> ButtonReleased
         {
-            add => this.EventManager.Input_ButtonReleased.Add(value);
-            remove => this.EventManager.Input_ButtonReleased.Remove(value);
+            add => this.EventManager.ButtonReleased.Add(value);
+            remove => this.EventManager.ButtonReleased.Remove(value);
         }
 
         /// <summary>Raised after the player moves the in-game cursor.</summary>
-        public event EventHandler<InputCursorMovedEventArgs> CursorMoved
+        public event EventHandler<CursorMovedEventArgs> CursorMoved
         {
-            add => this.EventManager.Input_CursorMoved.Add(value);
-            remove => this.EventManager.Input_CursorMoved.Remove(value);
+            add => this.EventManager.CursorMoved.Add(value);
+            remove => this.EventManager.CursorMoved.Remove(value);
         }
 
         /// <summary>Raised after the player scrolls the mouse wheel.</summary>
-        public event EventHandler<InputMouseWheelScrolledEventArgs> MouseWheelScrolled
+        public event EventHandler<MouseWheelScrolledEventArgs> MouseWheelScrolled
         {
-            add => this.EventManager.Input_MouseWheelScrolled.Add(value);
-            remove => this.EventManager.Input_MouseWheelScrolled.Remove(value);
+            add => this.EventManager.MouseWheelScrolled.Add(value);
+            remove => this.EventManager.MouseWheelScrolled.Remove(value);
         }
 
 

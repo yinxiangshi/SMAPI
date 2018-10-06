@@ -6,7 +6,7 @@ using StardewValley;
 namespace StardewModdingAPI.Events
 {
     /// <summary>Event arguments for a <see cref="IWorldEvents.NpcListChanged"/> event.</summary>
-    public class WorldNpcListChangedEventArgs : EventArgs
+    public class NpcListChangedEventArgs : EventArgs
     {
         /*********
         ** Accessors
@@ -28,7 +28,7 @@ namespace StardewModdingAPI.Events
         /// <param name="location">The location which changed.</param>
         /// <param name="added">The NPCs added to the location.</param>
         /// <param name="removed">The NPCs removed from the location.</param>
-        public WorldNpcListChangedEventArgs(GameLocation location, IEnumerable<NPC> added, IEnumerable<NPC> removed)
+        public NpcListChangedEventArgs(GameLocation location, IEnumerable<NPC> added, IEnumerable<NPC> removed)
         {
             this.Location = location;
             this.Added = added.ToArray();

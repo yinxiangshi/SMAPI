@@ -6,7 +6,7 @@ using StardewValley;
 namespace StardewModdingAPI.Events
 {
     /// <summary>Event arguments for a <see cref="IWorldEvents.DebrisListChanged"/> event.</summary>
-    public class WorldDebrisListChangedEventArgs : EventArgs
+    public class DebrisListChangedEventArgs : EventArgs
     {
         /*********
         ** Accessors
@@ -28,7 +28,7 @@ namespace StardewModdingAPI.Events
         /// <param name="location">The location which changed.</param>
         /// <param name="added">The debris added to the location.</param>
         /// <param name="removed">The debris removed from the location.</param>
-        public WorldDebrisListChangedEventArgs(GameLocation location, IEnumerable<Debris> added, IEnumerable<Debris> removed)
+        public DebrisListChangedEventArgs(GameLocation location, IEnumerable<Debris> added, IEnumerable<Debris> removed)
         {
             this.Location = location;
             this.Added = added.ToArray();

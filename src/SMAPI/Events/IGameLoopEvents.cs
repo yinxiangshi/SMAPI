@@ -6,12 +6,12 @@ namespace StardewModdingAPI.Events
     public interface IGameLoopEvents
     {
         /// <summary>Raised after the game is launched, right before the first update tick. This happens once per game session (unrelated to loading saves). All mods are loaded and initialised at this point, so this is a good time to set up mod integrations.</summary>
-        event EventHandler<GameLoopLaunchedEventArgs> Launched;
+        event EventHandler<GameLaunchedEventArgs> GameLaunched;
 
-        /// <summary>Raised before the game performs its overall update tick (≈60 times per second).</summary>
-        event EventHandler<GameLoopUpdatingEventArgs> Updating;
+        /// <summary>Raised before the game state is updated (≈60 times per second).</summary>
+        event EventHandler<UpdateTickingEventArgs> UpdateTicking;
 
-        /// <summary>Raised after the game performs its overall update tick (≈60 times per second).</summary>
-        event EventHandler<GameLoopUpdatedEventArgs> Updated;
+        /// <summary>Raised after the game state is updated (≈60 times per second).</summary>
+        event EventHandler<UpdateTickedEventArgs> UpdateTicked;
     }
 }
