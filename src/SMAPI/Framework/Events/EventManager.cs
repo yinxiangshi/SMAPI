@@ -41,6 +41,9 @@ namespace StardewModdingAPI.Framework.Events
         /// <summary>Raised after the game begins a new day, including when loading a save.</summary>
         public readonly ManagedEvent<DayStartedEventArgs> DayStarted;
 
+        /// <summary>Raised before the game ends the current day. This happens before it starts setting up the next day and before <see cref="Saving"/>.</summary>
+        public readonly ManagedEvent<DayEndingEventArgs> DayEnding;
+
         /****
         ** Input
         ****/
@@ -291,6 +294,7 @@ namespace StardewModdingAPI.Framework.Events
             this.Saved = ManageEventOf<SavedEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.Saved));
             this.SaveLoaded = ManageEventOf<SaveLoadedEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.SaveLoaded));
             this.DayStarted = ManageEventOf<DayStartedEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.DayStarted));
+            this.DayEnding = ManageEventOf<DayEndingEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.DayEnding));
 
             this.ButtonPressed = ManageEventOf<ButtonPressedEventArgs>(nameof(IModEvents.Input), nameof(IInputEvents.ButtonPressed));
             this.ButtonReleased = ManageEventOf<ButtonReleasedEventArgs>(nameof(IModEvents.Input), nameof(IInputEvents.ButtonReleased));

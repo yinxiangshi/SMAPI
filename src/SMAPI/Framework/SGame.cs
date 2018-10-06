@@ -151,6 +151,7 @@ namespace StardewModdingAPI.Framework
             this.OnGameExiting = onGameExiting;
             Game1.input = new SInputState();
             Game1.multiplayer = new SMultiplayer(monitor, eventManager);
+            Game1.hooks = new SModHooks(this.OnNewDayAfterFade);
 
             // init observables
             Game1.locations = new ObservableCollection<GameLocation>();
@@ -182,6 +183,12 @@ namespace StardewModdingAPI.Framework
         /****
         ** Intercepted methods & events
         ****/
+        /// <summary>A callback invoked before <see cref="Game1.newDayAfterFade"/> runs.</summary>
+        protected void OnNewDayAfterFade()
+        {
+            this.Events.DayEnding.RaiseEmpty();
+        }
+
         /// <summary>Constructor a content manager to read XNB files.</summary>
         /// <param name="serviceProvider">The service provider to use to locate services.</param>
         /// <param name="rootDirectory">The root directory to search for content.</param>

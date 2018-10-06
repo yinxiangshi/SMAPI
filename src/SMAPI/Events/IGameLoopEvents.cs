@@ -31,5 +31,8 @@ namespace StardewModdingAPI.Events
 
         /// <summary>Raised after the game begins a new day (including when the player loads a save).</summary>
         event EventHandler<DayStartedEventArgs> DayStarted;
+
+        /// <summary>Raised before the game ends the current day. This happens before it starts setting up the next day and before <see cref="Saving"/>.</summary>
+        event EventHandler<DayEndingEventArgs> DayEnding;
     }
 }

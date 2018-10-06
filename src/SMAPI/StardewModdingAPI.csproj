@@ -79,6 +79,7 @@
     <Compile Include="..\..\build\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Events\DayEndingEventArgs.cs" />
     <Compile Include="Events\DayStartedEventArgs.cs" />
     <Compile Include="Events\SaveCreatingEventArgs.cs" />
     <Compile Include="Events\SavedEventArgs.cs" />

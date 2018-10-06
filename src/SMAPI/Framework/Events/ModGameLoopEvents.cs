@@ -72,6 +72,13 @@ namespace StardewModdingAPI.Framework.Events
             remove => this.EventManager.DayStarted.Remove(value);
         }
 
+        /// <summary>Raised before the game ends the current day. This happens before it starts setting up the next day and before <see cref="IGameLoopEvents.Saving"/>.</summary>
+        public event EventHandler<DayEndingEventArgs> DayEnding
+        {
+            add => this.EventManager.DayEnding.Add(value);
+            remove => this.EventManager.DayEnding.Remove(value);
+        }
+
 
         /*********
         ** Public methods
