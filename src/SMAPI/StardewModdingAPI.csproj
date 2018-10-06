@@ -79,6 +79,12 @@
     <Compile Include="..\..\build\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Events\DayStartedEventArgs.cs" />
+    <Compile Include="Events\SaveCreatingEventArgs.cs" />
+    <Compile Include="Events\SavedEventArgs.cs" />
+    <Compile Include="Events\SavingEventArgs.cs" />
+    <Compile Include="Events\SaveLoadedEventArgs.cs" />
+    <Compile Include="Events\SaveCreatedEventArgs.cs" />
     <Compile Include="Events\UpdateTickedEventArgs.cs" />
     <Compile Include="Events\GameLaunchedEventArgs.cs" />
     <Compile Include="Events\MouseWheelScrolledEventArgs.cs" />
@@ -125,6 +131,7 @@
     <Compile Include="Framework\Events\ModInputEvents.cs" />
     <Compile Include="Framework\Input\GamePadStateBuilder.cs" />
     <Compile Include="Framework\ModHelpers\InputHelper.cs" />
+    <Compile Include="Framework\Singleton.cs" />
     <Compile Include="Framework\StateTracking\Comparers\GenericEqualsComparer.cs" />
     <Compile Include="Framework\WatcherCore.cs" />
     <Compile Include="IDataHelper.cs" />

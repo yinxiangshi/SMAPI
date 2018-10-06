@@ -323,6 +323,7 @@ namespace StardewModdingAPI.Framework
                     {
                         this.IsBetweenCreateEvents = true;
                         this.Monitor.Log("Context: before save creation.", LogLevel.Trace);
+                        this.Events.SaveCreating.RaiseEmpty();
                         this.Events.Legacy_BeforeCreateSave.Raise();
                     }
 
@@ -331,6 +332,7 @@ namespace StardewModdingAPI.Framework
                     {
                         this.IsBetweenSaveEvents = true;
                         this.Monitor.Log("Context: before save.", LogLevel.Trace);
+                        this.Events.Saving.RaiseEmpty();
                         this.Events.Legacy_BeforeSave.Raise();
                     }
 
@@ -344,6 +346,7 @@ namespace StardewModdingAPI.Framework
                     // raise after-create
                     this.IsBetweenCreateEvents = false;
                     this.Monitor.Log($"Context: after save creation, starting {Game1.currentSeason} {Game1.dayOfMonth} Y{Game1.year}.", LogLevel.Trace);
+                    this.Events.SaveCreated.RaiseEmpty();
                     this.Events.Legacy_AfterCreateSave.Raise();
                 }
                 if (this.IsBetweenSaveEvents)
@@ -351,6 +354,9 @@ namespace StardewModdingAPI.Framework
                     // raise after-save
                     this.IsBetweenSaveEvents = false;
                     this.Monitor.Log($"Context: after save, starting {Game1.currentSeason} {Game1.dayOfMonth} Y{Game1.year}.", LogLevel.Trace);
+                    this.Events.Saved.RaiseEmpty();
+                    this.Events.DayStarted.RaiseEmpty();
+
                     this.Events.Legacy_AfterSave.Raise();
                     this.Events.Legacy_AfterDayStarted.Raise();
                 }
@@ -410,6 +416,9 @@ namespace StardewModdingAPI.Framework
 
                     // raise events
                     this.RaisedAfterLoadEvent = true;
+                    this.Events.SaveLoaded.RaiseEmpty();
+                    this.Events.DayStarted.RaiseEmpty();
+
                     this.Events.Legacy_AfterLoad.Raise();
                     this.Events.Legacy_AfterDayStarted.Raise();
                 }

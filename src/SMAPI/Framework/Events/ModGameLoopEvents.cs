@@ -30,6 +30,48 @@ namespace StardewModdingAPI.Framework.Events
             remove => this.EventManager.UpdateTicked.Remove(value);
         }
 
+        /// <summary>Raised before the game creates a new save file.</summary>
+        public event EventHandler<SaveCreatingEventArgs> SaveCreating
+        {
+            add => this.EventManager.SaveCreating.Add(value);
+            remove => this.EventManager.SaveCreating.Remove(value);
+        }
+
+        /// <summary>Raised after the game finishes creating the save file.</summary>
+        public event EventHandler<SaveCreatedEventArgs> SaveCreated
+        {
+            add => this.EventManager.SaveCreated.Add(value);
+            remove => this.EventManager.SaveCreated.Remove(value);
+        }
+
+        /// <summary>Raised before the game begins writes data to the save file.</summary>
+        public event EventHandler<SavingEventArgs> Saving
+        {
+            add => this.EventManager.Saving.Add(value);
+            remove => this.EventManager.Saving.Remove(value);
+        }
+
+        /// <summary>Raised after the game finishes writing data to the save file.</summary>
+        public event EventHandler<SavedEventArgs> Saved
+        {
+            add => this.EventManager.Saved.Add(value);
+            remove => this.EventManager.Saved.Remove(value);
+        }
+
+        /// <summary>Raised after the player loads a save slot.</summary>
+        public event EventHandler<SaveLoadedEventArgs> SaveLoaded
+        {
+            add => this.EventManager.SaveLoaded.Add(value);
+            remove => this.EventManager.SaveLoaded.Remove(value);
+        }
+
+        /// <summary>Raised after the game begins a new day (including when the player loads a save).</summary>
+        public event EventHandler<DayStartedEventArgs> DayStarted
+        {
+            add => this.EventManager.DayStarted.Add(value);
+            remove => this.EventManager.DayStarted.Remove(value);
+        }
+
 
         /*********
         ** Public methods

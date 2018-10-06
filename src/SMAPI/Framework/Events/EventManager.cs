@@ -23,6 +23,24 @@ namespace StardewModdingAPI.Framework.Events
         /// <summary>Raised after the game performs its overall update tick (≈60 times per second).</summary>
         public readonly ManagedEvent<UpdateTickedEventArgs> UpdateTicked;
 
+        /// <summary>Raised before the game creates the save file.</summary>
+        public readonly ManagedEvent<SaveCreatingEventArgs> SaveCreating;
+
+        /// <summary>Raised after the game finishes creating the save file.</summary>
+        public readonly ManagedEvent<SaveCreatedEventArgs> SaveCreated;
+
+        /// <summary>Raised before the game begins writes data to the save file (except the initial save creation).</summary>
+        public readonly ManagedEvent<SavingEventArgs> Saving;
+
+        /// <summary>Raised after the game finishes writing data to the save file (except the initial save creation).</summary>
+        public readonly ManagedEvent<SavedEventArgs> Saved;
+
+        /// <summary>Raised after the player loads a save slot.</summary>
+        public readonly ManagedEvent<SaveLoadedEventArgs> SaveLoaded;
+
+        /// <summary>Raised after the game begins a new day, including when loading a save.</summary>
+        public readonly ManagedEvent<DayStartedEventArgs> DayStarted;
+
         /****
         ** Input
         ****/
@@ -267,6 +285,12 @@ namespace StardewModdingAPI.Framework.Events
             this.GameLaunched = ManageEventOf<GameLaunchedEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.GameLaunched));
             this.UpdateTicking = ManageEventOf<UpdateTickingEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.UpdateTicking));
             this.UpdateTicked = ManageEventOf<UpdateTickedEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.UpdateTicked));
+            this.SaveCreating = ManageEventOf<SaveCreatingEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.SaveCreating));
+            this.SaveCreated = ManageEventOf<SaveCreatedEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.SaveCreated));
+            this.Saving = ManageEventOf<SavingEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.Saving));
+            this.Saved = ManageEventOf<SavedEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.Saved));
+            this.SaveLoaded = ManageEventOf<SaveLoadedEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.SaveLoaded));
+            this.DayStarted = ManageEventOf<DayStartedEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.DayStarted));
 
             this.ButtonPressed = ManageEventOf<ButtonPressedEventArgs>(nameof(IModEvents.Input), nameof(IInputEvents.ButtonPressed));
             this.ButtonReleased = ManageEventOf<ButtonReleasedEventArgs>(nameof(IModEvents.Input), nameof(IInputEvents.ButtonReleased));
