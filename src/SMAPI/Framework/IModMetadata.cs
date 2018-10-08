@@ -18,6 +18,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>The mod's full directory path.</summary>
         string DirectoryPath { get; }
 
+        /// <summary>The <see cref="DirectoryPath"/> relative to the game's Mods folder.</summary>
+        string RelativeDirectoryPath { get; }
+
         /// <summary>Metadata about the mod from SMAPI's internal data (if any).</summary>
         ModDataRecordVersionedFields DataRecord { get; }
 

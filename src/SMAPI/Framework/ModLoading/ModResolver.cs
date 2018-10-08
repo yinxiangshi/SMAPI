@@ -41,7 +41,8 @@ namespace StardewModdingAPI.Framework.ModLoading
                 ModMetadataStatus status = folder.ManifestParseError == null
                     ? ModMetadataStatus.Found
                     : ModMetadataStatus.Failed;
-                yield return new ModMetadata(folder.DisplayName, folder.Directory.FullName, manifest, dataRecord).SetStatus(status, folder.ManifestParseError);
+                string relativePath = PathUtilities.GetRelativePath(rootPath, folder.Directory.FullName);
+                yield return new ModMetadata(folder.DisplayName, folder.Directory.FullName, relativePath, manifest, dataRecord).SetStatus(status, folder.ManifestParseError);
             }
         }
 
@@ -188,7 +189,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                     {
                         if (mod.Status == ModMetadataStatus.Failed)
                             continue; // don't replace metadata error
-                        mod.SetStatus(ModMetadataStatus.Failed, $"its unique ID '{mod.Manifest.UniqueID}' is used by multiple mods ({string.Join(", ", group.Select(p => p.DisplayName))}).");
+                        mod.SetStatus(ModMetadataStatus.Failed, $"you have multiple copies of this mod installed ({string.Join(", ", group.Select(p => p.RelativeDirectoryPath).OrderBy(p => p))}).");
                     }
                 }
             }

@@ -6,10 +6,7 @@
     * You can now group mods into subfolders to organise them.
     * Most SMAPI files are now tucked into a `smapi-internal` subfolder.
     * Save backups are now in a `save-backups` subfolder, so they're easier to access. Note that previous backups will be deleted when you update.
-  * Improved error messages when...
-    * an XNB mod is added to `Mods`;
-    * you install the wrong version of SMAPI for your OS;
-    * SMAPI can't prepare its folders.
+  * Improved various error messages to be more clear and intuitive.
   * Fixed transparency issues on Linux/Mac for some mod images.
   * Fixed error when a mod manifest is corrupted.
   * Fixed error when a mod adds an unnamed location.

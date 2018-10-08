@@ -908,7 +908,7 @@ namespace StardewModdingAPI.Framework
             }
 
             // validate dependencies
-            // Although dependences are validated before mods are loaded, a dependency may have failed.
+            // Although dependences are validated before mods are loaded, a dependency may have failed to load.
             if (mod.Manifest.Dependencies?.Any() == true)
             {
                 foreach (IManifestDependency dependency in mod.Manifest.Dependencies)
@@ -955,7 +955,6 @@ namespace StardewModdingAPI.Framework
                 catch (IncompatibleInstructionException) // details already in trace logs
                 {
                     string[] updateUrls = new[] { modDatabase.GetModPageUrlFor(manifest.UniqueID), "https://smapi.io/compat" }.Where(p => p != null).ToArray();
-
                     errorReasonPhrase = $"it's no longer compatible. Please check for a new version at {string.Join(" or ", updateUrls)}.";
                     return false;
                 }
@@ -1050,13 +1049,18 @@ namespace StardewModdingAPI.Framework
                 this.Monitor.Log("      These mods could not be added to your game.", LogLevel.Error);
                 this.Monitor.Newline();
 
+                HashSet<string> logged = new HashSet<string>();
                 foreach (var pair in skippedMods.OrderBy(p => p.Key.DisplayName))
                 {
                     IModMetadata mod = pair.Key;
                     string errorReason = pair.Value.Item1;
                     string errorDetails = pair.Value.Item2;
+                    string message = $"      - {mod.DisplayName}{(mod.Manifest?.Version != null ? " " + mod.Manifest.Version.ToString() : "")} because {errorReason}";
 
-                    this.Monitor.Log($"      - {mod.DisplayName}{(mod.Manifest?.Version != null ? " " + mod.Manifest.Version.ToString() : "")} because {errorReason}", LogLevel.Error);
+                    if (!logged.Add($"{message}|{errorDetails}"))
+                        continue; // skip duplicate messages (e.g. if multiple copies of the mod are installed)
+
+                    this.Monitor.Log(message, LogLevel.Error);
                     if (errorDetails != null)
                         this.Monitor.Log($"        ({errorDetails})", LogLevel.Trace);
                 }

@@ -19,6 +19,9 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>The mod's full directory path.</summary>
         public string DirectoryPath { get; }
 
+        /// <summary>The <see cref="IModMetadata.DirectoryPath"/> relative to the game's Mods folder.</summary>
+        public string RelativeDirectoryPath { get; }
+
         /// <summary>The mod manifest.</summary>
         public IManifest Manifest { get; }
 
@@ -59,12 +62,14 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>Construct an instance.</summary>
         /// <param name="displayName">The mod's display name.</param>
         /// <param name="directoryPath">The mod's full directory path.</param>
+        /// <param name="relativeDirectoryPath">The <paramref name="directoryPath"/> relative to the game's Mods folder.</param>
         /// <param name="manifest">The mod manifest.</param>
         /// <param name="dataRecord">Metadata about the mod from SMAPI's internal data (if any).</param>
-        public ModMetadata(string displayName, string directoryPath, IManifest manifest, ModDataRecordVersionedFields dataRecord)
+        public ModMetadata(string displayName, string directoryPath, string relativeDirectoryPath, IManifest manifest, ModDataRecordVersionedFields dataRecord)
         {
             this.DisplayName = displayName;
             this.DirectoryPath = directoryPath;
+            this.RelativeDirectoryPath = relativeDirectoryPath;
             this.Manifest = manifest;
             this.DataRecord = dataRecord;
         }
