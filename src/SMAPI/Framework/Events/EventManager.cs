@@ -12,6 +12,39 @@ namespace StardewModdingAPI.Framework.Events
         ** Events (new)
         *********/
         /****
+        ** Display
+        ****/
+        /// <summary>Raised after a game menu is opened, closed, or replaced.</summary>
+        public readonly ManagedEvent<MenuChangedEventArgs> MenuChanged;
+
+        /// <summary>Raised before the game draws anything to the screen in a draw tick, as soon as the sprite batch is opened. The sprite batch may be closed and reopened multiple times after this event is called, but it's only raised once per draw tick. This event isn't useful for drawing to the screen, since the game will draw over it.</summary>
+        public readonly ManagedEvent<RenderingEventArgs> Rendering;
+
+        /// <summary>Raised after the game draws to the sprite patch in a draw tick, just before the final sprite batch is rendered to the screen. Since the game may open/close the sprite batch multiple times in a draw tick, the sprite batch may not contain everything being drawn and some things may already be rendered to the screen. Content drawn to the sprite batch at this point will be drawn over all vanilla content (including menus, HUD, and cursor).</summary>
+        public readonly ManagedEvent<RenderedEventArgs> Rendered;
+
+        /// <summary>Raised before the game world is drawn to the screen.</summary>
+        public readonly ManagedEvent<RenderingWorldEventArgs> RenderingWorld;
+
+        /// <summary>Raised after the game world is drawn to the sprite patch, before it's rendered to the screen.</summary>
+        public readonly ManagedEvent<RenderedWorldEventArgs> RenderedWorld;
+
+        /// <summary>When a menu is open (<see cref="StardewValley.Game1.activeClickableMenu"/> isn't null), raised before that menu is drawn to the screen.</summary>
+        public readonly ManagedEvent<RenderingActiveMenuEventArgs> RenderingActiveMenu;
+
+        /// <summary>When a menu is open (<see cref="StardewValley.Game1.activeClickableMenu"/> isn't null), raised after that menu is drawn to the sprite batch but before it's rendered to the screen.</summary>
+        public readonly ManagedEvent<RenderedActiveMenuEventArgs> RenderedActiveMenu;
+
+        /// <summary>Raised before drawing the HUD (item toolbar, clock, etc) to the screen.</summary>
+        public readonly ManagedEvent<RenderingHudEventArgs> RenderingHud;
+
+        /// <summary>Raised after drawing the HUD (item toolbar, clock, etc) to the sprite batch, but before it's rendered to the screen.</summary>
+        public readonly ManagedEvent<RenderedHudEventArgs> RenderedHud;
+
+        /// <summary>Raised after the game window is resized.</summary>
+        public readonly ManagedEvent<WindowResizedEventArgs> WindowResized;
+
+        /****
         ** Game loop
         ****/
         /// <summary>Raised after the game is launched, right before the first update tick.</summary>
@@ -44,6 +77,12 @@ namespace StardewModdingAPI.Framework.Events
         /// <summary>Raised before the game ends the current day. This happens before it starts setting up the next day and before <see cref="Saving"/>.</summary>
         public readonly ManagedEvent<DayEndingEventArgs> DayEnding;
 
+        /// <summary>Raised after the in-game clock time changes.</summary>
+        public readonly ManagedEvent<TimeChangedEventArgs> TimeChanged;
+
+        /// <summary>Raised after the game returns to the title screen.</summary>
+        public readonly ManagedEvent<ReturnedToTitleEventArgs> ReturnedToTitle;
+
         /****
         ** Input
         ****/
@@ -58,6 +97,18 @@ namespace StardewModdingAPI.Framework.Events
 
         /// <summary>Raised after the player scrolls the mouse wheel.</summary>
         public readonly ManagedEvent<MouseWheelScrolledEventArgs> MouseWheelScrolled;
+
+        /****
+        ** Player
+        ****/
+        /// <summary>Raised after items are added or removed to a player's inventory.</summary>
+        public readonly ManagedEvent<InventoryChangedEventArgs> InventoryChanged;
+
+        /// <summary>Raised after a player skill level changes. This happens as soon as they level up, not when the game notifies the player after their character goes to bed.</summary>
+        public readonly ManagedEvent<LevelChangedEventArgs> LevelChanged;
+
+        /// <summary>Raised after a player warps to a new location.</summary>
+        public readonly ManagedEvent<WarpedEventArgs> Warped;
 
         /****
         ** World
@@ -82,6 +133,15 @@ namespace StardewModdingAPI.Framework.Events
 
         /// <summary>Raised after terrain features (like floors and trees) are added or removed in a location.</summary>
         public readonly ManagedEvent<TerrainFeatureListChangedEventArgs> TerrainFeatureListChanged;
+
+        /****
+        ** Specialised
+        ****/
+        /// <summary>Raised before the game performs its overall update tick (≈60 times per second). See notes on <see cref="ISpecialisedEvents.UnvalidatedUpdateTicking"/>.</summary>
+        public readonly ManagedEvent<UnvalidatedUpdateTickingEventArgs> UnvalidatedUpdateTicking;
+
+        /// <summary>Raised after the game performs its overall update tick (≈60 times per second). See notes on <see cref="ISpecialisedEvents.UnvalidatedUpdateTicked"/>.</summary>
+        public readonly ManagedEvent<UnvalidatedUpdateTickedEventArgs> UnvalidatedUpdateTicked;
 
 
         /*********
@@ -285,6 +345,17 @@ namespace StardewModdingAPI.Framework.Events
             ManagedEvent ManageEvent(string typeName, string eventName) => new ManagedEvent($"{typeName}.{eventName}", monitor, modRegistry);
 
             // init events (new)
+            this.MenuChanged = ManageEventOf<MenuChangedEventArgs>(nameof(IModEvents.Display), nameof(IDisplayEvents.MenuChanged));
+            this.Rendering = ManageEventOf<RenderingEventArgs>(nameof(IModEvents.Display), nameof(IDisplayEvents.Rendering));
+            this.Rendered = ManageEventOf<RenderedEventArgs>(nameof(IModEvents.Display), nameof(IDisplayEvents.Rendered));
+            this.RenderingWorld = ManageEventOf<RenderingWorldEventArgs>(nameof(IModEvents.Display), nameof(IDisplayEvents.RenderingWorld));
+            this.RenderedWorld = ManageEventOf<RenderedWorldEventArgs>(nameof(IModEvents.Display), nameof(IDisplayEvents.RenderedWorld));
+            this.RenderingActiveMenu = ManageEventOf<RenderingActiveMenuEventArgs>(nameof(IModEvents.Display), nameof(IDisplayEvents.RenderingActiveMenu));
+            this.RenderedActiveMenu = ManageEventOf<RenderedActiveMenuEventArgs>(nameof(IModEvents.Display), nameof(IDisplayEvents.RenderedActiveMenu));
+            this.RenderingHud = ManageEventOf<RenderingHudEventArgs>(nameof(IModEvents.Display), nameof(IDisplayEvents.RenderingHud));
+            this.RenderedHud = ManageEventOf<RenderedHudEventArgs>(nameof(IModEvents.Display), nameof(IDisplayEvents.RenderedHud));
+            this.WindowResized = ManageEventOf<WindowResizedEventArgs>(nameof(IModEvents.Display), nameof(IDisplayEvents.WindowResized));
+
             this.GameLaunched = ManageEventOf<GameLaunchedEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.GameLaunched));
             this.UpdateTicking = ManageEventOf<UpdateTickingEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.UpdateTicking));
             this.UpdateTicked = ManageEventOf<UpdateTickedEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.UpdateTicked));
@@ -295,11 +366,17 @@ namespace StardewModdingAPI.Framework.Events
             this.SaveLoaded = ManageEventOf<SaveLoadedEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.SaveLoaded));
             this.DayStarted = ManageEventOf<DayStartedEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.DayStarted));
             this.DayEnding = ManageEventOf<DayEndingEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.DayEnding));
+            this.TimeChanged = ManageEventOf<TimeChangedEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.TimeChanged));
+            this.ReturnedToTitle = ManageEventOf<ReturnedToTitleEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.ReturnedToTitle));
 
             this.ButtonPressed = ManageEventOf<ButtonPressedEventArgs>(nameof(IModEvents.Input), nameof(IInputEvents.ButtonPressed));
             this.ButtonReleased = ManageEventOf<ButtonReleasedEventArgs>(nameof(IModEvents.Input), nameof(IInputEvents.ButtonReleased));
             this.CursorMoved = ManageEventOf<CursorMovedEventArgs>(nameof(IModEvents.Input), nameof(IInputEvents.CursorMoved));
             this.MouseWheelScrolled = ManageEventOf<MouseWheelScrolledEventArgs>(nameof(IModEvents.Input), nameof(IInputEvents.MouseWheelScrolled));
+
+            this.InventoryChanged = ManageEventOf<InventoryChangedEventArgs>(nameof(IModEvents.Player), nameof(IPlayerEvents.InventoryChanged));
+            this.LevelChanged = ManageEventOf<LevelChangedEventArgs>(nameof(IModEvents.Player), nameof(IPlayerEvents.LevelChanged));
+            this.Warped = ManageEventOf<WarpedEventArgs>(nameof(IModEvents.Player), nameof(IPlayerEvents.Warped));
 
             this.BuildingListChanged = ManageEventOf<BuildingListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.LocationListChanged));
             this.DebrisListChanged = ManageEventOf<DebrisListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.DebrisListChanged));
@@ -308,6 +385,9 @@ namespace StardewModdingAPI.Framework.Events
             this.NpcListChanged = ManageEventOf<NpcListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.NpcListChanged));
             this.ObjectListChanged = ManageEventOf<ObjectListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.ObjectListChanged));
             this.TerrainFeatureListChanged = ManageEventOf<TerrainFeatureListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.TerrainFeatureListChanged));
+
+            this.UnvalidatedUpdateTicking = ManageEventOf<UnvalidatedUpdateTickingEventArgs>(nameof(IModEvents.Specialised), nameof(ISpecialisedEvents.UnvalidatedUpdateTicking));
+            this.UnvalidatedUpdateTicked = ManageEventOf<UnvalidatedUpdateTickedEventArgs>(nameof(IModEvents.Specialised), nameof(ISpecialisedEvents.UnvalidatedUpdateTicked));
 
             // init events (old)
             this.Legacy_LocaleChanged = ManageEventOf<EventArgsValueChanged<string>>(nameof(ContentEvents), nameof(ContentEvents.AfterLocaleChanged));

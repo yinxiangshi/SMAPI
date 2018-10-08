@@ -3,7 +3,7 @@ using StardewModdingAPI.Framework.Events;
 
 namespace StardewModdingAPI.Events
 {
-    /// <summary>Events serving specialised edge cases that shouldn't be used by most mod.</summary>
+    /// <summary>Events serving specialised edge cases that shouldn't be used by most mods.</summary>
     public static class SpecialisedEvents
     {
         /*********

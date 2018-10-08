@@ -34,5 +34,11 @@ namespace StardewModdingAPI.Events
 
         /// <summary>Raised before the game ends the current day. This happens before it starts setting up the next day and before <see cref="Saving"/>.</summary>
         event EventHandler<DayEndingEventArgs> DayEnding;
+
+        /// <summary>Raised after the in-game clock time changes.</summary>
+        event EventHandler<TimeChangedEventArgs> TimeChanged;
+
+        /// <summary>Raised after the game returns to the title screen.</summary>
+        event EventHandler<ReturnedToTitleEventArgs> ReturnedToTitle;
     }
 }

@@ -23,10 +23,13 @@
 
 * For modders:
   * Added [data API](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Data).
-  * Added support for overlaying image assets with semi-transparency using the content API.
   * Added `IContentPack.WriteJsonFile` method.
   * Added IntelliSense documentation for the non-developers version of SMAPI.
-  * Mods are no longer prevented from loading a PNG while the game is drawing.
+  * Added more events to the prototype `helper.Events` for SMAPI 3.0.
+  * Added `SkillType` enum constant.
+  * Improved content API:
+    * added support for overlaying image assets with semi-transparency;
+    * mods can now load PNGs even if the game is currently drawing.
   * When comparing mod versions, SMAPI now considers `-unofficial` to be lower-precedence than any other value (e.g. `1.0-beta` is now considered newer than `1.0-unofficial` regardless of normal sorting).
   * Fixed `IContentPack.ReadJsonFile` allowing non-relative paths.
   * Fixed trace logs not showing path for invalid mods.

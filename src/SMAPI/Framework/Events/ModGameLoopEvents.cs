@@ -79,6 +79,21 @@ namespace StardewModdingAPI.Framework.Events
             remove => this.EventManager.DayEnding.Remove(value);
         }
 
+        /// <summary>Raised after the in-game clock time changes.</summary>
+        public event EventHandler<TimeChangedEventArgs> TimeChanged
+        {
+
+            add => this.EventManager.TimeChanged.Add(value);
+            remove => this.EventManager.TimeChanged.Remove(value);
+        }
+
+        /// <summary>Raised after the game returns to the title screen.</summary>
+        public event EventHandler<ReturnedToTitleEventArgs> ReturnedToTitle
+        {
+            add => this.EventManager.ReturnedToTitle.Add(value);
+            remove => this.EventManager.ReturnedToTitle.Remove(value);
+        }
+
 
         /*********
         ** Public methods

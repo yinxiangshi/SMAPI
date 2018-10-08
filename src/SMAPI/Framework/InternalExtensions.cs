@@ -43,8 +43,8 @@ namespace StardewModdingAPI.Framework
         /****
         ** ManagedEvent
         ****/
-        /// <summary>Raise the event and notify all handlers.</summary>
-        /// <typeparam name="TEventArgs">The empty event arguments type to construct.</typeparam>
+        /// <summary>Raise the event using the default event args and notify all handlers.</summary>
+        /// <typeparam name="TEventArgs">The event args type to construct.</typeparam>
         /// <param name="event">The event to raise.</param>
         public static void RaiseEmpty<TEventArgs>(this ManagedEvent<TEventArgs> @event) where TEventArgs : new()
         {

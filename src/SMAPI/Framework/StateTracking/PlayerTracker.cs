@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using StardewModdingAPI.Enums;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.StateTracking.FieldWatchers;
 using StardewValley;
@@ -41,7 +42,7 @@ namespace StardewModdingAPI.Framework.StateTracking
         public IValueWatcher<int> MineLevelWatcher { get; }
 
         /// <summary>Tracks changes to the player's skill levels.</summary>
-        public IDictionary<EventArgsLevelUp.LevelType, IValueWatcher<int>> SkillWatchers { get; }
+        public IDictionary<SkillType, IValueWatcher<int>> SkillWatchers { get; }
 
 
         /*********
@@ -58,14 +59,14 @@ namespace StardewModdingAPI.Framework.StateTracking
             // init trackers
             this.LocationWatcher = WatcherFactory.ForReference(this.GetCurrentLocation);
             this.MineLevelWatcher = WatcherFactory.ForEquatable(() => this.LastValidLocation is MineShaft mine ? mine.mineLevel : 0);
-            this.SkillWatchers = new Dictionary<EventArgsLevelUp.LevelType, IValueWatcher<int>>
+            this.SkillWatchers = new Dictionary<SkillType, IValueWatcher<int>>
             {
-                [EventArgsLevelUp.LevelType.Combat] = WatcherFactory.ForNetValue(player.combatLevel),
-                [EventArgsLevelUp.LevelType.Farming] = WatcherFactory.ForNetValue(player.farmingLevel),
-                [EventArgsLevelUp.LevelType.Fishing] = WatcherFactory.ForNetValue(player.fishingLevel),
-                [EventArgsLevelUp.LevelType.Foraging] = WatcherFactory.ForNetValue(player.foragingLevel),
-                [EventArgsLevelUp.LevelType.Luck] = WatcherFactory.ForNetValue(player.luckLevel),
-                [EventArgsLevelUp.LevelType.Mining] = WatcherFactory.ForNetValue(player.miningLevel)
+                [SkillType.Combat] = WatcherFactory.ForNetValue(player.combatLevel),
+                [SkillType.Farming] = WatcherFactory.ForNetValue(player.farmingLevel),
+                [SkillType.Fishing] = WatcherFactory.ForNetValue(player.fishingLevel),
+                [SkillType.Foraging] = WatcherFactory.ForNetValue(player.foragingLevel),
+                [SkillType.Luck] = WatcherFactory.ForNetValue(player.luckLevel),
+                [SkillType.Mining] = WatcherFactory.ForNetValue(player.miningLevel)
             };
 
             // track watchers for convenience
@@ -124,7 +125,7 @@ namespace StardewModdingAPI.Framework.StateTracking
         }
 
         /// <summary>Get the player skill levels which changed.</summary>
-        public IEnumerable<KeyValuePair<EventArgsLevelUp.LevelType, IValueWatcher<int>>> GetChangedSkills()
+        public IEnumerable<KeyValuePair<SkillType, IValueWatcher<int>>> GetChangedSkills()
         {
             return this.SkillWatchers.Where(p => p.Value.IsChanged);
         }
