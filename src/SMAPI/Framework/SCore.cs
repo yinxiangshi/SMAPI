@@ -26,6 +26,7 @@ using StardewModdingAPI.Framework.Patching;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Serialisation;
 using StardewModdingAPI.Internal;
+using StardewModdingAPI.Patches;
 using StardewModdingAPI.Toolkit;
 using StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
 using StardewModdingAPI.Toolkit.Framework.ModData;
@@ -174,7 +175,7 @@ namespace StardewModdingAPI.Framework
 
             // apply game patches
             new GamePatcher(this.Monitor).Apply(
-            //    new GameLocationPatch()
+                new DialoguePatch(this.MonitorForGame, this.Reflection)
             );
         }
 

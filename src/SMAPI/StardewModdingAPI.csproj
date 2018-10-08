@@ -309,6 +309,7 @@
     <Compile Include="Framework\Monitor.cs" />
     <Compile Include="Metadata\InstructionMetadata.cs" />
     <Compile Include="Mod.cs" />
+    <Compile Include="Patches\CatchDialogueErrorPatch.cs" />
     <Compile Include="PatchMode.cs" />
     <Compile Include="GamePlatform.cs" />
     <Compile Include="Program.cs" />

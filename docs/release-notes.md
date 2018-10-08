@@ -7,6 +7,7 @@
     * Most SMAPI files are now tucked into a `smapi-internal` subfolder.
     * Save backups are now in a `save-backups` subfolder, so they're easier to access. Note that previous backups will be deleted when you update.
   * Improved various error messages to be more clear and intuitive.
+  * SMAPI now prevents a crash caused by mods adding dialogue the game can't parse.
   * Fixed transparency issues on Linux/Mac for some mod images.
   * Fixed error when a mod manifest is corrupted.
   * Fixed error when a mod adds an unnamed location.
