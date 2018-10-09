@@ -115,7 +115,9 @@ namespace StardewModdingApi.Installer
             yield return GetInstallPath("Mono.Cecil.dll");                  // moved in 2.8
             yield return GetInstallPath("Newtonsoft.Json.dll");             // moved in 2.8
             yield return GetInstallPath("StardewModdingAPI.config.json");   // moved in 2.8
+            yield return GetInstallPath("StardewModdingAPI.crash.marker");  // moved in 2.8
             yield return GetInstallPath("StardewModdingAPI.metadata.json"); // moved in 2.8
+            yield return GetInstallPath("StardewModdingAPI.update.marker"); // moved in 2.8
             yield return GetInstallPath("StardewModdingAPI.Toolkit.dll");   // moved in 2.8
             yield return GetInstallPath("StardewModdingAPI.Toolkit.pdb");   // moved in 2.8
             yield return GetInstallPath("StardewModdingAPI.Toolkit.xml");   // moved in 2.8

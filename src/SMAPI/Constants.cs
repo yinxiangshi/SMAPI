@@ -86,10 +86,10 @@ namespace StardewModdingAPI
         internal static string FatalCrashLog => Path.Combine(Constants.LogDir, "SMAPI-crash.txt");
 
         /// <summary>The file path which stores a fatal crash message for the next run.</summary>
-        internal static string FatalCrashMarker => Path.Combine(Constants.ExecutionPath, "StardewModdingAPI.crash.marker");
+        internal static string FatalCrashMarker => Path.Combine(Constants.InternalFilesPath, "StardewModdingAPI.crash.marker");
 
         /// <summary>The file path which stores the detected update version for the next run.</summary>
-        internal static string UpdateMarker => Path.Combine(Constants.ExecutionPath, "StardewModdingAPI.update.marker");
+        internal static string UpdateMarker => Path.Combine(Constants.InternalFilesPath, "StardewModdingAPI.update.marker");
 
         /// <summary>The full path to the folder containing mods.</summary>
         internal static string DefaultModsPath { get; } = Path.Combine(Constants.ExecutionPath, "Mods");
