@@ -21,6 +21,7 @@
 
 * For the web UI:
   * The log parser now has a separate filter for game messages.
+  * The log parser now displays the author of each content pack.
 
 * For modders:
   * Added [data API](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Data).

@@ -165,7 +165,18 @@ else if (Model.ParsedLog?.IsValid == true)
                             </div>
                         }
                     </td>
-                    <td v-pre>@mod.Author</td>
+                    <td v-pre>
+                        @mod.Author
+                        @if (contentPacks != null && contentPacks.TryGetValue(mod.Name, out contentPackList))
+                        {
+                            <div class="content-packs">
+                                @foreach (var contentPack in contentPackList)
+                                {
+                                    <text>+ @contentPack.Author</text><br />
+                                }
+                            </div>
+                        }
+                    </td>
                     @if (mod.Errors == 0)
                     {
                         <td v-pre class="color-green">no errors</td>
