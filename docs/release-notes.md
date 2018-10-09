@@ -1,7 +1,7 @@
 # Release notes
 ## 2.8 (upcoming)
 * For players:
-  * Update checks now work even when the mod has no update keys in most cases.
+  * Update checks now work even for mods without update keys in most cases.
   * Reorganised SMAPI files:
     * You can now group mods into subfolders to organise them.
     * Most SMAPI files are now tucked into a `smapi-internal` subfolder.
@@ -18,6 +18,9 @@
   * Fixed dependencies not correctly enforced if the dependency is installed but failed to load.
   * Fixed some errors logged as SMAPI instead of the affected mod.
   * Updated compatibility list.
+
+* For the web UI:
+  * The log parser now has a separate filter for game messages.
 
 * For modders:
   * Added [data API](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Data).

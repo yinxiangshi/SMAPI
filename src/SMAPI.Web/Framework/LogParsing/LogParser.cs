@@ -70,6 +70,7 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
 
                 // parse log messages
                 LogModInfo smapiMod = new LogModInfo { Name = "SMAPI", Author = "Pathoschild", Description = "" };
+                LogModInfo gameMod = new LogModInfo { Name = "game", Author = "", Description = "" };
                 IDictionary<string, LogModInfo> mods = new Dictionary<string, LogModInfo>();
                 bool inModList = false;
                 bool inContentPackList = false;
@@ -78,10 +79,23 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                     // collect stats
                     if (message.Level == LogLevel.Error)
                     {
-                        if (message.Mod == "SMAPI")
-                            smapiMod.Errors++;
-                        else if (mods.ContainsKey(message.Mod))
-                            mods[message.Mod].Errors++;
+                        switch (message.Mod)
+                        {
+                            case "SMAPI":
+                                smapiMod.Errors++;
+                                break;
+
+                            case "game":
+                                gameMod.Errors++;
+                                break;
+
+                            default:
+                            {
+                                if (mods.ContainsKey(message.Mod))
+                                    mods[message.Mod].Errors++;
+                                break;
+                            }
+                        }
                     }
 
                     // collect SMAPI metadata
@@ -151,7 +165,8 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                 }
 
                 // finalise log
-                log.Mods = new[] { smapiMod }.Concat(mods.Values.OrderBy(p => p.Name)).ToArray();
+                gameMod.Version = log.GameVersion;
+                log.Mods = new[] { gameMod, smapiMod }.Concat(mods.Values.OrderBy(p => p.Name)).ToArray();
                 return log;
             }
             catch (LogParseException ex)
