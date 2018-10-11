@@ -912,7 +912,7 @@ namespace StardewModdingAPI.Framework
             // Although dependences are validated before mods are loaded, a dependency may have failed to load.
             if (mod.Manifest.Dependencies?.Any() == true)
             {
-                foreach (IManifestDependency dependency in mod.Manifest.Dependencies)
+                foreach (IManifestDependency dependency in mod.Manifest.Dependencies.Where(p => p.IsRequired))
                 {
                     if (this.ModRegistry.Get(dependency.UniqueID) == null)
                     {
