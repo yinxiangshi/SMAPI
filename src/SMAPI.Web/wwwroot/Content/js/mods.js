@@ -4,7 +4,11 @@ var smapi = smapi || {};
 var app;
 smapi.modList = function (mods) {
     // init data
-    var data = { mods: mods, search: "" };
+    var data = {
+        mods: mods,
+        showAllFields: false,
+        search: ""
+    };
     for (var i = 0; i < data.mods.length; i++) {
         var mod = mods[i];
 

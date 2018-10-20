@@ -42,6 +42,10 @@ table.wikitable > caption {
     font-weight:bold
 }
 
+#show-fields-option {
+    opacity: 0.7;
+}
+
 #mod-list .mod-page-links,
 #mod-list .mod-alt-authors,
 #mod-list .mod-alt-names,
