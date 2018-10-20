@@ -12,6 +12,9 @@ namespace StardewModdingAPI.Web.Framework.ConfigModels
         /// <summary>The root URL for the log parser.</summary>
         public string LogParserUrl { get; set; }
 
+        /// <summary>The root URL for the mod list.</summary>
+        public string ModListUrl { get; set; }
+
         /// <summary>Whether to show SMAPI beta versions on the main page, if any.</summary>
         public bool BetaEnabled { get; set; }
 

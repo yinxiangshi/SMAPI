@@ -1,0 +1,72 @@
+@using Newtonsoft.Json
+@model StardewModdingAPI.Web.ViewModels.ModListModel
+@{
+    ViewData["Title"] = "SMAPI mod compatibility";
+}
+@section Head {
+    <link rel="stylesheet" href="~/Content/css/mods.css?r=20180615" />
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" crossorigin="anonymous"></script>
+    <script src="~/Content/js/mods.js?r=20180615"></script>
+    <script>
+        $(function() {
+            var data = @Json.Serialize(Model.Mods, new JsonSerializerSettings { Formatting = Formatting.None });
+            smapi.modList(data);
+        });
+    </script>
+}
+
+<p id="blurb">This page lists all known SMAPI mods, whether they're compatible with the latest versions of Stardew Valley and SMAPI, and how to fix broken mods if possible. The list is updated every few days. (You can help <a href="https://stardewvalleywiki.com/Modding:SMAPI_compatibility">edit this list</a>!)</p>
+
+@if (Model.BetaVersion != null)
+{
+    <div id="beta-blurb">
+        <p><strong>Note:</strong> "SDV beta only" means Stardew Valley @Model.BetaVersion; if you didn't opt in to the beta, you have the stable version and can ignore that line. If a mod doesn't have a "SDV beta only" line, the compatibility applies to both versions of the game.</p>
+    </div>
+}
+
+<div id="app">
+    <label for="search-box">Search: </label>
+    <input type="text" id="search-box" v-model="search" v-on:input="applySearch" />
+    <table class="wikitable" id="mod-list">
+        <tr>
+            <th>mod name</th>
+            <th>links</th>
+            <th>author</th>
+            <th>compatibility</th>
+            <th>broke in</th>
+            <th>code</th>
+            <th>&nbsp;</th>
+        </tr>
+        <tr v-for="mod in mods" :key="mod.Name" v-bind:id="mod.Slug" :key="mod.Slug" v-bind:data-status="mod.BetaCompatibility != null ? mod.BetaCompatibility.Status : mod.Compatibility.Status" v-show="mod.Visible">
+            <td>
+                {{mod.Name}}
+                <small class="mod-alt-names" v-if="mod.AlternateNames">(aka {{mod.AlternateNames}})</small>
+            </td>
+            <td class="mod-page-links">
+                <span v-for="(link, i) in mod.ModPages">
+                    <a v-bind:href="link.Url">{{link.Text}}</a>{{i < mod.ModPages.length - 1 ? ', ' : ''}}
+                </span>
+            </td>
+            <td>
+                {{mod.Author}}
+                <small class="mod-alt-authors" v-if="mod.AlternateAuthors">(aka {{mod.AlternateAuthors}})</small>
+            </td>
+            <td>
+                <div v-html="mod.Compatibility.Summary"></div>
+                <div v-if="mod.BetaCompatibility">
+                    <strong v-if="mod.BetaCompatibility">SDV beta only:</strong>
+                    <span v-html="mod.BetaCompatibility.Summary"></span>
+                </div>
+            </td>
+            <td class="mod-broke-in" v-html="mod.BrokeIn"></td>
+            <td>
+                <span v-if="mod.SourceUrl"><a v-bind:href="mod.SourceUrl">source</a></span>
+                <span v-else class="mod-closed-source">no source</span>
+            </td>
+            <td>
+                <small><a v-bind:href="'#' + mod.Slug">#</a></small>
+            </td>
+        </tr>
+    </table>
+</div>
