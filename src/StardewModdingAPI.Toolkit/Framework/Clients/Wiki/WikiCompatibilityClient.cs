@@ -80,7 +80,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
                 string alternateAuthors = this.GetMetadataField(node, "mod-author2");
                 string[] ids = this.GetMetadataField(node, "mod-id")?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim()).ToArray() ?? new string[0];
                 int? nexusID = this.GetNullableIntField(node, "mod-nexus-id");
-                int? chucklefishID = this.GetNullableIntField(node, "mod-chucklefish-id");
+                int? chucklefishID = this.GetNullableIntField(node, "mod-cf-id");
                 string githubRepo = this.GetMetadataField(node, "mod-github");
                 string customSourceUrl = this.GetMetadataField(node, "mod-custom-source");
                 string customUrl = this.GetMetadataField(node, "mod-url");
