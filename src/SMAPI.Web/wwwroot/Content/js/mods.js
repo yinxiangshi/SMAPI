@@ -57,4 +57,8 @@ smapi.modList = function (mods) {
             }
         }
     });
+
+    // put focus in textbox for quick search
+    if (!location.hash)
+        $("#search-box").focus();
 };
