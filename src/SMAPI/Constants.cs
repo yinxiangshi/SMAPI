@@ -107,6 +107,26 @@ namespace StardewModdingAPI
         /*********
         ** Internal methods
         *********/
+        /// <summary>Get the SMAPI version to recommend for an older game version, if any.</summary>
+        /// <param name="version">The game version to search.</param>
+        /// <returns>Returns the compatible SMAPI version, or <c>null</c> if none was found.</returns>
+        internal static ISemanticVersion GetCompatibleApiVersion(ISemanticVersion version)
+        {
+            switch (version.ToString())
+            {
+                case "1.3.28":
+                    return new SemanticVersion(2, 7, 0);
+
+                case "1.2.30":
+                case "1.2.31":
+                case "1.2.32":
+                case "1.2.33":
+                    return new SemanticVersion(2, 5, 5);
+            }
+
+            return null;
+        }
+
         /// <summary>Get metadata for mapping assemblies to the current platform.</summary>
         /// <param name="targetPlatform">The target game platform.</param>
         internal static PlatformAssemblyMap GetAssemblyMap(Platform targetPlatform)

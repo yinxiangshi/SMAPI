@@ -159,20 +159,6 @@ namespace StardewModdingAPI.Framework
             }
 #endif
 
-            // validate game version
-            if (Constants.GameVersion.IsOlderThan(Constants.MinimumGameVersion))
-            {
-                this.Monitor.Log($"Oops! You're running Stardew Valley {Constants.GameVersion}, but the oldest supported version is {Constants.MinimumGameVersion}. Please update your game before using SMAPI.", LogLevel.Error);
-                this.PressAnyKeyToExit();
-                return;
-            }
-            if (Constants.MaximumGameVersion != null && Constants.GameVersion.IsNewerThan(Constants.MaximumGameVersion))
-            {
-                this.Monitor.Log($"Oops! You're running Stardew Valley {Constants.GameVersion}, but this version of SMAPI is only compatible up to Stardew Valley {Constants.MaximumGameVersion}. Please check for a newer version of SMAPI: https://smapi.io.", LogLevel.Error);
-                this.PressAnyKeyToExit();
-                return;
-            }
-
             // apply game patches
             new GamePatcher(this.Monitor).Apply(
                 new DialoguePatch(this.MonitorForGame, this.Reflection)
