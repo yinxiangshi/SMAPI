@@ -64,7 +64,7 @@ table.wikitable > caption {
 
 #mod-list tr[data-status="Ok"],
 #mod-list tr[data-status="Optional"] {
-    background: #9F9;
+    background: #BFB;
 }
 
 #mod-list tr[data-status="Workaround"],
@@ -73,12 +73,12 @@ table.wikitable > caption {
 }
 
 #mod-list tr[data-status="Broken"] {
-    background: #F99;
+    background: #FBB;
 }
 
 #mod-list tr[data-status="Obsolete"],
 #mod-list tr[data-status="Abandoned"] {
-    background: #999;
+    background: #BBB;
     opacity: 0.7;
 }
 
