@@ -30,7 +30,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
         }
 
         /// <summary>Fetch mod compatibility entries.</summary>
-        public async Task<WikiCompatibilityEntry[]> FetchAsync()
+        public async Task<WikiModEntry[]> FetchAsync()
         {
             // fetch HTML
             ResponseModel response = await this.Client
@@ -69,98 +69,111 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
         *********/
         /// <summary>Parse valid mod compatibility entries.</summary>
         /// <param name="nodes">The HTML compatibility entries.</param>
-        private IEnumerable<WikiCompatibilityEntry> ParseEntries(IEnumerable<HtmlNode> nodes)
+        private IEnumerable<WikiModEntry> ParseEntries(IEnumerable<HtmlNode> nodes)
         {
             foreach (HtmlNode node in nodes)
             {
-                // parse mod info
-                string name = node.Descendants("td").FirstOrDefault()?.Descendants("a")?.FirstOrDefault()?.InnerText?.Trim();
-                string[] ids = this.GetAttribute(node, "data-id")?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim()).ToArray() ?? new string[0];
-                int? nexusID = this.GetNullableIntAttribute(node, "data-nexus-id");
-                int? chucklefishID = this.GetNullableIntAttribute(node, "data-chucklefish-id");
-                string githubRepo = this.GetAttribute(node, "data-github");
-                string customSourceUrl = this.GetAttribute(node, "data-custom-source");
-                string customUrl = this.GetAttribute(node, "data-custom-url");
+                // extract fields
+                string name = this.GetMetadataField(node, "mod-name");
+                string alternateNames = this.GetMetadataField(node, "mod-name2");
+                string author = this.GetMetadataField(node, "mod-author");
+                string alternateAuthors = this.GetMetadataField(node, "mod-author2");
+                string[] ids = this.GetMetadataField(node, "mod-id")?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim()).ToArray() ?? new string[0];
+                int? nexusID = this.GetNullableIntField(node, "mod-nexus-id");
+                int? chucklefishID = this.GetNullableIntField(node, "mod-chucklefish-id");
+                string githubRepo = this.GetMetadataField(node, "mod-github");
+                string customSourceUrl = this.GetMetadataField(node, "mod-custom-source");
+                string customUrl = this.GetMetadataField(node, "mod-url");
+                string brokeIn = this.GetMetadataField(node, "mod-broke-in");
+                string anchor = this.GetMetadataField(node, "mod-anchor");
 
                 // parse stable compatibility
-                WikiCompatibilityStatus status = this.GetStatusAttribute(node, "data-status") ?? WikiCompatibilityStatus.Ok;
-                ISemanticVersion unofficialVersion = this.GetSemanticVersionAttribute(node, "data-unofficial-version");
-                string summary = node.Descendants().FirstOrDefault(p => p.HasClass("data-summary"))?.InnerText.Trim();
+                WikiCompatibilityInfo compatibility = new WikiCompatibilityInfo
+                {
+                    Status = this.GetStatusField(node, "mod-status") ?? WikiCompatibilityStatus.Ok,
+                    UnofficialVersion = this.GetSemanticVersionField(node, "mod-unofficial-version"),
+                    UnofficialUrl = this.GetMetadataField(node, "mod-unofficial-url"),
+                    Summary = this.GetMetadataField(node, "mod-summary")?.Trim()
+                };
 
                 // parse beta compatibility
-                WikiCompatibilityStatus? betaStatus = this.GetStatusAttribute(node, "data-beta-status");
-                ISemanticVersion betaUnofficialVersion = betaStatus.HasValue ? this.GetSemanticVersionAttribute(node, "data-beta-unofficial-version") : null;
-                string betaSummary = betaStatus.HasValue ? node.Descendants().FirstOrDefault(p => p.HasClass("data-beta-summary"))?.InnerText.Trim() : null;
+                WikiCompatibilityInfo betaCompatibility = null;
+                {
+                    WikiCompatibilityStatus? betaStatus = this.GetStatusField(node, "mod-beta-status");
+                    if (betaStatus.HasValue)
+                    {
+                        betaCompatibility = new WikiCompatibilityInfo
+                        {
+                            Status = betaStatus.Value,
+                            UnofficialVersion = this.GetSemanticVersionField(node, "mod-beta-unofficial-version"),
+                            UnofficialUrl = this.GetMetadataField(node, "mod-beta-unofficial-url"),
+                            Summary = this.GetMetadataField(node, "mod-beta-summary")
+                        };
+                    }
+                }
 
                 // yield model
-                yield return new WikiCompatibilityEntry
+                yield return new WikiModEntry
                 {
-                    // mod info
                     ID = ids,
                     Name = name,
+                    AlternateNames = alternateNames,
+                    Author = author,
+                    AlternateAuthors = alternateAuthors,
                     NexusID = nexusID,
                     ChucklefishID = chucklefishID,
                     GitHubRepo = githubRepo,
                     CustomSourceUrl = customSourceUrl,
                     CustomUrl = customUrl,
-
-                    // stable compatibility
-                    Status = status,
-                    Summary = summary,
-                    UnofficialVersion = unofficialVersion,
-
-                    // beta compatibility
-                    BetaStatus = betaStatus,
-                    BetaSummary = betaSummary,
-                    BetaUnofficialVersion = betaUnofficialVersion
+                    BrokeIn = brokeIn,
+                    Compatibility = compatibility,
+                    BetaCompatibility = betaCompatibility,
+                    Anchor = anchor
                 };
             }
         }
 
-        /// <summary>Get a compatibility status attribute value.</summary>
-        /// <param name="node">The HTML node.</param>
-        /// <param name="attributeName">The attribute name.</param>
-        private WikiCompatibilityStatus? GetStatusAttribute(HtmlNode node, string attributeName)
+        /// <summary>Get the value of a metadata field.</summary>
+        /// <param name="container">The metadata container.</param>
+        /// <param name="name">The field name.</param>
+        private string GetMetadataField(HtmlNode container, string name)
         {
-            string raw = node.GetAttributeValue(attributeName, null);
+            return container.Descendants().FirstOrDefault(p => p.HasClass(name))?.InnerHtml;
+        }
+
+        /// <summary>Get the value of a metadata field as a compatibility status.</summary>
+        /// <param name="container">The metadata container.</param>
+        /// <param name="name">The field name.</param>
+        private WikiCompatibilityStatus? GetStatusField(HtmlNode container, string name)
+        {
+            string raw = this.GetMetadataField(container, name);
             if (raw == null)
-                return null; // not a mod node?
+                return null;
             if (!Enum.TryParse(raw, true, out WikiCompatibilityStatus status))
                 throw new InvalidOperationException($"Unknown status '{raw}' when parsing compatibility list.");
             return status;
         }
 
-        /// <summary>Get a semantic version attribute value.</summary>
-        /// <param name="node">The HTML node.</param>
-        /// <param name="attributeName">The attribute name.</param>
-        private ISemanticVersion GetSemanticVersionAttribute(HtmlNode node, string attributeName)
+        /// <summary>Get the value of a metadata field as a semantic version.</summary>
+        /// <param name="container">The metadata container.</param>
+        /// <param name="name">The field name.</param>
+        private ISemanticVersion GetSemanticVersionField(HtmlNode container, string name)
         {
-            string raw = node.GetAttributeValue(attributeName, null);
+            string raw = this.GetMetadataField(container, name);
             return SemanticVersion.TryParse(raw, out ISemanticVersion version)
                 ? version
                 : null;
         }
 
-        /// <summary>Get a nullable integer attribute value.</summary>
-        /// <param name="node">The HTML node.</param>
-        /// <param name="attributeName">The attribute name.</param>
-        private int? GetNullableIntAttribute(HtmlNode node, string attributeName)
+        /// <summary>Get the value of a metadata field as a nullable integer.</summary>
+        /// <param name="container">The metadata container.</param>
+        /// <param name="name">The field name.</param>
+        private int? GetNullableIntField(HtmlNode container, string name)
         {
-            string raw = this.GetAttribute(node, attributeName);
+            string raw = this.GetMetadataField(container, name);
             if (raw != null && int.TryParse(raw, out int value))
                 return value;
             return null;
-        }
-
-        /// <summary>Get a strings attribute value.</summary>
-        /// <param name="node">The HTML node.</param>
-        /// <param name="attributeName">The attribute name.</param>
-        private string GetAttribute(HtmlNode node, string attributeName)
-        {
-            string raw = node.GetAttributeValue(attributeName, null);
-            if (raw != null)
-                raw = HtmlEntity.DeEntitize(raw);
-            return raw;
         }
 
         /// <summary>The response model for the MediaWiki parse API.</summary>

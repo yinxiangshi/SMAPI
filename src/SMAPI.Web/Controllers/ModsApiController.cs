@@ -90,7 +90,7 @@ namespace StardewModdingAPI.Web.Controllers
                 return new ModEntryModel[0];
 
             // fetch wiki data
-            WikiCompatibilityEntry[] wikiData = await this.GetWikiDataAsync();
+            WikiModEntry[] wikiData = await this.GetWikiDataAsync();
             IDictionary<string, ModEntryModel> mods = new Dictionary<string, ModEntryModel>(StringComparer.CurrentCultureIgnoreCase);
             foreach (ModSearchEntryModel mod in model.Mods)
             {
@@ -114,11 +114,11 @@ namespace StardewModdingAPI.Web.Controllers
         /// <param name="wikiData">The wiki data.</param>
         /// <param name="includeExtendedMetadata">Whether to include extended metadata for each mod.</param>
         /// <returns>Returns the mod data if found, else <c>null</c>.</returns>
-        private async Task<ModEntryModel> GetModData(ModSearchEntryModel search, WikiCompatibilityEntry[] wikiData, bool includeExtendedMetadata)
+        private async Task<ModEntryModel> GetModData(ModSearchEntryModel search, WikiModEntry[] wikiData, bool includeExtendedMetadata)
         {
             // crossreference data
             ModDataRecord record = this.ModDatabase.Get(search.ID);
-            WikiCompatibilityEntry wikiEntry = wikiData.FirstOrDefault(entry => entry.ID.Contains(search.ID.Trim(), StringComparer.InvariantCultureIgnoreCase));
+            WikiModEntry wikiEntry = wikiData.FirstOrDefault(entry => entry.ID.Contains(search.ID.Trim(), StringComparer.InvariantCultureIgnoreCase));
             string[] updateKeys = this.GetUpdateKeys(search.UpdateKeys, record, wikiEntry).ToArray();
 
             // get latest versions
@@ -162,19 +162,19 @@ namespace StardewModdingAPI.Web.Controllers
             }
 
             // get unofficial version
-            if (wikiEntry?.UnofficialVersion != null && this.IsNewer(wikiEntry.UnofficialVersion, result.Main?.Version) && this.IsNewer(wikiEntry.UnofficialVersion, result.Optional?.Version))
-                result.Unofficial = new ModEntryVersionModel(wikiEntry.UnofficialVersion, this.WikiCompatibilityPageUrl);
+            if (wikiEntry?.Compatibility.UnofficialVersion != null && this.IsNewer(wikiEntry.Compatibility.UnofficialVersion, result.Main?.Version) && this.IsNewer(wikiEntry.Compatibility.UnofficialVersion, result.Optional?.Version))
+                result.Unofficial = new ModEntryVersionModel(wikiEntry.Compatibility.UnofficialVersion, this.WikiCompatibilityPageUrl);
 
             // get unofficial version for beta
             if (wikiEntry?.HasBetaInfo == true)
             {
                 result.HasBetaInfo = true;
-                if (wikiEntry.BetaStatus == WikiCompatibilityStatus.Unofficial)
+                if (wikiEntry.BetaCompatibility.Status == WikiCompatibilityStatus.Unofficial)
                 {
-                    if (wikiEntry.BetaUnofficialVersion != null)
+                    if (wikiEntry.BetaCompatibility.UnofficialVersion != null)
                     {
-                        result.UnofficialForBeta = (wikiEntry.BetaUnofficialVersion != null && this.IsNewer(wikiEntry.BetaUnofficialVersion, result.Main?.Version) && this.IsNewer(wikiEntry.BetaUnofficialVersion, result.Optional?.Version))
-                            ? new ModEntryVersionModel(wikiEntry.BetaUnofficialVersion, this.WikiCompatibilityPageUrl)
+                        result.UnofficialForBeta = (wikiEntry.BetaCompatibility.UnofficialVersion != null && this.IsNewer(wikiEntry.BetaCompatibility.UnofficialVersion, result.Main?.Version) && this.IsNewer(wikiEntry.BetaCompatibility.UnofficialVersion, result.Optional?.Version))
+                            ? new ModEntryVersionModel(wikiEntry.BetaCompatibility.UnofficialVersion, this.WikiCompatibilityPageUrl)
                             : null;
                     }
                     else
@@ -216,21 +216,21 @@ namespace StardewModdingAPI.Web.Controllers
         }
 
         /// <summary>Get mod data from the wiki compatibility list.</summary>
-        private async Task<WikiCompatibilityEntry[]> GetWikiDataAsync()
+        private async Task<WikiModEntry[]> GetWikiDataAsync()
         {
             ModToolkit toolkit = new ModToolkit();
             return await this.Cache.GetOrCreateAsync("_wiki", async entry =>
             {
                 try
                 {
-                    WikiCompatibilityEntry[] entries = await toolkit.GetWikiCompatibilityListAsync();
+                    WikiModEntry[] entries = await toolkit.GetWikiCompatibilityListAsync();
                     entry.AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(this.SuccessCacheMinutes);
                     return entries;
                 }
                 catch
                 {
                     entry.AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(this.ErrorCacheMinutes);
-                    return new WikiCompatibilityEntry[0];
+                    return new WikiModEntry[0];
                 }
             });
         }
@@ -268,7 +268,7 @@ namespace StardewModdingAPI.Web.Controllers
         /// <param name="specifiedKeys">The specified update keys.</param>
         /// <param name="record">The mod's entry in SMAPI's internal database.</param>
         /// <param name="entry">The mod's entry in the wiki list.</param>
-        public IEnumerable<string> GetUpdateKeys(string[] specifiedKeys, ModDataRecord record, WikiCompatibilityEntry entry)
+        public IEnumerable<string> GetUpdateKeys(string[] specifiedKeys, ModDataRecord record, WikiModEntry entry)
         {
             IEnumerable<string> GetRaw()
             {

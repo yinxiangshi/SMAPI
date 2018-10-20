@@ -68,7 +68,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
         /// <summary>Construct an instance.</summary>
         /// <param name="wiki">The mod metadata from the wiki (if available).</param>
         /// <param name="db">The mod metadata from SMAPI's internal DB (if available).</param>
-        public ModExtendedMetadataModel(WikiCompatibilityEntry wiki, ModDataRecord db)
+        public ModExtendedMetadataModel(WikiModEntry wiki, ModDataRecord db)
         {
             // wiki data
             if (wiki != null)
@@ -81,11 +81,11 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
                 this.CustomSourceUrl = wiki.CustomSourceUrl;
                 this.CustomUrl = wiki.CustomUrl;
 
-                this.CompatibilityStatus = wiki.Status;
-                this.CompatibilitySummary = wiki.Summary;
+                this.CompatibilityStatus = wiki.Compatibility.Status;
+                this.CompatibilitySummary = wiki.Compatibility.Summary;
 
-                this.BetaCompatibilityStatus = wiki.BetaStatus;
-                this.BetaCompatibilitySummary = wiki.BetaSummary;
+                this.BetaCompatibilityStatus = wiki.BetaCompatibility?.Status;
+                this.BetaCompatibilitySummary = wiki.BetaCompatibility?.Summary;
             }
 
             // internal DB data
