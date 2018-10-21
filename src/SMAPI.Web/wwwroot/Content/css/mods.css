@@ -5,13 +5,11 @@
     max-width: calc(100% - 2em); /* allow for wider table if room available */
 }
 
-#blurb {
-    margin-top: 0;
+#intro {
     width: 50em;
 }
 
 #beta-blurb {
-    width: 50em;
     margin-bottom: 2em;
     padding: 1em;
     border: 3px solid darkgreen;

@@ -21,8 +21,10 @@
   * Updated compatibility list.
 
 * For the web UI:
+  * Added a [mod compatibility page](https://mods.smapi.io).
   * The log parser now has a separate filter for game messages.
   * The log parser now shows content pack authors (thanks to danvolchek!).
+  * Corrected log parser instructions for Mac.
 
 * For modders:
   * Added [data API](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Data).

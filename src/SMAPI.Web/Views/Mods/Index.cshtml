@@ -4,11 +4,11 @@
     ViewData["Title"] = "SMAPI mod compatibility";
 }
 @section Head {
-    <link rel="stylesheet" href="~/Content/css/mods.css?r=20180615" />
+    <link rel="stylesheet" href="~/Content/css/mods.css?r=20181021" />
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" crossorigin="anonymous"></script>
     <script src="~/Content/js/external/jquery-tablesorter.js"></script>
-    <script src="~/Content/js/mods.js?r=20180615"></script>
+    <script src="~/Content/js/mods.js?r=20181021"></script>
     <script>
         $(function() {
             var data = @Json.Serialize(Model.Mods, new JsonSerializerSettings { Formatting = Formatting.None });
@@ -17,14 +17,16 @@
     </script>
 }
 
-<p id="blurb">This page lists all known SMAPI mods, whether they're compatible with the latest versions of Stardew Valley and SMAPI, and how to fix broken mods if possible. The list is updated every few days. (You can help <a href="https://stardewvalleywiki.com/Modding:SMAPI_compatibility">edit this list</a>!)</p>
+<div id="intro">
+    <p>This page lists all known SMAPI mods, whether they're compatible with the latest versions of Stardew Valley and SMAPI, and how to fix broken mods if possible. The list is updated every few days. (You can help <a href="https://stardewvalleywiki.com/Modding:SMAPI_compatibility">edit this list</a>!)</p>
 
-@if (Model.BetaVersion != null)
-{
-    <div id="beta-blurb">
-        <p><strong>Note:</strong> "SDV beta only" means Stardew Valley @Model.BetaVersion-beta; if you didn't opt in to the beta, you have the stable version and can ignore that line. If a mod doesn't have a "SDV beta only" line, the compatibility applies to both versions of the game.</p>
-    </div>
-}
+    <p>If a mod doesn't work after following the instructions below, check <a href="https://stardewvalleywiki.com/Modding:Player_Guide/Troubleshooting">the troubleshooting guide</a> or <a href="https://stardewvalleywiki.com/Modding:Player_Guide/Troubleshooting#Ask_for_help">ask for help</a>.</p>
+
+    @if (Model.BetaVersion != null)
+    {
+        <p id="beta-blurb"><strong>Note:</strong> "SDV beta only" means Stardew Valley @Model.BetaVersion-beta; if you didn't opt in to the beta, you have the stable version and can ignore that line. If a mod doesn't have a "SDV beta only" line, the compatibility applies to both versions of the game.</p>
+    }
+</div>
 
 <div id="app">
     <div>
