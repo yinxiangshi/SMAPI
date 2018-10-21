@@ -33,6 +33,25 @@ smapi.modList = function (mods) {
     app = new Vue({
         el: "#app",
         data: data,
+        mounted: function() {
+            // enable table sorting
+            $("#mod-list").tablesorter({
+                cssHeader: "header",
+                cssAsc: "headerSortUp",
+                cssDesc: "headerSortDown"
+            });
+
+            // put focus in textbox for quick search
+            if (!location.hash)
+                $("#search-box").focus();
+
+            // jump to anchor (since table is added after page load)
+            if (location.hash) {
+                var row = $(location.hash).get(0);
+                if (row)
+                    row.scrollIntoView();
+            }
+        },
         methods: {
             /**
              * Update the visibility of all mods based on the current search text.
@@ -56,16 +75,5 @@ smapi.modList = function (mods) {
                 }
             }
         }
-    });
-
-    // put focus in textbox for quick search
-    if (!location.hash)
-        $("#search-box").focus();
-
-    // enable table sorting
-    $("#mod-list").tablesorter({
-        cssHeader: "header",
-        cssAsc: "headerSortUp",
-        cssDesc: "headerSortDown"
     });
 };
