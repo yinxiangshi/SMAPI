@@ -84,7 +84,7 @@ table.wikitable > caption {
 
 #mod-list tr[data-status="Workaround"],
 #mod-list tr[data-status="Unofficial"] {
-    background: #CF9;
+    background: #FFFEC6;
 }
 
 #mod-list tr[data-status="Broken"] {
