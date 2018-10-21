@@ -223,7 +223,7 @@ namespace StardewModdingAPI.Web.Controllers
             {
                 try
                 {
-                    WikiModEntry[] entries = await toolkit.GetWikiCompatibilityListAsync();
+                    WikiModEntry[] entries = (await toolkit.GetWikiCompatibilityListAsync()).Mods;
                     entry.AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(this.SuccessCacheMinutes);
                     return entries;
                 }

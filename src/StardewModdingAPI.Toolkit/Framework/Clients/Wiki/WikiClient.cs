@@ -8,8 +8,8 @@ using Pathoschild.Http.Client;
 
 namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
 {
-    /// <summary>An HTTP client for fetching mod metadata from the wiki compatibility list.</summary>
-    public class WikiCompatibilityClient : IDisposable
+    /// <summary>An HTTP client for fetching mod metadata from the wiki.</summary>
+    public class WikiClient : IDisposable
     {
         /*********
         ** Properties
@@ -24,13 +24,13 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
         /// <summary>Construct an instance.</summary>
         /// <param name="userAgent">The user agent for the wiki API.</param>
         /// <param name="baseUrl">The base URL for the wiki API.</param>
-        public WikiCompatibilityClient(string userAgent, string baseUrl = "https://stardewvalleywiki.com/mediawiki/api.php")
+        public WikiClient(string userAgent, string baseUrl = "https://stardewvalleywiki.com/mediawiki/api.php")
         {
             this.Client = new FluentClient(baseUrl).SetUserAgent(userAgent);
         }
 
-        /// <summary>Fetch mod compatibility entries.</summary>
-        public async Task<WikiModEntry[]> FetchAsync()
+        /// <summary>Fetch mods from the compatibility list.</summary>
+        public async Task<WikiModList> FetchModsAsync()
         {
             // fetch HTML
             ResponseModel response = await this.Client
@@ -48,13 +48,23 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
             var doc = new HtmlDocument();
             doc.LoadHtml(html);
 
+            // fetch game versions
+            string stableVersion = doc.DocumentNode.SelectSingleNode("div[@class='game-stable-version']")?.InnerText;
+            string betaVersion = doc.DocumentNode.SelectSingleNode("div[@class='game-beta-version']")?.InnerText;
+
             // find mod entries
             HtmlNodeCollection modNodes = doc.DocumentNode.SelectNodes("table[@id='mod-list']//tr[@class='mod']");
             if (modNodes == null)
                 throw new InvalidOperationException("Can't parse wiki compatibility list, no mods found.");
 
             // parse
-            return this.ParseEntries(modNodes).ToArray();
+            WikiModEntry[] mods = this.ParseEntries(modNodes).ToArray();
+            return new WikiModList
+            {
+                StableVersion = stableVersion,
+                BetaVersion = betaVersion,
+                Mods = mods
+            };
         }
 
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>

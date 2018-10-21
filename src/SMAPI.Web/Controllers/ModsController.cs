@@ -56,11 +56,12 @@ namespace StardewModdingAPI.Web.Controllers
         {
             return await this.Cache.GetOrCreateAsync($"{nameof(ModsController)}_mod_list", async entry =>
             {
-                WikiModEntry[] entries = await new ModToolkit().GetWikiCompatibilityListAsync();
+                WikiModList data = await new ModToolkit().GetWikiCompatibilityListAsync();
                 ModListModel model = new ModListModel(
-                    stableVersion: "1.3.28",
-                    betaVersion: "1.3.31-beta",
-                    mods: entries
+                    stableVersion: data.StableVersion,
+                    betaVersion: data.BetaVersion,
+                    mods: data
+                        .Mods
                         .Select(mod => new ModModel(mod))
                         .OrderBy(p => Regex.Replace(p.Name.ToLower(), "[^a-z0-9]", "")) // ignore case, spaces, and special characters when sorting
                 );
