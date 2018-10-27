@@ -12,6 +12,7 @@
   * Fixed transparency issues on Linux/Mac for some mod images.
   * Fixed error when a mod manifest is corrupted.
   * Fixed error when a mod adds an unnamed location.
+  * Fixed friendly error no longer shown when SMAPI isn't run from the game folder.
   * Fixed some Windows install paths not detected.
   * Fixed Linux compatibility issues for some players. SMAPI will now always use xterm if it's available.
   * Fixed installer duplicating bundled mods if you moved them after the last install.

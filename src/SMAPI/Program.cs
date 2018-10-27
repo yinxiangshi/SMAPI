@@ -7,6 +7,7 @@ using System.Threading;
 #if SMAPI_FOR_WINDOWS
 #endif
 using StardewModdingAPI.Framework;
+using StardewModdingAPI.Internal;
 
 namespace StardewModdingAPI
 {
@@ -30,7 +31,8 @@ namespace StardewModdingAPI
         public static void Main(string[] args)
         {
             AppDomain.CurrentDomain.AssemblyResolve += Program.CurrentDomain_AssemblyResolve;
-            Program.AssertMinimumCompatibility();
+            Program.AssertGamePresent();
+            Program.AssertGameVersion();
             Program.Start(args);
         }
 
@@ -60,22 +62,15 @@ namespace StardewModdingAPI
             }
         }
 
-        /// <summary>Assert that the minimum conditions are present to initialise SMAPI without type load exceptions.</summary>
-        private static void AssertMinimumCompatibility()
+        /// <summary>Assert that the game is available.</summary>
+        /// <remarks>This must be checked *before* any references to <see cref="Constants"/>, and this method should not reference <see cref="Constants"/> itself to avoid errors in Mono.</remarks>
+        private static void AssertGamePresent()
         {
-            void PrintErrorAndExit(string message)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(message);
-                Console.ResetColor();
-                Program.PressAnyKeyToExit(showMessage: true);
-            }
-            string gameAssemblyName = Constants.GameAssemblyName;
-
-            // game not present
+            Platform platform = EnvironmentUtility.DetectPlatform();
+            string gameAssemblyName = platform == Platform.Windows ? "Stardew Valley" : "StardewValley";
             if (Type.GetType($"StardewValley.Game1, {gameAssemblyName}", throwOnError: false) == null)
             {
-                PrintErrorAndExit(
+                Program.PrintErrorAndExit(
                     "Oops! SMAPI can't find the game. "
                     + (Assembly.GetCallingAssembly().Location.Contains(Path.Combine("internal", "Windows")) || Assembly.GetCallingAssembly().Location.Contains(Path.Combine("internal", "Mono"))
                         ? "It looks like you're running SMAPI from the download package, but you need to run the installed version instead. "
@@ -83,24 +78,26 @@ namespace StardewModdingAPI
                     )
                     + "See the readme.txt file for details."
                 );
-                return;
             }
+        }
 
-            // validate game version
+        /// <summary>Assert that the game version is within <see cref="Constants.MinimumGameVersion"/> and <see cref="Constants.MaximumGameVersion"/>.</summary>
+        private static void AssertGameVersion()
+        {
+            // min version
             if (Constants.GameVersion.IsOlderThan(Constants.MinimumGameVersion))
             {
                 ISemanticVersion suggestedApiVersion = Constants.GetCompatibleApiVersion(Constants.GameVersion);
-                PrintErrorAndExit(suggestedApiVersion != null
+                Program.PrintErrorAndExit(suggestedApiVersion != null
                     ? $"Oops! You're running Stardew Valley {Constants.GameVersion}, but the oldest supported version is {Constants.MinimumGameVersion}. You can install SMAPI {suggestedApiVersion} instead to fix this error, or update your game to the latest version."
                     : $"Oops! You're running Stardew Valley {Constants.GameVersion}, but the oldest supported version is {Constants.MinimumGameVersion}. Please update your game before using SMAPI."
                 );
-                return;
             }
-            if (Constants.MaximumGameVersion != null && Constants.GameVersion.IsNewerThan(Constants.MaximumGameVersion))
-            {
-                PrintErrorAndExit($"Oops! You're running Stardew Valley {Constants.GameVersion}, but this version of SMAPI is only compatible up to Stardew Valley {Constants.MaximumGameVersion}. Please check for a newer version of SMAPI: https://smapi.io.");
-                return;
-            }
+
+            // max version
+            else if (Constants.MaximumGameVersion != null && Constants.GameVersion.IsNewerThan(Constants.MaximumGameVersion))
+                Program.PrintErrorAndExit($"Oops! You're running Stardew Valley {Constants.GameVersion}, but this version of SMAPI is only compatible up to Stardew Valley {Constants.MaximumGameVersion}. Please check for a newer version of SMAPI: https://smapi.io.");
+
         }
 
         /// <summary>Initialise SMAPI and launch the game.</summary>
@@ -128,6 +125,16 @@ namespace StardewModdingAPI
             // load SMAPI
             using (SCore core = new SCore(modsPath, writeToConsole))
                 core.RunInteractively();
+        }
+
+        /// <summary>Write an error directly to the console and exit.</summary>
+        /// <param name="message">The error message to display.</param>
+        private static void PrintErrorAndExit(string message)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(message);
+            Console.ResetColor();
+            Program.PressAnyKeyToExit(showMessage: true);
         }
 
         /// <summary>Show a 'press any key to exit' message, and exit when they press a key.</summary>
