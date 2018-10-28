@@ -300,6 +300,11 @@
       "~1.2    | Status": "AssumeBroken" // broke in SMAPI 2.0
     },
 
+    "Server Bookmarker": {
+      "ID": "Ilyaki.ServerBookmarker",
+      "~1.0.0 | Status": "AssumeBroken" // broke in Stardew Valley 1.3.29 (runtime errors)
+    },
+
     "Shop Expander": {
       "ID": "Entoarox.ShopExpander",
       "FormerIDs": "EntoaroxShopExpander", // changed in 1.5.2
