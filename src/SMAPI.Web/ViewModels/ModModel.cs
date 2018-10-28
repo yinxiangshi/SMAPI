@@ -34,9 +34,6 @@ namespace StardewModdingAPI.Web.ViewModels
         /// <summary>Links to the available mod pages.</summary>
         public ModLinkModel[] ModPages { get; set; }
 
-        /// <summary>The game or SMAPI version which broke this mod (if applicable).</summary>
-        public string BrokeIn { get; set; }
-
         /// <summary>A unique identifier for the mod that can be used in an anchor URL.</summary>
         public string Slug { get; set; }
 
@@ -49,15 +46,14 @@ namespace StardewModdingAPI.Web.ViewModels
         public ModModel(WikiModEntry entry)
         {
             // basic info
-            this.Name = entry.Name;
-            this.AlternateNames = entry.AlternateNames;
-            this.Author = entry.Author;
-            this.AlternateAuthors = entry.AlternateAuthors;
+            this.Name = entry.Name.FirstOrDefault();
+            this.AlternateNames = string.Join(", ", entry.Name.Skip(1).ToArray());
+            this.Author = entry.Author.FirstOrDefault();
+            this.AlternateAuthors = string.Join(", ", entry.Author.Skip(1).ToArray());
             this.SourceUrl = this.GetSourceUrl(entry);
             this.Compatibility = new ModCompatibilityModel(entry.Compatibility);
             this.BetaCompatibility = entry.BetaCompatibility != null ? new ModCompatibilityModel(entry.BetaCompatibility) : null;
             this.ModPages = this.GetModPageUrls(entry).ToArray();
-            this.BrokeIn = entry.BrokeIn;
             this.Slug = entry.Anchor;
         }
 

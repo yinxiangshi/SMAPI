@@ -74,7 +74,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
             if (wiki != null)
             {
                 this.ID = wiki.ID;
-                this.Name = wiki.Name;
+                this.Name = wiki.Name.FirstOrDefault();
                 this.NexusID = wiki.NexusID;
                 this.ChucklefishID = wiki.ChucklefishID;
                 this.GitHubRepo = wiki.GitHubRepo;

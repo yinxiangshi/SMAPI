@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Pathoschild.Http.Client;
@@ -84,40 +85,40 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
             foreach (HtmlNode node in nodes)
             {
                 // extract fields
-                string name = this.GetMetadataField(node, "mod-name");
-                string alternateNames = this.GetMetadataField(node, "mod-name2");
-                string author = this.GetMetadataField(node, "mod-author");
-                string alternateAuthors = this.GetMetadataField(node, "mod-author2");
-                string[] ids = this.GetMetadataField(node, "mod-id")?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim()).ToArray() ?? new string[0];
-                int? nexusID = this.GetNullableIntField(node, "mod-nexus-id");
-                int? chucklefishID = this.GetNullableIntField(node, "mod-cf-id");
-                string githubRepo = this.GetMetadataField(node, "mod-github");
-                string customSourceUrl = this.GetMetadataField(node, "mod-custom-source");
-                string customUrl = this.GetMetadataField(node, "mod-url");
-                string brokeIn = this.GetMetadataField(node, "mod-broke-in");
-                string anchor = this.GetMetadataField(node, "mod-anchor");
+                string[] names = this.GetAttributeAsCsv(node, "data-name");
+                string[] authors = this.GetAttributeAsCsv(node, "data-author");
+                string[] ids = this.GetAttributeAsCsv(node, "data-id");
+                string[] warnings = this.GetAttributeAsCsv(node, "data-warnings");
+                int? nexusID = this.GetAttributeAsNullableInt(node, "data-nexus-id");
+                int? chucklefishID = this.GetAttributeAsNullableInt(node, "data-cf-id");
+                string githubRepo = this.GetAttribute(node, "data-github");
+                string customSourceUrl = this.GetAttribute(node, "data-custom-source");
+                string customUrl = this.GetAttribute(node, "data-url");
+                string anchor = this.GetAttribute(node, "id");
 
                 // parse stable compatibility
                 WikiCompatibilityInfo compatibility = new WikiCompatibilityInfo
                 {
-                    Status = this.GetStatusField(node, "mod-status") ?? WikiCompatibilityStatus.Ok,
-                    UnofficialVersion = this.GetSemanticVersionField(node, "mod-unofficial-version"),
-                    UnofficialUrl = this.GetMetadataField(node, "mod-unofficial-url"),
-                    Summary = this.GetMetadataField(node, "mod-summary")?.Trim()
+                    Status = this.GetAttributeAsStatus(node, "data-status") ?? WikiCompatibilityStatus.Ok,
+                    BrokeIn = this.GetAttribute(node, "data-broke-in"),
+                    UnofficialVersion = this.GetAttributeAsSemanticVersion(node, "data-unofficial-version"),
+                    UnofficialUrl = this.GetAttribute(node, "data-unofficial-url"),
+                    Summary = this.GetInnerHtml(node, "mod-summary")?.Trim()
                 };
 
                 // parse beta compatibility
                 WikiCompatibilityInfo betaCompatibility = null;
                 {
-                    WikiCompatibilityStatus? betaStatus = this.GetStatusField(node, "mod-beta-status");
+                    WikiCompatibilityStatus? betaStatus = this.GetAttributeAsStatus(node, "data-beta-status");
                     if (betaStatus.HasValue)
                     {
                         betaCompatibility = new WikiCompatibilityInfo
                         {
                             Status = betaStatus.Value,
-                            UnofficialVersion = this.GetSemanticVersionField(node, "mod-beta-unofficial-version"),
-                            UnofficialUrl = this.GetMetadataField(node, "mod-beta-unofficial-url"),
-                            Summary = this.GetMetadataField(node, "mod-beta-summary")
+                            BrokeIn = this.GetAttribute(node, "data-beta-broke-in"),
+                            UnofficialVersion = this.GetAttributeAsSemanticVersion(node, "data-beta-unofficial-version"),
+                            UnofficialUrl = this.GetAttribute(node, "data-beta-unofficial-url"),
+                            Summary = this.GetInnerHtml(node, "mod-beta-summary")
                         };
                     }
                 }
@@ -126,37 +127,50 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
                 yield return new WikiModEntry
                 {
                     ID = ids,
-                    Name = name,
-                    AlternateNames = alternateNames,
-                    Author = author,
-                    AlternateAuthors = alternateAuthors,
+                    Name = names,
+                    Author = authors,
                     NexusID = nexusID,
                     ChucklefishID = chucklefishID,
                     GitHubRepo = githubRepo,
                     CustomSourceUrl = customSourceUrl,
                     CustomUrl = customUrl,
-                    BrokeIn = brokeIn,
                     Compatibility = compatibility,
                     BetaCompatibility = betaCompatibility,
+                    Warnings = warnings,
                     Anchor = anchor
                 };
             }
         }
 
-        /// <summary>Get the value of a metadata field.</summary>
-        /// <param name="container">The metadata container.</param>
-        /// <param name="name">The field name.</param>
-        private string GetMetadataField(HtmlNode container, string name)
+        /// <summary>Get an attribute value.</summary>
+        /// <param name="element">The element whose attributes to read.</param>
+        /// <param name="name">The attribute name.</param>
+        private string GetAttribute(HtmlNode element, string name)
         {
-            return container.Descendants().FirstOrDefault(p => p.HasClass(name))?.InnerHtml;
+            string value = element.GetAttributeValue(name, null);
+            if (string.IsNullOrWhiteSpace(value))
+                return null;
+
+            return WebUtility.HtmlDecode(value);
         }
 
-        /// <summary>Get the value of a metadata field as a compatibility status.</summary>
-        /// <param name="container">The metadata container.</param>
-        /// <param name="name">The field name.</param>
-        private WikiCompatibilityStatus? GetStatusField(HtmlNode container, string name)
+        /// <summary>Get an attribute value and parse it as a comma-delimited list of strings.</summary>
+        /// <param name="element">The element whose attributes to read.</param>
+        /// <param name="name">The attribute name.</param>
+        private string[] GetAttributeAsCsv(HtmlNode element, string name)
         {
-            string raw = this.GetMetadataField(container, name);
+            string raw = this.GetAttribute(element, name);
+            return !string.IsNullOrWhiteSpace(raw)
+                ? raw.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim()).ToArray()
+                : new string[0];
+        }
+
+        /// <summary>Get an attribute value and parse it as a compatibility status.</summary>
+        /// <param name="element">The element whose attributes to read.</param>
+        /// <param name="name">The attribute name.</param>
+        private WikiCompatibilityStatus? GetAttributeAsStatus(HtmlNode element, string name)
+        {
+            string raw = this.GetAttribute(element, name);
             if (raw == null)
                 return null;
             if (!Enum.TryParse(raw, true, out WikiCompatibilityStatus status))
@@ -164,26 +178,34 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
             return status;
         }
 
-        /// <summary>Get the value of a metadata field as a semantic version.</summary>
-        /// <param name="container">The metadata container.</param>
-        /// <param name="name">The field name.</param>
-        private ISemanticVersion GetSemanticVersionField(HtmlNode container, string name)
+        /// <summary>Get an attribute value and parse it as a semantic version.</summary>
+        /// <param name="element">The element whose attributes to read.</param>
+        /// <param name="name">The attribute name.</param>
+        private ISemanticVersion GetAttributeAsSemanticVersion(HtmlNode element, string name)
         {
-            string raw = this.GetMetadataField(container, name);
+            string raw = this.GetAttribute(element, name);
             return SemanticVersion.TryParse(raw, out ISemanticVersion version)
                 ? version
                 : null;
         }
 
-        /// <summary>Get the value of a metadata field as a nullable integer.</summary>
-        /// <param name="container">The metadata container.</param>
-        /// <param name="name">The field name.</param>
-        private int? GetNullableIntField(HtmlNode container, string name)
+        /// <summary>Get an attribute value and parse it as a nullable int.</summary>
+        /// <param name="element">The element whose attributes to read.</param>
+        /// <param name="name">The attribute name.</param>
+        private int? GetAttributeAsNullableInt(HtmlNode element, string name)
         {
-            string raw = this.GetMetadataField(container, name);
+            string raw = this.GetAttribute(element, name);
             if (raw != null && int.TryParse(raw, out int value))
                 return value;
             return null;
+        }
+
+        /// <summary>Get the text of an element with the given class name.</summary>
+        /// <param name="container">The metadata container.</param>
+        /// <param name="className">The field name.</param>
+        private string GetInnerHtml(HtmlNode container, string className)
+        {
+            return container.Descendants().FirstOrDefault(p => p.HasClass(className))?.InnerHtml;
         }
 
         /// <summary>The response model for the MediaWiki parse API.</summary>

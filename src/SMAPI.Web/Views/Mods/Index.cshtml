@@ -71,7 +71,7 @@
                         <span v-html="mod.BetaCompatibility.Summary"></span>
                     </div>
                 </td>
-                <td class="mod-broke-in" v-html="mod.BrokeIn" v-show="showAllFields"></td>
+                <td class="mod-broke-in" v-html="mod.BetaCompatibility ? mod.BetaCompatibility.BrokeIn : mod.Compatibility.BrokeIn" v-show="showAllFields"></td>
                 <td v-show="showAllFields">
                     <span v-if="mod.SourceUrl"><a v-bind:href="mod.SourceUrl">source</a></span>
                     <span v-else class="mod-closed-source">no source</span>

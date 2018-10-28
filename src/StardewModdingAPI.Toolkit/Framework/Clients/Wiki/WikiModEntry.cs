@@ -6,20 +6,14 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
         /*********
         ** Accessors
         *********/
-        /// <summary>The mod's unique ID. A mod may have multiple current IDs in rare cases (e.g. due to parallel releases or unofficial updates).</summary>
+        /// <summary>The mod's unique ID. If the mod has alternate/old IDs, they're listed in latest to newest order.</summary>
         public string[] ID { get; set; }
 
-        /// <summary>The mod's display name.</summary>
-        public string Name { get; set; }
+        /// <summary>The mod's display name. If the mod has multiple names, the first one is the most canonical name.</summary>
+        public string[] Name { get; set; }
 
-        /// <summary>The mod's alternative names, if any.</summary>
-        public string AlternateNames { get; set; }
-
-        /// <summary>The mod's author name.</summary>
-        public string Author { get; set; }
-
-        /// <summary>The mod's alternative author names, if any.</summary>
-        public string AlternateAuthors { get; set; }
+        /// <summary>The mod's author name.  If the author has multiple names, the first one is the most canonical name.</summary>
+        public string[] Author { get; set; }
 
         /// <summary>The mod ID on Nexus.</summary>
         public int? NexusID { get; set; }
@@ -36,9 +30,6 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
         /// <summary>The custom mod page URL (if applicable).</summary>
         public string CustomUrl { get; set; }
 
-        /// <summary>The game or SMAPI version which broke this mod (if applicable).</summary>
-        public string BrokeIn { get; set; }
-
         /// <summary>The mod's compatibility with the latest stable version of the game.</summary>
         public WikiCompatibilityInfo Compatibility { get; set; }
 
@@ -47,6 +38,9 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
 
         /// <summary>Whether a Stardew Valley or SMAPI beta which affects mod compatibility is in progress. If this is true, <see cref="BetaCompatibility"/> should be used for beta versions of SMAPI instead of <see cref="Compatibility"/>.</summary>
         public bool HasBetaInfo => this.BetaCompatibility != null;
+
+        /// <summary>The human-readable warnings for players about this mod.</summary>
+        public string[] Warnings { get; set; }
 
         /// <summary>The link anchor for the mod entry in the wiki compatibility list.</summary>
         public string Anchor { get; set; }

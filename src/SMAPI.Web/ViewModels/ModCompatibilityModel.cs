@@ -11,11 +11,14 @@ namespace StardewModdingAPI.Web.ViewModels
         /// <summary>The compatibility status, as a string like <c>"Broken"</c>.</summary>
         public string Status { get; set; }
 
-        /// <summary>A link to the unofficial version which fixes compatibility, if any.</summary>
-        public ModLinkModel UnofficialVersion { get; set; }
-
         /// <summary>The human-readable summary, as an HTML block.</summary>
         public string Summary { get; set; }
+
+        /// <summary>The game or SMAPI version which broke this mod (if applicable).</summary>
+        public string BrokeIn { get; set; }
+
+        /// <summary>A link to the unofficial version which fixes compatibility, if any.</summary>
+        public ModLinkModel UnofficialVersion { get; set; }
 
 
         /*********
@@ -26,9 +29,10 @@ namespace StardewModdingAPI.Web.ViewModels
         public ModCompatibilityModel(WikiCompatibilityInfo info)
         {
             this.Status = info.Status.ToString();
+            this.Summary = info.Summary;
+            this.BrokeIn = info.BrokeIn;
             if (info.UnofficialVersion != null)
                 this.UnofficialVersion = new ModLinkModel(info.UnofficialUrl, info.UnofficialVersion.ToString());
-            this.Summary = info.Summary;
         }
     }
 }
