@@ -9,8 +9,8 @@ using StardewValley;
 
 namespace StardewModdingAPI.Patches
 {
-    /// <summary>A Harmony patch for <see cref="Dialogue"/> method which intercepts invalid dialogue lines and logs an error instead of crashing.</summary>
-    internal class DialoguePatch : IHarmonyPatch
+    /// <summary>A Harmony patch for the <see cref="Dialogue"/> constructor which intercepts invalid dialogue lines and logs an error instead of crashing.</summary>
+    internal class DialogueErrorPatch : IHarmonyPatch
     {
         /*********
         ** Private methods
@@ -26,7 +26,7 @@ namespace StardewModdingAPI.Patches
         ** Accessors
         *********/
         /// <summary>A unique name for this patch.</summary>
-        public string Name => $"{nameof(GameLocation)}.{nameof(GameLocation.updateSeasonalTileSheets)}";
+        public string Name => $"{nameof(DialogueErrorPatch)}";
 
 
         /*********
@@ -35,10 +35,10 @@ namespace StardewModdingAPI.Patches
         /// <summary>Construct an instance.</summary>
         /// <param name="monitorForGame">Writes messages to the console and log file on behalf of the game.</param>
         /// <param name="reflector">Simplifies access to private code.</param>
-        public DialoguePatch(IMonitor monitorForGame, Reflector reflector)
+        public DialogueErrorPatch(IMonitor monitorForGame, Reflector reflector)
         {
-            DialoguePatch.MonitorForGame = monitorForGame;
-            DialoguePatch.Reflection = reflector;
+            DialogueErrorPatch.MonitorForGame = monitorForGame;
+            DialogueErrorPatch.Reflection = reflector;
         }
 
 
@@ -47,7 +47,7 @@ namespace StardewModdingAPI.Patches
         public void Apply(HarmonyInstance harmony)
         {
             ConstructorInfo constructor = AccessTools.Constructor(typeof(Dialogue), new[] { typeof(string), typeof(NPC) });
-            MethodInfo prefix = AccessTools.Method(this.GetType(), nameof(DialoguePatch.Prefix));
+            MethodInfo prefix = AccessTools.Method(this.GetType(), nameof(DialogueErrorPatch.Prefix));
 
             harmony.Patch(constructor, new HarmonyMethod(prefix), null);
         }
@@ -66,11 +66,11 @@ namespace StardewModdingAPI.Patches
         private static bool Prefix(Dialogue __instance, string masterDialogue, NPC speaker)
         {
             // get private members
-            bool nameArraysTranslated = DialoguePatch.Reflection.GetField<bool>(typeof(Dialogue), "nameArraysTranslated").GetValue();
-            IReflectedMethod translateArraysOfStrings = DialoguePatch.Reflection.GetMethod(typeof(Dialogue), "TranslateArraysOfStrings");
-            IReflectedMethod parseDialogueString = DialoguePatch.Reflection.GetMethod(__instance, "parseDialogueString");
-            IReflectedMethod checkForSpecialDialogueAttributes = DialoguePatch.Reflection.GetMethod(__instance, "checkForSpecialDialogueAttributes");
-            IReflectedField<List<string>> dialogues = DialoguePatch.Reflection.GetField<List<string>>(__instance, "dialogues");
+            bool nameArraysTranslated = DialogueErrorPatch.Reflection.GetField<bool>(typeof(Dialogue), "nameArraysTranslated").GetValue();
+            IReflectedMethod translateArraysOfStrings = DialogueErrorPatch.Reflection.GetMethod(typeof(Dialogue), "TranslateArraysOfStrings");
+            IReflectedMethod parseDialogueString = DialogueErrorPatch.Reflection.GetMethod(__instance, "parseDialogueString");
+            IReflectedMethod checkForSpecialDialogueAttributes = DialogueErrorPatch.Reflection.GetMethod(__instance, "checkForSpecialDialogueAttributes");
+            IReflectedField<List<string>> dialogues = DialogueErrorPatch.Reflection.GetField<List<string>>(__instance, "dialogues");
 
             // replicate base constructor
             if (dialogues.GetValue() == null)
@@ -88,7 +88,7 @@ namespace StardewModdingAPI.Patches
             catch (Exception baseEx) when (baseEx.InnerException is TargetInvocationException invocationEx && invocationEx.InnerException is Exception ex)
             {
                 string name = !string.IsNullOrWhiteSpace(speaker?.Name) ? speaker.Name : null;
-                DialoguePatch.MonitorForGame.Log($"Failed parsing dialogue string{(name != null ? $" for {name}" : "")}:\n{masterDialogue}\n{ex}", LogLevel.Error);
+                DialogueErrorPatch.MonitorForGame.Log($"Failed parsing dialogue string{(name != null ? $" for {name}" : "")}:\n{masterDialogue}\n{ex}", LogLevel.Error);
 
                 parseDialogueString.Invoke("...");
                 checkForSpecialDialogueAttributes.Invoke();
