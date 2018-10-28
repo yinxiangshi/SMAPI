@@ -70,6 +70,7 @@
                         <strong v-if="mod.BetaCompatibility">SDV beta only:</strong>
                         <span v-html="mod.BetaCompatibility.Summary"></span>
                     </div>
+                    <div v-for="(warning, i) in mod.Warnings">⚠ {{warning}}</div>
                 </td>
                 <td class="mod-broke-in" v-html="mod.BetaCompatibility ? mod.BetaCompatibility.BrokeIn : mod.Compatibility.BrokeIn" v-show="showAllFields"></td>
                 <td v-show="showAllFields">

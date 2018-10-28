@@ -34,6 +34,9 @@ namespace StardewModdingAPI.Web.ViewModels
         /// <summary>Links to the available mod pages.</summary>
         public ModLinkModel[] ModPages { get; set; }
 
+        /// <summary>The human-readable warnings for players about this mod.</summary>
+        public string[] Warnings { get; set; }
+
         /// <summary>A unique identifier for the mod that can be used in an anchor URL.</summary>
         public string Slug { get; set; }
 
@@ -54,6 +57,7 @@ namespace StardewModdingAPI.Web.ViewModels
             this.Compatibility = new ModCompatibilityModel(entry.Compatibility);
             this.BetaCompatibility = entry.BetaCompatibility != null ? new ModCompatibilityModel(entry.BetaCompatibility) : null;
             this.ModPages = this.GetModPageUrls(entry).ToArray();
+            this.Warnings = entry.Warnings;
             this.Slug = entry.Anchor;
         }
 
