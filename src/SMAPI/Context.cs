@@ -17,7 +17,7 @@ namespace StardewModdingAPI
         public static bool IsWorldReady { get; internal set; }
 
         /// <summary>Whether <see cref="IsWorldReady"/> is true and the player is free to act in the world (no menu is displayed, no cutscene is in progress, etc).</summary>
-        public static bool IsPlayerFree => Context.IsWorldReady && Game1.activeClickableMenu == null && !Game1.dialogueUp && (!Game1.eventUp || Game1.isFestival());
+        public static bool IsPlayerFree => Context.IsWorldReady && Game1.currentLocation != null && Game1.activeClickableMenu == null && !Game1.dialogueUp && (!Game1.eventUp || Game1.isFestival());
 
         /// <summary>Whether <see cref="IsPlayerFree"/> is true and the player is free to move (e.g. not using a tool).</summary>
         public static bool CanPlayerMove => Context.IsPlayerFree && Game1.player.CanMove;

@@ -42,6 +42,7 @@
   * Fixed `IContentPack.ReadJsonFile` allowing non-relative paths.
   * Fixed trace logs not showing path for invalid mods.
   * Fixed 'no update keys' warning not shown for mods with only invalid update keys.
+  * Fixed `Context.IsPlayerFree` being true before the player finishes transitioning to a new location in multiplayer.
   * Suppressed the game's 'added crickets' debug output.
   * **Breaking change:** `helper.ModRegistry` now returns `IModInfo` instead of `IManifest` directly. This lets SMAPI return more metadata about mods.
   * **Breaking change:** most SMAPI files have been moved into a `smapi-internal` subfolder. This won't affect compiled mod releases, but you'll need to update the build config NuGet package.
