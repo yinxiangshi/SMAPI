@@ -37,6 +37,9 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>The reason the metadata is invalid, if any.</summary>
         public string Error { get; private set; }
 
+        /// <summary>Whether the mod folder should be ignored. This is <c>true</c> if it was found within a folder whose name starts with a dot.</summary>
+        public bool IsIgnored { get; }
+
         /// <summary>The mod instance (if loaded and <see cref="IsContentPack"/> is false).</summary>
         public IMod Mod { get; private set; }
 
@@ -65,13 +68,15 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="relativeDirectoryPath">The <paramref name="directoryPath"/> relative to the game's Mods folder.</param>
         /// <param name="manifest">The mod manifest.</param>
         /// <param name="dataRecord">Metadata about the mod from SMAPI's internal data (if any).</param>
-        public ModMetadata(string displayName, string directoryPath, string relativeDirectoryPath, IManifest manifest, ModDataRecordVersionedFields dataRecord)
+        /// <param name="isIgnored">Whether the mod folder should be ignored. This should be <c>true</c> if it was found within a folder whose name starts with a dot.</param>
+        public ModMetadata(string displayName, string directoryPath, string relativeDirectoryPath, IManifest manifest, ModDataRecordVersionedFields dataRecord, bool isIgnored)
         {
             this.DisplayName = displayName;
             this.DirectoryPath = directoryPath;
             this.RelativeDirectoryPath = relativeDirectoryPath;
             this.Manifest = manifest;
             this.DataRecord = dataRecord;
+            this.IsIgnored = isIgnored;
         }
 
         /// <summary>Set the mod status.</summary>

@@ -38,11 +38,11 @@ namespace StardewModdingAPI.Framework.ModLoading
                 }
 
                 // build metadata
-                ModMetadataStatus status = folder.ManifestParseError == null
+                ModMetadataStatus status = folder.ManifestParseError == null || !folder.ShouldBeLoaded
                     ? ModMetadataStatus.Found
                     : ModMetadataStatus.Failed;
                 string relativePath = PathUtilities.GetRelativePath(rootPath, folder.Directory.FullName);
-                yield return new ModMetadata(folder.DisplayName, folder.Directory.FullName, relativePath, manifest, dataRecord).SetStatus(status, folder.ManifestParseError);
+                yield return new ModMetadata(folder.DisplayName, folder.Directory.FullName, relativePath, manifest, dataRecord, isIgnored: !folder.ShouldBeLoaded).SetStatus(status, folder.ManifestParseError ?? "disabled by dot convention");
             }
         }
 

@@ -373,12 +373,15 @@ namespace StardewModdingAPI.Framework
 
                 // load manifests
                 IModMetadata[] mods = resolver.ReadManifests(toolkit, this.ModsPath, modDatabase).ToArray();
-                resolver.ValidateManifests(mods, Constants.ApiVersion, toolkit.GetUpdateUrl);
 
-                // process dependencies
-                mods = resolver.ProcessDependencies(mods, modDatabase).ToArray();
+                // filter out ignored mods
+                foreach (IModMetadata mod in mods.Where(p => p.IsIgnored))
+                    this.Monitor.Log($"  Skipped {mod.RelativeDirectoryPath} (folder name starts with a dot).", LogLevel.Trace);
+                mods = mods.Where(p => !p.IsIgnored).ToArray();
 
                 // load mods
+                resolver.ValidateManifests(mods, Constants.ApiVersion, toolkit.GetUpdateUrl);
+                mods = resolver.ProcessDependencies(mods, modDatabase).ToArray();
                 this.LoadMods(mods, this.Toolkit.JsonHelper, this.ContentCore, modDatabase);
 
                 // write metadata file

@@ -102,8 +102,12 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         /// <param name="folder">The folder to search for mods.</param>
         public IEnumerable<ModFolder> GetModFolders(DirectoryInfo root, DirectoryInfo folder)
         {
+            // skip
+            if (folder.FullName != root.FullName && folder.Name.StartsWith("."))
+                yield return new ModFolder(root, folder, null, "ignored folder because its name starts with a dot.", shouldBeLoaded: false);
+
             // recurse into subfolders
-            if (this.IsModSearchFolder(root, folder))
+            else if (this.IsModSearchFolder(root, folder))
             {
                 foreach (DirectoryInfo subfolder in folder.EnumerateDirectories())
                 {

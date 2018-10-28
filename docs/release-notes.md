@@ -3,9 +3,11 @@
 * For players:
   * Update checks now work even for mods without update keys in most cases.
   * Reorganised SMAPI files:
-    * You can now group mods into subfolders to organise them.
     * Most SMAPI files are now tucked into a `smapi-internal` subfolder.
     * Save backups are now in a `save-backups` subfolder, so they're easier to access. Note that previous backups will be deleted when you update.
+  * Added support for organising mods:
+    * You can now group mods into subfolders to organise them.
+    * You can now mark a mod folder ignored by starting the name with a dot (like `.disabled mods`).
   * Improved various error messages to be more clear and intuitive.
   * SMAPI now prevents a crash caused by mods adding dialogue the game can't parse.
   * When you have an older game version, SMAPI now recommends a compatible SMAPI version in its error.

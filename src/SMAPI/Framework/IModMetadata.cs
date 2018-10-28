@@ -33,6 +33,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>The reason the metadata is invalid, if any.</summary>
         string Error { get; }
 
+        /// <summary>Whether the mod folder should be ignored. This is <c>true</c> if it was found within a folder whose name starts with a dot.</summary>
+        bool IsIgnored { get; }
+
         /// <summary>The mod instance (if loaded and <see cref="IModInfo.IsContentPack"/> is false).</summary>
         IMod Mod { get; }
 
