@@ -13,7 +13,8 @@
     <description>Automates the build configuration for crossplatform Stardew Valley SMAPI mods. For Stardew Valley 1.3 or later.</description>
     <releaseNotes>
       2.2:
-      - Update for SMAPI 2.8.
+      - Added support for SMAPI 2.8+ (still compatible with earlier versions).
+      - Added default game paths for 32-bit Windows.
       - Fixed valid manifests marked invalid in some cases.
     </releaseNotes>
   </metadata>
