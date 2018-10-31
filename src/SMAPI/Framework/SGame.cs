@@ -15,9 +15,11 @@ using StardewModdingAPI.Enums;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.Events;
 using StardewModdingAPI.Framework.Input;
+using StardewModdingAPI.Framework.Networking;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.StateTracking;
 using StardewModdingAPI.Framework.Utilities;
+using StardewModdingAPI.Toolkit.Serialisation;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
 using StardewValley.Buildings;
@@ -130,9 +132,11 @@ namespace StardewModdingAPI.Framework
         /// <param name="monitorForGame">Encapsulates monitoring and logging on the game's behalf.</param>
         /// <param name="reflection">Simplifies access to private game code.</param>
         /// <param name="eventManager">Manages SMAPI events for mods.</param>
+        /// <param name="jsonHelper">Encapsulates SMAPI's JSON file parsing.</param>
+        /// <param name="modRegistry">Tracks the installed mods.</param>
         /// <param name="onGameInitialised">A callback to invoke after the game finishes initialising.</param>
         /// <param name="onGameExiting">A callback to invoke when the game exits.</param>
-        internal SGame(IMonitor monitor, IMonitor monitorForGame, Reflector reflection, EventManager eventManager, Action onGameInitialised, Action onGameExiting)
+        internal SGame(IMonitor monitor, IMonitor monitorForGame, Reflector reflection, EventManager eventManager, JsonHelper jsonHelper, ModRegistry modRegistry, Action onGameInitialised, Action onGameExiting)
         {
             SGame.ConstructorHack = null;
 
@@ -151,7 +155,7 @@ namespace StardewModdingAPI.Framework
             this.OnGameInitialised = onGameInitialised;
             this.OnGameExiting = onGameExiting;
             Game1.input = new SInputState();
-            Game1.multiplayer = new SMultiplayer(monitor, eventManager);
+            Game1.multiplayer = new SMultiplayer(monitor, eventManager, jsonHelper, modRegistry, reflection, this.VerboseLogging);
             Game1.hooks = new SModHooks(this.OnNewDayAfterFade);
 
             // init observables
@@ -181,9 +185,6 @@ namespace StardewModdingAPI.Framework
             this.OnGameExiting?.Invoke();
         }
 
-        /****
-        ** Intercepted methods & events
-        ****/
         /// <summary>A callback invoked before <see cref="Game1.newDayAfterFade"/> runs.</summary>
         protected void OnNewDayAfterFade()
         {

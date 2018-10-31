@@ -161,7 +161,8 @@ namespace StardewModdingAPI.Framework
 
             // apply game patches
             new GamePatcher(this.Monitor).Apply(
-                new DialoguePatch(this.MonitorForGame, this.Reflection)
+                new DialogueErrorPatch(this.MonitorForGame, this.Reflection),
+                new NetworkingPatch()
             );
         }
 
@@ -208,7 +209,7 @@ namespace StardewModdingAPI.Framework
 
                 // override game
                 SGame.ConstructorHack = new SGameConstructorHack(this.Monitor, this.Reflection, this.Toolkit.JsonHelper);
-                this.GameInstance = new SGame(this.Monitor, this.MonitorForGame, this.Reflection, this.EventManager, this.InitialiseAfterGameStart, this.Dispose);
+                this.GameInstance = new SGame(this.Monitor, this.MonitorForGame, this.Reflection, this.EventManager, this.Toolkit.JsonHelper, this.ModRegistry, this.InitialiseAfterGameStart, this.Dispose);
                 StardewValley.Program.gamePtr = this.GameInstance;
 
                 // add exit handler

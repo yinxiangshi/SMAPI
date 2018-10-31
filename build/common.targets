@@ -56,6 +56,14 @@
             </Reference>
     
             <!-- game DLLs -->
+            <Reference Include="GalaxyCSharp">
+              <HintPath>$(GamePath)\GalaxyCSharp.dll</HintPath>
+              <Private>False</Private>
+            </Reference>
+            <Reference Include="Lidgren.Network">
+              <HintPath>$(GamePath)\Lidgren.Network.dll</HintPath>
+              <Private>False</Private>
+            </Reference>
             <Reference Include="Netcode">
               <HintPath>$(GamePath)\Netcode.dll</HintPath>
               <Private Condition="'$(MSBuildProjectName)' != 'StardewModdingAPI.Tests'">False</Private>
