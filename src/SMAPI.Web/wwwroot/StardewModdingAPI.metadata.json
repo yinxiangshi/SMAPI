@@ -245,7 +245,12 @@
 
     "Move Faster": {
       "ID": "shuaiz.MoveFasterMod",
-      "1.0.1   | Status": "AssumeBroken" // doesn't do anything as of SDV 1.2.33 (bad Harmony patch?)
+      "~1.0.1   | Status": "AssumeBroken" // doesn't do anything as of SDV 1.2.33 (bad Harmony patch?)
+    },
+
+    "MTN": {
+      "ID": "SgtPickles.MTN",
+      "~1.2.5 | Status": "AssumeBroken" // replaces Game1.multiplayer, which breaks SMAPI's multiplayer API.
     },
 
     "Multiple Sprites and Portraits On Rotation (File Loading)": {
