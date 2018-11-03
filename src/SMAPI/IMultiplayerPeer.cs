@@ -12,7 +12,7 @@ namespace StardewModdingAPI
         long PlayerID { get; }
 
         /// <summary>Whether this is a connection to the host player.</summary>
-        bool IsHostPlayer { get; }
+        bool IsHost { get; }
 
         /// <summary>Whether the player has SMAPI installed.</summary>
         bool HasSmapi { get; }

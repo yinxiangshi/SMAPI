@@ -67,6 +67,30 @@ namespace StardewModdingAPI.Framework.Events
                 }
             }
         }
+
+        /// <summary>Raise the event and notify all handlers.</summary>
+        /// <param name="args">The event arguments to pass.</param>
+        /// <param name="match">A lambda which returns true if the event should be raised for the given mod.</param>
+        public void RaiseForMods(TEventArgs args, Func<IModMetadata, bool> match)
+        {
+            if (this.Event == null)
+                return;
+
+            foreach (EventHandler<TEventArgs> handler in this.CachedInvocationList)
+            {
+                if (match(this.GetSourceMod(handler)))
+                {
+                    try
+                    {
+                        handler.Invoke(null, args);
+                    }
+                    catch (Exception ex)
+                    {
+                        this.LogError(handler, ex);
+                    }
+                }
+            }
+        }
     }
 
     /// <summary>An event wrapper which intercepts and logs errors in handler code.</summary>

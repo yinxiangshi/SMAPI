@@ -51,6 +51,12 @@ namespace StardewModdingAPI.Framework
         /// <summary>Manages SMAPI events for mods.</summary>
         private readonly EventManager Events;
 
+        /// <summary>Tracks the installed mods.</summary>
+        private readonly ModRegistry ModRegistry;
+
+        /// <summary>Whether SMAPI should log more information about the game context.</summary>
+        private readonly bool VerboseLogging;
+
         /// <summary>The maximum number of consecutive attempts SMAPI should make to recover from a draw error.</summary>
         private readonly Countdown DrawCrashTimer = new Countdown(60); // 60 ticks = roughly one second
 
@@ -116,9 +122,6 @@ namespace StardewModdingAPI.Framework
         /// <summary>The game's core multiplayer utility.</summary>
         public SMultiplayer Multiplayer => (SMultiplayer)Game1.multiplayer;
 
-        /// <summary>Whether SMAPI should log more information about the game context.</summary>
-        public bool VerboseLogging { get; set; }
-
         /// <summary>A list of queued commands to execute.</summary>
         /// <remarks>This property must be threadsafe, since it's accessed from a separate console input thread.</remarks>
         public ConcurrentQueue<string> CommandQueue { get; } = new ConcurrentQueue<string>();
@@ -136,7 +139,8 @@ namespace StardewModdingAPI.Framework
         /// <param name="modRegistry">Tracks the installed mods.</param>
         /// <param name="onGameInitialised">A callback to invoke after the game finishes initialising.</param>
         /// <param name="onGameExiting">A callback to invoke when the game exits.</param>
-        internal SGame(IMonitor monitor, IMonitor monitorForGame, Reflector reflection, EventManager eventManager, JsonHelper jsonHelper, ModRegistry modRegistry, Action onGameInitialised, Action onGameExiting)
+        /// <param name="verboseLogging">Whether SMAPI should log more information about the game context.</param>
+        internal SGame(IMonitor monitor, IMonitor monitorForGame, Reflector reflection, EventManager eventManager, JsonHelper jsonHelper, ModRegistry modRegistry, Action onGameInitialised, Action onGameExiting, bool verboseLogging)
         {
             SGame.ConstructorHack = null;
 
@@ -151,11 +155,13 @@ namespace StardewModdingAPI.Framework
             this.Monitor = monitor;
             this.MonitorForGame = monitorForGame;
             this.Events = eventManager;
+            this.ModRegistry = modRegistry;
             this.Reflection = reflection;
             this.OnGameInitialised = onGameInitialised;
             this.OnGameExiting = onGameExiting;
+            this.VerboseLogging = verboseLogging;
             Game1.input = new SInputState();
-            Game1.multiplayer = new SMultiplayer(monitor, eventManager, jsonHelper, modRegistry, reflection, this.VerboseLogging);
+            Game1.multiplayer = new SMultiplayer(monitor, eventManager, jsonHelper, modRegistry, reflection, this.VerboseLogging, this.OnModMessageReceived);
             Game1.hooks = new SModHooks(this.OnNewDayAfterFade);
 
             // init observables
@@ -189,6 +195,15 @@ namespace StardewModdingAPI.Framework
         protected void OnNewDayAfterFade()
         {
             this.Events.DayEnding.RaiseEmpty();
+        }
+
+        /// <summary>A callback invoked when a mod message is received.</summary>
+        /// <param name="message">The message to deliver to applicable mods.</param>
+        private void OnModMessageReceived(ModMessageModel message)
+        {
+            // raise events for applicable mods
+            HashSet<string> modIDs = new HashSet<string>(message.ToModIDs ?? this.ModRegistry.GetAll().Select(p => p.Manifest.UniqueID), StringComparer.InvariantCultureIgnoreCase);
+            this.Events.ModMessageReceived.RaiseForMods(new ModMessageReceivedEventArgs(message), mod => mod != null && modIDs.Contains(mod.Manifest.UniqueID));
         }
 
         /// <summary>Constructor a content manager to read XNB files.</summary>

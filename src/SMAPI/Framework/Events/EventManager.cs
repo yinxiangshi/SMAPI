@@ -99,6 +99,12 @@ namespace StardewModdingAPI.Framework.Events
         public readonly ManagedEvent<MouseWheelScrolledEventArgs> MouseWheelScrolled;
 
         /****
+        ** Multiplayer
+        ****/
+        /// <summary>Raised after a mod message is received over the network.</summary>
+        public readonly ManagedEvent<ModMessageReceivedEventArgs> ModMessageReceived;
+
+        /****
         ** Player
         ****/
         /// <summary>Raised after items are added or removed to a player's inventory.</summary>
@@ -373,6 +379,8 @@ namespace StardewModdingAPI.Framework.Events
             this.ButtonReleased = ManageEventOf<ButtonReleasedEventArgs>(nameof(IModEvents.Input), nameof(IInputEvents.ButtonReleased));
             this.CursorMoved = ManageEventOf<CursorMovedEventArgs>(nameof(IModEvents.Input), nameof(IInputEvents.CursorMoved));
             this.MouseWheelScrolled = ManageEventOf<MouseWheelScrolledEventArgs>(nameof(IModEvents.Input), nameof(IInputEvents.MouseWheelScrolled));
+
+            this.ModMessageReceived = ManageEventOf<ModMessageReceivedEventArgs>(nameof(IModEvents.Multiplayer), nameof(IMultiplayerEvents.ModMessageReceived));
 
             this.InventoryChanged = ManageEventOf<InventoryChangedEventArgs>(nameof(IModEvents.Player), nameof(IPlayerEvents.InventoryChanged));
             this.LevelChanged = ManageEventOf<LevelChangedEventArgs>(nameof(IModEvents.Player), nameof(IPlayerEvents.LevelChanged));

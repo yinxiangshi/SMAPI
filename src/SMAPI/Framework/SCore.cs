@@ -209,7 +209,7 @@ namespace StardewModdingAPI.Framework
 
                 // override game
                 SGame.ConstructorHack = new SGameConstructorHack(this.Monitor, this.Reflection, this.Toolkit.JsonHelper);
-                this.GameInstance = new SGame(this.Monitor, this.MonitorForGame, this.Reflection, this.EventManager, this.Toolkit.JsonHelper, this.ModRegistry, this.InitialiseAfterGameStart, this.Dispose);
+                this.GameInstance = new SGame(this.Monitor, this.MonitorForGame, this.Reflection, this.EventManager, this.Toolkit.JsonHelper, this.ModRegistry, this.InitialiseAfterGameStart, this.Dispose, this.Settings.VerboseLogging);
                 StardewValley.Program.gamePtr = this.GameInstance;
 
                 // add exit handler
@@ -340,9 +340,6 @@ namespace StardewModdingAPI.Framework
         /// <summary>Initialise SMAPI and mods after the game starts.</summary>
         private void InitialiseAfterGameStart()
         {
-            // load settings
-            this.GameInstance.VerboseLogging = this.Settings.VerboseLogging;
-
             // load core components
             this.DeprecationManager = new DeprecationManager(this.Monitor, this.ModRegistry);
 

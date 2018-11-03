@@ -30,7 +30,7 @@ namespace StardewModdingAPI.Framework.Networking
         public long PlayerID { get; }
 
         /// <summary>Whether this is a connection to the host player.</summary>
-        public bool IsHostPlayer => this.PlayerID == Game1.MasterPlayer.UniqueMultiplayerID;
+        public bool IsHost { get; }
 
         /// <summary>Whether the player has SMAPI installed.</summary>
         public bool HasSmapi => this.ApiVersion != null;
@@ -57,9 +57,11 @@ namespace StardewModdingAPI.Framework.Networking
         /// <param name="server">The server through which to send messages.</param>
         /// <param name="serverConnection">The server connection through which to send messages.</param>
         /// <param name="client">The client through which to send messages.</param>
-        public MultiplayerPeer(long playerID, RemoteContextModel model, SLidgrenServer server, NetConnection serverConnection, SLidgrenClient client)
+        /// <param name="isHost">Whether this is a connection to the host player.</param>
+        public MultiplayerPeer(long playerID, RemoteContextModel model, SLidgrenServer server, NetConnection serverConnection, SLidgrenClient client, bool isHost)
         {
             this.PlayerID = playerID;
+            this.IsHost = isHost;
             if (model != null)
             {
                 this.Platform = model.Platform;
@@ -84,7 +86,8 @@ namespace StardewModdingAPI.Framework.Networking
                 model: model,
                 server: server,
                 serverConnection: serverConnection,
-                client: null
+                client: null,
+                isHost: false
             );
         }
 
@@ -99,7 +102,8 @@ namespace StardewModdingAPI.Framework.Networking
                 model: model,
                 server: null,
                 serverConnection: null,
-                client: client
+                client: client,
+                isHost: true
             );
         }
 
@@ -119,7 +123,7 @@ namespace StardewModdingAPI.Framework.Networking
         /// <param name="message">The message to send.</param>
         public void SendMessage(OutgoingMessage message)
         {
-            if (this.IsHostPlayer)
+            if (this.IsHost)
                 this.Client.sendMessage(message);
             else
                 this.Server.SendMessage(this.ServerConnection, message);
