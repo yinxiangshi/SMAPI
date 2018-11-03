@@ -59,7 +59,7 @@ namespace StardewModdingAPI.Framework
             uniqueID = uniqueID.Trim();
 
             // find match
-            return this.GetAll().FirstOrDefault(p => p.Manifest.UniqueID.Trim().Equals(uniqueID, StringComparison.InvariantCultureIgnoreCase));
+            return this.GetAll().FirstOrDefault(p => p.HasID(uniqueID));
         }
 
         /// <summary>Get the mod metadata from one of its assemblies.</summary>

@@ -750,7 +750,7 @@ namespace StardewModdingAPI.Framework
             // log loaded content packs
             if (loadedContentPacks.Any())
             {
-                string GetModDisplayName(string id) => loadedMods.FirstOrDefault(p => id != null && id.Equals(p.Manifest?.UniqueID, StringComparison.InvariantCultureIgnoreCase))?.DisplayName;
+                string GetModDisplayName(string id) => loadedMods.FirstOrDefault(p => p.HasID(id))?.DisplayName;
 
                 this.Monitor.Log($"Loaded {loadedContentPacks.Length} content packs:", LogLevel.Info);
                 foreach (IModMetadata metadata in loadedContentPacks.OrderBy(p => p.DisplayName))
@@ -907,7 +907,7 @@ namespace StardewModdingAPI.Framework
                     if (this.ModRegistry.Get(dependency.UniqueID) == null)
                     {
                         string dependencyName = mods
-                            .FirstOrDefault(otherMod => otherMod.HasID() && dependency.UniqueID.Equals(otherMod.Manifest.UniqueID, StringComparison.InvariantCultureIgnoreCase))
+                            .FirstOrDefault(otherMod => otherMod.HasID(dependency.UniqueID))
                             ?.DisplayName ?? dependency.UniqueID;
                         errorReasonPhrase = $"it needs the '{dependencyName}' mod, which couldn't be loaded.";
                         return false;
@@ -971,7 +971,7 @@ namespace StardewModdingAPI.Framework
                     // get content packs
                     IContentPack[] contentPacks = this.ModRegistry
                         .GetAll(assemblyMods: false)
-                        .Where(p => p.IsContentPack && mod.Manifest.UniqueID.Equals(p.Manifest.ContentPackFor.UniqueID, StringComparison.InvariantCultureIgnoreCase))
+                        .Where(p => p.IsContentPack && mod.HasID(p.Manifest.ContentPackFor.UniqueID))
                         .Select(p => p.ContentPack)
                         .ToArray();
 

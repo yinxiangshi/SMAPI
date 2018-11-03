@@ -88,6 +88,10 @@ namespace StardewModdingAPI.Framework
         /// <summary>Whether the mod has an ID (regardless of whether the ID is valid or the mod itself was loaded).</summary>
         bool HasID();
 
+        /// <summary>Whether the mod has the given ID.</summary>
+        /// <param name="id">The mod ID to check.</param>
+        bool HasID(string id);
+
         /// <summary>Get the defined update keys.</summary>
         /// <param name="validOnly">Only return valid update keys.</param>
         IEnumerable<UpdateKey> GetUpdateKeys(bool validOnly = true);
