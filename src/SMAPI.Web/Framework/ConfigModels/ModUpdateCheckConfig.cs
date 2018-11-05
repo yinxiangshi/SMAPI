@@ -17,6 +17,6 @@ namespace StardewModdingAPI.Web.Framework.ConfigModels
         public string SemanticVersionRegex { get; set; }
 
         /// <summary>The web URL for the wiki compatibility list.</summary>
-        public string WikiCompatibilityPageUrl { get; set; }
+        public string CompatibilityPageUrl { get; set; }
     }
 }

@@ -47,8 +47,8 @@ namespace StardewModdingAPI.Web.Controllers
         /// <summary>The internal mod metadata list.</summary>
         private readonly ModDatabase ModDatabase;
 
-        /// <summary>The web URL for the wiki compatibility list.</summary>
-        private readonly string WikiCompatibilityPageUrl;
+        /// <summary>The web URL for the compatibility list.</summary>
+        private readonly string CompatibilityPageUrl;
 
 
         /*********
@@ -65,7 +65,7 @@ namespace StardewModdingAPI.Web.Controllers
         {
             this.ModDatabase = new ModToolkit().GetModDatabase(Path.Combine(environment.WebRootPath, "StardewModdingAPI.metadata.json"));
             ModUpdateCheckConfig config = configProvider.Value;
-            this.WikiCompatibilityPageUrl = config.WikiCompatibilityPageUrl;
+            this.CompatibilityPageUrl = config.CompatibilityPageUrl;
 
             this.Cache = cache;
             this.SuccessCacheMinutes = config.SuccessCacheMinutes;
@@ -163,7 +163,7 @@ namespace StardewModdingAPI.Web.Controllers
 
             // get unofficial version
             if (wikiEntry?.Compatibility.UnofficialVersion != null && this.IsNewer(wikiEntry.Compatibility.UnofficialVersion, result.Main?.Version) && this.IsNewer(wikiEntry.Compatibility.UnofficialVersion, result.Optional?.Version))
-                result.Unofficial = new ModEntryVersionModel(wikiEntry.Compatibility.UnofficialVersion, this.WikiCompatibilityPageUrl);
+                result.Unofficial = new ModEntryVersionModel(wikiEntry.Compatibility.UnofficialVersion, $"{this.CompatibilityPageUrl}/#{wikiEntry.Anchor}");
 
             // get unofficial version for beta
             if (wikiEntry?.HasBetaInfo == true)
@@ -174,7 +174,7 @@ namespace StardewModdingAPI.Web.Controllers
                     if (wikiEntry.BetaCompatibility.UnofficialVersion != null)
                     {
                         result.UnofficialForBeta = (wikiEntry.BetaCompatibility.UnofficialVersion != null && this.IsNewer(wikiEntry.BetaCompatibility.UnofficialVersion, result.Main?.Version) && this.IsNewer(wikiEntry.BetaCompatibility.UnofficialVersion, result.Optional?.Version))
-                            ? new ModEntryVersionModel(wikiEntry.BetaCompatibility.UnofficialVersion, this.WikiCompatibilityPageUrl)
+                            ? new ModEntryVersionModel(wikiEntry.BetaCompatibility.UnofficialVersion, $"{this.CompatibilityPageUrl}/#{wikiEntry.Anchor}")
                             : null;
                     }
                     else

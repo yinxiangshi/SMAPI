@@ -942,7 +942,7 @@ namespace StardewModdingAPI.Framework
                 }
                 catch (IncompatibleInstructionException) // details already in trace logs
                 {
-                    string[] updateUrls = new[] { modDatabase.GetModPageUrlFor(manifest.UniqueID), "https://smapi.io/compat" }.Where(p => p != null).ToArray();
+                    string[] updateUrls = new[] { modDatabase.GetModPageUrlFor(manifest.UniqueID), "https://mods.smapi.io" }.Where(p => p != null).ToArray();
                     errorReasonPhrase = $"it's no longer compatible. Please check for a new version at {string.Join(" or ", updateUrls)}.";
                     return false;
                 }
