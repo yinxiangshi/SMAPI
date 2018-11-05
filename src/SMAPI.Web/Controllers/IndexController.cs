@@ -76,6 +76,13 @@ namespace StardewModdingAPI.Web.Controllers
             return this.View(model);
         }
 
+        /// <summary>Display the index page.</summary>
+        [HttpGet("/privacy")]
+        public ViewResult Privacy()
+        {
+            return this.View();
+        }
+
 
         /*********
         ** Private methods

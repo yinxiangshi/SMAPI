@@ -1,7 +1,10 @@
+@using Microsoft.Extensions.Options
+@using StardewModdingAPI.Web.Framework.ConfigModels
+@inject IOptions<SiteConfig> SiteConfig
+@model StardewModdingAPI.Web.ViewModels.IndexModel
 @{
     ViewData["Title"] = "SMAPI";
 }
-@model StardewModdingAPI.Web.ViewModels.IndexModel
 @section Head {
     <link rel="stylesheet" href="~/Content/css/index.css?r=20180615" />
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" crossorigin="anonymous"></script>
@@ -16,7 +19,7 @@
 
 <div id="call-to-action">
     <div class="cta-dropdown">
-        <a href="@Model.StableVersion.DownloadUrl" class="main-cta download">Download SMAPI @Model.StableVersion.Version</a><br/>
+        <a href="@Model.StableVersion.DownloadUrl" class="main-cta download">Download SMAPI @Model.StableVersion.Version</a><br />
         <div class="dropdown-content">
             <a href="https://www.nexusmods.com/stardewvalley/mods/2400"><img src="Content/images/nexus-icon.png" /> Download from Nexus</a>
             <a href="@Model.StableVersion.DownloadUrl"><img src="Content/images/direct-download-icon.png" /> Direct download</a>
@@ -30,22 +33,25 @@
                 Download SMAPI @Model.BetaVersion.Version
                 @if (!string.IsNullOrWhiteSpace(Model.BetaBlurb))
                 {
-                    <br/><small>@Model.BetaBlurb</small>
+                    <br /><small>@Model.BetaBlurb</small>
                 }
-            </a><br/>
+            </a><br />
             <div class="dropdown-content">
                 <a href="https://www.nexusmods.com/stardewvalley/mods/2400"><img src="Content/images/nexus-icon.png" /> Download from Nexus</a>
                 <a href="@Model.BetaVersion.DownloadUrl"><img src="Content/images/direct-download-icon.png" /> Direct download</a>
             </div>
         </div><br />
     }
-    <a href="https://stardewvalleywiki.com/Modding:Player_Guide" class="secondary-cta">Player guide</a><br />
+    <div><a href="https://stardewvalleywiki.com/Modding:Player_Guide" class="secondary-cta">Player guide</a></div>
+    <div class="sublinks">
+        <a href="https://github.com/Pathoschild/SMAPI">source code</a> | <a href="@(new UriBuilder(SiteConfig.Value.RootUrl) { Path = "privacy" }.Uri)">privacy</a>
+    </div>
     <img id="pufferchick" src="Content/images/pufferchick.png" />
 </div>
 
 <h2 id="help">Get help</h2>
 <ul>
-    <li><a href="https://stardewvalleywiki.com/Modding:SMAPI_compatibility">Mod compatibility list</a></li>
+    <li><a href="@SiteConfig.Value.ModListUrl">Mod compatibility list</a></li>
     <li>Get help <a href="https://stardewvalleywiki.com/Modding:Community#Discord">on Discord</a> or <a href="https://community.playstarbound.com/threads/smapi-stardew-modding-api.108375/">in the forums</a></li>
 </ul>
 
@@ -55,7 +61,7 @@
     <div class="github-description">
         @Html.Raw(Markdig.Markdown.ToHtml(Model.StableVersion.Description))
     </div>
-    <p>See the <a href="https://github.com/Pathoschild/SMAPI/blob/develop/docs/release-notes.md#release-notes">release notes</a> and <a href="https://stardewvalleywiki.com/Modding:SMAPI_compatibility">mod compatibility list</a> for more info.</p>
+    <p>See the <a href="https://github.com/Pathoschild/SMAPI/blob/develop/docs/release-notes.md#release-notes">release notes</a> and <a href="@SiteConfig.Value.ModListUrl">mod compatibility list</a> for more info.</p>
 }
 else
 {
@@ -64,13 +70,13 @@ else
     <div class="github-description">
         @Html.Raw(Markdig.Markdown.ToHtml(Model.StableVersion.Description))
     </div>
-    <p>See the <a href="https://github.com/Pathoschild/SMAPI/blob/develop/docs/release-notes.md#release-notes">release notes</a> and <a href="https://stardewvalleywiki.com/Modding:SMAPI_compatibility">mod compatibility list</a> for more info.</p>
+    <p>See the <a href="https://github.com/Pathoschild/SMAPI/blob/develop/docs/release-notes.md#release-notes">release notes</a> and <a href="@SiteConfig.Value.ModListUrl">mod compatibility list</a> for more info.</p>
 
     <h3>SMAPI @Model.BetaVersion.Version?</h3>
     <div class="github-description">
         @Html.Raw(Markdig.Markdown.ToHtml(Model.BetaVersion.Description))
     </div>
-    <p>See the <a href="https://github.com/Pathoschild/SMAPI/blob/develop/docs/release-notes.md#release-notes">release notes</a> and <a href="https://stardewvalleywiki.com/Modding:SMAPI_compatibility">mod compatibility list</a> for more info.</p>
+    <p>See the <a href="https://github.com/Pathoschild/SMAPI/blob/develop/docs/release-notes.md#release-notes">release notes</a> and <a href="@SiteConfig.Value.ModListUrl">mod compatibility list</a> for more info.</p>
 }
 
 <h2 id="donate">Donate to support SMAPI ♥</h2>

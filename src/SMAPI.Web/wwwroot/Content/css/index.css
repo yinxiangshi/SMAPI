@@ -93,6 +93,11 @@ h1 {
     display: block;
 }
 
+.sublinks {
+    font-size: 0.9em;
+    margin-bottom: 1em;
+}
+
 /*********
 ** Subsections
 *********/
