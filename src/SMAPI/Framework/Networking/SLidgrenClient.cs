@@ -1,44 +1,38 @@
 using System;
-using StardewValley;
 using StardewValley.Network;
 
 namespace StardewModdingAPI.Framework.Networking
 {
-    /// <summary>A multiplayer client used to connect to a hosted server. This is an implementation of <see cref="LidgrenClient"/> that adds support for SMAPI's metadata context exchange.</summary>
+    /// <summary>A multiplayer client used to connect to a hosted server. This is an implementation of <see cref="LidgrenClient"/> with callbacks for SMAPI functionality.</summary>
     internal class SLidgrenClient : LidgrenClient
     {
         /*********
         ** Properties
         *********/
-        /// <summary>Get the metadata to include in a metadata message sent to other players.</summary>
-        private readonly Func<object[]> GetMetadataMessageFields;
+        /// <summary>A callback to raise when receiving a message. This receives the client instance, incoming message, and a callback to run the default logic.</summary>
+        private readonly Action<SLidgrenClient, IncomingMessage, Action> OnProcessingMessage;
 
-        /// <summary>The method to call when receiving a custom SMAPI message from the server, which returns whether the message was processed.</summary>
-        private readonly Func<SLidgrenClient, IncomingMessage, bool> TryProcessMessage;
-
+        /// <summary>A callback to raise when sending a message. This receives the client instance, outgoing message, and a callback to run the default logic.</summary>
+        private readonly Action<SLidgrenClient, OutgoingMessage, Action> OnSendingMessage;
 
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="address">The remote address being connected.</param>
-        /// <param name="getMetadataMessageFields">Get the metadata to include in a metadata message sent to other players.</param>
-        /// <param name="tryProcessMessage">The method to call when receiving a custom SMAPI message from the server, which returns whether the message was processed..</param>
-        public SLidgrenClient(string address, Func<object[]> getMetadataMessageFields, Func<SLidgrenClient, IncomingMessage, bool> tryProcessMessage)
+        /// <param name="onProcessingMessage">A callback to raise when receiving a message. This receives the client instance, incoming message, and a callback to run the default logic.</param>
+        /// <param name="onSendingMessage">A callback to raise when sending a message. This receives the client instance, outgoing message, and a callback to run the default logic.</param>
+        public SLidgrenClient(string address, Action<SLidgrenClient, IncomingMessage, Action> onProcessingMessage, Action<SLidgrenClient, OutgoingMessage, Action> onSendingMessage)
             : base(address)
         {
-            this.GetMetadataMessageFields = getMetadataMessageFields;
-            this.TryProcessMessage = tryProcessMessage;
+            this.OnProcessingMessage = onProcessingMessage;
+            this.OnSendingMessage = onSendingMessage;
         }
 
-        /// <summary>Send the metadata needed to connect with a remote server.</summary>
-        public override void sendPlayerIntroduction()
+        /// <summary>Send a message to the connected peer.</summary>
+        public override void sendMessage(OutgoingMessage message)
         {
-            // send custom intro
-            if (this.getUserID() != "")
-                Game1.player.userID.Value = this.getUserID();
-            this.sendMessage(SMultiplayer.ContextSyncMessageID, this.GetMetadataMessageFields());
-            base.sendPlayerIntroduction();
+            this.OnSendingMessage(this, message, () => base.sendMessage(message));
         }
 
 
@@ -49,10 +43,7 @@ namespace StardewModdingAPI.Framework.Networking
         /// <param name="message">The message to process.</param>
         protected override void processIncomingMessage(IncomingMessage message)
         {
-            if (this.TryProcessMessage(this, message))
-                return;
-
-            base.processIncomingMessage(message);
+            this.OnProcessingMessage(this, message, () => base.processIncomingMessage(message));
         }
     }
 }

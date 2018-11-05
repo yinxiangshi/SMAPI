@@ -3,7 +3,7 @@ using StardewModdingAPI.Framework.Networking;
 
 namespace StardewModdingAPI.Events
 {
-    /// <summary>Event arguments when a mod receives a message over the network.</summary>
+    /// <summary>Event arguments for an <see cref="IMultiplayerEvents.ModMessageReceived"/> event.</summary>
     public class ModMessageReceivedEventArgs : EventArgs
     {
         /*********

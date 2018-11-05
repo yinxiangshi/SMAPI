@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Lidgren.Network;
-using StardewValley;
 using StardewValley.Network;
 
 namespace StardewModdingAPI.Framework.Networking
@@ -95,7 +94,8 @@ namespace StardewModdingAPI.Framework.Networking
         /// <param name="playerID">The player's unique ID.</param>
         /// <param name="model">The metadata to copy.</param>
         /// <param name="client">The client through which to send messages.</param>
-        public static MultiplayerPeer ForConnectionToHost(long playerID, RemoteContextModel model, SLidgrenClient client)
+        /// <param name="isHost">Whether this connection is for the host player.</param>
+        public static MultiplayerPeer ForConnectionToHost(long playerID, RemoteContextModel model, SLidgrenClient client, bool isHost)
         {
             return new MultiplayerPeer(
                 playerID: playerID,
@@ -103,7 +103,7 @@ namespace StardewModdingAPI.Framework.Networking
                 server: null,
                 serverConnection: null,
                 client: client,
-                isHost: true
+                isHost: isHost
             );
         }
 
