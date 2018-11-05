@@ -29,7 +29,7 @@ Using an official SMAPI release is recommended for most users.
 
 SMAPI uses some C# 7 code, so you'll need at least
 [Visual Studio 2017](https://www.visualstudio.com/vs/community/) on Windows,
-[MonoDevelop 7.0](http://www.monodevelop.com/) on Linux,
+[MonoDevelop 7.0](https://www.monodevelop.com/) on Linux,
 [Visual Studio 2017 for Mac](https://www.visualstudio.com/vs/visual-studio-mac/), or an equivalent
 IDE to compile it. It uses build configuration derived from the
 [crossplatform mod config](https://github.com/Pathoschild/Stardew.ModBuildConfig#readme) to detect
@@ -48,7 +48,7 @@ To prepare a crossplatform SMAPI release, you'll need to compile it on two platf
 on the wiki for the first-time setup.
 
 1. Update the version number in `GlobalAssemblyInfo.cs` and `Constants::Version`. Make sure you use a
-   [semantic version](http://semver.org). Recommended format:
+   [semantic version](https://semver.org). Recommended format:
 
    build type | format                   | example
    :--------- | :----------------------- | :------

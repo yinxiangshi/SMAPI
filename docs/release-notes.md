@@ -666,7 +666,7 @@ For mod developers:
 * The SMAPI log now always uses `\r\n` line endings to simplify crossplatform viewing.
 * Fixed `SaveEvents.AfterLoad` being raised during the new-game intro before the player is initialised.
 * Fixed SMAPI not recognising `Mod` instances that don't subclass `Mod` directly.
-* Several obsolete APIs have been removed (see [deprecation guide](http://canimod.com/guides/updating-a-smapi-mod)),
+* Several obsolete APIs have been removed (see [migration guides](https://stardewvalleywiki.com/Modding:Index#Migration_guides)),
   and all _notice_-level deprecations have been increased to _info_.
 * Removed the experimental `IConfigFile`.
 
@@ -749,7 +749,7 @@ For players:
 
 For developers:
   * Deprecated `Version` in favour of `SemanticVersion`.  
-    _This new implementation is [semver 2.0](http://semver.org/)-compliant, introduces `NewerThan(version)` and `OlderThan(version)` convenience methods, adds support for parsing a version string into a `SemanticVersion`, and fixes various bugs with the former implementation. This also replaces `Manifest` with `IManifest`._
+    _This new implementation is [semver 2.0](https://semver.org/)-compliant, introduces `NewerThan(version)` and `OlderThan(version)` convenience methods, adds support for parsing a version string into a `SemanticVersion`, and fixes various bugs with the former implementation. This also replaces `Manifest` with `IManifest`._
   * Increased deprecation levels for `SObject`, `Extensions`, `LogWriter` (not `Log`), `SPlayer`, and `Mod.Entry(ModHelper)` (not `Mod.Entry(IModHelper)`).
 
 ## 1.4
@@ -828,7 +828,7 @@ For mod developers:
   * Added OS version to log.
   * Added zoom-adjusted mouse position to mouse-changed event arguments.
   * Added SMAPI code documentation.
-  * Switched to [semantic versioning](http://semver.org).
+  * Switched to [semantic versioning](https://semver.org).
   * Fixed mod versions not shown correctly in the log.
   * Fixed misspelled field in `manifest.json` schema.
   * Fixed some events getting wrong data.

@@ -70,7 +70,7 @@ namespace StardewModdingAPI
         /// <summary>Get an integer indicating whether this version precedes (less than 0), supercedes (more than 0), or is equivalent to (0) the specified version.</summary>
         /// <param name="other">The version to compare with this instance.</param>
         /// <exception cref="ArgumentNullException">The <paramref name="other"/> value is null.</exception>
-        /// <remarks>The implementation is defined by Semantic Version 2.0 (http://semver.org/).</remarks>
+        /// <remarks>The implementation is defined by Semantic Version 2.0 (https://semver.org/).</remarks>
         public int CompareTo(ISemanticVersion other)
         {
             return this.Version.CompareTo(other);

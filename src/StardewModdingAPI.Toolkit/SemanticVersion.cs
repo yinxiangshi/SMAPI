@@ -5,7 +5,7 @@ namespace StardewModdingAPI.Toolkit
 {
     /// <summary>A semantic version with an optional release tag.</summary>
     /// <remarks>
-    /// The implementation is defined by Semantic Version 2.0 (http://semver.org/), with a few deviations:
+    /// The implementation is defined by Semantic Version 2.0 (https://semver.org/), with a few deviations:
     /// - short-form "x.y" versions are supported (equivalent to "x.y.0");
     /// - hyphens are synonymous with dots in prerelease tags (like "-unofficial.3-pathoschild");
     /// - +build suffixes are not supported;

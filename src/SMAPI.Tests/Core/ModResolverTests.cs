@@ -145,7 +145,7 @@ namespace StardewModdingAPI.Tests.Core
             this.SetupMetadataForValidation(mock, new ModDataRecordVersionedFields
             {
                 Status = ModStatus.AssumeBroken,
-                AlternativeUrl = "http://example.org"
+                AlternativeUrl = "https://example.org"
             });
 
             // act
