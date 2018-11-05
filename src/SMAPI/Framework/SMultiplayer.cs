@@ -140,6 +140,9 @@ namespace StardewModdingAPI.Framework
         /// <param name="resume">Send the underlying message.</param>
         protected void OnServerSendingMessage(SLidgrenServer server, NetConnection connection, OutgoingMessage message, Action resume)
         {
+            if (this.VerboseLogging)
+                this.Monitor.Log($"SERVER SEND {(MessageType)message.MessageType} {message.FarmerID}", LogLevel.Trace);
+
             resume();
         }
 
@@ -149,6 +152,9 @@ namespace StardewModdingAPI.Framework
         /// <param name="resume">Send the underlying message.</param>
         protected void OnClientSendingMessage(SLidgrenClient client, OutgoingMessage message, Action resume)
         {
+            if (this.VerboseLogging)
+                this.Monitor.Log($"CLIENT SEND {(MessageType)message.MessageType} {message.FarmerID}", LogLevel.Trace);
+
             switch (message.MessageType)
             {
                 // sync mod context (step 1)
@@ -171,6 +177,8 @@ namespace StardewModdingAPI.Framework
         /// <param name="resume">Process the message using the game's default logic.</param>
         public void OnServerProcessingMessage(SLidgrenServer server, NetIncomingMessage rawMessage, IncomingMessage message, Action resume)
         {
+            if (this.VerboseLogging)
+                this.Monitor.Log($"SERVER RECV {(MessageType)message.MessageType} {message.FarmerID}", LogLevel.Trace);
 
             switch (message.MessageType)
             {
@@ -213,7 +221,7 @@ namespace StardewModdingAPI.Framework
                         }
 
                         // raise event
-                        this.EventManager.ContextReceived.Raise(new ContextReceivedEventArgs(newPeer));
+                        this.EventManager.PeerContextReceived.Raise(new PeerContextReceivedEventArgs(newPeer));
                     }
                     break;
 
@@ -248,8 +256,8 @@ namespace StardewModdingAPI.Framework
         /// <returns>Returns whether the message was handled.</returns>
         public void OnClientProcessingMessage(SLidgrenClient client, IncomingMessage message, Action resume)
         {
-            if (message.MessageType != Multiplayer.farmerDelta && message.MessageType != Multiplayer.locationDelta && message.MessageType != Multiplayer.teamDelta && message.MessageType != Multiplayer.worldDelta)
-                this.Monitor.Log($"CLIENT RECV {(MessageType)message.MessageType} {message.FarmerID}", LogLevel.Alert);
+            if (this.VerboseLogging)
+                this.Monitor.Log($"CLIENT RECV {(MessageType)message.MessageType} {message.FarmerID}", LogLevel.Trace);
 
             switch (message.MessageType)
             {
@@ -315,8 +323,12 @@ namespace StardewModdingAPI.Framework
         {
             foreach (long playerID in this.DisconnectingFarmers)
             {
-                this.Monitor.Log($"Player quit: {playerID}", LogLevel.Trace);
-                this.Peers.Remove(playerID);
+                if (this.Peers.TryGetValue(playerID, out MultiplayerPeer peer))
+                {
+                    this.Monitor.Log($"Player quit: {playerID}", LogLevel.Trace);
+                    this.Peers.Remove(playerID);
+                    this.EventManager.PeerDisconnected.Raise(new PeerDisconnectedEventArgs(peer));
+                }
             }
 
             base.removeDisconnectedFarmers();
@@ -397,7 +409,7 @@ namespace StardewModdingAPI.Framework
         /// <summary>Save a received peer.</summary>
         /// <param name="peer">The peer to add.</param>
         /// <param name="canBeHost">Whether to track the peer as the host if applicable.</param>
-        /// <param name="raiseEvent">Whether to raise the <see cref="Events.EventManager.ContextReceived"/> event.</param>
+        /// <param name="raiseEvent">Whether to raise the <see cref="Events.EventManager.PeerContextReceived"/> event.</param>
         private void AddPeer(MultiplayerPeer peer, bool canBeHost, bool raiseEvent = true)
         {
             // store
@@ -407,7 +419,7 @@ namespace StardewModdingAPI.Framework
 
             // raise event
             if (raiseEvent)
-                this.EventManager.ContextReceived.Raise(new ContextReceivedEventArgs(peer));
+                this.EventManager.PeerContextReceived.Raise(new PeerContextReceivedEventArgs(peer));
         }
 
         /// <summary>Read the metadata context for a player.</summary>

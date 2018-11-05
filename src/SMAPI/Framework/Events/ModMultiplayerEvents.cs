@@ -9,6 +9,13 @@ namespace StardewModdingAPI.Framework.Events
         /*********
         ** Accessors
         *********/
+        /// <summary>Raised after the mod context for a peer is received. This happens before the game approves the connection, so the player doesn't yet exist in the game. This is the earliest point where messages can be sent to the peer via SMAPI.</summary>
+        public event EventHandler<PeerContextReceivedEventArgs> PeerContextReceived
+        {
+            add => this.EventManager.PeerContextReceived.Add(value);
+            remove => this.EventManager.PeerContextReceived.Remove(value);
+        }
+
         /// <summary>Raised after a mod message is received over the network.</summary>
         public event EventHandler<ModMessageReceivedEventArgs> ModMessageReceived
         {
@@ -16,11 +23,11 @@ namespace StardewModdingAPI.Framework.Events
             remove => this.EventManager.ModMessageReceived.Remove(value);
         }
 
-        /// <summary>Raised after the mod context for a player is received. This happens before the game approves the connection, so the player does not yet exist in the game. This is the earliest point where messages can be sent to the player via SMAPI.</summary>
-        public event EventHandler<ContextReceivedEventArgs> ContextReceived
+        /// <summary>Raised after the connection with a peer is severed.</summary>
+        public event EventHandler<PeerDisconnectedEventArgs> PeerDisconnected
         {
-            add => this.EventManager.ContextReceived.Add(value);
-            remove => this.EventManager.ContextReceived.Remove(value);
+            add => this.EventManager.PeerDisconnected.Add(value);
+            remove => this.EventManager.PeerDisconnected.Remove(value);
         }
 
 

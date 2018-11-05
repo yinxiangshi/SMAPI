@@ -85,7 +85,6 @@
     <Compile Include="Events\ButtonReleasedEventArgs.cs" />
     <Compile Include="Events\ChangeType.cs" />
     <Compile Include="Events\ContentEvents.cs" />
-    <Compile Include="Events\ContextReceivedEventArgs.cs" />
     <Compile Include="Events\ControlEvents.cs" />
     <Compile Include="Events\CursorMovedEventArgs.cs" />
     <Compile Include="Events\DayEndingEventArgs.cs" />
@@ -137,6 +136,8 @@
     <Compile Include="Events\MultiplayerEvents.cs" />
     <Compile Include="Events\NpcListChangedEventArgs.cs" />
     <Compile Include="Events\ObjectListChangedEventArgs.cs" />
+    <Compile Include="Events\PeerContextReceivedEventArgs.cs" />
+    <Compile Include="Events\PeerDisconnectedEventArgs.cs" />
     <Compile Include="Events\PlayerEvents.cs" />
     <Compile Include="Events\RenderedActiveMenuEventArgs.cs" />
     <Compile Include="Events\RenderedEventArgs.cs" />

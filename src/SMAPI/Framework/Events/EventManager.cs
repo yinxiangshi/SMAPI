@@ -101,11 +101,14 @@ namespace StardewModdingAPI.Framework.Events
         /****
         ** Multiplayer
         ****/
-        /// <summary>Raised after the mod context for a player is received. This happens before the game approves the connection, so the player does not yet exist in the game. This is the earliest point where messages can be sent to the player via SMAPI.</summary>
-        public readonly ManagedEvent<ContextReceivedEventArgs> ContextReceived;
+        /// <summary>Raised after the mod context for a peer is received. This happens before the game approves the connection, so the player doesn't yet exist in the game. This is the earliest point where messages can be sent to the peer via SMAPI.</summary>
+        public readonly ManagedEvent<PeerContextReceivedEventArgs> PeerContextReceived;
 
         /// <summary>Raised after a mod message is received over the network.</summary>
         public readonly ManagedEvent<ModMessageReceivedEventArgs> ModMessageReceived;
+
+        /// <summary>Raised after the connection with a peer is severed.</summary>
+        public readonly ManagedEvent<PeerDisconnectedEventArgs> PeerDisconnected;
 
         /****
         ** Player
@@ -383,8 +386,9 @@ namespace StardewModdingAPI.Framework.Events
             this.CursorMoved = ManageEventOf<CursorMovedEventArgs>(nameof(IModEvents.Input), nameof(IInputEvents.CursorMoved));
             this.MouseWheelScrolled = ManageEventOf<MouseWheelScrolledEventArgs>(nameof(IModEvents.Input), nameof(IInputEvents.MouseWheelScrolled));
 
-            this.ContextReceived = ManageEventOf<ContextReceivedEventArgs>(nameof(IModEvents.Multiplayer), nameof(IMultiplayerEvents.ContextReceived));
+            this.PeerContextReceived = ManageEventOf<PeerContextReceivedEventArgs>(nameof(IModEvents.Multiplayer), nameof(IMultiplayerEvents.PeerContextReceived));
             this.ModMessageReceived = ManageEventOf<ModMessageReceivedEventArgs>(nameof(IModEvents.Multiplayer), nameof(IMultiplayerEvents.ModMessageReceived));
+            this.PeerDisconnected = ManageEventOf<PeerDisconnectedEventArgs>(nameof(IModEvents.Multiplayer), nameof(IMultiplayerEvents.PeerDisconnected));
 
             this.InventoryChanged = ManageEventOf<InventoryChangedEventArgs>(nameof(IModEvents.Player), nameof(IPlayerEvents.InventoryChanged));
             this.LevelChanged = ManageEventOf<LevelChangedEventArgs>(nameof(IModEvents.Player), nameof(IPlayerEvents.LevelChanged));
