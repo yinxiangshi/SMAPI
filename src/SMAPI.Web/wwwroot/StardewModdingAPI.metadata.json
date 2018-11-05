@@ -115,6 +115,11 @@
       "MapRemoteVersions": { "1.3.1": "1.3" } // manifest not updated
     },
 
+    "BJS Night Sounds": {
+      "ID": "BunnyJumps.BJSNightSounds",
+      "~1.0.0 | Status": "AssumeBroken" // runtime errors with Harmony 1.2.0.1 in SMAPI 2.8+
+    },
+
     "Casks Anywhere": {
       "ID": "CasksAnywhere",
       "MapLocalVersions": { "1.1-alpha": "1.1" }
@@ -194,7 +199,12 @@
 
     "Fishing Adjust": {
       "ID": "shuaiz.FishingAdjustMod",
-      "~2.0.1  | Status": "AssumeBroken" // Method not found: 'Void Harmony.HarmonyInstance.Patch(System.Reflection.MethodBase, Harmony.HarmonyMethod, Harmony.HarmonyMethod, Harmony.HarmonyMethod)'
+      "~2.0.1 | Status": "AssumeBroken" // Method not found: 'Void Harmony.HarmonyInstance.Patch(System.Reflection.MethodBase, Harmony.HarmonyMethod, Harmony.HarmonyMethod, Harmony.HarmonyMethod)'
+    },
+
+    "Fishing Automaton": {
+      "ID": "Drynwynn.FishingAutomaton",
+      "~1.1 | Status": "AssumeBroken" // runtime errors with Harmony 1.2.0.1 in SMAPI 2.8+
     },
 
     "Fix Scythe Exp": {
@@ -261,6 +271,11 @@
     "Night Owl": {
       "ID": "Omegasis.NightOwl",
       "MapLocalVersions": { "2.1": "1.3" } // 1.3 had wrong version in manifest
+    },
+
+    "No Added Flying Mine Monsters": {
+      "ID": "Drynwynn.NoAddedFlyingMineMonsters",
+      "~1.1 | Status": "AssumeBroken" // runtime errors with Harmony 1.2.0.1 in SMAPI 2.8+
     },
 
     "No Debug Mode": {
