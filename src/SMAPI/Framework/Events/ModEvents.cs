@@ -17,6 +17,9 @@ namespace StardewModdingAPI.Framework.Events
         /// <summary>Events raised when the player provides input using a controller, keyboard, or mouse.</summary>
         public IInputEvents Input { get; }
 
+        /// <summary>Events raised for multiplayer messages and connections.</summary>
+        public IMultiplayerEvents Multiplayer { get; }
+
         /// <summary>Events raised when the player data changes.</summary>
         public IPlayerEvents Player { get; }
 
@@ -38,6 +41,7 @@ namespace StardewModdingAPI.Framework.Events
             this.Display = new ModDisplayEvents(mod, eventManager);
             this.GameLoop = new ModGameLoopEvents(mod, eventManager);
             this.Input = new ModInputEvents(mod, eventManager);
+            this.Multiplayer = new ModMultiplayerEvents(mod, eventManager);
             this.Player = new ModPlayerEvents(mod, eventManager);
             this.World = new ModWorldEvents(mod, eventManager);
             this.Specialised = new ModSpecialisedEvents(mod, eventManager);

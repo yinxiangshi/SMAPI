@@ -153,6 +153,15 @@ namespace StardewModdingAPI.Framework.ModLoading
                 && !string.IsNullOrWhiteSpace(this.Manifest.UniqueID);
         }
 
+        /// <summary>Whether the mod has the given ID.</summary>
+        /// <param name="id">The mod ID to check.</param>
+        public bool HasID(string id)
+        {
+            return
+                this.HasID()
+                && string.Equals(this.Manifest.UniqueID.Trim(), id?.Trim(), StringComparison.InvariantCultureIgnoreCase);
+        }
+
         /// <summary>Get the defined update keys.</summary>
         /// <param name="validOnly">Only return valid update keys.</param>
         public IEnumerable<UpdateKey> GetUpdateKeys(bool validOnly = false)

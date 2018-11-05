@@ -12,6 +12,9 @@ namespace StardewModdingAPI.Events
         /// <summary>Events raised when the player provides input using a controller, keyboard, or mouse.</summary>
         IInputEvents Input { get; }
 
+        /// <summary>Events raised for multiplayer messages and connections.</summary>
+        IMultiplayerEvents Multiplayer { get; }
+
         /// <summary>Events raised when the player data changes.</summary>
         IPlayerEvents Player { get; }
 

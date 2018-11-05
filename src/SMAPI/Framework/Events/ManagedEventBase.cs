@@ -69,12 +69,22 @@ namespace StardewModdingAPI.Framework.Events
                 this.SourceMods.Remove(handler);
         }
 
+        /// <summary>Get the mod which registered the given event handler, if available.</summary>
+        /// <param name="handler">The event handler.</param>
+        protected IModMetadata GetSourceMod(TEventHandler handler)
+        {
+            return this.SourceMods.TryGetValue(handler, out IModMetadata mod)
+                ? mod
+                : null;
+        }
+
         /// <summary>Log an exception from an event handler.</summary>
         /// <param name="handler">The event handler instance.</param>
         /// <param name="ex">The exception that was raised.</param>
         protected void LogError(TEventHandler handler, Exception ex)
         {
-            if (this.SourceMods.TryGetValue(handler, out IModMetadata mod))
+            IModMetadata mod = this.GetSourceMod(handler);
+            if (mod != null)
                 mod.LogAsMod($"This mod failed in the {this.EventName} event. Technical details: \n{ex.GetLogSummary()}", LogLevel.Error);
             else
                 this.Monitor.Log($"A mod failed in the {this.EventName} event. Technical details: \n{ex.GetLogSummary()}", LogLevel.Error);

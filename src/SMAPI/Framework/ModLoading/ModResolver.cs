@@ -379,7 +379,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="loadedMods">The loaded mods.</param>
         private IEnumerable<ModDependency> GetDependenciesFrom(IManifest manifest, IModMetadata[] loadedMods)
         {
-            IModMetadata FindMod(string id) => loadedMods.FirstOrDefault(m => string.Equals(m.Manifest?.UniqueID, id, StringComparison.InvariantCultureIgnoreCase));
+            IModMetadata FindMod(string id) => loadedMods.FirstOrDefault(m => m.HasID(id));
 
             // yield dependencies
             if (manifest.Dependencies != null)
