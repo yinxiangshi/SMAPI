@@ -101,6 +101,9 @@ namespace StardewModdingAPI.Framework.Events
         /****
         ** Multiplayer
         ****/
+        /// <summary>Raised after the mod context for a player is received. This happens before the game approves the connection, so the player does not yet exist in the game. This is the earliest point where messages can be sent to the player via SMAPI.</summary>
+        public readonly ManagedEvent<ContextReceivedEventArgs> ContextReceived;
+
         /// <summary>Raised after a mod message is received over the network.</summary>
         public readonly ManagedEvent<ModMessageReceivedEventArgs> ModMessageReceived;
 
@@ -380,6 +383,7 @@ namespace StardewModdingAPI.Framework.Events
             this.CursorMoved = ManageEventOf<CursorMovedEventArgs>(nameof(IModEvents.Input), nameof(IInputEvents.CursorMoved));
             this.MouseWheelScrolled = ManageEventOf<MouseWheelScrolledEventArgs>(nameof(IModEvents.Input), nameof(IInputEvents.MouseWheelScrolled));
 
+            this.ContextReceived = ManageEventOf<ContextReceivedEventArgs>(nameof(IModEvents.Multiplayer), nameof(IMultiplayerEvents.ContextReceived));
             this.ModMessageReceived = ManageEventOf<ModMessageReceivedEventArgs>(nameof(IModEvents.Multiplayer), nameof(IMultiplayerEvents.ModMessageReceived));
 
             this.InventoryChanged = ManageEventOf<InventoryChangedEventArgs>(nameof(IModEvents.Player), nameof(IPlayerEvents.InventoryChanged));

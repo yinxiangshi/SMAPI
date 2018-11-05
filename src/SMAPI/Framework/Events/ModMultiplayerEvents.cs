@@ -16,6 +16,13 @@ namespace StardewModdingAPI.Framework.Events
             remove => this.EventManager.ModMessageReceived.Remove(value);
         }
 
+        /// <summary>Raised after the mod context for a player is received. This happens before the game approves the connection, so the player does not yet exist in the game. This is the earliest point where messages can be sent to the player via SMAPI.</summary>
+        public event EventHandler<ContextReceivedEventArgs> ContextReceived
+        {
+            add => this.EventManager.ContextReceived.Add(value);
+            remove => this.EventManager.ContextReceived.Remove(value);
+        }
+
 
         /*********
         ** Public methods

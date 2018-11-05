@@ -85,6 +85,7 @@
     <Compile Include="Events\ButtonReleasedEventArgs.cs" />
     <Compile Include="Events\ChangeType.cs" />
     <Compile Include="Events\ContentEvents.cs" />
+    <Compile Include="Events\ContextReceivedEventArgs.cs" />
     <Compile Include="Events\ControlEvents.cs" />
     <Compile Include="Events\CursorMovedEventArgs.cs" />
     <Compile Include="Events\DayEndingEventArgs.cs" />

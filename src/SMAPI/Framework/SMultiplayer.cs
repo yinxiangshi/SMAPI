@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Lidgren.Network;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.Events;
 using StardewModdingAPI.Framework.Networking;
 using StardewModdingAPI.Framework.Reflection;
@@ -186,7 +188,7 @@ namespace StardewModdingAPI.Framework
                             this.Monitor.Log($"Rejected mod context from farmhand {message.FarmerID}: already received context for that player.", LogLevel.Error);
                             return;
                         }
-                        this.Peers[message.FarmerID] = newPeer;
+                        this.AddPeer(newPeer, canBeHost: false, raiseEvent: false);
 
                         // reply with own context
                         this.VerboseLog("   Replying with host context...");
@@ -209,20 +211,23 @@ namespace StardewModdingAPI.Framework
                                 otherPeer.SendMessage(new OutgoingMessage((byte)MessageType.ModContext, newPeer.PlayerID, fields));
                             }
                         }
+
+                        // raise event
+                        this.EventManager.ContextReceived.Raise(new ContextReceivedEventArgs(newPeer));
                     }
                     break;
 
                 // handle player intro
                 case (byte)MessageType.PlayerIntroduction:
+                    // store peer if new
+                    if (!this.Peers.ContainsKey(message.FarmerID))
                     {
-                        // get peer
-                        if (!this.Peers.TryGetValue(message.FarmerID, out MultiplayerPeer peer))
-                        {
-                            this.Monitor.Log($"Received connection for vanilla player {message.FarmerID}.", LogLevel.Trace);
-                            this.Peers[message.FarmerID] = peer = MultiplayerPeer.ForConnectionToFarmhand(message.FarmerID, null, server, rawMessage.SenderConnection);
-                        }
-
+                        this.Monitor.Log($"Received connection for vanilla player {message.FarmerID}.", LogLevel.Trace);
+                        MultiplayerPeer peer = MultiplayerPeer.ForConnectionToFarmhand(message.FarmerID, null, server, rawMessage.SenderConnection);
+                        this.AddPeer(peer, canBeHost: false);
                     }
+
+                    resume();
                     break;
 
                 // handle mod message
@@ -262,9 +267,7 @@ namespace StardewModdingAPI.Framework
                             this.Monitor.Log($"Rejected mod context from host player {peer.PlayerID}: already received host data from {(peer.PlayerID == this.HostPeer.PlayerID ? "that player" : $"player {peer.PlayerID}")}.", LogLevel.Error);
                             return;
                         }
-                        this.Peers[message.FarmerID] = peer;
-                        if (peer.IsHost)
-                            this.HostPeer = peer;
+                        this.AddPeer(peer, canBeHost: true);
                     }
                     break;
 
@@ -275,7 +278,7 @@ namespace StardewModdingAPI.Framework
                         if (!this.Peers.ContainsKey(message.FarmerID) && this.HostPeer == null)
                         {
                             this.Monitor.Log($"Received connection for vanilla host {message.FarmerID}.", LogLevel.Trace);
-                            this.Peers[message.FarmerID] = MultiplayerPeer.ForConnectionToHost(message.FarmerID, null, client, isHost: true);
+                            this.AddPeer(MultiplayerPeer.ForConnectionToHost(message.FarmerID, null, client, isHost: true), canBeHost: false);
                         }
                         resume();
                         break;
@@ -289,10 +292,11 @@ namespace StardewModdingAPI.Framework
                         {
                             peer = MultiplayerPeer.ForConnectionToHost(message.FarmerID, null, client, isHost: this.HostPeer == null);
                             this.Monitor.Log($"Received connection for vanilla {(peer.IsHost ? "host" : "farmhand")} {message.FarmerID}.", LogLevel.Trace);
-                            this.Peers[message.FarmerID] = peer;
-                            if (peer.IsHost)
-                                this.HostPeer = peer;
+                            this.AddPeer(peer, canBeHost: true);
                         }
+
+                        resume();
+                        break;
                     }
 
                 // handle mod message
@@ -390,6 +394,22 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Private methods
         *********/
+        /// <summary>Save a received peer.</summary>
+        /// <param name="peer">The peer to add.</param>
+        /// <param name="canBeHost">Whether to track the peer as the host if applicable.</param>
+        /// <param name="raiseEvent">Whether to raise the <see cref="Events.EventManager.ContextReceived"/> event.</param>
+        private void AddPeer(MultiplayerPeer peer, bool canBeHost, bool raiseEvent = true)
+        {
+            // store
+            this.Peers[peer.PlayerID] = peer;
+            if (canBeHost && peer.IsHost)
+                this.HostPeer = peer;
+
+            // raise event
+            if (raiseEvent)
+                this.EventManager.ContextReceived.Raise(new ContextReceivedEventArgs(peer));
+        }
+
         /// <summary>Read the metadata context for a player.</summary>
         /// <param name="reader">The stream reader.</param>
         private RemoteContextModel ReadContext(BinaryReader reader)
