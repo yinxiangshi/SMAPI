@@ -40,6 +40,7 @@
     * added support for overlaying image assets with semi-transparency;
     * mods can now load PNGs even if the game is currently drawing.
   * When comparing mod versions, SMAPI now considers `-unofficial` to be lower-precedence than any other value (e.g. `1.0-beta` is now considered newer than `1.0-unofficial` regardless of normal sorting).
+  * Updated Harmony from 1.0.9.1 to 1.2.0.1.
   * Fixed `IContentPack.ReadJsonFile` allowing non-relative paths.
   * Fixed trace logs not showing path for invalid mods.
   * Fixed 'no update keys' warning not shown for mods with only invalid update keys.
