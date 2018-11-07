@@ -120,7 +120,7 @@ namespace StardewModdingAPI.Framework
             this.ModsPath = modsPath;
 
             // init log file
-            this.PurgeLogFiles();
+            this.PurgeNormalLogs();
             string logPath = this.GetLogPath();
 
             // init basics
@@ -1329,8 +1329,8 @@ namespace StardewModdingAPI.Framework
             throw new InvalidOperationException("Could not find an available log path.");
         }
 
-        /// <summary>Delete all log files created by SMAPI.</summary>
-        private void PurgeLogFiles()
+        /// <summary>Delete normal (non-crash) log files created by SMAPI.</summary>
+        private void PurgeNormalLogs()
         {
             DirectoryInfo logsDir = new DirectoryInfo(Constants.LogDir);
             if (!logsDir.Exists)
@@ -1338,16 +1338,22 @@ namespace StardewModdingAPI.Framework
 
             foreach (FileInfo logFile in logsDir.EnumerateFiles())
             {
-                if (logFile.Name.StartsWith(Constants.LogNamePrefix, StringComparison.InvariantCultureIgnoreCase))
+                // skip non-SMAPI file
+                if (!logFile.Name.StartsWith(Constants.LogNamePrefix, StringComparison.InvariantCultureIgnoreCase))
+                    continue;
+
+                // skip crash log
+                if (logFile.FullName == Constants.FatalCrashLog)
+                    continue;
+
+                // delete file
+                try
                 {
-                    try
-                    {
-                        FileUtilities.ForceDelete(logFile);
-                    }
-                    catch (IOException)
-                    {
-                        // ignore file if it's in use
-                    }
+                    FileUtilities.ForceDelete(logFile);
+                }
+                catch (IOException)
+                {
+                    // ignore file if it's in use
                 }
             }
         }

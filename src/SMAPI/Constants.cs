@@ -82,7 +82,7 @@ namespace StardewModdingAPI
         /// <summary>The filename extension for SMAPI log files.</summary>
         internal static string LogExtension { get; } = "txt";
 
-        /// <summary>A copy of the log leading up to the previous fatal crash, if any.</summary>
+        /// <summary>The file path for the log containing the previous fatal crash, if any.</summary>
         internal static string FatalCrashLog => Path.Combine(Constants.LogDir, "SMAPI-crash.txt");
 
         /// <summary>The file path which stores a fatal crash message for the next run.</summary>

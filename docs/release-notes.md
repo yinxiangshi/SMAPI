@@ -21,6 +21,7 @@
   * Fixed translation issues not shown as warnings.
   * Fixed dependencies not correctly enforced if the dependency is installed but failed to load.
   * Fixed some errors logged as SMAPI instead of the affected mod.
+  * Fixed crash log deleted immediately when you relaunch the game.
   * Updated compatibility list.
 
 * For the web UI:
