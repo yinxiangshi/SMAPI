@@ -77,7 +77,7 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Manages deprecation warnings.</summary>
         /// <remarks>This is initialised after the game starts.</remarks>
-        private DeprecationManager DeprecationManager;
+        private readonly DeprecationManager DeprecationManager;
 
         /// <summary>Manages SMAPI events for mods.</summary>
         private readonly EventManager EventManager;
@@ -134,6 +134,10 @@ namespace StardewModdingAPI.Framework
             };
             this.MonitorForGame = this.GetSecondaryMonitor("game");
             this.EventManager = new EventManager(this.Monitor, this.ModRegistry);
+            this.DeprecationManager = new DeprecationManager(this.Monitor, this.ModRegistry);
+
+            // inject deprecation managers
+            SemanticVersion.DeprecationManager = this.DeprecationManager;
 
             // init logging
             this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GameVersion} on {EnvironmentUtility.GetFriendlyPlatformName(Constants.Platform)}", LogLevel.Info);
@@ -340,9 +344,6 @@ namespace StardewModdingAPI.Framework
         /// <summary>Initialise SMAPI and mods after the game starts.</summary>
         private void InitialiseAfterGameStart()
         {
-            // load core components
-            this.DeprecationManager = new DeprecationManager(this.Monitor, this.ModRegistry);
-
             // redirect direct console output
             if (this.MonitorForGame.WriteToConsole)
                 this.ConsoleManager.OnMessageIntercepted += message => this.HandleConsoleMessage(this.MonitorForGame, message);

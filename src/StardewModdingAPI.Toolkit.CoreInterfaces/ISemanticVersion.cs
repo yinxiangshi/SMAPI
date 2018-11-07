@@ -18,7 +18,11 @@ namespace StardewModdingAPI
         int PatchVersion { get; }
 
         /// <summary>An optional build tag.</summary>
+        [Obsolete("Use " + nameof(ISemanticVersion.PrereleaseTag) + " instead")]
         string Build { get; }
+
+        /// <summary>An optional prerelease tag.</summary>
+        string PrereleaseTag { get; }
 
 
         /*********

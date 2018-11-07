@@ -40,7 +40,11 @@ namespace StardewModdingAPI.Toolkit
         public int PatchVersion { get; }
 
         /// <summary>An optional prerelease tag.</summary>
-        public string Build { get; }
+        [Obsolete("Use " + nameof(ISemanticVersion.PrereleaseTag) + " instead")]
+        public string Build => this.PrereleaseTag;
+
+        /// <summary>An optional prerelease tag.</summary>
+        public string PrereleaseTag { get; }
 
         /// <summary>Whether the version was parsed from the legacy object format.</summary>
         public bool IsLegacyFormat { get; }
@@ -60,7 +64,7 @@ namespace StardewModdingAPI.Toolkit
             this.MajorVersion = major;
             this.MinorVersion = minor;
             this.PatchVersion = patch;
-            this.Build = this.GetNormalisedTag(tag);
+            this.PrereleaseTag = this.GetNormalisedTag(tag);
             this.IsLegacyFormat = isLegacyFormat;
 
             this.AssertValid();
@@ -98,7 +102,7 @@ namespace StardewModdingAPI.Toolkit
             this.MajorVersion = int.Parse(match.Groups["major"].Value);
             this.MinorVersion = match.Groups["minor"].Success ? int.Parse(match.Groups["minor"].Value) : 0;
             this.PatchVersion = match.Groups["patch"].Success ? int.Parse(match.Groups["patch"].Value) : 0;
-            this.Build = match.Groups["prerelease"].Success ? this.GetNormalisedTag(match.Groups["prerelease"].Value) : null;
+            this.PrereleaseTag = match.Groups["prerelease"].Success ? this.GetNormalisedTag(match.Groups["prerelease"].Value) : null;
 
             this.AssertValid();
         }
