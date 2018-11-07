@@ -112,7 +112,7 @@ namespace StardewModdingAPI.Framework.Networking
         /// <returns>Returns the mod info, or <c>null</c> if the player doesn't have that mod.</returns>
         public IMultiplayerPeerMod GetMod(string id)
         {
-            if (string.IsNullOrWhiteSpace(id))
+            if (string.IsNullOrWhiteSpace(id) || this.Mods == null || !this.Mods.Any())
                 return null;
 
             id = id.Trim();
