@@ -34,6 +34,7 @@
 * For modders:
   * Added [data API](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Data).
   * Added [multiplayer API](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Multiplayer) and [events](https://stardewvalleywiki.com/Modding:Modder_Guide/Apis/Events#Multiplayer_2) to send/receive messages and get connected player info.
+  * Added [verbose logging](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Logging#Verbose_logging) feature.
   * Added `IContentPack.WriteJsonFile` method.
   * Added IntelliSense documentation for the non-developers version of SMAPI.
   * Added more events to the prototype `helper.Events` for SMAPI 3.0.

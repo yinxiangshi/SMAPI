@@ -57,9 +57,6 @@ namespace StardewModdingAPI.Framework
         /// <summary>Manages deprecation warnings.</summary>
         private readonly DeprecationManager DeprecationManager;
 
-        /// <summary>Whether SMAPI should log more information about the game context.</summary>
-        private readonly bool VerboseLogging;
-
         /// <summary>The maximum number of consecutive attempts SMAPI should make to recover from a draw error.</summary>
         private readonly Countdown DrawCrashTimer = new Countdown(60); // 60 ticks = roughly one second
 
@@ -143,8 +140,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="deprecationManager">Manages deprecation warnings.</param>
         /// <param name="onGameInitialised">A callback to invoke after the game finishes initialising.</param>
         /// <param name="onGameExiting">A callback to invoke when the game exits.</param>
-        /// <param name="verboseLogging">Whether SMAPI should log more information about the game context.</param>
-        internal SGame(IMonitor monitor, IMonitor monitorForGame, Reflector reflection, EventManager eventManager, JsonHelper jsonHelper, ModRegistry modRegistry, DeprecationManager deprecationManager, Action onGameInitialised, Action onGameExiting, bool verboseLogging)
+        internal SGame(IMonitor monitor, IMonitor monitorForGame, Reflector reflection, EventManager eventManager, JsonHelper jsonHelper, ModRegistry modRegistry, DeprecationManager deprecationManager, Action onGameInitialised, Action onGameExiting)
         {
             SGame.ConstructorHack = null;
 
@@ -164,9 +160,8 @@ namespace StardewModdingAPI.Framework
             this.DeprecationManager = deprecationManager;
             this.OnGameInitialised = onGameInitialised;
             this.OnGameExiting = onGameExiting;
-            this.VerboseLogging = verboseLogging;
             Game1.input = new SInputState();
-            Game1.multiplayer = new SMultiplayer(monitor, eventManager, jsonHelper, modRegistry, reflection, this.VerboseLogging, this.OnModMessageReceived);
+            Game1.multiplayer = new SMultiplayer(monitor, eventManager, jsonHelper, modRegistry, reflection, this.OnModMessageReceived);
             Game1.hooks = new SModHooks(this.OnNewDayAfterFade);
 
             // init observables
@@ -468,7 +463,7 @@ namespace StardewModdingAPI.Framework
                 // since the game adds & removes its own handler on the fly.
                 if (this.Watchers.WindowSizeWatcher.IsChanged)
                 {
-                    if (this.VerboseLogging)
+                    if (this.Monitor.IsVerbose)
                         this.Monitor.Log($"Events: window size changed to {this.Watchers.WindowSizeWatcher.CurrentValue}.", LogLevel.Trace);
 
                     Point oldSize = this.Watchers.WindowSizeWatcher.PreviousValue;
@@ -507,7 +502,7 @@ namespace StardewModdingAPI.Framework
                             int now = this.Watchers.MouseWheelScrollWatcher.CurrentValue;
                             this.Watchers.MouseWheelScrollWatcher.Reset();
 
-                            if (this.VerboseLogging)
+                            if (this.Monitor.IsVerbose)
                                 this.Monitor.Log($"Events: mouse wheel scrolled to {now}.", LogLevel.Trace);
                             this.Events.MouseWheelScrolled.Raise(new MouseWheelScrolledEventArgs(cursor, was, now));
                         }
@@ -520,7 +515,7 @@ namespace StardewModdingAPI.Framework
 
                             if (status == InputStatus.Pressed)
                             {
-                                if (this.VerboseLogging)
+                                if (this.Monitor.IsVerbose)
                                     this.Monitor.Log($"Events: button {button} pressed.", LogLevel.Trace);
 
                                 this.Events.ButtonPressed.Raise(new ButtonPressedEventArgs(button, cursor, inputState));
@@ -542,7 +537,7 @@ namespace StardewModdingAPI.Framework
                             }
                             else if (status == InputStatus.Released)
                             {
-                                if (this.VerboseLogging)
+                                if (this.Monitor.IsVerbose)
                                     this.Monitor.Log($"Events: button {button} released.", LogLevel.Trace);
 
                                 this.Events.ButtonReleased.Raise(new ButtonReleasedEventArgs(button, cursor, inputState));
@@ -581,7 +576,7 @@ namespace StardewModdingAPI.Framework
                     IClickableMenu now = this.Watchers.ActiveMenuWatcher.CurrentValue;
                     this.Watchers.ActiveMenuWatcher.Reset(); // reset here so a mod changing the menu will be raised as a new event afterwards
 
-                    if (this.VerboseLogging)
+                    if (this.Monitor.IsVerbose)
                         this.Monitor.Log($"Context: menu changed from {was?.GetType().FullName ?? "none"} to {now?.GetType().FullName ?? "none"}.", LogLevel.Trace);
 
                     // raise menu events
@@ -609,7 +604,7 @@ namespace StardewModdingAPI.Framework
                             GameLocation[] removed = this.Watchers.LocationsWatcher.Removed.ToArray();
                             this.Watchers.LocationsWatcher.ResetLocationList();
 
-                            if (this.VerboseLogging)
+                            if (this.Monitor.IsVerbose)
                             {
                                 string addedText = this.Watchers.LocationsWatcher.Added.Any() ? string.Join(", ", added.Select(p => p.Name)) : "none";
                                 string removedText = this.Watchers.LocationsWatcher.Removed.Any() ? string.Join(", ", removed.Select(p => p.Name)) : "none";
@@ -705,7 +700,7 @@ namespace StardewModdingAPI.Framework
                         int now = this.Watchers.TimeWatcher.CurrentValue;
                         this.Watchers.TimeWatcher.Reset();
 
-                        if (this.VerboseLogging)
+                        if (this.Monitor.IsVerbose)
                             this.Monitor.Log($"Events: time changed from {was} to {now}.", LogLevel.Trace);
 
                         this.Events.TimeChanged.Raise(new TimeChangedEventArgs(was, now));
@@ -722,7 +717,7 @@ namespace StardewModdingAPI.Framework
                         // raise current location changed
                         if (playerTracker.TryGetNewLocation(out GameLocation newLocation))
                         {
-                            if (this.VerboseLogging)
+                            if (this.Monitor.IsVerbose)
                                 this.Monitor.Log($"Context: set location to {newLocation.Name}.", LogLevel.Trace);
 
                             GameLocation oldLocation = playerTracker.LocationWatcher.PreviousValue;
@@ -733,7 +728,7 @@ namespace StardewModdingAPI.Framework
                         // raise player leveled up a skill
                         foreach (KeyValuePair<SkillType, IValueWatcher<int>> pair in playerTracker.GetChangedSkills())
                         {
-                            if (this.VerboseLogging)
+                            if (this.Monitor.IsVerbose)
                                 this.Monitor.Log($"Events: player skill '{pair.Key}' changed from {pair.Value.PreviousValue} to {pair.Value.CurrentValue}.", LogLevel.Trace);
 
                             this.Events.LevelChanged.Raise(new LevelChangedEventArgs(playerTracker.Player, pair.Key, pair.Value.PreviousValue, pair.Value.CurrentValue));
@@ -744,7 +739,7 @@ namespace StardewModdingAPI.Framework
                         ItemStackChange[] changedItems = playerTracker.GetInventoryChanges().ToArray();
                         if (changedItems.Any())
                         {
-                            if (this.VerboseLogging)
+                            if (this.Monitor.IsVerbose)
                                 this.Monitor.Log("Events: player inventory changed.", LogLevel.Trace);
                             this.Events.InventoryChanged.Raise(new InventoryChangedEventArgs(playerTracker.Player, changedItems));
                             this.Events.Legacy_InventoryChanged.Raise(new EventArgsInventoryChanged(Game1.player.Items, changedItems));
@@ -753,7 +748,7 @@ namespace StardewModdingAPI.Framework
                         // raise mine level changed
                         if (playerTracker.TryGetNewMineLevel(out int mineLevel))
                         {
-                            if (this.VerboseLogging)
+                            if (this.Monitor.IsVerbose)
                                 this.Monitor.Log($"Context: mine level changed to {mineLevel}.", LogLevel.Trace);
                             this.Events.Legacy_MineLevelChanged.Raise(new EventArgsMineLevelChanged(playerTracker.MineLevelWatcher.PreviousValue, mineLevel));
                         }

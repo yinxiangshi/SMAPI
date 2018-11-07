@@ -126,7 +126,7 @@ namespace StardewModdingAPI.Framework
             // init basics
             this.Settings = JsonConvert.DeserializeObject<SConfig>(File.ReadAllText(Constants.ApiConfigPath));
             this.LogFile = new LogFileManager(logPath);
-            this.Monitor = new Monitor("SMAPI", this.ConsoleManager, this.LogFile, this.CancellationTokenSource, this.Settings.ColorScheme)
+            this.Monitor = new Monitor("SMAPI", this.ConsoleManager, this.LogFile, this.CancellationTokenSource, this.Settings.ColorScheme, this.Settings.VerboseLogging)
             {
                 WriteToConsole = writeToConsole,
                 ShowTraceInConsole = this.Settings.DeveloperMode,
@@ -213,7 +213,7 @@ namespace StardewModdingAPI.Framework
 
                 // override game
                 SGame.ConstructorHack = new SGameConstructorHack(this.Monitor, this.Reflection, this.Toolkit.JsonHelper);
-                this.GameInstance = new SGame(this.Monitor, this.MonitorForGame, this.Reflection, this.EventManager, this.Toolkit.JsonHelper, this.ModRegistry, this.DeprecationManager, this.InitialiseAfterGameStart, this.Dispose, this.Settings.VerboseLogging);
+                this.GameInstance = new SGame(this.Monitor, this.MonitorForGame, this.Reflection, this.EventManager, this.Toolkit.JsonHelper, this.ModRegistry, this.DeprecationManager, this.InitialiseAfterGameStart, this.Dispose);
                 StardewValley.Program.gamePtr = this.GameInstance;
 
                 // add exit handler
@@ -355,7 +355,7 @@ namespace StardewModdingAPI.Framework
                 this.Monitor.Log($"You configured SMAPI to not check for updates. Running an old version of SMAPI is not recommended. You can enable update checks by reinstalling SMAPI or editing {Constants.ApiConfigPath}.", LogLevel.Warn);
             if (!this.Monitor.WriteToConsole)
                 this.Monitor.Log("Writing to the terminal is disabled because the --no-terminal argument was received. This usually means launching the terminal failed.", LogLevel.Warn);
-            this.VerboseLog("Verbose logging enabled.");
+            this.Monitor.VerboseLog("Verbose logging enabled.");
 
             // validate XNB integrity
             if (!this.ValidateContentIntegrity())
@@ -1298,20 +1298,12 @@ namespace StardewModdingAPI.Framework
         /// <param name="name">The name of the module which will log messages with this instance.</param>
         private Monitor GetSecondaryMonitor(string name)
         {
-            return new Monitor(name, this.ConsoleManager, this.LogFile, this.CancellationTokenSource, this.Settings.ColorScheme)
+            return new Monitor(name, this.ConsoleManager, this.LogFile, this.CancellationTokenSource, this.Settings.ColorScheme, this.Settings.VerboseLogging)
             {
                 WriteToConsole = this.Monitor.WriteToConsole,
                 ShowTraceInConsole = this.Settings.DeveloperMode,
                 ShowFullStampInConsole = this.Settings.DeveloperMode
             };
-        }
-
-        /// <summary>Log a message if verbose mode is enabled.</summary>
-        /// <param name="message">The message to log.</param>
-        private void VerboseLog(string message)
-        {
-            if (this.Settings.VerboseLogging)
-                this.Monitor.Log(message, LogLevel.Trace);
         }
 
         /// <summary>Get the absolute path to the next available log file.</summary>
