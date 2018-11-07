@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace StardewModdingAPI.Framework
 {
@@ -17,6 +18,9 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Tracks the installed mods.</summary>
         private readonly ModRegistry ModRegistry;
+
+        /// <summary>The queued deprecation warnings to display.</summary>
+        private readonly IList<DeprecationWarning> QueuedWarnings = new List<DeprecationWarning>();
 
 
         /*********
@@ -51,29 +55,40 @@ namespace StardewModdingAPI.Framework
             if (!this.MarkWarned(source ?? "<unknown>", nounPhrase, version))
                 return;
 
-            // build message
-            string message = $"{source ?? "An unknown mod"} uses deprecated code ({nounPhrase} is deprecated since SMAPI {version}).";
-            if (source == null)
-                message += $"{Environment.NewLine}{Environment.StackTrace}";
+            // queue warning
+            this.QueuedWarnings.Add(new DeprecationWarning(source, nounPhrase, version, severity));
+        }
 
-            // log message
-            switch (severity)
+        /// <summary>Print any queued messages.</summary>
+        public void PrintQueued()
+        {
+            foreach (DeprecationWarning warning in this.QueuedWarnings.OrderBy(p => p.ModName).ThenBy(p => p.NounPhrase))
             {
-                case DeprecationLevel.Notice:
-                    this.Monitor.Log(message, LogLevel.Trace);
-                    break;
+                // build message
+                string message = $"{warning.ModName ?? "An unknown mod"} uses deprecated code ({warning.NounPhrase} is deprecated since SMAPI {warning.Version}).";
+                if (warning.ModName == null)
+                    message += $"{Environment.NewLine}{Environment.StackTrace}";
 
-                case DeprecationLevel.Info:
-                    this.Monitor.Log(message, LogLevel.Debug);
-                    break;
+                // log message
+                switch (warning.Level)
+                {
+                    case DeprecationLevel.Notice:
+                        this.Monitor.Log(message, LogLevel.Trace);
+                        break;
 
-                case DeprecationLevel.PendingRemoval:
-                    this.Monitor.Log(message, LogLevel.Warn);
-                    break;
+                    case DeprecationLevel.Info:
+                        this.Monitor.Log(message, LogLevel.Debug);
+                        break;
 
-                default:
-                    throw new NotSupportedException($"Unknown deprecation level '{severity}'");
+                    case DeprecationLevel.PendingRemoval:
+                        this.Monitor.Log(message, LogLevel.Warn);
+                        break;
+
+                    default:
+                        throw new NotSupportedException($"Unknown deprecation level '{warning.Level}'.");
+                }
             }
+            this.QueuedWarnings.Clear();
         }
 
         /// <summary>Mark a deprecation warning as already logged.</summary>

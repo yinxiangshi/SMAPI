@@ -54,6 +54,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>Tracks the installed mods.</summary>
         private readonly ModRegistry ModRegistry;
 
+        /// <summary>Manages deprecation warnings.</summary>
+        private readonly DeprecationManager DeprecationManager;
+
         /// <summary>Whether SMAPI should log more information about the game context.</summary>
         private readonly bool VerboseLogging;
 
@@ -137,10 +140,11 @@ namespace StardewModdingAPI.Framework
         /// <param name="eventManager">Manages SMAPI events for mods.</param>
         /// <param name="jsonHelper">Encapsulates SMAPI's JSON file parsing.</param>
         /// <param name="modRegistry">Tracks the installed mods.</param>
+        /// <param name="deprecationManager">Manages deprecation warnings.</param>
         /// <param name="onGameInitialised">A callback to invoke after the game finishes initialising.</param>
         /// <param name="onGameExiting">A callback to invoke when the game exits.</param>
         /// <param name="verboseLogging">Whether SMAPI should log more information about the game context.</param>
-        internal SGame(IMonitor monitor, IMonitor monitorForGame, Reflector reflection, EventManager eventManager, JsonHelper jsonHelper, ModRegistry modRegistry, Action onGameInitialised, Action onGameExiting, bool verboseLogging)
+        internal SGame(IMonitor monitor, IMonitor monitorForGame, Reflector reflection, EventManager eventManager, JsonHelper jsonHelper, ModRegistry modRegistry, DeprecationManager deprecationManager, Action onGameInitialised, Action onGameExiting, bool verboseLogging)
         {
             SGame.ConstructorHack = null;
 
@@ -157,6 +161,7 @@ namespace StardewModdingAPI.Framework
             this.Events = eventManager;
             this.ModRegistry = modRegistry;
             this.Reflection = reflection;
+            this.DeprecationManager = deprecationManager;
             this.OnGameInitialised = onGameInitialised;
             this.OnGameExiting = onGameExiting;
             this.VerboseLogging = verboseLogging;
@@ -237,6 +242,8 @@ namespace StardewModdingAPI.Framework
         {
             try
             {
+                this.DeprecationManager.PrintQueued();
+
                 /*********
                 ** Special cases
                 *********/

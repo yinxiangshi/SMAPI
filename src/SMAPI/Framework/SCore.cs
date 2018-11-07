@@ -213,7 +213,7 @@ namespace StardewModdingAPI.Framework
 
                 // override game
                 SGame.ConstructorHack = new SGameConstructorHack(this.Monitor, this.Reflection, this.Toolkit.JsonHelper);
-                this.GameInstance = new SGame(this.Monitor, this.MonitorForGame, this.Reflection, this.EventManager, this.Toolkit.JsonHelper, this.ModRegistry, this.InitialiseAfterGameStart, this.Dispose, this.Settings.VerboseLogging);
+                this.GameInstance = new SGame(this.Monitor, this.MonitorForGame, this.Reflection, this.EventManager, this.Toolkit.JsonHelper, this.ModRegistry, this.DeprecationManager, this.InitialiseAfterGameStart, this.Dispose, this.Settings.VerboseLogging);
                 StardewValley.Program.gamePtr = this.GameInstance;
 
                 // add exit handler

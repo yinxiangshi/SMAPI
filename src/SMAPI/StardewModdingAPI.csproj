@@ -163,6 +163,7 @@
     <Compile Include="Events\UpdateTickingEventArgs.cs" />
     <Compile Include="Events\WarpedEventArgs.cs" />
     <Compile Include="Events\WindowResizedEventArgs.cs" />
+    <Compile Include="Framework\DeprecationWarning.cs" />
     <Compile Include="Framework\Events\EventManager.cs" />
     <Compile Include="Framework\Events\ManagedEvent.cs" />
     <Compile Include="Framework\Events\ManagedEventBase.cs" />
