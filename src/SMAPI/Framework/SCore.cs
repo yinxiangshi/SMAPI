@@ -895,6 +895,12 @@ namespace StardewModdingAPI.Framework
                 return false;
             }
 
+            // add deprecation warning for old version format
+            {
+                if (mod.Manifest?.Version is Toolkit.SemanticVersion version && version.IsLegacyFormat)
+                    this.DeprecationManager.Warn(mod.DisplayName, "non-string manifest version", "2.8", DeprecationLevel.Notice);
+            }
+
             // validate dependencies
             // Although dependences are validated before mods are loaded, a dependency may have failed to load.
             if (mod.Manifest.Dependencies?.Any() == true)

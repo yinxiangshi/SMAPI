@@ -42,6 +42,9 @@ namespace StardewModdingAPI.Toolkit
         /// <summary>An optional prerelease tag.</summary>
         public string Build { get; }
 
+        /// <summary>Whether the version was parsed from the legacy object format.</summary>
+        public bool IsLegacyFormat { get; }
+
 
         /*********
         ** Public methods
@@ -51,12 +54,14 @@ namespace StardewModdingAPI.Toolkit
         /// <param name="minor">The minor version incremented for backwards-compatible changes.</param>
         /// <param name="patch">The patch version for backwards-compatible fixes.</param>
         /// <param name="tag">An optional prerelease tag.</param>
-        public SemanticVersion(int major, int minor, int patch, string tag = null)
+        /// <param name="isLegacyFormat">Whether the version was parsed from the legacy object format.</param>
+        public SemanticVersion(int major, int minor, int patch, string tag = null, bool isLegacyFormat = false)
         {
             this.MajorVersion = major;
             this.MinorVersion = minor;
             this.PatchVersion = patch;
             this.Build = this.GetNormalisedTag(tag);
+            this.IsLegacyFormat = isLegacyFormat;
 
             this.AssertValid();
         }

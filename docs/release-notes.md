@@ -48,6 +48,7 @@
   * Fixed `Context.IsPlayerFree` being true before the player finishes transitioning to a new location in multiplayer.
   * Suppressed the game's 'added crickets' debug output.
   * Updated dependencies (Harmony 1.0.9.1 → 1.2.0.1, Mono.Cecil 0.10 → 0.10.1).
+  * **Deprecation:** non-string manifest versions are now deprecated and will no longer work in SMAPI 3.0.
   * **Breaking change:** `helper.ModRegistry` now returns `IModInfo` instead of `IManifest` directly. This lets SMAPI return more metadata about mods.
   * **Breaking change:** most SMAPI files have been moved into a `smapi-internal` subfolder. This won't affect compiled mod releases, but you'll need to update the build config NuGet package.
 

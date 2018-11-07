@@ -70,7 +70,7 @@ namespace StardewModdingAPI.Toolkit.Serialisation.Converters
             if (build == "0")
                 build = null; // '0' from incorrect examples in old SMAPI documentation
 
-            return new SemanticVersion(major, minor, patch, build);
+            return new SemanticVersion(major, minor, patch, build, isLegacyFormat: true);
         }
 
         /// <summary>Read a JSON string.</summary>
