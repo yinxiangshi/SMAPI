@@ -71,12 +71,12 @@ else
         if [[ "$(readlink -e $(which x-terminal-emulator))" == *"/terminator" ]]; then
             terminator -e "$LAUNCHER"
         else
-            x-terminal-emulator -e "$LAUNCHER"
+            x-terminal-emulator -e "sh -c 'TERM=xterm $LAUNCHER'"
         fi
     elif $COMMAND xfce4-terminal 2>/dev/null; then
-        xfce4-terminal -e "env TERM=xterm; $LAUNCHER"
+        xfce4-terminal -e "sh -c 'TERM=xterm $LAUNCHER'"
     elif $COMMAND gnome-terminal 2>/dev/null; then
-        gnome-terminal -e "env TERM=xterm; $LAUNCHER"
+        gnome-terminal -e "sh -c 'TERM=xterm $LAUNCHER'"
     elif $COMMAND konsole 2>/dev/null; then
         konsole -p Environment=TERM=xterm -e "$LAUNCHER"
     elif $COMMAND terminal 2>/dev/null; then
