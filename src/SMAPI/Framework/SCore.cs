@@ -136,6 +136,10 @@ namespace StardewModdingAPI.Framework
             this.EventManager = new EventManager(this.Monitor, this.ModRegistry);
             this.DeprecationManager = new DeprecationManager(this.Monitor, this.ModRegistry);
 
+            // redirect direct console output
+            if (this.MonitorForGame.WriteToConsole)
+                this.ConsoleManager.OnMessageIntercepted += message => this.HandleConsoleMessage(this.MonitorForGame, message);
+
             // inject deprecation managers
             SemanticVersion.DeprecationManager = this.DeprecationManager;
 
@@ -344,10 +348,6 @@ namespace StardewModdingAPI.Framework
         /// <summary>Initialise SMAPI and mods after the game starts.</summary>
         private void InitialiseAfterGameStart()
         {
-            // redirect direct console output
-            if (this.MonitorForGame.WriteToConsole)
-                this.ConsoleManager.OnMessageIntercepted += message => this.HandleConsoleMessage(this.MonitorForGame, message);
-
             // add headers
             if (this.Settings.DeveloperMode)
                 this.Monitor.Log($"You configured SMAPI to run in developer mode. The console may be much more verbose. You can disable developer mode by installing the non-developer version of SMAPI, or by editing {Constants.ApiConfigPath}.", LogLevel.Info);
