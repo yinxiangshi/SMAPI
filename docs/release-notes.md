@@ -10,7 +10,7 @@
     * You can now mark a mod folder ignored by starting the name with a dot (like `.disabled mods`).
   * Improved various error messages to be more clear and intuitive.
   * SMAPI now prevents a crash caused by mods adding dialogue the game can't parse.
-  * When you have an older game version, SMAPI now recommends a compatible SMAPI version in its error.
+  * SMAPI now recommends a compatible SMAPI version if you have an older game version.
   * Fixed transparency issues on Linux/Mac for some mod images.
   * Fixed error when a mod manifest is corrupted.
   * Fixed error when a mod adds an unnamed location.
@@ -50,7 +50,7 @@
   * Suppressed the game's 'added crickets' debug output.
   * Updated dependencies (Harmony 1.0.9.1 → 1.2.0.1, Mono.Cecil 0.10 → 0.10.1).
   * **Deprecations:**
-    * Non-string manifest versions are now deprecated and will no longer work in SMAPI 3.0. Affected mods should be updated to use a string version, like `"Version": "1.0.0"`.
+    * Non-string manifest versions are now deprecated and will stop working in SMAPI 3.0. Affected mods should use a string version, like `"Version": "1.0.0"`.
     * `ISemanticVersion.Build` is now deprecated and will be removed in SMAPI 3.0. Affected mods should use `ISemanticVersion.PrereleaseTag` instead.
   * **Breaking changes:**
     * `helper.ModRegistry` now returns `IModInfo` instead of `IManifest` directly. This lets SMAPI return more metadata about mods.

@@ -40,6 +40,9 @@ namespace StardewModdingAPI.Web.ViewModels
         /// <summary>A unique identifier for the mod that can be used in an anchor URL.</summary>
         public string Slug { get; set; }
 
+        /// <summary>The sites where the mod can be downloaded.</summary>
+        public string[] ModPageSites => this.ModPages.Select(p => p.Text).ToArray();
+
 
         /*********
         ** Public methods

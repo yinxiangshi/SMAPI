@@ -6,7 +6,76 @@ smapi.modList = function (mods) {
     // init data
     var data = {
         mods: mods,
-        showAllFields: false,
+        visibleCount: mods.length,
+        showAdvanced: false,
+        filters: {
+            source: {
+                open: {
+                    label: "open",
+                    id: "show-open-source",
+                    value: true
+                },
+                closed: {
+                    label: "closed",
+                    id: "show-closed-source",
+                    value: true
+                }
+            },
+            status: {
+                ok: {
+                    label: "ok",
+                    id: "show-status-ok",
+                    value: true
+                },
+                optional: {
+                    label: "optional",
+                    id: "show-status-optional",
+                    value: true
+                },
+                unofficial: {
+                    label: "unofficial",
+                    id: "show-status-unofficial",
+                    value: true
+                },
+                workaround: {
+                    label: "workaround",
+                    id: "show-status-workaround",
+                    value: true
+                },
+                broken: {
+                    label: "broken",
+                    id: "show-status-broken",
+                    value: true
+                },
+                abandoned: {
+                    label: "abandoned",
+                    id: "show-status-abandoned",
+                    value: true
+                },
+                obsolete: {
+                    label: "obsolete",
+                    id: "show-status-obsolete",
+                    value: true
+                }
+            },
+            download: {
+                chucklefish: {
+                    label: "Chucklefish",
+                    id: "show-chucklefish",
+                    value: true
+                },
+                nexus: {
+                    label: "Nexus",
+                    id: "show-nexus",
+                    value: true
+                },
+                custom: {
+                    label: "custom",
+                    id: "show-custom",
+                    value: true
+                }
+            }
+        },
         search: ""
     };
     for (var i = 0; i < data.mods.length; i++) {
@@ -54,25 +123,82 @@ smapi.modList = function (mods) {
         },
         methods: {
             /**
-             * Update the visibility of all mods based on the current search text.
+             * Update the visibility of all mods based on the current search text and filters.
              */
-            applySearch: function () {
+            applyFilters: function () {
                 // get search terms
                 var words = data.search.toLowerCase().split(" ");
 
-                // make sure all words match
+                // apply criteria
+                data.visibleCount = data.mods.length;
                 for (var i = 0; i < data.mods.length; i++) {
                     var mod = data.mods[i];
-                    var match = true;
-                    for (var w = 0; w < words.length; w++) {
-                        if (mod.SearchableText.indexOf(words[w]) === -1) {
-                            match = false;
+                    mod.Visible = true;
+
+                    // check filters
+                    if (!this.matchesFilters(mod)) {
+                        mod.Visible = false;
+                        data.visibleCount--;
+                        continue;
+                    }
+
+                    // check search terms (all search words should match)
+                    if (words.length) {
+                        for (var w = 0; w < words.length; w++) {
+                            if (mod.SearchableText.indexOf(words[w]) === -1) {
+                                mod.Visible = false;
+                                data.visibleCount--;
+                                break;
+                            }
+                        }
+                    }
+                }
+            },
+
+
+            /**
+             * Get whether a mod matches the current filters.
+             * @param {object} mod The mod to check.
+             * @returns {bool} Whether the mod matches the filters.
+             */
+            matchesFilters: function(mod) {
+                var filters = data.filters;
+
+                // check source
+                if (!filters.source.open.value && mod.SourceUrl)
+                    return false;
+                if (!filters.source.closed.value && !mod.SourceUrl)
+                    return false;
+
+                // check status
+                var status = (mod.BetaCompatibility || mod.Compatibility).Status;
+                if (filters.status[status] && !filters.status[status].value)
+                    return false;
+
+                // check download sites
+                var ignoreSites = [];
+
+                if (!filters.download.chucklefish.value)
+                    ignoreSites.push("Chucklefish");
+                if (!filters.download.nexus.value)
+                    ignoreSites.push("Nexus");
+                if (!filters.download.custom.value)
+                    ignoreSites.push("custom");
+
+                if (ignoreSites.length) {
+                    var anyLeft = false;
+                    for (var i = 0; i < mod.ModPageSites.length; i++) {
+                        if (ignoreSites.indexOf(mod.ModPageSites[i]) === -1) {
+                            anyLeft = true;
                             break;
                         }
                     }
 
-                    mod.Visible = match;
+                    if (!anyLeft)
+                        return false;
                 }
+
+                return true;
             }
         }
     });

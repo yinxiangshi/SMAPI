@@ -4,11 +4,11 @@
     ViewData["Title"] = "SMAPI mod compatibility";
 }
 @section Head {
-    <link rel="stylesheet" href="~/Content/css/mods.css?r=20181021" />
+    <link rel="stylesheet" href="~/Content/css/mods.css?r=20181109" />
     <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/tablesorter@2.31.0/dist/js/jquery.tablesorter.combined.min.js" crossorigin="anonymous"></script>
-    <script src="~/Content/js/mods.js?r=20181021"></script>
+    <script src="~/Content/js/mods.js?r=20181109"></script>
     <script>
         $(function() {
             var data = @Json.Serialize(Model.Mods, new JsonSerializerSettings { Formatting = Formatting.None });
@@ -29,14 +29,22 @@
 </div>
 
 <div id="app">
-    <div>
-        <label for="search-box">Search: </label>
-        <input type="text" id="search-box" v-model="search" v-on:input="applySearch" />
+    <div id="options">
+        <div>
+            <label for="search-box">Search: </label>
+            <input type="text" id="search-box" v-model="search" v-on:input="applyFilters" />
+        </div>
+        <div id="filter-area">
+            <input type="checkbox" id="show-advanced" v-model="showAdvanced" />
+            <label for="show-advanced">show detailed options</label>
+            <div id="filters" v-show="showAdvanced">
+                <div v-for="(filterGroup, key) in filters">
+                    {{key}}: <span v-for="filter in filterGroup" v-bind:class="{ active: filter.value }"><input type="checkbox" v-bind:id="filter.id" v-model="filter.value" v-on:change="applyFilters" /> <label v-bind:for="filter.id">{{filter.label}}</label></span>
+                </div>
+            </div>
+        </div>
     </div>
-    <div id="show-fields-option">
-        <input type="checkbox" id="show-all-fields" v-model="showAllFields" />
-        <label for="show-all-fields">show advanced fields</label>
-    </div>
+    <div id="mod-count" v-show="showAdvanced">{{visibleCount}} mods shown.</div>
     <table class="wikitable" id="mod-list">
         <thead>
             <tr>
@@ -44,8 +52,8 @@
                 <th>links</th>
                 <th>author</th>
                 <th>compatibility</th>
-                <th v-show="showAllFields">broke in</th>
-                <th v-show="showAllFields">code</th>
+                <th v-show="showAdvanced">broke in</th>
+                <th v-show="showAdvanced">code</th>
                 <th>&nbsp;</th>
             </tr>
         </thead>
@@ -72,8 +80,8 @@
                     </div>
                     <div v-for="(warning, i) in mod.Warnings">⚠ {{warning}}</div>
                 </td>
-                <td class="mod-broke-in" v-html="mod.BetaCompatibility ? mod.BetaCompatibility.BrokeIn : mod.Compatibility.BrokeIn" v-show="showAllFields"></td>
-                <td v-show="showAllFields">
+                <td class="mod-broke-in" v-html="mod.BetaCompatibility ? mod.BetaCompatibility.BrokeIn : mod.Compatibility.BrokeIn" v-show="showAdvanced"></td>
+                <td v-show="showAdvanced">
                     <span v-if="mod.SourceUrl"><a v-bind:href="mod.SourceUrl">source</a></span>
                     <span v-else class="mod-closed-source">no source</span>
                 </td>
