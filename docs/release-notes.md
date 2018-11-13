@@ -29,6 +29,7 @@
   * Added [privacy page](https://smapi.io/privacy).
   * The log parser now has a separate filter for game messages.
   * The log parser now shows content pack authors (thanks to danvolchek!).
+  * Tweaked log parser UI (thanks to danvolchek!).
   * Fixed log parser instructions for Mac.
 
 * For modders:
