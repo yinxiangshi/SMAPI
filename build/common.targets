@@ -38,72 +38,57 @@
   <!-- add game references-->
   <Choose>
     <When Condition="'$(MSBuildProjectName)' == 'StardewModdingAPI' OR '$(MSBuildProjectName)' == 'StardewModdingAPI.Mods.ConsoleCommands' OR '$(MSBuildProjectName)' == 'StardewModdingAPI.Mods.SaveBackup' OR '$(MSBuildProjectName)' == 'StardewModdingAPI.Tests'">
-      <Choose>
-        <When Condition="$(OS) == 'Windows_NT'">
-          <ItemGroup>
-            <!--XNA framework-->
-            <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
-              <Private>False</Private>
-            </Reference>
-            <Reference Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
-              <Private>False</Private>
-            </Reference>
-            <Reference Include="Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
-              <Private>False</Private>
-            </Reference>
-            <Reference Include="Microsoft.Xna.Framework.Xact, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
-              <Private>False</Private>
-            </Reference>
+      <!-- Windows -->
+      <ItemGroup Condition="$(OS) == 'Windows_NT'">
+        <Reference  Include="Stardew Valley">
+          <HintPath>$(GamePath)\Stardew Valley.exe</HintPath>
+          <Private Condition="'$(MSBuildProjectName)' != 'StardewModdingAPI.Tests'">False</Private>
+        </Reference>
+        <Reference Include="Netcode">
+          <HintPath>$(GamePath)\Netcode.dll</HintPath>
+          <Private Condition="'$(MSBuildProjectName)' != 'StardewModdingAPI.Tests'">False</Private>
+        </Reference>
+        <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
+          <Private>False</Private>
+        </Reference>
+        <Reference Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
+          <Private>False</Private>
+        </Reference>
+        <Reference Include="Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
+          <Private>False</Private>
+        </Reference>
+        <Reference Include="Microsoft.Xna.Framework.Xact, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
+          <Private>False</Private>
+        </Reference>
+      </ItemGroup>
 
-            <!-- game DLLs -->
-            <Reference Include="GalaxyCSharp">
-              <HintPath>$(GamePath)\GalaxyCSharp.dll</HintPath>
-              <Private>False</Private>
-            </Reference>
-            <Reference Include="Lidgren.Network">
-              <HintPath>$(GamePath)\Lidgren.Network.dll</HintPath>
-              <Private>False</Private>
-            </Reference>
-            <Reference Include="Netcode">
-              <HintPath>$(GamePath)\Netcode.dll</HintPath>
-              <Private Condition="'$(MSBuildProjectName)' != 'StardewModdingAPI.Tests'">False</Private>
-            </Reference>
-            <Reference Include="Stardew Valley">
-              <HintPath>$(GamePath)\Stardew Valley.exe</HintPath>
-              <Private Condition="'$(MSBuildProjectName)' != 'StardewModdingAPI.Tests'">False</Private>
-            </Reference>
-            <Reference Include="xTile, Version=2.0.4.0, Culture=neutral, processorArchitecture=x86">
-              <HintPath>$(GamePath)\xTile.dll</HintPath>
-              <Private>False</Private>
-              <SpecificVersion>False</SpecificVersion>
-            </Reference>
-          </ItemGroup>
-        </When>
-        <Otherwise>
-          <ItemGroup>
-            <!-- MonoGame -->
-            <Reference Include="MonoGame.Framework">
-              <HintPath>$(GamePath)\MonoGame.Framework.dll</HintPath>
-              <Private>False</Private>
-              <SpecificVersion>False</SpecificVersion>
-            </Reference>
+      <!-- Linux/Mac -->
+      <ItemGroup Condition="$(OS) != 'Windows_NT'">
+        <Reference Include="StardewValley">
+          <HintPath>$(GamePath)\StardewValley.exe</HintPath>
+          <Private>False</Private>
+        </Reference>
+        <Reference Include="MonoGame.Framework">
+          <HintPath>$(GamePath)\MonoGame.Framework.dll</HintPath>
+          <Private>False</Private>
+        </Reference>
+      </ItemGroup>
 
-            <!-- game DLLs -->
-            <Reference Include="Lidgren.Network">
-              <HintPath>$(GamePath)\Lidgren.Network.dll</HintPath>
-              <Private>False</Private>
-            </Reference>
-            <Reference Include="StardewValley">
-              <HintPath>$(GamePath)\StardewValley.exe</HintPath>
-              <Private>False</Private>
-            </Reference>
-            <Reference Include="xTile">
-              <HintPath>$(GamePath)\xTile.dll</HintPath>
-              <Private>False</Private>
-            </Reference>
-          </ItemGroup>
-        </Otherwise>
-      </Choose>
+      <!-- common -->
+      <ItemGroup>
+        <Reference Include="GalaxyCSharp">
+          <HintPath>$(GamePath)\GalaxyCSharp.dll</HintPath>
+          <Private>False</Private>
+        </Reference>
+        <Reference Include="Lidgren.Network">
+          <HintPath>$(GamePath)\Lidgren.Network.dll</HintPath>
+          <Private>False</Private>
+        </Reference>
+        <Reference Include="xTile">
+          <HintPath>$(GamePath)\xTile.dll</HintPath>
+          <Private>False</Private>
+        </Reference>
+      </ItemGroup>
     </When>
   </Choose>
 
