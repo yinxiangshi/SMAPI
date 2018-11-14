@@ -138,11 +138,11 @@ namespace StardewModdingAPI.Framework
                         return new SLidgrenServer(gameServer, this.Reflection, this.readFarmer, this.OnServerProcessingMessage);
                     }
 
-                case GalaxyNetServer _:
-                    {
-                        IGameServer gameServer = this.Reflection.GetField<IGameServer>(server, "gameServer").GetValue();
-                        return new SGalaxyNetServer(gameServer, this.Reflection, this.OnServerProcessingMessage);
-                    }
+                //case GalaxyNetServer _:
+                //    {
+                //        IGameServer gameServer = this.Reflection.GetField<IGameServer>(server, "gameServer").GetValue();
+                //        return new SGalaxyNetServer(gameServer, this.Reflection, this.OnServerProcessingMessage);
+                //    }
 
                 default:
                     return server;

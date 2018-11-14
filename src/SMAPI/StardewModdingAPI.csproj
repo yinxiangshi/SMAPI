@@ -182,7 +182,6 @@
     <Compile Include="Framework\Networking\RemoteContextModel.cs" />
     <Compile Include="Framework\Networking\RemoteContextModModel.cs" />
     <Compile Include="Framework\Networking\SGalaxyNetClient.cs" />
-    <Compile Include="Framework\Networking\SGalaxyNetServer.cs" />
     <Compile Include="Framework\Networking\SLidgrenClient.cs" />
     <Compile Include="Framework\Networking\SLidgrenServer.cs" />
     <Compile Include="Framework\SCore.cs" />
@@ -325,6 +324,7 @@
     <Compile Include="Metadata\InstructionMetadata.cs" />
     <Compile Include="Mod.cs" />
     <Compile Include="Patches\DialogueErrorPatch.cs" />
+    <Compile Include="Patches\GalaxyNetServerPatch.cs" />
     <Compile Include="Patches\LidgrenServerPatch.cs" />
     <Compile Include="PatchMode.cs" />
     <Compile Include="GamePlatform.cs" />

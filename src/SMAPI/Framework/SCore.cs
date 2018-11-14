@@ -170,7 +170,8 @@ namespace StardewModdingAPI.Framework
             // apply game patches
             new GamePatcher(this.Monitor).Apply(
                 new DialogueErrorPatch(this.MonitorForGame, this.Reflection),
-                new LidgrenServerPatch()
+                new LidgrenServerPatch(),
+                new GalaxyNetServerPatch(() => this.GameInstance.Multiplayer)
             );
         }
 
