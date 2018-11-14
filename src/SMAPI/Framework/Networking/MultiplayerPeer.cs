@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Lidgren.Network;
 using StardewValley.Network;
 
 namespace StardewModdingAPI.Framework.Networking
@@ -12,14 +11,8 @@ namespace StardewModdingAPI.Framework.Networking
         /*********
         ** Properties
         *********/
-        /// <summary>The server through which to send messages, if this is an incoming farmhand.</summary>
-        private readonly SLidgrenServer Server;
-
-        /// <summary>The client through which to send messages, if this is the host player.</summary>
-        private readonly SLidgrenClient Client;
-
-        /// <summary>The network connection to the player.</summary>
-        private readonly NetConnection ServerConnection;
+        /// <summary>A method which sends a message to the peer.</summary>
+        private readonly Action<OutgoingMessage> SendMessageImpl;
 
 
         /*********
@@ -53,11 +46,9 @@ namespace StardewModdingAPI.Framework.Networking
         /// <summary>Construct an instance.</summary>
         /// <param name="playerID">The player's unique ID.</param>
         /// <param name="model">The metadata to copy.</param>
-        /// <param name="server">The server through which to send messages.</param>
-        /// <param name="serverConnection">The server connection through which to send messages.</param>
-        /// <param name="client">The client through which to send messages.</param>
+        /// <param name="sendMessage">A method which sends a message to the peer.</param>
         /// <param name="isHost">Whether this is a connection to the host player.</param>
-        public MultiplayerPeer(long playerID, RemoteContextModel model, SLidgrenServer server, NetConnection serverConnection, SLidgrenClient client, bool isHost)
+        public MultiplayerPeer(long playerID, RemoteContextModel model, Action<OutgoingMessage> sendMessage, bool isHost)
         {
             this.PlayerID = playerID;
             this.IsHost = isHost;
@@ -68,43 +59,7 @@ namespace StardewModdingAPI.Framework.Networking
                 this.ApiVersion = model.ApiVersion;
                 this.Mods = model.Mods.Select(mod => new MultiplayerPeerMod(mod)).ToArray();
             }
-            this.Server = server;
-            this.ServerConnection = serverConnection;
-            this.Client = client;
-        }
-
-        /// <summary>Construct an instance for a connection to an incoming farmhand.</summary>
-        /// <param name="playerID">The player's unique ID.</param>
-        /// <param name="model">The metadata to copy, if available.</param>
-        /// <param name="server">The server through which to send messages.</param>
-        /// <param name="serverConnection">The server connection through which to send messages.</param>
-        public static MultiplayerPeer ForConnectionToFarmhand(long playerID, RemoteContextModel model, SLidgrenServer server, NetConnection serverConnection)
-        {
-            return new MultiplayerPeer(
-                playerID: playerID,
-                model: model,
-                server: server,
-                serverConnection: serverConnection,
-                client: null,
-                isHost: false
-            );
-        }
-
-        /// <summary>Construct an instance for a connection to the host player.</summary>
-        /// <param name="playerID">The player's unique ID.</param>
-        /// <param name="model">The metadata to copy.</param>
-        /// <param name="client">The client through which to send messages.</param>
-        /// <param name="isHost">Whether this connection is for the host player.</param>
-        public static MultiplayerPeer ForConnectionToHost(long playerID, RemoteContextModel model, SLidgrenClient client, bool isHost)
-        {
-            return new MultiplayerPeer(
-                playerID: playerID,
-                model: model,
-                server: null,
-                serverConnection: null,
-                client: client,
-                isHost: isHost
-            );
+            this.SendMessageImpl = sendMessage;
         }
 
         /// <summary>Get metadata for a mod installed by the player.</summary>
@@ -123,10 +78,7 @@ namespace StardewModdingAPI.Framework.Networking
         /// <param name="message">The message to send.</param>
         public void SendMessage(OutgoingMessage message)
         {
-            if (this.IsHost)
-                this.Client.sendMessage(message);
-            else
-                this.Server.SendMessage(this.ServerConnection, message);
+            this.SendMessageImpl(message);
         }
     }
 }

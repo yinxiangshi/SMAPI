@@ -20,23 +20,14 @@ namespace StardewModdingAPI.Framework.Networking
         /// <summary>The constructor for the internal <c>NetBufferReadStream</c> type.</summary>
         private readonly ConstructorInfo NetBufferReadStreamConstructor = SLidgrenServer.GetNetBufferReadStreamConstructor();
 
-        /// <summary>The constructor for the internal <c>NetBufferWriteStream</c> type.</summary>
-        private readonly ConstructorInfo NetBufferWriteStreamConstructor = SLidgrenServer.GetNetBufferWriteStreamConstructor();
-
         /// <summary>A method which reads farmer data from the given binary reader.</summary>
         private readonly Func<BinaryReader, NetFarmerRoot> ReadFarmer;
 
-        /// <summary>A callback to raise when receiving a message. This receives the server instance, raw/parsed incoming message, and a callback to run the default logic.</summary>
-        private readonly Action<SLidgrenServer, NetIncomingMessage, IncomingMessage, Action> OnProcessingMessage;
-
-        /// <summary>A callback to raise when sending a message. This receives the server instance, outgoing connection, outgoing message, target player ID, and a callback to run the default logic.</summary>
-        private readonly Action<SLidgrenServer, NetConnection, OutgoingMessage, Action> OnSendingMessage;
+        /// <summary>A callback to raise when receiving a message. This receives the incoming message, a method to send a message, and a callback to run the default logic.</summary>
+        private readonly Action<IncomingMessage, Action<OutgoingMessage>, Action> OnProcessingMessage;
 
         /// <summary>The peer connections.</summary>
         private readonly Bimap<long, NetConnection> Peers;
-
-        /// <summary>The underlying net server.</summary>
-        private readonly IReflectedField<NetServer> Server;
 
 
         /*********
@@ -46,34 +37,13 @@ namespace StardewModdingAPI.Framework.Networking
         /// <param name="gameServer">The underlying game server.</param>
         /// <param name="reflection">Simplifies access to private code.</param>
         /// <param name="readFarmer">A method which reads farmer data from the given binary reader.</param>
-        /// <param name="onProcessingMessage">A callback to raise when receiving a message. This receives the server instance, raw/parsed incoming message, and a callback to run the default logic.</param>
-        /// <param name="onSendingMessage">A callback to raise when sending a message. This receives the server instance, outgoing connection, outgoing message, and a callback to run the default logic.</param>
-        public SLidgrenServer(IGameServer gameServer, Reflector reflection, Func<BinaryReader, NetFarmerRoot> readFarmer, Action<SLidgrenServer, NetIncomingMessage, IncomingMessage, Action> onProcessingMessage, Action<SLidgrenServer, NetConnection, OutgoingMessage, Action> onSendingMessage)
+        /// <param name="onProcessingMessage">A callback to raise when receiving a message. This receives the incoming message, a method to send a message, and a callback to run the default logic.</param>
+        public SLidgrenServer(IGameServer gameServer, Reflector reflection, Func<BinaryReader, NetFarmerRoot> readFarmer, Action<IncomingMessage, Action<OutgoingMessage>, Action> onProcessingMessage)
             : base(gameServer)
         {
             this.ReadFarmer = readFarmer;
             this.OnProcessingMessage = onProcessingMessage;
-            this.OnSendingMessage = onSendingMessage;
             this.Peers = reflection.GetField<Bimap<long, NetConnection>>(this, "peers").GetValue();
-            this.Server = reflection.GetField<NetServer>(this, "server");
-        }
-
-        /// <summary>Send a message to a remote server.</summary>
-        /// <param name="connection">The network connection.</param>
-        /// <param name="message">The message to send.</param>
-        /// <remarks>This is an implementation of <see cref="LidgrenServer.sendMessage(NetConnection, OutgoingMessage)"/> which calls <see cref="OnSendingMessage"/>. This method is invoked via <see cref="LidgrenServerPatch.Prefix_LidgrenServer_SendMessage"/>.</remarks>
-        public void SendMessage(NetConnection connection, OutgoingMessage message)
-        {
-            this.OnSendingMessage(this, connection, message, () =>
-            {
-                NetServer server = this.Server.GetValue();
-                NetOutgoingMessage netMessage = server.CreateMessage();
-                using (Stream bufferWriteStream = (Stream)this.NetBufferWriteStreamConstructor.Invoke(new object[] { netMessage }))
-                using (BinaryWriter writer = new BinaryWriter(bufferWriteStream))
-                    message.Write(writer);
-
-                server.SendMessage(netMessage, connection, NetDeliveryMethod.ReliableOrdered);
-            });
         }
 
         /// <summary>Parse a data message from a client.</summary>
@@ -91,14 +61,14 @@ namespace StardewModdingAPI.Framework.Networking
                 while (rawMessage.LengthBits - rawMessage.Position >= 8)
                 {
                     message.Read(reader);
-                    this.OnProcessingMessage(this, rawMessage, message, () =>
+                    this.OnProcessingMessage(message, outgoing => this.sendMessage(rawMessage.SenderConnection, outgoing), () =>
                     {
                         if (this.Peers.ContainsLeft(message.FarmerID) && this.Peers[message.FarmerID] == peer)
                             this.gameServer.processIncomingMessage(message);
                         else if (message.MessageType == Multiplayer.playerIntroduction)
                         {
                             NetFarmerRoot farmer = this.ReadFarmer(message.Reader);
-                            this.gameServer.checkFarmhandRequest("", farmer, msg => this.SendMessage(peer, msg), () => this.Peers[farmer.Value.UniqueMultiplayerID] = peer);
+                            this.gameServer.checkFarmhandRequest("", farmer, msg => this.sendMessage(peer, msg), () => this.Peers[farmer.Value.UniqueMultiplayerID] = peer);
                         }
                     });
                 }
@@ -116,23 +86,6 @@ namespace StardewModdingAPI.Framework.Networking
         {
             // get type
             string typeName = $"StardewValley.Network.NetBufferReadStream, {Constants.GameAssemblyName}";
-            Type type = Type.GetType(typeName);
-            if (type == null)
-                throw new InvalidOperationException($"Can't find type: {typeName}");
-
-            // get constructor
-            ConstructorInfo constructor = type.GetConstructor(new[] { typeof(NetBuffer) });
-            if (constructor == null)
-                throw new InvalidOperationException($"Can't find constructor for type: {typeName}");
-
-            return constructor;
-        }
-
-        /// <summary>Get the constructor for the internal <c>NetBufferWriteStream</c> type.</summary>
-        private static ConstructorInfo GetNetBufferWriteStreamConstructor()
-        {
-            // get type
-            string typeName = $"StardewValley.Network.NetBufferWriteStream, {Constants.GameAssemblyName}";
             Type type = Type.GetType(typeName);
             if (type == null)
                 throw new InvalidOperationException($"Can't find type: {typeName}");
