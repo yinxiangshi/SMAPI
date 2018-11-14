@@ -105,13 +105,17 @@ namespace StardewModdingAPI.Framework
         /// <param name="client">The client to initialise.</param>
         public override Client InitClient(Client client)
         {
-            if (client is LidgrenClient)
+            switch (client)
             {
-                string address = this.Reflection.GetField<string>(client, "address").GetValue();
-                return new SLidgrenClient(address, this.OnClientProcessingMessage, this.OnClientSendingMessage);
-            }
+                case LidgrenClient _:
+                    {
+                        string address = this.Reflection.GetField<string>(client, "address").GetValue();
+                        return new SLidgrenClient(address, this.OnClientProcessingMessage, this.OnClientSendingMessage);
+                    }
 
-            return client;
+                default:
+                    return client;
+            }
         }
 
         /// <summary>Initialise a server before the game connects to an incoming player.</summary>
@@ -133,10 +137,10 @@ namespace StardewModdingAPI.Framework
         }
 
         /// <summary>A callback raised when sending a message as a farmhand.</summary>
-        /// <param name="client">The client sending the message.</param>
         /// <param name="message">The message being sent.</param>
-        /// <param name="resume">Send the underlying message.</param>
-        protected void OnClientSendingMessage(SLidgrenClient client, OutgoingMessage message, Action resume)
+        /// <param name="sendMessage">Send an arbitrary message through the client.</param>
+        /// <param name="resume">Resume sending the underlying message.</param>
+        protected void OnClientSendingMessage(OutgoingMessage message, Action<OutgoingMessage> sendMessage, Action resume)
         {
             if (this.Monitor.IsVerbose)
                 this.Monitor.Log($"CLIENT SEND {(MessageType)message.MessageType} {message.FarmerID}", LogLevel.Trace);
@@ -145,7 +149,7 @@ namespace StardewModdingAPI.Framework
             {
                 // sync mod context (step 1)
                 case (byte)MessageType.PlayerIntroduction:
-                    client.sendMessage((byte)MessageType.ModContext, this.GetContextSyncMessageFields());
+                    sendMessage(new OutgoingMessage((byte)MessageType.ModContext, Game1.player.UniqueMultiplayerID, this.GetContextSyncMessageFields()));
                     resume();
                     break;
 
@@ -235,11 +239,11 @@ namespace StardewModdingAPI.Framework
         }
 
         /// <summary>Process an incoming network message as a farmhand.</summary>
-        /// <param name="client">The client instance that received the connection.</param>
         /// <param name="message">The message to process.</param>
-        /// <param name="resume">Process the message using the game's default logic.</param>
+        /// <param name="sendMessage">Send an arbitrary message through the client.</param>
+        /// <param name="resume">Resume processing the message using the game's default logic.</param>
         /// <returns>Returns whether the message was handled.</returns>
-        public void OnClientProcessingMessage(SLidgrenClient client, IncomingMessage message, Action resume)
+        public void OnClientProcessingMessage(IncomingMessage message, Action<OutgoingMessage> sendMessage, Action resume)
         {
             if (this.Monitor.IsVerbose)
                 this.Monitor.Log($"CLIENT RECV {(MessageType)message.MessageType} {message.FarmerID}", LogLevel.Trace);
@@ -254,7 +258,7 @@ namespace StardewModdingAPI.Framework
                         this.Monitor.Log($"Received context for {(model?.IsHost == true ? "host" : "farmhand")} {message.FarmerID} running {(model != null ? $"SMAPI {model.ApiVersion} with {model.Mods.Length} mods" : "vanilla")}.", LogLevel.Trace);
 
                         // store peer
-                        MultiplayerPeer peer = new MultiplayerPeer(message.FarmerID, model, client.sendMessage, isHost: model?.IsHost ?? this.HostPeer == null);
+                        MultiplayerPeer peer = new MultiplayerPeer(message.FarmerID, model, sendMessage, isHost: model?.IsHost ?? this.HostPeer == null);
                         if (peer.IsHost && this.HostPeer != null)
                         {
                             this.Monitor.Log($"Rejected mod context from host player {peer.PlayerID}: already received host data from {(peer.PlayerID == this.HostPeer.PlayerID ? "that player" : $"player {peer.PlayerID}")}.", LogLevel.Error);
@@ -271,7 +275,7 @@ namespace StardewModdingAPI.Framework
                         if (!this.Peers.ContainsKey(message.FarmerID) && this.HostPeer == null)
                         {
                             this.Monitor.Log($"Received connection for vanilla host {message.FarmerID}.", LogLevel.Trace);
-                            this.AddPeer(new MultiplayerPeer(message.FarmerID, null, client.sendMessage, isHost: true), canBeHost: false);
+                            this.AddPeer(new MultiplayerPeer(message.FarmerID, null, sendMessage, isHost: true), canBeHost: false);
                         }
                         resume();
                         break;
@@ -283,7 +287,7 @@ namespace StardewModdingAPI.Framework
                         // store peer
                         if (!this.Peers.TryGetValue(message.FarmerID, out MultiplayerPeer peer))
                         {
-                            peer = new MultiplayerPeer(message.FarmerID, null, client.sendMessage, isHost: this.HostPeer == null);
+                            peer = new MultiplayerPeer(message.FarmerID, null, sendMessage, isHost: this.HostPeer == null);
                             this.Monitor.Log($"Received connection for vanilla {(peer.IsHost ? "host" : "farmhand")} {message.FarmerID}.", LogLevel.Trace);
                             this.AddPeer(peer, canBeHost: true);
                         }
