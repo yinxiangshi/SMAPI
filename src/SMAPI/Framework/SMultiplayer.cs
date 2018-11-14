@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Galaxy.Api;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using StardewModdingAPI.Events;
@@ -11,6 +12,7 @@ using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Toolkit.Serialisation;
 using StardewValley;
 using StardewValley.Network;
+using StardewValley.SDKs;
 
 namespace StardewModdingAPI.Framework
 {
@@ -113,6 +115,12 @@ namespace StardewModdingAPI.Framework
                         return new SLidgrenClient(address, this.OnClientProcessingMessage, this.OnClientSendingMessage);
                     }
 
+                case GalaxyNetClient _:
+                    {
+                        GalaxyID address = this.Reflection.GetField<GalaxyID>(client, "lobbyId").GetValue();
+                        return new SGalaxyNetClient(address, this.OnClientProcessingMessage, this.OnClientSendingMessage);
+                    }
+
                 default:
                     return client;
             }
@@ -130,6 +138,11 @@ namespace StardewModdingAPI.Framework
                         return new SLidgrenServer(gameServer, this.Reflection, this.readFarmer, this.OnServerProcessingMessage);
                     }
 
+                case GalaxyNetServer _:
+                    {
+                        IGameServer gameServer = this.Reflection.GetField<IGameServer>(server, "gameServer").GetValue();
+                        return new SGalaxyNetServer(gameServer, this.Reflection, this.OnServerProcessingMessage);
+                    }
 
                 default:
                     return server;

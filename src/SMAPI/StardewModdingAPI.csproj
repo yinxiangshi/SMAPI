@@ -55,7 +55,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="LargeAddressAware" Version="1.0.3" />
-    <PackageReference Include="Lib.Harmony" Version="1.2.0.1 "/>
+    <PackageReference Include="Lib.Harmony" Version="1.2.0.1" />
     <PackageReference Include="Mono.Cecil" Version="0.10.1" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
   </ItemGroup>
@@ -174,13 +174,15 @@
     <Compile Include="Framework\Events\ModPlayerEvents.cs" />
     <Compile Include="Framework\Events\ModSpecialisedEvents.cs" />
     <Compile Include="Framework\Events\ModWorldEvents.cs" />
-    <Compile Include="Framework\Networking\MessageType.cs" />
     <Compile Include="Framework\ModHelpers\DataHelper.cs" />
+    <Compile Include="Framework\Networking\MessageType.cs" />
     <Compile Include="Framework\Networking\ModMessageModel.cs" />
     <Compile Include="Framework\Networking\MultiplayerPeer.cs" />
     <Compile Include="Framework\Networking\MultiplayerPeerMod.cs" />
     <Compile Include="Framework\Networking\RemoteContextModel.cs" />
     <Compile Include="Framework\Networking\RemoteContextModModel.cs" />
+    <Compile Include="Framework\Networking\SGalaxyNetClient.cs" />
+    <Compile Include="Framework\Networking\SGalaxyNetServer.cs" />
     <Compile Include="Framework\Networking\SLidgrenClient.cs" />
     <Compile Include="Framework\Networking\SLidgrenServer.cs" />
     <Compile Include="Framework\SCore.cs" />
