@@ -48,9 +48,6 @@ namespace StardewModdingAPI.Framework
         /// <summary>Manages SMAPI events.</summary>
         private readonly EventManager EventManager;
 
-        /// <summary>The players who are currently disconnecting.</summary>
-        private readonly IList<long> DisconnectingFarmers;
-
         /// <summary>A callback to invoke when a mod message is received.</summary>
         private readonly Action<ModMessageModel> OnModMessageReceived;
 
@@ -83,8 +80,6 @@ namespace StardewModdingAPI.Framework
             this.ModRegistry = modRegistry;
             this.Reflection = reflection;
             this.OnModMessageReceived = onModMessageReceived;
-
-            this.DisconnectingFarmers = reflection.GetField<List<long>>(this, "disconnectingFarmers").GetValue();
         }
 
         /// <summary>Handle sync messages from other players and perform other initial sync logic.</summary>
@@ -135,14 +130,14 @@ namespace StardewModdingAPI.Framework
                 case LidgrenServer _:
                     {
                         IGameServer gameServer = this.Reflection.GetField<IGameServer>(server, "gameServer").GetValue();
-                        return new SLidgrenServer(gameServer, this.Reflection, this.readFarmer, this.OnServerProcessingMessage);
+                        return new SLidgrenServer(gameServer, this, this.OnServerProcessingMessage);
                     }
 
-                //case GalaxyNetServer _:
-                //    {
-                //        IGameServer gameServer = this.Reflection.GetField<IGameServer>(server, "gameServer").GetValue();
-                //        return new SGalaxyNetServer(gameServer, this.Reflection, this.OnServerProcessingMessage);
-                //    }
+                case GalaxyNetServer _:
+                    {
+                        IGameServer gameServer = this.Reflection.GetField<IGameServer>(server, "gameServer").GetValue();
+                        return new SGalaxyNetServer(gameServer, this, this.OnServerProcessingMessage);
+                    }
 
                 default:
                     return server;
@@ -323,7 +318,7 @@ namespace StardewModdingAPI.Framework
         /// <summary>Remove players who are disconnecting.</summary>
         protected override void removeDisconnectedFarmers()
         {
-            foreach (long playerID in this.DisconnectingFarmers)
+            foreach (long playerID in this.disconnectingFarmers)
             {
                 if (this.Peers.TryGetValue(playerID, out MultiplayerPeer peer))
                 {
