@@ -8,15 +8,15 @@
   * Added support for organising mods:
     * You can now group mods into subfolders to organise them.
     * You can now mark a mod folder ignored by starting the name with a dot (like `.disabled mods`).
-  * Improved various error messages to be more clear and intuitive.
   * SMAPI now prevents a crash caused by mods adding dialogue the game can't parse.
   * SMAPI now recommends a compatible SMAPI version if you have an older game version.
+  * Improved various error messages to be more clear and intuitive.
+  * Improved compatibility with various Linux shells (thanks to lqdev!), and prefer xterm terminal when available.
   * Fixed transparency issues on Linux/Mac for some mod images.
   * Fixed error when a mod manifest is corrupted.
   * Fixed error when a mod adds an unnamed location.
   * Fixed friendly error no longer shown when SMAPI isn't run from the game folder.
   * Fixed some Windows install paths not detected.
-  * Fixed Linux compatibility issues for some players. SMAPI will now always use xterm if it's available.
   * Fixed installer duplicating bundled mods if you moved them after the last install.
   * Fixed translation issues not shown as warnings.
   * Fixed dependencies not correctly enforced if the dependency is installed but failed to load.
