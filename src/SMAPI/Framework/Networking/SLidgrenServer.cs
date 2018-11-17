@@ -47,7 +47,8 @@ namespace StardewModdingAPI.Framework.Networking
                 while (rawMessage.LengthBits - rawMessage.Position >= 8)
                 {
                     message.Read(reader);
-                    this.OnProcessingMessage(message, outgoing => this.sendMessage(rawMessage.SenderConnection, outgoing), () =>
+                    NetConnection connection = rawMessage.SenderConnection; // don't pass rawMessage into context because it gets reused
+                    this.OnProcessingMessage(message, outgoing => this.sendMessage(connection, outgoing), () =>
                     {
                         if (this.peers.ContainsLeft(message.FarmerID) && this.peers[message.FarmerID] == peer)
                             this.gameServer.processIncomingMessage(message);
