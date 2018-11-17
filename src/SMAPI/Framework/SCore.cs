@@ -713,15 +713,8 @@ namespace StardewModdingAPI.Framework
                         mod.SetStatus(ModMetadataStatus.Failed, errorPhrase);
                 }
 
-                // load content packs first (so they're available to mods)
-                foreach (IModMetadata contentPack in mods.Where(p => p.IsContentPack))
-                {
-                    if (!this.TryLoadMod(contentPack, mods, modAssemblyLoader, proxyFactory, jsonHelper, contentCore, modDatabase, suppressUpdateChecks, out string errorPhrase, out string errorDetails))
-                        LogSkip(contentPack, errorPhrase, errorDetails);
-                }
-
-                // load SMAPI mods
-                foreach (IModMetadata contentPack in mods.Where(p => !p.IsContentPack))
+                // load mods
+                foreach (IModMetadata contentPack in mods)
                 {
                     if (!this.TryLoadMod(contentPack, mods, modAssemblyLoader, proxyFactory, jsonHelper, contentCore, modDatabase, suppressUpdateChecks, out string errorPhrase, out string errorDetails))
                         LogSkip(contentPack, errorPhrase, errorDetails);
@@ -729,6 +722,9 @@ namespace StardewModdingAPI.Framework
             }
             IModMetadata[] loadedContentPacks = this.ModRegistry.GetAll(assemblyMods: false).ToArray();
             IModMetadata[] loadedMods = this.ModRegistry.GetAll(contentPacks: false).ToArray();
+
+            // unlock content packs
+            this.ModRegistry.AreAllModsLoaded = true;
 
             // log loaded mods
             this.Monitor.Log($"Loaded {loadedMods.Length} mods" + (loadedMods.Length > 0 ? ":" : "."), LogLevel.Info);
@@ -972,11 +968,17 @@ namespace StardewModdingAPI.Framework
                         return false;
 
                     // get content packs
-                    IContentPack[] contentPacks = this.ModRegistry
-                        .GetAll(assemblyMods: false)
-                        .Where(p => p.IsContentPack && mod.HasID(p.Manifest.ContentPackFor.UniqueID))
-                        .Select(p => p.ContentPack)
-                        .ToArray();
+                    IContentPack[] GetContentPacks()
+                    {
+                        if (!this.ModRegistry.AreAllModsLoaded)
+                            throw new InvalidOperationException("Can't access content packs before SMAPI finishes loading mods.");
+
+                        return this.ModRegistry
+                            .GetAll(assemblyMods: false)
+                            .Where(p => p.IsContentPack && mod.HasID(p.Manifest.ContentPackFor.UniqueID))
+                            .Select(p => p.ContentPack)
+                            .ToArray();
+                    }
 
                     // init mod helpers
                     IMonitor monitor = this.GetSecondaryMonitor(mod.DisplayName);
@@ -998,7 +1000,7 @@ namespace StardewModdingAPI.Framework
                             return new ContentPack(packDirPath, packManifest, packContentHelper, this.Toolkit.JsonHelper);
                         }
 
-                        modHelper = new ModHelper(manifest.UniqueID, mod.DirectoryPath, this.Toolkit.JsonHelper, this.GameInstance.Input, events, contentHelper, commandHelper, dataHelper, modRegistryHelper, reflectionHelper, multiplayerHelper, translationHelper, contentPacks, CreateTransitionalContentPack, this.DeprecationManager);
+                        modHelper = new ModHelper(manifest.UniqueID, mod.DirectoryPath, this.Toolkit.JsonHelper, this.GameInstance.Input, events, contentHelper, commandHelper, dataHelper, modRegistryHelper, reflectionHelper, multiplayerHelper, translationHelper, GetContentPacks, CreateTransitionalContentPack, this.DeprecationManager);
                     }
 
                     // init mod

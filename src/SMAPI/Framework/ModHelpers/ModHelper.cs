@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.Input;
 using StardewModdingAPI.Toolkit.Serialisation;
@@ -17,7 +16,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         ** Properties
         *********/
         /// <summary>The content packs loaded for this mod.</summary>
-        private readonly IContentPack[] ContentPacks;
+        private readonly Lazy<IContentPack[]> ContentPacks;
 
         /// <summary>Create a transitional content pack.</summary>
         private readonly Func<string, IManifest, IContentPack> CreateContentPack;
@@ -84,7 +83,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="deprecationManager">Manages deprecation warnings.</param>
         /// <exception cref="ArgumentNullException">An argument is null or empty.</exception>
         /// <exception cref="InvalidOperationException">The <paramref name="modDirectory"/> path does not exist on disk.</exception>
-        public ModHelper(string modID, string modDirectory, JsonHelper jsonHelper, SInputState inputState, IModEvents events, IContentHelper contentHelper, ICommandHelper commandHelper, IDataHelper dataHelper, IModRegistry modRegistry, IReflectionHelper reflectionHelper, IMultiplayerHelper multiplayer, ITranslationHelper translationHelper, IEnumerable<IContentPack> contentPacks, Func<string, IManifest, IContentPack> createContentPack, DeprecationManager deprecationManager)
+        public ModHelper(string modID, string modDirectory, JsonHelper jsonHelper, SInputState inputState, IModEvents events, IContentHelper contentHelper, ICommandHelper commandHelper, IDataHelper dataHelper, IModRegistry modRegistry, IReflectionHelper reflectionHelper, IMultiplayerHelper multiplayer, ITranslationHelper translationHelper, Func<IContentPack[]> contentPacks, Func<string, IManifest, IContentPack> createContentPack, DeprecationManager deprecationManager)
             : base(modID)
         {
             // validate directory
@@ -104,7 +103,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
             this.Reflection = reflectionHelper ?? throw new ArgumentNullException(nameof(reflectionHelper));
             this.Multiplayer = multiplayer ?? throw new ArgumentNullException(nameof(multiplayer));
             this.Translation = translationHelper ?? throw new ArgumentNullException(nameof(translationHelper));
-            this.ContentPacks = contentPacks.ToArray();
+            this.ContentPacks = new Lazy<IContentPack[]>(contentPacks);
             this.CreateContentPack = createContentPack;
             this.DeprecationManager = deprecationManager;
             this.Events = events;
@@ -204,7 +203,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <summary>Get all content packs loaded for this mod.</summary>
         public IEnumerable<IContentPack> GetContentPacks()
         {
-            return this.ContentPacks;
+            return this.ContentPacks.Value;
         }
 
         /****
