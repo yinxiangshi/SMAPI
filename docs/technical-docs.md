@@ -16,7 +16,7 @@ mods, this section isn't relevant to you; see the main README to use or create m
 * [SMAPI web services](#smapi-web-services)
   * [Overview](#overview)
     * [Log parser](#log-parser)
-    * [Mods API](#mods-api)
+    * [Web API](#web-api)
   * [Development](#development-2)
     * [Local development](#local-development)
     * [Deploying to Amazon Beanstalk](#deploying-to-amazon-beanstalk)
