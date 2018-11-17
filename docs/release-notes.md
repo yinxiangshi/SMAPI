@@ -45,10 +45,11 @@
     * mods can now load PNGs even if the game is currently drawing.
   * When comparing mod versions, SMAPI now considers `-unofficial` to be lower-precedence than any other value (e.g. `1.0-beta` is now considered newer than `1.0-unofficial` regardless of normal sorting).
   * Fixed content packs' `ReadJsonFile` allowing non-relative paths.
-  * Fixed content pack always failing to load if they declare a dependency on a SMAPI mod.
+  * Fixed content packs always failing to load if they declare a dependency on a SMAPI mod.
   * Fixed trace logs not showing path for invalid mods.
   * Fixed 'no update keys' warning not shown for mods with only invalid update keys.
   * Fixed `Context.IsPlayerFree` being true before the player finishes transitioning to a new location in multiplayer.
+  * Fixed update-check errors sometimes being overwritten with a generic error message.
   * Suppressed the game's 'added crickets' debug output.
   * Updated dependencies (Harmony 1.0.9.1 → 1.2.0.1, Mono.Cecil 0.10 → 0.10.1).
   * **Deprecations:**

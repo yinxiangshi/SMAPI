@@ -252,7 +252,7 @@ namespace StardewModdingAPI.Web.Controllers
             return await this.Cache.GetOrCreateAsync($"{repository.VendorKey}:{parsed.ID}".ToLower(), async entry =>
             {
                 ModInfoModel result = await repository.GetModInfoAsync(parsed.ID);
-                if (result.Error != null)
+                if (result.Error == null)
                 {
                     if (result.Version == null)
                         result.Error = $"The update key '{updateKey}' matches a mod with no version number.";
