@@ -303,7 +303,10 @@ namespace StardewModdingAPI.Framework
                     try
                     {
                         if (!this.CommandManager.TryParse(rawInput, out name, out args, out command))
+                        {
                             this.Monitor.Log("Unknown command; type 'help' for a list of available commands.", LogLevel.Error);
+                            continue;
+                        }
                     }
                     catch (Exception ex)
                     {
