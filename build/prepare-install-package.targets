@@ -38,7 +38,6 @@
     <Copy SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.xml" DestinationFolder="$(PackagePath)\bundle" />
     <Copy SourceFiles="$(CompiledSmapiPath)\steam_appid.txt" DestinationFolder="$(PackagePath)\bundle" />
     <Copy SourceFiles="$(CompiledSmapiPath)\0Harmony.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
-    <Copy SourceFiles="$(CompiledSmapiPath)\0Harmony.pdb" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
     <Copy SourceFiles="$(CompiledSmapiPath)\Mono.Cecil.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
     <Copy SourceFiles="$(CompiledSmapiPath)\Newtonsoft.Json.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
     <Copy SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.config.json" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
