@@ -18,6 +18,7 @@
   * Fixed friendly error no longer shown when SMAPI isn't run from the game folder.
   * Fixed some Windows install paths not detected.
   * Fixed installer duplicating bundled mods if you moved them after the last install.
+  * Fixed installer allowing custom mods to be bundled with the install.
   * Fixed translation issues not shown as warnings.
   * Fixed dependencies not correctly enforced if the dependency is installed but failed to load.
   * Fixed some errors logged as SMAPI instead of the affected mod.

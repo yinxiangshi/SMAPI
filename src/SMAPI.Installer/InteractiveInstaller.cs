@@ -28,6 +28,13 @@ namespace StardewModdingApi.Installer
         /// <summary>The <see cref="Environment.OSVersion"/> value that represents Windows 7.</summary>
         private readonly Version Windows7Version = new Version(6, 1);
 
+        /// <summary>The mod IDs which the installer should allow as bundled mods.</summary>
+        private readonly string[] BundledModIDs = new[]
+        {
+            "SMAPI.SaveBackup",
+            "SMAPI.ConsoleCommands"
+        };
+
         /// <summary>The default file paths where Stardew Valley can be installed.</summary>
         /// <param name="platform">The target platform.</param>
         /// <remarks>Derived from the crossplatform mod config: https://github.com/Pathoschild/Stardew.ModBuildConfig. </remarks>
@@ -486,6 +493,11 @@ namespace StardewModdingApi.Installer
                                 this.PrintWarning($"   ignored invalid bundled mod {sourceMod.DisplayName}: {sourceMod.ManifestParseError}");
                                 continue;
                             }
+                            if (!this.BundledModIDs.Contains(sourceMod.Manifest.UniqueID))
+                            {
+                                this.PrintWarning($"   ignored unknown '{sourceMod.DisplayName}' mod in the installer folder. To add mods, put them here instead: {paths.ModsPath}");
+                                continue;
+                            }
 
                             // find target folder
                             ModFolder targetMod = targetMods.FirstOrDefault(p => p.Manifest?.UniqueID?.Equals(sourceMod.Manifest.UniqueID, StringComparison.InvariantCultureIgnoreCase) == true);
@@ -496,14 +508,12 @@ namespace StardewModdingApi.Installer
                                 : $"   adding {sourceMod.Manifest.Name} to {Path.Combine(paths.ModsDir.Name, PathUtilities.GetRelativePath(paths.ModsPath, targetFolder.FullName))}..."
                             );
 
-                            // (re)create target folder
+                            // remove existing folder
                             if (targetFolder.Exists)
                                 this.InteractivelyDelete(targetFolder.FullName);
-                            targetFolder.Create();
 
                             // copy files
-                            foreach (FileInfo sourceFile in sourceMod.Directory.EnumerateFiles().Where(this.ShouldCopy))
-                                sourceFile.CopyTo(Path.Combine(targetFolder.FullName, sourceFile.Name));
+                            this.RecursiveCopy(sourceMod.Directory, paths.ModsDir, filter: this.ShouldCopy);
                         }
                     }
 
@@ -686,8 +696,12 @@ namespace StardewModdingApi.Installer
         /// <summary>Recursively copy a directory or file.</summary>
         /// <param name="source">The file or folder to copy.</param>
         /// <param name="targetFolder">The folder to copy into.</param>
-        private void RecursiveCopy(FileSystemInfo source, DirectoryInfo targetFolder)
+        /// <param name="filter">A filter which matches directories and files to copy, or <c>null</c> to match all.</param>
+        private void RecursiveCopy(FileSystemInfo source, DirectoryInfo targetFolder, Func<FileSystemInfo, bool> filter = null)
         {
+            if (filter != null && !filter(source))
+                return;
+
             if (!targetFolder.Exists)
                 targetFolder.Create();
 
@@ -700,7 +714,7 @@ namespace StardewModdingApi.Installer
                 case DirectoryInfo sourceDir:
                     DirectoryInfo targetSubfolder = new DirectoryInfo(Path.Combine(targetFolder.FullName, sourceDir.Name));
                     foreach (var entry in sourceDir.EnumerateFileSystemInfos())
-                        this.RecursiveCopy(entry, targetSubfolder);
+                        this.RecursiveCopy(entry, targetSubfolder, filter);
                     break;
 
                 default:
