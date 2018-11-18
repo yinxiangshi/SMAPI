@@ -5,6 +5,7 @@
   * Reorganised SMAPI files:
     * Most SMAPI files are now tucked into a `smapi-internal` subfolder.
     * Save backups are now in a `save-backups` subfolder, so they're easier to access. Note that previous backups will be deleted when you update.
+    * Simplified the installer files to avoid confusion.
   * Added support for organising mods:
     * You can now group mods into subfolders to organise them.
     * You can now mark a mod folder ignored by starting the name with a dot (like `.disabled mods`).

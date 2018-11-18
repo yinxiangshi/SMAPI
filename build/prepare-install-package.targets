@@ -11,8 +11,8 @@
       <CompiledSmapiPath>$(CompiledRootPath)\SMAPI</CompiledSmapiPath>
       <CompiledToolkitPath>$(CompiledRootPath)\SMAPI.Toolkit\net4.5</CompiledToolkitPath>
       <PackagePath>$(SolutionDir)\..\bin\Packaged</PackagePath>
-      <PackageInternalPath Condition="$(OS) == 'Windows_NT'">$(PackagePath)\internal\Windows</PackageInternalPath>
-      <PackageInternalPath Condition="$(OS) != 'Windows_NT'">$(PackagePath)\internal\Mono</PackageInternalPath>
+      <PackageBundleFilename>bundle.windows.zipped</PackageBundleFilename>
+      <PackageBundleFilename Condition="$(OS) != 'Windows_NT'">bundle.mono.zipped</PackageBundleFilename>
     </PropertyGroup>
     <ItemGroup>
       <CompiledMods Include="$(SolutionDir)\..\bin\$(Configuration)\Mods\**\*.*" />
@@ -22,38 +22,63 @@
     <RemoveDir Directories="$(PackagePath)" />
     
     <!-- copy installer files -->
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).exe" DestinationFiles="$(PackageInternalPath)\install.exe" />
-    <Copy SourceFiles="$(TargetDir)\unix-launcher.sh" DestinationFiles="$(PackageInternalPath)\StardewModdingAPI" />
-    <Copy SourceFiles="$(TargetDir)\README.txt" DestinationFiles="$(PackagePath)\README.txt" />
     <Copy SourceFiles="$(TargetDir)\unix-install.sh" DestinationFiles="$(PackagePath)\install on Linux.sh" />
     <Copy SourceFiles="$(TargetDir)\unix-install.sh" DestinationFiles="$(PackagePath)\install on Mac.command" />
     <Copy SourceFiles="$(TargetDir)\windows-install.bat" DestinationFiles="$(PackagePath)\install on Windows.bat" />
+    <Copy SourceFiles="$(TargetDir)\README.txt" DestinationFiles="$(PackagePath)\README.txt" />
+    <Copy SourceFiles="$(TargetDir)\$(TargetName).exe" DestinationFiles="$(PackagePath)\internal\install.exe" />
+    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(TargetDir)\windows-exe-config.xml" DestinationFiles="$(PackagePath)\internal\install.exe.config" />
 
-    <!--copy *.exe.config files (needed to avoid security errors when loading DLLs)-->
-    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(TargetDir)\windows-exe-config.xml" DestinationFiles="$(PackageInternalPath)\install.exe.config" />
-    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(TargetDir)\windows-exe-config.xml" DestinationFiles="$(PackageInternalPath)\StardewModdingAPI.exe.config" />
+    <!--copy bundle files-->
+    <Copy SourceFiles="$(TargetDir)\unix-launcher.sh" DestinationFiles="$(PackagePath)\bundle\StardewModdingAPI" />
+    <Copy SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.exe" DestinationFolder="$(PackagePath)\bundle" />
+    <Copy SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.pdb" DestinationFolder="$(PackagePath)\bundle" />
+    <Copy SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.xml" DestinationFolder="$(PackagePath)\bundle" />
+    <Copy SourceFiles="$(CompiledSmapiPath)\steam_appid.txt" DestinationFolder="$(PackagePath)\bundle" />
+    <Copy SourceFiles="$(CompiledSmapiPath)\0Harmony.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
+    <Copy SourceFiles="$(CompiledSmapiPath)\0Harmony.pdb" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
+    <Copy SourceFiles="$(CompiledSmapiPath)\Mono.Cecil.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
+    <Copy SourceFiles="$(CompiledSmapiPath)\Newtonsoft.Json.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
+    <Copy SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.config.json" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
+    <Copy SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.metadata.json" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
+    <Copy SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
+    <Copy SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.pdb" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
+    <Copy SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.xml" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
+    <Copy SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.CoreInterfaces.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
+    <Copy SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.CoreInterfaces.pdb" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
+    <Copy SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.CoreInterfaces.xml" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
+    <Copy SourceFiles="@(CompiledMods)" DestinationFolder="$(PackagePath)\bundle\Mods\%(RecursiveDir)" />
+    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(TargetDir)\windows-exe-config.xml" DestinationFiles="$(PackagePath)\bundle\StardewModdingAPI.exe.config" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\System.Numerics.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\System.Runtime.Caching.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
 
-    <!-- copy SMAPI files -->
-    <Copy SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.exe" DestinationFolder="$(PackageInternalPath)" />
-    <Copy SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.pdb" DestinationFolder="$(PackageInternalPath)" />
-    <Copy SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.xml" DestinationFolder="$(PackageInternalPath)" />
-    <Copy SourceFiles="$(CompiledSmapiPath)\steam_appid.txt" DestinationFolder="$(PackageInternalPath)" />
-    <Copy SourceFiles="$(CompiledSmapiPath)\0Harmony.dll" DestinationFolder="$(PackageInternalPath)\smapi-internal" />
-    <Copy SourceFiles="$(CompiledSmapiPath)\0Harmony.pdb" DestinationFolder="$(PackageInternalPath)\smapi-internal" />
-    <Copy SourceFiles="$(CompiledSmapiPath)\Mono.Cecil.dll" DestinationFolder="$(PackageInternalPath)\smapi-internal" />
-    <Copy SourceFiles="$(CompiledSmapiPath)\Newtonsoft.Json.dll" DestinationFolder="$(PackageInternalPath)\smapi-internal" />
-    <Copy SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.config.json" DestinationFolder="$(PackageInternalPath)\smapi-internal" />
-    <Copy SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.metadata.json" DestinationFolder="$(PackageInternalPath)\smapi-internal" />
-    <Copy SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.dll" DestinationFolder="$(PackageInternalPath)\smapi-internal" />
-    <Copy SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.pdb" DestinationFolder="$(PackageInternalPath)\smapi-internal" />
-    <Copy SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.xml" DestinationFolder="$(PackageInternalPath)\smapi-internal" />
-    <Copy SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.CoreInterfaces.dll" DestinationFolder="$(PackageInternalPath)\smapi-internal" />
-    <Copy SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.CoreInterfaces.pdb" DestinationFolder="$(PackageInternalPath)\smapi-internal" />
-    <Copy SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.CoreInterfaces.xml" DestinationFolder="$(PackageInternalPath)\smapi-internal" />
-    <Copy SourceFiles="@(CompiledMods)" DestinationFolder="$(PackageInternalPath)\Mods\%(RecursiveDir)" />
-
-    <!--copy SMAPI files for Linux/Mac only -->
-    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\System.Numerics.dll" DestinationFolder="$(PackageInternalPath)\smapi-internal" />
-    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\System.Runtime.Caching.dll" DestinationFolder="$(PackageInternalPath)\smapi-internal" />
+    <!-- zip bundle files -->
+    <ZipDirectory FromDirPath="$(PackagePath)\bundle" ToFilePath="$(PackagePath)\internal\$(PackageBundleFilename)" />
+    <RemoveDir Directories="$(PackagePath)\bundle" />
   </Target>
+
+  <UsingTask TaskName="ZipDirectory" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v12.0.dll">
+    <ParameterGroup>
+      <FromDirPath ParameterType="System.String" Required="true" />
+      <ToFilePath ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Reference Include="System.IO.Compression.FileSystem" />
+      <Using Namespace="System.IO.Compression" />
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+        try
+        {
+          ZipFile.CreateFromDirectory(FromDirPath, ToFilePath);
+          return true;
+        }
+        catch(Exception ex)
+        {
+          Log.LogErrorFromException(ex);
+          return false;
+        }
+        ]]>
+      </Code>
+    </Task>
+  </UsingTask>
 </Project>
