@@ -44,7 +44,7 @@ executed. This doesn't work in MonoDevelop on Linux, unfortunately.
 
 ### Preparing a release
 To prepare a crossplatform SMAPI release, you'll need to compile it on two platforms. See
-[crossplatforming info](https://stardewvalleywiki.com/Modding:Creating_a_SMAPI_mod#Test_on_all_platforms)
+[crossplatforming info](https://stardewvalleywiki.com/Modding:Modder_Guide/Test_and_Troubleshoot#Testing_on_all_platforms)
 on the wiki for the first-time setup.
 
 1. Update the version number in `GlobalAssemblyInfo.cs` and `Constants::Version`. Make sure you use a
@@ -57,47 +57,16 @@ on the wiki for the first-time setup.
    release    | `<version>`              | `3.0`
 
 2. In Windows:
-   1. Rebuild the solution in _Release_ mode.
-   2. Rename `bin/Packaged` to `SMAPI <version>` (e.g. `SMAPI 3.0`).
-   2. Transfer the `SMAPI <version>` folder to Linux or Mac.  
-      _This adds the installer executable and Windows files. We'll do the rest in Linux or Mac,
-      since we need to set Unix file permissions that Windows won't save._
+   1. Rebuild the solution in Release mode.
+   2. Copy `bundle.windows.zipped` from `bin/SMAPI installer` and `bin/SMAPI installer for developers`
+      to Linux/Mac.
 
-2. In Linux or Mac:
-   1. Rebuild the solution in _Release_ mode.
-   2. Copy `bin/internal/Packaged/Mono` into the `SMAPI <version>` folder.
-   3. If you did everything right so far, you should have a folder like this:
-
-      ```
-      SMAPI 3.0 installer/
-         install on Linux.sh
-         install on Mac.command
-         install on Windows.exe
-         README.txt
-         internal/
-            Mono/
-               Mods/*
-               smapi-internal/*
-               StardewModdingAPI
-               StardewModdingAPI.exe
-               StardewModdingAPI.pdb
-               StardewModdingAPI.xml
-               steam_appid.txt
-            Windows/
-               Mods/*
-               smapi-internal/*
-               StardewModdingAPI.exe
-               StardewModdingAPI.pdb
-               StardewModdingAPI.xml
-               steam_appid.txt
-      ```
-   4. Open a terminal in the `SMAPI <version>` folder and run `chmod 755 internal/Mono/StardewModdingAPI`.
-   5. Copy & paste the `SMAPI <version>` folder as `SMAPI <version> for developers`.
-   6. In the `SMAPI <version>` folder...
-      * edit `internal/Mono/StardewModdingAPI.config.json` and
-        `internal/Windows/StardewModdingAPI.config.json` to disable developer mode;
-      * delete `internal/Windows/StardewModdingAPI.xml`.
-   7. Compress the two folders into `SMAPI <version>.zip` and `SMAPI <version> for developers.zip`.
+3. In Linux/Mac:
+   1. Rebuild the solution in Release mode.
+   2. Add the `bundle.windows.zipped` files to the `bin/SMAPI installer` and
+      `bin/SMAPI installer for developers` folders.
+   3. Rename the folders to `SMAPI <version> installer` and `SMAPI <version> installer for developers`.
+   4. Zip the two folders.
 
 ## Customisation
 ### Configuration file

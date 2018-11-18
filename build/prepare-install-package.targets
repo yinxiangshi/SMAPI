@@ -10,9 +10,10 @@
       <CompiledRootPath>$(SolutionDir)\..\bin\$(Configuration)</CompiledRootPath>
       <CompiledSmapiPath>$(CompiledRootPath)\SMAPI</CompiledSmapiPath>
       <CompiledToolkitPath>$(CompiledRootPath)\SMAPI.Toolkit\net4.5</CompiledToolkitPath>
-      <PackagePath>$(SolutionDir)\..\bin\Packaged</PackagePath>
-      <PackageBundleFilename>bundle.windows.zipped</PackageBundleFilename>
-      <PackageBundleFilename Condition="$(OS) != 'Windows_NT'">bundle.mono.zipped</PackageBundleFilename>
+      <PackagePath>$(SolutionDir)\..\bin\SMAPI installer</PackagePath>
+      <PackageDevPath>$(SolutionDir)\..\bin\SMAPI installer for developers</PackageDevPath>
+      <PackageBundlePlatform>windows</PackageBundlePlatform>
+      <PackageBundlePlatform Condition="$(OS) != 'Windows_NT'">mono</PackageBundlePlatform>
     </PropertyGroup>
     <ItemGroup>
       <CompiledMods Include="$(SolutionDir)\..\bin\$(Configuration)\Mods\**\*.*" />
@@ -20,6 +21,7 @@
 
     <!-- reset package directory -->
     <RemoveDir Directories="$(PackagePath)" />
+    <RemoveDir Directories="$(PackageDevPath)" />
     
     <!-- copy installer files -->
     <Copy SourceFiles="$(TargetDir)\unix-install.sh" DestinationFiles="$(PackagePath)\install on Linux.sh" />
@@ -27,7 +29,7 @@
     <Copy SourceFiles="$(TargetDir)\windows-install.bat" DestinationFiles="$(PackagePath)\install on Windows.bat" />
     <Copy SourceFiles="$(TargetDir)\README.txt" DestinationFiles="$(PackagePath)\README.txt" />
     <Copy SourceFiles="$(TargetDir)\$(TargetName).exe" DestinationFiles="$(PackagePath)\internal\install.exe" />
-    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(TargetDir)\windows-exe-config.xml" DestinationFiles="$(PackagePath)\internal\install.exe.config" />
+    <Copy SourceFiles="$(TargetDir)\windows-exe-config.xml" DestinationFiles="$(PackagePath)\internal\install.exe.config" />
 
     <!--copy bundle files-->
     <Copy SourceFiles="$(TargetDir)\unix-launcher.sh" DestinationFiles="$(PackagePath)\bundle\StardewModdingAPI" />
@@ -52,11 +54,25 @@
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\System.Numerics.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\System.Runtime.Caching.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
 
-    <!-- zip bundle files -->
-    <ZipDirectory FromDirPath="$(PackagePath)\bundle" ToFilePath="$(PackagePath)\internal\$(PackageBundleFilename)" />
+    <!-- fix Linux/Mac permissions -->
+    <Exec Condition="$(OS) != 'Windows_NT'" Command="chmod 755 &quot;$(PackagePath)\install on Linux.sh&quot;" />
+    <Exec Condition="$(OS) != 'Windows_NT'" Command="chmod 755 &quot;$(PackagePath)\install on Mac.command&quot;" />
+
+    <!-- finalise 'for developers' installer -->
+    <ItemGroup>
+      <PackageFiles Include="$(PackagePath)\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(PackageFiles)" DestinationFolder="$(PackageDevPath)\%(RecursiveDir)" />
+    <ZipDirectory FromDirPath="$(PackageDevPath)\bundle" ToFilePath="$(PackageDevPath)\internal\bundle.$(PackageBundlePlatform).zipped" />
+    <RemoveDir Directories="$(PackageDevPath)\bundle" />
+
+    <!-- finalise normal installer -->
+    <ReplaceFileText FilePath="$(PackagePath)\bundle\smapi-internal\StardewModdingAPI.config.json" Search="&quot;DeveloperMode&quot;: true" Replace="&quot;DeveloperMode&quot;: false" />
+    <ZipDirectory FromDirPath="$(PackagePath)\bundle" ToFilePath="$(PackagePath)\internal\bundle.$(PackageBundlePlatform).zipped" />
     <RemoveDir Directories="$(PackagePath)\bundle" />
   </Target>
 
+  <!-- Create a zip file with the contents of a given folder path. Derived from https://stackoverflow.com/a/38127938/262123. -->
   <UsingTask TaskName="ZipDirectory" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v12.0.dll">
     <ParameterGroup>
       <FromDirPath ParameterType="System.String" Required="true" />
@@ -78,6 +94,29 @@
           return false;
         }
         ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+
+  <!-- Replace text in a file based on a regex pattern. Derived from https://stackoverflow.com/a/22571621/262123. -->
+  <UsingTask TaskName="ReplaceFileText" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+    <ParameterGroup>
+      <FilePath ParameterType="System.String" Required="true" />
+      <Search ParameterType="System.String" Required="true" />
+      <Replace ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Reference Include="System.Core" />
+      <Using Namespace="System" />
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Text.RegularExpressions" />
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+            File.WriteAllText(
+                FilePath,
+                Regex.Replace(File.ReadAllText(FilePath), Search, Replace)
+            );
+          ]]>
       </Code>
     </Task>
   </UsingTask>

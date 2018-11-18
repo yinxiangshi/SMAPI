@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -445,6 +446,8 @@ namespace StardewModdingApi.Installer
                     if (platform.IsMono())
                     {
                         this.PrintDebug("Safely replacing game launcher...");
+
+                        // back up & remove current launcher
                         if (File.Exists(paths.UnixLauncherPath))
                         {
                             if (!File.Exists(paths.UnixBackupLauncherPath))
@@ -453,7 +456,20 @@ namespace StardewModdingApi.Installer
                                 this.InteractivelyDelete(paths.UnixLauncherPath);
                         }
 
+                        // add new launcher
                         File.Move(paths.UnixSmapiLauncherPath, paths.UnixLauncherPath);
+
+                        // mark file executable
+                        // (MSBuild doesn't keep permission flags for files zipped in a build task.)
+                        new Process
+                        {
+                            StartInfo = new ProcessStartInfo
+                            {
+                                FileName = "chmod",
+                                Arguments = $"755 \"{paths.UnixLauncherPath}\"",
+                                CreateNoWindow = true
+                            }
+                        }.Start();
                     }
 
                     // create mods directory (if needed)
