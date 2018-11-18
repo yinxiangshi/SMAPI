@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using Microsoft.Win32;
 using StardewModdingApi.Installer.Enums;
@@ -22,11 +22,18 @@ namespace StardewModdingApi.Installer
         /*********
         ** Properties
         *********/
-        /// <summary>The name of the installer file in the package.</summary>
-        private readonly string InstallerFileName = "install.exe";
+        /// <summary>The absolute path to the directory containing the files to copy into the game folder.</summary>
+        private readonly string BundlePath;
 
         /// <summary>The <see cref="Environment.OSVersion"/> value that represents Windows 7.</summary>
         private readonly Version Windows7Version = new Version(6, 1);
+
+        /// <summary>The mod IDs which the installer should allow as bundled mods.</summary>
+        private readonly string[] BundledModIDs = new[]
+        {
+            "SMAPI.SaveBackup",
+            "SMAPI.ConsoleCommands"
+        };
 
         /// <summary>The default file paths where Stardew Valley can be installed.</summary>
         /// <param name="platform">The target platform.</param>
@@ -146,8 +153,10 @@ namespace StardewModdingApi.Installer
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        public InteractiveInstaller()
+        /// <param name="bundlePath">The absolute path to the directory containing the files to copy into the game folder.</param>
+        public InteractiveInstaller(string bundlePath)
         {
+            this.BundlePath = bundlePath;
             this.ConsoleWriter = new ColorfulConsoleWriter(EnvironmentUtility.DetectPlatform(), MonitorColorScheme.AutoDetect);
         }
 
@@ -322,8 +331,8 @@ namespace StardewModdingApi.Installer
                 }
 
                 // get folders
-                DirectoryInfo packageDir = new DirectoryInfo(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
-                paths = new InstallerPaths(packageDir, installDir, EnvironmentUtility.GetExecutableName(platform));
+                DirectoryInfo bundleDir = new DirectoryInfo(this.BundlePath);
+                paths = new InstallerPaths(bundleDir, installDir, EnvironmentUtility.GetExecutableName(platform));
             }
             Console.Clear();
 
@@ -331,23 +340,11 @@ namespace StardewModdingApi.Installer
             /*********
             ** Step 4: validate assumptions
             *********/
+            if (!File.Exists(paths.ExecutablePath))
             {
-                if (!paths.PackageDir.Exists)
-                {
-                    this.PrintError(platform == Platform.Windows && paths.PackagePath.Contains(Path.GetTempPath()) && paths.PackagePath.Contains(".zip")
-                        ? "The installer is missing some files. It looks like you're running the installer from inside the downloaded zip; make sure you unzip the downloaded file first, then run the installer from the unzipped folder."
-                        : $"The 'internal/{paths.PackageDir.Name}' package folder is missing (should be at {paths.PackagePath})."
-                    );
-                    Console.ReadLine();
-                    return;
-                }
-
-                if (!File.Exists(paths.ExecutablePath))
-                {
-                    this.PrintError("The detected game install path doesn't contain a Stardew Valley executable.");
-                    Console.ReadLine();
-                    return;
-                }
+                this.PrintError("The detected game install path doesn't contain a Stardew Valley executable.");
+                Console.ReadLine();
+                return;
             }
 
 
@@ -439,11 +436,8 @@ namespace StardewModdingApi.Installer
                 {
                     // copy SMAPI files to game dir
                     this.PrintDebug("Adding SMAPI files...");
-                    foreach (FileSystemInfo sourceEntry in paths.PackageDir.EnumerateFileSystemInfos().Where(this.ShouldCopy))
+                    foreach (FileSystemInfo sourceEntry in paths.BundleDir.EnumerateFileSystemInfos().Where(this.ShouldCopy))
                     {
-                        if (sourceEntry.Name.StartsWith(this.InstallerFileName)) // e.g. install.exe or install.exe.config
-                            continue;
-
                         this.InteractivelyDelete(Path.Combine(paths.GameDir.FullName, sourceEntry.Name));
                         this.RecursiveCopy(sourceEntry, paths.GameDir);
                     }
@@ -452,6 +446,8 @@ namespace StardewModdingApi.Installer
                     if (platform.IsMono())
                     {
                         this.PrintDebug("Safely replacing game launcher...");
+
+                        // back up & remove current launcher
                         if (File.Exists(paths.UnixLauncherPath))
                         {
                             if (!File.Exists(paths.UnixBackupLauncherPath))
@@ -460,7 +456,20 @@ namespace StardewModdingApi.Installer
                                 this.InteractivelyDelete(paths.UnixLauncherPath);
                         }
 
+                        // add new launcher
                         File.Move(paths.UnixSmapiLauncherPath, paths.UnixLauncherPath);
+
+                        // mark file executable
+                        // (MSBuild doesn't keep permission flags for files zipped in a build task.)
+                        new Process
+                        {
+                            StartInfo = new ProcessStartInfo
+                            {
+                                FileName = "chmod",
+                                Arguments = $"755 \"{paths.UnixLauncherPath}\"",
+                                CreateNoWindow = true
+                            }
+                        }.Start();
                     }
 
                     // create mods directory (if needed)
@@ -471,19 +480,24 @@ namespace StardewModdingApi.Installer
                     }
 
                     // add or replace bundled mods
-                    DirectoryInfo packagedModsDir = new DirectoryInfo(Path.Combine(paths.PackageDir.FullName, "Mods"));
-                    if (packagedModsDir.Exists && packagedModsDir.EnumerateDirectories().Any())
+                    DirectoryInfo bundledModsDir = new DirectoryInfo(Path.Combine(paths.BundlePath, "Mods"));
+                    if (bundledModsDir.Exists && bundledModsDir.EnumerateDirectories().Any())
                     {
                         this.PrintDebug("Adding bundled mods...");
 
                         ModToolkit toolkit = new ModToolkit();
                         ModFolder[] targetMods = toolkit.GetModFolders(paths.ModsPath).ToArray();
-                        foreach (ModFolder sourceMod in toolkit.GetModFolders(packagedModsDir.FullName))
+                        foreach (ModFolder sourceMod in toolkit.GetModFolders(bundledModsDir.FullName))
                         {
                             // validate source mod
                             if (sourceMod.Manifest == null)
                             {
                                 this.PrintWarning($"   ignored invalid bundled mod {sourceMod.DisplayName}: {sourceMod.ManifestParseError}");
+                                continue;
+                            }
+                            if (!this.BundledModIDs.Contains(sourceMod.Manifest.UniqueID))
+                            {
+                                this.PrintWarning($"   ignored unknown '{sourceMod.DisplayName}' mod in the installer folder. To add mods, put them here instead: {paths.ModsPath}");
                                 continue;
                             }
 
@@ -496,14 +510,12 @@ namespace StardewModdingApi.Installer
                                 : $"   adding {sourceMod.Manifest.Name} to {Path.Combine(paths.ModsDir.Name, PathUtilities.GetRelativePath(paths.ModsPath, targetFolder.FullName))}..."
                             );
 
-                            // (re)create target folder
+                            // remove existing folder
                             if (targetFolder.Exists)
                                 this.InteractivelyDelete(targetFolder.FullName);
-                            targetFolder.Create();
 
                             // copy files
-                            foreach (FileInfo sourceFile in sourceMod.Directory.EnumerateFiles().Where(this.ShouldCopy))
-                                sourceFile.CopyTo(Path.Combine(targetFolder.FullName, sourceFile.Name));
+                            this.RecursiveCopy(sourceMod.Directory, paths.ModsDir, filter: this.ShouldCopy);
                         }
                     }
 
@@ -517,7 +529,7 @@ namespace StardewModdingApi.Installer
                     }
 
                     // remove obsolete appdata mods
-                    this.InteractivelyRemoveAppDataMods(paths.ModsDir, packagedModsDir);
+                    this.InteractivelyRemoveAppDataMods(paths.ModsDir, bundledModsDir);
                 }
             }
             Console.WriteLine();
@@ -686,8 +698,12 @@ namespace StardewModdingApi.Installer
         /// <summary>Recursively copy a directory or file.</summary>
         /// <param name="source">The file or folder to copy.</param>
         /// <param name="targetFolder">The folder to copy into.</param>
-        private void RecursiveCopy(FileSystemInfo source, DirectoryInfo targetFolder)
+        /// <param name="filter">A filter which matches directories and files to copy, or <c>null</c> to match all.</param>
+        private void RecursiveCopy(FileSystemInfo source, DirectoryInfo targetFolder, Func<FileSystemInfo, bool> filter = null)
         {
+            if (filter != null && !filter(source))
+                return;
+
             if (!targetFolder.Exists)
                 targetFolder.Create();
 
@@ -700,7 +716,7 @@ namespace StardewModdingApi.Installer
                 case DirectoryInfo sourceDir:
                     DirectoryInfo targetSubfolder = new DirectoryInfo(Path.Combine(targetFolder.FullName, sourceDir.Name));
                     foreach (var entry in sourceDir.EnumerateFileSystemInfos())
-                        this.RecursiveCopy(entry, targetSubfolder);
+                        this.RecursiveCopy(entry, targetSubfolder, filter);
                     break;
 
                 default:

@@ -5,6 +5,7 @@
   * Reorganised SMAPI files:
     * Most SMAPI files are now tucked into a `smapi-internal` subfolder.
     * Save backups are now in a `save-backups` subfolder, so they're easier to access. Note that previous backups will be deleted when you update.
+    * Simplified the installer files to avoid confusion.
   * Added support for organising mods:
     * You can now group mods into subfolders to organise them.
     * You can now mark a mod folder ignored by starting the name with a dot (like `.disabled mods`).
@@ -18,6 +19,7 @@
   * Fixed friendly error no longer shown when SMAPI isn't run from the game folder.
   * Fixed some Windows install paths not detected.
   * Fixed installer duplicating bundled mods if you moved them after the last install.
+  * Fixed installer allowing custom mods to be bundled with the install.
   * Fixed translation issues not shown as warnings.
   * Fixed dependencies not correctly enforced if the dependency is installed but failed to load.
   * Fixed some errors logged as SMAPI instead of the affected mod.

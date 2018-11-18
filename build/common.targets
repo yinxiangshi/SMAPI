@@ -108,7 +108,6 @@
     <Copy SourceFiles="$(TargetDir)\$(TargetName).config.json" DestinationFolder="$(GamePath)\smapi-internal" />
     <Copy SourceFiles="$(TargetDir)\$(TargetName).metadata.json" DestinationFolder="$(GamePath)\smapi-internal" />
     <Copy SourceFiles="$(TargetDir)\0Harmony.dll" DestinationFolder="$(GamePath)\smapi-internal" />
-    <Copy SourceFiles="$(TargetDir)\0Harmony.pdb" DestinationFolder="$(GamePath)\smapi-internal" />
     <Copy SourceFiles="$(TargetDir)\Newtonsoft.Json.dll" DestinationFolder="$(GamePath)\smapi-internal" />
     <Copy SourceFiles="$(TargetDir)\Mono.Cecil.dll" DestinationFolder="$(GamePath)\smapi-internal" />
   </Target>

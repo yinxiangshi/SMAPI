@@ -8,8 +8,8 @@ namespace StardewModdingAPI.Installer.Framework
         /*********
         ** Accessors
         *********/
-        /// <summary>The directory containing the installer files for the current platform.</summary>
-        public DirectoryInfo PackageDir { get; }
+        /// <summary>The directory path containing the files to copy into the game folder.</summary>
+        public DirectoryInfo BundleDir { get; }
 
         /// <summary>The directory containing the installed game.</summary>
         public DirectoryInfo GameDir { get; }
@@ -17,8 +17,8 @@ namespace StardewModdingAPI.Installer.Framework
         /// <summary>The directory into which to install mods.</summary>
         public DirectoryInfo ModsDir { get; }
 
-        /// <summary>The full path to the directory containing the installer files for the current platform.</summary>
-        public string PackagePath => this.PackageDir.FullName;
+        /// <summary>The full path to directory path containing the files to copy into the game folder.</summary>
+        public string BundlePath => this.BundleDir.FullName;
 
         /// <summary>The full path to the directory containing the installed game.</summary>
         public string GamePath => this.GameDir.FullName;
@@ -46,12 +46,12 @@ namespace StardewModdingAPI.Installer.Framework
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="packageDir">The directory path containing the installer files for the current platform.</param>
+        /// <param name="bundleDir">The directory path containing the files to copy into the game folder.</param>
         /// <param name="gameDir">The directory path for the installed game.</param>
         /// <param name="gameExecutableName">The name of the game's executable file for the current platform.</param>
-        public InstallerPaths(DirectoryInfo packageDir, DirectoryInfo gameDir, string gameExecutableName)
+        public InstallerPaths(DirectoryInfo bundleDir, DirectoryInfo gameDir, string gameExecutableName)
         {
-            this.PackageDir = packageDir;
+            this.BundleDir = bundleDir;
             this.GameDir = gameDir;
             this.ModsDir = new DirectoryInfo(Path.Combine(gameDir.FullName, "Mods"));
 
