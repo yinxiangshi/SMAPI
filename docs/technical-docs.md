@@ -58,12 +58,12 @@ on the wiki for the first-time setup.
 
 2. In Windows:
    1. Rebuild the solution in Release mode.
-   2. Copy `bundle.windows.zipped` from `bin/SMAPI installer` and `bin/SMAPI installer for developers`
-      to Linux/Mac.
+   2. Copy `windows.dat` from `bin/SMAPI installer` and `bin/SMAPI installer for developers` to
+      Linux/Mac.
 
 3. In Linux/Mac:
    1. Rebuild the solution in Release mode.
-   2. Add the `bundle.windows.zipped` files to the `bin/SMAPI installer` and
+   2. Add the `windows.dat` files to the `bin/SMAPI installer` and
       `bin/SMAPI installer for developers` folders.
    3. Rename the folders to `SMAPI <version> installer` and `SMAPI <version> installer for developers`.
    4. Zip the two folders.

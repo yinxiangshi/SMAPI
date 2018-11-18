@@ -62,12 +62,12 @@
       <PackageFiles Include="$(PackagePath)\**\*.*" />
     </ItemGroup>
     <Copy SourceFiles="@(PackageFiles)" DestinationFolder="$(PackageDevPath)\%(RecursiveDir)" />
-    <ZipDirectory FromDirPath="$(PackageDevPath)\bundle" ToFilePath="$(PackageDevPath)\internal\bundle.$(PackageBundlePlatform).zipped" />
+    <ZipDirectory FromDirPath="$(PackageDevPath)\bundle" ToFilePath="$(PackageDevPath)\internal\$(PackageBundlePlatform).dat" />
     <RemoveDir Directories="$(PackageDevPath)\bundle" />
 
     <!-- finalise normal installer -->
     <ReplaceFileText FilePath="$(PackagePath)\bundle\smapi-internal\StardewModdingAPI.config.json" Search="&quot;DeveloperMode&quot;: true" Replace="&quot;DeveloperMode&quot;: false" />
-    <ZipDirectory FromDirPath="$(PackagePath)\bundle" ToFilePath="$(PackagePath)\internal\bundle.$(PackageBundlePlatform).zipped" />
+    <ZipDirectory FromDirPath="$(PackagePath)\bundle" ToFilePath="$(PackagePath)\internal\$(PackageBundlePlatform).dat" />
     <RemoveDir Directories="$(PackagePath)\bundle" />
   </Target>
 
