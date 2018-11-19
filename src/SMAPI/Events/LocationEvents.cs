@@ -19,22 +19,22 @@ namespace StardewModdingAPI.Events
         /// <summary>Raised after a game location is added or removed.</summary>
         public static event EventHandler<EventArgsLocationsChanged> LocationsChanged
         {
-            add => LocationEvents.EventManager.Legacy_Location_LocationsChanged.Add(value);
-            remove => LocationEvents.EventManager.Legacy_Location_LocationsChanged.Remove(value);
+            add => LocationEvents.EventManager.Legacy_LocationsChanged.Add(value);
+            remove => LocationEvents.EventManager.Legacy_LocationsChanged.Remove(value);
         }
 
         /// <summary>Raised after buildings are added or removed in a location.</summary>
         public static event EventHandler<EventArgsLocationBuildingsChanged> BuildingsChanged
         {
-            add => LocationEvents.EventManager.Legacy_Location_BuildingsChanged.Add(value);
-            remove => LocationEvents.EventManager.Legacy_Location_BuildingsChanged.Remove(value);
+            add => LocationEvents.EventManager.Legacy_BuildingsChanged.Add(value);
+            remove => LocationEvents.EventManager.Legacy_BuildingsChanged.Remove(value);
         }
 
         /// <summary>Raised after objects are added or removed in a location.</summary>
         public static event EventHandler<EventArgsLocationObjectsChanged> ObjectsChanged
         {
-            add => LocationEvents.EventManager.Legacy_Location_ObjectsChanged.Add(value);
-            remove => LocationEvents.EventManager.Legacy_Location_ObjectsChanged.Remove(value);
+            add => LocationEvents.EventManager.Legacy_ObjectsChanged.Add(value);
+            remove => LocationEvents.EventManager.Legacy_ObjectsChanged.Remove(value);
         }
 
 

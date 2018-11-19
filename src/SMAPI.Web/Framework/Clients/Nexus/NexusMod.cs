@@ -1,5 +1,4 @@
 using Newtonsoft.Json;
-using StardewModdingAPI.Toolkit;
 
 namespace StardewModdingAPI.Web.Framework.Clients.Nexus
 {

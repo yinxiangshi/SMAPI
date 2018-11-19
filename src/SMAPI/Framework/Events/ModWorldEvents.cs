@@ -10,52 +10,52 @@ namespace StardewModdingAPI.Framework.Events
         ** Accessors
         *********/
         /// <summary>Raised after a game location is added or removed.</summary>
-        public event EventHandler<WorldLocationListChangedEventArgs> LocationListChanged
+        public event EventHandler<LocationListChangedEventArgs> LocationListChanged
         {
-            add => this.EventManager.World_LocationListChanged.Add(value, this.Mod);
-            remove => this.EventManager.World_LocationListChanged.Remove(value);
+            add => this.EventManager.LocationListChanged.Add(value, this.Mod);
+            remove => this.EventManager.LocationListChanged.Remove(value);
         }
 
         /// <summary>Raised after buildings are added or removed in a location.</summary>
-        public event EventHandler<WorldBuildingListChangedEventArgs> BuildingListChanged
+        public event EventHandler<BuildingListChangedEventArgs> BuildingListChanged
         {
-            add => this.EventManager.World_BuildingListChanged.Add(value, this.Mod);
-            remove => this.EventManager.World_BuildingListChanged.Remove(value);
+            add => this.EventManager.BuildingListChanged.Add(value, this.Mod);
+            remove => this.EventManager.BuildingListChanged.Remove(value);
         }
 
         /// <summary>Raised after debris are added or removed in a location.</summary>
-        public event EventHandler<WorldDebrisListChangedEventArgs> DebrisListChanged
+        public event EventHandler<DebrisListChangedEventArgs> DebrisListChanged
         {
-            add => this.EventManager.World_DebrisListChanged.Add(value, this.Mod);
-            remove => this.EventManager.World_DebrisListChanged.Remove(value);
+            add => this.EventManager.DebrisListChanged.Add(value, this.Mod);
+            remove => this.EventManager.DebrisListChanged.Remove(value);
         }
 
         /// <summary>Raised after large terrain features (like bushes) are added or removed in a location.</summary>
-        public event EventHandler<WorldLargeTerrainFeatureListChangedEventArgs> LargeTerrainFeatureListChanged
+        public event EventHandler<LargeTerrainFeatureListChangedEventArgs> LargeTerrainFeatureListChanged
         {
-            add => this.EventManager.World_LargeTerrainFeatureListChanged.Add(value, this.Mod);
-            remove => this.EventManager.World_LargeTerrainFeatureListChanged.Remove(value);
+            add => this.EventManager.LargeTerrainFeatureListChanged.Add(value, this.Mod);
+            remove => this.EventManager.LargeTerrainFeatureListChanged.Remove(value);
         }
 
         /// <summary>Raised after NPCs are added or removed in a location.</summary>
-        public event EventHandler<WorldNpcListChangedEventArgs> NpcListChanged
+        public event EventHandler<NpcListChangedEventArgs> NpcListChanged
         {
-            add => this.EventManager.World_NpcListChanged.Add(value);
-            remove => this.EventManager.World_NpcListChanged.Remove(value);
+            add => this.EventManager.NpcListChanged.Add(value);
+            remove => this.EventManager.NpcListChanged.Remove(value);
         }
 
         /// <summary>Raised after objects are added or removed in a location.</summary>
-        public event EventHandler<WorldObjectListChangedEventArgs> ObjectListChanged
+        public event EventHandler<ObjectListChangedEventArgs> ObjectListChanged
         {
-            add => this.EventManager.World_ObjectListChanged.Add(value);
-            remove => this.EventManager.World_ObjectListChanged.Remove(value);
+            add => this.EventManager.ObjectListChanged.Add(value);
+            remove => this.EventManager.ObjectListChanged.Remove(value);
         }
 
         /// <summary>Raised after terrain features (like floors and trees) are added or removed in a location.</summary>
-        public event EventHandler<WorldTerrainFeatureListChangedEventArgs> TerrainFeatureListChanged
+        public event EventHandler<TerrainFeatureListChangedEventArgs> TerrainFeatureListChanged
         {
-            add => this.EventManager.World_TerrainFeatureListChanged.Add(value);
-            remove => this.EventManager.World_TerrainFeatureListChanged.Remove(value);
+            add => this.EventManager.TerrainFeatureListChanged.Add(value);
+            remove => this.EventManager.TerrainFeatureListChanged.Remove(value);
         }
 
 

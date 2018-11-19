@@ -19,8 +19,8 @@ namespace StardewModdingAPI.Events
         /// <summary>Raised after the game window is resized.</summary>
         public static event EventHandler Resize
         {
-            add => GraphicsEvents.EventManager.Graphics_Resize.Add(value);
-            remove => GraphicsEvents.EventManager.Graphics_Resize.Remove(value);
+            add => GraphicsEvents.EventManager.Legacy_Resize.Add(value);
+            remove => GraphicsEvents.EventManager.Legacy_Resize.Remove(value);
         }
 
         /****
@@ -29,15 +29,15 @@ namespace StardewModdingAPI.Events
         /// <summary>Raised before drawing the world to the screen.</summary>
         public static event EventHandler OnPreRenderEvent
         {
-            add => GraphicsEvents.EventManager.Graphics_OnPreRenderEvent.Add(value);
-            remove => GraphicsEvents.EventManager.Graphics_OnPreRenderEvent.Remove(value);
+            add => GraphicsEvents.EventManager.Legacy_OnPreRenderEvent.Add(value);
+            remove => GraphicsEvents.EventManager.Legacy_OnPreRenderEvent.Remove(value);
         }
 
         /// <summary>Raised after drawing the world to the screen.</summary>
         public static event EventHandler OnPostRenderEvent
         {
-            add => GraphicsEvents.EventManager.Graphics_OnPostRenderEvent.Add(value);
-            remove => GraphicsEvents.EventManager.Graphics_OnPostRenderEvent.Remove(value);
+            add => GraphicsEvents.EventManager.Legacy_OnPostRenderEvent.Add(value);
+            remove => GraphicsEvents.EventManager.Legacy_OnPostRenderEvent.Remove(value);
         }
 
         /****
@@ -46,15 +46,15 @@ namespace StardewModdingAPI.Events
         /// <summary>Raised before drawing the HUD (item toolbar, clock, etc) to the screen. The HUD is available at this point, but not necessarily visible. (For example, the event is raised even if a menu is open.)</summary>
         public static event EventHandler OnPreRenderHudEvent
         {
-            add => GraphicsEvents.EventManager.Graphics_OnPreRenderHudEvent.Add(value);
-            remove => GraphicsEvents.EventManager.Graphics_OnPreRenderHudEvent.Remove(value);
+            add => GraphicsEvents.EventManager.Legacy_OnPreRenderHudEvent.Add(value);
+            remove => GraphicsEvents.EventManager.Legacy_OnPreRenderHudEvent.Remove(value);
         }
 
         /// <summary>Raised after drawing the HUD (item toolbar, clock, etc) to the screen. The HUD is available at this point, but not necessarily visible. (For example, the event is raised even if a menu is open.)</summary>
         public static event EventHandler OnPostRenderHudEvent
         {
-            add => GraphicsEvents.EventManager.Graphics_OnPostRenderHudEvent.Add(value);
-            remove => GraphicsEvents.EventManager.Graphics_OnPostRenderHudEvent.Remove(value);
+            add => GraphicsEvents.EventManager.Legacy_OnPostRenderHudEvent.Add(value);
+            remove => GraphicsEvents.EventManager.Legacy_OnPostRenderHudEvent.Remove(value);
         }
 
         /****
@@ -63,15 +63,15 @@ namespace StardewModdingAPI.Events
         /// <summary>Raised before drawing a menu to the screen during a draw loop. This includes the game's internal menus like the title screen.</summary>
         public static event EventHandler OnPreRenderGuiEvent
         {
-            add => GraphicsEvents.EventManager.Graphics_OnPreRenderGuiEvent.Add(value);
-            remove => GraphicsEvents.EventManager.Graphics_OnPreRenderGuiEvent.Remove(value);
+            add => GraphicsEvents.EventManager.Legacy_OnPreRenderGuiEvent.Add(value);
+            remove => GraphicsEvents.EventManager.Legacy_OnPreRenderGuiEvent.Remove(value);
         }
 
         /// <summary>Raised after drawing a menu to the screen during a draw loop. This includes the game's internal menus like the title screen.</summary>
         public static event EventHandler OnPostRenderGuiEvent
         {
-            add => GraphicsEvents.EventManager.Graphics_OnPostRenderGuiEvent.Add(value);
-            remove => GraphicsEvents.EventManager.Graphics_OnPostRenderGuiEvent.Remove(value);
+            add => GraphicsEvents.EventManager.Legacy_OnPostRenderGuiEvent.Add(value);
+            remove => GraphicsEvents.EventManager.Legacy_OnPostRenderGuiEvent.Remove(value);
         }
 
 

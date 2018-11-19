@@ -29,10 +29,10 @@ namespace StardewModdingAPI
         ** Public
         ****/
         /// <summary>SMAPI's current semantic version.</summary>
-        public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("2.7.0");
+        public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("2.8.1");
 
         /// <summary>The minimum supported version of Stardew Valley.</summary>
-        public static ISemanticVersion MinimumGameVersion { get; } = new GameVersion("1.3.28");
+        public static ISemanticVersion MinimumGameVersion { get; } = new GameVersion("1.3.32");
 
         /// <summary>The maximum supported version of Stardew Valley.</summary>
         public static ISemanticVersion MaximumGameVersion { get; } = null;
@@ -64,11 +64,14 @@ namespace StardewModdingAPI
         /// <summary>The URL of the SMAPI home page.</summary>
         internal const string HomePageUrl = "https://smapi.io";
 
+        /// <summary>The absolute path to the folder containing SMAPI's internal files.</summary>
+        internal static readonly string InternalFilesPath = Program.DllSearchPath;
+
         /// <summary>The file path for the SMAPI configuration file.</summary>
-        internal static string ApiConfigPath => Path.Combine(Constants.ExecutionPath, $"{typeof(Program).Assembly.GetName().Name}.config.json");
+        internal static string ApiConfigPath => Path.Combine(Constants.InternalFilesPath, "StardewModdingAPI.config.json");
 
         /// <summary>The file path for the SMAPI metadata file.</summary>
-        internal static string ApiMetadataPath => Path.Combine(Constants.ExecutionPath, $"{typeof(Program).Assembly.GetName().Name}.metadata.json");
+        internal static string ApiMetadataPath => Path.Combine(Constants.InternalFilesPath, "StardewModdingAPI.metadata.json");
 
         /// <summary>The filename prefix used for all SMAPI logs.</summary>
         internal static string LogNamePrefix { get; } = "SMAPI-";
@@ -79,14 +82,14 @@ namespace StardewModdingAPI
         /// <summary>The filename extension for SMAPI log files.</summary>
         internal static string LogExtension { get; } = "txt";
 
-        /// <summary>A copy of the log leading up to the previous fatal crash, if any.</summary>
+        /// <summary>The file path for the log containing the previous fatal crash, if any.</summary>
         internal static string FatalCrashLog => Path.Combine(Constants.LogDir, "SMAPI-crash.txt");
 
         /// <summary>The file path which stores a fatal crash message for the next run.</summary>
-        internal static string FatalCrashMarker => Path.Combine(Constants.ExecutionPath, "StardewModdingAPI.crash.marker");
+        internal static string FatalCrashMarker => Path.Combine(Constants.InternalFilesPath, "StardewModdingAPI.crash.marker");
 
         /// <summary>The file path which stores the detected update version for the next run.</summary>
-        internal static string UpdateMarker => Path.Combine(Constants.ExecutionPath, "StardewModdingAPI.update.marker");
+        internal static string UpdateMarker => Path.Combine(Constants.InternalFilesPath, "StardewModdingAPI.update.marker");
 
         /// <summary>The full path to the folder containing mods.</summary>
         internal static string DefaultModsPath { get; } = Path.Combine(Constants.ExecutionPath, "Mods");
@@ -104,6 +107,26 @@ namespace StardewModdingAPI
         /*********
         ** Internal methods
         *********/
+        /// <summary>Get the SMAPI version to recommend for an older game version, if any.</summary>
+        /// <param name="version">The game version to search.</param>
+        /// <returns>Returns the compatible SMAPI version, or <c>null</c> if none was found.</returns>
+        internal static ISemanticVersion GetCompatibleApiVersion(ISemanticVersion version)
+        {
+            switch (version.ToString())
+            {
+                case "1.3.28":
+                    return new SemanticVersion(2, 7, 0);
+
+                case "1.2.30":
+                case "1.2.31":
+                case "1.2.32":
+                case "1.2.33":
+                    return new SemanticVersion(2, 5, 5);
+            }
+
+            return null;
+        }
+
         /// <summary>Get metadata for mapping assemblies to the current platform.</summary>
         /// <param name="targetPlatform">The target game platform.</param>
         internal static PlatformAssemblyMap GetAssemblyMap(Platform targetPlatform)

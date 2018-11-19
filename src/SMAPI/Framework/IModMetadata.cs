@@ -1,11 +1,13 @@
+using System.Collections.Generic;
 using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
 using StardewModdingAPI.Toolkit.Framework.ModData;
+using StardewModdingAPI.Toolkit.Framework.UpdateData;
 
 namespace StardewModdingAPI.Framework
 {
     /// <summary>Metadata for a mod.</summary>
-    internal interface IModMetadata
+    internal interface IModMetadata : IModInfo
     {
         /*********
         ** Accessors
@@ -16,8 +18,8 @@ namespace StardewModdingAPI.Framework
         /// <summary>The mod's full directory path.</summary>
         string DirectoryPath { get; }
 
-        /// <summary>The mod manifest.</summary>
-        IManifest Manifest { get; }
+        /// <summary>The <see cref="DirectoryPath"/> relative to the game's Mods folder.</summary>
+        string RelativeDirectoryPath { get; }
 
         /// <summary>Metadata about the mod from SMAPI's internal data (if any).</summary>
         ModDataRecordVersionedFields DataRecord { get; }
@@ -31,10 +33,13 @@ namespace StardewModdingAPI.Framework
         /// <summary>The reason the metadata is invalid, if any.</summary>
         string Error { get; }
 
-        /// <summary>The mod instance (if loaded and <see cref="IsContentPack"/> is false).</summary>
+        /// <summary>Whether the mod folder should be ignored. This is <c>true</c> if it was found within a folder whose name starts with a dot.</summary>
+        bool IsIgnored { get; }
+
+        /// <summary>The mod instance (if loaded and <see cref="IModInfo.IsContentPack"/> is false).</summary>
         IMod Mod { get; }
 
-        /// <summary>The content pack instance (if loaded and <see cref="IsContentPack"/> is true).</summary>
+        /// <summary>The content pack instance (if loaded and <see cref="IModInfo.IsContentPack"/> is true).</summary>
         IContentPack ContentPack { get; }
 
         /// <summary>Writes messages to the console and log file as this mod.</summary>
@@ -42,9 +47,6 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>The mod-provided API (if any).</summary>
         object Api { get; }
-
-        /// <summary>Whether the mod is a content pack.</summary>
-        bool IsContentPack { get; }
 
         /// <summary>The update-check metadata for this mod (if any).</summary>
         ModEntryModel UpdateCheckData { get; }
@@ -86,7 +88,15 @@ namespace StardewModdingAPI.Framework
         /// <summary>Whether the mod has an ID (regardless of whether the ID is valid or the mod itself was loaded).</summary>
         bool HasID();
 
-        /// <summary>Whether the mod has at least one update key set.</summary>
-        bool HasUpdateKeys();
+        /// <summary>Whether the mod has the given ID.</summary>
+        /// <param name="id">The mod ID to check.</param>
+        bool HasID(string id);
+
+        /// <summary>Get the defined update keys.</summary>
+        /// <param name="validOnly">Only return valid update keys.</param>
+        IEnumerable<UpdateKey> GetUpdateKeys(bool validOnly = true);
+
+        /// <summary>Whether the mod has at least one valid update key set.</summary>
+        bool HasValidUpdateKeys();
     }
 }

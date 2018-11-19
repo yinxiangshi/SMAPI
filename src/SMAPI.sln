@@ -33,7 +33,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Internal", "Internal", "{82
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{EB35A917-67B9-4EFA-8DFC-4FB49B3949BB}"
 	ProjectSection(SolutionItems) = preProject
-		..\docs\CONTRIBUTING.md = ..\docs\CONTRIBUTING.md
 		..\docs\mod-build-config.md = ..\docs\mod-build-config.md
 		..\docs\README.md = ..\docs\README.md
 		..\docs\release-notes.md = ..\docs\release-notes.md
@@ -64,6 +63,19 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StardewModdingAPI.Toolkit", "StardewModdingAPI.Toolkit\StardewModdingAPI.Toolkit.csproj", "{EA5CFD2E-9453-4D29-B80F-8E0EA23F4AC6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StardewModdingAPI.Toolkit.CoreInterfaces", "StardewModdingAPI.Toolkit.CoreInterfaces\StardewModdingAPI.Toolkit.CoreInterfaces.csproj", "{D5CFD923-37F1-4BC3-9BE8-E506E202AC28}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{4B1CEB70-F756-4A57-AAE8-8CD78C475F25}"
+	ProjectSection(SolutionItems) = preProject
+		..\.github\CONTRIBUTING.md = ..\.github\CONTRIBUTING.md
+		..\.github\SUPPORT.md = ..\.github\SUPPORT.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ISSUE_TEMPLATE", "ISSUE_TEMPLATE", "{F4453AB6-D7D6-447F-A973-956CC777968F}"
+	ProjectSection(SolutionItems) = preProject
+		..\.github\ISSUE_TEMPLATE\bug_report.md = ..\.github\ISSUE_TEMPLATE\bug_report.md
+		..\.github\ISSUE_TEMPLATE\feature_request.md = ..\.github\ISSUE_TEMPLATE\feature_request.md
+		..\.github\ISSUE_TEMPLATE\general.md = ..\.github\ISSUE_TEMPLATE\general.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -130,6 +142,8 @@ Global
 		{EB35A917-67B9-4EFA-8DFC-4FB49B3949BB} = {86C452BE-D2D8-45B4-B63F-E329EB06CEDA}
 		{09CF91E5-5BAB-4650-A200-E5EA9A633046} = {86C452BE-D2D8-45B4-B63F-E329EB06CEDA}
 		{0CF97929-B0D0-4D73-B7BF-4FF7191035F9} = {82D22ED7-A0A7-4D64-8E92-4B6A5E74ED11}
+		{4B1CEB70-F756-4A57-AAE8-8CD78C475F25} = {86C452BE-D2D8-45B4-B63F-E329EB06CEDA}
+		{F4453AB6-D7D6-447F-A973-956CC777968F} = {4B1CEB70-F756-4A57-AAE8-8CD78C475F25}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {70143042-A862-47A8-A677-7C819DDC90DC}

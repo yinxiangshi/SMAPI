@@ -18,8 +18,8 @@
         <meta name="robots" content="noindex" />
     }
     <link rel="stylesheet" href="~/Content/css/log-parser.css?r=20180627" />
-    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" crossorigin="anonymous"></script>
     <script src="~/Content/js/log-parser.js?r=20180627"></script>
     <script>
         $(function() {
@@ -84,7 +84,7 @@ else if (Model.ParsedLog?.IsValid == true)
         On Mac:
         <ol>
             <li>Open the Finder app.</li>
-            <li>Click <em>Go</em> at the top, then <em>Enter Location</em>.</li>
+            <li>Click <em>Go</em> at the top, then <em>Go to Folder</em>.</li>
             <li>Enter this exact text: <pre>~/.config/StardewValley/ErrorLogs</pre></li>
             <li>The log file is <code>SMAPI-crash.txt</code> if it exists, otherwise <code>SMAPI-latest.txt</code>.</li>
         </ol>
@@ -145,14 +145,14 @@ else if (Model.ParsedLog?.IsValid == true)
                 @if (!Model.ShowRaw)
                 {
                     <span class="notice txt"><i>click any mod to filter</i></span>
-                    <span class="notice btn txt" v-on:click="showAllMods" v-show="stats.modsHidden > 0">show all</span>
-                    <span class="notice btn txt" v-on:click="hideAllMods" v-show="stats.modsShown > 0 && stats.modsHidden > 0">hide all</span>
+                    <span class="notice btn txt" v-on:click="showAllMods" v-bind:class="{ invisible: !anyModsHidden }">show all</span>
+                    <span class="notice btn txt" v-on:click="hideAllMods" v-bind:class="{ invisible: !anyModsShown || !anyModsHidden }">hide all</span>
                 }
             </caption>
             @foreach (var mod in Model.ParsedLog.Mods.Where(p => p.ContentPackFor == null))
             {
                 <tr v-on:click="toggleMod('@Model.GetSlug(mod.Name)')" class="mod-entry" v-bind:class="{ hidden: !showMods['@Model.GetSlug(mod.Name)'] }">
-                    <td><input type="checkbox" v-bind:checked="showMods['@Model.GetSlug(mod.Name)']" v-show="anyModsHidden" /></td>
+                    <td><input type="checkbox" v-bind:checked="showMods['@Model.GetSlug(mod.Name)']" v-bind:class="{ invisible: !anyModsHidden }" /></td>
                     <td v-pre>
                         <strong>@mod.Name</strong> @mod.Version
                         @if (contentPacks != null && contentPacks.TryGetValue(mod.Name, out LogModInfo[] contentPackList))
@@ -165,7 +165,18 @@ else if (Model.ParsedLog?.IsValid == true)
                             </div>
                         }
                     </td>
-                    <td v-pre>@mod.Author</td>
+                    <td v-pre>
+                        @mod.Author
+                        @if (contentPacks != null && contentPacks.TryGetValue(mod.Name, out contentPackList))
+                        {
+                            <div class="content-packs">
+                                @foreach (var contentPack in contentPackList)
+                                {
+                                    <text>+ @contentPack.Author</text><br />
+                                }
+                            </div>
+                        }
+                    </td>
                     @if (mod.Errors == 0)
                     {
                         <td v-pre class="color-green">no errors</td>

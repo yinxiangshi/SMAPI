@@ -9,10 +9,12 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
 */
 {
   /**
-   * Whether to enable features intended for mod developers. Currently this only makes TRACE-level
-   * messages appear in the console.
+   * The console color theme to use. The possible values are:
+   *  - AutoDetect: SMAPI will assume a light background on Mac, and detect the background color automatically on Linux or Windows.
+   *  - LightBackground: use darker text colors that look better on a white or light background.
+   *  - DarkBackground: use lighter text colors that look better on a black or dark background.
    */
-  "DeveloperMode": true,
+  "ColorScheme": "AutoDetect",
 
   /**
    * Whether SMAPI should check for newer versions of SMAPI and mods when you load the game. If new
@@ -22,8 +24,23 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
   "CheckForUpdates": true,
 
   /**
-   * Whether SMAPI should show newer beta versions as an available update. If not specified, SMAPI
-   * will only show beta updates if the current version is beta.
+   * Whether to enable features intended for mod developers. Currently this only makes TRACE-level
+   * messages appear in the console.
+   */
+  "DeveloperMode": true,
+
+  /**
+   * Whether to add a section to the 'mod issues' list for mods which directly use potentially
+   * sensitive .NET APIs like file or shell access. Note that many mods do this legitimately as
+   * part of their normal functionality, so these warnings are meaningless without further
+   * investigation. When this is commented out, it'll be true for local debug builds and false
+   * otherwise.
+   */
+  //"ParanoidWarnings": true,
+
+  /**
+   * Whether SMAPI should show newer beta versions as an available update. When this is commented
+   * out, it'll be true if the current SMAPI version is beta, and false otherwise.
    */
   //"UseBetaChannel": true,
 
@@ -49,14 +66,6 @@ This file contains advanced configuration for SMAPI. You generally shouldn't cha
    * metadata for detected mods. This is only needed when troubleshooting some cases.
    */
   "DumpMetadata": false,
-
-  /**
-   * The console color theme to use. The possible values are:
-   *  - AutoDetect: SMAPI will assume a light background on Mac, and detect the background color automatically on Linux or Windows.
-   *  - LightBackground: use darker text colors that look better on a white or light background.
-   *  - DarkBackground: use lighter text colors that look better on a black or dark background.
-   */
-  "ColorScheme": "AutoDetect",
 
   /**
    * The mod IDs SMAPI should ignore when performing update checks or validating update keys.

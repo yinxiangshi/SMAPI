@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using StardewModdingAPI.Framework.StateTracking.Comparers;
 using StardewModdingAPI.Framework.StateTracking.FieldWatchers;
 using StardewValley;
 using StardewValley.Buildings;
@@ -18,10 +20,10 @@ namespace StardewModdingAPI.Framework.StateTracking
         private readonly ICollectionWatcher<GameLocation> LocationListWatcher;
 
         /// <summary>A lookup of the tracked locations.</summary>
-        private IDictionary<GameLocation, LocationTracker> LocationDict { get; } = new Dictionary<GameLocation, LocationTracker>();
+        private IDictionary<GameLocation, LocationTracker> LocationDict { get; } = new Dictionary<GameLocation, LocationTracker>(new ObjectReferenceComparer<GameLocation>());
 
         /// <summary>A lookup of registered buildings and their indoor location.</summary>
-        private readonly IDictionary<Building, GameLocation> BuildingIndoors = new Dictionary<Building, GameLocation>();
+        private readonly IDictionary<Building, GameLocation> BuildingIndoors = new Dictionary<Building, GameLocation>(new ObjectReferenceComparer<Building>());
 
 
         /*********
@@ -37,10 +39,10 @@ namespace StardewModdingAPI.Framework.StateTracking
         public IEnumerable<LocationTracker> Locations => this.LocationDict.Values;
 
         /// <summary>The locations removed since the last update.</summary>
-        public ICollection<GameLocation> Added { get; } = new HashSet<GameLocation>();
+        public ICollection<GameLocation> Added { get; } = new HashSet<GameLocation>(new ObjectReferenceComparer<GameLocation>());
 
         /// <summary>The locations added since the last update.</summary>
-        public ICollection<GameLocation> Removed { get; } = new HashSet<GameLocation>();
+        public ICollection<GameLocation> Removed { get; } = new HashSet<GameLocation>(new ObjectReferenceComparer<GameLocation>());
 
 
         /*********

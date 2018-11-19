@@ -19,8 +19,8 @@ namespace StardewModdingAPI.Events
         /// <summary>Raised after the player warps to a new level of the mine.</summary>
         public static event EventHandler<EventArgsMineLevelChanged> MineLevelChanged
         {
-            add => MineEvents.EventManager.Mine_LevelChanged.Add(value);
-            remove => MineEvents.EventManager.Mine_LevelChanged.Remove(value);
+            add => MineEvents.EventManager.Legacy_MineLevelChanged.Add(value);
+            remove => MineEvents.EventManager.Legacy_MineLevelChanged.Remove(value);
         }
 
 

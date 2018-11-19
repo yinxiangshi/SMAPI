@@ -63,6 +63,10 @@ table#metadata, table#mods {
     box-shadow: 1px 1px 1px 1px #dddddd;
 }
 
+.invisible {
+    visibility: hidden;
+}
+
 #mods {
     min-width: 400px;
 }

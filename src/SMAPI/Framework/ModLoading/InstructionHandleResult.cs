@@ -24,6 +24,12 @@ namespace StardewModdingAPI.Framework.ModLoading
         DetectedDynamic,
 
         /// <summary>The instruction is compatible, but references <see cref="SpecialisedEvents.UnvalidatedUpdateTick"/> which may impact stability.</summary>
-        DetectedUnvalidatedUpdateTick
+        DetectedUnvalidatedUpdateTick,
+
+        /// <summary>The instruction accesses the filesystem directly.</summary>
+        DetectedFilesystemAccess,
+
+        /// <summary>The instruction accesses the OS shell or processes directly.</summary>
+        DetectedShellAccess
     }
 }

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using StardewModdingAPI.Toolkit.Serialisation.Models;
+using StardewModdingAPI.Toolkit.Utilities;
 
 namespace StardewModdingAPI.Toolkit.Framework.ModScanning
 {
@@ -11,11 +12,11 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         /*********
         ** Accessors
         *********/
-        /// <summary>The Mods subfolder containing this mod.</summary>
-        public DirectoryInfo SearchDirectory { get; }
+        /// <summary>A suggested display name for the mod folder.</summary>
+        public string DisplayName { get; }
 
-        /// <summary>The folder containing manifest.json.</summary>
-        public DirectoryInfo ActualDirectory { get; }
+        /// <summary>The folder containing the mod's manifest.json.</summary>
+        public DirectoryInfo Directory { get; }
 
         /// <summary>The mod manifest.</summary>
         public Manifest Manifest { get; }
@@ -23,21 +24,31 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         /// <summary>The error which occurred parsing the manifest, if any.</summary>
         public string ManifestParseError { get; }
 
+        /// <summary>Whether the mod should be loaded by default. This is <c>false</c> if it was found within a folder whose name starts with a dot.</summary>
+        public bool ShouldBeLoaded { get; }
+
 
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="searchDirectory">The Mods subfolder containing this mod.</param>
-        /// <param name="actualDirectory">The folder containing manifest.json.</param>
+        /// <param name="root">The root folder containing mods.</param>
+        /// <param name="directory">The folder containing the mod's manifest.json.</param>
         /// <param name="manifest">The mod manifest.</param>
         /// <param name="manifestParseError">The error which occurred parsing the manifest, if any.</param>
-        public ModFolder(DirectoryInfo searchDirectory, DirectoryInfo actualDirectory, Manifest manifest, string manifestParseError = null)
+        /// <param name="shouldBeLoaded">Whether the mod should be loaded by default. This should be <c>false</c> if it was found within a folder whose name starts with a dot.</param>
+        public ModFolder(DirectoryInfo root, DirectoryInfo directory, Manifest manifest, string manifestParseError = null, bool shouldBeLoaded = true)
         {
-            this.SearchDirectory = searchDirectory;
-            this.ActualDirectory = actualDirectory;
+            // save info
+            this.Directory = directory;
             this.Manifest = manifest;
             this.ManifestParseError = manifestParseError;
+            this.ShouldBeLoaded = shouldBeLoaded;
+
+            // set display name
+            this.DisplayName = manifest?.Name;
+            if (string.IsNullOrWhiteSpace(this.DisplayName))
+                this.DisplayName = PathUtilities.GetRelativePath(root.FullName, directory.FullName);
         }
 
         /// <summary>Get the update keys for a mod.</summary>

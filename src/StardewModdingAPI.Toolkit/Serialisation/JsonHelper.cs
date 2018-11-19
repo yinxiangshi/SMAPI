@@ -95,18 +95,14 @@ namespace StardewModdingAPI.Toolkit.Serialisation
                 Directory.CreateDirectory(dir);
 
             // write file
-            string json = JsonConvert.SerializeObject(model, this.JsonSettings);
+            string json = this.Serialise(model);
             File.WriteAllText(fullPath, json);
         }
 
-
-        /*********
-        ** Private methods
-        *********/
         /// <summary>Deserialize JSON text if possible.</summary>
         /// <typeparam name="TModel">The model type.</typeparam>
         /// <param name="json">The raw JSON text.</param>
-        private TModel Deserialise<TModel>(string json)
+        public TModel Deserialise<TModel>(string json)
         {
             try
             {
@@ -126,6 +122,15 @@ namespace StardewModdingAPI.Toolkit.Serialisation
 
                 throw;
             }
+        }
+
+        /// <summary>Serialize a model to JSON text.</summary>
+        /// <typeparam name="TModel">The model type.</typeparam>
+        /// <param name="model">The model to serialise.</param>
+        /// <param name="formatting">The formatting to apply.</param>
+        public string Serialise<TModel>(TModel model, Formatting formatting = Formatting.Indented)
+        {
+            return JsonConvert.SerializeObject(model, formatting, this.JsonSettings);
         }
     }
 }

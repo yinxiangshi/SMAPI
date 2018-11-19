@@ -127,6 +127,7 @@ namespace StardewModdingAPI.Tests.Utilities
         [TestCase("1.0-beta.1", "1.0-beta.2", ExpectedResult = -1)]
         [TestCase("1.0-beta.2", "1.0-beta.10", ExpectedResult = -1)]
         [TestCase("1.0-beta-2", "1.0-beta-10", ExpectedResult = -1)]
+        [TestCase("1.0-unofficial.1", "1.0-beta.1", ExpectedResult = -1)] // special case: 'unofficial' has lower priority than official releases
 
         // more than
         [TestCase("0.5.8", "0.5.7", ExpectedResult = 1)]

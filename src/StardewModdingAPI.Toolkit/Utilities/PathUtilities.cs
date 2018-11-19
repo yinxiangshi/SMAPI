@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace StardewModdingAPI.Toolkit.Utilities
 {
@@ -60,6 +61,25 @@ namespace StardewModdingAPI.Toolkit.Utilities
             if (relative == "")
                 relative = "./";
             return relative;
+        }
+
+        /// <summary>Get whether a path is relative and doesn't try to climb out of its containing folder (e.g. doesn't contain <c>../</c>).</summary>
+        /// <param name="path">The path to check.</param>
+        public static bool IsSafeRelativePath(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                return true;
+
+            return
+                !Path.IsPathRooted(path)
+                && PathUtilities.GetSegments(path).All(segment => segment.Trim() != "..");
+        }
+
+        /// <summary>Get whether a string is a valid 'slug', containing only basic characters that are safe in all contexts (e.g. filenames, URLs, etc).</summary>
+        /// <param name="str">The string to check.</param>
+        public static bool IsSlug(string str)
+        {
+            return !Regex.IsMatch(str, "[^a-z0-9_.-]", RegexOptions.IgnoreCase);
         }
     }
 }

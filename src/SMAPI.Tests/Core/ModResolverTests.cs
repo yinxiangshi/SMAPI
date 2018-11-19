@@ -145,7 +145,7 @@ namespace StardewModdingAPI.Tests.Core
             this.SetupMetadataForValidation(mock, new ModDataRecordVersionedFields
             {
                 Status = ModStatus.AssumeBroken,
-                AlternativeUrl = "http://example.org"
+                AlternativeUrl = "https://example.org"
             });
 
             // act
@@ -513,6 +513,7 @@ namespace StardewModdingAPI.Tests.Core
             mod.Setup(p => p.Status).Returns(ModMetadataStatus.Found);
             mod.Setup(p => p.DisplayName).Returns(manifest.UniqueID);
             mod.Setup(p => p.Manifest).Returns(manifest);
+            mod.Setup(p => p.HasID(It.IsAny<string>())).Returns((string id) => manifest.UniqueID == id);
             if (allowStatusChange)
             {
                 mod

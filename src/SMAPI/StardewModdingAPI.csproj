@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -54,26 +54,12 @@
     <ApplicationIcon>icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="0Harmony, Version=1.0.9.1, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\lib\0Harmony.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil, Version=0.10.0.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
-      <HintPath>..\packages\Mono.Cecil.0.10.0\lib\net40\Mono.Cecil.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Mono.Cecil.Mdb, Version=0.10.0.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
-      <HintPath>..\packages\Mono.Cecil.0.10.0\lib\net40\Mono.Cecil.Mdb.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Mono.Cecil.Pdb, Version=0.10.0.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
-      <HintPath>..\packages\Mono.Cecil.0.10.0\lib\net40\Mono.Cecil.Pdb.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
+    <PackageReference Include="LargeAddressAware" Version="1.0.3" />
+    <PackageReference Include="Lib.Harmony" Version="1.2.0.1" />
+    <PackageReference Include="Mono.Cecil" Version="0.10.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -90,25 +76,116 @@
     <Compile Include="..\..\build\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Events\GameLoopUpdatedEventArgs.cs" />
-    <Compile Include="Events\GameLoopLaunchedEventArgs.cs" />
-    <Compile Include="Events\InputMouseWheelScrolledEventArgs.cs" />
-    <Compile Include="Events\InputCursorMovedEventArgs.cs" />
-    <Compile Include="Events\InputButtonReleasedEventArgs.cs" />
-    <Compile Include="Events\InputButtonPressedEventArgs.cs" />
+    <Compile Include="Enums\SkillType.cs" />
+    <Compile Include="Events\BuildingListChangedEventArgs.cs" />
+    <Compile Include="Events\ButtonPressedEventArgs.cs" />
+    <Compile Include="Events\ButtonReleasedEventArgs.cs" />
+    <Compile Include="Events\ChangeType.cs" />
+    <Compile Include="Events\ContentEvents.cs" />
+    <Compile Include="Events\ControlEvents.cs" />
+    <Compile Include="Events\CursorMovedEventArgs.cs" />
+    <Compile Include="Events\DayEndingEventArgs.cs" />
+    <Compile Include="Events\DayStartedEventArgs.cs" />
+    <Compile Include="Events\DebrisListChangedEventArgs.cs" />
+    <Compile Include="Events\EventArgsClickableMenuChanged.cs" />
+    <Compile Include="Events\EventArgsClickableMenuClosed.cs" />
+    <Compile Include="Events\EventArgsControllerButtonPressed.cs" />
+    <Compile Include="Events\EventArgsControllerButtonReleased.cs" />
+    <Compile Include="Events\EventArgsControllerTriggerPressed.cs" />
+    <Compile Include="Events\EventArgsControllerTriggerReleased.cs" />
+    <Compile Include="Events\EventArgsInput.cs" />
+    <Compile Include="Events\EventArgsIntChanged.cs" />
+    <Compile Include="Events\EventArgsInventoryChanged.cs" />
+    <Compile Include="Events\EventArgsKeyboardStateChanged.cs" />
+    <Compile Include="Events\EventArgsKeyPressed.cs" />
+    <Compile Include="Events\EventArgsLevelUp.cs" />
     <Compile Include="Events\EventArgsLocationBuildingsChanged.cs" />
-    <Compile Include="Events\IInputEvents.cs" />
+    <Compile Include="Events\EventArgsLocationObjectsChanged.cs" />
+    <Compile Include="Events\EventArgsLocationsChanged.cs" />
+    <Compile Include="Events\EventArgsMineLevelChanged.cs" />
+    <Compile Include="Events\EventArgsMouseStateChanged.cs" />
+    <Compile Include="Events\EventArgsPlayerWarped.cs" />
+    <Compile Include="Events\EventArgsValueChanged.cs" />
+    <Compile Include="Events\GameEvents.cs" />
+    <Compile Include="Events\GameLaunchedEventArgs.cs" />
+    <Compile Include="Events\GraphicsEvents.cs" />
+    <Compile Include="Events\IDisplayEvents.cs" />
     <Compile Include="Events\IGameLoopEvents.cs" />
+    <Compile Include="Events\IInputEvents.cs" />
+    <Compile Include="Events\IModEvents.cs" />
+    <Compile Include="Events\IMultiplayerEvents.cs" />
+    <Compile Include="Events\InputEvents.cs" />
+    <Compile Include="Events\InventoryChangedEventArgs.cs" />
+    <Compile Include="Events\IPlayerEvents.cs" />
+    <Compile Include="Events\ISpecialisedEvents.cs" />
+    <Compile Include="Events\ItemStackChange.cs" />
+    <Compile Include="Events\ItemStackSizeChange.cs" />
     <Compile Include="Events\IWorldEvents.cs" />
+    <Compile Include="Events\LargeTerrainFeatureListChangedEventArgs.cs" />
+    <Compile Include="Events\LevelChangedEventArgs.cs" />
+    <Compile Include="Events\LocationEvents.cs" />
+    <Compile Include="Events\LocationListChangedEventArgs.cs" />
+    <Compile Include="Events\MenuChangedEventArgs.cs" />
+    <Compile Include="Events\MenuEvents.cs" />
+    <Compile Include="Events\MineEvents.cs" />
+    <Compile Include="Events\ModMessageReceivedEventArgs.cs" />
+    <Compile Include="Events\MouseWheelScrolledEventArgs.cs" />
     <Compile Include="Events\MultiplayerEvents.cs" />
-    <Compile Include="Events\WorldDebrisListChangedEventArgs.cs" />
-    <Compile Include="Events\GameLoopUpdatingEventArgs.cs" />
-    <Compile Include="Events\WorldNpcListChangedEventArgs.cs" />
-    <Compile Include="Events\WorldLargeTerrainFeatureListChangedEventArgs.cs" />
-    <Compile Include="Events\WorldTerrainFeatureListChangedEventArgs.cs" />
-    <Compile Include="Events\WorldBuildingListChangedEventArgs.cs" />
-    <Compile Include="Events\WorldLocationListChangedEventArgs.cs" />
-    <Compile Include="Events\WorldObjectListChangedEventArgs.cs" />
+    <Compile Include="Events\NpcListChangedEventArgs.cs" />
+    <Compile Include="Events\ObjectListChangedEventArgs.cs" />
+    <Compile Include="Events\PeerContextReceivedEventArgs.cs" />
+    <Compile Include="Events\PeerDisconnectedEventArgs.cs" />
+    <Compile Include="Events\PlayerEvents.cs" />
+    <Compile Include="Events\RenderedActiveMenuEventArgs.cs" />
+    <Compile Include="Events\RenderedEventArgs.cs" />
+    <Compile Include="Events\RenderedHudEventArgs.cs" />
+    <Compile Include="Events\RenderedWorldEventArgs.cs" />
+    <Compile Include="Events\RenderingActiveMenuEventArgs.cs" />
+    <Compile Include="Events\RenderingEventArgs.cs" />
+    <Compile Include="Events\RenderingHudEventArgs.cs" />
+    <Compile Include="Events\RenderingWorldEventArgs.cs" />
+    <Compile Include="Events\ReturnedToTitleEventArgs.cs" />
+    <Compile Include="Events\SaveCreatedEventArgs.cs" />
+    <Compile Include="Events\SaveCreatingEventArgs.cs" />
+    <Compile Include="Events\SavedEventArgs.cs" />
+    <Compile Include="Events\SaveEvents.cs" />
+    <Compile Include="Events\SaveLoadedEventArgs.cs" />
+    <Compile Include="Events\SavingEventArgs.cs" />
+    <Compile Include="Events\SpecialisedEvents.cs" />
+    <Compile Include="Events\TerrainFeatureListChangedEventArgs.cs" />
+    <Compile Include="Events\TimeChangedEventArgs.cs" />
+    <Compile Include="Events\TimeEvents.cs" />
+    <Compile Include="Events\UnvalidatedUpdateTickedEventArgs.cs" />
+    <Compile Include="Events\UnvalidatedUpdateTickingEventArgs.cs" />
+    <Compile Include="Events\UpdateTickedEventArgs.cs" />
+    <Compile Include="Events\UpdateTickingEventArgs.cs" />
+    <Compile Include="Events\WarpedEventArgs.cs" />
+    <Compile Include="Events\WindowResizedEventArgs.cs" />
+    <Compile Include="Framework\DeprecationWarning.cs" />
+    <Compile Include="Framework\Events\EventManager.cs" />
+    <Compile Include="Framework\Events\ManagedEvent.cs" />
+    <Compile Include="Framework\Events\ManagedEventBase.cs" />
+    <Compile Include="Framework\Events\ModDisplayEvents.cs" />
+    <Compile Include="Framework\Events\ModEvents.cs" />
+    <Compile Include="Framework\Events\ModEventsBase.cs" />
+    <Compile Include="Framework\Events\ModGameLoopEvents.cs" />
+    <Compile Include="Framework\Events\ModInputEvents.cs" />
+    <Compile Include="Framework\Events\ModMultiplayerEvents.cs" />
+    <Compile Include="Framework\Events\ModPlayerEvents.cs" />
+    <Compile Include="Framework\Events\ModSpecialisedEvents.cs" />
+    <Compile Include="Framework\Events\ModWorldEvents.cs" />
+    <Compile Include="Framework\ModHelpers\DataHelper.cs" />
+    <Compile Include="Framework\Networking\MessageType.cs" />
+    <Compile Include="Framework\Networking\ModMessageModel.cs" />
+    <Compile Include="Framework\Networking\MultiplayerPeer.cs" />
+    <Compile Include="Framework\Networking\MultiplayerPeerMod.cs" />
+    <Compile Include="Framework\Networking\RemoteContextModel.cs" />
+    <Compile Include="Framework\Networking\RemoteContextModModel.cs" />
+    <Compile Include="Framework\Networking\SGalaxyNetClient.cs" />
+    <Compile Include="Framework\Networking\SGalaxyNetServer.cs" />
+    <Compile Include="Framework\Networking\SLidgrenClient.cs" />
+    <Compile Include="Framework\Networking\SLidgrenServer.cs" />
+    <Compile Include="Framework\SCore.cs" />
     <Compile Include="Framework\SGameConstructorHack.cs" />
     <Compile Include="Framework\ContentManagers\BaseContentManager.cs" />
     <Compile Include="Framework\ContentManagers\GameContentManager.cs" />
@@ -121,21 +198,15 @@
     <Compile Include="Framework\Serialisation\ColorConverter.cs" />
     <Compile Include="Framework\Serialisation\PointConverter.cs" />
     <Compile Include="Framework\Serialisation\RectangleConverter.cs" />
-    <Compile Include="Framework\Events\ModEventsBase.cs" />
-    <Compile Include="Framework\Events\EventManager.cs" />
-    <Compile Include="Events\IModEvents.cs" />
-    <Compile Include="Framework\Events\ManagedEvent.cs" />
-    <Compile Include="Events\SpecialisedEvents.cs" />
     <Compile Include="Framework\ContentPack.cs" />
     <Compile Include="Framework\Content\ContentCache.cs" />
-    <Compile Include="Framework\Events\ManagedEventBase.cs" />
-    <Compile Include="Framework\Events\ModEvents.cs" />
-    <Compile Include="Framework\Events\ModGameLoopEvents.cs" />
-    <Compile Include="Framework\Events\ModInputEvents.cs" />
     <Compile Include="Framework\Input\GamePadStateBuilder.cs" />
     <Compile Include="Framework\ModHelpers\InputHelper.cs" />
+    <Compile Include="Framework\SModHooks.cs" />
+    <Compile Include="Framework\Singleton.cs" />
     <Compile Include="Framework\StateTracking\Comparers\GenericEqualsComparer.cs" />
     <Compile Include="Framework\WatcherCore.cs" />
+    <Compile Include="IDataHelper.cs" />
     <Compile Include="IInputHelper.cs" />
     <Compile Include="Framework\Input\SInputState.cs" />
     <Compile Include="Framework\Input\InputStatus.cs" />
@@ -156,12 +227,10 @@
     <Compile Include="Framework\ModLoading\Rewriters\StaticFieldToConstantRewriter.cs" />
     <Compile Include="Framework\ModLoading\Rewriters\FieldToPropertyRewriter.cs" />
     <Compile Include="Framework\ModLoading\Finders\ReferenceToMemberWithUnexpectedTypeFinder.cs" />
-    <Compile Include="Framework\ModLoading\Rewriters\VirtualEntryCallRemover.cs" />
     <Compile Include="Framework\ModLoading\Rewriters\MethodParentRewriter.cs" />
     <Compile Include="Framework\ModLoading\Rewriters\TypeReferenceRewriter.cs" />
     <Compile Include="Framework\Exceptions\SAssemblyLoadFailedException.cs" />
     <Compile Include="Framework\ModLoading\AssemblyLoadStatus.cs" />
-    <Compile Include="Framework\Events\ModWorldEvents.cs" />
     <Compile Include="Framework\Reflection\InterfaceProxyBuilder.cs" />
     <Compile Include="Framework\Reflection\InterfaceProxyFactory.cs" />
     <Compile Include="Framework\RewriteFacades\SpriteBatchMethods.cs" />
@@ -184,39 +253,19 @@
     <Compile Include="Framework\StateTracking\PlayerTracker.cs" />
     <Compile Include="Framework\Utilities\ContextHash.cs" />
     <Compile Include="IContentPack.cs" />
+    <Compile Include="IModInfo.cs" />
     <Compile Include="IMultiplayerHelper.cs" />
+    <Compile Include="IMultiplayerPeer.cs" />
     <Compile Include="IReflectedField.cs" />
     <Compile Include="IReflectedMethod.cs" />
     <Compile Include="IReflectedProperty.cs" />
+    <Compile Include="IMultiplayerPeerMod.cs" />
     <Compile Include="Metadata\CoreAssetPropagator.cs" />
     <Compile Include="ContentSource.cs" />
-    <Compile Include="Events\ContentEvents.cs" />
-    <Compile Include="Events\EventArgsInput.cs" />
-    <Compile Include="Events\EventArgsValueChanged.cs" />
-    <Compile Include="Events\InputEvents.cs" />
     <Compile Include="Framework\Content\AssetInfo.cs" />
     <Compile Include="Framework\Exceptions\SContentLoadException.cs" />
     <Compile Include="Framework\Command.cs" />
     <Compile Include="Constants.cs" />
-    <Compile Include="Events\ControlEvents.cs" />
-    <Compile Include="Events\EventArgsClickableMenuChanged.cs" />
-    <Compile Include="Events\EventArgsClickableMenuClosed.cs" />
-    <Compile Include="Events\EventArgsControllerButtonPressed.cs" />
-    <Compile Include="Events\EventArgsControllerButtonReleased.cs" />
-    <Compile Include="Events\EventArgsControllerTriggerPressed.cs" />
-    <Compile Include="Events\EventArgsControllerTriggerReleased.cs" />
-    <Compile Include="Events\EventArgsPlayerWarped.cs" />
-    <Compile Include="Events\EventArgsLocationsChanged.cs" />
-    <Compile Include="Events\EventArgsIntChanged.cs" />
-    <Compile Include="Events\EventArgsInventoryChanged.cs" />
-    <Compile Include="Events\EventArgsKeyboardStateChanged.cs" />
-    <Compile Include="Events\EventArgsKeyPressed.cs" />
-    <Compile Include="Events\EventArgsLevelUp.cs" />
-    <Compile Include="Events\EventArgsLocationObjectsChanged.cs" />
-    <Compile Include="Events\EventArgsMineLevelChanged.cs" />
-    <Compile Include="Events\EventArgsMouseStateChanged.cs" />
-    <Compile Include="Events\GameEvents.cs" />
-    <Compile Include="Events\GraphicsEvents.cs" />
     <Compile Include="Framework\Utilities\Countdown.cs" />
     <Compile Include="Framework\GameVersion.cs" />
     <Compile Include="Framework\IModMetadata.cs" />
@@ -255,12 +304,6 @@
     <Compile Include="IAssetDataForImage.cs" />
     <Compile Include="IContentHelper.cs" />
     <Compile Include="IModRegistry.cs" />
-    <Compile Include="Events\LocationEvents.cs" />
-    <Compile Include="Events\MenuEvents.cs" />
-    <Compile Include="Events\MineEvents.cs" />
-    <Compile Include="Events\PlayerEvents.cs" />
-    <Compile Include="Events\SaveEvents.cs" />
-    <Compile Include="Events\TimeEvents.cs" />
     <Compile Include="Framework\DeprecationLevel.cs" />
     <Compile Include="Framework\DeprecationManager.cs" />
     <Compile Include="Framework\InternalExtensions.cs" />
@@ -277,11 +320,10 @@
     <Compile Include="LogLevel.cs" />
     <Compile Include="Framework\ModRegistry.cs" />
     <Compile Include="IMonitor.cs" />
-    <Compile Include="Events\ChangeType.cs" />
-    <Compile Include="Events\ItemStackChange.cs" />
     <Compile Include="Framework\Monitor.cs" />
     <Compile Include="Metadata\InstructionMetadata.cs" />
     <Compile Include="Mod.cs" />
+    <Compile Include="Patches\DialogueErrorPatch.cs" />
     <Compile Include="PatchMode.cs" />
     <Compile Include="GamePlatform.cs" />
     <Compile Include="Program.cs" />
@@ -296,9 +338,6 @@
     <Compile Include="Framework\CursorPosition.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config">
-      <SubType>Designer</SubType>
-    </None>
     <Content Include="StardewModdingAPI.config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -341,11 +380,4 @@
   <Import Project="..\SMAPI.Internal\SMAPI.Internal.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\..\build\common.targets" />
-  <Import Project="..\packages\LargeAddressAware.1.0.3\build\LargeAddressAware.targets" Condition="Exists('..\packages\LargeAddressAware.1.0.3\build\LargeAddressAware.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\LargeAddressAware.1.0.3\build\LargeAddressAware.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\LargeAddressAware.1.0.3\build\LargeAddressAware.targets'))" />
-  </Target>
 </Project>

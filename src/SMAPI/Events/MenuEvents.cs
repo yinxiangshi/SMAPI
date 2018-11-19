@@ -19,15 +19,15 @@ namespace StardewModdingAPI.Events
         /// <summary>Raised after a game menu is opened or replaced with another menu. This event is not invoked when a menu is closed.</summary>
         public static event EventHandler<EventArgsClickableMenuChanged> MenuChanged
         {
-            add => MenuEvents.EventManager.Menu_Changed.Add(value);
-            remove => MenuEvents.EventManager.Menu_Changed.Remove(value);
+            add => MenuEvents.EventManager.Legacy_MenuChanged.Add(value);
+            remove => MenuEvents.EventManager.Legacy_MenuChanged.Remove(value);
         }
 
         /// <summary>Raised after a game menu is closed.</summary>
         public static event EventHandler<EventArgsClickableMenuClosed> MenuClosed
         {
-            add => MenuEvents.EventManager.Menu_Closed.Add(value);
-            remove => MenuEvents.EventManager.Menu_Closed.Remove(value);
+            add => MenuEvents.EventManager.Legacy_MenuClosed.Add(value);
+            remove => MenuEvents.EventManager.Legacy_MenuClosed.Remove(value);
         }
 
 

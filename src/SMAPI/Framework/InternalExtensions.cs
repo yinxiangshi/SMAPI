@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI.Framework.Events;
 using StardewModdingAPI.Framework.Reflection;
 using StardewValley;
 
@@ -37,6 +38,17 @@ namespace StardewModdingAPI.Framework
         public static void LogAsMod(this IModMetadata metadata, string message, LogLevel level = LogLevel.Trace)
         {
             metadata.Monitor.Log(message, level);
+        }
+
+        /****
+        ** ManagedEvent
+        ****/
+        /// <summary>Raise the event using the default event args and notify all handlers.</summary>
+        /// <typeparam name="TEventArgs">The event args type to construct.</typeparam>
+        /// <param name="event">The event to raise.</param>
+        public static void RaiseEmpty<TEventArgs>(this ManagedEvent<TEventArgs> @event) where TEventArgs : new()
+        {
+            @event.Raise(Singleton<TEventArgs>.Instance);
         }
 
         /****

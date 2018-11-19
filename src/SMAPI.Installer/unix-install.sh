@@ -14,8 +14,8 @@ fi
 
 # validate Mono & run installer
 if $COMMAND mono >/dev/null 2>&1; then
-    mono internal/Mono/install.exe
+    mono internal/unix-install.exe
 else
-   echo "Oops! Looks like Mono isn't installed. Please install Mono from http://mono-project.com, reboot, and run this installer again."
+   echo "Oops! Looks like Mono isn't installed. Please install Mono from https://mono-project.com, reboot, and run this installer again."
    read
 fi

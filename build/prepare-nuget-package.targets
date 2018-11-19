@@ -12,11 +12,12 @@
     <RemoveDir Directories="$(PackagePath)" />
     <Copy SourceFiles="$(ProjectDir)/package.nuspec" DestinationFolder="$(PackagePath)" />
     <Copy SourceFiles="$(ProjectDir)/build/smapi.targets" DestinationFiles="$(PackagePath)/build/Pathoschild.Stardew.ModBuildConfig.targets" />
-    <Copy SourceFiles="$(TargetDir)/StardewModdingAPI.ModBuildConfig.dll" DestinationFiles="$(PackagePath)/build/StardewModdingAPI.ModBuildConfig.dll" />
-    <Copy SourceFiles="$(TargetDir)/StardewModdingAPI.Toolkit.dll" DestinationFiles="$(PackagePath)/build/StardewModdingAPI.Toolkit.dll" />
-    <Copy SourceFiles="$(TargetDir)/StardewModdingAPI.Toolkit.CoreInterfaces.dll" DestinationFiles="$(PackagePath)/build/StardewModdingAPI.Toolkit.CoreInterfaces.dll" />
-    <Copy SourceFiles="$(SolutionDir)/SMAPI.ModBuildConfig.Analyzer/bin/netstandard1.3/StardewModdingAPI.ModBuildConfig.Analyzer.dll" DestinationFiles="$(PackagePath)/analyzers/dotnet/cs/StardewModdingAPI.ModBuildConfig.Analyzer.dll" />
-    <Copy SourceFiles="$(SolutionDir)/SMAPI.ModBuildConfig.Analyzer/tools/install.ps1" DestinationFiles="$(PackagePath)/tools/install.ps1" />
-    <Copy SourceFiles="$(SolutionDir)/SMAPI.ModBuildConfig.Analyzer/tools/uninstall.ps1" DestinationFiles="$(PackagePath)/tools/uninstall.ps1" />
+    <Copy SourceFiles="$(TargetDir)/Newtonsoft.Json.dll" DestinationFolder="$(PackagePath)/build" />
+    <Copy SourceFiles="$(TargetDir)/StardewModdingAPI.ModBuildConfig.dll" DestinationFolder="$(PackagePath)/build" />
+    <Copy SourceFiles="$(TargetDir)/StardewModdingAPI.Toolkit.dll" DestinationFolder="$(PackagePath)/build" />
+    <Copy SourceFiles="$(TargetDir)/StardewModdingAPI.Toolkit.CoreInterfaces.dll" DestinationFolder="$(PackagePath)/build" />
+    <Copy SourceFiles="$(SolutionDir)/SMAPI.ModBuildConfig.Analyzer/bin/netstandard1.3/StardewModdingAPI.ModBuildConfig.Analyzer.dll" DestinationFolder="$(PackagePath)/analyzers/dotnet/cs" />
+    <Copy SourceFiles="$(SolutionDir)/SMAPI.ModBuildConfig.Analyzer/tools/install.ps1" DestinationFolder="$(PackagePath)/tools" />
+    <Copy SourceFiles="$(SolutionDir)/SMAPI.ModBuildConfig.Analyzer/tools/uninstall.ps1" DestinationFolder="$(PackagePath)/tools" />
   </Target>
 </Project>

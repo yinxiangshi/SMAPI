@@ -1,6 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
+using StardewModdingAPI.Toolkit.Framework.UpdateData;
 using StardewModdingAPI.Web.Framework.Clients.Nexus;
 
 namespace StardewModdingAPI.Web.Framework.ModRepositories
@@ -19,10 +19,9 @@ namespace StardewModdingAPI.Web.Framework.ModRepositories
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="vendorKey">The unique key for this vendor.</param>
         /// <param name="client">The underlying Nexus Mods API client.</param>
-        public NexusRepository(string vendorKey, INexusClient client)
-            : base(vendorKey)
+        public NexusRepository(INexusClient client)
+            : base(ModRepositoryKey.Nexus)
         {
             this.Client = client;
         }

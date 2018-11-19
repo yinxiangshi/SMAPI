@@ -8,6 +8,14 @@ namespace StardewModdingAPI.Framework.Content
     internal class AssetDataForImage : AssetData<Texture2D>, IAssetDataForImage
     {
         /*********
+        ** Properties
+        *********/
+        /// <summary>The minimum value to consider non-transparent.</summary>
+        /// <remarks>On Linux/Mac, fully transparent pixels may have an alpha up to 4 for some reason.</remarks>
+        private const byte MinOpacity = 5;
+
+
+        /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
@@ -53,13 +61,40 @@ namespace StardewModdingAPI.Framework.Content
             // merge data in overlay mode
             if (patchMode == PatchMode.Overlay)
             {
+                // get target data
+                Color[] targetData = new Color[pixelCount];
+                target.GetData(0, targetArea, targetData, 0, pixelCount);
+
+                // merge pixels
                 Color[] newData = new Color[targetArea.Value.Width * targetArea.Value.Height];
                 target.GetData(0, targetArea, newData, 0, newData.Length);
                 for (int i = 0; i < sourceData.Length; i++)
                 {
-                    Color pixel = sourceData[i];
-                    if (pixel.A > 4) // not transparent (note: on Linux/Mac, fully transparent pixels may have an alpha up to 4 for some reason)
-                        newData[i] = pixel;
+                    Color above = sourceData[i];
+                    Color below = targetData[i];
+
+                    // shortcut transparency
+                    if (above.A < AssetDataForImage.MinOpacity)
+                        continue;
+                    if (below.A < AssetDataForImage.MinOpacity)
+                    {
+                        newData[i] = above;
+                        continue;
+                    }
+
+                    // merge pixels
+                    // This performs a conventional alpha blend for the pixels, which are already
+                    // premultiplied by the content pipeline. The formula is derived from
+                    // https://blogs.msdn.microsoft.com/shawnhar/2009/11/06/premultiplied-alpha/.
+                    // Note: don't use named arguments here since they're different between
+                    // Linux/Mac and Windows.
+                    float alphaBelow = 1 - (above.A / 255f);
+                    newData[i] = new Color(
+                        (int)(above.R + (below.R * alphaBelow)), // r
+                        (int)(above.G + (below.G * alphaBelow)), // g
+                        (int)(above.B + (below.B * alphaBelow)), // b
+                        Math.Max(above.A, below.A) // a
+                    );
                 }
                 sourceData = newData;
             }

@@ -70,7 +70,7 @@ namespace StardewModdingAPI.Toolkit.Serialisation.Converters
             if (build == "0")
                 build = null; // '0' from incorrect examples in old SMAPI documentation
 
-            return new SemanticVersion(major, minor, patch, build);
+            return new SemanticVersion(major, minor, patch, build, isLegacyFormat: true);
         }
 
         /// <summary>Read a JSON string.</summary>
@@ -82,7 +82,7 @@ namespace StardewModdingAPI.Toolkit.Serialisation.Converters
                 return null;
             if (!SemanticVersion.TryParse(str, out ISemanticVersion version))
                 throw new SParseException($"Can't parse semantic version from invalid value '{str}', should be formatted like 1.2, 1.2.30, or 1.2.30-beta (path: {path}).");
-            return (SemanticVersion)version;
+            return version;
         }
     }
 }

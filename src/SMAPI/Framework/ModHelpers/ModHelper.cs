@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.Input;
 using StardewModdingAPI.Toolkit.Serialisation;
@@ -16,11 +15,8 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /*********
         ** Properties
         *********/
-        /// <summary>Encapsulates SMAPI's JSON file parsing.</summary>
-        private readonly JsonHelper JsonHelper;
-
         /// <summary>The content packs loaded for this mod.</summary>
-        private readonly IContentPack[] ContentPacks;
+        private readonly Lazy<IContentPack[]> ContentPacks;
 
         /// <summary>Create a transitional content pack.</summary>
         private readonly Func<string, IManifest, IContentPack> CreateContentPack;
@@ -35,11 +31,17 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <summary>The full path to the mod's folder.</summary>
         public string DirectoryPath { get; }
 
+        /// <summary>Encapsulates SMAPI's JSON file parsing.</summary>
+        private readonly JsonHelper JsonHelper;
+
         /// <summary>Manages access to events raised by SMAPI, which let your mod react when something happens in the game.</summary>
         public IModEvents Events { get; }
 
         /// <summary>An API for loading content assets.</summary>
         public IContentHelper Content { get; }
+
+        /// <summary>An API for reading and writing persistent mod data.</summary>
+        public IDataHelper Data { get; }
 
         /// <summary>An API for checking and changing input state.</summary>
         public IInputHelper Input { get; }
@@ -71,6 +73,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="events">Manages access to events raised by SMAPI.</param>
         /// <param name="contentHelper">An API for loading content assets.</param>
         /// <param name="commandHelper">An API for managing console commands.</param>
+        /// <param name="dataHelper">An API for reading and writing persistent mod data.</param>
         /// <param name="modRegistry">an API for fetching metadata about loaded mods.</param>
         /// <param name="reflectionHelper">An API for accessing private game code.</param>
         /// <param name="multiplayer">Provides multiplayer utilities.</param>
@@ -80,7 +83,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="deprecationManager">Manages deprecation warnings.</param>
         /// <exception cref="ArgumentNullException">An argument is null or empty.</exception>
         /// <exception cref="InvalidOperationException">The <paramref name="modDirectory"/> path does not exist on disk.</exception>
-        public ModHelper(string modID, string modDirectory, JsonHelper jsonHelper, SInputState inputState, IModEvents events, IContentHelper contentHelper, ICommandHelper commandHelper, IModRegistry modRegistry, IReflectionHelper reflectionHelper, IMultiplayerHelper multiplayer, ITranslationHelper translationHelper, IEnumerable<IContentPack> contentPacks, Func<string, IManifest, IContentPack> createContentPack, DeprecationManager deprecationManager)
+        public ModHelper(string modID, string modDirectory, JsonHelper jsonHelper, SInputState inputState, IModEvents events, IContentHelper contentHelper, ICommandHelper commandHelper, IDataHelper dataHelper, IModRegistry modRegistry, IReflectionHelper reflectionHelper, IMultiplayerHelper multiplayer, ITranslationHelper translationHelper, Func<IContentPack[]> contentPacks, Func<string, IManifest, IContentPack> createContentPack, DeprecationManager deprecationManager)
             : base(modID)
         {
             // validate directory
@@ -93,13 +96,14 @@ namespace StardewModdingAPI.Framework.ModHelpers
             this.DirectoryPath = modDirectory;
             this.JsonHelper = jsonHelper ?? throw new ArgumentNullException(nameof(jsonHelper));
             this.Content = contentHelper ?? throw new ArgumentNullException(nameof(contentHelper));
+            this.Data = dataHelper ?? throw new ArgumentNullException(nameof(dataHelper));
             this.Input = new InputHelper(modID, inputState);
             this.ModRegistry = modRegistry ?? throw new ArgumentNullException(nameof(modRegistry));
             this.ConsoleCommands = commandHelper ?? throw new ArgumentNullException(nameof(commandHelper));
             this.Reflection = reflectionHelper ?? throw new ArgumentNullException(nameof(reflectionHelper));
             this.Multiplayer = multiplayer ?? throw new ArgumentNullException(nameof(multiplayer));
             this.Translation = translationHelper ?? throw new ArgumentNullException(nameof(translationHelper));
-            this.ContentPacks = contentPacks.ToArray();
+            this.ContentPacks = new Lazy<IContentPack[]>(contentPacks);
             this.CreateContentPack = createContentPack;
             this.DeprecationManager = deprecationManager;
             this.Events = events;
@@ -113,7 +117,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         public TConfig ReadConfig<TConfig>()
             where TConfig : class, new()
         {
-            TConfig config = this.ReadJsonFile<TConfig>("config.json") ?? new TConfig();
+            TConfig config = this.Data.ReadJsonFile<TConfig>("config.json") ?? new TConfig();
             this.WriteConfig(config); // create file or fill in missing fields
             return config;
         }
@@ -124,7 +128,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         public void WriteConfig<TConfig>(TConfig config)
             where TConfig : class, new()
         {
-            this.WriteJsonFile("config.json", config);
+            this.Data.WriteJsonFile("config.json", config);
         }
 
         /****
@@ -134,6 +138,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <typeparam name="TModel">The model type.</typeparam>
         /// <param name="path">The file path relative to the mod directory.</param>
         /// <returns>Returns the deserialised model, or <c>null</c> if the file doesn't exist or is empty.</returns>
+        [Obsolete("Use " + nameof(ModHelper.Data) + "." + nameof(IDataHelper.ReadJsonFile) + " instead")]
         public TModel ReadJsonFile<TModel>(string path)
             where TModel : class
         {
@@ -147,6 +152,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <typeparam name="TModel">The model type.</typeparam>
         /// <param name="path">The file path relative to the mod directory.</param>
         /// <param name="model">The model to save.</param>
+        [Obsolete("Use " + nameof(ModHelper.Data) + "." + nameof(IDataHelper.WriteJsonFile) + " instead")]
         public void WriteJsonFile<TModel>(string path, TModel model)
             where TModel : class
         {
@@ -197,7 +203,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <summary>Get all content packs loaded for this mod.</summary>
         public IEnumerable<IContentPack> GetContentPacks()
         {
-            return this.ContentPacks;
+            return this.ContentPacks.Value;
         }
 
         /****

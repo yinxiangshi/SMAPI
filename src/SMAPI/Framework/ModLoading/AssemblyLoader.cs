@@ -45,6 +45,7 @@ namespace StardewModdingAPI.Framework.ModLoading
             this.AssemblyMap = this.TrackForDisposal(Constants.GetAssemblyMap(targetPlatform));
             this.AssemblyDefinitionResolver = this.TrackForDisposal(new AssemblyDefinitionResolver());
             this.AssemblyDefinitionResolver.AddSearchDirectory(Constants.ExecutionPath);
+            this.AssemblyDefinitionResolver.AddSearchDirectory(Constants.InternalFilesPath);
 
             // generate type => assembly lookup for types which should be rewritten
             this.TypeAssemblies = new Dictionary<string, Assembly>();
@@ -347,6 +348,16 @@ namespace StardewModdingAPI.Framework.ModLoading
                 case InstructionHandleResult.DetectedDynamic:
                     this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Detected 'dynamic' keyword ({handler.NounPhrase}) in assembly {filename}.");
                     mod.SetWarning(ModWarning.UsesDynamic);
+                    break;
+
+                case InstructionHandleResult.DetectedFilesystemAccess:
+                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Detected filesystem access ({handler.NounPhrase}) in assembly {filename}.");
+                    mod.SetWarning(ModWarning.AccessesFilesystem);
+                    break;
+
+                case InstructionHandleResult.DetectedShellAccess:
+                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Detected shell or process access ({handler.NounPhrase}) in assembly {filename}.");
+                    mod.SetWarning(ModWarning.AccessesShell);
                     break;
 
                 case InstructionHandleResult.None:

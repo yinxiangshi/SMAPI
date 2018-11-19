@@ -165,63 +165,25 @@ namespace StardewModdingAPI.Framework.ContentManagers
             return file;
         }
 
-        /// <summary>Premultiply a texture's alpha values to avoid transparency issues in the game. This is only possible if the game isn't currently drawing.</summary>
+        /// <summary>Premultiply a texture's alpha values to avoid transparency issues in the game.</summary>
         /// <param name="texture">The texture to premultiply.</param>
         /// <returns>Returns a premultiplied texture.</returns>
-        /// <remarks>Based on <a href="https://gist.github.com/Layoric/6255384">code by Layoric</a>.</remarks>
+        /// <remarks>Based on <a href="https://gamedev.stackexchange.com/a/26037">code by David Gouveia</a>.</remarks>
         private Texture2D PremultiplyTransparency(Texture2D texture)
         {
-            // validate
-            if (Context.IsInDrawLoop)
-                throw new NotSupportedException("Can't load a PNG file while the game is drawing to the screen. Make sure you load content outside the draw loop.");
+            // Textures loaded by Texture2D.FromStream are already premultiplied on Linux/Mac, even
+            // though the XNA documentation explicitly says otherwise. That's a glitch in MonoGame
+            // fixed in newer versions, but the game uses a bundled version that will always be
+            // affected. See https://github.com/MonoGame/MonoGame/issues/4820 for more info.
+            if (Constants.TargetPlatform != GamePlatform.Windows)
+                return texture;
 
-            // process texture
-            SpriteBatch spriteBatch = Game1.spriteBatch;
-            GraphicsDevice gpu = Game1.graphics.GraphicsDevice;
-            using (RenderTarget2D renderTarget = new RenderTarget2D(Game1.graphics.GraphicsDevice, texture.Width, texture.Height))
-            {
-                // create blank render target to premultiply
-                gpu.SetRenderTarget(renderTarget);
-                gpu.Clear(Color.Black);
-
-                // multiply each color by the source alpha, and write just the color values into the final texture
-                spriteBatch.Begin(SpriteSortMode.Immediate, new BlendState
-                {
-                    ColorDestinationBlend = Blend.Zero,
-                    ColorWriteChannels = ColorWriteChannels.Red | ColorWriteChannels.Green | ColorWriteChannels.Blue,
-                    AlphaDestinationBlend = Blend.Zero,
-                    AlphaSourceBlend = Blend.SourceAlpha,
-                    ColorSourceBlend = Blend.SourceAlpha
-                });
-                spriteBatch.Draw(texture, texture.Bounds, Color.White);
-                spriteBatch.End();
-
-                // copy the alpha values from the source texture into the final one without multiplying them
-                spriteBatch.Begin(SpriteSortMode.Immediate, new BlendState
-                {
-                    ColorWriteChannels = ColorWriteChannels.Alpha,
-                    AlphaDestinationBlend = Blend.Zero,
-                    ColorDestinationBlend = Blend.Zero,
-                    AlphaSourceBlend = Blend.One,
-                    ColorSourceBlend = Blend.One
-                });
-                spriteBatch.Draw(texture, texture.Bounds, Color.White);
-                spriteBatch.End();
-
-                // release GPU
-                gpu.SetRenderTarget(null);
-
-                // extract premultiplied data
-                Color[] data = new Color[texture.Width * texture.Height];
-                renderTarget.GetData(data);
-
-                // unset texture from GPU to regain control
-                gpu.Textures[0] = null;
-
-                // update texture with premultiplied data
-                texture.SetData(data);
-            }
-
+            // premultiply pixels
+            Color[] data = new Color[texture.Width * texture.Height];
+            texture.GetData(data);
+            for (int i = 0; i < data.Length; i++)
+                data[i] = Color.FromNonPremultiplied(data[i].ToVector4());
+            texture.SetData(data);
             return texture;
         }
     }

@@ -19,15 +19,15 @@ namespace StardewModdingAPI.Events
         /// <summary>Raised after the game begins a new day, including when loading a save.</summary>
         public static event EventHandler AfterDayStarted
         {
-            add => TimeEvents.EventManager.Time_AfterDayStarted.Add(value);
-            remove => TimeEvents.EventManager.Time_AfterDayStarted.Remove(value);
+            add => TimeEvents.EventManager.Legacy_AfterDayStarted.Add(value);
+            remove => TimeEvents.EventManager.Legacy_AfterDayStarted.Remove(value);
         }
 
         /// <summary>Raised after the in-game clock changes.</summary>
         public static event EventHandler<EventArgsIntChanged> TimeOfDayChanged
         {
-            add => TimeEvents.EventManager.Time_TimeOfDayChanged.Add(value);
-            remove => TimeEvents.EventManager.Time_TimeOfDayChanged.Remove(value);
+            add => TimeEvents.EventManager.Legacy_TimeOfDayChanged.Add(value);
+            remove => TimeEvents.EventManager.Legacy_TimeOfDayChanged.Remove(value);
         }
 
 

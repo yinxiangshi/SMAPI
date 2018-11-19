@@ -26,6 +26,12 @@ namespace StardewModdingAPI.Framework.ModLoading
         UsesUnvalidatedUpdateTick = 16,
 
         /// <summary>The mod has no update keys set.</summary>
-        NoUpdateKeys = 32
+        NoUpdateKeys = 32,
+
+        /// <summary>Uses .NET APIs for filesystem access.</summary>
+        AccessesFilesystem = 64,
+
+        /// <summary>Uses .NET APIs for shell or process access.</summary>
+        AccessesShell = 128
     }
 }

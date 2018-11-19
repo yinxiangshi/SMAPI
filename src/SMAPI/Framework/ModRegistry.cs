@@ -18,6 +18,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>An assembly full name => mod lookup.</summary>
         private readonly IDictionary<string, IModMetadata> ModNamesByAssembly = new Dictionary<string, IModMetadata>();
 
+        /// <summary>Whether all mod assemblies have been loaded.</summary>
+        public bool AreAllModsLoaded { get; set; }
+
         /// <summary>Whether all mods have been initialised and their <see cref="IMod.Entry"/> method called.</summary>
         public bool AreAllModsInitialised { get; set; }
 
@@ -59,7 +62,7 @@ namespace StardewModdingAPI.Framework
             uniqueID = uniqueID.Trim();
 
             // find match
-            return this.GetAll().FirstOrDefault(p => p.Manifest.UniqueID.Trim().Equals(uniqueID, StringComparison.InvariantCultureIgnoreCase));
+            return this.GetAll().FirstOrDefault(p => p.HasID(uniqueID));
         }
 
         /// <summary>Get the mod metadata from one of its assemblies.</summary>

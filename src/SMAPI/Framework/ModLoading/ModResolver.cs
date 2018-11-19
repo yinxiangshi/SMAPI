@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using StardewModdingAPI.Toolkit;
 using StardewModdingAPI.Toolkit.Framework.ModData;
 using StardewModdingAPI.Toolkit.Framework.ModScanning;
@@ -31,13 +30,6 @@ namespace StardewModdingAPI.Framework.ModLoading
                 // parse internal data record (if any)
                 ModDataRecordVersionedFields dataRecord = modDatabase.Get(manifest?.UniqueID)?.GetVersionedFields(manifest);
 
-                // get display name
-                string displayName = manifest?.Name;
-                if (string.IsNullOrWhiteSpace(displayName))
-                    displayName = dataRecord?.DisplayName;
-                if (string.IsNullOrWhiteSpace(displayName))
-                    displayName = PathUtilities.GetRelativePath(rootPath, folder.ActualDirectory?.FullName ?? folder.SearchDirectory.FullName);
-
                 // apply defaults
                 if (manifest != null && dataRecord != null)
                 {
@@ -46,10 +38,13 @@ namespace StardewModdingAPI.Framework.ModLoading
                 }
 
                 // build metadata
-                ModMetadataStatus status = folder.ManifestParseError == null
+                ModMetadataStatus status = folder.ManifestParseError == null || !folder.ShouldBeLoaded
                     ? ModMetadataStatus.Found
                     : ModMetadataStatus.Failed;
-                yield return new ModMetadata(displayName, folder.ActualDirectory?.FullName, manifest, dataRecord).SetStatus(status, folder.ManifestParseError);
+                string relativePath = PathUtilities.GetRelativePath(rootPath, folder.Directory.FullName);
+
+                yield return new ModMetadata(folder.DisplayName, folder.Directory.FullName, relativePath, manifest, dataRecord, isIgnored: !folder.ShouldBeLoaded)
+                    .SetStatus(status, !folder.ShouldBeLoaded ? "disabled by dot convention" : folder.ManifestParseError);
             }
         }
 
@@ -92,7 +87,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                                 updateUrls.Add(mod.DataRecord.AlternativeUrl);
 
                             // default update URL
-                            updateUrls.Add("https://smapi.io/compat");
+                            updateUrls.Add("https://mods.smapi.io");
 
                             // build error
                             string error = $"{reasonPhrase}. Please check for a ";
@@ -181,7 +176,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 }
 
                 // validate ID format
-                if (Regex.IsMatch(mod.Manifest.UniqueID, "[^a-z0-9_.-]", RegexOptions.IgnoreCase))
+                if (!PathUtilities.IsSlug(mod.Manifest.UniqueID))
                     mod.SetStatus(ModMetadataStatus.Failed, "its manifest specifies an invalid ID (IDs must only contain letters, numbers, underscores, periods, or hyphens).");
             }
 
@@ -196,7 +191,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                     {
                         if (mod.Status == ModMetadataStatus.Failed)
                             continue; // don't replace metadata error
-                        mod.SetStatus(ModMetadataStatus.Failed, $"its unique ID '{mod.Manifest.UniqueID}' is used by multiple mods ({string.Join(", ", group.Select(p => p.DisplayName))}).");
+                        mod.SetStatus(ModMetadataStatus.Failed, $"you have multiple copies of this mod installed ({string.Join(", ", group.Select(p => p.RelativeDirectoryPath).OrderBy(p => p))}).");
                     }
                 }
             }
@@ -386,7 +381,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="loadedMods">The loaded mods.</param>
         private IEnumerable<ModDependency> GetDependenciesFrom(IManifest manifest, IModMetadata[] loadedMods)
         {
-            IModMetadata FindMod(string id) => loadedMods.FirstOrDefault(m => string.Equals(m.Manifest?.UniqueID, id, StringComparison.InvariantCultureIgnoreCase));
+            IModMetadata FindMod(string id) => loadedMods.FirstOrDefault(m => m.HasID(id));
 
             // yield dependencies
             if (manifest.Dependencies != null)

@@ -40,17 +40,17 @@ namespace StardewModdingAPI.Framework.ModHelpers
         }
 
         /// <summary>Get metadata for all loaded mods.</summary>
-        public IEnumerable<IManifest> GetAll()
+        public IEnumerable<IModInfo> GetAll()
         {
-            return this.Registry.GetAll().Select(p => p.Manifest);
+            return this.Registry.GetAll();
         }
 
         /// <summary>Get metadata for a loaded mod.</summary>
         /// <param name="uniqueID">The mod's unique ID.</param>
         /// <returns>Returns the matching mod's metadata, or <c>null</c> if not found.</returns>
-        public IManifest Get(string uniqueID)
+        public IModInfo Get(string uniqueID)
         {
-            return this.Registry.Get(uniqueID)?.Manifest;
+            return this.Registry.Get(uniqueID);
         }
 
         /// <summary>Get whether a mod has been loaded.</summary>

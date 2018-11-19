@@ -1,5 +1,6 @@
 using System;
 using Newtonsoft.Json;
+using StardewModdingAPI.Framework;
 
 namespace StardewModdingAPI
 {
@@ -11,6 +12,9 @@ namespace StardewModdingAPI
         *********/
         /// <summary>The underlying semantic version implementation.</summary>
         private readonly ISemanticVersion Version;
+
+        /// <summary>Manages deprecation warnings.</summary>
+        internal static DeprecationManager DeprecationManager { get; set; }
 
 
         /*********
@@ -26,7 +30,18 @@ namespace StardewModdingAPI
         public int PatchVersion => this.Version.PatchVersion;
 
         /// <summary>An optional build tag.</summary>
-        public string Build => this.Version.Build;
+        [Obsolete("Use " + nameof(ISemanticVersion.PrereleaseTag) + " instead")]
+        public string Build
+        {
+            get
+            {
+                SemanticVersion.DeprecationManager?.Warn($"{nameof(ISemanticVersion)}.{nameof(ISemanticVersion.Build)}", "2.8", DeprecationLevel.Notice);
+                return this.Version.PrereleaseTag;
+            }
+        }
+
+        /// <summary>An optional prerelease tag.</summary>
+        public string PrereleaseTag => this.Version.PrereleaseTag;
 
 
         /*********
@@ -70,7 +85,7 @@ namespace StardewModdingAPI
         /// <summary>Get an integer indicating whether this version precedes (less than 0), supercedes (more than 0), or is equivalent to (0) the specified version.</summary>
         /// <param name="other">The version to compare with this instance.</param>
         /// <exception cref="ArgumentNullException">The <paramref name="other"/> value is null.</exception>
-        /// <remarks>The implementation is defined by Semantic Version 2.0 (http://semver.org/).</remarks>
+        /// <remarks>The implementation is defined by Semantic Version 2.0 (https://semver.org/).</remarks>
         public int CompareTo(ISemanticVersion other)
         {
             return this.Version.CompareTo(other);

@@ -34,20 +34,11 @@ namespace StardewModdingAPI.Metadata
                 // rewrite for crossplatform compatibility
                 new MethodParentRewriter(typeof(SpriteBatch), typeof(SpriteBatchMethods), onlyIfPlatformChanged: true),
 
-                // rewrite for SMAPI 2.0
-                new VirtualEntryCallRemover(),
-
-                // rewrite for SMAPI 2.6 (types moved into SMAPI.Toolkit.CoreInterfaces)
-                new TypeReferenceRewriter("StardewModdingAPI.IManifest", typeof(IManifest), shouldIgnore: type => type.Scope.Name != "StardewModdingAPI"),
-                new TypeReferenceRewriter("StardewModdingAPI.IManifestContentPackFor", typeof(IManifestContentPackFor), shouldIgnore: type => type.Scope.Name != "StardewModdingAPI"),
-                new TypeReferenceRewriter("StardewModdingAPI.IManifestDependency", typeof(IManifestDependency), shouldIgnore: type => type.Scope.Name != "StardewModdingAPI"),
-                new TypeReferenceRewriter("StardewModdingAPI.ISemanticVersion", typeof(ISemanticVersion), shouldIgnore: type => type.Scope.Name != "StardewModdingAPI"),
-
                 // rewrite for Stardew Valley 1.3
                 new StaticFieldToConstantRewriter<int>(typeof(Game1), "tileSize", Game1.tileSize),
 
                 /****
-                ** detect incompatible code
+                ** detect mod issues
                 ****/
                 // detect broken code
                 new ReferenceToMissingMemberFinder(this.ValidateReferencesToAssemblies),
@@ -61,7 +52,22 @@ namespace StardewModdingAPI.Metadata
                 new FieldFinder(typeof(SaveGame).FullName, nameof(SaveGame.serializer), InstructionHandleResult.DetectedSaveSerialiser),
                 new FieldFinder(typeof(SaveGame).FullName, nameof(SaveGame.farmerSerializer), InstructionHandleResult.DetectedSaveSerialiser),
                 new FieldFinder(typeof(SaveGame).FullName, nameof(SaveGame.locationSerializer), InstructionHandleResult.DetectedSaveSerialiser),
-                new EventFinder(typeof(SpecialisedEvents).FullName, nameof(SpecialisedEvents.UnvalidatedUpdateTick), InstructionHandleResult.DetectedUnvalidatedUpdateTick)
+                new EventFinder(typeof(SpecialisedEvents).FullName, nameof(SpecialisedEvents.UnvalidatedUpdateTick), InstructionHandleResult.DetectedUnvalidatedUpdateTick),
+                
+                /****
+                ** detect paranoid issues
+                ****/
+                // filesystem access
+                new TypeFinder(typeof(System.IO.File).FullName, InstructionHandleResult.DetectedFilesystemAccess),
+                new TypeFinder(typeof(System.IO.FileStream).FullName, InstructionHandleResult.DetectedFilesystemAccess),
+                new TypeFinder(typeof(System.IO.FileInfo).FullName, InstructionHandleResult.DetectedFilesystemAccess),
+                new TypeFinder(typeof(System.IO.Directory).FullName, InstructionHandleResult.DetectedFilesystemAccess),
+                new TypeFinder(typeof(System.IO.DirectoryInfo).FullName, InstructionHandleResult.DetectedFilesystemAccess),
+                new TypeFinder(typeof(System.IO.DriveInfo).FullName, InstructionHandleResult.DetectedFilesystemAccess),
+                new TypeFinder(typeof(System.IO.FileSystemWatcher).FullName, InstructionHandleResult.DetectedFilesystemAccess),
+
+                // shell access
+                new TypeFinder(typeof(System.Diagnostics.Process).FullName, InstructionHandleResult.DetectedShellAccess)
             };
         }
     }

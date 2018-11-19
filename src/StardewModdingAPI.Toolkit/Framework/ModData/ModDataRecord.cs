@@ -96,6 +96,15 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
                 .Distinct();
         }
 
+        /// <summary>Get the default update key for this mod, if any.</summary>
+        public string GetDefaultUpdateKey()
+        {
+            string updateKey = this.Fields.FirstOrDefault(p => p.Key == ModDataFieldKey.UpdateKey && p.IsDefault)?.Value;
+            return !string.IsNullOrWhiteSpace(updateKey)
+                ? updateKey
+                : null;
+        }
+
         /// <summary>Get a parsed representation of the <see cref="ModDataRecord.Fields"/> which match a given manifest.</summary>
         /// <param name="manifest">The manifest to match.</param>
         public ModDataRecordVersionedFields GetVersionedFields(IManifest manifest)

@@ -37,6 +37,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>Whether SMAPI is aborting. Mods don't need to worry about this unless they have background tasks.</summary>
         public bool IsExiting => this.ExitTokenSource.IsCancellationRequested;
 
+        /// <summary>Whether verbose logging is enabled. This enables more detailed diagnostic messages than are normally needed.</summary>
+        public bool IsVerbose { get; }
+
         /// <summary>Whether to show the full log stamps (with time/level/logger) in the console. If false, shows a simplified stamp with only the logger.</summary>
         internal bool ShowFullStampInConsole { get; set; }
 
@@ -56,7 +59,8 @@ namespace StardewModdingAPI.Framework
         /// <param name="logFile">The log file to which to write messages.</param>
         /// <param name="exitTokenSource">Propagates notification that SMAPI should exit.</param>
         /// <param name="colorScheme">The console color scheme to use.</param>
-        public Monitor(string source, ConsoleInterceptionManager consoleInterceptor, LogFileManager logFile, CancellationTokenSource exitTokenSource, MonitorColorScheme colorScheme)
+        /// <param name="isVerbose">Whether verbose logging is enabled. This enables more detailed diagnostic messages than are normally needed.</param>
+        public Monitor(string source, ConsoleInterceptionManager consoleInterceptor, LogFileManager logFile, CancellationTokenSource exitTokenSource, MonitorColorScheme colorScheme, bool isVerbose)
         {
             // validate
             if (string.IsNullOrWhiteSpace(source))
@@ -68,6 +72,7 @@ namespace StardewModdingAPI.Framework
             this.ConsoleWriter = new ColorfulConsoleWriter(Constants.Platform, colorScheme);
             this.ConsoleInterceptor = consoleInterceptor;
             this.ExitTokenSource = exitTokenSource;
+            this.IsVerbose = isVerbose;
         }
 
         /// <summary>Log a message for the player or developer.</summary>
@@ -76,6 +81,14 @@ namespace StardewModdingAPI.Framework
         public void Log(string message, LogLevel level = LogLevel.Debug)
         {
             this.LogImpl(this.Source, message, (ConsoleLogLevel)level);
+        }
+
+        /// <summary>Log a message that only appears when <see cref="IMonitor.IsVerbose"/> is enabled.</summary>
+        /// <param name="message">The message to log.</param>
+        public void VerboseLog(string message)
+        {
+            if (this.IsVerbose)
+                this.Log(message, LogLevel.Trace);
         }
 
         /// <summary>Immediately exit the game without saving. This should only be invoked when an irrecoverable fatal error happens that risks save corruption or game-breaking bugs.</summary>

@@ -62,27 +62,27 @@ else
     fi
 
     # open SMAPI in terminal
-    if $COMMAND x-terminal-emulator 2>/dev/null; then
+    if $COMMAND xterm 2>/dev/null; then
+        xterm -e "$LAUNCHER"
+    elif $COMMAND x-terminal-emulator 2>/dev/null; then
         # Terminator converts -e to -x when used through x-terminal-emulator for some reason (per
         # `man terminator`), which causes an "unable to find shell" error. If x-terminal-emulator
         # is mapped to Terminator, invoke it directly instead.
         if [[ "$(readlink -e $(which x-terminal-emulator))" == *"/terminator" ]]; then
-            terminator -e "$LAUNCHER"
+            terminator -e "sh -c 'TERM=xterm $LAUNCHER'"
         else
-            x-terminal-emulator -e "$LAUNCHER"
+            x-terminal-emulator -e "sh -c 'TERM=xterm $LAUNCHER'"
         fi
-    elif $COMMAND xterm 2>/dev/null; then
-        xterm -e "$LAUNCHER"
     elif $COMMAND xfce4-terminal 2>/dev/null; then
-        xfce4-terminal -e "env TERM=xterm; $LAUNCHER"
+        xfce4-terminal -e "sh -c 'TERM=xterm $LAUNCHER'"
     elif $COMMAND gnome-terminal 2>/dev/null; then
-        gnome-terminal -e "env TERM=xterm; $LAUNCHER"
+        gnome-terminal -e "sh -c 'TERM=xterm $LAUNCHER'"
     elif $COMMAND konsole 2>/dev/null; then
         konsole -p Environment=TERM=xterm -e "$LAUNCHER"
     elif $COMMAND terminal 2>/dev/null; then
-        terminal -e "$LAUNCHER"
+        terminal -e "sh -c 'TERM=xterm $LAUNCHER'"
     else
-        $LAUNCHER
+        sh -c 'TERM=xterm $LAUNCHER'
     fi
 
     # some Linux users get error 127 (command not found) from the above block, even though

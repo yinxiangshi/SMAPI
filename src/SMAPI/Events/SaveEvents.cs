@@ -19,43 +19,43 @@ namespace StardewModdingAPI.Events
         /// <summary>Raised before the game creates the save file.</summary>
         public static event EventHandler BeforeCreate
         {
-            add => SaveEvents.EventManager.Save_BeforeCreate.Add(value);
-            remove => SaveEvents.EventManager.Save_BeforeCreate.Remove(value);
+            add => SaveEvents.EventManager.Legacy_BeforeCreateSave.Add(value);
+            remove => SaveEvents.EventManager.Legacy_BeforeCreateSave.Remove(value);
         }
 
         /// <summary>Raised after the game finishes creating the save file.</summary>
         public static event EventHandler AfterCreate
         {
-            add => SaveEvents.EventManager.Save_AfterCreate.Add(value);
-            remove => SaveEvents.EventManager.Save_AfterCreate.Remove(value);
+            add => SaveEvents.EventManager.Legacy_AfterCreateSave.Add(value);
+            remove => SaveEvents.EventManager.Legacy_AfterCreateSave.Remove(value);
         }
 
         /// <summary>Raised before the game begins writes data to the save file.</summary>
         public static event EventHandler BeforeSave
         {
-            add => SaveEvents.EventManager.Save_BeforeSave.Add(value);
-            remove => SaveEvents.EventManager.Save_BeforeSave.Remove(value);
+            add => SaveEvents.EventManager.Legacy_BeforeSave.Add(value);
+            remove => SaveEvents.EventManager.Legacy_BeforeSave.Remove(value);
         }
 
         /// <summary>Raised after the game finishes writing data to the save file.</summary>
         public static event EventHandler AfterSave
         {
-            add => SaveEvents.EventManager.Save_AfterSave.Add(value);
-            remove => SaveEvents.EventManager.Save_AfterSave.Remove(value);
+            add => SaveEvents.EventManager.Legacy_AfterSave.Add(value);
+            remove => SaveEvents.EventManager.Legacy_AfterSave.Remove(value);
         }
 
         /// <summary>Raised after the player loads a save slot.</summary>
         public static event EventHandler AfterLoad
         {
-            add => SaveEvents.EventManager.Save_AfterLoad.Add(value);
-            remove => SaveEvents.EventManager.Save_AfterLoad.Remove(value);
+            add => SaveEvents.EventManager.Legacy_AfterLoad.Add(value);
+            remove => SaveEvents.EventManager.Legacy_AfterLoad.Remove(value);
         }
 
         /// <summary>Raised after the game returns to the title screen.</summary>
         public static event EventHandler AfterReturnToTitle
         {
-            add => SaveEvents.EventManager.Save_AfterReturnToTitle.Add(value);
-            remove => SaveEvents.EventManager.Save_AfterReturnToTitle.Remove(value);
+            add => SaveEvents.EventManager.Legacy_AfterReturnToTitle.Add(value);
+            remove => SaveEvents.EventManager.Legacy_AfterReturnToTitle.Remove(value);
         }
 
 

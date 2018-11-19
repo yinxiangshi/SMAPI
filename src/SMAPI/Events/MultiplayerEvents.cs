@@ -19,29 +19,29 @@ namespace StardewModdingAPI.Events
         /// <summary>Raised before the game syncs changes from other players.</summary>
         public static event EventHandler BeforeMainSync
         {
-            add => MultiplayerEvents.EventManager.Multiplayer_BeforeMainSync.Add(value);
-            remove => MultiplayerEvents.EventManager.Multiplayer_BeforeMainSync.Remove(value);
+            add => MultiplayerEvents.EventManager.Legacy_BeforeMainSync.Add(value);
+            remove => MultiplayerEvents.EventManager.Legacy_BeforeMainSync.Remove(value);
         }
 
         /// <summary>Raised after the game syncs changes from other players.</summary>
         public static event EventHandler AfterMainSync
         {
-            add => MultiplayerEvents.EventManager.Multiplayer_AfterMainSync.Add(value);
-            remove => MultiplayerEvents.EventManager.Multiplayer_AfterMainSync.Remove(value);
+            add => MultiplayerEvents.EventManager.Legacy_AfterMainSync.Add(value);
+            remove => MultiplayerEvents.EventManager.Legacy_AfterMainSync.Remove(value);
         }
 
         /// <summary>Raised before the game broadcasts changes to other players.</summary>
         public static event EventHandler BeforeMainBroadcast
         {
-            add => MultiplayerEvents.EventManager.Multiplayer_BeforeMainBroadcast.Add(value);
-            remove => MultiplayerEvents.EventManager.Multiplayer_BeforeMainBroadcast.Remove(value);
+            add => MultiplayerEvents.EventManager.Legacy_BeforeMainBroadcast.Add(value);
+            remove => MultiplayerEvents.EventManager.Legacy_BeforeMainBroadcast.Remove(value);
         }
 
         /// <summary>Raised after the game broadcasts changes to other players.</summary>
         public static event EventHandler AfterMainBroadcast
         {
-            add => MultiplayerEvents.EventManager.Multiplayer_AfterMainBroadcast.Add(value);
-            remove => MultiplayerEvents.EventManager.Multiplayer_AfterMainBroadcast.Remove(value);
+            add => MultiplayerEvents.EventManager.Legacy_AfterMainBroadcast.Add(value);
+            remove => MultiplayerEvents.EventManager.Legacy_AfterMainBroadcast.Remove(value);
         }
 
 

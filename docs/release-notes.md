@@ -1,4 +1,74 @@
 # Release notes
+## 2.8.1
+* Fixed installer error on Windows.
+
+## 2.8
+* For players:
+  * Reorganised SMAPI files:
+    * Moved most SMAPI files into a `smapi-internal` subfolder (so your game folder is less messy).
+    * Moved save backups into a `save-backups` subfolder (so they're easier to find).
+    * Simplified the installer files to avoid confusion.
+  * Added support for organising mods into subfolders.
+  * Added support for [ignoring mod folders](https://stardewvalleywiki.com/Modding:Player_Guide/Getting_Started#Install_mods).
+  * Update checks now work even for mods without update keys in most cases.
+  * SMAPI now prevents a crash caused by mods adding dialogue the game can't parse.
+  * SMAPI now recommends a compatible SMAPI version if you have an older game version.
+  * Improved various error messages to be more clear and intuitive.
+  * Improved compatibility with various Linux shells (thanks to lqdev!), and prefer xterm when available.
+  * Fixed transparency issues on Linux/Mac for some mod images.
+  * Fixed error when a mod manifest is corrupted.
+  * Fixed error when a mod adds an unnamed location.
+  * Fixed friendly error no longer shown when SMAPI isn't run from the game folder.
+  * Fixed some Windows install paths not detected.
+  * Fixed installer duplicating bundled mods if you moved them after the last install.
+  * Fixed installer allowing custom mods to be bundled with the install.
+  * Fixed some translation issues not shown as warnings.
+  * Fixed dependencies not correctly enforced if the dependency is installed but failed to load.
+  * Fixed some errors logged as SMAPI instead of the affected mod.
+  * Fixed crash log deleted immediately when you relaunch the game.
+  * Updated compatibility list.
+
+* For the web UI:
+  * Added a [mod compatibility page](https://mods.smapi.io) and [privacy page](https://smapi.io/privacy).
+  * The log parser now has a separate filter for game messages.
+  * The log parser now shows content pack authors (thanks to danvolchek!).
+  * Tweaked log parser UI (thanks to danvolchek!).
+  * Fixed log parser instructions for Mac.
+
+* For modders:
+  * Added [data API](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Data) to store mod data in the save file or app data.
+  * Added [multiplayer API](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Multiplayer) and [events](https://stardewvalleywiki.com/Modding:Modder_Guide/Apis/Events#Multiplayer_2) to send/receive messages and get connected player info.
+  * Added [verbose logging](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Logging#Verbose_logging) feature.
+  * Added `IContentPack.WriteJsonFile` method.
+  * Added IntelliSense documentation for the non-developers version of SMAPI.
+  * Added more events to the prototype `helper.Events` for SMAPI 3.0.
+  * Added `SkillType` enum constant.
+  * Improved content API:
+    * added support for overlaying image assets with semi-transparency;
+    * mods can now load PNGs even if the game is currently drawing.
+  * When comparing mod versions, SMAPI now assigns the lowest precedence to `-unofficial` (e.g. `1.0-beta > 1.0-unofficial`).
+  * Fixed content packs' `ReadJsonFile` allowing non-relative paths.
+  * Fixed content packs always failing to load if they declare a dependency on a SMAPI mod.
+  * Fixed trace logs not showing path for invalid mods.
+  * Fixed 'no update keys' warning not shown for mods with only invalid update keys.
+  * Fixed `Context.IsPlayerFree` being true while the player is mid-warp in multiplayer.
+  * Fixed update-check errors sometimes being overwritten with a generic message.
+  * Suppressed the game's 'added crickets' debug output.
+  * Updated dependencies (Harmony 1.0.9.1 → 1.2.0.1, Mono.Cecil 0.10 → 0.10.1).
+  * **Deprecations:**
+    * Non-string manifest versions are now deprecated and will stop working in SMAPI 3.0. Affected mods should use a string version, like `"Version": "1.0.0"`.
+    * `ISemanticVersion.Build` is now deprecated and will be removed in SMAPI 3.0. Affected mods should use `ISemanticVersion.PrereleaseTag` instead.
+  * **Breaking changes:**
+    * `helper.ModRegistry` now returns `IModInfo` instead of `IManifest` directly. This lets SMAPI return more metadata about mods. This doesn't affect any mods that didn't already break in Stardew Valley 1.3.32.
+    * Most SMAPI files have been moved into a `smapi-internal` subfolder. This won't affect compiled mod releases, but you'll need to update the build config NuGet package.
+
+* For SMAPI developers:
+  * Added support for parallel stable/beta unofficial updates in update checks.
+  * Added a 'paranoid warnings' option which reports mods using potentially sensitive .NET APIs (like file or shell access) in the mod issues list.
+  * Adjusted `SaveBackup` mod to make it easier to account for custom mod subfolders in the installer.
+  * Installer no longer special-cases Omegasis' older `SaveBackup` mod (now named `AdvancedSaveBackup`).
+  * Fixed mod web API returning a concatenated name for mods with alternate names.
+
 ## 2.7
 * For players:
   * Updated for Stardew Valley 1.3.28.
@@ -11,6 +81,7 @@
   * Fixed `player_add` command not recognising return scepter.
   * Fixed `player_add` command showing fish twice.
   * Fixed some SMAPI logs not deleted when starting a new session.
+  * Updated compatibility list.
 
 * For modders:
   * Added support for `.json` data files in the content API (including Content Patcher).
@@ -22,7 +93,6 @@
   * All enums are now JSON-serialised by name instead of numeric value. (Previously only a few enums were serialised that way. JSON files which already have numeric enum values will still be parsed fine.)
   * Fixed false compatibility error when constructing multidimensional arrays.
   * Fixed `.ToSButton()` methods not being public.
-  * Updated compatibility list.
 
 * For SMAPI developers:
   * Dropped support for pre-SMAPI-2.6 update checks in the web API.  
@@ -609,7 +679,7 @@ For mod developers:
 * The SMAPI log now always uses `\r\n` line endings to simplify crossplatform viewing.
 * Fixed `SaveEvents.AfterLoad` being raised during the new-game intro before the player is initialised.
 * Fixed SMAPI not recognising `Mod` instances that don't subclass `Mod` directly.
-* Several obsolete APIs have been removed (see [deprecation guide](http://canimod.com/guides/updating-a-smapi-mod)),
+* Several obsolete APIs have been removed (see [migration guides](https://stardewvalleywiki.com/Modding:Index#Migration_guides)),
   and all _notice_-level deprecations have been increased to _info_.
 * Removed the experimental `IConfigFile`.
 
@@ -692,7 +762,7 @@ For players:
 
 For developers:
   * Deprecated `Version` in favour of `SemanticVersion`.  
-    _This new implementation is [semver 2.0](http://semver.org/)-compliant, introduces `NewerThan(version)` and `OlderThan(version)` convenience methods, adds support for parsing a version string into a `SemanticVersion`, and fixes various bugs with the former implementation. This also replaces `Manifest` with `IManifest`._
+    _This new implementation is [semver 2.0](https://semver.org/)-compliant, introduces `NewerThan(version)` and `OlderThan(version)` convenience methods, adds support for parsing a version string into a `SemanticVersion`, and fixes various bugs with the former implementation. This also replaces `Manifest` with `IManifest`._
   * Increased deprecation levels for `SObject`, `Extensions`, `LogWriter` (not `Log`), `SPlayer`, and `Mod.Entry(ModHelper)` (not `Mod.Entry(IModHelper)`).
 
 ## 1.4
@@ -771,7 +841,7 @@ For mod developers:
   * Added OS version to log.
   * Added zoom-adjusted mouse position to mouse-changed event arguments.
   * Added SMAPI code documentation.
-  * Switched to [semantic versioning](http://semver.org).
+  * Switched to [semantic versioning](https://semver.org).
   * Fixed mod versions not shown correctly in the log.
   * Fixed misspelled field in `manifest.json` schema.
   * Fixed some events getting wrong data.

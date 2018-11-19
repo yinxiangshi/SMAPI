@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
 using StardewModdingAPI.Toolkit.Framework.ModData;
+using StardewModdingAPI.Toolkit.Framework.UpdateData;
 
 namespace StardewModdingAPI.Framework.ModLoading
 {
@@ -17,6 +19,9 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>The mod's full directory path.</summary>
         public string DirectoryPath { get; }
 
+        /// <summary>The <see cref="IModMetadata.DirectoryPath"/> relative to the game's Mods folder.</summary>
+        public string RelativeDirectoryPath { get; }
+
         /// <summary>The mod manifest.</summary>
         public IManifest Manifest { get; }
 
@@ -31,6 +36,9 @@ namespace StardewModdingAPI.Framework.ModLoading
 
         /// <summary>The reason the metadata is invalid, if any.</summary>
         public string Error { get; private set; }
+
+        /// <summary>Whether the mod folder should be ignored. This is <c>true</c> if it was found within a folder whose name starts with a dot.</summary>
+        public bool IsIgnored { get; }
 
         /// <summary>The mod instance (if loaded and <see cref="IsContentPack"/> is false).</summary>
         public IMod Mod { get; private set; }
@@ -57,14 +65,18 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>Construct an instance.</summary>
         /// <param name="displayName">The mod's display name.</param>
         /// <param name="directoryPath">The mod's full directory path.</param>
+        /// <param name="relativeDirectoryPath">The <paramref name="directoryPath"/> relative to the game's Mods folder.</param>
         /// <param name="manifest">The mod manifest.</param>
         /// <param name="dataRecord">Metadata about the mod from SMAPI's internal data (if any).</param>
-        public ModMetadata(string displayName, string directoryPath, IManifest manifest, ModDataRecordVersionedFields dataRecord)
+        /// <param name="isIgnored">Whether the mod folder should be ignored. This should be <c>true</c> if it was found within a folder whose name starts with a dot.</param>
+        public ModMetadata(string displayName, string directoryPath, string relativeDirectoryPath, IManifest manifest, ModDataRecordVersionedFields dataRecord, bool isIgnored)
         {
             this.DisplayName = displayName;
             this.DirectoryPath = directoryPath;
+            this.RelativeDirectoryPath = relativeDirectoryPath;
             this.Manifest = manifest;
             this.DataRecord = dataRecord;
+            this.IsIgnored = isIgnored;
         }
 
         /// <summary>Set the mod status.</summary>
@@ -141,13 +153,31 @@ namespace StardewModdingAPI.Framework.ModLoading
                 && !string.IsNullOrWhiteSpace(this.Manifest.UniqueID);
         }
 
-        /// <summary>Whether the mod has at least one update key set.</summary>
-        public bool HasUpdateKeys()
+        /// <summary>Whether the mod has the given ID.</summary>
+        /// <param name="id">The mod ID to check.</param>
+        public bool HasID(string id)
         {
             return
-                this.HasManifest()
-                && this.Manifest.UpdateKeys != null
-                && this.Manifest.UpdateKeys.Any(key => !string.IsNullOrWhiteSpace(key));
+                this.HasID()
+                && string.Equals(this.Manifest.UniqueID.Trim(), id?.Trim(), StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        /// <summary>Get the defined update keys.</summary>
+        /// <param name="validOnly">Only return valid update keys.</param>
+        public IEnumerable<UpdateKey> GetUpdateKeys(bool validOnly = false)
+        {
+            foreach (string rawKey in this.Manifest?.UpdateKeys ?? new string[0])
+            {
+                UpdateKey updateKey = UpdateKey.Parse(rawKey);
+                if (updateKey.LooksValid || !validOnly)
+                    yield return updateKey;
+            }
+        }
+
+        /// <summary>Whether the mod has at least one valid update key set.</summary>
+        public bool HasValidUpdateKeys()
+        {
+            return this.GetUpdateKeys(validOnly: true).Any();
         }
     }
 }

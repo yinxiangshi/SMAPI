@@ -12,6 +12,7 @@ using StardewModdingAPI.Toolkit;
 using StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
 using StardewModdingAPI.Toolkit.Framework.Clients.Wiki;
 using StardewModdingAPI.Toolkit.Framework.ModData;
+using StardewModdingAPI.Toolkit.Framework.UpdateData;
 using StardewModdingAPI.Web.Framework.Clients.Chucklefish;
 using StardewModdingAPI.Web.Framework.Clients.GitHub;
 using StardewModdingAPI.Web.Framework.Clients.Nexus;
@@ -29,7 +30,7 @@ namespace StardewModdingAPI.Web.Controllers
         ** Properties
         *********/
         /// <summary>The mod repositories which provide mod metadata.</summary>
-        private readonly IDictionary<string, IModRepository> Repositories;
+        private readonly IDictionary<ModRepositoryKey, IModRepository> Repositories;
 
         /// <summary>The cache in which to store mod metadata.</summary>
         private readonly IMemoryCache Cache;
@@ -46,8 +47,8 @@ namespace StardewModdingAPI.Web.Controllers
         /// <summary>The internal mod metadata list.</summary>
         private readonly ModDatabase ModDatabase;
 
-        /// <summary>The web URL for the wiki compatibility list.</summary>
-        private readonly string WikiCompatibilityPageUrl;
+        /// <summary>The web URL for the compatibility list.</summary>
+        private readonly string CompatibilityPageUrl;
 
 
         /*********
@@ -64,7 +65,7 @@ namespace StardewModdingAPI.Web.Controllers
         {
             this.ModDatabase = new ModToolkit().GetModDatabase(Path.Combine(environment.WebRootPath, "StardewModdingAPI.metadata.json"));
             ModUpdateCheckConfig config = configProvider.Value;
-            this.WikiCompatibilityPageUrl = config.WikiCompatibilityPageUrl;
+            this.CompatibilityPageUrl = config.CompatibilityPageUrl;
 
             this.Cache = cache;
             this.SuccessCacheMinutes = config.SuccessCacheMinutes;
@@ -73,11 +74,11 @@ namespace StardewModdingAPI.Web.Controllers
             this.Repositories =
                 new IModRepository[]
                 {
-                    new ChucklefishRepository(config.ChucklefishKey, chucklefish),
-                    new GitHubRepository(config.GitHubKey, github),
-                    new NexusRepository(config.NexusKey, nexus)
+                    new ChucklefishRepository(chucklefish),
+                    new GitHubRepository(github),
+                    new NexusRepository(nexus)
                 }
-                .ToDictionary(p => p.VendorKey, StringComparer.CurrentCultureIgnoreCase);
+                .ToDictionary(p => p.VendorKey);
         }
 
         /// <summary>Fetch version metadata for the given mods.</summary>
@@ -89,7 +90,7 @@ namespace StardewModdingAPI.Web.Controllers
                 return new ModEntryModel[0];
 
             // fetch wiki data
-            WikiCompatibilityEntry[] wikiData = await this.GetWikiDataAsync();
+            WikiModEntry[] wikiData = await this.GetWikiDataAsync();
             IDictionary<string, ModEntryModel> mods = new Dictionary<string, ModEntryModel>(StringComparer.CurrentCultureIgnoreCase);
             foreach (ModSearchEntryModel mod in model.Mods)
             {
@@ -113,17 +114,12 @@ namespace StardewModdingAPI.Web.Controllers
         /// <param name="wikiData">The wiki data.</param>
         /// <param name="includeExtendedMetadata">Whether to include extended metadata for each mod.</param>
         /// <returns>Returns the mod data if found, else <c>null</c>.</returns>
-        private async Task<ModEntryModel> GetModData(ModSearchEntryModel search, WikiCompatibilityEntry[] wikiData, bool includeExtendedMetadata)
+        private async Task<ModEntryModel> GetModData(ModSearchEntryModel search, WikiModEntry[] wikiData, bool includeExtendedMetadata)
         {
-            // resolve update keys
-            var updateKeys = new HashSet<string>(search.UpdateKeys ?? new string[0], StringComparer.InvariantCultureIgnoreCase);
+            // crossreference data
             ModDataRecord record = this.ModDatabase.Get(search.ID);
-            if (record?.Fields != null)
-            {
-                string defaultUpdateKey = record.Fields.FirstOrDefault(p => p.Key == ModDataFieldKey.UpdateKey && p.IsDefault)?.Value;
-                if (!string.IsNullOrWhiteSpace(defaultUpdateKey))
-                    updateKeys.Add(defaultUpdateKey);
-            }
+            WikiModEntry wikiEntry = wikiData.FirstOrDefault(entry => entry.ID.Contains(search.ID.Trim(), StringComparer.InvariantCultureIgnoreCase));
+            string[] updateKeys = this.GetUpdateKeys(search.UpdateKeys, record, wikiEntry).ToArray();
 
             // get latest versions
             ModEntryModel result = new ModEntryModel { ID = search.ID };
@@ -166,9 +162,25 @@ namespace StardewModdingAPI.Web.Controllers
             }
 
             // get unofficial version
-            WikiCompatibilityEntry wikiEntry = wikiData.FirstOrDefault(entry => entry.ID.Contains(result.ID.Trim(), StringComparer.InvariantCultureIgnoreCase));
-            if (wikiEntry?.UnofficialVersion != null && this.IsNewer(wikiEntry.UnofficialVersion, result.Main?.Version) && this.IsNewer(wikiEntry.UnofficialVersion, result.Optional?.Version))
-                result.Unofficial = new ModEntryVersionModel(wikiEntry.UnofficialVersion, this.WikiCompatibilityPageUrl);
+            if (wikiEntry?.Compatibility.UnofficialVersion != null && this.IsNewer(wikiEntry.Compatibility.UnofficialVersion, result.Main?.Version) && this.IsNewer(wikiEntry.Compatibility.UnofficialVersion, result.Optional?.Version))
+                result.Unofficial = new ModEntryVersionModel(wikiEntry.Compatibility.UnofficialVersion, $"{this.CompatibilityPageUrl}/#{wikiEntry.Anchor}");
+
+            // get unofficial version for beta
+            if (wikiEntry?.HasBetaInfo == true)
+            {
+                result.HasBetaInfo = true;
+                if (wikiEntry.BetaCompatibility.Status == WikiCompatibilityStatus.Unofficial)
+                {
+                    if (wikiEntry.BetaCompatibility.UnofficialVersion != null)
+                    {
+                        result.UnofficialForBeta = (wikiEntry.BetaCompatibility.UnofficialVersion != null && this.IsNewer(wikiEntry.BetaCompatibility.UnofficialVersion, result.Main?.Version) && this.IsNewer(wikiEntry.BetaCompatibility.UnofficialVersion, result.Optional?.Version))
+                            ? new ModEntryVersionModel(wikiEntry.BetaCompatibility.UnofficialVersion, $"{this.CompatibilityPageUrl}/#{wikiEntry.Anchor}")
+                            : null;
+                    }
+                    else
+                        result.UnofficialForBeta = result.Unofficial;
+                }
+            }
 
             // fallback to preview if latest is invalid
             if (result.Main == null && result.Optional != null)
@@ -195,28 +207,6 @@ namespace StardewModdingAPI.Web.Controllers
             return result;
         }
 
-        /// <summary>Parse a namespaced mod ID.</summary>
-        /// <param name="raw">The raw mod ID to parse.</param>
-        /// <param name="vendorKey">The parsed vendor key.</param>
-        /// <param name="modID">The parsed mod ID.</param>
-        /// <returns>Returns whether the value could be parsed.</returns>
-        private bool TryParseModKey(string raw, out string vendorKey, out string modID)
-        {
-            // split parts
-            string[] parts = raw?.Split(':');
-            if (parts == null || parts.Length != 2)
-            {
-                vendorKey = null;
-                modID = null;
-                return false;
-            }
-
-            // parse
-            vendorKey = parts[0].Trim();
-            modID = parts[1].Trim();
-            return true;
-        }
-
         /// <summary>Get whether a <paramref name="current"/> version is newer than an <paramref name="other"/> version.</summary>
         /// <param name="current">The current version.</param>
         /// <param name="other">The other version.</param>
@@ -226,21 +216,21 @@ namespace StardewModdingAPI.Web.Controllers
         }
 
         /// <summary>Get mod data from the wiki compatibility list.</summary>
-        private async Task<WikiCompatibilityEntry[]> GetWikiDataAsync()
+        private async Task<WikiModEntry[]> GetWikiDataAsync()
         {
             ModToolkit toolkit = new ModToolkit();
-            return await this.Cache.GetOrCreateAsync($"_wiki", async entry =>
+            return await this.Cache.GetOrCreateAsync("_wiki", async entry =>
             {
                 try
                 {
-                    WikiCompatibilityEntry[] entries = await toolkit.GetWikiCompatibilityListAsync();
+                    WikiModEntry[] entries = (await toolkit.GetWikiCompatibilityListAsync()).Mods;
                     entry.AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(this.SuccessCacheMinutes);
                     return entries;
                 }
                 catch
                 {
                     entry.AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(this.ErrorCacheMinutes);
-                    return new WikiCompatibilityEntry[0];
+                    return new WikiModEntry[0];
                 }
             });
         }
@@ -250,18 +240,19 @@ namespace StardewModdingAPI.Web.Controllers
         private async Task<ModInfoModel> GetInfoForUpdateKeyAsync(string updateKey)
         {
             // parse update key
-            if (!this.TryParseModKey(updateKey, out string vendorKey, out string modID))
+            UpdateKey parsed = UpdateKey.Parse(updateKey);
+            if (!parsed.LooksValid)
                 return new ModInfoModel($"The update key '{updateKey}' isn't in a valid format. It should contain the site key and mod ID like 'Nexus:541'.");
 
             // get matching repository
-            if (!this.Repositories.TryGetValue(vendorKey, out IModRepository repository))
-                return new ModInfoModel($"There's no mod site with key '{vendorKey}'. Expected one of [{string.Join(", ", this.Repositories.Keys)}].");
+            if (!this.Repositories.TryGetValue(parsed.Repository, out IModRepository repository))
+                return new ModInfoModel($"There's no mod site with key '{parsed.Repository}'. Expected one of [{string.Join(", ", this.Repositories.Keys)}].");
 
             // fetch mod info
-            return await this.Cache.GetOrCreateAsync($"{repository.VendorKey}:{modID}".ToLower(), async entry =>
+            return await this.Cache.GetOrCreateAsync($"{repository.VendorKey}:{parsed.ID}".ToLower(), async entry =>
             {
-                ModInfoModel result = await repository.GetModInfoAsync(modID);
-                if (result.Error != null)
+                ModInfoModel result = await repository.GetModInfoAsync(parsed.ID);
+                if (result.Error == null)
                 {
                     if (result.Version == null)
                         result.Error = $"The update key '{updateKey}' matches a mod with no version number.";
@@ -273,11 +264,42 @@ namespace StardewModdingAPI.Web.Controllers
             });
         }
 
-        /// <summary>Get the requested API version.</summary>
-        private ISemanticVersion GetApiVersion()
+        /// <summary>Get update keys based on the available mod metadata, while maintaining the precedence order.</summary>
+        /// <param name="specifiedKeys">The specified update keys.</param>
+        /// <param name="record">The mod's entry in SMAPI's internal database.</param>
+        /// <param name="entry">The mod's entry in the wiki list.</param>
+        public IEnumerable<string> GetUpdateKeys(string[] specifiedKeys, ModDataRecord record, WikiModEntry entry)
         {
-            string actualVersion = (string)this.RouteData.Values["version"];
-            return new SemanticVersion(actualVersion);
+            IEnumerable<string> GetRaw()
+            {
+                // specified update keys
+                if (specifiedKeys != null)
+                {
+                    foreach (string key in specifiedKeys)
+                        yield return key?.Trim();
+                }
+
+                // default update key
+                string defaultKey = record?.GetDefaultUpdateKey();
+                if (defaultKey != null)
+                    yield return defaultKey;
+
+                // wiki metadata
+                if (entry != null)
+                {
+                    if (entry.NexusID.HasValue)
+                        yield return $"Nexus:{entry.NexusID}";
+                    if (entry.ChucklefishID.HasValue)
+                        yield return $"Chucklefish:{entry.ChucklefishID}";
+                }
+            }
+
+            HashSet<string> seen = new HashSet<string>(StringComparer.InvariantCulture);
+            foreach (string key in GetRaw())
+            {
+                if (!string.IsNullOrWhiteSpace(key) && seen.Add(key))
+                    yield return key;
+            }
         }
     }
 }

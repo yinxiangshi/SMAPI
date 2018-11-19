@@ -147,14 +147,14 @@ namespace StardewModdingAPI.Web
             redirects.Add(new ConditionalRewriteSubdomainRule(
                 shouldRewrite: req =>
                     req.Host.Host != "localhost"
-                    && (req.Host.Host.StartsWith("api.") || req.Host.Host.StartsWith("log."))
+                    && (req.Host.Host.StartsWith("api.") || req.Host.Host.StartsWith("log.") || req.Host.Host.StartsWith("mods."))
                     && !req.Path.StartsWithSegments("/content")
                     && !req.Path.StartsWithSegments("/favicon.ico")
             ));
 
             // shortcut redirects
             redirects.Add(new RedirectToUrlRule(@"^/buildmsg(?:/?(.*))$", "https://github.com/Pathoschild/SMAPI/blob/develop/docs/mod-build-config.md#$1"));
-            redirects.Add(new RedirectToUrlRule(@"^/compat\.?$", "https://stardewvalleywiki.com/Modding:SMAPI_compatibility"));
+            redirects.Add(new RedirectToUrlRule(@"^/compat\.?$", "https://mods.smapi.io"));
             redirects.Add(new RedirectToUrlRule(@"^/docs\.?$", "https://stardewvalleywiki.com/Modding:Index"));
             redirects.Add(new RedirectToUrlRule(@"^/install\.?$", "https://stardewvalleywiki.com/Modding:Player_Guide/Getting_Started#Install_SMAPI"));
 

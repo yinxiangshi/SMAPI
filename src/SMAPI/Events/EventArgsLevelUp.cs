@@ -1,4 +1,5 @@
 using System;
+using StardewModdingAPI.Enums;
 
 namespace StardewModdingAPI.Events
 {
@@ -18,22 +19,22 @@ namespace StardewModdingAPI.Events
         public enum LevelType
         {
             /// <summary>The combat skill.</summary>
-            Combat,
+            Combat = SkillType.Combat,
 
             /// <summary>The farming skill.</summary>
-            Farming,
+            Farming = SkillType.Farming,
 
             /// <summary>The fishing skill.</summary>
-            Fishing,
+            Fishing = SkillType.Fishing,
 
             /// <summary>The foraging skill.</summary>
-            Foraging,
+            Foraging = SkillType.Foraging,
 
             /// <summary>The mining skill.</summary>
-            Mining,
+            Mining = SkillType.Mining,
 
             /// <summary>The luck skill.</summary>
-            Luck
+            Luck = SkillType.Luck
         }
 
 
