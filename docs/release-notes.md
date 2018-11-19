@@ -1,4 +1,7 @@
 # Release notes
+## 2.8.1
+* Fixed installer error on Windows.
+
 ## 2.8
 * For players:
   * Reorganised SMAPI files:

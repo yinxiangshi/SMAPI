@@ -1,1 +1,1 @@
-START /WAIT /B internal/install.exe
+START /WAIT /B internal/windows-install.exe
