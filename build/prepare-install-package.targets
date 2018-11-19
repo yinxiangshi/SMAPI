@@ -7,7 +7,8 @@
   -->
   <Target Name="AfterBuild">
     <PropertyGroup>
-      <CompiledRootPath>$(SolutionDir)\..\bin\$(Configuration)</CompiledRootPath>
+      <RootPath>$(SolutionDir)\..</RootPath>
+      <CompiledRootPath>$(RootPath)\bin\$(Configuration)</CompiledRootPath>
       <CompiledSmapiPath>$(CompiledRootPath)\SMAPI</CompiledSmapiPath>
       <CompiledToolkitPath>$(CompiledRootPath)\SMAPI.Toolkit\net4.5</CompiledToolkitPath>
       <PackagePath>$(SolutionDir)\..\bin\SMAPI installer</PackagePath>
@@ -52,6 +53,10 @@
     <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(TargetDir)\windows-exe-config.xml" DestinationFiles="$(PackagePath)\bundle\StardewModdingAPI.exe.config" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\System.Numerics.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\System.Runtime.Caching.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
+
+    <!-- fix errors on Linux/Mac (sample: https://log.smapi.io/mMdFUpgB) -->
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(RootPath)\build\lib\System.Numerics.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(RootPath)\build\lib\System.Runtime.Caching.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
 
     <!-- fix Linux/Mac permissions -->
     <Exec Condition="$(OS) != 'Windows_NT'" Command="chmod 755 &quot;$(PackagePath)\install on Linux.sh&quot;" />
