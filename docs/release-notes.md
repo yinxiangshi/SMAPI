@@ -1,4 +1,7 @@
 # Release notes
+## 2.8.2
+* Fixed game crash in MacOS since SMAPI 2.8.
+
 ## 2.8.1
 * Fixed installer error on Windows.
 
