@@ -52,6 +52,8 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
             // fetch game versions
             string stableVersion = doc.DocumentNode.SelectSingleNode("div[@class='game-stable-version']")?.InnerText;
             string betaVersion = doc.DocumentNode.SelectSingleNode("div[@class='game-beta-version']")?.InnerText;
+            if (betaVersion == stableVersion)
+                betaVersion = null;
 
             // find mod entries
             HtmlNodeCollection modNodes = doc.DocumentNode.SelectNodes("table[@id='mod-list']//tr[@class='mod']");
