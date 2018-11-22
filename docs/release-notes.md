@@ -1,6 +1,7 @@
 # Release notes
 ## Upcoming
 * For the web UI:
+  * Added stats to compatibility list.
   * Fixed compatibility list showing beta header when there's no beta in progress.
 
 ## 2.8.2
