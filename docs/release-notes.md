@@ -3,6 +3,9 @@
 * For players:
   * Fixed cryptic error when running the installer from inside a zip file on Windows.
 
+* For modders:
+  * Fixed newlines in most manifest fields not being ignored.
+
 * For the web UI:
   * Added stats to compatibility list.
   * Fixed compatibility list showing beta header when there's no beta in progress.
