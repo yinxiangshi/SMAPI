@@ -2,6 +2,7 @@
 ## Upcoming
 * For players:
   * Fixed cryptic error when running the installer from inside a zip file on Windows.
+  * Fixed Console Commands' handling of tool upgrade levels for item commands.
 
 * For modders:
   * Reloading a map asset will now automatically update affected locations.
