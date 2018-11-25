@@ -6,7 +6,8 @@
   * Fixed Console Commands' handling of tool upgrade levels for item commands.
 
 * For modders:
-  * Reloading a map asset will now automatically update affected locations.
+  * Reloading a map asset will now update affected locations.
+  * Reloading the `Data\NPCDispositions` asset will now update affected NPCs.
   * Fixed newlines in most manifest fields not being ignored.
 
 * For the web UI:

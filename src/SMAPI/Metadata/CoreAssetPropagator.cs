@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Framework.Reflection;
 using StardewValley;
@@ -162,6 +163,9 @@ namespace StardewModdingAPI.Metadata
 
                 case "data\\craftingrecipes": // CraftingRecipe.InitShared
                     return CraftingRecipe.craftingRecipes = content.Load<Dictionary<string, string>>(key);
+
+                case "data\\npcdispositions": // NPC constructor
+                    return this.ReloadNpcDispositions(content, key);
 
                 case "data\\npcgifttastes": // Game1.loadContent
                     return Game1.NPCGiftTastes = content.Load<Dictionary<string, string>>(key);
@@ -479,6 +483,35 @@ namespace StardewModdingAPI.Metadata
             // update fence textures
             foreach (Fence fence in fences)
                 this.Reflection.GetField<Lazy<Texture2D>>(fence, "fenceTexture").SetValue(new Lazy<Texture2D>(fence.loadFenceTexture));
+            return true;
+        }
+
+        /// <summary>Reload the disposition data for matching NPCs.</summary>
+        /// <param name="content">The content manager through which to reload the asset.</param>
+        /// <param name="key">The asset key to reload.</param>
+        /// <returns>Returns whether any NPCs were affected.</returns>
+        private bool ReloadNpcDispositions(LocalizedContentManager content, string key)
+        {
+            IDictionary<string, string> dispositions = content.Load<Dictionary<string, string>>(key);
+            foreach (NPC character in this.GetCharacters())
+            {
+                if (!character.isVillager() || !dispositions.ContainsKey(character.Name))
+                    continue;
+
+                NPC clone = new NPC(null, Vector2.Zero, 0, character.Name);
+                character.Age = clone.Age;
+                character.Manners = clone.Manners;
+                character.SocialAnxiety = clone.SocialAnxiety;
+                character.Optimism = clone.Optimism;
+                character.Gender = clone.Gender;
+                character.datable.Value = clone.datable.Value;
+                character.homeRegion = clone.homeRegion;
+                character.Birthday_Season = clone.Birthday_Season;
+                character.Birthday_Day = clone.Birthday_Day;
+                character.id = clone.id;
+                character.displayName = clone.displayName;
+            }
+
             return true;
         }
 
