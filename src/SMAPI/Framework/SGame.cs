@@ -206,6 +206,15 @@ namespace StardewModdingAPI.Framework
             this.Events.ModMessageReceived.RaiseForMods(new ModMessageReceivedEventArgs(message), mod => mod != null && modIDs.Contains(mod.Manifest.UniqueID));
         }
 
+        /// <summary>A callback raised when the player quits a save and returns to the title screen.</summary>
+        private void OnReturnedToTitle()
+        {
+            this.Monitor.Log("Context: returned to title", LogLevel.Trace);
+            this.Multiplayer.Peers.Clear();
+            this.Events.ReturnedToTitle.RaiseEmpty();
+            this.Events.Legacy_AfterReturnToTitle.Raise();
+        }
+
         /// <summary>Constructor a content manager to read XNB files.</summary>
         /// <param name="serviceProvider">The service provider to use to locate services.</param>
         /// <param name="rootDirectory">The root directory to search for content.</param>
@@ -430,11 +439,7 @@ namespace StardewModdingAPI.Framework
                 ** Load / return-to-title events
                 *********/
                 if (wasWorldReady && !Context.IsWorldReady)
-                {
-                    this.Monitor.Log("Context: returned to title", LogLevel.Trace);
-                    this.Events.ReturnedToTitle.RaiseEmpty();
-                    this.Events.Legacy_AfterReturnToTitle.Raise();
-                }
+                    this.OnReturnedToTitle();
                 else if (!this.RaisedAfterLoadEvent && Context.IsWorldReady)
                 {
                     // print context

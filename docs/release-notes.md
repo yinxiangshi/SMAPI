@@ -2,6 +2,7 @@
 ## Upcoming
 * For players:
   * Fixed cryptic error when running the installer from inside a zip file on Windows.
+  * Fixed error when leaving and rejoining a multiplayer server in the same session.
   * Fixed Console Commands' handling of tool upgrade levels for item commands.
 
 * For modders:
