@@ -4,6 +4,7 @@
   * Fixed cryptic error when running the installer from inside a zip file on Windows.
 
 * For modders:
+  * Reloading a map asset will now automatically update affected locations.
   * Fixed newlines in most manifest fields not being ignored.
 
 * For the web UI:

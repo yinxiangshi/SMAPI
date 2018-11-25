@@ -13,6 +13,7 @@ using StardewValley.Menus;
 using StardewValley.Objects;
 using StardewValley.Projectiles;
 using StardewValley.TerrainFeatures;
+using xTile;
 using xTile.Tiles;
 
 namespace StardewModdingAPI.Metadata
@@ -45,10 +46,11 @@ namespace StardewModdingAPI.Metadata
         /// <summary>Reload one of the game's core assets (if applicable).</summary>
         /// <param name="content">The content manager through which to reload the asset.</param>
         /// <param name="key">The asset key to reload.</param>
+        /// <param name="type">The asset type to reload.</param>
         /// <returns>Returns whether an asset was reloaded.</returns>
-        public bool Propagate(LocalizedContentManager content, string key)
+        public bool Propagate(LocalizedContentManager content, string key, Type type)
         {
-            object result = this.PropagateImpl(content, key);
+            object result = this.PropagateImpl(content, key, type);
             if (result is bool b)
                 return b;
             return result != null;
@@ -61,9 +63,12 @@ namespace StardewModdingAPI.Metadata
         /// <summary>Reload one of the game's core assets (if applicable).</summary>
         /// <param name="content">The content manager through which to reload the asset.</param>
         /// <param name="key">The asset key to reload.</param>
-        /// <returns>Returns any non-null value to indicate an asset was loaded.</returns>
-        private object PropagateImpl(LocalizedContentManager content, string key)
+        /// <param name="type">The asset type to reload.</param>
+        /// <returns>Returns whether an asset was loaded. The return value may be true or false, or a non-null value for true.</returns>
+        private object PropagateImpl(LocalizedContentManager content, string key, Type type)
         {
+            key = this.GetNormalisedPath(key);
+
             /****
             ** Special case: current map tilesheet
             ** We only need to do this for the current location, since tilesheets are reloaded when you enter a location.
@@ -76,6 +81,23 @@ namespace StardewModdingAPI.Metadata
                     if (this.GetNormalisedPath(tilesheet.ImageSource) == key)
                         Game1.mapDisplayDevice.LoadTileSheet(tilesheet);
                 }
+            }
+
+            /****
+            ** Propagate map changes
+            ****/
+            if (type == typeof(Map))
+            {
+                bool anyChanged = false;
+                foreach (GameLocation location in this.GetLocations())
+                {
+                    if (this.GetNormalisedPath(location.mapPath.Value) == key)
+                    {
+                        this.Reflection.GetMethod(location, "reloadMap").Invoke();
+                        anyChanged = true;
+                    }
+                }
+                return anyChanged;
             }
 
             /****
