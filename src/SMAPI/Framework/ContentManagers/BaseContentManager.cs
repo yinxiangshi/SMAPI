@@ -32,11 +32,11 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <summary>Whether the content coordinator has been disposed.</summary>
         private bool IsDisposed;
 
-        /// <summary>The language enum values indexed by locale code.</summary>
-        private readonly IDictionary<string, LanguageCode> LanguageCodes;
-
         /// <summary>A callback to invoke when the content manager is being disposed.</summary>
         private readonly Action<BaseContentManager> OnDisposing;
+
+        /// <summary>The language enum values indexed by locale code.</summary>
+        protected IDictionary<string, LanguageCode> LanguageCodes { get; }
 
 
         /*********
