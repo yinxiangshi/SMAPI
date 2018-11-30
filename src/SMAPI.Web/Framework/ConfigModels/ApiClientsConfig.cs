@@ -45,6 +45,15 @@ namespace StardewModdingAPI.Web.Framework.ConfigModels
         public string GitHubPassword { get; set; }
 
         /****
+        ** ModDrop
+        ****/
+        /// <summary>The base URL for the ModDrop API.</summary>
+        public string ModDropApiUrl { get; set; }
+
+        /// <summary>The URL for a ModDrop mod page for the user, where {0} is the mod ID.</summary>
+        public string ModDropModPageUrl { get; set; }
+
+        /****
         ** Nexus Mods
         ****/
         /// <summary>The base URL for the Nexus Mods API.</summary>

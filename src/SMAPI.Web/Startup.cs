@@ -11,6 +11,7 @@ using StardewModdingAPI.Toolkit.Serialisation;
 using StardewModdingAPI.Web.Framework;
 using StardewModdingAPI.Web.Framework.Clients.Chucklefish;
 using StardewModdingAPI.Web.Framework.Clients.GitHub;
+using StardewModdingAPI.Web.Framework.Clients.ModDrop;
 using StardewModdingAPI.Web.Framework.Clients.Nexus;
 using StardewModdingAPI.Web.Framework.Clients.Pastebin;
 using StardewModdingAPI.Web.Framework.ConfigModels;
@@ -84,6 +85,12 @@ namespace StardewModdingAPI.Web
                     acceptHeader: api.GitHubAcceptHeader,
                     username: api.GitHubUsername,
                     password: api.GitHubPassword
+                ));
+
+                services.AddSingleton<IModDropClient>(new ModDropClient(
+                    userAgent: userAgent,
+                    apiUrl: api.ModDropApiUrl,
+                    modUrlFormat: api.ModDropModPageUrl
                 ));
 
                 services.AddSingleton<INexusClient>(new NexusWebScrapeClient(
