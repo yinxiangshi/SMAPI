@@ -10,6 +10,7 @@
   * Reloading the `Data\NPCDispositions` asset will now update affected NPCs.
   * Fixed some map tilesheets not editable if not playing in English.
   * Fixed newlines in most manifest fields not being ignored.
+  * Fixed `Display.RenderedWorld` event not invoked before overlays are rendered.
 
 * For the web UI:
   * Added stats to compatibility list.

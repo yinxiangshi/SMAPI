@@ -1345,6 +1345,7 @@ namespace StardewModdingAPI.Framework
                                 }
                                 Game1.spriteBatch.End();
                             }
+                            this.Events.RenderedWorld.RaiseEmpty();
                             Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, (DepthStencilState)null, (RasterizerState)null);
                             if (Game1.drawGrid)
                             {
@@ -1532,7 +1533,7 @@ namespace StardewModdingAPI.Framework
                             string s = Game1.content.LoadString("Strings\\StringsFromCSFiles:DayTimeMoneyBox.cs.10378");
                             SpriteText.drawStringWithScrollBackground(Game1.spriteBatch, s, 96, 32, "", 1f, -1);
                         }
-                        this.Events.RenderedWorld.RaiseEmpty();
+
                         this.Events.Rendered.RaiseEmpty();
                         this.Events.Legacy_OnPostRenderEvent.Raise();
                         Game1.spriteBatch.End();
