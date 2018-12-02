@@ -1,12 +1,13 @@
 # Release notes
 ## Upcoming
 * For players:
+  * Added support for ModDrop in update checks and the mod compatibility list.
   * Fixed cryptic error when running the installer from inside a zip file on Windows.
   * Fixed error when leaving and rejoining a multiplayer server in the same session.
   * Fixed Console Commands' handling of tool upgrade levels for item commands.
 
 * For modders:
-  * Added support for ModDrop update keys (see [docs](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Manifest#Update_checks)).
+  * Added ModDrop update keys (see [docs](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Manifest#Update_checks)).
   * Reloading a map asset will now update affected locations.
   * Reloading the `Data\NPCDispositions` asset will now update affected NPCs.
   * Fixed some map tilesheets not editable if not playing in English.
