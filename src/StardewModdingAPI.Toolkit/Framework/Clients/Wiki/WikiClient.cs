@@ -93,6 +93,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
                 string[] warnings = this.GetAttributeAsCsv(node, "data-warnings");
                 int? nexusID = this.GetAttributeAsNullableInt(node, "data-nexus-id");
                 int? chucklefishID = this.GetAttributeAsNullableInt(node, "data-cf-id");
+                int? modDropID = this.GetAttributeAsNullableInt(node, "data-moddrop-id");
                 string githubRepo = this.GetAttribute(node, "data-github");
                 string customSourceUrl = this.GetAttribute(node, "data-custom-source");
                 string customUrl = this.GetAttribute(node, "data-url");
@@ -133,6 +134,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
                     Author = authors,
                     NexusID = nexusID,
                     ChucklefishID = chucklefishID,
+                    ModDropID = modDropID,
                     GitHubRepo = githubRepo,
                     CustomSourceUrl = customSourceUrl,
                     CustomUrl = customUrl,

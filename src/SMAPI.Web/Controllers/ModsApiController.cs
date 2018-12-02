@@ -294,6 +294,8 @@ namespace StardewModdingAPI.Web.Controllers
                         yield return $"Nexus:{entry.NexusID}";
                     if (entry.ChucklefishID.HasValue)
                         yield return $"Chucklefish:{entry.ChucklefishID}";
+                    if (entry.ModDropID.HasValue)
+                        yield return $"ModDrop:{entry.ModDropID}";
                 }
             }
 

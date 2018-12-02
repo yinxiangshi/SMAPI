@@ -73,6 +73,11 @@ smapi.modList = function (mods) {
                     id: "show-chucklefish",
                     value: true
                 },
+                moddrop: {
+                    label: "ModDrop",
+                    id: "show-moddrop",
+                    value: true
+                },
                 nexus: {
                     label: "Nexus",
                     id: "show-nexus",
@@ -179,6 +184,8 @@ smapi.modList = function (mods) {
 
                 if (!filters.download.chucklefish.value)
                     ignoreSites.push("Chucklefish");
+                if (!filters.download.moddrop.value)
+                    ignoreSites.push("ModDrop");
                 if (!filters.download.nexus.value)
                     ignoreSites.push("Nexus");
                 if (!filters.download.custom.value)
