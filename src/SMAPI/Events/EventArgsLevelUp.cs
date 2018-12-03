@@ -1,3 +1,4 @@
+#if !SMAPI_3_0_STRICT
 using System;
 using StardewModdingAPI.Enums;
 
@@ -51,3 +52,4 @@ namespace StardewModdingAPI.Events
         }
     }
 }
+#endif

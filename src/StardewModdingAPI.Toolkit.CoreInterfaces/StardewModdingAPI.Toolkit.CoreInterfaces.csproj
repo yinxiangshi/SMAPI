@@ -8,6 +8,10 @@
     <DocumentationFile>..\..\bin\$(Configuration)\SMAPI.Toolkit.CoreInterfaces\$(TargetFramework)\StardewModdingAPI.Toolkit.CoreInterfaces.xml</DocumentationFile>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <DefineConstants>$(DefineConstants);SMAPI_3_0_STRICT</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Include="..\..\build\GlobalAssemblyInfo.cs" Link="Properties\GlobalAssemblyInfo.cs" />
   </ItemGroup>

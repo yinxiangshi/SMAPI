@@ -131,6 +131,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
             this.Data.WriteJsonFile("config.json", config);
         }
 
+#if !SMAPI_3_0_STRICT
         /****
         ** Generic JSON files
         ****/
@@ -199,6 +200,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
             // create content pack
             return this.CreateContentPack(directoryPath, manifest);
         }
+#endif
 
         /// <summary>Get all content packs loaded for this mod.</summary>
         public IEnumerable<IContentPack> GetContentPacks()

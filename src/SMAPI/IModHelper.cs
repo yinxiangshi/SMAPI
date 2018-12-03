@@ -56,6 +56,7 @@ namespace StardewModdingAPI
         /// <param name="config">The config settings to save.</param>
         void WriteConfig<TConfig>(TConfig config) where TConfig : class, new();
 
+#if !SMAPI_3_0_STRICT
         /****
         ** Generic JSON files
         ****/
@@ -88,5 +89,6 @@ namespace StardewModdingAPI
 
         /// <summary>Get all content packs loaded for this mod.</summary>
         IEnumerable<IContentPack> GetContentPacks();
+#endif
     }
 }

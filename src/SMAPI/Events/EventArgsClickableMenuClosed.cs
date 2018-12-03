@@ -1,3 +1,4 @@
+#if !SMAPI_3_0_STRICT
 using System;
 using StardewValley.Menus;
 
@@ -24,3 +25,4 @@ namespace StardewModdingAPI.Events
         }
     }
 }
+#endif

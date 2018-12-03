@@ -180,6 +180,7 @@ namespace StardewModdingAPI.Framework
             // initialise SMAPI
             try
             {
+#if !SMAPI_3_0_STRICT
                 // hook up events
                 ContentEvents.Init(this.EventManager, this.DeprecationManager);
                 ControlEvents.Init(this.EventManager, this.DeprecationManager);
@@ -194,6 +195,7 @@ namespace StardewModdingAPI.Framework
                 SaveEvents.Init(this.EventManager, this.DeprecationManager);
                 SpecialisedEvents.Init(this.EventManager, this.DeprecationManager);
                 TimeEvents.Init(this.EventManager, this.DeprecationManager);
+#endif
 
                 // init JSON parser
                 JsonConverter[] converters = {
@@ -216,7 +218,7 @@ namespace StardewModdingAPI.Framework
 
                 // override game
                 SGame.ConstructorHack = new SGameConstructorHack(this.Monitor, this.Reflection, this.Toolkit.JsonHelper);
-                this.GameInstance = new SGame(this.Monitor, this.MonitorForGame, this.Reflection, this.EventManager, this.Toolkit.JsonHelper, this.ModRegistry, this.DeprecationManager, this.InitialiseAfterGameStart, this.Dispose);
+                this.GameInstance = new SGame(this.Monitor, this.MonitorForGame, this.Reflection, this.EventManager, this.Toolkit.JsonHelper, this.ModRegistry, this.DeprecationManager, this.OnLocaleChanged, this.InitialiseAfterGameStart, this.Dispose);
                 StardewValley.Program.gamePtr = this.GameInstance;
 
                 // add exit handler
@@ -239,12 +241,13 @@ namespace StardewModdingAPI.Framework
                     }
                 }).Start();
 
-                // hook into game events
-                ContentEvents.AfterLocaleChanged += (sender, e) => this.OnLocaleChanged();
-
                 // set window titles
                 this.GameInstance.Window.Title = $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion}";
                 Console.Title = $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion}";
+#if SMAPI_3_0_STRICT
+                this.GameInstance.Window.Title += " [SMAPI 3.0 strict mode]";
+                Console.Title += " [SMAPI 3.0 strict mode]";
+#endif
             }
             catch (Exception ex)
             {
@@ -348,8 +351,11 @@ namespace StardewModdingAPI.Framework
         private void InitialiseAfterGameStart()
         {
             // add headers
+#if SMAPI_3_0_STRICT
+            this.Monitor.Log($"You're running SMAPI 3.0 strict mode, so most mods won't work correctly. If that wasn't intended, install the normal version of SMAPI from https://smapi.io instead.", LogLevel.Warn);
+#endif
             if (this.Settings.DeveloperMode)
-                this.Monitor.Log($"You configured SMAPI to run in developer mode. The console may be much more verbose. You can disable developer mode by installing the non-developer version of SMAPI, or by editing {Constants.ApiConfigPath}.", LogLevel.Info);
+                this.Monitor.Log($"You have SMAPI for developers, so the console will be much more verbose. You can disable developer mode by installing the non-developer version of SMAPI, or by editing {Constants.ApiConfigPath}.", LogLevel.Info);
             if (!this.Settings.CheckForUpdates)
                 this.Monitor.Log($"You configured SMAPI to not check for updates. Running an old version of SMAPI is not recommended. You can enable update checks by reinstalling SMAPI or editing {Constants.ApiConfigPath}.", LogLevel.Warn);
             if (!this.Monitor.WriteToConsole)
@@ -409,6 +415,11 @@ namespace StardewModdingAPI.Framework
             int modsLoaded = this.ModRegistry.GetAll().Count();
             this.GameInstance.Window.Title = $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion} with {modsLoaded} mods";
             Console.Title = $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion} with {modsLoaded} mods";
+#if SMAPI_3_0_STRICT
+            this.GameInstance.Window.Title += " [SMAPI 3.0 strict mode]";
+            Console.Title += " [SMAPI 3.0 strict mode]";
+#endif
+
 
             // start SMAPI console
             new Thread(this.RunConsoleLoop).Start();

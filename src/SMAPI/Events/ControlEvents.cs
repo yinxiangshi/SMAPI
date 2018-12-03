@@ -1,3 +1,4 @@
+#if !SMAPI_3_0_STRICT
 using System;
 using Microsoft.Xna.Framework.Input;
 using StardewModdingAPI.Framework;
@@ -124,3 +125,4 @@ namespace StardewModdingAPI.Events
         }
     }
 }
+#endif

@@ -39,9 +39,11 @@ namespace StardewModdingAPI.Toolkit
         /// <summary>The patch version for backwards-compatible bug fixes.</summary>
         public int PatchVersion { get; }
 
+#if !SMAPI_3_0_STRICT
         /// <summary>An optional prerelease tag.</summary>
         [Obsolete("Use " + nameof(ISemanticVersion.PrereleaseTag) + " instead")]
         public string Build => this.PrereleaseTag;
+#endif
 
         /// <summary>An optional prerelease tag.</summary>
         public string PrereleaseTag { get; }
@@ -114,7 +116,7 @@ namespace StardewModdingAPI.Toolkit
         {
             if (other == null)
                 throw new ArgumentNullException(nameof(other));
-            return this.CompareTo(other.MajorVersion, other.MinorVersion, other.PatchVersion, other.Build);
+            return this.CompareTo(other.MajorVersion, other.MinorVersion, other.PatchVersion, other.PrereleaseTag);
         }
 
         /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
@@ -128,7 +130,7 @@ namespace StardewModdingAPI.Toolkit
         /// <summary>Whether this is a pre-release version.</summary>
         public bool IsPrerelease()
         {
-            return !string.IsNullOrWhiteSpace(this.Build);
+            return !string.IsNullOrWhiteSpace(this.PrereleaseTag);
         }
 
         /// <summary>Get whether this version is older than the specified version.</summary>
@@ -187,7 +189,7 @@ namespace StardewModdingAPI.Toolkit
                 : $"{this.MajorVersion}.{this.MinorVersion}";
 
             // tag
-            string tag = this.Build;
+            string tag = this.PrereleaseTag;
             if (tag != null)
                 result += $"-{tag}";
             return result;
@@ -241,11 +243,11 @@ namespace StardewModdingAPI.Toolkit
                 return this.MinorVersion.CompareTo(otherMinor);
             if (this.PatchVersion != otherPatch)
                 return this.PatchVersion.CompareTo(otherPatch);
-            if (this.Build == otherTag)
+            if (this.PrereleaseTag == otherTag)
                 return same;
 
             // stable supercedes pre-release
-            bool curIsStable = string.IsNullOrWhiteSpace(this.Build);
+            bool curIsStable = string.IsNullOrWhiteSpace(this.PrereleaseTag);
             bool otherIsStable = string.IsNullOrWhiteSpace(otherTag);
             if (curIsStable)
                 return curNewer;
@@ -253,7 +255,7 @@ namespace StardewModdingAPI.Toolkit
                 return curOlder;
 
             // compare two pre-release tag values
-            string[] curParts = this.Build.Split('.', '-');
+            string[] curParts = this.PrereleaseTag.Split('.', '-');
             string[] otherParts = otherTag.Split('.', '-');
             for (int i = 0; i < curParts.Length; i++)
             {
@@ -292,11 +294,11 @@ namespace StardewModdingAPI.Toolkit
                 throw new FormatException($"{this} isn't a valid semantic version. The major, minor, and patch numbers can't be negative.");
             if (this.MajorVersion == 0 && this.MinorVersion == 0 && this.PatchVersion == 0)
                 throw new FormatException($"{this} isn't a valid semantic version. At least one of the major, minor, and patch numbers must be more than zero.");
-            if (this.Build != null)
+            if (this.PrereleaseTag != null)
             {
-                if (this.Build.Trim() == "")
+                if (this.PrereleaseTag.Trim() == "")
                     throw new FormatException($"{this} isn't a valid semantic version. The tag cannot be a blank string (but may be omitted).");
-                if (!Regex.IsMatch(this.Build, $"^{SemanticVersion.TagPattern}$", RegexOptions.IgnoreCase))
+                if (!Regex.IsMatch(this.PrereleaseTag, $"^{SemanticVersion.TagPattern}$", RegexOptions.IgnoreCase))
                     throw new FormatException($"{this} isn't a valid semantic version. The tag is invalid.");
             }
         }

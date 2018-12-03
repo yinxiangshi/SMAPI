@@ -29,7 +29,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands
                 helper.ConsoleCommands.Add(command.Name, command.Description, (name, args) => this.HandleCommand(command, name, args));
 
             // hook events
-            GameEvents.UpdateTick += this.GameEvents_UpdateTick;
+            helper.Events.GameLoop.UpdateTicked += this.OnUpdateTicked;
         }
 
 
@@ -39,7 +39,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands
         /// <summary>The method invoked when the game updates its state.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private void GameEvents_UpdateTick(object sender, EventArgs e)
+        private void OnUpdateTicked(object sender, EventArgs e)
         {
             if (!Context.IsWorldReady)
                 return;

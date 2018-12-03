@@ -52,7 +52,10 @@ namespace StardewModdingAPI.Metadata
                 new FieldFinder(typeof(SaveGame).FullName, nameof(SaveGame.serializer), InstructionHandleResult.DetectedSaveSerialiser),
                 new FieldFinder(typeof(SaveGame).FullName, nameof(SaveGame.farmerSerializer), InstructionHandleResult.DetectedSaveSerialiser),
                 new FieldFinder(typeof(SaveGame).FullName, nameof(SaveGame.locationSerializer), InstructionHandleResult.DetectedSaveSerialiser),
+                new TypeFinder(typeof(ISpecialisedEvents).FullName, InstructionHandleResult.DetectedUnvalidatedUpdateTick),
+#if !SMAPI_3_0_STRICT
                 new EventFinder(typeof(SpecialisedEvents).FullName, nameof(SpecialisedEvents.UnvalidatedUpdateTick), InstructionHandleResult.DetectedUnvalidatedUpdateTick),
+#endif
                 
                 /****
                 ** detect paranoid issues
