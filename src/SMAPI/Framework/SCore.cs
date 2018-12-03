@@ -181,19 +181,19 @@ namespace StardewModdingAPI.Framework
             try
             {
                 // hook up events
-                ContentEvents.Init(this.EventManager);
-                ControlEvents.Init(this.EventManager);
-                GameEvents.Init(this.EventManager);
-                GraphicsEvents.Init(this.EventManager);
-                InputEvents.Init(this.EventManager);
-                LocationEvents.Init(this.EventManager);
-                MenuEvents.Init(this.EventManager);
-                MineEvents.Init(this.EventManager);
-                MultiplayerEvents.Init(this.EventManager);
-                PlayerEvents.Init(this.EventManager);
-                SaveEvents.Init(this.EventManager);
-                SpecialisedEvents.Init(this.EventManager);
-                TimeEvents.Init(this.EventManager);
+                ContentEvents.Init(this.EventManager, this.DeprecationManager);
+                ControlEvents.Init(this.EventManager, this.DeprecationManager);
+                GameEvents.Init(this.EventManager, this.DeprecationManager);
+                GraphicsEvents.Init(this.EventManager, this.DeprecationManager);
+                InputEvents.Init(this.EventManager, this.DeprecationManager);
+                LocationEvents.Init(this.EventManager, this.DeprecationManager);
+                MenuEvents.Init(this.EventManager, this.DeprecationManager);
+                MineEvents.Init(this.EventManager, this.DeprecationManager);
+                MultiplayerEvents.Init(this.EventManager, this.DeprecationManager);
+                PlayerEvents.Init(this.EventManager, this.DeprecationManager);
+                SaveEvents.Init(this.EventManager, this.DeprecationManager);
+                SpecialisedEvents.Init(this.EventManager, this.DeprecationManager);
+                TimeEvents.Init(this.EventManager, this.DeprecationManager);
 
                 // init JSON parser
                 JsonConverter[] converters = {

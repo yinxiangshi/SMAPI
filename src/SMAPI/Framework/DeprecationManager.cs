@@ -35,6 +35,12 @@ namespace StardewModdingAPI.Framework
             this.ModRegistry = modRegistry;
         }
 
+        /// <summary>Log a deprecation warning for the old-style events.</summary>
+        public void WarnForOldEvents()
+        {
+            this.Warn("legacy events", "2.9", DeprecationLevel.Notice);
+        }
+
         /// <summary>Log a deprecation warning.</summary>
         /// <param name="nounPhrase">A noun phrase describing what is deprecated.</param>
         /// <param name="version">The SMAPI version which deprecated it.</param>
