@@ -9,6 +9,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+#if !SMAPI_3_0_STRICT
+using Microsoft.Xna.Framework.Input;
+#endif
 using Netcode;
 using StardewModdingAPI.Enums;
 using StardewModdingAPI.Events;
