@@ -86,9 +86,9 @@ namespace StardewModdingAPI
         /// <param name="version">The content pack version.</param>
         [Obsolete("This method supports mods which previously had their own content packs, and shouldn't be used by new mods. It will be removed in SMAPI 3.0.")]
         IContentPack CreateTransitionalContentPack(string directoryPath, string id, string name, string description, string author, ISemanticVersion version);
+#endif
 
         /// <summary>Get all content packs loaded for this mod.</summary>
         IEnumerable<IContentPack> GetContentPacks();
-#endif
     }
 }
