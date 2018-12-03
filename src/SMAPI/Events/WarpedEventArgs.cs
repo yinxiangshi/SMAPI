@@ -18,6 +18,9 @@ namespace StardewModdingAPI.Events
         /// <summary>The player's current location.</summary>
         public GameLocation NewLocation { get; }
 
+        /// <summary>Whether the affected player is the local one.</summary>
+        public bool IsLocalPlayer => this.Player.IsLocalPlayer;
+
 
 
         /*********

@@ -22,6 +22,9 @@ namespace StardewModdingAPI.Events
         /// <summary>The new skill level.</summary>
         public int NewLevel { get; }
 
+        /// <summary>Whether the affected player is the local one.</summary>
+        public bool IsLocalPlayer => this.Player.IsLocalPlayer;
+
 
         /*********
         ** Public methods

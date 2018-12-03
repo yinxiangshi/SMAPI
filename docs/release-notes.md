@@ -8,6 +8,7 @@
 
 * For modders:
   * Added ModDrop update keys (see [docs](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Manifest#Update_checks)).
+  * Added `IsLocalPlayer` to new player events.
   * Reloading a map asset will now update affected locations.
   * Reloading the `Data\NPCDispositions` asset will now update affected NPCs.
   * Fixed some map tilesheets not editable if not playing in English.

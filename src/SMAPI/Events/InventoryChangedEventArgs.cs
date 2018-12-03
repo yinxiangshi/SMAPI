@@ -23,6 +23,9 @@ namespace StardewModdingAPI.Events
         /// <summary>The items whose stack sizes changed, with the relative change.</summary>
         public IEnumerable<ItemStackSizeChange> QuantityChanged { get; }
 
+        /// <summary>Whether the affected player is the local one.</summary>
+        public bool IsLocalPlayer => this.Player.IsLocalPlayer;
+
 
         /*********
         ** Public methods
