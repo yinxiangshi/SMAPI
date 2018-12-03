@@ -24,7 +24,7 @@ namespace StardewModdingAPI.Events
         /// <summary>Construct an instance.</summary>
         /// <param name="added">The added locations.</param>
         /// <param name="removed">The removed locations.</param>
-        public LocationListChangedEventArgs(IEnumerable<GameLocation> added, IEnumerable<GameLocation> removed)
+        internal LocationListChangedEventArgs(IEnumerable<GameLocation> added, IEnumerable<GameLocation> removed)
         {
             this.Added = added.ToArray();
             this.Removed = removed.ToArray();

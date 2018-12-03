@@ -22,7 +22,7 @@ namespace StardewModdingAPI.Events
         /// <summary>Construct an instance.</summary>
         /// <param name="oldMenu">The previous menu.</param>
         /// <param name="newMenu">The current menu.</param>
-        public MenuChangedEventArgs(IClickableMenu oldMenu, IClickableMenu newMenu)
+        internal MenuChangedEventArgs(IClickableMenu oldMenu, IClickableMenu newMenu)
         {
             this.OldMenu = oldMenu;
             this.NewMenu = newMenu;

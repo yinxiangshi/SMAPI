@@ -31,7 +31,7 @@ namespace StardewModdingAPI.Events
         /// <param name="skill">The skill whose level changed.</param>
         /// <param name="oldLevel">The previous skill level.</param>
         /// <param name="newLevel">The new skill level.</param>
-        public LevelChangedEventArgs(Farmer player, SkillType skill, int oldLevel, int newLevel)
+        internal LevelChangedEventArgs(Farmer player, SkillType skill, int oldLevel, int newLevel)
         {
             this.Player = player;
             this.Skill = skill;

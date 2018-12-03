@@ -30,7 +30,7 @@ namespace StardewModdingAPI.Events
         /// <summary>Construct an instance.</summary>
         /// <param name="player">The player whose inventory changed.</param>
         /// <param name="changedItems">The inventory changes.</param>
-        public InventoryChangedEventArgs(Farmer player, ItemStackChange[] changedItems)
+        internal InventoryChangedEventArgs(Farmer player, ItemStackChange[] changedItems)
         {
             this.Player = player;
             this.Added = changedItems

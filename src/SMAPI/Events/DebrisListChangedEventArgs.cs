@@ -28,7 +28,7 @@ namespace StardewModdingAPI.Events
         /// <param name="location">The location which changed.</param>
         /// <param name="added">The debris added to the location.</param>
         /// <param name="removed">The debris removed from the location.</param>
-        public DebrisListChangedEventArgs(GameLocation location, IEnumerable<Debris> added, IEnumerable<Debris> removed)
+        internal DebrisListChangedEventArgs(GameLocation location, IEnumerable<Debris> added, IEnumerable<Debris> removed)
         {
             this.Location = location;
             this.Added = added.ToArray();

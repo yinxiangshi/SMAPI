@@ -29,7 +29,7 @@ namespace StardewModdingAPI.Events
         /// <param name="location">The location which changed.</param>
         /// <param name="added">The large terrain features added to the location.</param>
         /// <param name="removed">The large terrain features removed from the location.</param>
-        public LargeTerrainFeatureListChangedEventArgs(GameLocation location, IEnumerable<LargeTerrainFeature> added, IEnumerable<LargeTerrainFeature> removed)
+        internal LargeTerrainFeatureListChangedEventArgs(GameLocation location, IEnumerable<LargeTerrainFeature> added, IEnumerable<LargeTerrainFeature> removed)
         {
             this.Location = location;
             this.Added = added.ToArray();

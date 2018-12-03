@@ -21,7 +21,7 @@ namespace StardewModdingAPI.Events
         /// <summary>Construct an instance.</summary>
         /// <param name="oldTime">The previous time of day in 24-hour notation (like 1600 for 4pm).</param>
         /// <param name="newTime">The current time of day in 24-hour notation (like 1600 for 4pm).</param>
-        public TimeChangedEventArgs(int oldTime, int newTime)
+        internal TimeChangedEventArgs(int oldTime, int newTime)
         {
             this.OldTime = oldTime;
             this.NewTime = newTime;

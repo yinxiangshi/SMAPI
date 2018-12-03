@@ -28,7 +28,7 @@ namespace StardewModdingAPI.Events
         /// <param name="location">The location which changed.</param>
         /// <param name="added">The NPCs added to the location.</param>
         /// <param name="removed">The NPCs removed from the location.</param>
-        public NpcListChangedEventArgs(GameLocation location, IEnumerable<NPC> added, IEnumerable<NPC> removed)
+        internal NpcListChangedEventArgs(GameLocation location, IEnumerable<NPC> added, IEnumerable<NPC> removed)
         {
             this.Location = location;
             this.Added = added.ToArray();
