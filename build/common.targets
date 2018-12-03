@@ -99,7 +99,7 @@
 
   <!-- copy files into game directory and enable debugging (only in debug mode) -->
   <Target Name="AfterBuild">
-    <CallTarget Targets="CopySMAPI;CopyDefaultMods" Condition="'$(Configuration)' == 'Debug'" />
+    <CallTarget Targets="CopySMAPI;CopyDefaultMods" />
   </Target>
   <Target Name="CopySMAPI" Condition="'$(MSBuildProjectName)' == 'StardewModdingAPI'">
     <Copy SourceFiles="$(TargetDir)\$(TargetName).exe" DestinationFolder="$(GamePath)" />
