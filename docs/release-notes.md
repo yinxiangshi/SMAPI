@@ -13,6 +13,8 @@
   * Fixed some map tilesheets not editable if not playing in English.
   * Fixed newlines in most manifest fields not being ignored.
   * Fixed `Display.RenderedWorld` event not invoked before overlays are rendered.
+  * **Deprecations:**
+    * All static events are deprecated and will be removed in SMAPI 3.0. Mods should use `helper.Events` instead; see [_migrate to SMAPI 3.0_](https://stardewvalleywiki.com/Modding:Migrate_to_SMAPI_3.0) for details.
 
 * For the web UI:
   * Added stats to compatibility list.
