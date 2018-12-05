@@ -9,6 +9,7 @@
 * For modders:
   * Added ModDrop update keys (see [docs](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Manifest#Update_checks)).
   * Added `IsLocalPlayer` to new player events.
+  * Added `helper.CreateTemporaryContentPack` to support permanent use cases for mods using the deprecated `helper.CreateTransitionalContentPack`.
   * Reloading a map asset will now update affected locations.
   * Reloading the `Data\NPCDispositions` asset will now update affected NPCs.
   * Fixed world events (like `ObjectListChanged`) not working in the mines.
