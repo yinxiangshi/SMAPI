@@ -36,6 +36,14 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
             return new ComparableWatcher<T>(getValue, new ObjectReferenceComparer<T>());
         }
 
+        /// <summary>Get a watcher which detects when an object reference in a collection changes.</summary>
+        /// <typeparam name="T">The value type.</typeparam>
+        /// <param name="collection">The observable collection.</param>
+        public static ComparableListWatcher<T> ForReferenceList<T>(ICollection<T> collection)
+        {
+            return new ComparableListWatcher<T>(collection, new ObjectReferenceComparer<T>());
+        }
+
         /// <summary>Get a watcher for an observable collection.</summary>
         /// <typeparam name="T">The value type.</typeparam>
         /// <param name="collection">The observable collection.</param>

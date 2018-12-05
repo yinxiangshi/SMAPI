@@ -5,6 +5,7 @@ using StardewModdingAPI.Framework.Input;
 using StardewModdingAPI.Framework.StateTracking;
 using StardewModdingAPI.Framework.StateTracking.FieldWatchers;
 using StardewValley;
+using StardewValley.Locations;
 using StardewValley.Menus;
 
 namespace StardewModdingAPI.Framework
@@ -64,7 +65,7 @@ namespace StardewModdingAPI.Framework
             this.WindowSizeWatcher = WatcherFactory.ForEquatable(() => new Point(Game1.viewport.Width, Game1.viewport.Height));
             this.TimeWatcher = WatcherFactory.ForEquatable(() => Game1.timeOfDay);
             this.ActiveMenuWatcher = WatcherFactory.ForReference(() => Game1.activeClickableMenu);
-            this.LocationsWatcher = new WorldLocationsTracker((ObservableCollection<GameLocation>)Game1.locations);
+            this.LocationsWatcher = new WorldLocationsTracker((ObservableCollection<GameLocation>)Game1.locations, MineShaft.activeMines);
             this.LocaleWatcher = WatcherFactory.ForGenericEquality(() => LocalizedContentManager.CurrentLanguageCode);
             this.Watchers.AddRange(new IWatcher[]
             {
