@@ -39,17 +39,17 @@ namespace StardewModdingAPI.Toolkit
         /// <summary>The patch version for backwards-compatible bug fixes.</summary>
         public int PatchVersion { get; }
 
+        /// <summary>An optional prerelease tag.</summary>
+        public string PrereleaseTag { get; }
+
 #if !SMAPI_3_0_STRICT
         /// <summary>An optional prerelease tag.</summary>
         [Obsolete("Use " + nameof(ISemanticVersion.PrereleaseTag) + " instead")]
         public string Build => this.PrereleaseTag;
-#endif
-
-        /// <summary>An optional prerelease tag.</summary>
-        public string PrereleaseTag { get; }
 
         /// <summary>Whether the version was parsed from the legacy object format.</summary>
         public bool IsLegacyFormat { get; }
+#endif
 
 
         /*********
@@ -59,15 +59,21 @@ namespace StardewModdingAPI.Toolkit
         /// <param name="major">The major version incremented for major API changes.</param>
         /// <param name="minor">The minor version incremented for backwards-compatible changes.</param>
         /// <param name="patch">The patch version for backwards-compatible fixes.</param>
-        /// <param name="tag">An optional prerelease tag.</param>
+        /// <param name="prereleaseTag">An optional prerelease tag.</param>
         /// <param name="isLegacyFormat">Whether the version was parsed from the legacy object format.</param>
-        public SemanticVersion(int major, int minor, int patch, string tag = null, bool isLegacyFormat = false)
+        public SemanticVersion(int major, int minor, int patch, string prereleaseTag = null
+#if !SMAPI_3_0_STRICT
+            , bool isLegacyFormat = false
+#endif
+        )
         {
             this.MajorVersion = major;
             this.MinorVersion = minor;
             this.PatchVersion = patch;
-            this.PrereleaseTag = this.GetNormalisedTag(tag);
+            this.PrereleaseTag = this.GetNormalisedTag(prereleaseTag);
+#if !SMAPI_3_0_STRICT
             this.IsLegacyFormat = isLegacyFormat;
+#endif
 
             this.AssertValid();
         }
