@@ -11,6 +11,7 @@
   * Added `IsLocalPlayer` to new player events.
   * Reloading a map asset will now update affected locations.
   * Reloading the `Data\NPCDispositions` asset will now update affected NPCs.
+  * Fixed world events (like `ObjectListChanged`) not working in the mines.
   * Fixed some map tilesheets not editable if not playing in English.
   * Fixed newlines in most manifest fields not being ignored.
   * Fixed `Display.RenderedWorld` event not invoked before overlays are rendered.

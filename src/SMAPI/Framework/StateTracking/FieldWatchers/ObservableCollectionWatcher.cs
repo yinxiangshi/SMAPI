@@ -6,6 +6,7 @@ using System.Linq;
 namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
 {
     /// <summary>A watcher which detects changes to an observable collection.</summary>
+    /// <typeparam name="TValue">The value type within the collection.</typeparam>
     internal class ObservableCollectionWatcher<TValue> : BaseDisposableWatcher, ICollectionWatcher<TValue>
     {
         /*********
@@ -17,7 +18,7 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         /// <summary>The pairs added since the last reset.</summary>
         private readonly List<TValue> AddedImpl = new List<TValue>();
 
-        /// <summary>The pairs demoved since the last reset.</summary>
+        /// <summary>The pairs removed since the last reset.</summary>
         private readonly List<TValue> RemovedImpl = new List<TValue>();
 
 

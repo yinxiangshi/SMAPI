@@ -4,6 +4,7 @@ using Netcode;
 namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
 {
     /// <summary>A watcher which detects changes to a Netcode collection.</summary>
+    /// <typeparam name="TValue">The value type within the collection.</typeparam>
     internal class NetCollectionWatcher<TValue> : BaseDisposableWatcher, ICollectionWatcher<TValue>
         where TValue : class, INetObject<INetSerializable>
     {
@@ -16,7 +17,7 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         /// <summary>The pairs added since the last reset.</summary>
         private readonly List<TValue> AddedImpl = new List<TValue>();
 
-        /// <summary>The pairs demoved since the last reset.</summary>
+        /// <summary>The pairs removed since the last reset.</summary>
         private readonly List<TValue> RemovedImpl = new List<TValue>();
 
 
