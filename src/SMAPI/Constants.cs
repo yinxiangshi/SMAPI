@@ -91,8 +91,11 @@ namespace StardewModdingAPI
         /// <summary>The file path which stores the detected update version for the next run.</summary>
         internal static string UpdateMarker => Path.Combine(Constants.InternalFilesPath, "StardewModdingAPI.update.marker");
 
-        /// <summary>The full path to the folder containing mods.</summary>
+        /// <summary>The default full path to search for mods.</summary>
         internal static string DefaultModsPath { get; } = Path.Combine(Constants.ExecutionPath, "Mods");
+
+        /// <summary>The actual full path to search for mods.</summary>
+        internal static string ModsPath { get; set; }
 
         /// <summary>The game's current semantic version.</summary>
         internal static ISemanticVersion GameVersion { get; } = new GameVersion(Constants.GetGameVersion());

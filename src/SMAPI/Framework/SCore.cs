@@ -117,7 +117,7 @@ namespace StardewModdingAPI.Framework
         private readonly ModToolkit Toolkit = new ModToolkit();
 
         /// <summary>The path to search for mods.</summary>
-        private readonly string ModsPath;
+        private string ModsPath => Constants.ModsPath;
 
 
         /*********
@@ -131,7 +131,7 @@ namespace StardewModdingAPI.Framework
             // init paths
             this.VerifyPath(modsPath);
             this.VerifyPath(Constants.LogDir);
-            this.ModsPath = modsPath;
+            Constants.ModsPath = modsPath;
 
             // init log file
             this.PurgeNormalLogs();
