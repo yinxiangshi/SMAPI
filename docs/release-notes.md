@@ -2,6 +2,7 @@
 ## Upcoming
 * For players:
   * Added support for ModDrop in update checks and the mod compatibility list.
+  * Added friendly error when Steam isn't loaded (for Steam players).
   * Fixed cryptic error when running the installer from inside a zip file on Windows.
   * Fixed error when leaving and rejoining a multiplayer server in the same session.
   * Fixed Console Commands' handling of tool upgrade levels for item commands.

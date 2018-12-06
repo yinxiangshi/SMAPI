@@ -99,6 +99,20 @@ namespace StardewModdingAPI.Framework
             new Regex(@"^static SerializableDictionary<.+>\(\) called\.$", RegexOptions.Compiled | RegexOptions.CultureInvariant),
         };
 
+        /// <summary>Regex patterns which match console messages to show a more friendly error for.</summary>
+        private readonly Tuple<Regex, string, LogLevel>[] ReplaceConsolePatterns =
+        {
+            Tuple.Create(
+                new Regex(@"^System\.InvalidOperationException: Steamworks is not initialized\.", RegexOptions.Compiled | RegexOptions.CultureInvariant),
+#if SMAPI_FOR_WINDOWS
+                "Oops! Steam achievements won't work because Steam isn't loaded. You can launch the game through Steam to fix that (see 'Part 2: Configure Steam' in the install guide for more info: https://smapi.io/install).",
+#else
+                "Oops! Steam achievements won't work because Steam isn't loaded. You can launch the game through Steam to fix that.",
+#endif
+                LogLevel.Error
+            )
+        };
+
         /// <summary>The mod toolkit used for generic mod interactions.</summary>
         private readonly ModToolkit Toolkit = new ModToolkit();
 
@@ -1275,9 +1289,9 @@ namespace StardewModdingAPI.Framework
         }
 
         /// <summary>Redirect messages logged directly to the console to the given monitor.</summary>
-        /// <param name="monitor">The monitor with which to log messages.</param>
+        /// <param name="gameMonitor">The monitor with which to log messages as the game.</param>
         /// <param name="message">The message to log.</param>
-        private void HandleConsoleMessage(IMonitor monitor, string message)
+        private void HandleConsoleMessage(IMonitor gameMonitor, string message)
         {
             // detect exception
             LogLevel level = message.Contains("Exception") ? LogLevel.Error : LogLevel.Trace;
@@ -1286,8 +1300,19 @@ namespace StardewModdingAPI.Framework
             if (level != LogLevel.Error && this.SuppressConsolePatterns.Any(p => p.IsMatch(message)))
                 return;
 
+            // show friendly error if applicable
+            foreach (var entry in this.ReplaceConsolePatterns)
+            {
+                if (entry.Item1.IsMatch(message))
+                {
+                    this.Monitor.Log(entry.Item2, entry.Item3);
+                    gameMonitor.Log(message, LogLevel.Trace);
+                    return;
+                }
+            }
+
             // forward to monitor
-            monitor.Log(message, level);
+            gameMonitor.Log(message, level);
         }
 
         /// <summary>Show a 'press any key to exit' message, and exit when they press a key.</summary>

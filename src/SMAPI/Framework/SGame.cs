@@ -31,7 +31,7 @@ using StardewValley.TerrainFeatures;
 using StardewValley.Tools;
 using xTile.Dimensions;
 using xTile.Layers;
-using Object = StardewValley.Object;
+using SObject = StardewValley.Object;
 
 namespace StardewModdingAPI.Framework
 {
@@ -718,8 +718,8 @@ namespace StardewModdingAPI.Framework
                                 if (watcher.ObjectsWatcher.IsChanged)
                                 {
                                     GameLocation location = watcher.Location;
-                                    KeyValuePair<Vector2, Object>[] added = watcher.ObjectsWatcher.Added.ToArray();
-                                    KeyValuePair<Vector2, Object>[] removed = watcher.ObjectsWatcher.Removed.ToArray();
+                                    KeyValuePair<Vector2, SObject>[] added = watcher.ObjectsWatcher.Added.ToArray();
+                                    KeyValuePair<Vector2, SObject>[] removed = watcher.ObjectsWatcher.Removed.ToArray();
                                     watcher.ObjectsWatcher.Reset();
 
                                     this.Events.ObjectListChanged.Raise(new ObjectListChangedEventArgs(location, added, removed));
