@@ -6,6 +6,7 @@
   * Fixed cryptic error when running the installer from inside a zip file on Windows.
   * Fixed error when leaving and rejoining a multiplayer server in the same session.
   * Fixed Console Commands' handling of tool upgrade levels for item commands.
+  * Fixed empty "mods with warnings" list in some cases due to hidden warnings.
 
 * For modders:
   * Added ModDrop update keys (see [docs](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Manifest#Update_checks)).
@@ -13,6 +14,7 @@
   * Added `helper.CreateTemporaryContentPack` to support permanent use cases for mods using the deprecated `helper.CreateTransitionalContentPack`.
   * Reloading a map asset will now update affected locations.
   * Reloading the `Data\NPCDispositions` asset will now update affected NPCs.
+  * Disabled `TRACE` messages related to paranoid mode when it's disabled.
   * Fixed world events (like `ObjectListChanged`) not working in the mines.
   * Fixed some map tilesheets not editable if not playing in English.
   * Fixed newlines in most manifest fields not being ignored.
