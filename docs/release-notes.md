@@ -1,4 +1,8 @@
 # Release notes
+## 2.9.1
+* For players:
+  * Fixed crash in SMAPI 2.9 when constructing certain buildings.
+
 ## 2.9
 * For players:
   * Added support for ModDrop in update checks and the mod compatibility list.

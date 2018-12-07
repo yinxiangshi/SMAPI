@@ -62,9 +62,13 @@ namespace StardewModdingAPI.Framework.StateTracking
         /// <summary>Update the current value if needed.</summary>
         public void Update()
         {
-            // detect added/removed locations
+            // update watchers
             this.LocationListWatcher.Update();
             this.MineLocationListWatcher.Update();
+            foreach (LocationTracker watcher in this.Locations)
+                watcher.Update();
+
+            // detect added/removed locations
             if (this.LocationListWatcher.IsChanged)
             {
                 this.Remove(this.LocationListWatcher.Removed);
@@ -77,14 +81,10 @@ namespace StardewModdingAPI.Framework.StateTracking
             }
 
             // detect building changed
-            foreach (LocationTracker watcher in this.Locations.ToArray())
+            foreach (LocationTracker watcher in this.Locations.Where(p => p.BuildingsWatcher.IsChanged).ToArray())
             {
-                watcher.Update();
-                if (watcher.BuildingsWatcher.IsChanged)
-                {
-                    this.Remove(watcher.BuildingsWatcher.Removed);
-                    this.Add(watcher.BuildingsWatcher.Added);
-                }
+                this.Remove(watcher.BuildingsWatcher.Removed);
+                this.Add(watcher.BuildingsWatcher.Added);
             }
 
             // detect building interiors changed (e.g. construction completed)
