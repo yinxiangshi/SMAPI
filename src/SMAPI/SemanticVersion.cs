@@ -29,6 +29,7 @@ namespace StardewModdingAPI
         /// <summary>The patch version for backwards-compatible bug fixes.</summary>
         public int PatchVersion => this.Version.PatchVersion;
 
+#if !SMAPI_3_0_STRICT
         /// <summary>An optional build tag.</summary>
         [Obsolete("Use " + nameof(ISemanticVersion.PrereleaseTag) + " instead")]
         public string Build
@@ -39,6 +40,7 @@ namespace StardewModdingAPI
                 return this.Version.PrereleaseTag;
             }
         }
+#endif
 
         /// <summary>An optional prerelease tag.</summary>
         public string PrereleaseTag => this.Version.PrereleaseTag;

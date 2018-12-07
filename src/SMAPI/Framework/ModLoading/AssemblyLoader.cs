@@ -20,6 +20,9 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>Encapsulates monitoring and logging.</summary>
         private readonly IMonitor Monitor;
 
+        /// <summary>Whether to detect paranoid mode issues.</summary>
+        private readonly bool ParanoidMode;
+
         /// <summary>Metadata for mapping assemblies to the current platform.</summary>
         private readonly PlatformAssemblyMap AssemblyMap;
 
@@ -39,9 +42,11 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>Construct an instance.</summary>
         /// <param name="targetPlatform">The current game platform.</param>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        public AssemblyLoader(Platform targetPlatform, IMonitor monitor)
+        /// <param name="paranoidMode">Whether to detect paranoid mode issues.</param>
+        public AssemblyLoader(Platform targetPlatform, IMonitor monitor, bool paranoidMode)
         {
             this.Monitor = monitor;
+            this.ParanoidMode = paranoidMode;
             this.AssemblyMap = this.TrackForDisposal(Constants.GetAssemblyMap(targetPlatform));
             this.AssemblyDefinitionResolver = this.TrackForDisposal(new AssemblyDefinitionResolver());
             this.AssemblyDefinitionResolver.AddSearchDirectory(Constants.ExecutionPath);
@@ -275,7 +280,7 @@ namespace StardewModdingAPI.Framework.ModLoading
 
             // find (and optionally rewrite) incompatible instructions
             bool anyRewritten = false;
-            IInstructionHandler[] handlers = new InstructionMetadata().GetHandlers().ToArray();
+            IInstructionHandler[] handlers = new InstructionMetadata().GetHandlers(this.ParanoidMode).ToArray();
             foreach (MethodDefinition method in this.GetMethods(module))
             {
                 // check method definition

@@ -23,6 +23,9 @@ namespace StardewModdingAPI.Events
         /// <summary>The items whose stack sizes changed, with the relative change.</summary>
         public IEnumerable<ItemStackSizeChange> QuantityChanged { get; }
 
+        /// <summary>Whether the affected player is the local one.</summary>
+        public bool IsLocalPlayer => this.Player.IsLocalPlayer;
+
 
         /*********
         ** Public methods
@@ -30,7 +33,7 @@ namespace StardewModdingAPI.Events
         /// <summary>Construct an instance.</summary>
         /// <param name="player">The player whose inventory changed.</param>
         /// <param name="changedItems">The inventory changes.</param>
-        public InventoryChangedEventArgs(Farmer player, ItemStackChange[] changedItems)
+        internal InventoryChangedEventArgs(Farmer player, ItemStackChange[] changedItems)
         {
             this.Player = player;
             this.Added = changedItems

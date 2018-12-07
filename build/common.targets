@@ -97,9 +97,9 @@
     <Error Condition="!Exists('$(GamePath)')" Text="Failed to find the game install path automatically; edit the *.csproj file and manually add a &lt;GamePath&gt; setting with the full directory path containing the Stardew Valley executable." />
   </Target>
 
-  <!-- copy files into game directory and enable debugging (only in debug mode) -->
+  <!-- copy files into game directory and enable debugging -->
   <Target Name="AfterBuild">
-    <CallTarget Targets="CopySMAPI;CopyDefaultMods" Condition="'$(Configuration)' == 'Debug'" />
+    <CallTarget Targets="CopySMAPI;CopyDefaultMods" />
   </Target>
   <Target Name="CopySMAPI" Condition="'$(MSBuildProjectName)' == 'StardewModdingAPI'">
     <Copy SourceFiles="$(TargetDir)\$(TargetName).exe" DestinationFolder="$(GamePath)" />
@@ -116,19 +116,19 @@
     <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)\Mods\$(AssemblyName)" Condition="Exists('$(TargetDir)\$(TargetName).pdb')" />
     <Copy SourceFiles="$(TargetDir)\manifest.json" DestinationFolder="$(GamePath)\Mods\$(AssemblyName)" />
   </Target>
-  <Target Name="CopyToolkit" Condition="'$(MSBuildProjectName)' == 'StardewModdingAPI.Toolkit' AND '$(Configuration)' == 'Debug' AND $(TargetFramework) == 'net4.5'" AfterTargets="PostBuildEvent">
+  <Target Name="CopyToolkit" Condition="'$(MSBuildProjectName)' == 'StardewModdingAPI.Toolkit' AND $(TargetFramework) == 'net4.5'" AfterTargets="PostBuildEvent">
       <Copy SourceFiles="$(TargetDir)\$(TargetName).dll" DestinationFolder="$(GamePath)\smapi-internal" />
       <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)\smapi-internal" />
       <Copy SourceFiles="$(TargetDir)\$(TargetName).xml" DestinationFolder="$(GamePath)\smapi-internal" />
   </Target>
-  <Target Name="CopyToolkitCoreInterfaces" Condition="'$(MSBuildProjectName)' == 'StardewModdingAPI.Toolkit.CoreInterfaces' AND '$(Configuration)' == 'Debug' AND $(TargetFramework) == 'net4.5'" AfterTargets="PostBuildEvent">
+  <Target Name="CopyToolkitCoreInterfaces" Condition="'$(MSBuildProjectName)' == 'StardewModdingAPI.Toolkit.CoreInterfaces' AND $(TargetFramework) == 'net4.5'" AfterTargets="PostBuildEvent">
     <Copy SourceFiles="$(TargetDir)\$(TargetName).dll" DestinationFolder="$(GamePath)\smapi-internal" />
     <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)\smapi-internal" />
     <Copy SourceFiles="$(TargetDir)\$(TargetName).xml" DestinationFolder="$(GamePath)\smapi-internal" />
   </Target>
 
-  <!-- launch SMAPI on debug -->
-  <PropertyGroup Condition="$(Configuration) == 'Debug'">
+  <!-- launch SMAPI through Visual Studio -->
+  <PropertyGroup>
     <StartAction>Program</StartAction>
     <StartProgram>$(GamePath)\StardewModdingAPI.exe</StartProgram>
     <StartWorkingDirectory>$(GamePath)</StartWorkingDirectory>

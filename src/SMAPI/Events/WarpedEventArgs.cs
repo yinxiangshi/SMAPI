@@ -18,6 +18,9 @@ namespace StardewModdingAPI.Events
         /// <summary>The player's current location.</summary>
         public GameLocation NewLocation { get; }
 
+        /// <summary>Whether the affected player is the local one.</summary>
+        public bool IsLocalPlayer => this.Player.IsLocalPlayer;
+
 
 
         /*********
@@ -27,7 +30,7 @@ namespace StardewModdingAPI.Events
         /// <param name="player">The player who warped to a new location.</param>
         /// <param name="oldLocation">The player's previous location.</param>
         /// <param name="newLocation">The player's current location.</param>
-        public WarpedEventArgs(Farmer player, GameLocation oldLocation, GameLocation newLocation)
+        internal WarpedEventArgs(Farmer player, GameLocation oldLocation, GameLocation newLocation)
         {
             this.Player = player;
             this.NewLocation = newLocation;

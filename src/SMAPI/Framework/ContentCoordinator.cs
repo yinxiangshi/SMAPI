@@ -238,28 +238,30 @@ namespace StardewModdingAPI.Framework
         public IEnumerable<string> InvalidateCache(Func<string, Type, bool> predicate, bool dispose = false)
         {
             // invalidate cache
-            HashSet<string> removedAssetNames = new HashSet<string>();
+            IDictionary<string, Type> removedAssetNames = new Dictionary<string, Type>(StringComparer.InvariantCultureIgnoreCase);
             foreach (IContentManager contentManager in this.ContentManagers)
             {
-                foreach (string name in contentManager.InvalidateCache(predicate, dispose))
-                    removedAssetNames.Add(name);
+                foreach (Tuple<string, Type> asset in contentManager.InvalidateCache(predicate, dispose))
+                    removedAssetNames[asset.Item1] = asset.Item2;
             }
 
             // reload core game assets
             int reloaded = 0;
-            foreach (string key in removedAssetNames)
+            foreach (var pair in removedAssetNames)
             {
-                if (this.CoreAssets.Propagate(this.MainContentManager, key)) // use an intercepted content manager
+                string key = pair.Key;
+                Type type = pair.Value;
+                if (this.CoreAssets.Propagate(this.MainContentManager, key, type)) // use an intercepted content manager
                     reloaded++;
             }
 
             // report result
             if (removedAssetNames.Any())
-                this.Monitor.Log($"Invalidated {removedAssetNames.Count} asset names: {string.Join(", ", removedAssetNames.OrderBy(p => p, StringComparer.InvariantCultureIgnoreCase))}. Reloaded {reloaded} core assets.", LogLevel.Trace);
+                this.Monitor.Log($"Invalidated {removedAssetNames.Count} asset names: {string.Join(", ", removedAssetNames.Keys.OrderBy(p => p, StringComparer.InvariantCultureIgnoreCase))}. Reloaded {reloaded} core assets.", LogLevel.Trace);
             else
                 this.Monitor.Log("Invalidated 0 cache entries.", LogLevel.Trace);
 
-            return removedAssetNames;
+            return removedAssetNames.Keys;
         }
 
         /// <summary>Dispose held resources.</summary>

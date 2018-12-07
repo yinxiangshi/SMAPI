@@ -1,9 +1,36 @@
 # Release notes
+## 2.9
+* For players:
+  * Added support for ModDrop in update checks and the mod compatibility list.
+  * Added friendly error for Steam players when Steam isn't loaded.
+  * Fixed cryptic error when running the installer from inside a zip file on Windows.
+  * Fixed error when leaving and rejoining a multiplayer server in the same session.
+  * Fixed empty "mods with warnings" list in some cases due to hidden warnings.
+  * Fixed Console Commands' handling of tool upgrade levels for item commands.
+
+* For modders:
+  * Added ModDrop update keys (see [docs](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Manifest#Update_checks)).
+  * Added `IsLocalPlayer` to new player events.
+  * Added `helper.CreateTemporaryContentPack` to replace the deprecated `CreateTransitionalContentPack`.
+  * Reloading a map asset will now update affected locations.
+  * Reloading the `Data\NPCDispositions` asset will now update affected NPCs.
+  * Disabled trace messages related to paranoid mode when it's disabled.
+  * Fixed world events like `ObjectListChanged` not working in the mines.
+  * Fixed some map tilesheets not editable if not playing in English.
+  * Fixed newlines in manifest fields not being ignored.
+  * Fixed `Display.RenderedWorld` event invoked after overlays are rendered.
+  * **Deprecations:**
+    * All static events are deprecated and will be removed in SMAPI 3.0. Mods should use the new event system available through `helper.Events` instead; see [_migrate to SMAPI 3.0_](https://stardewvalleywiki.com/Modding:Migrate_to_SMAPI_3.0) for details.
+
+* For the web UI:
+  * Added stats to compatibility list.
+  * Fixed compatibility list showing beta header when there's no beta in progress.
+
 ## 2.8.2
-* Fixed game crash in MacOS since SMAPI 2.8.
+* Fixed game crash in MacOS with SMAPI 2.8.
 
 ## 2.8.1
-* Fixed installer error on Windows.
+* Fixed installer error on Windows with SMAPI 2.8.
 
 ## 2.8
 * For players:

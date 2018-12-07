@@ -1,5 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
+#if !SMAPI_3_0_STRICT
 using Microsoft.Xna.Framework.Input;
+#endif
 using StardewModdingAPI.Events;
 
 namespace StardewModdingAPI.Framework.Events
@@ -156,6 +158,7 @@ namespace StardewModdingAPI.Framework.Events
         public readonly ManagedEvent<UnvalidatedUpdateTickedEventArgs> UnvalidatedUpdateTicked;
 
 
+#if !SMAPI_3_0_STRICT
         /*********
         ** Events (old)
         *********/
@@ -342,6 +345,7 @@ namespace StardewModdingAPI.Framework.Events
 
         /// <summary>Raised after the in-game clock changes.</summary>
         public readonly ManagedEvent<EventArgsIntChanged> Legacy_TimeOfDayChanged;
+#endif
 
 
         /*********
@@ -354,7 +358,9 @@ namespace StardewModdingAPI.Framework.Events
         {
             // create shortcut initialisers
             ManagedEvent<TEventArgs> ManageEventOf<TEventArgs>(string typeName, string eventName) => new ManagedEvent<TEventArgs>($"{typeName}.{eventName}", monitor, modRegistry);
+#if !SMAPI_3_0_STRICT
             ManagedEvent ManageEvent(string typeName, string eventName) => new ManagedEvent($"{typeName}.{eventName}", monitor, modRegistry);
+#endif
 
             // init events (new)
             this.MenuChanged = ManageEventOf<MenuChangedEventArgs>(nameof(IModEvents.Display), nameof(IDisplayEvents.MenuChanged));
@@ -405,6 +411,7 @@ namespace StardewModdingAPI.Framework.Events
             this.UnvalidatedUpdateTicking = ManageEventOf<UnvalidatedUpdateTickingEventArgs>(nameof(IModEvents.Specialised), nameof(ISpecialisedEvents.UnvalidatedUpdateTicking));
             this.UnvalidatedUpdateTicked = ManageEventOf<UnvalidatedUpdateTickedEventArgs>(nameof(IModEvents.Specialised), nameof(ISpecialisedEvents.UnvalidatedUpdateTicked));
 
+#if !SMAPI_3_0_STRICT
             // init events (old)
             this.Legacy_LocaleChanged = ManageEventOf<EventArgsValueChanged<string>>(nameof(ContentEvents), nameof(ContentEvents.AfterLocaleChanged));
 
@@ -466,6 +473,7 @@ namespace StardewModdingAPI.Framework.Events
 
             this.Legacy_AfterDayStarted = ManageEvent(nameof(TimeEvents), nameof(TimeEvents.AfterDayStarted));
             this.Legacy_TimeOfDayChanged = ManageEventOf<EventArgsIntChanged>(nameof(TimeEvents), nameof(TimeEvents.TimeOfDayChanged));
+#endif
         }
     }
 }

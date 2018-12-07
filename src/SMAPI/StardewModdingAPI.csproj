@@ -32,7 +32,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <PlatformTarget>x86</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;SMAPI_3_0_STRICT</DefineConstants>
     <UseVSHostingProcess>true</UseVSHostingProcess>
     <Optimize>false</Optimize>
     <OutputPath>$(SolutionDir)\..\bin\Debug\SMAPI</OutputPath>
@@ -205,6 +205,7 @@
     <Compile Include="Framework\SModHooks.cs" />
     <Compile Include="Framework\Singleton.cs" />
     <Compile Include="Framework\StateTracking\Comparers\GenericEqualsComparer.cs" />
+    <Compile Include="Framework\StateTracking\FieldWatchers\ComparableListWatcher.cs" />
     <Compile Include="Framework\WatcherCore.cs" />
     <Compile Include="IDataHelper.cs" />
     <Compile Include="IInputHelper.cs" />

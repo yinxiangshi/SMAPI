@@ -21,8 +21,10 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <summary>Create a transitional content pack.</summary>
         private readonly Func<string, IManifest, IContentPack> CreateContentPack;
 
+#if !SMAPI_3_0_STRICT
         /// <summary>Manages deprecation warnings.</summary>
         private readonly DeprecationManager DeprecationManager;
+#endif
 
 
         /*********
@@ -31,8 +33,10 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <summary>The full path to the mod's folder.</summary>
         public string DirectoryPath { get; }
 
+#if !SMAPI_3_0_STRICT
         /// <summary>Encapsulates SMAPI's JSON file parsing.</summary>
         private readonly JsonHelper JsonHelper;
+#endif
 
         /// <summary>Manages access to events raised by SMAPI, which let your mod react when something happens in the game.</summary>
         public IModEvents Events { get; }
@@ -94,7 +98,6 @@ namespace StardewModdingAPI.Framework.ModHelpers
 
             // initialise
             this.DirectoryPath = modDirectory;
-            this.JsonHelper = jsonHelper ?? throw new ArgumentNullException(nameof(jsonHelper));
             this.Content = contentHelper ?? throw new ArgumentNullException(nameof(contentHelper));
             this.Data = dataHelper ?? throw new ArgumentNullException(nameof(dataHelper));
             this.Input = new InputHelper(modID, inputState);
@@ -105,8 +108,11 @@ namespace StardewModdingAPI.Framework.ModHelpers
             this.Translation = translationHelper ?? throw new ArgumentNullException(nameof(translationHelper));
             this.ContentPacks = new Lazy<IContentPack[]>(contentPacks);
             this.CreateContentPack = createContentPack;
-            this.DeprecationManager = deprecationManager;
             this.Events = events;
+#if !SMAPI_3_0_STRICT
+            this.JsonHelper = jsonHelper ?? throw new ArgumentNullException(nameof(jsonHelper));
+            this.DeprecationManager = deprecationManager;
+#endif
         }
 
         /****
@@ -131,6 +137,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
             this.Data.WriteJsonFile("config.json", config);
         }
 
+#if !SMAPI_3_0_STRICT
         /****
         ** Generic JSON files
         ****/
@@ -159,23 +166,20 @@ namespace StardewModdingAPI.Framework.ModHelpers
             path = Path.Combine(this.DirectoryPath, PathUtilities.NormalisePathSeparators(path));
             this.JsonHelper.WriteJsonFile(path, model);
         }
+#endif
 
         /****
         ** Content packs
         ****/
-        /// <summary>Manually create a transitional content pack to support pre-SMAPI content packs. This provides a way to access legacy content packs using the SMAPI content pack APIs, but the content pack will not be visible in the log or validated by SMAPI.</summary>
+        /// <summary>Create a temporary content pack to read files from a directory. Temporary content packs will not appear in the SMAPI log and update checks will not be performed.</summary>
         /// <param name="directoryPath">The absolute directory path containing the content pack files.</param>
         /// <param name="id">The content pack's unique ID.</param>
         /// <param name="name">The content pack name.</param>
         /// <param name="description">The content pack description.</param>
         /// <param name="author">The content pack author's name.</param>
         /// <param name="version">The content pack version.</param>
-        [Obsolete("This method supports mods which previously had their own content packs, and shouldn't be used by new mods. It will be removed in SMAPI 3.0.")]
-        public IContentPack CreateTransitionalContentPack(string directoryPath, string id, string name, string description, string author, ISemanticVersion version)
+        public IContentPack CreateTemporaryContentPack(string directoryPath, string id, string name, string description, string author, ISemanticVersion version)
         {
-            // raise deprecation notice
-            this.DeprecationManager.Warn($"{nameof(IModHelper)}.{nameof(IModHelper.CreateTransitionalContentPack)}", "2.5", DeprecationLevel.Notice);
-
             // validate
             if (string.IsNullOrWhiteSpace(directoryPath))
                 throw new ArgumentNullException(nameof(directoryPath));
@@ -199,6 +203,22 @@ namespace StardewModdingAPI.Framework.ModHelpers
             // create content pack
             return this.CreateContentPack(directoryPath, manifest);
         }
+
+#if !SMAPI_3_0_STRICT
+        /// <summary>Manually create a transitional content pack to support pre-SMAPI content packs. This provides a way to access legacy content packs using the SMAPI content pack APIs, but the content pack will not be visible in the log or validated by SMAPI.</summary>
+        /// <param name="directoryPath">The absolute directory path containing the content pack files.</param>
+        /// <param name="id">The content pack's unique ID.</param>
+        /// <param name="name">The content pack name.</param>
+        /// <param name="description">The content pack description.</param>
+        /// <param name="author">The content pack author's name.</param>
+        /// <param name="version">The content pack version.</param>
+        [Obsolete("Use " + nameof(IModHelper) + "." + nameof(IModHelper.CreateTemporaryContentPack) + " instead")]
+        public IContentPack CreateTransitionalContentPack(string directoryPath, string id, string name, string description, string author, ISemanticVersion version)
+        {
+            this.DeprecationManager.Warn($"{nameof(IModHelper)}.{nameof(IModHelper.CreateTransitionalContentPack)}", "2.5", DeprecationLevel.Notice);
+            return this.CreateTemporaryContentPack(directoryPath, id, name, description, author, version);
+        }
+#endif
 
         /// <summary>Get all content packs loaded for this mod.</summary>
         public IEnumerable<IContentPack> GetContentPacks()

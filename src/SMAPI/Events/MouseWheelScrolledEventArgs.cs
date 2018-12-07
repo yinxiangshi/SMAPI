@@ -28,7 +28,7 @@ namespace StardewModdingAPI.Events
         /// <param name="position">The cursor position.</param>
         /// <param name="oldValue">The old scroll value.</param>
         /// <param name="newValue">The new scroll value.</param>
-        public MouseWheelScrolledEventArgs(ICursorPosition position, int oldValue, int newValue)
+        internal MouseWheelScrolledEventArgs(ICursorPosition position, int oldValue, int newValue)
         {
             this.Position = position;
             this.OldValue = oldValue;

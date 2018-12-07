@@ -29,7 +29,7 @@ namespace StardewModdingAPI.Events
         /// <param name="location">The location which changed.</param>
         /// <param name="added">The buildings added to the location.</param>
         /// <param name="removed">The buildings removed from the location.</param>
-        public BuildingListChangedEventArgs(GameLocation location, IEnumerable<Building> added, IEnumerable<Building> removed)
+        internal BuildingListChangedEventArgs(GameLocation location, IEnumerable<Building> added, IEnumerable<Building> removed)
         {
             this.Location = location;
             this.Added = added.ToArray();

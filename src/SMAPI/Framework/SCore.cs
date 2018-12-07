@@ -99,11 +99,25 @@ namespace StardewModdingAPI.Framework
             new Regex(@"^static SerializableDictionary<.+>\(\) called\.$", RegexOptions.Compiled | RegexOptions.CultureInvariant),
         };
 
+        /// <summary>Regex patterns which match console messages to show a more friendly error for.</summary>
+        private readonly Tuple<Regex, string, LogLevel>[] ReplaceConsolePatterns =
+        {
+            Tuple.Create(
+                new Regex(@"^System\.InvalidOperationException: Steamworks is not initialized\.", RegexOptions.Compiled | RegexOptions.CultureInvariant),
+#if SMAPI_FOR_WINDOWS
+                "Oops! Steam achievements won't work because Steam isn't loaded. You can launch the game through Steam to fix that (see 'Part 2: Configure Steam' in the install guide for more info: https://smapi.io/install).",
+#else
+                "Oops! Steam achievements won't work because Steam isn't loaded. You can launch the game through Steam to fix that.",
+#endif
+                LogLevel.Error
+            )
+        };
+
         /// <summary>The mod toolkit used for generic mod interactions.</summary>
         private readonly ModToolkit Toolkit = new ModToolkit();
 
         /// <summary>The path to search for mods.</summary>
-        private readonly string ModsPath;
+        private string ModsPath => Constants.ModsPath;
 
 
         /*********
@@ -117,7 +131,7 @@ namespace StardewModdingAPI.Framework
             // init paths
             this.VerifyPath(modsPath);
             this.VerifyPath(Constants.LogDir);
-            this.ModsPath = modsPath;
+            Constants.ModsPath = modsPath;
 
             // init log file
             this.PurgeNormalLogs();
@@ -180,20 +194,22 @@ namespace StardewModdingAPI.Framework
             // initialise SMAPI
             try
             {
+#if !SMAPI_3_0_STRICT
                 // hook up events
-                ContentEvents.Init(this.EventManager);
-                ControlEvents.Init(this.EventManager);
-                GameEvents.Init(this.EventManager);
-                GraphicsEvents.Init(this.EventManager);
-                InputEvents.Init(this.EventManager);
-                LocationEvents.Init(this.EventManager);
-                MenuEvents.Init(this.EventManager);
-                MineEvents.Init(this.EventManager);
-                MultiplayerEvents.Init(this.EventManager);
-                PlayerEvents.Init(this.EventManager);
-                SaveEvents.Init(this.EventManager);
-                SpecialisedEvents.Init(this.EventManager);
-                TimeEvents.Init(this.EventManager);
+                ContentEvents.Init(this.EventManager, this.DeprecationManager);
+                ControlEvents.Init(this.EventManager, this.DeprecationManager);
+                GameEvents.Init(this.EventManager, this.DeprecationManager);
+                GraphicsEvents.Init(this.EventManager, this.DeprecationManager);
+                InputEvents.Init(this.EventManager, this.DeprecationManager);
+                LocationEvents.Init(this.EventManager, this.DeprecationManager);
+                MenuEvents.Init(this.EventManager, this.DeprecationManager);
+                MineEvents.Init(this.EventManager, this.DeprecationManager);
+                MultiplayerEvents.Init(this.EventManager, this.DeprecationManager);
+                PlayerEvents.Init(this.EventManager, this.DeprecationManager);
+                SaveEvents.Init(this.EventManager, this.DeprecationManager);
+                SpecialisedEvents.Init(this.EventManager, this.DeprecationManager);
+                TimeEvents.Init(this.EventManager, this.DeprecationManager);
+#endif
 
                 // init JSON parser
                 JsonConverter[] converters = {
@@ -216,7 +232,7 @@ namespace StardewModdingAPI.Framework
 
                 // override game
                 SGame.ConstructorHack = new SGameConstructorHack(this.Monitor, this.Reflection, this.Toolkit.JsonHelper);
-                this.GameInstance = new SGame(this.Monitor, this.MonitorForGame, this.Reflection, this.EventManager, this.Toolkit.JsonHelper, this.ModRegistry, this.DeprecationManager, this.InitialiseAfterGameStart, this.Dispose);
+                this.GameInstance = new SGame(this.Monitor, this.MonitorForGame, this.Reflection, this.EventManager, this.Toolkit.JsonHelper, this.ModRegistry, this.DeprecationManager, this.OnLocaleChanged, this.InitialiseAfterGameStart, this.Dispose);
                 StardewValley.Program.gamePtr = this.GameInstance;
 
                 // add exit handler
@@ -239,12 +255,13 @@ namespace StardewModdingAPI.Framework
                     }
                 }).Start();
 
-                // hook into game events
-                ContentEvents.AfterLocaleChanged += (sender, e) => this.OnLocaleChanged();
-
                 // set window titles
                 this.GameInstance.Window.Title = $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion}";
                 Console.Title = $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion}";
+#if SMAPI_3_0_STRICT
+                this.GameInstance.Window.Title += " [SMAPI 3.0 strict mode]";
+                Console.Title += " [SMAPI 3.0 strict mode]";
+#endif
             }
             catch (Exception ex)
             {
@@ -348,8 +365,11 @@ namespace StardewModdingAPI.Framework
         private void InitialiseAfterGameStart()
         {
             // add headers
+#if SMAPI_3_0_STRICT
+            this.Monitor.Log($"You're running SMAPI 3.0 strict mode, so most mods won't work correctly. If that wasn't intended, install the normal version of SMAPI from https://smapi.io instead.", LogLevel.Warn);
+#endif
             if (this.Settings.DeveloperMode)
-                this.Monitor.Log($"You configured SMAPI to run in developer mode. The console may be much more verbose. You can disable developer mode by installing the non-developer version of SMAPI, or by editing {Constants.ApiConfigPath}.", LogLevel.Info);
+                this.Monitor.Log($"You have SMAPI for developers, so the console will be much more verbose. You can disable developer mode by installing the non-developer version of SMAPI, or by editing {Constants.ApiConfigPath}.", LogLevel.Info);
             if (!this.Settings.CheckForUpdates)
                 this.Monitor.Log($"You configured SMAPI to not check for updates. Running an old version of SMAPI is not recommended. You can enable update checks by reinstalling SMAPI or editing {Constants.ApiConfigPath}.", LogLevel.Warn);
             if (!this.Monitor.WriteToConsole)
@@ -409,6 +429,11 @@ namespace StardewModdingAPI.Framework
             int modsLoaded = this.ModRegistry.GetAll().Count();
             this.GameInstance.Window.Title = $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion} with {modsLoaded} mods";
             Console.Title = $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion} with {modsLoaded} mods";
+#if SMAPI_3_0_STRICT
+            this.GameInstance.Window.Title += " [SMAPI 3.0 strict mode]";
+            Console.Title += " [SMAPI 3.0 strict mode]";
+#endif
+
 
             // start SMAPI console
             new Thread(this.RunConsoleLoop).Start();
@@ -701,7 +726,7 @@ namespace StardewModdingAPI.Framework
 
             // load mods
             IDictionary<IModMetadata, Tuple<string, string>> skippedMods = new Dictionary<IModMetadata, Tuple<string, string>>();
-            using (AssemblyLoader modAssemblyLoader = new AssemblyLoader(Constants.Platform, this.Monitor))
+            using (AssemblyLoader modAssemblyLoader = new AssemblyLoader(Constants.Platform, this.Monitor, this.Settings.ParanoidWarnings))
             {
                 // init
                 HashSet<string> suppressUpdateChecks = new HashSet<string>(this.Settings.SuppressUpdateChecks, StringComparer.InvariantCultureIgnoreCase);
@@ -891,11 +916,13 @@ namespace StardewModdingAPI.Framework
                 return false;
             }
 
+#if !SMAPI_3_0_STRICT
             // add deprecation warning for old version format
             {
                 if (mod.Manifest?.Version is Toolkit.SemanticVersion version && version.IsLegacyFormat)
                     this.DeprecationManager.Warn(mod.DisplayName, "non-string manifest version", "2.8", DeprecationLevel.Notice);
             }
+#endif
 
             // validate dependencies
             // Although dependences are validated before mods are loaded, a dependency may have failed to load.
@@ -1262,9 +1289,9 @@ namespace StardewModdingAPI.Framework
         }
 
         /// <summary>Redirect messages logged directly to the console to the given monitor.</summary>
-        /// <param name="monitor">The monitor with which to log messages.</param>
+        /// <param name="gameMonitor">The monitor with which to log messages as the game.</param>
         /// <param name="message">The message to log.</param>
-        private void HandleConsoleMessage(IMonitor monitor, string message)
+        private void HandleConsoleMessage(IMonitor gameMonitor, string message)
         {
             // detect exception
             LogLevel level = message.Contains("Exception") ? LogLevel.Error : LogLevel.Trace;
@@ -1273,8 +1300,19 @@ namespace StardewModdingAPI.Framework
             if (level != LogLevel.Error && this.SuppressConsolePatterns.Any(p => p.IsMatch(message)))
                 return;
 
+            // show friendly error if applicable
+            foreach (var entry in this.ReplaceConsolePatterns)
+            {
+                if (entry.Item1.IsMatch(message))
+                {
+                    this.Monitor.Log(entry.Item2, entry.Item3);
+                    gameMonitor.Log(message, LogLevel.Trace);
+                    return;
+                }
+            }
+
             // forward to monitor
-            monitor.Log(message, level);
+            gameMonitor.Log(message, level);
         }
 
         /// <summary>Show a 'press any key to exit' message, and exit when they press a key.</summary>

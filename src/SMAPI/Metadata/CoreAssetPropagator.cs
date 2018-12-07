@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Framework.Reflection;
 using StardewValley;
@@ -13,6 +14,7 @@ using StardewValley.Menus;
 using StardewValley.Objects;
 using StardewValley.Projectiles;
 using StardewValley.TerrainFeatures;
+using xTile;
 using xTile.Tiles;
 
 namespace StardewModdingAPI.Metadata
@@ -45,10 +47,11 @@ namespace StardewModdingAPI.Metadata
         /// <summary>Reload one of the game's core assets (if applicable).</summary>
         /// <param name="content">The content manager through which to reload the asset.</param>
         /// <param name="key">The asset key to reload.</param>
+        /// <param name="type">The asset type to reload.</param>
         /// <returns>Returns whether an asset was reloaded.</returns>
-        public bool Propagate(LocalizedContentManager content, string key)
+        public bool Propagate(LocalizedContentManager content, string key, Type type)
         {
-            object result = this.PropagateImpl(content, key);
+            object result = this.PropagateImpl(content, key, type);
             if (result is bool b)
                 return b;
             return result != null;
@@ -61,9 +64,12 @@ namespace StardewModdingAPI.Metadata
         /// <summary>Reload one of the game's core assets (if applicable).</summary>
         /// <param name="content">The content manager through which to reload the asset.</param>
         /// <param name="key">The asset key to reload.</param>
-        /// <returns>Returns any non-null value to indicate an asset was loaded.</returns>
-        private object PropagateImpl(LocalizedContentManager content, string key)
+        /// <param name="type">The asset type to reload.</param>
+        /// <returns>Returns whether an asset was loaded. The return value may be true or false, or a non-null value for true.</returns>
+        private object PropagateImpl(LocalizedContentManager content, string key, Type type)
         {
+            key = this.GetNormalisedPath(key);
+
             /****
             ** Special case: current map tilesheet
             ** We only need to do this for the current location, since tilesheets are reloaded when you enter a location.
@@ -76,6 +82,24 @@ namespace StardewModdingAPI.Metadata
                     if (this.GetNormalisedPath(tilesheet.ImageSource) == key)
                         Game1.mapDisplayDevice.LoadTileSheet(tilesheet);
                 }
+            }
+
+            /****
+            ** Propagate map changes
+            ****/
+            if (type == typeof(Map))
+            {
+                bool anyChanged = false;
+                foreach (GameLocation location in this.GetLocations())
+                {
+                    if (this.GetNormalisedPath(location.mapPath.Value) == key)
+                    {
+                        this.Reflection.GetMethod(location, "reloadMap").Invoke();
+                        this.Reflection.GetMethod(location, "updateWarps").Invoke();
+                        anyChanged = true;
+                    }
+                }
+                return anyChanged;
             }
 
             /****
@@ -140,6 +164,9 @@ namespace StardewModdingAPI.Metadata
 
                 case "data\\craftingrecipes": // CraftingRecipe.InitShared
                     return CraftingRecipe.craftingRecipes = content.Load<Dictionary<string, string>>(key);
+
+                case "data\\npcdispositions": // NPC constructor
+                    return this.ReloadNpcDispositions(content, key);
 
                 case "data\\npcgifttastes": // Game1.loadContent
                     return Game1.NPCGiftTastes = content.Load<Dictionary<string, string>>(key);
@@ -460,6 +487,35 @@ namespace StardewModdingAPI.Metadata
             return true;
         }
 
+        /// <summary>Reload the disposition data for matching NPCs.</summary>
+        /// <param name="content">The content manager through which to reload the asset.</param>
+        /// <param name="key">The asset key to reload.</param>
+        /// <returns>Returns whether any NPCs were affected.</returns>
+        private bool ReloadNpcDispositions(LocalizedContentManager content, string key)
+        {
+            IDictionary<string, string> dispositions = content.Load<Dictionary<string, string>>(key);
+            foreach (NPC character in this.GetCharacters())
+            {
+                if (!character.isVillager() || !dispositions.ContainsKey(character.Name))
+                    continue;
+
+                NPC clone = new NPC(null, Vector2.Zero, 0, character.Name);
+                character.Age = clone.Age;
+                character.Manners = clone.Manners;
+                character.SocialAnxiety = clone.SocialAnxiety;
+                character.Optimism = clone.Optimism;
+                character.Gender = clone.Gender;
+                character.datable.Value = clone.datable.Value;
+                character.homeRegion = clone.homeRegion;
+                character.Birthday_Season = clone.Birthday_Season;
+                character.Birthday_Day = clone.Birthday_Day;
+                character.id = clone.id;
+                character.displayName = clone.displayName;
+            }
+
+            return true;
+        }
+
         /// <summary>Reload the sprites for matching NPCs.</summary>
         /// <param name="content">The content manager through which to reload the asset.</param>
         /// <param name="key">The asset key to reload.</param>
@@ -584,24 +640,6 @@ namespace StardewModdingAPI.Metadata
         private void SetSpriteTexture(AnimatedSprite sprite, Texture2D texture)
         {
             this.Reflection.GetField<Texture2D>(sprite, "spriteTexture").SetValue(texture);
-        }
-
-        /// <summary>Get an NPC name from the name of their file under <c>Content/Characters</c>.</summary>
-        /// <param name="name">The file name.</param>
-        /// <remarks>Derived from <see cref="NPC.reloadSprite"/>.</remarks>
-        private string GetNpcNameFromFileName(string name)
-        {
-            switch (name)
-            {
-                case "Mariner":
-                    return "Old Mariner";
-                case "DwarfKing":
-                    return "Dwarf King";
-                case "MrQi":
-                    return "Mister Qi";
-                default:
-                    return name;
-            }
         }
 
         /// <summary>Get all NPCs in the game (excluding farm animals).</summary>

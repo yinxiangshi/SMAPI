@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using StardewModdingAPI.Framework.Content;
+using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Utilities;
 using StardewValley;
@@ -52,7 +53,10 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="language">The language code for which to load content.</param>
         public override T Load<T>(string assetName, LanguageCode language)
         {
+            // normalise asset name
             assetName = this.AssertAndNormaliseAssetName(assetName);
+            if (this.TryParseExplicitLanguageAssetKey(assetName, out string newAssetName, out LanguageCode newLanguage))
+                return this.Load<T>(newAssetName, newLanguage);
 
             // get from cache
             if (this.IsLoaded(assetName))
@@ -121,6 +125,29 @@ namespace StardewModdingAPI.Framework.ContentManagers
             }
 
             // not loaded yet
+            return false;
+        }
+
+        /// <summary>Parse an asset key that contains an explicit language into its asset name and language, if applicable.</summary>
+        /// <param name="rawAsset">The asset key to parse.</param>
+        /// <param name="assetName">The asset name without the language code.</param>
+        /// <param name="language">The language code removed from the asset name.</param>
+        private bool TryParseExplicitLanguageAssetKey(string rawAsset, out string assetName, out LanguageCode language)
+        {
+            if (string.IsNullOrWhiteSpace(rawAsset))
+                throw new SContentLoadException("The asset key is empty.");
+
+            // extract language code
+            int splitIndex = rawAsset.LastIndexOf('.');
+            if (splitIndex != -1 && this.LanguageCodes.TryGetValue(rawAsset.Substring(splitIndex + 1), out language))
+            {
+                assetName = rawAsset.Substring(0, splitIndex);
+                return true;
+            }
+
+            // no explicit language code found
+            assetName = rawAsset;
+            language = this.Language;
             return false;
         }
 

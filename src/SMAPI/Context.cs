@@ -22,7 +22,7 @@ namespace StardewModdingAPI
         /// <summary>Whether <see cref="IsPlayerFree"/> is true and the player is free to move (e.g. not using a tool).</summary>
         public static bool CanPlayerMove => Context.IsPlayerFree && Game1.player.CanMove;
 
-        /// <summary>Whether the game is currently running the draw loop. This isn't relevant to most mods, since you should use <see cref="GraphicsEvents.OnPostRenderEvent"/> to draw to the screen.</summary>
+        /// <summary>Whether the game is currently running the draw loop. This isn't relevant to most mods, since you should use <see cref="IDisplayEvents"/> events to draw to the screen.</summary>
         public static bool IsInDrawLoop { get; internal set; }
 
         /// <summary>Whether <see cref="IsWorldReady"/> and the player loaded the save in multiplayer mode (regardless of whether any other players are connected).</summary>

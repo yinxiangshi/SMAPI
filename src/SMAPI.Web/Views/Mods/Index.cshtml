@@ -4,11 +4,11 @@
     ViewData["Title"] = "SMAPI mod compatibility";
 }
 @section Head {
-    <link rel="stylesheet" href="~/Content/css/mods.css?r=20181109" />
+    <link rel="stylesheet" href="~/Content/css/mods.css?r=20181122" />
     <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/tablesorter@2.31.0/dist/js/jquery.tablesorter.combined.min.js" crossorigin="anonymous"></script>
-    <script src="~/Content/js/mods.js?r=20181109"></script>
+    <script src="~/Content/js/mods.js?r=20181122"></script>
     <script>
         $(function() {
             var data = @Json.Serialize(Model.Mods, new JsonSerializerSettings { Formatting = Formatting.None });
@@ -36,7 +36,7 @@
         </div>
         <div id="filter-area">
             <input type="checkbox" id="show-advanced" v-model="showAdvanced" />
-            <label for="show-advanced">show detailed options</label>
+            <label for="show-advanced">show advanced info and options</label>
             <div id="filters" v-show="showAdvanced">
                 <div v-for="(filterGroup, key) in filters">
                     {{key}}: <span v-for="filter in filterGroup" v-bind:class="{ active: filter.value }"><input type="checkbox" v-bind:id="filter.id" v-model="filter.value" v-on:change="applyFilters" /> <label v-bind:for="filter.id">{{filter.label}}</label></span>
@@ -44,7 +44,10 @@
             </div>
         </div>
     </div>
-    <div id="mod-count" v-show="showAdvanced">{{visibleCount}} mods shown.</div>
+    <div id="mod-count" v-show="showAdvanced">
+        <span v-if="visibleStats.total > 0">{{visibleStats.total}} mods shown ({{Math.round((visibleStats.compatible + visibleStats.workaround) / visibleStats.total * 100)}}% compatible or have a workaround, {{Math.round((visibleStats.soon + visibleStats.broken) / visibleStats.total * 100)}}% broken, {{Math.round(visibleStats.abandoned / visibleStats.total * 100)}}% obsolete).</span>
+        <span v-else>No matching mods found.</span>
+    </div>
     <table class="wikitable" id="mod-list">
         <thead>
             <tr>

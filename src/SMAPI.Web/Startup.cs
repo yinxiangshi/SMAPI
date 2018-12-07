@@ -11,6 +11,7 @@ using StardewModdingAPI.Toolkit.Serialisation;
 using StardewModdingAPI.Web.Framework;
 using StardewModdingAPI.Web.Framework.Clients.Chucklefish;
 using StardewModdingAPI.Web.Framework.Clients.GitHub;
+using StardewModdingAPI.Web.Framework.Clients.ModDrop;
 using StardewModdingAPI.Web.Framework.Clients.Nexus;
 using StardewModdingAPI.Web.Framework.Clients.Pastebin;
 using StardewModdingAPI.Web.Framework.ConfigModels;
@@ -86,6 +87,12 @@ namespace StardewModdingAPI.Web
                     password: api.GitHubPassword
                 ));
 
+                services.AddSingleton<IModDropClient>(new ModDropClient(
+                    userAgent: userAgent,
+                    apiUrl: api.ModDropApiUrl,
+                    modUrlFormat: api.ModDropModPageUrl
+                ));
+
                 services.AddSingleton<INexusClient>(new NexusWebScrapeClient(
                     userAgent: userAgent,
                     baseUrl: api.NexusBaseUrl,
@@ -155,6 +162,7 @@ namespace StardewModdingAPI.Web
             // shortcut redirects
             redirects.Add(new RedirectToUrlRule(@"^/buildmsg(?:/?(.*))$", "https://github.com/Pathoschild/SMAPI/blob/develop/docs/mod-build-config.md#$1"));
             redirects.Add(new RedirectToUrlRule(@"^/compat\.?$", "https://mods.smapi.io"));
+            redirects.Add(new RedirectToUrlRule(@"^/3\.0\.?$", "https://stardewvalleywiki.com/Modding:Migrate_to_SMAPI_3.0"));
             redirects.Add(new RedirectToUrlRule(@"^/docs\.?$", "https://stardewvalleywiki.com/Modding:Index"));
             redirects.Add(new RedirectToUrlRule(@"^/install\.?$", "https://stardewvalleywiki.com/Modding:Player_Guide/Getting_Started#Install_SMAPI"));
 

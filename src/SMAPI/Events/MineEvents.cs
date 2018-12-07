@@ -1,9 +1,12 @@
+#if !SMAPI_3_0_STRICT
 using System;
+using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.Events;
 
 namespace StardewModdingAPI.Events
 {
     /// <summary>Events raised when something happens in the mines.</summary>
+    [Obsolete("Use " + nameof(Mod.Helper) + "." + nameof(IModHelper.Events) + " instead. See https://smapi.io/3.0 for more info.")]
     public static class MineEvents
     {
         /*********
@@ -12,6 +15,9 @@ namespace StardewModdingAPI.Events
         /// <summary>The core event manager.</summary>
         private static EventManager EventManager;
 
+        /// <summary>Manages deprecation warnings.</summary>
+        private static DeprecationManager DeprecationManager;
+
 
         /*********
         ** Events
@@ -19,7 +25,11 @@ namespace StardewModdingAPI.Events
         /// <summary>Raised after the player warps to a new level of the mine.</summary>
         public static event EventHandler<EventArgsMineLevelChanged> MineLevelChanged
         {
-            add => MineEvents.EventManager.Legacy_MineLevelChanged.Add(value);
+            add
+            {
+                MineEvents.DeprecationManager.WarnForOldEvents();
+                MineEvents.EventManager.Legacy_MineLevelChanged.Add(value);
+            }
             remove => MineEvents.EventManager.Legacy_MineLevelChanged.Remove(value);
         }
 
@@ -29,9 +39,12 @@ namespace StardewModdingAPI.Events
         *********/
         /// <summary>Initialise the events.</summary>
         /// <param name="eventManager">The core event manager.</param>
-        internal static void Init(EventManager eventManager)
+        /// <param name="deprecationManager">Manages deprecation warnings.</param>
+        internal static void Init(EventManager eventManager, DeprecationManager deprecationManager)
         {
             MineEvents.EventManager = eventManager;
+            MineEvents.DeprecationManager = deprecationManager;
         }
     }
 }
+#endif

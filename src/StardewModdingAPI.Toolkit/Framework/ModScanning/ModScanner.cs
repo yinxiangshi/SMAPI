@@ -90,6 +90,14 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
                 }
             }
 
+            // normalise display fields
+            if (manifest != null)
+            {
+                manifest.Name = this.StripNewlines(manifest.Name);
+                manifest.Description = this.StripNewlines(manifest.Description);
+                manifest.Author = this.StripNewlines(manifest.Author);
+            }
+
             return new ModFolder(root, manifestFile.Directory, manifest, manifestError);
         }
 
@@ -163,6 +171,13 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         private bool IsRelevant(FileSystemInfo entry)
         {
             return !this.IgnoreFilesystemEntries.Contains(entry.Name);
+        }
+
+        /// <summary>Strip newlines from a string.</summary>
+        /// <param name="input">The input to strip.</param>
+        private string StripNewlines(string input)
+        {
+            return input?.Replace("\r", "").Replace("\n", "");
         }
     }
 }

@@ -22,7 +22,7 @@ namespace StardewModdingAPI.Events
         /// <summary>Construct an instance.</summary>
         /// <param name="oldSize">The previous window size.</param>
         /// <param name="newSize">The current window size.</param>
-        public WindowResizedEventArgs(Point oldSize, Point newSize)
+        internal WindowResizedEventArgs(Point oldSize, Point newSize)
         {
             this.OldSize = oldSize;
             this.NewSize = newSize;

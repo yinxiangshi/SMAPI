@@ -80,7 +80,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <summary>Purge matched assets from the cache.</summary>
         /// <param name="predicate">Matches the asset keys to invalidate.</param>
         /// <param name="dispose">Whether to dispose invalidated assets. This should only be <c>true</c> when they're being invalidated as part of a dispose, to avoid crashing the game.</param>
-        /// <returns>Returns the number of invalidated assets.</returns>
-        IEnumerable<string> InvalidateCache(Func<string, Type, bool> predicate, bool dispose = false);
+        /// <returns>Returns the invalidated asset names and types.</returns>
+        IEnumerable<Tuple<string, Type>> InvalidateCache(Func<string, Type, bool> predicate, bool dispose = false);
     }
 }

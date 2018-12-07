@@ -21,7 +21,7 @@ namespace StardewModdingAPI.Events
         /// <summary>Construct an instance.</summary>
         /// <param name="oldPosition">The previous cursor position.</param>
         /// <param name="newPosition">The new cursor position.</param>
-        public CursorMovedEventArgs(ICursorPosition oldPosition, ICursorPosition newPosition)
+        internal CursorMovedEventArgs(ICursorPosition oldPosition, ICursorPosition newPosition)
         {
             this.OldPosition = oldPosition;
             this.NewPosition = newPosition;

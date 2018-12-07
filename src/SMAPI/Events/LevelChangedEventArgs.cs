@@ -22,6 +22,9 @@ namespace StardewModdingAPI.Events
         /// <summary>The new skill level.</summary>
         public int NewLevel { get; }
 
+        /// <summary>Whether the affected player is the local one.</summary>
+        public bool IsLocalPlayer => this.Player.IsLocalPlayer;
+
 
         /*********
         ** Public methods
@@ -31,7 +34,7 @@ namespace StardewModdingAPI.Events
         /// <param name="skill">The skill whose level changed.</param>
         /// <param name="oldLevel">The previous skill level.</param>
         /// <param name="newLevel">The new skill level.</param>
-        public LevelChangedEventArgs(Farmer player, SkillType skill, int oldLevel, int newLevel)
+        internal LevelChangedEventArgs(Farmer player, SkillType skill, int oldLevel, int newLevel)
         {
             this.Player = player;
             this.Skill = skill;

@@ -1,3 +1,4 @@
+#if !SMAPI_3_0_STRICT
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,3 +38,4 @@ namespace StardewModdingAPI.Events
         }
     }
 }
+#endif

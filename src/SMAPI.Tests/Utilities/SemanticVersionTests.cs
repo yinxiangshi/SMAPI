@@ -47,7 +47,7 @@ namespace StardewModdingAPI.Tests.Utilities
             Assert.AreEqual(major, version.MajorVersion, "The major version doesn't match the given value.");
             Assert.AreEqual(minor, version.MinorVersion, "The minor version doesn't match the given value.");
             Assert.AreEqual(patch, version.PatchVersion, "The patch version doesn't match the given value.");
-            Assert.AreEqual(string.IsNullOrWhiteSpace(tag) ? null : tag.Trim(), version.Build, "The tag doesn't match the given value.");
+            Assert.AreEqual(string.IsNullOrWhiteSpace(tag) ? null : tag.Trim(), version.PrereleaseTag, "The tag doesn't match the given value.");
             return version.ToString();
         }
 

@@ -22,7 +22,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>The mod uses the <c>dynamic</c> keyword which won't work on Linux/Mac.</summary>
         UsesDynamic = 8,
 
-        /// <summary>The mod references <see cref="SpecialisedEvents.UnvalidatedUpdateTick"/> which may impact stability.</summary>
+        /// <summary>The mod references <see cref="ISpecialisedEvents.UnvalidatedUpdateTicking"/> or <see cref="ISpecialisedEvents.UnvalidatedUpdateTicked"/> which may impact stability.</summary>
         UsesUnvalidatedUpdateTick = 16,
 
         /// <summary>The mod has no update keys set.</summary>

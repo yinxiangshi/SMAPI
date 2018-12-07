@@ -96,6 +96,11 @@ namespace StardewModdingAPI.Web.ViewModels
                 anyFound = true;
                 yield return new ModLinkModel($"https://community.playstarbound.com/resources/{entry.ChucklefishID}", "Chucklefish");
             }
+            if (entry.ModDropID.HasValue)
+            {
+                anyFound = true;
+                yield return new ModLinkModel($"https://www.moddrop.com/sdv/mod/467243/{entry.ModDropID}", "ModDrop");
+            }
 
             // fallback
             if (!anyFound && !string.IsNullOrWhiteSpace(entry.CustomUrl))

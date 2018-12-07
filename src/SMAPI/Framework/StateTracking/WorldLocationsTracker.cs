@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -18,6 +17,9 @@ namespace StardewModdingAPI.Framework.StateTracking
         *********/
         /// <summary>Tracks changes to the location list.</summary>
         private readonly ICollectionWatcher<GameLocation> LocationListWatcher;
+
+        /// <summary>Tracks changes to the list of active mine locations.</summary>
+        private readonly ICollectionWatcher<MineShaft> MineLocationListWatcher;
 
         /// <summary>A lookup of the tracked locations.</summary>
         private IDictionary<GameLocation, LocationTracker> LocationDict { get; } = new Dictionary<GameLocation, LocationTracker>(new ObjectReferenceComparer<GameLocation>());
@@ -50,24 +52,34 @@ namespace StardewModdingAPI.Framework.StateTracking
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="locations">The game's list of locations.</param>
-        public WorldLocationsTracker(ObservableCollection<GameLocation> locations)
+        /// <param name="activeMineLocations">The game's list of active mine locations.</param>
+        public WorldLocationsTracker(ObservableCollection<GameLocation> locations, IList<MineShaft> activeMineLocations)
         {
             this.LocationListWatcher = WatcherFactory.ForObservableCollection(locations);
+            this.MineLocationListWatcher = WatcherFactory.ForReferenceList(activeMineLocations);
         }
 
         /// <summary>Update the current value if needed.</summary>
         public void Update()
         {
-            // detect location changes
+            // detect added/removed locations
+            this.LocationListWatcher.Update();
+            this.MineLocationListWatcher.Update();
             if (this.LocationListWatcher.IsChanged)
             {
                 this.Remove(this.LocationListWatcher.Removed);
                 this.Add(this.LocationListWatcher.Added);
             }
+            if (this.MineLocationListWatcher.IsChanged)
+            {
+                this.Remove(this.MineLocationListWatcher.Removed);
+                this.Add(this.MineLocationListWatcher.Added);
+            }
 
-            // detect building changes
+            // detect building changed
             foreach (LocationTracker watcher in this.Locations.ToArray())
             {
+                watcher.Update();
                 if (watcher.BuildingsWatcher.IsChanged)
                 {
                     this.Remove(watcher.BuildingsWatcher.Removed);
@@ -75,7 +87,7 @@ namespace StardewModdingAPI.Framework.StateTracking
                 }
             }
 
-            // detect building interior changed (e.g. construction completed)
+            // detect building interiors changed (e.g. construction completed)
             foreach (KeyValuePair<Building, GameLocation> pair in this.BuildingIndoors.Where(p => !object.Equals(p.Key.indoors.Value, p.Value)))
             {
                 GameLocation oldIndoors = pair.Value;
@@ -86,10 +98,6 @@ namespace StardewModdingAPI.Framework.StateTracking
                 if (newIndoors != null)
                     this.Removed.Add(newIndoors);
             }
-
-            // update watchers
-            foreach (IWatcher watcher in this.Locations)
-                watcher.Update();
         }
 
         /// <summary>Set the current location list as the baseline.</summary>
@@ -98,21 +106,21 @@ namespace StardewModdingAPI.Framework.StateTracking
             this.Removed.Clear();
             this.Added.Clear();
             this.LocationListWatcher.Reset();
+            this.MineLocationListWatcher.Reset();
         }
 
         /// <summary>Set the current value as the baseline.</summary>
         public void Reset()
         {
             this.ResetLocationList();
-            foreach (IWatcher watcher in this.Locations)
+            foreach (IWatcher watcher in this.GetWatchers())
                 watcher.Reset();
         }
 
         /// <summary>Stop watching the player fields and release all references.</summary>
         public void Dispose()
         {
-            this.LocationListWatcher.Dispose();
-            foreach (IWatcher watcher in this.Locations)
+            foreach (IWatcher watcher in this.GetWatchers())
                 watcher.Dispose();
         }
 
@@ -180,11 +188,11 @@ namespace StardewModdingAPI.Framework.StateTracking
             // remove old location if needed
             this.Remove(location);
 
-            // track change
+            // add location
             this.Added.Add(location);
-
-            // add
             this.LocationDict[location] = new LocationTracker(location);
+
+            // add buildings
             if (location is BuildableGameLocation buildableLocation)
                 this.Add(buildableLocation.buildings);
         }
@@ -218,6 +226,18 @@ namespace StardewModdingAPI.Framework.StateTracking
                 if (location is BuildableGameLocation buildableLocation)
                     this.Remove(buildableLocation.buildings);
             }
+        }
+
+        /****
+        ** Helpers
+        ****/
+        /// <summary>The underlying watchers.</summary>
+        private IEnumerable<IWatcher> GetWatchers()
+        {
+            yield return this.LocationListWatcher;
+            yield return this.MineLocationListWatcher;
+            foreach (LocationTracker watcher in this.Locations)
+                yield return watcher;
         }
     }
 }

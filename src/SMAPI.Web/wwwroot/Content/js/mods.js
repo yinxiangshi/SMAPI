@@ -4,10 +4,19 @@ var smapi = smapi || {};
 var app;
 smapi.modList = function (mods) {
     // init data
+    var defaultStats = {
+        total: 0,
+        compatible: 0,
+        workaround: 0,
+        soon: 0,
+        broken: 0,
+        abandoned: 0,
+        invalid: 0
+    };
     var data = {
         mods: mods,
-        visibleCount: mods.length,
         showAdvanced: false,
+        visibleStats: $.extend({}, defaultStats),
         filters: {
             source: {
                 open: {
@@ -62,6 +71,11 @@ smapi.modList = function (mods) {
                 chucklefish: {
                     label: "Chucklefish",
                     id: "show-chucklefish",
+                    value: true
+                },
+                moddrop: {
+                    label: "ModDrop",
+                    id: "show-moddrop",
                     value: true
                 },
                 nexus: {
@@ -130,27 +144,16 @@ smapi.modList = function (mods) {
                 var words = data.search.toLowerCase().split(" ");
 
                 // apply criteria
-                data.visibleCount = data.mods.length;
+                var stats = data.visibleStats = $.extend({}, defaultStats);
                 for (var i = 0; i < data.mods.length; i++) {
                     var mod = data.mods[i];
                     mod.Visible = true;
 
                     // check filters
-                    if (!this.matchesFilters(mod)) {
-                        mod.Visible = false;
-                        data.visibleCount--;
-                        continue;
-                    }
-
-                    // check search terms (all search words should match)
-                    if (words.length) {
-                        for (var w = 0; w < words.length; w++) {
-                            if (mod.SearchableText.indexOf(words[w]) === -1) {
-                                mod.Visible = false;
-                                data.visibleCount--;
-                                break;
-                            }
-                        }
+                    mod.Visible = this.matchesFilters(mod, words);
+                    if (mod.Visible) {
+                        stats.total++;
+                        stats[this.getCompatibilityGroup(mod)]++;
                     }
                 }
             },
@@ -159,9 +162,10 @@ smapi.modList = function (mods) {
             /**
              * Get whether a mod matches the current filters.
              * @param {object} mod The mod to check.
+             * @param {string[]} searchWords The search words to match.
              * @returns {bool} Whether the mod matches the filters.
              */
-            matchesFilters: function(mod) {
+            matchesFilters: function(mod, searchWords) {
                 var filters = data.filters;
 
                 // check source
@@ -180,6 +184,8 @@ smapi.modList = function (mods) {
 
                 if (!filters.download.chucklefish.value)
                     ignoreSites.push("Chucklefish");
+                if (!filters.download.moddrop.value)
+                    ignoreSites.push("ModDrop");
                 if (!filters.download.nexus.value)
                     ignoreSites.push("Nexus");
                 if (!filters.download.custom.value)
@@ -198,8 +204,50 @@ smapi.modList = function (mods) {
                         return false;
                 }
 
+                // check search terms
+                for (var w = 0; w < searchWords.length; w++) {
+                    if (mod.SearchableText.indexOf(searchWords[w]) === -1)
+                        return false;
+                }
+
                 return true;
+            },
+
+            /**
+             * Get a mod's compatibility group for mod metrics.
+             * @param {object} mod The mod to check.
+             * @returns {string} The compatibility group (one of 'compatible', 'workaround', 'soon', 'broken', 'abandoned', or 'invalid').
+             */
+            getCompatibilityGroup: function (mod) {
+                var status = (mod.BetaCompatibility || mod.Compatibility).Status;
+                switch (status) {
+                    // obsolete
+                    case "abandoned":
+                    case "obsolete":
+                        return "abandoned";
+
+                    // compatible
+                    case "ok":
+                    case "optional":
+                        return "compatible";
+
+                    // workaround
+                    case "workaround":
+                    case "unofficial":
+                        return "workaround";
+
+                    // soon/broken
+                    case "broken":
+                        if (mod.SourceUrl)
+                            return "soon";
+                        else
+                            return "broken";
+
+                    default:
+                        return "invalid";
+                }
             }
         }
     });
+    app.applyFilters();
 };

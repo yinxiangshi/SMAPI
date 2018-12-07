@@ -25,15 +25,11 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework
         public IEnumerable<SearchableItem> GetAll()
         {
             // get tools
-            for (int quality = Tool.stone; quality <= Tool.iridium; quality++)
-            {
-                yield return new SearchableItem(ItemType.Tool, ToolFactory.axe, ToolFactory.getToolFromDescription(ToolFactory.axe, quality));
-                yield return new SearchableItem(ItemType.Tool, ToolFactory.hoe, ToolFactory.getToolFromDescription(ToolFactory.hoe, quality));
-                yield return new SearchableItem(ItemType.Tool, ToolFactory.pickAxe, ToolFactory.getToolFromDescription(ToolFactory.pickAxe, quality));
-                yield return new SearchableItem(ItemType.Tool, ToolFactory.wateringCan, ToolFactory.getToolFromDescription(ToolFactory.wateringCan, quality));
-                if (quality != Tool.iridium)
-                    yield return new SearchableItem(ItemType.Tool, ToolFactory.fishingRod, ToolFactory.getToolFromDescription(ToolFactory.fishingRod, quality));
-            }
+            yield return new SearchableItem(ItemType.Tool, ToolFactory.axe, ToolFactory.getToolFromDescription(ToolFactory.axe, 0));
+            yield return new SearchableItem(ItemType.Tool, ToolFactory.hoe, ToolFactory.getToolFromDescription(ToolFactory.hoe, 0));
+            yield return new SearchableItem(ItemType.Tool, ToolFactory.pickAxe, ToolFactory.getToolFromDescription(ToolFactory.pickAxe, 0));
+            yield return new SearchableItem(ItemType.Tool, ToolFactory.wateringCan, ToolFactory.getToolFromDescription(ToolFactory.wateringCan, 0));
+            yield return new SearchableItem(ItemType.Tool, ToolFactory.fishingRod, ToolFactory.getToolFromDescription(ToolFactory.fishingRod, 0));
             yield return new SearchableItem(ItemType.Tool, this.CustomIDOffset, new MilkPail()); // these don't have any sort of ID, so we'll just assign some arbitrary ones
             yield return new SearchableItem(ItemType.Tool, this.CustomIDOffset + 1, new Shears());
             yield return new SearchableItem(ItemType.Tool, this.CustomIDOffset + 2, new Pan());

@@ -15,6 +15,7 @@ using StardewModdingAPI.Toolkit.Framework.ModData;
 using StardewModdingAPI.Toolkit.Framework.UpdateData;
 using StardewModdingAPI.Web.Framework.Clients.Chucklefish;
 using StardewModdingAPI.Web.Framework.Clients.GitHub;
+using StardewModdingAPI.Web.Framework.Clients.ModDrop;
 using StardewModdingAPI.Web.Framework.Clients.Nexus;
 using StardewModdingAPI.Web.Framework.ConfigModels;
 using StardewModdingAPI.Web.Framework.ModRepositories;
@@ -60,8 +61,9 @@ namespace StardewModdingAPI.Web.Controllers
         /// <param name="configProvider">The config settings for mod update checks.</param>
         /// <param name="chucklefish">The Chucklefish API client.</param>
         /// <param name="github">The GitHub API client.</param>
+        /// <param name="modDrop">The ModDrop API client.</param>
         /// <param name="nexus">The Nexus API client.</param>
-        public ModsApiController(IHostingEnvironment environment, IMemoryCache cache, IOptions<ModUpdateCheckConfig> configProvider, IChucklefishClient chucklefish, IGitHubClient github, INexusClient nexus)
+        public ModsApiController(IHostingEnvironment environment, IMemoryCache cache, IOptions<ModUpdateCheckConfig> configProvider, IChucklefishClient chucklefish, IGitHubClient github, IModDropClient modDrop, INexusClient nexus)
         {
             this.ModDatabase = new ModToolkit().GetModDatabase(Path.Combine(environment.WebRootPath, "StardewModdingAPI.metadata.json"));
             ModUpdateCheckConfig config = configProvider.Value;
@@ -76,6 +78,7 @@ namespace StardewModdingAPI.Web.Controllers
                 {
                     new ChucklefishRepository(chucklefish),
                     new GitHubRepository(github),
+                    new ModDropRepository(modDrop),
                     new NexusRepository(nexus)
                 }
                 .ToDictionary(p => p.VendorKey);
@@ -291,6 +294,8 @@ namespace StardewModdingAPI.Web.Controllers
                         yield return $"Nexus:{entry.NexusID}";
                     if (entry.ChucklefishID.HasValue)
                         yield return $"Chucklefish:{entry.ChucklefishID}";
+                    if (entry.ModDropID.HasValue)
+                        yield return $"ModDrop:{entry.ModDropID}";
                 }
             }
 

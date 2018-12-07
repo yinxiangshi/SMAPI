@@ -23,7 +23,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>The instruction is compatible, but uses the <c>dynamic</c> keyword which won't work on Linux/Mac.</summary>
         DetectedDynamic,
 
-        /// <summary>The instruction is compatible, but references <see cref="SpecialisedEvents.UnvalidatedUpdateTick"/> which may impact stability.</summary>
+        /// <summary>The instruction is compatible, but references <see cref="ISpecialisedEvents.UnvalidatedUpdateTicking"/> or <see cref="ISpecialisedEvents.UnvalidatedUpdateTicked"/> which may impact stability.</summary>
         DetectedUnvalidatedUpdateTick,
 
         /// <summary>The instruction accesses the filesystem directly.</summary>

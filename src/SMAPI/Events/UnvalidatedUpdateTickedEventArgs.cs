@@ -20,7 +20,7 @@ namespace StardewModdingAPI.Events
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="ticks">The number of ticks elapsed since the game started, including the current tick.</param>
-        public UnvalidatedUpdateTickedEventArgs(uint ticks)
+        internal UnvalidatedUpdateTickedEventArgs(uint ticks)
         {
             this.Ticks = ticks;
             this.IsOneSecond = this.IsMultipleOf(60);

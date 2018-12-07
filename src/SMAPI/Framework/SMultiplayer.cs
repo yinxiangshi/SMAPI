@@ -82,6 +82,7 @@ namespace StardewModdingAPI.Framework
             this.OnModMessageReceived = onModMessageReceived;
         }
 
+#if !SMAPI_3_0_STRICT
         /// <summary>Handle sync messages from other players and perform other initial sync logic.</summary>
         public override void UpdateEarly()
         {
@@ -97,6 +98,7 @@ namespace StardewModdingAPI.Framework
             base.UpdateLate(forceSync);
             this.EventManager.Legacy_AfterMainBroadcast.Raise();
         }
+#endif
 
         /// <summary>Initialise a client before the game connects to a remote server.</summary>
         /// <param name="client">The client to initialise.</param>

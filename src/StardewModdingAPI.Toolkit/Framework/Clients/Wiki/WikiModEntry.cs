@@ -21,6 +21,9 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
         /// <summary>The mod ID in the Chucklefish mod repo.</summary>
         public int? ChucklefishID { get; set; }
 
+        /// <summary>The mod ID in the ModDrop mod repo.</summary>
+        public int? ModDropID { get; set; }
+
         /// <summary>The GitHub repository in the form 'owner/repo'.</summary>
         public string GitHubRepo { get; set; }
 

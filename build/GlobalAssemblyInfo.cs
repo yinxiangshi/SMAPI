@@ -1,5 +1,5 @@
 using System.Reflection;
 
 [assembly: AssemblyProduct("SMAPI")]
-[assembly: AssemblyVersion("2.8.2")]
-[assembly: AssemblyFileVersion("2.8.2")]
+[assembly: AssemblyVersion("2.9.0")]
+[assembly: AssemblyFileVersion("2.9.0")]

@@ -32,11 +32,11 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <summary>Whether the content coordinator has been disposed.</summary>
         private bool IsDisposed;
 
-        /// <summary>The language enum values indexed by locale code.</summary>
-        private readonly IDictionary<string, LanguageCode> LanguageCodes;
-
         /// <summary>A callback to invoke when the content manager is being disposed.</summary>
         private readonly Action<BaseContentManager> OnDisposing;
+
+        /// <summary>The language enum values indexed by locale code.</summary>
+        protected IDictionary<string, LanguageCode> LanguageCodes { get; }
 
 
         /*********
@@ -200,23 +200,25 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <summary>Purge matched assets from the cache.</summary>
         /// <param name="predicate">Matches the asset keys to invalidate.</param>
         /// <param name="dispose">Whether to dispose invalidated assets. This should only be <c>true</c> when they're being invalidated as part of a dispose, to avoid crashing the game.</param>
-        /// <returns>Returns the number of invalidated assets.</returns>
-        public IEnumerable<string> InvalidateCache(Func<string, Type, bool> predicate, bool dispose = false)
+        /// <returns>Returns the invalidated asset names and types.</returns>
+        public IEnumerable<Tuple<string, Type>> InvalidateCache(Func<string, Type, bool> predicate, bool dispose = false)
         {
-            HashSet<string> removeAssetNames = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+            Dictionary<string, Type> removeAssetNames = new Dictionary<string, Type>(StringComparer.InvariantCultureIgnoreCase);
             this.Cache.Remove((key, type) =>
             {
                 this.ParseCacheKey(key, out string assetName, out _);
 
-                if (removeAssetNames.Contains(assetName) || predicate(assetName, type))
+                if (removeAssetNames.ContainsKey(assetName))
+                    return true;
+                if (predicate(assetName, type))
                 {
-                    removeAssetNames.Add(assetName);
+                    removeAssetNames[assetName] = type;
                     return true;
                 }
                 return false;
             });
 
-            return removeAssetNames;
+            return removeAssetNames.Select(p => Tuple.Create(p.Key, p.Value));
         }
 
         /// <summary>Dispose held resources.</summary>
