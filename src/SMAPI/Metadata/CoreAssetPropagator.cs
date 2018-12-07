@@ -95,6 +95,7 @@ namespace StardewModdingAPI.Metadata
                     if (this.GetNormalisedPath(location.mapPath.Value) == key)
                     {
                         this.Reflection.GetMethod(location, "reloadMap").Invoke();
+                        this.Reflection.GetMethod(location, "updateWarps").Invoke();
                         anyChanged = true;
                     }
                 }
@@ -639,24 +640,6 @@ namespace StardewModdingAPI.Metadata
         private void SetSpriteTexture(AnimatedSprite sprite, Texture2D texture)
         {
             this.Reflection.GetField<Texture2D>(sprite, "spriteTexture").SetValue(texture);
-        }
-
-        /// <summary>Get an NPC name from the name of their file under <c>Content/Characters</c>.</summary>
-        /// <param name="name">The file name.</param>
-        /// <remarks>Derived from <see cref="NPC.reloadSprite"/>.</remarks>
-        private string GetNpcNameFromFileName(string name)
-        {
-            switch (name)
-            {
-                case "Mariner":
-                    return "Old Mariner";
-                case "DwarfKing":
-                    return "Dwarf King";
-                case "MrQi":
-                    return "Mister Qi";
-                default:
-                    return name;
-            }
         }
 
         /// <summary>Get all NPCs in the game (excluding farm animals).</summary>
