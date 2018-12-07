@@ -92,7 +92,7 @@ namespace StardewModdingAPI.Metadata
                 bool anyChanged = false;
                 foreach (GameLocation location in this.GetLocations())
                 {
-                    if (this.GetNormalisedPath(location.mapPath.Value) == key)
+                    if (!string.IsNullOrWhiteSpace(location.mapPath.Value) && this.GetNormalisedPath(location.mapPath.Value) == key)
                     {
                         this.Reflection.GetMethod(location, "reloadMap").Invoke();
                         this.Reflection.GetMethod(location, "updateWarps").Invoke();
