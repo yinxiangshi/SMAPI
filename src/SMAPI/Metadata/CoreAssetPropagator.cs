@@ -31,6 +31,9 @@ namespace StardewModdingAPI.Metadata
         /// <summary>Simplifies access to private game code.</summary>
         private readonly Reflector Reflection;
 
+        /// <summary>Encapsulates monitoring and logging.</summary>
+        private readonly IMonitor Monitor;
+
 
         /*********
         ** Public methods
@@ -38,10 +41,12 @@ namespace StardewModdingAPI.Metadata
         /// <summary>Initialise the core asset data.</summary>
         /// <param name="getNormalisedPath">Normalises an asset key to match the cache key.</param>
         /// <param name="reflection">Simplifies access to private code.</param>
-        public CoreAssetPropagator(Func<string, string> getNormalisedPath, Reflector reflection)
+        /// <param name="monitor">Encapsulates monitoring and logging.</param>
+        public CoreAssetPropagator(Func<string, string> getNormalisedPath, Reflector reflection, IMonitor monitor)
         {
             this.GetNormalisedPath = getNormalisedPath;
             this.Reflection = reflection;
+            this.Monitor = monitor;
         }
 
         /// <summary>Reload one of the game's core assets (if applicable).</summary>
@@ -619,6 +624,11 @@ namespace StardewModdingAPI.Metadata
             {
                 // reload schedule
                 villager.Schedule = villager.getSchedule(Game1.dayOfMonth);
+                if (villager.Schedule == null)
+                {
+                    this.Monitor.Log($"A mod set an invalid schedule for {villager.Name ?? key}, so the NPC may not behave correctly.", LogLevel.Warn);
+                    return true;
+                }
 
                 // switch to new schedule if needed
                 int lastScheduleTime = villager.Schedule.Keys.Where(p => p <= Game1.timeOfDay).OrderByDescending(p => p).FirstOrDefault();

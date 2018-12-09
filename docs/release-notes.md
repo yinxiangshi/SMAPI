@@ -1,4 +1,8 @@
 # Release notes
+## Upcoming release
+* For players:
+  * Fixed error when a mod makes invalid changes to an NPC schedule.
+
 ## 2.9.1
 * For players:
   * Fixed crash in SMAPI 2.9 when constructing certain buildings.
