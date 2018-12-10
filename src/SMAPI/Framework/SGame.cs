@@ -1422,8 +1422,8 @@ namespace StardewModdingAPI.Framework
                                 }
                                 Game1.spriteBatch.End();
                             }
-                            this.Events.RenderedWorld.RaiseEmpty();
                             Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, (DepthStencilState)null, (RasterizerState)null);
+                            this.Events.RenderedWorld.RaiseEmpty();
                             if (Game1.drawGrid)
                             {
                                 int num1 = -Game1.viewport.X % 64;
