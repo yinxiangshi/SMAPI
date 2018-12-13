@@ -504,7 +504,7 @@ namespace StardewModdingAPI.Metadata
                 if (!character.isVillager() || !dispositions.ContainsKey(character.Name))
                     continue;
 
-                NPC clone = new NPC(null, Vector2.Zero, 0, character.Name);
+                NPC clone = new NPC(null, character.Position, character.DefaultMap, character.FacingDirection, character.Name, null, character.Portrait, eventActor: false);
                 character.Age = clone.Age;
                 character.Manners = clone.Manners;
                 character.SocialAnxiety = clone.SocialAnxiety;
