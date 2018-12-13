@@ -5,6 +5,9 @@
   * Fixed invalid NPC data propagated when a mod changes NPC dispositions.
   * Fixed `Display.RenderedWorld` event broken in SMAPI 2.9.1.
 
+* For modders:
+  * Added dedicated content pack API.
+
 ## 2.9.1
 * For players:
   * Fixed crash in SMAPI 2.9 when constructing certain buildings.

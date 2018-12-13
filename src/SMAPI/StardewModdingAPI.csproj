@@ -174,6 +174,7 @@
     <Compile Include="Framework\Events\ModPlayerEvents.cs" />
     <Compile Include="Framework\Events\ModSpecialisedEvents.cs" />
     <Compile Include="Framework\Events\ModWorldEvents.cs" />
+    <Compile Include="Framework\ModHelpers\ContentPackHelper.cs" />
     <Compile Include="Framework\ModHelpers\DataHelper.cs" />
     <Compile Include="Framework\Networking\MessageType.cs" />
     <Compile Include="Framework\Networking\ModMessageModel.cs" />
@@ -207,6 +208,7 @@
     <Compile Include="Framework\StateTracking\Comparers\GenericEqualsComparer.cs" />
     <Compile Include="Framework\StateTracking\FieldWatchers\ComparableListWatcher.cs" />
     <Compile Include="Framework\WatcherCore.cs" />
+    <Compile Include="IContentPackHelper.cs" />
     <Compile Include="IDataHelper.cs" />
     <Compile Include="IInputHelper.cs" />
     <Compile Include="Framework\Input\SInputState.cs" />

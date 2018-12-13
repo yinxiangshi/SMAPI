@@ -1014,20 +1014,21 @@ namespace StardewModdingAPI.Framework
                         IModEvents events = new ModEvents(mod, this.EventManager);
                         ICommandHelper commandHelper = new CommandHelper(mod, this.GameInstance.CommandManager);
                         IContentHelper contentHelper = new ContentHelper(contentCore, mod.DirectoryPath, manifest.UniqueID, mod.DisplayName, monitor);
+                        IContentPackHelper contentPackHelper = new ContentPackHelper(manifest.UniqueID, new Lazy<IContentPack[]>(GetContentPacks), CreateFakeContentPack);
                         IDataHelper dataHelper = new DataHelper(manifest.UniqueID, mod.DirectoryPath, jsonHelper);
                         IReflectionHelper reflectionHelper = new ReflectionHelper(manifest.UniqueID, mod.DisplayName, this.Reflection, this.DeprecationManager);
                         IModRegistry modRegistryHelper = new ModRegistryHelper(manifest.UniqueID, this.ModRegistry, proxyFactory, monitor);
                         IMultiplayerHelper multiplayerHelper = new MultiplayerHelper(manifest.UniqueID, this.GameInstance.Multiplayer);
                         ITranslationHelper translationHelper = new TranslationHelper(manifest.UniqueID, manifest.Name, contentCore.GetLocale(), contentCore.Language);
 
-                        IContentPack CreateTransitionalContentPack(string packDirPath, IManifest packManifest)
+                        IContentPack CreateFakeContentPack(string packDirPath, IManifest packManifest)
                         {
                             IMonitor packMonitor = this.GetSecondaryMonitor(packManifest.Name);
                             IContentHelper packContentHelper = new ContentHelper(contentCore, packDirPath, packManifest.UniqueID, packManifest.Name, packMonitor);
                             return new ContentPack(packDirPath, packManifest, packContentHelper, this.Toolkit.JsonHelper);
                         }
 
-                        modHelper = new ModHelper(manifest.UniqueID, mod.DirectoryPath, this.Toolkit.JsonHelper, this.GameInstance.Input, events, contentHelper, commandHelper, dataHelper, modRegistryHelper, reflectionHelper, multiplayerHelper, translationHelper, GetContentPacks, CreateTransitionalContentPack, this.DeprecationManager);
+                        modHelper = new ModHelper(manifest.UniqueID, mod.DirectoryPath, this.Toolkit.JsonHelper, this.GameInstance.Input, events, contentHelper, contentPackHelper, commandHelper, dataHelper, modRegistryHelper, reflectionHelper, multiplayerHelper, translationHelper, this.DeprecationManager);
                     }
 
                     // init mod
