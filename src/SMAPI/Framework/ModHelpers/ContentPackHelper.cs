@@ -38,7 +38,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
             return this.ContentPacks.Value;
         }
 
-        /// <summary>Create a temporary content pack to read files from a directory. This will generate fake manifest data; any <c>manifest.json</c> in the directory will be ignored. Temporary content packs will not appear in the SMAPI log and update checks will not be performed.</summary>
+        /// <summary>Create a temporary content pack to read files from a directory, using randomised manifest fields. This will generate fake manifest data; any <c>manifest.json</c> in the directory will be ignored. Temporary content packs will not appear in the SMAPI log and update checks will not be performed.</summary>
         /// <param name="directoryPath">The absolute directory path containing the content pack files.</param>
         public IContentPack CreateFake(string directoryPath)
         {
