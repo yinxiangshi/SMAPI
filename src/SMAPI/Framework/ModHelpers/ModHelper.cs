@@ -13,15 +13,6 @@ namespace StardewModdingAPI.Framework.ModHelpers
     internal class ModHelper : BaseHelper, IModHelper, IDisposable
     {
         /*********
-        ** Properties
-        *********/
-#if !SMAPI_3_0_STRICT
-        /// <summary>Manages deprecation warnings.</summary>
-        private readonly DeprecationManager DeprecationManager;
-#endif
-
-
-        /*********
         ** Accessors
         *********/
         /// <summary>The full path to the mod's folder.</summary>
@@ -80,10 +71,9 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="reflectionHelper">An API for accessing private game code.</param>
         /// <param name="multiplayer">Provides multiplayer utilities.</param>
         /// <param name="translationHelper">An API for reading translations stored in the mod's <c>i18n</c> folder.</param>
-        /// <param name="deprecationManager">Manages deprecation warnings.</param>
         /// <exception cref="ArgumentNullException">An argument is null or empty.</exception>
         /// <exception cref="InvalidOperationException">The <paramref name="modDirectory"/> path does not exist on disk.</exception>
-        public ModHelper(string modID, string modDirectory, JsonHelper jsonHelper, SInputState inputState, IModEvents events, IContentHelper contentHelper, IContentPackHelper contentPackHelper, ICommandHelper commandHelper, IDataHelper dataHelper, IModRegistry modRegistry, IReflectionHelper reflectionHelper, IMultiplayerHelper multiplayer, ITranslationHelper translationHelper, DeprecationManager deprecationManager)
+        public ModHelper(string modID, string modDirectory, JsonHelper jsonHelper, SInputState inputState, IModEvents events, IContentHelper contentHelper, IContentPackHelper contentPackHelper, ICommandHelper commandHelper, IDataHelper dataHelper, IModRegistry modRegistry, IReflectionHelper reflectionHelper, IMultiplayerHelper multiplayer, ITranslationHelper translationHelper)
             : base(modID)
         {
             // validate directory
@@ -106,7 +96,6 @@ namespace StardewModdingAPI.Framework.ModHelpers
             this.Events = events;
 #if !SMAPI_3_0_STRICT
             this.JsonHelper = jsonHelper ?? throw new ArgumentNullException(nameof(jsonHelper));
-            this.DeprecationManager = deprecationManager;
 #endif
         }
 
@@ -177,8 +166,8 @@ namespace StardewModdingAPI.Framework.ModHelpers
         [Obsolete("Use " + nameof(IModHelper) + "." + nameof(IModHelper.ContentPacks) + "." + nameof(IContentPackHelper.CreateTemporary) + " instead")]
         public IContentPack CreateTransitionalContentPack(string directoryPath, string id, string name, string description, string author, ISemanticVersion version)
         {
-            this.DeprecationManager.Warn($"{nameof(IModHelper)}.{nameof(IModHelper.CreateTransitionalContentPack)}", "2.5", DeprecationLevel.Notice);
-            return this.ContentPacks.CreateFake(directoryPath, id, name, description, author, version);
+            SCore.DeprecationManager.Warn($"{nameof(IModHelper)}.{nameof(IModHelper.CreateTransitionalContentPack)}", "2.5", DeprecationLevel.Notice);
+            return this.ContentPacks.CreateTemporary(directoryPath, id, name, description, author, version);
         }
 
         /// <summary>Get all content packs loaded for this mod.</summary>

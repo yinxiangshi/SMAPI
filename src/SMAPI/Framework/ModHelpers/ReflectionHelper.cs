@@ -17,9 +17,6 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <summary>The mod name for error messages.</summary>
         private readonly string ModName;
 
-        /// <summary>Manages deprecation warnings.</summary>
-        private readonly DeprecationManager DeprecationManager;
-
 
         /*********
         ** Public methods
@@ -28,13 +25,11 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="modID">The unique ID of the relevant mod.</param>
         /// <param name="modName">The mod name for error messages.</param>
         /// <param name="reflector">The underlying reflection helper.</param>
-        /// <param name="deprecationManager">Manages deprecation warnings.</param>
-        public ReflectionHelper(string modID, string modName, Reflector reflector, DeprecationManager deprecationManager)
+        public ReflectionHelper(string modID, string modName, Reflector reflector)
             : base(modID)
         {
             this.ModName = modName;
             this.Reflector = reflector;
-            this.DeprecationManager = deprecationManager;
         }
 
         /// <summary>Get an instance field.</summary>

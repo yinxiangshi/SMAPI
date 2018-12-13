@@ -16,9 +16,6 @@ namespace StardewModdingAPI.Events
         /// <summary>The core event manager.</summary>
         private static EventManager EventManager;
 
-        /// <summary>Manages deprecation warnings.</summary>
-        private static DeprecationManager DeprecationManager;
-
 
         /*********
         ** Events
@@ -28,7 +25,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                ControlEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 ControlEvents.EventManager.Legacy_KeyboardChanged.Add(value);
             }
             remove => ControlEvents.EventManager.Legacy_KeyboardChanged.Remove(value);
@@ -39,7 +36,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                ControlEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 ControlEvents.EventManager.Legacy_KeyPressed.Add(value);
             }
             remove => ControlEvents.EventManager.Legacy_KeyPressed.Remove(value);
@@ -50,7 +47,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                ControlEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 ControlEvents.EventManager.Legacy_KeyReleased.Add(value);
             }
             remove => ControlEvents.EventManager.Legacy_KeyReleased.Remove(value);
@@ -61,7 +58,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                ControlEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 ControlEvents.EventManager.Legacy_MouseChanged.Add(value);
             }
             remove => ControlEvents.EventManager.Legacy_MouseChanged.Remove(value);
@@ -72,7 +69,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                ControlEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 ControlEvents.EventManager.Legacy_ControllerButtonPressed.Add(value);
             }
             remove => ControlEvents.EventManager.Legacy_ControllerButtonPressed.Remove(value);
@@ -83,7 +80,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                ControlEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 ControlEvents.EventManager.Legacy_ControllerButtonReleased.Add(value);
             }
             remove => ControlEvents.EventManager.Legacy_ControllerButtonReleased.Remove(value);
@@ -94,7 +91,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                ControlEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 ControlEvents.EventManager.Legacy_ControllerTriggerPressed.Add(value);
             }
             remove => ControlEvents.EventManager.Legacy_ControllerTriggerPressed.Remove(value);
@@ -105,7 +102,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                ControlEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 ControlEvents.EventManager.Legacy_ControllerTriggerReleased.Add(value);
             }
             remove => ControlEvents.EventManager.Legacy_ControllerTriggerReleased.Remove(value);
@@ -117,11 +114,9 @@ namespace StardewModdingAPI.Events
         *********/
         /// <summary>Initialise the events.</summary>
         /// <param name="eventManager">The core event manager.</param>
-        /// <param name="deprecationManager">Manages deprecation warnings.</param>
-        internal static void Init(EventManager eventManager, DeprecationManager deprecationManager)
+        internal static void Init(EventManager eventManager)
         {
             ControlEvents.EventManager = eventManager;
-            ControlEvents.DeprecationManager = deprecationManager;
         }
     }
 }

@@ -15,9 +15,6 @@ namespace StardewModdingAPI.Events
         /// <summary>The core event manager.</summary>
         private static EventManager EventManager;
 
-        /// <summary>Manages deprecation warnings.</summary>
-        private static DeprecationManager DeprecationManager;
-
 
         /*********
         ** Events
@@ -27,7 +24,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                LocationEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 LocationEvents.EventManager.Legacy_LocationsChanged.Add(value);
             }
             remove => LocationEvents.EventManager.Legacy_LocationsChanged.Remove(value);
@@ -38,7 +35,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                LocationEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 LocationEvents.EventManager.Legacy_BuildingsChanged.Add(value);
             }
             remove => LocationEvents.EventManager.Legacy_BuildingsChanged.Remove(value);
@@ -49,7 +46,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                LocationEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 LocationEvents.EventManager.Legacy_ObjectsChanged.Add(value);
             }
             remove => LocationEvents.EventManager.Legacy_ObjectsChanged.Remove(value);
@@ -61,11 +58,9 @@ namespace StardewModdingAPI.Events
         *********/
         /// <summary>Initialise the events.</summary>
         /// <param name="eventManager">The core event manager.</param>
-        /// <param name="deprecationManager">Manages deprecation warnings.</param>
-        internal static void Init(EventManager eventManager, DeprecationManager deprecationManager)
+        internal static void Init(EventManager eventManager)
         {
             LocationEvents.EventManager = eventManager;
-            LocationEvents.DeprecationManager = deprecationManager;
         }
     }
 }
