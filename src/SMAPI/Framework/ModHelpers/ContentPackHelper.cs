@@ -43,7 +43,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         public IContentPack CreateFake(string directoryPath)
         {
             string id = Guid.NewGuid().ToString("N");
-            return this.CreateFake(directoryPath, id, id, id, id, new SemanticVersion(1, 0, 0));
+            return this.CreateTemporary(directoryPath, id, id, id, id, new SemanticVersion(1, 0, 0));
         }
 
         /// <summary>Create a temporary content pack to read files from a directory. Temporary content packs will not appear in the SMAPI log and update checks will not be performed.</summary>
@@ -53,7 +53,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="description">The content pack description.</param>
         /// <param name="author">The content pack author's name.</param>
         /// <param name="version">The content pack version.</param>
-        public IContentPack CreateFake(string directoryPath, string id, string name, string description, string author, ISemanticVersion version)
+        public IContentPack CreateTemporary(string directoryPath, string id, string name, string description, string author, ISemanticVersion version)
         {
             // validate
             if (string.IsNullOrWhiteSpace(directoryPath))

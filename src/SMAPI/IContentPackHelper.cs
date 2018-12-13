@@ -22,6 +22,6 @@ namespace StardewModdingAPI
         /// <param name="description">The content pack description.</param>
         /// <param name="author">The content pack author's name.</param>
         /// <param name="version">The content pack version.</param>
-        IContentPack CreateFake(string directoryPath, string id, string name, string description, string author, ISemanticVersion version);
+        IContentPack CreateTemporary(string directoryPath, string id, string name, string description, string author, ISemanticVersion version);
     }
 }
