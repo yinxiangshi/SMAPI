@@ -6,6 +6,7 @@
   * Fixed invalid NPC data propagated when a mod changes NPC dispositions.
   * Fixed `Display.RenderedWorld` event broken in SMAPI 2.9.1.
   * Fixed game launch crash logged as `SMAPI` instead of `game`.
+  * Fixed Windows installer adding unneeded Unix launcher to game folder.
 
 * For modders:
   * Added dedicated content pack API.
