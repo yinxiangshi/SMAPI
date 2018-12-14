@@ -313,6 +313,12 @@ namespace StardewModdingAPI.Framework
                 this.Monitor.Log($"Technical details: {ex.GetLogSummary()}", LogLevel.Trace);
                 this.PressAnyKeyToExit();
             }
+            catch (FileNotFoundException ex) when (ex.Message == "Could not find file 'C:\\Program Files (x86)\\Steam\\SteamApps\\common\\Stardew Valley\\Content\\XACT\\FarmerSounds.xgs'.") // path in error is hardcoded regardless of install path
+            {
+                this.Monitor.Log("The game can't find its Content\\XACT\\FarmerSounds.xgs file. You can usually fix this by resetting your content files (see https://smapi.io/troubleshoot#reset-content ), or by uninstalling and reinstalling the game.", LogLevel.Error);
+                this.Monitor.Log($"Technical details: {ex.GetLogSummary()}", LogLevel.Trace);
+                this.PressAnyKeyToExit();
+            }
             catch (Exception ex)
             {
                 this.MonitorForGame.Log($"The game failed to launch: {ex.GetLogSummary()}", LogLevel.Error);
