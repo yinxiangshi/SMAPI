@@ -12,9 +12,10 @@
 * For modders:
   * Added dedicated content pack API.
   * **Deprecations:**
-    * The `assetData.AsDictionary<TKey, TValue>().Set` methods are deprecated and will be removed in SMAPI 3.0. Mods should access the `Data` property directly instead.
+    * The `assetData.AsDictionary<TKey, TValue>().Set` methods are now deprecated. Mods should access the `Data` property directly instead.
+    * The content pack methods directly on `helper` are now deprecated. Mods should use the new `helper.ContentPacks` API instead.
 
-* FOR SMAPI developers:
+* For SMAPI developers:
   * Added SMAPI 3.0 readiness to mod API data.
 
 ## 2.9.1
