@@ -65,7 +65,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr v-for="mod in mods" :key="mod.Name" v-bind:id="mod.Slug" :key="mod.Slug" v-bind:data-status="mod.BetaCompatibility != null ? mod.BetaCompatibility.Status : mod.Compatibility.Status" v-show="mod.Visible">
+            <tr v-for="mod in mods" :key="mod.Name" v-bind:id="mod.Slug" :key="mod.Slug" v-bind:data-status="mod.LatestCompatibility.Status" v-show="mod.Visible">
                 <td>
                     {{mod.Name}}
                     <small class="mod-alt-names" v-if="mod.AlternateNames">(aka {{mod.AlternateNames}})</small>
@@ -87,13 +87,13 @@
                     </div>
                     <div v-for="(warning, i) in mod.Warnings">⚠ {{warning}}</div>
                 </td>
-                <td class="mod-broke-in" v-html="mod.BetaCompatibility ? mod.BetaCompatibility.BrokeIn : mod.Compatibility.BrokeIn" v-show="showAdvanced"></td>
+                <td class="mod-broke-in" v-html="mod.LatestCompatibility.BrokeIn" v-show="showAdvanced"></td>
                 <td v-show="showAdvanced">
                     <span v-if="mod.SourceUrl"><a v-bind:href="mod.SourceUrl">source</a></span>
                     <span v-else class="mod-closed-source">no source</span>
                 </td>
                 <td v-show="showAdvanced">
-                    <template v-if="(mod.BetaCompatibility || mod.Compatibility).Status == 'ok' || mod.Smapi3Status == 'ok' || mod.Smapi3Status == 'soon'">
+                    <template v-if="mod.LatestCompatibility.Status == 'ok' || mod.LatestCompatibility.Status == 'unofficial' || mod.Smapi3Status == 'ok' || mod.Smapi3Status == 'soon'">
                         <small v-if="mod.Smapi3Status == 'ok'">✓</small>
                         <small v-else-if="mod.Smapi3Status == 'broken'">✖</small>
                         <small v-else-if="mod.Smapi3Status == 'soon' && mod.Smapi3Url"><a v-bind:href="mod.Smapi3Url">↻ soon</a></small>

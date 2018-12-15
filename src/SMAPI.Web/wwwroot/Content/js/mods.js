@@ -124,6 +124,9 @@ smapi.modList = function (mods) {
         // set initial visibility
         mod.Visible = true;
 
+        // set overall compatibility
+        mod.LatestCompatibility = mod.BetaCompatibility || mod.Compatibility;
+
         // concatenate searchable text
         mod.SearchableText = [mod.Name, mod.AlternateNames, mod.Author, mod.AlternateAuthors, mod.Compatibility.Summary, mod.BrokeIn];
         if (mod.Compatibility.UnofficialVersion)
@@ -202,7 +205,7 @@ smapi.modList = function (mods) {
                     return false;
 
                 // check status
-                var status = (mod.BetaCompatibility || mod.Compatibility).Status;
+                var status = mod.LatestCompatibility.Status;
                 if (filters.status[status] && !filters.status[status].value)
                     return false;
 
@@ -250,7 +253,7 @@ smapi.modList = function (mods) {
              * @returns {string} The compatibility group (one of 'compatible', 'workaround', 'soon', 'broken', 'abandoned', or 'invalid').
              */
             getCompatibilityGroup: function (mod) {
-                var status = (mod.BetaCompatibility || mod.Compatibility).Status;
+                var status = mod.LatestCompatibility.Status;
                 switch (status) {
                     // obsolete
                     case "abandoned":
