@@ -13,6 +13,9 @@
   * **Deprecations:**  
     * The `assetData.AsDictionary<TKey, TValue>().Set` methods are deprecated and will be removed in SMAPI 3.0. Mods should access the `Data` property directly instead.
 
+* FOR SMAPI developers:
+  * Added SMAPI 3.0 readiness to mod API data.
+
 ## 2.9.1
 * For players:
   * Fixed crash in SMAPI 2.9 when constructing certain buildings.
