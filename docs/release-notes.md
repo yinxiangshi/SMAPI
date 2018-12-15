@@ -1,6 +1,7 @@
 # Release notes
 ## Upcoming release
 * For players:
+  * SMAPI now prevents invalid items from crashing the game on hover.
   * Fixed cryptic error message when the game isn't installed correctly.
   * Fixed error when a mod makes invalid changes to an NPC schedule.
   * Fixed invalid NPC data propagated when a mod changes NPC dispositions.
@@ -10,7 +11,7 @@
 
 * For modders:
   * Added dedicated content pack API.
-  * **Deprecations:**  
+  * **Deprecations:**
     * The `assetData.AsDictionary<TKey, TValue>().Set` methods are deprecated and will be removed in SMAPI 3.0. Mods should access the `Data` property directly instead.
 
 * FOR SMAPI developers:

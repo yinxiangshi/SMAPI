@@ -1,6 +1,6 @@
-**SMAPI** is an open-source modding API for [Stardew Valley](https://stardewvalley.net/) that lets
-you play the game with mods. It's safely installed alongside the game's executable, and doesn't
-change any of your game files. It serves eight main purposes:
+**SMAPI** is an open-source modding framework and API for [Stardew Valley](https://stardewvalley.net/)
+that lets you play the game with mods. It's safely installed alongside the game's executable, and
+doesn't change any of your game files. It serves eight main purposes:
 
 1. **Load mods into the game.**  
    _SMAPI loads mods when the game is starting up so they can interact with it. (Code mods aren't
