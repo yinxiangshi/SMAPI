@@ -2,6 +2,7 @@
 ## Upcoming release
 * For players:
   * SMAPI now prevents invalid items from crashing the game on hover.
+  * Fixed some multiplayer mod features not working when connecting via Steam friends.
   * Fixed cryptic error message when the game isn't installed correctly.
   * Fixed error when a mod makes invalid changes to an NPC schedule.
   * Fixed invalid NPC data propagated when a mod changes NPC dispositions.
