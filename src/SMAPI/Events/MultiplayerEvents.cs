@@ -15,9 +15,6 @@ namespace StardewModdingAPI.Events
         /// <summary>The core event manager.</summary>
         private static EventManager EventManager;
 
-        /// <summary>Manages deprecation warnings.</summary>
-        private static DeprecationManager DeprecationManager;
-
 
         /*********
         ** Events
@@ -27,7 +24,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                MultiplayerEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 MultiplayerEvents.EventManager.Legacy_BeforeMainSync.Add(value);
             }
             remove => MultiplayerEvents.EventManager.Legacy_BeforeMainSync.Remove(value);
@@ -38,7 +35,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                MultiplayerEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 MultiplayerEvents.EventManager.Legacy_AfterMainSync.Add(value);
             }
             remove => MultiplayerEvents.EventManager.Legacy_AfterMainSync.Remove(value);
@@ -49,7 +46,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                MultiplayerEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 MultiplayerEvents.EventManager.Legacy_BeforeMainBroadcast.Add(value);
             }
             remove => MultiplayerEvents.EventManager.Legacy_BeforeMainBroadcast.Remove(value);
@@ -60,7 +57,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                MultiplayerEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 MultiplayerEvents.EventManager.Legacy_AfterMainBroadcast.Add(value);
             }
             remove => MultiplayerEvents.EventManager.Legacy_AfterMainBroadcast.Remove(value);
@@ -72,11 +69,9 @@ namespace StardewModdingAPI.Events
         *********/
         /// <summary>Initialise the events.</summary>
         /// <param name="eventManager">The core event manager.</param>
-        /// <param name="deprecationManager">Manages deprecation warnings.</param>
-        internal static void Init(EventManager eventManager, DeprecationManager deprecationManager)
+        internal static void Init(EventManager eventManager)
         {
             MultiplayerEvents.EventManager = eventManager;
-            MultiplayerEvents.DeprecationManager = deprecationManager;
         }
     }
 }

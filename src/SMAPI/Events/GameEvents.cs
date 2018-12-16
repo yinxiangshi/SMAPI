@@ -15,9 +15,6 @@ namespace StardewModdingAPI.Events
         /// <summary>The core event manager.</summary>
         private static EventManager EventManager;
 
-        /// <summary>Manages deprecation warnings.</summary>
-        private static DeprecationManager DeprecationManager;
-
 
         /*********
         ** Events
@@ -27,7 +24,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                GameEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 GameEvents.EventManager.Legacy_UpdateTick.Add(value);
             }
             remove => GameEvents.EventManager.Legacy_UpdateTick.Remove(value);
@@ -38,7 +35,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                GameEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 GameEvents.EventManager.Legacy_SecondUpdateTick.Add(value);
             }
             remove => GameEvents.EventManager.Legacy_SecondUpdateTick.Remove(value);
@@ -49,7 +46,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                GameEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 GameEvents.EventManager.Legacy_FourthUpdateTick.Add(value);
             }
             remove => GameEvents.EventManager.Legacy_FourthUpdateTick.Remove(value);
@@ -60,7 +57,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                GameEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 GameEvents.EventManager.Legacy_EighthUpdateTick.Add(value);
             }
             remove => GameEvents.EventManager.Legacy_EighthUpdateTick.Remove(value);
@@ -71,7 +68,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                GameEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 GameEvents.EventManager.Legacy_QuarterSecondTick.Add(value);
             }
             remove => GameEvents.EventManager.Legacy_QuarterSecondTick.Remove(value);
@@ -82,7 +79,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                GameEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 GameEvents.EventManager.Legacy_HalfSecondTick.Add(value);
             }
             remove => GameEvents.EventManager.Legacy_HalfSecondTick.Remove(value);
@@ -93,7 +90,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                GameEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 GameEvents.EventManager.Legacy_OneSecondTick.Add(value);
             }
             remove => GameEvents.EventManager.Legacy_OneSecondTick.Remove(value);
@@ -104,7 +101,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                GameEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 GameEvents.EventManager.Legacy_FirstUpdateTick.Add(value);
             }
             remove => GameEvents.EventManager.Legacy_FirstUpdateTick.Remove(value);
@@ -116,11 +113,9 @@ namespace StardewModdingAPI.Events
         *********/
         /// <summary>Initialise the events.</summary>
         /// <param name="eventManager">The core event manager.</param>
-        /// <param name="deprecationManager">Manages deprecation warnings.</param>
-        internal static void Init(EventManager eventManager, DeprecationManager deprecationManager)
+        internal static void Init(EventManager eventManager)
         {
             GameEvents.EventManager = eventManager;
-            GameEvents.DeprecationManager = deprecationManager;
         }
     }
 }

@@ -1,4 +1,24 @@
 # Release notes
+## 2.9.2
+* For players:
+  * SMAPI now prevents invalid items from crashing the game on hover.
+  * Fixed some multiplayer features broken when connecting via Steam friends.
+  * Fixed cryptic error message when the game isn't installed correctly.
+  * Fixed error when a mod makes invalid changes to an NPC schedule.
+  * Fixed game launch errors logged as `SMAPI` instead of `game`.
+  * Fixed Windows installer adding unneeded Unix launcher to game folder.
+
+* For modders:
+  * Moved content pack methods into a new [content pack API](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Content_Packs).
+  * Fixed invalid NPC data propagated when a mod changes NPC dispositions.
+  * Fixed `Display.RenderedWorld` event broken in SMAPI 2.9.1.
+  * **Deprecations:**
+    * The `assetData.AsDictionary<TKey, TValue>().Set` methods are now deprecated. Mods should access the `Data` property directly instead.
+    * The content pack methods directly on `helper` are now deprecated. Mods should use `helper.ContentPacks` instead.
+
+* For SMAPI developers:
+  * Added SMAPI 3.0 readiness to mod API data.
+
 ## 2.9.1
 * For players:
   * Fixed crash in SMAPI 2.9 when constructing certain buildings.

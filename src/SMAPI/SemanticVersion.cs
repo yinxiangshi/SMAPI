@@ -13,9 +13,6 @@ namespace StardewModdingAPI
         /// <summary>The underlying semantic version implementation.</summary>
         private readonly ISemanticVersion Version;
 
-        /// <summary>Manages deprecation warnings.</summary>
-        internal static DeprecationManager DeprecationManager { get; set; }
-
 
         /*********
         ** Accessors
@@ -36,7 +33,7 @@ namespace StardewModdingAPI
         {
             get
             {
-                SemanticVersion.DeprecationManager?.Warn($"{nameof(ISemanticVersion)}.{nameof(ISemanticVersion.Build)}", "2.8", DeprecationLevel.Notice);
+                SCore.DeprecationManager?.Warn($"{nameof(ISemanticVersion)}.{nameof(ISemanticVersion.Build)}", "2.8", DeprecationLevel.Notice);
                 return this.Version.PrereleaseTag;
             }
         }

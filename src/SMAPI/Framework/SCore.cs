@@ -75,10 +75,6 @@ namespace StardewModdingAPI.Framework
         /// <remarks>This is initialised after the game starts.</remarks>
         private readonly ModRegistry ModRegistry = new ModRegistry();
 
-        /// <summary>Manages deprecation warnings.</summary>
-        /// <remarks>This is initialised after the game starts.</remarks>
-        private readonly DeprecationManager DeprecationManager;
-
         /// <summary>Manages SMAPI events for mods.</summary>
         private readonly EventManager EventManager;
 
@@ -121,6 +117,14 @@ namespace StardewModdingAPI.Framework
 
 
         /*********
+        ** Accessors
+        *********/
+        /// <summary>Manages deprecation warnings.</summary>
+        /// <remarks>This is initialised after the game starts. This is accessed directly because it's not part of the normal class model.</remarks>
+        internal static DeprecationManager DeprecationManager { get; private set; }
+
+
+        /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
@@ -148,14 +152,11 @@ namespace StardewModdingAPI.Framework
             };
             this.MonitorForGame = this.GetSecondaryMonitor("game");
             this.EventManager = new EventManager(this.Monitor, this.ModRegistry);
-            this.DeprecationManager = new DeprecationManager(this.Monitor, this.ModRegistry);
+            SCore.DeprecationManager = new DeprecationManager(this.Monitor, this.ModRegistry);
 
             // redirect direct console output
             if (this.MonitorForGame.WriteToConsole)
                 this.ConsoleManager.OnMessageIntercepted += message => this.HandleConsoleMessage(this.MonitorForGame, message);
-
-            // inject deprecation managers
-            SemanticVersion.DeprecationManager = this.DeprecationManager;
 
             // init logging
             this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GameVersion} on {EnvironmentUtility.GetFriendlyPlatformName(Constants.Platform)}", LogLevel.Info);
@@ -183,7 +184,8 @@ namespace StardewModdingAPI.Framework
 
             // apply game patches
             new GamePatcher(this.Monitor).Apply(
-                new DialogueErrorPatch(this.MonitorForGame, this.Reflection)
+                new DialogueErrorPatch(this.MonitorForGame, this.Reflection),
+                new ObjectErrorPatch()
             );
         }
 
@@ -196,19 +198,19 @@ namespace StardewModdingAPI.Framework
             {
 #if !SMAPI_3_0_STRICT
                 // hook up events
-                ContentEvents.Init(this.EventManager, this.DeprecationManager);
-                ControlEvents.Init(this.EventManager, this.DeprecationManager);
-                GameEvents.Init(this.EventManager, this.DeprecationManager);
-                GraphicsEvents.Init(this.EventManager, this.DeprecationManager);
-                InputEvents.Init(this.EventManager, this.DeprecationManager);
-                LocationEvents.Init(this.EventManager, this.DeprecationManager);
-                MenuEvents.Init(this.EventManager, this.DeprecationManager);
-                MineEvents.Init(this.EventManager, this.DeprecationManager);
-                MultiplayerEvents.Init(this.EventManager, this.DeprecationManager);
-                PlayerEvents.Init(this.EventManager, this.DeprecationManager);
-                SaveEvents.Init(this.EventManager, this.DeprecationManager);
-                SpecialisedEvents.Init(this.EventManager, this.DeprecationManager);
-                TimeEvents.Init(this.EventManager, this.DeprecationManager);
+                ContentEvents.Init(this.EventManager);
+                ControlEvents.Init(this.EventManager);
+                GameEvents.Init(this.EventManager);
+                GraphicsEvents.Init(this.EventManager);
+                InputEvents.Init(this.EventManager);
+                LocationEvents.Init(this.EventManager);
+                MenuEvents.Init(this.EventManager);
+                MineEvents.Init(this.EventManager);
+                MultiplayerEvents.Init(this.EventManager);
+                PlayerEvents.Init(this.EventManager);
+                SaveEvents.Init(this.EventManager);
+                SpecialisedEvents.Init(this.EventManager);
+                TimeEvents.Init(this.EventManager);
 #endif
 
                 // init JSON parser
@@ -232,7 +234,7 @@ namespace StardewModdingAPI.Framework
 
                 // override game
                 SGame.ConstructorHack = new SGameConstructorHack(this.Monitor, this.Reflection, this.Toolkit.JsonHelper);
-                this.GameInstance = new SGame(this.Monitor, this.MonitorForGame, this.Reflection, this.EventManager, this.Toolkit.JsonHelper, this.ModRegistry, this.DeprecationManager, this.OnLocaleChanged, this.InitialiseAfterGameStart, this.Dispose);
+                this.GameInstance = new SGame(this.Monitor, this.MonitorForGame, this.Reflection, this.EventManager, this.Toolkit.JsonHelper, this.ModRegistry, SCore.DeprecationManager, this.OnLocaleChanged, this.InitialiseAfterGameStart, this.Dispose);
                 StardewValley.Program.gamePtr = this.GameInstance;
 
                 // add exit handler
@@ -312,9 +314,15 @@ namespace StardewModdingAPI.Framework
                 this.Monitor.Log($"Technical details: {ex.GetLogSummary()}", LogLevel.Trace);
                 this.PressAnyKeyToExit();
             }
+            catch (FileNotFoundException ex) when (ex.Message == "Could not find file 'C:\\Program Files (x86)\\Steam\\SteamApps\\common\\Stardew Valley\\Content\\XACT\\FarmerSounds.xgs'.") // path in error is hardcoded regardless of install path
+            {
+                this.Monitor.Log("The game can't find its Content\\XACT\\FarmerSounds.xgs file. You can usually fix this by resetting your content files (see https://smapi.io/troubleshoot#reset-content ), or by uninstalling and reinstalling the game.", LogLevel.Error);
+                this.Monitor.Log($"Technical details: {ex.GetLogSummary()}", LogLevel.Trace);
+                this.PressAnyKeyToExit();
+            }
             catch (Exception ex)
             {
-                this.Monitor.Log($"The game failed unexpectedly: {ex.GetLogSummary()}", LogLevel.Error);
+                this.MonitorForGame.Log($"The game failed to launch: {ex.GetLogSummary()}", LogLevel.Error);
                 this.PressAnyKeyToExit();
             }
             finally
@@ -920,7 +928,7 @@ namespace StardewModdingAPI.Framework
             // add deprecation warning for old version format
             {
                 if (mod.Manifest?.Version is Toolkit.SemanticVersion version && version.IsLegacyFormat)
-                    this.DeprecationManager.Warn(mod.DisplayName, "non-string manifest version", "2.8", DeprecationLevel.Notice);
+                    SCore.DeprecationManager.Warn(mod.DisplayName, "non-string manifest version", "2.8", DeprecationLevel.Notice);
             }
 #endif
 
@@ -1014,20 +1022,21 @@ namespace StardewModdingAPI.Framework
                         IModEvents events = new ModEvents(mod, this.EventManager);
                         ICommandHelper commandHelper = new CommandHelper(mod, this.GameInstance.CommandManager);
                         IContentHelper contentHelper = new ContentHelper(contentCore, mod.DirectoryPath, manifest.UniqueID, mod.DisplayName, monitor);
+                        IContentPackHelper contentPackHelper = new ContentPackHelper(manifest.UniqueID, new Lazy<IContentPack[]>(GetContentPacks), CreateFakeContentPack);
                         IDataHelper dataHelper = new DataHelper(manifest.UniqueID, mod.DirectoryPath, jsonHelper);
-                        IReflectionHelper reflectionHelper = new ReflectionHelper(manifest.UniqueID, mod.DisplayName, this.Reflection, this.DeprecationManager);
+                        IReflectionHelper reflectionHelper = new ReflectionHelper(manifest.UniqueID, mod.DisplayName, this.Reflection);
                         IModRegistry modRegistryHelper = new ModRegistryHelper(manifest.UniqueID, this.ModRegistry, proxyFactory, monitor);
                         IMultiplayerHelper multiplayerHelper = new MultiplayerHelper(manifest.UniqueID, this.GameInstance.Multiplayer);
                         ITranslationHelper translationHelper = new TranslationHelper(manifest.UniqueID, manifest.Name, contentCore.GetLocale(), contentCore.Language);
 
-                        IContentPack CreateTransitionalContentPack(string packDirPath, IManifest packManifest)
+                        IContentPack CreateFakeContentPack(string packDirPath, IManifest packManifest)
                         {
                             IMonitor packMonitor = this.GetSecondaryMonitor(packManifest.Name);
                             IContentHelper packContentHelper = new ContentHelper(contentCore, packDirPath, packManifest.UniqueID, packManifest.Name, packMonitor);
                             return new ContentPack(packDirPath, packManifest, packContentHelper, this.Toolkit.JsonHelper);
                         }
 
-                        modHelper = new ModHelper(manifest.UniqueID, mod.DirectoryPath, this.Toolkit.JsonHelper, this.GameInstance.Input, events, contentHelper, commandHelper, dataHelper, modRegistryHelper, reflectionHelper, multiplayerHelper, translationHelper, GetContentPacks, CreateTransitionalContentPack, this.DeprecationManager);
+                        modHelper = new ModHelper(manifest.UniqueID, mod.DirectoryPath, this.Toolkit.JsonHelper, this.GameInstance.Input, events, contentHelper, contentPackHelper, commandHelper, dataHelper, modRegistryHelper, reflectionHelper, multiplayerHelper, translationHelper);
                     }
 
                     // init mod

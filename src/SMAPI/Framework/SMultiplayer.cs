@@ -119,6 +119,7 @@ namespace StardewModdingAPI.Framework
                     }
 
                 default:
+                    this.Monitor.Log($"Unknown multiplayer client type: {client.GetType().AssemblyQualifiedName}", LogLevel.Trace);
                     return client;
             }
         }
@@ -142,6 +143,7 @@ namespace StardewModdingAPI.Framework
                     }
 
                 default:
+                    this.Monitor.Log($"Unknown multiplayer server type: {server.GetType().AssemblyQualifiedName}", LogLevel.Trace);
                     return server;
             }
         }

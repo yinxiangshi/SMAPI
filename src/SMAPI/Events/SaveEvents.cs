@@ -15,9 +15,6 @@ namespace StardewModdingAPI.Events
         /// <summary>The core event manager.</summary>
         private static EventManager EventManager;
 
-        /// <summary>Manages deprecation warnings.</summary>
-        private static DeprecationManager DeprecationManager;
-
 
         /*********
         ** Events
@@ -27,7 +24,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                SaveEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 SaveEvents.EventManager.Legacy_BeforeCreateSave.Add(value);
             }
             remove => SaveEvents.EventManager.Legacy_BeforeCreateSave.Remove(value);
@@ -38,7 +35,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                SaveEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 SaveEvents.EventManager.Legacy_AfterCreateSave.Add(value);
             }
             remove => SaveEvents.EventManager.Legacy_AfterCreateSave.Remove(value);
@@ -49,7 +46,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                SaveEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 SaveEvents.EventManager.Legacy_BeforeSave.Add(value);
             }
             remove => SaveEvents.EventManager.Legacy_BeforeSave.Remove(value);
@@ -60,7 +57,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                SaveEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 SaveEvents.EventManager.Legacy_AfterSave.Add(value);
             }
             remove => SaveEvents.EventManager.Legacy_AfterSave.Remove(value);
@@ -71,7 +68,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                SaveEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 SaveEvents.EventManager.Legacy_AfterLoad.Add(value);
             }
             remove => SaveEvents.EventManager.Legacy_AfterLoad.Remove(value);
@@ -82,7 +79,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                SaveEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 SaveEvents.EventManager.Legacy_AfterReturnToTitle.Add(value);
             }
             remove => SaveEvents.EventManager.Legacy_AfterReturnToTitle.Remove(value);
@@ -94,11 +91,9 @@ namespace StardewModdingAPI.Events
         *********/
         /// <summary>Initialise the events.</summary>
         /// <param name="eventManager">The core event manager.</param>
-        /// <param name="deprecationManager">Manages deprecation warnings.</param>
-        internal static void Init(EventManager eventManager, DeprecationManager deprecationManager)
+        internal static void Init(EventManager eventManager)
         {
             SaveEvents.EventManager = eventManager;
-            SaveEvents.DeprecationManager = deprecationManager;
         }
     }
 }

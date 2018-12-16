@@ -15,9 +15,6 @@ namespace StardewModdingAPI.Events
         /// <summary>The core event manager.</summary>
         private static EventManager EventManager;
 
-        /// <summary>Manages deprecation warnings.</summary>
-        private static DeprecationManager DeprecationManager;
-
 
         /*********
         ** Events
@@ -27,7 +24,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                PlayerEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 PlayerEvents.EventManager.Legacy_InventoryChanged.Add(value);
             }
             remove => PlayerEvents.EventManager.Legacy_InventoryChanged.Remove(value);
@@ -38,7 +35,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                PlayerEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 PlayerEvents.EventManager.Legacy_LeveledUp.Add(value);
             }
             remove => PlayerEvents.EventManager.Legacy_LeveledUp.Remove(value);
@@ -49,7 +46,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                PlayerEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 PlayerEvents.EventManager.Legacy_PlayerWarped.Add(value);
             }
             remove => PlayerEvents.EventManager.Legacy_PlayerWarped.Remove(value);
@@ -62,11 +59,9 @@ namespace StardewModdingAPI.Events
         *********/
         /// <summary>Initialise the events.</summary>
         /// <param name="eventManager">The core event manager.</param>
-        /// <param name="deprecationManager">Manages deprecation warnings.</param>
-        internal static void Init(EventManager eventManager, DeprecationManager deprecationManager)
+        internal static void Init(EventManager eventManager)
         {
             PlayerEvents.EventManager = eventManager;
-            PlayerEvents.DeprecationManager = deprecationManager;
         }
     }
 }

@@ -15,9 +15,6 @@ namespace StardewModdingAPI.Events
         /// <summary>The core event manager.</summary>
         private static EventManager EventManager;
 
-        /// <summary>Manages deprecation warnings.</summary>
-        private static DeprecationManager DeprecationManager;
-
 
         /*********
         ** Events
@@ -27,7 +24,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                MineEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 MineEvents.EventManager.Legacy_MineLevelChanged.Add(value);
             }
             remove => MineEvents.EventManager.Legacy_MineLevelChanged.Remove(value);
@@ -39,11 +36,9 @@ namespace StardewModdingAPI.Events
         *********/
         /// <summary>Initialise the events.</summary>
         /// <param name="eventManager">The core event manager.</param>
-        /// <param name="deprecationManager">Manages deprecation warnings.</param>
-        internal static void Init(EventManager eventManager, DeprecationManager deprecationManager)
+        internal static void Init(EventManager eventManager)
         {
             MineEvents.EventManager = eventManager;
-            MineEvents.DeprecationManager = deprecationManager;
         }
     }
 }

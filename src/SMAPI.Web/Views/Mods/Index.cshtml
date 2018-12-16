@@ -45,7 +45,10 @@
         </div>
     </div>
     <div id="mod-count" v-show="showAdvanced">
-        <span v-if="visibleStats.total > 0">{{visibleStats.total}} mods shown ({{Math.round((visibleStats.compatible + visibleStats.workaround) / visibleStats.total * 100)}}% compatible or have a workaround, {{Math.round((visibleStats.soon + visibleStats.broken) / visibleStats.total * 100)}}% broken, {{Math.round(visibleStats.abandoned / visibleStats.total * 100)}}% obsolete).</span>
+        <div v-if="visibleStats.total > 0">
+            {{visibleStats.total}} mods shown ({{Math.round((visibleStats.compatible + visibleStats.workaround) / visibleStats.total * 100)}}% compatible or have a workaround, {{Math.round((visibleStats.soon + visibleStats.broken) / visibleStats.total * 100)}}% broken, {{Math.round(visibleStats.abandoned / visibleStats.total * 100)}}% obsolete).<br />
+            SMAPI 3.0 (upcoming): {{Math.round(visibleStats.smapi3_ok / visibleStats.total * 100)}}% ready, {{Math.round(visibleStats.smapi3_soon / visibleStats.total * 100)}}% soon, {{Math.round(visibleStats.smapi3_broken / visibleStats.total * 100)}}% broken, {{Math.round(visibleStats.smapi3_unknown / visibleStats.total * 100)}}% unknown.
+        </div>
         <span v-else>No matching mods found.</span>
     </div>
     <table class="wikitable" id="mod-list">
@@ -57,11 +60,12 @@
                 <th>compatibility</th>
                 <th v-show="showAdvanced">broke in</th>
                 <th v-show="showAdvanced">code</th>
+                <th v-show="showAdvanced"><a href="http://smapi.io/3.0">3.0</a></th>
                 <th>&nbsp;</th>
             </tr>
         </thead>
         <tbody>
-            <tr v-for="mod in mods" :key="mod.Name" v-bind:id="mod.Slug" :key="mod.Slug" v-bind:data-status="mod.BetaCompatibility != null ? mod.BetaCompatibility.Status : mod.Compatibility.Status" v-show="mod.Visible">
+            <tr v-for="mod in mods" :key="mod.Name" v-bind:id="mod.Slug" :key="mod.Slug" v-bind:data-status="mod.LatestCompatibility.Status" v-show="mod.Visible">
                 <td>
                     {{mod.Name}}
                     <small class="mod-alt-names" v-if="mod.AlternateNames">(aka {{mod.AlternateNames}})</small>
@@ -83,10 +87,18 @@
                     </div>
                     <div v-for="(warning, i) in mod.Warnings">⚠ {{warning}}</div>
                 </td>
-                <td class="mod-broke-in" v-html="mod.BetaCompatibility ? mod.BetaCompatibility.BrokeIn : mod.Compatibility.BrokeIn" v-show="showAdvanced"></td>
+                <td class="mod-broke-in" v-html="mod.LatestCompatibility.BrokeIn" v-show="showAdvanced"></td>
                 <td v-show="showAdvanced">
                     <span v-if="mod.SourceUrl"><a v-bind:href="mod.SourceUrl">source</a></span>
                     <span v-else class="mod-closed-source">no source</span>
+                </td>
+                <td v-show="showAdvanced">
+                    <template v-if="mod.LatestCompatibility.Status == 'ok' || mod.LatestCompatibility.Status == 'unofficial' || mod.Smapi3Status == 'ok' || mod.Smapi3Status == 'soon'">
+                        <small v-if="mod.Smapi3Status == 'ok'">✓</small>
+                        <small v-else-if="mod.Smapi3Status == 'broken'">✖</small>
+                        <small v-else-if="mod.Smapi3Status == 'soon' && mod.Smapi3Url"><a v-bind:href="mod.Smapi3Url">↻ soon</a></small>
+                        <small v-else>↻ {{mod.Smapi3Status}}</small>
+                    </template>
                 </td>
                 <td>
                     <small><a v-bind:href="'#' + mod.Slug">#</a></small>

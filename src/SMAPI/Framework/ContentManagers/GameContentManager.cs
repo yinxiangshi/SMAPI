@@ -238,7 +238,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 try
                 {
                     editor.Edit<T>(asset);
-                    this.Monitor.Log($"{mod.DisplayName} intercepted {info.AssetName}.", LogLevel.Trace);
+                    this.Monitor.Log($"{mod.DisplayName} edited {info.AssetName}.", LogLevel.Trace);
                 }
                 catch (Exception ex)
                 {

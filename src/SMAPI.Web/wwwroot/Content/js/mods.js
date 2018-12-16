@@ -11,7 +11,11 @@ smapi.modList = function (mods) {
         soon: 0,
         broken: 0,
         abandoned: 0,
-        invalid: 0
+        invalid: 0,
+        smapi3_unknown: 0,
+        smapi3_ok: 0,
+        smapi3_broken: 0,
+        smapi3_soon: 0
     };
     var data = {
         mods: mods,
@@ -88,6 +92,28 @@ smapi.modList = function (mods) {
                     id: "show-custom",
                     value: true
                 }
+            },
+            "SMAPI 3.0": {
+                ok: {
+                    label: "ready",
+                    id: "show-smapi-3-ready",
+                    value: true
+                },
+                soon: {
+                    label: "soon",
+                    id: "show-smapi-3-soon",
+                    value: true
+                },
+                broken: {
+                    label: "broken",
+                    id: "show-smapi-3-broken",
+                    value: true
+                },
+                unknown: {
+                    label: "unknown",
+                    id: "show-smapi-3-unknown",
+                    value: true
+                }
             }
         },
         search: ""
@@ -97,6 +123,9 @@ smapi.modList = function (mods) {
 
         // set initial visibility
         mod.Visible = true;
+
+        // set overall compatibility
+        mod.LatestCompatibility = mod.BetaCompatibility || mod.Compatibility;
 
         // concatenate searchable text
         mod.SearchableText = [mod.Name, mod.AlternateNames, mod.Author, mod.AlternateAuthors, mod.Compatibility.Summary, mod.BrokeIn];
@@ -154,6 +183,7 @@ smapi.modList = function (mods) {
                     if (mod.Visible) {
                         stats.total++;
                         stats[this.getCompatibilityGroup(mod)]++;
+                        stats["smapi3_" + mod.Smapi3Status]++;
                     }
                 }
             },
@@ -175,8 +205,12 @@ smapi.modList = function (mods) {
                     return false;
 
                 // check status
-                var status = (mod.BetaCompatibility || mod.Compatibility).Status;
+                var status = mod.LatestCompatibility.Status;
                 if (filters.status[status] && !filters.status[status].value)
+                    return false;
+
+                // check SMAPI 3.0 compatibility
+                if (filters["SMAPI 3.0"][mod.Smapi3Status] && !filters["SMAPI 3.0"][mod.Smapi3Status].value)
                     return false;
 
                 // check download sites
@@ -219,7 +253,7 @@ smapi.modList = function (mods) {
              * @returns {string} The compatibility group (one of 'compatible', 'workaround', 'soon', 'broken', 'abandoned', or 'invalid').
              */
             getCompatibilityGroup: function (mod) {
-                var status = (mod.BetaCompatibility || mod.Compatibility).Status;
+                var status = mod.LatestCompatibility.Status;
                 switch (status) {
                     // obsolete
                     case "abandoned":

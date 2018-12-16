@@ -6,7 +6,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
     internal class CommandHelper : BaseHelper, ICommandHelper
     {
         /*********
-        ** Accessors
+        ** Properties
         *********/
         /// <summary>The mod using this instance.</summary>
         private readonly IModMetadata Mod;

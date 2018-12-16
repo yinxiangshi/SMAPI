@@ -22,6 +22,9 @@ namespace StardewModdingAPI
         /// <summary>An API for loading content assets.</summary>
         IContentHelper Content { get; }
 
+        /// <summary>An API for managing content packs.</summary>
+        IContentPackHelper ContentPacks { get; }
+
         /// <summary>An API for reading and writing persistent mod data.</summary>
         IDataHelper Data { get; }
 
@@ -73,21 +76,10 @@ namespace StardewModdingAPI
         /// <param name="model">The model to save.</param>
         [Obsolete("Use " + nameof(IModHelper.Data) + "." + nameof(IDataHelper.WriteJsonFile) + " instead")]
         void WriteJsonFile<TModel>(string path, TModel model) where TModel : class;
-#endif
 
         /****
         ** Content packs
         ****/
-        /// <summary>Create a temporary content pack to read files from a directory. Temporary content packs will not appear in the SMAPI log and update checks will not be performed.</summary>
-        /// <param name="directoryPath">The absolute directory path containing the content pack files.</param>
-        /// <param name="id">The content pack's unique ID.</param>
-        /// <param name="name">The content pack name.</param>
-        /// <param name="description">The content pack description.</param>
-        /// <param name="author">The content pack author's name.</param>
-        /// <param name="version">The content pack version.</param>
-        IContentPack CreateTemporaryContentPack(string directoryPath, string id, string name, string description, string author, ISemanticVersion version);
-
-#if !SMAPI_3_0_STRICT
         /// <summary>Manually create a transitional content pack to support pre-SMAPI content packs. This provides a way to access legacy content packs using the SMAPI content pack APIs, but the content pack will not be visible in the log or validated by SMAPI.</summary>
         /// <param name="directoryPath">The absolute directory path containing the content pack files.</param>
         /// <param name="id">The content pack's unique ID.</param>
@@ -95,11 +87,12 @@ namespace StardewModdingAPI
         /// <param name="description">The content pack description.</param>
         /// <param name="author">The content pack author's name.</param>
         /// <param name="version">The content pack version.</param>
-        [Obsolete("Use " + nameof(IModHelper) + "." + nameof(IModHelper.CreateTemporaryContentPack) + " instead")]
+        [Obsolete("Use " + nameof(IModHelper) + "." + nameof(IModHelper.ContentPacks) + "." + nameof(IContentPackHelper.CreateTemporary) + " instead")]
         IContentPack CreateTransitionalContentPack(string directoryPath, string id, string name, string description, string author, ISemanticVersion version);
-#endif
 
         /// <summary>Get all content packs loaded for this mod.</summary>
+        [Obsolete("Use " + nameof(IModHelper) + "." + nameof(IModHelper.ContentPacks) + "." + nameof(IContentPackHelper.GetOwned) + " instead")]
         IEnumerable<IContentPack> GetContentPacks();
+#endif
     }
 }

@@ -102,7 +102,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
                 // parse stable compatibility
                 WikiCompatibilityInfo compatibility = new WikiCompatibilityInfo
                 {
-                    Status = this.GetAttributeAsStatus(node, "data-status") ?? WikiCompatibilityStatus.Ok,
+                    Status = this.GetAttributeAsEnum<WikiCompatibilityStatus>(node, "data-status") ?? WikiCompatibilityStatus.Ok,
                     BrokeIn = this.GetAttribute(node, "data-broke-in"),
                     UnofficialVersion = this.GetAttributeAsSemanticVersion(node, "data-unofficial-version"),
                     UnofficialUrl = this.GetAttribute(node, "data-unofficial-url"),
@@ -112,7 +112,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
                 // parse beta compatibility
                 WikiCompatibilityInfo betaCompatibility = null;
                 {
-                    WikiCompatibilityStatus? betaStatus = this.GetAttributeAsStatus(node, "data-beta-status");
+                    WikiCompatibilityStatus? betaStatus = this.GetAttributeAsEnum<WikiCompatibilityStatus>(node, "data-beta-status");
                     if (betaStatus.HasValue)
                     {
                         betaCompatibility = new WikiCompatibilityInfo
@@ -125,6 +125,10 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
                         };
                     }
                 }
+
+                // parse SMAPI 3.0 readiness status
+                WikiSmapi3Status smapi3Status = this.GetAttributeAsEnum<WikiSmapi3Status>(node, "data-smapi-3-status") ?? WikiSmapi3Status.Unknown;
+                string smapi3Url = this.GetAttribute(node, "data-smapi-3-url");
 
                 // yield model
                 yield return new WikiModEntry
@@ -140,6 +144,8 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
                     CustomUrl = customUrl,
                     Compatibility = compatibility,
                     BetaCompatibility = betaCompatibility,
+                    Smapi3Status = smapi3Status,
+                    Smapi3Url = smapi3Url,
                     Warnings = warnings,
                     Anchor = anchor
                 };
@@ -169,17 +175,18 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
                 : new string[0];
         }
 
-        /// <summary>Get an attribute value and parse it as a compatibility status.</summary>
+        /// <summary>Get an attribute value and parse it as an enum value.</summary>
+        /// <typeparam name="TEnum">The enum type.</typeparam>
         /// <param name="element">The element whose attributes to read.</param>
         /// <param name="name">The attribute name.</param>
-        private WikiCompatibilityStatus? GetAttributeAsStatus(HtmlNode element, string name)
+        private TEnum? GetAttributeAsEnum<TEnum>(HtmlNode element, string name) where TEnum : struct
         {
             string raw = this.GetAttribute(element, name);
             if (raw == null)
                 return null;
-            if (!Enum.TryParse(raw, true, out WikiCompatibilityStatus status))
-                throw new InvalidOperationException($"Unknown status '{raw}' when parsing compatibility list.");
-            return status;
+            if (!Enum.TryParse(raw, true, out TEnum value) && Enum.IsDefined(typeof(TEnum), value))
+                throw new InvalidOperationException($"Unknown {typeof(TEnum).Name} value '{raw}' when parsing compatibility list.");
+            return value;
         }
 
         /// <summary>Get an attribute value and parse it as a semantic version.</summary>

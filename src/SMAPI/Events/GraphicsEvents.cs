@@ -15,9 +15,6 @@ namespace StardewModdingAPI.Events
         /// <summary>The core event manager.</summary>
         private static EventManager EventManager;
 
-        /// <summary>Manages deprecation warnings.</summary>
-        private static DeprecationManager DeprecationManager;
-
 
         /*********
         ** Events
@@ -27,7 +24,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                GraphicsEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 GraphicsEvents.EventManager.Legacy_Resize.Add(value);
             }
             remove => GraphicsEvents.EventManager.Legacy_Resize.Remove(value);
@@ -41,7 +38,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                GraphicsEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 GraphicsEvents.EventManager.Legacy_OnPreRenderEvent.Add(value);
             }
             remove => GraphicsEvents.EventManager.Legacy_OnPreRenderEvent.Remove(value);
@@ -52,7 +49,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                GraphicsEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 GraphicsEvents.EventManager.Legacy_OnPostRenderEvent.Add(value);
             }
             remove => GraphicsEvents.EventManager.Legacy_OnPostRenderEvent.Remove(value);
@@ -66,7 +63,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                GraphicsEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 GraphicsEvents.EventManager.Legacy_OnPreRenderHudEvent.Add(value);
             }
             remove => GraphicsEvents.EventManager.Legacy_OnPreRenderHudEvent.Remove(value);
@@ -77,7 +74,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                GraphicsEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 GraphicsEvents.EventManager.Legacy_OnPostRenderHudEvent.Add(value);
             }
             remove => GraphicsEvents.EventManager.Legacy_OnPostRenderHudEvent.Remove(value);
@@ -91,7 +88,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                GraphicsEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 GraphicsEvents.EventManager.Legacy_OnPreRenderGuiEvent.Add(value);
             }
             remove => GraphicsEvents.EventManager.Legacy_OnPreRenderGuiEvent.Remove(value);
@@ -102,7 +99,7 @@ namespace StardewModdingAPI.Events
         {
             add
             {
-                GraphicsEvents.DeprecationManager.WarnForOldEvents();
+                SCore.DeprecationManager.WarnForOldEvents();
                 GraphicsEvents.EventManager.Legacy_OnPostRenderGuiEvent.Add(value);
             }
             remove => GraphicsEvents.EventManager.Legacy_OnPostRenderGuiEvent.Remove(value);
@@ -114,11 +111,9 @@ namespace StardewModdingAPI.Events
         *********/
         /// <summary>Initialise the events.</summary>
         /// <param name="eventManager">The core event manager.</param>
-        /// <param name="deprecationManager">Manages deprecation warnings.</param>
-        internal static void Init(EventManager eventManager, DeprecationManager deprecationManager)
+        internal static void Init(EventManager eventManager)
         {
             GraphicsEvents.EventManager = eventManager;
-            GraphicsEvents.DeprecationManager = deprecationManager;
         }
     }
 }

@@ -33,7 +33,6 @@
     <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(TargetDir)\windows-exe-config.xml" DestinationFiles="$(PackagePath)\internal\$(PlatformName)-install.exe.config" />
 
     <!--copy bundle files-->
-    <Copy SourceFiles="$(TargetDir)\unix-launcher.sh" DestinationFiles="$(PackagePath)\bundle\StardewModdingAPI" />
     <Copy SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.exe" DestinationFolder="$(PackagePath)\bundle" />
     <Copy SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.pdb" DestinationFolder="$(PackagePath)\bundle" />
     <Copy SourceFiles="$(CompiledSmapiPath)\StardewModdingAPI.xml" DestinationFolder="$(PackagePath)\bundle" />
@@ -50,9 +49,10 @@
     <Copy SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.CoreInterfaces.pdb" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
     <Copy SourceFiles="$(CompiledToolkitPath)\StardewModdingAPI.Toolkit.CoreInterfaces.xml" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
     <Copy SourceFiles="@(CompiledMods)" DestinationFolder="$(PackagePath)\bundle\Mods\%(RecursiveDir)" />
-    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(TargetDir)\windows-exe-config.xml" DestinationFiles="$(PackagePath)\bundle\StardewModdingAPI.exe.config" />
+    <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(TargetDir)\unix-launcher.sh" DestinationFiles="$(PackagePath)\bundle\StardewModdingAPI" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\System.Numerics.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\System.Runtime.Caching.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
+    <Copy Condition="$(OS) == 'Windows_NT'" SourceFiles="$(TargetDir)\windows-exe-config.xml" DestinationFiles="$(PackagePath)\bundle\StardewModdingAPI.exe.config" />
 
     <!-- fix errors on Linux/Mac (sample: https://log.smapi.io/mMdFUpgB) -->
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(RootPath)\build\lib\System.Numerics.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />

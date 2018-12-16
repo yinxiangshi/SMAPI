@@ -34,9 +34,14 @@ namespace StardewModdingAPI.Framework.Networking
             this.OnProcessingMessage = onProcessingMessage;
         }
 
+
+        /*********
+        ** Protected methods
+        *********/
         /// <summary>Read and process a message from the client.</summary>
         /// <param name="peer">The Galaxy peer ID.</param>
         /// <param name="messageStream">The data to process.</param>
+        /// <remarks>This reimplements <see cref="GalaxyNetServer.onReceiveMessage"/>, but adds a callback to <see cref="OnProcessingMessage"/>.</remarks>
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "The callback is invoked synchronously.")]
         protected override void onReceiveMessage(GalaxyID peer, Stream messageStream)
         {
@@ -44,20 +49,27 @@ namespace StardewModdingAPI.Framework.Networking
             using (BinaryReader reader = new BinaryReader(messageStream))
             {
                 message.Read(reader);
-                this.OnProcessingMessage(message, outgoing => this.sendMessage(peer, outgoing), () =>
+                ulong peerID = peer.ToUint64(); // note: GalaxyID instances get reused, so need to store the underlying ID instead
+                this.OnProcessingMessage(message, outgoing => this.SendMessageToPeerID(peerID, outgoing), () =>
                 {
-                    if (this.peers.ContainsLeft(message.FarmerID) && (long)this.peers[message.FarmerID] == (long)peer.ToUint64())
-                    {
+                    if (this.peers.ContainsLeft(message.FarmerID) && (long)this.peers[message.FarmerID] == (long)peerID)
                         this.gameServer.processIncomingMessage(message);
-                    }
                     else if (message.MessageType == StardewValley.Multiplayer.playerIntroduction)
                     {
                         NetFarmerRoot farmer = this.Multiplayer.readFarmer(message.Reader);
-                        GalaxyID capturedPeer = new GalaxyID(peer.ToUint64());
-                        this.gameServer.checkFarmhandRequest(Convert.ToString(peer.ToUint64()), farmer, msg => this.sendMessage(capturedPeer, msg), () => this.peers[farmer.Value.UniqueMultiplayerID] = capturedPeer.ToUint64());
+                        GalaxyID capturedPeer = new GalaxyID(peerID);
+                        this.gameServer.checkFarmhandRequest(Convert.ToString(peerID), farmer, msg => this.sendMessage(capturedPeer, msg), () => this.peers[farmer.Value.UniqueMultiplayerID] = capturedPeer.ToUint64());
                     }
                 });
             }
+        }
+
+        /// <summary>Send a message to a remote peer.</summary>
+        /// <param name="peerID">The unique Galaxy ID, derived from <see cref="GalaxyID.ToUint64"/>.</param>
+        /// <param name="message">The message to send.</param>
+        private void SendMessageToPeerID(ulong peerID, OutgoingMessage message)
+        {
+            this.sendMessage(new GalaxyID(peerID), message);
         }
     }
 }
