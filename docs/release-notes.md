@@ -1,4 +1,9 @@
 # Release notes
+## 2.9.3
+* For players:
+  * Fixed errors hovering items in some cases with SMAPI 2.9.2.
+  * Fixed some multiplayer features broken when a farmhand returns to title and rejoins.
+
 ## 2.9.2
 * For players:
   * SMAPI now prevents invalid items from crashing the game on hover.

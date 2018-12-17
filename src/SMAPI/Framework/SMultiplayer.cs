@@ -82,6 +82,13 @@ namespace StardewModdingAPI.Framework
             this.OnModMessageReceived = onModMessageReceived;
         }
 
+        /// <summary>Perform cleanup needed when a multiplayer session ends.</summary>
+        public void CleanupOnMultiplayerExit()
+        {
+            this.Peers.Clear();
+            this.HostPeer = null;
+        }
+
 #if !SMAPI_3_0_STRICT
         /// <summary>Handle sync messages from other players and perform other initial sync logic.</summary>
         public override void UpdateEarly()
