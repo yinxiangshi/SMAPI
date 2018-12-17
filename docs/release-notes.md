@@ -1,4 +1,7 @@
 # Release notes
+## 2.9.3
+* Fixed errors hovering items in some cases with SMAPI 2.9.2.
+
 ## 2.9.2
 * For players:
   * SMAPI now prevents invalid items from crashing the game on hover.

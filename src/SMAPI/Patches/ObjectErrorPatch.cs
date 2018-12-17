@@ -49,7 +49,7 @@ namespace StardewModdingAPI.Patches
                 return false;
             }
 
-            return false;
+            return true;
         }
     }
 }
