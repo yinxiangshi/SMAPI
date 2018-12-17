@@ -217,7 +217,7 @@ namespace StardewModdingAPI.Framework
         private void OnReturnedToTitle()
         {
             this.Monitor.Log("Context: returned to title", LogLevel.Trace);
-            this.Multiplayer.Peers.Clear();
+            this.Multiplayer.CleanupOnMultiplayerExit();
             this.Events.ReturnedToTitle.RaiseEmpty();
 #if !SMAPI_3_0_STRICT
             this.Events.Legacy_AfterReturnToTitle.Raise();
