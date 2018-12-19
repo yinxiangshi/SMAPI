@@ -1,4 +1,8 @@
 # Release notes
+## Upcoming release
+* For players:
+  * Tweaked installer to reduce antivirus false positives.
+
 ## 2.9.3
 * For players:
   * Fixed errors hovering items in some cases with SMAPI 2.9.2.
