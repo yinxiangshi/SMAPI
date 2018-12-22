@@ -62,6 +62,7 @@
     <Compile Include="Framework\Commands\TrainerCommand.cs" />
     <Compile Include="Framework\Commands\World\SetMineLevelCommand.cs" />
     <Compile Include="Framework\Commands\World\DownMineLevelCommand.cs" />
+    <Compile Include="Framework\Commands\World\ClearCommand.cs" />
     <Compile Include="Framework\Commands\World\SetYearCommand.cs" />
     <Compile Include="Framework\Commands\World\SetSeasonCommand.cs" />
     <Compile Include="Framework\Commands\World\SetDayCommand.cs" />
