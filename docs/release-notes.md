@@ -4,6 +4,9 @@
   * Added `world_clear` console command to remove spawned or placed entities.
   * Tweaked installer to reduce antivirus false positives.
 
+* For modders:
+  * You can now use `ReadSaveData` or `WriteSaveData` immediately after the save is loaded, before the in-game world is initialised.
+
 ## 2.9.3
 * For players:
   * Fixed errors hovering items in some cases with SMAPI 2.9.2.
