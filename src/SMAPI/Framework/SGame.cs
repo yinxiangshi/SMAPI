@@ -69,11 +69,8 @@ namespace StardewModdingAPI.Framework
         /// <remarks>Skipping a few frames ensures the game finishes initialising the world before mods try to change it.</remarks>
         private readonly Countdown AfterLoadTimer = new Countdown(5);
 
-        /// <summary>Whether <see cref="EventManager.SavePreloaded"/> was raised for this session.</summary>
-        private bool RaisedPreloadedEvent;
-
-        /// <summary>Whether the after-load events were raised for this session.</summary>
-        private bool RaisedLoadedEvent;
+        /// <summary>The current stage in the game's loading process.</summary>
+        private LoadStage LoadStage = LoadStage.None;
 
         /// <summary>Whether the game is saving and SMAPI has already raised <see cref="IGameLoopEvents.Saving"/>.</summary>
         private bool IsBetweenSaveEvents;
@@ -216,16 +213,33 @@ namespace StardewModdingAPI.Framework
             this.Events.ModMessageReceived.RaiseForMods(new ModMessageReceivedEventArgs(message), mod => mod != null && modIDs.Contains(mod.Manifest.UniqueID));
         }
 
-        /// <summary>A callback raised when the player quits a save and returns to the title screen.</summary>
-        private void OnReturnedToTitle()
+        /// <summary>A callback invoked when the game's low-level load stage changes.</summary>
+        /// <param name="newStage">The new load stage.</param>
+        internal void OnLoadStageChanged(LoadStage newStage)
         {
-            this.Monitor.Log("Context: returned to title", LogLevel.Trace);
-            this.RaisedPreloadedEvent = false;
-            this.Multiplayer.CleanupOnMultiplayerExit();
-            this.Events.ReturnedToTitle.RaiseEmpty();
+            // nothing to do
+            if (newStage == this.LoadStage)
+                return;
+
+            // update data
+            LoadStage oldStage = this.LoadStage;
+            this.LoadStage = newStage;
+            if (newStage == LoadStage.None)
+            {
+                this.Monitor.Log("Context: returned to title", LogLevel.Trace);
+                this.Multiplayer.CleanupOnMultiplayerExit();
+            }
+            this.Monitor.VerboseLog($"Context: load stage changed to {newStage}");
+
+            // raise events
+            this.Events.LoadStageChanged.Raise(new LoadStageChangedEventArgs(oldStage, newStage));
+            if (newStage == LoadStage.None)
+            {
+                this.Events.ReturnedToTitle.RaiseEmpty();
 #if !SMAPI_3_0_STRICT
-            this.Events.Legacy_AfterReturnToTitle.Raise();
+                this.Events.Legacy_AfterReturnToTitle.Raise();
 #endif
+            }
         }
 
         /// <summary>Constructor a content manager to read XNB files.</summary>
@@ -284,7 +298,29 @@ namespace StardewModdingAPI.Framework
                 {
                     this.Monitor.Log("Game loader synchronising...", LogLevel.Trace);
                     while (Game1.currentLoader?.MoveNext() == true)
-                        ;
+                    {
+                        // raise load stage changed
+                        switch (Game1.currentLoader.Current)
+                        {
+                            case 20:
+                                this.OnLoadStageChanged(LoadStage.SaveParsed);
+                                break;
+
+                            case 36:
+                                this.OnLoadStageChanged(LoadStage.SaveLoadedBasicInfo);
+                                break;
+
+                            case 50:
+                                this.OnLoadStageChanged(LoadStage.SaveLoadedLocations);
+                                break;
+
+                            default:
+                                if (Game1.gameMode == Game1.playingGameMode)
+                                    this.OnLoadStageChanged(LoadStage.Preloaded);
+                                break;
+                        }
+                    }
+
                     Game1.currentLoader = null;
                     this.Monitor.Log("Game loader done.", LogLevel.Trace);
                 }
@@ -411,6 +447,7 @@ namespace StardewModdingAPI.Framework
                     // raise after-create
                     this.IsBetweenCreateEvents = false;
                     this.Monitor.Log($"Context: after save creation, starting {Game1.currentSeason} {Game1.dayOfMonth} Y{Game1.year}.", LogLevel.Trace);
+                    this.OnLoadStageChanged(LoadStage.CreatedSaveFile);
                     this.Events.SaveCreated.RaiseEmpty();
 #if !SMAPI_3_0_STRICT
                     this.Events.Legacy_AfterCreateSave.Raise();
@@ -434,7 +471,10 @@ namespace StardewModdingAPI.Framework
                 *********/
                 bool wasWorldReady = Context.IsWorldReady;
                 if ((Context.IsWorldReady && !Context.IsSaveLoaded) || Game1.exitToTitle)
-                    this.MarkWorldNotReady();
+                {
+                    Context.IsWorldReady = false;
+                    this.AfterLoadTimer.Reset();
+                }
                 else if (Context.IsSaveLoaded && this.AfterLoadTimer.Current > 0 && Game1.currentLocation != null)
                 {
                     if (Game1.dayOfMonth != 0) // wait until new-game intro finishes (world not fully initialised yet)
@@ -469,8 +509,8 @@ namespace StardewModdingAPI.Framework
                 ** Load / return-to-title events
                 *********/
                 if (wasWorldReady && !Context.IsWorldReady)
-                    this.OnReturnedToTitle();
-                else if (!this.RaisedLoadedEvent && Context.IsWorldReady)
+                    this.OnLoadStageChanged(LoadStage.None);
+                else if (Context.IsWorldReady && this.LoadStage != LoadStage.Ready)
                 {
                     // print context
                     string context = $"Context: loaded saved game '{Constants.SaveFolderName}', starting {Game1.currentSeason} {Game1.dayOfMonth} Y{Game1.year}.";
@@ -484,7 +524,7 @@ namespace StardewModdingAPI.Framework
                     this.Monitor.Log(context, LogLevel.Trace);
 
                     // raise events
-                    this.RaisedLoadedEvent = true;
+                    this.OnLoadStageChanged(LoadStage.Ready);
                     this.Events.SaveLoaded.RaiseEmpty();
                     this.Events.DayStarted.RaiseEmpty();
 #if !SMAPI_3_0_STRICT
@@ -834,11 +874,8 @@ namespace StardewModdingAPI.Framework
                     this.Events.GameLaunched.Raise(new GameLaunchedEventArgs());
 
                 // preloaded
-                if (Context.IsSaveLoaded && !this.RaisedPreloadedEvent)
-                {
-                    this.RaisedPreloadedEvent = true;
-                    this.Events.SavePreloaded.RaiseEmpty();
-                }
+                if (Context.IsSaveLoaded && this.LoadStage != LoadStage.Loaded && this.LoadStage != LoadStage.Ready)
+                    this.OnLoadStageChanged(LoadStage.Loaded);
 
                 // update tick
                 this.Events.UnvalidatedUpdateTicking.Raise(new UnvalidatedUpdateTickingEventArgs(this.TicksElapsed));
@@ -1649,14 +1686,6 @@ namespace StardewModdingAPI.Framework
         /****
         ** Methods
         ****/
-        /// <summary>Perform any cleanup needed when a save is unloaded.</summary>
-        private void MarkWorldNotReady()
-        {
-            Context.IsWorldReady = false;
-            this.AfterLoadTimer.Reset();
-            this.RaisedLoadedEvent = false;
-        }
-
 #if !SMAPI_3_0_STRICT
         /// <summary>Raise the <see cref="GraphicsEvents.OnPostRenderEvent"/> if there are any listeners.</summary>
         /// <param name="needsNewBatch">Whether to create a new sprite batch.</param>

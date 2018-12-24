@@ -5,7 +5,7 @@
   * Tweaked installer to reduce antivirus false positives.
 
 * For modders:
-  * Added `Specialised.SavePreloaded` event, which is raised immediately after a save is loaded but before the in-game world is fully initialised.
+  * Added `Specialised.LoadStageChanged` for mods which need to do something at a specific point in the game's save loading process.
   * You can now use read/write save data as soon as the save is loaded (instead of once the world is initialised).
 
 ## 2.9.3

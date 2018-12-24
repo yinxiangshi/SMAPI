@@ -181,12 +181,6 @@ namespace StardewModdingAPI.Framework
                 return;
             }
 #endif
-
-            // apply game patches
-            new GamePatcher(this.Monitor).Apply(
-                new DialogueErrorPatch(this.MonitorForGame, this.Reflection),
-                new ObjectErrorPatch()
-            );
         }
 
         /// <summary>Launch SMAPI.</summary>
@@ -236,6 +230,13 @@ namespace StardewModdingAPI.Framework
                 SGame.ConstructorHack = new SGameConstructorHack(this.Monitor, this.Reflection, this.Toolkit.JsonHelper);
                 this.GameInstance = new SGame(this.Monitor, this.MonitorForGame, this.Reflection, this.EventManager, this.Toolkit.JsonHelper, this.ModRegistry, SCore.DeprecationManager, this.OnLocaleChanged, this.InitialiseAfterGameStart, this.Dispose);
                 StardewValley.Program.gamePtr = this.GameInstance;
+
+                // apply game patches
+                new GamePatcher(this.Monitor).Apply(
+                    new DialogueErrorPatch(this.MonitorForGame, this.Reflection),
+                    new ObjectErrorPatch(),
+                    new LoadForNewGamePatch(this.Reflection, this.GameInstance.OnLoadStageChanged)
+                );
 
                 // add exit handler
                 new Thread(() =>

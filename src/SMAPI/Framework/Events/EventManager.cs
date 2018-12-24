@@ -151,8 +151,8 @@ namespace StardewModdingAPI.Framework.Events
         /****
         ** Specialised
         ****/
-        /// <summary>Raised immediately after the player loads a save slot, but before the world is fully initialised.</summary>
-        public readonly ManagedEvent<SavePreloadedEventArgs> SavePreloaded;
+        /// <summary>Raised when the low-level stage in the game's loading process has changed. See notes on <see cref="ISpecialisedEvents.LoadStageChanged"/>.</summary>
+        public readonly ManagedEvent<LoadStageChangedEventArgs> LoadStageChanged;
 
         /// <summary>Raised before the game performs its overall update tick (≈60 times per second). See notes on <see cref="ISpecialisedEvents.UnvalidatedUpdateTicking"/>.</summary>
         public readonly ManagedEvent<UnvalidatedUpdateTickingEventArgs> UnvalidatedUpdateTicking;
@@ -411,7 +411,7 @@ namespace StardewModdingAPI.Framework.Events
             this.ObjectListChanged = ManageEventOf<ObjectListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.ObjectListChanged));
             this.TerrainFeatureListChanged = ManageEventOf<TerrainFeatureListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.TerrainFeatureListChanged));
 
-            this.SavePreloaded = ManageEventOf<SavePreloadedEventArgs>(nameof(IModEvents.Specialised), nameof(ISpecialisedEvents.SavePreloaded));
+            this.LoadStageChanged = ManageEventOf<LoadStageChangedEventArgs>(nameof(IModEvents.Specialised), nameof(ISpecialisedEvents.LoadStageChanged));
             this.UnvalidatedUpdateTicking = ManageEventOf<UnvalidatedUpdateTickingEventArgs>(nameof(IModEvents.Specialised), nameof(ISpecialisedEvents.UnvalidatedUpdateTicking));
             this.UnvalidatedUpdateTicked = ManageEventOf<UnvalidatedUpdateTickedEventArgs>(nameof(IModEvents.Specialised), nameof(ISpecialisedEvents.UnvalidatedUpdateTicked));
 
