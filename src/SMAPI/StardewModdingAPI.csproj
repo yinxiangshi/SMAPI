@@ -150,6 +150,7 @@
     <Compile Include="Events\SavedEventArgs.cs" />
     <Compile Include="Events\SaveEvents.cs" />
     <Compile Include="Events\SaveLoadedEventArgs.cs" />
+    <Compile Include="Events\SavePreloadedEventArgs.cs" />
     <Compile Include="Events\SavingEventArgs.cs" />
     <Compile Include="Events\SpecialisedEvents.cs" />
     <Compile Include="Events\TerrainFeatureListChangedEventArgs.cs" />

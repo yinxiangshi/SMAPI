@@ -26,7 +26,7 @@ namespace StardewModdingAPI.Events
         /// <summary>Raised after the game finishes writing data to the save file (except the initial save creation).</summary>
         event EventHandler<SavedEventArgs> Saved;
 
-        /// <summary>Raised after the player loads a save slot.</summary>
+        /// <summary>Raised after the player loads a save slot and the world is initialised.</summary>
         event EventHandler<SaveLoadedEventArgs> SaveLoaded;
 
         /// <summary>Raised after the game begins a new day (including when the player loads a save).</summary>

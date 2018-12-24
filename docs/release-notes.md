@@ -5,7 +5,8 @@
   * Tweaked installer to reduce antivirus false positives.
 
 * For modders:
-  * You can now use `ReadSaveData` or `WriteSaveData` immediately after the save is loaded, before the in-game world is initialised.
+  * Added `Specialised.SavePreloaded` event, which is raised immediately after a save is loaded but before the in-game world is fully initialised.
+  * You can now use read/write save data as soon as the save is loaded (instead of once the world is initialised).
 
 ## 2.9.3
 * For players:

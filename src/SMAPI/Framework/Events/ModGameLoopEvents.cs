@@ -58,7 +58,7 @@ namespace StardewModdingAPI.Framework.Events
             remove => this.EventManager.Saved.Remove(value);
         }
 
-        /// <summary>Raised after the player loads a save slot.</summary>
+        /// <summary>Raised after the player loads a save slot and the world is initialised.</summary>
         public event EventHandler<SaveLoadedEventArgs> SaveLoaded
         {
             add => this.EventManager.SaveLoaded.Add(value);

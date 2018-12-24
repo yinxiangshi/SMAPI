@@ -70,7 +70,7 @@ namespace StardewModdingAPI.Framework.Events
         /// <summary>Raised after the game finishes writing data to the save file (except the initial save creation).</summary>
         public readonly ManagedEvent<SavedEventArgs> Saved;
 
-        /// <summary>Raised after the player loads a save slot.</summary>
+        /// <summary>Raised after the player loads a save slot and the world is initialised.</summary>
         public readonly ManagedEvent<SaveLoadedEventArgs> SaveLoaded;
 
         /// <summary>Raised after the game begins a new day, including when loading a save.</summary>
@@ -151,6 +151,9 @@ namespace StardewModdingAPI.Framework.Events
         /****
         ** Specialised
         ****/
+        /// <summary>Raised immediately after the player loads a save slot, but before the world is fully initialised.</summary>
+        public readonly ManagedEvent<SavePreloadedEventArgs> SavePreloaded;
+
         /// <summary>Raised before the game performs its overall update tick (≈60 times per second). See notes on <see cref="ISpecialisedEvents.UnvalidatedUpdateTicking"/>.</summary>
         public readonly ManagedEvent<UnvalidatedUpdateTickingEventArgs> UnvalidatedUpdateTicking;
 
@@ -408,6 +411,7 @@ namespace StardewModdingAPI.Framework.Events
             this.ObjectListChanged = ManageEventOf<ObjectListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.ObjectListChanged));
             this.TerrainFeatureListChanged = ManageEventOf<TerrainFeatureListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.TerrainFeatureListChanged));
 
+            this.SavePreloaded = ManageEventOf<SavePreloadedEventArgs>(nameof(IModEvents.Specialised), nameof(ISpecialisedEvents.SavePreloaded));
             this.UnvalidatedUpdateTicking = ManageEventOf<UnvalidatedUpdateTickingEventArgs>(nameof(IModEvents.Specialised), nameof(ISpecialisedEvents.UnvalidatedUpdateTicking));
             this.UnvalidatedUpdateTicked = ManageEventOf<UnvalidatedUpdateTickedEventArgs>(nameof(IModEvents.Specialised), nameof(ISpecialisedEvents.UnvalidatedUpdateTicked));
 

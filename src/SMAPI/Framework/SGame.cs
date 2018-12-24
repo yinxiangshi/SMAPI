@@ -69,8 +69,11 @@ namespace StardewModdingAPI.Framework
         /// <remarks>Skipping a few frames ensures the game finishes initialising the world before mods try to change it.</remarks>
         private readonly Countdown AfterLoadTimer = new Countdown(5);
 
+        /// <summary>Whether <see cref="EventManager.SavePreloaded"/> was raised for this session.</summary>
+        private bool RaisedPreloadedEvent;
+
         /// <summary>Whether the after-load events were raised for this session.</summary>
-        private bool RaisedAfterLoadEvent;
+        private bool RaisedLoadedEvent;
 
         /// <summary>Whether the game is saving and SMAPI has already raised <see cref="IGameLoopEvents.Saving"/>.</summary>
         private bool IsBetweenSaveEvents;
@@ -217,6 +220,7 @@ namespace StardewModdingAPI.Framework
         private void OnReturnedToTitle()
         {
             this.Monitor.Log("Context: returned to title", LogLevel.Trace);
+            this.RaisedPreloadedEvent = false;
             this.Multiplayer.CleanupOnMultiplayerExit();
             this.Events.ReturnedToTitle.RaiseEmpty();
 #if !SMAPI_3_0_STRICT
@@ -466,7 +470,7 @@ namespace StardewModdingAPI.Framework
                 *********/
                 if (wasWorldReady && !Context.IsWorldReady)
                     this.OnReturnedToTitle();
-                else if (!this.RaisedAfterLoadEvent && Context.IsWorldReady)
+                else if (!this.RaisedLoadedEvent && Context.IsWorldReady)
                 {
                     // print context
                     string context = $"Context: loaded saved game '{Constants.SaveFolderName}', starting {Game1.currentSeason} {Game1.dayOfMonth} Y{Game1.year}.";
@@ -480,7 +484,7 @@ namespace StardewModdingAPI.Framework
                     this.Monitor.Log(context, LogLevel.Trace);
 
                     // raise events
-                    this.RaisedAfterLoadEvent = true;
+                    this.RaisedLoadedEvent = true;
                     this.Events.SaveLoaded.RaiseEmpty();
                     this.Events.DayStarted.RaiseEmpty();
 #if !SMAPI_3_0_STRICT
@@ -824,8 +828,19 @@ namespace StardewModdingAPI.Framework
                 ** Game update
                 *********/
                 this.TicksElapsed++;
+
+                // game launched
                 if (this.TicksElapsed == 1)
                     this.Events.GameLaunched.Raise(new GameLaunchedEventArgs());
+
+                // preloaded
+                if (Context.IsSaveLoaded && !this.RaisedPreloadedEvent)
+                {
+                    this.RaisedPreloadedEvent = true;
+                    this.Events.SavePreloaded.RaiseEmpty();
+                }
+
+                // update tick
                 this.Events.UnvalidatedUpdateTicking.Raise(new UnvalidatedUpdateTickingEventArgs(this.TicksElapsed));
                 this.Events.UpdateTicking.Raise(new UpdateTickingEventArgs(this.TicksElapsed));
                 try
@@ -1639,7 +1654,7 @@ namespace StardewModdingAPI.Framework
         {
             Context.IsWorldReady = false;
             this.AfterLoadTimer.Reset();
-            this.RaisedAfterLoadEvent = false;
+            this.RaisedLoadedEvent = false;
         }
 
 #if !SMAPI_3_0_STRICT
