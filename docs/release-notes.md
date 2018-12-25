@@ -2,6 +2,7 @@
 ## Upcoming release
 * For players:
   * Added `world_clear` console command to remove spawned or placed entities.
+  * Minor performance improvement.
   * Tweaked installer to reduce antivirus false positives.
 
 * For modders:

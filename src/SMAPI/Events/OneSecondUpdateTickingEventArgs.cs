@@ -1,4 +1,5 @@
 using System;
+using StardewValley;
 
 namespace StardewModdingAPI.Events
 {
@@ -9,19 +10,12 @@ namespace StardewModdingAPI.Events
         ** Accessors
         *********/
         /// <summary>The number of ticks elapsed since the game started, including the current tick.</summary>
-        public uint Ticks { get; }
+        public uint Ticks => (uint)Game1.ticks;
 
 
         /*********
         ** Public methods
         *********/
-        /// <summary>Construct an instance.</summary>
-        /// <param name="ticks">The number of ticks elapsed since the game started, including the current tick.</param>
-        internal OneSecondUpdateTickingEventArgs(uint ticks)
-        {
-            this.Ticks = ticks;
-        }
-
         /// <summary>Get whether <see cref="Ticks"/> is a multiple of the given <paramref name="number"/>. This is mainly useful if you want to run logic intermittently (e.g. <code>e.IsMultipleOf(30)</code> for every half-second).</summary>
         /// <param name="number">The factor to check.</param>
         public bool IsMultipleOf(uint number)

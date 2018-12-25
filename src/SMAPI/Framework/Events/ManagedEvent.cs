@@ -93,6 +93,7 @@ namespace StardewModdingAPI.Framework.Events
         }
     }
 
+#if !SMAPI_3_0_STRICT
     /// <summary>An event wrapper which intercepts and logs errors in handler code.</summary>
     internal class ManagedEvent : ManagedEventBase<EventHandler>
     {
@@ -156,4 +157,5 @@ namespace StardewModdingAPI.Framework.Events
             }
         }
     }
+#endif
 }
