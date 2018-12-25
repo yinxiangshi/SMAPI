@@ -14,6 +14,12 @@ namespace StardewModdingAPI.Events
         /// <summary>Raised after the game state is updated (≈60 times per second).</summary>
         event EventHandler<UpdateTickedEventArgs> UpdateTicked;
 
+        /// <summary>Raised once per second before the game state is updated.</summary>
+        event EventHandler<OneSecondUpdateTickingEventArgs> OneSecondUpdateTicking;
+
+        /// <summary>Raised once per second after the game state is updated.</summary>
+        event EventHandler<OneSecondUpdateTickedEventArgs> OneSecondUpdateTicked;
+
         /// <summary>Raised before the game creates a new save file.</summary>
         event EventHandler<SaveCreatingEventArgs> SaveCreating;
 

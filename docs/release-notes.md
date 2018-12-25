@@ -5,6 +5,7 @@
   * Tweaked installer to reduce antivirus false positives.
 
 * For modders:
+  * Added `GameLoop.OneSecondUpdateTicking/Ticked` events.
   * Added `Specialised.LoadStageChanged` for mods which need to do something at a specific point in the game's save loading process.
   * You can now use read/write save data as soon as the save is loaded (instead of once the world is initialised).
 

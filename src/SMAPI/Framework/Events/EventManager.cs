@@ -58,6 +58,12 @@ namespace StardewModdingAPI.Framework.Events
         /// <summary>Raised after the game performs its overall update tick (≈60 times per second).</summary>
         public readonly ManagedEvent<UpdateTickedEventArgs> UpdateTicked;
 
+        /// <summary>Raised once per second before the game performs its overall update tick.</summary>
+        public readonly ManagedEvent<OneSecondUpdateTickingEventArgs> OneSecondUpdateTicking;
+
+        /// <summary>Raised once per second after the game performs its overall update tick.</summary>
+        public readonly ManagedEvent<OneSecondUpdateTickedEventArgs> OneSecondUpdateTicked;
+
         /// <summary>Raised before the game creates the save file.</summary>
         public readonly ManagedEvent<SaveCreatingEventArgs> SaveCreating;
 
@@ -380,6 +386,8 @@ namespace StardewModdingAPI.Framework.Events
             this.GameLaunched = ManageEventOf<GameLaunchedEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.GameLaunched));
             this.UpdateTicking = ManageEventOf<UpdateTickingEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.UpdateTicking));
             this.UpdateTicked = ManageEventOf<UpdateTickedEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.UpdateTicked));
+            this.OneSecondUpdateTicking = ManageEventOf<OneSecondUpdateTickingEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.OneSecondUpdateTicking));
+            this.OneSecondUpdateTicked = ManageEventOf<OneSecondUpdateTickedEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.OneSecondUpdateTicked));
             this.SaveCreating = ManageEventOf<SaveCreatingEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.SaveCreating));
             this.SaveCreated = ManageEventOf<SaveCreatedEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.SaveCreated));
             this.Saving = ManageEventOf<SavingEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.Saving));

@@ -878,8 +878,11 @@ namespace StardewModdingAPI.Framework
                     this.OnLoadStageChanged(LoadStage.Loaded);
 
                 // update tick
+                bool isOneSecond = this.TicksElapsed % 60 == 0;
                 this.Events.UnvalidatedUpdateTicking.Raise(new UnvalidatedUpdateTickingEventArgs(this.TicksElapsed));
                 this.Events.UpdateTicking.Raise(new UpdateTickingEventArgs(this.TicksElapsed));
+                if (isOneSecond)
+                    this.Events.OneSecondUpdateTicking.Raise(new OneSecondUpdateTickingEventArgs(this.TicksElapsed));
                 try
                 {
                     this.Input.UpdateSuppression();
@@ -891,6 +894,8 @@ namespace StardewModdingAPI.Framework
                 }
                 this.Events.UnvalidatedUpdateTicked.Raise(new UnvalidatedUpdateTickedEventArgs(this.TicksElapsed));
                 this.Events.UpdateTicked.Raise(new UpdateTickedEventArgs(this.TicksElapsed));
+                if (isOneSecond)
+                    this.Events.OneSecondUpdateTicked.Raise(new OneSecondUpdateTickedEventArgs(this.TicksElapsed));
 
                 /*********
                 ** Update events

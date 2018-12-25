@@ -135,6 +135,8 @@
     <Compile Include="Events\MultiplayerEvents.cs" />
     <Compile Include="Events\NpcListChangedEventArgs.cs" />
     <Compile Include="Events\ObjectListChangedEventArgs.cs" />
+    <Compile Include="Events\OneSecondUpdateTickedEventArgs.cs" />
+    <Compile Include="Events\OneSecondUpdateTickingEventArgs.cs" />
     <Compile Include="Events\PeerContextReceivedEventArgs.cs" />
     <Compile Include="Events\PeerDisconnectedEventArgs.cs" />
     <Compile Include="Events\PlayerEvents.cs" />
