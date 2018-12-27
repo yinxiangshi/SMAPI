@@ -9,7 +9,7 @@ namespace StardewModdingAPI.Web.Framework.ModRepositories
     internal class ChucklefishRepository : RepositoryBase
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The underlying HTTP client.</summary>
         private readonly IChucklefishClient Client;

@@ -7,7 +7,7 @@ namespace StardewModdingAPI.Events
     public class ModMessageReceivedEventArgs : EventArgs
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The underlying message model.</summary>
         private readonly ModMessageModel Message;

@@ -10,7 +10,7 @@ namespace StardewModdingAPI.Framework.ModLoading
     internal static class RewriteHelper
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The comparer which heuristically compares type definitions.</summary>
         private static readonly TypeReferenceComparer TypeDefinitionComparer = new TypeReferenceComparer();

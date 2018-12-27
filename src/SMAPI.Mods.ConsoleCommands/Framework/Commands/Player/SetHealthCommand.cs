@@ -7,7 +7,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
     internal class SetHealthCommand : TrainerCommand
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>Whether to keep the player's health at its maximum.</summary>
         private bool InfiniteHealth;

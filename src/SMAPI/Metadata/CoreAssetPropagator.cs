@@ -23,7 +23,7 @@ namespace StardewModdingAPI.Metadata
     internal class CoreAssetPropagator
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>Normalises an asset key to match the cache key.</summary>
         private readonly Func<string, string> GetNormalisedPath;

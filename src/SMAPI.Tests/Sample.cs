@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace StardewModdingAPI.Tests
 {
@@ -6,14 +6,14 @@ namespace StardewModdingAPI.Tests
     internal static class Sample
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>A random number generator.</summary>
         private static readonly Random Random = new Random();
 
 
         /*********
-        ** Properties
+        ** Accessors
         *********/
         /// <summary>Get a sample string.</summary>
         public static string String()

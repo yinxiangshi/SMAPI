@@ -12,7 +12,7 @@ namespace StardewModdingAPI.ModBuildConfig.Framework
     internal class ModFileManager
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The name of the manifest file.</summary>
         private readonly string ManifestFileName = "manifest.json";

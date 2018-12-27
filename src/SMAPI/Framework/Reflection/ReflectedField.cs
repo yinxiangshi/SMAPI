@@ -8,7 +8,7 @@ namespace StardewModdingAPI.Framework.Reflection
     internal class ReflectedField<TValue> : IReflectedField<TValue>
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The type that has the field.</summary>
         private readonly Type ParentType;

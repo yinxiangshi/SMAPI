@@ -12,7 +12,7 @@ namespace StardewModdingAPI.Web.Framework
     internal class BeanstalkEnvPropsConfigProvider : ConfigurationProvider, IConfigurationSource
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The absolute path to the container configuration file on an Amazon EC2 instance.</summary>
         private const string ContainerConfigPath = @"C:\Program Files\Amazon\ElasticBeanstalk\config\containerconfiguration";

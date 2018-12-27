@@ -10,7 +10,7 @@ namespace StardewModdingAPI.Framework
     internal class Monitor : IMonitor
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The name of the module which logs messages using this instance.</summary>
         private readonly string Source;

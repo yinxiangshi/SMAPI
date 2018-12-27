@@ -13,7 +13,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
     internal class ClearCommand : TrainerCommand
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The valid types that can be cleared.</summary>
         private readonly string[] ValidTypes = { "debris", "fruit-trees", "grass", "trees", "everything" };

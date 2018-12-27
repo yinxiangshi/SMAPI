@@ -8,7 +8,7 @@ namespace StardewModdingAPI.Framework.Reflection
     internal class ReflectedProperty<TValue> : IReflectedProperty<TValue>
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The display name shown in error messages.</summary>
         private readonly string DisplayName;

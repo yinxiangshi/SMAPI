@@ -7,7 +7,7 @@ namespace StardewModdingAPI.Framework.Patching
     internal class GamePatcher
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>Encapsulates monitoring and logging.</summary>
         private readonly IMonitor Monitor;

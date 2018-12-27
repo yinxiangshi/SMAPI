@@ -39,7 +39,7 @@ namespace StardewModdingAPI.Framework
     internal class SGame : Game1
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /****
         ** SMAPI state

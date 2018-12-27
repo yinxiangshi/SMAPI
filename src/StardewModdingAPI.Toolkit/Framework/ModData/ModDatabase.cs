@@ -8,7 +8,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
     public class ModDatabase
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The underlying mod data records indexed by default display name.</summary>
         private readonly ModDataRecord[] Records;

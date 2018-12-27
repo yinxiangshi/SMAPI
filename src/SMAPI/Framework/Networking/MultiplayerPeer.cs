@@ -9,7 +9,7 @@ namespace StardewModdingAPI.Framework.Networking
     internal class MultiplayerPeer : IMultiplayerPeer
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>A method which sends a message to the peer.</summary>
         private readonly Action<OutgoingMessage> SendMessageImpl;

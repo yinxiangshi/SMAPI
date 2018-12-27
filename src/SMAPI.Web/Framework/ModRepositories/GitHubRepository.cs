@@ -9,7 +9,7 @@ namespace StardewModdingAPI.Web.Framework.ModRepositories
     internal class GitHubRepository : RepositoryBase
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The underlying GitHub API client.</summary>
         private readonly IGitHubClient Client;

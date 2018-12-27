@@ -8,7 +8,7 @@ namespace StardewModdingAPI.Framework
     internal class DeprecationManager
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The deprecations which have already been logged (as 'mod name::noun phrase::version').</summary>
         private readonly HashSet<string> LoggedDeprecations = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);

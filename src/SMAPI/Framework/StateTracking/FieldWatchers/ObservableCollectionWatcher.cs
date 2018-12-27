@@ -10,7 +10,7 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
     internal class ObservableCollectionWatcher<TValue> : BaseDisposableWatcher, ICollectionWatcher<TValue>
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The field being watched.</summary>
         private readonly ObservableCollection<TValue> Field;

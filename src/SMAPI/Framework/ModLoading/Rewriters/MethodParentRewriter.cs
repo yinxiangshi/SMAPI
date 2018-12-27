@@ -8,7 +8,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
     internal class MethodParentRewriter : IInstructionHandler
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The type whose methods to remap.</summary>
         private readonly Type FromType;

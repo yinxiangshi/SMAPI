@@ -12,7 +12,7 @@ namespace StardewModdingApi.Installer
     internal class Program
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The absolute path of the installer folder.</summary>
         [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute", Justification = "The assembly location is never null in this context.")]

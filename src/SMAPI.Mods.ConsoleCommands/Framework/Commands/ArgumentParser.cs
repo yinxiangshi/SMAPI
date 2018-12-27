@@ -9,7 +9,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands
     internal class ArgumentParser : IReadOnlyList<string>
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The command name for errors.</summary>
         private readonly string CommandName;

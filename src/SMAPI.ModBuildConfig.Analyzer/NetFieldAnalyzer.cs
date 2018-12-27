@@ -14,7 +14,7 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
     public class NetFieldAnalyzer : DiagnosticAnalyzer
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The namespace for Stardew Valley's <c>Netcode</c> types.</summary>
         private const string NetcodeNamespace = "Netcode";

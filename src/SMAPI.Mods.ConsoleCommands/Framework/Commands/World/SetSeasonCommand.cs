@@ -7,7 +7,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
     internal class SetSeasonCommand : TrainerCommand
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The valid season names.</summary>
         private readonly string[] ValidSeasons = { "winter", "spring", "summer", "fall" };

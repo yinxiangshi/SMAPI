@@ -14,7 +14,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
     internal class ModContentManager : BaseContentManager
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>Encapsulates SMAPI's JSON file parsing.</summary>
         private readonly JsonHelper JsonHelper;

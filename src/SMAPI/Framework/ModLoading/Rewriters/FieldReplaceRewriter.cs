@@ -10,7 +10,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
     internal class FieldReplaceRewriter : FieldFinder
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The new field to reference.</summary>
         private readonly FieldInfo ToField;

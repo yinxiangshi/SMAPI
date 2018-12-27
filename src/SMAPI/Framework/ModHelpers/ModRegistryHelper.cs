@@ -8,7 +8,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
     internal class ModRegistryHelper : BaseHelper, IModRegistry
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The underlying mod registry.</summary>
         private readonly ModRegistry Registry;

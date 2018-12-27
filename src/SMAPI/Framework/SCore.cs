@@ -42,7 +42,7 @@ namespace StardewModdingAPI.Framework
     internal class SCore : IDisposable
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The log file to which to write messages.</summary>
         private readonly LogFileManager LogFile;

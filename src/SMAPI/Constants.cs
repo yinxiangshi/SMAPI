@@ -13,7 +13,7 @@ namespace StardewModdingAPI
     public static class Constants
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The directory path containing the current save's data (if a save is loaded).</summary>
         private static string RawSavePath => Context.IsSaveLoaded ? Path.Combine(Constants.SavesPath, Constants.GetSaveFolderName()) : null;

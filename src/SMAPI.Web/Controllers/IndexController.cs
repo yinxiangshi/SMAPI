@@ -20,7 +20,7 @@ namespace StardewModdingAPI.Web.Controllers
     internal class IndexController : Controller
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The site config settings.</summary>
         private readonly SiteConfig SiteConfig;

@@ -8,7 +8,7 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
     internal class ComparableListWatcher<TValue> : BaseDisposableWatcher, ICollectionWatcher<TValue>
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The collection to watch.</summary>
         private readonly ICollection<TValue> CurrentValues;

@@ -10,7 +10,7 @@ namespace StardewModdingAPI.Web.Framework.RewriteRules
     internal class RedirectToUrlRule : IRule
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>Get the new URL to which to redirect (or <c>null</c> to skip).</summary>
         private readonly Func<HttpRequest, string> NewUrl;

@@ -11,7 +11,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
     internal class DataHelper : BaseHelper, IDataHelper
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>Encapsulates SMAPI's JSON file parsing.</summary>
         private readonly JsonHelper JsonHelper;

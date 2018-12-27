@@ -8,7 +8,7 @@ namespace StardewModdingAPI.Framework.Content
     internal class AssetDataForImage : AssetData<Texture2D>, IAssetDataForImage
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The minimum value to consider non-transparent.</summary>
         /// <remarks>On Linux/Mac, fully transparent pixels may have an alpha up to 4 for some reason.</remarks>

@@ -15,7 +15,7 @@ namespace StardewModdingAPI.Toolkit
     public class ModToolkit
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The default HTTP user agent for the toolkit.</summary>
         private readonly string UserAgent;

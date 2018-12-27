@@ -9,7 +9,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
     internal class TranslationHelper : BaseHelper, ITranslationHelper
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The name of the relevant mod for error messages.</summary>
         private readonly string ModName;

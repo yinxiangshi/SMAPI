@@ -12,7 +12,7 @@ namespace StardewModdingAPI.Internal
     internal static class EnvironmentUtility
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>Get the OS name from the system uname command.</summary>
         /// <param name="buffer">The buffer to fill with the resulting string.</param>

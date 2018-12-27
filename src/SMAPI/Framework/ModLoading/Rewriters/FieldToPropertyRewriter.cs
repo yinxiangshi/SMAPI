@@ -9,7 +9,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
     internal class FieldToPropertyRewriter : FieldFinder
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The type whose field to which references should be rewritten.</summary>
         private readonly Type Type;

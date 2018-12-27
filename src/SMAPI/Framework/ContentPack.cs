@@ -12,7 +12,7 @@ namespace StardewModdingAPI.Framework
     internal class ContentPack : IContentPack
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>Provides an API for loading content assets.</summary>
         private readonly IContentHelper Content;

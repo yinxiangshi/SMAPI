@@ -8,7 +8,7 @@ namespace StardewModdingAPI.Framework.Events
     internal abstract class ManagedEventBase<TEventHandler>
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>A human-readable name for the event.</summary>
         private readonly string EventName;

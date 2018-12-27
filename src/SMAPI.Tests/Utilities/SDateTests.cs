@@ -13,7 +13,7 @@ namespace StardewModdingAPI.Tests.Utilities
     internal class SDateTests
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>All valid seasons.</summary>
         private static readonly string[] ValidSeasons = { "spring", "summer", "fall", "winter" };

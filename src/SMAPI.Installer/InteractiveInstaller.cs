@@ -22,7 +22,7 @@ namespace StardewModdingApi.Installer
     internal class InteractiveInstaller
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The absolute path to the directory containing the files to copy into the game folder.</summary>
         private readonly string BundlePath;

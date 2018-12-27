@@ -9,7 +9,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
     internal class ReflectionHelper : BaseHelper, IReflectionHelper
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The underlying reflection helper.</summary>
         private readonly Reflector Reflector;

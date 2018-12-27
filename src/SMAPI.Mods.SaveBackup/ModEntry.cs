@@ -12,7 +12,7 @@ namespace StardewModdingAPI.Mods.SaveBackup
     public class ModEntry : Mod
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The number of backups to keep.</summary>
         private readonly int BackupsToKeep = 10;

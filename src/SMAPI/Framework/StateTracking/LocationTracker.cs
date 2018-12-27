@@ -15,7 +15,7 @@ namespace StardewModdingAPI.Framework.StateTracking
     internal class LocationTracker : IWatcher
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The underlying watchers.</summary>
         private readonly List<IWatcher> Watchers = new List<IWatcher>();

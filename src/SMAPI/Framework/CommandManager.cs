@@ -9,7 +9,7 @@ namespace StardewModdingAPI.Framework
     internal class CommandManager
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The commands registered with SMAPI.</summary>
         private readonly IDictionary<string, Command> Commands = new Dictionary<string, Command>(StringComparer.InvariantCultureIgnoreCase);

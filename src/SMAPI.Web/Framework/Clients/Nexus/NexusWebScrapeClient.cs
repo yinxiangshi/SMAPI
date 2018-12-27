@@ -13,7 +13,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.Nexus
     internal class NexusWebScrapeClient : INexusClient
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The URL for a Nexus mod page for the user, excluding the base URL, where {0} is the mod ID.</summary>
         private readonly string ModUrlFormat;

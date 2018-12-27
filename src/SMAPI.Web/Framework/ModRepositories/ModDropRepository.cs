@@ -9,7 +9,7 @@ namespace StardewModdingAPI.Web.Framework.ModRepositories
     internal class ModDropRepository : RepositoryBase
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The underlying ModDrop API client.</summary>
         private readonly IModDropClient Client;

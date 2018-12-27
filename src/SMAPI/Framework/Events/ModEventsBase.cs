@@ -4,7 +4,7 @@ namespace StardewModdingAPI.Framework.Events
     internal abstract class ModEventsBase
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The underlying event manager.</summary>
         protected readonly EventManager EventManager;

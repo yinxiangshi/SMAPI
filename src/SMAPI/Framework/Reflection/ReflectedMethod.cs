@@ -7,7 +7,7 @@ namespace StardewModdingAPI.Framework.Reflection
     internal class ReflectedMethod : IReflectedMethod
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The type that has the method.</summary>
         private readonly Type ParentType;

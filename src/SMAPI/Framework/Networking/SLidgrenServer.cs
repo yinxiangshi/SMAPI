@@ -10,7 +10,7 @@ namespace StardewModdingAPI.Framework.Networking
     internal class SLidgrenServer : LidgrenServer
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>SMAPI's implementation of the game's core multiplayer logic.</summary>
         private readonly SMultiplayer Multiplayer;

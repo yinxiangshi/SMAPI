@@ -18,7 +18,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
     internal abstract class BaseContentManager : LocalizedContentManager, IContentManager
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The central coordinator which manages content managers.</summary>
         protected readonly ContentCoordinator Coordinator;

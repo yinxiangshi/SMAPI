@@ -9,7 +9,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.ModDrop
     internal class ModDropClient : IModDropClient
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The underlying HTTP client.</summary>
         private readonly IClient Client;

@@ -9,7 +9,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
     internal class TypeReferenceRewriter : TypeFinder
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The full type name to which to find references.</summary>
         private readonly string FromTypeName;

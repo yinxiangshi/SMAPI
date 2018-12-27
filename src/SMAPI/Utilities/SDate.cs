@@ -8,7 +8,7 @@ namespace StardewModdingAPI.Utilities
     public class SDate : IEquatable<SDate>
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The internal season names in order.</summary>
         private readonly string[] Seasons = { "spring", "summer", "fall", "winter" };

@@ -8,7 +8,7 @@ namespace StardewModdingAPI
     public class SemanticVersion : ISemanticVersion
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The underlying semantic version implementation.</summary>
         private readonly ISemanticVersion Version;

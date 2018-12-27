@@ -14,7 +14,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
     internal class GameContentManager : BaseContentManager
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The assets currently being intercepted by <see cref="IAssetLoader"/> instances. This is used to prevent infinite loops when a loader loads a new asset.</summary>
         private readonly ContextHash<string> AssetsBeingLoaded = new ContextHash<string>();

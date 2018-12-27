@@ -9,7 +9,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
     internal class ContentPackHelper : BaseHelper, IContentPackHelper
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The content packs loaded for this mod.</summary>
         private readonly Lazy<IContentPack[]> ContentPacks;

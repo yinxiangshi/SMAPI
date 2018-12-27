@@ -15,7 +15,7 @@ namespace StardewModdingAPI
     internal class Program
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The absolute path to search for SMAPI's internal DLLs.</summary>
         /// <remarks>We can't use <see cref="Constants.ExecutionPath"/> directly, since <see cref="Constants"/> depends on DLLs loaded from this folder.</remarks>

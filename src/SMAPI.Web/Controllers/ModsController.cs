@@ -16,7 +16,7 @@ namespace StardewModdingAPI.Web.Controllers
     internal class ModsController : Controller
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The cache in which to store mod metadata.</summary>
         private readonly IMemoryCache Cache;

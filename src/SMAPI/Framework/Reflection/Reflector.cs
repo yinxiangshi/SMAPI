@@ -10,7 +10,7 @@ namespace StardewModdingAPI.Framework.Reflection
     internal class Reflector
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The cached fields and methods found via reflection.</summary>
         private readonly MemoryCache Cache = new MemoryCache(typeof(Reflector).FullName);

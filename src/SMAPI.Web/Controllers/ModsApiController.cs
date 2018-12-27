@@ -28,7 +28,7 @@ namespace StardewModdingAPI.Web.Controllers
     internal class ModsApiController : Controller
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The mod repositories which provide mod metadata.</summary>
         private readonly IDictionary<ModRepositoryKey, IModRepository> Repositories;

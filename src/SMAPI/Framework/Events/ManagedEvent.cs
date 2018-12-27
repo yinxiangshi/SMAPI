@@ -8,7 +8,7 @@ namespace StardewModdingAPI.Framework.Events
     internal class ManagedEvent<TEventArgs> : ManagedEventBase<EventHandler<TEventArgs>>
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The underlying event.</summary>
         private event EventHandler<TEventArgs> Event;
@@ -98,7 +98,7 @@ namespace StardewModdingAPI.Framework.Events
     internal class ManagedEvent : ManagedEventBase<EventHandler>
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The underlying event.</summary>
         private event EventHandler Event;

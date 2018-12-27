@@ -7,7 +7,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
     internal class FreezeTimeCommand : TrainerCommand
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The time of day at which to freeze time.</summary>
         internal static int FrozenTime;
