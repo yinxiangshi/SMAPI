@@ -400,7 +400,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         ** Private models
         *********/
         /// <summary>Represents a dependency from one mod to another.</summary>
-        private struct ModDependency
+        private readonly struct ModDependency
         {
             /*********
             ** Accessors
