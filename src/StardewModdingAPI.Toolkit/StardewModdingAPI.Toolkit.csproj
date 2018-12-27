@@ -5,6 +5,7 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <OutputPath>..\..\bin\$(Configuration)\SMAPI.Toolkit</OutputPath>
     <DocumentationFile>..\..\bin\$(Configuration)\SMAPI.Toolkit\$(TargetFramework)\StardewModdingAPI.Toolkit.xml</DocumentationFile>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

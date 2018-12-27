@@ -6,6 +6,7 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <OutputPath>..\..\bin\$(Configuration)\SMAPI.Toolkit.CoreInterfaces</OutputPath>
     <DocumentationFile>..\..\bin\$(Configuration)\SMAPI.Toolkit.CoreInterfaces\$(TargetFramework)\StardewModdingAPI.Toolkit.CoreInterfaces.xml</DocumentationFile>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
