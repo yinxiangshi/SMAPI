@@ -11,6 +11,9 @@
     * `Specialised.LoadStageChanged`.
   * You can now use `helper.Data.Read/WriteSaveData` as soon as the save is loaded (instead of once the world is initialised).
 
+* For the web UI:
+  * Reduced mod compatibility list's cache time.
+
 ## 2.9.3
 * For players:
   * Fixed errors hovering items in some cases with SMAPI 2.9.2.

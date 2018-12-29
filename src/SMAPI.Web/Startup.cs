@@ -50,6 +50,7 @@ namespace StardewModdingAPI.Web
         {
             // init configuration
             services
+                .Configure<ModCompatibilityListConfig>(this.Configuration.GetSection("ModCompatibilityList"))
                 .Configure<ModUpdateCheckConfig>(this.Configuration.GetSection("ModUpdateCheck"))
                 .Configure<SiteConfig>(this.Configuration.GetSection("Site"))
                 .Configure<RouteOptions>(options => options.ConstraintMap.Add("semanticVersion", typeof(VersionConstraint)))
