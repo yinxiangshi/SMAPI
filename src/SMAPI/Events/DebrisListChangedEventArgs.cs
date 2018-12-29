@@ -20,6 +20,9 @@ namespace StardewModdingAPI.Events
         /// <summary>The debris removed from the location.</summary>
         public IEnumerable<Debris> Removed { get; }
 
+        /// <summary>Whether this is the location containing the local player.</summary>
+        public bool IsCurrentLocation => object.ReferenceEquals(this.Location, Game1.player?.currentLocation);
+
 
         /*********
         ** Public methods

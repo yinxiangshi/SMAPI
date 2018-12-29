@@ -1,4 +1,4 @@
-﻿# Release notes
+# Release notes
 ## Upcoming release
 * For players:
   * Added `world_clear` console command to remove spawned or placed entities.
@@ -9,6 +9,7 @@
   * Added new [events](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Events):
     * `GameLoop.OneSecondUpdateTicking` and `OneSecondUpdateTicked`;
     * `Specialised.LoadStageChanged`.
+  * Added `e.IsCurrentLocation` event arg to `World` events.
   * You can now use `helper.Data.Read/WriteSaveData` as soon as the save is loaded (instead of once the world is initialised).
 
 * For the web UI:
