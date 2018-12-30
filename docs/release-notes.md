@@ -11,6 +11,7 @@
     * `Specialised.LoadStageChanged`.
   * Added `e.IsCurrentLocation` event arg to `World` events.
   * You can now use `helper.Data.Read/WriteSaveData` as soon as the save is loaded (instead of once the world is initialised).
+  * Increased deprecation levels from _notice_ to _info_ for APIs removed in the upcoming SMAPI 3.0.
 
 * For the web UI:
   * Reduced mod compatibility list's cache time.
