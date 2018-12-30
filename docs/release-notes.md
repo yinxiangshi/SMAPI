@@ -1,4 +1,10 @@
 # Release notes
+## 2.10.1
+Released 30 December 2018 for Stardew Valley 1.3.32.
+
+* For players:
+  * Fixed some mod integrations not working correctly in SMAPI 2.10.
+
 ## 2.10
 Released 29 December 2018 for Stardew Valley 1.3.32.
 

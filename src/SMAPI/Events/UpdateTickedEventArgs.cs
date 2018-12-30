@@ -1,5 +1,5 @@
 using System;
-using StardewValley;
+using StardewModdingAPI.Framework;
 
 namespace StardewModdingAPI.Events
 {
@@ -10,10 +10,10 @@ namespace StardewModdingAPI.Events
         ** Accessors
         *********/
         /// <summary>The number of ticks elapsed since the game started, including the current tick.</summary>
-        public uint Ticks => (uint)Game1.ticks;
+        public uint Ticks => SGame.TicksElapsed;
 
         /// <summary>Whether <see cref="Ticks"/> is a multiple of 60, which happens approximately once per second.</summary>
-        public bool IsOneSecond => Game1.ticks % 60 == 0;
+        public bool IsOneSecond => this.Ticks % 60 == 0;
 
 
         /*********

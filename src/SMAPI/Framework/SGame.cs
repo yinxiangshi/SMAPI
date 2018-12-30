@@ -109,6 +109,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>Static state to use while <see cref="Game1"/> is initialising, which happens before the <see cref="SGame"/> constructor runs.</summary>
         internal static SGameConstructorHack ConstructorHack { get; set; }
 
+        /// <summary>The number of update ticks which have already executed. This is similar to <see cref="Game1.ticks"/>, but incremented more consistently for every tick.</summary>
+        internal static uint TicksElapsed { get; private set; }
+
         /// <summary>SMAPI's content manager.</summary>
         public ContentCoordinator ContentCore { get; private set; }
 
@@ -339,6 +342,7 @@ namespace StardewModdingAPI.Framework
                 if (Game1._newDayTask != null || Game1.gameMode == Game1.loadingMode)
                 {
                     events.UnvalidatedUpdateTicking.RaiseEmpty();
+                    SGame.TicksElapsed++;
                     base.Update(gameTime);
                     events.UnvalidatedUpdateTicked.RaiseEmpty();
 #if !SMAPI_3_0_STRICT
@@ -431,6 +435,7 @@ namespace StardewModdingAPI.Framework
 
                     // suppress non-save events
                     events.UnvalidatedUpdateTicking.RaiseEmpty();
+                    SGame.TicksElapsed++;
                     base.Update(gameTime);
                     events.UnvalidatedUpdateTicked.RaiseEmpty();
 #if !SMAPI_3_0_STRICT
@@ -874,7 +879,7 @@ namespace StardewModdingAPI.Framework
                 ** Game update
                 *********/
                 // game launched
-                bool isFirstTick = Game1.ticks == 0;
+                bool isFirstTick = SGame.TicksElapsed == 0;
                 if (isFirstTick)
                     events.GameLaunched.Raise(new GameLaunchedEventArgs());
 
@@ -883,7 +888,7 @@ namespace StardewModdingAPI.Framework
                     this.OnLoadStageChanged(LoadStage.Loaded);
 
                 // update tick
-                bool isOneSecond = Game1.ticks % 60 == 0;
+                bool isOneSecond = SGame.TicksElapsed % 60 == 0;
                 events.UnvalidatedUpdateTicking.RaiseEmpty();
                 events.UpdateTicking.RaiseEmpty();
                 if (isOneSecond)
@@ -891,6 +896,7 @@ namespace StardewModdingAPI.Framework
                 try
                 {
                     this.Input.UpdateSuppression();
+                    SGame.TicksElapsed++;
                     base.Update(gameTime);
                 }
                 catch (Exception ex)
@@ -910,17 +916,17 @@ namespace StardewModdingAPI.Framework
                 if (isFirstTick)
                     events.Legacy_FirstUpdateTick.Raise();
                 events.Legacy_UpdateTick.Raise();
-                if (Game1.ticks % 2 == 0)
+                if (SGame.TicksElapsed % 2 == 0)
                     events.Legacy_SecondUpdateTick.Raise();
-                if (Game1.ticks % 4 == 0)
+                if (SGame.TicksElapsed % 4 == 0)
                     events.Legacy_FourthUpdateTick.Raise();
-                if (Game1.ticks % 8 == 0)
+                if (SGame.TicksElapsed % 8 == 0)
                     events.Legacy_EighthUpdateTick.Raise();
-                if (Game1.ticks % 15 == 0)
+                if (SGame.TicksElapsed % 15 == 0)
                     events.Legacy_QuarterSecondTick.Raise();
-                if (Game1.ticks % 30 == 0)
+                if (SGame.TicksElapsed % 30 == 0)
                     events.Legacy_HalfSecondTick.Raise();
-                if (Game1.ticks % 60 == 0)
+                if (SGame.TicksElapsed % 60 == 0)
                     events.Legacy_OneSecondTick.Raise();
 #endif
 
@@ -1384,7 +1390,7 @@ namespace StardewModdingAPI.Framework
                                 }
                                 Game1.drawPlayerHeldObject(Game1.player);
                             }
-                            label_129:
+                        label_129:
                             if ((Game1.player.UsingTool || Game1.pickingTool) && Game1.player.CurrentTool != null && ((!Game1.player.CurrentTool.Name.Equals("Seeds") || Game1.pickingTool) && (Game1.currentLocation.Map.GetLayer("Front").PickTile(new Location(Game1.player.getStandingX(), (int)Game1.player.Position.Y - 38), Game1.viewport.Size) != null && Game1.currentLocation.Map.GetLayer("Front").PickTile(new Location(Game1.player.getStandingX(), Game1.player.getStandingY()), Game1.viewport.Size) == null)))
                                 Game1.drawTool(Game1.player);
                             if (Game1.currentLocation.Map.GetLayer("AlwaysFront") != null)
