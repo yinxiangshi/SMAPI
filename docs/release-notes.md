@@ -1,17 +1,17 @@
 # Release notes
-## Upcoming release
+## 2.10
+Released 29 December 2018 for Stardew Valley 1.3.32.
+
 * For players:
   * Added `world_clear` console command to remove spawned or placed entities.
-  * Minor performance improvement.
+  * Minor performance improvements.
   * Tweaked installer to reduce antivirus false positives.
 
 * For modders:
-  * Added new [events](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Events):
-    * `GameLoop.OneSecondUpdateTicking` and `OneSecondUpdateTicked`;
-    * `Specialised.LoadStageChanged`.
+  * Added [events](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Events): `GameLoop.OneSecondUpdateTicking`, `GameLoop.OneSecondUpdateTicked`, and `Specialised.LoadStageChanged`.
   * Added `e.IsCurrentLocation` event arg to `World` events.
   * You can now use `helper.Data.Read/WriteSaveData` as soon as the save is loaded (instead of once the world is initialised).
-  * Increased deprecation levels from _notice_ to _info_ for APIs removed in the upcoming SMAPI 3.0.
+  * Increased deprecation levels to _info_ for the upcoming SMAPI 3.0.
 
 * For the web UI:
   * Reduced mod compatibility list's cache time.
