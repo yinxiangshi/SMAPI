@@ -14,7 +14,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.Pastebin
     internal class PastebinClient : IPastebinClient
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The underlying HTTP client.</summary>
         private readonly IClient Client;

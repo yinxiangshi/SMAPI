@@ -21,6 +21,9 @@ namespace StardewModdingAPI.Events
         /// <summary>The buildings removed from the location.</summary>
         public IEnumerable<Building> Removed { get; }
 
+        /// <summary>Whether this is the location containing the local player.</summary>
+        public bool IsCurrentLocation => object.ReferenceEquals(this.Location, Game1.player?.currentLocation);
+
 
         /*********
         ** Public methods

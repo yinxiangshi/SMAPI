@@ -7,7 +7,7 @@ namespace StardewModdingAPI.Framework.Content
     internal class AssetData<TValue> : AssetInfo, IAssetData<TValue>
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>A callback to invoke when the data is replaced (if any).</summary>
         private readonly Action<TValue> OnDataReplaced;

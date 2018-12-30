@@ -10,7 +10,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.GitHub
     internal class GitHubClient : IGitHubClient
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The URL for a GitHub API query for the latest stable release, excluding the base URL, where {0} is the organisation and project name.</summary>
         private readonly string StableReleaseUrlFormat;

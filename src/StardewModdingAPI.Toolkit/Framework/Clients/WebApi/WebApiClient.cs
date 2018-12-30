@@ -11,7 +11,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
     public class WebApiClient
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The base URL for the web API.</summary>
         private readonly Uri BaseUrl;

@@ -42,7 +42,7 @@ namespace StardewModdingAPI.Framework
     internal class SCore : IDisposable
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The log file to which to write messages.</summary>
         private readonly LogFileManager LogFile;
@@ -181,12 +181,6 @@ namespace StardewModdingAPI.Framework
                 return;
             }
 #endif
-
-            // apply game patches
-            new GamePatcher(this.Monitor).Apply(
-                new DialogueErrorPatch(this.MonitorForGame, this.Reflection),
-                new ObjectErrorPatch()
-            );
         }
 
         /// <summary>Launch SMAPI.</summary>
@@ -236,6 +230,13 @@ namespace StardewModdingAPI.Framework
                 SGame.ConstructorHack = new SGameConstructorHack(this.Monitor, this.Reflection, this.Toolkit.JsonHelper);
                 this.GameInstance = new SGame(this.Monitor, this.MonitorForGame, this.Reflection, this.EventManager, this.Toolkit.JsonHelper, this.ModRegistry, SCore.DeprecationManager, this.OnLocaleChanged, this.InitialiseAfterGameStart, this.Dispose);
                 StardewValley.Program.gamePtr = this.GameInstance;
+
+                // apply game patches
+                new GamePatcher(this.Monitor).Apply(
+                    new DialogueErrorPatch(this.MonitorForGame, this.Reflection),
+                    new ObjectErrorPatch(),
+                    new LoadForNewGamePatch(this.Reflection, this.GameInstance.OnLoadStageChanged)
+                );
 
                 // add exit handler
                 new Thread(() =>
@@ -928,7 +929,7 @@ namespace StardewModdingAPI.Framework
             // add deprecation warning for old version format
             {
                 if (mod.Manifest?.Version is Toolkit.SemanticVersion version && version.IsLegacyFormat)
-                    SCore.DeprecationManager.Warn(mod.DisplayName, "non-string manifest version", "2.8", DeprecationLevel.Notice);
+                    SCore.DeprecationManager.Warn(mod.DisplayName, "non-string manifest version", "2.8", DeprecationLevel.Info);
             }
 #endif
 

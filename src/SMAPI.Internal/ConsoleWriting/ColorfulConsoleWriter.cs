@@ -7,7 +7,7 @@ namespace StardewModdingAPI.Internal.ConsoleWriting
     internal class ColorfulConsoleWriter
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The console text color for each log level.</summary>
         private readonly IDictionary<ConsoleLogLevel, ConsoleColor> Colors;

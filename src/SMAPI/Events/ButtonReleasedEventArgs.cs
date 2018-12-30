@@ -7,7 +7,7 @@ namespace StardewModdingAPI.Events
     public class ButtonReleasedEventArgs : EventArgs
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The game's current input state.</summary>
         private readonly SInputState InputState;

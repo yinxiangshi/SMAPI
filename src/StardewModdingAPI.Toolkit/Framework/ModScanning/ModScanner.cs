@@ -11,7 +11,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
     public class ModScanner
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The JSON helper with which to read manifests.</summary>
         private readonly JsonHelper JsonHelper;

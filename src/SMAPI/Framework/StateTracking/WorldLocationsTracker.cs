@@ -13,7 +13,7 @@ namespace StardewModdingAPI.Framework.StateTracking
     internal class WorldLocationsTracker : IWatcher
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>Tracks changes to the location list.</summary>
         private readonly ICollectionWatcher<GameLocation> LocationListWatcher;

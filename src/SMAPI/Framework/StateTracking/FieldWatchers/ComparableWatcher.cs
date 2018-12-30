@@ -8,7 +8,7 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
     internal class ComparableWatcher<TValue> : IValueWatcher<TValue>
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>Get the current value.</summary>
         private readonly Func<TValue> GetValue;

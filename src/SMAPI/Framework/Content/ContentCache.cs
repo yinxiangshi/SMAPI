@@ -14,7 +14,7 @@ namespace StardewModdingAPI.Framework.Content
     internal class ContentCache
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The underlying asset cache.</summary>
         private readonly IDictionary<string, object> Cache;

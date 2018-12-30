@@ -30,6 +30,20 @@ namespace StardewModdingAPI.Framework.Events
             remove => this.EventManager.UpdateTicked.Remove(value);
         }
 
+        /// <summary>Raised once per second before the game state is updated.</summary>
+        public event EventHandler<OneSecondUpdateTickingEventArgs> OneSecondUpdateTicking
+        {
+            add => this.EventManager.OneSecondUpdateTicking.Add(value);
+            remove => this.EventManager.OneSecondUpdateTicking.Remove(value);
+        }
+
+        /// <summary>Raised once per second after the game state is updated.</summary>
+        public event EventHandler<OneSecondUpdateTickedEventArgs> OneSecondUpdateTicked
+        {
+            add => this.EventManager.OneSecondUpdateTicked.Add(value);
+            remove => this.EventManager.OneSecondUpdateTicked.Remove(value);
+        }
+
         /// <summary>Raised before the game creates a new save file.</summary>
         public event EventHandler<SaveCreatingEventArgs> SaveCreating
         {
@@ -58,7 +72,7 @@ namespace StardewModdingAPI.Framework.Events
             remove => this.EventManager.Saved.Remove(value);
         }
 
-        /// <summary>Raised after the player loads a save slot.</summary>
+        /// <summary>Raised after the player loads a save slot and the world is initialised.</summary>
         public event EventHandler<SaveLoadedEventArgs> SaveLoaded
         {
             add => this.EventManager.SaveLoaded.Add(value);

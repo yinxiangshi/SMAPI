@@ -11,7 +11,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
     internal class DataHelper : BaseHelper, IDataHelper
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>Encapsulates SMAPI's JSON file parsing.</summary>
         private readonly JsonHelper JsonHelper;
@@ -77,9 +77,9 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <exception cref="InvalidOperationException">The player hasn't loaded a save file yet or isn't the main player.</exception>
         public TModel ReadSaveData<TModel>(string key) where TModel : class
         {
-            if (!Context.IsSaveLoaded)
+            if (!Game1.hasLoadedGame)
                 throw new InvalidOperationException($"Can't use {nameof(IMod.Helper)}.{nameof(IModHelper.Data)}.{nameof(this.ReadSaveData)} when a save file isn't loaded.");
-            if (!Context.IsMainPlayer)
+            if (!Game1.IsMasterGame)
                 throw new InvalidOperationException($"Can't use {nameof(IMod.Helper)}.{nameof(IModHelper.Data)}.{nameof(this.ReadSaveData)} because this isn't the main player. (Save files are stored on the main player's computer.)");
 
             return Game1.CustomData.TryGetValue(this.GetSaveFileKey(key), out string value)
@@ -94,9 +94,9 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <exception cref="InvalidOperationException">The player hasn't loaded a save file yet or isn't the main player.</exception>
         public void WriteSaveData<TModel>(string key, TModel data) where TModel : class
         {
-            if (!Context.IsSaveLoaded)
+            if (!Game1.hasLoadedGame)
                 throw new InvalidOperationException($"Can't use {nameof(IMod.Helper)}.{nameof(IModHelper.Data)}.{nameof(this.WriteSaveData)} when a save file isn't loaded.");
-            if (!Context.IsMainPlayer)
+            if (!Game1.IsMasterGame)
                 throw new InvalidOperationException($"Can't use {nameof(IMod.Helper)}.{nameof(IModHelper.Data)}.{nameof(this.ReadSaveData)} because this isn't the main player. (Save files are stored on the main player's computer.)");
 
             string internalKey = this.GetSaveFileKey(key);

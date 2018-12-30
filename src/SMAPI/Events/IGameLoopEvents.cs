@@ -14,6 +14,12 @@ namespace StardewModdingAPI.Events
         /// <summary>Raised after the game state is updated (≈60 times per second).</summary>
         event EventHandler<UpdateTickedEventArgs> UpdateTicked;
 
+        /// <summary>Raised once per second before the game state is updated.</summary>
+        event EventHandler<OneSecondUpdateTickingEventArgs> OneSecondUpdateTicking;
+
+        /// <summary>Raised once per second after the game state is updated.</summary>
+        event EventHandler<OneSecondUpdateTickedEventArgs> OneSecondUpdateTicked;
+
         /// <summary>Raised before the game creates a new save file.</summary>
         event EventHandler<SaveCreatingEventArgs> SaveCreating;
 
@@ -26,7 +32,7 @@ namespace StardewModdingAPI.Events
         /// <summary>Raised after the game finishes writing data to the save file (except the initial save creation).</summary>
         event EventHandler<SavedEventArgs> Saved;
 
-        /// <summary>Raised after the player loads a save slot.</summary>
+        /// <summary>Raised after the player loads a save slot and the world is initialised.</summary>
         event EventHandler<SaveLoadedEventArgs> SaveLoaded;
 
         /// <summary>Raised after the game begins a new day (including when the player loads a save).</summary>

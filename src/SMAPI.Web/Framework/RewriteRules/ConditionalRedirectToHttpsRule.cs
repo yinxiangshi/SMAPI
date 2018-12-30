@@ -11,7 +11,7 @@ namespace StardewModdingAPI.Web.Framework.RewriteRules
     internal class ConditionalRedirectToHttpsRule : IRule
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>A predicate which indicates when the rule should be applied.</summary>
         private readonly Func<HttpRequest, bool> ShouldRewrite;

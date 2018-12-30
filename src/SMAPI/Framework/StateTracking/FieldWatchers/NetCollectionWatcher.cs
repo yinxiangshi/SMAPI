@@ -9,7 +9,7 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         where TValue : class, INetObject<INetSerializable>
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The field being watched.</summary>
         private readonly NetCollection<TValue> Field;

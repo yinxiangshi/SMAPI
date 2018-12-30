@@ -8,7 +8,7 @@ namespace StardewModdingAPI.Framework.Input
     internal class GamePadStateBuilder
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The current button states.</summary>
         private readonly IDictionary<SButton, ButtonState> ButtonStates;

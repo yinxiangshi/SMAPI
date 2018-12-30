@@ -13,7 +13,7 @@ namespace StardewModdingAPI
     public static class Constants
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The directory path containing the current save's data (if a save is loaded).</summary>
         private static string RawSavePath => Context.IsSaveLoaded ? Path.Combine(Constants.SavesPath, Constants.GetSaveFolderName()) : null;
@@ -29,7 +29,7 @@ namespace StardewModdingAPI
         ** Public
         ****/
         /// <summary>SMAPI's current semantic version.</summary>
-        public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("2.9.3");
+        public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("2.10.0");
 
         /// <summary>The minimum supported version of Stardew Valley.</summary>
         public static ISemanticVersion MinimumGameVersion { get; } = new GameVersion("1.3.32");

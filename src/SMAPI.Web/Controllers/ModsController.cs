@@ -16,13 +16,13 @@ namespace StardewModdingAPI.Web.Controllers
     internal class ModsController : Controller
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The cache in which to store mod metadata.</summary>
         private readonly IMemoryCache Cache;
 
         /// <summary>The number of minutes successful update checks should be cached before refetching them.</summary>
-        private readonly int SuccessCacheMinutes;
+        private readonly int CacheMinutes;
 
 
         /*********
@@ -31,12 +31,12 @@ namespace StardewModdingAPI.Web.Controllers
         /// <summary>Construct an instance.</summary>
         /// <param name="cache">The cache in which to store mod metadata.</param>
         /// <param name="configProvider">The config settings for mod update checks.</param>
-        public ModsController(IMemoryCache cache, IOptions<ModUpdateCheckConfig> configProvider)
+        public ModsController(IMemoryCache cache, IOptions<ModCompatibilityListConfig> configProvider)
         {
-            ModUpdateCheckConfig config = configProvider.Value;
+            ModCompatibilityListConfig config = configProvider.Value;
 
             this.Cache = cache;
-            this.SuccessCacheMinutes = config.SuccessCacheMinutes;
+            this.CacheMinutes = config.CacheMinutes;
         }
 
         /// <summary>Display information for all mods.</summary>
@@ -66,7 +66,7 @@ namespace StardewModdingAPI.Web.Controllers
                         .OrderBy(p => Regex.Replace(p.Name.ToLower(), "[^a-z0-9]", "")) // ignore case, spaces, and special characters when sorting
                 );
 
-                entry.AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(this.SuccessCacheMinutes);
+                entry.AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(this.CacheMinutes);
                 return model;
             });
         }

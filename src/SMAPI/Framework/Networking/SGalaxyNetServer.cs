@@ -11,7 +11,7 @@ namespace StardewModdingAPI.Framework.Networking
     internal class SGalaxyNetServer : GalaxyNetServer
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>A callback to raise when receiving a message. This receives the incoming message, a method to send a message, and a callback to run the default logic.</summary>
         private readonly Action<IncomingMessage, Action<OutgoingMessage>, Action> OnProcessingMessage;

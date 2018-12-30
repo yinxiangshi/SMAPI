@@ -19,7 +19,7 @@ namespace StardewModdingAPI.Framework
     internal class ContentCoordinator : IDisposable
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>An asset key prefix for assets from SMAPI mod folders.</summary>
         private readonly string ManagedPrefix = "SMAPI";

@@ -7,7 +7,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
     internal class FieldFinder : IInstructionHandler
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The full type name for which to find references.</summary>
         private readonly string FullTypeName;

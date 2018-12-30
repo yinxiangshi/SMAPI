@@ -15,7 +15,7 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         where TSelf : NetDictionary<TKey, TValue, TField, TSerialDict, TSelf>
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The pairs added since the last reset.</summary>
         private readonly IDictionary<TKey, TValue> PairsAdded = new Dictionary<TKey, TValue>();

@@ -10,7 +10,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.Chucklefish
     internal class ChucklefishClient : IChucklefishClient
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The URL for a mod page excluding the base URL, where {0} is the mod ID.</summary>
         private readonly string ModPageUrlFormat;

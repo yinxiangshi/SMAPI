@@ -7,7 +7,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
     internal class SetMoneyCommand : TrainerCommand
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>Whether to keep the player's money at a set value.</summary>
         private bool InfiniteMoney;

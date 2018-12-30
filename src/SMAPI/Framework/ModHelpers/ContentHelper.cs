@@ -21,7 +21,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
     internal class ContentHelper : BaseHelper, IContentHelper
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>SMAPI's core content logic.</summary>
         private readonly ContentCoordinator ContentCore;

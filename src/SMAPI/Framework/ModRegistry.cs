@@ -10,7 +10,7 @@ namespace StardewModdingAPI.Framework
     internal class ModRegistry
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The registered mod data.</summary>
         private readonly List<IModMetadata> Mods = new List<IModMetadata>();

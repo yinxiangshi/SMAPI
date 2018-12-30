@@ -31,7 +31,7 @@ namespace StardewModdingAPI.Framework
     internal class SMultiplayer : Multiplayer
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>Encapsulates monitoring and logging.</summary>
         private readonly IMonitor Monitor;

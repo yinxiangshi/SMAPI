@@ -8,7 +8,7 @@ namespace StardewModdingAPI.Events
     public class EventArgsInput : EventArgs
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The buttons to suppress.</summary>
         private readonly HashSet<SButton> SuppressButtons;

@@ -7,7 +7,7 @@ namespace StardewModdingAPI.Framework.Content
     internal class AssetInfo : IAssetInfo
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>Normalises an asset key to match the cache key.</summary>
         protected readonly Func<string, string> GetNormalisedPath;

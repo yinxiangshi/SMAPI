@@ -10,7 +10,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
     internal class ReferenceToMemberWithUnexpectedTypeFinder : IInstructionHandler
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The assembly names to which to heuristically detect broken references.</summary>
         private readonly HashSet<string> ValidateReferencesToAssemblies;

@@ -12,7 +12,7 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
     public class LogParser
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>A regex pattern matching the start of a SMAPI message.</summary>
         private readonly Regex MessageHeaderPattern = new Regex(@"^\[(?<time>\d\d:\d\d:\d\d) (?<level>[a-z]+) +(?<modName>[^\]]+)\] ", RegexOptions.Compiled | RegexOptions.IgnoreCase);

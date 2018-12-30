@@ -10,7 +10,7 @@ namespace StardewModdingAPI
     public class Translation
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The placeholder text when the translation is <c>null</c> or empty, where <c>{0}</c> is the translation key.</summary>
         internal const string PlaceholderText = "(no translation:{0})";

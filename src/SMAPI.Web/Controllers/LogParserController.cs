@@ -19,7 +19,7 @@ namespace StardewModdingAPI.Web.Controllers
     internal class LogParserController : Controller
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The site config settings.</summary>
         private readonly SiteConfig Config;

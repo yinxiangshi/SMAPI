@@ -7,7 +7,7 @@ namespace StardewModdingAPI.Framework.ModLoading
     internal class AssemblyDefinitionResolver : DefaultAssemblyResolver
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The known assemblies.</summary>
         private readonly IDictionary<string, AssemblyDefinition> Lookup = new Dictionary<string, AssemblyDefinition>();

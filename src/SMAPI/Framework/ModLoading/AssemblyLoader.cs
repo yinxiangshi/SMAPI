@@ -15,7 +15,7 @@ namespace StardewModdingAPI.Framework.ModLoading
     internal class AssemblyLoader : IDisposable
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>Encapsulates monitoring and logging.</summary>
         private readonly IMonitor Monitor;

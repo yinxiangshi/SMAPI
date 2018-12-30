@@ -21,6 +21,9 @@ namespace StardewModdingAPI.Events
         /// <summary>The large terrain features removed from the location.</summary>
         public IEnumerable<LargeTerrainFeature> Removed { get; }
 
+        /// <summary>Whether this is the location containing the local player.</summary>
+        public bool IsCurrentLocation => object.ReferenceEquals(this.Location, Game1.player?.currentLocation);
+
 
         /*********
         ** Public methods

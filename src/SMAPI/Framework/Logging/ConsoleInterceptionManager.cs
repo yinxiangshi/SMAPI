@@ -6,7 +6,7 @@ namespace StardewModdingAPI.Framework.Logging
     internal class ConsoleInterceptionManager : IDisposable
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The intercepting console writer.</summary>
         private readonly InterceptingTextWriter Output;

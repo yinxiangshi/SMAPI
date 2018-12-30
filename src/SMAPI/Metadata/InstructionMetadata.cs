@@ -13,7 +13,7 @@ namespace StardewModdingAPI.Metadata
     internal class InstructionMetadata
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The assembly names to which to heuristically detect broken references.</summary>
         /// <remarks>The current implementation only works correctly with assemblies that should always be present.</remarks>

@@ -10,7 +10,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands
     public class ModEntry : Mod
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The commands to handle.</summary>
         private ITrainerCommand[] Commands;

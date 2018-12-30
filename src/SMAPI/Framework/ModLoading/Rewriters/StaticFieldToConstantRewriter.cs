@@ -10,7 +10,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
     internal class StaticFieldToConstantRewriter<TValue> : FieldFinder
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The constant value to replace with.</summary>
         private readonly TValue Value;

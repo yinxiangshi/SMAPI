@@ -9,7 +9,7 @@ namespace StardewModdingAPI.Web.Framework.ModRepositories
     internal class NexusRepository : RepositoryBase
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The underlying Nexus Mods API client.</summary>
         private readonly INexusClient Client;

@@ -11,7 +11,7 @@ namespace StardewModdingAPI.Events
     public static class ControlEvents
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The core event manager.</summary>
         private static EventManager EventManager;

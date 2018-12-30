@@ -7,7 +7,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
     internal class SetStaminaCommand : TrainerCommand
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>Whether to keep the player's stamina at its maximum.</summary>
         private bool InfiniteStamina;

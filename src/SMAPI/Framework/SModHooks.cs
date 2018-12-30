@@ -7,7 +7,7 @@ namespace StardewModdingAPI.Framework
     internal class SModHooks : ModHooks
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>A callback to invoke before <see cref="Game1.newDayAfterFade"/> runs.</summary>
         private readonly Action BeforeNewDayAfterFade;

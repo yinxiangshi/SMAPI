@@ -14,7 +14,7 @@ namespace StardewModdingAPI.Framework.StateTracking
     internal class PlayerTracker : IDisposable
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The player's inventory as of the last reset.</summary>
         private IDictionary<Item, int> PreviousInventory;

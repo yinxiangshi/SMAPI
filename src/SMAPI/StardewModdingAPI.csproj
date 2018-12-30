@@ -27,6 +27,7 @@
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <LangVersion>latest</LangVersion>
     <LargeAddressAware Condition="'$(OS)' == 'Windows_NT'">true</LargeAddressAware>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
@@ -76,6 +77,7 @@
     <Compile Include="..\..\build\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Enums\LoadStage.cs" />
     <Compile Include="Enums\SkillType.cs" />
     <Compile Include="Events\BuildingListChangedEventArgs.cs" />
     <Compile Include="Events\ButtonPressedEventArgs.cs" />
@@ -123,6 +125,7 @@
     <Compile Include="Events\IWorldEvents.cs" />
     <Compile Include="Events\LargeTerrainFeatureListChangedEventArgs.cs" />
     <Compile Include="Events\LevelChangedEventArgs.cs" />
+    <Compile Include="Events\LoadStageChangedEventArgs.cs" />
     <Compile Include="Events\LocationEvents.cs" />
     <Compile Include="Events\LocationListChangedEventArgs.cs" />
     <Compile Include="Events\MenuChangedEventArgs.cs" />
@@ -133,6 +136,8 @@
     <Compile Include="Events\MultiplayerEvents.cs" />
     <Compile Include="Events\NpcListChangedEventArgs.cs" />
     <Compile Include="Events\ObjectListChangedEventArgs.cs" />
+    <Compile Include="Events\OneSecondUpdateTickedEventArgs.cs" />
+    <Compile Include="Events\OneSecondUpdateTickingEventArgs.cs" />
     <Compile Include="Events\PeerContextReceivedEventArgs.cs" />
     <Compile Include="Events\PeerDisconnectedEventArgs.cs" />
     <Compile Include="Events\PlayerEvents.cs" />
@@ -326,6 +331,7 @@
     <Compile Include="Framework\Monitor.cs" />
     <Compile Include="Metadata\InstructionMetadata.cs" />
     <Compile Include="Mod.cs" />
+    <Compile Include="Patches\LoadForNewGamePatch.cs" />
     <Compile Include="Patches\ObjectErrorPatch.cs" />
     <Compile Include="Patches\DialogueErrorPatch.cs" />
     <Compile Include="PatchMode.cs" />

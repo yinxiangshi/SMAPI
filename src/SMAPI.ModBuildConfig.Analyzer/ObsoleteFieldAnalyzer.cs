@@ -12,7 +12,7 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
     public class ObsoleteFieldAnalyzer : DiagnosticAnalyzer
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>Maps obsolete fields/properties to their non-obsolete equivalent.</summary>
         private readonly IDictionary<string, string> ReplacedFields = new Dictionary<string, string>

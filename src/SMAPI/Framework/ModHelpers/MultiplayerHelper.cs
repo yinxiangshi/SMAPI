@@ -9,7 +9,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
     internal class MultiplayerHelper : BaseHelper, IMultiplayerHelper
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>SMAPI's core multiplayer utility.</summary>
         private readonly SMultiplayer Multiplayer;

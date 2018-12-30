@@ -13,7 +13,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
     public class WikiClient : IDisposable
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The underlying HTTP client.</summary>
         private readonly IClient Client;

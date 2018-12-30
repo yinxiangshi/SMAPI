@@ -14,7 +14,7 @@ namespace StardewModdingAPI.Toolkit
     public class SemanticVersion : ISemanticVersion
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>A regex pattern matching a valid prerelease tag.</summary>
         internal const string TagPattern = @"(?>[a-z0-9]+[\-\.]?)+";

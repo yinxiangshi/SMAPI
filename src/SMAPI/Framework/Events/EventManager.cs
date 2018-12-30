@@ -58,6 +58,12 @@ namespace StardewModdingAPI.Framework.Events
         /// <summary>Raised after the game performs its overall update tick (≈60 times per second).</summary>
         public readonly ManagedEvent<UpdateTickedEventArgs> UpdateTicked;
 
+        /// <summary>Raised once per second before the game performs its overall update tick.</summary>
+        public readonly ManagedEvent<OneSecondUpdateTickingEventArgs> OneSecondUpdateTicking;
+
+        /// <summary>Raised once per second after the game performs its overall update tick.</summary>
+        public readonly ManagedEvent<OneSecondUpdateTickedEventArgs> OneSecondUpdateTicked;
+
         /// <summary>Raised before the game creates the save file.</summary>
         public readonly ManagedEvent<SaveCreatingEventArgs> SaveCreating;
 
@@ -70,7 +76,7 @@ namespace StardewModdingAPI.Framework.Events
         /// <summary>Raised after the game finishes writing data to the save file (except the initial save creation).</summary>
         public readonly ManagedEvent<SavedEventArgs> Saved;
 
-        /// <summary>Raised after the player loads a save slot.</summary>
+        /// <summary>Raised after the player loads a save slot and the world is initialised.</summary>
         public readonly ManagedEvent<SaveLoadedEventArgs> SaveLoaded;
 
         /// <summary>Raised after the game begins a new day, including when loading a save.</summary>
@@ -151,6 +157,9 @@ namespace StardewModdingAPI.Framework.Events
         /****
         ** Specialised
         ****/
+        /// <summary>Raised when the low-level stage in the game's loading process has changed. See notes on <see cref="ISpecialisedEvents.LoadStageChanged"/>.</summary>
+        public readonly ManagedEvent<LoadStageChangedEventArgs> LoadStageChanged;
+
         /// <summary>Raised before the game performs its overall update tick (≈60 times per second). See notes on <see cref="ISpecialisedEvents.UnvalidatedUpdateTicking"/>.</summary>
         public readonly ManagedEvent<UnvalidatedUpdateTickingEventArgs> UnvalidatedUpdateTicking;
 
@@ -377,6 +386,8 @@ namespace StardewModdingAPI.Framework.Events
             this.GameLaunched = ManageEventOf<GameLaunchedEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.GameLaunched));
             this.UpdateTicking = ManageEventOf<UpdateTickingEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.UpdateTicking));
             this.UpdateTicked = ManageEventOf<UpdateTickedEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.UpdateTicked));
+            this.OneSecondUpdateTicking = ManageEventOf<OneSecondUpdateTickingEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.OneSecondUpdateTicking));
+            this.OneSecondUpdateTicked = ManageEventOf<OneSecondUpdateTickedEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.OneSecondUpdateTicked));
             this.SaveCreating = ManageEventOf<SaveCreatingEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.SaveCreating));
             this.SaveCreated = ManageEventOf<SaveCreatedEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.SaveCreated));
             this.Saving = ManageEventOf<SavingEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.Saving));
@@ -408,6 +419,7 @@ namespace StardewModdingAPI.Framework.Events
             this.ObjectListChanged = ManageEventOf<ObjectListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.ObjectListChanged));
             this.TerrainFeatureListChanged = ManageEventOf<TerrainFeatureListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.TerrainFeatureListChanged));
 
+            this.LoadStageChanged = ManageEventOf<LoadStageChangedEventArgs>(nameof(IModEvents.Specialised), nameof(ISpecialisedEvents.LoadStageChanged));
             this.UnvalidatedUpdateTicking = ManageEventOf<UnvalidatedUpdateTickingEventArgs>(nameof(IModEvents.Specialised), nameof(ISpecialisedEvents.UnvalidatedUpdateTicking));
             this.UnvalidatedUpdateTicked = ManageEventOf<UnvalidatedUpdateTickedEventArgs>(nameof(IModEvents.Specialised), nameof(ISpecialisedEvents.UnvalidatedUpdateTicked));
 

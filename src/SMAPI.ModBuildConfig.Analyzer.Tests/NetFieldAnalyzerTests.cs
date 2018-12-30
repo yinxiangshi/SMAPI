@@ -11,7 +11,7 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
     public class NetFieldAnalyzerTests : DiagnosticVerifier
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>Sample C# mod code, with a {{test-code}} placeholder for the code in the Entry method to test.</summary>
         const string SampleProgram = @"

@@ -1,10 +1,31 @@
 # Release notes
+## 2.10
+Released 29 December 2018 for Stardew Valley 1.3.32.
+
+* For players:
+  * Added `world_clear` console command to remove spawned or placed entities.
+  * Minor performance improvements.
+  * Tweaked installer to reduce antivirus false positives.
+
+* For modders:
+  * Added [events](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Events): `GameLoop.OneSecondUpdateTicking`, `GameLoop.OneSecondUpdateTicked`, and `Specialised.LoadStageChanged`.
+  * Added `e.IsCurrentLocation` event arg to `World` events.
+  * You can now use `helper.Data.Read/WriteSaveData` as soon as the save is loaded (instead of once the world is initialised).
+  * Increased deprecation levels to _info_ for the upcoming SMAPI 3.0.
+
+* For the web UI:
+  * Reduced mod compatibility list's cache time.
+
 ## 2.9.3
+Released 16 December 2018 for Stardew Valley 1.3.32.
+
 * For players:
   * Fixed errors hovering items in some cases with SMAPI 2.9.2.
   * Fixed some multiplayer features broken when a farmhand returns to title and rejoins.
 
 ## 2.9.2
+Released 16 December 2018 for Stardew Valley 1.3.32.
+
 * For players:
   * SMAPI now prevents invalid items from crashing the game on hover.
   * Fixed some multiplayer features broken when connecting via Steam friends.
@@ -25,11 +46,15 @@
   * Added SMAPI 3.0 readiness to mod API data.
 
 ## 2.9.1
+Released 07 December 2018 for Stardew Valley 1.3.32.
+
 * For players:
   * Fixed crash in SMAPI 2.9 when constructing certain buildings.
   * Fixed error when a map asset is reloaded in rare cases.
 
 ## 2.9
+Released 07 December 2018 for Stardew Valley 1.3.32.
+
 * For players:
   * Added support for ModDrop in update checks and the mod compatibility list.
   * Added friendly error for Steam players when Steam isn't loaded.
@@ -57,12 +82,18 @@
   * Fixed compatibility list showing beta header when there's no beta in progress.
 
 ## 2.8.2
+Released 19 November 2018 for Stardew Valley 1.3.32.
+
 * Fixed game crash in MacOS with SMAPI 2.8.
 
 ## 2.8.1
+Released 19 November 2018 for Stardew Valley 1.3.32.
+
 * Fixed installer error on Windows with SMAPI 2.8.
 
 ## 2.8
+Released 19 November 2018 for Stardew Valley 1.3.32.
+
 * For players:
   * Reorganised SMAPI files:
     * Moved most SMAPI files into a `smapi-internal` subfolder (so your game folder is less messy).
@@ -130,6 +161,8 @@
   * Fixed mod web API returning a concatenated name for mods with alternate names.
 
 ## 2.7
+Released 14 August 2018 for Stardew Valley 1.3.28.
+
 * For players:
   * Updated for Stardew Valley 1.3.28.
   * Improved how mod issues are listed in the console and log.
@@ -159,6 +192,8 @@
     _These are no longer useful, even if the player still has earlier versions of SMAPI. Older versions of SMAPI won't launch in Stardew Valley 1.3 (so they won't check for updates), and newer versions of SMAPI/mods won't work with older versions of the game._
 
 ## 2.6
+Released 01 August 2018 for Stardew Valley 1.3.27.
+
 * For players:
   * Updated for Stardew Valley 1.3.
   * Added automatic save backups.
@@ -259,6 +294,8 @@
   * Updated to Mono.Cecil 0.10.
 
 ## 2.5.5
+Released 11 April 2018 for Stardew Valley 1.2.30–1.2.33.
+
 * For players:
   * Fixed mod not loaded if it has an optional dependency that's loaded but skipped.
   * Fixed mod update alerts not shown if one mod has an invalid remote version.
@@ -267,17 +304,19 @@
   * Fixed error when two content packs use different capitalisation for the same required mod ID.
   * Fixed rare crash if the game duplicates an item.
 
-* For the [log parser][]:
+* For the [log parser](https://log.smapi.io):
   * Tweaked UI.
 
 ## 2.5.4
+Released 26 March 2018 for Stardew Valley 1.2.30–1.2.33.
+
 * For players:
   * Fixed some textures not updated when a mod changes them.
   * Fixed visual bug on Linux/Mac when mods overlay textures.
   * Fixed error when mods remove an asset editor/loader.
   * Fixed minimum game version incorrectly increased in SMAPI 2.5.3.
 
-* For the [log parser][]:
+* For the [log parser](https://log.smapi.io):
   * Fixed error when log text contains certain tokens.
 
 * For modders:
@@ -287,6 +326,8 @@
   * Added support for beta update track to support upcoming Stardew Valley 1.3 beta.
 
 ## 2.5.3
+Released 13 March 2018 for Stardew Valley ~~1.2.30~~–1.2.33.
+
 * For players:
   * Simplified and improved skipped-mod messages.
   * Fixed rare crash with some combinations of manifest fields and internal mod data.
@@ -297,7 +338,7 @@
   * Fixed Linux ["magic number is wrong" errors](https://github.com/mono/mono/issues/6752) by changing default terminal order.
   * Updated compatibility list and added update checks for more mods.
 
-* For the [log parser][]:
+* For the [log parser](https://log.smapi.io):
   * Fixed incorrect filtering in some cases.
   * Fixed error if mods have duplicate names.
   * Fixed parse bugs if a mod has no author name.
@@ -306,17 +347,23 @@
   * Internal changes to support the upcoming Stardew Valley 1.3 update.
 
 ## 2.5.2
+Released 25 February 2018 for Stardew Valley 1.2.30–1.2.33.
+
 * For modders:
   * Fixed issue where replacing an asset through `asset.AsImage()` or `asset.AsDictionary()` didn't take effect.
 
-* For the [log parser][]:
+* For the [log parser](https://log.smapi.io):
   * Fixed blank page after uploading a log in some cases.
 
 ## 2.5.1
+Released 24 February 2018 for Stardew Valley 1.2.30–1.2.33.
+
 * For players:
   * Fixed event error in rare cases.
 
 ## 2.5
+Released 24 February 2018 for Stardew Valley 1.2.30–1.2.33.
+
 * For players:
   * **Added support for [content packs](https://stardewvalleywiki.com/Modding:Content_packs)**.  
     <small>_Content packs are collections of files for a SMAPI mod to load. These can be installed directly under `Mods` like a normal SMAPI mod, get automatic update and compatibility checks, and provide convenient APIs to the mods that read them._</small>
@@ -336,7 +383,7 @@
   * Fixed unhelpful error when a translation file has duplicate keys due to case-insensitivity.
   * Fixed some JSON field names being case-sensitive.
 
-* For the [log parser][]:
+* For the [log parser](https://log.smapi.io):
   * Added support for SMAPI 2.5 content packs.
   * Reduced download size when viewing a parsed log with repeated errors.
   * Improved parse error handling.
@@ -347,6 +394,8 @@
   * Reimplemented log parser with serverside parsing and vue.js on the frontend.
 
 ## 2.4
+Released 24 January 2018 for Stardew Valley 1.2.30–1.2.33.
+
 * For players:
   * Fixed visual map glitch in rare cases.
   * Fixed error parsing JSON files which have curly quotes.
@@ -355,7 +404,7 @@
   * Fixed intermittent errors (e.g. 'collection has been modified') with some mods when loading a save.
   * Fixed compatibility with Linux Terminator terminal.
 
-* For the [log parser][]:
+* For the [log parser](https://log.smapi.io):
   * Fixed error parsing logs with zero installed mods.
 
 * For modders:
@@ -372,6 +421,8 @@
   * Overhauled input handling to support future input events.
 
 ## 2.3
+Released 26 December 2017 for Stardew Valley 1.2.30–1.2.33.
+
 * For players:
   * Added a user-friendly [download page](https://smapi.io).
   * Improved cryptic libgdiplus errors on Mac when Mono isn't installed.
@@ -388,10 +439,12 @@
   * Fixed issue where a mod could change the cursor position reported to other mods.
   * Updated compatibility list.
 
-* For the [log parser][]:
+* For the [log parser](https://log.smapi.io):
   * Fixed broken favicon.
 
 ## 2.2
+Released 02 December 2017 for Stardew Valley 1.2.30–1.2.33.
+
 * For players:
   * Fixed error when a mod loads custom assets on Linux/Mac.
   * Fixed error when checking for updates on Linux/Mac due to API HTTPS redirect.
@@ -400,7 +453,7 @@
   * Improved error when a mod has an invalid `EntryDLL` filename format.
   * Updated compatibility list.
 
-* For the [log parser][]:
+* For the [log parser](https://log.smapi.io):
   * Logs no longer expire after a week.
   * Fixed error when uploading very large logs.
   * Slightly improved the UI.
@@ -412,8 +465,10 @@
   * Fixed input events' `e.SuppressButton()` method not working with mouse buttons.
 
 ## 2.1
+Released 01 November 2017 for Stardew Valley 1.2.30–1.2.33.
+
 * For players:
-  * Added a [log parser][] site.
+  * Added a [log parser](https://log.smapi.io) site.
   * Added better Steam instructions to the SMAPI installer.
   * Renamed the bundled _TrainerMod_ to _ConsoleCommands_ to make its purpose clearer.
   * Removed the game's test messages from the console log.
@@ -440,6 +495,8 @@
   * Added the installer version and platform to the installer window title to simplify troubleshooting.
 
 ## 2.0
+Released 14 October 2017 for Stardew Valley 1.2.30–1.2.33.
+
 ### Release highlights
 * **Mod update checks**  
   SMAPI now checks if your mods have updates available, and will alert you in the console with a convenient link to the
@@ -526,6 +583,8 @@ For SMAPI developers:
 * Removed SMAPI 1._x_ compatibility mode.
 
 ## 1.15.4
+Released 09 September 2017 for Stardew Valley 1.2.30–1.2.33.
+
 For players:
 * Fixed errors when loading some custom maps on Linux/Mac or using XNB Loader.
 * Fixed errors in rare cases when a mod calculates an in-game date.
@@ -537,10 +596,14 @@ For SMAPI developers:
 * Internal changes to support the upcoming SMAPI 2.0 release.
 
 ## 1.15.3
+Released 23 August 2017 for Stardew Valley 1.2.30–1.2.33.
+
 For players:
 * Fixed mods being wrongly marked as duplicate in some cases.
 
 ## 1.15.2
+Released 23 August 2017 for Stardew Valley 1.2.30–1.2.33.
+
 For players:
 * Improved errors when a mod DLL can't be loaded.
 * Improved errors when using very old versions of Stardew Valley.
@@ -558,6 +621,8 @@ For SMAPI developers:
 * Internal changes to support the upcoming SMAPI 2.0 release.
 
 ## 1.15.1
+Released 10 July 2017 for Stardew Valley 1.2.30–1.2.33.
+
 For players:
 * Fixed controller mod input broken in 1.15.
 * Fixed TrainerMod packaging unneeded files.
@@ -566,6 +631,8 @@ For modders:
 * Fixed mod registry lookups by unique ID not being case-insensitive.
 
 ## 1.15
+Released 08 July 2017 for Stardew Valley 1.2.30–1.2.31.
+
 For players:
 * Cleaned up SMAPI console a bit.
 * Revamped TrainerMod's item commands:
@@ -597,7 +664,7 @@ For SMAPI developers:
 * Compiling SMAPI now uses your `~/stardewvalley.targets` file if present.
 
 ## 1.14
-See [log](https://github.com/Pathoschild/SMAPI/compare/1.13...1.14).
+Released 02 July 2017 for Stardew Valley 1.2.30.
 
 For players:
 * SMAPI now shows friendly errors when...
@@ -625,12 +692,14 @@ For modders:
 * Deprecated `TimeEvents.DayOfMonthChanged`, `SeasonOfYearChanged`, and `YearOfGameChanged`. These don't do what most modders think they do and aren't very reliable, since they depend on the SMAPI/game lifecycle which can change. You should use `TimeEvents.AfterDayStarted` or `SaveEvents.BeforeSave` instead.
 
 ## 1.13.1
+Released 19 May 2017 for Stardew Valley 1.2.26–1.2.29.
+
 For players:
 * Fixed errors when loading a mod with no name or version.
 * Fixed mods with no manifest `Name` field having no name (SMAPI will now shows their filename).
 
 ## 1.13
-See [log](https://github.com/Pathoschild/SMAPI/compare/1.12...1.13).
+Released 19 May 2017 for Stardew Valley 1.2.26–1.2.29.
 
 For players:
 * SMAPI now recovers better from mod draw errors and detects when the error is irrecoverable.
@@ -653,7 +722,7 @@ For mod developers:
 * Internal refactoring for upcoming features.
 
 ## 1.12
-See [log](https://github.com/Pathoschild/SMAPI/compare/1.11...1.12).
+Released 03 May 2017 for Stardew Valley 1.2.26–1.2.29.
 
 For players:
 * The installer now lets you choose the install path if you have multiple copies of the game, instead of using the first path found.
@@ -669,7 +738,7 @@ For mod developers:
 * Fixed content API error when loading an XNB from the mod folder on Mac.
 
 ## 1.11
-See [log](https://github.com/Pathoschild/SMAPI/compare/1.10...1.11).
+Released 30 April 2017 for Stardew Valley 1.2.26.
 
 For players:
 * SMAPI now detects issues in `ObjectInformation.xnb` files caused by outdated XNB mods.
@@ -685,7 +754,7 @@ For mod developers:
 * Fixed value-changed events being raised when the player loads a save due to values being initialised.
 
 ## 1.10
-See [log](https://github.com/Pathoschild/SMAPI/compare/1.9...1.10).
+Released 24 April 2017 for Stardew Valley 1.2.26.
 
 For players:
 * Updated to Stardew Valley 1.2.
@@ -705,7 +774,7 @@ For mod developers:
 * Fixed `Constants.SaveFolderName` not set for a new game until the save is created.
 
 ## 1.9
-See [log](https://github.com/Pathoschild/SMAPI/compare/1.8...1.9).
+Released 05 April 2017 for Stardew Valley 1.1–1.11.
 
 For players:
 * SMAPI now detects incompatible mods and disables them before they cause problems.
@@ -747,7 +816,7 @@ For SMAPI developers:
 * Added support for debugging SMAPI on Linux/Mac if supported by the editor.
 
 ## 1.8
-See [log](https://github.com/Pathoschild/SMAPI/compare/1.7...1.8).
+Released 04 February 2017 for Stardew Valley 1.1–1.11.
 
 For players:
 * Mods no longer generate `.cache` subfolders.
@@ -772,7 +841,7 @@ For SMAPI developers:
   * reduces log verbosity.
 
 ## 1.7
-See [log](https://github.com/Pathoschild/SMAPI/compare/1.6...1.7).
+Released 19 January 2017 for Stardew Valley 1.1–1.11.
 
 For players:
 * The console now shows the folder path where mods should be added.
@@ -787,7 +856,7 @@ For mod developers:
 * Increased deprecation levels for `SObject`, `LogWriter` (not `Log`), and `Mod.Entry(ModHelper)` (not `Mod.Entry(IModHelper)`) to _pending removal_. Increased deprecation levels for `Mod.PerSaveConfigFolder`, `Mod.PerSaveConfigPath`, and `Version.VersionString` to _info_.
 
 ## 1.6
-See [log](https://github.com/Pathoschild/SMAPI/compare/1.5...1.6).
+Released 16 January 2017 for Stardew Valley 1.1–1.11.
 
 For players:
 * Added console commands to open the game/data folders.
@@ -812,7 +881,7 @@ For SMAPI developers:
   * Fixed issue where `TrainerMod` used older logic to detect the game path.
 
 ## 1.5
-See [log](https://github.com/Pathoschild/SMAPI/compare/1.4...1.5).
+Released 27 December 2016 for Stardew Valley 1.1–1.11.
 
 For players:
   * Added an option to disable update checks.
@@ -826,7 +895,7 @@ For developers:
   * Increased deprecation levels for `SObject`, `Extensions`, `LogWriter` (not `Log`), `SPlayer`, and `Mod.Entry(ModHelper)` (not `Mod.Entry(IModHelper)`).
 
 ## 1.4
-See [log](https://github.com/Pathoschild/SMAPI/compare/1.3...1.4).
+Released 12 December 2016 for Stardew Valley 1.1–1.11.
 
 For players:
   * SMAPI will now prevent mods from crashing your game with menu errors.
@@ -845,14 +914,14 @@ For developers:
   * Fixed an issue where you couldn't debug into an assembly because it was copied into the `.cache` directory. That will now only happen if necessary.
 
 ## 1.3
-See [log](https://github.com/Pathoschild/SMAPI/compare/1.2...1.3).
+Released 04 December 2016 for Stardew Valley 1.1–1.11.
 
 For players:
   * You can now run most mods on any platform (e.g. run Windows mods on Linux/Mac).
   * Fixed the normal uninstaller not removing files added by the 'SMAPI for developers' installer.
 
 ## 1.2
-See [log](https://github.com/Pathoschild/SMAPI/compare/1.1.1...1.2).
+Released 25 November 2016 for Stardew Valley 1.1–1.11.
 
 For players:
   * Fixed compatibility with some older mods.
@@ -863,15 +932,23 @@ For players:
 For developers:
   * Improved logging to show `ReflectionTypeLoadException` details when it's caught by SMAPI.
 
+## 1.1.1
+Released 19 November 2016 for Stardew Valley 1.1–1.11.
+
+For players:
+  * Fixed compatibility with some older mods.
+  * Fixed race condition where some mods would sometimes crash because the game wasn't ready yet.
+
+For developers:
+  * Fixed deprecation warnings being repeated if the mod can't be identified.
+
 ## 1.1
-See [log](https://github.com/Pathoschild/SMAPI/compare/1.0...1.1.1).
+Released 17 November 2016 for Stardew Valley 1.1–1.11.
 
 For players:
   * Fixed console exiting immediately when some exceptions occur.
   * Fixed an error in 1.0 when mod uses `config.json` but the file doesn't exist.
   * Fixed critical errors being saved to a separate log file.
-  * Fixed compatibility with some older mods.<sup>1.1.1</sup>
-  * Fixed race condition where some mods would sometimes crash because the game wasn't ready yet.<sup>1.1.1</sup>
 
 For developers:
   * Added new logging interface:
@@ -882,10 +959,9 @@ For developers:
     * more consistent and intuitive console color scheme.
   * Added optional `MinimumApiVersion` to `manifest.json`.
   * Added emergency interrupt feature for dangerous mods.
-  * Fixed deprecation warnings being repeated if the mod can't be identified.<sup>1.1.1</sup>
 
 ## 1.0
-See [log](https://github.com/Pathoschild/SMAPI/compare/0.40.1.1-3...1.0).
+Released 11 November 2016 for Stardew Valley 1.1–1.11.
 
 For players:
   * Added support for Linux and Mac.
@@ -914,46 +990,40 @@ For SMAPI developers:
   * Internal cleanup & refactoring.
 
 ## 0.x
-* 0.40.1.1 (2016-09-30, [log](https://github.com/Pathoschild/SMAPI/compare/0.40.0...0.40.1.1-3))
+* 0.40.1.1 (30 September 2016)
   * Added support for Stardew Valley 1.1.
-
-* 0.40.0 (2016-04-05, [log](https://github.com/Pathoschild/SMAPI/compare/0.39.7...0.40.0))
+* 0.40.0 (05 April 2016)
   * Fixed an error that ocurred during minigames.
-
-* 0.39.7 (2016-04-04, [log](https://github.com/Pathoschild/SMAPI/compare/0.39.6...0.39.7))
+* 0.39.7 (04 April 2016)
   * Added 'no check' graphics events that are triggered regardless of game's if checks.
-
-* 0.39.6 (2016-04-01, [log](https://github.com/Pathoschild/SMAPI/compare/0.39.5...0.39.6))
+* 0.39.6 (01 April 2016)
   * Added game & SMAPI versions to log.
   * Fixed conflict in graphics tick events.
   * Bug fixes.
-
-* 0.39.5 (2016-03-30, [log](https://github.com/Pathoschild/SMAPI/compare/0.39.4...0.39.5))
-* 0.39.4 (2016-03-29, [log](https://github.com/Pathoschild/SMAPI/compare/0.39.3...0.39.4))
-* 0.39.3 (2016-03-28, [log](https://github.com/Pathoschild/SMAPI/compare/0.39.2...0.39.3))
-* 0.39.2 (2016-03-23, [log](https://github.com/Pathoschild/SMAPI/compare/0.39.1...0.39.2))
-* 0.39.1 (2016-03-23, [log](https://github.com/Pathoschild/SMAPI/compare/0.38.8...0.39.1))
-* 0.38.8 (2016-03-23, [log](https://github.com/Pathoschild/SMAPI/compare/0.38.7...0.38.8))
-* 0.38.7 (2016-03-23, [log](https://github.com/Pathoschild/SMAPI/compare/0.38.6...0.38.7))
-* 0.38.6 (2016-03-22, [log](https://github.com/Pathoschild/SMAPI/compare/0.38.5...0.38.6))
-* 0.38.5 (2016-03-22, [log](https://github.com/Pathoschild/SMAPI/compare/0.38.4...0.38.5))
-* 0.38.4 (2016-03-21, [log](https://github.com/Pathoschild/SMAPI/compare/0.38.3...0.38.4))
-* 0.38.3 (2016-03-21, [log](https://github.com/Pathoschild/SMAPI/compare/0.38.2...0.38.3))
-* 0.38.2 (2016-03-21, [log](https://github.com/Pathoschild/SMAPI/compare/0.38.0...0.38.2))
-* 0.38.0 (2016-03-20, [log](https://github.com/Pathoschild/SMAPI/compare/0.38.1...0.38.0))
-* 0.38.1 (2016-03-20, [log](https://github.com/Pathoschild/SMAPI/compare/0.37.3...0.38.1))
-* 0.37.3 (2016-03-08, [log](https://github.com/Pathoschild/SMAPI/compare/0.37.2...0.37.3))
-* 0.37.2 (2016-03-07, [log](https://github.com/Pathoschild/SMAPI/compare/0.37.1...0.37.2))
-* 0.37.1 (2016-03-06, [log](https://github.com/Pathoschild/SMAPI/compare/0.36...0.37.1))
-* 0.36 (2016-03-04, [log](https://github.com/Pathoschild/SMAPI/compare/0.37...0.36))
-* 0.37 (2016-03-04, [log](https://github.com/Pathoschild/SMAPI/compare/0.35...0.37))
-* 0.35 (2016-03-02, [log](https://github.com/Pathoschild/SMAPI/compare/0.34...0.35))
-* 0.34 (2016-03-02, [log](https://github.com/Pathoschild/SMAPI/compare/0.33...0.34))
-* 0.33 (2016-03-02, [log](https://github.com/Pathoschild/SMAPI/compare/0.32...0.33))
-* 0.32 (2016-03-02, [log](https://github.com/Pathoschild/SMAPI/compare/0.31...0.32))
-* 0.31 (2016-03-02, [log](https://github.com/Pathoschild/SMAPI/compare/0.3...0.31))
-* 0.3 (2016-03-01, [log](https://github.com/Pathoschild/SMAPI/compare/Alpha0.2...0.3))
-* 0.2 (2016-02-29, [log](https://github.com/Pathoschild/SMAPI/compare/Alpha0.1...Alpha0.2)
-* 0.1 (2016-02-28)
-
-[log parser]: https://log.smapi.io
+* 0.39.5 (30 March 2016)
+* 0.39.4 (29 March 2016)
+* 0.39.3 (28 March 2016)
+* 0.39.2 (23 March 2016)
+* 0.39.1 (23 March 2016)
+* 0.38.8 (23 March 2016)
+* 0.38.7 (23 March 2016)
+* 0.38.6 (22 March 2016)
+* 0.38.5 (22 March 2016)
+* 0.38.4 (21 March 2016)
+* 0.38.3 (21 March 2016)
+* 0.38.2 (21 March 2016)
+* 0.38.0 (20 March 2016)
+* 0.38.1 (20 March 2016)
+* 0.37.3 (08 March 2016)
+* 0.37.2 (07 March 2016)
+* 0.37.1 (06 March 2016)
+* 0.36 (04 March 2016)
+* 0.37 (04 March 2016)
+* 0.35 (02 March 2016)
+* 0.34 (02 March 2016)
+* 0.33 (02 March 2016)
+* 0.32 (02 March 2016)
+* 0.31 (02 March 2016)
+* 0.3 (01 March 2016)
+* 0.2 (29 February 2016)
+* 0.1 (28 February 2016)

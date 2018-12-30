@@ -8,7 +8,7 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
     internal class NetValueWatcher<TValue, TNetField> : BaseDisposableWatcher, IValueWatcher<TValue> where TNetField : NetFieldBase<TValue, TNetField>
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The field being watched.</summary>
         private readonly NetFieldBase<TValue, TNetField> Field;

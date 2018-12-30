@@ -8,7 +8,7 @@ namespace StardewModdingAPI.Framework
     internal class DeprecationManager
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The deprecations which have already been logged (as 'mod name::noun phrase::version').</summary>
         private readonly HashSet<string> LoggedDeprecations = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
@@ -38,7 +38,7 @@ namespace StardewModdingAPI.Framework
         /// <summary>Log a deprecation warning for the old-style events.</summary>
         public void WarnForOldEvents()
         {
-            this.Warn("legacy events", "2.9", DeprecationLevel.Notice);
+            this.Warn("legacy events", "2.9", DeprecationLevel.Info);
         }
 
         /// <summary>Log a deprecation warning.</summary>
@@ -71,7 +71,13 @@ namespace StardewModdingAPI.Framework
             foreach (DeprecationWarning warning in this.QueuedWarnings.OrderBy(p => p.ModName).ThenBy(p => p.NounPhrase))
             {
                 // build message
+#if SMAPI_3_0_STRICT
                 string message = $"{warning.ModName ?? "An unknown mod"} uses deprecated code ({warning.NounPhrase} is deprecated since SMAPI {warning.Version}).";
+#else
+                string message = warning.NounPhrase == "legacy events"
+                    ? $"{warning.ModName ?? "An unknown mod"} uses deprecated code (legacy events are deprecated since SMAPI {warning.Version})."
+                    : $"{warning.ModName ?? "An unknown mod"} uses deprecated code ({warning.NounPhrase} is deprecated since SMAPI {warning.Version}).";
+#endif
                 if (warning.ModName == null)
                     message += $"{Environment.NewLine}{Environment.StackTrace}";
 

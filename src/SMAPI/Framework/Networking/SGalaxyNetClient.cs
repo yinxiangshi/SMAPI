@@ -9,7 +9,7 @@ namespace StardewModdingAPI.Framework.Networking
     internal class SGalaxyNetClient : GalaxyNetClient
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>A callback to raise when receiving a message. This receives the incoming message, a method to send an arbitrary message, and a callback to run the default logic.</summary>
         private readonly Action<IncomingMessage, Action<OutgoingMessage>, Action> OnProcessingMessage;

@@ -10,7 +10,7 @@ namespace StardewModdingAPI.Web.Framework
     public class AllowLargePostsAttribute : Attribute, IAuthorizationFilter, IOrderedFilter
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The underlying form options.</summary>
         private readonly FormOptions FormOptions;
