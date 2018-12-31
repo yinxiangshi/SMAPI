@@ -2,6 +2,7 @@
 ## Upcoming
 
 * For players:
+  * Added mod page link to 'missing dependency' errors for the most common dependencies.
   * Restrict to Stardew Valley 1.3.33 or earlier (to avoid confusion when SDV 1.3.35 is released).
 
 * For modders:

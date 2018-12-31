@@ -52,6 +52,70 @@
    */
   "ModData": {
     /*********
+    ** Common dependencies for friendly errors
+    *********/
+    "Advanced Location Loader": {
+      "ID": "Entoarox.AdvancedLocationLoader",
+      "Default | UpdateKey": "Nexus:2270"
+    },
+
+    "Content Patcher": {
+      "ID": "Pathoschild.ContentPatcher",
+      "Default | UpdateKey": "Nexus:1915"
+    },
+
+    "Custom Farming Redux": {
+      "ID": "Platonymous.CustomFarming",
+      "Default | UpdateKey": "Nexus:991"
+    },
+
+    "Custom Shirts": {
+      "ID": "Platonymous.CustomShirts",
+      "Default | UpdateKey": "Nexus:2416"
+    },
+
+    "Entoarox Framework": {
+      "ID": "Entoarox.EntoaroxFramework",
+      "Default | UpdateKey": "Nexus:2269"
+    },
+
+    "JSON Assets": {
+      "ID": "spacechase0.JsonAssets",
+      "Default | UpdateKey": "Nexus:1720"
+    },
+
+    "Mail Framework": {
+      "ID": "DIGUS.MailFrameworkMod",
+      "Default | UpdateKey": "Nexus:1536"
+    },
+
+    "MTN": {
+      "ID": "SgtPickles.MTN",
+      "Default | UpdateKey": "Nexus:2256",
+      "~1.2.5 | Status": "AssumeBroken" // replaces Game1.multiplayer, which breaks SMAPI's multiplayer API.
+    },
+
+    "PyTK": {
+      "ID": "Platonymous.Toolkit",
+      "Default | UpdateKey": "Nexus:1726"
+    },
+
+    "SpaceCore": {
+      "ID": "spacechase0.SpaceCore",
+      "Default | UpdateKey": "Nexus:1348"
+    },
+
+    "Stardust Core": {
+      "ID": "Omegasis.StardustCore",
+      "Default | UpdateKey": "Nexus:2341"
+    },
+
+    "TMX Loader": {
+      "ID": "Platonymous.TMXLoader",
+      "Default | UpdateKey": "Nexus:1820"
+    },
+
+    /*********
     ** Content packs
     *********/
     "Canon-Friendly Dialogue Expansion": {
@@ -172,11 +236,6 @@
       "MapRemoteVersions": { "1.1": "1.0" } // manifest not updated
     },
 
-    "Custom Shirts": {
-      "ID": "Platonymous.CustomShirts",
-      "Default | UpdateKey": "Nexus:2416" // keep for dependencies
-    },
-
     "Dynamic Horses": {
       "ID": "Bpendragon-DynamicHorses",
       "MapRemoteVersions": { "1.2": "1.1-release" } // manifest not updated
@@ -258,11 +317,6 @@
       "~1.0.1   | Status": "AssumeBroken" // doesn't do anything as of SDV 1.2.33 (bad Harmony patch?)
     },
 
-    "MTN": {
-      "ID": "SgtPickles.MTN",
-      "~1.2.5 | Status": "AssumeBroken" // replaces Game1.multiplayer, which breaks SMAPI's multiplayer API.
-    },
-
     "Multiple Sprites and Portraits On Rotation (File Loading)": {
       "ID": "FileLoading",
       "MapLocalVersions": { "1.1": "1.12" }
@@ -288,11 +342,6 @@
       "ID": "PhthaloBlue.OmniFarm",
       "FormerIDs": "BlueMod_OmniFarm", // changed in 2.0.2-pathoschild-update
       "Default | UpdateKey": "GitHub:lambui/StardewValleyMod_OmniFarm"
-    },
-
-    "PyTK - Platonymous Toolkit": {
-      "ID": "Platonymous.Toolkit",
-      "Default | UpdateKey": "Nexus:1726"
     },
 
     "Point-and-Plant": {
