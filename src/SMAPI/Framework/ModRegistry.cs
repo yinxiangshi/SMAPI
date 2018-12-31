@@ -33,8 +33,14 @@ namespace StardewModdingAPI.Framework
         public void Add(IModMetadata metadata)
         {
             this.Mods.Add(metadata);
-            if (!metadata.IsContentPack)
-                this.ModNamesByAssembly[metadata.Mod.GetType().Assembly.FullName] = metadata;
+        }
+
+        /// <summary>Track a mod's assembly for use via <see cref="GetFrom"/>.</summary>
+        /// <param name="metadata">The mod metadata.</param>
+        /// <param name="modAssembly">The mod assembly.</param>
+        public void TrackAssemblies(IModMetadata metadata, Assembly modAssembly)
+        {
+            this.ModNamesByAssembly[modAssembly.FullName] = metadata;
         }
 
         /// <summary>Get metadata for all loaded mods.</summary>
