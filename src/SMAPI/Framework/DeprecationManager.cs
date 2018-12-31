@@ -62,7 +62,7 @@ namespace StardewModdingAPI.Framework
                 return;
 
             // queue warning
-            this.QueuedWarnings.Add(new DeprecationWarning(source, nounPhrase, version, severity));
+            this.QueuedWarnings.Add(new DeprecationWarning(source, nounPhrase, version, severity, Environment.StackTrace));
         }
 
         /// <summary>Print any queued messages.</summary>
@@ -79,7 +79,7 @@ namespace StardewModdingAPI.Framework
                     : $"{warning.ModName ?? "An unknown mod"} uses deprecated code ({warning.NounPhrase} is deprecated since SMAPI {warning.Version}).";
 #endif
                 if (warning.ModName == null)
-                    message += $"{Environment.NewLine}{Environment.StackTrace}";
+                    message += $"{Environment.NewLine}{warning.StackTrace}";
 
                 // log message
                 switch (warning.Level)
