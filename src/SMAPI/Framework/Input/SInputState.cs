@@ -20,6 +20,9 @@ namespace StardewModdingAPI.Framework.Input
         /// <summary>The cursor position on the screen adjusted for the zoom level.</summary>
         private CursorPosition CursorPositionImpl;
 
+        /// <summary>The player's last known tile position.</summary>
+        private Vector2? LastPlayerTile;
+
 
         /*********
         ** Accessors
@@ -83,13 +86,14 @@ namespace StardewModdingAPI.Framework.Input
                 MouseState realMouse = Mouse.GetState();
                 var activeButtons = this.DeriveStatuses(this.ActiveButtons, realKeyboard, realMouse, realController);
                 Vector2 cursorAbsolutePos = new Vector2(realMouse.X + Game1.viewport.X, realMouse.Y + Game1.viewport.Y);
+                Vector2? playerTilePos = Context.IsPlayerFree ? Game1.player.getTileLocation() : (Vector2?)null;
 
                 // update real states
                 this.ActiveButtons = activeButtons;
                 this.RealController = realController;
                 this.RealKeyboard = realKeyboard;
                 this.RealMouse = realMouse;
-                if (this.CursorPositionImpl?.AbsolutePixels != cursorAbsolutePos)
+                if (cursorAbsolutePos != this.CursorPositionImpl?.AbsolutePixels || playerTilePos != this.LastPlayerTile)
                     this.CursorPositionImpl = this.GetCursorPosition(realMouse, cursorAbsolutePos);
 
                 // update suppressed states
