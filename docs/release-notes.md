@@ -3,6 +3,9 @@
 
 * For players:
   * Added mod page link to 'missing dependency' errors for the most common dependencies.
+  * Improved save backups:
+    * When compression isn't available on Linux, SMAPI now falls back to uncompressed backups.
+    * SMAPI now keeps the first backup created for the day, instead of the last one.
   * Restrict to Stardew Valley 1.3.33 or earlier (to avoid confusion when SDV 1.3.35 is released).
   * Fixed 'unknown mod' deprecation warnings showing a stack trace when developers mode not enabled.
   * Fixed 'unknown mod' deprecation warnings when they occur in the Mod constructor.
