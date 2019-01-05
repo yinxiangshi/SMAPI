@@ -146,6 +146,11 @@
       }
     },
 
+    "Always Scroll Map": {
+      "ID": "bcmpinc.AlwaysScrollMap",
+      "~0.6 | Status": "AssumeBroken" // breaks newer versions of bcmpinc mods (per bcmpinc's request)
+    },
+
     "Animal Mood Fix": {
       "ID": "GPeters-AnimalMoodFix",
       "~ | Status": "Obsolete",
@@ -215,6 +220,11 @@
       "MapLocalVersions": { "1.2-beta": "1.2" }
     },
 
+    "Craft Counter": {
+      "ID": "bcmpinc.CraftCounter",
+      "~0.6 | Status": "AssumeBroken" // breaks newer versions of bcmpinc mods (per bcmpinc's request)
+    },
+
     "Crafting Counter": {
       "ID": "lolpcgaming.CraftingCounter",
       "MapRemoteVersions": { "1.1": "1.0" } // not updated in manifest
@@ -266,6 +276,11 @@
       "~1.1 | Status": "AssumeBroken" // runtime errors with Harmony 1.2.0.1 in SMAPI 2.8+
     },
 
+    "Fix Animal Tools": {
+      "ID": "bcmpinc.FixAnimalTools",
+      "~0.6 | Status": "AssumeBroken" // breaks newer versions of bcmpinc mods (per bcmpinc's request)
+    },
+
     "Fix Scythe Exp": {
       "ID": "bcmpinc.FixScytheExp",
       "~0.3 | Status": "AssumeBroken" // broke in 1.3: Exception from HarmonyInstance "bcmpinc.FixScytheExp" [...] Bad label content in ILGenerator.
@@ -278,7 +293,7 @@
 
     "Grass Growth": {
       "ID": "bcmpinc.GrassGrowth",
-      "~0.3 | Status": "AssumeBroken" // broke in 1.3.29 (runtime errors: System.IndexOutOfRangeException: Could not find instruction sequence)
+      "~0.6 | Status": "AssumeBroken" // breaks newer versions of bcmpinc mods (per bcmpinc's request)
     },
 
     "Hunger Mod (skn)": {
@@ -315,6 +330,11 @@
     "Move Faster": {
       "ID": "shuaiz.MoveFasterMod",
       "~1.0.1   | Status": "AssumeBroken" // doesn't do anything as of SDV 1.2.33 (bad Harmony patch?)
+    },
+
+    "Movement Speed": {
+      "ID": "bcmpinc.MovementSpeed",
+      "~0.6 | Status": "AssumeBroken" // breaks newer versions of bcmpinc mods (per bcmpinc's request)
     },
 
     "Multiple Sprites and Portraits On Rotation (File Loading)": {
@@ -413,6 +433,11 @@
       "~3.0.1 | Status": "AssumeBroken" // broke in SMAPI 2.6-beta.16 due to reflection into SMAPI internals
     },
 
+    "Stardew Hack": {
+      "ID": "bcmpinc.StardewHack",
+      "~0.6 | Status": "AssumeBroken" // breaks newer versions of bcmpinc mods (per bcmpinc's request)
+    },
+
     "Stardew Notification": {
       "ID": "stardewnotification",
       "Default | UpdateKey": "GitHub:monopandora/StardewNotification"
@@ -430,6 +455,11 @@
       "~1.0.2 | Status": "AssumeBroken" // broke in SDV 1.3 (runtime errors)
     },
 
+    "Tilled Soil Decay": {
+      "ID": "bcmpinc.TilledSoilDecay",
+      "~0.6 | Status": "AssumeBroken" // breaks newer versions of bcmpinc mods (per bcmpinc's request)
+    },
+
     "Time Reminder": {
       "ID": "KoihimeNakamura.TimeReminder",
       "MapLocalVersions": { "1.0-20170314": "1.0.2" }
@@ -440,9 +470,19 @@
       "Default | UpdateKey": "GitHub:mralbobo/stardew-tool-charging"
     },
 
+    "Tree Spread": {
+      "ID": "bcmpinc.TreeSpread",
+      "~0.6 | Status": "AssumeBroken" // breaks newer versions of bcmpinc mods (per bcmpinc's request)
+    },
+
     "Variable Grass": {
       "ID": "dantheman999.VariableGrass",
       "Default | UpdateKey": "GitHub:dantheman999301/StardewMods"
+    },
+
+    "Yet Another Harvest With Scythe Mod": {
+      "ID": "bcmpinc.HarvestWithScythe",
+      "~0.6 | Status": "AssumeBroken" // breaks newer versions of bcmpinc mods (per bcmpinc's request)
     },
 
     "Zoom Out Extreme": {
