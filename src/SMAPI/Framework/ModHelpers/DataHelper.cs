@@ -97,7 +97,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
             if (!Game1.hasLoadedGame)
                 throw new InvalidOperationException($"Can't use {nameof(IMod.Helper)}.{nameof(IModHelper.Data)}.{nameof(this.WriteSaveData)} when a save file isn't loaded.");
             if (!Game1.IsMasterGame)
-                throw new InvalidOperationException($"Can't use {nameof(IMod.Helper)}.{nameof(IModHelper.Data)}.{nameof(this.ReadSaveData)} because this isn't the main player. (Save files are stored on the main player's computer.)");
+                throw new InvalidOperationException($"Can't use {nameof(IMod.Helper)}.{nameof(IModHelper.Data)}.{nameof(this.WriteSaveData)} because this isn't the main player. (Save files are stored on the main player's computer.)");
 
             string internalKey = this.GetSaveFileKey(key);
             if (data != null)
