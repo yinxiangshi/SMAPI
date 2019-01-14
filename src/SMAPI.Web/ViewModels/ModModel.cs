@@ -107,7 +107,7 @@ namespace StardewModdingAPI.Web.ViewModels
             if (entry.ModDropID.HasValue)
             {
                 anyFound = true;
-                yield return new ModLinkModel($"https://www.moddrop.com/sdv/mod/467243/{entry.ModDropID}", "ModDrop");
+                yield return new ModLinkModel($"https://www.moddrop.com/sdv/mod/{entry.ModDropID}", "ModDrop");
             }
 
             // fallback

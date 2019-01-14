@@ -11,6 +11,9 @@
   * Fixed 'unknown mod' deprecation warnings when they occur in the Mod constructor.
   * Updated compatibility list.
 
+* For the web UI:
+  * Fixed broken ModDrop links in the compatibility list.
+
 * For modders:
   * Fixed `Constants.SaveFolderName` and `CurrentSavePath` not available during early load stages when using `Specialised.LoadStageChanged` event.
   * Fixed `LoadStage.SaveParsed` raised before the parsed save data is available.
