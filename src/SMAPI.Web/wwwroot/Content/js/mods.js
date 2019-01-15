@@ -127,6 +127,21 @@ smapi.modList = function (mods) {
         // set overall compatibility
         mod.LatestCompatibility = mod.BetaCompatibility || mod.Compatibility;
 
+        // set SMAPI 3.0 display text
+        switch (mod.Smapi3Status) {
+            case "ok":
+                mod.Smapi3DisplayText = "✓";
+                break;
+
+            case "broken":
+                mod.Smapi3DisplayText = "✖";
+                break;
+
+            default:
+                mod.Smapi3DisplayText = "↻ " + mod.Smapi3Status;
+                break;
+        }
+
         // concatenate searchable text
         mod.SearchableText = [mod.Name, mod.AlternateNames, mod.Author, mod.AlternateAuthors, mod.Compatibility.Summary, mod.BrokeIn];
         if (mod.Compatibility.UnofficialVersion)

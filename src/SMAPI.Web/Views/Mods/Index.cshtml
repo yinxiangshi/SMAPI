@@ -93,12 +93,10 @@
                     <span v-else class="mod-closed-source">no source</span>
                 </td>
                 <td v-show="showAdvanced">
-                    <template v-if="mod.LatestCompatibility.Status == 'ok' || mod.LatestCompatibility.Status == 'unofficial' || mod.Smapi3Status == 'ok' || mod.Smapi3Status == 'soon'">
-                        <small v-if="mod.Smapi3Status == 'ok'">✓</small>
-                        <small v-else-if="mod.Smapi3Status == 'broken'">✖</small>
-                        <small v-else-if="mod.Smapi3Status == 'soon' && mod.Smapi3Url"><a v-bind:href="mod.Smapi3Url">↻ soon</a></small>
-                        <small v-else>↻ {{mod.Smapi3Status}}</small>
-                    </template>
+                    <small v-if="mod.LatestCompatibility.Status == 'ok' || mod.LatestCompatibility.Status == 'unofficial' || mod.Smapi3Status == 'ok' || mod.Smapi3Status == 'soon' || mod.Smapi3Url">
+                        <a v-if="mod.Smapi3Url" v-bind:href="mod.Smapi3Url">{{mod.Smapi3DisplayText}}</a>
+                        <template v-else>{{mod.Smapi3DisplayText}}</template>
+                    </small>
                 </td>
                 <td>
                     <small><a v-bind:href="'#' + mod.Slug">#</a></small>
