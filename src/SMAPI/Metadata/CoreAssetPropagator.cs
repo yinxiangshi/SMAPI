@@ -677,7 +677,13 @@ namespace StardewModdingAPI.Metadata
         /// <summary>Get all locations in the game.</summary>
         private IEnumerable<GameLocation> GetLocations()
         {
-            foreach (GameLocation location in Game1.locations)
+            // get available root locations
+            IEnumerable<GameLocation> rootLocations = Game1.locations;
+            if (SaveGame.loaded?.locations != null)
+                rootLocations = rootLocations.Concat(SaveGame.loaded.locations);
+
+            // yield root + child locations
+            foreach (GameLocation location in rootLocations)
             {
                 yield return location;
 

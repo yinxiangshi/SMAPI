@@ -1,6 +1,5 @@
 # Release notes
-## Upcoming
-
+## Upcoming release
 * For players:
   * Added mod page link to 'missing dependency' errors for the most common dependencies.
   * Improved save backups:
@@ -15,6 +14,7 @@
   * Fixed broken ModDrop links in the compatibility list.
 
 * For modders:
+  * Asset changes are now propagated into the parsed save being loaded if applicable.
   * Fixed `Constants.SaveFolderName` and `CurrentSavePath` not available during early load stages when using `Specialised.LoadStageChanged` event.
   * Fixed `LoadStage.SaveParsed` raised before the parsed save data is available.
   * Fixed 'unknown mod' deprecation warnings showing the wrong stack trace.
