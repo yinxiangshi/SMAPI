@@ -1,4 +1,8 @@
 # Release notes
+## 2.11-beta
+* For players:
+  * Updated for Stardew Valley 1.3.35 beta. **Not compatible with non-beta versions of the game.**
+
 ## 2.10.2
 Released 08 January 2019 for Stardew Valley 1.3.32–33.
 
