@@ -4,15 +4,16 @@
     ViewData["Title"] = "SMAPI mod compatibility";
 }
 @section Head {
-    <link rel="stylesheet" href="~/Content/css/mods.css?r=20181122" />
+    <link rel="stylesheet" href="~/Content/css/mods.css?r=20190125" />
     <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/tablesorter@2.31.0/dist/js/jquery.tablesorter.combined.min.js" crossorigin="anonymous"></script>
-    <script src="~/Content/js/mods.js?r=20181122"></script>
+    <script src="~/Content/js/mods.js?r=20190125"></script>
     <script>
         $(function() {
             var data = @Json.Serialize(Model.Mods, new JsonSerializerSettings { Formatting = Formatting.None });
-            smapi.modList(data);
+            var enableBeta = @Json.Serialize(Model.BetaVersion != null);
+            smapi.modList(data, enableBeta);
         });
     </script>
 }
@@ -39,7 +40,7 @@
             <label for="show-advanced">show advanced info and options</label>
             <div id="filters" v-show="showAdvanced">
                 <div v-for="(filterGroup, key) in filters">
-                    {{key}}: <span v-for="filter in filterGroup" v-bind:class="{ active: filter.value }"><input type="checkbox" v-bind:id="filter.id" v-model="filter.value" v-on:change="applyFilters" /> <label v-bind:for="filter.id">{{filter.label}}</label></span>
+                    {{filterGroup.label}}: <span v-for="filter in filterGroup.value" v-bind:class="{ active: filter.value }"><input type="checkbox" v-bind:id="filter.id" v-model="filter.value" v-on:change="applyFilters" /> <label v-bind:for="filter.id">{{filter.label}}</label></span>
                 </div>
             </div>
         </div>

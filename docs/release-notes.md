@@ -12,6 +12,7 @@
   * Updated compatibility list.
 
 * For the web UI:
+  * Added beta status filter to compatibility list.
   * Fixed broken ModDrop links in the compatibility list.
 
 * For modders:
