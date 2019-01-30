@@ -529,7 +529,7 @@ namespace StardewModdingAPI.Metadata
         {
             // get NPCs
             NPC[] characters = this.GetCharacters()
-                .Where(npc => this.GetNormalisedPath(npc.Sprite.textureName.Value) == key)
+                .Where(npc => npc.Sprite != null && this.GetNormalisedPath(npc.Sprite.textureName.Value) == key)
                 .ToArray();
             if (!characters.Any())
                 return false;
