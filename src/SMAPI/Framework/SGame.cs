@@ -513,7 +513,7 @@ namespace StardewModdingAPI.Framework
                 else if (Context.IsWorldReady && Context.LoadStage != LoadStage.Ready)
                 {
                     // print context
-                    string context = $"Context: loaded saved game '{Constants.SaveFolderName}', starting {Game1.currentSeason} {Game1.dayOfMonth} Y{Game1.year}.";
+                    string context = $"Context: loaded save '{Constants.SaveFolderName}', starting {Game1.currentSeason} {Game1.dayOfMonth} Y{Game1.year}, locale set to {this.ContentCore.Language}.";
                     if (Context.IsMultiplayer)
                     {
                         int onlineCount = Game1.getOnlineFarmers().Count();
