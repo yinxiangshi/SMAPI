@@ -19,6 +19,7 @@
   * Asset changes are now propagated into the parsed save being loaded if applicable.
   * Added locale to context trace logs.
   * Fixed error loading custom map tilesheets in some cases.
+  * Fixed error when swapping maps mid-session for a location with interior doors.
   * Fixed `Constants.SaveFolderName` and `CurrentSavePath` not available during early load stages when using `Specialised.LoadStageChanged` event.
   * Fixed `LoadStage.SaveParsed` raised before the parsed save data is available.
   * Fixed 'unknown mod' deprecation warnings showing the wrong stack trace.

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Microsoft.Xna.Framework;
+using System.Reflection;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Framework.Reflection;
 using StardewValley;
@@ -99,8 +99,21 @@ namespace StardewModdingAPI.Metadata
                 {
                     if (!string.IsNullOrWhiteSpace(location.mapPath.Value) && this.GetNormalisedPath(location.mapPath.Value) == key)
                     {
+                        // reload map data
                         this.Reflection.GetMethod(location, "reloadMap").Invoke();
                         this.Reflection.GetMethod(location, "updateWarps").Invoke();
+
+                        // reload doors
+                        {
+                            Type interiorDoorDictType = Type.GetType($"StardewValley.InteriorDoorDictionary, {Constants.GameAssemblyName}", throwOnError: true);
+                            ConstructorInfo constructor = interiorDoorDictType.GetConstructor(new[] { typeof(GameLocation) });
+                            if (constructor == null)
+                                throw new InvalidOperationException("Can't reset location doors: constructor not found for InteriorDoorDictionary type.");
+                            object instance = constructor.Invoke(new object[] { location });
+
+                            this.Reflection.GetField<object>(location, "interiorDoors").SetValue(instance);
+                        }
+
                         anyChanged = true;
                     }
                 }
