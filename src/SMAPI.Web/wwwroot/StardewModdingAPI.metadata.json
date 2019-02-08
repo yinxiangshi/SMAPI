@@ -92,7 +92,7 @@
     "MTN": {
       "ID": "SgtPickles.MTN",
       "Default | UpdateKey": "Nexus:2256",
-      "~1.2.5 | Status": "AssumeBroken" // replaces Game1.multiplayer, which breaks SMAPI's multiplayer API.
+      "~1.2.6 | Status": "AssumeBroken" // replaces Game1.multiplayer, which breaks SMAPI's multiplayer API.
     },
 
     "PyTK": {
