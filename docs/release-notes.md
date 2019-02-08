@@ -1,6 +1,9 @@
 # Release notes
 ## Upcoming
 
+* For players:
+  * Restrict to Stardew Valley 1.3.33 or earlier (to avoid confusion when SDV 1.3.35 is released).
+
 * For modders:
   * Fixed `Constants.SaveFolderName` and `CurrentSavePath` not available during early load stages when using `Specialised.LoadStageChanged` event.
   * Fixed `LoadStage.SaveParsed` raised before the parsed save data is available.
