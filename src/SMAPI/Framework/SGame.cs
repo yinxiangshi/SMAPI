@@ -290,6 +290,7 @@ namespace StardewModdingAPI.Framework
 
                 // Run async tasks synchronously to avoid issues due to mod events triggering
                 // concurrently with game code.
+                bool saveParsed = false;
                 if (Game1.currentLoader != null)
                 {
                     this.Monitor.Log("Game loader synchronising...", LogLevel.Trace);
@@ -298,7 +299,8 @@ namespace StardewModdingAPI.Framework
                         // raise load stage changed
                         switch (Game1.currentLoader.Current)
                         {
-                            case 20:
+                            case 20 when (!saveParsed && SaveGame.loaded != null):
+                                saveParsed = true;
                                 this.OnLoadStageChanged(LoadStage.SaveParsed);
                                 break;
 
