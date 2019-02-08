@@ -1,13 +1,14 @@
 # Release notes
-## Upcoming release
+## 2.10.2
+Released 08 January 2019 for Stardew Valley 1.3.32–33.
+
 * For players:
-  * Added mod page link to 'missing dependency' errors for the most common dependencies.
-  * Improved save backups:
-    * When compression isn't available on Linux, SMAPI now falls back to uncompressed backups.
-    * SMAPI now keeps the first backup created for the day, instead of the last one.
-  * Restrict to Stardew Valley 1.3.33 or earlier (to avoid confusion when SDV 1.3.35 is released).
+  * SMAPI now keeps the first save backup created for the day, instead of the last one.
+  * Fixed save backup for some Linux/Mac players. (When compression isn't available, SMAPI will now create uncompressed backups instead.)
+  * Fixed some common dependencies not linking to the mod page in 'missing mod' errors.
   * Fixed 'unknown mod' deprecation warnings showing a stack trace when developers mode not enabled.
   * Fixed 'unknown mod' deprecation warnings when they occur in the Mod constructor.
+  * Fixed confusing error message when using SMAPI 2.10._x_ with Stardew Valley 1.3.35+.
   * Tweaked XNB mod message for clarity.
   * Updated compatibility list.
 
@@ -28,13 +29,13 @@
   * Deprecated `EntryDll` values whose capitalisation don't match the actual file. (This works on Windows, but causes errors for Linux/Mac players.)
 
 ## 2.10.1
-Released 30 December 2018 for Stardew Valley 1.3.32.
+Released 30 December 2018 for Stardew Valley 1.3.32–33.
 
 * For players:
   * Fixed some mod integrations not working correctly in SMAPI 2.10.
 
 ## 2.10
-Released 29 December 2018 for Stardew Valley 1.3.32.
+Released 29 December 2018 for Stardew Valley 1.3.32–33.
 
 * For players:
   * Added `world_clear` console command to remove spawned or placed entities.
