@@ -69,9 +69,6 @@ namespace StardewModdingAPI.Framework
         /// <remarks>Skipping a few frames ensures the game finishes initialising the world before mods try to change it.</remarks>
         private readonly Countdown AfterLoadTimer = new Countdown(5);
 
-        /// <summary>The current stage in the game's loading process.</summary>
-        private LoadStage LoadStage = LoadStage.None;
-
         /// <summary>Whether the game is saving and SMAPI has already raised <see cref="IGameLoopEvents.Saving"/>.</summary>
         private bool IsBetweenSaveEvents;
 
@@ -215,12 +212,12 @@ namespace StardewModdingAPI.Framework
         internal void OnLoadStageChanged(LoadStage newStage)
         {
             // nothing to do
-            if (newStage == this.LoadStage)
+            if (newStage == Context.LoadStage)
                 return;
 
             // update data
-            LoadStage oldStage = this.LoadStage;
-            this.LoadStage = newStage;
+            LoadStage oldStage = Context.LoadStage;
+            Context.LoadStage = newStage;
             if (newStage == LoadStage.None)
             {
                 this.Monitor.Log("Context: returned to title", LogLevel.Trace);
@@ -511,7 +508,7 @@ namespace StardewModdingAPI.Framework
                 *********/
                 if (wasWorldReady && !Context.IsWorldReady)
                     this.OnLoadStageChanged(LoadStage.None);
-                else if (Context.IsWorldReady && this.LoadStage != LoadStage.Ready)
+                else if (Context.IsWorldReady && Context.LoadStage != LoadStage.Ready)
                 {
                     // print context
                     string context = $"Context: loaded saved game '{Constants.SaveFolderName}', starting {Game1.currentSeason} {Game1.dayOfMonth} Y{Game1.year}.";
@@ -884,7 +881,7 @@ namespace StardewModdingAPI.Framework
                     events.GameLaunched.Raise(new GameLaunchedEventArgs());
 
                 // preloaded
-                if (Context.IsSaveLoaded && this.LoadStage != LoadStage.Loaded && this.LoadStage != LoadStage.Ready)
+                if (Context.IsSaveLoaded && Context.LoadStage != LoadStage.Loaded && Context.LoadStage != LoadStage.Ready)
                     this.OnLoadStageChanged(LoadStage.Loaded);
 
                 // update tick

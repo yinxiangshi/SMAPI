@@ -1,4 +1,9 @@
 # Release notes
+## Upcoming
+
+* For modders:
+  * Fixed `Constants.SaveFolderName` and `CurrentSavePath` not available during early load stages when using `Specialised.LoadStageChanged` event.
+
 ## 2.10.1
 Released 30 December 2018 for Stardew Valley 1.3.32.
 
