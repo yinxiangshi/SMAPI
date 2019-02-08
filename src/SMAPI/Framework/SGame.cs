@@ -69,9 +69,6 @@ namespace StardewModdingAPI.Framework
         /// <remarks>Skipping a few frames ensures the game finishes initialising the world before mods try to change it.</remarks>
         private readonly Countdown AfterLoadTimer = new Countdown(5);
 
-        /// <summary>The current stage in the game's loading process.</summary>
-        private LoadStage LoadStage = LoadStage.None;
-
         /// <summary>Whether the game is saving and SMAPI has already raised <see cref="IGameLoopEvents.Saving"/>.</summary>
         private bool IsBetweenSaveEvents;
 
@@ -215,12 +212,12 @@ namespace StardewModdingAPI.Framework
         internal void OnLoadStageChanged(LoadStage newStage)
         {
             // nothing to do
-            if (newStage == this.LoadStage)
+            if (newStage == Context.LoadStage)
                 return;
 
             // update data
-            LoadStage oldStage = this.LoadStage;
-            this.LoadStage = newStage;
+            LoadStage oldStage = Context.LoadStage;
+            Context.LoadStage = newStage;
             if (newStage == LoadStage.None)
             {
                 this.Monitor.Log("Context: returned to title", LogLevel.Trace);
@@ -293,6 +290,7 @@ namespace StardewModdingAPI.Framework
 
                 // Run async tasks synchronously to avoid issues due to mod events triggering
                 // concurrently with game code.
+                bool saveParsed = false;
                 if (Game1.currentLoader != null)
                 {
                     this.Monitor.Log("Game loader synchronising...", LogLevel.Trace);
@@ -301,7 +299,8 @@ namespace StardewModdingAPI.Framework
                         // raise load stage changed
                         switch (Game1.currentLoader.Current)
                         {
-                            case 20:
+                            case 20 when (!saveParsed && SaveGame.loaded != null):
+                                saveParsed = true;
                                 this.OnLoadStageChanged(LoadStage.SaveParsed);
                                 break;
 
@@ -511,10 +510,10 @@ namespace StardewModdingAPI.Framework
                 *********/
                 if (wasWorldReady && !Context.IsWorldReady)
                     this.OnLoadStageChanged(LoadStage.None);
-                else if (Context.IsWorldReady && this.LoadStage != LoadStage.Ready)
+                else if (Context.IsWorldReady && Context.LoadStage != LoadStage.Ready)
                 {
                     // print context
-                    string context = $"Context: loaded saved game '{Constants.SaveFolderName}', starting {Game1.currentSeason} {Game1.dayOfMonth} Y{Game1.year}.";
+                    string context = $"Context: loaded save '{Constants.SaveFolderName}', starting {Game1.currentSeason} {Game1.dayOfMonth} Y{Game1.year}, locale set to {this.ContentCore.Language}.";
                     if (Context.IsMultiplayer)
                     {
                         int onlineCount = Game1.getOnlineFarmers().Count();
@@ -884,7 +883,7 @@ namespace StardewModdingAPI.Framework
                     events.GameLaunched.Raise(new GameLaunchedEventArgs());
 
                 // preloaded
-                if (Context.IsSaveLoaded && this.LoadStage != LoadStage.Loaded && this.LoadStage != LoadStage.Ready)
+                if (Context.IsSaveLoaded && Context.LoadStage != LoadStage.Loaded && Context.LoadStage != LoadStage.Ready)
                     this.OnLoadStageChanged(LoadStage.Loaded);
 
                 // update tick

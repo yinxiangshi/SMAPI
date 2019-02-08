@@ -1,12 +1,41 @@
 # Release notes
+## 2.10.2
+Released 08 January 2019 for Stardew Valley 1.3.32–33.
+
+* For players:
+  * SMAPI now keeps the first save backup created for the day, instead of the last one.
+  * Fixed save backup for some Linux/Mac players. (When compression isn't available, SMAPI will now create uncompressed backups instead.)
+  * Fixed some common dependencies not linking to the mod page in 'missing mod' errors.
+  * Fixed 'unknown mod' deprecation warnings showing a stack trace when developers mode not enabled.
+  * Fixed 'unknown mod' deprecation warnings when they occur in the Mod constructor.
+  * Fixed confusing error message when using SMAPI 2.10._x_ with Stardew Valley 1.3.35+.
+  * Tweaked XNB mod message for clarity.
+  * Updated compatibility list.
+
+* For the web UI:
+  * Added beta status filter to compatibility list.
+  * Fixed broken ModDrop links in the compatibility list.
+
+* For modders:
+  * Asset changes are now propagated into the parsed save being loaded if applicable.
+  * Added locale to context trace logs.
+  * Fixed error loading custom map tilesheets in some cases.
+  * Fixed error when swapping maps mid-session for a location with interior doors.
+  * Fixed `Constants.SaveFolderName` and `CurrentSavePath` not available during early load stages when using `Specialised.LoadStageChanged` event.
+  * Fixed `LoadStage.SaveParsed` raised before the parsed save data is available.
+  * Fixed 'unknown mod' deprecation warnings showing the wrong stack trace.
+  * Fixed `e.Cursor` in input events showing wrong grab tile when player using a controller moves without moving the viewpoint.
+  * Fixed incorrect 'bypassed safety checks' warning for mods using the new `Specialised.LoadStageChanged` event in 2.10.
+  * Deprecated `EntryDll` values whose capitalisation don't match the actual file. (This works on Windows, but causes errors for Linux/Mac players.)
+
 ## 2.10.1
-Released 30 December 2018 for Stardew Valley 1.3.32.
+Released 30 December 2018 for Stardew Valley 1.3.32–33.
 
 * For players:
   * Fixed some mod integrations not working correctly in SMAPI 2.10.
 
 ## 2.10
-Released 29 December 2018 for Stardew Valley 1.3.32.
+Released 29 December 2018 for Stardew Valley 1.3.32–33.
 
 * For players:
   * Added `world_clear` console command to remove spawned or placed entities.

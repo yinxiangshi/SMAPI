@@ -20,8 +20,11 @@ namespace StardewModdingAPI.Mods.SaveBackup
         /// <summary>The absolute path to the folder in which to store save backups.</summary>
         private readonly string BackupFolder = Path.Combine(Constants.ExecutionPath, "save-backups");
 
+        /// <summary>A unique label for the save backup to create.</summary>
+        private readonly string BackupLabel = $"{DateTime.UtcNow:yyyy-MM-dd} - SMAPI {Constants.ApiVersion} with Stardew Valley {Game1.version}";
+
         /// <summary>The name of the save archive to create.</summary>
-        private readonly string FileName = $"{DateTime.UtcNow:yyyy-MM-dd} - SMAPI {Constants.ApiVersion} with Stardew Valley {Game1.version}.zip";
+        private string FileName => $"{this.BackupLabel}.zip";
 
 
         /*********
@@ -59,8 +62,9 @@ namespace StardewModdingAPI.Mods.SaveBackup
             {
                 // get target path
                 FileInfo targetFile = new FileInfo(Path.Combine(backupFolder.FullName, this.FileName));
-                if (targetFile.Exists)
-                    targetFile.Delete(); //return;
+                DirectoryInfo fallbackDir = new DirectoryInfo(Path.Combine(backupFolder.FullName, this.BackupLabel));
+                if (targetFile.Exists || fallbackDir.Exists)
+                    return;
 
                 // create zip
                 // due to limitations with the bundled Mono on Mac, we can't reference System.IO.Compression.
@@ -70,12 +74,23 @@ namespace StardewModdingAPI.Mods.SaveBackup
                     case GamePlatform.Linux:
                     case GamePlatform.Windows:
                         {
-                            Assembly coreAssembly = Assembly.Load("System.IO.Compression, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089") ?? throw new InvalidOperationException("Can't load System.IO.Compression assembly.");
-                            Assembly fsAssembly = Assembly.Load("System.IO.Compression.FileSystem, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089") ?? throw new InvalidOperationException("Can't load System.IO.Compression assembly.");
-                            Type compressionLevelType = coreAssembly.GetType("System.IO.Compression.CompressionLevel") ?? throw new InvalidOperationException("Can't load CompressionLevel type.");
-                            Type zipFileType = fsAssembly.GetType("System.IO.Compression.ZipFile") ?? throw new InvalidOperationException("Can't load ZipFile type.");
-                            MethodInfo createMethod = zipFileType.GetMethod("CreateFromDirectory", new[] { typeof(string), typeof(string), compressionLevelType, typeof(bool) }) ?? throw new InvalidOperationException("Can't load ZipFile.CreateFromDirectory method.");
-                            createMethod.Invoke(null, new object[] { Constants.SavesPath, targetFile.FullName, CompressionLevel.Fastest, false });
+                            try
+                            {
+                                // create compressed backup
+                                Assembly coreAssembly = Assembly.Load("System.IO.Compression, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089") ?? throw new InvalidOperationException("Can't load System.IO.Compression assembly.");
+                                Assembly fsAssembly = Assembly.Load("System.IO.Compression.FileSystem, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089") ?? throw new InvalidOperationException("Can't load System.IO.Compression assembly.");
+                                Type compressionLevelType = coreAssembly.GetType("System.IO.Compression.CompressionLevel") ?? throw new InvalidOperationException("Can't load CompressionLevel type.");
+                                Type zipFileType = fsAssembly.GetType("System.IO.Compression.ZipFile") ?? throw new InvalidOperationException("Can't load ZipFile type.");
+                                MethodInfo createMethod = zipFileType.GetMethod("CreateFromDirectory", new[] { typeof(string), typeof(string), compressionLevelType, typeof(bool) }) ?? throw new InvalidOperationException("Can't load ZipFile.CreateFromDirectory method.");
+                                createMethod.Invoke(null, new object[] { Constants.SavesPath, targetFile.FullName, CompressionLevel.Fastest, false });
+                            }
+                            catch (Exception ex) when (ex is TypeLoadException || ex.InnerException is TypeLoadException)
+                            {
+                                // create uncompressed backup if compression fails
+                                this.Monitor.Log("Couldn't zip the save backup, creating uncompressed backup instead.");
+                                this.Monitor.Log(ex.ToString(), LogLevel.Trace);
+                                this.RecursiveCopy(new DirectoryInfo(Constants.SavesPath), fallbackDir, copyRoot: false);
+                            }
                         }
                         break;
 
@@ -130,6 +145,33 @@ namespace StardewModdingAPI.Mods.SaveBackup
             {
                 this.Monitor.Log("Couldn't remove old backups (see log file for details).", LogLevel.Warn);
                 this.Monitor.Log(ex.ToString(), LogLevel.Trace);
+            }
+        }
+
+        /// <summary>Recursively copy a directory or file.</summary>
+        /// <param name="source">The file or folder to copy.</param>
+        /// <param name="targetFolder">The folder to copy into.</param>
+        /// <param name="copyRoot">Whether to copy the root folder itself, or <c>false</c> to only copy its contents.</param>
+        /// <remarks>Derived from the SMAPI installer code.</remarks>
+        private void RecursiveCopy(FileSystemInfo source, DirectoryInfo targetFolder, bool copyRoot = true)
+        {
+            if (!targetFolder.Exists)
+                targetFolder.Create();
+
+            switch (source)
+            {
+                case FileInfo sourceFile:
+                    sourceFile.CopyTo(Path.Combine(targetFolder.FullName, sourceFile.Name));
+                    break;
+
+                case DirectoryInfo sourceDir:
+                    DirectoryInfo targetSubfolder = copyRoot ? new DirectoryInfo(Path.Combine(targetFolder.FullName, sourceDir.Name)) : targetFolder;
+                    foreach (var entry in sourceDir.EnumerateFileSystemInfos())
+                        this.RecursiveCopy(entry, targetSubfolder);
+                    break;
+
+                default:
+                    throw new NotSupportedException($"Unknown filesystem info type '{source.GetType().FullName}'.");
             }
         }
     }

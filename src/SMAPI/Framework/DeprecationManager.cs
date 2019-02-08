@@ -62,7 +62,7 @@ namespace StardewModdingAPI.Framework
                 return;
 
             // queue warning
-            this.QueuedWarnings.Add(new DeprecationWarning(source, nounPhrase, version, severity));
+            this.QueuedWarnings.Add(new DeprecationWarning(source, nounPhrase, version, severity, Environment.StackTrace));
         }
 
         /// <summary>Print any queued messages.</summary>
@@ -78,26 +78,39 @@ namespace StardewModdingAPI.Framework
                     ? $"{warning.ModName ?? "An unknown mod"} uses deprecated code (legacy events are deprecated since SMAPI {warning.Version})."
                     : $"{warning.ModName ?? "An unknown mod"} uses deprecated code ({warning.NounPhrase} is deprecated since SMAPI {warning.Version}).";
 #endif
-                if (warning.ModName == null)
-                    message += $"{Environment.NewLine}{Environment.StackTrace}";
 
-                // log message
+                // get log level
+                LogLevel level;
                 switch (warning.Level)
                 {
                     case DeprecationLevel.Notice:
-                        this.Monitor.Log(message, LogLevel.Trace);
+                        level = LogLevel.Trace;
                         break;
 
                     case DeprecationLevel.Info:
-                        this.Monitor.Log(message, LogLevel.Debug);
+                        level = LogLevel.Debug;
                         break;
 
                     case DeprecationLevel.PendingRemoval:
-                        this.Monitor.Log(message, LogLevel.Warn);
+                        level = LogLevel.Warn;
                         break;
 
                     default:
                         throw new NotSupportedException($"Unknown deprecation level '{warning.Level}'.");
+                }
+
+                // log message
+                if (warning.ModName != null)
+                    this.Monitor.Log(message, level);
+                else
+                {
+                    if (level == LogLevel.Trace)
+                        this.Monitor.Log($"{message}\n{warning.StackTrace}", level);
+                    else
+                    {
+                        this.Monitor.Log(message, level);
+                        this.Monitor.Log(warning.StackTrace);
+                    }
                 }
             }
             this.QueuedWarnings.Clear();

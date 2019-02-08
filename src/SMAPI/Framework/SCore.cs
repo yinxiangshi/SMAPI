@@ -977,11 +977,12 @@ namespace StardewModdingAPI.Framework
                 try
                 {
                     modAssembly = assemblyLoader.Load(mod, assemblyPath, assumeCompatible: mod.DataRecord?.Status == ModStatus.AssumeCompatible);
+                    this.ModRegistry.TrackAssemblies(mod, modAssembly);
                 }
                 catch (IncompatibleInstructionException) // details already in trace logs
                 {
                     string[] updateUrls = new[] { modDatabase.GetModPageUrlFor(manifest.UniqueID), "https://mods.smapi.io" }.Where(p => p != null).ToArray();
-                    errorReasonPhrase = $"it's no longer compatible. Please check for a new version at {string.Join(" or ", updateUrls)}.";
+                    errorReasonPhrase = $"it's no longer compatible. Please check for a new version at {string.Join(" or ", updateUrls)}";
                     return false;
                 }
                 catch (SAssemblyLoadFailedException ex)

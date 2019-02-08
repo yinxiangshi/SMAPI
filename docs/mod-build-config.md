@@ -132,8 +132,6 @@ If you don't want to include a file in the mod folder or release zip:
   relative path in your mod folder, that file won't be included.
 
 ### Non-mod projects
-**(upcoming in 2.1)**
-
 You can use the package in non-mod projects too (e.g. unit tests or framework DLLs). You'll need to
 disable deploying the mod and creating a release zip:
 
@@ -218,10 +216,18 @@ That error means the package couldn't find your game. You can specify the game p
 _[Game path](#game-path)_ above.
 
 ## Release notes
-### 2.1 alpha
+### 2.2
+* Added support for SMAPI 2.8+ (still compatible with earlier versions).
+* Added default game paths for 32-bit Windows.
+* Fixed valid manifests marked invalid in some cases.
+
+### 2.1
 * Added support for Stardew Valley 1.3.
-* Added support for unit test projects.
+* Added support for non-mod projects.
 * Added C# analyzers to warn about implicit conversions of Netcode fields in Stardew Valley 1.3.
+* Added option to ignore files by regex pattern.
+* Added reference to new SMAPI DLL.
+* Fixed some game paths not detected by NuGet package.
 
 ### 2.0.2
 * Fixed compatibility issue on Linux.

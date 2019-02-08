@@ -52,6 +52,70 @@
    */
   "ModData": {
     /*********
+    ** Common dependencies for friendly errors
+    *********/
+    "Advanced Location Loader": {
+      "ID": "Entoarox.AdvancedLocationLoader",
+      "Default | UpdateKey": "Nexus:2270"
+    },
+
+    "Content Patcher": {
+      "ID": "Pathoschild.ContentPatcher",
+      "Default | UpdateKey": "Nexus:1915"
+    },
+
+    "Custom Farming Redux": {
+      "ID": "Platonymous.CustomFarming",
+      "Default | UpdateKey": "Nexus:991"
+    },
+
+    "Custom Shirts": {
+      "ID": "Platonymous.CustomShirts",
+      "Default | UpdateKey": "Nexus:2416"
+    },
+
+    "Entoarox Framework": {
+      "ID": "Entoarox.EntoaroxFramework",
+      "Default | UpdateKey": "Nexus:2269"
+    },
+
+    "JSON Assets": {
+      "ID": "spacechase0.JsonAssets",
+      "Default | UpdateKey": "Nexus:1720"
+    },
+
+    "Mail Framework": {
+      "ID": "DIGUS.MailFrameworkMod",
+      "Default | UpdateKey": "Nexus:1536"
+    },
+
+    "MTN": {
+      "ID": "SgtPickles.MTN",
+      "Default | UpdateKey": "Nexus:2256",
+      "~1.2.6 | Status": "AssumeBroken" // replaces Game1.multiplayer, which breaks SMAPI's multiplayer API.
+    },
+
+    "PyTK": {
+      "ID": "Platonymous.Toolkit",
+      "Default | UpdateKey": "Nexus:1726"
+    },
+
+    "SpaceCore": {
+      "ID": "spacechase0.SpaceCore",
+      "Default | UpdateKey": "Nexus:1348"
+    },
+
+    "Stardust Core": {
+      "ID": "Omegasis.StardustCore",
+      "Default | UpdateKey": "Nexus:2341"
+    },
+
+    "TMX Loader": {
+      "ID": "Platonymous.TMXLoader",
+      "Default | UpdateKey": "Nexus:1820"
+    },
+
+    /*********
     ** Content packs
     *********/
     "Canon-Friendly Dialogue Expansion": {
@@ -80,6 +144,11 @@
         "1.21": "1.2.1",
         "1.22-unofficial.3.mizzion": "1.2.2-unofficial.3.mizzion"
       }
+    },
+
+    "Always Scroll Map": {
+      "ID": "bcmpinc.AlwaysScrollMap",
+      "~0.6 | Status": "AssumeBroken" // breaks newer versions of bcmpinc mods (per bcmpinc's request)
     },
 
     "Animal Mood Fix": {
@@ -151,6 +220,11 @@
       "MapLocalVersions": { "1.2-beta": "1.2" }
     },
 
+    "Craft Counter": {
+      "ID": "bcmpinc.CraftCounter",
+      "~0.6 | Status": "AssumeBroken" // breaks newer versions of bcmpinc mods (per bcmpinc's request)
+    },
+
     "Crafting Counter": {
       "ID": "lolpcgaming.CraftingCounter",
       "MapRemoteVersions": { "1.1": "1.0" } // not updated in manifest
@@ -170,11 +244,6 @@
     "Custom Linens": {
       "ID": "Mevima.CustomLinens",
       "MapRemoteVersions": { "1.1": "1.0" } // manifest not updated
-    },
-
-    "Custom Shirts": {
-      "ID": "Platonymous.CustomShirts",
-      "Default | UpdateKey": "Nexus:2416" // keep for dependencies
     },
 
     "Dynamic Horses": {
@@ -207,6 +276,11 @@
       "~1.1 | Status": "AssumeBroken" // runtime errors with Harmony 1.2.0.1 in SMAPI 2.8+
     },
 
+    "Fix Animal Tools": {
+      "ID": "bcmpinc.FixAnimalTools",
+      "~0.6 | Status": "AssumeBroken" // breaks newer versions of bcmpinc mods (per bcmpinc's request)
+    },
+
     "Fix Scythe Exp": {
       "ID": "bcmpinc.FixScytheExp",
       "~0.3 | Status": "AssumeBroken" // broke in 1.3: Exception from HarmonyInstance "bcmpinc.FixScytheExp" [...] Bad label content in ILGenerator.
@@ -219,7 +293,7 @@
 
     "Grass Growth": {
       "ID": "bcmpinc.GrassGrowth",
-      "~0.3 | Status": "AssumeBroken" // broke in 1.3.29 (runtime errors: System.IndexOutOfRangeException: Could not find instruction sequence)
+      "~0.6 | Status": "AssumeBroken" // breaks newer versions of bcmpinc mods (per bcmpinc's request)
     },
 
     "Hunger Mod (skn)": {
@@ -258,9 +332,9 @@
       "~1.0.1   | Status": "AssumeBroken" // doesn't do anything as of SDV 1.2.33 (bad Harmony patch?)
     },
 
-    "MTN": {
-      "ID": "SgtPickles.MTN",
-      "~1.2.5 | Status": "AssumeBroken" // replaces Game1.multiplayer, which breaks SMAPI's multiplayer API.
+    "Movement Speed": {
+      "ID": "bcmpinc.MovementSpeed",
+      "~0.6 | Status": "AssumeBroken" // breaks newer versions of bcmpinc mods (per bcmpinc's request)
     },
 
     "Multiple Sprites and Portraits On Rotation (File Loading)": {
@@ -288,11 +362,6 @@
       "ID": "PhthaloBlue.OmniFarm",
       "FormerIDs": "BlueMod_OmniFarm", // changed in 2.0.2-pathoschild-update
       "Default | UpdateKey": "GitHub:lambui/StardewValleyMod_OmniFarm"
-    },
-
-    "PyTK - Platonymous Toolkit": {
-      "ID": "Platonymous.Toolkit",
-      "Default | UpdateKey": "Nexus:1726"
     },
 
     "Point-and-Plant": {
@@ -364,6 +433,11 @@
       "~3.0.1 | Status": "AssumeBroken" // broke in SMAPI 2.6-beta.16 due to reflection into SMAPI internals
     },
 
+    "Stardew Hack": {
+      "ID": "bcmpinc.StardewHack",
+      "~0.6 | Status": "AssumeBroken" // breaks newer versions of bcmpinc mods (per bcmpinc's request)
+    },
+
     "Stardew Notification": {
       "ID": "stardewnotification",
       "Default | UpdateKey": "GitHub:monopandora/StardewNotification"
@@ -381,6 +455,11 @@
       "~1.0.2 | Status": "AssumeBroken" // broke in SDV 1.3 (runtime errors)
     },
 
+    "Tilled Soil Decay": {
+      "ID": "bcmpinc.TilledSoilDecay",
+      "~0.6 | Status": "AssumeBroken" // breaks newer versions of bcmpinc mods (per bcmpinc's request)
+    },
+
     "Time Reminder": {
       "ID": "KoihimeNakamura.TimeReminder",
       "MapLocalVersions": { "1.0-20170314": "1.0.2" }
@@ -391,9 +470,19 @@
       "Default | UpdateKey": "GitHub:mralbobo/stardew-tool-charging"
     },
 
+    "Tree Spread": {
+      "ID": "bcmpinc.TreeSpread",
+      "~0.6 | Status": "AssumeBroken" // breaks newer versions of bcmpinc mods (per bcmpinc's request)
+    },
+
     "Variable Grass": {
       "ID": "dantheman999.VariableGrass",
       "Default | UpdateKey": "GitHub:dantheman999301/StardewMods"
+    },
+
+    "Yet Another Harvest With Scythe Mod": {
+      "ID": "bcmpinc.HarvestWithScythe",
+      "~0.6 | Status": "AssumeBroken" // breaks newer versions of bcmpinc mods (per bcmpinc's request)
     },
 
     "Zoom Out Extreme": {

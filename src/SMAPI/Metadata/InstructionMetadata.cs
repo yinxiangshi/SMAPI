@@ -51,7 +51,8 @@ namespace StardewModdingAPI.Metadata
             yield return new FieldFinder(typeof(SaveGame).FullName, nameof(SaveGame.serializer), InstructionHandleResult.DetectedSaveSerialiser);
             yield return new FieldFinder(typeof(SaveGame).FullName, nameof(SaveGame.farmerSerializer), InstructionHandleResult.DetectedSaveSerialiser);
             yield return new FieldFinder(typeof(SaveGame).FullName, nameof(SaveGame.locationSerializer), InstructionHandleResult.DetectedSaveSerialiser);
-            yield return new TypeFinder(typeof(ISpecialisedEvents).FullName, InstructionHandleResult.DetectedUnvalidatedUpdateTick);
+            yield return new EventFinder(typeof(ISpecialisedEvents).FullName, nameof(ISpecialisedEvents.UnvalidatedUpdateTicked), InstructionHandleResult.DetectedUnvalidatedUpdateTick);
+            yield return new EventFinder(typeof(ISpecialisedEvents).FullName, nameof(ISpecialisedEvents.UnvalidatedUpdateTicking), InstructionHandleResult.DetectedUnvalidatedUpdateTick);
 #if !SMAPI_3_0_STRICT
             yield return new EventFinder(typeof(SpecialisedEvents).FullName, nameof(SpecialisedEvents.UnvalidatedUpdateTick), InstructionHandleResult.DetectedUnvalidatedUpdateTick);
 #endif
