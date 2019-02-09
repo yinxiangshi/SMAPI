@@ -1,10 +1,15 @@
 # Release notes
 ## 2.11-beta
+Currently in beta for Stardew Valley 1.3.35-beta only. **Not compatible with non-beta versions of the game.**
+
 * For players:
-  * Updated for Stardew Valley 1.3.35 beta. **Not compatible with non-beta versions of the game.**
+  * Updated for Stardew Valley 1.3.35 beta.
+
+* For the web UI:
+  * Mod compatibility page now crosses out mod links if they're outdated to prevent confusion.
 
 ## 2.10.2
-Released 08 January 2019 for Stardew Valley 1.3.32–33.
+Released 09 January 2019 for Stardew Valley 1.3.32–33.
 
 * For players:
   * SMAPI now keeps the first save backup created for the day, instead of the last one.
