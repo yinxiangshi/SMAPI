@@ -6,6 +6,7 @@ Currently in beta for Stardew Valley 1.3.35-beta only. **Not compatible with non
   * Updated for Stardew Valley 1.3.35 beta.
 
 * For the web UI:
+  * The log parser now displays available updates in a section at the top.
   * Mod compatibility page now crosses out mod links if they're outdated to prevent confusion.
 
 ## 2.10.2
