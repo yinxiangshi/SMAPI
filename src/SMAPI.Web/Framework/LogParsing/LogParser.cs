@@ -78,7 +78,7 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                 };
 
                 // parse log messages
-                LogModInfo smapiMod = new LogModInfo { Name = "SMAPI", Author = "Pathoschild", Description = "", Loaded = true};
+                LogModInfo smapiMod = new LogModInfo { Name = "SMAPI", Author = "Pathoschild", Description = "", Loaded = true };
                 LogModInfo gameMod = new LogModInfo { Name = "game", Author = "", Description = "", Loaded = true };
                 IDictionary<string, LogModInfo> mods = new Dictionary<string, LogModInfo>();
                 bool inModList = false;
@@ -100,11 +100,9 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                                 break;
 
                             default:
-                            {
                                 if (mods.ContainsKey(message.Mod))
                                     mods[message.Mod].Errors++;
                                 break;
-                            }
                         }
                     }
 
@@ -162,11 +160,11 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                             }
                             else
                             {
-                                mods[name] = new LogModInfo {Name = name, UpdateVersion = version, UpdateLink = link, Loaded = false};
+                                mods[name] = new LogModInfo { Name = name, UpdateVersion = version, UpdateLink = link, Loaded = false };
                             }
                         }
 
-                        else if(message.Level == LogLevel.Alert && this.SMAPIUpdatePattern.IsMatch(message.Text))
+                        else if (message.Level == LogLevel.Alert && this.SMAPIUpdatePattern.IsMatch(message.Text))
                         {
                             Match match = this.SMAPIUpdatePattern.Match(message.Text);
                             string version = match.Groups["version"].Value;

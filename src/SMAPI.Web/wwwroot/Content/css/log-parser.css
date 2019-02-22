@@ -78,12 +78,12 @@ table caption {
     min-height: 1.3em;
 }
 
-#updates {
-    min-width: 10em;
+#fix-list {
+    margin-bottom: 2em;
 }
 
-.invisible {
-    visibility: hidden;
+#updates {
+    min-width: 10em;
 }
 
 #mods {

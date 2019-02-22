@@ -17,10 +17,10 @@
     {
         <meta name="robots" content="noindex" />
     }
-    <link rel="stylesheet" href="~/Content/css/log-parser.css?r=20180627" />
+    <link rel="stylesheet" href="~/Content/css/log-parser.css?r=20190221" />
     <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" crossorigin="anonymous"></script>
-    <script src="~/Content/js/log-parser.js?r=20180627"></script>
+    <script src="~/Content/js/log-parser.js?r=20190221"></script>
     <script>
         $(function() {
             smapi.logParser({
@@ -121,52 +121,53 @@ else if (Model.ParsedLog?.IsValid == true)
         @if (Model.ParsedLog.Mods.Any(mod => mod.HasUpdate))
         {
             <h2>Suggested fixes</h2>
+            <ul id="fix-list">
+                <li>
+                    Consider updating these mods to fix problems:
 
-            <p>You have some mods that aren't fully up to date. Updating them can fix problems.</p>
-            <table id="updates" class="table">
-                <caption>
-                    Updates available:
-                </caption>
-                @foreach (LogModInfo mod in Model.ParsedLog.Mods.Where(mod => (mod.HasUpdate && mod.ContentPackFor == null) || (contentPacks != null && contentPacks.TryGetValue(mod.Name, out LogModInfo[] contentPackList) && contentPackList.Any(pack => pack.HasUpdate))))
-                {
-                <tr class="mod-entry">
-                    <td>
-                        <strong class=@(!mod.HasUpdate ? "hidden": "")>@mod.Name</strong>
-                        @if (contentPacks != null && contentPacks.TryGetValue(mod.Name, out LogModInfo[] contentPackList))
+                    <table id="updates" class="table">
+                        @foreach (LogModInfo mod in Model.ParsedLog.Mods.Where(mod => (mod.HasUpdate && mod.ContentPackFor == null) || (contentPacks != null && contentPacks.TryGetValue(mod.Name, out LogModInfo[] contentPackList) && contentPackList.Any(pack => pack.HasUpdate))))
                         {
-                            <div class="content-packs">
-                                @foreach (LogModInfo contentPack in contentPackList.Where(pack => pack.HasUpdate))
-                                {
-                                    <text>+ @contentPack.Name</text><br />
-                                }
-                            </div>
-                        }
-                    </td>
-                    <td>
-                        @if (mod.HasUpdate)
-                        {
-                        <a href="@mod.UpdateLink" target="_blank">
-                            @(mod.Version == null ? @mod.UpdateVersion : $"{mod.Version} → {mod.UpdateVersion}")
-                            </a>
-                        }
-                        else
-                        {
-                            <span class="invisible">Okay</span>
-                        }
+                            <tr class="mod-entry">
+                                <td>
+                                    <strong class=@(!mod.HasUpdate ? "hidden" : "")>@mod.Name</strong>
+                                    @if (contentPacks != null && contentPacks.TryGetValue(mod.Name, out LogModInfo[] contentPackList))
+                                    {
+                                        <div class="content-packs">
+                                            @foreach (LogModInfo contentPack in contentPackList.Where(pack => pack.HasUpdate))
+                                            {
+                                                <text>+ @contentPack.Name</text><br/>
+                                            }
+                                        </div>
+                                    }
+                                </td>
+                                <td>
+                                    @if (mod.HasUpdate)
+                                    {
+                                        <a href="@mod.UpdateLink" target="_blank">
+                                            @(mod.Version == null ? @mod.UpdateVersion : $"{mod.Version} → {mod.UpdateVersion}")
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <text>&nbsp;</text>
+                                    }
 
-                        @if (contentPacks != null && contentPacks.TryGetValue(mod.Name, out contentPackList))
-                        {
-                            <div>
-                                @foreach (LogModInfo contentPack in contentPackList.Where(pack => pack.HasUpdate))
-                                {
-                                    <a href="@contentPack.UpdateLink" target="_blank">@contentPack.Version → @contentPack.UpdateVersion</a><br />
-                                }
-                            </div>
+                                    @if (contentPacks != null && contentPacks.TryGetValue(mod.Name, out contentPackList))
+                                    {
+                                        <div>
+                                            @foreach (LogModInfo contentPack in contentPackList.Where(pack => pack.HasUpdate))
+                                            {
+                                                <a href="@contentPack.UpdateLink" target="_blank">@contentPack.Version → @contentPack.UpdateVersion</a><br/>
+                                            }
+                                        </div>
+                                    }
+                                </td>
+                            </tr>
                         }
-                    </td>
-                </tr>
-                }
-            </table>
+                    </table>
+                </li>
+            </ul>
         }
 
         <h2>Log info</h2>
