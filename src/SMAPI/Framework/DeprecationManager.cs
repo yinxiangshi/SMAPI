@@ -38,7 +38,7 @@ namespace StardewModdingAPI.Framework
         /// <summary>Log a deprecation warning for the old-style events.</summary>
         public void WarnForOldEvents()
         {
-            this.Warn("legacy events", "2.9", DeprecationLevel.Info);
+            this.Warn("legacy events", "2.9", DeprecationLevel.PendingRemoval);
         }
 
         /// <summary>Log a deprecation warning.</summary>

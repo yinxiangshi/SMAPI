@@ -929,7 +929,7 @@ namespace StardewModdingAPI.Framework
             // add deprecation warning for old version format
             {
                 if (mod.Manifest?.Version is Toolkit.SemanticVersion version && version.IsLegacyFormat)
-                    SCore.DeprecationManager.Warn(mod.DisplayName, "non-string manifest version", "2.8", DeprecationLevel.Info);
+                    SCore.DeprecationManager.Warn(mod.DisplayName, "non-string manifest version", "2.8", DeprecationLevel.PendingRemoval);
             }
 #endif
 

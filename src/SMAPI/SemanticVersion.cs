@@ -33,7 +33,7 @@ namespace StardewModdingAPI
         {
             get
             {
-                SCore.DeprecationManager?.Warn($"{nameof(ISemanticVersion)}.{nameof(ISemanticVersion.Build)}", "2.8", DeprecationLevel.Info);
+                SCore.DeprecationManager?.Warn($"{nameof(ISemanticVersion)}.{nameof(ISemanticVersion.Build)}", "2.8", DeprecationLevel.PendingRemoval);
                 return this.Version.PrereleaseTag;
             }
         }
