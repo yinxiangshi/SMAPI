@@ -11,6 +11,7 @@ Currently in beta for Stardew Valley 1.3.35-beta only. **Not compatible with non
 * For the web UI:
   * The log parser now displays available updates in a section at the top.
   * Mod compatibility page now crosses out mod links if they're outdated to prevent confusion.
+  * Fixed smapi.io linking to an archived download in rare cases.
 
 ## 2.10.2
 Released 09 January 2019 for Stardew Valley 1.3.32–33.
