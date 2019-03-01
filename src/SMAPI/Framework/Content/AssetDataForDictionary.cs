@@ -26,7 +26,7 @@ namespace StardewModdingAPI.Framework.Content
         [Obsolete("Access " + nameof(AssetData<IDictionary<TKey, TValue>>.Data) + "field directly.")]
         public void Set(TKey key, TValue value)
         {
-            SCore.DeprecationManager.Warn($"AssetDataForDictionary.{nameof(Set)}", "2.10", DeprecationLevel.Info);
+            SCore.DeprecationManager.Warn($"AssetDataForDictionary.{nameof(Set)}", "2.10", DeprecationLevel.PendingRemoval);
             this.Data[key] = value;
         }
 
@@ -36,7 +36,7 @@ namespace StardewModdingAPI.Framework.Content
         [Obsolete("Access " + nameof(AssetData<IDictionary<TKey, TValue>>.Data) + "field directly.")]
         public void Set(TKey key, Func<TValue, TValue> value)
         {
-            SCore.DeprecationManager.Warn($"AssetDataForDictionary.{nameof(Set)}", "2.10", DeprecationLevel.Info);
+            SCore.DeprecationManager.Warn($"AssetDataForDictionary.{nameof(Set)}", "2.10", DeprecationLevel.PendingRemoval);
             this.Data[key] = value(this.Data[key]);
         }
 
@@ -45,7 +45,7 @@ namespace StardewModdingAPI.Framework.Content
         [Obsolete("Access " + nameof(AssetData<IDictionary<TKey, TValue>>.Data) + "field directly.")]
         public void Set(Func<TKey, TValue, TValue> replacer)
         {
-            SCore.DeprecationManager.Warn($"AssetDataForDictionary.{nameof(Set)}", "2.10", DeprecationLevel.Info);
+            SCore.DeprecationManager.Warn($"AssetDataForDictionary.{nameof(Set)}", "2.10", DeprecationLevel.PendingRemoval);
             foreach (var pair in this.Data.ToArray())
                 this.Data[pair.Key] = replacer(pair.Key, pair.Value);
         }

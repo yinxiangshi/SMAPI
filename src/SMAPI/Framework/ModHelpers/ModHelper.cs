@@ -166,7 +166,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         [Obsolete("Use " + nameof(IModHelper) + "." + nameof(IModHelper.ContentPacks) + "." + nameof(IContentPackHelper.CreateTemporary) + " instead")]
         public IContentPack CreateTransitionalContentPack(string directoryPath, string id, string name, string description, string author, ISemanticVersion version)
         {
-            SCore.DeprecationManager.Warn($"{nameof(IModHelper)}.{nameof(IModHelper.CreateTransitionalContentPack)}", "2.5", DeprecationLevel.Info);
+            SCore.DeprecationManager.Warn($"{nameof(IModHelper)}.{nameof(IModHelper.CreateTransitionalContentPack)}", "2.5", DeprecationLevel.PendingRemoval);
             return this.ContentPacks.CreateTemporary(directoryPath, id, name, description, author, version);
         }
 

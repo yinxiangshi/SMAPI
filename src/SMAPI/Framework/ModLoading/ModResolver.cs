@@ -151,7 +151,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                             mod.SetStatus(ModMetadataStatus.Failed, $"its {nameof(IManifest.EntryDll)} value '{mod.Manifest.EntryDll}' doesn't match the actual file capitalisation '{actualFilename}'. The capitalisation must match for crossplatform compatibility.");
                             continue;
 #else
-                            SCore.DeprecationManager.Warn(mod.DisplayName, $"{nameof(IManifest.EntryDll)} value with case-insensitive capitalisation", "2.11", DeprecationLevel.Info);
+                            SCore.DeprecationManager.Warn(mod.DisplayName, $"{nameof(IManifest.EntryDll)} value with case-insensitive capitalisation", "2.11", DeprecationLevel.PendingRemoval);
 #endif
                         }
                     }

@@ -1,6 +1,20 @@
 # Release notes
+## 2.11
+Released 01 March 2019 for Stardew Valley 1.3.36.
+
+* For players:
+  * Updated for Stardew Valley 1.3.36.
+
+* For modders:
+  * Bumped all deprecation levels to _pending removal_.
+
+* For the web UI:
+  * The log parser now shows available updates in a section at the top.
+  * The mod compatibility page now crosses out mod links if they're outdated to avoid confusion.
+  * Fixed smapi.io linking to an archived download in rare cases.
+
 ## 2.10.2
-Released 08 January 2019 for Stardew Valley 1.3.32–33.
+Released 09 January 2019 for Stardew Valley 1.3.32–33.
 
 * For players:
   * SMAPI now keeps the first save backup created for the day, instead of the last one.
