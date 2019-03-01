@@ -1,16 +1,16 @@
 # Release notes
-## 2.11-beta
-Currently in beta for Stardew Valley 1.3.35-beta only. **Not compatible with non-beta versions of the game.**
+## 2.11
+Released 01 March 2019 for Stardew Valley 1.3.36.
 
 * For players:
-  * Updated for Stardew Valley 1.3.35 beta.
+  * Updated for Stardew Valley 1.3.36.
 
 * For modders:
   * Bumped all deprecation levels to _pending removal_.
 
 * For the web UI:
-  * The log parser now displays available updates in a section at the top.
-  * Mod compatibility page now crosses out mod links if they're outdated to prevent confusion.
+  * The log parser now shows available updates in a section at the top.
+  * The mod compatibility page now crosses out mod links if they're outdated to avoid confusion.
   * Fixed smapi.io linking to an archived download in rare cases.
 
 ## 2.10.2
