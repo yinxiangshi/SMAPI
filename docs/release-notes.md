@@ -1,4 +1,10 @@
 # Release notes
+## Upcoming release
+These changes have not been released yet.
+
+* For the web UI:
+  * The log parser now hides some messages by default, like the mod list.
+
 ## 2.11
 Released 01 March 2019 for Stardew Valley 1.3.36.
 
