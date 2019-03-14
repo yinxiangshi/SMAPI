@@ -5,6 +5,9 @@ These changes have not been released yet.
 * For players:
   * SMAPI now prevents invalid items from breaking menus on hover.
 
+* For modders:
+  * `this.Monitor.Log` now defaults to the `Trace` log level instead of `Debug`.
+
 ## 2.11.2
 Released 23 April 2019 for Stardew Valley 1.3.36.
 
