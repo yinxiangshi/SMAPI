@@ -255,7 +255,6 @@ table caption {
 }
 
 #log td[data-title]:hover {
-    font-size: 1px;
     overflow: inherit;
     position: relative;
 }
