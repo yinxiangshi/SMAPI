@@ -11,6 +11,7 @@ Released 01 March 2019 for Stardew Valley 1.3.36.
 
 * For players:
   * Updated for Stardew Valley 1.3.36.
+  * Updated game version check for the upcoming Stardew Valley 1.4.
 
 * For modders:
   * Bumped all deprecation levels to _pending removal_.
