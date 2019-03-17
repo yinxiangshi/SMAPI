@@ -83,7 +83,14 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
                         }
 
                         removed +=
-                            this.RemoveObjects(location, obj => obj.Name.ToLower().Contains("weed") || obj.Name == "Twig" || obj.Name == "Stone")
+                            this.RemoveObjects(location, obj =>
+                                !(obj is Chest)
+                                && (
+                                    obj.Name == "Weeds"
+                                    || obj.Name == "Stone"
+                                    || (obj.ParentSheetIndex == 294 || obj.ParentSheetIndex == 295)
+                                )
+                            )
                             + this.RemoveResourceClumps(location, clump => this.DebrisClumps.Contains(clump.parentSheetIndex.Value));
 
                         monitor.Log($"Done! Removed {removed} entities from {location.Name}.", LogLevel.Info);
