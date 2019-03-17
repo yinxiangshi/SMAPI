@@ -5,7 +5,8 @@ These changes have not been released yet.
 * For players:
   * Updated game version check for the upcoming Stardew Valley 1.4.
   * Updated compatibility list.
-  * Fixed `world_clear debris` console command removing chests edited to have a debris name.
+  * Added crops option to `world_clear` console command.
+  * Fixed `world_clear` console command removing chests edited to have a debris name.
 
 * For the web UI:
   * The log parser now hides some messages by default, like the mod list.
