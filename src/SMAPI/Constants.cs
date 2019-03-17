@@ -111,7 +111,7 @@ namespace StardewModdingAPI
         internal static string ModsPath { get; set; }
 
         /// <summary>The game's current semantic version.</summary>
-        internal static ISemanticVersion GameVersion { get; } = new GameVersion(Constants.GetGameVersion());
+        internal static ISemanticVersion GameVersion { get; } = new GameVersion(Game1.version);
 
         /// <summary>The target game platform.</summary>
         internal static Platform Platform { get; } = EnvironmentUtility.DetectPlatform();
@@ -197,16 +197,6 @@ namespace StardewModdingAPI
         /*********
         ** Private methods
         *********/
-        /// <summary>Get the game's current version string.</summary>
-        private static string GetGameVersion()
-        {
-            // we need reflection because it's a constant, so SMAPI's references to it are inlined at compile-time
-            FieldInfo field = typeof(Game1).GetField(nameof(Game1.version), BindingFlags.Public | BindingFlags.Static);
-            if (field == null)
-                throw new InvalidOperationException($"The {nameof(Game1)}.{nameof(Game1.version)} field could not be found.");
-            return (string)field.GetValue(null);
-        }
-
         /// <summary>Get the name of the save folder, if any.</summary>
         internal static string GetSaveFolderName()
         {
