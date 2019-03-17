@@ -2,17 +2,22 @@
 ## Upcoming release
 These changes have not been released yet.
 
+* For players:
+  * Updated game version check for the upcoming Stardew Valley 1.4.
+  * Updated compatibility list.
+
 * For the web UI:
   * The log parser now hides some messages by default, like the mod list.
   * Fixed log parser column resize bug.
+
+* For SMAPI developers:
+  * Added support for suppressing false-positive warnings for specific mods.
 
 ## 2.11
 Released 01 March 2019 for Stardew Valley 1.3.36.
 
 * For players:
   * Updated for Stardew Valley 1.3.36.
-  * Updated game version check for the upcoming Stardew Valley 1.4.
-  * Updated compatibility list.
 
 * For modders:
   * Bumped all deprecation levels to _pending removal_.

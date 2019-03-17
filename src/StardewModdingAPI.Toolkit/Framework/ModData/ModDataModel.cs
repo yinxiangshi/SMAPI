@@ -31,6 +31,9 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
         /// <summary>Maps remote versions to a semantic version for update checks.</summary>
         public IDictionary<string, string> MapRemoteVersions { get; set; } = new Dictionary<string, string>();
 
+        /// <summary>The mod warnings to suppress, even if they'd normally be shown.</summary>
+        public ModWarning SuppressWarnings { get; set; }
+
         /// <summary>This field stores properties that aren't mapped to another field before they're parsed into <see cref="Fields"/>.</summary>
         [JsonExtensionData]
         public IDictionary<string, JToken> ExtensionData { get; set; }
