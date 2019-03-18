@@ -1,4 +1,18 @@
 # Release notes
+## 2.11.1
+Released 17 March 2019 for Stardew Valley 1.3.36.
+
+* For players:
+  * Added crops option to `world_clear` console command.
+  * Prepared compatibility check for Stardew Valley 1.4.
+  * Updated mod compatibility list.
+  * Fixed `world_clear` console command removing chests edited to have a debris name.
+
+* For the web UI:
+  * Added support for suppressing false-positive warnings in rare cases.
+  * The log parser now collapses redundant sections by default.
+  * Fixed log parser column resize bug.
+
 ## 2.11
 Released 01 March 2019 for Stardew Valley 1.3.36.
 
