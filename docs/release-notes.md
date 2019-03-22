@@ -8,6 +8,7 @@ These changes have not been released yet.
   * Fixed 'received message' logs shown in non-developer mode.
 
 * For modders:
+  * Added support for content pack translations.
   * Added `IContentPack.HasFile` method.
   * Dropped support for all deprecated APIs.
   * Updated to Json.NET 12.0.1.
