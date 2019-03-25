@@ -3,6 +3,7 @@
 These changes have not been released yet.
 
 * For players:
+  * Fixed error when a custom map references certain vanilla tilesheets on MacOS.
   * Fixed compatibility with Arch Linux.
 
 ## 2.11.1
