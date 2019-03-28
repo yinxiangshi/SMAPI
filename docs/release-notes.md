@@ -4,6 +4,7 @@ These changes have not been released yet.
 
 * For players:
   * SMAPI now prevents invalid items from breaking menus on hover.
+  * Fixed errors during early startup not shown before exit.
 
 * For modders:
   * `this.Monitor.Log` now defaults to the `Trace` log level instead of `Debug`.
