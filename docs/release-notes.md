@@ -1,4 +1,10 @@
 # Release notes
+## 2.11.2 (upcoming release)
+These changes have not been released yet.
+
+* For players:
+  * Fixed compatibility with Arch Linux.
+
 ## 2.11.1
 Released 17 March 2019 for Stardew Valley 1.3.36.
 
