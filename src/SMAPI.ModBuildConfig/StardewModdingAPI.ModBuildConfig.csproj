@@ -28,6 +28,12 @@
     <Reference Include="System.Web.Extensions" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="..\..\docs\mod-build-config.md">
+      <Link>mod-build-config.md</Link>
+    </None>
+  </ItemGroup>
+
   <Import Project="..\SMAPI.Internal\SMAPI.Internal.projitems" Label="Shared" />
   <Import Project="..\..\build\common.targets" />
 
