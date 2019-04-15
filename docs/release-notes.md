@@ -4,6 +4,7 @@ These changes have not been released yet.
 
 * For players:
   * SMAPI now prevents invalid items from breaking menus on hover.
+  * SMAPI now prevents invalid event preconditions from crashing the game (thanks to berkayylmao!).
   * Fixed errors during early startup not shown before exit.
 
 * For modders:
