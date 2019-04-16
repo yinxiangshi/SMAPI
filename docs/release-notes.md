@@ -3,6 +3,7 @@
 These changes have not been released yet.
 
 * For players:
+  * Updated for Stardew Valley 1.4.
   * Improved performance.
   * Updated mod compatibility list.
   * Fixed Save Backup not pruning old backups if they're uncompressed.
