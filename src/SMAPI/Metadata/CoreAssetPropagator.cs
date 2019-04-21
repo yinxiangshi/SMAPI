@@ -8,6 +8,7 @@ using StardewValley;
 using StardewValley.BellsAndWhistles;
 using StardewValley.Buildings;
 using StardewValley.Characters;
+using StardewValley.GameData.Movies;
 using StardewValley.Locations;
 using StardewValley.Menus;
 using StardewValley.Objects;
@@ -167,10 +168,6 @@ namespace StardewModdingAPI.Metadata
                 /****
                 ** Animals
                 ****/
-                case "animals\\cat":
-                    return this.ReloadPetOrHorseSprites<Cat>(content, key);
-                case "animals\\dog":
-                    return this.ReloadPetOrHorseSprites<Dog>(content, key);
                 case "animals\\horse":
                     return this.ReloadPetOrHorseSprites<Horse>(content, key);
 
@@ -189,12 +186,14 @@ namespace StardewModdingAPI.Metadata
                     return true;
 
                 case "characters\\farmer\\farmer_base": // Farmer
+                case "characters\\farmer\\farmer_base_bald":
                     if (Game1.player == null || !Game1.player.IsMale)
                         return false;
                     Game1.player.FarmerRenderer = new FarmerRenderer(key, Game1.player);
                     return true;
 
                 case "characters\\farmer\\farmer_girl_base": // Farmer
+                case "characters\\farmer\\farmer_girl_bald":
                     if (Game1.player == null || Game1.player.IsMale)
                         return false;
                     Game1.player.FarmerRenderer = new FarmerRenderer(key, Game1.player);
@@ -206,6 +205,10 @@ namespace StardewModdingAPI.Metadata
 
                 case "characters\\farmer\\hats": // Game1.LoadContent
                     FarmerRenderer.hatsTexture = content.Load<Texture2D>(key);
+                    return true;
+
+                case "characters\\farmer\\pants": // Game1.LoadContent
+                    FarmerRenderer.pantsTexture = content.Load<Texture2D>(key);
                     return true;
 
                 case "characters\\farmer\\shirts": // Game1.LoadContent
@@ -223,6 +226,16 @@ namespace StardewModdingAPI.Metadata
                     Game1.bigCraftablesInformation = content.Load<Dictionary<int, string>>(key);
                     return true;
 
+                case "data\\clothinginformation": // Game1.LoadContent
+                    Game1.clothingInformation = content.Load<Dictionary<int, string>>(key);
+                    return true;
+
+                case "data\\concessiontastes": // MovieTheater.GetConcessionTasteForCharacter
+                    this.Reflection
+                        .GetField<List<ConcessionTaste>>(typeof(MovieTheater), "_concessionTastes")
+                        .SetValue(content.Load<List<ConcessionTaste>>(key));
+                    return true;
+
                 case "data\\cookingrecipes": // CraftingRecipe.InitShared
                     CraftingRecipe.cookingRecipes = content.Load<Dictionary<string, string>>(key);
                     return true;
@@ -234,11 +247,27 @@ namespace StardewModdingAPI.Metadata
                 case "data\\farmanimals": // FarmAnimal constructor
                     return this.ReloadFarmAnimalData();
 
+                case "data\\moviereactions": // MovieTheater.GetMovieReactions
+                    this.Reflection
+                        .GetField<List<MovieCharacterReaction>>(typeof(MovieTheater), "_genericReactions")
+                        .SetValue(content.Load<List<MovieCharacterReaction>>(key));
+                    return true;
+
+                case "data\\movies": // MovieTheater.GetMovieData
+                    this.Reflection
+                        .GetField<List<MovieData>>(typeof(MovieTheater), "_movieData")
+                        .SetValue(content.Load<List<MovieData>>(key));
+                    return true;
+
                 case "data\\npcdispositions": // NPC constructor
                     return this.ReloadNpcDispositions(content, key);
 
                 case "data\\npcgifttastes": // Game1.LoadContent
                     Game1.NPCGiftTastes = content.Load<Dictionary<string, string>>(key);
+                    return true;
+
+                case "data\\objectcontexttags": // Game1.LoadContent
+                    Game1.objectContextTags = content.Load<Dictionary<string, string>>(key);
                     return true;
 
                 case "data\\objectinformation": // Game1.LoadContent
@@ -290,6 +319,14 @@ namespace StardewModdingAPI.Metadata
                 /****
                 ** Content\LooseSprites
                 ****/
+                case "loosesprites\\birds": // Game1.LoadContent
+                    Game1.birdsSpriteSheet = content.Load<Texture2D>(key);
+                    return true;
+
+                case "loosesprites\\concessions": // Game1.LoadContent
+                    Game1.concessionsSpriteSheet = content.Load<Texture2D>(key);
+                    return true;
+
                 case "loosesprites\\controllermaps": // Game1.LoadContent
                     Game1.controllerMaps = content.Load<Texture2D>(key);
                     return true;
@@ -371,6 +408,10 @@ namespace StardewModdingAPI.Metadata
                 ****/
                 case "maps\\menutiles": // Game1.LoadContent
                     Game1.menuTexture = content.Load<Texture2D>(key);
+                    return true;
+
+                case "maps\\menutilesuncolored": // Game1.LoadContent
+                    Game1.uncoloredMenuTexture = content.Load<Texture2D>(key);
                     return true;
 
                 case "maps\\springobjects": // Game1.LoadContent
@@ -474,6 +515,10 @@ namespace StardewModdingAPI.Metadata
             }
 
             // dynamic textures
+            if (this.KeyStartsWith(key, "animals\\cat"))
+                return this.ReloadPetOrHorseSprites<Cat>(content, key);
+            if (this.KeyStartsWith(key, "animals\\dog"))
+                return this.ReloadPetOrHorseSprites<Dog>(content, key);
             if (this.IsInFolder(key, "Animals"))
                 return this.ReloadFarmAnimalSprites(content, key);
 
