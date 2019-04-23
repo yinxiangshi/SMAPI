@@ -1,6 +1,6 @@
 # Release notes
-## 2.11.2 (upcoming release)
-These changes have not been released yet.
+## 2.11.2
+Released 22 April 2019 for Stardew Valley 1.3.36.
 
 * For players:
   * Fixed error when a custom map references certain vanilla tilesheets on MacOS.
