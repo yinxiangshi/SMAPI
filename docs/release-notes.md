@@ -6,6 +6,7 @@ These changes have not been released yet.
   * Updated for Stardew Valley 1.4.
   * Improved performance.
   * Updated mod compatibility list.
+  * Rewrote launch script on Linux to improve compatibility (thanks to kurumushi and toastal!).
   * Fixed Save Backup not pruning old backups if they're uncompressed.
   * Fixed issues when a farmhand reconnects before the game notices they're disconnected.
   * Fixed 'received message' logs shown in non-developer mode.
