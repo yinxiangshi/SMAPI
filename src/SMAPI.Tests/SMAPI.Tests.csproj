@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <RootNamespace>StardewModdingAPI.Tests</RootNamespace>
-    <AssemblyName>StardewModdingAPI.Tests</AssemblyName>
+    <RootNamespace>SMAPI.Tests</RootNamespace>
+    <AssemblyName>SMAPI.Tests</AssemblyName>
     <TargetFramework>net45</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <LangVersion>latest</LangVersion>
@@ -10,9 +10,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SMAPI.Toolkit.CoreInterfaces\StardewModdingAPI.Toolkit.CoreInterfaces.csproj" />
-    <ProjectReference Include="..\SMAPI.Toolkit\StardewModdingAPI.Toolkit.csproj" />
-    <ProjectReference Include="..\SMAPI\StardewModdingAPI.csproj" />
+    <ProjectReference Include="..\SMAPI.Toolkit.CoreInterfaces\SMAPI.Toolkit.CoreInterfaces.csproj" />
+    <ProjectReference Include="..\SMAPI.Toolkit\SMAPI.Toolkit.csproj" />
+    <ProjectReference Include="..\SMAPI\SMAPI.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,18 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <RootNamespace>StardewModdingAPI.Mods.SaveBackup</RootNamespace>
-    <AssemblyName>SaveBackup</AssemblyName>
+    <RootNamespace>SMAPI.Mods.ConsoleCommands</RootNamespace>
+    <AssemblyName>ConsoleCommands</AssemblyName>
     <TargetFramework>net45</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <LangVersion>latest</LangVersion>
-    <OutputPath>$(SolutionDir)\..\bin\$(Configuration)\Mods\SaveBackup</OutputPath>
+    <OutputPath>$(SolutionDir)\..\bin\$(Configuration)\Mods\ConsoleCommands</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SMAPI\StardewModdingAPI.csproj">
+    <ProjectReference Include="..\SMAPI\SMAPI.csproj">
       <Private>False</Private>
     </ProjectReference>
   </ItemGroup>

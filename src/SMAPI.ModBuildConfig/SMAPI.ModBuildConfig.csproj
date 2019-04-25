@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <RootNamespace>StardewModdingAPI.ModBuildConfig</RootNamespace>
-    <AssemblyName>StardewModdingAPI.ModBuildConfig</AssemblyName>
+    <RootNamespace>SMAPI.ModBuildConfig</RootNamespace>
+    <AssemblyName>SMAPI.ModBuildConfig</AssemblyName>
     <TargetFramework>net45</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <LangVersion>latest</LangVersion>
@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SMAPI.Toolkit\StardewModdingAPI.Toolkit.csproj" />
+    <ProjectReference Include="..\SMAPI.Toolkit\SMAPI.Toolkit.csproj" />
   </ItemGroup>
 
   <ItemGroup>
