@@ -5,9 +5,12 @@ These changes have not been released yet.
 * For players:
   * Updated for Stardew Valley 1.4.
   * Improved performance.
-  * Updated mod compatibility list.
   * Rewrote launch script on Linux to improve compatibility (thanks to kurumushi and toastal!).
-  * Improved handling for XNB mods unzipped into `Mods` (improved detection over generic invalid mods, and multi-folder XNB mods are now counted as one mod).
+  * Improved mod scanning:
+    * Now ignores metadata files/folders like `__MACOSX` and `__folder_managed_by_vortex`.
+    * Now ignores content files like `.txt` or `.png`, which avoids missing-manifest errors in some common cases.
+    * Now detects XNB mods more accurately, and consolidates multi-folder XNB mods.
+  * Updated mod compatibility list.
   * Fixed Save Backup not pruning old backups if they're uncompressed.
   * Fixed issues when a farmhand reconnects before the game notices they're disconnected.
   * Fixed 'received message' logs shown in non-developer mode.
