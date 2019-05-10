@@ -9,6 +9,7 @@ These changes have not been released yet.
 
 * For modders:
   * `this.Monitor.Log` now defaults to the `Trace` log level instead of `Debug`.
+  * Fixed 'location list changed' verbose log not correctly listing changes.
 
 ## 2.11.2
 Released 23 April 2019 for Stardew Valley 1.3.36.
