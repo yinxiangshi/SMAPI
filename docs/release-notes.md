@@ -25,6 +25,7 @@ These changes have not been released yet.
   * Removed all deprecated APIs.
   * Removed the `Monitor.ExitGameImmediately` method.
   * Updated to Json.NET 12.0.1.
+  * Fixed `LoadStageChanged` event not raising correct flags in some cases when creating a new save.
 
 ## 2.11.3
 Released 13 September 2019 for Stardew Valley 1.3.36.
