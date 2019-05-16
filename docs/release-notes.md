@@ -7,6 +7,9 @@ These changes have not been released yet.
   * SMAPI now prevents invalid event preconditions from crashing the game (thanks to berkayylmao!).
   * Fixed errors during early startup not shown before exit.
 
+* For the web UI:
+  * When filtering the mod list, clicking a mod link now automatically adds it to the visible mods.
+
 * For modders:
   * `this.Monitor.Log` now defaults to the `Trace` log level instead of `Debug`.
   * Fixed 'location list changed' verbose log not correctly listing changes.
