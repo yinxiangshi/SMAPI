@@ -15,6 +15,7 @@ These changes have not been released yet.
   * Fixed issues when a farmhand reconnects before the game notices they're disconnected.
   * Fixed 'received message' logs shown in non-developer mode.
   * Fixed some assets not updated when you switch language to English.
+  * Fixed lag in some cases due to incorrect asset caching when playing in non-English.
 
 * For modders:
   * Added support for content pack translations.
