@@ -20,6 +20,7 @@ These changes have not been released yet.
   * Fixed lag when a mod invalidates many NPC portraits/sprites at once.
   * Fixed map reloads resetting tilesheet seasons.
   * Fixed outdoor tilesheets being seasonalised when added to an indoor location.
+  * Fixed mods able to directly load (and in some cases edit) a different mod's local assets using internal asset key forwarding.
 
 * For modders:
   * Added support for content pack translations.
