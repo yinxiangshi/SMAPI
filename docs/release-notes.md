@@ -20,7 +20,6 @@ These changes have not been released yet.
   * Fixed lag when a mod invalidates many NPC portraits/sprites at once.
   * Fixed map reloads resetting tilesheet seasons.
   * Fixed outdoor tilesheets being seasonalised when added to an indoor location.
-  * Fixed mods able to directly load (and in some cases edit) a different mod's local assets using internal asset key forwarding.
 
 * For modders:
   * Added support for content pack translations.
@@ -52,6 +51,8 @@ Released 13 September 2019 for Stardew Valley 1.3.36.
 * For modders:
   * `this.Monitor.Log` now defaults to the `Trace` log level instead of `Debug`. The change will only take effect when you recompile the mod.
   * Fixed 'location list changed' verbose log not correctly listing changes.
+  * Fixed mods able to directly load (and in some cases edit) a different mod's local assets using internal asset key forwarding.
+  * Fixed changes to a map loaded by a mod being persisted across content managers.
 
 ## 2.11.2
 Released 23 April 2019 for Stardew Valley 1.3.36.
