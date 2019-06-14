@@ -9,6 +9,7 @@ These changes have not been released yet.
 
 * For the web UI:
   * When filtering the mod list, clicking a mod link now automatically adds it to the visible mods.
+  * Fixed log parser failing in some cases due to time format localisation.
 
 * For modders:
   * `this.Monitor.Log` now defaults to the `Trace` log level instead of `Debug`.
