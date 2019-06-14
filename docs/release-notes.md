@@ -32,6 +32,7 @@ These changes have not been released yet.
   * Removed all deprecated APIs.
   * Removed the `Monitor.ExitGameImmediately` method.
   * Updated to Json.NET 12.0.1.
+  * Fixed issue where mod changes weren't tracked correctly for raising events in some cases. Events now reflect a frozen snapshot of the game state, and any mod changes are reflected in the next event tick.
   * Fixed `LoadStageChanged` event not raising correct flags in some cases when creating a new save.
 
 ## 2.11.3
