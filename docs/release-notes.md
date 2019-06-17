@@ -28,6 +28,7 @@ These changes have not been released yet.
   * Added `Context.IsGameLaunched` field.
   * Mods are now loaded much earlier in the game launch. This lets mods intercept any content asset, but the game is not fully initialised when `Entry` is called (use the `GameLaunched` event if you need to run code when the game is initialised).
   * Added separate `LogNetworkTraffic` option to make verbose logging less overwhelmingly verbose.
+  * The installer now recognises custom game paths stored in `stardewvalley.targets`, if any.
   * When a mod is incompatible, the trace logs now list all detected issues instead of the first one.
   * Removed all deprecated APIs.
   * Removed the `Monitor.ExitGameImmediately` method.
