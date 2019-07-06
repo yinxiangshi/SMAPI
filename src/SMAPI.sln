@@ -39,6 +39,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{EB35A917-6
 		..\docs\README.md = ..\docs\README.md
 		..\docs\release-notes.md = ..\docs\release-notes.md
 		..\docs\technical-docs.md = ..\docs\technical-docs.md
+		..\docs\web-services.md = ..\docs\web-services.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Internal", "Internal", "{82D22ED7-A0A7-4D64-8E92-4B6A5E74ED11}"
