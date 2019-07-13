@@ -55,8 +55,8 @@ namespace StardewModdingAPI.Patches
         {
             harmony.Patch(
                 original: AccessTools.Method(typeof(Game1), nameof(Game1.loadForNewGame)),
-                prefix: new HarmonyMethod(this.GetType(), nameof(LoadContextPatch.Prefix)),
-                postfix: new HarmonyMethod(this.GetType(), nameof(LoadContextPatch.Postfix))
+                prefix: new HarmonyMethod(this.GetType(), nameof(LoadContextPatch.Before_Game1_LoadForNewGame)),
+                postfix: new HarmonyMethod(this.GetType(), nameof(LoadContextPatch.After_Game1_LoadForNewGame))
             );
         }
 
@@ -67,7 +67,7 @@ namespace StardewModdingAPI.Patches
         /// <summary>The method to call instead of <see cref="Game1.loadForNewGame"/>.</summary>
         /// <returns>Returns whether to execute the original method.</returns>
         /// <remarks>This method must be static for Harmony to work correctly. See the Harmony documentation before renaming arguments.</remarks>
-        private static bool Prefix()
+        private static bool Before_Game1_LoadForNewGame()
         {
             LoadContextPatch.IsCreating = Game1.activeClickableMenu is TitleMenu menu && LoadContextPatch.Reflection.GetField<bool>(menu, "transitioningCharacterCreationMenu").GetValue();
             LoadContextPatch.TimesLocationsCleared = 0;
@@ -83,7 +83,7 @@ namespace StardewModdingAPI.Patches
 
         /// <summary>The method to call instead after <see cref="Game1.loadForNewGame"/>.</summary>
         /// <remarks>This method must be static for Harmony to work correctly. See the Harmony documentation before renaming arguments.</remarks>
-        private static void Postfix()
+        private static void After_Game1_LoadForNewGame()
         {
             if (LoadContextPatch.IsCreating)
             {
