@@ -27,8 +27,7 @@ These changes have not been released yet.
 * For modders:
   * Mods are now loaded much earlier in the game launch. This lets mods intercept any content asset, but the game is not fully initialised when `Entry` is called (use the `GameLaunched` event if you need to run code when the game is initialised).
   * Added support for content pack translations.
-  * Added `IContentPack.HasFile` method.
-  * Added `Context.IsGameLaunched` field.
+  * Added fields and methods: `IContentPack.HasFile`, `Context.IsGameLaunched`, and `SemanticVersion.TryParse`.
   * Added separate `LogNetworkTraffic` option to make verbose logging less overwhelmingly verbose.
   * Added asset propagation for critter textures.
   * The installer now recognises custom game paths stored in `stardewvalley.targets`, if any.
