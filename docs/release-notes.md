@@ -29,7 +29,7 @@ These changes have not been released yet.
   * Added support for content pack translations.
   * Added fields and methods: `IContentPack.HasFile`, `Context.IsGameLaunched`, and `SemanticVersion.TryParse`.
   * Added separate `LogNetworkTraffic` option to make verbose logging less overwhelmingly verbose.
-  * Added asset propagation for critter textures.
+  * Added asset propagation for critter textures and `DayTimeMoneyBox` buttons.
   * The installer now recognises custom game paths stored in `stardewvalley.targets`, if any.
   * When a mod is incompatible, the trace logs now list all detected issues instead of the first one.
   * Removed all deprecated APIs.
