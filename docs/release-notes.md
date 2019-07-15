@@ -26,7 +26,7 @@ These changes have not been released yet.
 
 * For the mod compatibility list:
   * Clicking a mod link now automatically adds it to the visible mods when the list is filtered.
-  * Added metadata links to advanced info, if any.
+  * Added metadata links and dev notes (if any) to advanced info.
 
 * For modders:
   * Mods are now loaded much earlier in the game launch. This lets mods intercept any content asset, but the game is not fully initialised when `Entry` is called (use the `GameLaunched` event if you need to run code when the game is initialised).
