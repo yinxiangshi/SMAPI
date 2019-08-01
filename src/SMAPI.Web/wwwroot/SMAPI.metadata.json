@@ -126,6 +126,12 @@
             "~ | StatusReasonPhrase": "the animal mood bugs were fixed in Stardew Valley 1.2."
         },
 
+        "Bee House Flower Range Fix": {
+            "ID": "kirbylink.beehousefix",
+            "~ | Status": "Obsolete",
+            "~ | StatusReasonPhrase": "the bee house flower range was fixed in Stardew Valley 1.4." 
+        },
+
         "Colored Chests": {
             "ID": "4befde5c-731c-4853-8e4b-c5cdf946805f",
             "~ | Status": "Obsolete",
@@ -152,19 +158,44 @@
             "~1.1.2 | Status": "AssumeBroken" // crashes game on startup
         },
 
+        "Fix Dice": {
+            "ID": "ashley.fixdice",
+            "~1.1.2 | Status": "AssumeBroken" // crashes game on startup
+        },
+
         "Grass Growth": {
             "ID": "bcmpinc.GrassGrowth",
-            "~1.0 | Status": "AssumeBroken" // runtime Harmony error
+            "~1.0 | Status": "AssumeBroken"
+        },
+
+        "Invite Code Mod": {
+            "ID": "KOREJJamJar.InviteCodeMod",
+            "~1.0.1 | Status": "AssumeBroken"
         },
 
         "Loved Labels": {
             "ID": "Advize.LovedLabels",
-            "~2.2.1-unofficial.2-pathoschild | Status": "AssumeBroken" // runtime reflection errors
+            "~2.2.1-unofficial.2-pathoschild | Status": "AssumeBroken"
+        },
+
+        "Neat Additions": {
+            "ID": "ilyaki.neatadditions",
+            "~1.0.3 | Status": "AssumeBroken"
+        },
+
+        "Remote Fridge Storage": {
+            "ID": "EternalSoap.RemoteFridgeStorage",
+            "~1.5 | Status": "AssumeBroken"
+        },
+
+        "Stack Everything": {
+            "ID": "cat.stackeverything",
+            "~2.15 | Status": "AssumeBroken"
         },
 
         "Yet Another Harvest With Scythe Mod": {
             "ID": "bcmpinc.HarvestWithScythe",
-            "~1.1 | Status": "AssumeBroken" // runtime Harmony error
+            "~1.1 | Status": "AssumeBroken"
         },
 
         /*********
