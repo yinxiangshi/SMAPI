@@ -39,6 +39,7 @@ These changes have not been released yet.
 * For the JSON validator:
   * Added JSON validator at [json.smapi.io](https://json.smapi.io), which lets you validate a JSON file against predefined mod formats.
   * Added support for the `manifest.json` format.
+  * Added support for Content Patcher's `content.json` format (thanks to TehPers!).
 
 * For modders:
   * Mods are now loaded much earlier in the game launch. This lets mods intercept any content asset, but the game is not fully initialised when `Entry` is called (use the `GameLaunched` event if you need to run code when the game is initialised).
