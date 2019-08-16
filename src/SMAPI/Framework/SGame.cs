@@ -857,7 +857,7 @@ namespace StardewModdingAPI.Framework
                         Game1.overlayMenu.draw(Game1.spriteBatch);
                         Game1.spriteBatch.End();
                     }
-                    this.renderScreenBuffer();
+                    this.renderScreenBuffer(target_screen);
                 }
                 else
                 {
@@ -1177,11 +1177,26 @@ namespace StardewModdingAPI.Framework
                                 Game1.spriteBatch.Draw(Game1.littleEffect, new Microsoft.Xna.Framework.Rectangle((int)Game1.player.getLocalPosition(Game1.viewport).X - 2, (int)Game1.player.getLocalPosition(Game1.viewport).Y - (Game1.player.CurrentTool.Name.Equals("Watering Can") ? 0 : 64) - 2, (int)((double)Game1.toolHold % 600.0 * 0.0799999982118607) + 4, 12), Microsoft.Xna.Framework.Color.Black);
                                 Game1.spriteBatch.Draw(Game1.littleEffect, new Microsoft.Xna.Framework.Rectangle((int)Game1.player.getLocalPosition(Game1.viewport).X, (int)Game1.player.getLocalPosition(Game1.viewport).Y - (Game1.player.CurrentTool.Name.Equals("Watering Can") ? 0 : 64), (int)((double)Game1.toolHold % 600.0 * 0.0799999982118607), 8), color);
                             }
-                            bool flag = Game1.viewport.X > -Game1.viewport.Width;
-                            if (((!Game1.isDebrisWeather || !Game1.currentLocation.IsOutdoors || (bool)((NetFieldBase<bool, NetBool>)Game1.currentLocation.ignoreDebrisWeather) ? 0 : (!Game1.currentLocation.Name.Equals("Desert") ? 1 : 0)) & (flag ? 1 : 0)) != 0)
+                            if (Game1.isDebrisWeather && Game1.currentLocation.IsOutdoors && (!(bool)((NetFieldBase<bool, NetBool>)Game1.currentLocation.ignoreDebrisWeather) && !Game1.currentLocation.Name.Equals("Desert")))
                             {
-                                foreach (WeatherDebris weatherDebris in Game1.debrisWeather)
-                                    weatherDebris.draw(Game1.spriteBatch);
+                                if (this.takingMapScreenshot)
+                                {
+                                    if (Game1.debrisWeather != null)
+                                    {
+                                        foreach (WeatherDebris weatherDebris in Game1.debrisWeather)
+                                        {
+                                            Vector2 position = weatherDebris.position;
+                                            weatherDebris.position = new Vector2((float)Game1.random.Next(Game1.viewport.Width - weatherDebris.sourceRect.Width * 3), (float)Game1.random.Next(Game1.viewport.Height - weatherDebris.sourceRect.Height * 3));
+                                            weatherDebris.draw(Game1.spriteBatch);
+                                            weatherDebris.position = position;
+                                        }
+                                    }
+                                }
+                                else if (Game1.viewport.X > -Game1.viewport.Width)
+                                {
+                                    foreach (WeatherDebris weatherDebris in Game1.debrisWeather)
+                                        weatherDebris.draw(Game1.spriteBatch);
+                                }
                             }
                             if (Game1.farmEvent != null)
                                 Game1.farmEvent.draw(Game1.spriteBatch);
@@ -1445,7 +1460,7 @@ namespace StardewModdingAPI.Framework
                         events.Rendered.RaiseEmpty();
                         Game1.spriteBatch.End();
                         this.drawOverlays(Game1.spriteBatch);
-                        this.renderScreenBuffer();
+                        this.renderScreenBuffer(target_screen);
                     }
                 }
             }
