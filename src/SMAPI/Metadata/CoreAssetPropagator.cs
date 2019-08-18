@@ -255,8 +255,8 @@ namespace StardewModdingAPI.Metadata
 
                 case "data\\movies": // MovieTheater.GetMovieData
                     this.Reflection
-                        .GetField<List<MovieData>>(typeof(MovieTheater), "_movieData")
-                        .SetValue(content.Load<List<MovieData>>(key));
+                        .GetField<Dictionary<string, MovieData>>(typeof(MovieTheater), "_movieData")
+                        .SetValue(content.Load<Dictionary<string, MovieData>>(key));
                     return true;
 
                 case "data\\npcdispositions": // NPC constructor
