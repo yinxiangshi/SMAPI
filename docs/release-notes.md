@@ -7,6 +7,7 @@ These changes have not been released yet.
   * SMAPI now prevents invalid event preconditions from crashing the game (thanks to berkayylmao!).
   * SMAPI now prevents more invalid dialogues from crashing the game.
   * Fixed errors during early startup not shown before exit.
+  * Fixed various error messages and inconsistent spelling.
 
 * For the web UI:
   * When filtering the mod list, clicking a mod link now automatically adds it to the visible mods.
