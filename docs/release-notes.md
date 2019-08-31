@@ -52,6 +52,7 @@ These changes have not been released yet.
   * Added fields and methods: `IContentPack.HasFile`, `Context.IsGameLaunched`, and `SemanticVersion.TryParse`.
   * Added separate `LogNetworkTraffic` option to make verbose logging less overwhelmingly verbose.
   * Added asset propagation for critter textures and `DayTimeMoneyBox` buttons.
+  * `Constants.TargetPlatform` now returns `Android` when playing on an Android device.
   * The installer now recognises custom game paths stored in `stardewvalley.targets`, if any.
   * Trace logs for a broken mod now list all detected issues (instead of the first one).
   * Trace logs when loading mods are now more clear.
