@@ -1012,14 +1012,17 @@ namespace StardewModdingAPI.Framework
                                 for (int index = 0; index < Game1.currentLightSources.Count; ++index)
                                 {
                                     LightSource lightSource = Game1.currentLightSources.ElementAt<LightSource>(index);
-                                    if (lightSource.PlayerID != 0L && lightSource.PlayerID != Game1.player.UniqueMultiplayerID)
+                                    if ((!Game1.isDarkOut() || lightSource.lightContext.Value != LightSource.LightContext.WindowLight) && !Game1.isRaining)
                                     {
-                                        Farmer farmerMaybeOffline = Game1.getFarmerMaybeOffline(lightSource.PlayerID);
-                                        if (farmerMaybeOffline == null || farmerMaybeOffline.currentLocation != null && farmerMaybeOffline.currentLocation.Name != Game1.currentLocation.Name || (bool)((NetFieldBase<bool, NetBool>)farmerMaybeOffline.hidden))
-                                            continue;
+                                        if (lightSource.PlayerID != 0L && lightSource.PlayerID != Game1.player.UniqueMultiplayerID)
+                                        {
+                                            Farmer farmerMaybeOffline = Game1.getFarmerMaybeOffline(lightSource.PlayerID);
+                                            if (farmerMaybeOffline == null || farmerMaybeOffline.currentLocation != null && farmerMaybeOffline.currentLocation.Name != Game1.currentLocation.Name || (bool)((NetFieldBase<bool, NetBool>)farmerMaybeOffline.hidden))
+                                                continue;
+                                        }
+                                        if (Utility.isOnScreen((Vector2)((NetFieldBase<Vector2, NetVector2>)Game1.currentLightSources.ElementAt<LightSource>(index).position), (int)((double)(float)((NetFieldBase<float, NetFloat>)Game1.currentLightSources.ElementAt<LightSource>(index).radius) * 64.0 * 4.0)))
+                                            Game1.spriteBatch.Draw(Game1.currentLightSources.ElementAt<LightSource>(index).lightTexture, Game1.GlobalToLocal(Game1.viewport, (Vector2)((NetFieldBase<Vector2, NetVector2>)Game1.currentLightSources.ElementAt<LightSource>(index).position)) / (float)(Game1.options.lightingQuality / 2), new Microsoft.Xna.Framework.Rectangle?(Game1.currentLightSources.ElementAt<LightSource>(index).lightTexture.Bounds), (Microsoft.Xna.Framework.Color)((NetFieldBase<Microsoft.Xna.Framework.Color, NetColor>)Game1.currentLightSources.ElementAt<LightSource>(index).color), 0.0f, new Vector2((float)Game1.currentLightSources.ElementAt<LightSource>(index).lightTexture.Bounds.Center.X, (float)Game1.currentLightSources.ElementAt<LightSource>(index).lightTexture.Bounds.Center.Y), (float)((NetFieldBase<float, NetFloat>)Game1.currentLightSources.ElementAt<LightSource>(index).radius) / (float)(Game1.options.lightingQuality / 2), SpriteEffects.None, 0.9f);
                                     }
-                                    if (Utility.isOnScreen((Vector2)((NetFieldBase<Vector2, NetVector2>)Game1.currentLightSources.ElementAt<LightSource>(index).position), (int)((double)(float)((NetFieldBase<float, NetFloat>)Game1.currentLightSources.ElementAt<LightSource>(index).radius) * 64.0 * 4.0)))
-                                        Game1.spriteBatch.Draw(Game1.currentLightSources.ElementAt<LightSource>(index).lightTexture, Game1.GlobalToLocal(Game1.viewport, (Vector2)((NetFieldBase<Vector2, NetVector2>)Game1.currentLightSources.ElementAt<LightSource>(index).position)) / (float)(Game1.options.lightingQuality / 2), new Microsoft.Xna.Framework.Rectangle?(Game1.currentLightSources.ElementAt<LightSource>(index).lightTexture.Bounds), (Microsoft.Xna.Framework.Color)((NetFieldBase<Microsoft.Xna.Framework.Color, NetColor>)Game1.currentLightSources.ElementAt<LightSource>(index).color), 0.0f, new Vector2((float)Game1.currentLightSources.ElementAt<LightSource>(index).lightTexture.Bounds.Center.X, (float)Game1.currentLightSources.ElementAt<LightSource>(index).lightTexture.Bounds.Center.Y), (float)((NetFieldBase<float, NetFloat>)Game1.currentLightSources.ElementAt<LightSource>(index).radius) / (float)(Game1.options.lightingQuality / 2), SpriteEffects.None, 0.9f);
                                 }
                                 Game1.spriteBatch.End();
                                 this.GraphicsDevice.SetRenderTarget(target_screen);
@@ -1221,10 +1224,21 @@ namespace StardewModdingAPI.Framework
                             Game1.currentLocation.drawAboveAlwaysFrontLayer(Game1.spriteBatch);
                             if (Game1.player.CurrentTool != null && Game1.player.CurrentTool is FishingRod && ((Game1.player.CurrentTool as FishingRod).isTimingCast || (double)(Game1.player.CurrentTool as FishingRod).castingChosenCountdown > 0.0 || ((Game1.player.CurrentTool as FishingRod).fishCaught || (Game1.player.CurrentTool as FishingRod).showingTreasure)))
                                 Game1.player.CurrentTool.draw(Game1.spriteBatch);
-                            if (Game1.isRaining && Game1.currentLocation.IsOutdoors && (!Game1.currentLocation.Name.Equals("Desert") && !(Game1.currentLocation is Summit)) && (!Game1.eventUp || Game1.currentLocation.isTileOnMap(new Vector2((float)(Game1.viewport.X / 64), (float)(Game1.viewport.Y / 64)))))
+                            if (Game1.isRaining && Game1.currentLocation.IsOutdoors && (!Game1.currentLocation.Name.Equals("Desert") && !(Game1.currentLocation is Summit)))
                             {
-                                for (int index = 0; index < Game1.rainDrops.Length; ++index)
-                                    Game1.spriteBatch.Draw(Game1.rainTexture, Game1.rainDrops[index].position, new Microsoft.Xna.Framework.Rectangle?(Game1.getSourceRectForStandardTileSheet(Game1.rainTexture, Game1.rainDrops[index].frame, -1, -1)), Microsoft.Xna.Framework.Color.White);
+                                if (this.takingMapScreenshot)
+                                {
+                                    for (int index = 0; index < Game1.rainDrops.Length; ++index)
+                                    {
+                                        Vector2 position = new Vector2((float)Game1.random.Next(Game1.viewport.Width - 64), (float)Game1.random.Next(Game1.viewport.Height - 64));
+                                        Game1.spriteBatch.Draw(Game1.rainTexture, position, new Microsoft.Xna.Framework.Rectangle?(Game1.getSourceRectForStandardTileSheet(Game1.rainTexture, Game1.rainDrops[index].frame, -1, -1)), Microsoft.Xna.Framework.Color.White);
+                                    }
+                                }
+                                else if (!Game1.eventUp || Game1.currentLocation.isTileOnMap(new Vector2((float)(Game1.viewport.X / 64), (float)(Game1.viewport.Y / 64))))
+                                {
+                                    for (int index = 0; index < Game1.rainDrops.Length; ++index)
+                                        Game1.spriteBatch.Draw(Game1.rainTexture, Game1.rainDrops[index].position, new Microsoft.Xna.Framework.Rectangle?(Game1.getSourceRectForStandardTileSheet(Game1.rainTexture, Game1.rainDrops[index].frame, -1, -1)), Microsoft.Xna.Framework.Color.White);
+                                }
                             }
                             Game1.spriteBatch.End();
                             Game1.spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp, (DepthStencilState)null, (RasterizerState)null);
