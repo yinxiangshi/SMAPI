@@ -1,11 +1,11 @@
 # Release notes
-## 3.0 (upcoming release)
-These changes have not been released yet.
+## 2.11.3
+Released 13 September 2019 for Stardew Valley 1.3.36.
 
 * For players:
   * SMAPI now prevents invalid items from breaking menus on hover.
   * SMAPI now prevents invalid event preconditions from crashing the game (thanks to berkayylmao!).
-  * SMAPI now prevents more invalid dialogues from crashing the game.
+  * SMAPI now prevents more invalid dialogue from crashing the game.
   * Fixed errors during early startup not shown before exit.
   * Fixed various error messages and inconsistent spelling.
 
@@ -15,7 +15,7 @@ These changes have not been released yet.
   * Fixed log parser failing in some cases due to time format localisation.
 
 * For modders:
-  * `this.Monitor.Log` now defaults to the `Trace` log level instead of `Debug`.
+  * `this.Monitor.Log` now defaults to the `Trace` log level instead of `Debug`. The change will only take effect when you recompile the mod.
   * Fixed 'location list changed' verbose log not correctly listing changes.
 
 ## 2.11.2
