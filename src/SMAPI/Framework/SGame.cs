@@ -1012,7 +1012,7 @@ namespace StardewModdingAPI.Framework
                                 for (int index = 0; index < Game1.currentLightSources.Count; ++index)
                                 {
                                     LightSource lightSource = Game1.currentLightSources.ElementAt<LightSource>(index);
-                                    if ((!Game1.isDarkOut() || lightSource.lightContext.Value != LightSource.LightContext.WindowLight) && !Game1.isRaining)
+                                    if (!Game1.isRaining && !Game1.isDarkOut() || lightSource.lightContext.Value != LightSource.LightContext.WindowLight)
                                     {
                                         if (lightSource.PlayerID != 0L && lightSource.PlayerID != Game1.player.UniqueMultiplayerID)
                                         {
@@ -1021,7 +1021,7 @@ namespace StardewModdingAPI.Framework
                                                 continue;
                                         }
                                         if (Utility.isOnScreen((Vector2)((NetFieldBase<Vector2, NetVector2>)Game1.currentLightSources.ElementAt<LightSource>(index).position), (int)((double)(float)((NetFieldBase<float, NetFloat>)Game1.currentLightSources.ElementAt<LightSource>(index).radius) * 64.0 * 4.0)))
-                                            Game1.spriteBatch.Draw(Game1.currentLightSources.ElementAt<LightSource>(index).lightTexture, Game1.GlobalToLocal(Game1.viewport, (Vector2)((NetFieldBase<Vector2, NetVector2>)Game1.currentLightSources.ElementAt<LightSource>(index).position)) / (float)(Game1.options.lightingQuality / 2), new Microsoft.Xna.Framework.Rectangle?(Game1.currentLightSources.ElementAt<LightSource>(index).lightTexture.Bounds), (Microsoft.Xna.Framework.Color)((NetFieldBase<Microsoft.Xna.Framework.Color, NetColor>)Game1.currentLightSources.ElementAt<LightSource>(index).color), 0.0f, new Vector2((float)Game1.currentLightSources.ElementAt<LightSource>(index).lightTexture.Bounds.Center.X, (float)Game1.currentLightSources.ElementAt<LightSource>(index).lightTexture.Bounds.Center.Y), (float)((NetFieldBase<float, NetFloat>)Game1.currentLightSources.ElementAt<LightSource>(index).radius) / (float)(Game1.options.lightingQuality / 2), SpriteEffects.None, 0.9f);
+                                            Game1.spriteBatch.Draw(Game1.currentLightSources.ElementAt<LightSource>(index).lightTexture, Game1.GlobalToLocal(Game1.viewport, (Vector2)((NetFieldBase<Vector2, NetVector2>)Game1.currentLightSources.ElementAt<LightSource>(index).position)) / (float)(Game1.options.lightingQuality / 2), new Microsoft.Xna.Framework.Rectangle?(Game1.currentLightSources.ElementAt<LightSource>(index).lightTexture.Bounds), (Microsoft.Xna.Framework.Color) ((NetFieldBase<Microsoft.Xna.Framework.Color, NetColor>)Game1.currentLightSources.ElementAt<LightSource>(index).color), 0.0f, new Vector2((float)Game1.currentLightSources.ElementAt<LightSource>(index).lightTexture.Bounds.Center.X, (float)Game1.currentLightSources.ElementAt<LightSource>(index).lightTexture.Bounds.Center.Y), (float)((NetFieldBase<float, NetFloat>)Game1.currentLightSources.ElementAt<LightSource>(index).radius) / (float)(Game1.options.lightingQuality / 2), SpriteEffects.None, 0.9f);
                                     }
                                 }
                                 Game1.spriteBatch.End();
@@ -1180,27 +1180,7 @@ namespace StardewModdingAPI.Framework
                                 Game1.spriteBatch.Draw(Game1.littleEffect, new Microsoft.Xna.Framework.Rectangle((int)Game1.player.getLocalPosition(Game1.viewport).X - 2, (int)Game1.player.getLocalPosition(Game1.viewport).Y - (Game1.player.CurrentTool.Name.Equals("Watering Can") ? 0 : 64) - 2, (int)((double)Game1.toolHold % 600.0 * 0.0799999982118607) + 4, 12), Microsoft.Xna.Framework.Color.Black);
                                 Game1.spriteBatch.Draw(Game1.littleEffect, new Microsoft.Xna.Framework.Rectangle((int)Game1.player.getLocalPosition(Game1.viewport).X, (int)Game1.player.getLocalPosition(Game1.viewport).Y - (Game1.player.CurrentTool.Name.Equals("Watering Can") ? 0 : 64), (int)((double)Game1.toolHold % 600.0 * 0.0799999982118607), 8), color);
                             }
-                            if (Game1.isDebrisWeather && Game1.currentLocation.IsOutdoors && (!(bool)((NetFieldBase<bool, NetBool>)Game1.currentLocation.ignoreDebrisWeather) && !Game1.currentLocation.Name.Equals("Desert")))
-                            {
-                                if (this.takingMapScreenshot)
-                                {
-                                    if (Game1.debrisWeather != null)
-                                    {
-                                        foreach (WeatherDebris weatherDebris in Game1.debrisWeather)
-                                        {
-                                            Vector2 position = weatherDebris.position;
-                                            weatherDebris.position = new Vector2((float)Game1.random.Next(Game1.viewport.Width - weatherDebris.sourceRect.Width * 3), (float)Game1.random.Next(Game1.viewport.Height - weatherDebris.sourceRect.Height * 3));
-                                            weatherDebris.draw(Game1.spriteBatch);
-                                            weatherDebris.position = position;
-                                        }
-                                    }
-                                }
-                                else if (Game1.viewport.X > -Game1.viewport.Width)
-                                {
-                                    foreach (WeatherDebris weatherDebris in Game1.debrisWeather)
-                                        weatherDebris.draw(Game1.spriteBatch);
-                                }
-                            }
+                            this.drawWeather(gameTime, target_screen);
                             if (Game1.farmEvent != null)
                                 Game1.farmEvent.draw(Game1.spriteBatch);
                             if ((double)Game1.currentLocation.LightLevel > 0.0 && Game1.timeOfDay < 2000)
@@ -1224,22 +1204,6 @@ namespace StardewModdingAPI.Framework
                             Game1.currentLocation.drawAboveAlwaysFrontLayer(Game1.spriteBatch);
                             if (Game1.player.CurrentTool != null && Game1.player.CurrentTool is FishingRod && ((Game1.player.CurrentTool as FishingRod).isTimingCast || (double)(Game1.player.CurrentTool as FishingRod).castingChosenCountdown > 0.0 || ((Game1.player.CurrentTool as FishingRod).fishCaught || (Game1.player.CurrentTool as FishingRod).showingTreasure)))
                                 Game1.player.CurrentTool.draw(Game1.spriteBatch);
-                            if (Game1.isRaining && Game1.currentLocation.IsOutdoors && (!Game1.currentLocation.Name.Equals("Desert") && !(Game1.currentLocation is Summit)))
-                            {
-                                if (this.takingMapScreenshot)
-                                {
-                                    for (int index = 0; index < Game1.rainDrops.Length; ++index)
-                                    {
-                                        Vector2 position = new Vector2((float)Game1.random.Next(Game1.viewport.Width - 64), (float)Game1.random.Next(Game1.viewport.Height - 64));
-                                        Game1.spriteBatch.Draw(Game1.rainTexture, position, new Microsoft.Xna.Framework.Rectangle?(Game1.getSourceRectForStandardTileSheet(Game1.rainTexture, Game1.rainDrops[index].frame, -1, -1)), Microsoft.Xna.Framework.Color.White);
-                                    }
-                                }
-                                else if (!Game1.eventUp || Game1.currentLocation.isTileOnMap(new Vector2((float)(Game1.viewport.X / 64), (float)(Game1.viewport.Y / 64))))
-                                {
-                                    for (int index = 0; index < Game1.rainDrops.Length; ++index)
-                                        Game1.spriteBatch.Draw(Game1.rainTexture, Game1.rainDrops[index].position, new Microsoft.Xna.Framework.Rectangle?(Game1.getSourceRectForStandardTileSheet(Game1.rainTexture, Game1.rainDrops[index].frame, -1, -1)), Microsoft.Xna.Framework.Color.White);
-                                }
-                            }
                             Game1.spriteBatch.End();
                             Game1.spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp, (DepthStencilState)null, (RasterizerState)null);
                             if (Game1.eventUp && Game1.currentLocation.currentEvent != null)
