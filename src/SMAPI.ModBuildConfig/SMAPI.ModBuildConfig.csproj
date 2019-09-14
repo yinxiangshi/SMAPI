@@ -28,8 +28,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\docs\mod-build-config.md">
-      <Link>mod-build-config.md</Link>
+    <None Include="..\..\docs\technical\mod-package.md">
+      <Link>mod-package.md</Link>
     </None>
   </ItemGroup>
 

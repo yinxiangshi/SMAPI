@@ -8,6 +8,7 @@
     <OutputPath>..\..\bin\$(Configuration)\SMAPI.Toolkit.CoreInterfaces</OutputPath>
     <DocumentationFile>..\..\bin\$(Configuration)\SMAPI.Toolkit.CoreInterfaces\$(TargetFramework)\SMAPI.Toolkit.CoreInterfaces.xml</DocumentationFile>
     <LangVersion>latest</LangVersion>
+    <PlatformTarget Condition="'$(TargetFramework)' == 'net4.5'">x86</PlatformTarget>
   </PropertyGroup>
 
   <Import Project="..\..\build\common.targets" />
