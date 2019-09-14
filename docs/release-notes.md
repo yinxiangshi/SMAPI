@@ -43,6 +43,9 @@ These changes have not been released yet.
   * Added support for the Content Patcher format (thanks to TehPers!).
   * Added support for referencing a schema in a JSON Schema-compatible text editor.
 
+* For the log parser:
+  * The page now detects your OS and preselects the right instructions (thanks to danvolchek!).
+
 * For modders:
   * Mods are now loaded much earlier in the game launch. This lets mods intercept any content asset, but the game is not fully initialized when `Entry` is called (use the `GameLaunched` event if you need to run code when the game is initialized).
   * Added support for content pack translations.
