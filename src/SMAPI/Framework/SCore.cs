@@ -164,6 +164,13 @@ namespace StardewModdingAPI.Framework
                 this.Monitor.Log("(Using custom --mods-path argument.)", LogLevel.Trace);
             this.Monitor.Log($"Log started at {DateTime.UtcNow:s} UTC", LogLevel.Trace);
 
+            // log custom settings
+            {
+                IDictionary<string, object> customSettings = this.Settings.GetCustomSettings();
+                if (customSettings.Any())
+                    this.Monitor.Log($"Loaded with custom settings: {string.Join(", ", customSettings.OrderBy(p => p.Key).Select(p => $"{p.Key}: {p.Value}"))}", LogLevel.Trace);
+            }
+
             // validate platform
 #if SMAPI_FOR_WINDOWS
             if (Constants.Platform != Platform.Windows)

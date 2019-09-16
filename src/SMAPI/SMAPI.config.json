@@ -3,6 +3,7 @@
 
 
 This file contains advanced configuration for SMAPI. You generally shouldn't change this file.
+The default values are mirrored in StardewModdingAPI.Framework.Models.SConfig to log custom changes.
 
 
 

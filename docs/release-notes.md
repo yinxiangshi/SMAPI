@@ -43,7 +43,6 @@ For modders:
   * Improved mod scanning:
     * Now ignores metadata files and folders (like `__MACOSX` and `__folder_managed_by_vortex`) and content files (like `.txt` or `.png`), which avoids missing-manifest errors in some common cases.
     * Now detects XNB mods more accurately, and consolidates multi-folder XNB mods in logged messages.
-    * Added trace logs for skipped loose files so it's easier to troubleshoot player logs.
   * Save Backup now works in the background, to avoid affecting startup time for players with a large number of saves.
   * The installer now recognises custom game paths stored in `stardewvalley.targets`.
   * Duplicate-mod errors now show the mod version in each folder.
@@ -93,6 +92,7 @@ For modders:
   * Added separate `LogNetworkTraffic` option to make verbose logging less overwhelmingly verbose.
   * Added asset propagation for `Data\FarmAnimals`, critter textures, and `DayTimeMoneyBox` buttons.
   * Added `Texture2D.Name` values set to the asset key.
+  * Added trace logs for skipped loose files in the `Mods` folder and custom SMAPI settings so it's easier to troubleshoot player logs.
   * `Constants.TargetPlatform` now returns `Android` when playing on an Android device.
   * Trace logs for a broken mod now list all detected issues (instead of the first one).
   * Trace logs when loading mods are now more clear.
