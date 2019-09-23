@@ -43,6 +43,7 @@ For modders:
   * Improved mod scanning:
     * Now ignores metadata files and folders (like `__MACOSX` and `__folder_managed_by_vortex`) and content files (like `.txt` or `.png`), which avoids missing-manifest errors in some common cases.
     * Now detects XNB mods more accurately, and consolidates multi-folder XNB mods in logged messages.
+  * Added support for configuring console colors via `smapi-internal/config.json` (intended for players with unusual consoles).
   * Save Backup now works in the background, to avoid affecting startup time for players with a large number of saves.
   * The installer now recognises custom game paths stored in `stardewvalley.targets`.
   * Duplicate-mod errors now show the mod version in each folder.

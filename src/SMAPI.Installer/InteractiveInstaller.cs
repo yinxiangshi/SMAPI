@@ -100,7 +100,7 @@ namespace StardewModdingApi.Installer
         public InteractiveInstaller(string bundlePath)
         {
             this.BundlePath = bundlePath;
-            this.ConsoleWriter = new ColorfulConsoleWriter(EnvironmentUtility.DetectPlatform(), MonitorColorScheme.AutoDetect);
+            this.ConsoleWriter = new ColorfulConsoleWriter(EnvironmentUtility.DetectPlatform());
         }
 
         /// <summary>Run the install or uninstall script.</summary>
@@ -217,8 +217,8 @@ namespace StardewModdingApi.Installer
                 ** show theme selector
                 ****/
                 // get theme writers
-                var lightBackgroundWriter = new ColorfulConsoleWriter(EnvironmentUtility.DetectPlatform(), MonitorColorScheme.LightBackground);
-                var darkBackgroundWriter = new ColorfulConsoleWriter(EnvironmentUtility.DetectPlatform(), MonitorColorScheme.DarkBackground);
+                var lightBackgroundWriter = new ColorfulConsoleWriter(platform, ColorfulConsoleWriter.GetDefaultColorSchemeConfig(MonitorColorScheme.LightBackground));
+                var darkBackgroundWriter = new ColorfulConsoleWriter(platform, ColorfulConsoleWriter.GetDefaultColorSchemeConfig(MonitorColorScheme.DarkBackground));
 
                 // print question
                 this.PrintPlain("Which text looks more readable?");
@@ -470,7 +470,7 @@ namespace StardewModdingApi.Installer
                     {
                         string text = File
                             .ReadAllText(paths.ApiConfigPath)
-                            .Replace(@"""ColorScheme"": ""AutoDetect""", $@"""ColorScheme"": ""{scheme}""");
+                            .Replace(@"""UseScheme"": ""AutoDetect""", $@"""UseScheme"": ""{scheme}""");
                         File.WriteAllText(paths.ApiConfigPath, text);
                     }
 
