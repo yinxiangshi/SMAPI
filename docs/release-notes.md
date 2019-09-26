@@ -8,12 +8,16 @@ These changes have not been released yet.
 For players:
 * **Updated for Stardew Valley 1.4.**  
   SMAPI 3.0 adds compatibility with the latest game version, and improves mod APIs using changes in the game code.
+
 * **Improved performance.**  
   SMAPI should have less impact on game performance and startup time for some players.
+
 * **Added more error recovery.**  
-  SMAPI now detects and prevents more crashes due to game or mod bugs.
+  SMAPI now detects and prevents more crashes due to game or mod bugs, or due to removing some mods which add custom content.
+
 * **Improved mod scanning.**  
   SMAPI now supports some non-standard mod structures automatically, improves compatibility with the Vortex mod manager, and improves various error/skip messages related to mod loading.
+
 * **Fixed many bugs and edge cases.**
 
 For modders:
@@ -39,11 +43,12 @@ For modders:
 * Changes:
   * Updated for Stardew Valley 1.4.
   * Improved performance.
-  * Rewrote launch script on Linux to improve compatibility (thanks to kurumushi and toastal!).
   * Improved mod scanning:
     * Now ignores metadata files and folders (like `__MACOSX` and `__folder_managed_by_vortex`) and content files (like `.txt` or `.png`), which avoids missing-manifest errors in some common cases.
     * Now detects XNB mods more accurately, and consolidates multi-folder XNB mods in logged messages.
+  * SMAPI now automatically fixes your save if you remove a custom NPC mod. (Invalid NPCs are now removed on load, with a warning in the console.)
   * Added support for configuring console colors via `smapi-internal/config.json` (intended for players with unusual consoles).
+  * Improved launch script compatibility on Linux (thanks to kurumushi and toastal!).
   * Save Backup now works in the background, to avoid affecting startup time for players with a large number of saves.
   * The installer now recognises custom game paths stored in `stardewvalley.targets`.
   * Duplicate-mod errors now show the mod version in each folder.
