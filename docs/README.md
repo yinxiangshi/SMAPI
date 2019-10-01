@@ -41,14 +41,14 @@ doesn't change any of your game files. It serves eight main purposes:
    something goes wrong. (Via the bundled SaveBackup mod.)_
 
 ## Documentation
-Have questions? Come [chat on Discord](https://stardewvalleywiki.com/Modding:Community) with SMAPI
+Have questions? Come [ask the community](https://smapi.io/community) to get help from SMAPI
 developers and other modders!
 
 ### For players
 * [Player guide](https://stardewvalleywiki.com/Modding:Player_Guide)
 
 ### For modders
-* [Modding documentation](https://stardewvalleywiki.com/Modding:Index)
+* [Modding documentation](https://smapi.io/docs)
 * [Mod build configuration](technical/mod-package.md)
 * [Release notes](release-notes.md)
 
