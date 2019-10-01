@@ -7,6 +7,7 @@ and update check API.
 * [Log parser](#log-parser)
 * [JSON validator](#json-validator)
 * [Web API](#web-api)
+* [Short URLs](#short-urls)
 * [For SMAPI developers](#for-smapi-developers)
   * [Local development](#local-development)
   * [Deploying to Amazon Beanstalk](#deploying-to-amazon-beanstalk)
@@ -170,6 +171,18 @@ For example:
    }
 ]
 ```
+
+## Short URLs
+The SMAPI web services provides a few short URLs for convenience:
+
+short url | → | target page
+:-------- | - | :----------
+[smapi.io/3.0](https://smapi.io/3.0) | → | [stardewvalleywiki.com/Modding:Migrate_to_SMAPI_3.0](https://stardewvalleywiki.com/Modding:Migrate_to_SMAPI_3.0)
+[smapi.io/community](https://smapi.io/community) | → | [stardewvalleywiki.com/Modding:Community](https://stardewvalleywiki.com/Modding:Community)
+[smapi.io/docs](https://smapi.io/docs) | → | [stardewvalleywiki.com/Modding:Index](https://stardewvalleywiki.com/Modding:Index)
+[smapi.io/package](https://smapi.io/package) | → | [github.com/Pathoschild/SMAPI/blob/develop/docs/technical/mod-package.md](https://github.com/Pathoschild/SMAPI/blob/develop/docs/technical/mod-package.md)
+[smapi.io/troubleshoot](https://smapi.io/troubleshoot) | → | [stardewvalleywiki.com/Modding:Player_Guide/Troubleshooting](https://stardewvalleywiki.com/Modding:Player_Guide/Troubleshooting)
+[smapi.io/xnb](https://smapi.io/xnb) | → | [stardewvalleywiki.com/Modding:Using_XNB_mods](https://stardewvalleywiki.com/Modding:Using_XNB_mods)
 
 ## For SMAPI developers
 ### Local environment
