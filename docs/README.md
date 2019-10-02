@@ -19,7 +19,7 @@ doesn't change any of your game files. It serves eight main purposes:
    _SMAPI detects when a mod accesses part of the game that changed in a game update which affects
    many mods, and rewrites the mod so it's compatible._
 
-5. **Intercept errors.**  
+5. **Intercept errors and automatically fix saves.**  
    _SMAPI intercepts errors, shows the error info in the SMAPI console, and in most cases
    automatically recovers the game. That prevents mods from crashing the game, and makes it
    possible to troubleshoot errors in the game itself that would otherwise show a generic 'program

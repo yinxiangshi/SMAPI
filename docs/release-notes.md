@@ -7,12 +7,12 @@ These changes have not been released yet.
 ### Release highlights
 For players:
 * **Updated for Stardew Valley 1.4.**  
-  SMAPI 3.0 adds compatibility with the latest game version, and improves mod APIs using changes in the game code.
+  SMAPI 3.0 adds compatibility with the latest game version, and improves mod APIs for changes in the game code.
 
 * **Improved performance.**  
   SMAPI should have less impact on game performance and startup time for some players.
 
-* **Added more error recovery.**  
+* **Automatic save fixing and more error recovery.**  
   SMAPI now detects and prevents more crashes due to game/mod bugs, or due to removing mods which add custom locations or NPCs.
 
 * **Improved mod scanning.**  
@@ -37,7 +37,7 @@ For modders:
   SMAPI now automatically propagates asset changes for farm animal data, NPC default location data, critter textures, and `DayTimeMoneyBox` buttons. Every loaded texture now also has a `Name` field so mods can check which asset a texture was loaded for.
 
 * **Breaking changes:**  
-  See _[migrate to SMAPI 3.0](https://stardewvalleywiki.com/Modding:Migrate_to_SMAPI_3.0)_ for more info.
+  See _[migrate to SMAPI 3.0](https://stardewvalleywiki.com/Modding:Migrate_to_SMAPI_3.0)_ and _[migrate to Stardew Valley 1.4](https://stardewvalleywiki.com/Modding:Migrate_to_Stardew_Valley_1.4)_ for more info.
 
 ### For players
 * Changes:
