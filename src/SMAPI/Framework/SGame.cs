@@ -908,6 +908,14 @@ namespace StardewModdingAPI.Framework
                     }
                     else if (Game1.currentMinigame != null)
                     {
+                        int batchEnds = 0;
+
+                        if (events.Rendering.HasListeners())
+                        {
+                            Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
+                            events.Rendering.RaiseEmpty();
+                            Game1.spriteBatch.End();
+                        }
                         Game1.currentMinigame.draw(Game1.spriteBatch);
                         if (Game1.globalFade && !Game1.menuUp && (!Game1.nameSelectUp || Game1.messagePause))
                         {
@@ -917,11 +925,21 @@ namespace StardewModdingAPI.Framework
                         }
                         this.drawOverlays(Game1.spriteBatch);
                         if (target_screen == null)
+                        {
+                            if (++batchEnds == 1 && events.Rendered.HasListeners())
+                            {
+                                Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
+                                events.Rendered.RaiseEmpty();
+                                Game1.spriteBatch.End();
+                            }
                             return;
+                        }
                         this.GraphicsDevice.SetRenderTarget((RenderTarget2D)null);
                         this.GraphicsDevice.Clear(Game1.bgColor);
                         Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
                         Game1.spriteBatch.Draw((Texture2D)target_screen, Vector2.Zero, new Microsoft.Xna.Framework.Rectangle?(target_screen.Bounds), Microsoft.Xna.Framework.Color.White, 0.0f, Vector2.Zero, Game1.options.zoomLevel, SpriteEffects.None, 1f);
+                        if (++batchEnds == 1)
+                            events.Rendered.RaiseEmpty();
                         Game1.spriteBatch.End();
                     }
                     else if (Game1.showingEndOfNightStuff)

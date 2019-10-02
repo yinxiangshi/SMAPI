@@ -123,6 +123,7 @@ For modders:
   * Fixed issue where, when a mod's `IAssetEditor` uses `asset.ReplaceWith` on a texture asset while playing in non-English, any changes from that point won't affect subsequent cached asset loads.
   * Fixed asset propagation for NPC portraits resetting any unique portraits (e.g. Maru's hospital portrait) to the default.
   * Fixed changes to `Data\NPCDispositions` not always propagated correctly to existing NPCs.
+  * Fixed `Rendering`/`Rendered` events not raised during minigames.
   * Fixed `LoadStageChanged` event not raising correct flags in some cases when creating a new save.
   * Fixed `GetApi` without an interface not checking if all mods are loaded.
 
