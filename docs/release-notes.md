@@ -113,6 +113,11 @@ For modders:
   * Fixed changes to `Data\NPCDispositions` not always propagated correctly to existing NPCs.
   * Fixed `LoadStageChanged` event not raising correct flags in some cases when creating a new save.
 
+### For SMAPI maintainers
+* Added support for core translation files.
+* Migrated to new `.csproj` format.
+* Internal refactoring.
+
 ## 2.11.3
 Released 13 September 2019 for Stardew Valley 1.3.36.
 

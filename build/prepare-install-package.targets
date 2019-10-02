@@ -17,6 +17,9 @@
       <PlatformName>windows</PlatformName>
       <PlatformName Condition="$(OS) != 'Windows_NT'">unix</PlatformName>
     </PropertyGroup>
+    <ItemGroup>
+      <TranslationFiles Include="$(CompiledSmapiPath)\i18n\*.json" />
+    </ItemGroup>
 
     <!-- reset package directory -->
     <RemoveDir Directories="$(PackagePath)" />
@@ -46,6 +49,7 @@
     <Copy SourceFiles="$(CompiledToolkitPath)\SMAPI.Toolkit.CoreInterfaces.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
     <Copy SourceFiles="$(CompiledToolkitPath)\SMAPI.Toolkit.CoreInterfaces.pdb" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
     <Copy SourceFiles="$(CompiledToolkitPath)\SMAPI.Toolkit.CoreInterfaces.xml" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
+    <Copy SourceFiles="@(TranslationFiles)" DestinationFolder="$(PackagePath)\bundle\smapi-internal\i18n" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(TargetDir)\unix-launcher.sh" DestinationFiles="$(PackagePath)\bundle\StardewModdingAPI" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\System.Numerics.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(CompiledSmapiPath)\System.Runtime.Caching.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />

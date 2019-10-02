@@ -54,3 +54,23 @@ developers and other modders!
 
 ### For SMAPI developers
 * [Technical docs](technical/smapi.md)
+
+## Translating SMAPI
+SMAPI rarely shows text in-game, so it only has a few translations. Contributions are welcome! See
+[Modding:Translations](https://stardewvalleywiki.com/Modding:Translations) on the wiki for help
+contributing translations.
+
+locale     | status
+---------- | :----------------
+default    | ✓ [fully translated](../src/SMAPI/i18n/default.json)
+Chinese    | ❑ not translated
+French     | ❑ not translated
+German     | ❑ not translated
+Hungarian  | ❑ not translated
+Italian    | ❑ not translated
+Japanese   | ❑ not translated
+Korean     | ❑ not translated
+Portuguese | ❑ not translated
+Russian    | ❑ not translated
+Spanish    | ❑ not translated
+Turkish    | ❑ not translated

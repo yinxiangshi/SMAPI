@@ -83,6 +83,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>Simplifies access to private game code.</summary>
         private readonly Reflector Reflection;
 
+        /// <summary>Encapsulates access to SMAPI core translations.</summary>
+        private readonly Translator Translator;
+
         /// <summary>Propagates notification that SMAPI should exit.</summary>
         private readonly CancellationTokenSource CancellationToken;
 
@@ -135,6 +138,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="monitor">Encapsulates monitoring and logging for SMAPI.</param>
         /// <param name="monitorForGame">Encapsulates monitoring and logging on the game's behalf.</param>
         /// <param name="reflection">Simplifies access to private game code.</param>
+        /// <param name="translator">Encapsulates access to arbitrary translations.</param>
         /// <param name="eventManager">Manages SMAPI events for mods.</param>
         /// <param name="jsonHelper">Encapsulates SMAPI's JSON file parsing.</param>
         /// <param name="modRegistry">Tracks the installed mods.</param>
@@ -143,7 +147,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="onGameExiting">A callback to invoke when the game exits.</param>
         /// <param name="cancellationToken">Propagates notification that SMAPI should exit.</param>
         /// <param name="logNetworkTraffic">Whether to log network traffic.</param>
-        internal SGame(Monitor monitor, IMonitor monitorForGame, Reflector reflection, EventManager eventManager, JsonHelper jsonHelper, ModRegistry modRegistry, DeprecationManager deprecationManager, Action onGameInitialized, Action onGameExiting, CancellationTokenSource cancellationToken, bool logNetworkTraffic)
+        internal SGame(Monitor monitor, IMonitor monitorForGame, Reflector reflection, Translator translator, EventManager eventManager, JsonHelper jsonHelper, ModRegistry modRegistry, DeprecationManager deprecationManager, Action onGameInitialized, Action onGameExiting, CancellationTokenSource cancellationToken, bool logNetworkTraffic)
         {
             this.OnLoadingFirstAsset = SGame.ConstructorHack.OnLoadingFirstAsset;
             SGame.ConstructorHack = null;
@@ -161,6 +165,7 @@ namespace StardewModdingAPI.Framework
             this.Events = eventManager;
             this.ModRegistry = modRegistry;
             this.Reflection = reflection;
+            this.Translator = translator;
             this.DeprecationManager = deprecationManager;
             this.OnGameInitialized = onGameInitialized;
             this.OnGameExiting = onGameExiting;

@@ -61,6 +61,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>Simplifies access to private game code.</summary>
         private readonly Reflector Reflection = new Reflector();
 
+        /// <summary>Encapsulates access to SMAPI core translations.</summary>
+        private readonly Translator Translator = new Translator();
+
         /// <summary>The SMAPI configuration settings.</summary>
         private readonly SConfig Settings;
 
@@ -223,6 +226,7 @@ namespace StardewModdingAPI.Framework
                     monitor: this.Monitor,
                     monitorForGame: this.MonitorForGame,
                     reflection: this.Reflection,
+                    translator: this.Translator,
                     eventManager: this.EventManager,
                     jsonHelper: this.Toolkit.JsonHelper,
                     modRegistry: this.ModRegistry,
@@ -232,6 +236,7 @@ namespace StardewModdingAPI.Framework
                     cancellationToken: this.CancellationToken,
                     logNetworkTraffic: this.Settings.LogNetworkTraffic
                 );
+                this.Translator.SetLocale(this.GameInstance.ContentCore.GetLocale(), this.GameInstance.ContentCore.Language);
                 StardewValley.Program.gamePtr = this.GameInstance;
 
                 // apply game patches
@@ -465,6 +470,9 @@ namespace StardewModdingAPI.Framework
             // get locale
             string locale = this.ContentCore.GetLocale();
             LocalizedContentManager.LanguageCode languageCode = this.ContentCore.Language;
+
+            // update core translations
+            this.Translator.SetLocale(locale, languageCode);
 
             // update mod translation helpers
             foreach (IModMetadata mod in this.ModRegistry.GetAll())
@@ -1027,6 +1035,14 @@ namespace StardewModdingAPI.Framework
                     TranslationHelper translationHelper = new TranslationHelper(manifest.UniqueID, contentCore.GetLocale(), contentCore.Language);
                     IModHelper modHelper;
                     {
+                        IContentPack CreateFakeContentPack(string packDirPath, IManifest packManifest)
+                        {
+                            IMonitor packMonitor = this.GetSecondaryMonitor(packManifest.Name);
+                            IContentHelper packContentHelper = new ContentHelper(contentCore, packDirPath, packManifest.UniqueID, packManifest.Name, packMonitor);
+                            ITranslationHelper packTranslationHelper = new TranslationHelper(packManifest.UniqueID, contentCore.GetLocale(), contentCore.Language);
+                            return new ContentPack(packDirPath, packManifest, packContentHelper, packTranslationHelper, this.Toolkit.JsonHelper);
+                        }
+
                         IModEvents events = new ModEvents(mod, this.EventManager);
                         ICommandHelper commandHelper = new CommandHelper(mod, this.GameInstance.CommandManager);
                         IContentHelper contentHelper = new ContentHelper(contentCore, mod.DirectoryPath, manifest.UniqueID, mod.DisplayName, monitor);
@@ -1035,14 +1051,6 @@ namespace StardewModdingAPI.Framework
                         IReflectionHelper reflectionHelper = new ReflectionHelper(manifest.UniqueID, mod.DisplayName, this.Reflection);
                         IModRegistry modRegistryHelper = new ModRegistryHelper(manifest.UniqueID, this.ModRegistry, proxyFactory, monitor);
                         IMultiplayerHelper multiplayerHelper = new MultiplayerHelper(manifest.UniqueID, this.GameInstance.Multiplayer);
-
-                        IContentPack CreateFakeContentPack(string packDirPath, IManifest packManifest)
-                        {
-                            IMonitor packMonitor = this.GetSecondaryMonitor(packManifest.Name);
-                            IContentHelper packContentHelper = new ContentHelper(contentCore, packDirPath, packManifest.UniqueID, packManifest.Name, packMonitor);
-                            ITranslationHelper packTranslationHelper = new TranslationHelper(packManifest.UniqueID, contentCore.GetLocale(), contentCore.Language);
-                            return new ContentPack(packDirPath, packManifest, packContentHelper, packTranslationHelper, this.Toolkit.JsonHelper);
-                        }
 
                         modHelper = new ModHelper(manifest.UniqueID, mod.DirectoryPath, this.GameInstance.Input, events, contentHelper, contentPackHelper, commandHelper, dataHelper, modRegistryHelper, reflectionHelper, multiplayerHelper, translationHelper);
                     }
@@ -1205,60 +1213,85 @@ namespace StardewModdingAPI.Framework
         /// <param name="mods">The mods for which to reload translations.</param>
         private void ReloadTranslations(IEnumerable<IModMetadata> mods)
         {
-            JsonHelper jsonHelper = this.Toolkit.JsonHelper;
+            // core SMAPI translations
+            {
+                var translations = this.ReadTranslationFiles(Path.Combine(Constants.InternalFilesPath, "i18n"), out IList<string> errors);
+                if (errors.Any() || !translations.Any())
+                {
+                    this.Monitor.Log("SMAPI couldn't load some core translations. You may need to reinstall SMAPI.", LogLevel.Warn);
+                    foreach (string error in errors)
+                        this.Monitor.Log($"  - {error}", LogLevel.Warn);
+                }
+                this.Translator.SetTranslations(translations);
+            }
+
+            // mod translations
             foreach (IModMetadata metadata in mods)
             {
-                // read translation files
-                IDictionary<string, IDictionary<string, string>> translations = new Dictionary<string, IDictionary<string, string>>();
-                DirectoryInfo translationsDir = new DirectoryInfo(Path.Combine(metadata.DirectoryPath, "i18n"));
-                if (translationsDir.Exists)
+                var translations = this.ReadTranslationFiles(Path.Combine(metadata.DirectoryPath, "i18n"), out IList<string> errors);
+                if (errors.Any())
                 {
-                    foreach (FileInfo file in translationsDir.EnumerateFiles("*.json"))
-                    {
-                        string locale = Path.GetFileNameWithoutExtension(file.Name.ToLower().Trim());
-                        try
-                        {
-                            if (jsonHelper.ReadJsonFileIfExists(file.FullName, out IDictionary<string, string> data))
-                                translations[locale] = data;
-                            else
-                                metadata.LogAsMod($"Mod's i18n/{locale}.json file couldn't be parsed.", LogLevel.Warn);
-                        }
-                        catch (Exception ex)
-                        {
-                            metadata.LogAsMod($"Mod's i18n/{locale}.json file couldn't be parsed: {ex.GetLogSummary()}", LogLevel.Warn);
-                        }
-                    }
+                    metadata.LogAsMod("Mod couldn't load some translation files:", LogLevel.Warn);
+                    foreach (string error in errors)
+                        metadata.LogAsMod($"  - {error}", LogLevel.Warn);
                 }
-
-                // validate translations
-                foreach (string locale in translations.Keys.ToArray())
-                {
-                    // skip empty files
-                    if (translations[locale] == null || !translations[locale].Keys.Any())
-                    {
-                        metadata.LogAsMod($"Mod's i18n/{locale}.json is empty and will be ignored.", LogLevel.Warn);
-                        translations.Remove(locale);
-                        continue;
-                    }
-
-                    // handle duplicates
-                    HashSet<string> keys = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
-                    HashSet<string> duplicateKeys = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
-                    foreach (string key in translations[locale].Keys.ToArray())
-                    {
-                        if (!keys.Add(key))
-                        {
-                            duplicateKeys.Add(key);
-                            translations[locale].Remove(key);
-                        }
-                    }
-                    if (duplicateKeys.Any())
-                        metadata.LogAsMod($"Mod's i18n/{locale}.json has duplicate translation keys: [{string.Join(", ", duplicateKeys)}]. Keys are case-insensitive.", LogLevel.Warn);
-                }
-
-                // update translation
                 metadata.Translations.SetTranslations(translations);
             }
+        }
+
+        /// <summary>Read translations from a directory containing JSON translation files.</summary>
+        /// <param name="folderPath">The folder path to search.</param>
+        /// <param name="errors">The errors indicating why translation files couldn't be parsed, indexed by translation filename.</param>
+        private IDictionary<string, IDictionary<string, string>> ReadTranslationFiles(string folderPath, out IList<string> errors)
+        {
+            JsonHelper jsonHelper = this.Toolkit.JsonHelper;
+
+            // read translation files
+            var translations = new Dictionary<string, IDictionary<string, string>>();
+            errors = new List<string>();
+            DirectoryInfo translationsDir = new DirectoryInfo(folderPath);
+            if (translationsDir.Exists)
+            {
+                foreach (FileInfo file in translationsDir.EnumerateFiles("*.json"))
+                {
+                    string locale = Path.GetFileNameWithoutExtension(file.Name.ToLower().Trim());
+                    try
+                    {
+                        if (!jsonHelper.ReadJsonFileIfExists(file.FullName, out IDictionary<string, string> data))
+                        {
+                            errors.Add($"{file.Name} file couldn't be read"); // should never happen, since we're iterating files that exist
+                            continue;
+                        }
+
+                        translations[locale] = data;
+                    }
+                    catch (Exception ex)
+                    {
+                        errors.Add($"{file.Name} file couldn't be parsed: {ex.GetLogSummary()}");
+                        continue;
+                    }
+                }
+            }
+
+            // validate translations
+            foreach (string locale in translations.Keys.ToArray())
+            {
+                // handle duplicates
+                HashSet<string> keys = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+                HashSet<string> duplicateKeys = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+                foreach (string key in translations[locale].Keys.ToArray())
+                {
+                    if (!keys.Add(key))
+                    {
+                        duplicateKeys.Add(key);
+                        translations[locale].Remove(key);
+                    }
+                }
+                if (duplicateKeys.Any())
+                    errors.Add($"{locale}.json has duplicate translation keys: [{string.Join(", ", duplicateKeys)}]. Keys are case-insensitive.");
+            }
+
+            return translations;
         }
 
         /// <summary>The method called when the user submits a core SMAPI command in the console.</summary>
