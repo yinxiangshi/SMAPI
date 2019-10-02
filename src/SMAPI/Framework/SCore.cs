@@ -960,7 +960,7 @@ namespace StardewModdingAPI.Framework
                 IManifest manifest = mod.Manifest;
                 IMonitor monitor = this.GetSecondaryMonitor(mod.DisplayName);
                 IContentHelper contentHelper = new ContentHelper(this.ContentCore, mod.DirectoryPath, manifest.UniqueID, mod.DisplayName, monitor);
-                TranslationHelper translationHelper = new TranslationHelper(manifest.UniqueID, manifest.Name, contentCore.GetLocale(), contentCore.Language);
+                TranslationHelper translationHelper = new TranslationHelper(manifest.UniqueID, contentCore.GetLocale(), contentCore.Language);
                 IContentPack contentPack = new ContentPack(mod.DirectoryPath, manifest, contentHelper, translationHelper, jsonHelper);
                 mod.SetMod(contentPack, monitor, translationHelper);
                 this.ModRegistry.Add(mod);
@@ -1024,7 +1024,7 @@ namespace StardewModdingAPI.Framework
 
                     // init mod helpers
                     IMonitor monitor = this.GetSecondaryMonitor(mod.DisplayName);
-                    TranslationHelper translationHelper = new TranslationHelper(manifest.UniqueID, manifest.Name, contentCore.GetLocale(), contentCore.Language);
+                    TranslationHelper translationHelper = new TranslationHelper(manifest.UniqueID, contentCore.GetLocale(), contentCore.Language);
                     IModHelper modHelper;
                     {
                         IModEvents events = new ModEvents(mod, this.EventManager);
@@ -1040,7 +1040,7 @@ namespace StardewModdingAPI.Framework
                         {
                             IMonitor packMonitor = this.GetSecondaryMonitor(packManifest.Name);
                             IContentHelper packContentHelper = new ContentHelper(contentCore, packDirPath, packManifest.UniqueID, packManifest.Name, packMonitor);
-                            ITranslationHelper packTranslationHelper = new TranslationHelper(packManifest.UniqueID, packManifest.Name, contentCore.GetLocale(), contentCore.Language);
+                            ITranslationHelper packTranslationHelper = new TranslationHelper(packManifest.UniqueID, contentCore.GetLocale(), contentCore.Language);
                             return new ContentPack(packDirPath, packManifest, packContentHelper, packTranslationHelper, this.Toolkit.JsonHelper);
                         }
 

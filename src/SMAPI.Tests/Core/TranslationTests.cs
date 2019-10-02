@@ -32,7 +32,7 @@ namespace SMAPI.Tests.Core
             var data = new Dictionary<string, IDictionary<string, string>>();
 
             // act
-            ITranslationHelper helper = new TranslationHelper("ModID", "ModName", "en", LocalizedContentManager.LanguageCode.en).SetTranslations(data);
+            ITranslationHelper helper = new TranslationHelper("ModID", "en", LocalizedContentManager.LanguageCode.en).SetTranslations(data);
             Translation translation = helper.Get("key");
             Translation[] translationList = helper.GetTranslations()?.ToArray();
 
@@ -55,7 +55,7 @@ namespace SMAPI.Tests.Core
 
             // act
             var actual = new Dictionary<string, Translation[]>();
-            TranslationHelper helper = new TranslationHelper("ModID", "ModName", "en", LocalizedContentManager.LanguageCode.en).SetTranslations(data);
+            TranslationHelper helper = new TranslationHelper("ModID", "en", LocalizedContentManager.LanguageCode.en).SetTranslations(data);
             foreach (string locale in expected.Keys)
             {
                 this.AssertSetLocale(helper, locale, LocalizedContentManager.LanguageCode.en);
@@ -79,7 +79,7 @@ namespace SMAPI.Tests.Core
 
             // act
             var actual = new Dictionary<string, Translation[]>();
-            TranslationHelper helper = new TranslationHelper("ModID", "ModName", "en", LocalizedContentManager.LanguageCode.en).SetTranslations(data);
+            TranslationHelper helper = new TranslationHelper("ModID", "en", LocalizedContentManager.LanguageCode.en).SetTranslations(data);
             foreach (string locale in expected.Keys)
             {
                 this.AssertSetLocale(helper, locale, LocalizedContentManager.LanguageCode.en);
@@ -109,14 +109,14 @@ namespace SMAPI.Tests.Core
         [TestCase("  boop  ", ExpectedResult = true)]
         public bool Translation_HasValue(string text)
         {
-            return new Translation("ModName", "pt-BR", "key", text).HasValue();
+            return new Translation("pt-BR", "key", text).HasValue();
         }
 
         [Test(Description = "Assert that the translation's ToString method returns the expected text for various inputs.")]
         public void Translation_ToString([ValueSource(nameof(TranslationTests.Samples))] string text)
         {
             // act
-            Translation translation = new Translation("ModName", "pt-BR", "key", text);
+            Translation translation = new Translation("pt-BR", "key", text);
 
             // assert
             if (translation.HasValue())
@@ -129,7 +129,7 @@ namespace SMAPI.Tests.Core
         public void Translation_ImplicitStringConversion([ValueSource(nameof(TranslationTests.Samples))] string text)
         {
             // act
-            Translation translation = new Translation("ModName", "pt-BR", "key", text);
+            Translation translation = new Translation("pt-BR", "key", text);
 
             // assert
             if (translation.HasValue())
@@ -142,7 +142,7 @@ namespace SMAPI.Tests.Core
         public void Translation_UsePlaceholder([Values(true, false)] bool value, [ValueSource(nameof(TranslationTests.Samples))] string text)
         {
             // act
-            Translation translation = new Translation("ModName", "pt-BR", "key", text).UsePlaceholder(value);
+            Translation translation = new Translation("pt-BR", "key", text).UsePlaceholder(value);
 
             // assert
             if (translation.HasValue())
@@ -153,24 +153,11 @@ namespace SMAPI.Tests.Core
                 Assert.AreEqual(this.GetPlaceholderText("key"), translation.ToString(), "The translation returned an unexpected value given a null or empty input with the placeholder enabled.");
         }
 
-        [Test(Description = "Assert that the translation's Assert method throws the expected exception.")]
-        public void Translation_Assert([ValueSource(nameof(TranslationTests.Samples))] string text)
-        {
-            // act
-            Translation translation = new Translation("ModName", "pt-BR", "key", text);
-
-            // assert
-            if (translation.HasValue())
-                Assert.That(() => translation.Assert(), Throws.Nothing, "The assert unexpected threw an exception for a valid input.");
-            else
-                Assert.That(() => translation.Assert(), Throws.Exception.TypeOf<KeyNotFoundException>(), "The assert didn't throw an exception for invalid input.");
-        }
-
         [Test(Description = "Assert that the translation returns the expected text after setting the default.")]
         public void Translation_Default([ValueSource(nameof(TranslationTests.Samples))] string text, [ValueSource(nameof(TranslationTests.Samples))] string @default)
         {
             // act
-            Translation translation = new Translation("ModName", "pt-BR", "key", text).Default(@default);
+            Translation translation = new Translation("pt-BR", "key", text).Default(@default);
 
             // assert
             if (!string.IsNullOrEmpty(text))
@@ -195,7 +182,7 @@ namespace SMAPI.Tests.Core
             string expected = $"{start} tokens are properly replaced (including {middle} {middle}) {end}";
 
             // act
-            Translation translation = new Translation("ModName", "pt-BR", "key", input);
+            Translation translation = new Translation("pt-BR", "key", input);
             switch (structure)
             {
                 case "anonymous object":
@@ -236,7 +223,7 @@ namespace SMAPI.Tests.Core
             string value = Guid.NewGuid().ToString("N");
 
             // act
-            Translation translation = new Translation("ModName", "pt-BR", "key", text).Tokens(new Dictionary<string, object> { [key] = value });
+            Translation translation = new Translation("pt-BR", "key", text).Tokens(new Dictionary<string, object> { [key] = value });
 
             // assert
             Assert.AreEqual(value, translation.ToString(), "The translation returned an unexpected value given a valid base text.");
@@ -252,7 +239,7 @@ namespace SMAPI.Tests.Core
             string value = Guid.NewGuid().ToString("N");
 
             // act
-            Translation translation = new Translation("ModName", "pt-BR", "key", text).Tokens(new Dictionary<string, object> { [key] = value });
+            Translation translation = new Translation("pt-BR", "key", text).Tokens(new Dictionary<string, object> { [key] = value });
 
             // assert
             Assert.AreEqual(value, translation.ToString(), "The translation returned an unexpected value given a valid base text.");
@@ -303,19 +290,19 @@ namespace SMAPI.Tests.Core
             {
                 ["default"] = new[]
                 {
-                    new Translation(string.Empty, "default", "key A", "default A"),
-                    new Translation(string.Empty, "default", "key C", "default C")
+                    new Translation("default", "key A", "default A"),
+                    new Translation("default", "key C", "default C")
                 },
                 ["en"] = new[]
                 {
-                    new Translation(string.Empty, "en", "key A", "en A"),
-                    new Translation(string.Empty, "en", "key B", "en B"),
-                    new Translation(string.Empty, "en", "key C", "default C")
+                    new Translation("en", "key A", "en A"),
+                    new Translation("en", "key B", "en B"),
+                    new Translation("en", "key C", "default C")
                 },
                 ["zzz"] = new[]
                 {
-                    new Translation(string.Empty, "zzz", "key A", "zzz A"),
-                    new Translation(string.Empty, "zzz", "key C", "default C")
+                    new Translation("zzz", "key A", "zzz A"),
+                    new Translation("zzz", "key C", "default C")
                 }
             };
             expected["en-us"] = expected["en"].ToArray();

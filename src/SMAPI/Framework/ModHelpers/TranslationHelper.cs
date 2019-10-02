@@ -11,9 +11,6 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /*********
         ** Fields
         *********/
-        /// <summary>The name of the relevant mod for error messages.</summary>
-        private readonly string ModName;
-
         /// <summary>The translations for each locale.</summary>
         private readonly IDictionary<string, IDictionary<string, string>> All = new Dictionary<string, IDictionary<string, string>>(StringComparer.InvariantCultureIgnoreCase);
 
@@ -36,15 +33,11 @@ namespace StardewModdingAPI.Framework.ModHelpers
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="modID">The unique ID of the relevant mod.</param>
-        /// <param name="modName">The name of the relevant mod for error messages.</param>
         /// <param name="locale">The initial locale.</param>
         /// <param name="languageCode">The game's current language code.</param>
-        public TranslationHelper(string modID, string modName, string locale, LocalizedContentManager.LanguageCode languageCode)
+        public TranslationHelper(string modID, string locale, LocalizedContentManager.LanguageCode languageCode)
             : base(modID)
         {
-            // save data
-            this.ModName = modName;
-
             // set locale
             this.SetLocale(locale, languageCode);
         }
@@ -60,7 +53,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         public Translation Get(string key)
         {
             this.ForLocale.TryGetValue(key, out Translation translation);
-            return translation ?? new Translation(this.ModName, this.Locale, key, null);
+            return translation ?? new Translation(this.Locale, key, null);
         }
 
         /// <summary>Get a translation for the current locale.</summary>
@@ -105,7 +98,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
                 foreach (var pair in translations)
                 {
                     if (!this.ForLocale.ContainsKey(pair.Key))
-                        this.ForLocale.Add(pair.Key, new Translation(this.ModName, this.Locale, pair.Key, pair.Value));
+                        this.ForLocale.Add(pair.Key, new Translation(this.Locale, pair.Key, pair.Value));
                 }
             }
         }

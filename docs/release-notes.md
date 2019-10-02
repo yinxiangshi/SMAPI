@@ -90,7 +90,7 @@ For modders:
 * Breaking changes:
   * Mods are now loaded much earlier in the game launch. This lets mods intercept any content asset, but the game is not fully initialized when `Entry` is called (use the `GameLaunched` event if you need to run code when the game is initialized).
   * Removed all deprecated APIs.
-  * Removed `Monitor.ExitGameImmediately`.
+  * Removed unused APIs: `Monitor.ExitGameImmediately`, `Translation.ModName`, and `Translation.Assert`.
   * Fixed `ICursorPosition.AbsolutePixels` not adjusted for zoom.
 * Changes:
   * Added support for content pack translations.
