@@ -190,7 +190,7 @@ namespace StardewModdingAPI
         ** Private methods
         *********/
         /// <summary>Get the name of the save folder, if any.</summary>
-        internal static string GetSaveFolderName()
+        private static string GetSaveFolderName()
         {
             // save not available
             if (Context.LoadStage == LoadStage.None)
@@ -215,7 +215,7 @@ namespace StardewModdingAPI
         }
 
         /// <summary>Get the path to the current save folder, if any.</summary>
-        internal static string GetSaveFolderPathIfExists()
+        private static string GetSaveFolderPathIfExists()
         {
             string folderName = Constants.GetSaveFolderName();
             if (folderName == null)

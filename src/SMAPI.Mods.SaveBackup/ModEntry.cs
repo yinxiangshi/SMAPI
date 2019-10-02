@@ -73,6 +73,7 @@ namespace StardewModdingAPI.Mods.SaveBackup
                 this.Monitor.Log($"Backing up saves to {targetFile.FullName}...", LogLevel.Trace);
                 switch (Constants.TargetPlatform)
                 {
+                    case GamePlatform.Android:
                     case GamePlatform.Linux:
                     case GamePlatform.Windows:
                         {
