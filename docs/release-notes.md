@@ -13,7 +13,7 @@ For players:
   SMAPI should have less impact on game performance and startup time for some players.
 
 * **Added more error recovery.**  
-  SMAPI now detects and prevents more crashes due to game or mod bugs, or due to removing some mods which add custom content.
+  SMAPI now detects and prevents more crashes due to game/mod bugs, or due to removing mods which add custom locations or NPCs.
 
 * **Improved mod scanning.**  
   SMAPI now supports some non-standard mod structures automatically, improves compatibility with the Vortex mod manager, and improves various error/skip messages related to mod loading.
@@ -46,7 +46,7 @@ For modders:
   * Improved mod scanning:
     * Now ignores metadata files and folders (like `__MACOSX` and `__folder_managed_by_vortex`) and content files (like `.txt` or `.png`), which avoids missing-manifest errors in some common cases.
     * Now detects XNB mods more accurately, and consolidates multi-folder XNB mods in logged messages.
-  * SMAPI now automatically fixes your save if you remove a custom NPC mod. (Invalid NPCs are now removed on load, with a warning in the console.)
+  * SMAPI now automatically removes invalid content when loading a save to prevent crashes. A warning is shown in-game when this happens. This applies for locations and NPCs.
   * Added support for configuring console colors via `smapi-internal/config.json` (intended for players with unusual consoles).
   * Improved launch script compatibility on Linux (thanks to kurumushi and toastal!).
   * Save Backup now works in the background, to avoid affecting startup time for players with a large number of saves.

@@ -23,10 +23,10 @@ doesn't change any of your game files. It serves eight main purposes:
    _SMAPI intercepts errors, shows the error info in the SMAPI console, and in most cases
    automatically recovers the game. That prevents mods from crashing the game, and makes it
    possible to troubleshoot errors in the game itself that would otherwise show a generic 'program
-  has stopped working' type of message._
+   has stopped working' type of message._
 
-   _That also includes automatically fixing save data when a load would crash, e.g. due to a custom
-   NPC mod the player removed._
+   _SMAPI also automatically fixes save data in some cases when a load would crash, e.g. due to a
+   custom location or NPC mod that was removed._
 
 6. **Provide update checks.**  
    _SMAPI automatically checks for new versions of your installed mods, and notifies you when any

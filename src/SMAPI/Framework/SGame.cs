@@ -65,6 +65,9 @@ namespace StardewModdingAPI.Framework
         /// <remarks>Skipping a few frames ensures the game finishes initializing the world before mods try to change it.</remarks>
         private readonly Countdown AfterLoadTimer = new Countdown(5);
 
+        /// <summary>Whether custom content was removed from the save data to avoid a crash.</summary>
+        private bool IsSaveContentRemoved;
+
         /// <summary>Whether the game is saving and SMAPI has already raised <see cref="IGameLoopEvents.Saving"/>.</summary>
         private bool IsBetweenSaveEvents;
 
@@ -214,6 +217,12 @@ namespace StardewModdingAPI.Framework
             // raise events for applicable mods
             HashSet<string> modIDs = new HashSet<string>(message.ToModIDs ?? this.ModRegistry.GetAll().Select(p => p.Manifest.UniqueID), StringComparer.InvariantCultureIgnoreCase);
             this.Events.ModMessageReceived.RaiseForMods(new ModMessageReceivedEventArgs(message), mod => mod != null && modIDs.Contains(mod.Manifest.UniqueID));
+        }
+
+        /// <summary>A callback invoked when custom content is removed from the save data to avoid a crash.</summary>
+        internal void OnSaveContentRemoved()
+        {
+            this.IsSaveContentRemoved = true;
         }
 
         /// <summary>A callback invoked when the game's low-level load stage changes.</summary>
@@ -456,6 +465,16 @@ namespace StardewModdingAPI.Framework
                 this.WatcherSnapshot.Update(this.Watchers);
                 this.Watchers.Reset();
                 WatcherSnapshot state = this.WatcherSnapshot;
+
+                /*********
+                ** Display in-game warnings
+                *********/
+                // save content removed
+                if (this.IsSaveContentRemoved && Context.IsWorldReady)
+                {
+                    this.IsSaveContentRemoved = false;
+                    Game1.addHUDMessage(new HUDMessage(this.Translator.Get("warn.invalid-content-removed"), HUDMessage.error_type));
+                }
 
                 /*********
                 ** Pre-update events

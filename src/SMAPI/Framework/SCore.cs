@@ -245,7 +245,7 @@ namespace StardewModdingAPI.Framework
                     new DialogueErrorPatch(this.MonitorForGame, this.Reflection),
                     new ObjectErrorPatch(),
                     new LoadContextPatch(this.Reflection, this.GameInstance.OnLoadStageChanged),
-                    new LoadErrorPatch(this.Monitor)
+                    new LoadErrorPatch(this.Monitor, this.GameInstance.OnSaveContentRemoved)
                 );
 
                 // add exit handler

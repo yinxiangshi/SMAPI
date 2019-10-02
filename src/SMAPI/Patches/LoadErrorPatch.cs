@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -20,6 +21,9 @@ namespace StardewModdingAPI.Patches
         /// <summary>Writes messages to the console and log file.</summary>
         private static IMonitor Monitor;
 
+        /// <summary>A callback invoked when custom content is removed from the save data to avoid a crash.</summary>
+        private static Action OnContentRemoved;
+
 
         /*********
         ** Accessors
@@ -33,9 +37,11 @@ namespace StardewModdingAPI.Patches
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="monitor">Writes messages to the console and log file.</param>
-        public LoadErrorPatch(IMonitor monitor)
+        /// <param name="onContentRemoved">A callback invoked when custom content is removed from the save data to avoid a crash.</param>
+        public LoadErrorPatch(IMonitor monitor, Action onContentRemoved)
         {
             LoadErrorPatch.Monitor = monitor;
+            LoadErrorPatch.OnContentRemoved = onContentRemoved;
         }
 
 
@@ -58,6 +64,22 @@ namespace StardewModdingAPI.Patches
         /// <returns>Returns whether to execute the original method.</returns>
         private static bool Before_SaveGame_LoadDataToLocations(List<GameLocation> gamelocations)
         {
+            bool removedAny = false;
+
+            // remove invalid locations
+            foreach (GameLocation location in gamelocations.ToArray())
+            {
+                if (location is Cellar)
+                    continue; // missing cellars will be added by the game code
+
+                if (Game1.getLocationFromName(location.name) == null)
+                {
+                    LoadErrorPatch.Monitor.Log($"Removed invalid location '{location.Name}' to avoid a crash when loading save '{Constants.SaveFolderName}'. (Did you remove a custom location mod?)", LogLevel.Warn);
+                    gamelocations.Remove(location);
+                    removedAny = true;
+                }
+            }
+
             // get building interiors
             var interiors =
                 (
@@ -83,10 +105,14 @@ namespace StardewModdingAPI.Patches
                         {
                             LoadErrorPatch.Monitor.Log($"Removed invalid villager '{npc.Name}' to avoid a crash when loading save '{Constants.SaveFolderName}'. (Did you remove a custom NPC mod?)", LogLevel.Warn);
                             location.characters.Remove(npc);
+                            removedAny = true;
                         }
                     }
                 }
             }
+
+            if (removedAny)
+                LoadErrorPatch.OnContentRemoved();
 
             return true;
         }
