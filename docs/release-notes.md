@@ -112,6 +112,7 @@ For modders:
   * Fixed asset propagation for NPC portraits resetting any unique portraits (e.g. Maru's hospital portrait) to the default.
   * Fixed changes to `Data\NPCDispositions` not always propagated correctly to existing NPCs.
   * Fixed `LoadStageChanged` event not raising correct flags in some cases when creating a new save.
+  * Fixed `GetApi` without an interface not checking if all mods are loaded.
 
 ### For SMAPI maintainers
 * Added support for core translation files.
