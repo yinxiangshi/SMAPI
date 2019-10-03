@@ -762,12 +762,14 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>The method called to draw everything to the screen.</summary>
         /// <param name="gameTime">A snapshot of the game timing state.</param>
-        protected override void Draw(GameTime gameTime)
+        /// <param name="target_screen">The render target, if any.</param>
+        [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "copied from game code as-is")]
+        protected override void _draw(GameTime gameTime, RenderTarget2D target_screen)
         {
             Context.IsInDrawLoop = true;
             try
             {
-                this.DrawImpl(gameTime);
+                this.DrawImpl(gameTime, target_screen);
                 this.DrawCrashTimer.Reset();
             }
             catch (Exception ex)
@@ -801,8 +803,10 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Replicate the game's draw logic with some changes for SMAPI.</summary>
         /// <param name="gameTime">A snapshot of the game timing state.</param>
+        /// <param name="target_screen">The render target, if any.</param>
         /// <remarks>This implementation is identical to <see cref="Game1.Draw"/>, except for try..catch around menu draw code, private field references replaced by wrappers, and added events.</remarks>
         [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator", Justification = "copied from game code as-is")]
+        [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "copied from game code as-is")]
         [SuppressMessage("ReSharper", "LocalVariableHidesMember", Justification = "copied from game code as-is")]
         [SuppressMessage("ReSharper", "PossibleLossOfFraction", Justification = "copied from game code as-is")]
         [SuppressMessage("ReSharper", "RedundantArgumentDefaultValue", Justification = "copied from game code as-is")]
@@ -811,16 +815,10 @@ namespace StardewModdingAPI.Framework
         [SuppressMessage("ReSharper", "RedundantTypeArgumentsOfMethod", Justification = "copied from game code as-is")]
         [SuppressMessage("SMAPI.CommonErrors", "AvoidNetField", Justification = "copied from game code as-is")]
         [SuppressMessage("SMAPI.CommonErrors", "AvoidImplicitNetFieldCast", Justification = "copied from game code as-is")]
-        private void DrawImpl(GameTime gameTime)
+        private void DrawImpl(GameTime gameTime, RenderTarget2D target_screen)
         {
             var events = this.Events;
 
-            // from Game1.Draw
-            RenderTarget2D target_screen = (RenderTarget2D)null;
-            if ((double)Game1.options.zoomLevel != 1.0)
-                target_screen = this.screen;
-
-            // from Game1._draw
             if (Game1._newDayTask != null)
             {
                 this.GraphicsDevice.Clear(Game1.bgColor);
@@ -1039,7 +1037,7 @@ namespace StardewModdingAPI.Framework
                                                 continue;
                                         }
                                         if (Utility.isOnScreen((Vector2)((NetFieldBase<Vector2, NetVector2>)Game1.currentLightSources.ElementAt<LightSource>(index).position), (int)((double)(float)((NetFieldBase<float, NetFloat>)Game1.currentLightSources.ElementAt<LightSource>(index).radius) * 64.0 * 4.0)))
-                                            Game1.spriteBatch.Draw(Game1.currentLightSources.ElementAt<LightSource>(index).lightTexture, Game1.GlobalToLocal(Game1.viewport, (Vector2)((NetFieldBase<Vector2, NetVector2>)Game1.currentLightSources.ElementAt<LightSource>(index).position)) / (float)(Game1.options.lightingQuality / 2), new Microsoft.Xna.Framework.Rectangle?(Game1.currentLightSources.ElementAt<LightSource>(index).lightTexture.Bounds), (Microsoft.Xna.Framework.Color) ((NetFieldBase<Microsoft.Xna.Framework.Color, NetColor>)Game1.currentLightSources.ElementAt<LightSource>(index).color), 0.0f, new Vector2((float)Game1.currentLightSources.ElementAt<LightSource>(index).lightTexture.Bounds.Center.X, (float)Game1.currentLightSources.ElementAt<LightSource>(index).lightTexture.Bounds.Center.Y), (float)((NetFieldBase<float, NetFloat>)Game1.currentLightSources.ElementAt<LightSource>(index).radius) / (float)(Game1.options.lightingQuality / 2), SpriteEffects.None, 0.9f);
+                                            Game1.spriteBatch.Draw(Game1.currentLightSources.ElementAt<LightSource>(index).lightTexture, Game1.GlobalToLocal(Game1.viewport, (Vector2)((NetFieldBase<Vector2, NetVector2>)Game1.currentLightSources.ElementAt<LightSource>(index).position)) / (float)(Game1.options.lightingQuality / 2), new Microsoft.Xna.Framework.Rectangle?(Game1.currentLightSources.ElementAt<LightSource>(index).lightTexture.Bounds), (Microsoft.Xna.Framework.Color)((NetFieldBase<Microsoft.Xna.Framework.Color, NetColor>)Game1.currentLightSources.ElementAt<LightSource>(index).color), 0.0f, new Vector2((float)Game1.currentLightSources.ElementAt<LightSource>(index).lightTexture.Bounds.Center.X, (float)Game1.currentLightSources.ElementAt<LightSource>(index).lightTexture.Bounds.Center.Y), (float)((NetFieldBase<float, NetFloat>)Game1.currentLightSources.ElementAt<LightSource>(index).radius) / (float)(Game1.options.lightingQuality / 2), SpriteEffects.None, 0.9f);
                                     }
                                 }
                                 Game1.spriteBatch.End();
