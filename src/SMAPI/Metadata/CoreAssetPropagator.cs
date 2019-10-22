@@ -303,6 +303,10 @@ namespace StardewModdingAPI.Metadata
                     }
                     return true;
 
+                case "loosesprites\\cursors2": // Game1.LoadContent
+                    Game1.mouseCursors2 = content.Load<Texture2D>(key);
+                    return true;
+
                 case "loosesprites\\daybg": // Game1.LoadContent
                     Game1.daybg = content.Load<Texture2D>(key);
                     return true;
