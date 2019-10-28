@@ -57,6 +57,8 @@ For modders:
   * Updated SMAPI/game version map.
 * Fixes:
   * Fixed mods needing to load custom `Map` assets before the game accesses them (SMAPI will now do so automatically).
+  * Fixed Console Commands not including upgraded tools in item commands.
+  * Fixed Console Commands' item commands failing if a mod adds invalid item data.
   * Fixed Save Backup not pruning old backups if they're uncompressed.
   * Fixed issues when a farmhand reconnects before the game notices they're disconnected.
   * Fixed 'received message' logs shown in non-developer mode.
