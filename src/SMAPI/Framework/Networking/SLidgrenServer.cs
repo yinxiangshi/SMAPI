@@ -65,13 +65,5 @@ namespace StardewModdingAPI.Framework.Networking
                 }
             }
         }
-
-        /// <summary>Get the connection ID for a connection.</summary>
-        /// <param name="connection">The connection.</param>
-        /// <remarks>Derived from the private <see cref="LidgrenServer.getConnectionId"/> method.</remarks>
-        private string getConnectionId(NetConnection connection)
-        {
-            return $"L_{connection.RemoteUniqueIdentifier}";
-        }
     }
 }
