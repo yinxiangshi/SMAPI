@@ -116,21 +116,27 @@ namespace StardewModdingAPI
         /// <remarks>This method is separate from <see cref="Main"/> because that can't contain any references to assemblies loaded by <see cref="CurrentDomain_AssemblyResolve"/> (e.g. via <see cref="Constants"/>), or Mono will incorrectly show an assembly resolution error before assembly resolution is set up.</remarks>
         private static void Start(string[] args)
         {
-            // get flags from arguments
-            bool writeToConsole = !args.Contains("--no-terminal");
+            // get flags
+            bool writeToConsole = !args.Contains("--no-terminal") && Environment.GetEnvironmentVariable("SMAPI_NO_TERMINAL") == null;
 
-            // get mods path from arguments
-            string modsPath = null;
+            // get mods path
+            string modsPath;
             {
+                string rawModsPath = null;
+
+                // get from command line args
                 int pathIndex = Array.LastIndexOf(args, "--mods-path") + 1;
                 if (pathIndex >= 1 && args.Length >= pathIndex)
-                {
-                    modsPath = args[pathIndex];
-                    if (!string.IsNullOrWhiteSpace(modsPath) && !Path.IsPathRooted(modsPath))
-                        modsPath = Path.Combine(Constants.ExecutionPath, modsPath);
-                }
-                if (string.IsNullOrWhiteSpace(modsPath))
-                    modsPath = Constants.DefaultModsPath;
+                    rawModsPath = args[pathIndex];
+
+                // get from environment variables
+                if (string.IsNullOrWhiteSpace(rawModsPath))
+                    rawModsPath = Environment.GetEnvironmentVariable("SMAPI_MODS_PATH");
+
+                // normalise
+                modsPath = !string.IsNullOrWhiteSpace(rawModsPath)
+                    ? Path.Combine(Constants.ExecutionPath, rawModsPath)
+                    : Constants.DefaultModsPath;
             }
 
             // load SMAPI

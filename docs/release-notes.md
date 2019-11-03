@@ -48,6 +48,7 @@ For modders:
     * Now detects XNB mods more accurately, and consolidates multi-folder XNB mods in logged messages.
   * SMAPI now automatically removes invalid content when loading a save to prevent crashes. A warning is shown in-game when this happens. This applies for locations and NPCs.
   * Added support for configuring console colors via `smapi-internal/config.json` (intended for players with unusual consoles).
+  * Added support for specifying SMAPI command-line arguments as environment variables for Linux/Mac compatibility.
   * Improved launch script compatibility on Linux (thanks to kurumushi and toastal!).
   * Save Backup now works in the background, to avoid affecting startup time for players with a large number of saves.
   * The installer now recognises custom game paths stored in `stardewvalley.targets`.
