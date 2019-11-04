@@ -80,16 +80,7 @@ namespace StardewModdingAPI
             Platform platform = EnvironmentUtility.DetectPlatform();
             string gameAssemblyName = platform == Platform.Windows ? "Stardew Valley" : "StardewValley";
             if (Type.GetType($"StardewValley.Game1, {gameAssemblyName}", throwOnError: false) == null)
-            {
-                Program.PrintErrorAndExit(
-                    "Oops! SMAPI can't find the game. "
-                    + (Assembly.GetCallingAssembly().Location.Contains(Path.Combine("internal", "Windows")) || Assembly.GetCallingAssembly().Location.Contains(Path.Combine("internal", "Mono"))
-                        ? "It looks like you're running SMAPI from the download package, but you need to run the installed version instead. "
-                        : "Make sure you're running StardewModdingAPI.exe in your game folder. "
-                    )
-                    + "See the readme.txt file for details."
-                );
-            }
+                Program.PrintErrorAndExit("Oops! SMAPI can't find the game. Make sure you're running StardewModdingAPI.exe in your game folder. See the readme.txt file for details.");
         }
 
         /// <summary>Assert that the game version is within <see cref="Constants.MinimumGameVersion"/> and <see cref="Constants.MaximumGameVersion"/>.</summary>
