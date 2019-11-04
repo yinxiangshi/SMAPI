@@ -40,6 +40,11 @@ namespace StardewModdingAPI
                 Program.AssertGameVersion();
                 Program.Start(args);
             }
+            catch (BadImageFormatException ex) when (ex.FileName == "StardewValley")
+            {
+                string executableName = Program.GetExecutableAssemblyName();
+                Console.WriteLine($"SMAPI failed to initialize because your game's {executableName}.exe seems to be invalid.\nThis may be a pirated version which modified the executable in an incompatible way; if so, you can try a different download or buy a legitimate version.\n\nTechnical details:\n{ex}");
+            }
             catch (Exception ex)
             {
                 Console.WriteLine($"SMAPI failed to initialize: {ex}");
@@ -77,8 +82,7 @@ namespace StardewModdingAPI
         /// <remarks>This must be checked *before* any references to <see cref="Constants"/>, and this method should not reference <see cref="Constants"/> itself to avoid errors in Mono.</remarks>
         private static void AssertGamePresent()
         {
-            Platform platform = EnvironmentUtility.DetectPlatform();
-            string gameAssemblyName = platform == Platform.Windows ? "Stardew Valley" : "StardewValley";
+            string gameAssemblyName = Program.GetExecutableAssemblyName();
             if (Type.GetType($"StardewValley.Game1, {gameAssemblyName}", throwOnError: false) == null)
                 Program.PrintErrorAndExit("Oops! SMAPI can't find the game. Make sure you're running StardewModdingAPI.exe in your game folder. See the readme.txt file for details.");
         }
@@ -100,6 +104,13 @@ namespace StardewModdingAPI
             else if (Constants.MaximumGameVersion != null && Constants.GameVersion.IsNewerThan(Constants.MaximumGameVersion))
                 Program.PrintErrorAndExit($"Oops! You're running Stardew Valley {Constants.GameVersion}, but this version of SMAPI is only compatible up to Stardew Valley {Constants.MaximumGameVersion}. Please check for a newer version of SMAPI: https://smapi.io.");
 
+        }
+
+        /// <summary>Get the game's executable assembly name.</summary>
+        private static string GetExecutableAssemblyName()
+        {
+            Platform platform = EnvironmentUtility.DetectPlatform();
+            return platform == Platform.Windows ? "Stardew Valley" : "StardewValley";
         }
 
         /// <summary>Initialize SMAPI and launch the game.</summary>

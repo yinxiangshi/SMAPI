@@ -50,6 +50,7 @@ For modders:
   * Added support for configuring console colors via `smapi-internal/config.json` (intended for players with unusual consoles).
   * Added support for specifying SMAPI command-line arguments as environment variables for Linux/Mac compatibility.
   * Improved launch script compatibility on Linux (thanks to kurumushi and toastal!).
+  * Made error messages more user-friendly in some cases.
   * Save Backup now works in the background, to avoid affecting startup time for players with a large number of saves.
   * The installer now recognises custom game paths stored in `stardewvalley.targets`.
   * Duplicate-mod errors now show the mod version in each folder.
