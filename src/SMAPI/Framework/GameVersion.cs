@@ -12,6 +12,7 @@ namespace StardewModdingAPI.Framework
         /// <summary>A mapping of game to semantic versions.</summary>
         private static readonly IDictionary<string, string> VersionMap = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
         {
+            ["1.0"] = "1.0.0",
             ["1.01"] = "1.0.1",
             ["1.02"] = "1.0.2",
             ["1.03"] = "1.0.3",
@@ -23,6 +24,8 @@ namespace StardewModdingAPI.Framework
             ["1.07"] = "1.0.7",
             ["1.07a"] = "1.0.8-prerelease1",
             ["1.08"] = "1.0.8",
+            ["1.1"] = "1.1.0",
+            ["1.2"] = "1.2.0",
             ["1.11"] = "1.1.1"
         };
 

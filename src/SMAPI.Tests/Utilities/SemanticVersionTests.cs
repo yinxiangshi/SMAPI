@@ -18,10 +18,10 @@ namespace SMAPI.Tests.Utilities
         ** Constructor
         ****/
         [Test(Description = "Assert that the constructor sets the expected values for all valid versions when constructed from a string.")]
-        [TestCase("1.0", ExpectedResult = "1.0")]
-        [TestCase("1.0.0", ExpectedResult = "1.0")]
+        [TestCase("1.0", ExpectedResult = "1.0.0")]
+        [TestCase("1.0.0", ExpectedResult = "1.0.0")]
         [TestCase("3000.4000.5000", ExpectedResult = "3000.4000.5000")]
-        [TestCase("1.2-some-tag.4", ExpectedResult = "1.2-some-tag.4")]
+        [TestCase("1.2-some-tag.4", ExpectedResult = "1.2.0-some-tag.4")]
         [TestCase("1.2.3-some-tag.4", ExpectedResult = "1.2.3-some-tag.4")]
         [TestCase("1.2.3-SoME-tAg.4", ExpectedResult = "1.2.3-SoME-tAg.4")]
         [TestCase("1.2.3-some-tag.4      ", ExpectedResult = "1.2.3-some-tag.4")]
@@ -31,7 +31,7 @@ namespace SMAPI.Tests.Utilities
         }
 
         [Test(Description = "Assert that the constructor sets the expected values for all valid versions when constructed from the individual numbers.")]
-        [TestCase(1, 0, 0, null, ExpectedResult = "1.0")]
+        [TestCase(1, 0, 0, null, ExpectedResult = "1.0.0")]
         [TestCase(3000, 4000, 5000, null, ExpectedResult = "3000.4000.5000")]
         [TestCase(1, 2, 3, "", ExpectedResult = "1.2.3")]
         [TestCase(1, 2, 3, "    ", ExpectedResult = "1.2.3")]
@@ -66,7 +66,7 @@ namespace SMAPI.Tests.Utilities
         }
 
         [Test(Description = "Assert that the constructor sets the expected values for all valid versions when constructed from an assembly version.")]
-        [TestCase(1, 0, 0, ExpectedResult = "1.0")]
+        [TestCase(1, 0, 0, ExpectedResult = "1.0.0")]
         [TestCase(1, 2, 3, ExpectedResult = "1.2.3")]
         [TestCase(3000, 4000, 5000, ExpectedResult = "3000.4000.5000")]
         public string Constructor_FromAssemblyVersion(int major, int minor, int patch)
@@ -247,7 +247,7 @@ namespace SMAPI.Tests.Utilities
         ** Serializable
         ****/
         [Test(Description = "Assert that SemanticVersion can be round-tripped through JSON with no special configuration.")]
-        [TestCase("1.0")]
+        [TestCase("1.0.0")]
         public void Serializable(string versionStr)
         {
             // act

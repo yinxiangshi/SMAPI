@@ -107,6 +107,7 @@ For modders:
   * Trace logs for a broken mod now list all detected issues (instead of the first one).
   * Trace logs when loading mods are now more clear.
   * Clarified update-check errors for mods with multiple update keys.
+  * `SemanticVersion` no longer omits `.0` patch numbers when formatting versions, for better [semver](https://semver.org/) conformity (e.g. `3.0` is now formatted as `3.0.0`).
   * Updated dependencies (including Json.NET 11.0.2 → 12.0.2 and Mono.Cecil 0.10.1 → 0.11).
 * Fixes:
   * Fixed custom maps loaded from `.xnb` files not having their tilesheet paths automatically adjusted.

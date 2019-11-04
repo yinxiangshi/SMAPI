@@ -172,16 +172,10 @@ namespace StardewModdingAPI.Toolkit
         /// <summary>Get a string representation of the version.</summary>
         public override string ToString()
         {
-            // version
-            string result = this.PatchVersion != 0
-                ? $"{this.MajorVersion}.{this.MinorVersion}.{this.PatchVersion}"
-                : $"{this.MajorVersion}.{this.MinorVersion}";
-
-            // tag
-            string tag = this.PrereleaseTag;
-            if (tag != null)
-                result += $"-{tag}";
-            return result;
+            string version = $"{this.MajorVersion}.{this.MinorVersion}.{this.PatchVersion}";
+            if (this.PrereleaseTag != null)
+                version += $"-{this.PrereleaseTag}";
+            return version;
         }
 
         /// <summary>Parse a version string without throwing an exception if it fails.</summary>
