@@ -14,6 +14,7 @@ using StardewModdingAPI.Toolkit.Framework.UpdateData;
 using StardewModdingAPI.Web.Framework.Caching.Mods;
 using StardewModdingAPI.Web.Framework.Caching.Wiki;
 using StardewModdingAPI.Web.Framework.Clients.Chucklefish;
+using StardewModdingAPI.Web.Framework.Clients.CurseForge;
 using StardewModdingAPI.Web.Framework.Clients.GitHub;
 using StardewModdingAPI.Web.Framework.Clients.ModDrop;
 using StardewModdingAPI.Web.Framework.Clients.Nexus;
@@ -61,10 +62,11 @@ namespace StardewModdingAPI.Web.Controllers
         /// <param name="modCache">The cache in which to store mod metadata.</param>
         /// <param name="configProvider">The config settings for mod update checks.</param>
         /// <param name="chucklefish">The Chucklefish API client.</param>
+        /// <param name="curseForge">The CurseForge API client.</param>
         /// <param name="github">The GitHub API client.</param>
         /// <param name="modDrop">The ModDrop API client.</param>
         /// <param name="nexus">The Nexus API client.</param>
-        public ModsApiController(IHostingEnvironment environment, IWikiCacheRepository wikiCache, IModCacheRepository modCache, IOptions<ModUpdateCheckConfig> configProvider, IChucklefishClient chucklefish, IGitHubClient github, IModDropClient modDrop, INexusClient nexus)
+        public ModsApiController(IHostingEnvironment environment, IWikiCacheRepository wikiCache, IModCacheRepository modCache, IOptions<ModUpdateCheckConfig> configProvider, IChucklefishClient chucklefish, ICurseForgeClient curseForge, IGitHubClient github, IModDropClient modDrop, INexusClient nexus)
         {
             this.ModDatabase = new ModToolkit().GetModDatabase(Path.Combine(environment.WebRootPath, "SMAPI.metadata.json"));
             ModUpdateCheckConfig config = configProvider.Value;
@@ -78,6 +80,7 @@ namespace StardewModdingAPI.Web.Controllers
                 new IModRepository[]
                 {
                     new ChucklefishRepository(chucklefish),
+                    new CurseForgeRepository(curseForge), 
                     new GitHubRepository(github),
                     new ModDropRepository(modDrop),
                     new NexusRepository(nexus)

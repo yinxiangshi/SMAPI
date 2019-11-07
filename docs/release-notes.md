@@ -47,6 +47,7 @@ For modders:
     * Now ignores metadata files and folders (like `__MACOSX` and `__folder_managed_by_vortex`) and content files (like `.txt` or `.png`), which avoids missing-manifest errors in some common cases.
     * Now detects XNB mods more accurately, and consolidates multi-folder XNB mods in logged messages.
   * SMAPI now automatically removes invalid content when loading a save to prevent crashes. A warning is shown in-game when this happens. This applies for locations and NPCs.
+  * Added update checks for CurseForge mods.
   * Added support for configuring console colors via `smapi-internal/config.json` (intended for players with unusual consoles).
   * Added support for specifying SMAPI command-line arguments as environment variables for Linux/Mac compatibility.
   * Improved launch script compatibility on Linux (thanks to kurumushi and toastal!).

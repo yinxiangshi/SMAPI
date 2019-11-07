@@ -24,6 +24,13 @@ namespace StardewModdingAPI.Web.Framework.ConfigModels
 
 
         /****
+        ** CurseForge
+        ****/
+        /// <summary>The base URL for the CurseForge API.</summary>
+        public string CurseForgeBaseUrl { get; set; }
+
+
+        /****
         ** GitHub
         ****/
         /// <summary>The base URL for the GitHub API.</summary>

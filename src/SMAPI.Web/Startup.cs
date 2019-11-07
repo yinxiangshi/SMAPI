@@ -16,6 +16,7 @@ using StardewModdingAPI.Web.Framework.Caching;
 using StardewModdingAPI.Web.Framework.Caching.Mods;
 using StardewModdingAPI.Web.Framework.Caching.Wiki;
 using StardewModdingAPI.Web.Framework.Clients.Chucklefish;
+using StardewModdingAPI.Web.Framework.Clients.CurseForge;
 using StardewModdingAPI.Web.Framework.Clients.GitHub;
 using StardewModdingAPI.Web.Framework.Clients.ModDrop;
 using StardewModdingAPI.Web.Framework.Clients.Nexus;
@@ -118,6 +119,10 @@ namespace StardewModdingAPI.Web
                     userAgent: userAgent,
                     baseUrl: api.ChucklefishBaseUrl,
                     modPageUrlFormat: api.ChucklefishModPageUrlFormat
+                ));
+                services.AddSingleton<ICurseForgeClient>(new CurseForgeClient(
+                    userAgent: userAgent,
+                    apiUrl: api.CurseForgeBaseUrl
                 ));
 
                 services.AddSingleton<IGitHubClient>(new GitHubClient(
