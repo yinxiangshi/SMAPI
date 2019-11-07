@@ -65,7 +65,7 @@ locale     | status
 default    | ✓ [fully translated](../src/SMAPI/i18n/default.json)
 Chinese    | ❑ not translated
 French     | ❑ not translated
-German     | ❑ not translated
+German     | ✓ [fully translated](../src/SMAPI/i18n/de.json)
 Hungarian  | ❑ not translated
 Italian    | ❑ not translated
 Japanese   | ❑ not translated
