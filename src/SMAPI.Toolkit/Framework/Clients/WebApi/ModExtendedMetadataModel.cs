@@ -28,6 +28,12 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
         /// <summary>The mod ID in the Chucklefish mod repo.</summary>
         public int? ChucklefishID { get; set; }
 
+        /// <summary>The mod ID in the CurseForge mod repo.</summary>
+        public int? CurseForgeID { get; set; }
+
+        /// <summary>The mod key in the CurseForge mod repo (used in mod page URLs).</summary>
+        public string CurseForgeKey { get; set; }
+
         /// <summary>The mod ID in the ModDrop mod repo.</summary>
         public int? ModDropID { get; set; }
 
@@ -87,6 +93,8 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
                 this.Name = wiki.Name.FirstOrDefault();
                 this.NexusID = wiki.NexusID;
                 this.ChucklefishID = wiki.ChucklefishID;
+                this.CurseForgeID = wiki.CurseForgeID;
+                this.CurseForgeKey = wiki.CurseForgeKey;
                 this.ModDropID = wiki.ModDropID;
                 this.GitHubRepo = wiki.GitHubRepo;
                 this.CustomSourceUrl = wiki.CustomSourceUrl;

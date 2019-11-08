@@ -280,11 +280,13 @@ namespace StardewModdingAPI.Web.Controllers
                 if (entry != null)
                 {
                     if (entry.NexusID.HasValue)
-                        yield return $"Nexus:{entry.NexusID}";
-                    if (entry.ChucklefishID.HasValue)
-                        yield return $"Chucklefish:{entry.ChucklefishID}";
+                        yield return $"{ModRepositoryKey.Nexus}:{entry.NexusID}";
                     if (entry.ModDropID.HasValue)
-                        yield return $"ModDrop:{entry.ModDropID}";
+                        yield return $"{ModRepositoryKey.ModDrop}:{entry.ModDropID}";
+                    if (entry.CurseForgeID.HasValue)
+                        yield return $"{ModRepositoryKey.CurseForge}:{entry.CurseForgeID}";
+                    if (entry.ChucklefishID.HasValue)
+                        yield return $"{ModRepositoryKey.Chucklefish}:{entry.ChucklefishID}";
                 }
             }
 
