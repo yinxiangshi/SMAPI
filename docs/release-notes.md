@@ -77,10 +77,12 @@ For modders:
 
 ### For the web UI
 * Mod compatibility list:
+  * Added support for CurseForge mods.
+  * Added metadata links and dev notes (if any) to advanced info.
   * Now loads faster (since data is fetched in a background service).
   * Now continues working with cached data when the wiki is offline.
   * Clicking a mod link now automatically adds it to the visible mods when the list is filtered.
-  * Added metadata links and dev notes (if any) to advanced info.
+
 * JSON validator:
   * Added JSON validator at [json.smapi.io](https://json.smapi.io), which lets you validate a JSON file against predefined mod formats.
   * Added support for the `manifest.json` format.
