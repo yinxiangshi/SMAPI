@@ -777,6 +777,8 @@ namespace StardewModdingAPI.Metadata
             foreach (NPC villager in villagers)
             {
                 // reload schedule
+                this.Reflection.GetField<bool>(villager, "_hasLoadedMasterScheduleData").SetValue(false);
+                this.Reflection.GetField<Dictionary<string, string>>(villager, "_masterScheduleData").SetValue(null);
                 villager.Schedule = villager.getSchedule(Game1.dayOfMonth);
                 if (villager.Schedule == null)
                 {
