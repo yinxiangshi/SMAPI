@@ -99,7 +99,7 @@ namespace StardewModdingAPI.Framework
         /// <summary>Regex patterns which match console error messages to suppress from the console and log.</summary>
         private readonly Regex[] SuppressConsoleErrorPatterns =
         {
-            new Regex(@"^Error loading schedule data for (?:Bouncer|Dwarf|Gunther|Krobus|Marlon|Mister Qi|Sandy|Wizard): .+ ---> System\.IO\.FileNotFoundException", RegexOptions.Compiled | RegexOptions.CultureInvariant)
+            new Regex(@"^Error loading schedule data for (?:Bouncer|Dwarf|Gunther|Henchman|Krobus|Marlon|Mister Qi|Sandy|Wizard): .+ ---> System\.IO\.FileNotFoundException", RegexOptions.Compiled | RegexOptions.CultureInvariant)
         };
 
         /// <summary>Regex patterns which match console messages to show a more friendly error for.</summary>
