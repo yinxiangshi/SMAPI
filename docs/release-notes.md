@@ -18,6 +18,9 @@ For players:
 * **Improved mod scanning.**  
   SMAPI now supports some non-standard mod structures automatically, improves compatibility with the Vortex mod manager, and improves various error/skip messages related to mod loading.
 
+* **Overhauled update checks.**  
+  SMAPI update checks are now handled entirely on the web server and support community-defined version mappings. For example, that means false update alerts can now be solved by the community for all players.
+
 * **Fixed many bugs and edge cases.**
 
 For modders:
@@ -50,6 +53,7 @@ For modders:
   * Added update checks for CurseForge mods.
   * Added support for configuring console colors via `smapi-internal/config.json` (intended for players with unusual consoles).
   * Added support for specifying SMAPI command-line arguments as environment variables for Linux/Mac compatibility.
+  * Overhauled update checks and added community-defined version mapping.
   * Improved launch script compatibility on Linux (thanks to kurumushi and toastal!).
   * Made error messages more user-friendly in some cases.
   * Save Backup now works in the background, to avoid affecting startup time for players with a large number of saves.

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
 {
@@ -61,6 +62,12 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
 
         /// <summary>Special notes intended for developers who maintain unofficial updates or submit pull requests. </summary>
         public string DevNote { get; set; }
+
+        /// <summary>Maps local versions to a semantic version for update checks.</summary>
+        public IDictionary<string, string> MapLocalVersions { get; set; }
+
+        /// <summary>Maps remote versions to a semantic version for update checks.</summary>
+        public IDictionary<string, string> MapRemoteVersions { get; set; }
 
         /// <summary>The link anchor for the mod entry in the wiki compatibility list.</summary>
         public string Anchor { get; set; }

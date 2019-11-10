@@ -593,27 +593,19 @@ namespace StardewModdingAPI.Framework
                 ISemanticVersion updateFound = null;
                 try
                 {
-                    ModEntryModel response = client.GetModInfo(new[] { new ModSearchEntryModel("Pathoschild.SMAPI", new[] { $"GitHub:{this.Settings.GitHubProjectName}" }) }).Single().Value;
-                    ISemanticVersion latestStable = response.Main?.Version;
-                    ISemanticVersion latestBeta = response.Optional?.Version;
+                    // fetch update check
+                    ModEntryModel response = client.GetModInfo(new[] { new ModSearchEntryModel("Pathoschild.SMAPI", Constants.ApiVersion, new[] { $"GitHub:{this.Settings.GitHubProjectName}" }) }, apiVersion: Constants.ApiVersion, gameVersion: Constants.GameVersion, platform: Constants.Platform).Single().Value;
+                    if (response.SuggestedUpdate != null)
+                        this.Monitor.Log($"You can update SMAPI to {response.SuggestedUpdate.Version}: {Constants.HomePageUrl}", LogLevel.Alert);
+                    else
+                        this.Monitor.Log("   SMAPI okay.", LogLevel.Trace);
 
-                    if (latestStable == null && response.Errors.Any())
+                    // show errors
+                    if (response.Errors.Any())
                     {
                         this.Monitor.Log("Couldn't check for a new version of SMAPI. This won't affect your game, but you may not be notified of new versions if this keeps happening.", LogLevel.Warn);
                         this.Monitor.Log($"Error: {string.Join("\n", response.Errors)}", LogLevel.Trace);
                     }
-                    else if (this.IsValidUpdate(Constants.ApiVersion, latestBeta, this.Settings.UseBetaChannel))
-                    {
-                        updateFound = latestBeta;
-                        this.Monitor.Log($"You can update SMAPI to {latestBeta}: {Constants.HomePageUrl}", LogLevel.Alert);
-                    }
-                    else if (this.IsValidUpdate(Constants.ApiVersion, latestStable, this.Settings.UseBetaChannel))
-                    {
-                        updateFound = latestStable;
-                        this.Monitor.Log($"You can update SMAPI to {latestStable}: {Constants.HomePageUrl}", LogLevel.Alert);
-                    }
-                    else
-                        this.Monitor.Log("   SMAPI okay.", LogLevel.Trace);
                 }
                 catch (Exception ex)
                 {
@@ -646,12 +638,12 @@ namespace StardewModdingAPI.Framework
                                 .GetUpdateKeys(validOnly: true)
                                 .Select(p => p.ToString())
                                 .ToArray();
-                            searchMods.Add(new ModSearchEntryModel(mod.Manifest.UniqueID, updateKeys.ToArray()));
+                            searchMods.Add(new ModSearchEntryModel(mod.Manifest.UniqueID, mod.Manifest.Version, updateKeys.ToArray(), isBroken: mod.Status == ModMetadataStatus.Failed));
                         }
 
                         // fetch results
                         this.Monitor.Log($"   Checking for updates to {searchMods.Count} mods...", LogLevel.Trace);
-                        IDictionary<string, ModEntryModel> results = client.GetModInfo(searchMods.ToArray());
+                        IDictionary<string, ModEntryModel> results = client.GetModInfo(searchMods.ToArray(), apiVersion: Constants.ApiVersion, gameVersion: Constants.GameVersion, platform: Constants.Platform);
 
                         // extract update alerts & errors
                         var updates = new List<Tuple<IModMetadata, ISemanticVersion, string>>();
@@ -672,20 +664,9 @@ namespace StardewModdingAPI.Framework
                                 );
                             }
 
-                            // parse versions
-                            bool useBetaInfo = result.HasBetaInfo && Constants.ApiVersion.IsPrerelease();
-                            ISemanticVersion localVersion = mod.DataRecord?.GetLocalVersionForUpdateChecks(mod.Manifest.Version) ?? mod.Manifest.Version;
-                            ISemanticVersion latestVersion = mod.DataRecord?.GetRemoteVersionForUpdateChecks(result.Main?.Version) ?? result.Main?.Version;
-                            ISemanticVersion optionalVersion = mod.DataRecord?.GetRemoteVersionForUpdateChecks(result.Optional?.Version) ?? result.Optional?.Version;
-                            ISemanticVersion unofficialVersion = useBetaInfo ? result.UnofficialForBeta?.Version : result.Unofficial?.Version;
-
-                            // show update alerts
-                            if (this.IsValidUpdate(localVersion, latestVersion, useBetaChannel: true))
-                                updates.Add(Tuple.Create(mod, latestVersion, result.Main?.Url));
-                            else if (this.IsValidUpdate(localVersion, optionalVersion, useBetaChannel: localVersion.IsPrerelease()))
-                                updates.Add(Tuple.Create(mod, optionalVersion, result.Optional?.Url));
-                            else if (this.IsValidUpdate(localVersion, unofficialVersion, useBetaChannel: mod.Status == ModMetadataStatus.Failed))
-                                updates.Add(Tuple.Create(mod, unofficialVersion, useBetaInfo ? result.UnofficialForBeta?.Url : result.Unofficial?.Url));
+                            // handle update
+                            if (result.SuggestedUpdate != null)
+                                updates.Add(Tuple.Create(mod, result.SuggestedUpdate.Version, result.SuggestedUpdate.Url));
                         }
 
                         // show update errors
@@ -718,18 +699,6 @@ namespace StardewModdingAPI.Framework
                     }
                 }
             }).Start();
-        }
-
-        /// <summary>Get whether a given version should be offered to the user as an update.</summary>
-        /// <param name="currentVersion">The current semantic version.</param>
-        /// <param name="newVersion">The target semantic version.</param>
-        /// <param name="useBetaChannel">Whether the user enabled the beta channel and should be offered prerelease updates.</param>
-        private bool IsValidUpdate(ISemanticVersion currentVersion, ISemanticVersion newVersion, bool useBetaChannel)
-        {
-            return
-                newVersion != null
-                && newVersion.IsNewerThan(currentVersion)
-                && (useBetaChannel || !newVersion.IsPrerelease());
         }
 
         /// <summary>Create a directory path if it doesn't exist.</summary>

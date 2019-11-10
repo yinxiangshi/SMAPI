@@ -46,6 +46,17 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
         /// <summary>The custom mod page URL (if applicable).</summary>
         public string CustomUrl { get; set; }
 
+        /// <summary>The main version.</summary>
+        public ModEntryVersionModel Main { get; set; }
+
+        /// <summary>The latest optional version, if newer than <see cref="Main"/>.</summary>
+        public ModEntryVersionModel Optional { get; set; }
+
+        /// <summary>The latest unofficial version, if newer than <see cref="Main"/> and <see cref="Optional"/>.</summary>
+        public ModEntryVersionModel Unofficial { get; set; }
+
+        /// <summary>The latest unofficial version for the current Stardew Valley or SMAPI beta, if any (see <see cref="HasBetaInfo"/>).</summary>
+        public ModEntryVersionModel UnofficialForBeta { get; set; }
 
         /****
         ** Stable compatibility
@@ -59,7 +70,6 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
 
         /// <summary>The game or SMAPI version which broke this mod, if applicable.</summary>
         public string BrokeIn { get; set; }
-
 
         /****
         ** Beta compatibility
@@ -84,8 +94,18 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
         /// <summary>Construct an instance.</summary>
         /// <param name="wiki">The mod metadata from the wiki (if available).</param>
         /// <param name="db">The mod metadata from SMAPI's internal DB (if available).</param>
-        public ModExtendedMetadataModel(WikiModEntry wiki, ModDataRecord db)
+        /// <param name="main">The main version.</param>
+        /// <param name="optional">The latest optional version, if newer than <paramref name="main"/>.</param>
+        /// <param name="unofficial">The latest unofficial version, if newer than <paramref name="main"/> and <paramref name="optional"/>.</param>
+        /// <param name="unofficialForBeta">The latest unofficial version for the current Stardew Valley or SMAPI beta, if any.</param>
+        public ModExtendedMetadataModel(WikiModEntry wiki, ModDataRecord db, ModEntryVersionModel main, ModEntryVersionModel optional, ModEntryVersionModel unofficial, ModEntryVersionModel unofficialForBeta)
         {
+            // versions
+            this.Main = main;
+            this.Optional = optional;
+            this.Unofficial = unofficial;
+            this.UnofficialForBeta = unofficialForBeta;
+
             // wiki data
             if (wiki != null)
             {

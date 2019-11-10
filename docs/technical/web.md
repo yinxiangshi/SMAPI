@@ -116,54 +116,201 @@ SMAPI provides a web API at `api.smapi.io` for use by SMAPI and external tools. 
 accessible but not officially released; it may change at any time.
 
 ### `/mods` endpoint
-The API has one `/mods` endpoint. This provides mod info, including official versions and URLs
-(from Chucklefish, GitHub, or Nexus), unofficial versions from the wiki, and optional mod metadata
-from the wiki and SMAPI's internal data. This is used by SMAPI to perform update checks, and by
-external tools to fetch mod data.
+The API has one `/mods` endpoint. This crossreferences the mod against a variety of sources (e.g.
+the wiki, Chucklefish, CurseForge, ModDrop, and Nexus) to provide metadata mainly intended for
+update checks.
 
-The API accepts a `POST` request with the mods to match, each of which **must** specify an ID and
-may _optionally_ specify [update keys](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Manifest#Update_checks).
-The API will automatically try to fetch known update keys from the wiki and internal data based on
-the given ID.
+The API accepts a `POST` request with these fields:
 
-```
-POST https://api.smapi.io/v2.0/mods
+<table>
+<tr>
+<th>field</th>
+<th>summary</th>
+</tr>
+
+<tr>
+<td><code>mods</code></td>
+<td>
+
+The mods for which to fetch metadata. Included fields:
+
+
+field | summary
+----- | -------
+`id`  | The unique ID in the mod's `manifest.json`. This is used to crossreference with the wiki, and to index mods in the response. If it's unknown (e.g. you just have an update key), you can use a unique fake ID like `FAKE.Nexus.2400`.
+`updateKeys` | _(optional)_ [Update keys](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Manifest#Update_checks) which specify the mod pages to check, in addition to any mod pages linked to the `ID`.
+`installedVersion` | _(optional)_ The installed version of the mod. If not specified, the API won't recommend an update.
+`isBroken` | _(optional)_ Whether SMAPI failed to load the installed version of the mod, e.g. due to incompatibility. If true, the web API will be more permissive when recommending updates (e.g. allowing a stable → prerelease update).
+
+</td>
+</tr>
+
+<tr>
+<td><code>apiVersion</code></td>
+<td>
+
+_(optional)_ The installed version of SMAPI. If not specified, the API won't recommend an update.
+
+</td>
+</tr>
+
+<tr>
+<td><code>gameVersion</code></td>
+<td>
+
+_(optional)_ The installed version of Stardew Valley. This may be used to select updates.
+
+</td>
+</tr>
+
+<tr>
+<td><code>platform</code></td>
+<td>
+
+_(optional)_ The player's OS (`Android`, `Linux`, `Mac`, or `Windows`). This may be used to select updates.
+
+</td>
+</tr>
+
+<tr>
+<td><code>includeExtendedMetadata</code></td>
+<td>
+
+_(optional)_ Whether to include extra metadata that's not needed for SMAPI update checks, but which
+may be useful to external tools.
+
+</td>
+</table>
+
+Example request:
+```js
+POST https://api.smapi.io/v3.0/mods
 {
    "mods": [
       {
-         "id": "Pathoschild.LookupAnything",
-         "updateKeys": [ "nexus:541", "chucklefish:4250" ]
+         "id": "Pathoschild.ContentPatcher",
+         "updateKeys": [ "nexus:1915" ],
+         "installedVersion": "1.9.2",
+         "isBroken": false
       }
    ],
+   "apiVersion": "3.0.0",
+   "gameVersion": "1.4.0",
+   "platform": "Windows",
    "includeExtendedMetadata": true
 }
 ```
 
-The API will automatically aggregate versions and errors. Each mod will include...
-* an `id` (matching what you passed in);
-* up to three versions: `main` (e.g. 'latest version' field on Nexus), `optional` if newer (e.g.
-  optional files on Nexus), and `unofficial` if newer (from the wiki);
-* `metadata` with mod info crossreferenced from the wiki and internal data (only if you specified
-  `includeExtendedMetadata: true`);
-* and `errors` containing any error messages that occurred while fetching data.
+Response fields:
 
-For example:
-```
+<table>
+<tr>
+<th>field</th>
+<th>summary</th>
+</tr>
+
+<tr>
+<td><code>id</code></td>
+<td>
+
+The mod ID you specified in the request.
+
+</td>
+</tr>
+
+<tr>
+<td><code>suggestedUpdate</code></td>
+<td>
+
+The update version recommended by the web API, if any. This is based on some internal rules (e.g.
+it won't recommend a prerelease update if the player has a working stable version) and context
+(e.g. whether the player is in the game beta channel). Choosing an update version yourself isn't
+recommended, but you can set `includeExtendedMetadata: true` and check the `metadata` field if you
+really want to do that.
+
+</td>
+</tr>
+
+<tr>
+<td><code>errors</code></td>
+<td>
+
+Human-readable errors that occurred fetching the version info (e.g. if a mod page has an invalid
+version).
+
+</td>
+</tr>
+
+<tr>
+<td><code>metadata</code></td>
+<td>
+
+Extra metadata that's not needed for SMAPI update checks but which may be useful to external tools,
+if you set `includeExtendedMetadata: true` in the request. Included fields:
+
+field | summary
+----- | -------
+`id`  | The known `manifest.json` unique IDs for this mod defined on the wiki, if any. That includes historical versions of the mod.
+`name` | The normalised name for this mod based on the crossreferenced sites.
+`nexusID` | The mod ID on [Nexus Mods](https://www.nexusmods.com/stardewvalley/), if any.
+`chucklefishID` | The mod ID in the [Chucklefish mod repo](https://community.playstarbound.com/resources/categories/stardew-valley.22/), if any.
+`curseForgeID` | The mod project ID on [CurseForge](https://www.curseforge.com/stardewvalley), if any.
+`curseForgeKey` | The mod key on [CurseForge](https://www.curseforge.com/stardewvalley), if any. This is used in the mod page URL.
+`modDropID` | The mod ID on [ModDrop](https://www.moddrop.com/stardew-valley), if any.
+`gitHubRepo` | The GitHub repository containing the mod code, if any. Specified in the `Owner/Repo` form.
+`customSourceUrl` | The custom URL to the mod code, if any. This is used for mods which aren't stored in a GitHub repo.
+`customUrl` | The custom URL to the mod page, if any. This is used for mods which aren't stored on one of the standard mod sites covered by the ID fields.
+`main` | The primary mod version, if any. This depends on the mod site, but it's typically either the version of the mod itself or of its latest non-optional download.
+`optional` | The latest optional download version, if any.
+`unofficial` | The version of the unofficial update defined on the wiki for this mod, if any.
+`unofficialForBeta` | Equivalent to `unofficial`, but for beta versions of SMAPI or Stardew Valley.
+`hasBetaInfo` | Whether there's an ongoing Stardew Valley or SMAPI beta which may affect update checks.
+`compatibilityStatus` | The compatibility status for the mod for the stable version of the game, as defined on the wiki, if any. See [possible values](https://github.com/Pathoschild/SMAPI/blob/develop/src/SMAPI.Toolkit/Framework/Clients/Wiki/WikiCompatibilityStatus.cs).
+`compatibilitySummary` | The human-readable summary of the mod's compatibility in HTML format, if any.
+`brokeIn` | The SMAPI or Stardew Valley version that broke this mod, if any.
+`betaCompatibilityStatus`<br />`betaCompatibilitySummary`<br />`betaBrokeIn` | Equivalent to the preceding fields, but for beta versions of SMAPI or Stardew Valley.
+
+
+</td>
+</tr>
+</table>
+
+Example response with `includeExtendedMetadata: false`:
+```js
 [
    {
-      "id": "Pathoschild.LookupAnything",
-      "main": {
-         "version": "1.19",
-         "url": "https://www.nexusmods.com/stardewvalley/mods/541"
+      "id": "Pathoschild.ContentPatcher",
+      "suggestedUpdate": {
+         "version": "1.10.0",
+         "url": "https://www.nexusmods.com/stardewvalley/mods/1915"
+      },
+      "errors": []
+   }
+]
+```
+
+Example response with `includeExtendedMetadata: true`:
+```js
+[
+   {
+      "id": "Pathoschild.ContentPatcher",
+      "suggestedUpdate": {
+         "version": "1.10.0",
+         "url": "https://www.nexusmods.com/stardewvalley/mods/1915"
       },
       "metadata": {
-         "id": [
-            "Pathoschild.LookupAnything",
-            "LookupAnything"
-         ],
-         "name": "Lookup Anything",
-         "nexusID": 541,
+         "id": [ "Pathoschild.ContentPatcher" ],
+         "name": "Content Patcher",
+         "nexusID": 1915,
+         "curseForgeID": 309243,
+         "curseForgeKey": "content-patcher",
+         "modDropID": 470174,
          "gitHubRepo": "Pathoschild/StardewMods",
+         "main": {
+            "version": "1.10",
+            "url": "https://www.nexusmods.com/stardewvalley/mods/1915"
+         },
+         "hasBetaInfo": true,
          "compatibilityStatus": "Ok",
          "compatibilitySummary": "✓ use latest version."
       },

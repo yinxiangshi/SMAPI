@@ -80,7 +80,7 @@ namespace StardewModdingAPI.Web.Controllers
                 new IModRepository[]
                 {
                     new ChucklefishRepository(chucklefish),
-                    new CurseForgeRepository(curseForge), 
+                    new CurseForgeRepository(curseForge),
                     new GitHubRepository(github),
                     new ModDropRepository(modDrop),
                     new NexusRepository(nexus)
@@ -90,11 +90,14 @@ namespace StardewModdingAPI.Web.Controllers
 
         /// <summary>Fetch version metadata for the given mods.</summary>
         /// <param name="model">The mod search criteria.</param>
+        /// <param name="version">The requested API version.</param>
         [HttpPost]
-        public async Task<IEnumerable<ModEntryModel>> PostAsync([FromBody] ModSearchModel model)
+        public async Task<IEnumerable<ModEntryModel>> PostAsync([FromBody] ModSearchModel model, [FromRoute] string version)
         {
             if (model?.Mods == null)
                 return new ModEntryModel[0];
+
+            bool legacyMode = SemanticVersion.TryParse(version, out ISemanticVersion parsedVersion) && parsedVersion.IsOlderThan("3.0.0-beta.20191109");
 
             // fetch wiki data
             WikiModEntry[] wikiData = this.WikiCache.GetWikiMods().Select(p => p.GetModel()).ToArray();
@@ -104,7 +107,25 @@ namespace StardewModdingAPI.Web.Controllers
                 if (string.IsNullOrWhiteSpace(mod.ID))
                     continue;
 
-                ModEntryModel result = await this.GetModData(mod, wikiData, model.IncludeExtendedMetadata);
+                ModEntryModel result = await this.GetModData(mod, wikiData, model.IncludeExtendedMetadata || legacyMode, model.ApiVersion);
+                if (legacyMode)
+                {
+                    result.Main = result.Metadata.Main;
+                    result.Optional = result.Metadata.Optional;
+                    result.Unofficial = result.Metadata.Unofficial;
+                    result.UnofficialForBeta = result.Metadata.UnofficialForBeta;
+                    result.HasBetaInfo = result.Metadata.BetaCompatibilityStatus != null;
+                    result.SuggestedUpdate = null;
+                    if (!model.IncludeExtendedMetadata)
+                        result.Metadata = null;
+                }
+                else if (!model.IncludeExtendedMetadata && (model.ApiVersion == null || mod.InstalledVersion == null))
+                {
+                    var errors = new List<string>(result.Errors);
+                    errors.Add($"This API can't suggest an update because {nameof(model.ApiVersion)} or {nameof(mod.InstalledVersion)} are null, and you didn't specify {nameof(model.IncludeExtendedMetadata)} to get other info. See the SMAPI technical docs for usage.");
+                    result.Errors = errors.ToArray();
+                }
+
                 mods[mod.ID] = result;
             }
 
@@ -120,8 +141,9 @@ namespace StardewModdingAPI.Web.Controllers
         /// <param name="search">The mod data to match.</param>
         /// <param name="wikiData">The wiki data.</param>
         /// <param name="includeExtendedMetadata">Whether to include extended metadata for each mod.</param>
+        /// <param name="apiVersion">The SMAPI version installed by the player.</param>
         /// <returns>Returns the mod data if found, else <c>null</c>.</returns>
-        private async Task<ModEntryModel> GetModData(ModSearchEntryModel search, WikiModEntry[] wikiData, bool includeExtendedMetadata)
+        private async Task<ModEntryModel> GetModData(ModSearchEntryModel search, WikiModEntry[] wikiData, bool includeExtendedMetadata, ISemanticVersion apiVersion)
         {
             // cross-reference data
             ModDataRecord record = this.ModDatabase.Get(search.ID);
@@ -131,6 +153,10 @@ namespace StardewModdingAPI.Web.Controllers
             // get latest versions
             ModEntryModel result = new ModEntryModel { ID = search.ID };
             IList<string> errors = new List<string>();
+            ModEntryVersionModel main = null;
+            ModEntryVersionModel optional = null;
+            ModEntryVersionModel unofficial = null;
+            ModEntryVersionModel unofficialForBeta = null;
             foreach (UpdateKey updateKey in updateKeys)
             {
                 // validate update key
@@ -151,74 +177,116 @@ namespace StardewModdingAPI.Web.Controllers
                 // handle main version
                 if (data.Version != null)
                 {
-                    if (!SemanticVersion.TryParse(data.Version, out ISemanticVersion version))
+                    ISemanticVersion version = this.GetMappedVersion(data.Version, wikiEntry?.MapRemoteVersions);
+                    if (version == null)
                     {
                         errors.Add($"The update key '{updateKey}' matches a mod with invalid semantic version '{data.Version}'.");
                         continue;
                     }
 
-                    if (this.IsNewer(version, result.Main?.Version))
-                        result.Main = new ModEntryVersionModel(version, data.Url);
+                    if (this.IsNewer(version, main?.Version))
+                        main = new ModEntryVersionModel(version, data.Url);
                 }
 
                 // handle optional version
                 if (data.PreviewVersion != null)
                 {
-                    if (!SemanticVersion.TryParse(data.PreviewVersion, out ISemanticVersion version))
+                    ISemanticVersion version = this.GetMappedVersion(data.PreviewVersion, wikiEntry?.MapRemoteVersions);
+                    if (version == null)
                     {
                         errors.Add($"The update key '{updateKey}' matches a mod with invalid optional semantic version '{data.PreviewVersion}'.");
                         continue;
                     }
 
-                    if (this.IsNewer(version, result.Optional?.Version))
-                        result.Optional = new ModEntryVersionModel(version, data.Url);
+                    if (this.IsNewer(version, optional?.Version))
+                        optional = new ModEntryVersionModel(version, data.Url);
                 }
             }
 
             // get unofficial version
-            if (wikiEntry?.Compatibility.UnofficialVersion != null && this.IsNewer(wikiEntry.Compatibility.UnofficialVersion, result.Main?.Version) && this.IsNewer(wikiEntry.Compatibility.UnofficialVersion, result.Optional?.Version))
-                result.Unofficial = new ModEntryVersionModel(wikiEntry.Compatibility.UnofficialVersion, $"{this.CompatibilityPageUrl}/#{wikiEntry.Anchor}");
+            if (wikiEntry?.Compatibility.UnofficialVersion != null && this.IsNewer(wikiEntry.Compatibility.UnofficialVersion, main?.Version) && this.IsNewer(wikiEntry.Compatibility.UnofficialVersion, optional?.Version))
+                unofficial = new ModEntryVersionModel(wikiEntry.Compatibility.UnofficialVersion, $"{this.CompatibilityPageUrl}/#{wikiEntry.Anchor}");
 
             // get unofficial version for beta
             if (wikiEntry?.HasBetaInfo == true)
             {
-                result.HasBetaInfo = true;
                 if (wikiEntry.BetaCompatibility.Status == WikiCompatibilityStatus.Unofficial)
                 {
                     if (wikiEntry.BetaCompatibility.UnofficialVersion != null)
                     {
-                        result.UnofficialForBeta = (wikiEntry.BetaCompatibility.UnofficialVersion != null && this.IsNewer(wikiEntry.BetaCompatibility.UnofficialVersion, result.Main?.Version) && this.IsNewer(wikiEntry.BetaCompatibility.UnofficialVersion, result.Optional?.Version))
+                        unofficialForBeta = (wikiEntry.BetaCompatibility.UnofficialVersion != null && this.IsNewer(wikiEntry.BetaCompatibility.UnofficialVersion, main?.Version) && this.IsNewer(wikiEntry.BetaCompatibility.UnofficialVersion, optional?.Version))
                             ? new ModEntryVersionModel(wikiEntry.BetaCompatibility.UnofficialVersion, $"{this.CompatibilityPageUrl}/#{wikiEntry.Anchor}")
                             : null;
                     }
                     else
-                        result.UnofficialForBeta = result.Unofficial;
+                        unofficialForBeta = unofficial;
                 }
             }
 
             // fallback to preview if latest is invalid
-            if (result.Main == null && result.Optional != null)
+            if (main == null && optional != null)
             {
-                result.Main = result.Optional;
-                result.Optional = null;
+                main = optional;
+                optional = null;
             }
 
             // special cases
             if (result.ID == "Pathoschild.SMAPI")
             {
-                if (result.Main != null)
-                    result.Main.Url = "https://smapi.io/";
-                if (result.Optional != null)
-                    result.Optional.Url = "https://smapi.io/";
+                if (main != null)
+                    main.Url = "https://smapi.io/";
+                if (optional != null)
+                    optional.Url = "https://smapi.io/";
+            }
+
+            // get recommended update (if any)
+            ISemanticVersion installedVersion = this.GetMappedVersion(search.InstalledVersion?.ToString(), wikiEntry?.MapLocalVersions);
+            if (apiVersion != null && installedVersion != null)
+            {
+                // get newer versions
+                List<ModEntryVersionModel> updates = new List<ModEntryVersionModel>();
+                if (this.IsRecommendedUpdate(installedVersion, main?.Version, useBetaChannel: true))
+                    updates.Add(main);
+                if (this.IsRecommendedUpdate(installedVersion, optional?.Version, useBetaChannel: installedVersion.IsPrerelease()))
+                    updates.Add(optional);
+                if (this.IsRecommendedUpdate(installedVersion, unofficial?.Version, useBetaChannel: search.IsBroken))
+                    updates.Add(unofficial);
+                if (this.IsRecommendedUpdate(installedVersion, unofficialForBeta?.Version, useBetaChannel: apiVersion.IsPrerelease()))
+                    updates.Add(unofficialForBeta);
+
+                // get newest version
+                ModEntryVersionModel newest = null;
+                foreach (ModEntryVersionModel update in updates)
+                {
+                    if (newest == null || update.Version.IsNewerThan(newest.Version))
+                        newest = update;
+                }
+
+                // set field
+                result.SuggestedUpdate = newest != null
+                    ? new ModEntryVersionModel(newest.Version, newest.Url)
+                    : null;
             }
 
             // add extended metadata
-            if (includeExtendedMetadata && (wikiEntry != null || record != null))
-                result.Metadata = new ModExtendedMetadataModel(wikiEntry, record);
+            if (includeExtendedMetadata)
+                result.Metadata = new ModExtendedMetadataModel(wikiEntry, record, main: main, optional: optional, unofficial: unofficial, unofficialForBeta: unofficialForBeta);
 
             // add result
             result.Errors = errors.ToArray();
             return result;
+        }
+
+        /// <summary>Get whether a given version should be offered to the user as an update.</summary>
+        /// <param name="currentVersion">The current semantic version.</param>
+        /// <param name="newVersion">The target semantic version.</param>
+        /// <param name="useBetaChannel">Whether the user enabled the beta channel and should be offered prerelease updates.</param>
+        private bool IsRecommendedUpdate(ISemanticVersion currentVersion, ISemanticVersion newVersion, bool useBetaChannel)
+        {
+            return
+                newVersion != null
+                && newVersion.IsNewerThan(currentVersion)
+                && (useBetaChannel || !newVersion.IsPrerelease());
         }
 
         /// <summary>Get whether a <paramref name="current"/> version is newer than an <paramref name="other"/> version.</summary>
@@ -260,7 +328,7 @@ namespace StardewModdingAPI.Web.Controllers
         /// <param name="specifiedKeys">The specified update keys.</param>
         /// <param name="record">The mod's entry in SMAPI's internal database.</param>
         /// <param name="entry">The mod's entry in the wiki list.</param>
-        public IEnumerable<UpdateKey> GetUpdateKeys(string[] specifiedKeys, ModDataRecord record, WikiModEntry entry)
+        private IEnumerable<UpdateKey> GetUpdateKeys(string[] specifiedKeys, ModDataRecord record, WikiModEntry entry)
         {
             IEnumerable<string> GetRaw()
             {
@@ -300,6 +368,50 @@ namespace StardewModdingAPI.Web.Controllers
                 if (seen.Add(key))
                     yield return key;
             }
+        }
+
+        /// <summary>Get a semantic local version for update checks.</summary>
+        /// <param name="version">The version to parse.</param>
+        /// <param name="map">A map of version replacements.</param>
+        private ISemanticVersion GetMappedVersion(string version, IDictionary<string, string> map)
+        {
+            // try mapped version
+            string rawNewVersion = this.GetRawMappedVersion(version, map);
+            if (SemanticVersion.TryParse(rawNewVersion, out ISemanticVersion parsedNew))
+                return parsedNew;
+
+            // return original version
+            return SemanticVersion.TryParse(version, out ISemanticVersion parsedOld)
+                ? parsedOld
+                : null;
+        }
+
+        /// <summary>Get a semantic local version for update checks.</summary>
+        /// <param name="version">The version to map.</param>
+        /// <param name="map">A map of version replacements.</param>
+        private string GetRawMappedVersion(string version, IDictionary<string, string> map)
+        {
+            if (version == null || map == null || !map.Any())
+                return version;
+
+            // match exact raw version
+            if (map.ContainsKey(version))
+                return map[version];
+
+            // match parsed version
+            if (SemanticVersion.TryParse(version, out ISemanticVersion parsed))
+            {
+                if (map.ContainsKey(parsed.ToString()))
+                    return map[parsed.ToString()];
+
+                foreach (var pair in map)
+                {
+                    if (SemanticVersion.TryParse(pair.Key, out ISemanticVersion target) && parsed.Equals(target) && SemanticVersion.TryParse(pair.Value, out ISemanticVersion newVersion))
+                        return newVersion.ToString();
+                }
+            }
+
+            return version;
         }
     }
 }

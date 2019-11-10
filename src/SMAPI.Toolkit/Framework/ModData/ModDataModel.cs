@@ -25,12 +25,6 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
         /// </remarks>
         public string FormerIDs { get; set; }
 
-        /// <summary>Maps local versions to a semantic version for update checks.</summary>
-        public IDictionary<string, string> MapLocalVersions { get; set; } = new Dictionary<string, string>();
-
-        /// <summary>Maps remote versions to a semantic version for update checks.</summary>
-        public IDictionary<string, string> MapRemoteVersions { get; set; } = new Dictionary<string, string>();
-
         /// <summary>The mod warnings to suppress, even if they'd normally be shown.</summary>
         public ModWarning SuppressWarnings { get; set; }
 

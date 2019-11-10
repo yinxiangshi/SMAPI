@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Options;
 using StardewModdingAPI.Toolkit;
 using StardewModdingAPI.Toolkit.Framework.Clients.Wiki;
 
@@ -109,6 +112,17 @@ namespace StardewModdingAPI.Web.Framework.Caching.Wiki
         /// <summary>The URL to the latest unofficial update, if applicable.</summary>
         public string BetaUnofficialUrl { get; set; }
 
+        /****
+        ** Version maps
+        ****/
+        /// <summary>Maps local versions to a semantic version for update checks.</summary>
+        [BsonDictionaryOptions(Representation = DictionaryRepresentation.ArrayOfArrays)]
+        public IDictionary<string, string> MapLocalVersions { get; set; }
+
+        /// <summary>Maps remote versions to a semantic version for update checks.</summary>
+        [BsonDictionaryOptions(Representation = DictionaryRepresentation.ArrayOfArrays)]
+        public IDictionary<string, string> MapRemoteVersions { get; set; }
+
 
         /*********
         ** Accessors
@@ -154,6 +168,10 @@ namespace StardewModdingAPI.Web.Framework.Caching.Wiki
             this.BetaBrokeIn = mod.BetaCompatibility?.BrokeIn;
             this.BetaUnofficialVersion = mod.BetaCompatibility?.UnofficialVersion?.ToString();
             this.BetaUnofficialUrl = mod.BetaCompatibility?.UnofficialUrl;
+
+            // version maps
+            this.MapLocalVersions = mod.MapLocalVersions;
+            this.MapRemoteVersions = mod.MapRemoteVersions;
         }
 
         /// <summary>Reconstruct the original model.</summary>
@@ -186,7 +204,11 @@ namespace StardewModdingAPI.Web.Framework.Caching.Wiki
                     BrokeIn = this.MainBrokeIn,
                     UnofficialVersion = this.MainUnofficialVersion != null ? new SemanticVersion(this.MainUnofficialVersion) : null,
                     UnofficialUrl = this.MainUnofficialUrl
-                }
+                },
+
+                // version maps
+                MapLocalVersions = this.MapLocalVersions,
+                MapRemoteVersions = this.MapRemoteVersions
             };
 
             // beta compatibility
