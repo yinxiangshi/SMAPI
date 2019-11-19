@@ -735,7 +735,7 @@ namespace StardewModdingAPI.Metadata
             {
                 Lazy<Texture2D> texture = new Lazy<Texture2D>(() => content.Load<Texture2D>(key));
                 foreach (Tree tree in trees)
-                    this.Reflection.GetField<Lazy<Texture2D>>(tree, "texture").SetValue(texture);
+                    tree.texture = texture;
                 return true;
             }
 
