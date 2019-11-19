@@ -240,7 +240,13 @@ namespace StardewModdingAPI.Framework.ContentManagers
             Color[] data = new Color[texture.Width * texture.Height];
             texture.GetData(data);
             for (int i = 0; i < data.Length; i++)
+            {
+                if (data[i].A == 0)
+                    continue; // no need to change fully transparent pixels
+
                 data[i] = Color.FromNonPremultiplied(data[i].ToVector4());
+            }
+
             texture.SetData(data);
             return texture;
         }
