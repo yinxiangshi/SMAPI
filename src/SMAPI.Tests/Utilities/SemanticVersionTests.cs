@@ -2,9 +2,10 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 using NUnit.Framework;
+using StardewModdingAPI;
 using StardewModdingAPI.Framework;
 
-namespace StardewModdingAPI.Tests.Utilities
+namespace SMAPI.Tests.Utilities
 {
     /// <summary>Unit tests for <see cref="SemanticVersion"/>.</summary>
     [TestFixture]
@@ -17,10 +18,10 @@ namespace StardewModdingAPI.Tests.Utilities
         ** Constructor
         ****/
         [Test(Description = "Assert that the constructor sets the expected values for all valid versions when constructed from a string.")]
-        [TestCase("1.0", ExpectedResult = "1.0")]
-        [TestCase("1.0.0", ExpectedResult = "1.0")]
+        [TestCase("1.0", ExpectedResult = "1.0.0")]
+        [TestCase("1.0.0", ExpectedResult = "1.0.0")]
         [TestCase("3000.4000.5000", ExpectedResult = "3000.4000.5000")]
-        [TestCase("1.2-some-tag.4", ExpectedResult = "1.2-some-tag.4")]
+        [TestCase("1.2-some-tag.4", ExpectedResult = "1.2.0-some-tag.4")]
         [TestCase("1.2.3-some-tag.4", ExpectedResult = "1.2.3-some-tag.4")]
         [TestCase("1.2.3-SoME-tAg.4", ExpectedResult = "1.2.3-SoME-tAg.4")]
         [TestCase("1.2.3-some-tag.4      ", ExpectedResult = "1.2.3-some-tag.4")]
@@ -30,7 +31,7 @@ namespace StardewModdingAPI.Tests.Utilities
         }
 
         [Test(Description = "Assert that the constructor sets the expected values for all valid versions when constructed from the individual numbers.")]
-        [TestCase(1, 0, 0, null, ExpectedResult = "1.0")]
+        [TestCase(1, 0, 0, null, ExpectedResult = "1.0.0")]
         [TestCase(3000, 4000, 5000, null, ExpectedResult = "3000.4000.5000")]
         [TestCase(1, 2, 3, "", ExpectedResult = "1.2.3")]
         [TestCase(1, 2, 3, "    ", ExpectedResult = "1.2.3")]
@@ -65,7 +66,7 @@ namespace StardewModdingAPI.Tests.Utilities
         }
 
         [Test(Description = "Assert that the constructor sets the expected values for all valid versions when constructed from an assembly version.")]
-        [TestCase(1, 0, 0, ExpectedResult = "1.0")]
+        [TestCase(1, 0, 0, ExpectedResult = "1.0.0")]
         [TestCase(1, 2, 3, ExpectedResult = "1.2.3")]
         [TestCase(3000, 4000, 5000, ExpectedResult = "3000.4000.5000")]
         public string Constructor_FromAssemblyVersion(int major, int minor, int patch)
@@ -243,19 +244,19 @@ namespace StardewModdingAPI.Tests.Utilities
         }
 
         /****
-        ** Serialisable
+        ** Serializable
         ****/
         [Test(Description = "Assert that SemanticVersion can be round-tripped through JSON with no special configuration.")]
-        [TestCase("1.0")]
-        public void Serialisable(string versionStr)
+        [TestCase("1.0.0")]
+        public void Serializable(string versionStr)
         {
             // act
             string json = JsonConvert.SerializeObject(new SemanticVersion(versionStr));
             SemanticVersion after = JsonConvert.DeserializeObject<SemanticVersion>(json);
 
             // assert
-            Assert.IsNotNull(after, "The semantic version after deserialisation is unexpectedly null.");
-            Assert.AreEqual(versionStr, after.ToString(), "The semantic version after deserialisation doesn't match the input version.");
+            Assert.IsNotNull(after, "The semantic version after deserialization is unexpectedly null.");
+            Assert.AreEqual(versionStr, after.ToString(), "The semantic version after deserialization doesn't match the input version.");
         }
 
         /****

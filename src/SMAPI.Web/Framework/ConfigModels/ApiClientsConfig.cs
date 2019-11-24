@@ -24,16 +24,17 @@ namespace StardewModdingAPI.Web.Framework.ConfigModels
 
 
         /****
+        ** CurseForge
+        ****/
+        /// <summary>The base URL for the CurseForge API.</summary>
+        public string CurseForgeBaseUrl { get; set; }
+
+
+        /****
         ** GitHub
         ****/
         /// <summary>The base URL for the GitHub API.</summary>
         public string GitHubBaseUrl { get; set; }
-
-        /// <summary>The URL for a GitHub API query for the latest stable release, excluding the <see cref="GitHubBaseUrl"/>, where {0} is the organisation and project name.</summary>
-        public string GitHubStableReleaseUrlFormat { get; set; }
-
-        /// <summary>The URL for a GitHub API query for the latest release (including prerelease), excluding the <see cref="GitHubBaseUrl"/>, where {0} is the organisation and project name.</summary>
-        public string GitHubAnyReleaseUrlFormat { get; set; }
 
         /// <summary>The Accept header value expected by the GitHub API.</summary>
         public string GitHubAcceptHeader { get; set; }
@@ -64,6 +65,9 @@ namespace StardewModdingAPI.Web.Framework.ConfigModels
 
         /// <summary>The URL for a Nexus mod page to scrape for versions, excluding the <see cref="NexusBaseUrl"/>, where {0} is the mod ID.</summary>
         public string NexusModScrapeUrlFormat { get; set; }
+
+        /// <summary>The Nexus API authentication key.</summary>
+        public string NexusApiKey { get; set; }
 
         /****
         ** Pastebin

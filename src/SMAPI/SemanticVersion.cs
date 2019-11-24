@@ -1,6 +1,5 @@
 using System;
 using Newtonsoft.Json;
-using StardewModdingAPI.Framework;
 
 namespace StardewModdingAPI
 {
@@ -25,19 +24,6 @@ namespace StardewModdingAPI
 
         /// <summary>The patch version for backwards-compatible bug fixes.</summary>
         public int PatchVersion => this.Version.PatchVersion;
-
-#if !SMAPI_3_0_STRICT
-        /// <summary>An optional build tag.</summary>
-        [Obsolete("Use " + nameof(ISemanticVersion.PrereleaseTag) + " instead")]
-        public string Build
-        {
-            get
-            {
-                SCore.DeprecationManager?.Warn($"{nameof(ISemanticVersion)}.{nameof(ISemanticVersion.Build)}", "2.8", DeprecationLevel.PendingRemoval);
-                return this.Version.PrereleaseTag;
-            }
-        }
-#endif
 
         /// <summary>An optional prerelease tag.</summary>
         public string PrereleaseTag => this.Version.PrereleaseTag;
@@ -75,13 +61,13 @@ namespace StardewModdingAPI
             this.Version = version;
         }
 
-        /// <summary>Whether this is a pre-release version.</summary>
+        /// <summary>Whether this is a prerelease version.</summary>
         public bool IsPrerelease()
         {
             return this.Version.IsPrerelease();
         }
 
-        /// <summary>Get an integer indicating whether this version precedes (less than 0), supercedes (more than 0), or is equivalent to (0) the specified version.</summary>
+        /// <summary>Get an integer indicating whether this version precedes (less than 0), supersedes (more than 0), or is equivalent to (0) the specified version.</summary>
         /// <param name="other">The version to compare with this instance.</param>
         /// <exception cref="ArgumentNullException">The <paramref name="other"/> value is null.</exception>
         /// <remarks>The implementation is defined by Semantic Version 2.0 (https://semver.org/).</remarks>
@@ -155,7 +141,7 @@ namespace StardewModdingAPI
         /// <param name="version">The version string.</param>
         /// <param name="parsed">The parsed representation.</param>
         /// <returns>Returns whether parsing the version succeeded.</returns>
-        internal static bool TryParse(string version, out ISemanticVersion parsed)
+        public static bool TryParse(string version, out ISemanticVersion parsed)
         {
             if (Toolkit.SemanticVersion.TryParse(version, out ISemanticVersion versionImpl))
             {

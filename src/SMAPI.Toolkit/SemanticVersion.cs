@@ -42,15 +42,6 @@ namespace StardewModdingAPI.Toolkit
         /// <summary>An optional prerelease tag.</summary>
         public string PrereleaseTag { get; }
 
-#if !SMAPI_3_0_STRICT
-        /// <summary>An optional prerelease tag.</summary>
-        [Obsolete("Use " + nameof(ISemanticVersion.PrereleaseTag) + " instead")]
-        public string Build => this.PrereleaseTag;
-
-        /// <summary>Whether the version was parsed from the legacy object format.</summary>
-        public bool IsLegacyFormat { get; }
-#endif
-
 
         /*********
         ** Public methods
@@ -60,20 +51,12 @@ namespace StardewModdingAPI.Toolkit
         /// <param name="minor">The minor version incremented for backwards-compatible changes.</param>
         /// <param name="patch">The patch version for backwards-compatible fixes.</param>
         /// <param name="prereleaseTag">An optional prerelease tag.</param>
-        /// <param name="isLegacyFormat">Whether the version was parsed from the legacy object format.</param>
-        public SemanticVersion(int major, int minor, int patch, string prereleaseTag = null
-#if !SMAPI_3_0_STRICT
-            , bool isLegacyFormat = false
-#endif
-        )
+        public SemanticVersion(int major, int minor, int patch, string prereleaseTag = null)
         {
             this.MajorVersion = major;
             this.MinorVersion = minor;
             this.PatchVersion = patch;
-            this.PrereleaseTag = this.GetNormalisedTag(prereleaseTag);
-#if !SMAPI_3_0_STRICT
-            this.IsLegacyFormat = isLegacyFormat;
-#endif
+            this.PrereleaseTag = this.GetNormalizedTag(prereleaseTag);
 
             this.AssertValid();
         }
@@ -106,16 +89,16 @@ namespace StardewModdingAPI.Toolkit
             if (!match.Success)
                 throw new FormatException($"The input '{version}' isn't a valid semantic version.");
 
-            // initialise
+            // initialize
             this.MajorVersion = int.Parse(match.Groups["major"].Value);
             this.MinorVersion = match.Groups["minor"].Success ? int.Parse(match.Groups["minor"].Value) : 0;
             this.PatchVersion = match.Groups["patch"].Success ? int.Parse(match.Groups["patch"].Value) : 0;
-            this.PrereleaseTag = match.Groups["prerelease"].Success ? this.GetNormalisedTag(match.Groups["prerelease"].Value) : null;
+            this.PrereleaseTag = match.Groups["prerelease"].Success ? this.GetNormalizedTag(match.Groups["prerelease"].Value) : null;
 
             this.AssertValid();
         }
 
-        /// <summary>Get an integer indicating whether this version precedes (less than 0), supercedes (more than 0), or is equivalent to (0) the specified version.</summary>
+        /// <summary>Get an integer indicating whether this version precedes (less than 0), supersedes (more than 0), or is equivalent to (0) the specified version.</summary>
         /// <param name="other">The version to compare with this instance.</param>
         /// <exception cref="ArgumentNullException">The <paramref name="other"/> value is null.</exception>
         public int CompareTo(ISemanticVersion other)
@@ -133,7 +116,7 @@ namespace StardewModdingAPI.Toolkit
             return other != null && this.CompareTo(other) == 0;
         }
 
-        /// <summary>Whether this is a pre-release version.</summary>
+        /// <summary>Whether this is a prerelease version.</summary>
         public bool IsPrerelease()
         {
             return !string.IsNullOrWhiteSpace(this.PrereleaseTag);
@@ -189,16 +172,10 @@ namespace StardewModdingAPI.Toolkit
         /// <summary>Get a string representation of the version.</summary>
         public override string ToString()
         {
-            // version
-            string result = this.PatchVersion != 0
-                ? $"{this.MajorVersion}.{this.MinorVersion}.{this.PatchVersion}"
-                : $"{this.MajorVersion}.{this.MinorVersion}";
-
-            // tag
-            string tag = this.PrereleaseTag;
-            if (tag != null)
-                result += $"-{tag}";
-            return result;
+            string version = $"{this.MajorVersion}.{this.MinorVersion}.{this.PatchVersion}";
+            if (this.PrereleaseTag != null)
+                version += $"-{this.PrereleaseTag}";
+            return version;
         }
 
         /// <summary>Parse a version string without throwing an exception if it fails.</summary>
@@ -223,15 +200,15 @@ namespace StardewModdingAPI.Toolkit
         /*********
         ** Private methods
         *********/
-        /// <summary>Get a normalised build tag.</summary>
-        /// <param name="tag">The tag to normalise.</param>
-        private string GetNormalisedTag(string tag)
+        /// <summary>Get a normalized build tag.</summary>
+        /// <param name="tag">The tag to normalize.</param>
+        private string GetNormalizedTag(string tag)
         {
             tag = tag?.Trim();
             return !string.IsNullOrWhiteSpace(tag) ? tag : null;
         }
 
-        /// <summary>Get an integer indicating whether this version precedes (less than 0), supercedes (more than 0), or is equivalent to (0) the specified version.</summary>
+        /// <summary>Get an integer indicating whether this version precedes (less than 0), supersedes (more than 0), or is equivalent to (0) the specified version.</summary>
         /// <param name="otherMajor">The major version to compare with this instance.</param>
         /// <param name="otherMinor">The minor version to compare with this instance.</param>
         /// <param name="otherPatch">The patch version to compare with this instance.</param>
@@ -252,7 +229,7 @@ namespace StardewModdingAPI.Toolkit
             if (this.PrereleaseTag == otherTag)
                 return same;
 
-            // stable supercedes pre-release
+            // stable supersedes prerelease
             bool curIsStable = string.IsNullOrWhiteSpace(this.PrereleaseTag);
             bool otherIsStable = string.IsNullOrWhiteSpace(otherTag);
             if (curIsStable)
@@ -260,12 +237,12 @@ namespace StardewModdingAPI.Toolkit
             if (otherIsStable)
                 return curOlder;
 
-            // compare two pre-release tag values
+            // compare two prerelease tag values
             string[] curParts = this.PrereleaseTag.Split('.', '-');
             string[] otherParts = otherTag.Split('.', '-');
             for (int i = 0; i < curParts.Length; i++)
             {
-                // longer prerelease tag supercedes if otherwise equal
+                // longer prerelease tag supersedes if otherwise equal
                 if (otherParts.Length <= i)
                     return curNewer;
 
