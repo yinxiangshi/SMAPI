@@ -33,6 +33,12 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="assets\nuget-icon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
   <Import Project="..\SMAPI.Internal\SMAPI.Internal.projitems" Label="Shared" />
   <Import Project="..\..\build\common.targets" />
   <Import Project="..\..\build\prepare-nuget-package.targets" />
