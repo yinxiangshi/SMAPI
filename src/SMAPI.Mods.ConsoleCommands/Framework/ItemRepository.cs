@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI.Mods.ConsoleCommands.Framework.ItemData;
 using StardewValley;
+using StardewValley.Menus;
 using StardewValley.Objects;
 using StardewValley.Tools;
 using SObject = StardewValley.Object;
@@ -108,7 +109,10 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework
                     // spawn main item
                     SObject item;
                     {
-                        SearchableItem main = this.TryCreate(ItemType.Object, id, () => new SObject(id, 1));
+                        SearchableItem main = this.TryCreate(ItemType.Object, id, () => id == 812
+                            ? new ColoredObject(id, 1, Color.White)
+                            : new SObject(id, 1)
+                        );
                         yield return main;
                         item = main?.Item as SObject;
                     }
@@ -188,6 +192,43 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework
                             honey.Price += item.Price * 2;
                             return honey;
                         });
+                    }
+
+                    // roe and aged roe (derived from FishPond.GetFishProduce)
+                    else if (id == 812)
+                    {
+                        foreach (var pair in Game1.objectInformation)
+                        {
+                            // get input
+                            SObject input = new SObject(pair.Key, 1);
+                            if (input.Category != SObject.FishCategory)
+                                continue;
+                            Color color = TailoringMenu.GetDyeColor(input) ?? Color.Orange;
+
+                            // yield roe
+                            SObject roe = new ColoredObject(812, 1, color)
+                            {
+                                name = $"{input.Name} Roe",
+                                preserve = { Value = SObject.PreserveType.Roe },
+                                preservedParentSheetIndex = { Value = input.ParentSheetIndex }
+                            };
+                            roe.Price += input.Price / 2;
+                            yield return new SearchableItem(ItemType.Object, this.CustomIDOffset * 6 + 1, roe);
+
+                            // aged roe
+                            if (pair.Key != 698) // aged sturgeon roe is caviar, which is a separate item
+                            {
+                                ColoredObject agedRoe = new ColoredObject(447, 1, color)
+                                {
+                                    name = $"Aged {input.Name} Roe",
+                                    Category = -27,
+                                    preserve = { Value = SObject.PreserveType.AgedRoe },
+                                    preservedParentSheetIndex = { Value = input.ParentSheetIndex },
+                                    Price = roe.Price * 2
+                                };
+                                yield return new SearchableItem(ItemType.Object, this.CustomIDOffset * 6 + 1, agedRoe);
+                            }
+                        }
                     }
                 }
             }
