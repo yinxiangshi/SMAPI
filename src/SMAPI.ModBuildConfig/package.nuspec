@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>Pathoschild.Stardew.ModBuildConfig</id>
-    <version>3.0.0-beta.6</version>
+    <version>3.0.0</version>
     <title>Build package for SMAPI mods</title>
     <authors>Pathoschild</authors>
     <owners>Pathoschild</owners>
@@ -17,9 +17,7 @@
       - Updated for SMAPI 3.0 and Stardew Valley 1.4.
       - Added automatic support for 'assets' folders.
       - Added $(GameExecutableName) MSBuild variable.
-      - Added support for projects using the simplified .csproj format:
-        - platform target is now set to x86 automatically to avoid mismatching platform target warnings;
-        - added GAC to assembly search paths to fix references to XNA Framework.
+      - Added support for projects using the simplified .csproj format.
       - Added option to disable game debugging config.
       - Added .pdb files to builds by default (to enable line numbers in error stack traces).
       - Added optional Harmony reference.
