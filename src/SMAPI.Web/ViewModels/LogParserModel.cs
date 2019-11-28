@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -34,11 +35,17 @@ namespace StardewModdingAPI.Web.ViewModels
         /// <summary>Whether to show the raw unparsed log.</summary>
         public bool ShowRaw { get; set; }
 
-        /// <summary>An error which occurred while uploading the log to Pastebin.</summary>
+        /// <summary>A non-blocking warning while uploading the log.</summary>
+        public string UploadWarning { get; set; }
+
+        /// <summary>An error which occurred while uploading the log.</summary>
         public string UploadError { get; set; }
 
         /// <summary>An error which occurred while parsing the log file.</summary>
         public string ParseError => this.ParsedLog?.Error;
+
+        /// <summary>When the uploaded file will no longer be available.</summary>
+        public DateTime? Expiry { get; set; }
 
 
         /*********

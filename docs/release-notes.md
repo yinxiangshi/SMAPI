@@ -1,6 +1,11 @@
 &larr; [README](README.md)
 
 # Release notes
+## Upcoming release
+
+* For the web UI:
+  * If a log can't be uploaded to Pastebin (e.g. due to rate limits), it'll be uploaded to Amazon S3 instead. Logs uploaded to S3 will expire after one month.
+
 ## 3.0
 Released 26 November 2019 for Stardew Valley 1.4.
 

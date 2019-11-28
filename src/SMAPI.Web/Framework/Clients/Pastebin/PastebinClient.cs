@@ -62,7 +62,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.Pastebin
             }
             catch (Exception ex)
             {
-                return new PasteInfo { Error = ex.ToString() };
+                return new PasteInfo { Error = $"Pastebin error: {ex}" };
             }
         }
 

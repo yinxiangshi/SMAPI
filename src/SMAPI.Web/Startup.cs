@@ -58,6 +58,7 @@ namespace StardewModdingAPI.Web
         {
             // init basic services
             services
+                .Configure<ApiClientsConfig>(this.Configuration.GetSection("ApiClients"))
                 .Configure<BackgroundServicesConfig>(this.Configuration.GetSection("BackgroundServices"))
                 .Configure<ModCompatibilityListConfig>(this.Configuration.GetSection("ModCompatibilityList"))
                 .Configure<ModUpdateCheckConfig>(this.Configuration.GetSection("ModUpdateCheck"))
