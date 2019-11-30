@@ -5,6 +5,7 @@
 
 * For the web UI:
   * If a log can't be uploaded to Pastebin (e.g. due to rate limits), it'll be uploaded to Amazon S3 instead. Logs uploaded to S3 will expire after one month.
+  * Updated translations. Thanks to feathershine (added Chinese)!
 
 ## 3.0
 Released 26 November 2019 for Stardew Valley 1.4.
@@ -85,6 +86,7 @@ For modders:
   * Update checks are now faster in some cases.
   * Updated mod compatibility list.
   * Updated SMAPI/game version map.
+  * Updated translations. Thanks to eren-kemer (added German)!
 * Fixes:
   * Fixed some assets not updated when you switch language to English.
   * Fixed lag in some cases due to incorrect asset caching when playing in non-English.
