@@ -11,6 +11,7 @@ using StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
 using StardewModdingAPI.Toolkit.Framework.Clients.Wiki;
 using StardewModdingAPI.Toolkit.Framework.ModData;
 using StardewModdingAPI.Toolkit.Framework.UpdateData;
+using StardewModdingAPI.Web.Framework;
 using StardewModdingAPI.Web.Framework.Caching.Mods;
 using StardewModdingAPI.Web.Framework.Caching.Wiki;
 using StardewModdingAPI.Web.Framework.Clients.Chucklefish;
@@ -201,7 +202,7 @@ namespace StardewModdingAPI.Web.Controllers
 
             // get unofficial version
             if (wikiEntry?.Compatibility.UnofficialVersion != null && this.IsNewer(wikiEntry.Compatibility.UnofficialVersion, main?.Version) && this.IsNewer(wikiEntry.Compatibility.UnofficialVersion, optional?.Version))
-                unofficial = new ModEntryVersionModel(wikiEntry.Compatibility.UnofficialVersion, $"{this.Url.Action("Index", "Mods")}#{wikiEntry.Anchor}");
+                unofficial = new ModEntryVersionModel(wikiEntry.Compatibility.UnofficialVersion, $"{this.Url.PlainAction("Index", "Mods")}#{wikiEntry.Anchor}");
 
             // get unofficial version for beta
             if (wikiEntry?.HasBetaInfo == true)
@@ -211,7 +212,7 @@ namespace StardewModdingAPI.Web.Controllers
                     if (wikiEntry.BetaCompatibility.UnofficialVersion != null)
                     {
                         unofficialForBeta = (wikiEntry.BetaCompatibility.UnofficialVersion != null && this.IsNewer(wikiEntry.BetaCompatibility.UnofficialVersion, main?.Version) && this.IsNewer(wikiEntry.BetaCompatibility.UnofficialVersion, optional?.Version))
-                            ? new ModEntryVersionModel(wikiEntry.BetaCompatibility.UnofficialVersion, $"{this.Url.Action("Index", "Mods")}#{wikiEntry.Anchor}")
+                            ? new ModEntryVersionModel(wikiEntry.BetaCompatibility.UnofficialVersion, $"{this.Url.PlainAction("Index", "Mods")}#{wikiEntry.Anchor}")
                             : null;
                     }
                     else

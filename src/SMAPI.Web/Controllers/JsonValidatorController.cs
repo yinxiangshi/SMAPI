@@ -151,7 +151,7 @@ namespace StardewModdingAPI.Web.Controllers
                 return this.View("Index", new JsonValidatorModel(result.ID, schemaName, this.SchemaFormats).SetUploadError($"Pastebin error: {result.Error ?? "unknown error"}"));
 
             // redirect to view
-            return this.Redirect(this.Url.Action("Index", "LogParser", new { schemaName = schemaName, id = result.ID }));
+            return this.Redirect(this.Url.PlainAction("Index", "LogParser", new { schemaName = schemaName, id = result.ID }));
         }
 
 

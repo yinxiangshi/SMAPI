@@ -1,6 +1,7 @@
 @using Humanizer
 @using Newtonsoft.Json
 @using StardewModdingAPI.Toolkit.Utilities
+@using StardewModdingAPI.Web.Framework
 @using StardewModdingAPI.Web.Framework.LogParsing.Models
 @model StardewModdingAPI.Web.ViewModels.LogParserModel
 
@@ -32,7 +33,7 @@
                 showSections: @Json.Serialize(Enum.GetNames(typeof(LogSection)).ToDictionary(section => section, section => false), noFormatting),
                 showLevels: @Json.Serialize(defaultFilters, noFormatting),
                 enableFilters: @Json.Serialize(!Model.ShowRaw)
-            }, '@this.Url.Action("Index", "LogParser")');
+            }, '@this.Url.PlainAction("Index", "LogParser", values: null)');
         });
     </script>
 }
@@ -49,8 +50,8 @@ else if (Model.ParseError != null)
 {
     <div class="banner error" v-pre>
         <strong>Oops, couldn't parse that log. (Make sure you upload the log file, not the console text.)</strong><br />
-        Share this URL when asking for help: <code>https://@this.Context.Request.Host.ToUriComponent()@this.Url.Action("Index", "LogParser", new { id = Model.PasteID }))</code><br />
-        (Or <a href="@this.Url.Action("Index", "LogParser")">upload a new log</a>.)<br />
+        Share this URL when asking for help: <code>https://@this.Context.Request.Host.ToUriComponent()@this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID }))</code><br />
+        (Or <a href="@this.Url.PlainAction("Index", "LogParser", values: null)">upload a new log</a>.)<br />
         <br />
         <small v-pre>Error details: @Model.ParseError</small>
     </div>
@@ -58,8 +59,8 @@ else if (Model.ParseError != null)
 else if (Model.ParsedLog?.IsValid == true)
 {
     <div class="banner success" v-pre>
-        <strong>Share this link to let someone else see the log:</strong> <code>https://@this.Context.Request.Host.ToUriComponent()@this.Url.Action("Index", "LogParser", new { id = Model.PasteID })</code><br />
-        (Or <a href="@this.Url.Action("Index", "LogParser")">upload a new log</a>.)
+        <strong>Share this link to let someone else see the log:</strong> <code>https://@this.Context.Request.Host.ToUriComponent()@this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID })</code><br />
+        (Or <a href="@this.Url.PlainAction("Index", "LogParser", values: null)">upload a new log</a>.)
     </div>
 }
 
@@ -127,7 +128,7 @@ else if (Model.ParsedLog?.IsValid == true)
     </div>
 
     <h2>How do I share my log?</h2>
-    <form action="@this.Url.Action("PostAsync", "LogParser")" method="post">
+    <form action="@this.Url.PlainAction("PostAsync", "LogParser")" method="post">
         <ol>
             <li>
                 Drag the file onto this textbox (or paste the text in):<br />
@@ -322,12 +323,12 @@ else if (Model.ParsedLog?.IsValid == true)
                 }
             </table>
 
-            <small><a href="@this.Url.Action("Index", "LogParser", new { id = Model.PasteID })?raw=true">view raw log</a></small>
+            <small><a href="@this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID, raw = true })">view raw log</a></small>
         }
         else
         {
             <pre v-pre>@Model.ParsedLog.RawText</pre>
-            <small><a href="@this.Url.Action("Index", "LogParser", new { id = Model.PasteID })">view parsed log</a></small>
+            <small><a href="@this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID })">view parsed log</a></small>
         }
     </div>
 }

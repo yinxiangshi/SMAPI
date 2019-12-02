@@ -1,10 +1,11 @@
+@using StardewModdingAPI.Web.Framework
 @using StardewModdingAPI.Web.ViewModels.JsonValidator
 @model JsonValidatorModel
 
 @{
     // get view data
-    string curPageUrl = this.Url.Action("Index", "JsonValidator", new { schemaName = Model.SchemaName, id = Model.PasteID });
-    string newUploadUrl = this.Url.Action("Index", "JsonValidator", new { schemaName = Model.SchemaName });
+    string curPageUrl = this.Url.PlainAction("Index", "JsonValidator", new { schemaName = Model.SchemaName, id = Model.PasteID });
+    string newUploadUrl = this.Url.PlainAction("Index", "JsonValidator", new { schemaName = Model.SchemaName });
     string schemaDisplayName = null;
     bool isValidSchema = Model.SchemaName != null && Model.SchemaFormats.TryGetValue(Model.SchemaName, out schemaDisplayName) && schemaDisplayName != "None";
 
@@ -35,7 +36,7 @@
     <script src="~/Content/js/json-validator.js"></script>
     <script>
         $(function() {
-            smapi.jsonValidator(@Json.Serialize(this.Url.Action("Index", "JsonValidator")), @Json.Serialize(Model.PasteID));
+            smapi.jsonValidator(@Json.Serialize(this.Url.PlainAction("Index", "JsonValidator", values: null)), @Json.Serialize(Model.PasteID));
         });
     </script>
 }
@@ -70,7 +71,7 @@ else if (Model.PasteID != null)
 @if (Model.Content == null)
 {
     <h2>Upload a JSON file</h2>
-    <form action="@this.Url.Action("PostAsync", "JsonValidator")" method="post">
+    <form action="@this.Url.PlainAction("PostAsync", "JsonValidator")" method="post">
         <ol>
             <li>
                 Choose the JSON format:<br />

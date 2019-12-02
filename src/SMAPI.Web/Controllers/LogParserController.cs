@@ -98,7 +98,7 @@ namespace StardewModdingAPI.Web.Controllers
                 return this.View("Index", this.GetModel(null, uploadError: uploadResult.UploadError));
 
             // redirect to view
-            return this.Redirect(this.Url.Action("Index", "LogParser", new { id = uploadResult.ID }));
+            return this.Redirect(this.Url.PlainAction("Index", "LogParser", new { id = uploadResult.ID }));
         }
 
 

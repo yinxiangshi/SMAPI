@@ -1,4 +1,5 @@
 @using Microsoft.Extensions.Options
+@using StardewModdingAPI.Web.Framework
 @using StardewModdingAPI.Web.Framework.ConfigModels
 @inject IOptions<SiteConfig> SiteConfig
 @{
@@ -8,7 +9,7 @@
     <link rel="stylesheet" href="~/Content/css/privacy.css" />
 }
 
-&larr; <a href="@Url.Action("Index", "Index")">back to SMAPI page</a>
+&larr; <a href="@Url.PlainAction("Index", "Index")">back to SMAPI page</a>
 
 <p>SMAPI is an <a href="https://github.com/Pathoschild/SMAPI">open-source</a> and non-profit project. Your privacy is important, so this page explains what information SMAPI uses and transmits. <strong>This page is informational only, it's not a legal document.</strong></p>
 
