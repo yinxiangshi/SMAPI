@@ -52,7 +52,7 @@ The default values are mirrored in StardewModdingAPI.Framework.Models.SConfig to
      * Note: the protocol will be changed to http:// on Linux/Mac due to OpenSSL issues with the
      * game's bundled Mono.
      */
-    "WebApiBaseUrl": "https://api.smapi.io",
+    "WebApiBaseUrl": "https://smapi.io/api/",
 
     /**
      * Whether SMAPI should log network traffic (may be very verbose). Best combined with VerboseLogging, which includes network metadata.

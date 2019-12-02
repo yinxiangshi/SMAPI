@@ -9,9 +9,6 @@ namespace StardewModdingAPI.Web.ViewModels.JsonValidator
         /*********
         ** Accessors
         *********/
-        /// <summary>The root URL for the log parser controller.</summary>
-        public string SectionUrl { get; set; }
-
         /// <summary>The paste ID.</summary>
         public string PasteID { get; set; }
 
@@ -44,13 +41,11 @@ namespace StardewModdingAPI.Web.ViewModels.JsonValidator
         public JsonValidatorModel() { }
 
         /// <summary>Construct an instance.</summary>
-        /// <param name="sectionUrl">The root URL for the log parser controller.</param>
         /// <param name="pasteID">The paste ID.</param>
         /// <param name="schemaName">The schema name with which the JSON was validated.</param>
         /// <param name="schemaFormats">The supported JSON schemas (names indexed by ID).</param>
-        public JsonValidatorModel(string sectionUrl, string pasteID, string schemaName, IDictionary<string, string> schemaFormats)
+        public JsonValidatorModel(string pasteID, string schemaName, IDictionary<string, string> schemaFormats)
         {
-            this.SectionUrl = sectionUrl;
             this.PasteID = pasteID;
             this.SchemaName = schemaName;
             this.SchemaFormats = schemaFormats;

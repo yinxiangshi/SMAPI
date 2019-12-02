@@ -63,7 +63,7 @@
     <Copy SourceFiles="$(CompiledModsPath)\SaveBackup\SaveBackup.pdb" DestinationFolder="$(PackagePath)\bundle\Mods\SaveBackup" />
     <Copy SourceFiles="$(CompiledModsPath)\SaveBackup\manifest.json" DestinationFolder="$(PackagePath)\bundle\Mods\SaveBackup" />
 
-    <!-- fix errors on Linux/Mac (sample: https://log.smapi.io/mMdFUpgB) -->
+    <!-- fix errors on Linux/Mac (sample: https://smapi.io/log/mMdFUpgB) -->
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(RootPath)\build\lib\System.Numerics.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
     <Copy Condition="$(OS) != 'Windows_NT'" SourceFiles="$(RootPath)\build\lib\System.Runtime.Caching.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
 

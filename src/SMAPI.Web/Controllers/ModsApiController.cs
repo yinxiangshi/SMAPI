@@ -49,9 +49,6 @@ namespace StardewModdingAPI.Web.Controllers
         /// <summary>The internal mod metadata list.</summary>
         private readonly ModDatabase ModDatabase;
 
-        /// <summary>The web URL for the compatibility list.</summary>
-        private readonly string CompatibilityPageUrl;
-
 
         /*********
         ** Public methods
@@ -70,7 +67,6 @@ namespace StardewModdingAPI.Web.Controllers
         {
             this.ModDatabase = new ModToolkit().GetModDatabase(Path.Combine(environment.WebRootPath, "SMAPI.metadata.json"));
             ModUpdateCheckConfig config = configProvider.Value;
-            this.CompatibilityPageUrl = config.CompatibilityPageUrl;
 
             this.WikiCache = wikiCache;
             this.ModCache = modCache;
@@ -205,7 +201,7 @@ namespace StardewModdingAPI.Web.Controllers
 
             // get unofficial version
             if (wikiEntry?.Compatibility.UnofficialVersion != null && this.IsNewer(wikiEntry.Compatibility.UnofficialVersion, main?.Version) && this.IsNewer(wikiEntry.Compatibility.UnofficialVersion, optional?.Version))
-                unofficial = new ModEntryVersionModel(wikiEntry.Compatibility.UnofficialVersion, $"{this.CompatibilityPageUrl}/#{wikiEntry.Anchor}");
+                unofficial = new ModEntryVersionModel(wikiEntry.Compatibility.UnofficialVersion, $"{this.Url.Action("Index", "Mods")}#{wikiEntry.Anchor}");
 
             // get unofficial version for beta
             if (wikiEntry?.HasBetaInfo == true)
@@ -215,7 +211,7 @@ namespace StardewModdingAPI.Web.Controllers
                     if (wikiEntry.BetaCompatibility.UnofficialVersion != null)
                     {
                         unofficialForBeta = (wikiEntry.BetaCompatibility.UnofficialVersion != null && this.IsNewer(wikiEntry.BetaCompatibility.UnofficialVersion, main?.Version) && this.IsNewer(wikiEntry.BetaCompatibility.UnofficialVersion, optional?.Version))
-                            ? new ModEntryVersionModel(wikiEntry.BetaCompatibility.UnofficialVersion, $"{this.CompatibilityPageUrl}/#{wikiEntry.Anchor}")
+                            ? new ModEntryVersionModel(wikiEntry.BetaCompatibility.UnofficialVersion, $"{this.Url.Action("Index", "Mods")}#{wikiEntry.Anchor}")
                             : null;
                     }
                     else

@@ -20,9 +20,6 @@ namespace StardewModdingAPI.Web.ViewModels
         /*********
         ** Accessors
         *********/
-        /// <summary>The root URL for the log parser controller.</summary>
-        public string SectionUrl { get; set; }
-
         /// <summary>The paste ID.</summary>
         public string PasteID { get; set; }
 
@@ -55,12 +52,10 @@ namespace StardewModdingAPI.Web.ViewModels
         public LogParserModel() { }
 
         /// <summary>Construct an instance.</summary>
-        /// <param name="sectionUrl">The root URL for the log parser controller.</param>
         /// <param name="pasteID">The paste ID.</param>
         /// <param name="platform">The viewer's detected OS, if known.</param>
-        public LogParserModel(string sectionUrl, string pasteID, Platform? platform)
+        public LogParserModel(string pasteID, Platform? platform)
         {
-            this.SectionUrl = sectionUrl;
             this.PasteID = pasteID;
             this.DetectedPlatform = platform;
             this.ParsedLog = null;

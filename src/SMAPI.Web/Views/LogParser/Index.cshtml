@@ -32,7 +32,7 @@
                 showSections: @Json.Serialize(Enum.GetNames(typeof(LogSection)).ToDictionary(section => section, section => false), noFormatting),
                 showLevels: @Json.Serialize(defaultFilters, noFormatting),
                 enableFilters: @Json.Serialize(!Model.ShowRaw)
-            }, '@Model.SectionUrl');
+            }, '@this.Url.Action("Index", "LogParser")');
         });
     </script>
 }
@@ -49,8 +49,8 @@ else if (Model.ParseError != null)
 {
     <div class="banner error" v-pre>
         <strong>Oops, couldn't parse that log. (Make sure you upload the log file, not the console text.)</strong><br />
-        Share this URL when asking for help: <code>@(new Uri(new Uri(Model.SectionUrl), Model.PasteID))</code><br />
-        (Or <a href="@Model.SectionUrl">upload a new log</a>.)<br />
+        Share this URL when asking for help: <code>https://@this.Context.Request.Host.ToUriComponent()@this.Url.Action("Index", "LogParser", new { id = Model.PasteID }))</code><br />
+        (Or <a href="@this.Url.Action("Index", "LogParser")">upload a new log</a>.)<br />
         <br />
         <small v-pre>Error details: @Model.ParseError</small>
     </div>
@@ -58,8 +58,8 @@ else if (Model.ParseError != null)
 else if (Model.ParsedLog?.IsValid == true)
 {
     <div class="banner success" v-pre>
-        <strong>Share this link to let someone else see the log:</strong> <code>@(new Uri(new Uri(Model.SectionUrl), Model.PasteID))</code><br />
-        (Or <a href="@Model.SectionUrl">upload a new log</a>.)
+        <strong>Share this link to let someone else see the log:</strong> <code>https://@this.Context.Request.Host.ToUriComponent()@this.Url.Action("Index", "LogParser", new { id = Model.PasteID })</code><br />
+        (Or <a href="@this.Url.Action("Index", "LogParser")">upload a new log</a>.)
     </div>
 }
 
@@ -127,7 +127,7 @@ else if (Model.ParsedLog?.IsValid == true)
     </div>
 
     <h2>How do I share my log?</h2>
-    <form action="@Model.SectionUrl" method="post">
+    <form action="@this.Url.Action("PostAsync", "LogParser")" method="post">
         <ol>
             <li>
                 Drag the file onto this textbox (or paste the text in):<br />
@@ -322,12 +322,12 @@ else if (Model.ParsedLog?.IsValid == true)
                 }
             </table>
 
-            <small><a href="@(new Uri(new Uri(Model.SectionUrl), Model.PasteID))?raw=true">view raw log</a></small>
+            <small><a href="@this.Url.Action("Index", "LogParser", new { id = Model.PasteID })?raw=true">view raw log</a></small>
         }
         else
         {
             <pre v-pre>@Model.ParsedLog.RawText</pre>
-            <small><a href="@(new Uri(new Uri(Model.SectionUrl), Model.PasteID))">view parsed log</a></small>
+            <small><a href="@this.Url.Action("Index", "LogParser", new { id = Model.PasteID })">view parsed log</a></small>
         }
     </div>
 }

@@ -27,9 +27,6 @@ namespace StardewModdingAPI.Web.Controllers
         /*********
         ** Fields
         *********/
-        /// <summary>The site config settings.</summary>
-        private readonly SiteConfig SiteConfig;
-
         /// <summary>The API client settings.</summary>
         private readonly ApiClientsConfig ClientsConfig;
 
@@ -47,13 +44,11 @@ namespace StardewModdingAPI.Web.Controllers
         ** Constructor
         ***/
         /// <summary>Construct an instance.</summary>
-        /// <param name="siteConfig">The context config settings.</param>
         /// <param name="clientsConfig">The API client settings.</param>
         /// <param name="pastebin">The Pastebin API client.</param>
         /// <param name="gzipHelper">The underlying text compression helper.</param>
-        public LogParserController(IOptions<SiteConfig> siteConfig, IOptions<ApiClientsConfig> clientsConfig, IPastebinClient pastebin, IGzipHelper gzipHelper)
+        public LogParserController(IOptions<ApiClientsConfig> clientsConfig, IPastebinClient pastebin, IGzipHelper gzipHelper)
         {
-            this.SiteConfig = siteConfig.Value;
             this.ClientsConfig = clientsConfig.Value;
             this.Pastebin = pastebin;
             this.GzipHelper = gzipHelper;
@@ -103,9 +98,7 @@ namespace StardewModdingAPI.Web.Controllers
                 return this.View("Index", this.GetModel(null, uploadError: uploadResult.UploadError));
 
             // redirect to view
-            UriBuilder uri = new UriBuilder(new Uri(this.SiteConfig.LogParserUrl));
-            uri.Path = $"{uri.Path.TrimEnd('/')}/{uploadResult.ID}";
-            return this.Redirect(uri.Uri.ToString());
+            return this.Redirect(this.Url.Action("Index", "LogParser", new { id = uploadResult.ID }));
         }
 
 
@@ -217,10 +210,9 @@ namespace StardewModdingAPI.Web.Controllers
         /// <param name="uploadError">An error which occurred while uploading the log.</param>
         private LogParserModel GetModel(string pasteID, DateTime? expiry = null, string uploadWarning = null, string uploadError = null)
         {
-            string sectionUrl = this.SiteConfig.LogParserUrl;
             Platform? platform = this.DetectClientPlatform();
 
-            return new LogParserModel(sectionUrl, pasteID, platform)
+            return new LogParserModel(pasteID, platform)
             {
                 UploadWarning = uploadWarning,
                 UploadError = uploadError,

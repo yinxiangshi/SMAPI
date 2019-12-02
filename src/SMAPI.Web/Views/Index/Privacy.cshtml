@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="~/Content/css/privacy.css" />
 }
 
-&larr; <a href="@SiteConfig.Value.RootUrl">back to SMAPI page</a>
+&larr; <a href="@Url.Action("Index", "Index")">back to SMAPI page</a>
 
 <p>SMAPI is an <a href="https://github.com/Pathoschild/SMAPI">open-source</a> and non-profit project. Your privacy is important, so this page explains what information SMAPI uses and transmits. <strong>This page is informational only, it's not a legal document.</strong></p>
 
@@ -34,7 +34,7 @@
 </ol>
 
 <h3>Log parser</h3>
-<p>The <a href="https://log.smapi.io/">log parser page</a> lets you store a log file for analysis and sharing. The log data is stored indefinitely in an obfuscated form as unlisted pastes in <a href="https://pastebin.com/">Pastebin</a>. No personal information is stored by the log parser beyond what you choose to upload, but see <em><a href="#web-logging">web logging</a></em> and the <a href="https://pastebin.com/doc_privacy_statement">Pastebin Privacy Statement</a>.</p>
+<p>The <a href="https://smapi.io/log">log parser page</a> lets you store a log file for analysis and sharing. The log data is stored indefinitely in an obfuscated form as unlisted pastes in <a href="https://pastebin.com/">Pastebin</a>. No personal information is stored by the log parser beyond what you choose to upload, but see <em><a href="#web-logging">web logging</a></em> and the <a href="https://pastebin.com/doc_privacy_statement">Pastebin Privacy Statement</a>.</p>
 
 <h3>Multiplayer sync</h3>
 <p>As part of its multiplayer API, SMAPI transmits basic context to players you connect to (mainly your OS, SMAPI version, game version, and installed mods). This is used to enable multiplayer features like inter-mod messages, compatibility checks, etc. Although this information is normally hidden from players, it may be visible due to mods or configuration changes.</p>

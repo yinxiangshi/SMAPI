@@ -5,14 +5,12 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
 using StardewModdingAPI.Web.Framework;
 using StardewModdingAPI.Web.Framework.Clients.Pastebin;
 using StardewModdingAPI.Web.Framework.Compression;
-using StardewModdingAPI.Web.Framework.ConfigModels;
 using StardewModdingAPI.Web.ViewModels.JsonValidator;
 
 namespace StardewModdingAPI.Web.Controllers
@@ -23,17 +21,11 @@ namespace StardewModdingAPI.Web.Controllers
         /*********
         ** Fields
         *********/
-        /// <summary>The site config settings.</summary>
-        private readonly SiteConfig Config;
-
         /// <summary>The underlying Pastebin client.</summary>
         private readonly IPastebinClient Pastebin;
 
         /// <summary>The underlying text compression helper.</summary>
         private readonly IGzipHelper GzipHelper;
-
-        /// <summary>The section URL for the schema validator.</summary>
-        private string SectionUrl => this.Config.JsonValidatorUrl;
 
         /// <summary>The supported JSON schemas (names indexed by ID).</summary>
         private readonly IDictionary<string, string> SchemaFormats = new Dictionary<string, string>
@@ -57,12 +49,10 @@ namespace StardewModdingAPI.Web.Controllers
         ** Constructor
         ***/
         /// <summary>Construct an instance.</summary>
-        /// <param name="siteConfig">The context config settings.</param>
         /// <param name="pastebin">The Pastebin API client.</param>
         /// <param name="gzipHelper">The underlying text compression helper.</param>
-        public JsonValidatorController(IOptions<SiteConfig> siteConfig, IPastebinClient pastebin, IGzipHelper gzipHelper)
+        public JsonValidatorController(IPastebinClient pastebin, IGzipHelper gzipHelper)
         {
-            this.Config = siteConfig.Value;
             this.Pastebin = pastebin;
             this.GzipHelper = gzipHelper;
         }
@@ -81,7 +71,7 @@ namespace StardewModdingAPI.Web.Controllers
         {
             schemaName = this.NormalizeSchemaName(schemaName);
 
-            var result = new JsonValidatorModel(this.SectionUrl, id, schemaName, this.SchemaFormats);
+            var result = new JsonValidatorModel(id, schemaName, this.SchemaFormats);
             if (string.IsNullOrWhiteSpace(id))
                 return this.View("Index", result);
 
@@ -142,7 +132,7 @@ namespace StardewModdingAPI.Web.Controllers
         public async Task<ActionResult> PostAsync(JsonValidatorRequestModel request)
         {
             if (request == null)
-                return this.View("Index", new JsonValidatorModel(this.SectionUrl, null, null, this.SchemaFormats).SetUploadError("The request seems to be invalid."));
+                return this.View("Index", new JsonValidatorModel(null, null, this.SchemaFormats).SetUploadError("The request seems to be invalid."));
 
             // normalize schema name
             string schemaName = this.NormalizeSchemaName(request.SchemaName);
@@ -150,7 +140,7 @@ namespace StardewModdingAPI.Web.Controllers
             // get raw log text
             string input = request.Content;
             if (string.IsNullOrWhiteSpace(input))
-                return this.View("Index", new JsonValidatorModel(this.SectionUrl, null, schemaName, this.SchemaFormats).SetUploadError("The JSON file seems to be empty."));
+                return this.View("Index", new JsonValidatorModel(null, schemaName, this.SchemaFormats).SetUploadError("The JSON file seems to be empty."));
 
             // upload log
             input = this.GzipHelper.CompressString(input);
@@ -158,12 +148,10 @@ namespace StardewModdingAPI.Web.Controllers
 
             // handle errors
             if (!result.Success)
-                return this.View("Index", new JsonValidatorModel(this.SectionUrl, result.ID, schemaName, this.SchemaFormats).SetUploadError($"Pastebin error: {result.Error ?? "unknown error"}"));
+                return this.View("Index", new JsonValidatorModel(result.ID, schemaName, this.SchemaFormats).SetUploadError($"Pastebin error: {result.Error ?? "unknown error"}"));
 
             // redirect to view
-            UriBuilder uri = new UriBuilder(new Uri(this.SectionUrl));
-            uri.Path = $"{uri.Path.TrimEnd('/')}/{schemaName}/{result.ID}";
-            return this.Redirect(uri.Uri.ToString());
+            return this.Redirect(this.Url.Action("Index", "LogParser", new { schemaName = schemaName, id = result.ID }));
         }
 
 

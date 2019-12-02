@@ -3,8 +3,8 @@
 
 @{
     // get view data
-    string curPageUrl = new Uri(new Uri(Model.SectionUrl), $"{Model.SchemaName}/{Model.PasteID}").ToString();
-    string newUploadUrl = Model.SchemaName != null ? new Uri(new Uri(Model.SectionUrl), Model.SchemaName).ToString() : Model.SectionUrl;
+    string curPageUrl = this.Url.Action("Index", "JsonValidator", new { schemaName = Model.SchemaName, id = Model.PasteID });
+    string newUploadUrl = this.Url.Action("Index", "JsonValidator", new { schemaName = Model.SchemaName });
     string schemaDisplayName = null;
     bool isValidSchema = Model.SchemaName != null && Model.SchemaFormats.TryGetValue(Model.SchemaName, out schemaDisplayName) && schemaDisplayName != "None";
 
@@ -34,8 +34,8 @@
     <script src="https://cdn.jsdelivr.net/gh/tmont/sunlight@1.22.0/src/lang/sunlight.javascript.min.js" crossorigin="anonymous"></script>
     <script src="~/Content/js/json-validator.js"></script>
     <script>
-        $(function () {
-            smapi.jsonValidator(@Json.Serialize(Model.SectionUrl), @Json.Serialize(Model.PasteID));
+        $(function() {
+            smapi.jsonValidator(@Json.Serialize(this.Url.Action("Index", "JsonValidator")), @Json.Serialize(Model.PasteID));
         });
     </script>
 }
@@ -70,7 +70,7 @@ else if (Model.PasteID != null)
 @if (Model.Content == null)
 {
     <h2>Upload a JSON file</h2>
-    <form action="@Model.SectionUrl" method="post">
+    <form action="@this.Url.Action("PostAsync", "JsonValidator")" method="post">
         <ol>
             <li>
                 Choose the JSON format:<br />

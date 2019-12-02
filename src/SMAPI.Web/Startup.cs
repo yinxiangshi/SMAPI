@@ -48,7 +48,7 @@ namespace StardewModdingAPI.Web
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-                .Add(new BeanstalkEnvPropsConfigProvider())
+                .AddEnvironmentVariables()
                 .Build();
         }
 
@@ -173,8 +173,7 @@ namespace StardewModdingAPI.Web
                 .UseCors(policy => policy
                     .AllowAnyHeader()
                     .AllowAnyMethod()
-                    .WithOrigins("https://smapi.io", "https://*.smapi.io", "https://*.edge.smapi.io")
-                    .SetIsOriginAllowedToAllowWildcardSubdomains()
+                    .WithOrigins("https://smapi.io")
                 )
                 .UseRewriter(this.GetRedirectRules())
                 .UseStaticFiles() // wwwroot folder
@@ -202,23 +201,13 @@ namespace StardewModdingAPI.Web
                 shouldRewrite: req =>
                     req.Host.Host != "localhost"
                     && !req.Path.StartsWithSegments("/api")
-                    && !req.Host.Host.StartsWith("api.")
-            ));
-
-            // convert subdomain.smapi.io => smapi.io/subdomain for routing
-            redirects.Add(new ConditionalRewriteSubdomainRule(
-                shouldRewrite: req =>
-                    req.Host.Host != "localhost"
-                    && (req.Host.Host.StartsWith("api.") || req.Host.Host.StartsWith("json.") || req.Host.Host.StartsWith("log.") || req.Host.Host.StartsWith("mods."))
-                    && !req.Path.StartsWithSegments("/content")
-                    && !req.Path.StartsWithSegments("/favicon.ico")
             ));
 
             // shortcut redirects
             redirects.Add(new RedirectToUrlRule(@"^/3\.0\.?$", "https://stardewvalleywiki.com/Modding:Migrate_to_SMAPI_3.0"));
             redirects.Add(new RedirectToUrlRule(@"^/(?:buildmsg|package)(?:/?(.*))$", "https://github.com/Pathoschild/SMAPI/blob/develop/docs/technical/mod-package.md#$1")); // buildmsg deprecated, remove when SDV 1.4 is released
             redirects.Add(new RedirectToUrlRule(@"^/community\.?$", "https://stardewvalleywiki.com/Modding:Community"));
-            redirects.Add(new RedirectToUrlRule(@"^/compat\.?$", "https://mods.smapi.io"));
+            redirects.Add(new RedirectToUrlRule(@"^/compat\.?$", "https://smapi.io/mods"));
             redirects.Add(new RedirectToUrlRule(@"^/docs\.?$", "https://stardewvalleywiki.com/Modding:Index"));
             redirects.Add(new RedirectToUrlRule(@"^/install\.?$", "https://stardewvalleywiki.com/Modding:Player_Guide/Getting_Started#Install_SMAPI"));
             redirects.Add(new RedirectToUrlRule(@"^/troubleshoot(.*)$", "https://stardewvalleywiki.com/Modding:Player_Guide/Troubleshooting$1"));

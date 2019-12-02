@@ -11,8 +11,5 @@ namespace StardewModdingAPI.Web.Framework.ConfigModels
 
         /// <summary>The number of minutes failed update checks should be cached before refetching them.</summary>
         public int ErrorCacheMinutes { get; set; }
-
-        /// <summary>The web URL for the wiki compatibility list.</summary>
-        public string CompatibilityPageUrl { get; set; }
     }
 }
