@@ -52,20 +52,34 @@ namespace StardewModdingAPI.Framework
         /// <param name="gameVersion">The game version string.</param>
         private static string GetSemanticVersionString(string gameVersion)
         {
-            return GameVersion.VersionMap.TryGetValue(gameVersion, out string semanticVersion)
-                ? semanticVersion
-                : gameVersion;
+            // mapped version
+            if (GameVersion.VersionMap.TryGetValue(gameVersion, out string semanticVersion))
+                return semanticVersion;
+
+            // special case: four-part versions
+            string[] parts = gameVersion.Split('.');
+            if (parts.Length == 4)
+                return $"{parts[0]}.{parts[1]}.{parts[2]}+{parts[3]}";
+
+            return gameVersion;
         }
 
         /// <summary>Convert a semantic version string to the equivalent game version string.</summary>
         /// <param name="semanticVersion">The semantic version string.</param>
         private static string GetGameVersionString(string semanticVersion)
         {
+            // mapped versions
             foreach (var mapping in GameVersion.VersionMap)
             {
                 if (mapping.Value.Equals(semanticVersion, StringComparison.InvariantCultureIgnoreCase))
                     return mapping.Key;
             }
+
+            // special case: four-part versions
+            string[] parts = semanticVersion.Split('.', '+');
+            if (parts.Length == 4)
+                return $"{parts[0]}.{parts[1]}.{parts[2]}.{parts[3]}";
+
             return semanticVersion;
         }
     }

@@ -20,6 +20,9 @@ namespace StardewModdingAPI
         /// <summary>An optional prerelease tag.</summary>
         string PrereleaseTag { get; }
 
+        /// <summary>Optional build metadata. This is ignored when determining version precedence.</summary>
+        string BuildMetadata { get; }
+
 
         /*********
         ** Accessors

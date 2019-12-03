@@ -7,8 +7,7 @@ namespace StardewModdingAPI.Toolkit
     /// <remarks>
     /// The implementation is defined by Semantic Version 2.0 (https://semver.org/), with a few deviations:
     /// - short-form "x.y" versions are supported (equivalent to "x.y.0");
-    /// - hyphens are synonymous with dots in prerelease tags (like "-unofficial.3-pathoschild");
-    /// - +build suffixes are not supported;
+    /// - hyphens are synonymous with dots in prerelease tags and build metadata (like "-unofficial.3-pathoschild");
     /// - and "-unofficial" in prerelease tags is always lower-precedence (e.g. "1.0-beta" is newer than "1.0-unofficial").
     /// </remarks>
     public class SemanticVersion : ISemanticVersion
@@ -16,11 +15,11 @@ namespace StardewModdingAPI.Toolkit
         /*********
         ** Fields
         *********/
-        /// <summary>A regex pattern matching a valid prerelease tag.</summary>
+        /// <summary>A regex pattern matching a valid prerelease or build metadata tag.</summary>
         internal const string TagPattern = @"(?>[a-z0-9]+[\-\.]?)+";
 
         /// <summary>A regex pattern matching a version within a larger string.</summary>
-        internal const string UnboundedVersionPattern = @"(?>(?<major>0|[1-9]\d*))\.(?>(?<minor>0|[1-9]\d*))(?>(?:\.(?<patch>0|[1-9]\d*))?)(?:-(?<prerelease>" + SemanticVersion.TagPattern + "))?";
+        internal const string UnboundedVersionPattern = @"(?>(?<major>0|[1-9]\d*))\.(?>(?<minor>0|[1-9]\d*))(?>(?:\.(?<patch>0|[1-9]\d*))?)(?:-(?<prerelease>" + SemanticVersion.TagPattern + "))?(?:\\+(?<buildmetadata>" + SemanticVersion.TagPattern + "))?";
 
         /// <summary>A regular expression matching a semantic version string.</summary>
         /// <remarks>This pattern is derived from the BNF documentation in the <a href="https://github.com/mojombo/semver">semver repo</a>, with deviations to support the Stardew Valley mod conventions (see remarks on <see cref="SemanticVersion"/>).</remarks>
@@ -42,6 +41,9 @@ namespace StardewModdingAPI.Toolkit
         /// <summary>An optional prerelease tag.</summary>
         public string PrereleaseTag { get; }
 
+        /// <summary>Optional build metadata. This is ignored when determining version precedence.</summary>
+        public string BuildMetadata { get; }
+
 
         /*********
         ** Public methods
@@ -51,12 +53,14 @@ namespace StardewModdingAPI.Toolkit
         /// <param name="minor">The minor version incremented for backwards-compatible changes.</param>
         /// <param name="patch">The patch version for backwards-compatible fixes.</param>
         /// <param name="prereleaseTag">An optional prerelease tag.</param>
-        public SemanticVersion(int major, int minor, int patch, string prereleaseTag = null)
+        /// <param name="buildMetadata">Optional build metadata. This is ignored when determining version precedence.</param>
+        public SemanticVersion(int major, int minor, int patch, string prereleaseTag = null, string buildMetadata = null)
         {
             this.MajorVersion = major;
             this.MinorVersion = minor;
             this.PatchVersion = patch;
             this.PrereleaseTag = this.GetNormalizedTag(prereleaseTag);
+            this.BuildMetadata = this.GetNormalizedTag(buildMetadata);
 
             this.AssertValid();
         }
@@ -94,6 +98,7 @@ namespace StardewModdingAPI.Toolkit
             this.MinorVersion = match.Groups["minor"].Success ? int.Parse(match.Groups["minor"].Value) : 0;
             this.PatchVersion = match.Groups["patch"].Success ? int.Parse(match.Groups["patch"].Value) : 0;
             this.PrereleaseTag = match.Groups["prerelease"].Success ? this.GetNormalizedTag(match.Groups["prerelease"].Value) : null;
+            this.BuildMetadata = match.Groups["buildmetadata"].Success ? this.GetNormalizedTag(match.Groups["buildmetadata"].Value) : null;
 
             this.AssertValid();
         }
@@ -175,6 +180,8 @@ namespace StardewModdingAPI.Toolkit
             string version = $"{this.MajorVersion}.{this.MinorVersion}.{this.PatchVersion}";
             if (this.PrereleaseTag != null)
                 version += $"-{this.PrereleaseTag}";
+            if (this.BuildMetadata != null)
+                version += $"+{this.BuildMetadata}";
             return version;
         }
 
@@ -200,7 +207,7 @@ namespace StardewModdingAPI.Toolkit
         /*********
         ** Private methods
         *********/
-        /// <summary>Get a normalized build tag.</summary>
+        /// <summary>Get a normalized prerelease or build tag.</summary>
         /// <param name="tag">The tag to normalize.</param>
         private string GetNormalizedTag(string tag)
         {
@@ -277,12 +284,21 @@ namespace StardewModdingAPI.Toolkit
                 throw new FormatException($"{this} isn't a valid semantic version. The major, minor, and patch numbers can't be negative.");
             if (this.MajorVersion == 0 && this.MinorVersion == 0 && this.PatchVersion == 0)
                 throw new FormatException($"{this} isn't a valid semantic version. At least one of the major, minor, and patch numbers must be more than zero.");
+
             if (this.PrereleaseTag != null)
             {
                 if (this.PrereleaseTag.Trim() == "")
-                    throw new FormatException($"{this} isn't a valid semantic version. The tag cannot be a blank string (but may be omitted).");
+                    throw new FormatException($"{this} isn't a valid semantic version. The prerelease tag cannot be a blank string (but may be omitted).");
                 if (!Regex.IsMatch(this.PrereleaseTag, $"^{SemanticVersion.TagPattern}$", RegexOptions.IgnoreCase))
-                    throw new FormatException($"{this} isn't a valid semantic version. The tag is invalid.");
+                    throw new FormatException($"{this} isn't a valid semantic version. The prerelease tag is invalid.");
+            }
+
+            if (this.BuildMetadata != null)
+            {
+                if (this.BuildMetadata.Trim() == "")
+                    throw new FormatException($"{this} isn't a valid semantic version. The build metadata cannot be a blank string (but may be omitted).");
+                if (!Regex.IsMatch(this.BuildMetadata, $"^{SemanticVersion.TagPattern}$", RegexOptions.IgnoreCase))
+                    throw new FormatException($"{this} isn't a valid semantic version. The build metadata is invalid.");
             }
         }
     }

@@ -4,12 +4,16 @@
 ## Upcoming release
 
 * For players:
+  * Updated for Stardew Valley 1.4.0.1.
   * Improved compatibility with some Linux terminals (thanks to archification and DanielHeath!).
   * Updated translations. Thanks to berkayylmao (added Turkish), feathershine (added Chinese), and Osiris901 (added Russian)!
 
 * For the web UI:
   * If a log can't be uploaded to Pastebin (e.g. due to rate limits), it'll be uploaded to Amazon S3 instead. Logs uploaded to S3 will expire after one month.
   * Fixed JSON validator not letting you drag & drop a file.
+
+* For modders:
+  * `SemanticVersion` now supports [semver 2.0](https://semver.org/) build metadata.
 
 ## 3.0
 Released 26 November 2019 for Stardew Valley 1.4.
