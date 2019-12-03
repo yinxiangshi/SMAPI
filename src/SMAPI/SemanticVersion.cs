@@ -28,6 +28,9 @@ namespace StardewModdingAPI
         /// <summary>An optional prerelease tag.</summary>
         public string PrereleaseTag => this.Version.PrereleaseTag;
 
+        /// <summary>Optional build metadata. This is ignored when determining version precedence.</summary>
+        public string BuildMetadata => this.Version.BuildMetadata;
+
 
         /*********
         ** Public methods
@@ -36,10 +39,11 @@ namespace StardewModdingAPI
         /// <param name="majorVersion">The major version incremented for major API changes.</param>
         /// <param name="minorVersion">The minor version incremented for backwards-compatible changes.</param>
         /// <param name="patchVersion">The patch version for backwards-compatible bug fixes.</param>
-        /// <param name="build">An optional build tag.</param>
+        /// <param name="prerelease">An optional prerelease tag.</param>
+        /// <param name="build">Optional build metadata. This is ignored when determining version precedence.</param>
         [JsonConstructor]
-        public SemanticVersion(int majorVersion, int minorVersion, int patchVersion, string build = null)
-            : this(new Toolkit.SemanticVersion(majorVersion, minorVersion, patchVersion, build)) { }
+        public SemanticVersion(int majorVersion, int minorVersion, int patchVersion, string prerelease = null, string build = null)
+            : this(new Toolkit.SemanticVersion(majorVersion, minorVersion, patchVersion, prerelease, build)) { }
 
         /// <summary>Construct an instance.</summary>
         /// <param name="version">The semantic version string.</param>

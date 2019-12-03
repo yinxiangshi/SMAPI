@@ -87,7 +87,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                                 updateUrls.Add(mod.DataRecord.AlternativeUrl);
 
                             // default update URL
-                            updateUrls.Add("https://mods.smapi.io");
+                            updateUrls.Add("https://smapi.io/mods");
 
                             // build error
                             string error = $"{reasonPhrase}. Please check for a ";

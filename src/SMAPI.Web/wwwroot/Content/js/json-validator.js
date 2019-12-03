@@ -142,6 +142,7 @@ smapi.jsonValidator = function (sectionUrl, pasteID) {
         });
 
         // upload form
+        var submit = $("#submit");
         var input = $("#input");
         if (input.length) {
             // disable submit if it's empty

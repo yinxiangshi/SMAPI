@@ -14,13 +14,13 @@ and update check API.
 
 ## Log parser
 The log parser provides a web UI for uploading, parsing, and sharing SMAPI logs. The logs are
-persisted in a compressed form to Pastebin. The log parser lives at https://log.smapi.io.
+persisted in a compressed form to Pastebin. The log parser lives at https://smapi.io/log.
 
 ## JSON validator
 ### Overview
 The JSON validator provides a web UI for uploading and sharing JSON files, and validating them as
 plain JSON or against a predefined format like `manifest.json` or Content Patcher's `content.json`.
-The JSON validator lives at https://json.smapi.io.
+The JSON validator lives at https://smapi.io/json.
 
 ### Schema file format
 Schema files are defined in `wwwroot/schemas` using the [JSON Schema](https://json-schema.org/)
@@ -111,7 +111,7 @@ format | schema URL
 
 ## Web API
 ### Overview
-SMAPI provides a web API at `api.smapi.io` for use by SMAPI and external tools. The URL includes a
+SMAPI provides a web API at `smapi.io/api` for use by SMAPI and external tools. The URL includes a
 `{version}` token, which is the SMAPI version for backwards compatibility. This API is publicly
 accessible but not officially released; it may change at any time.
 
@@ -184,7 +184,7 @@ may be useful to external tools.
 
 Example request:
 ```js
-POST https://api.smapi.io/v3.0/mods
+POST https://smapi.io/api/v3.0/mods
 {
    "mods": [
       {
@@ -350,8 +350,7 @@ To launch the environment:
     mongod --dbpath C:\dev\smapi-cache
     ```
 2. Launch `SMAPI.Web` from Visual Studio to run a local version of the site.  
-    <small>(Local URLs will use HTTP instead of HTTPS, and subdomains will become routes, like
-    `log.smapi.io` &rarr; `localhost:59482/log`.)</small>
+    <small>(Local URLs will use HTTP instead of HTTPS.)</small>
 
 ### Production environment
 A production environment includes the web servers and cache database hosted online for public
@@ -367,7 +366,6 @@ Initial setup:
    ------------------------------- | -----------------
    `LogParser:PastebinDevKey`      | The [Pastebin developer key](https://pastebin.com/api#1) used to authenticate with the Pastebin API.
    `LogParser:PastebinUserKey`     | The [Pastebin user key](https://pastebin.com/api#8) used to authenticate with the Pastebin API. Can be left blank to post anonymously.
-   `LogParser:SectionUrl`          | The root URL of the log page, like `https://log.smapi.io/`.
    `ModUpdateCheck:GitHubPassword` | The password with which to authenticate to GitHub when fetching release info.
    `ModUpdateCheck:GitHubUsername` | The username with which to authenticate to GitHub when fetching release info.
    `MongoDB:Host`                  | The hostname for the MongoDB instance.

@@ -63,7 +63,7 @@ contributing translations.
 locale     | status
 ---------- | :----------------
 default    | ✓ [fully translated](../src/SMAPI/i18n/default.json)
-Chinese    | ❑ not translated
+Chinese    | ✓ [fully translated](../src/SMAPI/i18n/zh.json)
 French     | ❑ not translated
 German     | ✓ [fully translated](../src/SMAPI/i18n/de.json)
 Hungarian  | ❑ not translated
@@ -71,6 +71,6 @@ Italian    | ❑ not translated
 Japanese   | ❑ not translated
 Korean     | ❑ not translated
 Portuguese | ❑ not translated
-Russian    | ❑ not translated
+Russian    | ✓ [fully translated](../src/SMAPI/i18n/ru.json)
 Spanish    | ❑ not translated
-Turkish    | ❑ not translated
+Turkish    | ✓ [fully translated](../src/SMAPI/i18n/tr.json)

@@ -28,7 +28,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{09CF91E5
 	ProjectSection(SolutionItems) = preProject
 		..\build\common.targets = ..\build\common.targets
 		..\build\find-game-folder.targets = ..\build\find-game-folder.targets
-		..\build\GlobalAssemblyInfo.cs = ..\build\GlobalAssemblyInfo.cs
 		..\build\prepare-install-package.targets = ..\build\prepare-install-package.targets
 		..\build\prepare-nuget-package.targets = ..\build\prepare-nuget-package.targets
 	EndProjectSection
@@ -77,6 +76,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMAPI.Toolkit.CoreInterfaces", "SMAPI.Toolkit.CoreInterfaces\SMAPI.Toolkit.CoreInterfaces.csproj", "{ED8E41FA-DDFA-4A77-932E-9853D279A129}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMAPI.Web", "SMAPI.Web\SMAPI.Web.csproj", "{80EFD92F-728F-41E0-8A5B-9F6F49A91899}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMAPI.Web.LegacyRedirects", "SMAPI.Web.LegacyRedirects\SMAPI.Web.LegacyRedirects.csproj", "{159AA5A5-35C2-488C-B23F-1613C80594AE}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -131,6 +132,10 @@ Global
 		{80EFD92F-728F-41E0-8A5B-9F6F49A91899}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{80EFD92F-728F-41E0-8A5B-9F6F49A91899}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{80EFD92F-728F-41E0-8A5B-9F6F49A91899}.Release|Any CPU.Build.0 = Release|Any CPU
+		{159AA5A5-35C2-488C-B23F-1613C80594AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{159AA5A5-35C2-488C-B23F-1613C80594AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{159AA5A5-35C2-488C-B23F-1613C80594AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{159AA5A5-35C2-488C-B23F-1613C80594AE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

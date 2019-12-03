@@ -62,7 +62,7 @@ else
     fi
 
     # select terminal (prefer $TERMINAL for overrides and testing, then xterm for best compatibility, then known supported terminals)
-    for terminal in "$TERMINAL" xterm gnome-terminal kitty terminator xfce4-terminal konsole terminal termite x-terminal-emulator; do
+    for terminal in "$TERMINAL" xterm gnome-terminal kitty terminator xfce4-terminal konsole terminal termite alacritty x-terminal-emulator; do
         if $COMMAND "$terminal" 2>/dev/null; then
             # Find the true shell behind x-terminal-emulator
             if [ "$(basename "$(readlink -f $(which "$terminal"))")" != "x-terminal-emulator" ]; then
@@ -99,6 +99,14 @@ else
         kitty)
             # Kitty overrides the TERM varible unless you set it explicitly
             kitty -o term=xterm $LAUNCHER
+            ;;
+        alacritty)
+            # Alacritty doesn't like the double quotes or the variable
+            if [ "$ARCH" == "x86_64" ]; then
+                alacritty -e sh -c 'TERM=xterm ./StardewModdingAPI.bin.x86_64 $*'
+            else
+                alacritty -e sh -c 'TERM=xterm ./StardewModdingAPI.bin.x86 $*'
+            fi
             ;;
         xterm|xfce4-terminal|gnome-terminal|terminal|termite)
             $LAUNCHTERM -e "sh -c 'TERM=xterm $LAUNCHER'"

@@ -1,4 +1,5 @@
 @using Microsoft.Extensions.Options
+@using StardewModdingAPI.Web.Framework
 @using StardewModdingAPI.Web.Framework.ConfigModels
 @inject IOptions<SiteConfig> SiteConfig
 @model StardewModdingAPI.Web.ViewModels.IndexModel
@@ -44,14 +45,14 @@
     }
     <div><a href="https://stardewvalleywiki.com/Modding:Player_Guide" class="secondary-cta">Player guide</a></div>
     <div class="sublinks">
-        <a href="https://github.com/Pathoschild/SMAPI">source code</a> | <a href="@(new UriBuilder(SiteConfig.Value.RootUrl) { Path = "privacy" }.Uri)">privacy</a>
+        <a href="https://github.com/Pathoschild/SMAPI">source code</a> | <a href="@Url.PlainAction("Privacy", "Index")">privacy</a>
     </div>
     <img id="pufferchick" src="Content/images/pufferchick.png" />
 </div>
 
 <h2 id="help">Get help</h2>
 <ul>
-    <li><a href="@SiteConfig.Value.ModListUrl">Mod compatibility list</a></li>
+    <li><a href="@Url.PlainAction("Index", "Mods")">Mod compatibility list</a></li>
     <li>Get help <a href="https://smapi.io/community">on Discord or in the forums</a></li>
 </ul>
 
@@ -61,7 +62,7 @@
     <div class="github-description">
         @Html.Raw(Markdig.Markdown.ToHtml(Model.StableVersion.Description))
     </div>
-    <p>See the <a href="https://github.com/Pathoschild/SMAPI/blob/develop/docs/release-notes.md#release-notes">release notes</a> and <a href="@SiteConfig.Value.ModListUrl">mod compatibility list</a> for more info.</p>
+    <p>See the <a href="https://github.com/Pathoschild/SMAPI/blob/develop/docs/release-notes.md#release-notes">release notes</a> and <a href="@Url.PlainAction("Index", "Mods")">mod compatibility list</a> for more info.</p>
 }
 else
 {
@@ -70,13 +71,13 @@ else
     <div class="github-description">
         @Html.Raw(Markdig.Markdown.ToHtml(Model.StableVersion.Description))
     </div>
-    <p>See the <a href="https://github.com/Pathoschild/SMAPI/blob/develop/docs/release-notes.md#release-notes">release notes</a> and <a href="@SiteConfig.Value.ModListUrl">mod compatibility list</a> for more info.</p>
+    <p>See the <a href="https://github.com/Pathoschild/SMAPI/blob/develop/docs/release-notes.md#release-notes">release notes</a> and <a href="@Url.PlainAction("Index", "Mods")">mod compatibility list</a> for more info.</p>
 
     <h3>SMAPI @Model.BetaVersion.Version?</h3>
     <div class="github-description">
         @Html.Raw(Markdig.Markdown.ToHtml(Model.BetaVersion.Description))
     </div>
-    <p>See the <a href="https://github.com/Pathoschild/SMAPI/blob/develop/docs/release-notes.md#release-notes">release notes</a> and <a href="@SiteConfig.Value.ModListUrl">mod compatibility list</a> for more info.</p>
+    <p>See the <a href="https://github.com/Pathoschild/SMAPI/blob/develop/docs/release-notes.md#release-notes">release notes</a> and <a href="@Url.PlainAction("Index", "Mods")">mod compatibility list</a> for more info.</p>
 }
 
 <h2 id="donate">Support SMAPI ♥</h2>
@@ -105,10 +106,12 @@ else
 
 <p>
     Special thanks to
+    <a href="https://www.nexusmods.com/users/65566526?tab=user+files">bwdy</a>,
     hawkfalcon,
     <a href="https://twitter.com/iKeychain">iKeychain</a>,
     jwdred,
     <a href="https://www.nexusmods.com/users/12252523">Karmylla</a>,
+    <a href="https://www.nexusmods.com/stardewvalley/users/51777556">minervamaga</a>,
     Pucklynn,
     Renorien,
     Robby LaFarge,

@@ -25,44 +25,50 @@ namespace SMAPI.Tests.Utilities
         [TestCase("1.2.3-some-tag.4", ExpectedResult = "1.2.3-some-tag.4")]
         [TestCase("1.2.3-SoME-tAg.4", ExpectedResult = "1.2.3-SoME-tAg.4")]
         [TestCase("1.2.3-some-tag.4      ", ExpectedResult = "1.2.3-some-tag.4")]
+        [TestCase("1.2.3-some-tag.4+build.004", ExpectedResult = "1.2.3-some-tag.4+build.004")]
+        [TestCase("1.2+3.4.5-build.004", ExpectedResult = "1.2.0+3.4.5-build.004")]
         public string Constructor_FromString(string input)
         {
             return new SemanticVersion(input).ToString();
         }
 
         [Test(Description = "Assert that the constructor sets the expected values for all valid versions when constructed from the individual numbers.")]
-        [TestCase(1, 0, 0, null, ExpectedResult = "1.0.0")]
-        [TestCase(3000, 4000, 5000, null, ExpectedResult = "3000.4000.5000")]
-        [TestCase(1, 2, 3, "", ExpectedResult = "1.2.3")]
-        [TestCase(1, 2, 3, "    ", ExpectedResult = "1.2.3")]
-        [TestCase(1, 2, 3, "0", ExpectedResult = "1.2.3-0")]
-        [TestCase(1, 2, 3, "some-tag.4", ExpectedResult = "1.2.3-some-tag.4")]
-        [TestCase(1, 2, 3, "sOMe-TaG.4", ExpectedResult = "1.2.3-sOMe-TaG.4")]
-        [TestCase(1, 2, 3, "some-tag.4   ", ExpectedResult = "1.2.3-some-tag.4")]
-        public string Constructor_FromParts(int major, int minor, int patch, string tag)
+        [TestCase(1, 0, 0, null, null, ExpectedResult = "1.0.0")]
+        [TestCase(3000, 4000, 5000, null, null, ExpectedResult = "3000.4000.5000")]
+        [TestCase(1, 2, 3, "", null, ExpectedResult = "1.2.3")]
+        [TestCase(1, 2, 3, "    ", null, ExpectedResult = "1.2.3")]
+        [TestCase(1, 2, 3, "0", null, ExpectedResult = "1.2.3-0")]
+        [TestCase(1, 2, 3, "some-tag.4", null, ExpectedResult = "1.2.3-some-tag.4")]
+        [TestCase(1, 2, 3, "sOMe-TaG.4", null, ExpectedResult = "1.2.3-sOMe-TaG.4")]
+        [TestCase(1, 2, 3, "some-tag.4   ", null, ExpectedResult = "1.2.3-some-tag.4")]
+        [TestCase(1, 2, 3, "some-tag.4   ", "build.004", ExpectedResult = "1.2.3-some-tag.4+build.004")]
+        [TestCase(1, 2, 0, null, "3.4.5-build.004", ExpectedResult = "1.2.0+3.4.5-build.004")]
+        public string Constructor_FromParts(int major, int minor, int patch, string prerelease, string build)
         {
             // act
-            ISemanticVersion version = new SemanticVersion(major, minor, patch, tag);
+            ISemanticVersion version = new SemanticVersion(major, minor, patch, prerelease, build);
 
             // assert
             Assert.AreEqual(major, version.MajorVersion, "The major version doesn't match the given value.");
             Assert.AreEqual(minor, version.MinorVersion, "The minor version doesn't match the given value.");
             Assert.AreEqual(patch, version.PatchVersion, "The patch version doesn't match the given value.");
-            Assert.AreEqual(string.IsNullOrWhiteSpace(tag) ? null : tag.Trim(), version.PrereleaseTag, "The tag doesn't match the given value.");
+            Assert.AreEqual(string.IsNullOrWhiteSpace(prerelease) ? null : prerelease.Trim(), version.PrereleaseTag, "The prerelease tag doesn't match the given value.");
+            Assert.AreEqual(string.IsNullOrWhiteSpace(build) ? null : build.Trim(), version.BuildMetadata, "The build metadata doesn't match the given value.");
             return version.ToString();
         }
 
         [Test(Description = "Assert that the constructor throws the expected exception for invalid versions when constructed from the individual numbers.")]
-        [TestCase(0, 0, 0, null)]
-        [TestCase(-1, 0, 0, null)]
-        [TestCase(0, -1, 0, null)]
-        [TestCase(0, 0, -1, null)]
-        [TestCase(1, 0, 0, "-tag")]
-        [TestCase(1, 0, 0, "tag spaces")]
-        [TestCase(1, 0, 0, "tag~")]
-        public void Constructor_FromParts_WithInvalidValues(int major, int minor, int patch, string tag)
+        [TestCase(0, 0, 0, null, null)]
+        [TestCase(-1, 0, 0, null, null)]
+        [TestCase(0, -1, 0, null, null)]
+        [TestCase(0, 0, -1, null, null)]
+        [TestCase(1, 0, 0, "-tag", null)]
+        [TestCase(1, 0, 0, "tag spaces", null)]
+        [TestCase(1, 0, 0, "tag~", null)]
+        [TestCase(1, 0, 0, null, "build~")]
+        public void Constructor_FromParts_WithInvalidValues(int major, int minor, int patch, string prerelease, string build)
         {
-            this.AssertAndLogException<FormatException>(() => new SemanticVersion(major, minor, patch, tag));
+            this.AssertAndLogException<FormatException>(() => new SemanticVersion(major, minor, patch, prerelease, build));
         }
 
         [Test(Description = "Assert that the constructor sets the expected values for all valid versions when constructed from an assembly version.")]
@@ -98,6 +104,7 @@ namespace SMAPI.Tests.Utilities
         [TestCase("1.2.3--some-tag")]
         [TestCase("1.2.3-some-tag...")]
         [TestCase("1.2.3-some-tag...4")]
+        [TestCase("1.2.3-some-tag.4+build...4")]
         [TestCase("apple")]
         [TestCase("-apple")]
         [TestCase("-5")]
@@ -119,6 +126,8 @@ namespace SMAPI.Tests.Utilities
         [TestCase("1.0-beta", "1.0-beta", ExpectedResult = 0)]
         [TestCase("1.0-beta.10", "1.0-beta.10", ExpectedResult = 0)]
         [TestCase("1.0-beta", "1.0-beta   ", ExpectedResult = 0)]
+        [TestCase("1.0-beta+build.001", "1.0-beta+build.001", ExpectedResult = 0)]
+        [TestCase("1.0-beta+build.001", "1.0-beta+build.006", ExpectedResult = 0)] // build metadata must not affect precedence
 
         // less than
         [TestCase("0.5.7", "0.5.8", ExpectedResult = -1)]
@@ -156,6 +165,8 @@ namespace SMAPI.Tests.Utilities
         [TestCase("1.0-beta", "1.0-beta", ExpectedResult = false)]
         [TestCase("1.0-beta.10", "1.0-beta.10", ExpectedResult = false)]
         [TestCase("1.0-beta", "1.0-beta   ", ExpectedResult = false)]
+        [TestCase("1.0-beta+build.001", "1.0-beta+build.001", ExpectedResult = false)] // build metadata must not affect precedence
+        [TestCase("1.0-beta+build.001", "1.0-beta+build.006", ExpectedResult = false)] // build metadata must not affect precedence
 
         // less than
         [TestCase("0.5.7", "0.5.8", ExpectedResult = true)]
@@ -192,6 +203,8 @@ namespace SMAPI.Tests.Utilities
         [TestCase("1.0-beta", "1.0-beta", ExpectedResult = false)]
         [TestCase("1.0-beta.10", "1.0-beta.10", ExpectedResult = false)]
         [TestCase("1.0-beta", "1.0-beta   ", ExpectedResult = false)]
+        [TestCase("1.0-beta+build.001", "1.0-beta+build.001", ExpectedResult = false)] // build metadata must not affect precedence
+        [TestCase("1.0-beta+build.001", "1.0-beta+build.006", ExpectedResult = false)] // build metadata must not affect precedence
 
         // less than
         [TestCase("0.5.7", "0.5.8", ExpectedResult = false)]
@@ -279,6 +292,8 @@ namespace SMAPI.Tests.Utilities
         [TestCase("1.11")]
         [TestCase("1.2")]
         [TestCase("1.2.15")]
+        [TestCase("1.4.0.1")]
+        [TestCase("1.4.0.6")]
         public void GameVersion(string versionStr)
         {
             // act
@@ -286,7 +301,6 @@ namespace SMAPI.Tests.Utilities
 
             // assert
             Assert.AreEqual(versionStr, version.ToString(), "The game version did not round-trip to the same value.");
-            Assert.IsTrue(version.IsOlderThan(new SemanticVersion("1.2.30")), "The game version should be considered older than the later semantic versions.");
         }
 
 

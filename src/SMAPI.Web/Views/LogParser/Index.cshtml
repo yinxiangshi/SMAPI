@@ -1,5 +1,7 @@
+@using Humanizer
 @using Newtonsoft.Json
 @using StardewModdingAPI.Toolkit.Utilities
+@using StardewModdingAPI.Web.Framework
 @using StardewModdingAPI.Web.Framework.LogParsing.Models
 @model StardewModdingAPI.Web.ViewModels.LogParserModel
 
@@ -18,7 +20,7 @@
     {
         <meta name="robots" content="noindex" />
     }
-    <link rel="stylesheet" href="~/Content/css/log-parser.css?r=20190515" />
+    <link rel="stylesheet" href="~/Content/css/log-parser.css?r=20191127" />
     <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" crossorigin="anonymous"></script>
     <script src="~/Content/js/log-parser.js?r=20190515"></script>
@@ -31,7 +33,7 @@
                 showSections: @Json.Serialize(Enum.GetNames(typeof(LogSection)).ToDictionary(section => section, section => false), noFormatting),
                 showLevels: @Json.Serialize(defaultFilters, noFormatting),
                 enableFilters: @Json.Serialize(!Model.ShowRaw)
-            }, '@Model.SectionUrl');
+            }, '@this.Url.PlainAction("Index", "LogParser", values: null)');
         });
     </script>
 }
@@ -48,8 +50,8 @@ else if (Model.ParseError != null)
 {
     <div class="banner error" v-pre>
         <strong>Oops, couldn't parse that log. (Make sure you upload the log file, not the console text.)</strong><br />
-        Share this URL when asking for help: <code>@(new Uri(new Uri(Model.SectionUrl), Model.PasteID))</code><br />
-        (Or <a href="@Model.SectionUrl">upload a new log</a>.)<br />
+        Share this URL when asking for help: <code>https://@this.Context.Request.Host.ToUriComponent()@this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID }))</code><br />
+        (Or <a href="@this.Url.PlainAction("Index", "LogParser", values: null)">upload a new log</a>.)<br />
         <br />
         <small v-pre>Error details: @Model.ParseError</small>
     </div>
@@ -57,8 +59,20 @@ else if (Model.ParseError != null)
 else if (Model.ParsedLog?.IsValid == true)
 {
     <div class="banner success" v-pre>
-        <strong>Share this link to let someone else see the log:</strong> <code>@(new Uri(new Uri(Model.SectionUrl), Model.PasteID))</code><br />
-        (Or <a href="@Model.SectionUrl">upload a new log</a>.)
+        <strong>Share this link to let someone else see the log:</strong> <code>https://@this.Context.Request.Host.ToUriComponent()@this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID })</code><br />
+        (Or <a href="@this.Url.PlainAction("Index", "LogParser", values: null)">upload a new log</a>.)
+    </div>
+}
+
+@* save warnings *@
+@if (Model.UploadWarning != null || Model.Expiry != null)
+{
+    <div class="save-metadata" v-pre>
+        @if (Model.Expiry != null)
+        {
+            <text>This log will expire in @((DateTime.UtcNow - Model.Expiry.Value).Humanize()). </text>
+        }
+        <!--@Model.UploadWarning-->
     </div>
 }
 
@@ -71,7 +85,7 @@ else if (Model.ParsedLog?.IsValid == true)
         @foreach (Platform platform in new[] { Platform.Android, Platform.Linux, Platform.Mac, Platform.Windows })
         {
             <li>
-                <input type="radio" name="os" value="@platform" id="os-@platform" checked="@(Model.DetectedPlatform == platform)"/>
+                <input type="radio" name="os" value="@platform" id="os-@platform" checked="@(Model.DetectedPlatform == platform)" />
                 <label for="os-@platform">@platform</label>
             </li>
         }
@@ -114,7 +128,7 @@ else if (Model.ParsedLog?.IsValid == true)
     </div>
 
     <h2>How do I share my log?</h2>
-    <form action="@Model.SectionUrl" method="post">
+    <form action="@this.Url.PlainAction("PostAsync", "LogParser")" method="post">
         <ol>
             <li>
                 Drag the file onto this textbox (or paste the text in):<br />
@@ -151,7 +165,7 @@ else if (Model.ParsedLog?.IsValid == true)
                                         <div class="content-packs">
                                             @foreach (LogModInfo contentPack in contentPackList.Where(pack => pack.HasUpdate))
                                             {
-                                                <text>+ @contentPack.Name</text><br/>
+                                                <text>+ @contentPack.Name</text><br />
                                             }
                                         </div>
                                     }
@@ -173,7 +187,7 @@ else if (Model.ParsedLog?.IsValid == true)
                                         <div>
                                             @foreach (LogModInfo contentPack in contentPackList.Where(pack => pack.HasUpdate))
                                             {
-                                                <a href="@contentPack.UpdateLink" target="_blank">@contentPack.Version → @contentPack.UpdateVersion</a><br/>
+                                                <a href="@contentPack.UpdateLink" target="_blank">@contentPack.Version → @contentPack.UpdateVersion</a><br />
                                             }
                                         </div>
                                     }
@@ -309,12 +323,12 @@ else if (Model.ParsedLog?.IsValid == true)
                 }
             </table>
 
-            <small><a href="@(new Uri(new Uri(Model.SectionUrl), Model.PasteID))?raw=true">view raw log</a></small>
+            <small><a href="@this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID, raw = true })">view raw log</a></small>
         }
         else
         {
             <pre v-pre>@Model.ParsedLog.RawText</pre>
-            <small><a href="@(new Uri(new Uri(Model.SectionUrl), Model.PasteID))">view parsed log</a></small>
+            <small><a href="@this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID })">view parsed log</a></small>
         }
     </div>
 }

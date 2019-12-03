@@ -24,7 +24,7 @@ Exact steps which reproduce the bug, if possible. For example:
 4. Error occurs.
 
 **Log file**
-Upload your SMAPI log to https://log.smapi.io and post a link here.
+Upload your SMAPI log to https://smapi.io/log and post a link here.
 
 **Screenshots**
 If applicable, add screenshots to help explain your problem.

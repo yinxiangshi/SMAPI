@@ -1,6 +1,22 @@
 &larr; [README](README.md)
 
 # Release notes
+## 3.0.1
+Released 02 December 2019 for Stardew Valley 1.4.0.1.
+
+* For players:
+  * Updated for Stardew Valley 1.4.0.1.
+  * Improved compatibility with some Linux terminals (thanks to archification and DanielHeath!).
+  * Updated translations. Thanks to berkayylmao (added Turkish), feathershine (added Chinese), and Osiris901 (added Russian)!
+
+* For the web UI:
+  * Rebuilt web infrastructure to handle higher traffic.
+  * If a log can't be uploaded to Pastebin (e.g. due to rate limits), it's now uploaded to Amazon S3 instead. Logs uploaded to S3 expire after one month.
+  * Fixed JSON validator not letting you drag & drop a file.
+
+* For modders:
+  * `SemanticVersion` now supports [semver 2.0](https://semver.org/) build metadata.
+
 ## 3.0
 Released 26 November 2019 for Stardew Valley 1.4.
 
@@ -80,6 +96,7 @@ For modders:
   * Update checks are now faster in some cases.
   * Updated mod compatibility list.
   * Updated SMAPI/game version map.
+  * Updated translations. Thanks to eren-kemer (added German)!
 * Fixes:
   * Fixed some assets not updated when you switch language to English.
   * Fixed lag in some cases due to incorrect asset caching when playing in non-English.
@@ -102,7 +119,7 @@ For modders:
   * Clicking a mod link now automatically adds it to the visible mods if the list is filtered.
 
 * JSON validator:
-  * Added JSON validator at [json.smapi.io](https://json.smapi.io), which lets you validate a JSON file against predefined mod formats.
+  * Added JSON validator at [smapi.io/json](https://smapi.io/json), which lets you validate a JSON file against predefined mod formats.
   * Added support for the `manifest.json` format.
   * Added support for the Content Patcher format (thanks to TehPers!).
   * Added support for referencing a schema in a JSON Schema-compatible text editor.
@@ -365,7 +382,7 @@ Released 19 November 2018 for Stardew Valley 1.3.32.
   * Updated compatibility list.
 
 * For the web UI:
-  * Added a [mod compatibility page](https://mods.smapi.io) and [privacy page](https://smapi.io/privacy).
+  * Added a [mod compatibility page](https://smapi.io/mods) and [privacy page](https://smapi.io/privacy).
   * The log parser now has a separate filter for game messages.
   * The log parser now shows content pack authors (thanks to danvolchek!).
   * Tweaked log parser UI (thanks to danvolchek!).
@@ -549,7 +566,7 @@ Released 11 April 2018 for Stardew Valley 1.2.30–1.2.33.
   * Fixed error when two content packs use different capitalization for the same required mod ID.
   * Fixed rare crash if the game duplicates an item.
 
-* For the [log parser](https://log.smapi.io):
+* For the [log parser](https://smapi.io/log):
   * Tweaked UI.
 
 ## 2.5.4
@@ -561,7 +578,7 @@ Released 26 March 2018 for Stardew Valley 1.2.30–1.2.33.
   * Fixed error when mods remove an asset editor/loader.
   * Fixed minimum game version incorrectly increased in SMAPI 2.5.3.
 
-* For the [log parser](https://log.smapi.io):
+* For the [log parser](https://smapi.io/log):
   * Fixed error when log text contains certain tokens.
 
 * For modders:
@@ -583,7 +600,7 @@ Released 13 March 2018 for Stardew Valley ~~1.2.30~~–1.2.33.
   * Fixed Linux ["magic number is wrong" errors](https://github.com/mono/mono/issues/6752) by changing default terminal order.
   * Updated compatibility list and added update checks for more mods.
 
-* For the [log parser](https://log.smapi.io):
+* For the [log parser](https://smapi.io/log):
   * Fixed incorrect filtering in some cases.
   * Fixed error if mods have duplicate names.
   * Fixed parse bugs if a mod has no author name.
@@ -597,7 +614,7 @@ Released 25 February 2018 for Stardew Valley 1.2.30–1.2.33.
 * For modders:
   * Fixed issue where replacing an asset through `asset.AsImage()` or `asset.AsDictionary()` didn't take effect.
 
-* For the [log parser](https://log.smapi.io):
+* For the [log parser](https://smapi.io/log):
   * Fixed blank page after uploading a log in some cases.
 
 ## 2.5.1
@@ -628,7 +645,7 @@ Released 24 February 2018 for Stardew Valley 1.2.30–1.2.33.
   * Fixed unhelpful error when a translation file has duplicate keys due to case-insensitivity.
   * Fixed some JSON field names being case-sensitive.
 
-* For the [log parser](https://log.smapi.io):
+* For the [log parser](https://smapi.io/log):
   * Added support for SMAPI 2.5 content packs.
   * Reduced download size when viewing a parsed log with repeated errors.
   * Improved parse error handling.
@@ -649,7 +666,7 @@ Released 24 January 2018 for Stardew Valley 1.2.30–1.2.33.
   * Fixed intermittent errors (e.g. 'collection has been modified') with some mods when loading a save.
   * Fixed compatibility with Linux Terminator terminal.
 
-* For the [log parser](https://log.smapi.io):
+* For the [log parser](https://smapi.io/log):
   * Fixed error parsing logs with zero installed mods.
 
 * For modders:
@@ -684,7 +701,7 @@ Released 26 December 2017 for Stardew Valley 1.2.30–1.2.33.
   * Fixed issue where a mod could change the cursor position reported to other mods.
   * Updated compatibility list.
 
-* For the [log parser](https://log.smapi.io):
+* For the [log parser](https://smapi.io/log):
   * Fixed broken favicon.
 
 ## 2.2
@@ -698,7 +715,7 @@ Released 02 December 2017 for Stardew Valley 1.2.30–1.2.33.
   * Improved error when a mod has an invalid `EntryDLL` filename format.
   * Updated compatibility list.
 
-* For the [log parser](https://log.smapi.io):
+* For the [log parser](https://smapi.io/log):
   * Logs no longer expire after a week.
   * Fixed error when uploading very large logs.
   * Slightly improved the UI.
@@ -713,7 +730,7 @@ Released 02 December 2017 for Stardew Valley 1.2.30–1.2.33.
 Released 01 November 2017 for Stardew Valley 1.2.30–1.2.33.
 
 * For players:
-  * Added a [log parser](https://log.smapi.io) site.
+  * Added a [log parser](https://smapi.io/log) site.
   * Added better Steam instructions to the SMAPI installer.
   * Renamed the bundled _TrainerMod_ to _ConsoleCommands_ to make its purpose clearer.
   * Removed the game's test messages from the console log.

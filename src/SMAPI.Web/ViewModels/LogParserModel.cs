@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -19,9 +20,6 @@ namespace StardewModdingAPI.Web.ViewModels
         /*********
         ** Accessors
         *********/
-        /// <summary>The root URL for the log parser controller.</summary>
-        public string SectionUrl { get; set; }
-
         /// <summary>The paste ID.</summary>
         public string PasteID { get; set; }
 
@@ -34,11 +32,17 @@ namespace StardewModdingAPI.Web.ViewModels
         /// <summary>Whether to show the raw unparsed log.</summary>
         public bool ShowRaw { get; set; }
 
-        /// <summary>An error which occurred while uploading the log to Pastebin.</summary>
+        /// <summary>A non-blocking warning while uploading the log.</summary>
+        public string UploadWarning { get; set; }
+
+        /// <summary>An error which occurred while uploading the log.</summary>
         public string UploadError { get; set; }
 
         /// <summary>An error which occurred while parsing the log file.</summary>
         public string ParseError => this.ParsedLog?.Error;
+
+        /// <summary>When the uploaded file will no longer be available.</summary>
+        public DateTime? Expiry { get; set; }
 
 
         /*********
@@ -48,12 +52,10 @@ namespace StardewModdingAPI.Web.ViewModels
         public LogParserModel() { }
 
         /// <summary>Construct an instance.</summary>
-        /// <param name="sectionUrl">The root URL for the log parser controller.</param>
         /// <param name="pasteID">The paste ID.</param>
         /// <param name="platform">The viewer's detected OS, if known.</param>
-        public LogParserModel(string sectionUrl, string pasteID, Platform? platform)
+        public LogParserModel(string pasteID, Platform? platform)
         {
-            this.SectionUrl = sectionUrl;
             this.PasteID = pasteID;
             this.DetectedPlatform = platform;
             this.ParsedLog = null;
