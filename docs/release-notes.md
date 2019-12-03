@@ -1,7 +1,8 @@
 &larr; [README](README.md)
 
 # Release notes
-## Upcoming release
+## 3.0.1
+Released 02 December 2019 for Stardew Valley 1.4.0.1.
 
 * For players:
   * Updated for Stardew Valley 1.4.0.1.
@@ -9,7 +10,8 @@
   * Updated translations. Thanks to berkayylmao (added Turkish), feathershine (added Chinese), and Osiris901 (added Russian)!
 
 * For the web UI:
-  * If a log can't be uploaded to Pastebin (e.g. due to rate limits), it'll be uploaded to Amazon S3 instead. Logs uploaded to S3 will expire after one month.
+  * Rebuilt web infrastructure to handle higher traffic.
+  * If a log can't be uploaded to Pastebin (e.g. due to rate limits), it's now uploaded to Amazon S3 instead. Logs uploaded to S3 expire after one month.
   * Fixed JSON validator not letting you drag & drop a file.
 
 * For modders:
