@@ -1,3 +1,4 @@
+@using Humanizer
 @using StardewModdingAPI.Web.Framework
 @using StardewModdingAPI.Web.ViewModels.JsonValidator
 @model JsonValidatorModel
@@ -26,7 +27,7 @@
     {
         <meta name="robots" content="noindex" />
     }
-    <link rel="stylesheet" href="~/Content/css/json-validator.css" />
+    <link rel="stylesheet" href="~/Content/css/json-validator.css?r=20191203" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tmont/sunlight@1.22.0/src/themes/sunlight.default.min.css" />
 
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" crossorigin="anonymous"></script>
@@ -64,6 +65,18 @@ else if (Model.PasteID != null)
     <div class="banner success">
         <strong>Share this link to let someone else see this page:</strong> <code>@curPageUrl</code><br />
         (Or <a href="@newUploadUrl">validate a new file</a>.)
+    </div>
+}
+
+@* save warnings *@
+@if (Model.UploadWarning != null || Model.Expiry != null)
+{
+    <div class="save-metadata" v-pre>
+        @if (Model.Expiry != null)
+        {
+            <text>This log will expire in @((DateTime.UtcNow - Model.Expiry.Value).Humanize()). </text>
+        }
+        <!--@Model.UploadWarning-->
     </div>
 }
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -24,7 +25,13 @@ namespace StardewModdingAPI.Web.ViewModels.JsonValidator
         /// <summary>The schema validation errors, if any.</summary>
         public JsonValidatorErrorModel[] Errors { get; set; } = new JsonValidatorErrorModel[0];
 
-        /// <summary>An error which occurred while uploading the JSON to Pastebin.</summary>
+        /// <summary>A non-blocking warning while uploading the file.</summary>
+        public string UploadWarning { get; set; }
+
+        /// <summary>When the uploaded file will no longer be available.</summary>
+        public DateTime? Expiry { get; set; }
+
+        /// <summary>An error which occurred while uploading the JSON.</summary>
         public string UploadError { get; set; }
 
         /// <summary>An error which occurred while parsing the JSON.</summary>
@@ -41,7 +48,7 @@ namespace StardewModdingAPI.Web.ViewModels.JsonValidator
         public JsonValidatorModel() { }
 
         /// <summary>Construct an instance.</summary>
-        /// <param name="pasteID">The paste ID.</param>
+        /// <param name="pasteID">The stored file ID.</param>
         /// <param name="schemaName">The schema name with which the JSON was validated.</param>
         /// <param name="schemaFormats">The supported JSON schemas (names indexed by ID).</param>
         public JsonValidatorModel(string pasteID, string schemaName, IDictionary<string, string> schemaFormats)
@@ -53,14 +60,18 @@ namespace StardewModdingAPI.Web.ViewModels.JsonValidator
 
         /// <summary>Set the validated content.</summary>
         /// <param name="content">The validated content.</param>
-        public JsonValidatorModel SetContent(string content)
+        /// <param name="expiry">When the uploaded file will no longer be available.</param>
+        /// <param name="uploadWarning">A non-blocking warning while uploading the log.</param>
+        public JsonValidatorModel SetContent(string content, DateTime? expiry, string uploadWarning = null)
         {
             this.Content = content;
+            this.Expiry = expiry;
+            this.UploadWarning = uploadWarning;
 
             return this;
         }
 
-        /// <summary>Set the error which occurred while uploading the log to Pastebin.</summary>
+        /// <summary>Set the error which occurred while uploading the JSON.</summary>
         /// <param name="error">The error message.</param>
         public JsonValidatorModel SetUploadError(string error)
         {

@@ -26,7 +26,7 @@ namespace StardewModdingAPI.Web.Framework.ConfigModels
         public string AmazonRegion { get; set; }
 
         /// <summary>The AWS bucket in which to store temporary uploaded logs.</summary>
-        public string AmazonLogBucket { get; set; }
+        public string AmazonTempBucket { get; set; }
 
 
         /****

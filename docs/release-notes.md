@@ -4,6 +4,7 @@
 ## Upcoming release
 
 * For the web UI:
+  * If a JSON validator upload can't be saved to Pastebin (e.g. due to rate limits), it's now uploaded to Amazon S3 instead. Files uploaded to S3 expire after one month.
   * Updated the JSON validator for Content Patcher 1.10.0.
 
 ## 3.0.1

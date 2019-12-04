@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Rewrite;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using Newtonsoft.Json;
@@ -24,6 +25,7 @@ using StardewModdingAPI.Web.Framework.Clients.Pastebin;
 using StardewModdingAPI.Web.Framework.Compression;
 using StardewModdingAPI.Web.Framework.ConfigModels;
 using StardewModdingAPI.Web.Framework.RewriteRules;
+using StardewModdingAPI.Web.Framework.Storage;
 
 namespace StardewModdingAPI.Web
 {
@@ -158,7 +160,13 @@ namespace StardewModdingAPI.Web
             }
 
             // init helpers
-            services.AddSingleton<IGzipHelper>(new GzipHelper());
+            services
+                .AddSingleton<IGzipHelper>(new GzipHelper())
+                .AddSingleton<IStorageProvider>(serv => new StorageProvider(
+                    serv.GetRequiredService<IOptions<ApiClientsConfig>>(),
+                    serv.GetRequiredService<IPastebinClient>(),
+                    serv.GetRequiredService<IGzipHelper>()
+                ));
         }
 
         /// <summary>The method called by the runtime to configure the HTTP request pipeline.</summary>

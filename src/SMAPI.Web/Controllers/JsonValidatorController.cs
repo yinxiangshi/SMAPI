@@ -9,8 +9,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
 using StardewModdingAPI.Web.Framework;
-using StardewModdingAPI.Web.Framework.Clients.Pastebin;
-using StardewModdingAPI.Web.Framework.Compression;
+using StardewModdingAPI.Web.Framework.Storage;
 using StardewModdingAPI.Web.ViewModels.JsonValidator;
 
 namespace StardewModdingAPI.Web.Controllers
@@ -21,11 +20,8 @@ namespace StardewModdingAPI.Web.Controllers
         /*********
         ** Fields
         *********/
-        /// <summary>The underlying Pastebin client.</summary>
-        private readonly IPastebinClient Pastebin;
-
-        /// <summary>The underlying text compression helper.</summary>
-        private readonly IGzipHelper GzipHelper;
+        /// <summary>Provides access to raw data storage.</summary>
+        private readonly IStorageProvider Storage;
 
         /// <summary>The supported JSON schemas (names indexed by ID).</summary>
         private readonly IDictionary<string, string> SchemaFormats = new Dictionary<string, string>
@@ -49,12 +45,10 @@ namespace StardewModdingAPI.Web.Controllers
         ** Constructor
         ***/
         /// <summary>Construct an instance.</summary>
-        /// <param name="pastebin">The Pastebin API client.</param>
-        /// <param name="gzipHelper">The underlying text compression helper.</param>
-        public JsonValidatorController(IPastebinClient pastebin, IGzipHelper gzipHelper)
+        /// <param name="storage">Provides access to raw data storage.</param>
+        public JsonValidatorController(IStorageProvider storage)
         {
-            this.Pastebin = pastebin;
-            this.GzipHelper = gzipHelper;
+            this.Storage = storage;
         }
 
         /***
@@ -62,7 +56,7 @@ namespace StardewModdingAPI.Web.Controllers
         ***/
         /// <summary>Render the schema validator UI.</summary>
         /// <param name="schemaName">The schema name with which to validate the JSON.</param>
-        /// <param name="id">The paste ID.</param>
+        /// <param name="id">The stored file ID.</param>
         [HttpGet]
         [Route("json")]
         [Route("json/{schemaName}")]
@@ -76,16 +70,16 @@ namespace StardewModdingAPI.Web.Controllers
                 return this.View("Index", result);
 
             // fetch raw JSON
-            PasteInfo paste = await this.GetAsync(id);
-            if (string.IsNullOrWhiteSpace(paste.Content))
+            StoredFileInfo file = await this.Storage.GetAsync(id);
+            if (string.IsNullOrWhiteSpace(file.Content))
                 return this.View("Index", result.SetUploadError("The JSON file seems to be empty."));
-            result.SetContent(paste.Content);
+            result.SetContent(file.Content, expiry: file.Expiry, uploadWarning: file.Warning);
 
             // parse JSON
             JToken parsed;
             try
             {
-                parsed = JToken.Parse(paste.Content, new JsonLoadSettings
+                parsed = JToken.Parse(file.Content, new JsonLoadSettings
                 {
                     DuplicatePropertyNameHandling = DuplicatePropertyNameHandling.Error,
                     CommentHandling = CommentHandling.Load
@@ -97,7 +91,7 @@ namespace StardewModdingAPI.Web.Controllers
             }
 
             // format JSON
-            result.SetContent(parsed.ToString(Formatting.Indented));
+            result.SetContent(parsed.ToString(Formatting.Indented), expiry: file.Expiry, uploadWarning: file.Warning);
 
             // skip if no schema selected
             if (schemaName == "none")
@@ -132,23 +126,20 @@ namespace StardewModdingAPI.Web.Controllers
         public async Task<ActionResult> PostAsync(JsonValidatorRequestModel request)
         {
             if (request == null)
-                return this.View("Index", new JsonValidatorModel(null, null, this.SchemaFormats).SetUploadError("The request seems to be invalid."));
+                return this.View("Index", this.GetModel(null, null).SetUploadError("The request seems to be invalid."));
 
             // normalize schema name
             string schemaName = this.NormalizeSchemaName(request.SchemaName);
 
-            // get raw log text
+            // get raw text
             string input = request.Content;
             if (string.IsNullOrWhiteSpace(input))
-                return this.View("Index", new JsonValidatorModel(null, schemaName, this.SchemaFormats).SetUploadError("The JSON file seems to be empty."));
+                return this.View("Index", this.GetModel(null, schemaName).SetUploadError("The JSON file seems to be empty."));
 
-            // upload log
-            input = this.GzipHelper.CompressString(input);
-            SavePasteResult result = await this.Pastebin.PostAsync($"JSON validator {DateTime.UtcNow:s}", input);
-
-            // handle errors
-            if (!result.Success)
-                return this.View("Index", new JsonValidatorModel(result.ID, schemaName, this.SchemaFormats).SetUploadError($"Pastebin error: {result.Error ?? "unknown error"}"));
+            // upload file
+            var result = await this.Storage.SaveAsync(title: $"JSON validator {DateTime.UtcNow:s}", content: input, compress: true);
+            if (!result.Succeeded)
+                return this.View("Index", this.GetModel(result.ID, schemaName).SetUploadError(result.UploadError));
 
             // redirect to view
             return this.Redirect(this.Url.PlainAction("Index", "JsonValidator", new { schemaName = schemaName, id = result.ID }));
@@ -158,13 +149,12 @@ namespace StardewModdingAPI.Web.Controllers
         /*********
         ** Private methods
         *********/
-        /// <summary>Fetch raw text from Pastebin.</summary>
-        /// <param name="id">The Pastebin paste ID.</param>
-        private async Task<PasteInfo> GetAsync(string id)
+        /// <summary>Build a JSON validator model.</summary>
+        /// <param name="pasteID">The stored file ID.</param>
+        /// <param name="schemaName">The schema name with which the JSON was validated.</param>
+        private JsonValidatorModel GetModel(string pasteID, string schemaName)
         {
-            PasteInfo response = await this.Pastebin.GetAsync(id);
-            response.Content = this.GzipHelper.DecompressString(response.Content);
-            return response;
+            return new JsonValidatorModel(pasteID, schemaName, this.SchemaFormats);
         }
 
         /// <summary>Get a normalized schema name, or the <see cref="DefaultSchemaID"/> if blank.</summary>
