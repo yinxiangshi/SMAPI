@@ -1,6 +1,11 @@
 &larr; [README](README.md)
 
 # Release notes
+## Upcoming release
+
+* For the web UI:
+  * Updated the JSON validator for Content Patcher 1.10.0.
+
 ## 3.0.1
 Released 02 December 2019 for Stardew Valley 1.4.0.1.
 
