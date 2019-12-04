@@ -11,5 +11,8 @@ namespace StardewModdingAPI.Web.Framework.ConfigModels
 
         /// <summary>A short sentence shown under the beta download button, if any.</summary>
         public string BetaBlurb { get; set; }
+
+        /// <summary>A list of supports to credit on the main page, in Markdown format.</summary>
+        public string SupporterList { get; set; }
     }
 }

@@ -72,7 +72,7 @@ namespace StardewModdingAPI.Web.Controllers
                 : null;
 
             // render view
-            var model = new IndexModel(stableVersionModel, betaVersionModel, this.SiteConfig.BetaBlurb);
+            var model = new IndexModel(stableVersionModel, betaVersionModel, this.SiteConfig.BetaBlurb, this.SiteConfig.SupporterList);
             return this.View(model);
         }
 
