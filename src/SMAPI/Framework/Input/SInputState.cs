@@ -129,6 +129,9 @@ namespace StardewModdingAPI.Framework.Input
         [Obsolete("This method should only be called by the game itself.")]
         public override GamePadState GetGamePadState()
         {
+            if (Game1.options.gamepadMode == Options.GamepadModes.ForceOff)
+                return base.GetGamePadState();
+
             return this.ShouldSuppressNow()
                 ? this.SuppressedController
                 : this.RealController;
