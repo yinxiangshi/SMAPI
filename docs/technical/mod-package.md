@@ -40,7 +40,7 @@ property | description
 `$(GamePath)` | The absolute path to the detected game folder.
 `$(GameExecutableName)` | The game's executable name for the current OS (`Stardew Valley` on Windows, or `StardewValley` on Linux/Mac).
 
-If you get a build error saying it can't find your game, see [_set the game path_](#set-the-game-path).
+If you get a build error saying it can't find your game, see [_custom game path_](#custom-game-path).
 
 ### Add assembly references
 The package adds assembly references to SMAPI, Stardew Valley, xTile, and MonoGame (Linux/Mac) or XNA
@@ -228,7 +228,7 @@ or you have multiple installs, you can specify the path yourself. There's two wa
      </Project>
      ```
 
-  4. Replace `PATH_HERE` with your game path.
+  4. Replace `PATH_HERE` with your game's folder path.
 
 * **Option 2: path in the project file.**  
   _You'll need to do this for each project that uses the package._
