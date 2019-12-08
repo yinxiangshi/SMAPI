@@ -611,7 +611,7 @@ namespace StardewModdingAPI.Metadata
         {
             // get buildings
             string type = Path.GetFileName(key);
-            Building[] buildings = Game1.locations
+            Building[] buildings = this.GetLocations(buildingInteriors: false)
                 .OfType<BuildableGameLocation>()
                 .SelectMany(p => p.buildings)
                 .Where(p => p.buildingType.Value == type)
@@ -706,7 +706,7 @@ namespace StardewModdingAPI.Metadata
         {
             Grass[] grasses =
                 (
-                    from location in Game1.locations
+                    from location in this.GetLocations()
                     from grass in location.terrainFeatures.Values.OfType<Grass>()
                     let textureName = this.NormalizeAssetNameIgnoringEmpty(
                         this.Reflection.GetMethod(grass, "textureName").Invoke<string>()
@@ -804,7 +804,7 @@ namespace StardewModdingAPI.Metadata
         /// <returns>Returns whether any textures were reloaded.</returns>
         private bool ReloadTreeTextures(LocalizedContentManager content, string key, int type)
         {
-            Tree[] trees = Game1.locations
+            Tree[] trees = this.GetLocations()
                 .SelectMany(p => p.terrainFeatures.Values.OfType<Tree>())
                 .Where(tree => tree.treeType.Value == type)
                 .ToArray();
@@ -909,7 +909,8 @@ namespace StardewModdingAPI.Metadata
         }
 
         /// <summary>Get all locations in the game.</summary>
-        private IEnumerable<GameLocation> GetLocations()
+        /// <param name="buildingInteriors">Whether to also get the interior locations for constructable buildings.</param>
+        private IEnumerable<GameLocation> GetLocations(bool buildingInteriors = true)
         {
             // get available root locations
             IEnumerable<GameLocation> rootLocations = Game1.locations;
@@ -921,7 +922,7 @@ namespace StardewModdingAPI.Metadata
             {
                 yield return location;
 
-                if (location is BuildableGameLocation buildableLocation)
+                if (buildingInteriors && location is BuildableGameLocation buildableLocation)
                 {
                     foreach (Building building in buildableLocation.buildings)
                     {
