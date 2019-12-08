@@ -474,8 +474,12 @@ namespace StardewModdingAPI.Metadata
                 /****
                 ** Content\TerrainFeatures
                 ****/
-                case "terrainfeatures\\flooring": // Flooring
+                case "terrainfeatures\\flooring": // from Flooring
                     Flooring.floorsTexture = content.Load<Texture2D>(key);
+                    return true;
+
+                case "terrainfeatures\\grass": // from Grass
+                    this.ReloadGrassTextures(content, key);
                     return true;
 
                 case "terrainfeatures\\hoedirt": // from HoeDirt
@@ -692,6 +696,35 @@ namespace StardewModdingAPI.Metadata
             foreach (Fence fence in fences)
                 fence.fenceTexture = new Lazy<Texture2D>(fence.loadFenceTexture);
             return true;
+        }
+
+        /// <summary>Reload tree textures.</summary>
+        /// <param name="content">The content manager through which to reload the asset.</param>
+        /// <param name="key">The asset key to reload.</param>
+        /// <returns>Returns whether any textures were reloaded.</returns>
+        private bool ReloadGrassTextures(LocalizedContentManager content, string key)
+        {
+            Grass[] grasses =
+                (
+                    from location in Game1.locations
+                    from grass in location.terrainFeatures.Values.OfType<Grass>()
+                    let textureName = this.NormalizeAssetNameIgnoringEmpty(
+                        this.Reflection.GetMethod(grass, "textureName").Invoke<string>()
+                    )
+                    where textureName == key
+                    select grass
+                )
+                .ToArray();
+
+            if (grasses.Any())
+            {
+                Lazy<Texture2D> texture = new Lazy<Texture2D>(() => content.Load<Texture2D>(key));
+                foreach (Grass grass in grasses)
+                    this.Reflection.GetField<Lazy<Texture2D>>(grass, "texture").SetValue(texture);
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>Reload the disposition data for matching NPCs.</summary>
