@@ -61,8 +61,8 @@ else
         COMMAND="type"
     fi
 
-    # select terminal (prefer $TERMINAL for overrides and testing, then xterm for best compatibility, then known supported terminals)
-    for terminal in "$TERMINAL" xterm gnome-terminal kitty terminator xfce4-terminal konsole terminal termite alacritty x-terminal-emulator; do
+    # select terminal (prefer xterm for best compatibility, then known supported terminals)
+    for terminal in xterm gnome-terminal kitty terminator xfce4-terminal konsole terminal termite alacritty x-terminal-emulator; do
         if $COMMAND "$terminal" 2>/dev/null; then
             # Find the true shell behind x-terminal-emulator
             if [ "$(basename "$(readlink -f $(which "$terminal"))")" != "x-terminal-emulator" ]; then
