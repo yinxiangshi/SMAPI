@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
+using StardewModdingAPI.Enums;
 using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
@@ -77,33 +79,45 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <exception cref="InvalidOperationException">The player hasn't loaded a save file yet or isn't the main player.</exception>
         public TModel ReadSaveData<TModel>(string key) where TModel : class
         {
-            if (!Game1.hasLoadedGame)
+            if (Context.LoadStage == LoadStage.None)
                 throw new InvalidOperationException($"Can't use {nameof(IMod.Helper)}.{nameof(IModHelper.Data)}.{nameof(this.ReadSaveData)} when a save file isn't loaded.");
             if (!Game1.IsMasterGame)
                 throw new InvalidOperationException($"Can't use {nameof(IMod.Helper)}.{nameof(IModHelper.Data)}.{nameof(this.ReadSaveData)} because this isn't the main player. (Save files are stored on the main player's computer.)");
 
-            return Game1.CustomData.TryGetValue(this.GetSaveFileKey(key), out string value)
-                ? this.JsonHelper.Deserialize<TModel>(value)
-                : null;
+
+            string internalKey = this.GetSaveFileKey(key);
+            foreach (IDictionary<string, string> dataField in this.GetDataFields(Context.LoadStage))
+            {
+                if (dataField.TryGetValue(internalKey, out string value))
+                    return this.JsonHelper.Deserialize<TModel>(value);
+            }
+            return null;
         }
 
         /// <summary>Save arbitrary data to the current save slot. This is only possible if a save has been loaded, and the data will be lost if the player exits without saving the current day.</summary>
         /// <typeparam name="TModel">The model type. This should be a plain class that has public properties for the data you want. The properties can be complex types.</typeparam>
         /// <param name="key">The unique key identifying the data.</param>
-        /// <param name="data">The arbitrary data to save.</param>
+        /// <param name="model">The arbitrary data to save.</param>
         /// <exception cref="InvalidOperationException">The player hasn't loaded a save file yet or isn't the main player.</exception>
-        public void WriteSaveData<TModel>(string key, TModel data) where TModel : class
+        public void WriteSaveData<TModel>(string key, TModel model) where TModel : class
         {
-            if (!Game1.hasLoadedGame)
+            if (Context.LoadStage == LoadStage.None)
                 throw new InvalidOperationException($"Can't use {nameof(IMod.Helper)}.{nameof(IModHelper.Data)}.{nameof(this.WriteSaveData)} when a save file isn't loaded.");
             if (!Game1.IsMasterGame)
                 throw new InvalidOperationException($"Can't use {nameof(IMod.Helper)}.{nameof(IModHelper.Data)}.{nameof(this.WriteSaveData)} because this isn't the main player. (Save files are stored on the main player's computer.)");
 
             string internalKey = this.GetSaveFileKey(key);
-            if (data != null)
-                Game1.CustomData[internalKey] = this.JsonHelper.Serialize(data, Formatting.None);
-            else
-                Game1.CustomData.Remove(internalKey);
+            string data = model != null
+                ? this.JsonHelper.Serialize(model, Formatting.None)
+                : null;
+
+            foreach (IDictionary<string, string> dataField in this.GetDataFields(Context.LoadStage))
+            {
+                if (data != null)
+                    dataField[internalKey] = data;
+                else
+                    dataField.Remove(internalKey);
+            }
         }
 
         /****
@@ -144,6 +158,18 @@ namespace StardewModdingAPI.Framework.ModHelpers
         {
             this.AssertSlug(key, nameof(key));
             return $"smapi/mod-data/{this.ModID}/{key}".ToLower();
+        }
+
+        /// <summary>Get the data fields to read/write for save data.</summary>
+        /// <param name="stage">The current load stage.</param>
+        private IEnumerable<IDictionary<string, string>> GetDataFields(LoadStage stage)
+        {
+            if (stage == LoadStage.None)
+                yield break;
+
+            yield return Game1.CustomData;
+            if (SaveGame.loaded != null)
+                yield return SaveGame.loaded.CustomData;
         }
 
         /// <summary>Get the absolute path for a global data file.</summary>
