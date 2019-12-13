@@ -6,6 +6,7 @@
 * For players:
   * Updated for the 'Force Off' gamepad mode added in Stardew Valley 1.4.0.1.
   * Fixed compatibility issue with Arch Linux.
+  * Internal optimizations.
 
 * For modders:
   * Added asset propagation for grass textures.

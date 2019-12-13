@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using Microsoft.Xna.Framework.Content;
 using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.ContentManagers;
@@ -188,59 +187,6 @@ namespace StardewModdingAPI.Framework
             return contentManager.Load<T>(relativePath, this.DefaultLanguage, useCache: false);
         }
 
-        /// <summary>Purge assets from the cache that match one of the interceptors.</summary>
-        /// <param name="editors">The asset editors for which to purge matching assets.</param>
-        /// <param name="loaders">The asset loaders for which to purge matching assets.</param>
-        /// <returns>Returns the invalidated asset names.</returns>
-        public IEnumerable<string> InvalidateCacheFor(IAssetEditor[] editors, IAssetLoader[] loaders)
-        {
-            if (!editors.Any() && !loaders.Any())
-                return new string[0];
-
-            // get CanEdit/Load methods
-            MethodInfo canEdit = typeof(IAssetEditor).GetMethod(nameof(IAssetEditor.CanEdit));
-            MethodInfo canLoad = typeof(IAssetLoader).GetMethod(nameof(IAssetLoader.CanLoad));
-            if (canEdit == null || canLoad == null)
-                throw new InvalidOperationException("SMAPI could not access the interceptor methods."); // should never happen
-
-            // invalidate matching keys
-            return this.InvalidateCache(asset =>
-            {
-                // check loaders
-                MethodInfo canLoadGeneric = canLoad.MakeGenericMethod(asset.DataType);
-                foreach (IAssetLoader loader in loaders)
-                {
-                    try
-                    {
-                        if ((bool)canLoadGeneric.Invoke(loader, new object[] { asset }))
-                            return true;
-                    }
-                    catch (Exception ex)
-                    {
-                        this.GetModFor(loader).LogAsMod($"Mod failed when checking whether it could load asset '{asset.AssetName}'. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
-                    }
-                }
-
-                // check editors
-                MethodInfo canEditGeneric = canEdit.MakeGenericMethod(asset.DataType);
-                foreach (IAssetEditor editor in editors)
-                {
-                    try
-                    {
-                        if ((bool)canEditGeneric.Invoke(editor, new object[] { asset }))
-                            return true;
-                    }
-                    catch (Exception ex)
-                    {
-                        this.GetModFor(editor).LogAsMod($"Mod failed when checking whether it could edit asset '{asset.AssetName}'. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
-                    }
-                }
-
-                // asset not affected by a loader or editor
-                return false;
-            });
-        }
-
         /// <summary>Purge matched assets from the cache.</summary>
         /// <param name="predicate">Matches the asset keys to invalidate.</param>
         /// <param name="dispose">Whether to dispose invalidated assets. This should only be <c>true</c> when they're being invalidated as part of a dispose, to avoid crashing the game.</param>
@@ -307,34 +253,6 @@ namespace StardewModdingAPI.Framework
                 return;
 
             this.ContentManagers.Remove(contentManager);
-        }
-
-        /// <summary>Get the mod which registered an asset loader.</summary>
-        /// <param name="loader">The asset loader.</param>
-        /// <exception cref="KeyNotFoundException">The given loader couldn't be matched to a mod.</exception>
-        private IModMetadata GetModFor(IAssetLoader loader)
-        {
-            foreach (var pair in this.Loaders)
-            {
-                if (pair.Value.Contains(loader))
-                    return pair.Key;
-            }
-
-            throw new KeyNotFoundException("This loader isn't associated with a known mod.");
-        }
-
-        /// <summary>Get the mod which registered an asset editor.</summary>
-        /// <param name="editor">The asset editor.</param>
-        /// <exception cref="KeyNotFoundException">The given editor couldn't be matched to a mod.</exception>
-        private IModMetadata GetModFor(IAssetEditor editor)
-        {
-            foreach (var pair in this.Editors)
-            {
-                if (pair.Value.Contains(editor))
-                    return pair.Key;
-            }
-
-            throw new KeyNotFoundException("This editor isn't associated with a known mod.");
         }
     }
 }

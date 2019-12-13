@@ -842,32 +842,9 @@ namespace StardewModdingAPI.Framework
             {
                 if (metadata.Mod.Helper.Content is ContentHelper helper)
                 {
-                    helper.ObservableAssetEditors.CollectionChanged += (sender, e) =>
-                    {
-                        if (e.NewItems?.Count > 0)
-                        {
-                            this.Monitor.Log("Invalidating cache entries for new asset editors...", LogLevel.Trace);
-                            this.ContentCore.InvalidateCacheFor(e.NewItems.Cast<IAssetEditor>().ToArray(), new IAssetLoader[0]);
-                        }
-                    };
-                    helper.ObservableAssetLoaders.CollectionChanged += (sender, e) =>
-                    {
-                        if (e.NewItems?.Count > 0)
-                        {
-                            this.Monitor.Log("Invalidating cache entries for new asset loaders...", LogLevel.Trace);
-                            this.ContentCore.InvalidateCacheFor(new IAssetEditor[0], e.NewItems.Cast<IAssetLoader>().ToArray());
-                        }
-                    };
+                    helper.ObservableAssetEditors.CollectionChanged += (sender, e) => this.GameInstance.OnAssetInterceptorsChanged(metadata, e.NewItems, e.OldItems);
+                    helper.ObservableAssetLoaders.CollectionChanged += (sender, e) => this.GameInstance.OnAssetInterceptorsChanged(metadata, e.NewItems, e.OldItems);
                 }
-            }
-
-            // reset cache now if any editors or loaders were added during entry
-            IAssetEditor[] editors = loadedMods.SelectMany(p => p.Mod.Helper.Content.AssetEditors).ToArray();
-            IAssetLoader[] loaders = loadedMods.SelectMany(p => p.Mod.Helper.Content.AssetLoaders).ToArray();
-            if (editors.Any() || loaders.Any())
-            {
-                this.Monitor.Log("Invalidating cached assets for new editors & loaders...", LogLevel.Trace);
-                this.ContentCore.InvalidateCacheFor(editors, loaders);
             }
 
             // unlock mod integrations
