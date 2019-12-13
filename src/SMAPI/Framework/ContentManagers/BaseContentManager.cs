@@ -200,7 +200,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                     return true;
                 }
                 return false;
-            });
+            }, dispose);
 
             return removeAssetNames.Select(p => Tuple.Create(p.Key, p.Value));
         }

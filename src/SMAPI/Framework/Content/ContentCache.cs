@@ -119,7 +119,7 @@ namespace StardewModdingAPI.Framework.Content
         /// <param name="predicate">Matches the asset keys to invalidate.</param>
         /// <param name="dispose">Whether to dispose invalidated assets. This should only be <c>true</c> when they're being invalidated as part of a dispose, to avoid crashing the game.</param>
         /// <returns>Returns the removed keys (if any).</returns>
-        public IEnumerable<string> Remove(Func<string, Type, bool> predicate, bool dispose = false)
+        public IEnumerable<string> Remove(Func<string, Type, bool> predicate, bool dispose)
         {
             List<string> removed = new List<string>();
             foreach (string key in this.Cache.Keys.ToArray())
