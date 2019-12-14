@@ -83,8 +83,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             if (this.Coordinator.TryParseManagedAssetKey(assetName, out string contentManagerID, out string relativePath))
             {
                 T managedAsset = this.Coordinator.LoadManagedAsset<T>(contentManagerID, relativePath);
-                if (useCache)
-                    this.Inject(assetName, managedAsset, language);
+                this.TrackAsset(assetName, managedAsset, language, useCache);
                 return managedAsset;
             }
 
@@ -111,7 +110,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             }
 
             // update cache & return data
-            this.Inject(assetName, data, language);
+            this.TrackAsset(assetName, data, language, useCache);
             return data;
         }
 
@@ -169,18 +168,19 @@ namespace StardewModdingAPI.Framework.ContentManagers
             return false;
         }
 
-        /// <summary>Inject an asset into the cache.</summary>
+        /// <summary>Add tracking data to an asset and add it to the cache.</summary>
         /// <typeparam name="T">The type of asset to inject.</typeparam>
         /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
         /// <param name="value">The asset value.</param>
         /// <param name="language">The language code for which to inject the asset.</param>
-        protected override void Inject<T>(string assetName, T value, LanguageCode language)
+        /// <param name="useCache">Whether to save the asset to the asset cache.</param>
+        protected override void TrackAsset<T>(string assetName, T value, LanguageCode language, bool useCache)
         {
             // handle explicit language in asset name
             {
                 if (this.TryParseExplicitLanguageAssetKey(assetName, out string newAssetName, out LanguageCode newLanguage))
                 {
-                    this.Inject(newAssetName, value, newLanguage);
+                    this.TrackAsset(newAssetName, value, newLanguage, useCache);
                     return;
                 }
             }
@@ -192,24 +192,27 @@ namespace StardewModdingAPI.Framework.ContentManagers
             //      only caches by the most specific key).
             //   2. Because a mod asset loader/editor may have changed the asset in a way that
             //      doesn't change the instance stored in the cache, e.g. using `asset.ReplaceWith`.
-            string keyWithLocale = $"{assetName}.{this.GetLocale(language)}";
-            base.Inject(assetName, value, language);
-            if (this.Cache.ContainsKey(keyWithLocale))
-                base.Inject(keyWithLocale, value, language);
+            if (useCache)
+            {
+                string keyWithLocale = $"{assetName}.{this.GetLocale(language)}";
+                base.TrackAsset(assetName, value, language, useCache: true);
+                if (this.Cache.ContainsKey(keyWithLocale))
+                    base.TrackAsset(keyWithLocale, value, language, useCache: true);
 
-            // track whether the injected asset is translatable for is-loaded lookups
-            if (this.Cache.ContainsKey(keyWithLocale))
-            {
-                this.IsLocalizableLookup[assetName] = true;
-                this.IsLocalizableLookup[keyWithLocale] = true;
+                // track whether the injected asset is translatable for is-loaded lookups
+                if (this.Cache.ContainsKey(keyWithLocale))
+                {
+                    this.IsLocalizableLookup[assetName] = true;
+                    this.IsLocalizableLookup[keyWithLocale] = true;
+                }
+                else if (this.Cache.ContainsKey(assetName))
+                {
+                    this.IsLocalizableLookup[assetName] = false;
+                    this.IsLocalizableLookup[keyWithLocale] = false;
+                }
+                else
+                    this.Monitor.Log($"Asset '{assetName}' could not be found in the cache immediately after injection.", LogLevel.Error);
             }
-            else if (this.Cache.ContainsKey(assetName))
-            {
-                this.IsLocalizableLookup[assetName] = false;
-                this.IsLocalizableLookup[keyWithLocale] = false;
-            }
-            else
-                this.Monitor.Log($"Asset '{assetName}' could not be found in the cache immediately after injection.", LogLevel.Error);
         }
 
         /// <summary>Load an asset file directly from the underlying content manager.</summary>

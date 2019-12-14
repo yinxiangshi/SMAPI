@@ -258,20 +258,24 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 : base.ReadAsset<T>(assetName, disposable => this.Disposables.Add(new WeakReference<IDisposable>(disposable)));
         }
 
-        /// <summary>Inject an asset into the cache.</summary>
+        /// <summary>Add tracking data to an asset and add it to the cache.</summary>
         /// <typeparam name="T">The type of asset to inject.</typeparam>
         /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
         /// <param name="value">The asset value.</param>
         /// <param name="language">The language code for which to inject the asset.</param>
-        protected virtual void Inject<T>(string assetName, T value, LanguageCode language)
+        /// <param name="useCache">Whether to save the asset to the asset cache.</param>
+        protected virtual void TrackAsset<T>(string assetName, T value, LanguageCode language, bool useCache)
         {
             // track asset key
             if (value is Texture2D texture)
                 texture.Name = assetName;
 
             // cache asset
-            assetName = this.AssertAndNormalizeAssetName(assetName);
-            this.Cache[assetName] = value;
+            if (useCache)
+            {
+                assetName = this.AssertAndNormalizeAssetName(assetName);
+                this.Cache[assetName] = value;
+            }
         }
 
         /// <summary>Parse a cache key into its component parts.</summary>
