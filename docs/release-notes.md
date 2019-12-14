@@ -11,6 +11,7 @@
 * For modders:
   * Added asset propagation for grass textures.
   * `helper.Read/WriteSaveData` can now be used while a save is being loaded (e.g. within a `Specialized.LoadStageChanged` event).
+  * Fixed private textures loaded from content packs not having their `Name` field set.
 
 * For the web UI:
   * If a JSON validator upload can't be saved to Pastebin (e.g. due to rate limits), it's now uploaded to Amazon S3 instead. Files uploaded to S3 expire after one month.

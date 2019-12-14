@@ -105,6 +105,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
 
             // get local asset
             SContentLoadException GetContentError(string reasonPhrase) => new SContentLoadException($"Failed loading asset '{assetName}' from {this.Name}: {reasonPhrase}");
+            T asset;
             try
             {
                 // get file
@@ -118,22 +119,22 @@ namespace StardewModdingAPI.Framework.ContentManagers
                     // XNB file
                     case ".xnb":
                         {
-                            T data = this.RawLoad<T>(assetName, useCache: false);
-                            if (data is Map map)
+                            asset = this.RawLoad<T>(assetName, useCache: false);
+                            if (asset is Map map)
                             {
                                 this.NormalizeTilesheetPaths(map);
                                 this.FixCustomTilesheetPaths(map, relativeMapPath: assetName);
                             }
-                            return data;
                         }
+                        break;
 
                     // unpacked data
                     case ".json":
                         {
-                            if (!this.JsonHelper.ReadJsonFileIfExists(file.FullName, out T data))
+                            if (!this.JsonHelper.ReadJsonFileIfExists(file.FullName, out asset))
                                 throw GetContentError("the JSON file is invalid."); // should never happen since we check for file existence above
-                            return data;
                         }
+                        break;
 
                     // unpacked image
                     case ".png":
@@ -143,13 +144,13 @@ namespace StardewModdingAPI.Framework.ContentManagers
                                 throw GetContentError($"can't read file with extension '{file.Extension}' as type '{typeof(T)}'; must be type '{typeof(Texture2D)}'.");
 
                             // fetch & cache
-                            using (FileStream stream = File.OpenRead(file.FullName))
-                            {
-                                Texture2D texture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, stream);
-                                texture = this.PremultiplyTransparency(texture);
-                                return (T)(object)texture;
-                            }
+                            using FileStream stream = File.OpenRead(file.FullName);
+
+                            Texture2D texture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, stream);
+                            texture = this.PremultiplyTransparency(texture);
+                            asset = (T)(object)texture;
                         }
+                        break;
 
                     // unpacked map
                     case ".tbin":
@@ -163,8 +164,9 @@ namespace StardewModdingAPI.Framework.ContentManagers
                             Map map = formatManager.LoadMap(file.FullName);
                             this.NormalizeTilesheetPaths(map);
                             this.FixCustomTilesheetPaths(map, relativeMapPath: assetName);
-                            return (T)(object)map;
+                            asset = (T)(object)map;
                         }
+                        break;
 
                     default:
                         throw GetContentError($"unknown file extension '{file.Extension}'; must be one of '.json', '.png', '.tbin', or '.xnb'.");
@@ -176,6 +178,10 @@ namespace StardewModdingAPI.Framework.ContentManagers
                     throw GetContentError("couldn't find libgdiplus, which is needed to load mod images. Make sure Mono is installed and you're running the game through the normal launcher.");
                 throw new SContentLoadException($"The content manager failed loading content asset '{assetName}' from {this.Name}.", ex);
             }
+
+            // track & return asset
+            this.TrackAsset(assetName, asset, language, useCache);
+            return asset;
         }
 
         /// <summary>Create a new content manager for temporary use.</summary>
