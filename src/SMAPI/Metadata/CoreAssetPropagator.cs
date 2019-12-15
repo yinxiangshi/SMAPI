@@ -239,11 +239,13 @@ namespace StardewModdingAPI.Metadata
                             int rewardsCount = pair.Value.Split('/')[2].Split(' ').Length;
 
                             // add bundles
-                            if (bundles.TryGetValue(bundleKey, out bool[] values))
+                            if (!bundles.TryGetValue(bundleKey, out bool[] values) || values.Length < rewardsCount)
+                            {
+                                values ??= new bool[0];
+
                                 bundles.Remove(bundleKey);
-                            else
-                                values = new bool[0];
-                            bundles[bundleKey] = values.Concat(Enumerable.Repeat(false, rewardsCount - values.Length)).ToArray();
+                                bundles[bundleKey] = values.Concat(Enumerable.Repeat(false, rewardsCount - values.Length)).ToArray();
+                            }
 
                             // add bundle rewards
                             if (!rewards.ContainsKey(bundleKey))
