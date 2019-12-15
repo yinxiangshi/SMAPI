@@ -105,23 +105,27 @@ namespace StardewModdingAPI.Toolkit.Utilities
         /// </remarks>
         private static bool IsRunningAndroid()
         {
-            using (Process process = new Process())
+            using Process process = new Process
             {
-                process.StartInfo.FileName = "getprop";
-                process.StartInfo.Arguments = "ro.build.user";
-                process.StartInfo.RedirectStandardOutput = true;
-                process.StartInfo.UseShellExecute = false;
-                process.StartInfo.CreateNoWindow = true;
-                try
+                StartInfo =
                 {
-                    process.Start();
-                    string output = process.StandardOutput.ReadToEnd();
-                    return !string.IsNullOrEmpty(output);
+                    FileName = "getprop",
+                    Arguments = "ro.build.user",
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
                 }
-                catch
-                {
-                    return false;
-                }
+            };
+
+            try
+            {
+                process.Start();
+                string output = process.StandardOutput.ReadToEnd();
+                return !string.IsNullOrWhiteSpace(output);
+            }
+            catch
+            {
+                return false;
             }
         }
 
