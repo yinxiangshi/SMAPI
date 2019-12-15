@@ -4,6 +4,7 @@
 ## Upcoming release
 
 * For players:
+  * Added friendly log message for save file-not-found errors.
   * Updated for the 'Force Off' gamepad mode added in Stardew Valley 1.4.1.
   * Fixed compatibility with Linux Mint 18 (thanks to techge!) and Arch Linux.
   * Internal optimizations.

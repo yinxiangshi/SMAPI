@@ -97,16 +97,25 @@ namespace StardewModdingAPI.Framework
         };
 
         /// <summary>Regex patterns which match console messages to show a more friendly error for.</summary>
-        private readonly Tuple<Regex, string, LogLevel>[] ReplaceConsolePatterns =
+        private readonly ReplaceLogPattern[] ReplaceConsolePatterns =
         {
-            Tuple.Create(
-                new Regex(@"^System\.InvalidOperationException: Steamworks is not initialized\.", RegexOptions.Compiled | RegexOptions.CultureInvariant),
+            // Steam not loaded
+            new ReplaceLogPattern(
+                search: new Regex(@"^System\.InvalidOperationException: Steamworks is not initialized\.[\s\S]+$", RegexOptions.Compiled | RegexOptions.CultureInvariant),
+                replacement:
 #if SMAPI_FOR_WINDOWS
-                "Oops! Steam achievements won't work because Steam isn't loaded. You can launch the game through Steam to fix that (see 'Part 2: Configure Steam' in the install guide for more info: https://smapi.io/install).",
+                    "Oops! Steam achievements won't work because Steam isn't loaded. You can launch the game through Steam to fix that (see 'Part 2: Configure Steam' in the install guide for more info: https://smapi.io/install).",
 #else
-                "Oops! Steam achievements won't work because Steam isn't loaded. You can launch the game through Steam to fix that.",
+                    "Oops! Steam achievements won't work because Steam isn't loaded. You can launch the game through Steam to fix that.",
 #endif
-                LogLevel.Error
+                logLevel: LogLevel.Error
+            ), 
+
+            // save file not found error
+            new ReplaceLogPattern(
+                search: new Regex(@"^System\.IO\.FileNotFoundException: [^\n]+\n[^:]+: '[^\n]+[/\\]Saves[/\\]([^'\r\n]+)[/\\]([^'\r\n]+)'[\s\S]+LoadGameMenu\.FindSaveGames[\s\S]+$", RegexOptions.Compiled | RegexOptions.CultureInvariant),
+                replacement: "The game can't find the '$2' file for your '$1' save. See https://stardewvalleywiki.com/Saves#Troubleshooting for help.",
+                logLevel: LogLevel.Error
             )
         };
 
@@ -1294,11 +1303,12 @@ namespace StardewModdingAPI.Framework
                 return;
 
             // show friendly error if applicable
-            foreach (var entry in this.ReplaceConsolePatterns)
+            foreach (ReplaceLogPattern entry in this.ReplaceConsolePatterns)
             {
-                if (entry.Item1.IsMatch(message))
+                string newMessage = entry.Search.Replace(message, entry.Replacement);
+                if (message != newMessage)
                 {
-                    this.Monitor.Log(entry.Item2, entry.Item3);
+                    gameMonitor.Log(newMessage, entry.LogLevel);
                     gameMonitor.Log(message, LogLevel.Trace);
                     return;
                 }
@@ -1386,6 +1396,37 @@ namespace StardewModdingAPI.Framework
                 {
                     // ignore file if it's in use
                 }
+            }
+        }
+
+        /// <summary>A console log pattern to replace with a different message.</summary>
+        private class ReplaceLogPattern
+        {
+            /*********
+            ** Accessors
+            *********/
+            /// <summary>The regex pattern matching the portion of the message to replace.</summary>
+            public Regex Search { get; }
+
+            /// <summary>The replacement string.</summary>
+            public string Replacement { get; }
+
+            /// <summary>The log level for the new message.</summary>
+            public LogLevel LogLevel { get; }
+
+
+            /*********
+            ** Public methods
+            *********/
+            /// <summary>Construct an instance.</summary>
+            /// <param name="search">The regex pattern matching the portion of the message to replace.</param>
+            /// <param name="replacement">The replacement string.</param>
+            /// <param name="logLevel">The log level for the new message.</param>
+            public ReplaceLogPattern(Regex search, string replacement, LogLevel logLevel)
+            {
+                this.Search = search;
+                this.Replacement = replacement;
+                this.LogLevel = logLevel;
             }
         }
     }
