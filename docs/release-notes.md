@@ -5,7 +5,7 @@
 
 * For players:
   * Updated for the 'Force Off' gamepad mode added in Stardew Valley 1.4.1.
-  * Fixed compatibility with Arch Linux.
+  * Fixed compatibility with Linux Mint 18 (thanks to techge!) and Arch Linux.
   * Internal optimizations.
 
 * For modders:
