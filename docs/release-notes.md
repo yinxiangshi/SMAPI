@@ -11,6 +11,7 @@
 * For modders:
   * Added asset propagation for grass textures.
   * Added asset propagation for `Data\Bundles` changes (for added bundles only).
+  * Improved error messages for `TargetParameterCountException` when using the reflection API.
   * `helper.Read/WriteSaveData` can now be used while a save is being loaded (e.g. within a `Specialized.LoadStageChanged` event).
   * Fixed private textures loaded from content packs not having their `Name` field set.
 
