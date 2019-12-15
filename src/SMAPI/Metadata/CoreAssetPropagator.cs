@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
+using Netcode;
 using StardewModdingAPI.Framework.Reflection;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
@@ -11,6 +12,7 @@ using StardewValley.Characters;
 using StardewValley.GameData.Movies;
 using StardewValley.Locations;
 using StardewValley.Menus;
+using StardewValley.Network;
 using StardewValley.Objects;
 using StardewValley.Projectiles;
 using StardewValley.TerrainFeatures;
@@ -226,6 +228,29 @@ namespace StardewModdingAPI.Metadata
                 case "data\\bigcraftablesinformation": // Game1.LoadContent
                     Game1.bigCraftablesInformation = content.Load<Dictionary<int, string>>(key);
                     return true;
+
+                case "data\\bundles": // NetWorldState constructor
+                    {
+                        var bundles = this.Reflection.GetField<NetBundles>(Game1.netWorldState.Value, "bundles").GetValue();
+                        var rewards = this.Reflection.GetField<NetIntDictionary<bool, NetBool>>(Game1.netWorldState.Value, "bundleRewards").GetValue();
+                        foreach (var pair in content.Load<Dictionary<string, string>>(key))
+                        {
+                            int bundleKey = int.Parse(pair.Key.Split('/')[1]);
+                            int rewardsCount = pair.Value.Split('/')[2].Split(' ').Length;
+
+                            // add bundles
+                            if (bundles.TryGetValue(bundleKey, out bool[] values))
+                                bundles.Remove(bundleKey);
+                            else
+                                values = new bool[0];
+                            bundles[bundleKey] = values.Concat(Enumerable.Repeat(false, rewardsCount - values.Length)).ToArray();
+
+                            // add bundle rewards
+                            if (!rewards.ContainsKey(bundleKey))
+                                rewards[bundleKey] = false;
+                        }
+                    }
+                    break;
 
                 case "data\\clothinginformation": // Game1.LoadContent
                     Game1.clothingInformation = content.Load<Dictionary<int, string>>(key);

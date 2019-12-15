@@ -4,12 +4,13 @@
 ## Upcoming release
 
 * For players:
-  * Updated for the 'Force Off' gamepad mode added in Stardew Valley 1.4.0.1.
-  * Fixed compatibility issue with Arch Linux.
+  * Updated for the 'Force Off' gamepad mode added in Stardew Valley 1.4.1.
+  * Fixed compatibility with Arch Linux.
   * Internal optimizations.
 
 * For modders:
   * Added asset propagation for grass textures.
+  * Added asset propagation for `Data\Bundles` changes (for added bundles only).
   * `helper.Read/WriteSaveData` can now be used while a save is being loaded (e.g. within a `Specialized.LoadStageChanged` event).
   * Fixed private textures loaded from content packs not having their `Name` field set.
 
