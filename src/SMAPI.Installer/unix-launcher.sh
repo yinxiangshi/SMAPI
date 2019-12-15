@@ -62,7 +62,7 @@ else
     fi
 
     # select terminal (prefer xterm for best compatibility, then known supported terminals)
-    for terminal in xterm gnome-terminal kitty terminator xfce4-terminal konsole terminal termite alacritty x-terminal-emulator; do
+    for terminal in xterm gnome-terminal kitty terminator xfce4-terminal konsole terminal termite alacritty mate-terminal x-terminal-emulator; do
         if $COMMAND "$terminal" 2>/dev/null; then
             # Find the true shell behind x-terminal-emulator
             if [ "$(basename "$(readlink -f $(which "$terminal"))")" != "x-terminal-emulator" ]; then
@@ -108,7 +108,7 @@ else
                 alacritty -e sh -c 'TERM=xterm ./StardewModdingAPI.bin.x86 $*'
             fi
             ;;
-        xterm|xfce4-terminal|gnome-terminal|terminal|termite)
+        xterm|xfce4-terminal|gnome-terminal|terminal|termite|mate-terminal)
             $LAUNCHTERM -e "sh -c 'TERM=xterm $LAUNCHER'"
             ;;
         konsole)
