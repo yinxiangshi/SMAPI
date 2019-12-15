@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework.Content;
 using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.ContentManagers;
 using StardewModdingAPI.Framework.Reflection;
+using StardewModdingAPI.Framework.StateTracking.Comparers;
 using StardewModdingAPI.Metadata;
 using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Utilities;
@@ -207,24 +208,28 @@ namespace StardewModdingAPI.Framework
         /// <returns>Returns the invalidated asset names.</returns>
         public IEnumerable<string> InvalidateCache(Func<string, Type, bool> predicate, bool dispose = false)
         {
-            // invalidate cache
-            IDictionary<string, Type> removedAssetNames = new Dictionary<string, Type>(StringComparer.InvariantCultureIgnoreCase);
+            // invalidate cache & track removed assets
+            IDictionary<string, ISet<object>> removedAssets = new Dictionary<string, ISet<object>>(StringComparer.InvariantCultureIgnoreCase);
             foreach (IContentManager contentManager in this.ContentManagers)
             {
-                foreach (Tuple<string, Type> asset in contentManager.InvalidateCache(predicate, dispose))
-                    removedAssetNames[asset.Item1] = asset.Item2;
+                foreach (var entry in contentManager.InvalidateCache(predicate, dispose))
+                {
+                    if (!removedAssets.TryGetValue(entry.Key, out ISet<object> assets))
+                        removedAssets[entry.Key] = assets = new HashSet<object>(new ObjectReferenceComparer<object>());
+                    assets.Add(entry.Value);
+                }
             }
 
             // reload core game assets
-            int reloaded = this.CoreAssets.Propagate(this.MainContentManager, removedAssetNames); // use an intercepted content manager
-
-            // report result
-            if (removedAssetNames.Any())
-                this.Monitor.Log($"Invalidated {removedAssetNames.Count} asset names: {string.Join(", ", removedAssetNames.Keys.OrderBy(p => p, StringComparer.InvariantCultureIgnoreCase))}. Reloaded {reloaded} core assets.", LogLevel.Trace);
+            if (removedAssets.Any())
+            {
+                IDictionary<string, bool> propagated = this.CoreAssets.Propagate(this.MainContentManager, removedAssets.ToDictionary(p => p.Key, p => p.Value.First().GetType())); // use an intercepted content manager
+                this.Monitor.Log($"Invalidated {removedAssets.Count} asset names ({string.Join(", ", removedAssets.Keys.OrderBy(p => p, StringComparer.InvariantCultureIgnoreCase))}); propagated {propagated.Count(p => p.Value)} core assets.", LogLevel.Trace);
+            }
             else
                 this.Monitor.Log("Invalidated 0 cache entries.", LogLevel.Trace);
 
-            return removedAssetNames.Keys;
+            return removedAssets.Keys;
         }
 
         /// <summary>Dispose held resources.</summary>

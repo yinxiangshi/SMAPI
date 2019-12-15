@@ -130,7 +130,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                     removeAssetNames.Contains(key)
                     || (this.TryParseExplicitLanguageAssetKey(key, out string assetName, out _) && removeAssetNames.Contains(assetName))
                 )
-                .Select(p => p.Item1)
+                .Select(p => p.Key)
                 .OrderBy(p => p, StringComparer.InvariantCultureIgnoreCase)
                 .ToArray();
             if (invalidated.Any())

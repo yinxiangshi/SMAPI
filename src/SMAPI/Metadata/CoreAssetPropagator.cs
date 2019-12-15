@@ -65,8 +65,8 @@ namespace StardewModdingAPI.Metadata
         /// <summary>Reload one of the game's core assets (if applicable).</summary>
         /// <param name="content">The content manager through which to reload the asset.</param>
         /// <param name="assets">The asset keys and types to reload.</param>
-        /// <returns>Returns the number of reloaded assets.</returns>
-        public int Propagate(LocalizedContentManager content, IDictionary<string, Type> assets)
+        /// <returns>Returns a lookup of asset names to whether they've been propagated.</returns>
+        public IDictionary<string, bool> Propagate(LocalizedContentManager content, IDictionary<string, Type> assets)
         {
             // group into optimized lists
             var buckets = assets.GroupBy(p =>
@@ -81,25 +81,26 @@ namespace StardewModdingAPI.Metadata
             });
 
             // reload assets
-            int reloaded = 0;
+            IDictionary<string, bool> propagated = assets.ToDictionary(p => p.Key, p => false, StringComparer.InvariantCultureIgnoreCase);
             foreach (var bucket in buckets)
             {
                 switch (bucket.Key)
                 {
                     case AssetBucket.Sprite:
-                        reloaded += this.ReloadNpcSprites(content, bucket.Select(p => p.Key));
+                        this.ReloadNpcSprites(content, bucket.Select(p => p.Key), propagated);
                         break;
 
                     case AssetBucket.Portrait:
-                        reloaded += this.ReloadNpcPortraits(content, bucket.Select(p => p.Key));
+                        this.ReloadNpcPortraits(content, bucket.Select(p => p.Key), propagated);
                         break;
 
                     default:
-                        reloaded += bucket.Count(p => this.PropagateOther(content, p.Key, p.Value));
+                        foreach (var entry in bucket)
+                            propagated[entry.Key] = this.PropagateOther(content, entry.Key, entry.Value);
                         break;
                 }
             }
-            return reloaded;
+            return propagated;
         }
 
 
@@ -750,51 +751,57 @@ namespace StardewModdingAPI.Metadata
         /// <summary>Reload the sprites for matching NPCs.</summary>
         /// <param name="content">The content manager through which to reload the asset.</param>
         /// <param name="keys">The asset keys to reload.</param>
-        /// <returns>Returns the number of reloaded assets.</returns>
-        private int ReloadNpcSprites(LocalizedContentManager content, IEnumerable<string> keys)
+        /// <param name="propagated">The asset keys which have been propagated.</param>
+        private void ReloadNpcSprites(LocalizedContentManager content, IEnumerable<string> keys, IDictionary<string, bool> propagated)
         {
             // get NPCs
             HashSet<string> lookup = new HashSet<string>(keys, StringComparer.InvariantCultureIgnoreCase);
-            NPC[] characters = this.GetCharacters()
-                .Where(npc => npc.Sprite != null && lookup.Contains(this.NormalizeAssetNameIgnoringEmpty(npc.Sprite?.Texture?.Name)))
+            var characters =
+                (
+                    from npc in this.GetCharacters()
+                    let key = this.NormalizeAssetNameIgnoringEmpty(npc.Sprite?.Texture?.Name)
+                    where key != null && lookup.Contains(key)
+                    select new { Npc = npc, Key = key }
+                )
                 .ToArray();
             if (!characters.Any())
-                return 0;
+                return;
 
             // update sprite
-            int reloaded = 0;
-            foreach (NPC npc in characters)
+            foreach (var target in characters)
             {
-                this.SetSpriteTexture(npc.Sprite, content.Load<Texture2D>(npc.Sprite.textureName.Value));
-                reloaded++;
+                this.SetSpriteTexture(target.Npc.Sprite, content.Load<Texture2D>(target.Key));
+                propagated[target.Key] = true;
             }
-
-            return reloaded;
         }
 
         /// <summary>Reload the portraits for matching NPCs.</summary>
         /// <param name="content">The content manager through which to reload the asset.</param>
         /// <param name="keys">The asset key to reload.</param>
-        /// <returns>Returns the number of reloaded assets.</returns>
-        private int ReloadNpcPortraits(LocalizedContentManager content, IEnumerable<string> keys)
+        /// <param name="propagated">The asset keys which have been propagated.</param>
+        private void ReloadNpcPortraits(LocalizedContentManager content, IEnumerable<string> keys, IDictionary<string, bool> propagated)
         {
             // get NPCs
             HashSet<string> lookup = new HashSet<string>(keys, StringComparer.InvariantCultureIgnoreCase);
-            var villagers = this
-                .GetCharacters()
-                .Where(npc => npc.isVillager() && lookup.Contains(this.NormalizeAssetNameIgnoringEmpty(npc.Portrait?.Name)))
+            var characters =
+                (
+                    from npc in this.GetCharacters()
+                    where npc.isVillager()
+
+                    let key = this.NormalizeAssetNameIgnoringEmpty(npc.Portrait?.Name)
+                    where key != null && lookup.Contains(key)
+                    select new { Npc = npc, Key = key }
+                )
                 .ToArray();
-            if (!villagers.Any())
-                return 0;
+            if (!characters.Any())
+                return;
 
             // update portrait
-            int reloaded = 0;
-            foreach (NPC npc in villagers)
+            foreach (var target in characters)
             {
-                npc.Portrait = content.Load<Texture2D>(npc.Portrait.Name);
-                reloaded++;
+                target.Npc.Portrait = content.Load<Texture2D>(target.Key);
+                propagated[target.Key] = true;
             }
-            return reloaded;
         }
 
         /// <summary>Reload tree textures.</summary>

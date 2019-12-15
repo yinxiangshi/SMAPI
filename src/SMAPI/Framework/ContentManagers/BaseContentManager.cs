@@ -184,25 +184,25 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <summary>Purge matched assets from the cache.</summary>
         /// <param name="predicate">Matches the asset keys to invalidate.</param>
         /// <param name="dispose">Whether to dispose invalidated assets. This should only be <c>true</c> when they're being invalidated as part of a dispose, to avoid crashing the game.</param>
-        /// <returns>Returns the invalidated asset names and types.</returns>
-        public IEnumerable<Tuple<string, Type>> InvalidateCache(Func<string, Type, bool> predicate, bool dispose = false)
+        /// <returns>Returns the invalidated asset names and instances.</returns>
+        public IDictionary<string, object> InvalidateCache(Func<string, Type, bool> predicate, bool dispose = false)
         {
-            Dictionary<string, Type> removeAssetNames = new Dictionary<string, Type>(StringComparer.InvariantCultureIgnoreCase);
-            this.Cache.Remove((key, type) =>
+            IDictionary<string, object> removeAssets = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
+            this.Cache.Remove((key, asset) =>
             {
                 this.ParseCacheKey(key, out string assetName, out _);
 
-                if (removeAssetNames.ContainsKey(assetName))
+                if (removeAssets.ContainsKey(assetName))
                     return true;
-                if (predicate(assetName, type))
+                if (predicate(assetName, asset.GetType()))
                 {
-                    removeAssetNames[assetName] = type;
+                    removeAssets[assetName] = asset;
                     return true;
                 }
                 return false;
             }, dispose);
 
-            return removeAssetNames.Select(p => Tuple.Create(p.Key, p.Value));
+            return removeAssets;
         }
 
         /// <summary>Dispose held resources.</summary>
