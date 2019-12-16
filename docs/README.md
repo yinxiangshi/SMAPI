@@ -72,5 +72,5 @@ Japanese   | ❑ not translated
 Korean     | ❑ not translated
 Portuguese | ❑ not translated
 Russian    | ✓ [fully translated](../src/SMAPI/i18n/ru.json)
-Spanish    | ❑ not translated
+Spanish    | ✓ [fully translated](../src/SMAPI/i18n/es.json)
 Turkish    | ✓ [fully translated](../src/SMAPI/i18n/tr.json)

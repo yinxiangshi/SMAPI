@@ -9,6 +9,7 @@
   * Fixed compatibility with Linux Mint 18 (thanks to techge!) and Arch Linux.
   * Fixed compatibility with Linux systems which have libhybris-utils installed.
   * Internal optimizations.
+  * Updated translations. Thanks to PlussRolf (added Spanish)!
 
 * For modders:
   * Added asset propagation for grass textures.
