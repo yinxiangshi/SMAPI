@@ -11,9 +11,9 @@
             "title": "Format version",
             "description": "The format version. You should always use the latest version to enable the latest features and avoid obsolete behavior.",
             "type": "string",
-            "const": "1.10.0",
+            "const": "1.11.0",
             "@errorMessages": {
-                "const": "Incorrect value '@value'. This should be set to the latest format version, currently '1.10.0'."
+                "const": "Incorrect value '@value'. This should be set to the latest format version, currently '1.11.0'."
             }
         },
         "ConfigSchema": {
@@ -277,6 +277,9 @@
                 },
                 "allOf": [
                     {
+                        "required": [ "Action" ]
+                    },
+                    {
                         "if": {
                             "properties": {
                                 "Action": { "const": "Load" }
@@ -364,26 +367,26 @@
             "properties": {
                 "X": {
                     "title": "X-Coordinate",
-                    "description": "Location in pixels of the top-left of the rectangle",
-                    "type": "integer",
+                    "description": "The X position of the area's top-left corner, measured in pixels for a texture or tiles for a map. This can contain tokens.",
+                    "type": [ "integer", "string" ],
                     "minimum:": 0
                 },
                 "Y": {
                     "title": "Y-Coordinate",
-                    "description": "Location in pixels of the top-left of the rectangle",
-                    "type": "integer",
+                    "description": "The Y position of the area's top-left corner, measured in pixels for a texture or tiles for a map. This can contain tokens.",
+                    "type": [ "integer", "string" ],
                     "minimum:": 0
                 },
                 "Width": {
                     "title": "Width",
-                    "description": "The width of the rectangle",
-                    "type": "integer",
+                    "description": "The width of the area, measured in pixels for a texture or tiles for a map. This can contain tokens.",
+                    "type": [ "integer", "string" ],
                     "minimum:": 0
                 },
                 "Height": {
                     "title": "Height",
-                    "description": "The height of the rectangle",
-                    "type": "integer",
+                    "description": "The height of the area, measured in pixels for a texture or tiles for a map. This can contain tokens.",
+                    "type": [ "integer", "string" ],
                     "minimum:": 0
                 }
             },
