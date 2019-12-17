@@ -55,7 +55,7 @@ namespace StardewModdingAPI.Web.Controllers
         ** Web UI
         ***/
         /// <summary>Render the schema validator UI.</summary>
-        /// <param name="schemaName">The schema name with which to validate the JSON.</param>
+        /// <param name="schemaName">The schema name with which to validate the JSON, or 'edit' to return to the edit screen.</param>
         /// <param name="id">The stored file ID.</param>
         [HttpGet]
         [Route("json")]
@@ -74,6 +74,10 @@ namespace StardewModdingAPI.Web.Controllers
             if (string.IsNullOrWhiteSpace(file.Content))
                 return this.View("Index", result.SetUploadError("The JSON file seems to be empty."));
             result.SetContent(file.Content, expiry: file.Expiry, uploadWarning: file.Warning);
+
+            // skip parsing if we're going to the edit screen
+            if (schemaName?.ToLower() == "edit")
+                return this.View("Index", result);
 
             // parse JSON
             JToken parsed;

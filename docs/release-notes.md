@@ -11,17 +11,18 @@
   * Internal optimizations.
   * Updated translations. Thanks to PlussRolf (added Spanish)!
 
+* For the web UI:
+  * Added option to edit & reupload in the JSON validator.
+  * If a JSON validator upload can't be saved to Pastebin (e.g. due to rate limits), it's now uploaded to Amazon S3 instead. Files uploaded to S3 expire after one month.
+  * Updated the JSON validator for Content Patcher 1.10.0.
+  * Fixed JSON validator no longer letting you change format when viewing results.
+
 * For modders:
   * Added asset propagation for grass textures.
   * Added asset propagation for `Data\Bundles` changes (for added bundles only).
   * Improved error messages for `TargetParameterCountException` when using the reflection API.
   * `helper.Read/WriteSaveData` can now be used while a save is being loaded (e.g. within a `Specialized.LoadStageChanged` event).
   * Fixed private textures loaded from content packs not having their `Name` field set.
-
-* For the web UI:
-  * If a JSON validator upload can't be saved to Pastebin (e.g. due to rate limits), it's now uploaded to Amazon S3 instead. Files uploaded to S3 expire after one month.
-  * Updated the JSON validator for Content Patcher 1.10.0.
-  * Fixed JSON validator no longer letting you change format when viewing results.
 
 ## 3.0.1
 Released 02 December 2019 for Stardew Valley 1.4.0.1.

@@ -8,7 +8,8 @@
     string curPageUrl = this.Url.PlainAction("Index", "JsonValidator", new { schemaName = Model.SchemaName, id = Model.PasteID });
     string newUploadUrl = this.Url.PlainAction("Index", "JsonValidator", new { schemaName = Model.SchemaName });
     string schemaDisplayName = null;
-    bool isValidSchema = Model.SchemaName != null && Model.SchemaFormats.TryGetValue(Model.SchemaName, out schemaDisplayName) && schemaDisplayName != "None";
+    bool isValidSchema = Model.SchemaName != null && Model.SchemaFormats.TryGetValue(Model.SchemaName, out schemaDisplayName) && schemaDisplayName?.ToLower() != "none";
+    bool isEditView = Model.Content == null || Model.SchemaName?.ToLower() == "edit";
 
     // build title
     ViewData["Title"] = "JSON validator";
@@ -60,7 +61,7 @@ else if (Model.ParseError != null)
         <small v-pre>Error details: @Model.ParseError</small>
     </div>
 }
-else if (Model.PasteID != null)
+else if (!isEditView && Model.PasteID != null)
 {
     <div class="banner success">
         <strong>Share this link to let someone else see this page:</strong> <code>@curPageUrl</code><br />
@@ -81,7 +82,7 @@ else if (Model.PasteID != null)
 }
 
 @* upload new file *@
-@if (Model.Content == null)
+@if (isEditView)
 {
     <h2>Upload a JSON file</h2>
     <form action="@this.Url.PlainAction("PostAsync", "JsonValidator")" method="post">
@@ -97,7 +98,7 @@ else if (Model.PasteID != null)
             </li>
             <li>
                 Drag the file onto this textbox (or paste the text in):<br />
-                <textarea id="input" name="Content" placeholder="paste file here"></textarea>
+                <textarea id="input" name="Content" placeholder="paste file here">@Model.Content</textarea>
             </li>
             <li>
                 Click this button:<br />
@@ -108,26 +109,23 @@ else if (Model.PasteID != null)
 }
 
 @* validation results *@
-@if (Model.Content != null)
+@if (!isEditView)
 {
     <div id="output">
         @if (Model.UploadError == null)
         {
-            <div>
-                Change JSON format:
-                <select id="format" name="format">
-                    @foreach (var pair in Model.SchemaFormats)
-                    {
-                        <option value="@pair.Key" selected="@(Model.SchemaName == pair.Key)">@pair.Value</option>
-                    }
-                </select>
-            </div>
-
-            <h2>Validation errors</h2>
-            @if (Model.FormatUrl != null)
-            {
-                <p>See <a href="@Model.FormatUrl">format documentation</a>.</p>
-            }
+            <h2>Validation</h2>
+            <p>
+                @(Model.Errors.Any() ? "Oops, found some issues with your JSON." : "No errors found!")
+                @if (!isValidSchema)
+                {
+                    <text>(You have no schema selected, so only the basic JSON syntax was checked.)</text>
+                }
+                else if (Model.FormatUrl != null)
+                {
+                    <text>See <a href="@Model.FormatUrl">format documentation</a> for more info.</text>
+                }
+            </p>
 
             @if (Model.Errors.Any())
             {
@@ -148,13 +146,17 @@ else if (Model.PasteID != null)
                     }
                 </table>
             }
-            else
-            {
-                <p>No errors found.</p>
-            }
         }
 
         <h2>Content</h2>
+        <div>
+            You can change JSON format (<select id="format" name="format">
+                @foreach (var pair in Model.SchemaFormats)
+                {
+                    <option value="@pair.Key" selected="@(Model.SchemaName == pair.Key)">@pair.Value</option>
+                }
+            </select>) or <a href="@(this.Url.PlainAction("Index", "JsonValidator", new { id = this.Model.PasteID, schemaName = "edit" }))">edit this file</a>.
+        </div>
         <pre id="raw-content" class="sunlight-highlight-javascript">@Model.Content</pre>
 
         @if (isValidSchema)
