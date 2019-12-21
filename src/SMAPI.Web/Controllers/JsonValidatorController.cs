@@ -141,7 +141,7 @@ namespace StardewModdingAPI.Web.Controllers
                 return this.View("Index", this.GetModel(null, schemaName).SetUploadError("The JSON file seems to be empty."));
 
             // upload file
-            var result = await this.Storage.SaveAsync(title: $"JSON validator {DateTime.UtcNow:s}", content: input, compress: true);
+            UploadResult result = await this.Storage.SaveAsync(title: $"JSON validator {DateTime.UtcNow:s}", content: input, compress: true);
             if (!result.Succeeded)
                 return this.View("Index", this.GetModel(result.ID, schemaName).SetUploadError(result.UploadError));
 

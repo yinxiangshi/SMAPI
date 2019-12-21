@@ -52,7 +52,8 @@ namespace StardewModdingAPI.Web.Framework.Storage
         public async Task<UploadResult> SaveAsync(string title, string content, bool compress = true)
         {
             // save to PasteBin
-            string uploadError;
+            string uploadError = null;
+            if (this.ClientsConfig.PastebinEnableUploads)
             {
                 SavePasteResult result = await this.Pastebin.PostAsync(title, content);
                 if (result.Success)

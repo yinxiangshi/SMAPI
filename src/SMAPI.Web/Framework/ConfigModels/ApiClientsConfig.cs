@@ -97,5 +97,8 @@ namespace StardewModdingAPI.Web.Framework.ConfigModels
         /// <summary>The developer key used to authenticate with the Pastebin API.</summary>
         public string PastebinDevKey { get; set; }
 
+        /// <summary>Whether to enable uploading new files to Pastebin. This doesn't affect fetching already-uploaded files.</summary>
+        public bool PastebinEnableUploads { get; set; }
+
     }
 }
