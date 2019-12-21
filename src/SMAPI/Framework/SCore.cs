@@ -1102,6 +1102,10 @@ namespace StardewModdingAPI.Framework
                 );
                 if (this.Settings.ParanoidWarnings)
                 {
+                    LogWarningGroup(ModWarning.AccessesConsole, LogLevel.Warn, "Accesses the console directly",
+                        "These mods directly access the SMAPI console, and you enabled paranoid warnings. (Note that this may be",
+                        "legitimate and innocent usage; this warning is meaningless without further investigation.)"
+                    );
                     LogWarningGroup(ModWarning.AccessesFilesystem, LogLevel.Warn, "Accesses filesystem directly",
                         "These mods directly access the filesystem, and you enabled paranoid warnings. (Note that this may be",
                         "legitimate and innocent usage; this warning is meaningless without further investigation.)"

@@ -26,6 +26,9 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>The instruction is compatible, but references <see cref="ISpecializedEvents.UnvalidatedUpdateTicking"/> or <see cref="ISpecializedEvents.UnvalidatedUpdateTicked"/> which may impact stability.</summary>
         DetectedUnvalidatedUpdateTick,
 
+        /// <summary>The instruction accesses the SMAPI console directly.</summary>
+        DetectedConsoleAccess,
+
         /// <summary>The instruction accesses the filesystem directly.</summary>
         DetectedFilesystemAccess,
 
