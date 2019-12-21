@@ -24,6 +24,7 @@
   * Improved error messages for `TargetParameterCountException` when using the reflection API.
   * `helper.Read/WriteSaveData` can now be used while a save is being loaded (e.g. within a `Specialized.LoadStageChanged` event).
   * Fixed private textures loaded from content packs not having their `Name` field set.
+  * Fixed asset propagation for `Characters\Farmer\farmer_girl_base_bald`.
 
 ## 3.0.1
 Released 02 December 2019 for Stardew Valley 1.4.0.1.

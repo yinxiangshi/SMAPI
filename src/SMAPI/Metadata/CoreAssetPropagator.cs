@@ -196,7 +196,7 @@ namespace StardewModdingAPI.Metadata
                     return true;
 
                 case "characters\\farmer\\farmer_girl_base": // Farmer
-                case "characters\\farmer\\farmer_girl_bald":
+                case "characters\\farmer\\farmer_girl_base_bald":
                     if (Game1.player == null || Game1.player.IsMale)
                         return false;
                     Game1.player.FarmerRenderer = new FarmerRenderer(key, Game1.player);
