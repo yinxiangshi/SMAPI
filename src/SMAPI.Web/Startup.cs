@@ -153,9 +153,7 @@ namespace StardewModdingAPI.Web
 
                 services.AddSingleton<IPastebinClient>(new PastebinClient(
                     baseUrl: api.PastebinBaseUrl,
-                    userAgent: userAgent,
-                    userKey: api.PastebinUserKey,
-                    devKey: api.PastebinDevKey
+                    userAgent: userAgent
                 ));
             }
 

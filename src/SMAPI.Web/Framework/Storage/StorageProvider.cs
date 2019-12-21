@@ -6,7 +6,9 @@ using Amazon;
 using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Model;
-using Amazon.S3.Transfer;
+using Azure;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using Microsoft.Extensions.Options;
 using StardewModdingAPI.Web.Framework.Clients.Pastebin;
 using StardewModdingAPI.Web.Framework.Compression;
@@ -44,54 +46,26 @@ namespace StardewModdingAPI.Web.Framework.Storage
             this.GzipHelper = gzipHelper;
         }
 
-        /// <summary>Save a text file to Pastebin or Amazon S3, if available.</summary>
+        /// <summary>Save a text file to storage.</summary>
         /// <param name="title">The display title, if applicable.</param>
         /// <param name="content">The content to upload.</param>
         /// <param name="compress">Whether to gzip the text.</param>
         /// <returns>Returns metadata about the save attempt.</returns>
         public async Task<UploadResult> SaveAsync(string title, string content, bool compress = true)
         {
-            // save to PasteBin
-            string uploadError = null;
-            if (this.ClientsConfig.PastebinEnableUploads)
-            {
-                SavePasteResult result = await this.Pastebin.PostAsync(title, content);
-                if (result.Success)
-                    return new UploadResult(true, result.ID, null);
-
-                uploadError = $"Pastebin error: {result.Error ?? "unknown error"}";
-            }
-
-            // fallback to S3
             try
             {
-                var credentials = new BasicAWSCredentials(accessKey: this.ClientsConfig.AmazonAccessKey, secretKey: this.ClientsConfig.AmazonSecretKey);
                 using Stream stream = new MemoryStream(Encoding.UTF8.GetBytes(content));
-                using IAmazonS3 s3 = new AmazonS3Client(credentials, RegionEndpoint.GetBySystemName(this.ClientsConfig.AmazonRegion));
-                using TransferUtility uploader = new TransferUtility(s3);
-
                 string id = Guid.NewGuid().ToString("N");
 
-                var uploadRequest = new TransferUtilityUploadRequest
-                {
-                    BucketName = this.ClientsConfig.AmazonTempBucket,
-                    Key = $"uploads/{id}",
-                    InputStream = stream,
-                    Metadata =
-                    {
-                        // note: AWS will lowercase keys and prefix 'x-amz-meta-'
-                        ["smapi-uploaded"] = DateTime.UtcNow.ToString("O"),
-                        ["pastebin-error"] = uploadError
-                    }
-                };
+                BlobClient blob = this.GetAzureBlobClient(id);
+                await blob.UploadAsync(stream);
 
-                await uploader.UploadAsync(uploadRequest);
-
-                return new UploadResult(true, id, uploadError);
+                return new UploadResult(true, id, null);
             }
             catch (Exception ex)
             {
-                return new UploadResult(false, null, $"{uploadError}\n{ex.Message}");
+                return new UploadResult(false, null, ex.Message);
             }
         }
 
@@ -99,35 +73,62 @@ namespace StardewModdingAPI.Web.Framework.Storage
         /// <param name="id">The storage ID returned by <see cref="SaveAsync"/>.</param>
         public async Task<StoredFileInfo> GetAsync(string id)
         {
-            // get from Amazon S3
+            // fetch from Azure/Amazon
             if (Guid.TryParseExact(id, "N", out Guid _))
             {
-                var credentials = new BasicAWSCredentials(accessKey: this.ClientsConfig.AmazonAccessKey, secretKey: this.ClientsConfig.AmazonSecretKey);
-                using IAmazonS3 s3 = new AmazonS3Client(credentials, RegionEndpoint.GetBySystemName(this.ClientsConfig.AmazonRegion));
-
+                // try Azure
                 try
                 {
-                    using GetObjectResponse response = await s3.GetObjectAsync(this.ClientsConfig.AmazonTempBucket, $"uploads/{id}");
-                    using Stream responseStream = response.ResponseStream;
-                    using StreamReader reader = new StreamReader(responseStream);
+                    BlobClient blob = this.GetAzureBlobClient(id);
+                    Response<BlobDownloadInfo> response = await blob.DownloadAsync();
+                    using BlobDownloadInfo result = response.Value;
 
-                    DateTime expiry = response.Expiration.ExpiryDateUtc;
-                    string pastebinError = response.Metadata["x-amz-meta-pastebin-error"];
+                    using StreamReader reader = new StreamReader(result.Content);
+                    DateTimeOffset expiry = result.Details.LastModified + TimeSpan.FromDays(this.ClientsConfig.AzureBlobTempExpiryDays);
                     string content = this.GzipHelper.DecompressString(reader.ReadToEnd());
 
                     return new StoredFileInfo
                     {
                         Success = true,
                         Content = content,
-                        Expiry = expiry,
-                        Warning = pastebinError
+                        Expiry = expiry.UtcDateTime
                     };
                 }
-                catch (AmazonServiceException ex)
+                catch (RequestFailedException ex)
                 {
-                    return ex.ErrorCode == "NoSuchKey"
-                        ? new StoredFileInfo { Error = "There's no file with that ID." }
-                        : new StoredFileInfo { Error = $"Could not fetch that file from AWS S3 ({ex.ErrorCode}: {ex.Message})." };
+                    if (ex.ErrorCode != "BlobNotFound")
+                        return new StoredFileInfo { Error = $"Could not fetch that file from storage ({ex.ErrorCode}: {ex.Message})." };
+                }
+
+                // try legacy Amazon S3
+                {
+                    var credentials = new BasicAWSCredentials(accessKey: this.ClientsConfig.AmazonAccessKey, secretKey: this.ClientsConfig.AmazonSecretKey);
+                    using IAmazonS3 s3 = new AmazonS3Client(credentials, RegionEndpoint.GetBySystemName(this.ClientsConfig.AmazonRegion));
+
+                    try
+                    {
+                        using GetObjectResponse response = await s3.GetObjectAsync(this.ClientsConfig.AmazonTempBucket, $"uploads/{id}");
+                        using Stream responseStream = response.ResponseStream;
+                        using StreamReader reader = new StreamReader(responseStream);
+
+                        DateTime expiry = response.Expiration.ExpiryDateUtc;
+                        string pastebinError = response.Metadata["x-amz-meta-pastebin-error"];
+                        string content = this.GzipHelper.DecompressString(reader.ReadToEnd());
+
+                        return new StoredFileInfo
+                        {
+                            Success = true,
+                            Content = content,
+                            Expiry = expiry,
+                            Warning = pastebinError
+                        };
+                    }
+                    catch (AmazonServiceException ex)
+                    {
+                        return ex.ErrorCode == "NoSuchKey"
+                            ? new StoredFileInfo { Error = "There's no file with that ID." }
+                            : new StoredFileInfo { Error = $"Could not fetch that file from AWS S3 ({ex.ErrorCode}: {ex.Message})." };
+                    }
                 }
             }
 
@@ -143,6 +144,15 @@ namespace StardewModdingAPI.Web.Framework.Storage
                     Error = response.Error
                 };
             }
+        }
+
+        /// <summary>Get a client for reading and writing to Azure Blob storage.</summary>
+        /// <param name="id">The file ID to fetch.</param>
+        private BlobClient GetAzureBlobClient(string id)
+        {
+            var azure = new BlobServiceClient(this.ClientsConfig.AzureBlobConnectionString);
+            var container = azure.GetBlobContainerClient(this.ClientsConfig.AzureBlobTempContainer);
+            return container.GetBlobClient($"uploads/{id}");
         }
     }
 }

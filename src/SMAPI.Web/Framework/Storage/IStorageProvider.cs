@@ -5,7 +5,7 @@ namespace StardewModdingAPI.Web.Framework.Storage
     /// <summary>Provides access to raw data storage.</summary>
     internal interface IStorageProvider
     {
-        /// <summary>Save a text file to Pastebin or Amazon S3, if available.</summary>
+        /// <summary>Save a text file to storage.</summary>
         /// <param name="title">The display title, if applicable.</param>
         /// <param name="content">The content to upload.</param>
         /// <param name="compress">Whether to gzip the text.</param>

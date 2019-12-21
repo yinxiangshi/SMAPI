@@ -30,6 +30,19 @@ namespace StardewModdingAPI.Web.Framework.ConfigModels
 
 
         /****
+        ** Azure
+        ****/
+        /// <summary>The connection string for the Azure Blob storage account.</summary>
+        public string AzureBlobConnectionString { get; set; }
+
+        /// <summary>The Azure Blob container in which to store temporary uploaded logs.</summary>
+        public string AzureBlobTempContainer { get; set; }
+
+        /// <summary>The number of days since the blob's last-modified date when it will be deleted.</summary>
+        public int AzureBlobTempExpiryDays { get; set; }
+
+
+        /****
         ** Chucklefish
         ****/
         /// <summary>The base URL for the Chucklefish mod site.</summary>
@@ -61,6 +74,7 @@ namespace StardewModdingAPI.Web.Framework.ConfigModels
         /// <summary>The password with which to authenticate to the GitHub API (if any).</summary>
         public string GitHubPassword { get; set; }
 
+
         /****
         ** ModDrop
         ****/
@@ -69,6 +83,7 @@ namespace StardewModdingAPI.Web.Framework.ConfigModels
 
         /// <summary>The URL for a ModDrop mod page for the user, where {0} is the mod ID.</summary>
         public string ModDropModPageUrl { get; set; }
+
 
         /****
         ** Nexus Mods
@@ -85,20 +100,11 @@ namespace StardewModdingAPI.Web.Framework.ConfigModels
         /// <summary>The Nexus API authentication key.</summary>
         public string NexusApiKey { get; set; }
 
+
         /****
         ** Pastebin
         ****/
         /// <summary>The base URL for the Pastebin API.</summary>
         public string PastebinBaseUrl { get; set; }
-
-        /// <summary>The user key used to authenticate with the Pastebin API.</summary>
-        public string PastebinUserKey { get; set; }
-
-        /// <summary>The developer key used to authenticate with the Pastebin API.</summary>
-        public string PastebinDevKey { get; set; }
-
-        /// <summary>Whether to enable uploading new files to Pastebin. This doesn't affect fetching already-uploaded files.</summary>
-        public bool PastebinEnableUploads { get; set; }
-
     }
 }
