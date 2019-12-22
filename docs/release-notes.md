@@ -26,6 +26,9 @@
   * Fixed private textures loaded from content packs not having their `Name` field set.
   * Fixed asset propagation for `Characters\Farmer\farmer_girl_base_bald`.
 
+* For SMAPI developers:
+  * You can now run local environments without configuring Amazon, Azure, and Pastebin accounts.
+
 ## 3.0.1
 Released 02 December 2019 for Stardew Valley 1.4.0.1.
 

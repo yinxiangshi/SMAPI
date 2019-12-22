@@ -27,6 +27,12 @@ namespace StardewModdingAPI.Web.Framework.Storage
         /// <summary>The underlying text compression helper.</summary>
         private readonly IGzipHelper GzipHelper;
 
+        /// <summary>Whether Azure blob storage is configured.</summary>
+        private bool HasAzure => !string.IsNullOrWhiteSpace(this.ClientsConfig.AzureBlobConnectionString);
+
+        /// <summary>The number of days since the blob's last-modified date when it will be deleted.</summary>
+        private int ExpiryDays => this.ClientsConfig.AzureBlobTempExpiryDays;
+
 
         /*********
         ** Public methods
@@ -43,25 +49,38 @@ namespace StardewModdingAPI.Web.Framework.Storage
         }
 
         /// <summary>Save a text file to storage.</summary>
-        /// <param name="title">The display title, if applicable.</param>
         /// <param name="content">The content to upload.</param>
         /// <param name="compress">Whether to gzip the text.</param>
         /// <returns>Returns metadata about the save attempt.</returns>
-        public async Task<UploadResult> SaveAsync(string title, string content, bool compress = true)
+        public async Task<UploadResult> SaveAsync(string content, bool compress = true)
         {
-            try
+            string id = Guid.NewGuid().ToString("N");
+
+            // save to Azure
+            if (this.HasAzure)
             {
-                using Stream stream = new MemoryStream(Encoding.UTF8.GetBytes(content));
-                string id = Guid.NewGuid().ToString("N");
+                try
+                {
+                    using Stream stream = new MemoryStream(Encoding.UTF8.GetBytes(content));
+                    BlobClient blob = this.GetAzureBlobClient(id);
+                    await blob.UploadAsync(stream);
 
-                BlobClient blob = this.GetAzureBlobClient(id);
-                await blob.UploadAsync(stream);
-
-                return new UploadResult(true, id, null);
+                    return new UploadResult(true, id, null);
+                }
+                catch (Exception ex)
+                {
+                    return new UploadResult(false, null, ex.Message);
+                }
             }
-            catch (Exception ex)
+
+            // save to local filesystem for testing
+            else
             {
-                return new UploadResult(false, null, ex.Message);
+                string path = this.GetDevFilePath(id);
+                Directory.CreateDirectory(Path.GetDirectoryName(path));
+
+                File.WriteAllText(path, content);
+                return new UploadResult(true, id, null);
             }
         }
 
@@ -69,39 +88,67 @@ namespace StardewModdingAPI.Web.Framework.Storage
         /// <param name="id">The storage ID returned by <see cref="SaveAsync"/>.</param>
         public async Task<StoredFileInfo> GetAsync(string id)
         {
-            // fetch from Azure/Amazon
+            // fetch from blob storage
             if (Guid.TryParseExact(id, "N", out Guid _))
             {
-                // try Azure
-                try
+                // Azure Blob storage
+                if (this.HasAzure)
                 {
-                    BlobClient blob = this.GetAzureBlobClient(id);
-                    Response<BlobDownloadInfo> response = await blob.DownloadAsync();
-                    using BlobDownloadInfo result = response.Value;
-
-                    using StreamReader reader = new StreamReader(result.Content);
-                    DateTimeOffset expiry = result.Details.LastModified + TimeSpan.FromDays(this.ClientsConfig.AzureBlobTempExpiryDays);
-                    string content = this.GzipHelper.DecompressString(reader.ReadToEnd());
-
-                    return new StoredFileInfo
+                    try
                     {
-                        Success = true,
-                        Content = content,
-                        Expiry = expiry.UtcDateTime
-                    };
+                        BlobClient blob = this.GetAzureBlobClient(id);
+                        Response<BlobDownloadInfo> response = await blob.DownloadAsync();
+                        using BlobDownloadInfo result = response.Value;
+
+                        using StreamReader reader = new StreamReader(result.Content);
+                        DateTimeOffset expiry = result.Details.LastModified + TimeSpan.FromDays(this.ExpiryDays);
+                        string content = this.GzipHelper.DecompressString(reader.ReadToEnd());
+
+                        return new StoredFileInfo
+                        {
+                            Success = true,
+                            Content = content,
+                            Expiry = expiry.UtcDateTime
+                        };
+                    }
+                    catch (RequestFailedException ex)
+                    {
+                        return new StoredFileInfo
+                        {
+                            Error = ex.ErrorCode == "BlobNotFound"
+                                ? "There's no file with that ID."
+                                : $"Could not fetch that file from storage ({ex.ErrorCode}: {ex.Message})."
+                        };
+                    }
                 }
-                catch (RequestFailedException ex)
+
+                // local filesystem for testing
+                else
                 {
+                    FileInfo file = new FileInfo(this.GetDevFilePath(id));
+                    if (file.Exists)
+                    {
+                        if (file.LastWriteTimeUtc.AddDays(this.ExpiryDays) < DateTime.UtcNow)
+                            file.Delete();
+                        else
+                        {
+                            return new StoredFileInfo
+                            {
+                                Success = true,
+                                Content = File.ReadAllText(file.FullName),
+                                Expiry = DateTime.UtcNow.AddDays(this.ExpiryDays),
+                                Warning = "This file was saved temporarily to the local computer. This should only happen in a local development environment."
+                            };
+                        }
+                    }
                     return new StoredFileInfo
                     {
-                        Error = ex.ErrorCode == "BlobNotFound"
-                            ? "There's no file with that ID."
-                            : $"Could not fetch that file from storage ({ex.ErrorCode}: {ex.Message})."
+                        Error = "There's no file with that ID."
                     };
                 }
             }
 
-            // get from PasteBin
+            // get from Pastebin
             else
             {
                 PasteInfo response = await this.Pastebin.GetAsync(id);
@@ -116,12 +163,19 @@ namespace StardewModdingAPI.Web.Framework.Storage
         }
 
         /// <summary>Get a client for reading and writing to Azure Blob storage.</summary>
-        /// <param name="id">The file ID to fetch.</param>
+        /// <param name="id">The file ID.</param>
         private BlobClient GetAzureBlobClient(string id)
         {
             var azure = new BlobServiceClient(this.ClientsConfig.AzureBlobConnectionString);
             var container = azure.GetBlobContainerClient(this.ClientsConfig.AzureBlobTempContainer);
             return container.GetBlobClient($"uploads/{id}");
+        }
+
+        /// <summary>Get the absolute file path for an upload when running in a local test environment with no Azure account configured.</summary>
+        /// <param name="id">The file ID.</param>
+        private string GetDevFilePath(string id)
+        {
+            return Path.Combine(Path.GetTempPath(), "smapi-web-temp", $"{id}.txt");
         }
     }
 }

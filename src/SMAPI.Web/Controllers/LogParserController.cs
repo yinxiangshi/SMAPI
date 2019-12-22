@@ -72,7 +72,7 @@ namespace StardewModdingAPI.Web.Controllers
                 return this.View("Index", this.GetModel(null, uploadError: "The log file seems to be empty."));
 
             // upload log
-            UploadResult uploadResult = await this.Storage.SaveAsync(title: $"SMAPI log {DateTime.UtcNow:s}", content: input, compress: true);
+            UploadResult uploadResult = await this.Storage.SaveAsync(input);
             if (!uploadResult.Succeeded)
                 return this.View("Index", this.GetModel(null, uploadError: uploadResult.UploadError));
 
