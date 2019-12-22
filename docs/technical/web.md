@@ -10,17 +10,21 @@ and update check API.
 * [Short URLs](#short-urls)
 * [For SMAPI developers](#for-smapi-developers)
   * [Local development](#local-development)
-  * [Deploying to Amazon Beanstalk](#deploying-to-amazon-beanstalk)
+  * [Production environment](#production-environment)
 
 ## Log parser
-The log parser provides a web UI for uploading, parsing, and sharing SMAPI logs. The logs are
-persisted in a compressed form to Pastebin. The log parser lives at https://smapi.io/log.
+The log parser at https://smapi.io/log provides a web UI for uploading, parsing, and sharing SMAPI
+logs.
+
+The logs are saved in a compressed form to Amazon Blob storage for 30 days.
 
 ## JSON validator
 ### Overview
-The JSON validator provides a web UI for uploading and sharing JSON files, and validating them as
-plain JSON or against a predefined format like `manifest.json` or Content Patcher's `content.json`.
-The JSON validator lives at https://smapi.io/json.
+The JSON validator at https://smapi.io/json provides a web UI for uploading and sharing JSON files,
+and validating them as plain JSON or against a predefined format like `manifest.json` or Content
+Patcher's `content.json`.
+
+The logs are saved in a compressed form to Amazon Blob storage for 30 days.
 
 ### Schema file format
 Schema files are defined in `wwwroot/schemas` using the [JSON Schema](https://json-schema.org/)
@@ -336,43 +340,46 @@ short url | → | target page
 A local environment lets you run a complete copy of the web project (including cache database) on
 your machine, with no external dependencies aside from the actual mod sites.
 
-Initial setup:
-
-1. [Install MongoDB](https://docs.mongodb.com/manual/administration/install-community/) and add its
-   `bin` folder to the system PATH.
-2. Create a local folder for the MongoDB data (e.g. `C:\dev\smapi-cache`).
-3. Enter your credentials in the `appsettings.Development.json` file. You can leave the MongoDB
-   credentials as-is to use the default local instance; see the next section for the other settings.
-
-To launch the environment:
-1. Launch MongoDB from a terminal (change the data path if applicable):
-    ```sh
-    mongod --dbpath C:\dev\smapi-cache
-    ```
-2. Launch `SMAPI.Web` from Visual Studio to run a local version of the site.  
-    <small>(Local URLs will use HTTP instead of HTTPS.)</small>
+1. Enter the Nexus credentials in `appsettings.Development.json` . You can leave the other
+   credentials empty to default to fetching data anonymously, and storing data in-memory and
+   on disk.
+2. Launch `SMAPI.Web` from Visual Studio to run a local version of the site.
 
 ### Production environment
 A production environment includes the web servers and cache database hosted online for public
-access. This section assumes you're creating a new production environment from scratch (not using
-the official live environment).
+access.
+
+This section assumes you're creating a new environment on Azure, but the app isn't tied to any
+Azure services. If you want to host it on a different site, you'll need to adjust the instructions
+accordingly.
 
 Initial setup:
 
-1. Launch an empty MongoDB server (e.g. using [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)).
-2. Create an AWS Beanstalk .NET environment with these environment properties:
+1. Launch an empty MongoDB server (e.g. using [MongoDB Atlas](https://www.mongodb.com/cloud/atlas))
+   for mod data.
+2. Create an Azure Blob storage account for uploaded files.
+3. Create an Azure App Services environment running the latest .NET Core on Linux or Windows.
+4. Add these application settings in the new App Services environment:
 
    property name                   | description
    ------------------------------- | -----------------
-   `LogParser:PastebinDevKey`      | The [Pastebin developer key](https://pastebin.com/api#1) used to authenticate with the Pastebin API.
-   `LogParser:PastebinUserKey`     | The [Pastebin user key](https://pastebin.com/api#8) used to authenticate with the Pastebin API. Can be left blank to post anonymously.
-   `ModUpdateCheck:GitHubPassword` | The password with which to authenticate to GitHub when fetching release info.
-   `ModUpdateCheck:GitHubUsername` | The username with which to authenticate to GitHub when fetching release info.
+   `ApiClients.AzureBlobConnectionString` | The connection string for the Azure Blob storage account created in step 2.
+   `ApiClients.GitHubUsername`<br />`ApiClients.GitHubPassword` | The login credentials for the GitHub account with which to fetch release info. If these are omitted, GitHub will impose much stricter rate limits.
+   `ApiClients:NexusApiKey`        | The [Nexus API authentication key](https://github.com/Pathoschild/FluentNexus#init-a-client).
    `MongoDB:Host`                  | The hostname for the MongoDB instance.
    `MongoDB:Username`              | The login username for the MongoDB instance.
    `MongoDB:Password`              | The login password for the MongoDB instance.
-   `MongoDB:Database`              | The database name (e.g. `smapi` in production or `smapi-edge` in testing environments).
+   `MongoDB:Database`              | The MongoDB database name (e.g. `smapi` in production or `smapi-edge` in testing environments).
+
+   Optional settings:
+
+   property name                   | description
+   ------------------------------- | -----------------
+   `BackgroundServices:Enabled`    | Set to `true` to enable background processes like fetching data from the wiki, or false to disable them.
+   `Site:BetaEnabled`              | Set to `true` to show a separate download button if there's a beta version of SMAPI in its GitHub releases.
+   `Site:BetaBlurb`                | If `Site:BetaEnabled` is true and there's a beta version of SMAPI in its GitHub releases, this is shown on the beta download button as explanatory subtext.
+   `Site:SupporterList`            | A list of Patreon supports to credit on the download page.
 
 To deploy updates:
-1. Deploy the web project using [AWS Toolkit for Visual Studio](https://aws.amazon.com/visualstudio/).
+1. [Deploy the web project from Visual Studio](https://docs.microsoft.com/en-us/visualstudio/deployment/quickstart-deploy-to-azure).
 2. If the MongoDB schema changed, delete the MongoDB database. (It'll be recreated automatically.)

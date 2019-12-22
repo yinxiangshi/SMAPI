@@ -24,6 +24,12 @@ namespace StardewModdingAPI.Web.Framework.ConfigModels
         /*********
         ** Public method
         *********/
+        /// <summary>Get whether a MongoDB instance is configured.</summary>
+        public bool IsConfigured()
+        {
+            return !string.IsNullOrWhiteSpace(this.Host);
+        }
+
         /// <summary>Get the MongoDB connection string.</summary>
         public string GetConnectionString()
         {

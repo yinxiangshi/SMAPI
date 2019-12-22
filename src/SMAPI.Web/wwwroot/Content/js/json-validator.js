@@ -71,9 +71,9 @@ smapi.LineNumberRange = function (maxLines) {
 /**
  * UI logic for the JSON validator page.
  * @param {string} urlFormat The URL format for a file, with $schemaName and $id placeholders.
- * @param {string} pasteID The Pastebin paste ID for the content being viewed, if any.
+ * @param {string} fileId The file ID for the content being viewed, if any.
  */
-smapi.jsonValidator = function (urlFormat, pasteID) {
+smapi.jsonValidator = function (urlFormat, fileId) {
     /**
      * The original content element.
      */
@@ -138,7 +138,7 @@ smapi.jsonValidator = function (urlFormat, pasteID) {
         // change format
         $("#output #format").on("change", function() {
             var schemaName = $(this).val();
-            location.href = urlFormat.replace("$schemaName", schemaName).replace("$id", pasteID);
+            location.href = urlFormat.replace("$schemaName", schemaName).replace("$id", fileId);
         });
 
         // upload form
