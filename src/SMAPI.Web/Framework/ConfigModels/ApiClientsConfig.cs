@@ -14,22 +14,6 @@ namespace StardewModdingAPI.Web.Framework.ConfigModels
 
 
         /****
-        ** Amazon Web Services
-        ****/
-        /// <summary>The access key for AWS authentication.</summary>
-        public string AmazonAccessKey { get; set; }
-
-        /// <summary>The secret key for AWS authentication.</summary>
-        public string AmazonSecretKey { get; set; }
-
-        /// <summary>The AWS region endpoint (like 'us-east-1').</summary>
-        public string AmazonRegion { get; set; }
-
-        /// <summary>The AWS bucket in which to store temporary uploaded logs.</summary>
-        public string AmazonTempBucket { get; set; }
-
-
-        /****
         ** Azure
         ****/
         /// <summary>The connection string for the Azure Blob storage account.</summary>

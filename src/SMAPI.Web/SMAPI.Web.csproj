@@ -12,7 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.S3" Version="3.3.108.4" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.1.0" />
     <PackageReference Include="Hangfire.AspNetCore" Version="1.7.7" />
     <PackageReference Include="Hangfire.Mongo" Version="0.6.5" />

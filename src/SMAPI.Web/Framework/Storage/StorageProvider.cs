@@ -2,10 +2,6 @@ using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using Amazon;
-using Amazon.Runtime;
-using Amazon.S3;
-using Amazon.S3.Model;
 using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
@@ -96,39 +92,12 @@ namespace StardewModdingAPI.Web.Framework.Storage
                 }
                 catch (RequestFailedException ex)
                 {
-                    if (ex.ErrorCode != "BlobNotFound")
-                        return new StoredFileInfo { Error = $"Could not fetch that file from storage ({ex.ErrorCode}: {ex.Message})." };
-                }
-
-                // try legacy Amazon S3
-                {
-                    var credentials = new BasicAWSCredentials(accessKey: this.ClientsConfig.AmazonAccessKey, secretKey: this.ClientsConfig.AmazonSecretKey);
-                    using IAmazonS3 s3 = new AmazonS3Client(credentials, RegionEndpoint.GetBySystemName(this.ClientsConfig.AmazonRegion));
-
-                    try
+                    return new StoredFileInfo
                     {
-                        using GetObjectResponse response = await s3.GetObjectAsync(this.ClientsConfig.AmazonTempBucket, $"uploads/{id}");
-                        using Stream responseStream = response.ResponseStream;
-                        using StreamReader reader = new StreamReader(responseStream);
-
-                        DateTime expiry = response.Expiration.ExpiryDateUtc;
-                        string pastebinError = response.Metadata["x-amz-meta-pastebin-error"];
-                        string content = this.GzipHelper.DecompressString(reader.ReadToEnd());
-
-                        return new StoredFileInfo
-                        {
-                            Success = true,
-                            Content = content,
-                            Expiry = expiry,
-                            Warning = pastebinError
-                        };
-                    }
-                    catch (AmazonServiceException ex)
-                    {
-                        return ex.ErrorCode == "NoSuchKey"
-                            ? new StoredFileInfo { Error = "There's no file with that ID." }
-                            : new StoredFileInfo { Error = $"Could not fetch that file from AWS S3 ({ex.ErrorCode}: {ex.Message})." };
-                    }
+                        Error = ex.ErrorCode == "BlobNotFound"
+                            ? "There's no file with that ID."
+                            : $"Could not fetch that file from storage ({ex.ErrorCode}: {ex.Message})."
+                    };
                 }
             }
 

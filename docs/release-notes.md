@@ -13,7 +13,7 @@
 
 * For the web UI:
   * Added option to edit & reupload in the JSON validator.
-  * If a JSON validator upload can't be saved to Pastebin (e.g. due to rate limits), it's now uploaded to Amazon S3 instead. Files uploaded to S3 expire after one month.
+  * The log parser and JSON validator no longer save files to Pastebin due to ongoing performance issues. All files are now saved to Azure Blob storage instead and expire after one month.
   * Updated the JSON validator for Content Patcher 1.10 and 1.11.
   * Fixed JSON validator no longer letting you change format when viewing results.
 
