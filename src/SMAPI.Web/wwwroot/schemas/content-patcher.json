@@ -51,8 +51,7 @@
                         "if": {
                             "properties": {
                                 "AllowBlank": { "const": false }
-                            },
-                            "required": [ "AllowBlank" ]
+                            }
                         },
                         "then": {
                             "required": [ "Default" ]

@@ -21,6 +21,7 @@
   * The log parser and JSON validator no longer save files to Pastebin due to ongoing performance issues. All files are now saved to Azure Blob storage instead and expire after one month.
   * Updated the JSON validator for Content Patcher 1.10 and 1.11.
   * Fixed JSON validator no longer letting you change format when viewing results.
+  * Fixed JSON validator for Content Patcher schema not requiring `Default` if `AllowBlank` omitted.
 
 * For modders:
   * Added asset propagation for...
