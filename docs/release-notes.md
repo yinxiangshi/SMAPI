@@ -8,6 +8,11 @@
   * Updated for the 'Force Off' gamepad mode added in Stardew Valley 1.4.1.
   * Fixed compatibility with Linux Mint 18 (thanks to techge!) and Arch Linux.
   * Fixed compatibility with Linux systems which have libhybris-utils installed.
+  * Fixes for the bundled Console Commands mod:
+    * added new clothing items;
+    * fixed spawning new flooring and rings (thanks to Mizzion!);
+    * fixed spawning custom rings added by mods;
+    * Fixed errors when some item data is invalid.
   * Internal optimizations.
   * Updated translations. Thanks to PlussRolf (added Spanish)!
 
