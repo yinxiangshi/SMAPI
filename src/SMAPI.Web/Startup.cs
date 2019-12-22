@@ -100,7 +100,7 @@ namespace StardewModdingAPI.Web
             {
                 // get connection string
                 string connectionString = mongoConfig.IsConfigured()
-                    ? mongoConfig.GetConnectionString()
+                    ? mongoConfig.ConnectionString
                     : serv.GetRequiredService<MongoDbRunner>().ConnectionString;
 
                 // get client
@@ -121,7 +121,7 @@ namespace StardewModdingAPI.Web
 
                     if (mongoConfig.IsConfigured())
                     {
-                        config.UseMongoStorage(mongoConfig.GetConnectionString(), $"{mongoConfig.Database}-hangfire", new MongoStorageOptions
+                        config.UseMongoStorage(mongoConfig.ConnectionString, $"{mongoConfig.Database}-hangfire", new MongoStorageOptions
                         {
                             MigrationOptions = new MongoMigrationOptions(MongoMigrationStrategy.Drop),
                             CheckConnection = false // error on startup takes down entire process

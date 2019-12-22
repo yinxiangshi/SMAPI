@@ -366,9 +366,7 @@ Initial setup:
    `ApiClients.AzureBlobConnectionString` | The connection string for the Azure Blob storage account created in step 2.
    `ApiClients.GitHubUsername`<br />`ApiClients.GitHubPassword` | The login credentials for the GitHub account with which to fetch release info. If these are omitted, GitHub will impose much stricter rate limits.
    `ApiClients:NexusApiKey`        | The [Nexus API authentication key](https://github.com/Pathoschild/FluentNexus#init-a-client).
-   `MongoDB:Host`                  | The hostname for the MongoDB instance.
-   `MongoDB:Username`              | The login username for the MongoDB instance.
-   `MongoDB:Password`              | The login password for the MongoDB instance.
+   `MongoDB:ConnectionString`      | The connection string for the MongoDB instance.
    `MongoDB:Database`              | The MongoDB database name (e.g. `smapi` in production or `smapi-edge` in testing environments).
 
    Optional settings:
