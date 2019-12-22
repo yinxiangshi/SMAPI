@@ -23,8 +23,10 @@
   * Fixed JSON validator no longer letting you change format when viewing results.
 
 * For modders:
-  * Added asset propagation for grass textures.
-  * Added asset propagation for `Data\Bundles` changes (for added bundles only).
+  * Added asset propagation for...
+    * grass textures;
+    * winter flooring textures;
+    * `Data\Bundles` changes (for added bundles only).
   * Added direct `Console` access to paranoid mode warnings.
   * Improved error messages for `TargetParameterCountException` when using the reflection API.
   * `helper.Read/WriteSaveData` can now be used while a save is being loaded (e.g. within a `Specialized.LoadStageChanged` event).

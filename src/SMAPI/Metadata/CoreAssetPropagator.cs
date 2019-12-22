@@ -506,6 +506,10 @@ namespace StardewModdingAPI.Metadata
                     Flooring.floorsTexture = content.Load<Texture2D>(key);
                     return true;
 
+                case "terrainfeatures\\flooring_winter": // from Flooring
+                    Flooring.floorsTextureWinter = content.Load<Texture2D>(key);
+                    return true;
+
                 case "terrainfeatures\\grass": // from Grass
                     this.ReloadGrassTextures(content, key);
                     return true;
