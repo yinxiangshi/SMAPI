@@ -1046,26 +1046,48 @@ namespace StardewModdingAPI.Framework
             // log skipped mods
             if (skippedMods.Any())
             {
+                // get logging logic
+                HashSet<string> logged = new HashSet<string>();
+                void LogSkippedMod(IModMetadata mod, string errorReason, string errorDetails)
+                {
+                    string message = $"      - {mod.DisplayName}{(mod.Manifest?.Version != null ? " " + mod.Manifest.Version.ToString() : "")} because {errorReason}";
+
+                    if (logged.Add($"{message}|{errorDetails}"))
+                    {
+                        this.Monitor.Log(message, LogLevel.Error);
+                        if (errorDetails != null)
+                            this.Monitor.Log($"        ({errorDetails})", LogLevel.Trace);
+                    }
+                }
+
+                // find skipped dependencies
+                KeyValuePair<IModMetadata, Tuple<string, string>>[] skippedDependencies;
+                {
+                    HashSet<string> skippedDependencyIds = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+                    HashSet<string> skippedModIds = new HashSet<string>(from mod in skippedMods where mod.Key.HasID() select mod.Key.Manifest.UniqueID, StringComparer.InvariantCultureIgnoreCase);
+                    foreach (IModMetadata mod in skippedMods.Keys)
+                    {
+                        foreach (string requiredId in skippedModIds.Intersect(mod.GetRequiredModIds()))
+                            skippedDependencyIds.Add(requiredId);
+                    }
+                    skippedDependencies = skippedMods.Where(p => p.Key.HasID() && skippedDependencyIds.Contains(p.Key.Manifest.UniqueID)).ToArray();
+                }
+
+                // log skipped mods
                 this.Monitor.Log("   Skipped mods", LogLevel.Error);
                 this.Monitor.Log("   " + "".PadRight(50, '-'), LogLevel.Error);
                 this.Monitor.Log("      These mods could not be added to your game.", LogLevel.Error);
                 this.Monitor.Newline();
 
-                HashSet<string> logged = new HashSet<string>();
-                foreach (var pair in skippedMods.OrderBy(p => p.Key.DisplayName))
+                if (skippedDependencies.Any())
                 {
-                    IModMetadata mod = pair.Key;
-                    string errorReason = pair.Value.Item1;
-                    string errorDetails = pair.Value.Item2;
-                    string message = $"      - {mod.DisplayName}{(mod.Manifest?.Version != null ? " " + mod.Manifest.Version.ToString() : "")} because {errorReason}";
-
-                    if (!logged.Add($"{message}|{errorDetails}"))
-                        continue; // skip duplicate messages (e.g. if multiple copies of the mod are installed)
-
-                    this.Monitor.Log(message, LogLevel.Error);
-                    if (errorDetails != null)
-                        this.Monitor.Log($"        ({errorDetails})", LogLevel.Trace);
+                    foreach (var pair in skippedDependencies.OrderBy(p => p.Key.DisplayName))
+                        LogSkippedMod(pair.Key, pair.Value.Item1, pair.Value.Item2);
+                    this.Monitor.Newline();
                 }
+
+                foreach (var pair in skippedMods.OrderBy(p => p.Key.DisplayName))
+                    LogSkippedMod(pair.Key, pair.Value.Item1, pair.Value.Item2);
                 this.Monitor.Newline();
             }
 

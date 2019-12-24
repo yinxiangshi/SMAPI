@@ -6,6 +6,7 @@
 * For players:
   * Added friendly log message for save file-not-found errors.
   * Updated for the 'Force Off' gamepad mode added in Stardew Valley 1.4.1.
+  * The 'skipped mods' list now shows broken dependencies first, so it's easier to see which ones to fix first.
   * Fixed compatibility with Linux Mint 18 (thanks to techge!) and Arch Linux.
   * Fixed compatibility with Linux systems which have libhybris-utils installed.
   * Fixes for the bundled Console Commands mod:
