@@ -13,6 +13,8 @@
         .Cast<LogLevel>()
         .ToDictionary(level => level.ToString().ToLower(), level => level != LogLevel.Trace);
     JsonSerializerSettings noFormatting = new JsonSerializerSettings { Formatting = Formatting.None };
+
+    string curPageUrl = this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID }, absoluteUrl: true);
 }
 
 @section Head {
@@ -50,7 +52,7 @@ else if (Model.ParseError != null)
 {
     <div class="banner error" v-pre>
         <strong>Oops, couldn't parse that log. (Make sure you upload the log file, not the console text.)</strong><br />
-        Share this URL when asking for help: <code>https://@this.Context.Request.Host.ToUriComponent()@this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID }))</code><br />
+        Share this URL when asking for help: <code>@curPageUrl</code><br />
         (Or <a href="@this.Url.PlainAction("Index", "LogParser", values: null)">upload a new log</a>.)<br />
         <br />
         <small v-pre>Error details: @Model.ParseError</small>
@@ -59,7 +61,7 @@ else if (Model.ParseError != null)
 else if (Model.ParsedLog?.IsValid == true)
 {
     <div class="banner success" v-pre>
-        <strong>Share this link to let someone else see the log:</strong> <code>https://@this.Context.Request.Host.ToUriComponent()@this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID })</code><br />
+        <strong>Share this link to let someone else see the log:</strong> <code>@curPageUrl</code><br />
         (Or <a href="@this.Url.PlainAction("Index", "LogParser", values: null)">upload a new log</a>.)
     </div>
 }

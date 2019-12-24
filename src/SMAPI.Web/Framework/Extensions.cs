@@ -1,4 +1,6 @@
+using System;
 using JetBrains.Annotations;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
@@ -12,8 +14,9 @@ namespace StardewModdingAPI.Web.Framework
         /// <param name="action">The name of the action method.</param>
         /// <param name="controller">The name of the controller.</param>
         /// <param name="values">An object that contains route values.</param>
+        /// <param name="absoluteUrl">Get an absolute URL instead of a server-relative path/</param>
         /// <returns>The generated URL.</returns>
-        public static string PlainAction(this IUrlHelper helper, [AspMvcAction] string action, [AspMvcController] string controller, object values = null)
+        public static string PlainAction(this IUrlHelper helper, [AspMvcAction] string action, [AspMvcController] string controller, object values = null, bool absoluteUrl = false)
         {
             RouteValueDictionary valuesDict = new RouteValueDictionary(values);
             foreach (var value in helper.ActionContext.RouteData.Values)
@@ -22,7 +25,14 @@ namespace StardewModdingAPI.Web.Framework
                     valuesDict[value.Key] = null; // explicitly remove it from the URL
             }
 
-            return helper.Action(action, controller, valuesDict);
+            string url = helper.Action(action, controller, valuesDict);
+            if (absoluteUrl)
+            {
+                HttpRequest request = helper.ActionContext.HttpContext.Request;
+                Uri baseUri = new Uri($"{request.Scheme}://{request.Host}");
+                url = new Uri(baseUri, url).ToString();
+            }
+            return url;
         }
     }
 }
