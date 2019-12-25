@@ -15,7 +15,7 @@
     * fixed spawning custom rings added by mods;
     * Fixed errors when some item data is invalid.
   * Internal optimizations.
-  * Updated translations. Thanks to PlussRolf (added Spanish)!
+  * Updated translations. Thanks to L30Bola (added Portuguese) and PlussRolf (added Spanish)!
 
 * For the web UI:
   * Added option to edit & reupload in the JSON validator.
