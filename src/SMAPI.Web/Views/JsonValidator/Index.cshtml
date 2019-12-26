@@ -75,7 +75,7 @@ else if (!isEditView && Model.PasteID != null)
     <div class="save-metadata" v-pre>
         @if (Model.Expiry != null)
         {
-            <text>This log will expire in @((DateTime.UtcNow - Model.Expiry.Value).Humanize()). </text>
+            <text>This JSON file will expire in @((DateTime.UtcNow - Model.Expiry.Value).Humanize()). </text>
         }
         <!--@Model.UploadWarning-->
     </div>
