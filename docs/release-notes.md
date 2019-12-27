@@ -23,6 +23,7 @@
   * Updated the JSON validator for Content Patcher 1.10 and 1.11.
   * Fixed JSON validator no longer letting you change format when viewing results.
   * Fixed JSON validator for Content Patcher schema not requiring `Default` if `AllowBlank` omitted.
+  * Fixed log parser not correctly handling content packs with no author (thanks to danvolchek!).
 
 * For modders:
   * Added asset propagation for...
