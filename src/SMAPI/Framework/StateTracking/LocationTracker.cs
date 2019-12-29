@@ -7,6 +7,7 @@ using StardewValley.Buildings;
 using StardewValley.Locations;
 using StardewValley.TerrainFeatures;
 using Object = StardewValley.Object;
+using Chest = StardewValley.Objects.Chest;
 
 namespace StardewModdingAPI.Framework.StateTracking
 {
@@ -47,6 +48,7 @@ namespace StardewModdingAPI.Framework.StateTracking
         /// <summary>Tracks added or removed terrain features.</summary>
         public IDictionaryWatcher<Vector2, TerrainFeature> TerrainFeaturesWatcher { get; }
 
+        public Dictionary<Vector2, NetListWatcher<Vector2, Item>> activeChestWatchers = new Dictionary<Vector2, NetListWatcher<Vector2, Item>>();
 
         /*********
         ** Public methods
@@ -88,6 +90,25 @@ namespace StardewModdingAPI.Framework.StateTracking
         {
             foreach (IWatcher watcher in this.Watchers)
                 watcher.Update();
+
+            foreach (KeyValuePair<Vector2, Object> obj in this.ObjectsWatcher.Added.Where(p => p.Value is Chest))
+            {
+                if (!this.activeChestWatchers.ContainsKey(obj.Key))
+                {
+                    //create a new watcher for chests items
+                    Chest temp = obj.Value as Chest;
+                    NetListWatcher<Vector2, Item> tempItemWatcher = new NetListWatcher<Vector2, Item>(temp.items, obj.Key);
+                    this.Watchers.Add(tempItemWatcher);
+                    this.activeChestWatchers.Add(obj.Key, tempItemWatcher);
+                }
+            }
+
+            foreach (KeyValuePair<Vector2, Object> obj in this.ObjectsWatcher.Removed)
+            {
+                this.activeChestWatchers.TryGetValue(obj.Key, out NetListWatcher<Vector2, Item> tempItemWatcher);
+                this.Watchers.Remove(tempItemWatcher);
+                this.activeChestWatchers.Remove(obj.Key);
+            } 
         }
 
         /// <summary>Set the current value as the baseline.</summary>

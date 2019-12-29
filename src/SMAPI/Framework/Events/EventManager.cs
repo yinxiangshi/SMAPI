@@ -148,6 +148,9 @@ namespace StardewModdingAPI.Framework.Events
         /// <summary>Raised after objects are added or removed in a location.</summary>
         public readonly ManagedEvent<ObjectListChangedEventArgs> ObjectListChanged;
 
+        /// <summary>Raised after a new item is added or removed from a chest in a location.</summary>
+        public readonly ManagedEvent<ChestItemChangedEventArgs> ChestItemsChanged;
+
         /// <summary>Raised after terrain features (like floors and trees) are added or removed in a location.</summary>
         public readonly ManagedEvent<TerrainFeatureListChangedEventArgs> TerrainFeatureListChanged;
 
@@ -221,6 +224,7 @@ namespace StardewModdingAPI.Framework.Events
             this.LocationListChanged = ManageEventOf<LocationListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.BuildingListChanged));
             this.NpcListChanged = ManageEventOf<NpcListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.NpcListChanged));
             this.ObjectListChanged = ManageEventOf<ObjectListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.ObjectListChanged));
+            this.ChestItemsChanged = ManageEventOf<ChestItemChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.ChestItemChanged));
             this.TerrainFeatureListChanged = ManageEventOf<TerrainFeatureListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.TerrainFeatureListChanged));
 
             this.LoadStageChanged = ManageEventOf<LoadStageChangedEventArgs>(nameof(IModEvents.Specialized), nameof(ISpecializedEvents.LoadStageChanged));

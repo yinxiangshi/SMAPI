@@ -33,6 +33,8 @@ namespace StardewModdingAPI.Framework.StateTracking.Snapshots
         /// <summary>Tracks added or removed terrain features.</summary>
         public SnapshotListDiff<KeyValuePair<Vector2, TerrainFeature>> TerrainFeatures { get; } = new SnapshotListDiff<KeyValuePair<Vector2, TerrainFeature>>();
 
+        public SnapshotListDiff<Item> ChestItems { get; } = new SnapshotListDiff<Item>();
+
 
         /*********
         ** Public methods
@@ -54,6 +56,9 @@ namespace StardewModdingAPI.Framework.StateTracking.Snapshots
             this.Npcs.Update(watcher.NpcsWatcher);
             this.Objects.Update(watcher.ObjectsWatcher);
             this.TerrainFeatures.Update(watcher.TerrainFeaturesWatcher);
+
+            foreach (var obj in watcher.activeChestWatchers)
+                this.ChestItems.Update(obj.Value, obj.Key);
         }
     }
 }

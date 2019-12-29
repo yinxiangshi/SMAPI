@@ -702,6 +702,10 @@ namespace StardewModdingAPI.Framework
                                 if (locState.Objects.IsChanged)
                                     events.ObjectListChanged.Raise(new ObjectListChangedEventArgs(location, locState.Objects.Added, locState.Objects.Removed));
 
+                                // chest items changed
+                                if (locState.ChestItems.IsChanged)
+                                    events.ChestItemsChanged.Raise(new ChestItemChangedEventArgs(location, locState.ChestItems.Added, locState.ChestItems.Removed, locState.ChestItems.Key));
+
                                 // terrain features changed
                                 if (locState.TerrainFeatures.IsChanged)
                                     events.TerrainFeatureListChanged.Raise(new TerrainFeatureListChangedEventArgs(location, locState.TerrainFeatures.Added, locState.TerrainFeatures.Removed));
