@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Buildings;
@@ -33,7 +34,8 @@ namespace StardewModdingAPI.Framework.StateTracking.Snapshots
         /// <summary>Tracks added or removed terrain features.</summary>
         public SnapshotListDiff<KeyValuePair<Vector2, TerrainFeature>> TerrainFeatures { get; } = new SnapshotListDiff<KeyValuePair<Vector2, TerrainFeature>>();
 
-        public SnapshotListDiff<Item> ChestItems { get; } = new SnapshotListDiff<Item>();
+        /// <summary>Tracks changed chest inventories.</summary>
+        public IDictionary<Vector2, SnapshotListDiff<Item>> ChestItems { get; } = new Dictionary<Vector2, SnapshotListDiff<Item>>();
 
 
         /*********
@@ -50,6 +52,7 @@ namespace StardewModdingAPI.Framework.StateTracking.Snapshots
         /// <param name="watcher">The watcher to snapshot.</param>
         public void Update(LocationTracker watcher)
         {
+            // main lists
             this.Buildings.Update(watcher.BuildingsWatcher);
             this.Debris.Update(watcher.DebrisWatcher);
             this.LargeTerrainFeatures.Update(watcher.LargeTerrainFeaturesWatcher);
@@ -57,8 +60,19 @@ namespace StardewModdingAPI.Framework.StateTracking.Snapshots
             this.Objects.Update(watcher.ObjectsWatcher);
             this.TerrainFeatures.Update(watcher.TerrainFeaturesWatcher);
 
-            foreach (var obj in watcher.activeChestWatchers)
-                this.ChestItems.Update(obj.Value, obj.Key);
+            // chest inventories
+            foreach (Vector2 key in this.ChestItems.Keys.ToArray())
+            {
+                if (!watcher.ChestWatchers.ContainsKey(key))
+                    this.ChestItems.Remove(key);
+            }
+            foreach (var pair in watcher.ChestWatchers)
+            {
+                if (!this.ChestItems.TryGetValue(pair.Key, out var diff))
+                    this.ChestItems[pair.Key] = diff = new SnapshotListDiff<Item>();
+
+                diff.Update(pair.Value);
+            }
         }
     }
 }

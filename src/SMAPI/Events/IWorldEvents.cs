@@ -23,8 +23,8 @@ namespace StardewModdingAPI.Events
         /// <summary>Raised after objects are added or removed in a location.</summary>
         event EventHandler<ObjectListChangedEventArgs> ObjectListChanged;
 
-        /// <summary>Raised after items are added or removed from a chest in a location.</summary>
-        event EventHandler<ChestItemChangedEventArgs> ChestItemChanged;
+        /// <summary>Raised after items are added or removed from a chest.</summary>
+        event EventHandler<ChestInventoryChangedEventArgs> ChestInventoryChanged;
 
         /// <summary>Raised after terrain features (like floors and trees) are added or removed in a location.</summary>
         event EventHandler<TerrainFeatureListChangedEventArgs> TerrainFeatureListChanged;

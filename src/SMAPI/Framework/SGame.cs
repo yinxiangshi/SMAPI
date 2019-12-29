@@ -703,8 +703,15 @@ namespace StardewModdingAPI.Framework
                                     events.ObjectListChanged.Raise(new ObjectListChangedEventArgs(location, locState.Objects.Added, locState.Objects.Removed));
 
                                 // chest items changed
-                                if (locState.ChestItems.IsChanged)
-                                    events.ChestItemsChanged.Raise(new ChestItemChangedEventArgs(location, locState.ChestItems.Added, locState.ChestItems.Removed, locState.ChestItems.Key));
+                                if (events.ChestInventoryChanged.HasListeners())
+                                {
+                                    foreach (var pair in locState.ChestItems)
+                                    {
+                                        var diff = pair.Value;
+                                        if (diff.IsChanged)
+                                            events.ChestInventoryChanged.Raise(new ChestInventoryChangedEventArgs(location, pair.Key, diff.Added, diff.Removed));
+                                    }
+                                }
 
                                 // terrain features changed
                                 if (locState.TerrainFeatures.IsChanged)

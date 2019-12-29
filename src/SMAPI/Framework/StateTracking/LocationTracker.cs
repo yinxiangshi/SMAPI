@@ -5,9 +5,9 @@ using StardewModdingAPI.Framework.StateTracking.FieldWatchers;
 using StardewValley;
 using StardewValley.Buildings;
 using StardewValley.Locations;
+using StardewValley.Objects;
 using StardewValley.TerrainFeatures;
-using Object = StardewValley.Object;
-using Chest = StardewValley.Objects.Chest;
+using SObject = StardewValley.Object;
 
 namespace StardewModdingAPI.Framework.StateTracking
 {
@@ -43,12 +43,14 @@ namespace StardewModdingAPI.Framework.StateTracking
         public ICollectionWatcher<NPC> NpcsWatcher { get; }
 
         /// <summary>Tracks added or removed objects.</summary>
-        public IDictionaryWatcher<Vector2, Object> ObjectsWatcher { get; }
+        public IDictionaryWatcher<Vector2, SObject> ObjectsWatcher { get; }
 
         /// <summary>Tracks added or removed terrain features.</summary>
         public IDictionaryWatcher<Vector2, TerrainFeature> TerrainFeaturesWatcher { get; }
 
-        public Dictionary<Vector2, NetListWatcher<Vector2, Item>> activeChestWatchers = new Dictionary<Vector2, NetListWatcher<Vector2, Item>>();
+        /// <summary>Tracks items added or removed to chests.</summary>
+        public Dictionary<Vector2, ICollectionWatcher<Item>> ChestWatchers = new Dictionary<Vector2, ICollectionWatcher<Item>>();
+
 
         /*********
         ** Public methods
@@ -76,6 +78,24 @@ namespace StardewModdingAPI.Framework.StateTracking
                 this.ObjectsWatcher,
                 this.TerrainFeaturesWatcher
             });
+
+            this.UpdateChestWatcherList(added: location.Objects.Pairs, removed: new KeyValuePair<Vector2, SObject>[0]);
+        }
+
+        /// <summary>Update the current value if needed.</summary>
+        public void Update()
+        {
+            foreach (IWatcher watcher in this.Watchers)
+                watcher.Update();
+
+            this.UpdateChestWatcherList(added: this.ObjectsWatcher.Added, removed: this.ObjectsWatcher.Removed);
+        }
+
+        /// <summary>Set the current value as the baseline.</summary>
+        public void Reset()
+        {
+            foreach (IWatcher watcher in this.Watchers)
+                watcher.Reset();
         }
 
         /// <summary>Stop watching the player fields and release all references.</summary>
@@ -85,37 +105,35 @@ namespace StardewModdingAPI.Framework.StateTracking
                 watcher.Dispose();
         }
 
-        /// <summary>Update the current value if needed.</summary>
-        public void Update()
-        {
-            foreach (IWatcher watcher in this.Watchers)
-                watcher.Update();
 
-            foreach (KeyValuePair<Vector2, Object> obj in this.ObjectsWatcher.Added.Where(p => p.Value is Chest))
+        /*********
+        ** Private methods
+        *********/
+        /// <summary>Update the watcher list for added or removed chests.</summary>
+        /// <param name="added">The objects added to the location.</param>
+        /// <param name="removed">The objects removed from the location.</param>
+        private void UpdateChestWatcherList(IEnumerable<KeyValuePair<Vector2, SObject>> added, IEnumerable<KeyValuePair<Vector2, SObject>> removed)
+        {
+            // remove unused watchers
+            foreach (KeyValuePair<Vector2, SObject> pair in removed)
             {
-                if (!this.activeChestWatchers.ContainsKey(obj.Key))
+                if (pair.Value is Chest && this.ChestWatchers.TryGetValue(pair.Key, out ICollectionWatcher<Item> watcher))
                 {
-                    //create a new watcher for chests items
-                    Chest temp = obj.Value as Chest;
-                    NetListWatcher<Vector2, Item> tempItemWatcher = new NetListWatcher<Vector2, Item>(temp.items, obj.Key);
-                    this.Watchers.Add(tempItemWatcher);
-                    this.activeChestWatchers.Add(obj.Key, tempItemWatcher);
+                    this.Watchers.Remove(watcher);
+                    this.ChestWatchers.Remove(pair.Key);
                 }
             }
 
-            foreach (KeyValuePair<Vector2, Object> obj in this.ObjectsWatcher.Removed)
+            // add new watchers
+            foreach (KeyValuePair<Vector2, SObject> pair in added)
             {
-                this.activeChestWatchers.TryGetValue(obj.Key, out NetListWatcher<Vector2, Item> tempItemWatcher);
-                this.Watchers.Remove(tempItemWatcher);
-                this.activeChestWatchers.Remove(obj.Key);
-            } 
-        }
-
-        /// <summary>Set the current value as the baseline.</summary>
-        public void Reset()
-        {
-            foreach (IWatcher watcher in this.Watchers)
-                watcher.Reset();
+                if (pair.Value is Chest chest && !this.ChestWatchers.ContainsKey(pair.Key))
+                {
+                    ICollectionWatcher<Item> watcher = new NetListWatcher<Item>(chest.items);
+                    this.Watchers.Add(watcher);
+                    this.ChestWatchers.Add(pair.Key, watcher);
+                }
+            }
         }
     }
 }

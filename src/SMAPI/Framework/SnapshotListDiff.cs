@@ -29,18 +29,10 @@ namespace StardewModdingAPI.Framework
         /// <summary>The added values.</summary>
         public IEnumerable<T> Added => this.AddedImpl;
 
-        public Microsoft.Xna.Framework.Vector2 Key;
 
         /*********
         ** Public methods
         *********/
-
-        public void Update(ICollectionWatcher<T> watcher, Microsoft.Xna.Framework.Vector2 key)
-        {
-            this.Key = key;
-            this.Update(watcher.IsChanged, watcher.Removed, watcher.Added);
-        }
-
         /// <summary>Update the snapshot.</summary>
         /// <param name="isChanged">Whether the value changed since the last update.</param>
         /// <param name="removed">The removed values.</param>
