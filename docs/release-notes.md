@@ -24,6 +24,7 @@
   * Fixed JSON validator no longer letting you change format when viewing results.
   * Fixed JSON validator for Content Patcher schema not requiring `Default` if `AllowBlank` omitted.
   * Fixed log parser not correctly handling content packs with no author (thanks to danvolchek!).
+  * Fixed main sidebar link pointing to wiki instead of home page.
 
 * For modders:
   * Added asset propagation for...

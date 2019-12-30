@@ -16,7 +16,6 @@ namespace StardewModdingAPI.Web.Controllers
 {
     /// <summary>Provides an info/download page about SMAPI.</summary>
     [Route("")]
-    [Route("install")]
     internal class IndexController : Controller
     {
         /*********
