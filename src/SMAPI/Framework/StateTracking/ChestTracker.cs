@@ -44,15 +44,15 @@ namespace StardewModdingAPI.Framework.StateTracking
 
         public void Reset()
         {
-            this.PreviousInventory = this.CurrentInventory;
+            if(this.CurrentInventory!=null)
+                this.PreviousInventory = this.CurrentInventory;
         }
 
         public IEnumerable<ItemStackChange> GetInventoryChanges()
         {
             IDictionary<Item, int> previous = this.PreviousInventory;
-            Console.WriteLine(previous.Count);
             IDictionary<Item, int> current = this.GetInventory();
-            Console.WriteLine(current.Count);
+
             foreach (Item item in previous.Keys.Union(current.Keys))
             {
                 if (!previous.TryGetValue(item, out int prevStack))

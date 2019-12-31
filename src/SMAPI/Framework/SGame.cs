@@ -707,9 +707,7 @@ namespace StardewModdingAPI.Framework
                                 {
                                     foreach (var pair in locState.ChestItems)
                                     {
-                                        var diff = pair.Value;
-                                        if (diff.IsChanged)
-                                            events.ChestInventoryChanged.Raise(new ChestInventoryChangedEventArgs(location, pair.Key, diff.Added, diff.Removed));
+                                        events.ChestInventoryChanged.Raise(new ChestInventoryChangedEventArgs(location, pair.Key, pair.Value));
                                     }
                                 }
 

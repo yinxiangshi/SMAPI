@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Buildings;
 using StardewValley.TerrainFeatures;
@@ -35,7 +36,7 @@ namespace StardewModdingAPI.Framework.StateTracking.Snapshots
         public SnapshotListDiff<KeyValuePair<Vector2, TerrainFeature>> TerrainFeatures { get; } = new SnapshotListDiff<KeyValuePair<Vector2, TerrainFeature>>();
 
         /// <summary>Tracks changed chest inventories.</summary>
-        public IDictionary<Vector2, SnapshotListDiff<Item>> ChestItems { get; } = new Dictionary<Vector2, SnapshotListDiff<Item>>();
+        public IDictionary<StardewValley.Objects.Chest, ItemStackChange[]> ChestItems { get; } = new Dictionary<StardewValley.Objects.Chest, ItemStackChange[]>();
 
 
         /*********
@@ -61,17 +62,16 @@ namespace StardewModdingAPI.Framework.StateTracking.Snapshots
             this.TerrainFeatures.Update(watcher.TerrainFeaturesWatcher);
 
             // chest inventories
-            foreach (Vector2 key in this.ChestItems.Keys.ToArray())
-            {
-                if (!watcher.ChestWatchers.ContainsKey(key))
-                    this.ChestItems.Remove(key);
-            }
             foreach (var pair in watcher.ChestWatchers)
             {
-                if (!this.ChestItems.TryGetValue(pair.Key, out var diff))
-                    this.ChestItems[pair.Key] = diff = new SnapshotListDiff<Item>();
-
-                diff.Update(pair.Value);
+                IEnumerable<ItemStackChange> temp = pair.Value.GetInventoryChanges();
+                if (temp.Any())
+                    if (this.ChestItems.ContainsKey(pair.Value.Chest))
+                        this.ChestItems[pair.Value.Chest] = pair.Value.GetInventoryChanges().ToArray();
+                    else
+                        this.ChestItems.Add(pair.Value.Chest, pair.Value.GetInventoryChanges().ToArray());
+                else
+                    this.ChestItems.Remove(pair.Value.Chest);
             }
         }
     }

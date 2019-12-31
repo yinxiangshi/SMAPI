@@ -16,17 +16,10 @@ namespace StardewModdingAPI.Events
         public GameLocation Location { get; }
 
         /// <summary>The tile position of the chest.</summary>
-        public Vector2 Tile { get; }
+        public StardewValley.Objects.Chest Chest { get; }
 
-        /// <summary>The objects added to the location.</summary>
-        public IEnumerable<Item> Added { get; }
-
-        /// <summary>The objects removed from the location.</summary>
-        public IEnumerable<Item> Removed { get; }
-
-        /// <summary>Whether this is the location containing the local player.</summary>
-        public bool IsCurrentLocation => object.ReferenceEquals(this.Location, Game1.player?.currentLocation);
-
+        /// <summary>The inventory changes added to the chest.</summary>
+        public ItemStackChange[] Changes { get; }
 
         /*********
         ** Public methods
@@ -36,12 +29,11 @@ namespace StardewModdingAPI.Events
         /// <param name="tile">The tile position of the chest.</param>
         /// <param name="added">The objects added to the location.</param>
         /// <param name="removed">The objects removed from the location.</param>
-        internal ChestInventoryChangedEventArgs(GameLocation location, Vector2 tile, IEnumerable<Item> added, IEnumerable<Item> removed)
+        internal ChestInventoryChangedEventArgs(GameLocation location, StardewValley.Objects.Chest chest, ItemStackChange[] changes)
         {
             this.Location = location;
-            this.Tile = tile;
-            this.Added = added.ToArray();
-            this.Removed = removed.ToArray();
+            this.Chest = chest;
+            this.Changes = changes;
         }
     }
 }

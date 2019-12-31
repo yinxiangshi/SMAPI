@@ -16,5 +16,10 @@ namespace StardewModdingAPI.Events
 
         /// <summary>How the inventory slot changed.</summary>
         public ChangeType ChangeType { get; set; }
+
+        public override string ToString()
+        {
+            return this.StackChange + " " + this.Item.Name + " " + this.ChangeType.ToString();
+        }
     }
 }

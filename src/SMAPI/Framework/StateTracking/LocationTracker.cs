@@ -49,7 +49,7 @@ namespace StardewModdingAPI.Framework.StateTracking
         public IDictionaryWatcher<Vector2, TerrainFeature> TerrainFeaturesWatcher { get; }
 
         /// <summary>Tracks items added or removed to chests.</summary>
-        public Dictionary<Vector2, ICollectionWatcher<Item>> ChestWatchers = new Dictionary<Vector2, ICollectionWatcher<Item>>();
+        public Dictionary<Vector2, ChestTracker> ChestWatchers = new Dictionary<Vector2, ChestTracker>();
 
 
         /*********
@@ -89,6 +89,9 @@ namespace StardewModdingAPI.Framework.StateTracking
                 watcher.Update();
 
             this.UpdateChestWatcherList(added: this.ObjectsWatcher.Added, removed: this.ObjectsWatcher.Removed);
+
+            foreach (var watcher in this.ChestWatchers)
+                watcher.Value.Update();
         }
 
         /// <summary>Set the current value as the baseline.</summary>
@@ -96,6 +99,9 @@ namespace StardewModdingAPI.Framework.StateTracking
         {
             foreach (IWatcher watcher in this.Watchers)
                 watcher.Reset();
+
+            foreach (var watcher in this.ChestWatchers)
+                watcher.Value.Reset();
         }
 
         /// <summary>Stop watching the player fields and release all references.</summary>
@@ -117,9 +123,8 @@ namespace StardewModdingAPI.Framework.StateTracking
             // remove unused watchers
             foreach (KeyValuePair<Vector2, SObject> pair in removed)
             {
-                if (pair.Value is Chest && this.ChestWatchers.TryGetValue(pair.Key, out ICollectionWatcher<Item> watcher))
+                if (pair.Value is Chest && this.ChestWatchers.TryGetValue(pair.Key, out ChestTracker watcher))
                 {
-                    this.Watchers.Remove(watcher);
                     this.ChestWatchers.Remove(pair.Key);
                 }
             }
@@ -129,9 +134,7 @@ namespace StardewModdingAPI.Framework.StateTracking
             {
                 if (pair.Value is Chest chest && !this.ChestWatchers.ContainsKey(pair.Key))
                 {
-                    ICollectionWatcher<Item> watcher = new NetListWatcher<Item>(chest.items);
-                    this.Watchers.Add(watcher);
-                    this.ChestWatchers.Add(pair.Key, watcher);
+                    this.ChestWatchers.Add(pair.Key, new ChestTracker(chest));
                 }
             }
         }
