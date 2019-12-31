@@ -9,6 +9,8 @@
   * The 'skipped mods' list now shows broken dependencies first, so it's easier to see which ones to fix first.
   * Fixed compatibility with Linux Mint 18 (thanks to techge!) and Arch Linux.
   * Fixed compatibility with Linux systems which have libhybris-utils installed.
+  * Fixed memory leak when repeatedly loading a save and returning to title.
+  * Fixed memory leak when mods reload assets.
   * Fixes for the bundled Console Commands mod:
     * added new clothing items;
     * fixed spawning new flooring and rings (thanks to Mizzion!);
