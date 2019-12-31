@@ -99,7 +99,7 @@ namespace StardewModdingAPI.Framework.StateTracking
             return this.Player.currentLocation ?? this.LastValidLocation;
         }
 
-        /// <summary>Get the player inventory changes between two states.</summary>
+        /// <summary>Get the inventory changes since the last update.</summary>
         public IEnumerable<ItemStackChange> GetInventoryChanges()
         {
             IDictionary<Item, int> previous = this.PreviousInventory;

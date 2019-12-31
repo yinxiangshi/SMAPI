@@ -49,7 +49,7 @@ namespace StardewModdingAPI.Framework.StateTracking
         public IDictionaryWatcher<Vector2, TerrainFeature> TerrainFeaturesWatcher { get; }
 
         /// <summary>Tracks items added or removed to chests.</summary>
-        public Dictionary<Vector2, ChestTracker> ChestWatchers = new Dictionary<Vector2, ChestTracker>();
+        public IDictionary<Vector2, ChestTracker> ChestWatchers { get; } = new Dictionary<Vector2, ChestTracker>();
 
 
         /*********
@@ -124,18 +124,14 @@ namespace StardewModdingAPI.Framework.StateTracking
             foreach (KeyValuePair<Vector2, SObject> pair in removed)
             {
                 if (pair.Value is Chest && this.ChestWatchers.TryGetValue(pair.Key, out ChestTracker watcher))
-                {
                     this.ChestWatchers.Remove(pair.Key);
-                }
             }
 
             // add new watchers
             foreach (KeyValuePair<Vector2, SObject> pair in added)
             {
                 if (pair.Value is Chest chest && !this.ChestWatchers.ContainsKey(pair.Key))
-                {
                     this.ChestWatchers.Add(pair.Key, new ChestTracker(chest));
-                }
             }
         }
     }

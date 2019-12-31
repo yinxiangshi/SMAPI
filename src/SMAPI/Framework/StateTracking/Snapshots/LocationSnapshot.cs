@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Buildings;
+using StardewValley.Objects;
 using StardewValley.TerrainFeatures;
 
 namespace StardewModdingAPI.Framework.StateTracking.Snapshots
@@ -36,7 +37,7 @@ namespace StardewModdingAPI.Framework.StateTracking.Snapshots
         public SnapshotListDiff<KeyValuePair<Vector2, TerrainFeature>> TerrainFeatures { get; } = new SnapshotListDiff<KeyValuePair<Vector2, TerrainFeature>>();
 
         /// <summary>Tracks changed chest inventories.</summary>
-        public IDictionary<StardewValley.Objects.Chest, ItemStackChange[]> ChestItems { get; } = new Dictionary<StardewValley.Objects.Chest, ItemStackChange[]>();
+        public IDictionary<Chest, ItemStackChange[]> ChestItems { get; } = new Dictionary<Chest, ItemStackChange[]>();
 
 
         /*********
@@ -64,12 +65,9 @@ namespace StardewModdingAPI.Framework.StateTracking.Snapshots
             // chest inventories
             foreach (var pair in watcher.ChestWatchers)
             {
-                IEnumerable<ItemStackChange> temp = pair.Value.GetInventoryChanges();
-                if (temp.Any())
-                    if (this.ChestItems.ContainsKey(pair.Value.Chest))
-                        this.ChestItems[pair.Value.Chest] = pair.Value.GetInventoryChanges().ToArray();
-                    else
-                        this.ChestItems.Add(pair.Value.Chest, pair.Value.GetInventoryChanges().ToArray());
+                ItemStackChange[] changes = pair.Value.GetInventoryChanges().ToArray();
+                if (changes.Length > 0)
+                    this.ChestItems[pair.Value.Chest] = changes;
                 else
                     this.ChestItems.Remove(pair.Value.Chest);
             }

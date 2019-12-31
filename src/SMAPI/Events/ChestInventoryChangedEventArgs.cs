@@ -1,8 +1,6 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Xna.Framework;
 using StardewValley;
+using StardewValley.Objects;
 
 namespace StardewModdingAPI.Events
 {
@@ -12,24 +10,24 @@ namespace StardewModdingAPI.Events
         /*********
         ** Accessors
         *********/
+        /// <summary>The chest whose inventory changed.</summary>
+        public Chest Chest { get; }
+
         /// <summary>The location containing the chest.</summary>
         public GameLocation Location { get; }
 
-        /// <summary>The tile position of the chest.</summary>
-        public StardewValley.Objects.Chest Chest { get; }
-
-        /// <summary>The inventory changes added to the chest.</summary>
+        /// <summary>The inventory changes in the chest.</summary>
         public ItemStackChange[] Changes { get; }
+
 
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
+        /// <param name="chest">The chest whose inventory changed.</param>
         /// <param name="location">The location containing the chest.</param>
-        /// <param name="tile">The tile position of the chest.</param>
-        /// <param name="added">The objects added to the location.</param>
-        /// <param name="removed">The objects removed from the location.</param>
-        internal ChestInventoryChangedEventArgs(GameLocation location, StardewValley.Objects.Chest chest, ItemStackChange[] changes)
+        /// <param name="changes">The inventory changes in the chest.</param>
+        internal ChestInventoryChangedEventArgs(Chest chest, GameLocation location, ItemStackChange[] changes)
         {
             this.Location = location;
             this.Chest = chest;

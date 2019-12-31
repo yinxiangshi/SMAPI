@@ -706,9 +706,7 @@ namespace StardewModdingAPI.Framework
                                 if (events.ChestInventoryChanged.HasListeners())
                                 {
                                     foreach (var pair in locState.ChestItems)
-                                    {
-                                        events.ChestInventoryChanged.Raise(new ChestInventoryChangedEventArgs(location, pair.Key, pair.Value));
-                                    }
+                                        events.ChestInventoryChanged.Raise(new ChestInventoryChangedEventArgs(pair.Key, location, pair.Value));
                                 }
 
                                 // terrain features changed

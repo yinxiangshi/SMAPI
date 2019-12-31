@@ -1,15 +1,13 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using StardewModdingAPI.Enums;
 using StardewModdingAPI.Events;
-using StardewModdingAPI.Framework.StateTracking.FieldWatchers;
 using StardewValley;
+using StardewValley.Objects;
 using ChangeType = StardewModdingAPI.Events.ChangeType;
-using Chest = StardewValley.Objects.Chest;
 
 namespace StardewModdingAPI.Framework.StateTracking
 {
+    /// <summary>Tracks changes to a chest's items.</summary>
     internal class ChestTracker
     {
         /*********
@@ -21,33 +19,39 @@ namespace StardewModdingAPI.Framework.StateTracking
         /// <summary>The chest's inventory change as of the last update.</summary>
         private IDictionary<Item, int> CurrentInventory;
 
+
         /*********
         ** Accessors
         *********/
-        /// <summary>The chest being tracked</summary>
+        /// <summary>The chest being tracked.</summary>
         public Chest Chest { get; }
+
 
         /*********
         ** Public methods
         *********/
+        /// <summary>Construct an instance.</summary>
+        /// <param name="chest">The chest being tracked.</param>
         public ChestTracker(Chest chest)
         {
             this.Chest = chest;
             this.PreviousInventory = this.GetInventory();
         }
 
+        /// <summary>Update the current values if needed.</summary>
         public void Update()
         {
             this.CurrentInventory = this.GetInventory();
         }
 
-
+        /// <summary>Reset all trackers so their current values are the baseline.</summary>
         public void Reset()
         {
-            if(this.CurrentInventory!=null)
+            if (this.CurrentInventory != null)
                 this.PreviousInventory = this.CurrentInventory;
         }
 
+        /// <summary>Get the inventory changes since the last update.</summary>
         public IEnumerable<ItemStackChange> GetInventoryChanges()
         {
             IDictionary<Item, int> previous = this.PreviousInventory;
@@ -64,10 +68,11 @@ namespace StardewModdingAPI.Framework.StateTracking
             }
         }
 
+
         /*********
         ** Private methods
         *********/
-
+        /// <summary>Get the player's current inventory.</summary>
         private IDictionary<Item, int> GetInventory()
         {
             return this.Chest.items
