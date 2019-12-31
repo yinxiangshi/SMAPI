@@ -43,7 +43,7 @@ namespace StardewModdingAPI.Framework.StateTracking.Snapshots
             foreach (LocationTracker locationWatcher in watcher.Locations)
             {
                 if (!this.LocationsDict.TryGetValue(locationWatcher.Location, out LocationSnapshot snapshot))
-                    this.LocationsDict[locationWatcher.Location] = snapshot = new LocationSnapshot(locationWatcher.Location);
+                    this.LocationsDict[locationWatcher.Location] = snapshot = new LocationSnapshot(locationWatcher);
 
                 snapshot.Update(locationWatcher);
             }
