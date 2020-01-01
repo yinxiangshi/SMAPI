@@ -29,15 +29,16 @@
   * Fixed main sidebar link pointing to wiki instead of home page.
 
 * For modders:
+  * Added `World.ChestInventoryChanged` event (thanks to collaboration with wartech0!).
   * Added asset propagation for...
     * grass textures;
     * winter flooring textures;
-    * `Data\Bundles` changes (for added bundles only).
+    * `Data\Bundles` changes (for added bundles only);
+    * `Characters\Farmer\farmer_girl_base_bald`.
   * Added direct `Console` access to paranoid mode warnings.
   * Improved error messages for `TargetParameterCountException` when using the reflection API.
   * `helper.Read/WriteSaveData` can now be used while a save is being loaded (e.g. within a `Specialized.LoadStageChanged` event).
   * Fixed private textures loaded from content packs not having their `Name` field set.
-  * Fixed asset propagation for `Characters\Farmer\farmer_girl_base_bald`.
 
 * For SMAPI developers:
   * You can now run local environments without configuring Amazon, Azure, MongoDB, and Pastebin accounts.
