@@ -57,9 +57,9 @@ namespace StardewModdingAPI.Framework.StateTracking
         {
             // update watcher
             this.InventoryWatcher.Update();
-            foreach (Item item in this.InventoryWatcher.Added.Where(p => p != null))
+            foreach (Item item in this.InventoryWatcher.Added)
                 this.Added.Add(item);
-            foreach (Item item in this.InventoryWatcher.Removed.Where(p => p != null))
+            foreach (Item item in this.InventoryWatcher.Removed)
             {
                 if (!this.Added.Remove(item)) // item didn't change if it was both added and removed, so remove it from both lists
                     this.Removed.Add(item);

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Netcode;
+using StardewModdingAPI.Framework.StateTracking.Comparers;
 
 namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
 {
@@ -15,10 +16,10 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         private readonly NetList<TValue, NetRef<TValue>> Field;
 
         /// <summary>The pairs added since the last reset.</summary>
-        private readonly IList<TValue> AddedImpl = new List<TValue>();
+        private readonly ISet<TValue> AddedImpl = new HashSet<TValue>(new ObjectReferenceComparer<TValue>());
 
         /// <summary>The pairs removed since the last reset.</summary>
-        private readonly IList<TValue> RemovedImpl = new List<TValue>();
+        private readonly ISet<TValue> RemovedImpl = new HashSet<TValue>(new ObjectReferenceComparer<TValue>());
 
 
         /*********
@@ -81,14 +82,19 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         /// <param name="newValues">The new list of values.</param>
         private void OnArrayReplaced(NetList<TValue, NetRef<TValue>> list, IList<TValue> oldValues, IList<TValue> newValues)
         {
-            this.AddedImpl.Clear();
-            this.RemovedImpl.Clear();
+            ISet<TValue> oldSet = new HashSet<TValue>(oldValues, new ObjectReferenceComparer<TValue>());
+            ISet<TValue> changed = new HashSet<TValue>(newValues, new ObjectReferenceComparer<TValue>());
 
-            foreach (TValue value in newValues)
-                this.AddedImpl.Add(value);
-
-            foreach (TValue value in oldValues)
-                this.RemovedImpl.Add(value);
+            foreach (TValue value in oldSet)
+            {
+                if (!changed.Contains(value))
+                    this.Remove(value);
+            }
+            foreach (TValue value in changed)
+            {
+                if (!oldSet.Contains(value))
+                    this.Add(value);
+            }
         }
 
         /// <summary>A callback invoked when an entry is replaced.</summary>
@@ -98,11 +104,40 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         /// <param name="newValue">The new value.</param>
         private void OnElementChanged(NetList<TValue, NetRef<TValue>> list, int index, TValue oldValue, TValue newValue)
         {
-            if (newValue != null)
-                this.AddedImpl.Add(newValue);
+            this.Remove(oldValue);
+            this.Add(newValue);
+        }
 
-            if (oldValue != null)
-                this.RemovedImpl.Add(oldValue);
+        /// <summary>Track an added item.</summary>
+        /// <param name="value">The value that was added.</param>
+        private void Add(TValue value)
+        {
+            if (value == null)
+                return;
+
+            if (this.RemovedImpl.Contains(value))
+            {
+                this.AddedImpl.Remove(value);
+                this.RemovedImpl.Remove(value);
+            }
+            else
+                this.AddedImpl.Add(value);
+        }
+
+        /// <summary>Track a removed item.</summary>
+        /// <param name="value">The value that was removed.</param>
+        private void Remove(TValue value)
+        {
+            if (value == null)
+                return;
+
+            if (this.AddedImpl.Contains(value))
+            {
+                this.AddedImpl.Remove(value);
+                this.RemovedImpl.Remove(value);
+            }
+            else
+                this.RemovedImpl.Add(value);
         }
     }
 }
