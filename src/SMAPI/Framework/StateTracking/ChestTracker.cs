@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using StardewModdingAPI.Events;
+using StardewModdingAPI.Framework.StateTracking.Comparers;
+using StardewModdingAPI.Framework.StateTracking.FieldWatchers;
 using StardewValley;
 using StardewValley.Objects;
 using ChangeType = StardewModdingAPI.Events.ChangeType;
@@ -8,16 +11,22 @@ using ChangeType = StardewModdingAPI.Events.ChangeType;
 namespace StardewModdingAPI.Framework.StateTracking
 {
     /// <summary>Tracks changes to a chest's items.</summary>
-    internal class ChestTracker
+    internal class ChestTracker : IDisposable
     {
         /*********
         ** Fields
         *********/
-        /// <summary>The chest's inventory as of the last reset.</summary>
-        private IDictionary<Item, int> PreviousInventory;
+        /// <summary>The item stack sizes as of the last update.</summary>
+        private readonly IDictionary<Item, int> StackSizes;
 
-        /// <summary>The chest's inventory change as of the last update.</summary>
-        private IDictionary<Item, int> CurrentInventory;
+        /// <summary>Items added since the last update.</summary>
+        private readonly HashSet<Item> Added = new HashSet<Item>(new ObjectReferenceComparer<Item>());
+
+        /// <summary>Items removed since the last update.</summary>
+        private readonly HashSet<Item> Removed = new HashSet<Item>(new ObjectReferenceComparer<Item>());
+
+        /// <summary>The underlying inventory watcher.</summary>
+        private readonly ICollectionWatcher<Item> InventoryWatcher;
 
 
         /*********
@@ -35,50 +44,74 @@ namespace StardewModdingAPI.Framework.StateTracking
         public ChestTracker(Chest chest)
         {
             this.Chest = chest;
-            this.PreviousInventory = this.GetInventory();
+            this.InventoryWatcher = WatcherFactory.ForNetList(chest.items);
+
+            this.StackSizes = this.Chest.items
+                .Where(n => n != null)
+                .Distinct()
+                .ToDictionary(n => n, n => n.Stack);
         }
 
         /// <summary>Update the current values if needed.</summary>
         public void Update()
         {
-            this.CurrentInventory = this.GetInventory();
+            // update watcher
+            this.InventoryWatcher.Update();
+            foreach (Item item in this.InventoryWatcher.Added.Where(p => p != null))
+                this.Added.Add(item);
+            foreach (Item item in this.InventoryWatcher.Removed.Where(p => p != null))
+            {
+                if (!this.Added.Remove(item)) // item didn't change if it was both added and removed, so remove it from both lists
+                    this.Removed.Add(item);
+            }
+
+            // stop tracking removed stacks
+            foreach (Item item in this.Removed)
+                this.StackSizes.Remove(item);
         }
 
         /// <summary>Reset all trackers so their current values are the baseline.</summary>
         public void Reset()
         {
-            if (this.CurrentInventory != null)
-                this.PreviousInventory = this.CurrentInventory;
+            // update stack sizes
+            foreach (Item item in this.StackSizes.Keys.ToArray().Concat(this.Added))
+                this.StackSizes[item] = item.Stack;
+
+            // update watcher
+            this.InventoryWatcher.Reset();
+            this.Added.Clear();
+            this.Removed.Clear();
         }
 
         /// <summary>Get the inventory changes since the last update.</summary>
         public IEnumerable<ItemStackChange> GetInventoryChanges()
         {
-            IDictionary<Item, int> previous = this.PreviousInventory;
-            IDictionary<Item, int> current = this.GetInventory();
+            // removed
+            foreach (Item item in this.Removed)
+                yield return new ItemStackChange { Item = item, StackChange = -item.Stack, ChangeType = ChangeType.Removed };
 
-            foreach (Item item in previous.Keys.Union(current.Keys))
+            // added
+            foreach (Item item in this.Added)
+                yield return new ItemStackChange { Item = item, StackChange = item.Stack, ChangeType = ChangeType.Added };
+
+            // stack size changed
+            foreach (var entry in this.StackSizes)
             {
-                if (!previous.TryGetValue(item, out int prevStack))
-                    yield return new ItemStackChange { Item = item, StackChange = item.Stack, ChangeType = ChangeType.Added };
-                else if (!current.TryGetValue(item, out int newStack))
-                    yield return new ItemStackChange { Item = item, StackChange = -item.Stack, ChangeType = ChangeType.Removed };
-                else if (prevStack != newStack)
-                    yield return new ItemStackChange { Item = item, StackChange = newStack - prevStack, ChangeType = ChangeType.StackChange };
+                Item item = entry.Key;
+                int prevStack = entry.Value;
+
+                if (item.Stack != prevStack)
+                    yield return new ItemStackChange { Item = item, StackChange = item.Stack - prevStack, ChangeType = ChangeType.StackChange };
             }
         }
 
-
-        /*********
-        ** Private methods
-        *********/
-        /// <summary>Get the player's current inventory.</summary>
-        private IDictionary<Item, int> GetInventory()
+        /// <summary>Release watchers and resources.</summary>
+        public void Dispose()
         {
-            return this.Chest.items
-                .Where(n => n != null)
-                .Distinct()
-                .ToDictionary(n => n, n => n.Stack);
+            this.StackSizes.Clear();
+            this.Added.Clear();
+            this.Removed.Clear();
+            this.InventoryWatcher.Dispose();
         }
     }
 }

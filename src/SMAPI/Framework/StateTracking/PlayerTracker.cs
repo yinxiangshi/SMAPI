@@ -115,9 +115,12 @@ namespace StardewModdingAPI.Framework.StateTracking
             }
         }
 
-        /// <summary>Stop watching the player fields and release all references.</summary>
+        /// <summary>Release watchers and resources.</summary>
         public void Dispose()
         {
+            this.PreviousInventory.Clear();
+            this.CurrentInventory?.Clear();
+
             foreach (IWatcher watcher in this.Watchers)
                 watcher.Dispose();
         }

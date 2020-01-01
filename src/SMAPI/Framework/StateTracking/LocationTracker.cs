@@ -109,6 +109,9 @@ namespace StardewModdingAPI.Framework.StateTracking
         {
             foreach (IWatcher watcher in this.Watchers)
                 watcher.Dispose();
+
+            foreach (var watcher in this.ChestWatchers.Values)
+                watcher.Dispose();
         }
 
 
@@ -124,7 +127,10 @@ namespace StardewModdingAPI.Framework.StateTracking
             foreach (KeyValuePair<Vector2, SObject> pair in removed)
             {
                 if (pair.Value is Chest && this.ChestWatchers.TryGetValue(pair.Key, out ChestTracker watcher))
+                {
+                    watcher.Dispose();
                     this.ChestWatchers.Remove(pair.Key);
+                }
             }
 
             // add new watchers
