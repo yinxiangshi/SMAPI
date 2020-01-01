@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.StateTracking.Comparers;
 using StardewModdingAPI.Framework.StateTracking.FieldWatchers;
 using StardewValley;
 using StardewValley.Objects;
-using ChangeType = StardewModdingAPI.Events.ChangeType;
 
 namespace StardewModdingAPI.Framework.StateTracking
 {
@@ -83,26 +81,12 @@ namespace StardewModdingAPI.Framework.StateTracking
             this.Removed.Clear();
         }
 
-        /// <summary>Get the inventory changes since the last update.</summary>
-        public IEnumerable<ItemStackChange> GetInventoryChanges()
+        /// <summary>Get the inventory changes since the last update, if anything changed.</summary>
+        /// <param name="changes">The inventory changes, or <c>null</c> if nothing changed.</param>
+        /// <returns>Returns whether anything changed.</returns>
+        public bool TryGetInventoryChanges(out SnapshotItemListDiff changes)
         {
-            // removed
-            foreach (Item item in this.Removed)
-                yield return new ItemStackChange { Item = item, StackChange = -item.Stack, ChangeType = ChangeType.Removed };
-
-            // added
-            foreach (Item item in this.Added)
-                yield return new ItemStackChange { Item = item, StackChange = item.Stack, ChangeType = ChangeType.Added };
-
-            // stack size changed
-            foreach (var entry in this.StackSizes)
-            {
-                Item item = entry.Key;
-                int prevStack = entry.Value;
-
-                if (item.Stack != prevStack)
-                    yield return new ItemStackChange { Item = item, StackChange = item.Stack - prevStack, ChangeType = ChangeType.StackChange };
-            }
+            return SnapshotItemListDiff.TryGetChanges(added: this.Added, removed: this.Removed, stackSizes: this.StackSizes, out changes);
         }
 
         /// <summary>Release watchers and resources.</summary>

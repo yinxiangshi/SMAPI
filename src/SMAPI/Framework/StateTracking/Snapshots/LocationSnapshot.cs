@@ -1,7 +1,5 @@
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Xna.Framework;
-using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Buildings;
 using StardewValley.Objects;
@@ -37,7 +35,7 @@ namespace StardewModdingAPI.Framework.StateTracking.Snapshots
         public SnapshotListDiff<KeyValuePair<Vector2, TerrainFeature>> TerrainFeatures { get; } = new SnapshotListDiff<KeyValuePair<Vector2, TerrainFeature>>();
 
         /// <summary>Tracks changed chest inventories.</summary>
-        public IDictionary<Chest, ItemStackChange[]> ChestItems { get; } = new Dictionary<Chest, ItemStackChange[]>();
+        public IDictionary<Chest, SnapshotItemListDiff> ChestItems { get; } = new Dictionary<Chest, SnapshotItemListDiff>();
 
 
         /*********
@@ -66,8 +64,7 @@ namespace StardewModdingAPI.Framework.StateTracking.Snapshots
             this.ChestItems.Clear();
             foreach (ChestTracker tracker in watcher.ChestWatchers.Values)
             {
-                ItemStackChange[] changes = tracker.GetInventoryChanges().ToArray();
-                if (changes.Length > 0)
+                if (tracker.TryGetInventoryChanges(out SnapshotItemListDiff changes))
                     this.ChestItems[tracker.Chest] = changes;
             }
         }

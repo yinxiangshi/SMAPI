@@ -706,7 +706,10 @@ namespace StardewModdingAPI.Framework
                                 if (events.ChestInventoryChanged.HasListeners())
                                 {
                                     foreach (var pair in locState.ChestItems)
-                                        events.ChestInventoryChanged.Raise(new ChestInventoryChangedEventArgs(pair.Key, location, pair.Value));
+                                    {
+                                        SnapshotItemListDiff diff = pair.Value;
+                                        events.ChestInventoryChanged.Raise(new ChestInventoryChangedEventArgs(pair.Key, location, added: diff.Added, removed: diff.Removed, quantityChanged: diff.QuantityChanged));
+                                    }
                                 }
 
                                 // terrain features changed
@@ -747,12 +750,13 @@ namespace StardewModdingAPI.Framework
                             }
 
                             // raise player inventory changed
-                            ItemStackChange[] changedItems = playerState.InventoryChanges.ToArray();
-                            if (changedItems.Any())
+                            if (playerState.Inventory.IsChanged)
                             {
+                                var inventory = playerState.Inventory;
+
                                 if (this.Monitor.IsVerbose)
                                     this.Monitor.Log("Events: player inventory changed.", LogLevel.Trace);
-                                events.InventoryChanged.Raise(new InventoryChangedEventArgs(player, changedItems));
+                                events.InventoryChanged.Raise(new InventoryChangedEventArgs(player, added: inventory.Added, removed: inventory.Removed, quantityChanged: inventory.QuantityChanged));
                             }
                         }
                     }
