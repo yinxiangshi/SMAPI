@@ -63,13 +63,12 @@ namespace StardewModdingAPI.Framework.StateTracking.Snapshots
             this.TerrainFeatures.Update(watcher.TerrainFeaturesWatcher);
 
             // chest inventories
-            foreach (var pair in watcher.ChestWatchers)
+            this.ChestItems.Clear();
+            foreach (ChestTracker tracker in watcher.ChestWatchers.Values)
             {
-                ItemStackChange[] changes = pair.Value.GetInventoryChanges().ToArray();
+                ItemStackChange[] changes = tracker.GetInventoryChanges().ToArray();
                 if (changes.Length > 0)
-                    this.ChestItems[pair.Value.Chest] = changes;
-                else
-                    this.ChestItems.Remove(pair.Value.Chest);
+                    this.ChestItems[tracker.Chest] = changes;
             }
         }
     }
