@@ -68,7 +68,7 @@ French     | ❑ not translated
 German     | ✓ [fully translated](../src/SMAPI/i18n/de.json)
 Hungarian  | ❑ not translated
 Italian    | ❑ not translated
-Japanese   | ❑ not translated
+Japanese   | ✓ [fully translated](../src/SMAPI/i18n/ja.json)
 Korean     | ❑ not translated
 Portuguese | ✓ [fully translated](../src/SMAPI/i18n/pt.json)
 Russian    | ✓ [fully translated](../src/SMAPI/i18n/ru.json)
