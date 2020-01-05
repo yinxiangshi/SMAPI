@@ -18,6 +18,7 @@ using StardewModdingAPI.Framework.Events;
 using StardewModdingAPI.Framework.Input;
 using StardewModdingAPI.Framework.Networking;
 using StardewModdingAPI.Framework.Reflection;
+using StardewModdingAPI.Framework.StateTracking.Comparers;
 using StardewModdingAPI.Framework.StateTracking.Snapshots;
 using StardewModdingAPI.Framework.Utilities;
 using StardewModdingAPI.Toolkit.Serialization;
@@ -427,17 +428,24 @@ namespace StardewModdingAPI.Framework
                     return;
                 }
 
-
                 /*********
                 ** Reload assets when interceptors are added/removed
                 *********/
                 if (this.ReloadAssetInterceptorsQueue.Any())
                 {
-                    this.Monitor.Log("Invalidating cached assets for new editors & loaders...", LogLevel.Trace);
+                    // get unique interceptors
+                    AssetInterceptorChange[] interceptors = this.ReloadAssetInterceptorsQueue
+                        .GroupBy(p => p.Instance, new ObjectReferenceComparer<object>())
+                        .Select(p => p.First())
+                        .ToArray();
+                    this.ReloadAssetInterceptorsQueue.Clear();
+
+                    // log summary
+                    this.Monitor.Log("Invalidating cached assets for new editors & loaders...");
                     this.Monitor.Log(
-                        "changed: "
+                        "   changed: "
                         + string.Join(", ",
-                            this.ReloadAssetInterceptorsQueue
+                            interceptors
                                 .GroupBy(p => p.Mod)
                                 .OrderBy(p => p.Key.DisplayName)
                                 .Select(modGroup =>
@@ -448,8 +456,8 @@ namespace StardewModdingAPI.Framework
                         )
                     );
 
-                    this.ContentCore.InvalidateCache(asset => this.ReloadAssetInterceptorsQueue.Any(p => p.CanIntercept(asset)));
-                    this.ReloadAssetInterceptorsQueue.Clear();
+                    // reload affected assets
+                    this.ContentCore.InvalidateCache(asset => interceptors.Any(p => p.CanIntercept(asset)));
                 }
 
                 /*********
