@@ -1,30 +1,31 @@
 &larr; [README](README.md)
 
 # Release notes
-## Upcoming release
+## 3.1
+Released 05 January 2019 for Stardew Valley 1.4 or later.
 
 * For players:
+  * Added separate group in 'skipped mods' list for broken dependencies, so it's easier to see what to fix first.
   * Added friendly log message for save file-not-found errors.
-  * Updated for the 'Force Off' gamepad mode added in Stardew Valley 1.4.1.
-  * The 'skipped mods' list now shows broken dependencies first, so it's easier to see which ones to fix first.
-  * Fixed compatibility with Linux Mint 18 (thanks to techge!) and Arch Linux.
-  * Fixed compatibility with Linux systems which have libhybris-utils installed.
+  * Updated for gamepad modes in Stardew Valley 1.4.1.
+  * Improved performance in some cases.
+  * Fixed compatibility with Linux Mint 18 (thanks to techge!), Arch Linux, and Linux systems with libhybris-utils installed.
   * Fixed memory leak when repeatedly loading a save and returning to title.
   * Fixed memory leak when mods reload assets.
-  * Fixes for the bundled Console Commands mod:
+  * Fixes for Console Commands mod:
     * added new clothing items;
     * fixed spawning new flooring and rings (thanks to Mizzion!);
     * fixed spawning custom rings added by mods;
     * Fixed errors when some item data is invalid.
-  * Internal optimizations.
   * Updated translations. Thanks to L30Bola (added Portuguese), PlussRolf (added Spanish), and shirutan (added Japanese)!
 
 * For the web UI:
   * Added option to edit & reupload in the JSON validator.
-  * The log parser and JSON validator no longer save files to Pastebin due to ongoing performance issues. All files are now saved to Azure Blob storage instead and expire after one month.
+  * File uploads are now stored in Azure storage instead of Pastebin, due to ongoing Pastebin perfomance issues.
+  * File uploads now expire after one month.
   * Updated the JSON validator for Content Patcher 1.10 and 1.11.
-  * Fixed JSON validator no longer letting you change format when viewing results.
-  * Fixed JSON validator for Content Patcher schema not requiring `Default` if `AllowBlank` omitted.
+  * Fixed JSON validator no longer letting you change format when viewing a file.
+  * Fixed JSON validator for Content Patcher not requiring `Default` if `AllowBlank` was omitted.
   * Fixed log parser not correctly handling content packs with no author (thanks to danvolchek!).
   * Fixed main sidebar link pointing to wiki instead of home page.
 
@@ -35,17 +36,17 @@
     * winter flooring textures;
     * `Data\Bundles` changes (for added bundles only);
     * `Characters\Farmer\farmer_girl_base_bald`.
-  * Added direct `Console` access to paranoid mode warnings.
+  * Added paranoid-mode warning for direct `Console` access.
   * Improved error messages for `TargetParameterCountException` when using the reflection API.
   * `helper.Read/WriteSaveData` can now be used while a save is being loaded (e.g. within a `Specialized.LoadStageChanged` event).
-  * Removed `DumpMetadata` option. It was only meant for specific debugging cases, but players would occasionally enable it incorrectly and then report crashes.
+  * Removed `DumpMetadata` option. It was only for specific debugging cases, but players would sometimes enable it incorrectly and then report crashes.
   * Fixed private textures loaded from content packs not having their `Name` field set.
 
 * For SMAPI developers:
   * You can now run local environments without configuring Amazon, Azure, MongoDB, and Pastebin accounts.
 
 ## 3.0.1
-Released 02 December 2019 for Stardew Valley 1.4.0.1.
+Released 02 December 2019 for Stardew Valley 1.4 or later.
 
 * For players:
   * Updated for Stardew Valley 1.4.0.1.
