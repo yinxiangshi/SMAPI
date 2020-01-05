@@ -38,6 +38,7 @@
   * Added direct `Console` access to paranoid mode warnings.
   * Improved error messages for `TargetParameterCountException` when using the reflection API.
   * `helper.Read/WriteSaveData` can now be used while a save is being loaded (e.g. within a `Specialized.LoadStageChanged` event).
+  * Removed `DumpMetadata` option. It was only meant for specific debugging cases, but players would occasionally enable it incorrectly and then report crashes.
   * Fixed private textures loaded from content packs not having their `Name` field set.
 
 * For SMAPI developers:

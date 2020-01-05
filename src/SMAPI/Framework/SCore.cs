@@ -435,20 +435,6 @@ namespace StardewModdingAPI.Framework
                 mods = resolver.ProcessDependencies(mods, modDatabase).ToArray();
                 this.LoadMods(mods, this.Toolkit.JsonHelper, this.ContentCore, modDatabase);
 
-                // write metadata file
-                if (this.Settings.DumpMetadata)
-                {
-                    ModFolderExport export = new ModFolderExport
-                    {
-                        Exported = DateTime.UtcNow.ToString("O"),
-                        ApiVersion = Constants.ApiVersion.ToString(),
-                        GameVersion = Constants.GameVersion.ToString(),
-                        ModFolderPath = this.ModsPath,
-                        Mods = mods
-                    };
-                    this.Toolkit.JsonHelper.WriteJsonFile(Path.Combine(Constants.LogDir, $"{Constants.LogNamePrefix}metadata-dump.json"), export);
-                }
-
                 // check for updates
                 this.CheckForUpdatesAsync(mods);
             }
