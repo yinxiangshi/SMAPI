@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using Hangfire;
+using Hangfire.MemoryStorage;
 using Hangfire.Mongo;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -7,6 +9,8 @@ using Microsoft.AspNetCore.Rewrite;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Mongo2Go;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using Newtonsoft.Json;
@@ -24,6 +28,7 @@ using StardewModdingAPI.Web.Framework.Clients.Pastebin;
 using StardewModdingAPI.Web.Framework.Compression;
 using StardewModdingAPI.Web.Framework.ConfigModels;
 using StardewModdingAPI.Web.Framework.RewriteRules;
+using StardewModdingAPI.Web.Framework.Storage;
 
 namespace StardewModdingAPI.Web
 {
@@ -87,10 +92,20 @@ namespace StardewModdingAPI.Web
             }
 
             // init MongoDB
+            services.AddSingleton<MongoDbRunner>(serv => !mongoConfig.IsConfigured()
+                ? MongoDbRunner.Start()
+                : throw new InvalidOperationException("The MongoDB connection is configured, so the local development version should not be used.")
+            );
             services.AddSingleton<IMongoDatabase>(serv =>
             {
+                // get connection string
+                string connectionString = mongoConfig.IsConfigured()
+                    ? mongoConfig.ConnectionString
+                    : serv.GetRequiredService<MongoDbRunner>().ConnectionString;
+
+                // get client
                 BsonSerializer.RegisterSerializer(new UtcDateTimeOffsetSerializer());
-                return new MongoClient(mongoConfig.GetConnectionString()).GetDatabase(mongoConfig.Database);
+                return new MongoClient(connectionString).GetDatabase(mongoConfig.Database);
             });
             services.AddSingleton<IModCacheRepository>(serv => new ModCacheRepository(serv.GetRequiredService<IMongoDatabase>()));
             services.AddSingleton<IWikiCacheRepository>(serv => new WikiCacheRepository(serv.GetRequiredService<IMongoDatabase>()));
@@ -102,12 +117,18 @@ namespace StardewModdingAPI.Web
                     config
                         .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
                         .UseSimpleAssemblyNameTypeSerializer()
-                        .UseRecommendedSerializerSettings()
-                        .UseMongoStorage(mongoConfig.GetConnectionString(), $"{mongoConfig.Database}-hangfire", new MongoStorageOptions
+                        .UseRecommendedSerializerSettings();
+
+                    if (mongoConfig.IsConfigured())
+                    {
+                        config.UseMongoStorage(mongoConfig.ConnectionString, $"{mongoConfig.Database}-hangfire", new MongoStorageOptions
                         {
                             MigrationOptions = new MongoMigrationOptions(MongoMigrationStrategy.Drop),
                             CheckConnection = false // error on startup takes down entire process
                         });
+                    }
+                    else
+                        config.UseMemoryStorage();
                 });
 
             // init API clients
@@ -151,14 +172,18 @@ namespace StardewModdingAPI.Web
 
                 services.AddSingleton<IPastebinClient>(new PastebinClient(
                     baseUrl: api.PastebinBaseUrl,
-                    userAgent: userAgent,
-                    userKey: api.PastebinUserKey,
-                    devKey: api.PastebinDevKey
+                    userAgent: userAgent
                 ));
             }
 
             // init helpers
-            services.AddSingleton<IGzipHelper>(new GzipHelper());
+            services
+                .AddSingleton<IGzipHelper>(new GzipHelper())
+                .AddSingleton<IStorageProvider>(serv => new StorageProvider(
+                    serv.GetRequiredService<IOptions<ApiClientsConfig>>(),
+                    serv.GetRequiredService<IPastebinClient>(),
+                    serv.GetRequiredService<IGzipHelper>()
+                ));
         }
 
         /// <summary>The method called by the runtime to configure the HTTP request pipeline.</summary>

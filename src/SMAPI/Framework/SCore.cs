@@ -97,16 +97,25 @@ namespace StardewModdingAPI.Framework
         };
 
         /// <summary>Regex patterns which match console messages to show a more friendly error for.</summary>
-        private readonly Tuple<Regex, string, LogLevel>[] ReplaceConsolePatterns =
+        private readonly ReplaceLogPattern[] ReplaceConsolePatterns =
         {
-            Tuple.Create(
-                new Regex(@"^System\.InvalidOperationException: Steamworks is not initialized\.", RegexOptions.Compiled | RegexOptions.CultureInvariant),
+            // Steam not loaded
+            new ReplaceLogPattern(
+                search: new Regex(@"^System\.InvalidOperationException: Steamworks is not initialized\.[\s\S]+$", RegexOptions.Compiled | RegexOptions.CultureInvariant),
+                replacement:
 #if SMAPI_FOR_WINDOWS
-                "Oops! Steam achievements won't work because Steam isn't loaded. You can launch the game through Steam to fix that (see 'Part 2: Configure Steam' in the install guide for more info: https://smapi.io/install).",
+                    "Oops! Steam achievements won't work because Steam isn't loaded. You can launch the game through Steam to fix that (see 'Part 2: Configure Steam' in the install guide for more info: https://smapi.io/install).",
 #else
-                "Oops! Steam achievements won't work because Steam isn't loaded. You can launch the game through Steam to fix that.",
+                    "Oops! Steam achievements won't work because Steam isn't loaded. You can launch the game through Steam to fix that.",
 #endif
-                LogLevel.Error
+                logLevel: LogLevel.Error
+            ), 
+
+            // save file not found error
+            new ReplaceLogPattern(
+                search: new Regex(@"^System\.IO\.FileNotFoundException: [^\n]+\n[^:]+: '[^\n]+[/\\]Saves[/\\]([^'\r\n]+)[/\\]([^'\r\n]+)'[\s\S]+LoadGameMenu\.FindSaveGames[\s\S]+$", RegexOptions.Compiled | RegexOptions.CultureInvariant),
+                replacement: "The game can't find the '$2' file for your '$1' save. See https://stardewvalleywiki.com/Saves#Troubleshooting for help.",
+                logLevel: LogLevel.Error
             )
         };
 
@@ -425,20 +434,6 @@ namespace StardewModdingAPI.Framework
                 resolver.ValidateManifests(mods, Constants.ApiVersion, toolkit.GetUpdateUrl);
                 mods = resolver.ProcessDependencies(mods, modDatabase).ToArray();
                 this.LoadMods(mods, this.Toolkit.JsonHelper, this.ContentCore, modDatabase);
-
-                // write metadata file
-                if (this.Settings.DumpMetadata)
-                {
-                    ModFolderExport export = new ModFolderExport
-                    {
-                        Exported = DateTime.UtcNow.ToString("O"),
-                        ApiVersion = Constants.ApiVersion.ToString(),
-                        GameVersion = Constants.GameVersion.ToString(),
-                        ModFolderPath = this.ModsPath,
-                        Mods = mods
-                    };
-                    this.Toolkit.JsonHelper.WriteJsonFile(Path.Combine(Constants.LogDir, $"{Constants.LogNamePrefix}metadata-dump.json"), export);
-                }
 
                 // check for updates
                 this.CheckForUpdatesAsync(mods);
@@ -774,7 +769,7 @@ namespace StardewModdingAPI.Framework
                     this.Monitor.Log(
                         $"   {metadata.DisplayName} {manifest.Version}"
                         + (!string.IsNullOrWhiteSpace(manifest.Author) ? $" by {manifest.Author}" : "")
-                        + (metadata.IsContentPack ? $" | for {GetModDisplayName(metadata.Manifest.ContentPackFor.UniqueID)}" : "")
+                        + $" | for {GetModDisplayName(metadata.Manifest.ContentPackFor.UniqueID)}"
                         + (!string.IsNullOrWhiteSpace(manifest.Description) ? $" | {manifest.Description}" : ""),
                         LogLevel.Info
                     );
@@ -842,32 +837,9 @@ namespace StardewModdingAPI.Framework
             {
                 if (metadata.Mod.Helper.Content is ContentHelper helper)
                 {
-                    helper.ObservableAssetEditors.CollectionChanged += (sender, e) =>
-                    {
-                        if (e.NewItems?.Count > 0)
-                        {
-                            this.Monitor.Log("Invalidating cache entries for new asset editors...", LogLevel.Trace);
-                            this.ContentCore.InvalidateCacheFor(e.NewItems.Cast<IAssetEditor>().ToArray(), new IAssetLoader[0]);
-                        }
-                    };
-                    helper.ObservableAssetLoaders.CollectionChanged += (sender, e) =>
-                    {
-                        if (e.NewItems?.Count > 0)
-                        {
-                            this.Monitor.Log("Invalidating cache entries for new asset loaders...", LogLevel.Trace);
-                            this.ContentCore.InvalidateCacheFor(new IAssetEditor[0], e.NewItems.Cast<IAssetLoader>().ToArray());
-                        }
-                    };
+                    helper.ObservableAssetEditors.CollectionChanged += (sender, e) => this.GameInstance.OnAssetInterceptorsChanged(metadata, e.NewItems, e.OldItems);
+                    helper.ObservableAssetLoaders.CollectionChanged += (sender, e) => this.GameInstance.OnAssetInterceptorsChanged(metadata, e.NewItems, e.OldItems);
                 }
-            }
-
-            // reset cache now if any editors or loaders were added during entry
-            IAssetEditor[] editors = loadedMods.SelectMany(p => p.Mod.Helper.Content.AssetEditors).ToArray();
-            IAssetLoader[] loaders = loadedMods.SelectMany(p => p.Mod.Helper.Content.AssetLoaders).ToArray();
-            if (editors.Any() || loaders.Any())
-            {
-                this.Monitor.Log("Invalidating cached assets for new editors & loaders...", LogLevel.Trace);
-                this.ContentCore.InvalidateCacheFor(editors, loaders);
             }
 
             // unlock mod integrations
@@ -1060,26 +1032,48 @@ namespace StardewModdingAPI.Framework
             // log skipped mods
             if (skippedMods.Any())
             {
+                // get logging logic
+                HashSet<string> logged = new HashSet<string>();
+                void LogSkippedMod(IModMetadata mod, string errorReason, string errorDetails)
+                {
+                    string message = $"      - {mod.DisplayName}{(mod.Manifest?.Version != null ? " " + mod.Manifest.Version.ToString() : "")} because {errorReason}";
+
+                    if (logged.Add($"{message}|{errorDetails}"))
+                    {
+                        this.Monitor.Log(message, LogLevel.Error);
+                        if (errorDetails != null)
+                            this.Monitor.Log($"        ({errorDetails})", LogLevel.Trace);
+                    }
+                }
+
+                // find skipped dependencies
+                KeyValuePair<IModMetadata, Tuple<string, string>>[] skippedDependencies;
+                {
+                    HashSet<string> skippedDependencyIds = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+                    HashSet<string> skippedModIds = new HashSet<string>(from mod in skippedMods where mod.Key.HasID() select mod.Key.Manifest.UniqueID, StringComparer.InvariantCultureIgnoreCase);
+                    foreach (IModMetadata mod in skippedMods.Keys)
+                    {
+                        foreach (string requiredId in skippedModIds.Intersect(mod.GetRequiredModIds()))
+                            skippedDependencyIds.Add(requiredId);
+                    }
+                    skippedDependencies = skippedMods.Where(p => p.Key.HasID() && skippedDependencyIds.Contains(p.Key.Manifest.UniqueID)).ToArray();
+                }
+
+                // log skipped mods
                 this.Monitor.Log("   Skipped mods", LogLevel.Error);
                 this.Monitor.Log("   " + "".PadRight(50, '-'), LogLevel.Error);
                 this.Monitor.Log("      These mods could not be added to your game.", LogLevel.Error);
                 this.Monitor.Newline();
 
-                HashSet<string> logged = new HashSet<string>();
-                foreach (var pair in skippedMods.OrderBy(p => p.Key.DisplayName))
+                if (skippedDependencies.Any())
                 {
-                    IModMetadata mod = pair.Key;
-                    string errorReason = pair.Value.Item1;
-                    string errorDetails = pair.Value.Item2;
-                    string message = $"      - {mod.DisplayName}{(mod.Manifest?.Version != null ? " " + mod.Manifest.Version.ToString() : "")} because {errorReason}";
-
-                    if (!logged.Add($"{message}|{errorDetails}"))
-                        continue; // skip duplicate messages (e.g. if multiple copies of the mod are installed)
-
-                    this.Monitor.Log(message, LogLevel.Error);
-                    if (errorDetails != null)
-                        this.Monitor.Log($"        ({errorDetails})", LogLevel.Trace);
+                    foreach (var pair in skippedDependencies.OrderBy(p => p.Key.DisplayName))
+                        LogSkippedMod(pair.Key, pair.Value.Item1, pair.Value.Item2);
+                    this.Monitor.Newline();
                 }
+
+                foreach (var pair in skippedMods.OrderBy(p => p.Key.DisplayName))
+                    LogSkippedMod(pair.Key, pair.Value.Item1, pair.Value.Item2);
                 this.Monitor.Newline();
             }
 
@@ -1116,6 +1110,10 @@ namespace StardewModdingAPI.Framework
                 );
                 if (this.Settings.ParanoidWarnings)
                 {
+                    LogWarningGroup(ModWarning.AccessesConsole, LogLevel.Warn, "Accesses the console directly",
+                        "These mods directly access the SMAPI console, and you enabled paranoid warnings. (Note that this may be",
+                        "legitimate and innocent usage; this warning is meaningless without further investigation.)"
+                    );
                     LogWarningGroup(ModWarning.AccessesFilesystem, LogLevel.Warn, "Accesses filesystem directly",
                         "These mods directly access the filesystem, and you enabled paranoid warnings. (Note that this may be",
                         "legitimate and innocent usage; this warning is meaningless without further investigation.)"
@@ -1317,11 +1315,12 @@ namespace StardewModdingAPI.Framework
                 return;
 
             // show friendly error if applicable
-            foreach (var entry in this.ReplaceConsolePatterns)
+            foreach (ReplaceLogPattern entry in this.ReplaceConsolePatterns)
             {
-                if (entry.Item1.IsMatch(message))
+                string newMessage = entry.Search.Replace(message, entry.Replacement);
+                if (message != newMessage)
                 {
-                    this.Monitor.Log(entry.Item2, entry.Item3);
+                    gameMonitor.Log(newMessage, entry.LogLevel);
                     gameMonitor.Log(message, LogLevel.Trace);
                     return;
                 }
@@ -1409,6 +1408,37 @@ namespace StardewModdingAPI.Framework
                 {
                     // ignore file if it's in use
                 }
+            }
+        }
+
+        /// <summary>A console log pattern to replace with a different message.</summary>
+        private class ReplaceLogPattern
+        {
+            /*********
+            ** Accessors
+            *********/
+            /// <summary>The regex pattern matching the portion of the message to replace.</summary>
+            public Regex Search { get; }
+
+            /// <summary>The replacement string.</summary>
+            public string Replacement { get; }
+
+            /// <summary>The log level for the new message.</summary>
+            public LogLevel LogLevel { get; }
+
+
+            /*********
+            ** Public methods
+            *********/
+            /// <summary>Construct an instance.</summary>
+            /// <param name="search">The regex pattern matching the portion of the message to replace.</param>
+            /// <param name="replacement">The replacement string.</param>
+            /// <param name="logLevel">The log level for the new message.</param>
+            public ReplaceLogPattern(Regex search, string replacement, LogLevel logLevel)
+            {
+                this.Search = search;
+                this.Replacement = replacement;
+                this.LogLevel = logLevel;
             }
         }
     }

@@ -1,3 +1,4 @@
+@using Markdig
 @using Microsoft.Extensions.Options
 @using StardewModdingAPI.Web.Framework
 @using StardewModdingAPI.Web.Framework.ConfigModels
@@ -94,29 +95,22 @@ else
     </li>
     <li>
         <a href="https://ko-fi.com/pathoschild" class="donate-button">
-            <img src="Content/images/ko-fi.png"/> Buy me a coffee
+            <img src="Content/images/ko-fi.png" /> Buy me a coffee
         </a>
     </li>
     <li>
         <a href="https://www.paypal.me/pathoschild" class="donate-button">
-            <img src="Content/images/paypal.png"/> Donate via PayPal
+            <img src="Content/images/paypal.png" /> Donate via PayPal
         </a>
     </li>
 </ul>
 
-<p>
-    Special thanks to
-    <a href="https://www.nexusmods.com/users/65566526?tab=user+files">bwdy</a>,
-    hawkfalcon,
-    <a href="https://twitter.com/iKeychain">iKeychain</a>,
-    jwdred,
-    <a href="https://www.nexusmods.com/users/12252523">Karmylla</a>,
-    <a href="https://www.nexusmods.com/stardewvalley/users/51777556">minervamaga</a>,
-    Pucklynn,
-    Renorien,
-    Robby LaFarge,
-    and a few anonymous users for their ongoing support on Patreon; you're awesome!
-</p>
+@if (!string.IsNullOrWhiteSpace(Model.SupporterList))
+{
+    @Html.Raw(Markdig.Markdown.ToHtml(
+        $"Special thanks to {Model.SupporterList}, and a few anonymous users for their ongoing support on Patreon; you're awesome!"
+    ))
+}
 
 <h2 id="modcreators">For mod creators</h2>
 <ul>

@@ -71,14 +71,14 @@ flag | purpose
 ### Compiling from source
 Using an official SMAPI release is recommended for most users.
 
-SMAPI uses some C# 7 code, so you'll need at least
-[Visual Studio 2017](https://www.visualstudio.com/vs/community/) on Windows,
-[MonoDevelop 7.0](https://www.monodevelop.com/) on Linux,
-[Visual Studio 2017 for Mac](https://www.visualstudio.com/vs/visual-studio-mac/), or an equivalent
-IDE to compile it. It uses build configuration derived from the
-[crossplatform mod config](https://github.com/Pathoschild/Stardew.ModBuildConfig#readme) to detect
-your current OS automatically and load the correct references. Compile output will be placed in a
-`bin` folder at the root of the git repository.
+SMAPI often uses the latest C# syntax. You may need the latest version of
+[Visual Studio](https://www.visualstudio.com/vs/community/) on Windows,
+[MonoDevelop](https://www.monodevelop.com/) on Linux,
+[Visual Studio for Mac](https://www.visualstudio.com/vs/visual-studio-mac/), or an equivalent IDE
+to compile it. It uses build configuration derived from the
+[crossplatform mod config](https://smapi.io/package/readme) to detect your current OS automatically
+and load the correct references. Compile output will be placed in a `bin` folder at the root of the
+git repository.
 
 ### Debugging a local build
 Rebuilding the solution in debug mode will copy the SMAPI files into your game folder. Starting

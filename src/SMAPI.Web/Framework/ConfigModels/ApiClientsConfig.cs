@@ -14,19 +14,16 @@ namespace StardewModdingAPI.Web.Framework.ConfigModels
 
 
         /****
-        ** Amazon Web Services
+        ** Azure
         ****/
-        /// <summary>The access key for AWS authentication.</summary>
-        public string AmazonAccessKey { get; set; }
+        /// <summary>The connection string for the Azure Blob storage account.</summary>
+        public string AzureBlobConnectionString { get; set; }
 
-        /// <summary>The secret key for AWS authentication.</summary>
-        public string AmazonSecretKey { get; set; }
+        /// <summary>The Azure Blob container in which to store temporary uploaded logs.</summary>
+        public string AzureBlobTempContainer { get; set; }
 
-        /// <summary>The AWS region endpoint (like 'us-east-1').</summary>
-        public string AmazonRegion { get; set; }
-
-        /// <summary>The AWS bucket in which to store temporary uploaded logs.</summary>
-        public string AmazonLogBucket { get; set; }
+        /// <summary>The number of days since the blob's last-modified date when it will be deleted.</summary>
+        public int AzureBlobTempExpiryDays { get; set; }
 
 
         /****
@@ -61,6 +58,7 @@ namespace StardewModdingAPI.Web.Framework.ConfigModels
         /// <summary>The password with which to authenticate to the GitHub API (if any).</summary>
         public string GitHubPassword { get; set; }
 
+
         /****
         ** ModDrop
         ****/
@@ -69,6 +67,7 @@ namespace StardewModdingAPI.Web.Framework.ConfigModels
 
         /// <summary>The URL for a ModDrop mod page for the user, where {0} is the mod ID.</summary>
         public string ModDropModPageUrl { get; set; }
+
 
         /****
         ** Nexus Mods
@@ -85,17 +84,11 @@ namespace StardewModdingAPI.Web.Framework.ConfigModels
         /// <summary>The Nexus API authentication key.</summary>
         public string NexusApiKey { get; set; }
 
+
         /****
         ** Pastebin
         ****/
         /// <summary>The base URL for the Pastebin API.</summary>
         public string PastebinBaseUrl { get; set; }
-
-        /// <summary>The user key used to authenticate with the Pastebin API.</summary>
-        public string PastebinUserKey { get; set; }
-
-        /// <summary>The developer key used to authenticate with the Pastebin API.</summary>
-        public string PastebinDevKey { get; set; }
-
     }
 }

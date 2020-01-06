@@ -27,10 +27,13 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
         /// <summary>The mod has no update keys set.</summary>
         NoUpdateKeys = 32,
 
+        /// <summary>Uses .NET APIs for reading and writing to the console.</summary>
+        AccessesConsole = 64,
+
         /// <summary>Uses .NET APIs for filesystem access.</summary>
-        AccessesFilesystem = 64,
+        AccessesFilesystem = 128,
 
         /// <summary>Uses .NET APIs for shell or process access.</summary>
-        AccessesShell = 128
+        AccessesShell = 256
     }
 }

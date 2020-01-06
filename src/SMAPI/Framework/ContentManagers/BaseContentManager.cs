@@ -41,6 +41,10 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <summary>A list of disposable assets.</summary>
         private readonly List<WeakReference<IDisposable>> Disposables = new List<WeakReference<IDisposable>>();
 
+        /// <summary>The disposable assets tracked by the base content manager.</summary>
+        /// <remarks>This should be kept empty to avoid keeping disposable assets referenced forever, which prevents garbage collection when they're unused. Disposable assets are tracked by <see cref="Disposables"/> instead, which avoids a hard reference.</remarks>
+        private readonly List<IDisposable> BaseDisposableReferences;
+
 
         /*********
         ** Accessors
@@ -84,6 +88,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
 
             // get asset data
             this.LanguageCodes = this.GetKeyLocales().ToDictionary(p => p.Value, p => p.Key, StringComparer.InvariantCultureIgnoreCase);
+            this.BaseDisposableReferences = reflection.GetField<List<IDisposable>>(this, "disposableAssets").GetValue();
         }
 
         /// <summary>Load an asset that has been processed by the content pipeline.</summary>
@@ -184,25 +189,25 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <summary>Purge matched assets from the cache.</summary>
         /// <param name="predicate">Matches the asset keys to invalidate.</param>
         /// <param name="dispose">Whether to dispose invalidated assets. This should only be <c>true</c> when they're being invalidated as part of a dispose, to avoid crashing the game.</param>
-        /// <returns>Returns the invalidated asset names and types.</returns>
-        public IEnumerable<Tuple<string, Type>> InvalidateCache(Func<string, Type, bool> predicate, bool dispose = false)
+        /// <returns>Returns the invalidated asset names and instances.</returns>
+        public IDictionary<string, object> InvalidateCache(Func<string, Type, bool> predicate, bool dispose = false)
         {
-            Dictionary<string, Type> removeAssetNames = new Dictionary<string, Type>(StringComparer.InvariantCultureIgnoreCase);
-            this.Cache.Remove((key, type) =>
+            IDictionary<string, object> removeAssets = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
+            this.Cache.Remove((key, asset) =>
             {
                 this.ParseCacheKey(key, out string assetName, out _);
 
-                if (removeAssetNames.ContainsKey(assetName))
+                if (removeAssets.ContainsKey(assetName))
                     return true;
-                if (predicate(assetName, type))
+                if (predicate(assetName, asset.GetType()))
                 {
-                    removeAssetNames[assetName] = type;
+                    removeAssets[assetName] = asset;
                     return true;
                 }
                 return false;
-            });
+            }, dispose);
 
-            return removeAssetNames.Select(p => Tuple.Create(p.Key, p.Value));
+            return removeAssets;
         }
 
         /// <summary>Dispose held resources.</summary>
@@ -258,20 +263,27 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 : base.ReadAsset<T>(assetName, disposable => this.Disposables.Add(new WeakReference<IDisposable>(disposable)));
         }
 
-        /// <summary>Inject an asset into the cache.</summary>
+        /// <summary>Add tracking data to an asset and add it to the cache.</summary>
         /// <typeparam name="T">The type of asset to inject.</typeparam>
         /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
         /// <param name="value">The asset value.</param>
         /// <param name="language">The language code for which to inject the asset.</param>
-        protected virtual void Inject<T>(string assetName, T value, LanguageCode language)
+        /// <param name="useCache">Whether to save the asset to the asset cache.</param>
+        protected virtual void TrackAsset<T>(string assetName, T value, LanguageCode language, bool useCache)
         {
             // track asset key
             if (value is Texture2D texture)
                 texture.Name = assetName;
 
             // cache asset
-            assetName = this.AssertAndNormalizeAssetName(assetName);
-            this.Cache[assetName] = value;
+            if (useCache)
+            {
+                assetName = this.AssertAndNormalizeAssetName(assetName);
+                this.Cache[assetName] = value;
+            }
+
+            // avoid hard disposable references; see remarks on the field
+            this.BaseDisposableReferences.Clear();
         }
 
         /// <summary>Parse a cache key into its component parts.</summary>

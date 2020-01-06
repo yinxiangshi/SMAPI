@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,10 +13,12 @@ using Microsoft.Xna.Framework.Graphics;
 using Netcode;
 using StardewModdingAPI.Enums;
 using StardewModdingAPI.Events;
+using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.Events;
 using StardewModdingAPI.Framework.Input;
 using StardewModdingAPI.Framework.Networking;
 using StardewModdingAPI.Framework.Reflection;
+using StardewModdingAPI.Framework.StateTracking.Comparers;
 using StardewModdingAPI.Framework.StateTracking.Snapshots;
 using StardewModdingAPI.Framework.Utilities;
 using StardewModdingAPI.Toolkit.Serialization;
@@ -99,7 +102,7 @@ namespace StardewModdingAPI.Framework
         private WatcherCore Watchers;
 
         /// <summary>A snapshot of the current <see cref="Watchers"/> state.</summary>
-        private WatcherSnapshot WatcherSnapshot = new WatcherSnapshot();
+        private readonly WatcherSnapshot WatcherSnapshot = new WatcherSnapshot();
 
         /// <summary>Whether post-game-startup initialization has been performed.</summary>
         private bool IsInitialized;
@@ -132,6 +135,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>A list of queued commands to execute.</summary>
         /// <remarks>This property must be threadsafe, since it's accessed from a separate console input thread.</remarks>
         public ConcurrentQueue<string> CommandQueue { get; } = new ConcurrentQueue<string>();
+
+        /// <summary>Asset interceptors added or removed since the last tick.</summary>
+        private readonly List<AssetInterceptorChange> ReloadAssetInterceptorsQueue = new List<AssetInterceptorChange>();
 
 
         /*********
@@ -247,6 +253,24 @@ namespace StardewModdingAPI.Framework
             this.Events.LoadStageChanged.Raise(new LoadStageChangedEventArgs(oldStage, newStage));
             if (newStage == LoadStage.None)
                 this.Events.ReturnedToTitle.RaiseEmpty();
+        }
+
+        /// <summary>A callback invoked when a mod adds or removes an asset interceptor.</summary>
+        /// <param name="mod">The mod which added or removed interceptors.</param>
+        /// <param name="added">The added interceptors.</param>
+        /// <param name="removed">The removed interceptors.</param>
+        internal void OnAssetInterceptorsChanged(IModMetadata mod, IEnumerable added, IEnumerable removed)
+        {
+            if (added != null)
+            {
+                foreach (object instance in added)
+                    this.ReloadAssetInterceptorsQueue.Add(new AssetInterceptorChange(mod, instance, wasAdded: true));
+            }
+            if (removed != null)
+            {
+                foreach (object instance in removed)
+                    this.ReloadAssetInterceptorsQueue.Add(new AssetInterceptorChange(mod, instance, wasAdded: false));
+            }
         }
 
         /// <summary>Constructor a content manager to read XNB files.</summary>
@@ -402,6 +426,38 @@ namespace StardewModdingAPI.Framework
                     base.Update(gameTime);
                     events.UnvalidatedUpdateTicked.RaiseEmpty();
                     return;
+                }
+
+                /*********
+                ** Reload assets when interceptors are added/removed
+                *********/
+                if (this.ReloadAssetInterceptorsQueue.Any())
+                {
+                    // get unique interceptors
+                    AssetInterceptorChange[] interceptors = this.ReloadAssetInterceptorsQueue
+                        .GroupBy(p => p.Instance, new ObjectReferenceComparer<object>())
+                        .Select(p => p.First())
+                        .ToArray();
+                    this.ReloadAssetInterceptorsQueue.Clear();
+
+                    // log summary
+                    this.Monitor.Log("Invalidating cached assets for new editors & loaders...");
+                    this.Monitor.Log(
+                        "   changed: "
+                        + string.Join(", ",
+                            interceptors
+                                .GroupBy(p => p.Mod)
+                                .OrderBy(p => p.Key.DisplayName)
+                                .Select(modGroup =>
+                                    $"{modGroup.Key.DisplayName} ("
+                                    + string.Join(", ", modGroup.GroupBy(p => p.WasAdded).ToDictionary(p => p.Key, p => p.Count()).Select(p => $"{(p.Key ? "added" : "removed")} {p.Value}"))
+                                    + ")"
+                            )
+                        )
+                    );
+
+                    // reload affected assets
+                    this.ContentCore.InvalidateCache(asset => interceptors.Any(p => p.CanIntercept(asset)));
                 }
 
                 /*********
@@ -654,6 +710,16 @@ namespace StardewModdingAPI.Framework
                                 if (locState.Objects.IsChanged)
                                     events.ObjectListChanged.Raise(new ObjectListChangedEventArgs(location, locState.Objects.Added, locState.Objects.Removed));
 
+                                // chest items changed
+                                if (events.ChestInventoryChanged.HasListeners())
+                                {
+                                    foreach (var pair in locState.ChestItems)
+                                    {
+                                        SnapshotItemListDiff diff = pair.Value;
+                                        events.ChestInventoryChanged.Raise(new ChestInventoryChangedEventArgs(pair.Key, location, added: diff.Added, removed: diff.Removed, quantityChanged: diff.QuantityChanged));
+                                    }
+                                }
+
                                 // terrain features changed
                                 if (locState.TerrainFeatures.IsChanged)
                                     events.TerrainFeatureListChanged.Raise(new TerrainFeatureListChangedEventArgs(location, locState.TerrainFeatures.Added, locState.TerrainFeatures.Removed));
@@ -692,12 +758,13 @@ namespace StardewModdingAPI.Framework
                             }
 
                             // raise player inventory changed
-                            ItemStackChange[] changedItems = playerState.InventoryChanges.ToArray();
-                            if (changedItems.Any())
+                            if (playerState.Inventory.IsChanged)
                             {
+                                var inventory = playerState.Inventory;
+
                                 if (this.Monitor.IsVerbose)
                                     this.Monitor.Log("Events: player inventory changed.", LogLevel.Trace);
-                                events.InventoryChanged.Raise(new InventoryChangedEventArgs(player, changedItems));
+                                events.InventoryChanged.Raise(new InventoryChangedEventArgs(player, added: inventory.Added, removed: inventory.Removed, quantityChanged: inventory.QuantityChanged));
                             }
                         }
                     }

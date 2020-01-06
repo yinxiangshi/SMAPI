@@ -356,6 +356,11 @@ namespace StardewModdingAPI.Framework.ModLoading
                     mod.SetWarning(ModWarning.UsesDynamic);
                     break;
 
+                case InstructionHandleResult.DetectedConsoleAccess:
+                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Detected direct console access ({handler.NounPhrase}) in assembly {filename}.");
+                    mod.SetWarning(ModWarning.AccessesConsole);
+                    break;
+
                 case InstructionHandleResult.DetectedFilesystemAccess:
                     this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Detected filesystem access ({handler.NounPhrase}) in assembly {filename}.");
                     mod.SetWarning(ModWarning.AccessesFilesystem);
