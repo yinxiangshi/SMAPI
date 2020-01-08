@@ -1,6 +1,11 @@
 &larr; [README](README.md)
 
 # Release notes
+## Upcoming release
+
+* For players:
+  * SMAPI now prevents mods from crashing the game with invalid schedule data.
+
 ## 3.1
 Released 05 January 2019 for Stardew Valley 1.4 or later.
 
