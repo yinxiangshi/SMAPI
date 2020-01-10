@@ -34,7 +34,7 @@ using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
 using Object = StardewValley.Object;
-using PerformanceCounter = StardewModdingAPI.Framework.Utilities.PerformanceCounter;
+using PerformanceCounterManager = StardewModdingAPI.Framework.PerformanceCounter.PerformanceCounterManager;
 using ThreadState = System.Threading.ThreadState;
 
 namespace StardewModdingAPI.Framework
@@ -79,10 +79,10 @@ namespace StardewModdingAPI.Framework
         /// <remarks>This is initialized after the game starts.</remarks>
         private readonly ModRegistry ModRegistry = new ModRegistry();
 
-        private HashSet<EventPerformanceCounterCategory> PerformanceCounterEvents = new HashSet<EventPerformanceCounterCategory>();
-
         /// <summary>Manages SMAPI events for mods.</summary>
         private readonly EventManager EventManager;
+
+        private readonly PerformanceCounterManager PerformanceCounterManager;
 
         /// <summary>Whether the game is currently running.</summary>
         private bool IsGameRunning;
@@ -166,7 +166,7 @@ namespace StardewModdingAPI.Framework
             };
             this.MonitorForGame = this.GetSecondaryMonitor("game");
             this.EventManager = new EventManager(this.Monitor, this.ModRegistry);
-            this.InitializePerformanceCounterEvents();
+            this.PerformanceCounterManager = new PerformanceCounterManager(this.EventManager);
 
             SCore.DeprecationManager = new DeprecationManager(this.Monitor, this.ModRegistry);
 
@@ -204,69 +204,6 @@ namespace StardewModdingAPI.Framework
                 return;
             }
 #endif
-        }
-
-        private void InitializePerformanceCounterEvents()
-        {
-            this.PerformanceCounterEvents = new HashSet<EventPerformanceCounterCategory>()
-            {
-                new EventPerformanceCounterCategory(this.EventManager.MenuChanged, false),
-
-                // Rendering Events
-                new EventPerformanceCounterCategory(this.EventManager.Rendering, true),
-                new EventPerformanceCounterCategory(this.EventManager.Rendered, true),
-                new EventPerformanceCounterCategory(this.EventManager.RenderingWorld, true),
-                new EventPerformanceCounterCategory(this.EventManager.RenderedWorld, true),
-                new EventPerformanceCounterCategory(this.EventManager.RenderingActiveMenu, true),
-                new EventPerformanceCounterCategory(this.EventManager.RenderedActiveMenu, true),
-                new EventPerformanceCounterCategory(this.EventManager.RenderingHud, true),
-                new EventPerformanceCounterCategory(this.EventManager.RenderedHud, true),
-
-                new EventPerformanceCounterCategory(this.EventManager.WindowResized, false),
-                new EventPerformanceCounterCategory(this.EventManager.GameLaunched, false),
-                new EventPerformanceCounterCategory(this.EventManager.UpdateTicking, true),
-                new EventPerformanceCounterCategory(this.EventManager.UpdateTicked, true),
-                new EventPerformanceCounterCategory(this.EventManager.OneSecondUpdateTicking, true),
-                new EventPerformanceCounterCategory(this.EventManager.OneSecondUpdateTicked, true),
-
-                new EventPerformanceCounterCategory(this.EventManager.SaveCreating, false),
-                new EventPerformanceCounterCategory(this.EventManager.SaveCreated, false),
-                new EventPerformanceCounterCategory(this.EventManager.Saving, false),
-                new EventPerformanceCounterCategory(this.EventManager.Saved, false),
-
-                new EventPerformanceCounterCategory(this.EventManager.DayStarted, false),
-                new EventPerformanceCounterCategory(this.EventManager.DayEnding, false),
-
-                new EventPerformanceCounterCategory(this.EventManager.TimeChanged, true),
-
-                new EventPerformanceCounterCategory(this.EventManager.ReturnedToTitle, false),
-
-                new EventPerformanceCounterCategory(this.EventManager.ButtonPressed, true),
-                new EventPerformanceCounterCategory(this.EventManager.ButtonReleased, true),
-                new EventPerformanceCounterCategory(this.EventManager.CursorMoved, true),
-                new EventPerformanceCounterCategory(this.EventManager.MouseWheelScrolled, true),
-
-                new EventPerformanceCounterCategory(this.EventManager.PeerContextReceived, true),
-                new EventPerformanceCounterCategory(this.EventManager.ModMessageReceived, true),
-                new EventPerformanceCounterCategory(this.EventManager.PeerDisconnected, true),
-                new EventPerformanceCounterCategory(this.EventManager.InventoryChanged, true),
-                new EventPerformanceCounterCategory(this.EventManager.LevelChanged, true),
-                new EventPerformanceCounterCategory(this.EventManager.Warped, true),
-
-                new EventPerformanceCounterCategory(this.EventManager.LocationListChanged, true),
-                new EventPerformanceCounterCategory(this.EventManager.BuildingListChanged, true),
-                new EventPerformanceCounterCategory(this.EventManager.LocationListChanged, true),
-                new EventPerformanceCounterCategory(this.EventManager.DebrisListChanged, true),
-                new EventPerformanceCounterCategory(this.EventManager.LargeTerrainFeatureListChanged, true),
-                new EventPerformanceCounterCategory(this.EventManager.NpcListChanged, true),
-                new EventPerformanceCounterCategory(this.EventManager.ObjectListChanged, true),
-                new EventPerformanceCounterCategory(this.EventManager.ChestInventoryChanged, true),
-                new EventPerformanceCounterCategory(this.EventManager.TerrainFeatureListChanged, true),
-                new EventPerformanceCounterCategory(this.EventManager.LoadStageChanged, false),
-                new EventPerformanceCounterCategory(this.EventManager.UnvalidatedUpdateTicking, true),
-                new EventPerformanceCounterCategory(this.EventManager.UnvalidatedUpdateTicked, true),
-
-            };
         }
 
         /// <summary>Launch SMAPI.</summary>
@@ -1471,7 +1408,7 @@ namespace StardewModdingAPI.Framework
             }
             else
             {
-                var data = this.PerformanceCounterEvents.Where(p => p.Event.GetEventName().ToLowerInvariant().Contains(filterByName.ToLowerInvariant()));
+                var data = this.PerformanceCounterManager.PerformanceCounterEvents.Where(p => p.Event.GetEventName().ToLowerInvariant().Contains(filterByName.ToLowerInvariant()));
 
                 foreach (var i in data)
                 {
@@ -1479,8 +1416,8 @@ namespace StardewModdingAPI.Framework
                 }
             }
 
-            double avgTime = PerformanceCounter.Stopwatch.ElapsedMilliseconds / (double)PerformanceCounter.EventsLogged;
-            this.Monitor.Log($"Logged {PerformanceCounter.EventsLogged} events in {PerformanceCounter.Stopwatch.ElapsedMilliseconds}ms (avg {avgTime:F4}ms / event)");
+            double avgTime = PerformanceCounter.PerformanceCounter.Stopwatch.ElapsedMilliseconds / (double)PerformanceCounter.PerformanceCounter.TotalNumEventsLogged;
+            this.Monitor.Log($"Logged {PerformanceCounter.PerformanceCounter.TotalNumEventsLogged} events in {PerformanceCounter.PerformanceCounter.Stopwatch.ElapsedMilliseconds}ms (avg {avgTime:F4}ms / event)");
 
         }
 
@@ -1492,17 +1429,17 @@ namespace StardewModdingAPI.Framework
 
             if (eventNameFilter != null)
             {
-                data = this.PerformanceCounterEvents.Where(p => p.Event.GetEventName().ToLowerInvariant().Contains(eventNameFilter.ToLowerInvariant()));
+                data = this.PerformanceCounterManager.PerformanceCounterEvents.Where(p => p.Event.GetEventName().ToLowerInvariant().Contains(eventNameFilter.ToLowerInvariant()));
             }
             else
             {
                 if (showOnlyImportant)
                 {
-                    data = this.PerformanceCounterEvents.Where(p => p.IsImportant);
+                    data = this.PerformanceCounterManager.PerformanceCounterEvents.Where(p => p.IsImportant);
                 }
                 else
                 {
-                    data = this.PerformanceCounterEvents;
+                    data = this.PerformanceCounterManager.PerformanceCounterEvents;
                 }
             }
 

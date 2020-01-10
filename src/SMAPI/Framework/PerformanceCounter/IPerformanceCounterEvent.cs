@@ -7,7 +7,7 @@ namespace StardewModdingAPI.Framework.Utilities
     {
         string GetEventName();
         long GetAverageCallsPerSecond();
-        IDictionary<string, PerformanceCounter> PerformanceCounters { get; }
+        IDictionary<string, PerformanceCounter.PerformanceCounter> PerformanceCounters { get; }
 
         double GetGameAverageExecutionTime();
         double GetModsAverageExecutionTime();

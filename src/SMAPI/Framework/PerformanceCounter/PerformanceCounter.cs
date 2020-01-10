@@ -2,16 +2,17 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using Cyotek.Collections.Generic;
+using StardewModdingAPI.Framework.Utilities;
 
-namespace StardewModdingAPI.Framework.Utilities
+namespace StardewModdingAPI.Framework.PerformanceCounter
 {
     public class PerformanceCounter
     {
-        private const int MaxCount = 16384;
+        private const int MAX_ENTRIES = 16384;
 
         public string Name { get; }
         public static Stopwatch Stopwatch = new Stopwatch();
-        public static long EventsLogged;
+        public static long TotalNumEventsLogged;
 
 
         private readonly CircularBuffer<PerformanceCounterEntry> _counter;
@@ -21,7 +22,7 @@ namespace StardewModdingAPI.Framework.Utilities
         public PerformanceCounter(string name)
         {
             this.Name = name;
-            this._counter = new CircularBuffer<PerformanceCounterEntry>(PerformanceCounter.MaxCount);
+            this._counter = new CircularBuffer<PerformanceCounterEntry>(PerformanceCounter.MAX_ENTRIES);
         }
 
         public int GetAverageCallsPerSecond()
@@ -53,7 +54,7 @@ namespace StardewModdingAPI.Framework.Utilities
             }
 
             PerformanceCounter.Stopwatch.Stop();
-            EventsLogged++;
+            PerformanceCounter.TotalNumEventsLogged++;
         }
 
         public PerformanceCounterEntry? GetPeak()

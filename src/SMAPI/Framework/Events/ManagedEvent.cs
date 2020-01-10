@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using StardewModdingAPI.Framework.Utilities;
-using PerformanceCounter = StardewModdingAPI.Framework.Utilities.PerformanceCounter;
+using PerformanceCounter = StardewModdingAPI.Framework.PerformanceCounter.PerformanceCounter;
 
 namespace StardewModdingAPI.Framework.Events
 {
@@ -32,7 +32,7 @@ namespace StardewModdingAPI.Framework.Events
         /// <summary>The cached invocation list.</summary>
         private EventHandler<TEventArgs>[] CachedInvocationList;
 
-        public IDictionary<string, PerformanceCounter> PerformanceCounters { get; } = new Dictionary<string, PerformanceCounter>();
+        public IDictionary<string, PerformanceCounter.PerformanceCounter> PerformanceCounters { get; } = new Dictionary<string, PerformanceCounter.PerformanceCounter>();
 
         private readonly Stopwatch Stopwatch = new Stopwatch();
 
@@ -47,7 +47,7 @@ namespace StardewModdingAPI.Framework.Events
 
         public double GetGameAverageExecutionTime()
         {
-            if (this.PerformanceCounters.TryGetValue(Constants.GamePerformanceCounterName, out PerformanceCounter gameExecTime))
+            if (this.PerformanceCounters.TryGetValue(Constants.GamePerformanceCounterName, out PerformanceCounter.PerformanceCounter gameExecTime))
             {
                 return gameExecTime.GetAverage();
             }
@@ -151,7 +151,7 @@ namespace StardewModdingAPI.Framework.Events
 
                     if (!this.PerformanceCounters.ContainsKey(modName))
                     {
-                        this.PerformanceCounters.Add(modName, new PerformanceCounter($"{modName}.{this.EventName}"));
+                        this.PerformanceCounters.Add(modName, new PerformanceCounter.PerformanceCounter($"{modName}.{this.EventName}"));
                     }
                     this.PerformanceCounters[modName].Add(performanceCounterEntry);
 
