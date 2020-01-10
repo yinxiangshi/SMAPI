@@ -55,6 +55,9 @@ namespace StardewModdingAPI
         /// <summary>The URL of the SMAPI home page.</summary>
         internal const string HomePageUrl = "https://smapi.io";
 
+        /// <summary>The URL of the SMAPI home page.</summary>
+        internal const string GamePerformanceCounterName = "-internal-";
+
         /// <summary>The absolute path to the folder containing SMAPI's internal files.</summary>
         internal static readonly string InternalFilesPath = Program.DllSearchPath;
 
@@ -99,7 +102,6 @@ namespace StardewModdingAPI
 
         /// <summary>The language code for non-translated mod assets.</summary>
         internal static LocalizedContentManager.LanguageCode DefaultLanguage { get; } = LocalizedContentManager.LanguageCode.en;
-
 
         /*********
         ** Internal methods

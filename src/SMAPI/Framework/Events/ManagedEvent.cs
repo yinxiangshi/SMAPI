@@ -1,12 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using StardewModdingAPI.Framework.Utilities;
+using PerformanceCounter = StardewModdingAPI.Framework.Utilities.PerformanceCounter;
 
 namespace StardewModdingAPI.Framework.Events
 {
     /// <summary>An event wrapper which intercepts and logs errors in handler code.</summary>
     /// <typeparam name="TEventArgs">The event arguments type.</typeparam>
-    internal class ManagedEvent<TEventArgs>
+    internal class ManagedEvent<TEventArgs>: IPerformanceCounterEvent
     {
         /*********
         ** Fields
@@ -29,6 +32,38 @@ namespace StardewModdingAPI.Framework.Events
         /// <summary>The cached invocation list.</summary>
         private EventHandler<TEventArgs>[] CachedInvocationList;
 
+        public IDictionary<string, PerformanceCounter> PerformanceCounters { get; } = new Dictionary<string, PerformanceCounter>();
+
+        private readonly Stopwatch Stopwatch = new Stopwatch();
+
+        private long EventCallCount = 0;
+
+        private readonly DateTime StartDateTime = DateTime.Now;
+
+        public string GetEventName()
+        {
+            return this.EventName;
+        }
+
+        public double GetGameAverageExecutionTime()
+        {
+            if (this.PerformanceCounters.TryGetValue(Constants.GamePerformanceCounterName, out PerformanceCounter gameExecTime))
+            {
+                return gameExecTime.GetAverage();
+            }
+
+            return 0;
+        }
+
+        public double GetModsAverageExecutionTime()
+        {
+            return this.PerformanceCounters.Where(p => p.Key != Constants.GamePerformanceCounterName).Sum(p => p.Value.GetAverage());
+        }
+
+        public double GetAverageExecutionTime()
+        {
+            return this.PerformanceCounters.Sum(p => p.Value.GetAverage());
+        }
 
         /*********
         ** Public methods
@@ -64,6 +99,8 @@ namespace StardewModdingAPI.Framework.Events
         {
             this.Event += handler;
             this.AddTracking(mod, handler, this.Event?.GetInvocationList().Cast<EventHandler<TEventArgs>>());
+
+
         }
 
         /// <summary>Remove an event handler.</summary>
@@ -74,6 +111,18 @@ namespace StardewModdingAPI.Framework.Events
             this.RemoveTracking(handler, this.Event?.GetInvocationList().Cast<EventHandler<TEventArgs>>());
         }
 
+        public long GetAverageCallsPerSecond()
+        {
+            long runtimeInSeconds = (long)DateTime.Now.Subtract(this.StartDateTime).TotalSeconds;
+
+            if (runtimeInSeconds == 0)
+            {
+                return 0;
+            }
+
+            return this.EventCallCount / runtimeInSeconds;
+        }
+
         /// <summary>Raise the event and notify all handlers.</summary>
         /// <param name="args">The event arguments to pass.</param>
         public void Raise(TEventArgs args)
@@ -81,11 +130,31 @@ namespace StardewModdingAPI.Framework.Events
             if (this.Event == null)
                 return;
 
+            this.EventCallCount++;
+
             foreach (EventHandler<TEventArgs> handler in this.CachedInvocationList)
             {
                 try
                 {
+                    var performanceCounterEntry = new PerformanceCounterEntry()
+                    {
+                        EventTime = DateTime.Now
+                    };
+
+                    this.Stopwatch.Reset();
+                    this.Stopwatch.Start();
                     handler.Invoke(null, args);
+                    this.Stopwatch.Stop();
+                    performanceCounterEntry.Elapsed = this.Stopwatch.Elapsed;
+
+                    string modName = this.GetSourceMod(handler)?.DisplayName ?? Constants.GamePerformanceCounterName;
+
+                    if (!this.PerformanceCounters.ContainsKey(modName))
+                    {
+                        this.PerformanceCounters.Add(modName, new PerformanceCounter($"{modName}.{this.EventName}"));
+                    }
+                    this.PerformanceCounters[modName].Add(performanceCounterEntry);
+
                 }
                 catch (Exception ex)
                 {

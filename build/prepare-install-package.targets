@@ -1,9 +1,9 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <!--
-  
+
   This build task is run from the installer project after all projects have been compiled, and
   creates the build package in the bin\Packages folder.
-  
+
   -->
   <Target Name="PrepareInstaller" AfterTargets="AfterBuild">
     <PropertyGroup>
@@ -24,7 +24,7 @@
     <!-- reset package directory -->
     <RemoveDir Directories="$(PackagePath)" />
     <RemoveDir Directories="$(PackageDevPath)" />
-    
+
     <!-- copy installer files -->
     <Copy SourceFiles="$(TargetDir)\unix-install.sh" DestinationFiles="$(PackagePath)\install on Linux.sh" />
     <Copy SourceFiles="$(TargetDir)\unix-install.sh" DestinationFiles="$(PackagePath)\install on Mac.command" />
@@ -41,6 +41,7 @@
     <Copy SourceFiles="$(CompiledSmapiPath)\0Harmony.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
     <Copy SourceFiles="$(CompiledSmapiPath)\Mono.Cecil.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
     <Copy SourceFiles="$(CompiledSmapiPath)\Newtonsoft.Json.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
+    <Copy SourceFiles="$(CompiledSmapiPath)\Cyotek.Collections.Generic.CircularBuffer.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
     <Copy SourceFiles="$(CompiledSmapiPath)\SMAPI.config.json" DestinationFiles="$(PackagePath)\bundle\smapi-internal\config.json" />
     <Copy SourceFiles="$(CompiledSmapiPath)\SMAPI.metadata.json" DestinationFiles="$(PackagePath)\bundle\smapi-internal\metadata.json" />
     <Copy SourceFiles="$(CompiledToolkitPath)\SMAPI.Toolkit.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
