@@ -498,8 +498,9 @@ namespace StardewModdingAPI.Framework
                 "Usage: performance_counters [name] [threshold]\n"+
                 "Shows detailed performance counters for a specific event\n"+
                 "- name: The (partial) name of the event\n"+
-                "- threshold: The minimum avg execution time (ms) of the event\n"+
-                "", this.HandleCommand);
+                "- threshold: The minimum avg execution time (ms) of the event\n\n"+
+                "Usage: performance_counters reset\n"+
+                "Resets all performance counters\n", this.HandleCommand);
             this.GameInstance.CommandManager.Add(null, "pc", "Alias for performance_counters", this.HandleCommand);
 
             // start handling command line input
@@ -1393,6 +1394,9 @@ namespace StardewModdingAPI.Framework
                             }
                         }
                         break;
+                    case "reset":
+                        this.PerformanceCounterManager.Reset();
+                        return;
                     default:
                         showSummary = false;
                         filterByName = arguments[0];

@@ -25,6 +25,12 @@ namespace StardewModdingAPI.Framework.PerformanceCounter
             this._counter = new CircularBuffer<PerformanceCounterEntry>(PerformanceCounter.MAX_ENTRIES);
         }
 
+        public void Reset()
+        {
+            this._counter.Clear();
+            this.PeakPerformanceCounterEntry = null;
+        }
+
         public int GetAverageCallsPerSecond()
         {
             var x = this._counter.GroupBy(

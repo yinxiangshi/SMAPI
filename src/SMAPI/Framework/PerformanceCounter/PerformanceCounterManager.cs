@@ -16,6 +16,22 @@ namespace StardewModdingAPI.Framework.PerformanceCounter
             this.InitializePerformanceCounterEvents();
         }
 
+        public void Reset()
+        {
+            foreach (var performanceCounter in this.PerformanceCounterEvents)
+            {
+                this.ResetCategory(performanceCounter);
+            }
+        }
+
+        public void ResetCategory(EventPerformanceCounterCategory category)
+        {
+            foreach (var eventPerformanceCounter in category.Event.PerformanceCounters)
+            {
+                eventPerformanceCounter.Value.Reset();
+            }
+        }
+
         private void InitializePerformanceCounterEvents()
         {
             this.PerformanceCounterEvents = new HashSet<EventPerformanceCounterCategory>()
