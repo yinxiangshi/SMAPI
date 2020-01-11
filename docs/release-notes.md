@@ -6,6 +6,7 @@
 * For players:
   * SMAPI now prevents mods from crashing the game with invalid schedule data.
   * Updated minimum game version (1.4 → 1.4.1).
+  * Fixed 'collection was modified' error when returning to title in rare cases.
 
 ## 3.1
 Released 05 January 2019 for Stardew Valley 1.4 or later.

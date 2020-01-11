@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using Microsoft.Xna.Framework.Content;
 using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.ContentManagers;
@@ -47,6 +48,10 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Whether the content coordinator has been disposed.</summary>
         private bool IsDisposed;
+
+        /// <summary>A lock used to prevent asynchronous changes to the content manager list.</summary>
+        /// <remarks>The game may adds content managers in asynchronous threads (e.g. when populating the load screen).</remarks>
+        private readonly ReaderWriterLockSlim ContentManagerLock = new ReaderWriterLockSlim();
 
 
         /*********
@@ -96,9 +101,12 @@ namespace StardewModdingAPI.Framework
         /// <param name="name">A name for the mod manager. Not guaranteed to be unique.</param>
         public GameContentManager CreateGameContentManager(string name)
         {
-            GameContentManager manager = new GameContentManager(name, this.MainContentManager.ServiceProvider, this.MainContentManager.RootDirectory, this.MainContentManager.CurrentCulture, this, this.Monitor, this.Reflection, this.OnDisposing, this.OnLoadingFirstAsset);
-            this.ContentManagers.Add(manager);
-            return manager;
+            return this.ContentManagerLock.InWriteLock(() =>
+            {
+                GameContentManager manager = new GameContentManager(name, this.MainContentManager.ServiceProvider, this.MainContentManager.RootDirectory, this.MainContentManager.CurrentCulture, this, this.Monitor, this.Reflection, this.OnDisposing, this.OnLoadingFirstAsset);
+                this.ContentManagers.Add(manager);
+                return manager;
+            });
         }
 
         /// <summary>Get a new content manager which handles reading files from a SMAPI mod folder with support for unpacked files.</summary>
@@ -107,20 +115,23 @@ namespace StardewModdingAPI.Framework
         /// <param name="gameContentManager">The game content manager used for map tilesheets not provided by the mod.</param>
         public ModContentManager CreateModContentManager(string name, string rootDirectory, IContentManager gameContentManager)
         {
-            ModContentManager manager = new ModContentManager(
-                name: name,
-                gameContentManager: gameContentManager,
-                serviceProvider: this.MainContentManager.ServiceProvider,
-                rootDirectory: rootDirectory,
-                currentCulture: this.MainContentManager.CurrentCulture,
-                coordinator: this,
-                monitor: this.Monitor,
-                reflection: this.Reflection,
-                jsonHelper: this.JsonHelper,
-                onDisposing: this.OnDisposing
-            );
-            this.ContentManagers.Add(manager);
-            return manager;
+            return this.ContentManagerLock.InWriteLock(() =>
+            {
+                ModContentManager manager = new ModContentManager(
+                    name: name,
+                    gameContentManager: gameContentManager,
+                    serviceProvider: this.MainContentManager.ServiceProvider,
+                    rootDirectory: rootDirectory,
+                    currentCulture: this.MainContentManager.CurrentCulture,
+                    coordinator: this,
+                    monitor: this.Monitor,
+                    reflection: this.Reflection,
+                    jsonHelper: this.JsonHelper,
+                    onDisposing: this.OnDisposing
+                );
+                this.ContentManagers.Add(manager);
+                return manager;
+            });
         }
 
         /// <summary>Get the current content locale.</summary>
@@ -132,8 +143,11 @@ namespace StardewModdingAPI.Framework
         /// <summary>Perform any cleanup needed when the locale changes.</summary>
         public void OnLocaleChanged()
         {
-            foreach (IContentManager contentManager in this.ContentManagers)
-                contentManager.OnLocaleChanged();
+            this.ContentManagerLock.InReadLock(() =>
+            {
+                foreach (IContentManager contentManager in this.ContentManagers)
+                    contentManager.OnLocaleChanged();
+            });
         }
 
         /// <summary>Get whether this asset is mapped to a mod folder.</summary>
@@ -179,13 +193,16 @@ namespace StardewModdingAPI.Framework
         /// <param name="relativePath">The internal SMAPI asset key.</param>
         public T LoadManagedAsset<T>(string contentManagerID, string relativePath)
         {
-            // get content manager
-            IContentManager contentManager = this.ContentManagers.FirstOrDefault(p => p.IsNamespaced && p.Name == contentManagerID);
-            if (contentManager == null)
-                throw new InvalidOperationException($"The '{contentManagerID}' prefix isn't handled by any mod.");
+            return this.ContentManagerLock.InReadLock(() =>
+            {
+                // get content manager
+                IContentManager contentManager = this.ContentManagers.FirstOrDefault(p => p.IsNamespaced && p.Name == contentManagerID);
+                if (contentManager == null)
+                    throw new InvalidOperationException($"The '{contentManagerID}' prefix isn't handled by any mod.");
 
-            // get fresh asset
-            return contentManager.Load<T>(relativePath, this.DefaultLanguage, useCache: false);
+                // get fresh asset
+                return contentManager.Load<T>(relativePath, this.DefaultLanguage, useCache: false);
+            });
         }
 
         /// <summary>Purge matched assets from the cache.</summary>
@@ -208,28 +225,31 @@ namespace StardewModdingAPI.Framework
         /// <returns>Returns the invalidated asset names.</returns>
         public IEnumerable<string> InvalidateCache(Func<string, Type, bool> predicate, bool dispose = false)
         {
-            // invalidate cache & track removed assets
-            IDictionary<string, ISet<object>> removedAssets = new Dictionary<string, ISet<object>>(StringComparer.InvariantCultureIgnoreCase);
-            foreach (IContentManager contentManager in this.ContentManagers)
+            return this.ContentManagerLock.InReadLock(() =>
             {
-                foreach (var entry in contentManager.InvalidateCache(predicate, dispose))
+                // invalidate cache & track removed assets
+                IDictionary<string, ISet<object>> removedAssets = new Dictionary<string, ISet<object>>(StringComparer.InvariantCultureIgnoreCase);
+                foreach (IContentManager contentManager in this.ContentManagers)
                 {
-                    if (!removedAssets.TryGetValue(entry.Key, out ISet<object> assets))
-                        removedAssets[entry.Key] = assets = new HashSet<object>(new ObjectReferenceComparer<object>());
-                    assets.Add(entry.Value);
+                    foreach (var entry in contentManager.InvalidateCache(predicate, dispose))
+                    {
+                        if (!removedAssets.TryGetValue(entry.Key, out ISet<object> assets))
+                            removedAssets[entry.Key] = assets = new HashSet<object>(new ObjectReferenceComparer<object>());
+                        assets.Add(entry.Value);
+                    }
                 }
-            }
 
-            // reload core game assets
-            if (removedAssets.Any())
-            {
-                IDictionary<string, bool> propagated = this.CoreAssets.Propagate(this.MainContentManager, removedAssets.ToDictionary(p => p.Key, p => p.Value.First().GetType())); // use an intercepted content manager
-                this.Monitor.Log($"Invalidated {removedAssets.Count} asset names ({string.Join(", ", removedAssets.Keys.OrderBy(p => p, StringComparer.InvariantCultureIgnoreCase))}); propagated {propagated.Count(p => p.Value)} core assets.", LogLevel.Trace);
-            }
-            else
-                this.Monitor.Log("Invalidated 0 cache entries.", LogLevel.Trace);
+                // reload core game assets
+                if (removedAssets.Any())
+                {
+                    IDictionary<string, bool> propagated = this.CoreAssets.Propagate(this.MainContentManager, removedAssets.ToDictionary(p => p.Key, p => p.Value.First().GetType())); // use an intercepted content manager
+                    this.Monitor.Log($"Invalidated {removedAssets.Count} asset names ({string.Join(", ", removedAssets.Keys.OrderBy(p => p, StringComparer.InvariantCultureIgnoreCase))}); propagated {propagated.Count(p => p.Value)} core assets.", LogLevel.Trace);
+                }
+                else
+                    this.Monitor.Log("Invalidated 0 cache entries.", LogLevel.Trace);
 
-            return removedAssets.Keys;
+                return removedAssets.Keys;
+            });
         }
 
         /// <summary>Dispose held resources.</summary>
@@ -244,6 +264,8 @@ namespace StardewModdingAPI.Framework
                 contentManager.Dispose();
             this.ContentManagers.Clear();
             this.MainContentManager = null;
+
+            this.ContentManagerLock.Dispose();
         }
 
 
@@ -257,7 +279,10 @@ namespace StardewModdingAPI.Framework
             if (this.IsDisposed)
                 return;
 
-            this.ContentManagers.Remove(contentManager);
+            this.ContentManagerLock.InWriteLock(() =>
+            {
+                this.ContentManagers.Remove(contentManager);
+            });
         }
     }
 }
