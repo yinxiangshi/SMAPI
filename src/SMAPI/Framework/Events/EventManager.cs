@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using StardewModdingAPI.Events;
+using StardewModdingAPI.Framework.PerformanceCounter;
 
 namespace StardewModdingAPI.Framework.Events
 {
@@ -173,10 +174,10 @@ namespace StardewModdingAPI.Framework.Events
         /// <summary>Construct an instance.</summary>
         /// <param name="monitor">Writes messages to the log.</param>
         /// <param name="modRegistry">The mod registry with which to identify mods.</param>
-        public EventManager(IMonitor monitor, ModRegistry modRegistry)
+        public EventManager(IMonitor monitor, ModRegistry modRegistry, PerformanceCounterManager performanceCounterManager)
         {
             // create shortcut initializers
-            ManagedEvent<TEventArgs> ManageEventOf<TEventArgs>(string typeName, string eventName) => new ManagedEvent<TEventArgs>($"{typeName}.{eventName}", monitor, modRegistry);
+            ManagedEvent<TEventArgs> ManageEventOf<TEventArgs>(string typeName, string eventName) => new ManagedEvent<TEventArgs>($"{typeName}.{eventName}", monitor, modRegistry, performanceCounterManager);
 
             // init events (new)
             this.MenuChanged = ManageEventOf<MenuChangedEventArgs>(nameof(IModEvents.Display), nameof(IDisplayEvents.MenuChanged));

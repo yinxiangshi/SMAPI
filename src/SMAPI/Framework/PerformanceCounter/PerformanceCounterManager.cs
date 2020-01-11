@@ -1,4 +1,8 @@
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
 using StardewModdingAPI.Framework.Events;
 using StardewModdingAPI.Framework.Utilities;
 
@@ -6,92 +10,187 @@ namespace StardewModdingAPI.Framework.PerformanceCounter
 {
     internal class PerformanceCounterManager
     {
-        public HashSet<EventPerformanceCounterCategory> PerformanceCounterEvents = new HashSet<EventPerformanceCounterCategory>();
+        public HashSet<PerformanceCounterCollection> PerformanceCounterCollections = new HashSet<PerformanceCounterCollection>();
+        public List<AlertEntry> Alerts = new List<AlertEntry>();
+        private readonly IMonitor Monitor;
+        private readonly Stopwatch Stopwatch = new Stopwatch();
 
-        private readonly EventManager EventManager;
-
-        public PerformanceCounterManager(EventManager eventManager)
+        public PerformanceCounterManager(IMonitor monitor)
         {
-            this.EventManager = eventManager;
-            this.InitializePerformanceCounterEvents();
+            this.Monitor = monitor;
         }
 
         public void Reset()
         {
-            foreach (var performanceCounter in this.PerformanceCounterEvents)
+            foreach (var performanceCounter in this.PerformanceCounterCollections)
             {
-                this.ResetCategory(performanceCounter);
+                foreach (var eventPerformanceCounter in performanceCounter.PerformanceCounters)
+                {
+                    eventPerformanceCounter.Value.Reset();
+                }
             }
         }
 
-        public void ResetCategory(EventPerformanceCounterCategory category)
+        /// <summary>Print any queued messages.</summary>
+        public void PrintQueued()
         {
-            foreach (var eventPerformanceCounter in category.Event.PerformanceCounters)
+            if (this.Alerts.Count == 0)
             {
-                eventPerformanceCounter.Value.Reset();
+                return;
+            }
+            StringBuilder sb = new StringBuilder();
+
+            foreach (var alert in this.Alerts)
+            {
+                sb.AppendLine($"{alert.Collection.Name} took {alert.ExecutionTimeMilliseconds:F2}ms (exceeded threshold of {alert.Threshold:F2}ms)");
+
+                foreach (var context in alert.Context)
+                {
+                    sb.AppendLine($"{context.Source}: {context.Elapsed:F2}ms");
+                }
+            }
+
+            this.Alerts.Clear();
+
+            this.Monitor.Log(sb.ToString(), LogLevel.Error);
+        }
+
+        public void BeginTrackInvocation(string collectionName)
+        {
+            this.GetOrCreateCollectionByName(collectionName).BeginTrackInvocation();
+        }
+
+        public void EndTrackInvocation(string collectionName)
+        {
+            this.GetOrCreateCollectionByName(collectionName).EndTrackInvocation();
+        }
+
+        public void Track(string collectionName, string modName, Action action)
+        {
+            DateTime eventTime = DateTime.UtcNow;
+            this.Stopwatch.Reset();
+            this.Stopwatch.Start();
+
+            try
+            {
+                action();
+            }
+            finally
+            {
+                this.Stopwatch.Stop();
+
+                this.GetOrCreateCollectionByName(collectionName).Track(modName, new PerformanceCounterEntry
+                {
+                    EventTime = eventTime,
+                    Elapsed = this.Stopwatch.Elapsed
+                });
             }
         }
 
-        private void InitializePerformanceCounterEvents()
+        public PerformanceCounterCollection GetCollectionByName(string name)
         {
-            this.PerformanceCounterEvents = new HashSet<EventPerformanceCounterCategory>()
+            return this.PerformanceCounterCollections.FirstOrDefault(collection => collection.Name == name);
+        }
+
+        public PerformanceCounterCollection GetOrCreateCollectionByName(string name)
+        {
+            PerformanceCounterCollection collection = this.GetCollectionByName(name);
+
+            if (collection == null)
             {
-                new EventPerformanceCounterCategory(this.EventManager.MenuChanged, false),
+                collection = new PerformanceCounterCollection(this, name);
+                this.PerformanceCounterCollections.Add(collection);
+            }
+
+            return collection;
+        }
+
+        public void ResetCategory(string name)
+        {
+            foreach (var performanceCounterCollection in this.PerformanceCounterCollections)
+            {
+                if (performanceCounterCollection.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    performanceCounterCollection.ResetCallsPerSecond();
+                    performanceCounterCollection.Reset();
+                }
+            }
+        }
+
+        public void ResetSource(string name)
+        {
+            foreach (var performanceCounterCollection in this.PerformanceCounterCollections)
+            {
+                performanceCounterCollection.ResetSource(name);
+            }
+        }
+
+
+        public void AddAlert(AlertEntry entry)
+        {
+            this.Alerts.Add(entry);
+        }
+
+        public void InitializePerformanceCounterEvents(EventManager eventManager)
+        {
+            this.PerformanceCounterCollections = new HashSet<PerformanceCounterCollection>()
+            {
+                new EventPerformanceCounterCollection(this, eventManager.MenuChanged, false),
+
 
                 // Rendering Events
-                new EventPerformanceCounterCategory(this.EventManager.Rendering, true),
-                new EventPerformanceCounterCategory(this.EventManager.Rendered, true),
-                new EventPerformanceCounterCategory(this.EventManager.RenderingWorld, true),
-                new EventPerformanceCounterCategory(this.EventManager.RenderedWorld, true),
-                new EventPerformanceCounterCategory(this.EventManager.RenderingActiveMenu, true),
-                new EventPerformanceCounterCategory(this.EventManager.RenderedActiveMenu, true),
-                new EventPerformanceCounterCategory(this.EventManager.RenderingHud, true),
-                new EventPerformanceCounterCategory(this.EventManager.RenderedHud, true),
+                new EventPerformanceCounterCollection(this, eventManager.Rendering, true),
+                new EventPerformanceCounterCollection(this, eventManager.Rendered, true),
+                new EventPerformanceCounterCollection(this, eventManager.RenderingWorld, true),
+                new EventPerformanceCounterCollection(this, eventManager.RenderedWorld, true),
+                new EventPerformanceCounterCollection(this, eventManager.RenderingActiveMenu, true),
+                new EventPerformanceCounterCollection(this, eventManager.RenderedActiveMenu, true),
+                new EventPerformanceCounterCollection(this, eventManager.RenderingHud, true),
+                new EventPerformanceCounterCollection(this, eventManager.RenderedHud, true),
 
-                new EventPerformanceCounterCategory(this.EventManager.WindowResized, false),
-                new EventPerformanceCounterCategory(this.EventManager.GameLaunched, false),
-                new EventPerformanceCounterCategory(this.EventManager.UpdateTicking, true),
-                new EventPerformanceCounterCategory(this.EventManager.UpdateTicked, true),
-                new EventPerformanceCounterCategory(this.EventManager.OneSecondUpdateTicking, true),
-                new EventPerformanceCounterCategory(this.EventManager.OneSecondUpdateTicked, true),
+                new EventPerformanceCounterCollection(this, eventManager.WindowResized, false),
+                new EventPerformanceCounterCollection(this, eventManager.GameLaunched, false),
+                new EventPerformanceCounterCollection(this, eventManager.UpdateTicking, true),
+                new EventPerformanceCounterCollection(this, eventManager.UpdateTicked, true),
+                new EventPerformanceCounterCollection(this, eventManager.OneSecondUpdateTicking, true),
+                new EventPerformanceCounterCollection(this, eventManager.OneSecondUpdateTicked, true),
 
-                new EventPerformanceCounterCategory(this.EventManager.SaveCreating, false),
-                new EventPerformanceCounterCategory(this.EventManager.SaveCreated, false),
-                new EventPerformanceCounterCategory(this.EventManager.Saving, false),
-                new EventPerformanceCounterCategory(this.EventManager.Saved, false),
+                new EventPerformanceCounterCollection(this, eventManager.SaveCreating, false),
+                new EventPerformanceCounterCollection(this, eventManager.SaveCreated, false),
+                new EventPerformanceCounterCollection(this, eventManager.Saving, false),
+                new EventPerformanceCounterCollection(this, eventManager.Saved, false),
 
-                new EventPerformanceCounterCategory(this.EventManager.DayStarted, false),
-                new EventPerformanceCounterCategory(this.EventManager.DayEnding, false),
+                new EventPerformanceCounterCollection(this, eventManager.DayStarted, false),
+                new EventPerformanceCounterCollection(this, eventManager.DayEnding, false),
 
-                new EventPerformanceCounterCategory(this.EventManager.TimeChanged, true),
+                new EventPerformanceCounterCollection(this, eventManager.TimeChanged, true),
 
-                new EventPerformanceCounterCategory(this.EventManager.ReturnedToTitle, false),
+                new EventPerformanceCounterCollection(this, eventManager.ReturnedToTitle, false),
 
-                new EventPerformanceCounterCategory(this.EventManager.ButtonPressed, true),
-                new EventPerformanceCounterCategory(this.EventManager.ButtonReleased, true),
-                new EventPerformanceCounterCategory(this.EventManager.CursorMoved, true),
-                new EventPerformanceCounterCategory(this.EventManager.MouseWheelScrolled, true),
+                new EventPerformanceCounterCollection(this, eventManager.ButtonPressed, true),
+                new EventPerformanceCounterCollection(this, eventManager.ButtonReleased, true),
+                new EventPerformanceCounterCollection(this, eventManager.CursorMoved, true),
+                new EventPerformanceCounterCollection(this, eventManager.MouseWheelScrolled, true),
 
-                new EventPerformanceCounterCategory(this.EventManager.PeerContextReceived, true),
-                new EventPerformanceCounterCategory(this.EventManager.ModMessageReceived, true),
-                new EventPerformanceCounterCategory(this.EventManager.PeerDisconnected, true),
-                new EventPerformanceCounterCategory(this.EventManager.InventoryChanged, true),
-                new EventPerformanceCounterCategory(this.EventManager.LevelChanged, true),
-                new EventPerformanceCounterCategory(this.EventManager.Warped, true),
+                new EventPerformanceCounterCollection(this, eventManager.PeerContextReceived, true),
+                new EventPerformanceCounterCollection(this, eventManager.ModMessageReceived, true),
+                new EventPerformanceCounterCollection(this, eventManager.PeerDisconnected, true),
+                new EventPerformanceCounterCollection(this, eventManager.InventoryChanged, true),
+                new EventPerformanceCounterCollection(this, eventManager.LevelChanged, true),
+                new EventPerformanceCounterCollection(this, eventManager.Warped, true),
 
-                new EventPerformanceCounterCategory(this.EventManager.LocationListChanged, true),
-                new EventPerformanceCounterCategory(this.EventManager.BuildingListChanged, true),
-                new EventPerformanceCounterCategory(this.EventManager.LocationListChanged, true),
-                new EventPerformanceCounterCategory(this.EventManager.DebrisListChanged, true),
-                new EventPerformanceCounterCategory(this.EventManager.LargeTerrainFeatureListChanged, true),
-                new EventPerformanceCounterCategory(this.EventManager.NpcListChanged, true),
-                new EventPerformanceCounterCategory(this.EventManager.ObjectListChanged, true),
-                new EventPerformanceCounterCategory(this.EventManager.ChestInventoryChanged, true),
-                new EventPerformanceCounterCategory(this.EventManager.TerrainFeatureListChanged, true),
-                new EventPerformanceCounterCategory(this.EventManager.LoadStageChanged, false),
-                new EventPerformanceCounterCategory(this.EventManager.UnvalidatedUpdateTicking, true),
-                new EventPerformanceCounterCategory(this.EventManager.UnvalidatedUpdateTicked, true),
-
+                new EventPerformanceCounterCollection(this, eventManager.LocationListChanged, true),
+                new EventPerformanceCounterCollection(this, eventManager.BuildingListChanged, true),
+                new EventPerformanceCounterCollection(this, eventManager.LocationListChanged, true),
+                new EventPerformanceCounterCollection(this, eventManager.DebrisListChanged, true),
+                new EventPerformanceCounterCollection(this, eventManager.LargeTerrainFeatureListChanged, true),
+                new EventPerformanceCounterCollection(this, eventManager.NpcListChanged, true),
+                new EventPerformanceCounterCollection(this, eventManager.ObjectListChanged, true),
+                new EventPerformanceCounterCollection(this, eventManager.ChestInventoryChanged, true),
+                new EventPerformanceCounterCollection(this, eventManager.TerrainFeatureListChanged, true),
+                new EventPerformanceCounterCollection(this, eventManager.LoadStageChanged, false),
+                new EventPerformanceCounterCollection(this, eventManager.UnvalidatedUpdateTicking, false),
+                new EventPerformanceCounterCollection(this, eventManager.UnvalidatedUpdateTicked, false),
             };
         }
     }

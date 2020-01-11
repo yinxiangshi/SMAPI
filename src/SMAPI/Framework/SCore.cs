@@ -25,7 +25,6 @@ using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Framework.Patching;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Serialization;
-using StardewModdingAPI.Framework.Utilities;
 using StardewModdingAPI.Patches;
 using StardewModdingAPI.Toolkit;
 using StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
@@ -82,8 +81,6 @@ namespace StardewModdingAPI.Framework
         /// <summary>Manages SMAPI events for mods.</summary>
         private readonly EventManager EventManager;
 
-        private readonly PerformanceCounterManager PerformanceCounterManager;
-
         /// <summary>Whether the game is currently running.</summary>
         private bool IsGameRunning;
 
@@ -137,6 +134,10 @@ namespace StardewModdingAPI.Framework
         /// <remarks>This is initialized after the game starts. This is accessed directly because it's not part of the normal class model.</remarks>
         internal static DeprecationManager DeprecationManager { get; private set; }
 
+        /// <summary>Manages performance counters.</summary>
+        /// <remarks>This is initialized after the game starts. This is accessed directly because it's not part of the normal class model.</remarks>
+        internal static PerformanceCounterManager PerformanceCounterManager { get; private set; }
+
 
         /*********
         ** Public methods
@@ -165,8 +166,10 @@ namespace StardewModdingAPI.Framework
                 ShowFullStampInConsole = this.Settings.DeveloperMode
             };
             this.MonitorForGame = this.GetSecondaryMonitor("game");
-            this.EventManager = new EventManager(this.Monitor, this.ModRegistry);
-            this.PerformanceCounterManager = new PerformanceCounterManager(this.EventManager);
+
+            SCore.PerformanceCounterManager = new PerformanceCounterManager(this.Monitor);
+            this.EventManager = new EventManager(this.Monitor, this.ModRegistry, SCore.PerformanceCounterManager);
+            SCore.PerformanceCounterManager.InitializePerformanceCounterEvents(this.EventManager);
 
             SCore.DeprecationManager = new DeprecationManager(this.Monitor, this.ModRegistry);
 
@@ -245,6 +248,7 @@ namespace StardewModdingAPI.Framework
                     jsonHelper: this.Toolkit.JsonHelper,
                     modRegistry: this.ModRegistry,
                     deprecationManager: SCore.DeprecationManager,
+                    performanceCounterManager: SCore.PerformanceCounterManager,
                     onGameInitialized: this.InitializeAfterGameStart,
                     onGameExiting: this.Dispose,
                     cancellationToken: this.CancellationToken,
@@ -488,20 +492,6 @@ namespace StardewModdingAPI.Framework
             this.Monitor.Log("Type 'help' for help, or 'help <cmd>' for a command's usage", LogLevel.Info);
             this.GameInstance.CommandManager.Add(null, "help", "Lists command documentation.\n\nUsage: help\nLists all available commands.\n\nUsage: help <cmd>\n- cmd: The name of a command whose documentation to display.", this.HandleCommand);
             this.GameInstance.CommandManager.Add(null, "reload_i18n", "Reloads translation files for all mods.\n\nUsage: reload_i18n", this.HandleCommand);
-            this.GameInstance.CommandManager.Add(null, "performance_counters",
-                "Displays performance counters.\n\n"+
-                "Usage: performance_counters\n" +
-                "Shows the most important event invocation times\n\n"+
-                "Usage: performance_counters summary|sum [all|important|name]\n"+
-                "- summary or sum: Forces summary mode\n"+
-                "- all, important or name: Displays all event performance counters, only important ones, or a specific event by name (defaults to important)\n\n"+
-                "Usage: performance_counters [name] [threshold]\n"+
-                "Shows detailed performance counters for a specific event\n"+
-                "- name: The (partial) name of the event\n"+
-                "- threshold: The minimum avg execution time (ms) of the event\n\n"+
-                "Usage: performance_counters reset\n"+
-                "Resets all performance counters\n", this.HandleCommand);
-            this.GameInstance.CommandManager.Add(null, "pc", "Alias for performance_counters", this.HandleCommand);
 
             // start handling command line input
             Thread inputThread = new Thread(() =>
@@ -1317,174 +1307,9 @@ namespace StardewModdingAPI.Framework
                     this.ReloadTranslations(this.ModRegistry.GetAll(contentPacks: false));
                     this.Monitor.Log("Reloaded translation files for all mods. This only affects new translations the mods fetch; if they cached some text, it may not be updated.", LogLevel.Info);
                     break;
-                case "performance_counters":
-                case "pc":
-                    this.DisplayPerformanceCounters(arguments.ToList());
-                    break;
                 default:
                     throw new NotSupportedException($"Unrecognized core SMAPI command '{name}'.");
             }
-        }
-
-        /// <summary>Get an ASCII table to show tabular data in the console.</summary>
-        /// <typeparam name="T">The data type.</typeparam>
-        /// <param name="data">The data to display.</param>
-        /// <param name="header">The table header.</param>
-        /// <param name="getRow">Returns a set of fields for a data value.</param>
-        protected string GetTableString<T>(IEnumerable<T> data, string[] header, Func<T, string[]> getRow)
-        {
-            // get table data
-            int[] widths = header.Select(p => p.Length).ToArray();
-            string[][] rows = data
-                .Select(item =>
-                {
-                    string[] fields = getRow(item);
-                    if (fields.Length != widths.Length)
-                        throw new InvalidOperationException($"Expected {widths.Length} columns, but found {fields.Length}: {string.Join(", ", fields)}");
-
-                    for (int i = 0; i < fields.Length; i++)
-                        widths[i] = Math.Max(widths[i], fields[i].Length);
-
-                    return fields;
-                })
-                .ToArray();
-
-            // render fields
-            List<string[]> lines = new List<string[]>(rows.Length + 2)
-            {
-                header,
-                header.Select((value, i) => "".PadRight(widths[i], '-')).ToArray()
-            };
-            lines.AddRange(rows);
-
-            return string.Join(
-                Environment.NewLine,
-                lines.Select(line => string.Join(" | ", line.Select((field, i) => field.PadLeft(widths[i], ' ')).ToArray())
-                )
-            );
-        }
-
-        private void DisplayPerformanceCounters(IList<string> arguments)
-        {
-            bool showSummary = true;
-            bool showSummaryOnlyImportant = true;
-            string filterByName = null;
-
-            if (arguments.Any())
-            {
-                switch (arguments[0])
-                {
-                    case "summary":
-                        case "sum":
-                        showSummary = true;
-
-                        if (arguments.Count > 1)
-                        {
-                            switch (arguments[1].ToLower())
-                            {
-                                case "all":
-                                    showSummaryOnlyImportant = false;
-                                    break;
-                                case "important":
-                                    showSummaryOnlyImportant = true;
-                                    break;
-                                default:
-                                    filterByName = arguments[1];
-                                    break;
-                            }
-                        }
-                        break;
-                    case "reset":
-                        this.PerformanceCounterManager.Reset();
-                        return;
-                    default:
-                        showSummary = false;
-                        filterByName = arguments[0];
-                        break;
-
-                }
-            }
-            var lastMinute = TimeSpan.FromSeconds(60);
-
-            if (showSummary)
-            {
-                this.DisplayPerformanceCounterSummary(showSummaryOnlyImportant, filterByName);
-            }
-            else
-            {
-                var data = this.PerformanceCounterManager.PerformanceCounterEvents.Where(p => p.Event.GetEventName().ToLowerInvariant().Contains(filterByName.ToLowerInvariant()));
-
-                foreach (var i in data)
-                {
-                    this.DisplayPerformanceCounter(i, lastMinute);
-                }
-            }
-
-            double avgTime = PerformanceCounter.PerformanceCounter.Stopwatch.ElapsedMilliseconds / (double)PerformanceCounter.PerformanceCounter.TotalNumEventsLogged;
-            this.Monitor.Log($"Logged {PerformanceCounter.PerformanceCounter.TotalNumEventsLogged} events in {PerformanceCounter.PerformanceCounter.Stopwatch.ElapsedMilliseconds}ms (avg {avgTime:F4}ms / event)");
-
-        }
-
-        private void DisplayPerformanceCounterSummary(bool showOnlyImportant, string eventNameFilter = null)
-        {
-            StringBuilder sb = new StringBuilder($"Performance Counter Summary:\n\n");
-
-            IEnumerable<EventPerformanceCounterCategory> data;
-
-            if (eventNameFilter != null)
-            {
-                data = this.PerformanceCounterManager.PerformanceCounterEvents.Where(p => p.Event.GetEventName().ToLowerInvariant().Contains(eventNameFilter.ToLowerInvariant()));
-            }
-            else
-            {
-                if (showOnlyImportant)
-                {
-                    data = this.PerformanceCounterManager.PerformanceCounterEvents.Where(p => p.IsImportant);
-                }
-                else
-                {
-                    data = this.PerformanceCounterManager.PerformanceCounterEvents;
-                }
-            }
-
-
-            sb.AppendLine(this.GetTableString(
-                data: data,
-                header: new[] {"Event", "Avg Calls/s", "Avg Execution Time (Game)", "Avg Execution Time (Mods)", "Avg Execution Time (Game+Mods)"},
-                getRow: item => new[]
-                {
-                    item.Event.GetEventName(),
-                    item.Event.GetAverageCallsPerSecond().ToString(),
-                    item.Event.GetGameAverageExecutionTime().ToString("F2") + " ms",
-                    item.Event.GetModsAverageExecutionTime().ToString("F2") + " ms",
-                    item.Event.GetAverageExecutionTime().ToString("F2") + " ms"
-                }
-            ));
-
-            this.Monitor.Log(sb.ToString(), LogLevel.Info);
-        }
-
-        private void DisplayPerformanceCounter (EventPerformanceCounterCategory obj, TimeSpan averageInterval)
-        {
-            StringBuilder sb = new StringBuilder($"Performance Counter for {obj.Event.GetEventName()}:\n\n");
-
-            sb.AppendLine(this.GetTableString(
-                data: obj.Event.PerformanceCounters,
-                header: new[] {"Mod", $"Avg Execution Time over {(int)averageInterval.TotalSeconds}s", "Last Execution Time", "Peak Execution Time"},
-                getRow: item => new[]
-                {
-                    item.Key,
-                    item.Value.GetAverage(averageInterval).ToString("F2") + " ms" ?? "-",
-                    item.Value.GetLastEntry()?.Elapsed.TotalMilliseconds.ToString("F2") + " ms" ?? "-",
-                    item.Value.GetPeak()?.Elapsed.TotalMilliseconds.ToString("F2") + " ms" ?? "-",
-                }
-            ));
-
-            sb.AppendLine($"Average execution time (Game+Mods): {obj.Event.GetAverageExecutionTime():F2} ms");
-            sb.AppendLine($"Average execution time (Game only) : {obj.Event.GetGameAverageExecutionTime():F2} ms");
-            sb.AppendLine($"Average execution time (Mods only) : {obj.Event.GetModsAverageExecutionTime():F2} ms");
-
-            this.Monitor.Log(sb.ToString(), LogLevel.Info);
         }
 
         /// <summary>Redirect messages logged directly to the console to the given monitor.</summary>

@@ -6,22 +6,25 @@ using StardewModdingAPI.Framework.Utilities;
 
 namespace StardewModdingAPI.Framework.PerformanceCounter
 {
-    public class PerformanceCounter
+    internal class PerformanceCounter
     {
         private const int MAX_ENTRIES = 16384;
 
-        public string Name { get; }
+        public string Source { get; }
         public static Stopwatch Stopwatch = new Stopwatch();
         public static long TotalNumEventsLogged;
-
+        public double MonitorThresholdMilliseconds { get; set; }
+        public bool Monitor { get; set; }
+        private readonly PerformanceCounterCollection ParentCollection;
 
         private readonly CircularBuffer<PerformanceCounterEntry> _counter;
 
         private PerformanceCounterEntry? PeakPerformanceCounterEntry;
 
-        public PerformanceCounter(string name)
+        public PerformanceCounter(PerformanceCounterCollection parentCollection, string source)
         {
-            this.Name = name;
+            this.ParentCollection = parentCollection;
+            this.Source = source;
             this._counter = new CircularBuffer<PerformanceCounterEntry>(PerformanceCounter.MAX_ENTRIES);
         }
 
@@ -46,6 +49,11 @@ namespace StardewModdingAPI.Framework.PerformanceCounter
         {
             PerformanceCounter.Stopwatch.Start();
             this._counter.Put(entry);
+
+            if (this.Monitor && entry.Elapsed.TotalMilliseconds > this.MonitorThresholdMilliseconds)
+            {
+                this.ParentCollection.AddAlert(entry.Elapsed.TotalMilliseconds, this.MonitorThresholdMilliseconds, new AlertContext(this.Source, entry.Elapsed.TotalMilliseconds));
+            }
 
             if (this.PeakPerformanceCounterEntry == null)
             {

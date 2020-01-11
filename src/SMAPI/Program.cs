@@ -11,7 +11,7 @@ using StardewModdingAPI.Framework;
 using StardewModdingAPI.Toolkit.Utilities;
 
 [assembly: InternalsVisibleTo("SMAPI.Tests")]
-[assembly: InternalsVisibleTo("SMAPI.Mods.ConsoleCommands")]
+[assembly: InternalsVisibleTo("ConsoleCommands")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")] // Moq for unit testing
 namespace StardewModdingAPI
 {
