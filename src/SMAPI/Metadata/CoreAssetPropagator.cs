@@ -190,17 +190,9 @@ namespace StardewModdingAPI.Metadata
 
                 case "characters\\farmer\\farmer_base": // Farmer
                 case "characters\\farmer\\farmer_base_bald":
-                    if (Game1.player == null || !Game1.player.IsMale)
-                        return false;
-                    Game1.player.FarmerRenderer = new FarmerRenderer(key, Game1.player);
-                    return true;
-
-                case "characters\\farmer\\farmer_girl_base": // Farmer
+                case "characters\\farmer\\farmer_girl_base":
                 case "characters\\farmer\\farmer_girl_base_bald":
-                    if (Game1.player == null || Game1.player.IsMale)
-                        return false;
-                    Game1.player.FarmerRenderer = new FarmerRenderer(key, Game1.player);
-                    return true;
+                    return this.ReloadPlayerSprites(key);
 
                 case "characters\\farmer\\hairstyles": // Game1.LoadContent
                     FarmerRenderer.hairStylesTexture = content.Load<Texture2D>(key);
@@ -833,6 +825,27 @@ namespace StardewModdingAPI.Metadata
                 target.Npc.Portrait = content.Load<Texture2D>(target.Key);
                 propagated[target.Key] = true;
             }
+        }
+
+        /// <summary>Reload the sprites for matching players.</summary>
+        /// <param name="key">The asset key to reload.</param>
+        private bool ReloadPlayerSprites(string key)
+        {
+            Farmer[] players =
+                (
+                    from player in Game1.getOnlineFarmers()
+                    where key == this.NormalizeAssetNameIgnoringEmpty(player.getTexture())
+                    select player
+                )
+                .ToArray();
+
+            foreach (Farmer player in players)
+            {
+                this.Reflection.GetField<Dictionary<string, Dictionary<int, List<int>>>>(typeof(FarmerRenderer), "_recolorOffsets").GetValue().Remove(player.getTexture());
+                player.FarmerRenderer.MarkSpriteDirty();
+            }
+
+            return players.Any();
         }
 
         /// <summary>Reload tree textures.</summary>

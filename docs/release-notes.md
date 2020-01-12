@@ -9,6 +9,9 @@
   * Fixed 'collection was modified' error when returning to title in rare cases.
   * Fixed update-check error if a mod's Chucklefish page has no version.
 
+For modders:
+  * Asset propagation for player sprites now affects other players' sprites, and updates recolor maps (e.g. sleeves).
+
 * For SMAPI/tool developers:
   * The `/mods` web API endpoint now includes version mappings from the wiki.
 
