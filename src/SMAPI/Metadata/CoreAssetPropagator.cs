@@ -909,18 +909,16 @@ namespace StardewModdingAPI.Metadata
                 this.Reflection.GetField<bool>(villager, "_hasLoadedMasterScheduleData").SetValue(false);
                 this.Reflection.GetField<Dictionary<string, string>>(villager, "_masterScheduleData").SetValue(null);
                 villager.Schedule = villager.getSchedule(Game1.dayOfMonth);
-                if (villager.Schedule == null)
-                {
-                    this.Monitor.Log($"A mod set an invalid schedule for {villager.Name ?? key}, so the NPC may not behave correctly.", LogLevel.Warn);
-                    return true;
-                }
 
                 // switch to new schedule if needed
-                int lastScheduleTime = villager.Schedule.Keys.Where(p => p <= Game1.timeOfDay).OrderByDescending(p => p).FirstOrDefault();
-                if (lastScheduleTime != 0)
+                if (villager.Schedule != null)
                 {
-                    villager.scheduleTimeToTry = NPC.NO_TRY; // use time that's passed in to checkSchedule
-                    villager.checkSchedule(lastScheduleTime);
+                    int lastScheduleTime = villager.Schedule.Keys.Where(p => p <= Game1.timeOfDay).OrderByDescending(p => p).FirstOrDefault();
+                    if (lastScheduleTime != 0)
+                    {
+                        villager.scheduleTimeToTry = NPC.NO_TRY; // use time that's passed in to checkSchedule
+                        villager.checkSchedule(lastScheduleTime);
+                    }
                 }
             }
             return true;

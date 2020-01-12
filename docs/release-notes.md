@@ -11,8 +11,9 @@
 
 For modders:
   * Asset propagation for player sprites now affects other players' sprites, and updates recolor maps (e.g. sleeves).
+  * Removed invalid-schedule validation which had false positives.
 
-* For SMAPI/tool developers:
+For SMAPI/tool developers:
   * The `/mods` web API endpoint now includes version mappings from the wiki.
 
 ## 3.1
