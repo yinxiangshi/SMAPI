@@ -193,16 +193,15 @@ namespace StardewModdingAPI.Framework
         /// <param name="relativePath">The internal SMAPI asset key.</param>
         public T LoadManagedAsset<T>(string contentManagerID, string relativePath)
         {
-            return this.ContentManagerLock.InReadLock(() =>
-            {
-                // get content manager
-                IContentManager contentManager = this.ContentManagers.FirstOrDefault(p => p.IsNamespaced && p.Name == contentManagerID);
-                if (contentManager == null)
-                    throw new InvalidOperationException($"The '{contentManagerID}' prefix isn't handled by any mod.");
+            // get content manager
+            IContentManager contentManager = this.ContentManagerLock.InReadLock(() =>
+                this.ContentManagers.FirstOrDefault(p => p.IsNamespaced && p.Name == contentManagerID)
+            );
+            if (contentManager == null)
+                throw new InvalidOperationException($"The '{contentManagerID}' prefix isn't handled by any mod.");
 
-                // get fresh asset
-                return contentManager.Load<T>(relativePath, this.DefaultLanguage, useCache: false);
-            });
+            // get fresh asset
+            return contentManager.Load<T>(relativePath, this.DefaultLanguage, useCache: false);
         }
 
         /// <summary>Purge matched assets from the cache.</summary>
@@ -225,10 +224,10 @@ namespace StardewModdingAPI.Framework
         /// <returns>Returns the invalidated asset names.</returns>
         public IEnumerable<string> InvalidateCache(Func<string, Type, bool> predicate, bool dispose = false)
         {
-            return this.ContentManagerLock.InReadLock(() =>
+            // invalidate cache & track removed assets
+            IDictionary<string, ISet<object>> removedAssets = new Dictionary<string, ISet<object>>(StringComparer.InvariantCultureIgnoreCase);
+            this.ContentManagerLock.InReadLock(() =>
             {
-                // invalidate cache & track removed assets
-                IDictionary<string, ISet<object>> removedAssets = new Dictionary<string, ISet<object>>(StringComparer.InvariantCultureIgnoreCase);
                 foreach (IContentManager contentManager in this.ContentManagers)
                 {
                     foreach (var entry in contentManager.InvalidateCache(predicate, dispose))
@@ -238,18 +237,18 @@ namespace StardewModdingAPI.Framework
                         assets.Add(entry.Value);
                     }
                 }
-
-                // reload core game assets
-                if (removedAssets.Any())
-                {
-                    IDictionary<string, bool> propagated = this.CoreAssets.Propagate(this.MainContentManager, removedAssets.ToDictionary(p => p.Key, p => p.Value.First().GetType())); // use an intercepted content manager
-                    this.Monitor.Log($"Invalidated {removedAssets.Count} asset names ({string.Join(", ", removedAssets.Keys.OrderBy(p => p, StringComparer.InvariantCultureIgnoreCase))}); propagated {propagated.Count(p => p.Value)} core assets.", LogLevel.Trace);
-                }
-                else
-                    this.Monitor.Log("Invalidated 0 cache entries.", LogLevel.Trace);
-
-                return removedAssets.Keys;
             });
+
+            // reload core game assets
+            if (removedAssets.Any())
+            {
+                IDictionary<string, bool> propagated = this.CoreAssets.Propagate(this.MainContentManager, removedAssets.ToDictionary(p => p.Key, p => p.Value.First().GetType())); // use an intercepted content manager
+                this.Monitor.Log($"Invalidated {removedAssets.Count} asset names ({string.Join(", ", removedAssets.Keys.OrderBy(p => p, StringComparer.InvariantCultureIgnoreCase))}); propagated {propagated.Count(p => p.Value)} core assets.", LogLevel.Trace);
+            }
+            else
+                this.Monitor.Log("Invalidated 0 cache entries.", LogLevel.Trace);
+
+            return removedAssets.Keys;
         }
 
         /// <summary>Dispose held resources.</summary>
@@ -280,9 +279,8 @@ namespace StardewModdingAPI.Framework
                 return;
 
             this.ContentManagerLock.InWriteLock(() =>
-            {
-                this.ContentManagers.Remove(contentManager);
-            });
+                this.ContentManagers.Remove(contentManager)
+            );
         }
     }
 }
