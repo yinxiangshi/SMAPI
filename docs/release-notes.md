@@ -9,6 +9,9 @@
   * Fixed 'collection was modified' error when returning to title in rare cases.
   * Fixed update-check error if a mod's Chucklefish page has no version.
 
+* For SMAPI/tool developers:
+  * The `/mods` web API endpoint now includes version mappings from the wiki.
+
 ## 3.1
 Released 05 January 2019 for Stardew Valley 1.4 or later.
 
