@@ -15,6 +15,7 @@ For modders:
 
 For SMAPI/tool developers:
   * The `/mods` web API endpoint now includes version mappings from the wiki.
+  * Dropped API support for the pre-3.0 update-check format.
 
 ## 3.1
 Released 05 January 2019 for Stardew Valley 1.4 or later.
