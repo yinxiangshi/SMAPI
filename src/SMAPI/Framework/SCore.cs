@@ -590,6 +590,8 @@ namespace StardewModdingAPI.Framework
                     else
                         this.Monitor.Log("   SMAPI okay.", LogLevel.Trace);
 
+                    updateFound = response.SuggestedUpdate?.Version;
+
                     // show errors
                     if (response.Errors.Any())
                     {
