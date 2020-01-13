@@ -8,6 +8,7 @@
   * Updated minimum game version (1.4 → 1.4.1).
   * Fixed 'collection was modified' error when returning to title in rare cases.
   * Fixed update-check error if a mod's Chucklefish page has no version.
+  * Fixed SMAPI beta versions not showing update alert on next launch (thanks to danvolchek!).
 
 For modders:
   * Asset propagation for player sprites now affects other players' sprites, and updates recolor maps (e.g. sleeves).
