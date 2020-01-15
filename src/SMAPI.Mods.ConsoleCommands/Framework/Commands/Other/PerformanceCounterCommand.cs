@@ -118,17 +118,20 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
 
             StringBuilder sb = new StringBuilder();
 
+            TimeSpan peakSpan = TimeSpan.FromSeconds(60);
+
             sb.AppendLine("Summary:");
             sb.AppendLine(this.GetTableString(
                 data: data,
-                header: new[] {"Collection", "Avg Calls/s", "Avg Execution Time (Game)", "Avg Execution Time (Mods)", "Avg Execution Time (Game+Mods)"},
+                header: new[] {"Collection", "Avg Calls/s", "Avg Exec Time (Game)", "Avg Exec Time (Mods)", "Avg Exec Time (Game+Mods)", "Peak Exec Time (60s)"},
                 getRow: item => new[]
                 {
                     item.Name,
                     item.GetAverageCallsPerSecond().ToString(),
                     this.FormatMilliseconds(item.GetGameAverageExecutionTime(), threshold),
                     this.FormatMilliseconds(item.GetModsAverageExecutionTime(), threshold),
-                    this.FormatMilliseconds(item.GetAverageExecutionTime(), threshold)
+                    this.FormatMilliseconds(item.GetAverageExecutionTime(), threshold),
+                    this.FormatMilliseconds(item.GetPeakExecutionTime(peakSpan), threshold)
                 },
                 true
             ));
@@ -459,13 +462,14 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
             {
                 sb.AppendLine(this.GetTableString(
                     data: data,
-                    header: new[] {"Mod", $"Avg Execution Time (last {(int) averageInterval.TotalSeconds}s)", "Last Execution Time", "Peak Execution Time"},
+                    header: new[] {"Mod", $"Avg Exec Time (last {(int) averageInterval.TotalSeconds}s)", "Last Exec Time", "Peak Exec Time", $"Peak Exec Time (last {(int) averageInterval.TotalSeconds}s)"},
                     getRow: item => new[]
                     {
                         item.Key,
                         this.FormatMilliseconds(item.Value.GetAverage(averageInterval), thresholdMilliseconds),
                         this.FormatMilliseconds(item.Value.GetLastEntry()?.ElapsedMilliseconds),
-                        this.FormatMilliseconds(item.Value.GetPeak()?.ElapsedMilliseconds)
+                        this.FormatMilliseconds(item.Value.GetPeak()?.ElapsedMilliseconds),
+                        this.FormatMilliseconds(item.Value.GetPeak(averageInterval)?.ElapsedMilliseconds)
                     },
                     true
                 ));

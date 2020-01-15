@@ -2,11 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Cyotek.Collections.Generic;
 
 namespace StardewModdingAPI.Framework.PerformanceCounter
 {
     internal class PerformanceCounterCollection
     {
+        /// <summary>The size of the ring buffer.</summary>
+        private const int MAX_ENTRIES = 16384;
+
         /// <summary>The list of triggered performance counters.</summary>
         private readonly List<AlertContext> TriggeredPerformanceCounters = new List<AlertContext>();
 
@@ -22,6 +26,10 @@ namespace StardewModdingAPI.Framework.PerformanceCounter
         /// <summary>The number of invocations of this collection.</summary>
         private long CallCount;
 
+        /// <summary>The circular buffer which stores all peak invocations</summary>
+        private readonly CircularBuffer<PeakEntry> PeakInvocations;
+
+        /// <summary>The associated performance counters.</summary>
         public IDictionary<string, PerformanceCounter> PerformanceCounters { get; } = new Dictionary<string, PerformanceCounter>();
 
         /// <summary>The name of this collection.</summary>
@@ -39,6 +47,7 @@ namespace StardewModdingAPI.Framework.PerformanceCounter
 
         public PerformanceCounterCollection(PerformanceCounterManager performanceCounterManager, string name, bool isImportant)
         {
+            this.PeakInvocations = new CircularBuffer<PeakEntry>(PerformanceCounterCollection.MAX_ENTRIES);
             this.Name = name;
             this.PerformanceCounterManager = performanceCounterManager;
             this.IsImportant = isImportant;
@@ -46,6 +55,7 @@ namespace StardewModdingAPI.Framework.PerformanceCounter
 
         public PerformanceCounterCollection(PerformanceCounterManager performanceCounterManager, string name)
         {
+            this.PeakInvocations = new CircularBuffer<PeakEntry>(PerformanceCounterCollection.MAX_ENTRIES);
             this.PerformanceCounterManager = performanceCounterManager;
             this.Name = name;
         }
@@ -89,15 +99,30 @@ namespace StardewModdingAPI.Framework.PerformanceCounter
             return 0;
         }
 
+        public double GetPeakExecutionTime(TimeSpan range, DateTime? relativeTo = null)
+        {
+            if (this.PeakInvocations.IsEmpty)
+                return 0;
+
+            if (relativeTo == null)
+                relativeTo = DateTime.UtcNow;
+
+            DateTime start = relativeTo.Value.Subtract(range);
+
+            var entries = this.PeakInvocations.Where(x => (x.EventTime >= start) && (x.EventTime <= relativeTo)).ToList();
+
+            if (!entries.Any())
+                return 0;
+
+            return entries.OrderByDescending(x => x.ExecutionTimeMilliseconds).First().ExecutionTimeMilliseconds;
+        }
+
         /// <summary>Begins tracking the invocation of this collection.</summary>
         public void BeginTrackInvocation()
         {
-            if (this.EnableAlerts)
-            {
-                this.TriggeredPerformanceCounters.Clear();
-                this.InvocationStopwatch.Reset();
-                this.InvocationStopwatch.Start();
-            }
+            this.TriggeredPerformanceCounters.Clear();
+            this.InvocationStopwatch.Reset();
+            this.InvocationStopwatch.Start();
 
             this.CallCount++;
         }
@@ -106,9 +131,14 @@ namespace StardewModdingAPI.Framework.PerformanceCounter
         /// and the invocation time exceeds the threshold.</summary>
         public void EndTrackInvocation()
         {
-            if (!this.EnableAlerts) return;
-
             this.InvocationStopwatch.Stop();
+
+            this.PeakInvocations.Put(
+                new PeakEntry(this.InvocationStopwatch.Elapsed.TotalMilliseconds,
+                    DateTime.UtcNow,
+                    this.TriggeredPerformanceCounters));
+
+            if (!this.EnableAlerts) return;
 
             if (this.InvocationStopwatch.Elapsed.TotalMilliseconds >= this.AlertThresholdMilliseconds)
                 this.AddAlert(this.InvocationStopwatch.Elapsed.TotalMilliseconds,
@@ -144,6 +174,7 @@ namespace StardewModdingAPI.Framework.PerformanceCounter
         /// <summary>Resets all performance counters in this collection.</summary>
         public void Reset()
         {
+            this.PeakInvocations.Clear();
             foreach (var i in this.PerformanceCounters)
                 i.Value.Reset();
         }

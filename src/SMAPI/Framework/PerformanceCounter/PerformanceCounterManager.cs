@@ -33,6 +33,11 @@ namespace StardewModdingAPI.Framework.PerformanceCounter
         /// <summary>Resets all performance counters in all collections.</summary>
         public void Reset()
         {
+            foreach (PerformanceCounterCollection collection in this.PerformanceCounterCollections)
+            {
+                collection.Reset();
+            }
+
             foreach (var eventPerformanceCounter in
                 this.PerformanceCounterCollections.SelectMany(performanceCounter => performanceCounter.PerformanceCounters))
             {

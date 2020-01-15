@@ -68,6 +68,26 @@ namespace StardewModdingAPI.Framework.PerformanceCounter
             return this.PeakPerformanceCounterEntry;
         }
 
+        /// <summary>Returns the peak entry.</summary>
+        /// <returns>The peak entry.</returns>
+        public PerformanceCounterEntry? GetPeak(TimeSpan range, DateTime? relativeTo = null)
+        {
+            if (this._counter.IsEmpty)
+                return null;
+
+            if (relativeTo == null)
+                relativeTo = DateTime.UtcNow;
+
+            DateTime start = relativeTo.Value.Subtract(range);
+
+            var entries = this._counter.Where(x => (x.EventTime >= start) && (x.EventTime <= relativeTo)).ToList();
+
+            if (!entries.Any())
+                return null;
+
+            return entries.OrderByDescending(x => x.ElapsedMilliseconds).First();
+        }
+
         /// <summary>Resets the peak entry.</summary>
         public void ResetPeak()
         {
