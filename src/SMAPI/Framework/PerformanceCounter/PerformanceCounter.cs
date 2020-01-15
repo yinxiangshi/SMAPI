@@ -1,25 +1,31 @@
 using System;
-using System.Diagnostics;
 using System.Linq;
 using Cyotek.Collections.Generic;
-using StardewModdingAPI.Framework.Utilities;
 
 namespace StardewModdingAPI.Framework.PerformanceCounter
 {
     internal class PerformanceCounter
     {
+        /// <summary>The size of the ring buffer.</summary>
         private const int MAX_ENTRIES = 16384;
 
-        public string Source { get; }
-        public static Stopwatch Stopwatch = new Stopwatch();
-        public static long TotalNumEventsLogged;
-        public double MonitorThresholdMilliseconds { get; set; }
-        public bool Monitor { get; set; }
+        /// <summary>The collection to which this performance counter belongs.</summary>
         private readonly PerformanceCounterCollection ParentCollection;
 
+        /// <summary>The circular buffer which stores all performance counter entries</summary>
         private readonly CircularBuffer<PerformanceCounterEntry> _counter;
 
+        /// <summary>The peak execution time</summary>
         private PerformanceCounterEntry? PeakPerformanceCounterEntry;
+
+        /// <summary>The name of the source.</summary>
+        public string Source { get; }
+
+        /// <summary>The alert threshold in milliseconds</summary>
+        public double AlertThresholdMilliseconds { get; set; }
+
+        /// <summary>If alerting is enabled or not</summary>
+        public bool EnableAlerts { get; set; }
 
         public PerformanceCounter(PerformanceCounterCollection parentCollection, string source)
         {
@@ -28,90 +34,87 @@ namespace StardewModdingAPI.Framework.PerformanceCounter
             this._counter = new CircularBuffer<PerformanceCounterEntry>(PerformanceCounter.MAX_ENTRIES);
         }
 
+        /// <summary>Adds a new performance counter entry to the list. Updates the peak entry and adds an alert if
+        /// monitoring is enabled and the execution time exceeds the threshold.</summary>
+        /// <param name="entry">The entry to add.</param>
+        public void Add(PerformanceCounterEntry entry)
+        {
+            this._counter.Put(entry);
+
+            if (this.EnableAlerts && entry.ElapsedMilliseconds > this.AlertThresholdMilliseconds)
+                this.ParentCollection.AddAlert(entry.ElapsedMilliseconds, this.AlertThresholdMilliseconds,
+                    new AlertContext(this.Source, entry.ElapsedMilliseconds));
+
+            if (this.PeakPerformanceCounterEntry == null)
+                this.PeakPerformanceCounterEntry = entry;
+            else
+            {
+                if (entry.ElapsedMilliseconds > this.PeakPerformanceCounterEntry.Value.ElapsedMilliseconds)
+                    this.PeakPerformanceCounterEntry = entry;
+            }
+        }
+
+        /// <summary>Clears all performance counter entries and resets the peak entry.</summary>
         public void Reset()
         {
             this._counter.Clear();
             this.PeakPerformanceCounterEntry = null;
         }
 
-        public int GetAverageCallsPerSecond()
-        {
-            var x = this._counter.GroupBy(
-                p =>
-                    (int) p.EventTime.Subtract(
-                        new DateTime(1970, 1, 1)
-                    ).TotalSeconds);
-
-            return x.Last().Count();
-        }
-
-        public void Add(PerformanceCounterEntry entry)
-        {
-            PerformanceCounter.Stopwatch.Start();
-            this._counter.Put(entry);
-
-            if (this.Monitor && entry.Elapsed.TotalMilliseconds > this.MonitorThresholdMilliseconds)
-            {
-                this.ParentCollection.AddAlert(entry.Elapsed.TotalMilliseconds, this.MonitorThresholdMilliseconds, new AlertContext(this.Source, entry.Elapsed.TotalMilliseconds));
-            }
-
-            if (this.PeakPerformanceCounterEntry == null)
-            {
-                this.PeakPerformanceCounterEntry = entry;
-            }
-            else
-            {
-                if (entry.Elapsed.TotalMilliseconds > this.PeakPerformanceCounterEntry.Value.Elapsed.TotalMilliseconds)
-                {
-                    this.PeakPerformanceCounterEntry = entry;
-                }
-            }
-
-            PerformanceCounter.Stopwatch.Stop();
-            PerformanceCounter.TotalNumEventsLogged++;
-        }
-
+        /// <summary>Returns the peak entry.</summary>
+        /// <returns>The peak entry.</returns>
         public PerformanceCounterEntry? GetPeak()
         {
             return this.PeakPerformanceCounterEntry;
         }
 
+        /// <summary>Resets the peak entry.</summary>
         public void ResetPeak()
         {
             this.PeakPerformanceCounterEntry = null;
         }
 
+        /// <summary>Returns the last entry added to the list.</summary>
+        /// <returns>The last entry</returns>
         public PerformanceCounterEntry? GetLastEntry()
         {
             if (this._counter.IsEmpty)
-            {
                 return null;
-            }
+
             return this._counter.PeekLast();
         }
 
+        /// <summary>Returns the average execution time of all entries.</summary>
+        /// <returns>The average execution time in milliseconds.</returns>
         public double GetAverage()
         {
             if (this._counter.IsEmpty)
-            {
                 return 0;
-            }
 
-            return this._counter.Average(p => p.Elapsed.TotalMilliseconds);
+            return this._counter.Average(p => p.ElapsedMilliseconds);
         }
 
-        public double GetAverage(TimeSpan range)
+        /// <summary>Returns the average over a given time span.</summary>
+        /// <param name="range">The time range to retrieve.</param>
+        /// <param name="relativeTo">The DateTime from which to start the average. Defaults to DateTime.UtcNow if null</param>
+        /// <returns>The average execution time in milliseconds.</returns>
+        /// <remarks>
+        /// The relativeTo parameter specifies from which point in time the range is subtracted. Example:
+        /// If DateTime is set to 60 seconds ago, and the range is set to 60 seconds, the method would return
+        /// the average between all entries between 120s ago and 60s ago.
+        /// </remarks>
+        public double GetAverage(TimeSpan range, DateTime? relativeTo = null)
         {
             if (this._counter.IsEmpty)
-            {
                 return 0;
-            }
 
-            var lastTime = this._counter.Max(x => x.EventTime);
-            var start = lastTime.Subtract(range);
+            if (relativeTo == null)
+                relativeTo = DateTime.UtcNow;
 
-            var entries = this._counter.Where(x => (x.EventTime >= start) && (x.EventTime <= lastTime));
-            return entries.Average(x => x.Elapsed.TotalMilliseconds);
+            DateTime start = relativeTo.Value.Subtract(range);
+
+            var entries = this._counter.Where(x => (x.EventTime >= start) && (x.EventTime <= relativeTo));
+            return entries.Average(x => x.ElapsedMilliseconds);
         }
     }
 }

@@ -1,10 +1,14 @@
 using System;
 
-namespace StardewModdingAPI.Framework.Utilities
+namespace StardewModdingAPI.Framework.PerformanceCounter
 {
-    public struct PerformanceCounterEntry
+    /// <summary>A single performance counter entry. Records the DateTime of the event and the elapsed millisecond.</summary>
+    internal struct PerformanceCounterEntry
     {
+        /// <summary>The DateTime when the entry occured.</summary>
         public DateTime EventTime;
-        public TimeSpan Elapsed;
+
+        /// <summary>The elapsed milliseconds</summary>
+        public double ElapsedMilliseconds;
     }
 }

@@ -169,7 +169,7 @@ namespace StardewModdingAPI.Framework
 
             SCore.PerformanceCounterManager = new PerformanceCounterManager(this.Monitor);
             this.EventManager = new EventManager(this.Monitor, this.ModRegistry, SCore.PerformanceCounterManager);
-            SCore.PerformanceCounterManager.InitializePerformanceCounterEvents(this.EventManager);
+            SCore.PerformanceCounterManager.InitializePerformanceCounterCollections(this.EventManager);
 
             SCore.DeprecationManager = new DeprecationManager(this.Monitor, this.ModRegistry);
 

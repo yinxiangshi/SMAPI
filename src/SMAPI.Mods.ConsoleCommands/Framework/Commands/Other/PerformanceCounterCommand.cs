@@ -134,8 +134,8 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
                 {
                     if (sourceName == null)
                     {
-                        collection.Monitor = true;
-                        collection.MonitorThresholdMilliseconds = threshold;
+                        collection.EnableAlerts = true;
+                        collection.AlertThresholdMilliseconds = threshold;
                         monitor.Log($"Set up monitor for '{collectionName}' with '{this.FormatMilliseconds(threshold)}'", LogLevel.Info);
                         return;
                     }
@@ -145,8 +145,8 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
                         {
                             if (performanceCounter.Value.Source.ToLowerInvariant().Equals(sourceName.ToLowerInvariant()))
                             {
-                                performanceCounter.Value.Monitor = true;
-                                performanceCounter.Value.MonitorThresholdMilliseconds = threshold;
+                                performanceCounter.Value.EnableAlerts = true;
+                                performanceCounter.Value.AlertThresholdMilliseconds = threshold;
                                 monitor.Log($"Set up monitor for '{sourceName}' in collection '{collectionName}' with '{this.FormatMilliseconds(threshold)}", LogLevel.Info);
                                 return;
                             }
@@ -167,17 +167,17 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
             int clearedCounters = 0;
             foreach (PerformanceCounterCollection collection in SCore.PerformanceCounterManager.PerformanceCounterCollections)
             {
-                if (collection.Monitor)
+                if (collection.EnableAlerts)
                 {
-                    collection.Monitor = false;
+                    collection.EnableAlerts = false;
                     clearedCounters++;
                 }
 
                 foreach (var performanceCounter in collection.PerformanceCounters)
                 {
-                    if (performanceCounter.Value.Monitor)
+                    if (performanceCounter.Value.EnableAlerts)
                     {
-                        performanceCounter.Value.Monitor = false;
+                        performanceCounter.Value.EnableAlerts = false;
                         clearedCounters++;
                     }
                 }
@@ -197,14 +197,14 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
 
             foreach (PerformanceCounterCollection collection in SCore.PerformanceCounterManager.PerformanceCounterCollections)
             {
-                if (collection.Monitor)
+                if (collection.EnableAlerts)
                 {
-                    collectionMonitors.Add((collection.Name, collection.MonitorThresholdMilliseconds));
+                    collectionMonitors.Add((collection.Name, collection.AlertThresholdMilliseconds));
                 }
 
                 sourceMonitors.AddRange(from performanceCounter in
-                    collection.PerformanceCounters where performanceCounter.Value.Monitor
-                    select (collection.Name, performanceCounter.Value.Source, performanceCounter.Value.MonitorThresholdMilliseconds));
+                    collection.PerformanceCounters where performanceCounter.Value.EnableAlerts
+                    select (collection.Name, performanceCounter.Value.Source, MonitorThresholdMilliseconds: performanceCounter.Value.AlertThresholdMilliseconds));
             }
 
             if (collectionMonitors.Count > 0)
@@ -377,7 +377,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
                 switch (type)
                 {
                     case "category":
-                        SCore.PerformanceCounterManager.ResetCategory(name);
+                        SCore.PerformanceCounterManager.ResetCollection(name);
                         monitor.Log($"All performance counters for category {name} are now cleared.", LogLevel.Info);
                         break;
                     case "mod":
@@ -491,8 +491,8 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
                 {
                     item.Key,
                     this.FormatMilliseconds(item.Value.GetAverage(averageInterval), thresholdMilliseconds),
-                    this.FormatMilliseconds(item.Value.GetLastEntry()?.Elapsed.TotalMilliseconds),
-                    this.FormatMilliseconds(item.Value.GetPeak()?.Elapsed.TotalMilliseconds)
+                    this.FormatMilliseconds(item.Value.GetLastEntry()?.ElapsedMilliseconds),
+                    this.FormatMilliseconds(item.Value.GetPeak()?.ElapsedMilliseconds)
                 }
             ));
 

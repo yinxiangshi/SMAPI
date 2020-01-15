@@ -4,72 +4,62 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using StardewModdingAPI.Framework.Events;
-using StardewModdingAPI.Framework.Utilities;
 
 namespace StardewModdingAPI.Framework.PerformanceCounter
 {
     internal class PerformanceCounterManager
     {
         public HashSet<PerformanceCounterCollection> PerformanceCounterCollections = new HashSet<PerformanceCounterCollection>();
-        public List<AlertEntry> Alerts = new List<AlertEntry>();
-        private readonly IMonitor Monitor;
-        private readonly Stopwatch Stopwatch = new Stopwatch();
 
+        /// <summary>The recorded alerts.</summary>
+        private readonly List<AlertEntry> Alerts = new List<AlertEntry>();
+
+        /// <summary>The monitor for output logging.</summary>
+        private readonly IMonitor Monitor;
+
+        /// <summary>The invocation stopwatch.</summary>
+        private readonly Stopwatch InvocationStopwatch = new Stopwatch();
+
+        /// <summary>Constructs a performance counter manager.</summary>
+        /// <param name="monitor">The monitor for output logging.</param>
         public PerformanceCounterManager(IMonitor monitor)
         {
             this.Monitor = monitor;
         }
 
+        /// <summary>Resets all performance counters in all collections.</summary>
         public void Reset()
         {
-            foreach (var performanceCounter in this.PerformanceCounterCollections)
+            foreach (var eventPerformanceCounter in
+                this.PerformanceCounterCollections.SelectMany(performanceCounter => performanceCounter.PerformanceCounters))
             {
-                foreach (var eventPerformanceCounter in performanceCounter.PerformanceCounters)
-                {
-                    eventPerformanceCounter.Value.Reset();
-                }
+                eventPerformanceCounter.Value.Reset();
             }
         }
 
-        /// <summary>Print any queued messages.</summary>
-        public void PrintQueued()
-        {
-            if (this.Alerts.Count == 0)
-            {
-                return;
-            }
-            StringBuilder sb = new StringBuilder();
-
-            foreach (var alert in this.Alerts)
-            {
-                sb.AppendLine($"{alert.Collection.Name} took {alert.ExecutionTimeMilliseconds:F2}ms (exceeded threshold of {alert.Threshold:F2}ms)");
-
-                foreach (var context in alert.Context)
-                {
-                    sb.AppendLine($"{context.Source}: {context.Elapsed:F2}ms");
-                }
-            }
-
-            this.Alerts.Clear();
-
-            this.Monitor.Log(sb.ToString(), LogLevel.Error);
-        }
-
+        /// <summary>Begins tracking the invocation for a collection.</summary>
+        /// <param name="collectionName">The collection name</param>
         public void BeginTrackInvocation(string collectionName)
         {
             this.GetOrCreateCollectionByName(collectionName).BeginTrackInvocation();
         }
 
+        /// <summary>Ends tracking the invocation for a collection.</summary>
+        /// <param name="collectionName"></param>
         public void EndTrackInvocation(string collectionName)
         {
             this.GetOrCreateCollectionByName(collectionName).EndTrackInvocation();
         }
 
-        public void Track(string collectionName, string modName, Action action)
+        /// <summary>Tracks a single performance counter invocation in a specific collection.</summary>
+        /// <param name="collectionName">The name of the collection.</param>
+        /// <param name="sourceName">The name of the source.</param>
+        /// <param name="action">The action to execute and track invocation time for.</param>
+        public void Track(string collectionName, string sourceName, Action action)
         {
             DateTime eventTime = DateTime.UtcNow;
-            this.Stopwatch.Reset();
-            this.Stopwatch.Start();
+            this.InvocationStopwatch.Reset();
+            this.InvocationStopwatch.Start();
 
             try
             {
@@ -77,75 +67,102 @@ namespace StardewModdingAPI.Framework.PerformanceCounter
             }
             finally
             {
-                this.Stopwatch.Stop();
+                this.InvocationStopwatch.Stop();
 
-                this.GetOrCreateCollectionByName(collectionName).Track(modName, new PerformanceCounterEntry
+                this.GetOrCreateCollectionByName(collectionName).Track(sourceName, new PerformanceCounterEntry
                 {
                     EventTime = eventTime,
-                    Elapsed = this.Stopwatch.Elapsed
+                    ElapsedMilliseconds = this.InvocationStopwatch.Elapsed.TotalMilliseconds
                 });
             }
         }
 
-        public PerformanceCounterCollection GetCollectionByName(string name)
+        /// <summary>Gets a collection by name.</summary>
+        /// <param name="name">The name of the collection.</param>
+        /// <returns>The collection or null if none was found.</returns>
+        private PerformanceCounterCollection GetCollectionByName(string name)
         {
             return this.PerformanceCounterCollections.FirstOrDefault(collection => collection.Name == name);
         }
 
-        public PerformanceCounterCollection GetOrCreateCollectionByName(string name)
+        /// <summary>Gets a collection by name and creates it if it doesn't exist.</summary>
+        /// <param name="name">The name of the collection.</param>
+        /// <returns>The collection.</returns>
+        private PerformanceCounterCollection GetOrCreateCollectionByName(string name)
         {
             PerformanceCounterCollection collection = this.GetCollectionByName(name);
 
-            if (collection == null)
-            {
-                collection = new PerformanceCounterCollection(this, name);
-                this.PerformanceCounterCollections.Add(collection);
-            }
+            if (collection != null) return collection;
+
+            collection = new PerformanceCounterCollection(this, name);
+            this.PerformanceCounterCollections.Add(collection);
 
             return collection;
         }
 
-        public void ResetCategory(string name)
+        /// <summary>Resets the performance counters for a specific collection.</summary>
+        /// <param name="name">The collection name.</param>
+        public void ResetCollection(string name)
         {
-            foreach (var performanceCounterCollection in this.PerformanceCounterCollections)
+            foreach (PerformanceCounterCollection performanceCounterCollection in
+                this.PerformanceCounterCollections.Where(performanceCounterCollection =>
+                    performanceCounterCollection.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase)))
             {
-                if (performanceCounterCollection.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    performanceCounterCollection.ResetCallsPerSecond();
-                    performanceCounterCollection.Reset();
-                }
+                performanceCounterCollection.ResetCallsPerSecond();
+                performanceCounterCollection.Reset();
             }
         }
 
+        /// <summary>Resets performance counters for a specific source.</summary>
+        /// <param name="name">The name of the source.</param>
         public void ResetSource(string name)
         {
-            foreach (var performanceCounterCollection in this.PerformanceCounterCollections)
-            {
+            foreach (PerformanceCounterCollection performanceCounterCollection in this.PerformanceCounterCollections)
                 performanceCounterCollection.ResetSource(name);
-            }
         }
 
+        /// <summary>Print any queued alerts.</summary>
+        public void PrintQueuedAlerts()
+        {
+            if (this.Alerts.Count == 0) return;
 
+            StringBuilder sb = new StringBuilder();
+
+            foreach (AlertEntry alert in this.Alerts)
+            {
+                sb.AppendLine($"{alert.Collection.Name} took {alert.ExecutionTimeMilliseconds:F2}ms (exceeded threshold of {alert.ThresholdMilliseconds:F2}ms)");
+
+                foreach (AlertContext context in alert.Context.OrderByDescending(p => p.Elapsed))
+                    sb.AppendLine(context.ToString());
+            }
+
+            this.Alerts.Clear();
+            this.Monitor.Log(sb.ToString(), LogLevel.Error);
+        }
+
+        /// <summary>Adds an alert to the queue.</summary>
+        /// <param name="entry">The alert to add.</param>
         public void AddAlert(AlertEntry entry)
         {
             this.Alerts.Add(entry);
         }
 
-        public void InitializePerformanceCounterEvents(EventManager eventManager)
+        /// <summary>Initialized the default performance counter collections.</summary>
+        /// <param name="eventManager">The event manager.</param>
+        public void InitializePerformanceCounterCollections(EventManager eventManager)
         {
             this.PerformanceCounterCollections = new HashSet<PerformanceCounterCollection>()
             {
                 new EventPerformanceCounterCollection(this, eventManager.MenuChanged, false),
 
-
                 // Rendering Events
-                new EventPerformanceCounterCollection(this, eventManager.Rendering, true),
+                new EventPerformanceCounterCollection(this, eventManager.Rendering, false),
                 new EventPerformanceCounterCollection(this, eventManager.Rendered, true),
-                new EventPerformanceCounterCollection(this, eventManager.RenderingWorld, true),
+                new EventPerformanceCounterCollection(this, eventManager.RenderingWorld, false),
                 new EventPerformanceCounterCollection(this, eventManager.RenderedWorld, true),
-                new EventPerformanceCounterCollection(this, eventManager.RenderingActiveMenu, true),
+                new EventPerformanceCounterCollection(this, eventManager.RenderingActiveMenu, false),
                 new EventPerformanceCounterCollection(this, eventManager.RenderedActiveMenu, true),
-                new EventPerformanceCounterCollection(this, eventManager.RenderingHud, true),
+                new EventPerformanceCounterCollection(this, eventManager.RenderingHud, false),
                 new EventPerformanceCounterCollection(this, eventManager.RenderedHud, true),
 
                 new EventPerformanceCounterCollection(this, eventManager.WindowResized, false),
@@ -172,19 +189,19 @@ namespace StardewModdingAPI.Framework.PerformanceCounter
                 new EventPerformanceCounterCollection(this, eventManager.CursorMoved, true),
                 new EventPerformanceCounterCollection(this, eventManager.MouseWheelScrolled, true),
 
-                new EventPerformanceCounterCollection(this, eventManager.PeerContextReceived, true),
-                new EventPerformanceCounterCollection(this, eventManager.ModMessageReceived, true),
-                new EventPerformanceCounterCollection(this, eventManager.PeerDisconnected, true),
+                new EventPerformanceCounterCollection(this, eventManager.PeerContextReceived, false),
+                new EventPerformanceCounterCollection(this, eventManager.ModMessageReceived, false),
+                new EventPerformanceCounterCollection(this, eventManager.PeerDisconnected, false),
                 new EventPerformanceCounterCollection(this, eventManager.InventoryChanged, true),
-                new EventPerformanceCounterCollection(this, eventManager.LevelChanged, true),
-                new EventPerformanceCounterCollection(this, eventManager.Warped, true),
+                new EventPerformanceCounterCollection(this, eventManager.LevelChanged, false),
+                new EventPerformanceCounterCollection(this, eventManager.Warped, false),
 
-                new EventPerformanceCounterCollection(this, eventManager.LocationListChanged, true),
-                new EventPerformanceCounterCollection(this, eventManager.BuildingListChanged, true),
-                new EventPerformanceCounterCollection(this, eventManager.LocationListChanged, true),
+                new EventPerformanceCounterCollection(this, eventManager.LocationListChanged, false),
+                new EventPerformanceCounterCollection(this, eventManager.BuildingListChanged, false),
+                new EventPerformanceCounterCollection(this, eventManager.LocationListChanged, false),
                 new EventPerformanceCounterCollection(this, eventManager.DebrisListChanged, true),
                 new EventPerformanceCounterCollection(this, eventManager.LargeTerrainFeatureListChanged, true),
-                new EventPerformanceCounterCollection(this, eventManager.NpcListChanged, true),
+                new EventPerformanceCounterCollection(this, eventManager.NpcListChanged, false),
                 new EventPerformanceCounterCollection(this, eventManager.ObjectListChanged, true),
                 new EventPerformanceCounterCollection(this, eventManager.ChestInventoryChanged, true),
                 new EventPerformanceCounterCollection(this, eventManager.TerrainFeatureListChanged, true),

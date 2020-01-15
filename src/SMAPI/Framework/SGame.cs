@@ -312,7 +312,7 @@ namespace StardewModdingAPI.Framework
             try
             {
                 this.DeprecationManager.PrintQueued();
-                this.PerformanceCounterManager.PrintQueued();
+                this.PerformanceCounterManager.PrintQueuedAlerts();
 
                 /*********
                 ** First-tick initialization
