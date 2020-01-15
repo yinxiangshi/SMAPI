@@ -206,6 +206,9 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
                         SCore.PerformanceCounterManager.PauseAlerts = false;
                         monitor.Log($"Alerts are now resumed.", LogLevel.Info);
                         break;
+                    case "dump":
+                        this.OutputAlertTriggers(monitor, true);
+                        break;
                     case "clear":
                         this.ClearAlertTriggers(monitor);
                         break;
@@ -308,7 +311,8 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
 
         /// <summary>Lists all configured alert triggers.</summary>
         /// <param name="monitor">Writes messages to the console and log file.</param>
-        private void OutputAlertTriggers(IMonitor monitor)
+        /// <param name="asDump">True to dump the triggers as commands.</param>
+        private void OutputAlertTriggers(IMonitor monitor, bool asDump = false)
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("Configured triggers:");
@@ -332,16 +336,27 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
             {
                 sb.AppendLine("Collection Triggers:");
                 sb.AppendLine();
-                sb.AppendLine(this.GetTableString(
-                    data: collectionTriggers,
-                    header: new[] {"Collection", "Threshold"},
-                    getRow: item => new[]
+
+                if (asDump)
+                {
+                    foreach (var item in collectionTriggers)
                     {
-                        item.collectionName,
-                        this.FormatMilliseconds(item.threshold)
-                    },
-                    true
-                ));
+                        sb.AppendLine($"pc trigger {item.collectionName} {item.threshold}");
+                    }
+                }
+                else
+                {
+                    sb.AppendLine(this.GetTableString(
+                        data: collectionTriggers,
+                        header: new[] {"Collection", "Threshold"},
+                        getRow: item => new[]
+                        {
+                            item.collectionName,
+                            this.FormatMilliseconds(item.threshold)
+                        },
+                        true
+                    ));
+                }
 
                 sb.AppendLine();
             }
@@ -354,17 +369,28 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
             {
                 sb.AppendLine("Source Triggers:");
                 sb.AppendLine();
-                sb.AppendLine(this.GetTableString(
-                    data: sourceTriggers,
-                    header: new[] {"Collection", "Source", "Threshold"},
-                    getRow: item => new[]
+
+                if (asDump)
+                {
+                    foreach (var item in sourceTriggers)
                     {
-                        item.collectionName,
-                        item.sourceName,
-                        this.FormatMilliseconds(item.threshold)
-                    },
-                    true
-                ));
+                        sb.AppendLine($"pc trigger {item.collectionName} {item.threshold} {item.sourceName}");
+                    }
+                }
+                else
+                {
+                    sb.AppendLine(this.GetTableString(
+                        data: sourceTriggers,
+                        header: new[] {"Collection", "Source", "Threshold"},
+                        getRow: item => new[]
+                        {
+                            item.collectionName,
+                            item.sourceName,
+                            this.FormatMilliseconds(item.threshold)
+                        },
+                        true
+                    ));
+                }
 
                 sb.AppendLine();
             }
@@ -560,6 +586,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
                     sb.AppendLine("                   - clear       Clears all trigger entries");
                     sb.AppendLine("                   - pause       Pauses triggering of alerts");
                     sb.AppendLine("                   - resume      Resumes triggering of alerts");
+                    sb.AppendLine("                   - dump        Dumps all triggers as commands for copy and paste");
                     sb.AppendLine("                   Defaults to 'list' if not specified.");
                     sb.AppendLine();
                     sb.AppendLine("  <collectionName> Required if the mode 'collection' is specified.");
