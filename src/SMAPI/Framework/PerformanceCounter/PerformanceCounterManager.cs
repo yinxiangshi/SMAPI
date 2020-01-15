@@ -20,6 +20,9 @@ namespace StardewModdingAPI.Framework.PerformanceCounter
         /// <summary>The invocation stopwatch.</summary>
         private readonly Stopwatch InvocationStopwatch = new Stopwatch();
 
+        /// <summary>Specifies if alerts should be paused.</summary>
+        public bool PauseAlerts { get; set; }
+
         /// <summary>Constructs a performance counter manager.</summary>
         /// <param name="monitor">The monitor for output logging.</param>
         public PerformanceCounterManager(IMonitor monitor)
@@ -144,7 +147,8 @@ namespace StardewModdingAPI.Framework.PerformanceCounter
         /// <param name="entry">The alert to add.</param>
         public void AddAlert(AlertEntry entry)
         {
-            this.Alerts.Add(entry);
+            if (!this.PauseAlerts)
+                this.Alerts.Add(entry);
         }
 
         /// <summary>Initialized the default performance counter collections.</summary>

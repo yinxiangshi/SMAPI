@@ -174,6 +174,7 @@ namespace StardewModdingAPI.Framework.Events
         /// <summary>Construct an instance.</summary>
         /// <param name="monitor">Writes messages to the log.</param>
         /// <param name="modRegistry">The mod registry with which to identify mods.</param>
+        /// <param name="performanceCounterManager">The performance counter manager.</param>
         public EventManager(IMonitor monitor, ModRegistry modRegistry, PerformanceCounterManager performanceCounterManager)
         {
             // create shortcut initializers

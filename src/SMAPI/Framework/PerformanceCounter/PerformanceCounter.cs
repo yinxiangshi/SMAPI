@@ -114,6 +114,10 @@ namespace StardewModdingAPI.Framework.PerformanceCounter
             DateTime start = relativeTo.Value.Subtract(range);
 
             var entries = this._counter.Where(x => (x.EventTime >= start) && (x.EventTime <= relativeTo));
+
+            if (!entries.Any())
+                return 0;
+
             return entries.Average(x => x.ElapsedMilliseconds);
         }
     }

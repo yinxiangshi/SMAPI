@@ -40,6 +40,7 @@ namespace StardewModdingAPI.Framework.Events
         /// <param name="eventName">A human-readable name for the event.</param>
         /// <param name="monitor">Writes messages to the log.</param>
         /// <param name="modRegistry">The mod registry with which to identify mods.</param>
+        /// <param name="performanceCounterManager">The performance counter manager</param>
         public ManagedEvent(string eventName, IMonitor monitor, ModRegistry modRegistry, PerformanceCounterManager performanceCounterManager)
         {
             this.EventName = eventName;
