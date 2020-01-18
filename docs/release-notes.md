@@ -15,6 +15,7 @@ For modders:
   * Removed invalid-schedule validation which had false positives.
 
 For SMAPI/tool developers:
+  * Updated links for the new r/SMAPI subreddit.
   * The `/mods` web API endpoint now includes version mappings from the wiki.
   * Dropped API support for the pre-3.0 update-check format.
 
