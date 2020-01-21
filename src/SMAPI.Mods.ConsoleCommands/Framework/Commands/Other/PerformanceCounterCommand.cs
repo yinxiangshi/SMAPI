@@ -17,6 +17,8 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
             {SubCommand.Detail, new[] {"detail", "d"}},
             {SubCommand.Reset, new[] {"reset", "r"}},
             {SubCommand.Trigger, new[] {"trigger"}},
+            {SubCommand.Enable, new[] {"enable"}},
+            {SubCommand.Disable, new[] {"disable"}},
             {SubCommand.Examples, new[] {"examples"}},
             {SubCommand.Concepts, new[] {"concepts"}},
             {SubCommand.Help, new[] {"help"}},
@@ -29,6 +31,8 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
             Detail,
             Reset,
             Trigger,
+            Enable,
+            Disable,
             Examples,
             Help,
             Concepts,
@@ -68,6 +72,14 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
                         break;
                     case SubCommand.Concepts:
                         this.OutputHelp(monitor, SubCommand.Concepts);
+                        break;
+                    case SubCommand.Enable:
+                        SCore.PerformanceCounterManager.EnableTracking = true;
+                        monitor.Log("Performance counter tracking is now enabled", LogLevel.Info);
+                        break;
+                    case SubCommand.Disable:
+                        SCore.PerformanceCounterManager.EnableTracking = false;
+                        monitor.Log("Performance counter tracking is now disabled", LogLevel.Info);
                         break;
                     case SubCommand.Help:
                         if (args.TryGet(1, "command", out string commandString))
@@ -118,20 +130,20 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
 
             StringBuilder sb = new StringBuilder();
 
-            TimeSpan peakSpan = TimeSpan.FromSeconds(60);
+            TimeSpan interval = TimeSpan.FromSeconds(60);
 
-            sb.AppendLine("Summary:");
+            sb.AppendLine($"Summary over the last {interval.TotalSeconds} seconds:");
             sb.AppendLine(this.GetTableString(
                 data: data,
-                header: new[] {"Collection", "Avg Calls/s", "Avg Exec Time (Game)", "Avg Exec Time (Mods)", "Avg Exec Time (Game+Mods)", "Peak Exec Time (60s)"},
+                header: new[] {"Collection", "Avg Calls/s", "Avg Exec Time (Game)", "Avg Exec Time (Mods)", "Avg Exec Time (Game+Mods)", "Peak Exec Time"},
                 getRow: item => new[]
                 {
                     item.Name,
                     item.GetAverageCallsPerSecond().ToString(),
-                    this.FormatMilliseconds(item.GetGameAverageExecutionTime(), threshold),
-                    this.FormatMilliseconds(item.GetModsAverageExecutionTime(), threshold),
-                    this.FormatMilliseconds(item.GetAverageExecutionTime(), threshold),
-                    this.FormatMilliseconds(item.GetPeakExecutionTime(peakSpan), threshold)
+                    this.FormatMilliseconds(item.GetGameAverageExecutionTime(interval), threshold),
+                    this.FormatMilliseconds(item.GetModsAverageExecutionTime(interval), threshold),
+                    this.FormatMilliseconds(item.GetAverageExecutionTime(interval), threshold),
+                    this.FormatMilliseconds(item.GetPeakExecutionTime(interval), threshold)
                 },
                 true
             ));
@@ -662,6 +674,8 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
             sb.AppendLine("  detail|d        Shows performance counter information for a given collection");
             sb.AppendLine("  reset|r         Resets the performance counters");
             sb.AppendLine("  trigger         Configures alert triggers");
+            sb.AppendLine("  enable          Enables performance counter recording");
+            sb.AppendLine("  disable         Disables performance counter recording");
             sb.AppendLine("  examples        Displays various examples");
             sb.AppendLine("  concepts        Displays an explanation of the performance counter concepts");
             sb.AppendLine("  help            Displays verbose help for the available commands");

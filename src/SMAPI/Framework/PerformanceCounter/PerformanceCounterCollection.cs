@@ -82,11 +82,28 @@ namespace StardewModdingAPI.Framework.PerformanceCounter
                 p.Key != Constants.GamePerformanceCounterName).Sum(p => p.Value.GetAverage());
         }
 
+        /// <summary>Returns the average execution time for all non-game internal sources.</summary>
+        /// <param name="interval">The interval for which to get the average, relative to now</param>
+        /// <returns>The average execution time in milliseconds</returns>
+        public double GetModsAverageExecutionTime(TimeSpan interval)
+        {
+            return this.PerformanceCounters.Where(p =>
+                p.Key != Constants.GamePerformanceCounterName).Sum(p => p.Value.GetAverage(interval));
+        }
+
         /// <summary>Returns the overall average execution time.</summary>
         /// <returns>The average execution time in milliseconds</returns>
         public double GetAverageExecutionTime()
         {
             return this.PerformanceCounters.Sum(p => p.Value.GetAverage());
+        }
+
+        /// <summary>Returns the overall average execution time.</summary>
+        /// <param name="interval">The interval for which to get the average, relative to now</param>
+        /// <returns>The average execution time in milliseconds</returns>
+        public double GetAverageExecutionTime(TimeSpan interval)
+        {
+            return this.PerformanceCounters.Sum(p => p.Value.GetAverage(interval));
         }
 
         /// <summary>Returns the average execution time for game-internal sources.</summary>
@@ -99,6 +116,20 @@ namespace StardewModdingAPI.Framework.PerformanceCounter
             return 0;
         }
 
+        /// <summary>Returns the average execution time for game-internal sources.</summary>
+        /// <returns>The average execution time in milliseconds</returns>
+        public double GetGameAverageExecutionTime(TimeSpan interval)
+        {
+            if (this.PerformanceCounters.TryGetValue(Constants.GamePerformanceCounterName, out PerformanceCounter gameExecTime))
+                return gameExecTime.GetAverage(interval);
+
+            return 0;
+        }
+
+        /// <summary>Returns the peak execution time</summary>
+        /// <param name="interval">The interval for which to get the peak, relative to <paramref name="relativeTo"/></param>
+        /// <param name="relativeTo">The DateTime which the <paramref name="interval"/> is relative to, or DateTime.Now if not given</param>
+        /// <returns>The peak execution time</returns>
         public double GetPeakExecutionTime(TimeSpan range, DateTime? relativeTo = null)
         {
             if (this.PeakInvocations.IsEmpty)

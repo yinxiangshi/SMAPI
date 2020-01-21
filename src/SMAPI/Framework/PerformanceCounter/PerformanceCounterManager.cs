@@ -23,6 +23,9 @@ namespace StardewModdingAPI.Framework.PerformanceCounter
         /// <summary>Specifies if alerts should be paused.</summary>
         public bool PauseAlerts { get; set; }
 
+        /// <summary>Specifies if performance counter tracking should be enabled.</summary>
+        public bool EnableTracking { get; set; }
+
         /// <summary>Constructs a performance counter manager.</summary>
         /// <param name="monitor">The monitor for output logging.</param>
         public PerformanceCounterManager(IMonitor monitor)
@@ -49,6 +52,11 @@ namespace StardewModdingAPI.Framework.PerformanceCounter
         /// <param name="collectionName">The collection name</param>
         public void BeginTrackInvocation(string collectionName)
         {
+            if (!this.EnableTracking)
+            {
+                return;
+            }
+
             this.GetOrCreateCollectionByName(collectionName).BeginTrackInvocation();
         }
 
@@ -56,6 +64,11 @@ namespace StardewModdingAPI.Framework.PerformanceCounter
         /// <param name="collectionName"></param>
         public void EndTrackInvocation(string collectionName)
         {
+            if (!this.EnableTracking)
+            {
+                return;
+            }
+
             this.GetOrCreateCollectionByName(collectionName).EndTrackInvocation();
         }
 
@@ -65,6 +78,12 @@ namespace StardewModdingAPI.Framework.PerformanceCounter
         /// <param name="action">The action to execute and track invocation time for.</param>
         public void Track(string collectionName, string sourceName, Action action)
         {
+            if (!this.EnableTracking)
+            {
+                action();
+                return;
+            }
+
             DateTime eventTime = DateTime.UtcNow;
             this.InvocationStopwatch.Reset();
             this.InvocationStopwatch.Start();

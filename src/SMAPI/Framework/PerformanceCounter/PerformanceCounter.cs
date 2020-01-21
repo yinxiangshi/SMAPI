@@ -133,7 +133,7 @@ namespace StardewModdingAPI.Framework.PerformanceCounter
 
             DateTime start = relativeTo.Value.Subtract(range);
 
-            var entries = this._counter.Where(x => (x.EventTime >= start) && (x.EventTime <= relativeTo));
+            var entries = this._counter.Where(x => (x.EventTime >= start) && (x.EventTime <= relativeTo)).ToList();
 
             if (!entries.Any())
                 return 0;
