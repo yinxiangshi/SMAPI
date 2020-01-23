@@ -13,6 +13,7 @@
 For modders:
   * Asset propagation for player sprites now affects other players' sprites, and updates recolor maps (e.g. sleeves).
   * Removed invalid-schedule validation which had false positives.
+  * Fixed `helper.Data.Read/WriteGlobalData` using the `Saves` folder. The installer will move existing folders to the appdata folder.
 
 For SMAPI/tool developers:
   * Updated links for the new r/SMAPI subreddit.

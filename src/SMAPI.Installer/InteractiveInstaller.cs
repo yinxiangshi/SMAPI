@@ -373,6 +373,21 @@ namespace StardewModdingApi.Installer
                         this.InteractivelyDelete(path);
                 }
 
+                // move global save data folder (changed in 3.2)
+                {
+                    string dataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley");
+                    DirectoryInfo oldDir = new DirectoryInfo(Path.Combine(dataPath, "Saves", ".smapi"));
+                    DirectoryInfo newDir = new DirectoryInfo(Path.Combine(dataPath, ".smapi"));
+
+                    if (oldDir.Exists)
+                    {
+                        if (newDir.Exists)
+                            this.InteractivelyDelete(oldDir.FullName);
+                        else
+                            oldDir.MoveTo(newDir.FullName);
+                    }
+                }
+
                 /****
                 ** Install new files
                 ****/
