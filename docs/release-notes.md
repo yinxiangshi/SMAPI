@@ -10,6 +10,9 @@
   * Fixed update-check error if a mod's Chucklefish page has no version.
   * Fixed SMAPI beta versions not showing update alert on next launch (thanks to danvolchek!).
 
+For the Console Commands mod:
+  * Added `test_input` command to view button codes in the console.
+
 For modders:
   * Asset propagation for player sprites now affects other players' sprites, and updates recolor maps (e.g. sleeves).
   * Removed invalid-schedule validation which had false positives.
@@ -31,12 +34,13 @@ Released 05 January 2019 for Stardew Valley 1.4 or later.
   * Fixed compatibility with Linux Mint 18 (thanks to techge!), Arch Linux, and Linux systems with libhybris-utils installed.
   * Fixed memory leak when repeatedly loading a save and returning to title.
   * Fixed memory leak when mods reload assets.
-  * Fixes for Console Commands mod:
-    * added new clothing items;
-    * fixed spawning new flooring and rings (thanks to Mizzion!);
-    * fixed spawning custom rings added by mods;
-    * Fixed errors when some item data is invalid.
   * Updated translations. Thanks to L30Bola (added Portuguese), PlussRolf (added Spanish), and shirutan (added Japanese)!
+
+* For the Console Commands mod:
+  * Added new clothing items.
+  * Fixed spawning new flooring and rings (thanks to Mizzion!).
+  * Fixed spawning custom rings added by mods.
+  * Fixed errors when some item data is invalid.
 
 * For the web UI:
   * Added option to edit & reupload in the JSON validator.
