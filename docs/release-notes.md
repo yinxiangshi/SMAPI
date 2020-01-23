@@ -10,15 +10,16 @@
   * Fixed update-check error if a mod's Chucklefish page has no version.
   * Fixed SMAPI beta versions not showing update alert on next launch (thanks to danvolchek!).
 
-For the Console Commands mod:
+* For the Console Commands mod:
   * Added `test_input` command to view button codes in the console.
 
-For modders:
+* For modders:
   * Asset propagation for player sprites now affects other players' sprites, and updates recolor maps (e.g. sleeves).
   * Removed invalid-schedule validation which had false positives.
   * Fixed `helper.Data.Read/WriteGlobalData` using the `Saves` folder. The installer will move existing folders to the appdata folder.
 
-For SMAPI/tool developers:
+* For SMAPI/tool developers:
+  * Added internal support for four-part versions to support SMAPI on Android.
   * Updated links for the new r/SMAPI subreddit.
   * The `/mods` web API endpoint now includes version mappings from the wiki.
   * Dropped API support for the pre-3.0 update-check format.
