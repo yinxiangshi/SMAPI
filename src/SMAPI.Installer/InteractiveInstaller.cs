@@ -352,6 +352,12 @@ namespace StardewModdingApi.Installer
                 Console.WriteLine();
 
                 /****
+                ** Back up user settings
+                ****/
+                if (File.Exists(paths.ApiUserConfigPath))
+                    File.Copy(paths.ApiUserConfigPath, paths.BundleApiUserConfigPath);
+
+                /****
                 ** Always uninstall old files
                 ****/
                 // restore game launcher
