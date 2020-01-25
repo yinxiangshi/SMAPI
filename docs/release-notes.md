@@ -5,6 +5,7 @@
 
 * For players:
   * SMAPI now prevents mods from crashing the game with invalid schedule data.
+  * SMAPI now prevents load crashes due to invalid building types.
   * Updated minimum game version (1.4 → 1.4.1).
   * Fixed 'collection was modified' error when returning to title in rare cases.
   * Fixed update-check error if a mod's Chucklefish page has no version.
