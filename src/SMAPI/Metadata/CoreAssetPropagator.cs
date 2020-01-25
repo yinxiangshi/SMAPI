@@ -887,7 +887,11 @@ namespace StardewModdingAPI.Metadata
 
             // update dialogue
             foreach (NPC villager in villagers)
+            {
                 villager.resetSeasonalDialogue(); // doesn't only affect seasonal dialogue
+                villager.resetCurrentDialogue();
+            }
+
             return true;
         }
 

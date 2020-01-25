@@ -19,6 +19,7 @@
   * Asset propagation for player sprites now affects other players' sprites, and updates recolor maps (e.g. sleeves).
   * Removed invalid-schedule validation which had false positives.
   * Fixed `helper.Data.Read/WriteGlobalData` using the `Saves` folder. The installer will move existing folders to the appdata folder.
+  * Fixed dialogue asset changes not correctly propagated until the next day.
 
 * For SMAPI/tool developers:
   * Added internal support for four-part versions to support SMAPI on Android.
