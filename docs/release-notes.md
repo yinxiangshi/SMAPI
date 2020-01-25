@@ -10,6 +10,7 @@
   * Fixed 'collection was modified' error when returning to title in rare cases.
   * Fixed update-check error if a mod's Chucklefish page has no version.
   * Fixed SMAPI beta versions not showing update alert on next launch (thanks to danvolchek!).
+  * Fixed rare error when building/demolishing buildings.
 
 * For the Console Commands mod:
   * Added `test_input` command to view button codes in the console.
