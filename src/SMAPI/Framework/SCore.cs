@@ -153,6 +153,9 @@ namespace StardewModdingAPI.Framework
 
             // init basics
             this.Settings = JsonConvert.DeserializeObject<SConfig>(File.ReadAllText(Constants.ApiConfigPath));
+            if (File.Exists(Constants.ApiUserConfigPath))
+                JsonConvert.PopulateObject(File.ReadAllText(Constants.ApiUserConfigPath), this.Settings);
+
             this.LogFile = new LogFileManager(logPath);
             this.Monitor = new Monitor("SMAPI", this.ConsoleManager, this.LogFile, this.Settings.ConsoleColors, this.Settings.VerboseLogging)
             {

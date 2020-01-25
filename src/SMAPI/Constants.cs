@@ -61,6 +61,9 @@ namespace StardewModdingAPI
         /// <summary>The file path for the SMAPI configuration file.</summary>
         internal static string ApiConfigPath => Path.Combine(Constants.InternalFilesPath, "config.json");
 
+        /// <summary>The file path for the overrides file for <see cref="ApiConfigPath"/>, which is applied over it.</summary>
+        internal static string ApiUserConfigPath => Path.Combine(Constants.InternalFilesPath, "config.user.json");
+
         /// <summary>The file path for the SMAPI metadata file.</summary>
         internal static string ApiMetadataPath => Path.Combine(Constants.InternalFilesPath, "metadata.json");
 
