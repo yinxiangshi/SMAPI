@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -249,6 +250,23 @@ namespace StardewModdingAPI.Framework
                 this.Monitor.Log("Invalidated 0 cache entries.", LogLevel.Trace);
 
             return removedAssets.Keys;
+        }
+
+        /// <summary>Get all loaded instances of an asset name.</summary>
+        /// <param name="assetName">The asset name.</param>
+        [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "This method is provided for Content Patcher.")]
+        public IEnumerable<object> GetLoadedValues(string assetName)
+        {
+            return this.ContentManagerLock.InReadLock(() =>
+            {
+                List<object> values = new List<object>();
+                foreach (IContentManager content in this.ContentManagers.Where(p => !p.IsNamespaced && p.IsLoaded(assetName)))
+                {
+                    object value = content.Load<object>(assetName, this.Language, useCache: true);
+                    values.Add(value);
+                }
+                return values;
+            });
         }
 
         /// <summary>Dispose held resources.</summary>
