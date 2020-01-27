@@ -14,6 +14,7 @@
   * Fixed rare error when building/demolishing buildings.
 
 * For the Console Commands mod:
+  * Added `performance` command to track mod performance metrics. This is an advanced experimental feature. (Thanks to Drachenkätzchen!)
   * Added `test_input` command to view button codes in the console.
 
 * For modders:
@@ -23,6 +24,7 @@
   * Fixed dialogue asset changes not correctly propagated until the next day.
 
 * For SMAPI/tool developers:
+  * Added internal performance monitoring (thanks to Drachenkätzchen!). This is disabled by default in the current version, but can be enabled using the `performance` console command.
   * Added internal support for four-part versions to support SMAPI on Android.
   * Updated links for the new r/SMAPI subreddit.
   * The `/mods` web API endpoint now includes version mappings from the wiki.
