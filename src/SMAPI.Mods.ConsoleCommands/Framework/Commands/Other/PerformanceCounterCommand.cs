@@ -13,6 +13,9 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
         /*********
         ** Fields
         *********/
+        /// <summary>The name of the command.</summary>
+        private const string CommandName = "performance";
+
         /// <summary>The available commands.</summary>
         private enum SubCommand
         {
@@ -31,7 +34,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
         *********/
         /// <summary>Construct an instance.</summary>
         public PerformanceCounterCommand()
-            : base("performance", PerformanceCounterCommand.GetDescription()) { }
+            : base(CommandName, PerformanceCounterCommand.GetDescription()) { }
 
         /// <summary>Handle the command.</summary>
         /// <param name="monitor">Writes messages to the console and log file.</param>
@@ -97,27 +100,13 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
         /// <param name="args">The command arguments.</param>
         private void HandleSummarySubCommand(IMonitor monitor, ArgumentParser args)
         {
-            if (!args.TryGet(1, "mode", out string mode, false))
-                mode = "important";
+            if (!this.AssertEnabled(monitor))
+                return;
 
             IEnumerable<PerformanceCounterCollection> data = SCore.PerformanceMonitor.GetCollections();
-            switch (mode)
-            {
-                case null:
-                case "important":
-                    data = data.Where(p => p.IsPerformanceCritical);
-                    break;
-
-                case "all":
-                    break;
-
-                default:
-                    data = data.Where(p => p.Name.ToLowerInvariant().Contains(mode.ToLowerInvariant()));
-                    break;
-            }
 
             double? threshold = null;
-            if (args.TryGetDecimal(2, "threshold", out decimal t, false))
+            if (args.TryGetDecimal(1, "threshold", out decimal t, required: false))
                 threshold = (double?)t;
 
             TimeSpan interval = TimeSpan.FromSeconds(60);
@@ -147,23 +136,21 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
         /// <param name="args">The command arguments.</param>
         private void HandleDetailSubCommand(IMonitor monitor, ArgumentParser args)
         {
-            var collections = new List<PerformanceCounterCollection>();
-            TimeSpan averageInterval = TimeSpan.FromSeconds(60);
+            if (!this.AssertEnabled(monitor))
+                return;
+
+            // parse args
             double? thresholdMilliseconds = null;
-            string sourceFilter = null;
+            if (args.TryGetDecimal(1, "threshold", out decimal t, required: false))
+                thresholdMilliseconds = (double)t;
 
-            if (args.TryGet(1, "collection", out string collectionName))
-            {
-                collections.AddRange(SCore.PerformanceMonitor.GetCollections().Where(collection => collection.Name.ToLowerInvariant().Contains(collectionName.ToLowerInvariant())));
+            // get collections
+            var collections = SCore.PerformanceMonitor.GetCollections();
 
-                if (args.Count >= 2 && decimal.TryParse(args[2], out _) && args.TryGetDecimal(2, "threshold", out decimal value, false))
-                    thresholdMilliseconds = (double?)value;
-                else if (args.TryGet(2, "source", out string sourceName, false))
-                    sourceFilter = sourceName;
-            }
-
+            // format
+            TimeSpan averageInterval = TimeSpan.FromSeconds(60);
             foreach (PerformanceCounterCollection c in collections)
-                this.OutputPerformanceCollectionDetail(monitor, c, averageInterval, thresholdMilliseconds, sourceFilter);
+                this.OutputPerformanceCollectionDetail(monitor, c, averageInterval, thresholdMilliseconds);
         }
 
         /// <summary>Handles the trigger sub command.</summary>
@@ -171,6 +158,9 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
         /// <param name="args">The command arguments.</param>
         private void HandleTriggerSubCommand(IMonitor monitor, ArgumentParser args)
         {
+            if (!this.AssertEnabled(monitor))
+                return;
+
             if (args.TryGet(1, "mode", out string mode, false))
             {
                 switch (mode)
@@ -210,7 +200,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
                         break;
 
                     default:
-                        this.LogUsageError(monitor, $"Unknown mode {mode}. See 'pc help trigger' for usage.");
+                        this.LogUsageError(monitor, $"Unknown mode {mode}. See '{CommandName} help trigger' for usage.");
                         break;
                 }
             }
@@ -331,7 +321,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
                 if (asDump)
                 {
                     foreach (var item in collectionTriggers)
-                        report.AppendLine($"pc trigger {item.CollectionName} {item.Threshold}");
+                        report.AppendLine($"{CommandName} trigger {item.CollectionName} {item.Threshold}");
                 }
                 else
                 {
@@ -356,7 +346,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
                 if (asDump)
                 {
                     foreach (SourceTrigger item in sourceTriggers)
-                        report.AppendLine($"pc trigger {item.CollectionName} {item.Threshold} {item.SourceName}");
+                        report.AppendLine($"{CommandName} trigger {item.CollectionName} {item.Threshold} {item.SourceName}");
                 }
                 else
                 {
@@ -381,6 +371,9 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
         /// <param name="args">The command arguments.</param>
         private void HandleResetSubCommand(IMonitor monitor, ArgumentParser args)
         {
+            if (!this.AssertEnabled(monitor))
+                return;
+
             if (args.TryGet(1, "type", out string type, false, new[] { "category", "source" }))
             {
                 args.TryGet(2, "name", out string name);
@@ -404,25 +397,16 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
             }
         }
 
-
         /// <summary>Outputs the details for a collection.</summary>
         /// <param name="monitor">Writes messages to the console and log file.</param>
         /// <param name="collection">The collection.</param>
         /// <param name="averageInterval">The interval over which to calculate the averages.</param>
         /// <param name="thresholdMilliseconds">The threshold.</param>
-        /// <param name="sourceFilter">The source filter.</param>
-        private void OutputPerformanceCollectionDetail(IMonitor monitor, PerformanceCounterCollection collection,
-            TimeSpan averageInterval, double? thresholdMilliseconds, string sourceFilter = null)
+        private void OutputPerformanceCollectionDetail(IMonitor monitor, PerformanceCounterCollection collection, TimeSpan averageInterval, double? thresholdMilliseconds)
         {
             StringBuilder report = new StringBuilder($"Performance Counter for {collection.Name}:\n\n");
 
             List<KeyValuePair<string, PerformanceCounter>> data = collection.PerformanceCounters.ToList();
-
-            if (sourceFilter != null)
-            {
-                data = collection.PerformanceCounters.Where(p =>
-                    p.Value.Source.ToLowerInvariant().Contains(sourceFilter.ToLowerInvariant())).ToList();
-            }
 
             if (thresholdMilliseconds != null)
                 data = data.Where(p => p.Value.GetAverage(averageInterval) >= thresholdMilliseconds).ToList();
@@ -476,46 +460,35 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
             switch (subcommand)
             {
                 case SubCommand.Detail:
-                    report.AppendLine("Usage: pc detail <collection> <source>");
-                    report.AppendLine("       pc detail <collection> <threshold>");
+                    report.AppendLine($"       {CommandName} detail <threshold>");
                     report.AppendLine();
                     report.AppendLine("Displays details for a specific collection.");
                     report.AppendLine();
                     report.AppendLine("Arguments:");
-                    report.AppendLine("  <collection>  Required. The full or partial name of the collection to display.");
-                    report.AppendLine("  <source>      Optional. The full or partial name of the source.");
                     report.AppendLine("  <threshold>   Optional. The threshold in milliseconds. Any average execution time below that");
                     report.AppendLine("                threshold is not reported.");
                     report.AppendLine();
                     report.AppendLine("Examples:");
-                    report.AppendLine("pc detail Display.Rendering                              Displays all performance counters for the 'Display.Rendering' collection");
-                    report.AppendLine("pc detail Display.Rendering Pathoschild.ChestsAnywhere   Displays the 'Display.Rendering' performance counter for 'Pathoschild.ChestsAnywhere'");
-                    report.AppendLine("pc detail Display.Rendering 5                            Displays the 'Display.Rendering' performance counters exceeding an average of 5ms");
+                    report.AppendLine($"{CommandName} detail 5     Show counters exceeding an average of 5ms");
                     break;
 
                 case SubCommand.Summary:
-                    report.AppendLine("Usage: pc summary <mode|name> <threshold>");
+                    report.AppendLine($"Usage: {CommandName} summary <threshold>");
                     report.AppendLine();
                     report.AppendLine("Displays the performance counter summary.");
                     report.AppendLine();
                     report.AppendLine("Arguments:");
-                    report.AppendLine("  <mode>      Optional. Defaults to 'important' if omitted. Specifies one of these modes:");
-                    report.AppendLine("              - all        Displays performance counters from all collections");
-                    report.AppendLine("              - important  Displays only important performance counter collections");
-                    report.AppendLine();
-                    report.AppendLine("  <name>      Optional. Only shows performance counter collections matching the given name");
-                    report.AppendLine("  <threshold> Optional. Hides the actual execution time if it is below this threshold");
+                    report.AppendLine("  <threshold> Optional. Hides the actual execution time if it's below this threshold");
                     report.AppendLine();
                     report.AppendLine("Examples:");
-                    report.AppendLine("pc summary all                Shows all events");
-                    report.AppendLine("pc summary all 5              Shows all events");
-                    report.AppendLine("pc summary Display.Rendering  Shows only the 'Display.Rendering' collection");
+                    report.AppendLine($"{CommandName} summary       Show all events");
+                    report.AppendLine($"{CommandName} summary 5     Shows events exceeding an average of 5ms");
                     break;
 
                 case SubCommand.Trigger:
-                    report.AppendLine("Usage: pc trigger <mode>");
-                    report.AppendLine("Usage: pc trigger collection <collectionName> <threshold>");
-                    report.AppendLine("Usage: pc trigger collection <collectionName> <threshold> <sourceName>");
+                    report.AppendLine($"Usage: {CommandName} trigger <mode>");
+                    report.AppendLine($"Usage: {CommandName} trigger collection <collectionName> <threshold>");
+                    report.AppendLine($"Usage: {CommandName} trigger collection <collectionName> <threshold> <sourceName>");
                     report.AppendLine();
                     report.AppendLine("Manages alert triggers.");
                     report.AppendLine();
@@ -540,23 +513,23 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
                     report.AppendLine();
                     report.AppendLine("Examples:");
                     report.AppendLine();
-                    report.AppendLine("pc trigger collection Display.Rendering 10");
+                    report.AppendLine($"{CommandName} trigger collection Display.Rendering 10");
                     report.AppendLine("  Sets up an alert trigger which writes on the console if the execution time of all performance counters in");
                     report.AppendLine("  the 'Display.Rendering' collection exceed 10 milliseconds.");
                     report.AppendLine();
-                    report.AppendLine("pc trigger collection Display.Rendering 5 Pathoschild.ChestsAnywhere");
+                    report.AppendLine($"{CommandName} trigger collection Display.Rendering 5 Pathoschild.ChestsAnywhere");
                     report.AppendLine("  Sets up an alert trigger to write on the console if the execution time of Pathoschild.ChestsAnywhere in");
                     report.AppendLine("  the 'Display.Rendering' collection exceed 5 milliseconds.");
                     report.AppendLine();
-                    report.AppendLine("pc trigger collection Display.Rendering 0");
+                    report.AppendLine($"{CommandName} trigger collection Display.Rendering 0");
                     report.AppendLine("  Removes the threshold previously defined from the collection. Note that source-specific thresholds are left intact.");
                     report.AppendLine();
-                    report.AppendLine("pc trigger clear");
+                    report.AppendLine($"{CommandName} trigger clear");
                     report.AppendLine("  Clears all previously setup alert triggers.");
                     break;
 
                 case SubCommand.Reset:
-                    report.AppendLine("Usage: pc reset <type> <name>");
+                    report.AppendLine($"Usage: {CommandName} reset <type> <name>");
                     report.AppendLine();
                     report.AppendLine("Resets performance counters.");
                     report.AppendLine();
@@ -571,9 +544,9 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
                     report.AppendLine("          or the source. The name must be an exact match.");
                     report.AppendLine();
                     report.AppendLine("Examples:");
-                    report.AppendLine("pc reset                                    Resets all performance counters");
-                    report.AppendLine("pc reset source Pathoschild.ChestsAnywhere  Resets all performance for the source named Pathoschild.ChestsAnywhere");
-                    report.AppendLine("pc reset collection Display.Rendering       Resets all performance for the collection named Display.Rendering");
+                    report.AppendLine($"{CommandName} reset                                    Resets all performance counters");
+                    report.AppendLine($"{CommandName} reset source Pathoschild.ChestsAnywhere  Resets all performance for the source named Pathoschild.ChestsAnywhere");
+                    report.AppendLine($"{CommandName} reset collection Display.Rendering       Resets all performance for the collection named Display.Rendering");
                     break;
             }
 
@@ -586,14 +559,12 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
         {
             StringBuilder report = new StringBuilder();
 
-            report.AppendLine("Displays or configures performance monitoring for diagnose issues.");
+            report.AppendLine("Displays or configures performance monitoring to diagnose issues. Performance monitoring is disabled by default.");
             report.AppendLine();
-            report.AppendLine("A 'performance counter' is a metric which measures execution time across a range of time for a source (e.g. a mod).");
-            report.AppendLine("A set of performance counters is organized in a collection to group various areas.");
-            report.AppendLine("For example, the performance counter collection named 'Display.Rendered' contains one performance");
+            report.AppendLine("For example, the counter collection named 'Display.Rendered' contains one performance");
             report.AppendLine("counter when the game executes the 'Display.Rendered' event, and another counter for each mod which handles it.");
             report.AppendLine();
-            report.AppendLine("Usage: pc <command> <action>");
+            report.AppendLine($"Usage: {CommandName} <command> <action>");
             report.AppendLine();
             report.AppendLine("Commands:");
             report.AppendLine();
@@ -605,13 +576,27 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
             report.AppendLine("  disable    Disable performance counter recording.");
             report.AppendLine("  help       Show verbose help for the available commands.");
             report.AppendLine();
-            report.AppendLine("To get help for a specific command, use 'pc help <command>', for example:");
-            report.AppendLine("pc help summary");
+            report.AppendLine($"To get help for a specific command, use '{CommandName} help <command>', for example:");
+            report.AppendLine($"{CommandName} help summary");
             report.AppendLine();
             report.AppendLine("Defaults to summary if no command is given.");
             report.AppendLine();
 
             return report.ToString();
+        }
+
+        /// <summary>Log a warning if performance monitoring isn't enabled.</summary>
+        /// <param name="monitor">Writes messages to the console and log file.</param>
+        /// <returns>Returns whether performance monitoring is enabled.</returns>
+        private bool AssertEnabled(IMonitor monitor)
+        {
+            if (!SCore.PerformanceMonitor.EnableTracking)
+            {
+                monitor.Log($"Performance monitoring is currently disabled; enter '{CommandName} enable' to enable it.", LogLevel.Warn);
+                return false;
+            }
+
+            return true;
         }
 
 
