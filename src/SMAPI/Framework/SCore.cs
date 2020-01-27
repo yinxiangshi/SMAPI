@@ -23,6 +23,7 @@ using StardewModdingAPI.Framework.Models;
 using StardewModdingAPI.Framework.ModHelpers;
 using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Framework.Patching;
+using StardewModdingAPI.Framework.PerformanceMonitoring;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Serialization;
 using StardewModdingAPI.Patches;
@@ -109,7 +110,7 @@ namespace StardewModdingAPI.Framework
                     "Oops! Steam achievements won't work because Steam isn't loaded. You can launch the game through Steam to fix that.",
 #endif
                 logLevel: LogLevel.Error
-            ), 
+            ),
 
             // save file not found error
             new ReplaceLogPattern(
@@ -132,6 +133,10 @@ namespace StardewModdingAPI.Framework
         /// <summary>Manages deprecation warnings.</summary>
         /// <remarks>This is initialized after the game starts. This is accessed directly because it's not part of the normal class model.</remarks>
         internal static DeprecationManager DeprecationManager { get; private set; }
+
+        /// <summary>Manages performance counters.</summary>
+        /// <remarks>This is initialized after the game starts. This is non-private for use by Console Commands.</remarks>
+        internal static PerformanceMonitor PerformanceMonitor { get; private set; }
 
 
         /*********
@@ -164,7 +169,11 @@ namespace StardewModdingAPI.Framework
                 ShowFullStampInConsole = this.Settings.DeveloperMode
             };
             this.MonitorForGame = this.GetSecondaryMonitor("game");
-            this.EventManager = new EventManager(this.Monitor, this.ModRegistry);
+
+            SCore.PerformanceMonitor = new PerformanceMonitor(this.Monitor);
+            this.EventManager = new EventManager(this.Monitor, this.ModRegistry, SCore.PerformanceMonitor);
+            SCore.PerformanceMonitor.InitializePerformanceCounterCollections(this.EventManager);
+
             SCore.DeprecationManager = new DeprecationManager(this.Monitor, this.ModRegistry);
 
             // redirect direct console output
@@ -242,6 +251,7 @@ namespace StardewModdingAPI.Framework
                     jsonHelper: this.Toolkit.JsonHelper,
                     modRegistry: this.ModRegistry,
                     deprecationManager: SCore.DeprecationManager,
+                    performanceMonitor: SCore.PerformanceMonitor,
                     onGameInitialized: this.InitializeAfterGameStart,
                     onGameExiting: this.Dispose,
                     cancellationToken: this.CancellationToken,

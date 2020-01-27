@@ -1,9 +1,9 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <!--
-  
+
   This build task is run from the installer project after all projects have been compiled, and
   creates the build package in the bin\Packages folder.
-  
+
   -->
   <Target Name="PrepareInstaller" AfterTargets="AfterBuild">
     <PropertyGroup>
@@ -24,7 +24,7 @@
     <!-- reset package directory -->
     <RemoveDir Directories="$(PackagePath)" />
     <RemoveDir Directories="$(PackageDevPath)" />
-    
+
     <!-- copy installer files -->
     <Copy SourceFiles="$(TargetDir)\unix-install.sh" DestinationFiles="$(PackagePath)\install on Linux.sh" />
     <Copy SourceFiles="$(TargetDir)\unix-install.sh" DestinationFiles="$(PackagePath)\install on Mac.command" />
