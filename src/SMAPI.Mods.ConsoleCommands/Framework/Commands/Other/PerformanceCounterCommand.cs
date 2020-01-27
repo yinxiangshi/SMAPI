@@ -140,17 +140,47 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
                 return;
 
             // parse args
-            double? thresholdMilliseconds = null;
+            double thresholdMilliseconds = 0;
             if (args.TryGetDecimal(1, "threshold", out decimal t, required: false))
                 thresholdMilliseconds = (double)t;
 
             // get collections
             var collections = SCore.PerformanceMonitor.GetCollections();
 
-            // format
+            // render
             TimeSpan averageInterval = TimeSpan.FromSeconds(60);
-            foreach (PerformanceCounterCollection c in collections)
-                this.OutputPerformanceCollectionDetail(monitor, c, averageInterval, thresholdMilliseconds);
+            StringBuilder report = new StringBuilder($"Showing details for performance counters of {thresholdMilliseconds}+ milliseconds:\n\n");
+            bool anyShown = false;
+            foreach (PerformanceCounterCollection collection in collections)
+            {
+                KeyValuePair<string, PerformanceCounter>[] data = collection.PerformanceCounters
+                    .Where(p => p.Value.GetAverage(averageInterval) >= thresholdMilliseconds)
+                    .ToArray();
+
+                if (data.Any())
+                {
+                    anyShown = true;
+                    report.AppendLine($"{collection.Name}:");
+                    report.AppendLine(this.GetTableString(
+                        data: data,
+                        header: new[] { "Mod", $"Avg Exec Time (last {(int)averageInterval.TotalSeconds}s)", "Last Exec Time", "Peak Exec Time", $"Peak Exec Time (last {(int)averageInterval.TotalSeconds}s)" },
+                        getRow: item => new[]
+                        {
+                            item.Key,
+                            this.FormatMilliseconds(item.Value.GetAverage(averageInterval), thresholdMilliseconds),
+                            this.FormatMilliseconds(item.Value.GetLastEntry()?.ElapsedMilliseconds),
+                            this.FormatMilliseconds(item.Value.GetPeak()?.ElapsedMilliseconds),
+                            this.FormatMilliseconds(item.Value.GetPeak(averageInterval)?.ElapsedMilliseconds)
+                        },
+                        true
+                    ));
+                }
+            }
+
+            if (!anyShown)
+                report.AppendLine("No performance counters found.");
+
+            monitor.Log(report.ToString(), LogLevel.Info);
         }
 
         /// <summary>Handles the trigger sub command.</summary>
@@ -397,45 +427,6 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
             }
         }
 
-        /// <summary>Outputs the details for a collection.</summary>
-        /// <param name="monitor">Writes messages to the console and log file.</param>
-        /// <param name="collection">The collection.</param>
-        /// <param name="averageInterval">The interval over which to calculate the averages.</param>
-        /// <param name="thresholdMilliseconds">The threshold.</param>
-        private void OutputPerformanceCollectionDetail(IMonitor monitor, PerformanceCounterCollection collection, TimeSpan averageInterval, double? thresholdMilliseconds)
-        {
-            StringBuilder report = new StringBuilder($"Performance Counter for {collection.Name}:\n\n");
-
-            List<KeyValuePair<string, PerformanceCounter>> data = collection.PerformanceCounters.ToList();
-
-            if (thresholdMilliseconds != null)
-                data = data.Where(p => p.Value.GetAverage(averageInterval) >= thresholdMilliseconds).ToList();
-
-            if (data.Any())
-            {
-                report.AppendLine(this.GetTableString(
-                    data: data,
-                    header: new[] { "Mod", $"Avg Exec Time (last {(int)averageInterval.TotalSeconds}s)", "Last Exec Time", "Peak Exec Time", $"Peak Exec Time (last {(int)averageInterval.TotalSeconds}s)" },
-                    getRow: item => new[]
-                    {
-                        item.Key,
-                        this.FormatMilliseconds(item.Value.GetAverage(averageInterval), thresholdMilliseconds),
-                        this.FormatMilliseconds(item.Value.GetLastEntry()?.ElapsedMilliseconds),
-                        this.FormatMilliseconds(item.Value.GetPeak()?.ElapsedMilliseconds),
-                        this.FormatMilliseconds(item.Value.GetPeak(averageInterval)?.ElapsedMilliseconds)
-                    },
-                    true
-                ));
-            }
-            else
-            {
-                report.Clear();
-                report.AppendLine($"Performance Counter for {collection.Name}: none.");
-            }
-
-            monitor.Log(report.ToString(), LogLevel.Info);
-        }
-
         /// <summary>Formats the given milliseconds value into a string format. Optionally
         /// allows a threshold to return "-" if the value is less than the threshold.</summary>
         /// <param name="milliseconds">The milliseconds to format. Returns "-" if null</param>
@@ -443,10 +434,10 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
         /// <returns>The formatted milliseconds.</returns>
         private string FormatMilliseconds(double? milliseconds, double? thresholdMilliseconds = null)
         {
-            if (milliseconds == null || (thresholdMilliseconds != null && milliseconds < thresholdMilliseconds))
-                return "-";
-
-            return ((double)milliseconds).ToString("F2");
+            thresholdMilliseconds ??= 1;
+            return milliseconds != null && milliseconds >= thresholdMilliseconds
+                   ? ((double)milliseconds).ToString("F2")
+                   : "-";
         }
 
         /// <summary>Shows detailed help for a specific sub command.</summary>
