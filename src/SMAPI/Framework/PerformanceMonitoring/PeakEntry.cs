@@ -1,6 +1,6 @@
 using System;
 
-namespace StardewModdingAPI.Framework.PerformanceCounter
+namespace StardewModdingAPI.Framework.PerformanceMonitoring
 {
     /// <summary>A peak invocation time.</summary>
     internal struct PeakEntry

@@ -1,4 +1,4 @@
-namespace StardewModdingAPI.Framework.PerformanceCounter
+namespace StardewModdingAPI.Framework.PerformanceMonitoring
 {
     /// <summary>A single alert entry.</summary>
     internal struct AlertEntry

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Harmony;
 
-namespace StardewModdingAPI.Framework.PerformanceCounter
+namespace StardewModdingAPI.Framework.PerformanceMonitoring
 {
     /// <summary>Tracks metadata about a particular code event.</summary>
     internal class PerformanceCounter

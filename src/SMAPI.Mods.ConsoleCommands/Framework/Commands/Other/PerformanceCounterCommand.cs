@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using StardewModdingAPI.Framework;
-using StardewModdingAPI.Framework.PerformanceCounter;
+using StardewModdingAPI.Framework.PerformanceMonitoring;
 
 namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
 {

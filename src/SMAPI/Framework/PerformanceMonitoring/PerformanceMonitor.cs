@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using StardewModdingAPI.Framework.Events;
 
-namespace StardewModdingAPI.Framework.PerformanceCounter
+namespace StardewModdingAPI.Framework.PerformanceMonitoring
 {
     /// <summary>Tracks performance metrics.</summary>
     internal class PerformanceMonitor
