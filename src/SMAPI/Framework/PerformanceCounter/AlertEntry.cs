@@ -1,28 +1,33 @@
-using System.Collections.Generic;
-
 namespace StardewModdingAPI.Framework.PerformanceCounter
 {
     /// <summary>A single alert entry.</summary>
     internal struct AlertEntry
     {
+        /*********
+        ** Accessors
+        *********/
         /// <summary>The collection in which the alert occurred.</summary>
-        public readonly PerformanceCounterCollection Collection;
+        public PerformanceCounterCollection Collection { get; }
 
         /// <summary>The actual execution time in milliseconds.</summary>
-        public readonly double ExecutionTimeMilliseconds;
+        public double ExecutionTimeMilliseconds { get; }
 
-        /// <summary>The configured alert threshold. </summary>
-        public readonly double ThresholdMilliseconds;
+        /// <summary>The configured alert threshold in milliseconds.</summary>
+        public double ThresholdMilliseconds { get; }
 
-        /// <summary>The context list, which records all sources involved in exceeding the threshold.</summary>
-        public readonly List<AlertContext> Context;
+        /// <summary>The sources involved in exceeding the threshold.</summary>
+        public AlertContext[] Context { get; }
 
-        /// <summary>Creates a new alert entry.</summary>
-        /// <param name="collection">The source collection in which the alert occurred.</param>
+
+        /*********
+        ** Public methods
+        *********/
+        /// <summary>Construct an instance.</summary>
+        /// <param name="collection">The collection in which the alert occurred.</param>
         /// <param name="executionTimeMilliseconds">The actual execution time in milliseconds.</param>
-        /// <param name="thresholdMilliseconds">The configured threshold in milliseconds.</param>
-        /// <param name="context">A list of AlertContext to record which sources were involved</param>
-        public AlertEntry(PerformanceCounterCollection collection, double executionTimeMilliseconds, double thresholdMilliseconds, List<AlertContext> context)
+        /// <param name="thresholdMilliseconds">The configured alert threshold in milliseconds.</param>
+        /// <param name="context">The sources involved in exceeding the threshold.</param>
+        public AlertEntry(PerformanceCounterCollection collection, double executionTimeMilliseconds, double thresholdMilliseconds, AlertContext[] context)
         {
             this.Collection = collection;
             this.ExecutionTimeMilliseconds = executionTimeMilliseconds;

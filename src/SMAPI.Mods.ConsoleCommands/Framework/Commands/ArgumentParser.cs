@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
@@ -31,13 +31,6 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands
         /// <summary>Get the argument at the specified index in the list.</summary>
         /// <param name="index">The zero-based index of the element to get.</param>
         public string this[int index] => this.Args[index];
-
-        /// <summary>A method which parses a string argument into the given value.</summary>
-        /// <typeparam name="T">The expected argument type.</typeparam>
-        /// <param name="input">The argument to parse.</param>
-        /// <param name="output">The parsed value.</param>
-        /// <returns>Returns whether the argument was successfully parsed.</returns>
-        public delegate bool ParseDelegate<T>(string input, out T output);
 
 
         /*********
@@ -108,19 +101,6 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands
             if ((min.HasValue && value < min) || (max.HasValue && value > max))
             {
                 this.LogIntFormatError(index, name, min, max);
-                return false;
-            }
-
-            return true;
-        }
-
-        public bool IsDecimal(int index)
-        {
-            if (!this.TryGet(index, "", out string raw, false))
-                return false;
-
-            if (!decimal.TryParse(raw, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal value))
-            {
                 return false;
             }
 

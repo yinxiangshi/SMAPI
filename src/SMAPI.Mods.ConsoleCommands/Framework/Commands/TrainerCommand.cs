@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -66,7 +66,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands
         /// <param name="data">The data to display.</param>
         /// <param name="header">The table header.</param>
         /// <param name="getRow">Returns a set of fields for a data value.</param>
-        /// <param name="rightAlign">True to right-align the data, false for left-align. Default false.</param>
+        /// <param name="rightAlign">Whether to right-align the data.</param>
         protected string GetTableString<T>(IEnumerable<T> data, string[] header, Func<T, string[]> getRow, bool rightAlign = false)
         {
             // get table data
@@ -93,19 +93,11 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands
             };
             lines.AddRange(rows);
 
-            if (rightAlign)
-            {
-                return string.Join(
-                    Environment.NewLine,
-                    lines.Select(line => string.Join(" | ", line.Select((field, i) => field.PadLeft(widths[i], ' ')).ToArray())
-                    )
-                );
-            }
-
             return string.Join(
                 Environment.NewLine,
-                lines.Select(line => string.Join(" | ", line.Select((field, i) => field.PadRight(widths[i], ' ')).ToArray())
-                )
+                lines.Select(line => string.Join(" | ",
+                    line.Select((field, i) => rightAlign ? field.PadRight(widths[i], ' ') : field.PadLeft(widths[i], ' '))
+                ))
             );
         }
     }

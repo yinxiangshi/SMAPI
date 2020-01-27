@@ -23,6 +23,7 @@ using StardewModdingAPI.Framework.Models;
 using StardewModdingAPI.Framework.ModHelpers;
 using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Framework.Patching;
+using StardewModdingAPI.Framework.PerformanceCounter;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Serialization;
 using StardewModdingAPI.Patches;
@@ -33,7 +34,6 @@ using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
 using Object = StardewValley.Object;
-using PerformanceCounterManager = StardewModdingAPI.Framework.PerformanceCounter.PerformanceCounterManager;
 using ThreadState = System.Threading.ThreadState;
 
 namespace StardewModdingAPI.Framework
@@ -135,8 +135,8 @@ namespace StardewModdingAPI.Framework
         internal static DeprecationManager DeprecationManager { get; private set; }
 
         /// <summary>Manages performance counters.</summary>
-        /// <remarks>This is initialized after the game starts. This is accessed directly because it's not part of the normal class model.</remarks>
-        internal static PerformanceCounterManager PerformanceCounterManager { get; private set; }
+        /// <remarks>This is initialized after the game starts. This is non-private for use by Console Commands.</remarks>
+        internal static PerformanceMonitor PerformanceMonitor { get; private set; }
 
 
         /*********
@@ -167,9 +167,9 @@ namespace StardewModdingAPI.Framework
             };
             this.MonitorForGame = this.GetSecondaryMonitor("game");
 
-            SCore.PerformanceCounterManager = new PerformanceCounterManager(this.Monitor);
-            this.EventManager = new EventManager(this.Monitor, this.ModRegistry, SCore.PerformanceCounterManager);
-            SCore.PerformanceCounterManager.InitializePerformanceCounterCollections(this.EventManager);
+            SCore.PerformanceMonitor = new PerformanceMonitor(this.Monitor);
+            this.EventManager = new EventManager(this.Monitor, this.ModRegistry, SCore.PerformanceMonitor);
+            SCore.PerformanceMonitor.InitializePerformanceCounterCollections(this.EventManager);
 
             SCore.DeprecationManager = new DeprecationManager(this.Monitor, this.ModRegistry);
 
@@ -248,7 +248,7 @@ namespace StardewModdingAPI.Framework
                     jsonHelper: this.Toolkit.JsonHelper,
                     modRegistry: this.ModRegistry,
                     deprecationManager: SCore.DeprecationManager,
-                    performanceCounterManager: SCore.PerformanceCounterManager,
+                    performanceMonitor: SCore.PerformanceMonitor,
                     onGameInitialized: this.InitializeAfterGameStart,
                     onGameExiting: this.Dispose,
                     cancellationToken: this.CancellationToken,
@@ -1307,6 +1307,7 @@ namespace StardewModdingAPI.Framework
                     this.ReloadTranslations(this.ModRegistry.GetAll(contentPacks: false));
                     this.Monitor.Log("Reloaded translation files for all mods. This only affects new translations the mods fetch; if they cached some text, it may not be updated.", LogLevel.Info);
                     break;
+
                 default:
                     throw new NotSupportedException($"Unrecognized core SMAPI command '{name}'.");
             }

@@ -2,153 +2,129 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Cyotek.Collections.Generic;
 
 namespace StardewModdingAPI.Framework.PerformanceCounter
 {
     internal class PerformanceCounterCollection
     {
-        /// <summary>The size of the ring buffer.</summary>
-        private const int MAX_ENTRIES = 16384;
+        /*********
+        ** Fields
+        *********/
+        /// <summary>The number of peak invocations to keep.</summary>
+        private readonly int MaxEntries = 16384;
 
-        /// <summary>The list of triggered performance counters.</summary>
+        /// <summary>The sources involved in exceeding alert thresholds.</summary>
         private readonly List<AlertContext> TriggeredPerformanceCounters = new List<AlertContext>();
 
         /// <summary>The stopwatch used to track the invocation time.</summary>
         private readonly Stopwatch InvocationStopwatch = new Stopwatch();
 
         /// <summary>The performance counter manager.</summary>
-        private readonly PerformanceCounterManager PerformanceCounterManager;
+        private readonly PerformanceMonitor PerformanceMonitor;
 
-        /// <summary>Holds the time to calculate the average calls per second.</summary>
+        /// <summary>The time to calculate average calls per second.</summary>
         private DateTime CallsPerSecondStart = DateTime.UtcNow;
 
-        /// <summary>The number of invocations of this collection.</summary>
+        /// <summary>The number of invocations.</summary>
         private long CallCount;
 
-        /// <summary>The circular buffer which stores all peak invocations</summary>
-        private readonly CircularBuffer<PeakEntry> PeakInvocations;
+        /// <summary>The peak invocations.</summary>
+        private readonly Stack<PeakEntry> PeakInvocations;
 
+
+        /*********
+        ** Accessors
+        *********/
         /// <summary>The associated performance counters.</summary>
         public IDictionary<string, PerformanceCounter> PerformanceCounters { get; } = new Dictionary<string, PerformanceCounter>();
 
         /// <summary>The name of this collection.</summary>
         public string Name { get; }
 
-        /// <summary>Flag if this collection is important (used for the console summary command).</summary>
-        public bool IsImportant { get; }
+        /// <summary>Whether the source is typically invoked at least once per second.</summary>
+        public bool IsPerformanceCritical { get; }
 
         /// <summary>The alert threshold in milliseconds.</summary>
         public double AlertThresholdMilliseconds { get; set; }
 
-        /// <summary>If alerting is enabled or not</summary>
+        /// <summary>Whether alerts are enabled.</summary>
         public bool EnableAlerts { get; set; }
 
 
-        public PerformanceCounterCollection(PerformanceCounterManager performanceCounterManager, string name, bool isImportant)
+        /*********
+        ** Public methods
+        *********/
+        /// <summary>Construct an instance.</summary>
+        /// <param name="performanceMonitor">The performance counter manager.</param>
+        /// <param name="name">The name of this collection.</param>
+        /// <param name="isPerformanceCritical">Whether the source is typically invoked at least once per second.</param>
+        public PerformanceCounterCollection(PerformanceMonitor performanceMonitor, string name, bool isPerformanceCritical = false)
         {
-            this.PeakInvocations = new CircularBuffer<PeakEntry>(PerformanceCounterCollection.MAX_ENTRIES);
+            this.PeakInvocations = new Stack<PeakEntry>(this.MaxEntries);
             this.Name = name;
-            this.PerformanceCounterManager = performanceCounterManager;
-            this.IsImportant = isImportant;
+            this.PerformanceMonitor = performanceMonitor;
+            this.IsPerformanceCritical = isPerformanceCritical;
         }
 
-        public PerformanceCounterCollection(PerformanceCounterManager performanceCounterManager, string name)
-        {
-            this.PeakInvocations = new CircularBuffer<PeakEntry>(PerformanceCounterCollection.MAX_ENTRIES);
-            this.PerformanceCounterManager = performanceCounterManager;
-            this.Name = name;
-        }
-
-        /// <summary>Tracks a single invocation for a named source.</summary>
+        /// <summary>Track a single invocation for a named source.</summary>
         /// <param name="source">The name of the source.</param>
         /// <param name="entry">The entry.</param>
         public void Track(string source, PerformanceCounterEntry entry)
         {
+            // add entry
             if (!this.PerformanceCounters.ContainsKey(source))
                 this.PerformanceCounters.Add(source, new PerformanceCounter(this, source));
-
             this.PerformanceCounters[source].Add(entry);
 
+            // raise alert
             if (this.EnableAlerts)
                 this.TriggeredPerformanceCounters.Add(new AlertContext(source, entry.ElapsedMilliseconds));
         }
 
-        /// <summary>Returns the average execution time for all non-game internal sources.</summary>
-        /// <returns>The average execution time in milliseconds</returns>
-        public double GetModsAverageExecutionTime()
-        {
-            return this.PerformanceCounters.Where(p =>
-                p.Key != Constants.GamePerformanceCounterName).Sum(p => p.Value.GetAverage());
-        }
-
-        /// <summary>Returns the average execution time for all non-game internal sources.</summary>
+        /// <summary>Get the average execution time for all non-game internal sources in milliseconds.</summary>
         /// <param name="interval">The interval for which to get the average, relative to now</param>
-        /// <returns>The average execution time in milliseconds</returns>
         public double GetModsAverageExecutionTime(TimeSpan interval)
         {
-            return this.PerformanceCounters.Where(p =>
-                p.Key != Constants.GamePerformanceCounterName).Sum(p => p.Value.GetAverage(interval));
+            return this.PerformanceCounters
+                .Where(entry => entry.Key != Constants.GamePerformanceCounterName)
+                .Sum(entry => entry.Value.GetAverage(interval));
         }
 
-        /// <summary>Returns the overall average execution time.</summary>
-        /// <returns>The average execution time in milliseconds</returns>
-        public double GetAverageExecutionTime()
-        {
-            return this.PerformanceCounters.Sum(p => p.Value.GetAverage());
-        }
-
-        /// <summary>Returns the overall average execution time.</summary>
+        /// <summary>Get the overall average execution time in milliseconds.</summary>
         /// <param name="interval">The interval for which to get the average, relative to now</param>
-        /// <returns>The average execution time in milliseconds</returns>
         public double GetAverageExecutionTime(TimeSpan interval)
         {
-            return this.PerformanceCounters.Sum(p => p.Value.GetAverage(interval));
+            return this.PerformanceCounters
+                .Sum(entry => entry.Value.GetAverage(interval));
         }
 
-        /// <summary>Returns the average execution time for game-internal sources.</summary>
-        /// <returns>The average execution time in milliseconds</returns>
-        public double GetGameAverageExecutionTime()
-        {
-            if (this.PerformanceCounters.TryGetValue(Constants.GamePerformanceCounterName, out PerformanceCounter gameExecTime))
-                return gameExecTime.GetAverage();
-
-            return 0;
-        }
-
-        /// <summary>Returns the average execution time for game-internal sources.</summary>
-        /// <returns>The average execution time in milliseconds</returns>
+        /// <summary>Get the average execution time for game-internal sources in milliseconds.</summary>
         public double GetGameAverageExecutionTime(TimeSpan interval)
         {
-            if (this.PerformanceCounters.TryGetValue(Constants.GamePerformanceCounterName, out PerformanceCounter gameExecTime))
-                return gameExecTime.GetAverage(interval);
-
-            return 0;
+            return this.PerformanceCounters.TryGetValue(Constants.GamePerformanceCounterName, out PerformanceCounter gameExecTime)
+                ? gameExecTime.GetAverage(interval)
+                : 0;
         }
 
-        /// <summary>Returns the peak execution time</summary>
-        /// <param name="interval">The interval for which to get the peak, relative to <paramref name="relativeTo"/></param>
-        /// <param name="relativeTo">The DateTime which the <paramref name="interval"/> is relative to, or DateTime.Now if not given</param>
-        /// <returns>The peak execution time</returns>
-        public double GetPeakExecutionTime(TimeSpan range, DateTime? relativeTo = null)
+        /// <summary>Get the peak execution time in milliseconds.</summary>
+        /// <param name="range">The time range to search.</param>
+        /// <param name="endTime">The end time for the <paramref name="range"/>, or null for the current time.</param>
+        public double GetPeakExecutionTime(TimeSpan range, DateTime? endTime = null)
         {
-            if (this.PeakInvocations.IsEmpty)
+            if (this.PeakInvocations.Count == 0)
                 return 0;
 
-            if (relativeTo == null)
-                relativeTo = DateTime.UtcNow;
+            endTime ??= DateTime.UtcNow;
+            DateTime startTime = endTime.Value.Subtract(range);
 
-            DateTime start = relativeTo.Value.Subtract(range);
-
-            var entries = this.PeakInvocations.Where(x => (x.EventTime >= start) && (x.EventTime <= relativeTo)).ToList();
-
-            if (!entries.Any())
-                return 0;
-
-            return entries.OrderByDescending(x => x.ExecutionTimeMilliseconds).First().ExecutionTimeMilliseconds;
+            return this.PeakInvocations
+                .Where(entry => entry.EventTime >= startTime && entry.EventTime <= endTime)
+                .OrderByDescending(x => x.ExecutionTimeMilliseconds)
+                .Select(p => p.ExecutionTimeMilliseconds)
+                .FirstOrDefault();
         }
 
-        /// <summary>Begins tracking the invocation of this collection.</summary>
+        /// <summary>Start tracking the invocation of this collection.</summary>
         public void BeginTrackInvocation()
         {
             this.TriggeredPerformanceCounters.Clear();
@@ -158,60 +134,58 @@ namespace StardewModdingAPI.Framework.PerformanceCounter
             this.CallCount++;
         }
 
-        /// <summary>Ends tracking the invocation of this collection. Also records an alert if alerting is enabled
-        /// and the invocation time exceeds the threshold.</summary>
+        /// <summary>End tracking the invocation of this collection, and raise an alert if needed.</summary>
         public void EndTrackInvocation()
         {
             this.InvocationStopwatch.Stop();
 
-            this.PeakInvocations.Put(
-                new PeakEntry(this.InvocationStopwatch.Elapsed.TotalMilliseconds,
-                    DateTime.UtcNow,
-                    this.TriggeredPerformanceCounters));
+            // add invocation
+            if (this.PeakInvocations.Count >= this.MaxEntries)
+                this.PeakInvocations.Pop();
+            this.PeakInvocations.Push(new PeakEntry(this.InvocationStopwatch.Elapsed.TotalMilliseconds, DateTime.UtcNow, this.TriggeredPerformanceCounters.ToArray()));
 
-            if (!this.EnableAlerts) return;
-
-            if (this.InvocationStopwatch.Elapsed.TotalMilliseconds >= this.AlertThresholdMilliseconds)
-                this.AddAlert(this.InvocationStopwatch.Elapsed.TotalMilliseconds,
-                    this.AlertThresholdMilliseconds, this.TriggeredPerformanceCounters);
+            // raise alert
+            if (this.EnableAlerts && this.InvocationStopwatch.Elapsed.TotalMilliseconds >= this.AlertThresholdMilliseconds)
+                this.AddAlert(this.InvocationStopwatch.Elapsed.TotalMilliseconds, this.AlertThresholdMilliseconds, this.TriggeredPerformanceCounters.ToArray());
         }
 
-        /// <summary>Adds an alert.</summary>
+        /// <summary>Add an alert.</summary>
         /// <param name="executionTimeMilliseconds">The execution time in milliseconds.</param>
         /// <param name="thresholdMilliseconds">The configured threshold.</param>
-        /// <param name="alerts">The list of alert contexts.</param>
-        public void AddAlert(double executionTimeMilliseconds, double thresholdMilliseconds, List<AlertContext> alerts)
+        /// <param name="alerts">The sources involved in exceeding the threshold.</param>
+        public void AddAlert(double executionTimeMilliseconds, double thresholdMilliseconds, AlertContext[] alerts)
         {
-            this.PerformanceCounterManager.AddAlert(new AlertEntry(this, executionTimeMilliseconds,
-                thresholdMilliseconds, alerts));
+            this.PerformanceMonitor.AddAlert(
+                new AlertEntry(this, executionTimeMilliseconds, thresholdMilliseconds, alerts)
+            );
         }
 
-        /// <summary>Adds an alert for a single AlertContext</summary>
+        /// <summary>Add an alert.</summary>
         /// <param name="executionTimeMilliseconds">The execution time in milliseconds.</param>
         /// <param name="thresholdMilliseconds">The configured threshold.</param>
-        /// <param name="alert">The context</param>
+        /// <param name="alert">The source involved in exceeding the threshold.</param>
         public void AddAlert(double executionTimeMilliseconds, double thresholdMilliseconds, AlertContext alert)
         {
-            this.AddAlert(executionTimeMilliseconds, thresholdMilliseconds, new List<AlertContext>() {alert});
+            this.AddAlert(executionTimeMilliseconds, thresholdMilliseconds, new[] { alert });
         }
 
-        /// <summary>Resets the calls per second counter.</summary>
+        /// <summary>Reset the calls per second counter.</summary>
         public void ResetCallsPerSecond()
         {
             this.CallCount = 0;
             this.CallsPerSecondStart = DateTime.UtcNow;
         }
 
-        /// <summary>Resets all performance counters in this collection.</summary>
+        /// <summary>Reset all performance counters in this collection.</summary>
         public void Reset()
         {
             this.PeakInvocations.Clear();
-            foreach (var i in this.PerformanceCounters)
-                i.Value.Reset();
+            foreach (var counter in this.PerformanceCounters)
+                counter.Value.Reset();
         }
 
-        /// <summary>Resets the performance counter for a specific source.</summary>
-        /// <param name="source">The source name</param>
+        /// <summary>Reset the performance counter for a specific source.</summary>
+        /// <param name="source">The source name.</param>
         public void ResetSource(string source)
         {
             foreach (var i in this.PerformanceCounters)
@@ -219,15 +193,13 @@ namespace StardewModdingAPI.Framework.PerformanceCounter
                     i.Value.Reset();
         }
 
-        /// <summary>Returns the average calls per second.</summary>
-        /// <returns>The average calls per second.</returns>
+        /// <summary>Get the average calls per second.</summary>
         public long GetAverageCallsPerSecond()
         {
-            long runtimeInSeconds = (long) DateTime.UtcNow.Subtract(this.CallsPerSecondStart).TotalSeconds;
-
-            if (runtimeInSeconds == 0) return 0;
-
-            return this.CallCount / runtimeInSeconds;
+            long runtimeInSeconds = (long)DateTime.UtcNow.Subtract(this.CallsPerSecondStart).TotalSeconds;
+            return runtimeInSeconds > 0
+                ? this.CallCount / runtimeInSeconds
+                : 0;
         }
     }
 }

@@ -59,7 +59,8 @@ namespace StardewModdingAPI.Framework
         /// <summary>Manages deprecation warnings.</summary>
         private readonly DeprecationManager DeprecationManager;
 
-        private readonly PerformanceCounterManager PerformanceCounterManager;
+        /// <summary>Tracks performance metrics.</summary>
+        private readonly PerformanceMonitor PerformanceMonitor;
 
         /// <summary>The maximum number of consecutive attempts SMAPI should make to recover from a draw error.</summary>
         private readonly Countdown DrawCrashTimer = new Countdown(60); // 60 ticks = roughly one second
@@ -155,12 +156,12 @@ namespace StardewModdingAPI.Framework
         /// <param name="jsonHelper">Encapsulates SMAPI's JSON file parsing.</param>
         /// <param name="modRegistry">Tracks the installed mods.</param>
         /// <param name="deprecationManager">Manages deprecation warnings.</param>
-        /// <param name="performanceCounterManager">Manages performance monitoring.</param>
+        /// <param name="performanceMonitor">Tracks performance metrics.</param>
         /// <param name="onGameInitialized">A callback to invoke after the game finishes initializing.</param>
         /// <param name="onGameExiting">A callback to invoke when the game exits.</param>
         /// <param name="cancellationToken">Propagates notification that SMAPI should exit.</param>
         /// <param name="logNetworkTraffic">Whether to log network traffic.</param>
-        internal SGame(Monitor monitor, IMonitor monitorForGame, Reflector reflection, Translator translator, EventManager eventManager, JsonHelper jsonHelper, ModRegistry modRegistry, DeprecationManager deprecationManager, PerformanceCounterManager performanceCounterManager, Action onGameInitialized, Action onGameExiting, CancellationTokenSource cancellationToken, bool logNetworkTraffic)
+        internal SGame(Monitor monitor, IMonitor monitorForGame, Reflector reflection, Translator translator, EventManager eventManager, JsonHelper jsonHelper, ModRegistry modRegistry, DeprecationManager deprecationManager, PerformanceMonitor performanceMonitor, Action onGameInitialized, Action onGameExiting, CancellationTokenSource cancellationToken, bool logNetworkTraffic)
         {
             this.OnLoadingFirstAsset = SGame.ConstructorHack.OnLoadingFirstAsset;
             SGame.ConstructorHack = null;
@@ -180,7 +181,7 @@ namespace StardewModdingAPI.Framework
             this.Reflection = reflection;
             this.Translator = translator;
             this.DeprecationManager = deprecationManager;
-            this.PerformanceCounterManager = performanceCounterManager;
+            this.PerformanceMonitor = performanceMonitor;
             this.OnGameInitialized = onGameInitialized;
             this.OnGameExiting = onGameExiting;
             Game1.input = new SInputState();
@@ -312,7 +313,7 @@ namespace StardewModdingAPI.Framework
             try
             {
                 this.DeprecationManager.PrintQueued();
-                this.PerformanceCounterManager.PrintQueuedAlerts();
+                this.PerformanceMonitor.PrintQueuedAlerts();
 
                 /*********
                 ** First-tick initialization

@@ -3,13 +3,20 @@ namespace StardewModdingAPI.Framework.PerformanceCounter
     /// <summary>The context for an alert.</summary>
     internal struct AlertContext
     {
+        /*********
+        ** Accessors
+        *********/
         /// <summary>The source which triggered the alert.</summary>
-        public readonly string Source;
+        public string Source { get; }
 
         /// <summary>The elapsed milliseconds.</summary>
-        public readonly double Elapsed;
+        public double Elapsed { get; }
 
-        /// <summary>Creates a new alert context.</summary>
+
+        /*********
+        ** Public methods
+        *********/
+        /// <summary>Construct an instance.</summary>
         /// <param name="source">The source which triggered the alert.</param>
         /// <param name="elapsed">The elapsed milliseconds.</param>
         public AlertContext(string source, double elapsed)
@@ -18,6 +25,7 @@ namespace StardewModdingAPI.Framework.PerformanceCounter
             this.Elapsed = elapsed;
         }
 
+        /// <summary>Get a human-readable text form of this instance.</summary>
         public override string ToString()
         {
             return $"{this.Source}: {this.Elapsed:F2}ms";

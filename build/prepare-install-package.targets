@@ -41,7 +41,6 @@
     <Copy SourceFiles="$(CompiledSmapiPath)\0Harmony.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
     <Copy SourceFiles="$(CompiledSmapiPath)\Mono.Cecil.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
     <Copy SourceFiles="$(CompiledSmapiPath)\Newtonsoft.Json.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
-    <Copy SourceFiles="$(CompiledSmapiPath)\Cyotek.Collections.Generic.CircularBuffer.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
     <Copy SourceFiles="$(CompiledSmapiPath)\SMAPI.config.json" DestinationFiles="$(PackagePath)\bundle\smapi-internal\config.json" />
     <Copy SourceFiles="$(CompiledSmapiPath)\SMAPI.metadata.json" DestinationFiles="$(PackagePath)\bundle\smapi-internal\metadata.json" />
     <Copy SourceFiles="$(CompiledToolkitPath)\SMAPI.Toolkit.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
