@@ -807,13 +807,13 @@ namespace StardewModdingAPI.Framework
                 {
                     // ReSharper disable SuspiciousTypeConversion.Global
                     if (metadata.Mod is IAssetEditor editor)
-                        helper.ObservableAssetEditors.Add(editor);
+                        this.ContentCore.Editors.Add(new ModLinked<IAssetEditor>(metadata, editor));
                     if (metadata.Mod is IAssetLoader loader)
-                        helper.ObservableAssetLoaders.Add(loader);
+                        this.ContentCore.Loaders.Add(new ModLinked<IAssetLoader>(metadata, loader));
                     // ReSharper restore SuspiciousTypeConversion.Global
 
-                    this.ContentCore.Editors[metadata] = helper.ObservableAssetEditors;
-                    this.ContentCore.Loaders[metadata] = helper.ObservableAssetLoaders;
+                    helper.ObservableAssetEditors.CollectionChanged += (sender, e) => this.OnInterceptorsChanged(metadata, e.NewItems?.Cast<IAssetEditor>(), e.OldItems?.Cast<IAssetEditor>(), this.ContentCore.Editors);
+                    helper.ObservableAssetLoaders.CollectionChanged += (sender, e) => this.OnInterceptorsChanged(metadata, e.NewItems?.Cast<IAssetLoader>(), e.OldItems?.Cast<IAssetLoader>(), this.ContentCore.Loaders);
                 }
 
                 // call entry method
@@ -860,6 +860,24 @@ namespace StardewModdingAPI.Framework
 
             // unlock mod integrations
             this.ModRegistry.AreAllModsInitialized = true;
+        }
+
+        /// <summary>Handle a mod adding or removing asset interceptors.</summary>
+        /// <typeparam name="T">The asset interceptor type (one of <see cref="IAssetEditor"/> or <see cref="IAssetLoader"/>).</typeparam>
+        /// <param name="mod">The mod metadata.</param>
+        /// <param name="added">The interceptors that were added.</param>
+        /// <param name="removed">The interceptors that were removed.</param>
+        /// <param name="list">The list to update.</param>
+        private void OnInterceptorsChanged<T>(IModMetadata mod, IEnumerable<T> added, IEnumerable<T> removed, IList<ModLinked<T>> list)
+        {
+            foreach (T interceptor in added ?? new T[0])
+                list.Add(new ModLinked<T>(mod, interceptor));
+
+            foreach (T interceptor in removed ?? new T[0])
+            {
+                foreach (ModLinked<T> entry in list.Where(p => p.Mod == mod && object.ReferenceEquals(p.Data, interceptor)).ToArray())
+                    list.Remove(entry);
+            }
         }
 
         /// <summary>Load a given mod.</summary>

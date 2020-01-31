@@ -19,9 +19,11 @@
 
 * For modders:
   * Asset propagation for player sprites now affects other players' sprites, and updates recolor maps (e.g. sleeves).
+  * Reworked the order that asset editors/loaders are called between multiple mods to support some framework mods like Content Patcher and Json Assets. Note that the order is undefined and should not be depended on.
   * Removed invalid-schedule validation which had false positives.
   * Fixed `helper.Data.Read/WriteGlobalData` using the `Saves` folder. The installer will move existing folders to the appdata folder.
   * Fixed dialogue asset changes not correctly propagated until the next day.
+  * Fixed issue where a mod which implemented `IAssetEditor`/`IAssetLoader` on its entry class could then remove itself from the editor/loader list.
 
 * For SMAPI/tool developers:
   * Added internal performance monitoring (thanks to Drachenkätzchen!). This is disabled by default in the current version, but can be enabled using the `performance` console command.

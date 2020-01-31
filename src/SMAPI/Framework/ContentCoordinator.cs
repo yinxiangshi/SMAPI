@@ -65,10 +65,10 @@ namespace StardewModdingAPI.Framework
         public LocalizedContentManager.LanguageCode Language => this.MainContentManager.Language;
 
         /// <summary>Interceptors which provide the initial versions of matching assets.</summary>
-        public IDictionary<IModMetadata, IList<IAssetLoader>> Loaders { get; } = new Dictionary<IModMetadata, IList<IAssetLoader>>();
+        public IList<ModLinked<IAssetLoader>> Loaders { get; } = new List<ModLinked<IAssetLoader>>();
 
         /// <summary>Interceptors which edit matching assets after they're loaded.</summary>
-        public IDictionary<IModMetadata, IList<IAssetEditor>> Editors { get; } = new Dictionary<IModMetadata, IList<IAssetEditor>>();
+        public IList<ModLinked<IAssetEditor>> Editors { get; } = new List<ModLinked<IAssetEditor>>();
 
         /// <summary>The absolute path to the <see cref="ContentManager.RootDirectory"/>.</summary>
         public string FullRootDirectory { get; }
