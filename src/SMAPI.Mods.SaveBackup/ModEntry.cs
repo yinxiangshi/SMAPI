@@ -71,7 +71,7 @@ namespace StardewModdingAPI.Mods.SaveBackup
                 // copy saves to fallback directory (ignore non-save files/folders)
                 this.Monitor.Log($"Backing up saves to {fallbackDir.FullName}...", LogLevel.Trace);
                 DirectoryInfo savesDir = new DirectoryInfo(Constants.SavesPath);
-                this.RecursiveCopy(savesDir, fallbackDir, copyRoot: false, entry => this.MatchSaveFolders(savesDir, entry));
+                this.RecursiveCopy(savesDir, fallbackDir, entry => this.MatchSaveFolders(savesDir, entry), copyRoot: false);
 
                 // compress backup if possible
                 this.Monitor.Log("Compressing backup if possible...", LogLevel.Trace);
@@ -199,7 +199,7 @@ namespace StardewModdingAPI.Mods.SaveBackup
         /// <param name="copyRoot">Whether to copy the root folder itself, or <c>false</c> to only copy its contents.</param>
         /// <param name="filter">A filter which matches the files or directories to copy, or <c>null</c> to copy everything.</param>
         /// <remarks>Derived from the SMAPI installer code.</remarks>
-        private void RecursiveCopy(FileSystemInfo source, DirectoryInfo targetFolder, bool copyRoot = true, Func<FileSystemInfo, bool> filter = null)
+        private void RecursiveCopy(FileSystemInfo source, DirectoryInfo targetFolder, Func<FileSystemInfo, bool> filter, bool copyRoot = true)
         {
             if (!targetFolder.Exists)
                 targetFolder.Create();
@@ -216,7 +216,7 @@ namespace StardewModdingAPI.Mods.SaveBackup
                 case DirectoryInfo sourceDir:
                     DirectoryInfo targetSubfolder = copyRoot ? new DirectoryInfo(Path.Combine(targetFolder.FullName, sourceDir.Name)) : targetFolder;
                     foreach (var entry in sourceDir.EnumerateFileSystemInfos())
-                        this.RecursiveCopy(entry, targetSubfolder);
+                        this.RecursiveCopy(entry, targetSubfolder, filter);
                     break;
 
                 default:
