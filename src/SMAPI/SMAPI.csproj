@@ -8,8 +8,7 @@
     <LangVersion>latest</LangVersion>
     <PlatformTarget>x86</PlatformTarget>
     <OutputType>Exe</OutputType>
-    <OutputPath>$(SolutionDir)\..\bin\$(Configuration)\SMAPI</OutputPath>
-    <DocumentationFile>$(SolutionDir)\..\bin\$(Configuration)\SMAPI\StardewModdingAPI.xml</DocumentationFile>
+    <DocumentationFile>bin\$(Configuration)\StardewModdingAPI.xml</DocumentationFile>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <LargeAddressAware Condition="'$(OS)' == 'Windows_NT'">true</LargeAddressAware>
     <ApplicationIcon>icon.ico</ApplicationIcon>
