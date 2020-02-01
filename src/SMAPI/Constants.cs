@@ -20,10 +20,10 @@ namespace StardewModdingAPI
         ** Public
         ****/
         /// <summary>SMAPI's current semantic version.</summary>
-        public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("3.1.0");
+        public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("3.2.0");
 
         /// <summary>The minimum supported version of Stardew Valley.</summary>
-        public static ISemanticVersion MinimumGameVersion { get; } = new GameVersion("1.4.0");
+        public static ISemanticVersion MinimumGameVersion { get; } = new GameVersion("1.4.1");
 
         /// <summary>The maximum supported version of Stardew Valley.</summary>
         public static ISemanticVersion MaximumGameVersion { get; } = null;
@@ -55,11 +55,17 @@ namespace StardewModdingAPI
         /// <summary>The URL of the SMAPI home page.</summary>
         internal const string HomePageUrl = "https://smapi.io";
 
+        /// <summary>The default performance counter name for unknown event handlers.</summary>
+        internal const string GamePerformanceCounterName = "<StardewValley>";
+
         /// <summary>The absolute path to the folder containing SMAPI's internal files.</summary>
         internal static readonly string InternalFilesPath = Program.DllSearchPath;
 
         /// <summary>The file path for the SMAPI configuration file.</summary>
         internal static string ApiConfigPath => Path.Combine(Constants.InternalFilesPath, "config.json");
+
+        /// <summary>The file path for the overrides file for <see cref="ApiConfigPath"/>, which is applied over it.</summary>
+        internal static string ApiUserConfigPath => Path.Combine(Constants.InternalFilesPath, "config.user.json");
 
         /// <summary>The file path for the SMAPI metadata file.</summary>
         internal static string ApiMetadataPath => Path.Combine(Constants.InternalFilesPath, "metadata.json");

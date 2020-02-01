@@ -8,8 +8,7 @@
     <LangVersion>latest</LangVersion>
     <PlatformTarget>x86</PlatformTarget>
     <OutputType>Exe</OutputType>
-    <OutputPath>$(SolutionDir)\..\bin\$(Configuration)\SMAPI</OutputPath>
-    <DocumentationFile>$(SolutionDir)\..\bin\$(Configuration)\SMAPI\StardewModdingAPI.xml</DocumentationFile>
+    <DocumentationFile>bin\$(Configuration)\StardewModdingAPI.xml</DocumentationFile>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <LargeAddressAware Condition="'$(OS)' == 'Windows_NT'">true</LargeAddressAware>
     <ApplicationIcon>icon.ico</ApplicationIcon>
@@ -20,6 +19,7 @@
     <PackageReference Include="Lib.Harmony" Version="1.2.0.1" />
     <PackageReference Include="Mono.Cecil" Version="0.11.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Platonymous.TMXTile" Version="1.0.2" />
   </ItemGroup>
 
   <ItemGroup>
@@ -99,28 +99,7 @@
       <Link>SMAPI.metadata.json</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Update="i18n\de.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="i18n\es.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="i18n\ja.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="i18n\default.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="i18n\pt.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="i18n\ru.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="i18n\tr.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="i18n\zh.json">
+    <None Update="i18n\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="steam_appid.txt">
