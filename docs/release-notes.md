@@ -23,7 +23,7 @@ Released 01 February 2020 for Stardew Valley 1.4.1 or later.
   * Fixed Android issue where game files were backed up.
 
 * For modders:
-  * Added support for `.tmx` map files.
+  * Added support for `.tmx` map files. (Thanks to [Platonymous for the underlying library](https://github.com/Platonymous/TMXTile)!)
   * Added special handling for `Vector2` values in `.json` files, so they work consistently crossplatform.
   * Reworked the order that asset editors/loaders are called between multiple mods to support some framework mods like Content Patcher and Json Assets. Note that the order is undefined and should not be depended on.
   * Fixed incorrect warning about mods adding invalid schedules in some cases. The validation was unreliable, and has been removed.
