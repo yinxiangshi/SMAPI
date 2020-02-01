@@ -4,8 +4,8 @@
 ## Upcoming release
 
 * For players:
-  * SMAPI now prevents mods from crashing the game with invalid schedule data.
-  * SMAPI now prevents load crashes due to invalid building types.
+  * SMAPI now prevents crashes due to mods adding invalid schedule data.
+  * SMAPI now prevents crashes due to invalid building types.
   * Added support for persistent `smapi-internal/config.json` overrides (see info in the file).
   * Updated minimum game version (1.4 → 1.4.1).
   * Fixed 'collection was modified' error when returning to title in rare cases.
@@ -24,11 +24,13 @@
 * For modders:
   * Added support for loading `.tmx` map files.
   * Added JSON converter for `Vector2` values, so they work consistently crossplatform.
-  * Asset propagation for player sprites now affects other players' sprites, and updates recolor maps (e.g. sleeves).
   * Reworked the order that asset editors/loaders are called between multiple mods to support some framework mods like Content Patcher and Json Assets. Note that the order is undefined and should not be depended on.
   * Removed invalid-schedule validation which had false positives.
-  * Fixed `helper.Data.Read/WriteGlobalData` using the `Saves` folder. The installer will move existing folders to the appdata folder.
+  * Fixed asset propagation not updating other players' sprites.
+  * Fixed asset propagation for player sprites not updating recolor maps (e.g. sleeves).
+  * Fixed `helper.Data.Read/WriteGlobalData` using the `Saves` folder instead of the game's appdata folder. The installer will move existing folders automatically.
   * Fixed dialogue asset changes not correctly propagated until the next day.
+  * Fixed dialogue asset propagation for marriage dialogue.
   * Fixed issue where a mod which implemented `IAssetEditor`/`IAssetLoader` on its entry class could then remove itself from the editor/loader list.
 
 * For SMAPI/tool developers:
@@ -39,7 +41,7 @@
   * Dropped API support for the pre-3.0 update-check format.
 
 ## 3.1
-Released 05 January 2019 for Stardew Valley 1.4 or later.
+Released 05 January 2019 for Stardew Valley 1.4.1 or later.
 
 * For players:
   * Added separate group in 'skipped mods' list for broken dependencies, so it's easier to see what to fix first.
