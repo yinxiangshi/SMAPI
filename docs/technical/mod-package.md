@@ -289,7 +289,7 @@ which can be uploaded to NuGet or referenced directly.
 ## Release notes
 ### 3.1
 * Added support for semantic versioning 2.0.
-* `0Harmony.dll` is now ignored if the mod references it directly (it's bundled with SMAPI).
+* `0Harmony.dll` is now ignored if the mod references Harmony directly (it's bundled with SMAPI).
 
 ### 3.0
 * Updated for SMAPI 3.0 and Stardew Valley 1.4.
