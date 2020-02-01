@@ -234,7 +234,7 @@ namespace StardewModdingAPI.Framework
 #endif
                 AppDomain.CurrentDomain.UnhandledException += (sender, e) => this.Monitor.Log($"Critical app domain exception: {e.ExceptionObject}", LogLevel.Error);
 
-                // add more lenient assembly resolvers
+                // add more lenient assembly resolver
                 AppDomain.CurrentDomain.AssemblyResolve += (sender, e) => AssemblyLoader.ResolveAssembly(e.Name);
 
                 // hook locale event
@@ -418,6 +418,17 @@ namespace StardewModdingAPI.Framework
             {
                 this.Monitor.Log("SMAPI shutting down: aborting initialization.", LogLevel.Warn);
                 return;
+            }
+
+            // init TMX support
+            try
+            {
+                xTile.Format.FormatManager.Instance.RegisterMapFormat(new TMXTile.TMXFormat(Game1.tileSize / Game1.pixelZoom, Game1.tileSize / Game1.pixelZoom, Game1.pixelZoom, Game1.pixelZoom));
+            }
+            catch (Exception ex)
+            {
+                this.Monitor.Log("SMAPI couldn't load TMX support. Some mods may not work correctly.", LogLevel.Warn);
+                this.Monitor.Log($"Technical details: {ex.GetLogSummary()}", LogLevel.Trace);
             }
 
             // load mod data

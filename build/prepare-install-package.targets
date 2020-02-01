@@ -45,6 +45,7 @@
     <Copy SourceFiles="$(SmapiBin)\0Harmony.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
     <Copy SourceFiles="$(SmapiBin)\Mono.Cecil.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
     <Copy SourceFiles="$(SmapiBin)\Newtonsoft.Json.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
+    <Copy SourceFiles="$(SmapiBin)\TMXTile.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
     <Copy SourceFiles="$(SmapiBin)\SMAPI.config.json" DestinationFiles="$(PackagePath)\bundle\smapi-internal\config.json" />
     <Copy SourceFiles="$(SmapiBin)\SMAPI.metadata.json" DestinationFiles="$(PackagePath)\bundle\smapi-internal\metadata.json" />
     <Copy SourceFiles="$(ToolkitBin)\SMAPI.Toolkit.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
