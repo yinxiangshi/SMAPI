@@ -222,6 +222,7 @@ namespace StardewModdingAPI.Framework
                 JsonConverter[] converters = {
                     new ColorConverter(),
                     new PointConverter(),
+                    new Vector2Converter(),
                     new RectangleConverter()
                 };
                 foreach (JsonConverter converter in converters)

@@ -23,6 +23,7 @@
 
 * For modders:
   * Added support for loading `.tmx` map files.
+  * Added JSON converter for `Vector2` values, so they work consistently crossplatform.
   * Asset propagation for player sprites now affects other players' sprites, and updates recolor maps (e.g. sleeves).
   * Reworked the order that asset editors/loaders are called between multiple mods to support some framework mods like Content Patcher and Json Assets. Note that the order is undefined and should not be depended on.
   * Removed invalid-schedule validation which had false positives.
