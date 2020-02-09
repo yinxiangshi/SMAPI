@@ -2,6 +2,9 @@
 
 # Release notes
 ## Upcoming release
+* For players:
+  * Updated translations. Thanks to xCarloC (added Italian)!
+
 * For modders:
   * Added support for self-broadcasts through the multiplayer API. (Mods can now send messages to the current machine. That enables simple integrations between mods without needing an API, and lets mods notify a host mod without needing different code depending on whether the current player is the host or a farmhand.)
   * Eliminated unneeded network messages when broadcasting to a peer who can't handle the message (e.g. because they don't have SMAPI or don't have the target mod).
