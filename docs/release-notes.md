@@ -5,6 +5,10 @@
 * For players:
   * Updated translations. Thanks to xCarloC (added Italian)!
 
+* For the Save Backup mod:
+  * Fixed warning on MacOS when you have no saves yet.
+  * Reduced log messages.
+
 * For modders:
   * Added support for self-broadcasts through the multiplayer API. (Mods can now send messages to the current machine. That enables simple integrations between mods without needing an API, and lets mods notify a host mod without needing different code depending on whether the current player is the host or a farmhand.)
   * Added `helper.Input.GetStatus` method to get the low-level status of a button.
