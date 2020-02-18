@@ -18,6 +18,7 @@
 
 * For the web UI:
   * Updated the JSON validator and Content Patcher schema for `.tmx` support.
+  * The mod compatibility page now has a sticky table header.
 
 * For SMAPI/tool developers:
   * The SMAPI log now prefixes the OS name with `Android` on Android.
