@@ -5,6 +5,7 @@
 * For players:
   * Updated translations. Thanks to xCarloC (added Italian)!
   * Fixed update-check errors for recent versions of SMAPI on Android.
+  * Updated compatibility list.
 
 * For the Save Backup mod:
   * Fixed warning on MacOS when you have no saves yet.
