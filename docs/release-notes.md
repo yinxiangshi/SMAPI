@@ -18,6 +18,7 @@
   * **[Breaking change]** Map tilesheets are no loaded from `Content` if they can't be found in `Content/Maps`. This reflects an upcoming change in the game to delete map tilesheets under `Content`.
   * Improved map tilesheet errors so they provide more info.
   * Fixed dialogue propagation clearing marriage dialogue.
+  * Fixed issue where SMAPI didn't call `IAssetEditor` with the actual type if a mod loaded an asset using `content.Load<object>`.
 
 * For the web UI:
   * Updated the JSON validator and Content Patcher schema for `.tmx` support.
