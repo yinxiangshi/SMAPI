@@ -3,18 +3,20 @@
 # Release notes
 ## Upcoming release
 * For players:
-  * Updated translations. Thanks to xCarloC (added Italian)!
+  * Reduced network traffic for mod broadcasts to players who can't process them.
   * Fixed update-check errors for recent versions of SMAPI on Android.
   * Updated compatibility list.
+  * Updated translations. Thanks to xCarloC (added Italian)!
 
 * For the Save Backup mod:
   * Fixed warning on MacOS when you have no saves yet.
   * Reduced log messages.
 
 * For modders:
-  * Added support for self-broadcasts through the multiplayer API. (Mods can now send messages to the current machine. That enables simple integrations between mods without needing an API, and lets mods notify a host mod without needing different code depending on whether the current player is the host or a farmhand.)
-  * Added `helper.Input.GetStatus` method to get the low-level status of a button.
-  * Eliminated unneeded network messages when broadcasting to a peer who can't handle the message (e.g. because they don't have SMAPI or don't have the target mod).
+  * Added support for [message sending](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Integrations#Message_sending) to mods on the current computer.
+  * Added `helper.Input.GetStatus` to get the low-level status of a button.
+  * **[Breaking change]** Map tilesheets are no loaded from `Content` if they can't be found in `Content/Maps`. This reflects an upcoming change in the game to delete map tilesheets under `Content`.
+  * Improved map tilesheet errors so they provide more info.
   * Fixed dialogue propagation clearing marriage dialogue.
 
 * For the web UI:
