@@ -3,6 +3,7 @@
 # Release notes
 ## Upcoming release
 * For players:
+  * Improved performance for mods which load a large number of images.
   * Reduced network traffic for mod broadcasts to players who can't process them.
   * Fixed update-check errors for recent versions of SMAPI on Android.
   * Updated compatibility list.
