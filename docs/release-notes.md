@@ -14,9 +14,9 @@
   * Reduced log messages.
 
 * For modders:
-  * Added support for [message sending](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Integrations#Message_sending) to mods on the current computer.
+  * Added support for [message sending](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Integrations#Message_sending) to mods on the current computer (in addition to remote computers).
   * Added `ExtendImage` method to content API when editing files to resize textures.
-  * Added `helper.Input.GetStatus` to get the low-level status of a button.
+  * Added `helper.Input.GetState` to get the low-level state of a button.
   * **[Breaking change]** Map tilesheets are no loaded from `Content` if they can't be found in `Content/Maps`. This reflects an upcoming change in the game to delete map tilesheets under `Content`.
   * Improved map tilesheet errors so they provide more info.
   * Fixed dialogue propagation clearing marriage dialogue.
