@@ -1,6 +1,9 @@
 &larr; [README](README.md)
 
 # Release notes
+## Upcoming release
+* Fixed errors with custom spouse room mods in SMAPI 3.3.
+
 ## 3.3
 Released 22 February 2020 for Stardew Valley 1.4.1 or later.
 
