@@ -20,6 +20,7 @@
   * Added `helper.Input.GetState` to get the low-level state of a button.
   * **[Breaking change]** Map tilesheets are no loaded from `Content` if they can't be found in `Content/Maps`. This reflects an upcoming change in the game to delete map tilesheets under `Content`.
   * Improved map tilesheet errors so they provide more info.
+  * Updated dependencies (including Mono.Cecil 0.11.1 → 0.11.2).
   * Fixed dialogue propagation clearing marriage dialogue.
   * Fixed issue where SMAPI didn't call `IAssetEditor` with the actual type if a mod loaded an asset using `content.Load<object>`.
 
