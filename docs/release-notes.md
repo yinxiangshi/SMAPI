@@ -7,6 +7,7 @@
   * Reduced network traffic for mod broadcasts to players who can't process them.
   * Fixed update-check errors for recent versions of SMAPI on Android.
   * Updated compatibility list.
+  * Updated SMAPI/game version map.
   * Updated translations. Thanks to xCarloC (added Italian)!
 
 * For the Save Backup mod:
