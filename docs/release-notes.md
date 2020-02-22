@@ -1,6 +1,40 @@
 &larr; [README](README.md)
 
 # Release notes
+## 3.3
+Released 22 February 2020 for Stardew Valley 1.4.1 or later.
+
+* For players:
+  * Improved performance for mods which load many images.
+  * Reduced network traffic for mod broadcasts to players who can't process them.
+  * Fixed update-check errors for recent versions of SMAPI on Android.
+  * Updated draw logic to match recent game updates.
+  * Updated compatibility list.
+  * Updated SMAPI/game version map.
+  * Updated translations. Thanks to xCarloC (added Italian)!
+
+* For the Save Backup mod:
+  * Fixed warning on MacOS when you have no saves yet.
+  * Reduced log messages.
+
+* For modders:
+  * Added support for [message sending](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Integrations#Message_sending) to mods on the current computer (in addition to remote computers).
+  * Added `ExtendImage` method to content API when editing files to resize textures.
+  * Added `helper.Input.GetState` to get the low-level state of a button.
+  * **[Breaking change]** Map tilesheets are no loaded from `Content` if they can't be found in `Content/Maps`. This reflects an upcoming change in the game to delete duplicate map tilesheets under `Content`. Most mods should be unaffected.
+  * Improved map tilesheet errors so they provide more info.
+  * When mods load an asset using a more general type like `content.Load<object>`, SMAPI now calls `IAssetEditor` instances with the actual asset type instead of the specified one.
+  * Updated dependencies (including Mono.Cecil 0.11.1 → 0.11.2).
+  * Fixed dialogue propagation clearing marriage dialogue.
+
+* For the web UI:
+  * Updated the JSON validator and Content Patcher schema for `.tmx` support.
+  * The mod compatibility page now has a sticky table header.
+
+* For SMAPI/tool developers:
+  * Improved support for four-part versions to support SMAPI on Android.
+  * The SMAPI log now prefixes the OS name with `Android` on Android.
+
 ## 3.2
 Released 01 February 2020 for Stardew Valley 1.4.1 or later.
 
@@ -23,7 +57,7 @@ Released 01 February 2020 for Stardew Valley 1.4.1 or later.
   * Fixed Android issue where game files were backed up.
 
 * For modders:
-  * Added support for `.tmx` map files.
+  * Added support for `.tmx` map files. (Thanks to [Platonymous for the underlying library](https://github.com/Platonymous/TMXTile)!)
   * Added special handling for `Vector2` values in `.json` files, so they work consistently crossplatform.
   * Reworked the order that asset editors/loaders are called between multiple mods to support some framework mods like Content Patcher and Json Assets. Note that the order is undefined and should not be depended on.
   * Fixed incorrect warning about mods adding invalid schedules in some cases. The validation was unreliable, and has been removed.
