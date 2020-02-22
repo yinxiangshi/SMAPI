@@ -6,6 +6,7 @@
   * Improved performance for mods which load a large number of images.
   * Reduced network traffic for mod broadcasts to players who can't process them.
   * Fixed update-check errors for recent versions of SMAPI on Android.
+  * Updated draw logic to match recent game updates.
   * Updated compatibility list.
   * Updated SMAPI/game version map.
   * Updated translations. Thanks to xCarloC (added Italian)!
