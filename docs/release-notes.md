@@ -1,6 +1,9 @@
 &larr; [README](README.md)
 
 # Release notes
+## Upcoming release
+* Fixed mods receiving their own message broadcasts.
+
 ## 3.3.1
 Released 22 February 2020 for Stardew Valley 1.4.1 or later.
 
