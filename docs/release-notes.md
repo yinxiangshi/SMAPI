@@ -3,6 +3,7 @@
 # Release notes
 ## Upcoming release
 * For modders:
+  * Added support for flipped and rotated map tiles (in collaboration with Platonymous).
   * Added support for `.tmx` maps using zlib compression (thanks to Platonymous!).
 
 * For the web UI:
