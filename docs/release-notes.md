@@ -2,6 +2,9 @@
 
 # Release notes
 ## Upcoming release
+* For modders:
+  * Added support for `.tmx` maps using zlib compression (thanks to Platonymous!).
+
 * For the web UI:
   * Added option to upload files using a file picker.
 
