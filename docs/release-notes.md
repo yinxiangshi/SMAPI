@@ -11,6 +11,7 @@
   * Mods are no longer prevented from suppressing key presses in the chatbox. Use this power wisely.
 
 * For the web UI:
+  * Optimized log parser for very long multi-line log messages.
   * Added option to upload files using a file picker.
 
 * For SMAPI developers:
