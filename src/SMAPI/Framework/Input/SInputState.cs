@@ -14,9 +14,6 @@ namespace StardewModdingAPI.Framework.Input
         /*********
         ** Accessors
         *********/
-        /// <summary>The maximum amount of direction to ignore for the left thumbstick.</summary>
-        private const float LeftThumbstickDeadZone = 0.2f;
-
         /// <summary>The cursor position on the screen adjusted for the zoom level.</summary>
         private CursorPosition CursorPositionImpl;
 
@@ -29,8 +26,8 @@ namespace StardewModdingAPI.Framework.Input
         /// <summary>The buttons to consider released until the actual button is released.</summary>
         private readonly HashSet<SButton> CustomReleasedKeys = new HashSet<SButton>();
 
-        /// <summary>The buttons which were actually down as of the last update, ignoring overrides.</summary>
-        private HashSet<SButton> LastRealButtonPresses = new HashSet<SButton>();
+        /// <summary>Whether there are new overrides in <see cref="CustomPressedKeys"/> or <see cref="CustomReleasedKeys"/> that haven't been applied to the previous state.</summary>
+        private bool HasNewOverrides;
 
 
         /*********
@@ -73,16 +70,12 @@ namespace StardewModdingAPI.Framework.Input
         /// <param name="setDown">Whether to mark it pressed; else mark it released.</param>
         public void OverrideButton(SButton button, bool setDown)
         {
-            if (setDown)
-            {
-                this.CustomPressedKeys.Add(button);
-                this.CustomReleasedKeys.Remove(button);
-            }
-            else
-            {
-                this.CustomPressedKeys.Remove(button);
-                this.CustomReleasedKeys.Add(button);
-            }
+            bool changed = setDown
+                ? this.CustomPressedKeys.Add(button) | this.CustomReleasedKeys.Remove(button)
+                : this.CustomPressedKeys.Remove(button) | this.CustomReleasedKeys.Add(button);
+
+            if (changed)
+                this.HasNewOverrides = true;
         }
 
         /// <summary>Get whether a mod has indicated the key was already handled, so the game shouldn't handle it.</summary>
@@ -104,9 +97,9 @@ namespace StardewModdingAPI.Framework.Input
                 float zoomMultiplier = (1f / Game1.options.zoomLevel);
 
                 // get real values
-                GamePadState controller = GamePad.GetState(PlayerIndex.One);
-                KeyboardState keyboard = Keyboard.GetState();
-                MouseState mouse = Mouse.GetState();
+                var controller = new GamePadStateBuilder();
+                var keyboard = new KeyboardStateBuilder();
+                var mouse = new MouseStateBuilder();
                 Vector2 cursorAbsolutePos = new Vector2((mouse.X * zoomMultiplier) + Game1.viewport.X, (mouse.Y * zoomMultiplier) + Game1.viewport.Y);
                 Vector2? playerTilePos = Context.IsPlayerFree ? Game1.player.getTileLocation() : (Vector2?)null;
                 HashSet<SButton> reallyDown = new HashSet<SButton>(this.GetPressedButtons(keyboard, mouse, controller));
@@ -120,7 +113,7 @@ namespace StardewModdingAPI.Framework.Input
                     this.CustomReleasedKeys.RemoveWhere(key => !reallyDown.Contains(key));
 
                     // apply overrides
-                    if (this.ApplyOverrides(this.CustomPressedKeys, this.CustomReleasedKeys, ref keyboard, ref mouse, ref controller))
+                    if (this.ApplyOverrides(this.CustomPressedKeys, this.CustomReleasedKeys, controller, keyboard, mouse))
                         hasOverrides = true;
 
                     // remove pressed keys
@@ -131,18 +124,18 @@ namespace StardewModdingAPI.Framework.Input
                 var pressedButtons = hasOverrides
                     ? new HashSet<SButton>(this.GetPressedButtons(keyboard, mouse, controller))
                     : reallyDown;
-                var activeButtons = this.DeriveStates(this.LastButtonStates, pressedButtons, keyboard, mouse, controller);
+                var activeButtons = this.DeriveStates(this.LastButtonStates, pressedButtons);
 
                 // update
-                this.LastController = controller;
-                this.LastKeyboard = keyboard;
-                this.LastMouse = mouse;
+                this.HasNewOverrides = false;
+                this.LastController = controller.GetState();
+                this.LastKeyboard = keyboard.GetState();
+                this.LastMouse = mouse.GetState();
                 this.LastButtonStates = activeButtons;
-                this.LastRealButtonPresses = reallyDown;
                 if (cursorAbsolutePos != this.CursorPositionImpl?.AbsolutePixels || playerTilePos != this.LastPlayerTile)
                 {
                     this.LastPlayerTile = playerTilePos;
-                    this.CursorPositionImpl = this.GetCursorPosition(mouse, cursorAbsolutePos, zoomMultiplier);
+                    this.CursorPositionImpl = this.GetCursorPosition(this.LastMouse, cursorAbsolutePos, zoomMultiplier);
                 }
             }
             catch (InvalidOperationException)
@@ -154,15 +147,19 @@ namespace StardewModdingAPI.Framework.Input
         /// <summary>Apply input overrides to the current state.</summary>
         public void ApplyOverrides()
         {
-            GamePadState newController = this.LastController;
-            KeyboardState newKeyboard = this.LastKeyboard;
-            MouseState newMouse = this.LastMouse;
+            if (this.HasNewOverrides)
+            {
+                var controller = new GamePadStateBuilder(this.LastController);
+                var keyboard = new KeyboardStateBuilder(this.LastKeyboard);
+                var mouse = new MouseStateBuilder(this.LastMouse);
 
-            this.ApplyOverrides(pressed: this.CustomPressedKeys, released: this.CustomReleasedKeys, ref newKeyboard, ref newMouse, ref newController);
-
-            this.LastController = newController;
-            this.LastKeyboard = newKeyboard;
-            this.LastMouse = newMouse;
+                if (this.ApplyOverrides(pressed: this.CustomPressedKeys, released: this.CustomReleasedKeys, controller, keyboard, mouse))
+                {
+                    this.LastController = controller.GetState();
+                    this.LastKeyboard = keyboard.GetState();
+                    this.LastMouse = mouse.GetState();
+                }
+            }
         }
 
         /// <summary>Get the gamepad state visible to the game.</summary>
@@ -231,11 +228,11 @@ namespace StardewModdingAPI.Framework.Input
         /// <summary>Apply input overrides to the given states.</summary>
         /// <param name="pressed">The buttons to mark pressed.</param>
         /// <param name="released">The buttons to mark released.</param>
-        /// <param name="keyboardState">The game's keyboard state for the current tick.</param>
-        /// <param name="mouseState">The game's mouse state for the current tick.</param>
-        /// <param name="gamePadState">The game's controller state for the current tick.</param>
+        /// <param name="controller">The game's controller state for the current tick.</param>
+        /// <param name="keyboard">The game's keyboard state for the current tick.</param>
+        /// <param name="mouse">The game's mouse state for the current tick.</param>
         /// <returns>Returns whether any overrides were applied.</returns>
-        private bool ApplyOverrides(ISet<SButton> pressed, ISet<SButton> released, ref KeyboardState keyboardState, ref MouseState mouseState, ref GamePadState gamePadState)
+        private bool ApplyOverrides(ISet<SButton> pressed, ISet<SButton> released, GamePadStateBuilder controller, KeyboardStateBuilder keyboard, MouseStateBuilder mouse)
         {
             if (pressed.Count == 0 && released.Count == 0)
                 return false;
@@ -255,17 +252,17 @@ namespace StardewModdingAPI.Framework.Input
                     mouseOverrides[button] = newState;
                 else if (button.TryGetKeyboard(out Keys _))
                     keyboardOverrides[button] = newState;
-                else if (gamePadState.IsConnected && button.TryGetController(out Buttons _))
+                else if (controller.IsConnected && button.TryGetController(out Buttons _))
                     controllerOverrides[button] = newState;
             }
 
             // override states
             if (keyboardOverrides.Any())
-                keyboardState = new KeyboardStateBuilder(keyboardState).OverrideButtons(keyboardOverrides).ToState();
-            if (gamePadState.IsConnected && controllerOverrides.Any())
-                gamePadState = new GamePadStateBuilder(gamePadState).OverrideButtons(controllerOverrides).ToState();
+                keyboard.OverrideButtons(keyboardOverrides);
+            if (controller.IsConnected && controllerOverrides.Any())
+                controller.OverrideButtons(controllerOverrides);
             if (mouseOverrides.Any())
-                mouseState = new MouseStateBuilder(mouseState).OverrideButtons(mouseOverrides).ToMouseState();
+                mouse.OverrideButtons(mouseOverrides);
 
             return true;
         }
@@ -273,10 +270,7 @@ namespace StardewModdingAPI.Framework.Input
         /// <summary>Get the state of all pressed or released buttons relative to their previous state.</summary>
         /// <param name="previousStates">The previous button states.</param>
         /// <param name="pressedButtons">The currently pressed buttons.</param>
-        /// <param name="keyboard">The keyboard state.</param>
-        /// <param name="mouse">The mouse state.</param>
-        /// <param name="controller">The controller state.</param>
-        private IDictionary<SButton, SButtonState> DeriveStates(IDictionary<SButton, SButtonState> previousStates, HashSet<SButton> pressedButtons, KeyboardState keyboard, MouseState mouse, GamePadState controller)
+        private IDictionary<SButton, SButtonState> DeriveStates(IDictionary<SButton, SButtonState> previousStates, HashSet<SButton> pressedButtons)
         {
             IDictionary<SButton, SButtonState> activeButtons = new Dictionary<SButton, SButtonState>();
 
@@ -319,101 +313,12 @@ namespace StardewModdingAPI.Framework.Input
         /// <param name="mouse">The mouse state.</param>
         /// <param name="controller">The controller state.</param>
         /// <remarks>Thumbstick direction logic derived from <see cref="ButtonCollection"/>.</remarks>
-        private IEnumerable<SButton> GetPressedButtons(KeyboardState keyboard, MouseState mouse, GamePadState controller)
+        private IEnumerable<SButton> GetPressedButtons(KeyboardStateBuilder keyboard, MouseStateBuilder mouse, GamePadStateBuilder controller)
         {
-            // keyboard
-            foreach (Keys key in keyboard.GetPressedKeys())
-                yield return key.ToSButton();
-
-            // mouse
-            if (mouse.LeftButton == ButtonState.Pressed)
-                yield return SButton.MouseLeft;
-            if (mouse.RightButton == ButtonState.Pressed)
-                yield return SButton.MouseRight;
-            if (mouse.MiddleButton == ButtonState.Pressed)
-                yield return SButton.MouseMiddle;
-            if (mouse.XButton1 == ButtonState.Pressed)
-                yield return SButton.MouseX1;
-            if (mouse.XButton2 == ButtonState.Pressed)
-                yield return SButton.MouseX2;
-
-            // controller
-            if (controller.IsConnected)
-            {
-                // main buttons
-                if (controller.Buttons.A == ButtonState.Pressed)
-                    yield return SButton.ControllerA;
-                if (controller.Buttons.B == ButtonState.Pressed)
-                    yield return SButton.ControllerB;
-                if (controller.Buttons.X == ButtonState.Pressed)
-                    yield return SButton.ControllerX;
-                if (controller.Buttons.Y == ButtonState.Pressed)
-                    yield return SButton.ControllerY;
-                if (controller.Buttons.LeftStick == ButtonState.Pressed)
-                    yield return SButton.LeftStick;
-                if (controller.Buttons.RightStick == ButtonState.Pressed)
-                    yield return SButton.RightStick;
-                if (controller.Buttons.Start == ButtonState.Pressed)
-                    yield return SButton.ControllerStart;
-
-                // directional pad
-                if (controller.DPad.Up == ButtonState.Pressed)
-                    yield return SButton.DPadUp;
-                if (controller.DPad.Down == ButtonState.Pressed)
-                    yield return SButton.DPadDown;
-                if (controller.DPad.Left == ButtonState.Pressed)
-                    yield return SButton.DPadLeft;
-                if (controller.DPad.Right == ButtonState.Pressed)
-                    yield return SButton.DPadRight;
-
-                // secondary buttons
-                if (controller.Buttons.Back == ButtonState.Pressed)
-                    yield return SButton.ControllerBack;
-                if (controller.Buttons.BigButton == ButtonState.Pressed)
-                    yield return SButton.BigButton;
-
-                // shoulders
-                if (controller.Buttons.LeftShoulder == ButtonState.Pressed)
-                    yield return SButton.LeftShoulder;
-                if (controller.Buttons.RightShoulder == ButtonState.Pressed)
-                    yield return SButton.RightShoulder;
-
-                // triggers
-                if (controller.Triggers.Left > 0.2f)
-                    yield return SButton.LeftTrigger;
-                if (controller.Triggers.Right > 0.2f)
-                    yield return SButton.RightTrigger;
-
-                // left thumbstick direction
-                if (controller.ThumbSticks.Left.Y > SInputState.LeftThumbstickDeadZone)
-                    yield return SButton.LeftThumbstickUp;
-                if (controller.ThumbSticks.Left.Y < -SInputState.LeftThumbstickDeadZone)
-                    yield return SButton.LeftThumbstickDown;
-                if (controller.ThumbSticks.Left.X > SInputState.LeftThumbstickDeadZone)
-                    yield return SButton.LeftThumbstickRight;
-                if (controller.ThumbSticks.Left.X < -SInputState.LeftThumbstickDeadZone)
-                    yield return SButton.LeftThumbstickLeft;
-
-                // right thumbstick direction
-                if (this.IsRightThumbstickOutsideDeadZone(controller.ThumbSticks.Right))
-                {
-                    if (controller.ThumbSticks.Right.Y > 0)
-                        yield return SButton.RightThumbstickUp;
-                    if (controller.ThumbSticks.Right.Y < 0)
-                        yield return SButton.RightThumbstickDown;
-                    if (controller.ThumbSticks.Right.X > 0)
-                        yield return SButton.RightThumbstickRight;
-                    if (controller.ThumbSticks.Right.X < 0)
-                        yield return SButton.RightThumbstickLeft;
-                }
-            }
-        }
-
-        /// <summary>Get whether the right thumbstick should be considered outside the dead zone.</summary>
-        /// <param name="direction">The right thumbstick value.</param>
-        private bool IsRightThumbstickOutsideDeadZone(Vector2 direction)
-        {
-            return direction.Length() > 0.9f;
+            return keyboard
+                .GetPressedButtons()
+                .Concat(mouse.GetPressedButtons())
+                .Concat(controller.GetPressedButtons());
         }
     }
 }

@@ -4,24 +4,40 @@ using Microsoft.Xna.Framework.Input;
 
 namespace StardewModdingAPI.Framework.Input
 {
-    /// <summary>Manipulates keyboard state.</summary>
-    internal class KeyboardStateBuilder
+    /// <summary>Manages keyboard state.</summary>
+    internal class KeyboardStateBuilder : IInputStateBuilder<KeyboardStateBuilder, KeyboardState>
     {
         /*********
         ** Fields
         *********/
+        /// <summary>The underlying keyboard state.</summary>
+        private KeyboardState? State;
+
         /// <summary>The pressed buttons.</summary>
-        private readonly HashSet<Keys> PressedButtons;
+        private readonly HashSet<Keys> PressedButtons = new HashSet<Keys>();
 
 
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="state">The initial state.</param>
-        public KeyboardStateBuilder(KeyboardState state)
+        /// <param name="state">The initial state, or <c>null</c> to get the latest state.</param>
+        public KeyboardStateBuilder(KeyboardState? state = null)
         {
-            this.PressedButtons = new HashSet<Keys>(state.GetPressedKeys());
+            this.Reset(state);
+        }
+
+        /// <summary>Reset the tracked state.</summary>
+        /// <param name="state">The state from which to reset, or <c>null</c> to get the latest state.</param>
+        public KeyboardStateBuilder Reset(KeyboardState? state = null)
+        {
+            this.State = state ??= Keyboard.GetState();
+
+            this.PressedButtons.Clear();
+            foreach (var button in state.Value.GetPressedKeys())
+                this.PressedButtons.Add(button);
+
+            return this;
         }
 
         /// <summary>Override the states for a set of buttons.</summary>
@@ -32,6 +48,8 @@ namespace StardewModdingAPI.Framework.Input
             {
                 if (pair.Key.TryGetKeyboard(out Keys key))
                 {
+                    this.State = null;
+
                     if (pair.Value.IsDown())
                         this.PressedButtons.Add(key);
                     else
@@ -42,10 +60,19 @@ namespace StardewModdingAPI.Framework.Input
             return this;
         }
 
-        /// <summary>Build an equivalent state.</summary>
-        public KeyboardState ToState()
+        /// <summary>Get the currently pressed buttons.</summary>
+        public IEnumerable<SButton> GetPressedButtons()
         {
-            return new KeyboardState(this.PressedButtons.ToArray());
+            foreach (Keys key in this.PressedButtons)
+                yield return key.ToSButton();
+        }
+
+        /// <summary>Get the equivalent state.</summary>
+        public KeyboardState GetState()
+        {
+            return
+                this.State
+                ?? (this.State = new KeyboardState(this.PressedButtons.ToArray())).Value;
         }
     }
 }
