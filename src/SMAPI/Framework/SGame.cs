@@ -653,7 +653,7 @@ namespace StardewModdingAPI.Framework
                             }
 
                             // raise input button events
-                            foreach (var pair in inputState.ActiveButtons)
+                            foreach (var pair in inputState.LastButtonStates)
                             {
                                 SButton button = pair.Key;
                                 SButtonState status = pair.Value;
@@ -824,7 +824,7 @@ namespace StardewModdingAPI.Framework
                         events.OneSecondUpdateTicking.RaiseEmpty();
                     try
                     {
-                        this.Input.UpdateSuppression();
+                        this.Input.ApplyOverrides(); // if mods added any new overrides since the update, process them now
                         SGame.TicksElapsed++;
                         base.Update(gameTime);
                     }

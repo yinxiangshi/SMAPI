@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace StardewModdingAPI.Framework.Input
 {
-    /// <summary>An abstraction for manipulating controller state.</summary>
+    /// <summary>Manipulates controller state.</summary>
     internal class GamePadStateBuilder
     {
         /*********
@@ -30,7 +30,7 @@ namespace StardewModdingAPI.Framework.Input
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="state">The initial controller state.</param>
+        /// <param name="state">The initial state.</param>
         public GamePadStateBuilder(GamePadState state)
         {
             this.ButtonStates = new Dictionary<SButton, ButtonState>
@@ -58,74 +58,64 @@ namespace StardewModdingAPI.Framework.Input
             this.RightStickPos = state.ThumbSticks.Right;
         }
 
-        /// <summary>Mark all matching buttons unpressed.</summary>
-        /// <param name="buttons">The buttons.</param>
-        public void SuppressButtons(IEnumerable<SButton> buttons)
+        /// <summary>Override the states for a set of buttons.</summary>
+        /// <param name="overrides">The button state overrides.</param>
+        public GamePadStateBuilder OverrideButtons(IDictionary<SButton, SButtonState> overrides)
         {
-            foreach (SButton button in buttons)
-                this.SuppressButton(button);
-        }
-
-        /// <summary>Mark a button unpressed.</summary>
-        /// <param name="button">The button.</param>
-        public void SuppressButton(SButton button)
-        {
-            switch (button)
+            foreach (var pair in overrides)
             {
-                // left thumbstick
-                case SButton.LeftThumbstickUp:
-                    if (this.LeftStickPos.Y > 0)
-                        this.LeftStickPos.Y = 0;
-                    break;
-                case SButton.LeftThumbstickDown:
-                    if (this.LeftStickPos.Y < 0)
-                        this.LeftStickPos.Y = 0;
-                    break;
-                case SButton.LeftThumbstickLeft:
-                    if (this.LeftStickPos.X < 0)
-                        this.LeftStickPos.X = 0;
-                    break;
-                case SButton.LeftThumbstickRight:
-                    if (this.LeftStickPos.X > 0)
-                        this.LeftStickPos.X = 0;
-                    break;
+                bool isDown = pair.Value.IsDown();
+                switch (pair.Key)
+                {
+                    // left thumbstick
+                    case SButton.LeftThumbstickUp:
+                        this.LeftStickPos.Y = isDown ? 1 : 0;
+                        break;
+                    case SButton.LeftThumbstickDown:
+                        this.LeftStickPos.Y = isDown ? 1 : 0;
+                        break;
+                    case SButton.LeftThumbstickLeft:
+                        this.LeftStickPos.X = isDown ? 1 : 0;
+                        break;
+                    case SButton.LeftThumbstickRight:
+                        this.LeftStickPos.X = isDown ? 1 : 0;
+                        break;
 
-                // right thumbstick
-                case SButton.RightThumbstickUp:
-                    if (this.RightStickPos.Y > 0)
-                        this.RightStickPos.Y = 0;
-                    break;
-                case SButton.RightThumbstickDown:
-                    if (this.RightStickPos.Y < 0)
-                        this.RightStickPos.Y = 0;
-                    break;
-                case SButton.RightThumbstickLeft:
-                    if (this.RightStickPos.X < 0)
-                        this.RightStickPos.X = 0;
-                    break;
-                case SButton.RightThumbstickRight:
-                    if (this.RightStickPos.X > 0)
-                        this.RightStickPos.X = 0;
-                    break;
+                    // right thumbstick
+                    case SButton.RightThumbstickUp:
+                        this.RightStickPos.Y = isDown ? 1 : 0;
+                        break;
+                    case SButton.RightThumbstickDown:
+                        this.RightStickPos.Y = isDown ? 1 : 0;
+                        break;
+                    case SButton.RightThumbstickLeft:
+                        this.RightStickPos.X = isDown ? 1 : 0;
+                        break;
+                    case SButton.RightThumbstickRight:
+                        this.RightStickPos.X = isDown ? 1 : 0;
+                        break;
 
-                // triggers
-                case SButton.LeftTrigger:
-                    this.LeftTrigger = 0;
-                    break;
-                case SButton.RightTrigger:
-                    this.RightTrigger = 0;
-                    break;
+                    // triggers
+                    case SButton.LeftTrigger:
+                        this.LeftTrigger = isDown ? 1 : 0;
+                        break;
+                    case SButton.RightTrigger:
+                        this.RightTrigger = isDown ? 1 : 0;
+                        break;
 
-                // buttons
-                default:
-                    if (this.ButtonStates.ContainsKey(button))
-                        this.ButtonStates[button] = ButtonState.Released;
-                    break;
+                    // buttons
+                    default:
+                        if (this.ButtonStates.ContainsKey(pair.Key))
+                            this.ButtonStates[pair.Key] = isDown ? ButtonState.Pressed : ButtonState.Released;
+                        break;
+                }
             }
+
+            return this;
         }
 
-        /// <summary>Construct an equivalent gamepad state.</summary>
-        public GamePadState ToGamePadState()
+        /// <summary>Construct an equivalent state.</summary>
+        public GamePadState ToState()
         {
             return new GamePadState(
                 leftThumbStick: this.LeftStickPos,
