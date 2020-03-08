@@ -49,7 +49,7 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
             this.Time = time;
             this.Level = level;
             this.Mod = mod;
-            this.Text.AppendLine(text);
+            this.Text.Append(text);
         }
 
         /// <summary>Add a new line to the next log message being built.</summary>
@@ -60,7 +60,8 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
             if (!this.Started)
                 throw new InvalidOperationException("Can't add text, no log message started yet.");
 
-            this.Text.AppendLine(text);
+            this.Text.Append("\n");
+            this.Text.Append(text);
         }
 
         /// <summary>Get a log message for the accumulated values.</summary>

@@ -201,7 +201,7 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                         }
 
                         // mod path line
-                        else if (message.Level == LogLevel.Debug && this.ModPathPattern.IsMatch(message.Text))
+                        else if (message.Level == LogLevel.Info && this.ModPathPattern.IsMatch(message.Text))
                         {
                             Match match = this.ModPathPattern.Match(message.Text);
                             log.ModPath = match.Groups["path"].Value;

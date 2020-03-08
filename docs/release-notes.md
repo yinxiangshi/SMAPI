@@ -11,8 +11,9 @@
   * Mods are no longer prevented from suppressing key presses in the chatbox. Use this power wisely.
 
 * For the web UI:
-  * Optimized log parser for very long multi-line log messages.
   * Added option to upload files using a file picker.
+  * Optimized log parser for very long multi-line log messages.
+  * Fixed log parser not detecting folder path in recent versions of SMAPI.
 
 * For SMAPI developers:
   * Added internal API to send custom input to the game/mods. This is mainly meant to support Virtual Keyboard on Android, but might be exposed as a public API in future versions.
