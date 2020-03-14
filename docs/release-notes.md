@@ -3,6 +3,7 @@
 # Release notes
 ## Upcoming release
 * For players:
+  * Fixed semi-transparency issues on Linux/Mac in recent versions of Mono (e.g. pink shadows).
   * Updated translations. Thanks to Annosz (added Hungarian)!
 
 * For modders:
