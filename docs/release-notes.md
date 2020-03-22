@@ -4,6 +4,7 @@
 ## Upcoming release
 * For players:
   * Fixed semi-transparency issues on Linux/Mac in recent versions of Mono (e.g. pink shadows).
+  * Removed invalid location check. This is now handled by the game itself.
   * Updated translations. Thanks to Annosz (added Hungarian)!
 
 * For the Console Commands mod:
