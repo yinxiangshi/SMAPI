@@ -6,6 +6,9 @@
   * Fixed semi-transparency issues on Linux/Mac in recent versions of Mono (e.g. pink shadows).
   * Updated translations. Thanks to Annosz (added Hungarian)!
 
+* For the Console Commands mod:
+  * fixed `player_add` error if you have broken XNB mods.
+
 * For modders:
   * Added support for flipped and rotated map tiles (in collaboration with Platonymous).
   * Added support for `.tmx` maps using zlib compression (thanks to Platonymous!).
