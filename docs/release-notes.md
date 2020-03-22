@@ -1,14 +1,14 @@
 &larr; [README](README.md)
 
 # Release notes
-## Upcoming release
+## 3.4
+Released 22 March 2020 for Stardew Valley 1.4.1 or later.
+
 * For players:
   * Fixed semi-transparency issues on Linux/Mac in recent versions of Mono (e.g. pink shadows).
-  * Removed invalid location check. This is now handled by the game itself.
+  * Fixed `player_add` command error if you have broken XNB mods.
+  * Removed invalid-location check now handled by the game.
   * Updated translations. Thanks to Annosz (added Hungarian)!
-
-* For the Console Commands mod:
-  * fixed `player_add` error if you have broken XNB mods.
 
 * For modders:
   * Added support for flipped and rotated map tiles (in collaboration with Platonymous).
