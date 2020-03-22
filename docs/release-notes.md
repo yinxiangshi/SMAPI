@@ -12,7 +12,8 @@
 * For modders:
   * Added support for flipped and rotated map tiles (in collaboration with Platonymous).
   * Added support for `.tmx` maps using zlib compression (thanks to Platonymous!).
-  * Mods are no longer prevented from suppressing key presses in the chatbox. Use this power wisely.
+  * Added `this.Monitor.LogOnce` method.
+  * Mods are no longer prevented from suppressing key presses in the chatbox.
 
 * For the web UI:
   * Added option to upload files using a file picker.
