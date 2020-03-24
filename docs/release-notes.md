@@ -3,7 +3,8 @@
 # Release notes
 ## Upcoming release
 * For modders:
-  * Fixed asset changes not propagating to NPCs in an event (e.g. wedding sprites).
+  * Asset changes now propagate to NPCs in an event (e.g. wedding sprites).
+  * Fixed mouse input suppression not working in SMAPI 3.4.
 
 ## 3.4
 Released 22 March 2020 for Stardew Valley 1.4.1 or later.
