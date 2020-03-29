@@ -2,6 +2,9 @@
 
 # Release notes
 ## Upcoming release
+* For players:
+  * Updated compatibility list.
+
 * For the web UI:
   * Updated the JSON validator and Content Patcher schema for Content Patcher 1.13.
 
