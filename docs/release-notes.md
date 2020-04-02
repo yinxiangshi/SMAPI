@@ -10,6 +10,7 @@
 
 * For modders:
   * Fixed asset propagation on Linux/Mac for monster sprites, NPC dialogue, and NPC schedules.
+  * Fixed asset propagation for NPC dialogue sometimes causing a spouse to skip marriage dialogue or not allow kisses.
 
 ## 3.4.1
 Released 24 March 2020 for Stardew Valley 1.4.1 or later.

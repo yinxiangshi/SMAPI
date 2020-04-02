@@ -892,11 +892,13 @@ namespace StardewModdingAPI.Metadata
             // doesn't store the text itself.
             foreach (NPC villager in villagers)
             {
+                bool shouldSayMarriageDialogue = villager.shouldSayMarriageDialogue.Value;
                 MarriageDialogueReference[] marriageDialogue = villager.currentMarriageDialogue.ToArray();
 
                 villager.resetSeasonalDialogue(); // doesn't only affect seasonal dialogue
                 villager.resetCurrentDialogue();
 
+                villager.shouldSayMarriageDialogue.Set(shouldSayMarriageDialogue);
                 villager.currentMarriageDialogue.Set(marriageDialogue);
             }
 
