@@ -7,6 +7,7 @@
 
 * For the web UI:
   * Updated the JSON validator and Content Patcher schema for Content Patcher 1.13.
+  * Fixed rare intermittent "CGI application encountered an error" errors.
 
 * For modders:
   * Fixed asset propagation on Linux/Mac for monster sprites, NPC dialogue, and NPC schedules.
