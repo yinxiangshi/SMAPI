@@ -32,6 +32,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
 
             // handle
             Game1.year = year;
+            Game1.stats.DaysPlayed = (uint)(Game1.dayOfMonth + 28 * (Utility.getSeasonNumber(Game1.currentSeason) + 4 * (Game1.year - 1)));
             monitor.Log($"OK, the year is now {Game1.year}.", LogLevel.Info);
         }
     }
