@@ -5,6 +5,9 @@
 * For players:
   * Updated compatibility list.
 
+* For the Console Commands mod:
+  * The date commands like `world_setday` now also set the `daysPlayed` stat, so in-game events/randomization match what you'd get if you played to that date normally (thanks to kdau!).
+
 * For the web UI:
   * Updated the JSON validator and Content Patcher schema for Content Patcher 1.13.
   * Fixed rare intermittent "CGI application encountered an error" errors.
