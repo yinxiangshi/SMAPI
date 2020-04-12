@@ -3,6 +3,7 @@
 # Release notes
 ## Upcoming release
 * For players:
+  * Added config option to disable console colors.
   * Updated compatibility list.
 
 * For the Console Commands mod:
