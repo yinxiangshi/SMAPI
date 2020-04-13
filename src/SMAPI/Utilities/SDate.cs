@@ -29,6 +29,9 @@ namespace StardewModdingAPI.Utilities
         /// <summary>The season name.</summary>
         public string Season { get; }
 
+        /// <summary>The season index.</summary>
+        public int SeasonIndex { get; }
+
         /// <summary>The year.</summary>
         public int Year { get; }
 
@@ -61,6 +64,20 @@ namespace StardewModdingAPI.Utilities
         public static SDate Now()
         {
             return new SDate(Game1.dayOfMonth, Game1.currentSeason, Game1.year, allowDayZero: true);
+        }
+
+        /// <summary>Get the date equivalent to the given WorldDate.</summary>
+        /// <param name="worldDate">A date returned from a core game property or method.</param>
+        public static SDate FromWorldDate(WorldDate worldDate)
+        {
+            return new SDate(worldDate.DayOfMonth, worldDate.Season, worldDate.Year, allowDayZero: true);
+        }
+
+        /// <summary>Get the date falling the given number of days after 0 spring Y1.</summary>
+        /// <param name="daysSinceStart">The number of days since 0 spring Y1.</param>
+        public static SDate FromDaysSinceStart(int daysSinceStart)
+        {
+            return new SDate(0, "spring", 1, allowDayZero: true).AddDays(daysSinceStart);
         }
 
         /// <summary>Get a new date with the given number of days added.</summary>
@@ -96,6 +113,18 @@ namespace StardewModdingAPI.Utilities
         public override string ToString()
         {
             return $"{this.Day:00} {this.Season} Y{this.Year}";
+        }
+
+        /// <summary>Get a string representation of the date in the current game locale.</summary>
+        public string ToLocaleString()
+        {
+            return this.ToWorldDate().Localize();
+        }
+
+        /// <summary>Get the date as an instance of the game's WorldDate class. This is intended for passing to core game methods.</summary>
+        public WorldDate ToWorldDate()
+        {
+            return new WorldDate(this.Year, this.Season, this.Day);
         }
 
         /****
@@ -200,6 +229,7 @@ namespace StardewModdingAPI.Utilities
             // initialize
             this.Day = day;
             this.Season = season;
+            this.SeasonIndex = this.GetSeasonIndex(season);
             this.Year = year;
             this.DayOfWeek = this.GetDayOfWeek(day);
             this.DaysSinceStart = this.GetDaysSinceStart(day, season, year);
