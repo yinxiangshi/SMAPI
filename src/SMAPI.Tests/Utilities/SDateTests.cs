@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
 using StardewModdingAPI.Utilities;
+using StardewValley;
+using LC = StardewValley.LocalizedContentManager.LanguageCode;
 
 namespace SMAPI.Tests.Utilities
 {
@@ -82,6 +84,21 @@ namespace SMAPI.Tests.Utilities
         }
 
         /****
+        ** SeasonIndex
+        ****/
+        [Test(Description = "Assert the numeric index of the season.")]
+        [TestCase("01 spring Y1", ExpectedResult = 0)]
+        [TestCase("02 summer Y1", ExpectedResult = 1)]
+        [TestCase("28 fall Y1", ExpectedResult = 2)]
+        [TestCase("01 winter Y1", ExpectedResult = 3)]
+        [TestCase("01 winter Y2", ExpectedResult = 3)]
+        public int SeasonIndex(string dateStr)
+        {
+            // act
+            return this.GetDate(dateStr).SeasonIndex;
+        }
+
+        /****
         ** DayOfWeek
         ****/
         [Test(Description = "Assert the day of week.")]
@@ -148,6 +165,58 @@ namespace SMAPI.Tests.Utilities
         }
 
         /****
+        ** ToLocaleString
+        ****/
+        // TODO: Provide an appropriate XNA/MonoGame context to run this in, or else remove the test.
+        // [Test(Description = "Assert that ToLocaleString returns the expected string in various locales.")]
+        // [TestCase("14 spring Y1", LC.en, ExpectedResult = "Day 14 of Spring, Year 1")]
+        // [TestCase("01 summer Y16", LC.en, ExpectedResult = "Day 1 of Summer, Year 16")]
+        // [TestCase("28 fall Y10", LC.en, ExpectedResult = "Day 28 of Fall, Year 10")]
+        // [TestCase("01 winter Y1", LC.en, ExpectedResult = "Day 1 of Winter, Year 1")]
+        // [TestCase("14 spring Y1", LC.es, ExpectedResult = "Día 14 de primavera, año 1")]
+        // [TestCase("01 summer Y16", LC.es, ExpectedResult = "Día 1 de verano, año 16")]
+        // [TestCase("28 fall Y10", LC.es, ExpectedResult = "Día 28 de otoño, año 10")]
+        // [TestCase("01 winter Y1", LC.es, ExpectedResult = "Día 1 de invierno, año 1")]
+        // public string ToLocaleString(string dateStr, LC langCode)
+        // {
+        //     LC oldCode = LocalizedContentManager.CurrentLanguageCode;
+        //     try
+        //     {
+        //         LocalizedContentManager.CurrentLanguageCode = langCode;
+        //         return this.GetDate(dateStr).ToLocaleString();
+        //     }
+        //     finally
+        //     {
+        //         LocalizedContentManager.CurrentLanguageCode = oldCode;
+        //     }
+        // }
+
+        /****
+        ** FromDaysSinceStart
+        ****/
+        [Test(Description = "Assert that FromDaysSinceStart returns the expected date.")]
+        [TestCase(1, ExpectedResult = "01 spring Y1")]
+        [TestCase(2, ExpectedResult = "02 spring Y1")]
+        [TestCase(28, ExpectedResult = "28 spring Y1")]
+        [TestCase(29, ExpectedResult = "01 summer Y1")]
+        [TestCase(141, ExpectedResult = "01 summer Y2")]
+        public string FromDaysSinceStart(int daysSinceStart)
+        {
+            // act
+            return SDate.FromDaysSinceStart(daysSinceStart).ToString();
+        }
+
+        [Test(Description = "Assert that FromDaysSinceStart throws an exception if the number of days is invalid.")]
+        [TestCase(-1)] // day < 0
+        [TestCase(0)] // day == 0
+        [SuppressMessage("ReSharper", "AssignmentIsFullyDiscarded", Justification = "Deliberate for unit test.")]
+        public void FromDaysSinceStart_RejectsInvalidValues(int daysSinceStart)
+        {
+            // act & assert
+            Assert.Throws<ArgumentException>(() => _ = SDate.FromDaysSinceStart(daysSinceStart), "Passing the invalid number of days didn't throw the expected exception.");
+        }
+
+        /****
         ** AddDays
         ****/
         [Test(Description = "Assert that AddDays returns the expected date.")]
@@ -164,6 +233,17 @@ namespace SMAPI.Tests.Utilities
         public string AddDays(string dateStr, int addDays)
         {
             return this.GetDate(dateStr).AddDays(addDays).ToString();
+        }
+
+        [Test(Description = "Assert that AddDays throws an exception if the number of days is invalid.")]
+        [TestCase("01 spring Y1", -1)]
+        [TestCase("01 summer Y1", -29)]
+        [TestCase("01 spring Y2", -113)]
+        [SuppressMessage("ReSharper", "AssignmentIsFullyDiscarded", Justification = "Deliberate for unit test.")]
+        public void AddDays_RejectsInvalidValues(string dateStr, int addDays)
+        {
+            // act & assert
+            Assert.Throws<ArithmeticException>(() => _ = this.GetDate(dateStr).AddDays(addDays), "Passing the invalid number of days didn't throw the expected exception.");
         }
 
         /****
@@ -192,6 +272,28 @@ namespace SMAPI.Tests.Utilities
                     }
                 }
             }
+        }
+
+        [Test(Description = "Assert that the SDate operator for WorldDates returns the corresponding SDate.")]
+        [TestCase(0, ExpectedResult = "01 spring Y1")]
+        [TestCase(1, ExpectedResult = "02 spring Y1")]
+        [TestCase(27, ExpectedResult = "28 spring Y1")]
+        [TestCase(28, ExpectedResult = "01 summer Y1")]
+        [TestCase(140, ExpectedResult = "01 summer Y2")]
+        public string Operators_SDate_WorldDate(int totalDays)
+        {
+            return ((SDate)new WorldDate { TotalDays = totalDays }).ToString();
+        }
+
+        [Test(Description = "Assert that the WorldDate operator returns the corresponding WorldDate.")]
+        [TestCase("01 spring Y1", ExpectedResult = 0)]
+        [TestCase("02 spring Y1", ExpectedResult = 1)]
+        [TestCase("28 spring Y1", ExpectedResult = 27)]
+        [TestCase("01 summer Y1", ExpectedResult = 28)]
+        [TestCase("01 summer Y2", ExpectedResult = 140)]
+        public int Operators_WorldDate(string dateStr)
+        {
+            return ((WorldDate)this.GetDate(dateStr)).TotalDays;
         }
 
         [Test(Description = "Assert that the == operator returns the expected values. We only need a few test cases, since it's based on GetHashCode which is tested more thoroughly.")]
