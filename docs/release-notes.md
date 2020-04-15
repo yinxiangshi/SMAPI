@@ -15,6 +15,7 @@
   * Fixed rare intermittent "CGI application encountered an error" errors.
 
 * For modders:
+  * Extended `SDate` with `SeasonIndex`, `FromDaysSinceStart`, `FromWorldDate`, `ToWorldDate`, and `ToLocaleString` fields/methods (thanks to kdau!).
   * Fixed asset propagation on Linux/Mac for monster sprites, NPC dialogue, and NPC schedules.
   * Fixed asset propagation for NPC dialogue sometimes causing a spouse to skip marriage dialogue or not allow kisses.
 

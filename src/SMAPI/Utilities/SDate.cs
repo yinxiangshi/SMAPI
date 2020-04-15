@@ -29,7 +29,8 @@ namespace StardewModdingAPI.Utilities
         /// <summary>The season name.</summary>
         public string Season { get; }
 
-        /// <summary>The season index.</summary>
+        /// <summary>The index of the season (where 0 is spring, 1 is summer, 2 is fall, and 3 is winter).</summary>
+        /// <remarks>This is used in some game calculations (e.g. seasonal game sprites) and methods (e.g. <see cref="Utility.getSeasonNameFromNumber"/>).</remarks>
         public int SeasonIndex { get; }
 
         /// <summary>The year.</summary>
@@ -66,7 +67,7 @@ namespace StardewModdingAPI.Utilities
             return new SDate(Game1.dayOfMonth, Game1.currentSeason, Game1.year, allowDayZero: true);
         }
 
-        /// <summary>Get the date falling the given number of days after 0 spring Y1.</summary>
+        /// <summary>Get a date from the number of days after 0 spring Y1.</summary>
         /// <param name="daysSinceStart">The number of days since 0 spring Y1.</param>
         public static SDate FromDaysSinceStart(int daysSinceStart)
         {
@@ -78,6 +79,16 @@ namespace StardewModdingAPI.Utilities
             {
                 throw new ArgumentException($"Invalid daysSinceStart '{daysSinceStart}', must be at least 1.");
             }
+        }
+
+        /// <summary>Get a date from a game date instance.</summary>
+        /// <param name="date">The world date.</param>
+        public static SDate From(WorldDate date)
+        {
+            if (date == null)
+                return null;
+
+            return new SDate(date.DayOfMonth, date.Season, date.Year, allowDayZero: true);
         }
 
         /// <summary>Get a new date with the given number of days added.</summary>
@@ -109,13 +120,19 @@ namespace StardewModdingAPI.Utilities
             return new SDate(day, this.Seasons[seasonIndex], year);
         }
 
+        /// <summary>Get a game date representation of the date.</summary>
+        public WorldDate ToWorldDate()
+        {
+            return new WorldDate(this.Year, this.Season, this.Day);
+        }
+
         /// <summary>Get a string representation of the date. This is mainly intended for debugging or console messages.</summary>
         public override string ToString()
         {
             return $"{this.Day:00} {this.Season} Y{this.Year}";
         }
 
-        /// <summary>Get a string representation of the date in the current game locale.</summary>
+        /// <summary>Get a translated string representation of the date in the current game locale.</summary>
         public string ToLocaleString()
         {
             return Utility.getDateStringFor(this.Day, this.SeasonIndex, this.Year);
@@ -147,19 +164,6 @@ namespace StardewModdingAPI.Utilities
         /****
         ** Operators
         ****/
-        /// <summary>Get the SDate equivalent to the given WorldDate.</summary>
-        /// <param name="worldDate">A date returned from a core game property or method.</param>
-        public static explicit operator SDate(WorldDate worldDate)
-        {
-            return new SDate(worldDate.DayOfMonth, worldDate.Season, worldDate.Year, allowDayZero: true);
-        }
-
-        /// <summary>Get the SDate as an instance of the game's WorldDate class. This is intended for passing to core game methods.</summary>
-        public static explicit operator WorldDate(SDate date)
-        {
-            return new WorldDate(date.Year, date.Season, date.Day);
-        }
-
         /// <summary>Get whether one date is equal to another.</summary>
         /// <param name="date">The base date to compare.</param>
         /// <param name="other">The other date to compare.</param>
