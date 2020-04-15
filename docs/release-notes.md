@@ -4,6 +4,7 @@
 ## Upcoming release
 * For players:
   * Added config option to disable console colors.
+  * SMAPI now prevents more errors/crashes due to invalid item data.
   * Updated compatibility list.
 
 * For the Console Commands mod:
