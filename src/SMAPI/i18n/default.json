@@ -1,3 +1,8 @@
 {
-    "warn.invalid-content-removed": "Invalid content was removed to prevent a crash (see the SMAPI console for info)."
+    // error messages
+    "warn.invalid-content-removed": "Invalid content was removed to prevent a crash (see the SMAPI console for info).",
+
+    // short date format for SDate
+    "generic.date": "{{season}} {{day}}",
+    "generic.date-with-year": "{{season}} {{day}} in year {{year}}"
 }

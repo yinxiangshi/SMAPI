@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using StardewModdingAPI.Framework;
 using StardewValley;
 
 namespace StardewModdingAPI.Utilities
@@ -18,6 +19,9 @@ namespace StardewModdingAPI.Utilities
 
         /// <summary>The number of days in a season.</summary>
         private readonly int DaysInSeason = 28;
+
+        /// <summary>The core SMAPI translations.</summary>
+        internal static Translator Translations;
 
 
         /*********
@@ -126,16 +130,31 @@ namespace StardewModdingAPI.Utilities
             return new WorldDate(this.Year, this.Season, this.Day);
         }
 
-        /// <summary>Get a string representation of the date. This is mainly intended for debugging or console messages.</summary>
+        /// <summary>Get an untranslated string representation of the date. This is mainly intended for debugging or console messages.</summary>
         public override string ToString()
         {
             return $"{this.Day:00} {this.Season} Y{this.Year}";
         }
 
         /// <summary>Get a translated string representation of the date in the current game locale.</summary>
-        public string ToLocaleString()
+        /// <param name="withYear">Whether to get a string which includes the year number.</param>
+        public string ToLocaleString(bool withYear = true)
         {
-            return Utility.getDateStringFor(this.Day, this.SeasonIndex, this.Year);
+            // get fallback translation from game
+            string fallback = Utility.getDateStringFor(this.Day, this.SeasonIndex, this.Year);
+            if (SDate.Translations == null)
+                return fallback;
+
+            // get short format
+            string seasonName = Utility.getSeasonNameFromNumber(this.SeasonIndex);
+            return SDate.Translations
+                .Get(withYear ? "generic.date-with-year" : "generic.date", new
+                {
+                    day = this.Day,
+                    year = this.Year,
+                    season = Utility.getSeasonNameFromNumber(this.SeasonIndex)
+                })
+                .Default(fallback);
         }
 
         /****

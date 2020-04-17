@@ -1,3 +1,8 @@
 {
-    "warn.invalid-content-removed": "Недопустимое содержимое было удалено, чтобы предотвратить сбой (см. информацию в консоли SMAPI)"
+    // error messages
+    "warn.invalid-content-removed": "Недопустимое содержимое было удалено, чтобы предотвратить сбой (см. информацию в консоли SMAPI)",
+
+    // short date format for SDate
+    "generic.date": "{{season}}, {{day}}-е число",
+    "generic.date-with-year": "{{season}}, {{day}}-е число, {{year}}-й год"
 }

@@ -1,3 +1,8 @@
 {
-    "warn.invalid-content-removed": "Yanlış paketlenmiş bir içerik, oyunun çökmemesi için yüklenmedi (SMAPI konsol penceresinde detaylı bilgi mevcut)."
+    // error messages
+    "warn.invalid-content-removed": "Yanlış paketlenmiş bir içerik, oyunun çökmemesi için yüklenmedi (SMAPI konsol penceresinde detaylı bilgi mevcut).",
+
+    // short date format for SDate
+    "generic.date": "{{day}} {{season}}",
+    "generic.date-with-year": "{{day}} {{season}} года {{year}}"
 }

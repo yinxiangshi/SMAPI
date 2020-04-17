@@ -1,3 +1,8 @@
 {
-    "warn.invalid-content-removed": "Érvénytelen elemek kerültek eltávolításra, hogy a játék ne omoljon össze (további információk a SMAPI konzolon)."
+    // error messages
+    "warn.invalid-content-removed": "Érvénytelen elemek kerültek eltávolításra, hogy a játék ne omoljon össze (további információk a SMAPI konzolon).",
+
+    // short date format for SDate
+    "generic.date": "{{season}} {{day}}",
+    "generic.date-with-year": "{{year}}. év {{season}} {{day}}"
 }
