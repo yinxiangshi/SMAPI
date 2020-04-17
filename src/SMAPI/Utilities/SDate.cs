@@ -152,7 +152,8 @@ namespace StardewModdingAPI.Utilities
                 {
                     day = this.Day,
                     year = this.Year,
-                    season = Utility.getSeasonNameFromNumber(this.SeasonIndex)
+                    season = seasonName,
+                    seasonLowercase = seasonName?.ToLower()
                 })
                 .Default(fallback);
         }
