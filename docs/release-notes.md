@@ -16,12 +16,13 @@
   * Fixed rare intermittent "CGI application encountered an error" errors.
 
 * For modders:
+  * Added map patching to the content API (via `asset.AsMap()`).
   * Added `SDate` fields/methods: `SeasonIndex`, `FromDaysSinceStart`, `FromWorldDate`, `ToWorldDate`, and `ToLocaleString` (thanks to kdau!).
   * Added `SDate` translations taken from the Lookup Anything mod.¹
   * Fixed asset propagation on Linux/Mac for monster sprites, NPC dialogue, and NPC schedules.
   * Fixed asset propagation for NPC dialogue sometimes causing a spouse to skip marriage dialogue or not allow kisses.
 
-¹ Date translations were taken from the Lookup Anything mod; thanks to FixThisPlz (improved Russian), LeecanIt (added Italian), pomepome (added Japanese), S2SKY (added Korean), Sasara (added German), SteaNN (added Russian), ThomasGabrielDelavault (added Spanish), VincentRoth (added French), Yllelder (improved Spanish), and yuwenlan (added Chinese). Translations for Korean (partial), Hungarian, and Turkish were auto-generated based on the game translations.
+¹ Date format translations were taken from the Lookup Anything mod; thanks to FixThisPlz (improved Russian), LeecanIt (added Italian), pomepome (added Japanese), S2SKY (added Korean), Sasara (added German), SteaNN (added Russian), ThomasGabrielDelavault (added Spanish), VincentRoth (added French), Yllelder (improved Spanish), and yuwenlan (added Chinese). Translations for Korean (partial), Hungarian, and Turkish were auto-generated based on the game translations.
 
 ## 3.4.1
 Released 24 March 2020 for Stardew Valley 1.4.1 or later.
