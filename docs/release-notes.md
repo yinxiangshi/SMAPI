@@ -20,6 +20,7 @@
   * Added support for using patch helpers (e.g. for image/map patching) with arbitrary data (via `helper.Content.GetPatchHelper`).
   * Added `SDate` fields/methods: `SeasonIndex`, `FromDaysSinceStart`, `FromWorldDate`, `ToWorldDate`, and `ToLocaleString` (thanks to kdau!).
   * Added `SDate` translations taken from the Lookup Anything mod.¹
+  * Fixed asset propagation for certain maps loaded through temporarily content managers (notably the farmhouse and town).
   * Fixed asset propagation on Linux/Mac for monster sprites, NPC dialogue, and NPC schedules.
   * Fixed asset propagation for NPC dialogue sometimes causing a spouse to skip marriage dialogue or not allow kisses.
 
