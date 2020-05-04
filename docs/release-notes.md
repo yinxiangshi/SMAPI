@@ -3,6 +3,7 @@
 # Release notes
 ## Upcoming released
 * For modders:
+  * Added `Multiplayer.PeerConnected` event.
   * Fixed asset propagation for Gil's portraits.
 
 ## 3.5
