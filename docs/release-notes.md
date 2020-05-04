@@ -1,6 +1,10 @@
 &larr; [README](README.md)
 
 # Release notes
+## Upcoming released
+* For modders:
+  * Fixed asset propagation for Gil's portraits.
+
 ## 3.5
 Released 27 April 2020 for Stardew Valley 1.4.1 or later.
 
