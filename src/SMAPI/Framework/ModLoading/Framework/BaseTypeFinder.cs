@@ -3,7 +3,7 @@ using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
-namespace StardewModdingAPI.Framework.ModLoading.Finders
+namespace StardewModdingAPI.Framework.ModLoading.Framework
 {
     /// <summary>Finds incompatible CIL instructions that reference a given type.</summary>
     internal class TypeFinder : IInstructionHandler

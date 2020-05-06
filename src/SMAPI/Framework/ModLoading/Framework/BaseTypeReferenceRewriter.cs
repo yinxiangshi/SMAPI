@@ -1,9 +1,8 @@
 using System;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using StardewModdingAPI.Framework.ModLoading.Finders;
 
-namespace StardewModdingAPI.Framework.ModLoading.Rewriters
+namespace StardewModdingAPI.Framework.ModLoading.Framework
 {
     /// <summary>Rewrites all references to a type.</summary>
     internal class TypeReferenceRewriter : TypeFinder
