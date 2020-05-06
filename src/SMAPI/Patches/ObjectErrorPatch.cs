@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using Harmony;
+using HarmonyLib;
 using StardewModdingAPI.Framework.Patching;
 using StardewValley;
 using StardewValley.Menus;
@@ -27,7 +27,7 @@ namespace StardewModdingAPI.Patches
         *********/
         /// <summary>Apply the Harmony patch.</summary>
         /// <param name="harmony">The Harmony instance.</param>
-        public void Apply(HarmonyInstance harmony)
+        public void Apply(Harmony harmony)
         {
             // object.getDescription
             harmony.Patch(
