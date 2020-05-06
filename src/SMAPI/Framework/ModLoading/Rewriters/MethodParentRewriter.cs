@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -10,8 +11,8 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /*********
         ** Fields
         *********/
-        /// <summary>The type whose methods to remap.</summary>
-        private readonly Type FromType;
+        /// <summary>The full name of the type whose methods to remap.</summary>
+        private readonly string FromType;
 
         /// <summary>The type with methods to map to.</summary>
         private readonly Type ToType;
@@ -34,13 +35,20 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <param name="fromType">The type whose methods to remap.</param>
         /// <param name="toType">The type with methods to map to.</param>
         /// <param name="onlyIfPlatformChanged">Whether to only rewrite references if loading the assembly on a different platform than it was compiled on.</param>
-        public MethodParentRewriter(Type fromType, Type toType, bool onlyIfPlatformChanged = false)
+        public MethodParentRewriter(string fromType, Type toType, bool onlyIfPlatformChanged = false)
         {
             this.FromType = fromType;
             this.ToType = toType;
-            this.NounPhrase = $"{fromType.Name} methods";
+            this.NounPhrase = $"{fromType.Split('.').Last()} methods";
             this.OnlyIfPlatformChanged = onlyIfPlatformChanged;
         }
+
+        /// <summary>Construct an instance.</summary>
+        /// <param name="fromType">The type whose methods to remap.</param>
+        /// <param name="toType">The type with methods to map to.</param>
+        /// <param name="onlyIfPlatformChanged">Whether to only rewrite references if loading the assembly on a different platform than it was compiled on.</param>
+        public MethodParentRewriter(Type fromType, Type toType, bool onlyIfPlatformChanged = false)
+            : this(fromType.FullName, toType, onlyIfPlatformChanged) { }
 
         /// <summary>Perform the predefined logic for a method if applicable.</summary>
         /// <param name="module">The assembly module containing the instruction.</param>
@@ -81,7 +89,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             return
                 methodRef != null
                 && (platformChanged || !this.OnlyIfPlatformChanged)
-                && methodRef.DeclaringType.FullName == this.FromType.FullName
+                && methodRef.DeclaringType.FullName == this.FromType
                 && RewriteHelper.HasMatchingSignature(this.ToType, methodRef);
         }
     }

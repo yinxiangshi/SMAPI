@@ -5,30 +5,32 @@ using Mono.Cecil.Cil;
 namespace StardewModdingAPI.Framework.ModLoading.Framework
 {
     /// <summary>Rewrites all references to a type.</summary>
-    internal class TypeReferenceRewriter : TypeFinder
+    internal abstract class BaseTypeReferenceRewriter : IInstructionHandler
     {
         /*********
         ** Fields
         *********/
-        /// <summary>The full type name to which to find references.</summary>
-        private readonly string FromTypeName;
+        /// <summary>The type finder which matches types to rewrite.</summary>
+        private readonly BaseTypeFinder Finder;
 
-        /// <summary>The new type to reference.</summary>
-        private readonly Type ToType;
+
+        /*********
+        ** Accessors
+        *********/
+        /// <summary>A brief noun phrase indicating what the handler matches.</summary>
+        public string NounPhrase { get; }
 
 
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="fromTypeFullName">The full type name to which to find references.</param>
-        /// <param name="toType">The new type to reference.</param>
-        /// <param name="shouldIgnore">A lambda which overrides a matched type.</param>
-        public TypeReferenceRewriter(string fromTypeFullName, Type toType, Func<TypeReference, bool> shouldIgnore = null)
-            : base(fromTypeFullName, InstructionHandleResult.None, shouldIgnore)
+        /// <param name="finder">The type finder which matches types to rewrite.</param>
+        /// <param name="nounPhrase">A brief noun phrase indicating what the instruction finder matches.</param>
+        public BaseTypeReferenceRewriter(BaseTypeFinder finder, string nounPhrase)
         {
-            this.FromTypeName = fromTypeFullName;
-            this.ToType = toType;
+            this.Finder = finder;
+            this.NounPhrase = nounPhrase;
         }
 
         /// <summary>Perform the predefined logic for a method if applicable.</summary>
@@ -36,46 +38,36 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
         /// <param name="method">The method definition containing the instruction.</param>
         /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
         /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        public override InstructionHandleResult Handle(ModuleDefinition module, MethodDefinition method, PlatformAssemblyMap assemblyMap, bool platformChanged)
+        public InstructionHandleResult Handle(ModuleDefinition module, MethodDefinition method, PlatformAssemblyMap assemblyMap, bool platformChanged)
         {
             bool rewritten = false;
 
             // return type
-            if (this.IsMatch(method.ReturnType))
+            if (this.Finder.IsMatch(method.ReturnType))
             {
-                this.RewriteIfNeeded(module, method.ReturnType, newType => method.ReturnType = newType);
-                rewritten = true;
+                rewritten |= this.RewriteIfNeeded(module, method.ReturnType, newType => method.ReturnType = newType);
             }
 
             // parameters
             foreach (ParameterDefinition parameter in method.Parameters)
             {
-                if (this.IsMatch(parameter.ParameterType))
-                {
-                    this.RewriteIfNeeded(module, parameter.ParameterType, newType => parameter.ParameterType = newType);
-                    rewritten = true;
-                }
+                if (this.Finder.IsMatch(parameter.ParameterType))
+                    rewritten |= this.RewriteIfNeeded(module, parameter.ParameterType, newType => parameter.ParameterType = newType);
             }
 
             // generic parameters
             for (int i = 0; i < method.GenericParameters.Count; i++)
             {
                 var parameter = method.GenericParameters[i];
-                if (this.IsMatch(parameter))
-                {
-                    this.RewriteIfNeeded(module, parameter, newType => method.GenericParameters[i] = new GenericParameter(parameter.Name, newType));
-                    rewritten = true;
-                }
+                if (this.Finder.IsMatch(parameter))
+                    rewritten |= this.RewriteIfNeeded(module, parameter, newType => method.GenericParameters[i] = new GenericParameter(parameter.Name, newType));
             }
 
             // local variables
             foreach (VariableDefinition variable in method.Body.Variables)
             {
-                if (this.IsMatch(variable.VariableType))
-                {
-                    this.RewriteIfNeeded(module, variable.VariableType, newType => variable.VariableType = newType);
-                    rewritten = true;
-                }
+                if (this.Finder.IsMatch(variable.VariableType))
+                    rewritten |= this.RewriteIfNeeded(module, variable.VariableType, newType => variable.VariableType = newType);
             }
 
             return rewritten
@@ -89,34 +81,37 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
         /// <param name="instruction">The instruction to handle.</param>
         /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
         /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        public override InstructionHandleResult Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, PlatformAssemblyMap assemblyMap, bool platformChanged)
+        public InstructionHandleResult Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, PlatformAssemblyMap assemblyMap, bool platformChanged)
         {
-            if (!this.IsMatch(instruction))
+            if (!this.Finder.IsMatch(instruction))
                 return InstructionHandleResult.None;
+            bool rewritten = false;
 
             // field reference
             FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);
             if (fieldRef != null)
             {
-                this.RewriteIfNeeded(module, fieldRef.DeclaringType, newType => fieldRef.DeclaringType = newType);
-                this.RewriteIfNeeded(module, fieldRef.FieldType, newType => fieldRef.FieldType = newType);
+                rewritten |= this.RewriteIfNeeded(module, fieldRef.DeclaringType, newType => fieldRef.DeclaringType = newType);
+                rewritten |= this.RewriteIfNeeded(module, fieldRef.FieldType, newType => fieldRef.FieldType = newType);
             }
 
             // method reference
             MethodReference methodRef = RewriteHelper.AsMethodReference(instruction);
             if (methodRef != null)
             {
-                this.RewriteIfNeeded(module, methodRef.DeclaringType, newType => methodRef.DeclaringType = newType);
-                this.RewriteIfNeeded(module, methodRef.ReturnType, newType => methodRef.ReturnType = newType);
+                rewritten |= this.RewriteIfNeeded(module, methodRef.DeclaringType, newType => methodRef.DeclaringType = newType);
+                rewritten |= this.RewriteIfNeeded(module, methodRef.ReturnType, newType => methodRef.ReturnType = newType);
                 foreach (var parameter in methodRef.Parameters)
-                    this.RewriteIfNeeded(module, parameter.ParameterType, newType => parameter.ParameterType = newType);
+                    rewritten |= this.RewriteIfNeeded(module, parameter.ParameterType, newType => parameter.ParameterType = newType);
             }
 
             // type reference
             if (instruction.Operand is TypeReference typeRef)
-                this.RewriteIfNeeded(module, typeRef, newType => cil.Replace(instruction, cil.Create(instruction.OpCode, newType)));
+                rewritten |= this.RewriteIfNeeded(module, typeRef, newType => cil.Replace(instruction, cil.Create(instruction.OpCode, newType)));
 
-            return InstructionHandleResult.Rewritten;
+            return rewritten
+                ? InstructionHandleResult.Rewritten
+                : InstructionHandleResult.None;
         }
 
         /*********
@@ -126,26 +121,6 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
         /// <param name="module">The assembly module containing the instruction.</param>
         /// <param name="type">The type to replace if it matches.</param>
         /// <param name="set">Assign the new type reference.</param>
-        private void RewriteIfNeeded(ModuleDefinition module, TypeReference type, Action<TypeReference> set)
-        {
-            // current type
-            if (type.FullName == this.FromTypeName)
-            {
-                if (!this.ShouldIgnore(type))
-                    set(module.ImportReference(this.ToType));
-                return;
-            }
-
-            // recurse into generic arguments
-            if (type is GenericInstanceType genericType)
-            {
-                for (int i = 0; i < genericType.GenericArguments.Count; i++)
-                    this.RewriteIfNeeded(module, genericType.GenericArguments[i], typeRef => genericType.GenericArguments[i] = typeRef);
-            }
-
-            // recurse into generic parameters (e.g. constraints)
-            for (int i = 0; i < type.GenericParameters.Count; i++)
-                this.RewriteIfNeeded(module, type.GenericParameters[i], typeRef => type.GenericParameters[i] = new GenericParameter(typeRef));
-        }
+        protected abstract bool RewriteIfNeeded(ModuleDefinition module, TypeReference type, Action<TypeReference> set);
     }
 }

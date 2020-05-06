@@ -5,20 +5,17 @@ using Mono.Cecil.Cil;
 
 namespace StardewModdingAPI.Framework.ModLoading.Framework
 {
-    /// <summary>Finds incompatible CIL instructions that reference a given type.</summary>
-    internal class TypeFinder : IInstructionHandler
+    /// <summary>Finds incompatible CIL type reference instructions.</summary>
+    internal abstract class BaseTypeFinder : IInstructionHandler
     {
         /*********
         ** Accessors
         *********/
-        /// <summary>The full type name for which to find references.</summary>
-        private readonly string FullTypeName;
+        /// <summary>Matches the type references to handle.</summary>
+        private readonly Func<TypeReference, bool> IsMatchImpl;
 
         /// <summary>The result to return for matching instructions.</summary>
         private readonly InstructionHandleResult Result;
-
-        /// <summary>A lambda which overrides a matched type.</summary>
-        protected readonly Func<TypeReference, bool> ShouldIgnore;
 
 
         /*********
@@ -32,15 +29,14 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="fullTypeName">The full type name to match.</param>
+        /// <param name="isMatch">Matches the type references to handle.</param>
         /// <param name="result">The result to return for matching instructions.</param>
-        /// <param name="shouldIgnore">A lambda which overrides a matched type.</param>
-        public TypeFinder(string fullTypeName, InstructionHandleResult result, Func<TypeReference, bool> shouldIgnore = null)
+        /// <param name="nounPhrase">A brief noun phrase indicating what the instruction finder matches.</param>
+        public BaseTypeFinder(Func<TypeReference, bool> isMatch, InstructionHandleResult result, string nounPhrase)
         {
-            this.FullTypeName = fullTypeName;
+            this.IsMatchImpl = isMatch;
             this.Result = result;
-            this.NounPhrase = $"{fullTypeName} type";
-            this.ShouldIgnore = shouldIgnore ?? (p => false);
+            this.NounPhrase = nounPhrase;
         }
 
         /// <summary>Perform the predefined logic for a method if applicable.</summary>
@@ -68,13 +64,9 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
                 : InstructionHandleResult.None;
         }
 
-
-        /*********
-        ** Protected methods
-        *********/
         /// <summary>Get whether a CIL instruction matches.</summary>
         /// <param name="method">The method definition.</param>
-        protected bool IsMatch(MethodDefinition method)
+        public bool IsMatch(MethodDefinition method)
         {
             if (this.IsMatch(method.ReturnType))
                 return true;
@@ -90,7 +82,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
 
         /// <summary>Get whether a CIL instruction matches.</summary>
         /// <param name="instruction">The IL instruction.</param>
-        protected bool IsMatch(Instruction instruction)
+        public bool IsMatch(Instruction instruction)
         {
             // field reference
             FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);
@@ -116,10 +108,10 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
 
         /// <summary>Get whether a type reference matches the expected type.</summary>
         /// <param name="type">The type to check.</param>
-        protected bool IsMatch(TypeReference type)
+        public bool IsMatch(TypeReference type)
         {
             // root type
-            if (type.FullName == this.FullTypeName && !this.ShouldIgnore(type))
+            if (this.IsMatchImpl(type))
                 return true;
 
             // generic arguments

@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Framework.ModLoading.Finders;
-using StardewModdingAPI.Framework.ModLoading.Framework;
 using StardewModdingAPI.Framework.ModLoading.Rewriters;
 using StardewModdingAPI.Framework.RewriteFacades;
 using StardewValley;
@@ -36,6 +35,10 @@ namespace StardewModdingAPI.Metadata
 
             // rewrite for Stardew Valley 1.3
             yield return new StaticFieldToConstantRewriter<int>(typeof(Game1), "tileSize", Game1.tileSize);
+
+            // rewrite for SMAPI 3.6 (Harmony 1.x => 2.0 update)
+            yield return new Harmony1AssemblyRewriter();
+            yield return new MethodParentRewriter("HarmonyLib.Harmony", typeof(HarmonyInstanceMethods), onlyIfPlatformChanged: false);
 
             /****
             ** detect mod issues
