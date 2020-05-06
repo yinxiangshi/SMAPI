@@ -50,7 +50,7 @@ namespace StardewModdingAPI.Metadata
             /****
             ** detect code which may impact game stability
             ****/
-            yield return new TypeFinder("Harmony.HarmonyInstance", InstructionHandleResult.DetectedGamePatch);
+            yield return new TypeFinder(typeof(HarmonyLib.Harmony).FullName, InstructionHandleResult.DetectedGamePatch);
             yield return new TypeFinder("System.Runtime.CompilerServices.CallSite", InstructionHandleResult.DetectedDynamic);
             yield return new FieldFinder(typeof(SaveGame).FullName, nameof(SaveGame.serializer), InstructionHandleResult.DetectedSaveSerializer);
             yield return new FieldFinder(typeof(SaveGame).FullName, nameof(SaveGame.farmerSerializer), InstructionHandleResult.DetectedSaveSerializer);
