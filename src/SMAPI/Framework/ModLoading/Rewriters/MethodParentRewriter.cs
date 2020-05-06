@@ -35,11 +35,12 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <param name="fromType">The type whose methods to remap.</param>
         /// <param name="toType">The type with methods to map to.</param>
         /// <param name="onlyIfPlatformChanged">Whether to only rewrite references if loading the assembly on a different platform than it was compiled on.</param>
-        public MethodParentRewriter(string fromType, Type toType, bool onlyIfPlatformChanged = false)
+        /// <param name="nounPhrase">A brief noun phrase indicating what the instruction finder matches (or <c>null</c> to generate one).</param>
+        public MethodParentRewriter(string fromType, Type toType, bool onlyIfPlatformChanged = false, string nounPhrase = null)
         {
             this.FromType = fromType;
             this.ToType = toType;
-            this.NounPhrase = $"{fromType.Split('.').Last()} methods";
+            this.NounPhrase = nounPhrase ?? $"{fromType.Split('.').Last()} methods";
             this.OnlyIfPlatformChanged = onlyIfPlatformChanged;
         }
 

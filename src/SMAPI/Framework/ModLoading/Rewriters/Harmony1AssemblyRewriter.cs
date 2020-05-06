@@ -19,11 +19,18 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
 
 
         /*********
+        ** Accessors
+        *********/
+        /// <summary>A brief noun phrase indicating what the rewriter matches.</summary>
+        public const string DefaultNounPhrase = "Harmony 1.x";
+
+
+        /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
         public Harmony1AssemblyRewriter()
-            : base(new TypeAssemblyFinder(Harmony1AssemblyRewriter.FromAssemblyName, InstructionHandleResult.None), "Harmony 1.x types")
+            : base(new TypeAssemblyFinder(Harmony1AssemblyRewriter.FromAssemblyName, InstructionHandleResult.None), Harmony1AssemblyRewriter.DefaultNounPhrase)
         { }
 
 
