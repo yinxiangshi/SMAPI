@@ -6,7 +6,7 @@ using Mono.Cecil.Cil;
 namespace StardewModdingAPI.Framework.ModLoading.Framework
 {
     /// <summary>Finds incompatible CIL type reference instructions.</summary>
-    internal abstract class BaseTypeFinder : IInstructionHandler
+    internal abstract class BaseTypeFinder : BaseInstructionHandler
     {
         /*********
         ** Accessors
@@ -19,32 +19,14 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
 
 
         /*********
-        ** Accessors
-        *********/
-        /// <summary>A brief noun phrase indicating what the instruction finder matches.</summary>
-        public string NounPhrase { get; }
-
-
-        /*********
         ** Public methods
         *********/
-        /// <summary>Construct an instance.</summary>
-        /// <param name="isMatch">Matches the type references to handle.</param>
-        /// <param name="result">The result to return for matching instructions.</param>
-        /// <param name="nounPhrase">A brief noun phrase indicating what the instruction finder matches.</param>
-        public BaseTypeFinder(Func<TypeReference, bool> isMatch, InstructionHandleResult result, string nounPhrase)
-        {
-            this.IsMatchImpl = isMatch;
-            this.Result = result;
-            this.NounPhrase = nounPhrase;
-        }
-
         /// <summary>Perform the predefined logic for a method if applicable.</summary>
         /// <param name="module">The assembly module containing the instruction.</param>
-        /// <param name="method">The method definition containing the instruction.</param>
+        /// <param name="method">The method definition to handle.</param>
         /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
         /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        public virtual InstructionHandleResult Handle(ModuleDefinition module, MethodDefinition method, PlatformAssemblyMap assemblyMap, bool platformChanged)
+        public override InstructionHandleResult Handle(ModuleDefinition module, MethodDefinition method, PlatformAssemblyMap assemblyMap, bool platformChanged)
         {
             return this.IsMatch(method)
                 ? this.Result
@@ -54,10 +36,10 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
         /// <summary>Perform the predefined logic for an instruction if applicable.</summary>
         /// <param name="module">The assembly module containing the instruction.</param>
         /// <param name="cil">The CIL processor.</param>
-        /// <param name="instruction">The instruction to handle.</param>
+        /// <param name="instruction">The CIL instruction to handle.</param>
         /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
         /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        public virtual InstructionHandleResult Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, PlatformAssemblyMap assemblyMap, bool platformChanged)
+        public override InstructionHandleResult Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, PlatformAssemblyMap assemblyMap, bool platformChanged)
         {
             return this.IsMatch(instruction)
                 ? this.Result
@@ -126,6 +108,21 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
                 return true;
 
             return false;
+        }
+
+
+        /*********
+        ** Protected methods
+        *********/
+        /// <summary>Construct an instance.</summary>
+        /// <param name="isMatch">Matches the type references to handle.</param>
+        /// <param name="result">The result to return for matching instructions.</param>
+        /// <param name="nounPhrase">A brief noun phrase indicating what the instruction finder matches.</param>
+        protected BaseTypeFinder(Func<TypeReference, bool> isMatch, InstructionHandleResult result, string nounPhrase)
+            : base(nounPhrase)
+        {
+            this.IsMatchImpl = isMatch;
+            this.Result = result;
         }
     }
 }

@@ -2,12 +2,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using StardewModdingAPI.Framework.ModLoading.Framework;
 
 namespace StardewModdingAPI.Framework.ModLoading.Finders
 {
     /// <summary>Finds references to a field, property, or method which returns a different type than the code expects.</summary>
     /// <remarks>This implementation is purely heuristic. It should never return a false positive, but won't detect all cases.</remarks>
-    internal class ReferenceToMemberWithUnexpectedTypeFinder : IInstructionHandler
+    internal class ReferenceToMemberWithUnexpectedTypeFinder : BaseInstructionHandler
     {
         /*********
         ** Fields
@@ -17,39 +18,23 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
 
 
         /*********
-        ** Accessors
-        *********/
-        /// <summary>A brief noun phrase indicating what the instruction finder matches.</summary>
-        public string NounPhrase { get; private set; } = "";
-
-
-        /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="validateReferencesToAssemblies">The assembly names to which to heuristically detect broken references.</param>
         public ReferenceToMemberWithUnexpectedTypeFinder(string[] validateReferencesToAssemblies)
+            : base(nounPhrase: "")
         {
             this.ValidateReferencesToAssemblies = new HashSet<string>(validateReferencesToAssemblies);
-        }
-
-        /// <summary>Perform the predefined logic for a method if applicable.</summary>
-        /// <param name="module">The assembly module containing the instruction.</param>
-        /// <param name="method">The method definition containing the instruction.</param>
-        /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
-        /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        public virtual InstructionHandleResult Handle(ModuleDefinition module, MethodDefinition method, PlatformAssemblyMap assemblyMap, bool platformChanged)
-        {
-            return InstructionHandleResult.None;
         }
 
         /// <summary>Perform the predefined logic for an instruction if applicable.</summary>
         /// <param name="module">The assembly module containing the instruction.</param>
         /// <param name="cil">The CIL processor.</param>
-        /// <param name="instruction">The instruction to handle.</param>
+        /// <param name="instruction">The CIL instruction to handle.</param>
         /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
         /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        public virtual InstructionHandleResult Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, PlatformAssemblyMap assemblyMap, bool platformChanged)
+        public override InstructionHandleResult Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, PlatformAssemblyMap assemblyMap, bool platformChanged)
         {
             // field reference
             FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);

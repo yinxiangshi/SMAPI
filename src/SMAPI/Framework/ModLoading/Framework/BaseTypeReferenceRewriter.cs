@@ -5,7 +5,7 @@ using Mono.Cecil.Cil;
 namespace StardewModdingAPI.Framework.ModLoading.Framework
 {
     /// <summary>Rewrites all references to a type.</summary>
-    internal abstract class BaseTypeReferenceRewriter : IInstructionHandler
+    internal abstract class BaseTypeReferenceRewriter : BaseInstructionHandler
     {
         /*********
         ** Fields
@@ -15,30 +15,14 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
 
 
         /*********
-        ** Accessors
-        *********/
-        /// <summary>A brief noun phrase indicating what the handler matches.</summary>
-        public string NounPhrase { get; }
-
-
-        /*********
         ** Public methods
         *********/
-        /// <summary>Construct an instance.</summary>
-        /// <param name="finder">The type finder which matches types to rewrite.</param>
-        /// <param name="nounPhrase">A brief noun phrase indicating what the instruction finder matches.</param>
-        public BaseTypeReferenceRewriter(BaseTypeFinder finder, string nounPhrase)
-        {
-            this.Finder = finder;
-            this.NounPhrase = nounPhrase;
-        }
-
         /// <summary>Perform the predefined logic for a method if applicable.</summary>
         /// <param name="module">The assembly module containing the instruction.</param>
-        /// <param name="method">The method definition containing the instruction.</param>
+        /// <param name="method">The method definition to handle.</param>
         /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
         /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        public InstructionHandleResult Handle(ModuleDefinition module, MethodDefinition method, PlatformAssemblyMap assemblyMap, bool platformChanged)
+        public override InstructionHandleResult Handle(ModuleDefinition module, MethodDefinition method, PlatformAssemblyMap assemblyMap, bool platformChanged)
         {
             bool rewritten = false;
 
@@ -78,10 +62,10 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
         /// <summary>Perform the predefined logic for an instruction if applicable.</summary>
         /// <param name="module">The assembly module containing the instruction.</param>
         /// <param name="cil">The CIL processor.</param>
-        /// <param name="instruction">The instruction to handle.</param>
+        /// <param name="instruction">The CIL instruction to handle.</param>
         /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
         /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        public InstructionHandleResult Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, PlatformAssemblyMap assemblyMap, bool platformChanged)
+        public override InstructionHandleResult Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, PlatformAssemblyMap assemblyMap, bool platformChanged)
         {
             if (!this.Finder.IsMatch(instruction))
                 return InstructionHandleResult.None;
@@ -114,9 +98,19 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
                 : InstructionHandleResult.None;
         }
 
+
         /*********
-        ** Private methods
+        ** Protected methods
         *********/
+        /// <summary>Construct an instance.</summary>
+        /// <param name="finder">The type finder which matches types to rewrite.</param>
+        /// <param name="nounPhrase">A brief noun phrase indicating what the instruction finder matches.</param>
+        protected BaseTypeReferenceRewriter(BaseTypeFinder finder, string nounPhrase)
+            : base(nounPhrase)
+        {
+            this.Finder = finder;
+        }
+
         /// <summary>Change a type reference if needed.</summary>
         /// <param name="module">The assembly module containing the instruction.</param>
         /// <param name="type">The type to replace if it matches.</param>
