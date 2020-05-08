@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Hangfire;
@@ -36,7 +37,9 @@ namespace StardewModdingAPI.Web
         /// <summary>Construct an instance.</summary>
         /// <param name="wikiCache">The cache in which to store wiki metadata.</param>
         /// <param name="modCache">The cache in which to store mod data.</param>
-        public BackgroundService(IWikiCacheRepository wikiCache, IModCacheRepository modCache)
+        /// <param name="hangfireStorage">The Hangfire storage implementation.</param>
+        [SuppressMessage("ReSharper", "UnusedParameter.Local", Justification = "The Hangfire reference forces it to initialize first, since it's needed by the background service.")]
+        public BackgroundService(IWikiCacheRepository wikiCache, IModCacheRepository modCache, JobStorage hangfireStorage)
         {
             BackgroundService.WikiCache = wikiCache;
             BackgroundService.ModCache = modCache;

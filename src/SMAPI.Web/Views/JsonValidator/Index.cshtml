@@ -40,7 +40,7 @@
     <script src="~/Content/js/json-validator.js?r=202002"></script>
     <script>
         $(function() {
-            smapi.jsonValidator(@Json.Serialize(this.Url.PlainAction("Index", "JsonValidator", new { schemaName = "$schemaName", id = "$id" })), @Json.Serialize(Model.PasteID));
+            smapi.jsonValidator(@this.ForJson(this.Url.PlainAction("Index", "JsonValidator", new { schemaName = "$schemaName", id = "$id" })), @this.ForJson(Model.PasteID));
         });
     </script>
 }

@@ -1,8 +1,12 @@
 using System;
 using JetBrains.Annotations;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Routing;
+using Newtonsoft.Json;
 
 namespace StardewModdingAPI.Web.Framework
 {
@@ -33,6 +37,17 @@ namespace StardewModdingAPI.Web.Framework
                 url = new Uri(baseUri, url).ToString();
             }
             return url;
+        }
+
+        /// <summary>Get a serialized JSON representation of the value.</summary>
+        /// <param name="page">The page to extend.</param>
+        /// <param name="value">The value to serialize.</param>
+        /// <returns>The serialized JSON.</returns>
+        /// <remarks>This bypasses unnecessary validation (e.g. not allowing null values) in <see cref="IJsonHelper.Serialize"/>.</remarks>
+        public static IHtmlContent ForJson(this RazorPageBase page, object value)
+        {
+            string json = JsonConvert.SerializeObject(value);
+            return new HtmlString(json);
         }
     }
 }

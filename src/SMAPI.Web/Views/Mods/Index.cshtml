@@ -1,6 +1,6 @@
 @using Humanizer
 @using Humanizer.Localisation
-@using Newtonsoft.Json
+@using StardewModdingAPI.Web.Framework
 @model StardewModdingAPI.Web.ViewModels.ModListModel
 @{
     ViewData["Title"] = "Mod compatibility";
@@ -15,8 +15,8 @@
     <script src="~/Content/js/mods.js?r=20200218"></script>
     <script>
         $(function() {
-            var data = @Json.Serialize(Model.Mods, new JsonSerializerSettings { Formatting = Formatting.None });
-            var enableBeta = @Json.Serialize(Model.BetaVersion != null);
+            var data = @this.ForJson(Model.Mods);
+            var enableBeta = @this.ForJson(Model.BetaVersion != null);
             smapi.modList(data, enableBeta);
         });
     </script>
@@ -86,7 +86,7 @@ else
                     </td>
                     <td class="mod-page-links">
                         <span v-for="(link, i) in mod.ModPages">
-                            <a v-bind:href="link.Url">{{link.Text}}</a>{{i < mod.ModPages.length - 1 ? ', ' : ''}}
+                            <a v-bind:href="link.Url">{{link.Text}}</a>{{i &lt; mod.ModPages.length - 1 ? ', ' : ''}}
                         </span>
                     </td>
                     <td>

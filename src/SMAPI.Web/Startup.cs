@@ -47,7 +47,7 @@ namespace StardewModdingAPI.Web
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="env">The hosting environment.</param>
-        public Startup(IHostingEnvironment env)
+        public Startup(IWebHostEnvironment env)
         {
             this.Configuration = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
@@ -71,25 +71,16 @@ namespace StardewModdingAPI.Web
                 .Configure<SiteConfig>(this.Configuration.GetSection("Site"))
                 .Configure<RouteOptions>(options => options.ConstraintMap.Add("semanticVersion", typeof(VersionConstraint)))
                 .AddLogging()
-                .AddMemoryCache()
-                .AddMvc()
-                .ConfigureApplicationPartManager(manager => manager.FeatureProviders.Add(new InternalControllerFeatureProvider()))
-                .AddJsonOptions(options =>
-                {
-                    foreach (JsonConverter converter in new JsonHelper().JsonSettings.Converters)
-                        options.SerializerSettings.Converters.Add(converter);
-
-                    options.SerializerSettings.Formatting = Formatting.Indented;
-                    options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
-                });
+                .AddMemoryCache();
             MongoDbConfig mongoConfig = this.Configuration.GetSection("MongoDB").Get<MongoDbConfig>();
 
-            // init background service
-            {
-                BackgroundServicesConfig config = this.Configuration.GetSection("BackgroundServices").Get<BackgroundServicesConfig>();
-                if (config.Enabled)
-                    services.AddHostedService<BackgroundService>();
-            }
+            // init MVC
+            services
+                .AddControllers()
+                .AddNewtonsoftJson(options => this.ConfigureJsonNet(options.SerializerSettings))
+                .ConfigureApplicationPartManager(manager => manager.FeatureProviders.Add(new InternalControllerFeatureProvider()));
+            services
+                .AddRazorPages();
 
             // init MongoDB
             services.AddSingleton<MongoDbRunner>(serv => !mongoConfig.IsConfigured()
@@ -121,7 +112,7 @@ namespace StardewModdingAPI.Web
 
                     if (mongoConfig.IsConfigured())
                     {
-                        config.UseMongoStorage(mongoConfig.ConnectionString, $"{mongoConfig.Database}-hangfire", new MongoStorageOptions
+                        config.UseMongoStorage(MongoClientSettings.FromConnectionString(mongoConfig.ConnectionString), $"{mongoConfig.Database}-hangfire", new MongoStorageOptions
                         {
                             MigrationOptions = new MongoMigrationOptions(MongoMigrationStrategy.Drop),
                             CheckConnection = false // error on startup takes down entire process
@@ -130,6 +121,13 @@ namespace StardewModdingAPI.Web
                     else
                         config.UseMemoryStorage();
                 });
+
+            // init background service
+            {
+                BackgroundServicesConfig config = this.Configuration.GetSection("BackgroundServices").Get<BackgroundServicesConfig>();
+                if (config.Enabled)
+                    services.AddHostedService<BackgroundService>();
+            }
 
             // init API clients
             {
@@ -188,8 +186,7 @@ namespace StardewModdingAPI.Web
 
         /// <summary>The method called by the runtime to configure the HTTP request pipeline.</summary>
         /// <param name="app">The application builder.</param>
-        /// <param name="env">The hosting environment.</param>
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app)
         {
             // basic config
             app.UseDeveloperExceptionPage();
@@ -201,7 +198,13 @@ namespace StardewModdingAPI.Web
                 )
                 .UseRewriter(this.GetRedirectRules())
                 .UseStaticFiles() // wwwroot folder
-                .UseMvc();
+                .UseRouting()
+                .UseAuthorization()
+                .UseEndpoints(p =>
+                {
+                    p.MapControllers();
+                    p.MapRazorPages();
+                });
 
             // enable Hangfire dashboard
             app.UseHangfireDashboard("/tasks", new DashboardOptions
@@ -215,6 +218,17 @@ namespace StardewModdingAPI.Web
         /*********
         ** Private methods
         *********/
+        /// <summary>Configure a Json.NET serializer.</summary>
+        /// <param name="settings">The serializer settings to edit.</param>
+        private void ConfigureJsonNet(JsonSerializerSettings settings)
+        {
+            foreach (JsonConverter converter in new JsonHelper().JsonSettings.Converters)
+                settings.Converters.Add(converter);
+
+            settings.Formatting = Formatting.Indented;
+            settings.NullValueHandling = NullValueHandling.Ignore;
+        }
+
         /// <summary>Get the redirect rules to apply.</summary>
         private RewriteOptions GetRedirectRules()
         {
