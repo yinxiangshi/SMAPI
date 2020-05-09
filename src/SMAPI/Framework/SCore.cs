@@ -1129,65 +1129,116 @@ namespace StardewModdingAPI.Framework
             // log warnings
             if (modsWithWarnings.Any())
             {
-                // issue block format logic
-                void LogWarningGroup(ModWarning warning, LogLevel logLevel, string heading, params string[] blurb)
-                {
-                    IModMetadata[] matches = modsWithWarnings
-                        .Where(mod => mod.HasUnsuppressWarning(warning))
-                        .ToArray();
-                    if (!matches.Any())
-                        return;
-
-                    this.Monitor.Log("   " + heading, logLevel);
-                    this.Monitor.Log("   " + "".PadRight(50, '-'), logLevel);
-                    foreach (string line in blurb)
-                        this.Monitor.Log("      " + line, logLevel);
-                    this.Monitor.Newline();
-                    foreach (IModMetadata match in matches)
-                        this.Monitor.Log($"      - {match.DisplayName}", logLevel);
-                    this.Monitor.Newline();
-                }
-
-                // supported issues
-                LogWarningGroup(ModWarning.BrokenCodeLoaded, LogLevel.Error, "Broken mods",
+                // broken code
+                this.LogModWarningGroup(modsWithWarnings, ModWarning.BrokenCodeLoaded, LogLevel.Error, "Broken mods",
                     "These mods have broken code, but you configured SMAPI to load them anyway. This may cause bugs,",
                     "errors, or crashes in-game."
                 );
-                LogWarningGroup(ModWarning.ChangesSaveSerializer, LogLevel.Warn, "Changed save serializer",
+
+                // changes serializer
+                this.LogModWarningGroup(modsWithWarnings, ModWarning.ChangesSaveSerializer, LogLevel.Warn, "Changed save serializer",
                     "These mods change the save serializer. They may corrupt your save files, or make them unusable if",
                     "you uninstall these mods."
                 );
-                if (this.Settings.ParanoidWarnings)
-                {
-                    LogWarningGroup(ModWarning.AccessesConsole, LogLevel.Warn, "Accesses the console directly",
-                        "These mods directly access the SMAPI console, and you enabled paranoid warnings. (Note that this may be",
-                        "legitimate and innocent usage; this warning is meaningless without further investigation.)"
-                    );
-                    LogWarningGroup(ModWarning.AccessesFilesystem, LogLevel.Warn, "Accesses filesystem directly",
-                        "These mods directly access the filesystem, and you enabled paranoid warnings. (Note that this may be",
-                        "legitimate and innocent usage; this warning is meaningless without further investigation.)"
-                    );
-                    LogWarningGroup(ModWarning.AccessesShell, LogLevel.Warn, "Accesses shell/process directly",
-                        "These mods directly access the OS shell or processes, and you enabled paranoid warnings. (Note that",
-                        "this may be legitimate and innocent usage; this warning is meaningless without further investigation.)"
-                    );
-                }
-                LogWarningGroup(ModWarning.PatchesGame, LogLevel.Info, "Patched game code",
+
+                // patched game code
+                this.LogModWarningGroup(modsWithWarnings, ModWarning.PatchesGame, LogLevel.Info, "Patched game code",
                     "These mods directly change the game code. They're more likely to cause errors or bugs in-game; if",
                     "your game has issues, try removing these first. Otherwise you can ignore this warning."
                 );
-                LogWarningGroup(ModWarning.UsesUnvalidatedUpdateTick, LogLevel.Info, "Bypassed safety checks",
+
+                // unvalidated update tick
+                this.LogModWarningGroup(modsWithWarnings, ModWarning.UsesUnvalidatedUpdateTick, LogLevel.Info, "Bypassed safety checks",
                     "These mods bypass SMAPI's normal safety checks, so they're more likely to cause errors or save",
                     "corruption. If your game has issues, try removing these first."
                 );
-                LogWarningGroup(ModWarning.NoUpdateKeys, LogLevel.Debug, "No update keys",
+
+                // paranoid warnings
+                if (this.Settings.ParanoidWarnings)
+                {
+                    this.LogModWarningGroup(
+                        modsWithWarnings,
+                        match: mod => mod.HasUnsuppressedWarnings(ModWarning.AccessesConsole, ModWarning.AccessesFilesystem, ModWarning.AccessesShell),
+                        level: LogLevel.Debug,
+                        heading: "Direct system access",
+                        blurb: new[]
+                        {
+                            "You enabled paranoid warnings and these mods directly access the filesystem, shells/processes, or",
+                            "SMAPI console. (This is usually legitimate and innocent usage; this warning is only useful for",
+                            "further investigation.)"
+                        },
+                        modLabel: mod =>
+                        {
+                            List<string> labels = new List<string>();
+                            if (mod.HasUnsuppressedWarnings(ModWarning.AccessesConsole))
+                                labels.Add("console");
+                            if (mod.HasUnsuppressedWarnings(ModWarning.AccessesFilesystem))
+                                labels.Add("files");
+                            if (mod.HasUnsuppressedWarnings(ModWarning.AccessesShell))
+                                labels.Add("shells/processes");
+
+                            return $"{mod.DisplayName} ({string.Join(", ", labels)})";
+                        }
+                    );
+                }
+
+                // no update keys
+                this.LogModWarningGroup(modsWithWarnings, ModWarning.NoUpdateKeys, LogLevel.Debug, "No update keys",
                     "These mods have no update keys in their manifest. SMAPI may not notify you about updates for these",
                     "mods. Consider notifying the mod authors about this problem."
                 );
-                LogWarningGroup(ModWarning.UsesDynamic, LogLevel.Debug, "Not crossplatform",
+
+                // not crossplatform
+                this.LogModWarningGroup(modsWithWarnings, ModWarning.UsesDynamic, LogLevel.Debug, "Not crossplatform",
                     "These mods use the 'dynamic' keyword, and won't work on Linux/Mac."
                 );
             }
+        }
+
+        /// <summary>Write a mod warning group to the console and log.</summary>
+        /// <param name="mods">The mods to search.</param>
+        /// <param name="match">Matches mods to include in the warning group.</param>
+        /// <param name="level">The log level for the logged messages.</param>
+        /// <param name="heading">A brief heading label for the group.</param>
+        /// <param name="blurb">A detailed explanation of the warning, split into lines.</param>
+        /// <param name="modLabel">Formats the mod label, or <c>null</c> to use the <see cref="IModMetadata.DisplayName"/>.</param>
+        private void LogModWarningGroup(IModMetadata[] mods, Func<IModMetadata, bool> match, LogLevel level, string heading, string[] blurb, Func<IModMetadata, string> modLabel = null)
+        {
+            // get matching mods
+            IModMetadata[] matches = mods
+                .Where(match)
+                .ToArray();
+            if (!matches.Any())
+                return;
+
+            // log header/blurb
+            this.Monitor.Log("   " + heading, level);
+            this.Monitor.Log("   " + "".PadRight(50, '-'), level);
+            foreach (string line in blurb)
+                this.Monitor.Log("      " + line, level);
+            this.Monitor.Newline();
+
+            // log mod list
+            foreach (IModMetadata modMatch in matches)
+            {
+                string label = modLabel != null
+                    ? modLabel(modMatch)
+                    : modMatch.DisplayName;
+                this.Monitor.Log($"      - {label}", level);
+            }
+
+            this.Monitor.Newline();
+        }
+
+        /// <summary>Write a mod warning group to the console and log.</summary>
+        /// <param name="mods">The mods to search.</param>
+        /// <param name="warning">The mod warning to match.</param>
+        /// <param name="level">The log level for the logged messages.</param>
+        /// <param name="heading">A brief heading label for the group.</param>
+        /// <param name="blurb">A detailed explanation of the warning, split into lines.</param>
+        void LogModWarningGroup(IModMetadata[] mods, ModWarning warning, LogLevel level, string heading, params string[] blurb)
+        {
+            this.LogModWarningGroup(mods, mod => mod.HasUnsuppressedWarnings(warning), level, heading, blurb);
         }
 
         /// <summary>Load a mod's entry class.</summary>

@@ -4,6 +4,7 @@
 ## Upcoming released
 * For modders:
   * Added `Multiplayer.PeerConnected` event.
+  * Simplified paranoid warnings in the log and reduced their log level.
   * Fixed asset propagation for Gil's portraits.
 
 ## 3.5
