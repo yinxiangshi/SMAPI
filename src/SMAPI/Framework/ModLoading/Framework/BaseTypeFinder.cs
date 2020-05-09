@@ -50,9 +50,38 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
         /// <param name="method">The method definition.</param>
         public bool IsMatch(MethodDefinition method)
         {
+            // return type
             if (this.IsMatch(method.ReturnType))
                 return true;
 
+            // parameters
+            foreach (ParameterDefinition parameter in method.Parameters)
+            {
+                if (this.IsMatch(parameter.ParameterType))
+                    return true;
+            }
+
+            // generic parameters
+            foreach (GenericParameter parameter in method.GenericParameters)
+            {
+                if (this.IsMatch(parameter))
+                    return true;
+            }
+
+            // custom attributes
+            foreach (CustomAttribute attribute in method.CustomAttributes)
+            {
+                if (this.IsMatch(attribute.AttributeType))
+                    return true;
+
+                foreach (var arg in attribute.ConstructorArguments)
+                {
+                    if (this.IsMatch(arg.Type))
+                        return true;
+                }
+            }
+
+            // local variables
             foreach (VariableDefinition variable in method.Body.Variables)
             {
                 if (this.IsMatch(variable.VariableType))

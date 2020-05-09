@@ -18,6 +18,16 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
         *********/
         /// <summary>Perform the predefined logic for a method if applicable.</summary>
         /// <param name="module">The assembly module containing the instruction.</param>
+        /// <param name="type">The type definition to handle.</param>
+        /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
+        /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
+        public virtual InstructionHandleResult Handle(ModuleDefinition module, TypeDefinition type, PlatformAssemblyMap assemblyMap, bool platformChanged)
+        {
+            return InstructionHandleResult.None;
+        }
+
+        /// <summary>Perform the predefined logic for a method if applicable.</summary>
+        /// <param name="module">The assembly module containing the instruction.</param>
         /// <param name="method">The method definition to handle.</param>
         /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
         /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>

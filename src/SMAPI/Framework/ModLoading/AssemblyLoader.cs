@@ -285,30 +285,43 @@ namespace StardewModdingAPI.Framework.ModLoading
             // find (and optionally rewrite) incompatible instructions
             bool anyRewritten = false;
             IInstructionHandler[] handlers = new InstructionMetadata().GetHandlers(this.ParanoidMode).ToArray();
-            foreach (MethodDefinition method in this.GetMethods(module))
+            foreach (TypeDefinition type in module.GetTypes())
             {
-                // check method definition
+                // check type definition
                 foreach (IInstructionHandler handler in handlers)
                 {
-                    InstructionHandleResult result = handler.Handle(module, method, this.AssemblyMap, platformChanged);
+                    InstructionHandleResult result = handler.Handle(module, type, this.AssemblyMap, platformChanged);
                     this.ProcessInstructionHandleResult(mod, handler, result, loggedMessages, logPrefix, filename);
                     if (result == InstructionHandleResult.Rewritten)
                         anyRewritten = true;
                 }
 
-                // check CIL instructions
-                ILProcessor cil = method.Body.GetILProcessor();
-                var instructions = cil.Body.Instructions;
-                // ReSharper disable once ForCanBeConvertedToForeach -- deliberate access by index so each handler sees replacements from previous handlers
-                for (int offset = 0; offset < instructions.Count; offset++)
+                // check methods
+                foreach (MethodDefinition method in type.Methods.Where(p => p.HasBody))
                 {
+                    // check method definition
                     foreach (IInstructionHandler handler in handlers)
                     {
-                        Instruction instruction = instructions[offset];
-                        InstructionHandleResult result = handler.Handle(module, cil, instruction, this.AssemblyMap, platformChanged);
+                        InstructionHandleResult result = handler.Handle(module, method, this.AssemblyMap, platformChanged);
                         this.ProcessInstructionHandleResult(mod, handler, result, loggedMessages, logPrefix, filename);
                         if (result == InstructionHandleResult.Rewritten)
                             anyRewritten = true;
+                    }
+
+                    // check CIL instructions
+                    ILProcessor cil = method.Body.GetILProcessor();
+                    var instructions = cil.Body.Instructions;
+                    // ReSharper disable once ForCanBeConvertedToForeach -- deliberate access by index so each handler sees replacements from previous handlers
+                    for (int offset = 0; offset < instructions.Count; offset++)
+                    {
+                        foreach (IInstructionHandler handler in handlers)
+                        {
+                            Instruction instruction = instructions[offset];
+                            InstructionHandleResult result = handler.Handle(module, cil, instruction, this.AssemblyMap, platformChanged);
+                            this.ProcessInstructionHandleResult(mod, handler, result, loggedMessages, logPrefix, filename);
+                            if (result == InstructionHandleResult.Rewritten)
+                                anyRewritten = true;
+                        }
                     }
                 }
             }
@@ -394,19 +407,6 @@ namespace StardewModdingAPI.Framework.ModLoading
             // replace scope
             AssemblyNameReference assemblyRef = this.AssemblyMap.TargetReferences[assembly];
             type.Scope = assemblyRef;
-        }
-
-        /// <summary>Get all methods in a module.</summary>
-        /// <param name="module">The module to search.</param>
-        private IEnumerable<MethodDefinition> GetMethods(ModuleDefinition module)
-        {
-            return (
-                from type in module.GetTypes()
-                where type.HasMethods
-                from method in type.Methods
-                where method.HasBody
-                select method
-            );
         }
     }
 }
