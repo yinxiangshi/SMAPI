@@ -1205,10 +1205,12 @@ namespace StardewModdingAPI.Framework
         private void LogModWarningGroup(IModMetadata[] mods, Func<IModMetadata, bool> match, LogLevel level, string heading, string[] blurb, Func<IModMetadata, string> modLabel = null)
         {
             // get matching mods
-            IModMetadata[] matches = mods
+            string[] modLabels = mods
                 .Where(match)
+                .Select(mod => modLabel?.Invoke(mod) ?? mod.DisplayName)
+                .OrderBy(p => p)
                 .ToArray();
-            if (!matches.Any())
+            if (!modLabels.Any())
                 return;
 
             // log header/blurb
@@ -1219,13 +1221,8 @@ namespace StardewModdingAPI.Framework
             this.Monitor.Newline();
 
             // log mod list
-            foreach (IModMetadata modMatch in matches)
-            {
-                string label = modLabel != null
-                    ? modLabel(modMatch)
-                    : modMatch.DisplayName;
+            foreach (string label in modLabels)
                 this.Monitor.Log($"      - {label}", level);
-            }
 
             this.Monitor.Newline();
         }

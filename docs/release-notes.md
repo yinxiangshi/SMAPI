@@ -2,6 +2,9 @@
 
 # Release notes
 ## Upcoming released
+* For players:
+  * Mod warnings are now listed alphabetically.
+
 * For modders:
   * Added `Multiplayer.PeerConnected` event.
   * Simplified paranoid warnings in the log and reduced their log level.
