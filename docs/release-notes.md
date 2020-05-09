@@ -5,6 +5,10 @@
 * For players:
   * Mod warnings are now listed alphabetically.
 
+* For the web UI:
+  * Updated web framework to improve site performance and reliability.
+  * Added GitHub licenses to mod compatibility list.
+
 * For modders:
   * Added `Multiplayer.PeerConnected` event.
   * Simplified paranoid warnings in the log and reduced their log level.

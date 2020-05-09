@@ -1,6 +1,7 @@
 @using Humanizer
 @using Humanizer.Localisation
 @using StardewModdingAPI.Web.Framework
+@using StardewModdingAPI.Web.ViewModels
 @model StardewModdingAPI.Web.ViewModels.ModListModel
 @{
     ViewData["Title"] = "Mod compatibility";
@@ -15,7 +16,7 @@
     <script src="~/Content/js/mods.js?r=20200218"></script>
     <script>
         $(function() {
-            var data = @this.ForJson(Model.Mods);
+            var data = @this.ForJson(Model.Mods ?? new ModModel[0]);
             var enableBeta = @this.ForJson(Model.BetaVersion != null);
             smapi.modList(data, enableBeta);
         });
@@ -103,7 +104,13 @@ else
                     </td>
                     <td class="mod-broke-in" v-html="mod.LatestCompatibility.BrokeIn" v-show="showAdvanced"></td>
                     <td v-show="showAdvanced">
-                        <span v-if="mod.SourceUrl"><a v-bind:href="mod.SourceUrl">source</a></span>
+                        <span v-if="mod.SourceUrl">
+                            <a v-bind:href="mod.SourceUrl">source</a>
+                            <span v-if="mod.GitHubRepo">
+                                @* see https://shields.io/category/license *@
+                                (<img v-bind:src="'http://img.shields.io/github/license/' + mod.GitHubRepo + '?style=flat-square.png&label='" class="license-badge" alt="source" />)
+                            </span>
+                        </span>
                         <span v-else class="mod-closed-source">no source</span>
                     </td>
                     <td>
