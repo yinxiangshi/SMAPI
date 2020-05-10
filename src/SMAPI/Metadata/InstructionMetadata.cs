@@ -38,7 +38,8 @@ namespace StardewModdingAPI.Metadata
 
             // rewrite for SMAPI 3.6 (Harmony 1.x => 2.0 update)
             yield return new Harmony1AssemblyRewriter();
-            yield return new MethodParentRewriter("HarmonyLib.Harmony", typeof(HarmonyInstanceMethods), onlyIfPlatformChanged: false, nounPhrase: Harmony1AssemblyRewriter.DefaultNounPhrase);
+            yield return new MethodParentRewriter(typeof(HarmonyLib.Harmony), typeof(HarmonyInstanceMethods), onlyIfPlatformChanged: false, nounPhrase: Harmony1AssemblyRewriter.DefaultNounPhrase);
+            yield return new MethodParentRewriter(typeof(HarmonyLib.AccessTools), typeof(AccessToolsMethods), onlyIfPlatformChanged: false, nounPhrase: Harmony1AssemblyRewriter.DefaultNounPhrase);
 
             /****
             ** detect mod issues
