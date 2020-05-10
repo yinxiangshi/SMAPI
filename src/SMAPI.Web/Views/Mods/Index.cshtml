@@ -7,6 +7,9 @@
     ViewData["Title"] = "Mod compatibility";
 
     TimeSpan staleAge = DateTimeOffset.UtcNow - Model.LastUpdated;
+
+    bool hasBeta = true; // Model.BetaVersion != null;
+    string betaLabel = "SMAPI 3.6 only"; //"SDV @Model.BetaVersion only";
 }
 @section Head {
     <link rel="stylesheet" href="~/Content/css/mods.css?r=20200218" />
@@ -17,7 +20,7 @@
     <script>
         $(function() {
             var data = @this.ForJson(Model.Mods ?? new ModModel[0]);
-            var enableBeta = @this.ForJson(Model.BetaVersion != null);
+            var enableBeta = @this.ForJson(hasBeta);
             smapi.modList(data, enableBeta);
         });
     </script>
@@ -40,9 +43,9 @@ else
 
             <p>The list is updated every few days (you can help <a href="https://stardewvalleywiki.com/Modding:Mod_compatibility">update it</a>!). It doesn't include XNB mods (see <a href="https://stardewvalleywiki.com/Modding:Using_XNB_mods"><em>using XNB mods</em> on the wiki</a> instead) or compatible content packs.</p>
 
-            @if (Model.BetaVersion != null)
+            @if (hasBeta)
             {
-                <p id="beta-blurb" v-show="showAdvanced"><strong>Note:</strong> "SDV @Model.BetaVersion only" lines are for an unreleased version of the game, not the stable version most players have. If a mod doesn't have that line, the info applies to both versions of the game.</p>
+                <p id="beta-blurb" v-show="showAdvanced"><strong>Note:</strong> "@betaLabel" lines are for an unreleased version of SMAPI, not the stable version most players have. If a mod doesn't have that line, the info applies to both versions of SMAPI.</p>
             }
         </div>
 
@@ -97,7 +100,7 @@ else
                     <td>
                         <div v-html="mod.Compatibility.Summary"></div>
                         <div v-if="mod.BetaCompatibility" v-show="showAdvanced">
-                            <strong v-if="mod.BetaCompatibility">SDV @Model.BetaVersion only:</strong>
+                            <strong v-if="mod.BetaCompatibility">@betaLabel:</strong>
                             <span v-html="mod.BetaCompatibility.Summary"></span>
                         </div>
                         <div v-for="(warning, i) in mod.Warnings">⚠ {{warning}}</div>
