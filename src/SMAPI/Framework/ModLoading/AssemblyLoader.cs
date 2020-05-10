@@ -314,13 +314,19 @@ namespace StardewModdingAPI.Framework.ModLoading
                     // ReSharper disable once ForCanBeConvertedToForeach -- deliberate access by index so each handler sees replacements from previous handlers
                     for (int offset = 0; offset < instructions.Count; offset++)
                     {
+                        Instruction instruction = instructions[offset];
+                        if (instruction.OpCode.Code == Code.Nop)
+                            continue;
+
                         foreach (IInstructionHandler handler in handlers)
                         {
-                            Instruction instruction = instructions[offset];
                             InstructionHandleResult result = handler.Handle(module, cil, instruction, this.AssemblyMap, platformChanged);
                             this.ProcessInstructionHandleResult(mod, handler, result, loggedMessages, logPrefix, filename);
                             if (result == InstructionHandleResult.Rewritten)
+                            {
+                                instruction = instructions[offset];
                                 anyRewritten = true;
+                            }
                         }
                     }
                 }

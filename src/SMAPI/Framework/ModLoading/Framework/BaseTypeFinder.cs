@@ -108,10 +108,21 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
             MethodReference methodRef = RewriteHelper.AsMethodReference(instruction);
             if (methodRef != null)
             {
-                return
-                    this.IsMatch(methodRef.DeclaringType) // method on target class
-                    || this.IsMatch(methodRef.ReturnType) // method returns target class
-                    || methodRef.Parameters.Any(p => this.IsMatch(p.ParameterType)); // method parameters
+                // method on target class
+                if (this.IsMatch(methodRef.DeclaringType))
+                    return true;
+
+                // method returns target class
+                if (this.IsMatch(methodRef.ReturnType))
+                    return true;
+
+                // method parameters of target class
+                if (methodRef.Parameters.Any(p => this.IsMatch(p.ParameterType)))
+                    return true;
+
+                // generic args of target class
+                if (methodRef is GenericInstanceMethod genericRef && genericRef.GenericArguments.Any(this.IsMatch))
+                    return true;
             }
 
             return false;

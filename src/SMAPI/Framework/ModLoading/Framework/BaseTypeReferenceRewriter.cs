@@ -104,6 +104,11 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
                 rewritten |= this.RewriteIfNeeded(module, methodRef.ReturnType, newType => methodRef.ReturnType = newType);
                 foreach (var parameter in methodRef.Parameters)
                     rewritten |= this.RewriteIfNeeded(module, parameter.ParameterType, newType => parameter.ParameterType = newType);
+                if (methodRef is GenericInstanceMethod genericRef)
+                {
+                    for (int i = 0; i < genericRef.GenericArguments.Count; i++)
+                        rewritten |= this.RewriteIfNeeded(module, genericRef.GenericArguments[i], newType => genericRef.GenericArguments[i] = newType);
+                }
             }
 
             // type reference
