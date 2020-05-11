@@ -213,6 +213,20 @@ namespace StardewModdingAPI.Framework
                 return;
             }
 #endif
+
+            // reset temp folder
+            if (Directory.Exists(Constants.InternalTempFilesPath))
+            {
+                try
+                {
+                    FileUtilities.ForceDelete(new DirectoryInfo(Constants.InternalTempFilesPath));
+                }
+                catch (Exception ex)
+                {
+                    this.Monitor.Log($"Couldn't delete temporary files at {Constants.InternalTempFilesPath}: {ex}", LogLevel.Trace);
+                }
+            }
+            Directory.CreateDirectory(Constants.InternalTempFilesPath);
         }
 
         /// <summary>Launch SMAPI.</summary>
@@ -748,7 +762,7 @@ namespace StardewModdingAPI.Framework
 
             // load mods
             IDictionary<IModMetadata, Tuple<string, string>> skippedMods = new Dictionary<IModMetadata, Tuple<string, string>>();
-            using (AssemblyLoader modAssemblyLoader = new AssemblyLoader(Constants.Platform, this.Monitor, this.Settings.ParanoidWarnings))
+            using (AssemblyLoader modAssemblyLoader = new AssemblyLoader(Constants.Platform, this.Monitor, this.Settings.ParanoidWarnings, Constants.InternalTempFilesPath))
             {
                 // init
                 HashSet<string> suppressUpdateChecks = new HashSet<string>(this.Settings.SuppressUpdateChecks, StringComparer.InvariantCultureIgnoreCase);

@@ -61,6 +61,9 @@ namespace StardewModdingAPI
         /// <summary>The absolute path to the folder containing SMAPI's internal files.</summary>
         internal static readonly string InternalFilesPath = Program.DllSearchPath;
 
+        /// <summary>The folder containing temporary files that are only valid for the current session.</summary>
+        internal static string InternalTempFilesPath => Path.Combine(Program.DllSearchPath, ".temp");
+
         /// <summary>The file path for the SMAPI configuration file.</summary>
         internal static string ApiConfigPath => Path.Combine(Constants.InternalFilesPath, "config.json");
 

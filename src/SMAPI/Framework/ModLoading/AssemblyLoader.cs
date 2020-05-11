@@ -36,6 +36,9 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>The objects to dispose as part of this instance.</summary>
         private readonly HashSet<IDisposable> Disposables = new HashSet<IDisposable>();
 
+        /// <summary>The full path to the folder in which to save rewritten assemblies.</summary>
+        private readonly string TempFolderPath;
+
 
         /*********
         ** Public methods
@@ -44,11 +47,15 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="targetPlatform">The current game platform.</param>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="paranoidMode">Whether to detect paranoid mode issues.</param>
-        public AssemblyLoader(Platform targetPlatform, IMonitor monitor, bool paranoidMode)
+        /// <param name="tempFolderPath">The full path to the folder in which to save rewritten assemblies.</param>
+        public AssemblyLoader(Platform targetPlatform, IMonitor monitor, bool paranoidMode, string tempFolderPath)
         {
             this.Monitor = monitor;
             this.ParanoidMode = paranoidMode;
             this.AssemblyMap = this.TrackForDisposal(Constants.GetAssemblyMap(targetPlatform));
+            this.TempFolderPath = tempFolderPath;
+
+            // init resolver
             this.AssemblyDefinitionResolver = this.TrackForDisposal(new AssemblyDefinitionResolver());
             this.AssemblyDefinitionResolver.AddSearchDirectory(Constants.ExecutionPath);
             this.AssemblyDefinitionResolver.AddSearchDirectory(Constants.InternalFilesPath);
@@ -124,9 +131,23 @@ namespace StardewModdingAPI.Framework.ModLoading
                 if (changed)
                 {
                     if (!oneAssembly)
-                        this.Monitor.Log($"      Loading {assembly.File.Name} (rewritten in memory)...", LogLevel.Trace);
-                    using (MemoryStream outStream = new MemoryStream())
+                        this.Monitor.Log($"      Loading {assembly.File.Name} (rewritten)...", LogLevel.Trace);
+
+                    if (assembly.Definition.MainModule.AssemblyReferences.Any(p => p.Name == "0Harmony"))
                     {
+                        // Note: the assembly must be loaded from disk for Harmony compatibility.
+                        // Loading it from memory sets the assembly module's FullyQualifiedName to
+                        // "<Unknown>", so Harmony incorrectly identifies the module in its
+                        // Patch.PatchMethod when handling multiple patches for the same method,
+                        // leading to "Token 0x... is not valid in the scope of module HarmonySharedState"
+                        // errors (e.g. https://smapi.io/log/A0gAsc3M).
+                        string tempPath = Path.Combine(this.TempFolderPath, $"{Path.GetFileNameWithoutExtension(assemblyPath)}.{Guid.NewGuid()}.dll");
+                        assembly.Definition.Write(tempPath);
+                        lastAssembly = Assembly.LoadFile(tempPath);
+                    }
+                    else
+                    {
+                        using MemoryStream outStream = new MemoryStream();
                         assembly.Definition.Write(outStream);
                         byte[] bytes = outStream.ToArray();
                         lastAssembly = Assembly.Load(bytes);
