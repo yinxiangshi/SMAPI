@@ -43,7 +43,7 @@ namespace StardewModdingAPI.Framework.RewriteFacades
                 if (transpiler != null)
                     patchTypes.Add("transpiler");
 
-                throw new Exception($"Failed applying {string.Join("/", patchTypes)} to method {original.DeclaringType?.FullName}.{original.Name}", ex);
+                throw new Exception($"Harmony instance {this.Id} failed applying {string.Join("/", patchTypes)} to method {original.DeclaringType?.FullName}.{original.Name}.", ex);
             }
         }
     }
