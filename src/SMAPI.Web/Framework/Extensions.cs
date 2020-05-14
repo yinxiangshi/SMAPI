@@ -22,6 +22,7 @@ namespace StardewModdingAPI.Web.Framework
         /// <returns>The generated URL.</returns>
         public static string PlainAction(this IUrlHelper helper, [AspMvcAction] string action, [AspMvcController] string controller, object values = null, bool absoluteUrl = false)
         {
+            // get route values
             RouteValueDictionary valuesDict = new RouteValueDictionary(values);
             foreach (var value in helper.ActionContext.RouteData.Values)
             {
@@ -29,13 +30,19 @@ namespace StardewModdingAPI.Web.Framework
                     valuesDict[value.Key] = null; // explicitly remove it from the URL
             }
 
+            // get relative URL
             string url = helper.Action(action, controller, valuesDict);
+            if (url == null && action.EndsWith("Async"))
+                url = helper.Action(action[..^"Async".Length], controller, valuesDict);
+
+            // get absolute URL
             if (absoluteUrl)
             {
                 HttpRequest request = helper.ActionContext.HttpContext.Request;
                 Uri baseUri = new Uri($"{request.Scheme}://{request.Host}");
                 url = new Uri(baseUri, url).ToString();
             }
+
             return url;
         }
 
