@@ -4,7 +4,7 @@ using StardewModdingAPI.Web.Framework.ModRepositories;
 
 namespace StardewModdingAPI.Web.Framework.Caching.Mods
 {
-    /// <summary>Encapsulates logic for accessing the mod data cache.</summary>
+    /// <summary>Manages cached mod data.</summary>
     internal interface IModCacheRepository : ICacheRepository
     {
         /*********

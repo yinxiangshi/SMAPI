@@ -67,12 +67,13 @@ namespace StardewModdingAPI.Web
                 .Configure<BackgroundServicesConfig>(this.Configuration.GetSection("BackgroundServices"))
                 .Configure<ModCompatibilityListConfig>(this.Configuration.GetSection("ModCompatibilityList"))
                 .Configure<ModUpdateCheckConfig>(this.Configuration.GetSection("ModUpdateCheck"))
-                .Configure<MongoDbConfig>(this.Configuration.GetSection("MongoDB"))
+                .Configure<StorageConfig>(this.Configuration.GetSection("Storage"))
                 .Configure<SiteConfig>(this.Configuration.GetSection("Site"))
                 .Configure<RouteOptions>(options => options.ConstraintMap.Add("semanticVersion", typeof(VersionConstraint)))
                 .AddLogging()
                 .AddMemoryCache();
-            MongoDbConfig mongoConfig = this.Configuration.GetSection("MongoDB").Get<MongoDbConfig>();
+            StorageConfig storageConfig = this.Configuration.GetSection("Storage").Get<StorageConfig>();
+            StorageMode storageMode = storageConfig.Mode;
 
             // init MVC
             services
@@ -82,44 +83,66 @@ namespace StardewModdingAPI.Web
             services
                 .AddRazorPages();
 
-            // init MongoDB
-            services.AddSingleton<MongoDbRunner>(_ => !mongoConfig.IsConfigured()
-                ? MongoDbRunner.Start()
-                : throw new InvalidOperationException("The MongoDB connection is configured, so the local development version should not be used.")
-            );
-            services.AddSingleton<IMongoDatabase>(serv =>
+            // init storage
+            switch (storageMode)
             {
-                // get connection string
-                string connectionString = mongoConfig.IsConfigured()
-                    ? mongoConfig.ConnectionString
-                    : serv.GetRequiredService<MongoDbRunner>().ConnectionString;
+                case StorageMode.InMemory:
+                    services.AddSingleton<IModCacheRepository>(new ModCacheMemoryRepository());
+                    services.AddSingleton<IWikiCacheRepository>(new WikiCacheMemoryRepository());
+                    break;
 
-                // get client
-                BsonSerializer.RegisterSerializer(new UtcDateTimeOffsetSerializer());
-                return new MongoClient(connectionString).GetDatabase(mongoConfig.Database);
-            });
-            services.AddSingleton<IModCacheRepository>(serv => new ModCacheRepository(serv.GetRequiredService<IMongoDatabase>()));
-            services.AddSingleton<IWikiCacheRepository>(serv => new WikiCacheRepository(serv.GetRequiredService<IMongoDatabase>()));
+                case StorageMode.Mongo:
+                case StorageMode.MongoInMemory:
+                    {
+                        // local MongoDB instance
+                        services.AddSingleton<MongoDbRunner>(_ => storageMode == StorageMode.MongoInMemory
+                            ? MongoDbRunner.Start()
+                            : throw new NotSupportedException($"The in-memory MongoDB runner isn't available in storage mode {storageMode}.")
+                        );
+
+                        // MongoDB
+                        services.AddSingleton<IMongoDatabase>(serv =>
+                        {
+                            BsonSerializer.RegisterSerializer(new UtcDateTimeOffsetSerializer());
+                            return new MongoClient(this.GetMongoDbConnectionString(serv, storageConfig))
+                                .GetDatabase(storageConfig.Database);
+                        });
+
+                        // repositories
+                        services.AddSingleton<IModCacheRepository>(serv => new ModCacheMongoRepository(serv.GetRequiredService<IMongoDatabase>()));
+                        services.AddSingleton<IWikiCacheRepository>(serv => new WikiCacheMongoRepository(serv.GetRequiredService<IMongoDatabase>()));
+                    }
+                    break;
+
+                default:
+                    throw new NotSupportedException($"Unhandled storage mode '{storageMode}'.");
+            }
 
             // init Hangfire
             services
-                .AddHangfire(config =>
+                .AddHangfire((serv, config) =>
                 {
                     config
                         .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
                         .UseSimpleAssemblyNameTypeSerializer()
                         .UseRecommendedSerializerSettings();
 
-                    if (mongoConfig.IsConfigured())
+                    switch (storageMode)
                     {
-                        config.UseMongoStorage(MongoClientSettings.FromConnectionString(mongoConfig.ConnectionString), $"{mongoConfig.Database}-hangfire", new MongoStorageOptions
-                        {
-                            MigrationOptions = new MongoMigrationOptions(MongoMigrationStrategy.Drop),
-                            CheckConnection = false // error on startup takes down entire process
-                        });
+                        case StorageMode.InMemory:
+                            config.UseMemoryStorage();
+                            break;
+
+                        case StorageMode.MongoInMemory:
+                        case StorageMode.Mongo:
+                            string connectionString = this.GetMongoDbConnectionString(serv, storageConfig);
+                            config.UseMongoStorage(MongoClientSettings.FromConnectionString(connectionString), $"{storageConfig.Database}-hangfire", new MongoStorageOptions
+                            {
+                                MigrationOptions = new MongoMigrationOptions(MongoMigrationStrategy.Drop),
+                                CheckConnection = false // error on startup takes down entire process
+                            });
+                            break;
                     }
-                    else
-                        config.UseMemoryStorage();
                 });
 
             // init background service
@@ -140,6 +163,7 @@ namespace StardewModdingAPI.Web
                     baseUrl: api.ChucklefishBaseUrl,
                     modPageUrlFormat: api.ChucklefishModPageUrlFormat
                 ));
+
                 services.AddSingleton<ICurseForgeClient>(new CurseForgeClient(
                     userAgent: userAgent,
                     apiUrl: api.CurseForgeBaseUrl
@@ -227,6 +251,20 @@ namespace StardewModdingAPI.Web
 
             settings.Formatting = Formatting.Indented;
             settings.NullValueHandling = NullValueHandling.Ignore;
+        }
+
+        /// <summary>Get the MongoDB connection string for the given storage configuration.</summary>
+        /// <param name="services">The service provider.</param>
+        /// <param name="storageConfig">The storage configuration</param>
+        /// <exception cref="NotSupportedException">There's no MongoDB instance in the given storage mode.</exception>
+        private string GetMongoDbConnectionString(IServiceProvider services, StorageConfig storageConfig)
+        {
+            return storageConfig.Mode switch
+            {
+                StorageMode.Mongo => storageConfig.ConnectionString,
+                StorageMode.MongoInMemory => services.GetRequiredService<MongoDbRunner>().ConnectionString,
+                _ => throw new NotSupportedException($"There's no MongoDB instance in storage mode {storageConfig.Mode}.")
+            };
         }
 
         /// <summary>Get the redirect rules to apply.</summary>

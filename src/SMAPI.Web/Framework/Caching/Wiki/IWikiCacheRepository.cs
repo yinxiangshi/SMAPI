@@ -5,7 +5,7 @@ using StardewModdingAPI.Toolkit.Framework.Clients.Wiki;
 
 namespace StardewModdingAPI.Web.Framework.Caching.Wiki
 {
-    /// <summary>Encapsulates logic for accessing the wiki data cache.</summary>
+    /// <summary>Manages cached wiki data.</summary>
     internal interface IWikiCacheRepository : ICacheRepository
     {
         /*********

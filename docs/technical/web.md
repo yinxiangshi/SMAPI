@@ -340,9 +340,20 @@ short url | → | target page
 A local environment lets you run a complete copy of the web project (including cache database) on
 your machine, with no external dependencies aside from the actual mod sites.
 
-1. Enter the Nexus credentials in `appsettings.Development.json` . You can leave the other
-   credentials empty to default to fetching data anonymously, and storing data in-memory and
-   on disk.
+1. Edit `appsettings.Development.json` and set these options:
+
+   property name | description
+   ------------- | -----------
+   `NexusApiKey` | [Your Nexus API key](https://www.nexusmods.com/users/myaccount?tab=api#personal_key).
+
+   Optional settings:
+
+   property name               | description
+   --------------------------- | -----------
+   `AzureBlobConnectionString` | The connection string for the Azure Blob storage account. Defaults to using the system's temporary file folder if not specified.
+   `GitHubUsername`<br />`GitHubPassword` | The GitHub credentials with which to query GitHub release info. Defaults to anonymous requests if not specified.
+   `Storage`                   | How to storage cached wiki/mod data. `InMemory` is recommended in most cases, or `MongoInMemory` to test the MongoDB storage code. See [production environment](#production-environment) for more info on `Mongo`.
+
 2. Launch `SMAPI.Web` from Visual Studio to run a local version of the site.
 
 ### Production environment
@@ -355,19 +366,15 @@ accordingly.
 
 Initial setup:
 
-1. Launch an empty MongoDB server (e.g. using [MongoDB Atlas](https://www.mongodb.com/cloud/atlas))
-   for mod data.
-2. Create an Azure Blob storage account for uploaded files.
-3. Create an Azure App Services environment running the latest .NET Core on Linux or Windows.
-4. Add these application settings in the new App Services environment:
+1. Create an Azure Blob storage account for uploaded files.
+2. Create an Azure App Services environment running the latest .NET Core on Linux or Windows.
+3. Add these application settings in the new App Services environment:
 
    property name                   | description
    ------------------------------- | -----------------
    `ApiClients.AzureBlobConnectionString` | The connection string for the Azure Blob storage account created in step 2.
    `ApiClients.GitHubUsername`<br />`ApiClients.GitHubPassword` | The login credentials for the GitHub account with which to fetch release info. If these are omitted, GitHub will impose much stricter rate limits.
    `ApiClients:NexusApiKey`        | The [Nexus API authentication key](https://github.com/Pathoschild/FluentNexus#init-a-client).
-   `MongoDB:ConnectionString`      | The connection string for the MongoDB instance.
-   `MongoDB:Database`              | The MongoDB database name (e.g. `smapi` in production or `smapi-edge` in testing environments).
 
    Optional settings:
 
@@ -377,6 +384,23 @@ Initial setup:
    `Site:BetaEnabled`              | Set to `true` to show a separate download button if there's a beta version of SMAPI in its GitHub releases.
    `Site:BetaBlurb`                | If `Site:BetaEnabled` is true and there's a beta version of SMAPI in its GitHub releases, this is shown on the beta download button as explanatory subtext.
    `Site:SupporterList`            | A list of Patreon supports to credit on the download page.
+
+To enable distributed servers:
+
+1. Launch an empty MongoDB server (e.g. using [MongoDB Atlas](https://www.mongodb.com/cloud/atlas))
+   for mod data.
+2. Add these application settings in the App Services environment:
+
+   property name                   | description
+   ------------------------------- | -----------------
+   `Storage:Mode`                  | Set to `Mongo`.
+   `Storage:ConnectionString`      | Set to the connection string for the MongoDB instance.
+
+   Optional settings:
+
+   property name                   | description
+   ------------------------------- | -----------------
+   `Storage:Database`              | Set to the MongoDB database name (defaults to `smapi`).
 
 To deploy updates:
 1. [Deploy the web project from Visual Studio](https://docs.microsoft.com/en-us/visualstudio/deployment/quickstart-deploy-to-azure).

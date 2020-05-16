@@ -8,11 +8,15 @@
 * For the web UI:
   * Updated web framework to improve site performance and reliability.
   * Added GitHub licenses to mod compatibility list.
+  * Internal changes to improve performance and reliability.
 
 * For modders:
   * Added `Multiplayer.PeerConnected` event.
   * Simplified paranoid warnings in the log and reduced their log level.
   * Fixed asset propagation for Gil's portraits.
+
+* For SMAPI developers:
+  * When deploying web services to a single-instance app, the MongoDB server can now be replaced with in-memory storage.
 
 ## 3.5
 Released 27 April 2020 for Stardew Valley 1.4.1 or later.

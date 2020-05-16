@@ -7,17 +7,17 @@ using StardewModdingAPI.Toolkit.Framework.Clients.Wiki;
 
 namespace StardewModdingAPI.Web.Framework.Caching.Wiki
 {
-    /// <summary>Encapsulates logic for accessing the wiki data cache.</summary>
-    internal class WikiCacheRepository : BaseCacheRepository, IWikiCacheRepository
+    /// <summary>Manages cached wiki data in MongoDB.</summary>
+    internal class WikiCacheMongoRepository : BaseCacheRepository, IWikiCacheRepository
     {
         /*********
         ** Fields
         *********/
         /// <summary>The collection for wiki metadata.</summary>
-        private readonly IMongoCollection<CachedWikiMetadata> WikiMetadata;
+        private readonly IMongoCollection<CachedWikiMetadata> Metadata;
 
         /// <summary>The collection for wiki mod data.</summary>
-        private readonly IMongoCollection<CachedWikiMod> WikiMods;
+        private readonly IMongoCollection<CachedWikiMod> Mods;
 
 
         /*********
@@ -25,21 +25,21 @@ namespace StardewModdingAPI.Web.Framework.Caching.Wiki
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="database">The authenticated MongoDB database.</param>
-        public WikiCacheRepository(IMongoDatabase database)
+        public WikiCacheMongoRepository(IMongoDatabase database)
         {
             // get collections
-            this.WikiMetadata = database.GetCollection<CachedWikiMetadata>("wiki-metadata");
-            this.WikiMods = database.GetCollection<CachedWikiMod>("wiki-mods");
+            this.Metadata = database.GetCollection<CachedWikiMetadata>("wiki-metadata");
+            this.Mods = database.GetCollection<CachedWikiMod>("wiki-mods");
 
             // add indexes if needed
-            this.WikiMods.Indexes.CreateOne(new CreateIndexModel<CachedWikiMod>(Builders<CachedWikiMod>.IndexKeys.Ascending(p => p.ID)));
+            this.Mods.Indexes.CreateOne(new CreateIndexModel<CachedWikiMod>(Builders<CachedWikiMod>.IndexKeys.Ascending(p => p.ID)));
         }
 
         /// <summary>Get the cached wiki metadata.</summary>
         /// <param name="metadata">The fetched metadata.</param>
         public bool TryGetWikiMetadata(out CachedWikiMetadata metadata)
         {
-            metadata = this.WikiMetadata.Find("{}").FirstOrDefault();
+            metadata = this.Metadata.Find("{}").FirstOrDefault();
             return metadata != null;
         }
 
@@ -48,8 +48,8 @@ namespace StardewModdingAPI.Web.Framework.Caching.Wiki
         public IEnumerable<CachedWikiMod> GetWikiMods(Expression<Func<CachedWikiMod, bool>> filter = null)
         {
             return filter != null
-                ? this.WikiMods.Find(filter).ToList()
-                : this.WikiMods.Find("{}").ToList();
+                ? this.Mods.Find(filter).ToList()
+                : this.Mods.Find("{}").ToList();
         }
 
         /// <summary>Save data fetched from the wiki compatibility list.</summary>
@@ -63,11 +63,11 @@ namespace StardewModdingAPI.Web.Framework.Caching.Wiki
             cachedMetadata = new CachedWikiMetadata(stableVersion, betaVersion);
             cachedMods = mods.Select(mod => new CachedWikiMod(mod)).ToArray();
 
-            this.WikiMods.DeleteMany("{}");
-            this.WikiMods.InsertMany(cachedMods);
+            this.Mods.DeleteMany("{}");
+            this.Mods.InsertMany(cachedMods);
 
-            this.WikiMetadata.DeleteMany("{}");
-            this.WikiMetadata.InsertOne(cachedMetadata);
+            this.Metadata.DeleteMany("{}");
+            this.Metadata.InsertOne(cachedMetadata);
         }
     }
 }

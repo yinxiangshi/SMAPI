@@ -1,33 +1,20 @@
 using System;
-using MongoDB.Driver;
+using System.Collections.Generic;
+using System.Linq;
 using StardewModdingAPI.Toolkit.Framework.UpdateData;
 using StardewModdingAPI.Web.Framework.ModRepositories;
 
 namespace StardewModdingAPI.Web.Framework.Caching.Mods
 {
-    /// <summary>Encapsulates logic for accessing the mod data cache.</summary>
-    internal class ModCacheRepository : BaseCacheRepository, IModCacheRepository
+    /// <summary>Manages cached mod data in-memory.</summary>
+    internal class ModCacheMemoryRepository : BaseCacheRepository, IModCacheRepository
     {
         /*********
         ** Fields
         *********/
-        /// <summary>The collection for cached mod data.</summary>
-        private readonly IMongoCollection<CachedMod> Mods;
+        /// <summary>The cached mod data indexed by <c>{site key}:{ID}</c>.</summary>
+        private readonly IDictionary<string, CachedMod> Mods = new Dictionary<string, CachedMod>(StringComparer.InvariantCultureIgnoreCase);
 
-
-        /*********
-        ** Public methods
-        *********/
-        /// <summary>Construct an instance.</summary>
-        /// <param name="database">The authenticated MongoDB database.</param>
-        public ModCacheRepository(IMongoDatabase database)
-        {
-            // get collections
-            this.Mods = database.GetCollection<CachedMod>("mods");
-
-            // add indexes if needed
-            this.Mods.Indexes.CreateOne(new CreateIndexModel<CachedMod>(Builders<CachedMod>.IndexKeys.Ascending(p => p.ID).Ascending(p => p.Site)));
-        }
 
         /*********
         ** Public methods
@@ -40,9 +27,7 @@ namespace StardewModdingAPI.Web.Framework.Caching.Mods
         public bool TryGetMod(ModRepositoryKey site, string id, out CachedMod mod, bool markRequested = true)
         {
             // get mod
-            id = this.NormalizeId(id);
-            mod = this.Mods.Find(entry => entry.ID == id && entry.Site == site).FirstOrDefault();
-            if (mod == null)
+            if (!this.Mods.TryGetValue(this.GetKey(site, id), out mod))
                 return false;
 
             // bump 'last requested'
@@ -62,8 +47,7 @@ namespace StardewModdingAPI.Web.Framework.Caching.Mods
         /// <param name="cachedMod">The stored mod record.</param>
         public void SaveMod(ModRepositoryKey site, string id, ModInfoModel mod, out CachedMod cachedMod)
         {
-            id = this.NormalizeId(id);
-
+            string key = this.GetKey(site, id);
             cachedMod = this.SaveMod(new CachedMod(site, id, mod));
         }
 
@@ -72,33 +56,34 @@ namespace StardewModdingAPI.Web.Framework.Caching.Mods
         public void RemoveStaleMods(TimeSpan age)
         {
             DateTimeOffset minDate = DateTimeOffset.UtcNow.Subtract(age);
-            this.Mods.DeleteMany(p => p.LastRequested < minDate);
+
+            string[] staleKeys = this.Mods
+                .Where(p => p.Value.LastRequested < minDate)
+                .Select(p => p.Key)
+                .ToArray();
+
+            foreach (string key in staleKeys)
+                this.Mods.Remove(key);
+        }
+
+        /// <summary>Save data fetched for a mod.</summary>
+        /// <param name="mod">The mod data.</param>
+        public CachedMod SaveMod(CachedMod mod)
+        {
+            string key = this.GetKey(mod.Site, mod.ID);
+            return this.Mods[key] = mod;
         }
 
 
         /*********
         ** Private methods
         *********/
-        /// <summary>Save data fetched for a mod.</summary>
-        /// <param name="mod">The mod data.</param>
-        public CachedMod SaveMod(CachedMod mod)
-        {
-            string id = this.NormalizeId(mod.ID);
-
-            this.Mods.ReplaceOne(
-                entry => entry.ID == id && entry.Site == mod.Site,
-                mod,
-                new ReplaceOptions { IsUpsert = true }
-            );
-
-            return mod;
-        }
-
-        /// <summary>Normalize a mod ID for case-insensitive search.</summary>
+        /// <summary>Get a cache key.</summary>
+        /// <param name="site">The mod site.</param>
         /// <param name="id">The mod ID.</param>
-        public string NormalizeId(string id)
+        public string GetKey(ModRepositoryKey site, string id)
         {
-            return id.Trim().ToLower();
+            return $"{site}:{id.Trim()}".ToLower();
         }
     }
 }
