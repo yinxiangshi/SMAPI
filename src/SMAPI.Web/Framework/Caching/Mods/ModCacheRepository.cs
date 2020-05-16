@@ -88,7 +88,7 @@ namespace StardewModdingAPI.Web.Framework.Caching.Mods
             this.Mods.ReplaceOne(
                 entry => entry.ID == id && entry.Site == mod.Site,
                 mod,
-                new UpdateOptions { IsUpsert = true }
+                new ReplaceOptions { IsUpsert = true }
             );
 
             return mod;
