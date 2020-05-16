@@ -707,7 +707,7 @@ namespace StardewModdingApi.Installer
         /// <param name="indent">The indentation to prefix to output.</param>
         private string InteractivelyChoose(string message, string[] options, string indent = "", Action<string> print = null)
         {
-            print = print ?? this.PrintInfo;
+            print ??= this.PrintInfo;
 
             while (true)
             {

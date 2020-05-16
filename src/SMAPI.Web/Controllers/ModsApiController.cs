@@ -388,9 +388,9 @@ namespace StardewModdingAPI.Web.Controllers
                 if (map.ContainsKey(parsed.ToString()))
                     return map[parsed.ToString()];
 
-                foreach (var pair in map)
+                foreach ((string fromRaw, string toRaw) in map)
                 {
-                    if (SemanticVersion.TryParse(pair.Key, allowNonStandard, out ISemanticVersion target) && parsed.Equals(target) && SemanticVersion.TryParse(pair.Value, allowNonStandard, out ISemanticVersion newVersion))
+                    if (SemanticVersion.TryParse(fromRaw, allowNonStandard, out ISemanticVersion target) && parsed.Equals(target) && SemanticVersion.TryParse(toRaw, allowNonStandard, out ISemanticVersion newVersion))
                         return newVersion.ToString();
                 }
             }

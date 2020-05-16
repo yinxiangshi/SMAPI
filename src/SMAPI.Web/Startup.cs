@@ -83,7 +83,7 @@ namespace StardewModdingAPI.Web
                 .AddRazorPages();
 
             // init MongoDB
-            services.AddSingleton<MongoDbRunner>(serv => !mongoConfig.IsConfigured()
+            services.AddSingleton<MongoDbRunner>(_ => !mongoConfig.IsConfigured()
                 ? MongoDbRunner.Start()
                 : throw new InvalidOperationException("The MongoDB connection is configured, so the local development version should not be used.")
             );
@@ -265,10 +265,10 @@ namespace StardewModdingAPI.Web
                 ["Modding:Object_data"] = new[] { "^/for-devs/object-data", "^/guides/object-data" },
                 ["Modding:Weather_data"] = new[] { "^/for-devs/weather", "^/guides/weather" }
             };
-            foreach (KeyValuePair<string, string[]> pair in wikiRedirects)
+            foreach ((string page, string[] patterns) in wikiRedirects)
             {
-                foreach (string pattern in pair.Value)
-                    redirects.Add(new RedirectToUrlRule(pattern, "https://stardewvalleywiki.com/" + pair.Key));
+                foreach (string pattern in patterns)
+                    redirects.Add(new RedirectToUrlRule(pattern, "https://stardewvalleywiki.com/" + page));
             }
 
             return redirects;

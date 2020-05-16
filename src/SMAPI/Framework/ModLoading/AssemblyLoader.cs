@@ -125,12 +125,10 @@ namespace StardewModdingAPI.Framework.ModLoading
                 {
                     if (!oneAssembly)
                         this.Monitor.Log($"      Loading {assembly.File.Name} (rewritten in memory)...", LogLevel.Trace);
-                    using (MemoryStream outStream = new MemoryStream())
-                    {
-                        assembly.Definition.Write(outStream);
-                        byte[] bytes = outStream.ToArray();
-                        lastAssembly = Assembly.Load(bytes);
-                    }
+                    using MemoryStream outStream = new MemoryStream();
+                    assembly.Definition.Write(outStream);
+                    byte[] bytes = outStream.ToArray();
+                    lastAssembly = Assembly.Load(bytes);
                 }
                 else
                 {

@@ -57,8 +57,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.CurseForge
 
                     if (!SemanticVersion.TryParse(raw, out version))
                     {
-                        if (invalidVersion == null)
-                            invalidVersion = raw;
+                        invalidVersion ??= raw;
                         continue;
                     }
                 }
