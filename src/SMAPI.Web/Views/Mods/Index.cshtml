@@ -83,7 +83,7 @@ else
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="mod in mods" :key="mod.Name" v-bind:id="mod.Slug" :key="mod.Slug" v-bind:data-status="mod.Compatibility.Status" v-show="mod.Visible">
+                <tr v-for="mod in mods" :key="mod.Slug" v-bind:id="mod.Slug" v-bind:data-status="mod.Compatibility.Status" v-show="mod.Visible">
                     <td>
                         {{mod.Name}}
                         <small class="mod-alt-names" v-if="mod.AlternateNames">(aka {{mod.AlternateNames}})</small>

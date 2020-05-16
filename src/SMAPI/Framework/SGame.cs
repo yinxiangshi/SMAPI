@@ -1310,7 +1310,7 @@ namespace StardewModdingAPI.Framework
                                 }
                                 Game1.drawPlayerHeldObject(Game1.player);
                             }
-                        label_139:
+                            label_139:
                             if ((Game1.player.UsingTool || Game1.pickingTool) && Game1.player.CurrentTool != null && ((!Game1.player.CurrentTool.Name.Equals("Seeds") || Game1.pickingTool) && (Game1.currentLocation.Map.GetLayer("Front").PickTile(new Location(Game1.player.getStandingX(), (int)Game1.player.Position.Y - 38), Game1.viewport.Size) != null && Game1.currentLocation.Map.GetLayer("Front").PickTile(new Location(Game1.player.getStandingX(), Game1.player.getStandingY()), Game1.viewport.Size) == null)))
                                 Game1.drawTool(Game1.player);
                             if (Game1.currentLocation.Map.GetLayer("AlwaysFront") != null)

@@ -72,7 +72,7 @@ namespace StardewModdingAPI.Web.Framework.Caching.Mods
         public void RemoveStaleMods(TimeSpan age)
         {
             DateTimeOffset minDate = DateTimeOffset.UtcNow.Subtract(age);
-            var result = this.Mods.DeleteMany(p => p.LastRequested < minDate);
+            this.Mods.DeleteMany(p => p.LastRequested < minDate);
         }
 
 
