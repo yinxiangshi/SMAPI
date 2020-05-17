@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net;
 using Hangfire;
 using Hangfire.MemoryStorage;
 using Hangfire.Mongo;
@@ -27,7 +28,7 @@ using StardewModdingAPI.Web.Framework.Clients.Nexus;
 using StardewModdingAPI.Web.Framework.Clients.Pastebin;
 using StardewModdingAPI.Web.Framework.Compression;
 using StardewModdingAPI.Web.Framework.ConfigModels;
-using StardewModdingAPI.Web.Framework.RewriteRules;
+using StardewModdingAPI.Web.Framework.RedirectRules;
 using StardewModdingAPI.Web.Framework.Storage;
 
 namespace StardewModdingAPI.Web
@@ -270,26 +271,49 @@ namespace StardewModdingAPI.Web
         /// <summary>Get the redirect rules to apply.</summary>
         private RewriteOptions GetRedirectRules()
         {
-            var redirects = new RewriteOptions();
+            var redirects = new RewriteOptions()
+                // shortcut paths
+                .Add(new RedirectPathsToUrlsRule(new Dictionary<string, string>
+                {
+                    [@"^/3\.0\.?$"] = "https://stardewvalleywiki.com/Modding:Migrate_to_SMAPI_3.0",
+                    [@"^/(?:buildmsg|package)(?:/?(.*))$"] = "https://github.com/Pathoschild/SMAPI/blob/develop/docs/technical/mod-package.md#$1", // buildmsg deprecated, remove when SDV 1.4 is released
+                    [@"^/community\.?$"] = "https://stardewvalleywiki.com/Modding:Community",
+                    [@"^/compat\.?$"] = "https://smapi.io/mods",
+                    [@"^/docs\.?$"] = "https://stardewvalleywiki.com/Modding:Index",
+                    [@"^/install\.?$"] = "https://stardewvalleywiki.com/Modding:Player_Guide/Getting_Started#Install_SMAPI",
+                    [@"^/troubleshoot(.*)$"] = "https://stardewvalleywiki.com/Modding:Player_Guide/Troubleshooting$1",
+                    [@"^/xnb\.?$"] = "https://stardewvalleywiki.com/Modding:Using_XNB_mods"
+                }))
 
-            // redirect to HTTPS (except API for Linux/Mac Mono compatibility)
-            redirects.Add(new ConditionalRedirectToHttpsRule(
-                shouldRewrite: req =>
-                    req.Host.Host != "localhost"
-                    && !req.Path.StartsWithSegments("/api")
-            ));
+                // legacy paths
+                .Add(new RedirectPathsToUrlsRule(this.GetLegacyPathRedirects()))
 
-            // shortcut redirects
-            redirects.Add(new RedirectToUrlRule(@"^/3\.0\.?$", "https://stardewvalleywiki.com/Modding:Migrate_to_SMAPI_3.0"));
-            redirects.Add(new RedirectToUrlRule(@"^/(?:buildmsg|package)(?:/?(.*))$", "https://github.com/Pathoschild/SMAPI/blob/develop/docs/technical/mod-package.md#$1")); // buildmsg deprecated, remove when SDV 1.4 is released
-            redirects.Add(new RedirectToUrlRule(@"^/community\.?$", "https://stardewvalleywiki.com/Modding:Community"));
-            redirects.Add(new RedirectToUrlRule(@"^/compat\.?$", "https://smapi.io/mods"));
-            redirects.Add(new RedirectToUrlRule(@"^/docs\.?$", "https://stardewvalleywiki.com/Modding:Index"));
-            redirects.Add(new RedirectToUrlRule(@"^/install\.?$", "https://stardewvalleywiki.com/Modding:Player_Guide/Getting_Started#Install_SMAPI"));
-            redirects.Add(new RedirectToUrlRule(@"^/troubleshoot(.*)$", "https://stardewvalleywiki.com/Modding:Player_Guide/Troubleshooting$1"));
-            redirects.Add(new RedirectToUrlRule(@"^/xnb\.?$", "https://stardewvalleywiki.com/Modding:Using_XNB_mods"));
+                // subdomains
+                .Add(new RedirectHostsToUrlsRule(HttpStatusCode.PermanentRedirect, host => host switch
+                {
+                    "api.smapi.io" => "smapi.io/api",
+                    "json.smapi.io" => "smapi.io/json",
+                    "log.smapi.io" => "smapi.io/log",
+                    "mods.smapi.io" => "smapi.io/mods",
+                    _ => host.EndsWith(".smapi.io")
+                        ? "smapi.io"
+                        : null
+                }))
 
-            // redirect legacy canimod.com URLs
+                // redirect to HTTPS (except API for Linux/Mac Mono compatibility)
+                .Add(
+                    new RedirectToHttpsRule(except: req => req.Host.Host == "localhost" || req.Path.StartsWithSegments("/api"))
+                );
+
+            return redirects;
+        }
+
+        /// <summary>Get the redirects for legacy paths that have been moved elsewhere.</summary>
+        private IDictionary<string, string> GetLegacyPathRedirects()
+        {
+            var redirects = new Dictionary<string, string>();
+
+            // canimod.com => wiki
             var wikiRedirects = new Dictionary<string, string[]>
             {
                 ["Modding:Index#Migration_guides"] = new[] { "^/for-devs/updating-a-smapi-mod", "^/guides/updating-a-smapi-mod" },
@@ -306,7 +330,7 @@ namespace StardewModdingAPI.Web
             foreach ((string page, string[] patterns) in wikiRedirects)
             {
                 foreach (string pattern in patterns)
-                    redirects.Add(new RedirectToUrlRule(pattern, "https://stardewvalleywiki.com/" + page));
+                    redirects.Add(pattern, "https://stardewvalleywiki.com/" + page);
             }
 
             return redirects;

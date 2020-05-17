@@ -17,6 +17,7 @@
 
 * For SMAPI developers:
   * When deploying web services to a single-instance app, the MongoDB server can now be replaced with in-memory storage.
+  * Merged the separate legacy redirects app on AWS into the main app on Azure.
 
 ## 3.5
 Released 27 April 2020 for Stardew Valley 1.4.1 or later.
