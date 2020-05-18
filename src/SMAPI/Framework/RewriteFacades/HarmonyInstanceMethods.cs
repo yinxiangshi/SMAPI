@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
@@ -31,7 +30,7 @@ namespace StardewModdingAPI.Framework.RewriteFacades
             try
             {
                 MethodInfo method = base.Patch(original: original, prefix: prefix, postfix: postfix, transpiler: transpiler);
-                return new DynamicMethod(method.Name, method.Attributes, method.CallingConvention, method.ReturnType, method.GetParameters().Select(p => p.ParameterType).ToArray(), method.Module, true);
+                return (DynamicMethod)method;
             }
             catch (Exception ex)
             {
