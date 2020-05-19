@@ -125,6 +125,10 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
                     return true;
             }
 
+            // type reference
+            if (instruction.Operand is TypeReference typeRef && this.IsMatch(typeRef))
+                return true;
+
             return false;
         }
 
