@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using HarmonyLib;
 
-namespace StardewModdingAPI.Framework.RewriteFacades
+namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
 {
     /// <summary>Maps Harmony 1.x <see cref="AccessTools"/> methods to Harmony 2.x to avoid breaking older mods.</summary>
     /// <remarks>This is public to support SMAPI rewriting and should not be referenced directly by mods.</remarks>
