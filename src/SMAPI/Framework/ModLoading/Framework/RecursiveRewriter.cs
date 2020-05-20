@@ -61,6 +61,9 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
 
             foreach (TypeDefinition type in this.Module.GetTypes())
             {
+                if (type.BaseType == null)
+                    continue; // special type like <Module>
+
                 anyRewritten |= this.RewriteCustomAttributes(type.CustomAttributes);
                 anyRewritten |= this.RewriteGenericParameters(type.GenericParameters);
 
