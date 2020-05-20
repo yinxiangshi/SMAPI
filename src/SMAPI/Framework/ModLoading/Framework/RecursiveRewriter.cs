@@ -67,7 +67,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
                 anyRewritten |= this.RewriteCustomAttributes(type.CustomAttributes);
                 anyRewritten |= this.RewriteGenericParameters(type.GenericParameters);
 
-                foreach (MethodDefinition method in type.Methods.Where(p => p.HasBody))
+                foreach (MethodDefinition method in type.Methods)
                 {
                     anyRewritten |= this.RewriteTypeReference(method.ReturnType, newType => method.ReturnType = newType);
                     anyRewritten |= this.RewriteGenericParameters(method.GenericParameters);
@@ -76,24 +76,27 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
                     foreach (ParameterDefinition parameter in method.Parameters)
                         anyRewritten |= this.RewriteTypeReference(parameter.ParameterType, newType => parameter.ParameterType = newType);
 
-                    foreach (VariableDefinition variable in method.Body.Variables)
-                        anyRewritten |= this.RewriteTypeReference(variable.VariableType, newType => variable.VariableType = newType);
-
-                    // check CIL instructions
-                    ILProcessor cil = method.Body.GetILProcessor();
-                    Collection<Instruction> instructions = cil.Body.Instructions;
-                    for (int i = 0; i < instructions.Count; i++)
+                    if (method.HasBody)
                     {
-                        var instruction = instructions[i];
-                        if (instruction.OpCode.Code == Code.Nop)
-                            continue;
+                        foreach (VariableDefinition variable in method.Body.Variables)
+                            anyRewritten |= this.RewriteTypeReference(variable.VariableType, newType => variable.VariableType = newType);
 
-                        anyRewritten |= this.RewriteInstruction(instruction, cil, newInstruction =>
+                        // check CIL instructions
+                        ILProcessor cil = method.Body.GetILProcessor();
+                        Collection<Instruction> instructions = cil.Body.Instructions;
+                        for (int i = 0; i < instructions.Count; i++)
                         {
-                            anyRewritten = true;
-                            cil.Replace(instruction, newInstruction);
-                            instruction = newInstruction;
-                        });
+                            var instruction = instructions[i];
+                            if (instruction.OpCode.Code == Code.Nop)
+                                continue;
+
+                            anyRewritten |= this.RewriteInstruction(instruction, cil, newInstruction =>
+                            {
+                                anyRewritten = true;
+                                cil.Replace(instruction, newInstruction);
+                                instruction = newInstruction;
+                            });
+                        }
                     }
                 }
             }
