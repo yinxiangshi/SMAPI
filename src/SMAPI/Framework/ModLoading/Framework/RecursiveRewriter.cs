@@ -67,6 +67,12 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
                 anyRewritten |= this.RewriteCustomAttributes(type.CustomAttributes);
                 anyRewritten |= this.RewriteGenericParameters(type.GenericParameters);
 
+                foreach (InterfaceImplementation @interface in type.Interfaces)
+                    anyRewritten |= this.RewriteTypeReference(@interface.InterfaceType, newType => @interface.InterfaceType = newType);
+
+                if (type.BaseType.FullName != "System.Object")
+                    anyRewritten |= this.RewriteTypeReference(type.BaseType, newType => type.BaseType = newType);
+
                 foreach (MethodDefinition method in type.Methods)
                 {
                     anyRewritten |= this.RewriteTypeReference(method.ReturnType, newType => method.ReturnType = newType);
