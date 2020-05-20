@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using Microsoft.Win32;
 using StardewModdingApi.Installer.Enums;
 using StardewModdingAPI.Installer.Framework;
@@ -624,7 +623,7 @@ namespace StardewModdingApi.Installer
             {
                 try
                 {
-                    this.ForceDelete(Directory.Exists(path) ? new DirectoryInfo(path) : (FileSystemInfo)new FileInfo(path));
+                    FileUtilities.ForceDelete(Directory.Exists(path) ? new DirectoryInfo(path) : (FileSystemInfo)new FileInfo(path));
                     break;
                 }
                 catch (Exception ex)
@@ -663,41 +662,6 @@ namespace StardewModdingApi.Installer
                 default:
                     throw new NotSupportedException($"Unknown filesystem info type '{source.GetType().FullName}'.");
             }
-        }
-
-        /// <summary>Delete a file or folder regardless of file permissions, and block until deletion completes.</summary>
-        /// <param name="entry">The file or folder to reset.</param>
-        /// <remarks>This method is mirrored from <c>FileUtilities.ForceDelete</c> in the toolkit.</remarks>
-        private void ForceDelete(FileSystemInfo entry)
-        {
-            // ignore if already deleted
-            entry.Refresh();
-            if (!entry.Exists)
-                return;
-
-            // delete children
-            if (entry is DirectoryInfo folder)
-            {
-                foreach (FileSystemInfo child in folder.GetFileSystemInfos())
-                    this.ForceDelete(child);
-            }
-
-            // reset permissions & delete
-            entry.Attributes = FileAttributes.Normal;
-            entry.Delete();
-
-            // wait for deletion to finish
-            for (int i = 0; i < 10; i++)
-            {
-                entry.Refresh();
-                if (entry.Exists)
-                    Thread.Sleep(500);
-            }
-
-            // throw exception if deletion didn't happen before timeout
-            entry.Refresh();
-            if (entry.Exists)
-                throw new IOException($"Timed out trying to delete {entry.FullName}");
         }
 
         /// <summary>Interactively ask the user to choose a value.</summary>

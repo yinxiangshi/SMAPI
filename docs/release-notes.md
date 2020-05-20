@@ -12,6 +12,11 @@
 
 * For modders:
   * Added `Multiplayer.PeerConnected` event.
+  * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
+  * Harmony mods which use the `[HarmonyPatch(type)]` attribute now work crossplatform. Previously SMAPI couldn't rewrite types in custom attributes for compatibility.
+  * Improved mod rewriting for compatibility:
+    * Fixed rewriting types in custom attributes.
+    * Fixed rewriting generic types to method references.
   * Simplified paranoid warnings in the log and reduced their log level.
   * Fixed asset propagation for Gil's portraits.
 
