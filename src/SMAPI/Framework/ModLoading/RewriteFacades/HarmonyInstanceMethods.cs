@@ -34,6 +34,7 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
             }
             catch (Exception ex)
             {
+                // get patch types
                 var patchTypes = new List<string>();
                 if (prefix != null)
                     patchTypes.Add("prefix");
@@ -42,7 +43,12 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
                 if (transpiler != null)
                     patchTypes.Add("transpiler");
 
-                throw new Exception($"Harmony instance {this.Id} failed applying {string.Join("/", patchTypes)} to method {original.DeclaringType?.FullName}.{original.Name}.", ex);
+                // get original method label
+                string methodLabel = original != null
+                    ? $"method {original.DeclaringType?.FullName}.{original.Name}"
+                    : "null method";
+
+                throw new Exception($"Harmony instance {this.Id} failed applying {string.Join("/", patchTypes)} to {methodLabel}.", ex);
             }
         }
     }
