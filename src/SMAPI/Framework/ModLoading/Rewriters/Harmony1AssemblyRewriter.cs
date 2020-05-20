@@ -57,6 +57,14 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             if (this.TryRewriteMethodsToFacade(module, methodRef))
                 return true;
 
+            // rewrite renamed fields
+            FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);
+            if (fieldRef != null)
+            {
+                if (fieldRef.DeclaringType.FullName == "HarmonyLib.HarmonyMethod" && fieldRef.Name == "prioritiy")
+                    fieldRef.Name = nameof(HarmonyMethod.priority);
+            }
+
             return false;
         }
 
