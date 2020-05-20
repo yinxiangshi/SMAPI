@@ -5,21 +5,47 @@ using StardewModdingAPI.Framework.ModLoading.Framework;
 namespace StardewModdingAPI.Framework.ModLoading.Finders
 {
     /// <summary>Finds incompatible CIL instructions that reference a given type.</summary>
-    internal class TypeFinder : BaseTypeFinder
+    internal class TypeFinder : BaseInstructionHandler
     {
+        /*********
+        ** Fields
+        *********/
+        /// <summary>The full type name to match.</summary>
+        private readonly string FullTypeName;
+
+        /// <summary>The result to return for matching instructions.</summary>
+        private readonly InstructionHandleResult Result;
+
+        /// <summary>Get whether a matched type should be ignored.</summary>
+        private readonly Func<TypeReference, bool> ShouldIgnore;
+
+
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="fullTypeName">The full type name to match.</param>
         /// <param name="result">The result to return for matching instructions.</param>
-        /// <param name="shouldIgnore">A lambda which overrides a matched type.</param>
+        /// <param name="shouldIgnore">Get whether a matched type should be ignored.</param>
         public TypeFinder(string fullTypeName, InstructionHandleResult result, Func<TypeReference, bool> shouldIgnore = null)
-            : base(
-                isMatch: type => type.FullName == fullTypeName && (shouldIgnore == null || !shouldIgnore(type)),
-                result: result,
-                nounPhrase: $"{fullTypeName} type"
-            )
-        { }
+            : base(defaultPhrase: $"{fullTypeName} type")
+        {
+            this.FullTypeName = fullTypeName;
+            this.Result = result;
+            this.ShouldIgnore = shouldIgnore;
+        }
+
+        /// <summary>Rewrite a type reference if needed.</summary>
+        /// <param name="module">The assembly module containing the instruction.</param>
+        /// <param name="type">The type definition to handle.</param>
+        /// <param name="replaceWith">Replaces the type reference with a new one.</param>
+        /// <returns>Returns whether the type was changed.</returns>
+        public override bool Handle(ModuleDefinition module, TypeReference type, Action<TypeReference> replaceWith)
+        {
+            if (type.FullName == this.FullTypeName && this.ShouldIgnore?.Invoke(type) != true)
+                this.MarkFlag(this.Result);
+
+            return false;
+        }
     }
 }

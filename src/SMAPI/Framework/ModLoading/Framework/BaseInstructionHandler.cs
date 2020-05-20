@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -9,42 +11,38 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
         /*********
         ** Accessors
         *********/
-        /// <summary>A brief noun phrase indicating what the handler matches.</summary>
-        public string NounPhrase { get; protected set; }
+        /// <summary>A brief noun phrase indicating what the handler matches, used if <see cref="Phrases"/> is empty.</summary>
+        public string DefaultPhrase { get; }
+
+        /// <summary>The rewrite flags raised for the current module.</summary>
+        public ISet<InstructionHandleResult> Flags { get; } = new HashSet<InstructionHandleResult>();
+
+        /// <summary>The brief noun phrases indicating what the handler matched for the current module.</summary>
+        public ISet<string> Phrases { get; } = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
 
 
         /*********
         ** Public methods
         *********/
-        /// <summary>Perform the predefined logic for a method if applicable.</summary>
+        /// <summary>Rewrite a type reference if needed.</summary>
         /// <param name="module">The assembly module containing the instruction.</param>
         /// <param name="type">The type definition to handle.</param>
-        /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
-        /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        public virtual InstructionHandleResult Handle(ModuleDefinition module, TypeDefinition type, PlatformAssemblyMap assemblyMap, bool platformChanged)
+        /// <param name="replaceWith">Replaces the type reference with a new one.</param>
+        /// <returns>Returns whether the type was changed.</returns>
+        public virtual bool Handle(ModuleDefinition module, TypeReference type, Action<TypeReference> replaceWith)
         {
-            return InstructionHandleResult.None;
+            return false;
         }
 
-        /// <summary>Perform the predefined logic for a method if applicable.</summary>
-        /// <param name="module">The assembly module containing the instruction.</param>
-        /// <param name="method">The method definition to handle.</param>
-        /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
-        /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        public virtual InstructionHandleResult Handle(ModuleDefinition module, MethodDefinition method, PlatformAssemblyMap assemblyMap, bool platformChanged)
-        {
-            return InstructionHandleResult.None;
-        }
-
-        /// <summary>Perform the predefined logic for an instruction if applicable.</summary>
+        /// <summary>Rewrite a CIL instruction reference if needed.</summary>
         /// <param name="module">The assembly module containing the instruction.</param>
         /// <param name="cil">The CIL processor.</param>
         /// <param name="instruction">The CIL instruction to handle.</param>
-        /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
-        /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        public virtual InstructionHandleResult Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, PlatformAssemblyMap assemblyMap, bool platformChanged)
+        /// <param name="replaceWith">Replaces the CIL instruction with a new one.</param>
+        /// <returns>Returns whether the instruction was changed.</returns>
+        public virtual bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, Action<Instruction> replaceWith)
         {
-            return InstructionHandleResult.None;
+            return false;
         }
 
 
@@ -52,10 +50,28 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
         ** Protected methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="nounPhrase">A brief noun phrase indicating what the handler matches.</param>
-        protected BaseInstructionHandler(string nounPhrase)
+        /// <param name="defaultPhrase">A brief noun phrase indicating what the handler matches.</param>
+        protected BaseInstructionHandler(string defaultPhrase)
         {
-            this.NounPhrase = nounPhrase;
+            this.DefaultPhrase = defaultPhrase;
+        }
+
+        /// <summary>Raise a result flag.</summary>
+        /// <param name="flag">The result flag to set.</param>
+        /// <param name="resultMessage">The result message to add.</param>
+        /// <returns>Returns true for convenience.</returns>
+        protected bool MarkFlag(InstructionHandleResult flag, string resultMessage = null)
+        {
+            this.Flags.Add(flag);
+            if (resultMessage != null)
+                this.Phrases.Add(resultMessage);
+            return true;
+        }
+
+        /// <summary>Raise a generic flag indicating that the code was rewritten.</summary>
+        public bool MarkRewritten()
+        {
+            return this.MarkFlag(InstructionHandleResult.Rewritten);
         }
     }
 }

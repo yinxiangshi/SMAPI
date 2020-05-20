@@ -4,7 +4,7 @@ using System.Reflection;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
-namespace StardewModdingAPI.Framework.ModLoading
+namespace StardewModdingAPI.Framework.ModLoading.Framework
 {
     /// <summary>Provides helper methods for field rewriters.</summary>
     internal static class RewriteHelper
@@ -26,6 +26,28 @@ namespace StardewModdingAPI.Framework.ModLoading
             return instruction.OpCode == OpCodes.Ldfld || instruction.OpCode == OpCodes.Ldsfld || instruction.OpCode == OpCodes.Stfld || instruction.OpCode == OpCodes.Stsfld
                 ? (FieldReference)instruction.Operand
                 : null;
+        }
+
+        /// <summary>Get whether the field is a reference to the expected type and field.</summary>
+        /// <param name="instruction">The IL instruction.</param>
+        /// <param name="fullTypeName">The full type name containing the expected field.</param>
+        /// <param name="fieldName">The name of the expected field.</param>
+        public static bool IsFieldReferenceTo(Instruction instruction, string fullTypeName, string fieldName)
+        {
+            FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);
+            return RewriteHelper.IsFieldReferenceTo(fieldRef, fullTypeName, fieldName);
+        }
+
+        /// <summary>Get whether the field is a reference to the expected type and field.</summary>
+        /// <param name="fieldRef">The field reference to check.</param>
+        /// <param name="fullTypeName">The full type name containing the expected field.</param>
+        /// <param name="fieldName">The name of the expected field.</param>
+        public static bool IsFieldReferenceTo(FieldReference fieldRef, string fullTypeName, string fieldName)
+        {
+            return
+                fieldRef != null
+                && fieldRef.DeclaringType.FullName == fullTypeName
+                && fieldRef.Name == fieldName;
         }
 
         /// <summary>Get the method reference from an instruction if it matches.</summary>

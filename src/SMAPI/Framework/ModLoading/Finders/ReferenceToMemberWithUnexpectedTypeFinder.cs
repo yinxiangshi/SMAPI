@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
@@ -23,18 +24,18 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         /// <summary>Construct an instance.</summary>
         /// <param name="validateReferencesToAssemblies">The assembly names to which to heuristically detect broken references.</param>
         public ReferenceToMemberWithUnexpectedTypeFinder(string[] validateReferencesToAssemblies)
-            : base(nounPhrase: "")
+            : base(defaultPhrase: "")
         {
             this.ValidateReferencesToAssemblies = new HashSet<string>(validateReferencesToAssemblies);
         }
 
-        /// <summary>Perform the predefined logic for an instruction if applicable.</summary>
+        /// <summary>Rewrite a CIL instruction reference if needed.</summary>
         /// <param name="module">The assembly module containing the instruction.</param>
         /// <param name="cil">The CIL processor.</param>
         /// <param name="instruction">The CIL instruction to handle.</param>
-        /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
-        /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        public override InstructionHandleResult Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, PlatformAssemblyMap assemblyMap, bool platformChanged)
+        /// <param name="replaceWith">Replaces the CIL instruction with a new one.</param>
+        /// <returns>Returns whether the instruction was changed.</returns>
+        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, Action<Instruction> replaceWith)
         {
             // field reference
             FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);
@@ -43,13 +44,13 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
                 // get target field
                 FieldDefinition targetField = fieldRef.DeclaringType.Resolve()?.Fields.FirstOrDefault(p => p.Name == fieldRef.Name);
                 if (targetField == null)
-                    return InstructionHandleResult.None;
+                    return false;
 
                 // validate return type
                 if (!RewriteHelper.LooksLikeSameType(fieldRef.FieldType, targetField.FieldType))
                 {
-                    this.NounPhrase = $"reference to {fieldRef.DeclaringType.FullName}.{fieldRef.Name} (field returns {this.GetFriendlyTypeName(targetField.FieldType)}, not {this.GetFriendlyTypeName(fieldRef.FieldType)})";
-                    return InstructionHandleResult.NotCompatible;
+                    this.MarkFlag(InstructionHandleResult.NotCompatible, $"reference to {fieldRef.DeclaringType.FullName}.{fieldRef.Name} (field returns {this.GetFriendlyTypeName(targetField.FieldType)}, not {this.GetFriendlyTypeName(fieldRef.FieldType)})");
+                    return false;
                 }
             }
 
@@ -60,21 +61,21 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
                 // get potential targets
                 MethodDefinition[] candidateMethods = methodReference.DeclaringType.Resolve()?.Methods.Where(found => found.Name == methodReference.Name).ToArray();
                 if (candidateMethods == null || !candidateMethods.Any())
-                    return InstructionHandleResult.None;
+                    return false;
 
                 // compare return types
                 MethodDefinition methodDef = methodReference.Resolve();
                 if (methodDef == null)
-                    return InstructionHandleResult.None; // validated by ReferenceToMissingMemberFinder
+                    return false; // validated by ReferenceToMissingMemberFinder
 
                 if (candidateMethods.All(method => !RewriteHelper.LooksLikeSameType(method.ReturnType, methodDef.ReturnType)))
                 {
-                    this.NounPhrase = $"reference to {methodDef.DeclaringType.FullName}.{methodDef.Name} (no such method returns {this.GetFriendlyTypeName(methodDef.ReturnType)})";
-                    return InstructionHandleResult.NotCompatible;
+                    this.MarkFlag(InstructionHandleResult.NotCompatible, $"reference to {methodDef.DeclaringType.FullName}.{methodDef.Name} (no such method returns {this.GetFriendlyTypeName(methodDef.ReturnType)})");
+                    return false;
                 }
             }
 
-            return InstructionHandleResult.None;
+            return false;
         }
 
 

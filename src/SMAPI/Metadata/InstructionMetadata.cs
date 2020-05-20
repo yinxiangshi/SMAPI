@@ -25,21 +25,21 @@ namespace StardewModdingAPI.Metadata
         *********/
         /// <summary>Get rewriters which detect or fix incompatible CIL instructions in mod assemblies.</summary>
         /// <param name="paranoidMode">Whether to detect paranoid mode issues.</param>
-        public IEnumerable<IInstructionHandler> GetHandlers(bool paranoidMode)
+        /// <param name="platformChanged">Whether the assembly was rewritten for crossplatform compatibility.</param>
+        public IEnumerable<IInstructionHandler> GetHandlers(bool paranoidMode, bool platformChanged)
         {
             /****
             ** rewrite CIL to fix incompatible code
             ****/
             // rewrite for crossplatform compatibility
-            yield return new MethodParentRewriter(typeof(SpriteBatch), typeof(SpriteBatchMethods), onlyIfPlatformChanged: true);
+            if (platformChanged)
+                yield return new MethodParentRewriter(typeof(SpriteBatch), typeof(SpriteBatchMethods));
 
             // rewrite for Stardew Valley 1.3
             yield return new StaticFieldToConstantRewriter<int>(typeof(Game1), "tileSize", Game1.tileSize);
 
             // rewrite for SMAPI 3.6 (Harmony 1.x => 2.0 update)
             yield return new Harmony1AssemblyRewriter();
-            yield return new MethodParentRewriter(typeof(HarmonyLib.Harmony), typeof(HarmonyInstanceMethods), onlyIfPlatformChanged: false, nounPhrase: Harmony1AssemblyRewriter.DefaultNounPhrase);
-            yield return new MethodParentRewriter(typeof(HarmonyLib.AccessTools), typeof(AccessToolsMethods), onlyIfPlatformChanged: false, nounPhrase: Harmony1AssemblyRewriter.DefaultNounPhrase);
 
             /****
             ** detect mod issues
