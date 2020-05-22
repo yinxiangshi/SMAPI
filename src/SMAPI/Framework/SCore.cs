@@ -16,6 +16,7 @@ using System.Windows.Forms;
 #endif
 using Newtonsoft.Json;
 using StardewModdingAPI.Events;
+using StardewModdingAPI.Framework.Commands;
 using StardewModdingAPI.Framework.Events;
 using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.Logging;
@@ -508,8 +509,9 @@ namespace StardewModdingAPI.Framework
         {
             // prepare console
             this.Monitor.Log("Type 'help' for help, or 'help <cmd>' for a command's usage", LogLevel.Info);
-            this.GameInstance.CommandManager.Add(null, "help", "Lists command documentation.\n\nUsage: help\nLists all available commands.\n\nUsage: help <cmd>\n- cmd: The name of a command whose documentation to display.", this.HandleCommand);
-            this.GameInstance.CommandManager.Add(null, "reload_i18n", "Reloads translation files for all mods.\n\nUsage: reload_i18n", this.HandleCommand);
+            this.GameInstance.CommandManager
+                .Add(new HelpCommand(this.GameInstance.CommandManager), this.Monitor)
+                .Add(new ReloadI18nCommand(this.ReloadTranslations), this.Monitor);
 
             // start handling command line input
             Thread inputThread = new Thread(() =>
@@ -1273,6 +1275,12 @@ namespace StardewModdingAPI.Framework
         }
 
         /// <summary>Reload translations for all mods.</summary>
+        private void ReloadTranslations()
+        {
+            this.ReloadTranslations(this.ModRegistry.GetAll(contentPacks: false));
+        }
+
+        /// <summary>Reload translations for the given mods.</summary>
         /// <param name="mods">The mods for which to reload translations.</param>
         private void ReloadTranslations(IEnumerable<IModMetadata> mods)
         {
@@ -1355,48 +1363,6 @@ namespace StardewModdingAPI.Framework
             }
 
             return translations;
-        }
-
-        /// <summary>The method called when the user submits a core SMAPI command in the console.</summary>
-        /// <param name="name">The command name.</param>
-        /// <param name="arguments">The command arguments.</param>
-        private void HandleCommand(string name, string[] arguments)
-        {
-            switch (name)
-            {
-                case "help":
-                    if (arguments.Any())
-                    {
-                        Command result = this.GameInstance.CommandManager.Get(arguments[0]);
-                        if (result == null)
-                            this.Monitor.Log("There's no command with that name.", LogLevel.Error);
-                        else
-                            this.Monitor.Log($"{result.Name}: {result.Documentation}{(result.Mod != null ? $"\n(Added by {result.Mod.DisplayName}.)" : "")}", LogLevel.Info);
-                    }
-                    else
-                    {
-                        string message = "The following commands are registered:\n";
-                        IGrouping<string, string>[] groups = (from command in this.GameInstance.CommandManager.GetAll() orderby command.Mod?.DisplayName, command.Name group command.Name by command.Mod?.DisplayName).ToArray();
-                        foreach (var group in groups)
-                        {
-                            string modName = group.Key ?? "SMAPI";
-                            string[] commandNames = group.ToArray();
-                            message += $"{modName}:\n  {string.Join("\n  ", commandNames)}\n\n";
-                        }
-                        message += "For more information about a command, type 'help command_name'.";
-
-                        this.Monitor.Log(message, LogLevel.Info);
-                    }
-                    break;
-
-                case "reload_i18n":
-                    this.ReloadTranslations(this.ModRegistry.GetAll(contentPacks: false));
-                    this.Monitor.Log("Reloaded translation files for all mods. This only affects new translations the mods fetch; if they cached some text, it may not be updated.", LogLevel.Info);
-                    break;
-
-                default:
-                    throw new NotSupportedException($"Unrecognized core SMAPI command '{name}'.");
-            }
         }
 
         /// <summary>Redirect messages logged directly to the console to the given monitor.</summary>
