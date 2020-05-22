@@ -16,17 +16,26 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
         *********/
         public static ConstructorInfo DeclaredConstructor(Type type, Type[] parameters = null)
         {
-            return AccessTools.DeclaredConstructor(type, parameters, searchForStatic: true);
+            // Harmony 1.x matched both static and instance constructors
+            return
+                AccessTools.DeclaredConstructor(type, parameters, searchForStatic: false)
+                ?? AccessTools.DeclaredConstructor(type, parameters, searchForStatic: true);
         }
 
         public static ConstructorInfo Constructor(Type type, Type[] parameters = null)
         {
-            return AccessTools.Constructor(type, parameters, searchForStatic: true);
+            // Harmony 1.x matched both static and instance constructors
+            return
+                AccessTools.Constructor(type, parameters, searchForStatic: false)
+                ?? AccessTools.Constructor(type, parameters, searchForStatic: true);
         }
 
         public static List<ConstructorInfo> GetDeclaredConstructors(Type type)
         {
-            return AccessTools.GetDeclaredConstructors(type, searchForStatic: true);
+            // Harmony 1.x matched both static and instance constructors
+            return
+                AccessTools.GetDeclaredConstructors(type, searchForStatic: false)
+                ?? AccessTools.GetDeclaredConstructors(type, searchForStatic: true);
         }
     }
 }
