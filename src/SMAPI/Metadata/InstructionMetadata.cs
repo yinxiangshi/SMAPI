@@ -33,7 +33,7 @@ namespace StardewModdingAPI.Metadata
             ****/
             // rewrite for crossplatform compatibility
             if (platformChanged)
-                yield return new MethodParentRewriter(typeof(SpriteBatch), typeof(SpriteBatchMethods));
+                yield return new MethodParentRewriter(typeof(SpriteBatch), typeof(SpriteBatchFacade));
 
             // rewrite for Stardew Valley 1.3
             yield return new StaticFieldToConstantRewriter<int>(typeof(Game1), "tileSize", Game1.tileSize);

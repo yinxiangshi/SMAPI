@@ -85,11 +85,11 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             switch (methodRef?.DeclaringType.FullName)
             {
                 case "HarmonyLib.Harmony":
-                    toType = typeof(HarmonyInstanceMethods);
+                    toType = typeof(HarmonyInstanceFacade);
                     break;
 
                 case "HarmonyLib.AccessTools":
-                    toType = typeof(AccessToolsMethods);
+                    toType = typeof(AccessToolsFacade);
                     break;
 
                 default:

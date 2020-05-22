@@ -9,13 +9,13 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
     [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Used via assembly rewriting")]
     [SuppressMessage("ReSharper", "CS0109", Justification = "The 'new' modifier applies when compiled on Linux/Mac.")]
     [SuppressMessage("ReSharper", "CS1591", Justification = "Documentation not needed for facade classes.")]
-    public class SpriteBatchMethods : SpriteBatch
+    public class SpriteBatchFacade : SpriteBatch
     {
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        public SpriteBatchMethods(GraphicsDevice graphicsDevice) : base(graphicsDevice) { }
+        public SpriteBatchFacade(GraphicsDevice graphicsDevice) : base(graphicsDevice) { }
 
 
         /****
