@@ -19,6 +19,7 @@
     * Fixed rewriting generic types to method references.
   * Simplified paranoid warnings in the log and reduced their log level.
   * Fixed asset propagation for Gil's portraits.
+  * Fixed `.pdb` files ignored for error stack traces for mods rewritten by SMAPI.
 
 * For SMAPI developers:
   * When deploying web services to a single-instance app, the MongoDB server can now be replaced with in-memory storage.

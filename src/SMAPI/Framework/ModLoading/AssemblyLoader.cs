@@ -127,10 +127,21 @@ namespace StardewModdingAPI.Framework.ModLoading
                 {
                     if (!oneAssembly)
                         this.Monitor.Log($"      Loading {assembly.File.Name} (rewritten)...", LogLevel.Trace);
+
+                    // load PDB file if present
+                    byte[] symbols;
+                    {
+                        string symbolsPath = Path.Combine(Path.GetDirectoryName(assemblyPath), Path.GetFileNameWithoutExtension(assemblyPath)) + ".pdb";
+                        symbols = File.Exists(symbolsPath)
+                            ? File.ReadAllBytes(symbolsPath)
+                            : null;
+                    }
+
+                    // load assembly
                     using MemoryStream outStream = new MemoryStream();
                     assembly.Definition.Write(outStream);
                     byte[] bytes = outStream.ToArray();
-                    lastAssembly = Assembly.Load(bytes);
+                    lastAssembly = Assembly.Load(bytes, symbols);
                 }
                 else
                 {
