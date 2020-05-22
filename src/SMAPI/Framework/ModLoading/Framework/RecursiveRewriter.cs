@@ -82,6 +82,9 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
                     foreach (ParameterDefinition parameter in method.Parameters)
                         anyRewritten |= this.RewriteTypeReference(parameter.ParameterType, newType => parameter.ParameterType = newType);
 
+                    foreach (var methodOverride in method.Overrides)
+                        anyRewritten |= this.RewriteMethodReference(methodOverride);
+
                     if (method.HasBody)
                     {
                         foreach (VariableDefinition variable in method.Body.Variables)
@@ -133,25 +136,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
             // method reference
             MethodReference methodRef = RewriteHelper.AsMethodReference(instruction);
             if (methodRef != null)
-            {
-                rewritten |= this.RewriteTypeReference(methodRef.DeclaringType, newType =>
-                {
-                    // note: generic methods are wrapped into a MethodSpecification which doesn't allow changing the
-                    // declaring type directly. For our purposes we want to change all generic versions of a matched
-                    // method anyway, so we can use GetElementMethod to get the underlying method here.
-                    methodRef.GetElementMethod().DeclaringType = newType;
-                });
-                rewritten |= this.RewriteTypeReference(methodRef.ReturnType, newType => methodRef.ReturnType = newType);
-
-                foreach (var parameter in methodRef.Parameters)
-                    rewritten |= this.RewriteTypeReference(parameter.ParameterType, newType => parameter.ParameterType = newType);
-
-                if (methodRef is GenericInstanceMethod genericRef)
-                {
-                    for (int i = 0; i < genericRef.GenericArguments.Count; i++)
-                        rewritten |= this.RewriteTypeReference(genericRef.GenericArguments[i], newType => genericRef.GenericArguments[i] = newType);
-                }
-            }
+                this.RewriteMethodReference(methodRef);
 
             // type reference
             if (instruction.Operand is TypeReference typeRef)
@@ -165,6 +150,33 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
                 cil.Replace(instruction, newInstruction);
                 instruction = newInstruction;
             });
+
+            return rewritten;
+        }
+
+        /// <summary>Rewrite a method reference if needed.</summary>
+        /// <param name="methodRef">The current method reference.</param>
+        private bool RewriteMethodReference(MethodReference methodRef)
+        {
+            bool rewritten = false;
+
+            rewritten |= this.RewriteTypeReference(methodRef.DeclaringType, newType =>
+            {
+                // note: generic methods are wrapped into a MethodSpecification which doesn't allow changing the
+                // declaring type directly. For our purposes we want to change all generic versions of a matched
+                // method anyway, so we can use GetElementMethod to get the underlying method here.
+                methodRef.GetElementMethod().DeclaringType = newType;
+            });
+            rewritten |= this.RewriteTypeReference(methodRef.ReturnType, newType => methodRef.ReturnType = newType);
+
+            foreach (var parameter in methodRef.Parameters)
+                rewritten |= this.RewriteTypeReference(parameter.ParameterType, newType => parameter.ParameterType = newType);
+
+            if (methodRef is GenericInstanceMethod genericRef)
+            {
+                for (int i = 0; i < genericRef.GenericArguments.Count; i++)
+                    rewritten |= this.RewriteTypeReference(genericRef.GenericArguments[i], newType => genericRef.GenericArguments[i] = newType);
+            }
 
             return rewritten;
         }
