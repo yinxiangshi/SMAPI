@@ -28,6 +28,13 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
 
         public DynamicMethod Patch(MethodBase original, HarmonyMethod prefix = null, HarmonyMethod postfix = null, HarmonyMethod transpiler = null)
         {
+            // In Harmony 1.x you could target a virtual method that's not implemented by the
+            // target type, but in Harmony 2.0 you need to target the concrete implementation.
+            // This just resolves the method to the concrete implementation if needed.
+            if (original != null)
+                original = original.GetDeclaredMember();
+
+            // call Harmony 2.0 and show a detailed exception if it fails
             try
             {
                 MethodInfo method = base.Patch(original: original, prefix: prefix, postfix: postfix, transpiler: transpiler);
@@ -35,22 +42,41 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
             }
             catch (Exception ex)
             {
-                // get patch types
-                var patchTypes = new List<string>();
-                if (prefix != null)
-                    patchTypes.Add("prefix");
-                if (postfix != null)
-                    patchTypes.Add("postfix");
-                if (transpiler != null)
-                    patchTypes.Add("transpiler");
-
-                // get original method label
-                string methodLabel = original != null
-                    ? $"method {original.DeclaringType?.FullName}.{original.Name}"
-                    : "null method";
-
-                throw new Exception($"Harmony instance {this.Id} failed applying {string.Join("/", patchTypes)} to {methodLabel}.", ex);
+                string patchTypes = this.GetPatchTypesLabel(prefix, postfix, transpiler);
+                string methodLabel = this.GetMethodLabel(original);
+                throw new Exception($"Harmony instance {this.Id} failed applying {patchTypes} to {methodLabel}.", ex);
             }
+        }
+
+
+        /*********
+        ** Private methods
+        *********/
+        /// <summary>Get a human-readable label for the patch types being applies.</summary>
+        /// <param name="prefix">The prefix method, if any.</param>
+        /// <param name="postfix">The postfix method, if any.</param>
+        /// <param name="transpiler">The transpiler method, if any.</param>
+        private string GetPatchTypesLabel(HarmonyMethod prefix = null, HarmonyMethod postfix = null, HarmonyMethod transpiler = null)
+        {
+            var patchTypes = new List<string>();
+
+            if (prefix != null)
+                patchTypes.Add("prefix");
+            if (postfix != null)
+                patchTypes.Add("postfix");
+            if (transpiler != null)
+                patchTypes.Add("transpiler");
+
+            return string.Join("/", patchTypes);
+        }
+
+        /// <summary>Get a human-readable label for the method being patched.</summary>
+        /// <param name="method">The method being patched.</param>
+        private string GetMethodLabel(MethodBase method)
+        {
+            return method != null
+                ? $"method {method.DeclaringType?.FullName}.{method.Name}"
+                : "null method";
         }
     }
 }
