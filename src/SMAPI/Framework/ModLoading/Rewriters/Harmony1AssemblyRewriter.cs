@@ -92,6 +92,10 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                     toType = typeof(AccessToolsFacade);
                     break;
 
+                case "HarmonyLib.HarmonyMethod":
+                    toType = typeof(HarmonyMethodFacade);
+                    break;
+
                 default:
                     return false;
             }

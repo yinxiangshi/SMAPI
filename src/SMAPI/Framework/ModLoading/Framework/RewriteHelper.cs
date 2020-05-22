@@ -137,7 +137,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
         /// <summary>Get whether a method definition matches the signature expected by a method reference.</summary>
         /// <param name="definition">The method definition.</param>
         /// <param name="reference">The method reference.</param>
-        public static bool HasMatchingSignature(MethodInfo definition, MethodReference reference)
+        public static bool HasMatchingSignature(MethodBase definition, MethodReference reference)
         {
             // 
             // duplicated by HasMatchingSignature(MethodDefinition, MethodReference) below
@@ -166,7 +166,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
         public static bool HasMatchingSignature(MethodDefinition definition, MethodReference reference)
         {
             // 
-            // duplicated by HasMatchingSignature(MethodInfo, MethodReference) above
+            // duplicated by HasMatchingSignature(MethodBase, MethodReference) above
             //
 
             // same name
@@ -191,6 +191,13 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
         /// <param name="reference">The method reference.</param>
         public static bool HasMatchingSignature(Type type, MethodReference reference)
         {
+            if (reference.Name == ".ctor")
+            {
+                return type
+                    .GetConstructors(BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.Public)
+                    .Any(method => RewriteHelper.HasMatchingSignature(method, reference));
+            }
+
             return type
                 .GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.Public)
                 .Any(method => RewriteHelper.HasMatchingSignature(method, reference));
