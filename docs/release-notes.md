@@ -23,7 +23,7 @@
   * Fixed `.pdb` files ignored for error stack traces for mods rewritten by SMAPI.
 
 * For SMAPI developers:
-  * When deploying web services to a single-instance app, the MongoDB server can now be replaced with in-memory storage.
+  * Eliminated MongoDB storage in the web services, which complicated the code unnecessarily. The app still uses an abstract interface for storage, so we can wrap a distributed cache in the future if needed.
   * Merged the separate legacy redirects app on AWS into the main app on Azure.
 
 ## 3.5

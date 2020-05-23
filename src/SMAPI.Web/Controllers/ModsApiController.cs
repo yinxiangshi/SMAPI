@@ -12,6 +12,7 @@ using StardewModdingAPI.Toolkit.Framework.Clients.Wiki;
 using StardewModdingAPI.Toolkit.Framework.ModData;
 using StardewModdingAPI.Toolkit.Framework.UpdateData;
 using StardewModdingAPI.Web.Framework;
+using StardewModdingAPI.Web.Framework.Caching;
 using StardewModdingAPI.Web.Framework.Caching.Mods;
 using StardewModdingAPI.Web.Framework.Caching.Wiki;
 using StardewModdingAPI.Web.Framework.Clients.Chucklefish;
@@ -90,7 +91,7 @@ namespace StardewModdingAPI.Web.Controllers
                 return new ModEntryModel[0];
 
             // fetch wiki data
-            WikiModEntry[] wikiData = this.WikiCache.GetWikiMods().Select(p => p.GetModel()).ToArray();
+            WikiModEntry[] wikiData = this.WikiCache.GetWikiMods().Select(p => p.Data).ToArray();
             IDictionary<string, ModEntryModel> mods = new Dictionary<string, ModEntryModel>(StringComparer.CurrentCultureIgnoreCase);
             foreach (ModSearchEntryModel mod in model.Mods)
             {
@@ -283,27 +284,30 @@ namespace StardewModdingAPI.Web.Controllers
         /// <param name="allowNonStandardVersions">Whether to allow non-standard versions.</param>
         private async Task<ModInfoModel> GetInfoForUpdateKeyAsync(UpdateKey updateKey, bool allowNonStandardVersions)
         {
-            // get mod
-            if (!this.ModCache.TryGetMod(updateKey.Repository, updateKey.ID, out CachedMod mod) || this.ModCache.IsStale(mod.LastUpdated, mod.FetchStatus == RemoteModStatus.TemporaryError ? this.Config.Value.ErrorCacheMinutes : this.Config.Value.SuccessCacheMinutes))
+            // get from cache
+            if (this.ModCache.TryGetMod(updateKey.Repository, updateKey.ID, out Cached<ModInfoModel> cachedMod) && !this.ModCache.IsStale(cachedMod.LastUpdated, cachedMod.Data.Status == RemoteModStatus.TemporaryError ? this.Config.Value.ErrorCacheMinutes : this.Config.Value.SuccessCacheMinutes))
+                return cachedMod.Data;
+
+            // fetch from mod site
             {
                 // get site
                 if (!this.Repositories.TryGetValue(updateKey.Repository, out IModRepository repository))
                     return new ModInfoModel().SetError(RemoteModStatus.DoesNotExist, $"There's no mod site with key '{updateKey.Repository}'. Expected one of [{string.Join(", ", this.Repositories.Keys)}].");
 
                 // fetch mod
-                ModInfoModel result = await repository.GetModInfoAsync(updateKey.ID);
-                if (result.Error == null)
+                ModInfoModel mod = await repository.GetModInfoAsync(updateKey.ID);
+                if (mod.Error == null)
                 {
-                    if (result.Version == null)
-                        result.SetError(RemoteModStatus.InvalidData, $"The update key '{updateKey}' matches a mod with no version number.");
-                    else if (!SemanticVersion.TryParse(result.Version, allowNonStandardVersions, out _))
-                        result.SetError(RemoteModStatus.InvalidData, $"The update key '{updateKey}' matches a mod with invalid semantic version '{result.Version}'.");
+                    if (mod.Version == null)
+                        mod.SetError(RemoteModStatus.InvalidData, $"The update key '{updateKey}' matches a mod with no version number.");
+                    else if (!SemanticVersion.TryParse(mod.Version, allowNonStandardVersions, out _))
+                        mod.SetError(RemoteModStatus.InvalidData, $"The update key '{updateKey}' matches a mod with invalid semantic version '{mod.Version}'.");
                 }
 
                 // cache mod
-                this.ModCache.SaveMod(repository.VendorKey, updateKey.ID, result, out mod);
+                this.ModCache.SaveMod(repository.VendorKey, updateKey.ID, mod);
+                return mod;
             }
-            return mod.GetModel();
         }
 
         /// <summary>Get update keys based on the available mod metadata, while maintaining the precedence order.</summary>

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using StardewModdingAPI.Toolkit.Framework.Clients.Wiki;
 
 namespace StardewModdingAPI.Web.Framework.Caching.Wiki
@@ -13,10 +12,10 @@ namespace StardewModdingAPI.Web.Framework.Caching.Wiki
         ** Fields
         *********/
         /// <summary>The saved wiki metadata.</summary>
-        private CachedWikiMetadata Metadata;
+        private Cached<WikiMetadata> Metadata;
 
         /// <summary>The cached wiki data.</summary>
-        private CachedWikiMod[] Mods = new CachedWikiMod[0];
+        private Cached<WikiModEntry>[] Mods = new Cached<WikiModEntry>[0];
 
 
         /*********
@@ -24,7 +23,7 @@ namespace StardewModdingAPI.Web.Framework.Caching.Wiki
         *********/
         /// <summary>Get the cached wiki metadata.</summary>
         /// <param name="metadata">The fetched metadata.</param>
-        public bool TryGetWikiMetadata(out CachedWikiMetadata metadata)
+        public bool TryGetWikiMetadata(out Cached<WikiMetadata> metadata)
         {
             metadata = this.Metadata;
             return metadata != null;
@@ -32,23 +31,23 @@ namespace StardewModdingAPI.Web.Framework.Caching.Wiki
 
         /// <summary>Get the cached wiki mods.</summary>
         /// <param name="filter">A filter to apply, if any.</param>
-        public IEnumerable<CachedWikiMod> GetWikiMods(Expression<Func<CachedWikiMod, bool>> filter = null)
+        public IEnumerable<Cached<WikiModEntry>> GetWikiMods(Func<WikiModEntry, bool> filter = null)
         {
-            return filter != null
-                ? this.Mods.Where(filter.Compile())
-                : this.Mods.ToArray();
+            foreach (var mod in this.Mods)
+            {
+                if (filter == null || filter(mod.Data))
+                    yield return mod;
+            }
         }
 
         /// <summary>Save data fetched from the wiki compatibility list.</summary>
         /// <param name="stableVersion">The current stable Stardew Valley version.</param>
         /// <param name="betaVersion">The current beta Stardew Valley version.</param>
         /// <param name="mods">The mod data.</param>
-        /// <param name="cachedMetadata">The stored metadata record.</param>
-        /// <param name="cachedMods">The stored mod records.</param>
-        public void SaveWikiData(string stableVersion, string betaVersion, IEnumerable<WikiModEntry> mods, out CachedWikiMetadata cachedMetadata, out CachedWikiMod[] cachedMods)
+        public void SaveWikiData(string stableVersion, string betaVersion, IEnumerable<WikiModEntry> mods)
         {
-            this.Metadata = cachedMetadata = new CachedWikiMetadata(stableVersion, betaVersion);
-            this.Mods = cachedMods = mods.Select(mod => new CachedWikiMod(mod)).ToArray();
+            this.Metadata = new Cached<WikiMetadata>(new WikiMetadata(stableVersion, betaVersion));
+            this.Mods = mods.Select(mod => new Cached<WikiModEntry>(mod)).ToArray();
         }
     }
 }

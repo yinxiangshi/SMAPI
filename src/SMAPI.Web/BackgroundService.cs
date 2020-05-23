@@ -84,7 +84,7 @@ namespace StardewModdingAPI.Web
         public static async Task UpdateWikiAsync()
         {
             WikiModList wikiCompatList = await new ModToolkit().GetWikiCompatibilityListAsync();
-            BackgroundService.WikiCache.SaveWikiData(wikiCompatList.StableVersion, wikiCompatList.BetaVersion, wikiCompatList.Mods, out _, out _);
+            BackgroundService.WikiCache.SaveWikiData(wikiCompatList.StableVersion, wikiCompatList.BetaVersion, wikiCompatList.Mods);
         }
 
         /// <summary>Remove mods which haven't been requested in over 48 hours.</summary>
