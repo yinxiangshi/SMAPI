@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Rewrite;
 
@@ -22,6 +23,7 @@ namespace StardewModdingAPI.Web.Framework.RedirectRules
         /// <param name="map">Regex patterns matching the current URL mapped to the resulting redirect URL.</param>
         public RedirectPathsToUrlsRule(IDictionary<string, string> map)
         {
+            this.StatusCode = HttpStatusCode.RedirectKeepVerb;
             this.Map = map.ToDictionary(
                 p => new Regex(p.Key, RegexOptions.IgnoreCase | RegexOptions.Compiled),
                 p => p.Value
