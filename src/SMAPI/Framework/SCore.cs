@@ -511,6 +511,7 @@ namespace StardewModdingAPI.Framework
             this.Monitor.Log("Type 'help' for help, or 'help <cmd>' for a command's usage", LogLevel.Info);
             this.GameInstance.CommandManager
                 .Add(new HelpCommand(this.GameInstance.CommandManager), this.Monitor)
+                .Add(new HarmonySummaryCommand(), this.Monitor)
                 .Add(new ReloadI18nCommand(this.ReloadTranslations), this.Monitor);
 
             // start handling command line input

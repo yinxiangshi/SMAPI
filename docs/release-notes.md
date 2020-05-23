@@ -11,8 +11,9 @@
   * Internal changes to improve performance and reliability.
 
 * For modders:
-  * Added `Multiplayer.PeerConnected` event.
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
+  * Added `Multiplayer.PeerConnected` event.
+  * Added `harmony_summary` console command which lists all current Harmony patches, optionally with a search filter.
   * Harmony mods which use the `[HarmonyPatch(type)]` attribute now work crossplatform. Previously SMAPI couldn't rewrite types in custom attributes for compatibility.
   * Improved mod rewriting for compatibility:
     * Fixed rewriting types in custom attributes.
