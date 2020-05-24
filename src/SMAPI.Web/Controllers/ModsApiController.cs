@@ -135,7 +135,7 @@ namespace StardewModdingAPI.Web.Controllers
                 // validate update key
                 if (!updateKey.LooksValid)
                 {
-                    errors.Add($"The update key '{updateKey}' isn't in a valid format. It should contain the site key and mod ID like 'Nexus:541'.");
+                    errors.Add($"The update key '{updateKey}' isn't in a valid format. It should contain the site key and mod ID like 'Nexus:541', with an optional subkey like 'Nexus:541@subkey'.");
                     continue;
                 }
 
@@ -271,7 +271,7 @@ namespace StardewModdingAPI.Web.Controllers
             }
 
             // get version info
-            return this.ModSites.GetPageVersions(page, allowNonStandardVersions, mapRemoteVersions);
+            return this.ModSites.GetPageVersions(page, updateKey.Subkey, allowNonStandardVersions, mapRemoteVersions);
         }
 
         /// <summary>Get update keys based on the available mod metadata, while maintaining the precedence order.</summary>
@@ -280,44 +280,56 @@ namespace StardewModdingAPI.Web.Controllers
         /// <param name="entry">The mod's entry in the wiki list.</param>
         private IEnumerable<UpdateKey> GetUpdateKeys(string[] specifiedKeys, ModDataRecord record, WikiModEntry entry)
         {
+            // get every update key (including duplicates)
             IEnumerable<string> GetRaw()
             {
                 // specified update keys
                 if (specifiedKeys != null)
                 {
                     foreach (string key in specifiedKeys)
-                        yield return key?.Trim();
+                    {
+                        if (!string.IsNullOrWhiteSpace(key))
+                            yield return key.Trim();
+                    }
                 }
 
                 // default update key
                 string defaultKey = record?.GetDefaultUpdateKey();
-                if (defaultKey != null)
+                if (!string.IsNullOrWhiteSpace(defaultKey))
                     yield return defaultKey;
 
                 // wiki metadata
                 if (entry != null)
                 {
                     if (entry.NexusID.HasValue)
-                        yield return UpdateKey.GetString(ModSiteKey.Nexus, entry.NexusID?.ToString());
+                        yield return UpdateKey.GetString(ModSiteKey.Nexus, entry.NexusID.ToString());
                     if (entry.ModDropID.HasValue)
-                        yield return UpdateKey.GetString(ModSiteKey.ModDrop, entry.ModDropID?.ToString());
+                        yield return UpdateKey.GetString(ModSiteKey.ModDrop, entry.ModDropID.ToString());
                     if (entry.CurseForgeID.HasValue)
-                        yield return UpdateKey.GetString(ModSiteKey.CurseForge, entry.CurseForgeID?.ToString());
+                        yield return UpdateKey.GetString(ModSiteKey.CurseForge, entry.CurseForgeID.ToString());
                     if (entry.ChucklefishID.HasValue)
-                        yield return UpdateKey.GetString(ModSiteKey.Chucklefish, entry.ChucklefishID?.ToString());
+                        yield return UpdateKey.GetString(ModSiteKey.Chucklefish, entry.ChucklefishID.ToString());
                 }
             }
 
-            HashSet<UpdateKey> seen = new HashSet<UpdateKey>();
-            foreach (string rawKey in GetRaw())
-            {
-                if (string.IsNullOrWhiteSpace(rawKey))
-                    continue;
+            // get unique update keys
+            var subkeyRoots = new HashSet<UpdateKey>();
+            List<UpdateKey> updateKeys = GetRaw()
+                .Select(raw =>
+                {
+                    var key = UpdateKey.Parse(raw);
+                    if (key.Subkey != null)
+                        subkeyRoots.Add(new UpdateKey(key.Site, key.ID, null));
+                    return key;
+                })
+                .Distinct()
+                .ToList();
 
-                UpdateKey key = UpdateKey.Parse(rawKey);
-                if (seen.Add(key))
-                    yield return key;
-            }
+            // if the list has both an update key (like "Nexus:2400") and subkey (like "Nexus:2400@subkey") for the same page, the subkey takes priority
+            if (subkeyRoots.Any())
+                updateKeys.RemoveAll(subkeyRoots.Contains);
+
+            return updateKeys;
         }
     }
 }

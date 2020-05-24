@@ -17,6 +17,9 @@ namespace StardewModdingAPI.Toolkit.Framework.UpdateData
         /// <summary>The mod ID within the repository.</summary>
         public string ID { get; }
 
+        /// <summary>If specified, a substring in download names/descriptions to match.</summary>
+        public string Subkey { get; }
+
         /// <summary>Whether the update key seems to be valid.</summary>
         public bool LooksValid { get; }
 
@@ -28,11 +31,13 @@ namespace StardewModdingAPI.Toolkit.Framework.UpdateData
         /// <param name="rawText">The raw update key text.</param>
         /// <param name="site">The mod site containing the mod.</param>
         /// <param name="id">The mod ID within the site.</param>
-        public UpdateKey(string rawText, ModSiteKey site, string id)
+        /// <param name="subkey">If specified, a substring in download names/descriptions to match.</param>
+        public UpdateKey(string rawText, ModSiteKey site, string id, string subkey)
         {
             this.RawText = rawText?.Trim();
             this.Site = site;
             this.ID = id?.Trim();
+            this.Subkey = subkey?.Trim();
             this.LooksValid =
                 site != ModSiteKey.Unknown
                 && !string.IsNullOrWhiteSpace(id);
@@ -41,8 +46,9 @@ namespace StardewModdingAPI.Toolkit.Framework.UpdateData
         /// <summary>Construct an instance.</summary>
         /// <param name="site">The mod site containing the mod.</param>
         /// <param name="id">The mod ID within the site.</param>
-        public UpdateKey(ModSiteKey site, string id)
-            : this(UpdateKey.GetString(site, id), site, id) { }
+        /// <param name="subkey">If specified, a substring in download names/descriptions to match.</param>
+        public UpdateKey(ModSiteKey site, string id, string subkey)
+            : this(UpdateKey.GetString(site, id, subkey), site, id, subkey) { }
 
         /// <summary>Parse a raw update key.</summary>
         /// <param name="raw">The raw update key to parse.</param>
@@ -54,7 +60,7 @@ namespace StardewModdingAPI.Toolkit.Framework.UpdateData
             {
                 string[] parts = raw?.Trim().Split(':');
                 if (parts == null || parts.Length != 2)
-                    return new UpdateKey(raw, ModSiteKey.Unknown, null);
+                    return new UpdateKey(raw, ModSiteKey.Unknown, null, null);
 
                 rawSite = parts[0].Trim();
                 id = parts[1].Trim();
@@ -62,20 +68,32 @@ namespace StardewModdingAPI.Toolkit.Framework.UpdateData
             if (string.IsNullOrWhiteSpace(id))
                 id = null;
 
+            // extract subkey
+            string subkey = null;
+            if (id != null)
+            {
+                string[] parts = id.Split('@');
+                if (parts.Length == 2)
+                {
+                    id = parts[0].Trim();
+                    subkey = $"@{parts[1]}".Trim();
+                }
+            }
+
             // parse
             if (!Enum.TryParse(rawSite, true, out ModSiteKey site))
-                return new UpdateKey(raw, ModSiteKey.Unknown, id);
+                return new UpdateKey(raw, ModSiteKey.Unknown, id, subkey);
             if (id == null)
-                return new UpdateKey(raw, site, null);
+                return new UpdateKey(raw, site, null, subkey);
 
-            return new UpdateKey(raw, site, id);
+            return new UpdateKey(raw, site, id, subkey);
         }
 
         /// <summary>Get a string that represents the current object.</summary>
         public override string ToString()
         {
             return this.LooksValid
-                ? UpdateKey.GetString(this.Site, this.ID)
+                ? UpdateKey.GetString(this.Site, this.ID, this.Subkey)
                 : this.RawText;
         }
 
@@ -83,10 +101,18 @@ namespace StardewModdingAPI.Toolkit.Framework.UpdateData
         /// <param name="other">An object to compare with this object.</param>
         public bool Equals(UpdateKey other)
         {
+            if (!this.LooksValid)
+            {
+                return
+                    other?.LooksValid == false
+                    && this.RawText.Equals(other.RawText, StringComparison.OrdinalIgnoreCase);
+            }
+
             return
                 other != null
                 && this.Site == other.Site
-                && string.Equals(this.ID, other.ID, StringComparison.InvariantCultureIgnoreCase);
+                && string.Equals(this.ID, other.ID, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(this.Subkey, other.Subkey, StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>Determines whether the specified object is equal to the current object.</summary>
@@ -100,15 +126,16 @@ namespace StardewModdingAPI.Toolkit.Framework.UpdateData
         /// <returns>A hash code for the current object.</returns>
         public override int GetHashCode()
         {
-            return $"{this.Site}:{this.ID}".ToLower().GetHashCode();
+            return this.ToString().ToLower().GetHashCode();
         }
 
         /// <summary>Get the string representation of an update key.</summary>
         /// <param name="site">The mod site containing the mod.</param>
         /// <param name="id">The mod ID within the repository.</param>
-        public static string GetString(ModSiteKey site, string id)
+        /// <param name="subkey">If specified, a substring in download names/descriptions to match.</param>
+        public static string GetString(ModSiteKey site, string id, string subkey = null)
         {
-            return $"{site}:{id}".Trim();
+            return $"{site}:{id}{subkey}".Trim();
         }
     }
 }

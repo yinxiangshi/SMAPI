@@ -54,9 +54,10 @@ namespace StardewModdingAPI.Web.Framework
 
         /// <summary>Parse version info for the given mod page info.</summary>
         /// <param name="page">The mod page info.</param>
+        /// <param name="subkey">The optional update subkey to match in available files. (If no file names or descriptions contain the subkey, it'll be ignored.)</param>
         /// <param name="mapRemoteVersions">Maps remote versions to a semantic version for update checks.</param>
         /// <param name="allowNonStandardVersions">Whether to allow non-standard versions.</param>
-        public ModInfoModel GetPageVersions(IModPage page, bool allowNonStandardVersions, IDictionary<string, string> mapRemoteVersions)
+        public ModInfoModel GetPageVersions(IModPage page, string subkey, bool allowNonStandardVersions, IDictionary<string, string> mapRemoteVersions)
         {
             // get base model
             ModInfoModel model = new ModInfoModel()
@@ -66,7 +67,10 @@ namespace StardewModdingAPI.Web.Framework
                 return model;
 
             // fetch versions
-            if (!this.TryGetLatestVersions(page, allowNonStandardVersions, mapRemoteVersions, out ISemanticVersion mainVersion, out ISemanticVersion previewVersion))
+            bool hasVersions = this.TryGetLatestVersions(page, subkey, allowNonStandardVersions, mapRemoteVersions, out ISemanticVersion mainVersion, out ISemanticVersion previewVersion);
+            if (!hasVersions && subkey != null)
+                hasVersions = this.TryGetLatestVersions(page, null, allowNonStandardVersions, mapRemoteVersions, out mainVersion, out previewVersion);
+            if (!hasVersions)
                 return model.SetError(RemoteModStatus.InvalidData, $"The {page.Site} mod with ID '{page.Id}' has no valid versions.");
 
             // return info
@@ -96,11 +100,12 @@ namespace StardewModdingAPI.Web.Framework
         *********/
         /// <summary>Get the mod version numbers for the given mod.</summary>
         /// <param name="mod">The mod to check.</param>
+        /// <param name="subkey">The optional update subkey to match in available files. (If no file names or descriptions contain the subkey, it'll be ignored.)</param>
         /// <param name="allowNonStandardVersions">Whether to allow non-standard versions.</param>
         /// <param name="mapRemoteVersions">Maps remote versions to a semantic version for update checks.</param>
         /// <param name="main">The main mod version.</param>
         /// <param name="preview">The latest prerelease version, if newer than <paramref name="main"/>.</param>
-        private bool TryGetLatestVersions(IModPage mod, bool allowNonStandardVersions, IDictionary<string, string> mapRemoteVersions, out ISemanticVersion main, out ISemanticVersion preview)
+        private bool TryGetLatestVersions(IModPage mod, string subkey, bool allowNonStandardVersions, IDictionary<string, string> mapRemoteVersions, out ISemanticVersion main, out ISemanticVersion preview)
         {
             main = null;
             preview = null;
@@ -113,14 +118,23 @@ namespace StardewModdingAPI.Web.Framework
 
             if (mod != null)
             {
-                // get versions
-                main = ParseVersion(mod.Version);
-                foreach (string rawVersion in mod.Downloads.Select(p => p.Version))
+                // get mod version
+                if (subkey == null)
+                    main = ParseVersion(mod.Version);
+
+                // get file versions
+                foreach (IModDownload download in mod.Downloads)
                 {
-                    ISemanticVersion cur = ParseVersion(rawVersion);
+                    // check for subkey if specified
+                    if (subkey != null && download.Name?.Contains(subkey, StringComparison.OrdinalIgnoreCase) != true && download.Description?.Contains(subkey, StringComparison.OrdinalIgnoreCase) != true)
+                        continue;
+
+                    // parse version
+                    ISemanticVersion cur = ParseVersion(download.Version);
                     if (cur == null)
                         continue;
 
+                    // track highest versions
                     if (main == null || cur.IsNewerThan(main))
                         main = cur;
                     if (cur.IsPrerelease() && (preview == null || cur.IsNewerThan(preview)))
