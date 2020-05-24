@@ -7,8 +7,9 @@
   * MacOS files starting with `._` are now ignored and can no longer cause skipped mods.
 
 * For the web UI:
-  * Updated web framework to improve site performance and reliability.
   * Added GitHub licenses to mod compatibility list.
+  * Updated web framework to improve site performance and reliability.
+  * Updated ModDrop URLs.
   * Internal changes to improve performance and reliability.
 
 * For modders:
