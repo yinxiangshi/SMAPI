@@ -4,6 +4,7 @@
 ## Upcoming released
 * For players:
   * Mod warnings are now listed alphabetically.
+  * MacOS files starting with `._` are now ignored and can no longer cause skipped mods.
 
 * For the web UI:
   * Updated web framework to improve site performance and reliability.
