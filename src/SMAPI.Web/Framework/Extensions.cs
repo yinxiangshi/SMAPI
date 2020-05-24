@@ -13,6 +13,12 @@ namespace StardewModdingAPI.Web.Framework
     /// <summary>Provides extensions on ASP.NET Core types.</summary>
     public static class Extensions
     {
+        /*********
+        ** Public methods
+        *********/
+        /****
+        ** View helpers
+        ****/
         /// <summary>Get a URL with the absolute path for an action method. Unlike <see cref="IUrlHelper.Action"/>, only the specified <paramref name="values"/> are added to the URL without merging values from the current HTTP request.</summary>
         /// <param name="helper">The URL helper to extend.</param>
         /// <param name="action">The name of the action method.</param>

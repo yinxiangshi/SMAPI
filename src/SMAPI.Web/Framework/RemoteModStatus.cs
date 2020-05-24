@@ -1,4 +1,4 @@
-namespace StardewModdingAPI.Web.Framework.ModRepositories
+namespace StardewModdingAPI.Web.Framework
 {
     /// <summary>The mod availability status on a remote site.</summary>
     internal enum RemoteModStatus

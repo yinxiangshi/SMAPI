@@ -1,7 +1,7 @@
 namespace StardewModdingAPI.Toolkit.Framework.UpdateData
 {
-    /// <summary>A mod repository which SMAPI can check for updates.</summary>
-    public enum ModRepositoryKey
+    /// <summary>A mod site which SMAPI can check for updates.</summary>
+    public enum ModSiteKey
     {
         /// <summary>An unknown or invalid mod repository.</summary>
         Unknown,

@@ -11,8 +11,8 @@ namespace StardewModdingAPI.Toolkit.Framework.UpdateData
         /// <summary>The raw update key text.</summary>
         public string RawText { get; }
 
-        /// <summary>The mod repository containing the mod.</summary>
-        public ModRepositoryKey Repository { get; }
+        /// <summary>The mod site containing the mod.</summary>
+        public ModSiteKey Site { get; }
 
         /// <summary>The mod ID within the repository.</summary>
         public string ID { get; }
@@ -26,53 +26,56 @@ namespace StardewModdingAPI.Toolkit.Framework.UpdateData
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="rawText">The raw update key text.</param>
-        /// <param name="repository">The mod repository containing the mod.</param>
-        /// <param name="id">The mod ID within the repository.</param>
-        public UpdateKey(string rawText, ModRepositoryKey repository, string id)
+        /// <param name="site">The mod site containing the mod.</param>
+        /// <param name="id">The mod ID within the site.</param>
+        public UpdateKey(string rawText, ModSiteKey site, string id)
         {
-            this.RawText = rawText;
-            this.Repository = repository;
-            this.ID = id;
+            this.RawText = rawText?.Trim();
+            this.Site = site;
+            this.ID = id?.Trim();
             this.LooksValid =
-                repository != ModRepositoryKey.Unknown
+                site != ModSiteKey.Unknown
                 && !string.IsNullOrWhiteSpace(id);
         }
 
         /// <summary>Construct an instance.</summary>
-        /// <param name="repository">The mod repository containing the mod.</param>
-        /// <param name="id">The mod ID within the repository.</param>
-        public UpdateKey(ModRepositoryKey repository, string id)
-            : this($"{repository}:{id}", repository, id) { }
+        /// <param name="site">The mod site containing the mod.</param>
+        /// <param name="id">The mod ID within the site.</param>
+        public UpdateKey(ModSiteKey site, string id)
+            : this(UpdateKey.GetString(site, id), site, id) { }
 
         /// <summary>Parse a raw update key.</summary>
         /// <param name="raw">The raw update key to parse.</param>
         public static UpdateKey Parse(string raw)
         {
-            // split parts
-            string[] parts = raw?.Split(':');
-            if (parts == null || parts.Length != 2)
-                return new UpdateKey(raw, ModRepositoryKey.Unknown, null);
+            // extract site + ID
+            string rawSite;
+            string id;
+            {
+                string[] parts = raw?.Trim().Split(':');
+                if (parts == null || parts.Length != 2)
+                    return new UpdateKey(raw, ModSiteKey.Unknown, null);
 
-            // extract parts
-            string repositoryKey = parts[0].Trim();
-            string id = parts[1].Trim();
+                rawSite = parts[0].Trim();
+                id = parts[1].Trim();
+            }
             if (string.IsNullOrWhiteSpace(id))
                 id = null;
 
             // parse
-            if (!Enum.TryParse(repositoryKey, true, out ModRepositoryKey repository))
-                return new UpdateKey(raw, ModRepositoryKey.Unknown, id);
+            if (!Enum.TryParse(rawSite, true, out ModSiteKey site))
+                return new UpdateKey(raw, ModSiteKey.Unknown, id);
             if (id == null)
-                return new UpdateKey(raw, repository, null);
+                return new UpdateKey(raw, site, null);
 
-            return new UpdateKey(raw, repository, id);
+            return new UpdateKey(raw, site, id);
         }
 
         /// <summary>Get a string that represents the current object.</summary>
         public override string ToString()
         {
             return this.LooksValid
-                ? $"{this.Repository}:{this.ID}"
+                ? UpdateKey.GetString(this.Site, this.ID)
                 : this.RawText;
         }
 
@@ -82,7 +85,7 @@ namespace StardewModdingAPI.Toolkit.Framework.UpdateData
         {
             return
                 other != null
-                && this.Repository == other.Repository
+                && this.Site == other.Site
                 && string.Equals(this.ID, other.ID, StringComparison.InvariantCultureIgnoreCase);
         }
 
@@ -97,7 +100,15 @@ namespace StardewModdingAPI.Toolkit.Framework.UpdateData
         /// <returns>A hash code for the current object.</returns>
         public override int GetHashCode()
         {
-            return $"{this.Repository}:{this.ID}".ToLower().GetHashCode();
+            return $"{this.Site}:{this.ID}".ToLower().GetHashCode();
+        }
+
+        /// <summary>Get the string representation of an update key.</summary>
+        /// <param name="site">The mod site containing the mod.</param>
+        /// <param name="id">The mod ID within the repository.</param>
+        public static string GetString(ModSiteKey site, string id)
+        {
+            return $"{site}:{id}".Trim();
         }
     }
 }
