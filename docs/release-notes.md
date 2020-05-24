@@ -16,6 +16,7 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
   * Added [update subkeys](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Update_checks#Update_subkeys).
   * Added `Multiplayer.PeerConnected` event.
+  * Added ability to override update keys from the compatibility list.
   * Added `harmony_summary` console command which lists all current Harmony patches, optionally with a search filter.
   * Harmony mods which use the `[HarmonyPatch(type)]` attribute now work crossplatform. Previously SMAPI couldn't rewrite types in custom attributes for compatibility.
   * Improved mod rewriting for compatibility:

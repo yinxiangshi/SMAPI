@@ -280,56 +280,79 @@ namespace StardewModdingAPI.Web.Controllers
         /// <param name="entry">The mod's entry in the wiki list.</param>
         private IEnumerable<UpdateKey> GetUpdateKeys(string[] specifiedKeys, ModDataRecord record, WikiModEntry entry)
         {
-            // get every update key (including duplicates)
-            IEnumerable<string> GetRaw()
-            {
-                // specified update keys
-                if (specifiedKeys != null)
-                {
-                    foreach (string key in specifiedKeys)
-                    {
-                        if (!string.IsNullOrWhiteSpace(key))
-                            yield return key.Trim();
-                    }
-                }
-
-                // default update key
-                string defaultKey = record?.GetDefaultUpdateKey();
-                if (!string.IsNullOrWhiteSpace(defaultKey))
-                    yield return defaultKey;
-
-                // wiki metadata
-                if (entry != null)
-                {
-                    if (entry.NexusID.HasValue)
-                        yield return UpdateKey.GetString(ModSiteKey.Nexus, entry.NexusID.ToString());
-                    if (entry.ModDropID.HasValue)
-                        yield return UpdateKey.GetString(ModSiteKey.ModDrop, entry.ModDropID.ToString());
-                    if (entry.CurseForgeID.HasValue)
-                        yield return UpdateKey.GetString(ModSiteKey.CurseForge, entry.CurseForgeID.ToString());
-                    if (entry.ChucklefishID.HasValue)
-                        yield return UpdateKey.GetString(ModSiteKey.Chucklefish, entry.ChucklefishID.ToString());
-                }
-            }
-
             // get unique update keys
-            var subkeyRoots = new HashSet<UpdateKey>();
-            List<UpdateKey> updateKeys = GetRaw()
-                .Select(raw =>
-                {
-                    var key = UpdateKey.Parse(raw);
-                    if (key.Subkey != null)
-                        subkeyRoots.Add(new UpdateKey(key.Site, key.ID, null));
-                    return key;
-                })
+            List<UpdateKey> updateKeys = this.GetUnfilteredUpdateKeys(specifiedKeys, record, entry)
+                .Select(UpdateKey.Parse)
                 .Distinct()
                 .ToList();
 
+            // apply remove overrides from wiki
+            {
+                var removeKeys = new HashSet<UpdateKey>(
+                    from key in entry?.ChangeUpdateKeys ?? new string[0]
+                    where key.StartsWith('-')
+                    select UpdateKey.Parse(key.Substring(1))
+                );
+                if (removeKeys.Any())
+                    updateKeys.RemoveAll(removeKeys.Contains);
+            }
+
             // if the list has both an update key (like "Nexus:2400") and subkey (like "Nexus:2400@subkey") for the same page, the subkey takes priority
-            if (subkeyRoots.Any())
-                updateKeys.RemoveAll(subkeyRoots.Contains);
+            {
+                var removeKeys = new HashSet<UpdateKey>();
+                foreach (var key in updateKeys)
+                {
+                    if (key.Subkey != null)
+                        removeKeys.Add(new UpdateKey(key.Site, key.ID, null));
+                }
+                if (removeKeys.Any())
+                    updateKeys.RemoveAll(removeKeys.Contains);
+            }
 
             return updateKeys;
+        }
+
+        /// <summary>Get every available update key based on the available mod metadata, including duplicates and keys which should be filtered.</summary>
+        /// <param name="specifiedKeys">The specified update keys.</param>
+        /// <param name="record">The mod's entry in SMAPI's internal database.</param>
+        /// <param name="entry">The mod's entry in the wiki list.</param>
+        private IEnumerable<string> GetUnfilteredUpdateKeys(string[] specifiedKeys, ModDataRecord record, WikiModEntry entry)
+        {
+            // specified update keys
+            foreach (string key in specifiedKeys ?? Array.Empty<string>())
+            {
+                if (!string.IsNullOrWhiteSpace(key))
+                    yield return key.Trim();
+            }
+
+            // default update key
+            {
+                string defaultKey = record?.GetDefaultUpdateKey();
+                if (!string.IsNullOrWhiteSpace(defaultKey))
+                    yield return defaultKey;
+            }
+
+            // wiki metadata
+            if (entry != null)
+            {
+                if (entry.NexusID.HasValue)
+                    yield return UpdateKey.GetString(ModSiteKey.Nexus, entry.NexusID.ToString());
+                if (entry.ModDropID.HasValue)
+                    yield return UpdateKey.GetString(ModSiteKey.ModDrop, entry.ModDropID.ToString());
+                if (entry.CurseForgeID.HasValue)
+                    yield return UpdateKey.GetString(ModSiteKey.CurseForge, entry.CurseForgeID.ToString());
+                if (entry.ChucklefishID.HasValue)
+                    yield return UpdateKey.GetString(ModSiteKey.Chucklefish, entry.ChucklefishID.ToString());
+            }
+
+            // overrides from wiki
+            foreach (string key in entry?.ChangeUpdateKeys ?? Array.Empty<string>())
+            {
+                if (key.StartsWith('+'))
+                    yield return key.Substring(1);
+                else if (!key.StartsWith("-"))
+                    yield return key;
+            }
         }
     }
 }
