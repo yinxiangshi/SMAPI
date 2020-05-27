@@ -5,10 +5,11 @@
 * For players:
   * Mod warnings are now listed alphabetically.
   * MacOS files starting with `._` are now ignored and can no longer cause skipped mods.
+  * Simplified paranoid warning logs and reduced their log level.
+  * Fixed `BadImageFormatException` error detection.
 
 * For the web UI:
   * Added GitHub licenses to mod compatibility list.
-  * Updated web framework to improve site performance and reliability.
   * Updated ModDrop URLs.
   * Internal changes to improve performance and reliability.
 
@@ -22,7 +23,6 @@
   * Improved mod rewriting for compatibility:
     * Fixed rewriting types in custom attributes.
     * Fixed rewriting generic types to method references.
-  * Simplified paranoid warnings in the log and reduced their log level.
   * Fixed asset propagation for Gil's portraits.
   * Fixed `.pdb` files ignored for error stack traces for mods rewritten by SMAPI.
 
