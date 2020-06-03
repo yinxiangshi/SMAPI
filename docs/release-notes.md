@@ -6,7 +6,6 @@
   * Mod warnings are now listed alphabetically.
   * MacOS files starting with `._` are now ignored and can no longer cause skipped mods.
   * Simplified paranoid warning logs and reduced their log level.
-  * Reduced startup time when loading mod DLLs (thanks to ZaneYork!).
   * Fixed `BadImageFormatException` error detection.
   * Fixed black maps on Android for mods which use `.tmx` files.
 
