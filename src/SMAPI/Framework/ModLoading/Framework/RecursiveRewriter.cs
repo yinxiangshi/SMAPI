@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Collections.Generic;
@@ -59,6 +60,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
         {
             // rewrite each type in the assembly, tracking whether any type was rewritten (Item1)
             // and any exception that occurred during rewriting (Item2).
+            var cancellationToken = new CancellationTokenSource();
             Tuple<bool, Exception> result = this.Module
                 .GetTypes()
                 .Where(type => type.BaseType != null) // skip special types like <Module>
@@ -66,6 +68,9 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
                 .WithExecutionMode(ParallelExecutionMode.ForceParallelism)
                 .Select(type =>
                 {
+                    if (cancellationToken.IsCancellationRequested)
+                        return Tuple.Create(false, null as Exception);
+
                     bool anyRewritten = false;
                     try
                     {
@@ -118,6 +123,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
                     }
                     catch (Exception e)
                     {
+                        cancellationToken.Cancel();
                         return Tuple.Create(anyRewritten, e);
                     }
                 })
