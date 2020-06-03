@@ -25,6 +25,7 @@
   * Improved mod rewriting for compatibility:
     * Fixed rewriting types in custom attributes.
     * Fixed rewriting generic types to method references.
+  * Fixed `helper.Reflection` blocking access to game methods/properties that were extended by SMAPI.
   * Fixed asset propagation for Gil's portraits.
   * Fixed `.pdb` files ignored for error stack traces for mods rewritten by SMAPI.
 
