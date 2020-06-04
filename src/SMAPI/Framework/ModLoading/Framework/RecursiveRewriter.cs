@@ -127,7 +127,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
                         return Tuple.Create(anyRewritten, e);
                     }
                 })
-                .Aggregate((a, b) => Tuple.Create(a.Item1 || b.Item1, a.Item2 ?? b.Item2));
+                .Aggregate(Tuple.Create(false, null as Exception), (a, b) => Tuple.Create(a.Item1 || b.Item1, a.Item2 ?? b.Item2));
 
             bool rewritten = result.Item1;
             Exception exception = result.Item2;
