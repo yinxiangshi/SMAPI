@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using System.Threading;
+using System.Threading.Tasks;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Collections.Generic;
@@ -58,20 +58,15 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
         /// <returns>Returns whether the module was modified.</returns>
         public bool RewriteModule()
         {
-            // rewrite each type in the assembly, tracking whether any type was rewritten (Item1)
-            // and any exception that occurred during rewriting (Item2).
-            var cancellationToken = new CancellationTokenSource();
-            Tuple<bool, Exception> result = this.Module
-                .GetTypes()
-                .Where(type => type.BaseType != null) // skip special types like <Module>
-                .AsParallel()
-                .WithExecutionMode(ParallelExecutionMode.ForceParallelism)
-                .Select(type =>
+            bool anyRewritten = false;
+            Exception exception = null;
+            Parallel.ForEach(
+                source: this.Module.GetTypes().Where(type => type.BaseType != null), // skip special types like <Module>
+                body: type =>
                 {
-                    if (cancellationToken.IsCancellationRequested)
-                        return Tuple.Create(false, null as Exception);
+                    if (exception != null)
+                        return;
 
-                    bool anyRewritten = false;
                     try
                     {
                         anyRewritten |= this.RewriteCustomAttributes(type.CustomAttributes);
@@ -118,22 +113,17 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
                                 }
                             }
                         }
-
-                        return Tuple.Create(anyRewritten, null as Exception);
                     }
-                    catch (Exception e)
+                    catch (Exception ex)
                     {
-                        cancellationToken.Cancel();
-                        return Tuple.Create(anyRewritten, e);
+                        exception ??= ex;
                     }
-                })
-                .Aggregate(Tuple.Create(false, null as Exception), (a, b) => Tuple.Create(a.Item1 || b.Item1, a.Item2 ?? b.Item2));
+                }
+            );
 
-            bool rewritten = result.Item1;
-            Exception exception = result.Item2;
             return exception == null
-                 ? rewritten
-                 : throw exception;
+                 ? anyRewritten
+                 : throw new Exception($"Rewriting {this.Module.Name} failed.", exception);
         }
 
 
