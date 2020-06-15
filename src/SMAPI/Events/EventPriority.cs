@@ -4,12 +4,12 @@ namespace StardewModdingAPI.Events
     public enum EventPriority
     {
         /// <summary>Low priority.</summary>
-        Low = 3,
+        Low = -1000,
 
         /// <summary>The default priority.</summary>
-        Normal = 2,
+        Normal = 0,
 
         /// <summary>High priority.</summary>
-        High = 1
+        High = 1000
     }
 }
