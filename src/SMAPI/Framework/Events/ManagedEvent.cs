@@ -1,6 +1,9 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.PerformanceMonitoring;
 
 namespace StardewModdingAPI.Framework.Events
@@ -13,7 +16,7 @@ namespace StardewModdingAPI.Framework.Events
         ** Fields
         *********/
         /// <summary>The underlying event.</summary>
-        private event EventHandler<TEventArgs> Event;
+        private IList<EventHandler<TEventArgs>> EventHandlers = new List<EventHandler<TEventArgs>>();
 
         /// <summary>Writes messages to the log.</summary>
         private readonly IMonitor Monitor;
@@ -77,23 +80,23 @@ namespace StardewModdingAPI.Framework.Events
         /// <param name="mod">The mod which added the event handler.</param>
         public void Add(EventHandler<TEventArgs> handler, IModMetadata mod)
         {
-            this.Event += handler;
-            this.AddTracking(mod, handler, this.Event?.GetInvocationList().Cast<EventHandler<TEventArgs>>());
+            this.EventHandlers.Add(handler);
+            this.AddTracking(mod, handler, this.EventHandlers);
         }
 
         /// <summary>Remove an event handler.</summary>
         /// <param name="handler">The event handler.</param>
         public void Remove(EventHandler<TEventArgs> handler)
         {
-            this.Event -= handler;
-            this.RemoveTracking(handler, this.Event?.GetInvocationList().Cast<EventHandler<TEventArgs>>());
+            this.EventHandlers.Remove(handler);
+            this.RemoveTracking(handler, this.EventHandlers);
         }
 
         /// <summary>Raise the event and notify all handlers.</summary>
         /// <param name="args">The event arguments to pass.</param>
         public void Raise(TEventArgs args)
         {
-            if (this.Event == null)
+            if (this.EventHandlers.Count == 0)
                 return;
 
 
@@ -118,7 +121,7 @@ namespace StardewModdingAPI.Framework.Events
         /// <param name="match">A lambda which returns true if the event should be raised for the given mod.</param>
         public void RaiseForMods(TEventArgs args, Func<IModMetadata, bool> match)
         {
-            if (this.Event == null)
+            if (this.EventHandlers.Count == 0)
                 return;
 
             foreach (EventHandler<TEventArgs> handler in this.CachedInvocationList)
@@ -154,6 +157,30 @@ namespace StardewModdingAPI.Framework.Events
                 : mod.DisplayName;
         }
 
+        /// <summary>
+        /// Get the event priority of an event handler.
+        /// </summary>
+        /// <param name="handler">The event handler to get the priority of.</param>
+        /// <returns>The event priority of the event handler.</returns>
+        private EventPriority GetPriorityOfHandler(EventHandler<TEventArgs> handler)
+        {
+            CustomAttributeData attr = handler.Method.CustomAttributes.FirstOrDefault(a => a.AttributeType == typeof(EventPriorityAttribute));
+            if (attr == null)
+                return EventPriority.Normal;
+            return (EventPriority) attr.ConstructorArguments[0].Value;
+        }
+
+        /// <summary>
+        /// Sort an invocation list by its priority.
+        /// </summary>
+        /// <param name="invocationList">The invocation list.</param>
+        /// <returns>An array of the event handlers sorted by their priority.</returns>
+        private EventHandler<TEventArgs>[] GetCachedInvocationList(IEnumerable<EventHandler<TEventArgs>> invocationList )
+        {
+            EventHandler<TEventArgs>[] handlers = invocationList?.ToArray() ?? new EventHandler<TEventArgs>[0];
+            return handlers.OrderBy((h1) => this.GetPriorityOfHandler(h1)).ToArray();
+        }
+
         /// <summary>Track an event handler.</summary>
         /// <param name="mod">The mod which added the handler.</param>
         /// <param name="handler">The event handler.</param>
@@ -161,7 +188,7 @@ namespace StardewModdingAPI.Framework.Events
         protected void AddTracking(IModMetadata mod, EventHandler<TEventArgs> handler, IEnumerable<EventHandler<TEventArgs>> invocationList)
         {
             this.SourceMods[handler] = mod;
-            this.CachedInvocationList = invocationList?.ToArray() ?? new EventHandler<TEventArgs>[0];
+            this.CachedInvocationList = this.GetCachedInvocationList(invocationList);
         }
 
         /// <summary>Remove tracking for an event handler.</summary>
@@ -169,7 +196,7 @@ namespace StardewModdingAPI.Framework.Events
         /// <param name="invocationList">The updated event invocation list.</param>
         protected void RemoveTracking(EventHandler<TEventArgs> handler, IEnumerable<EventHandler<TEventArgs>> invocationList)
         {
-            this.CachedInvocationList = invocationList?.ToArray() ?? new EventHandler<TEventArgs>[0];
+            this.CachedInvocationList = this.GetCachedInvocationList(invocationList);
             if (!this.CachedInvocationList.Contains(handler)) // don't remove if there's still a reference to the removed handler (e.g. it was added twice and removed once)
                 this.SourceMods.Remove(handler);
         }
