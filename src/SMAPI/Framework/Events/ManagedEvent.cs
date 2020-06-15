@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -15,23 +14,23 @@ namespace StardewModdingAPI.Framework.Events
         /*********
         ** Fields
         *********/
-        /// <summary>The underlying event.</summary>
-        private IList<EventHandler<TEventArgs>> EventHandlers = new List<EventHandler<TEventArgs>>();
-
-        /// <summary>Writes messages to the log.</summary>
-        private readonly IMonitor Monitor;
+        /// <summary>The underlying event handlers.</summary>
+        private readonly List<ManagedEventHandler<TEventArgs>> EventHandlers = new List<ManagedEventHandler<TEventArgs>>();
 
         /// <summary>The mod registry with which to identify mods.</summary>
         protected readonly ModRegistry ModRegistry;
 
-        /// <summary>The display names for the mods which added each delegate.</summary>
-        private readonly IDictionary<EventHandler<TEventArgs>, IModMetadata> SourceMods = new Dictionary<EventHandler<TEventArgs>, IModMetadata>();
-
-        /// <summary>The cached invocation list.</summary>
-        private EventHandler<TEventArgs>[] CachedInvocationList;
-
         /// <summary>Tracks performance metrics.</summary>
         private readonly PerformanceMonitor PerformanceMonitor;
+
+        /// <summary>The total number of event handlers registered for this events, regardless of whether they're still registered.</summary>
+        private int RegistrationIndex;
+
+        /// <summary>Whether any registered event handlers have a custom priority value.</summary>
+        private bool HasCustomPriorities;
+
+        /// <summary>Whether event handlers should be sorted before the next invocation.</summary>
+        private bool NeedsSort;
 
 
         /*********
@@ -49,14 +48,12 @@ namespace StardewModdingAPI.Framework.Events
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="eventName">A human-readable name for the event.</param>
-        /// <param name="monitor">Writes messages to the log.</param>
         /// <param name="modRegistry">The mod registry with which to identify mods.</param>
         /// <param name="performanceMonitor">Tracks performance metrics.</param>
         /// <param name="isPerformanceCritical">Whether the event is typically called at least once per second.</param>
-        public ManagedEvent(string eventName, IMonitor monitor, ModRegistry modRegistry, PerformanceMonitor performanceMonitor, bool isPerformanceCritical = false)
+        public ManagedEvent(string eventName, ModRegistry modRegistry, PerformanceMonitor performanceMonitor, bool isPerformanceCritical = false)
         {
             this.EventName = eventName;
-            this.Monitor = monitor;
             this.ModRegistry = modRegistry;
             this.PerformanceMonitor = performanceMonitor;
             this.IsPerformanceCritical = isPerformanceCritical;
@@ -65,14 +62,7 @@ namespace StardewModdingAPI.Framework.Events
         /// <summary>Get whether anything is listening to the event.</summary>
         public bool HasListeners()
         {
-            return this.CachedInvocationList?.Length > 0;
-        }
-
-        /// <summary>Add an event handler.</summary>
-        /// <param name="handler">The event handler.</param>
-        public void Add(EventHandler<TEventArgs> handler)
-        {
-            this.Add(handler, this.ModRegistry.GetFromStack());
+            return this.EventHandlers.Count > 0;
         }
 
         /// <summary>Add an event handler.</summary>
@@ -80,33 +70,46 @@ namespace StardewModdingAPI.Framework.Events
         /// <param name="mod">The mod which added the event handler.</param>
         public void Add(EventHandler<TEventArgs> handler, IModMetadata mod)
         {
-            this.EventHandlers.Add(handler);
-            this.AddTracking(mod, handler, this.EventHandlers);
+            EventPriority priority = handler.Method.GetCustomAttribute<EventPriorityAttribute>()?.Priority ?? EventPriority.Normal;
+            var managedHandler = new ManagedEventHandler<TEventArgs>(handler, this.RegistrationIndex++, priority, mod);
+
+            this.EventHandlers.Add(managedHandler);
+            this.HasCustomPriorities = this.HasCustomPriorities || managedHandler.HasCustomPriority();
+
+            if (this.HasCustomPriorities)
+                this.NeedsSort = true;
         }
 
         /// <summary>Remove an event handler.</summary>
         /// <param name="handler">The event handler.</param>
         public void Remove(EventHandler<TEventArgs> handler)
         {
-            this.EventHandlers.Remove(handler);
-            this.RemoveTracking(handler, this.EventHandlers);
+            this.EventHandlers.RemoveAll(p => p.Handler == handler);
+            this.HasCustomPriorities = this.HasCustomPriorities && this.EventHandlers.Any(p => p.HasCustomPriority());
         }
 
         /// <summary>Raise the event and notify all handlers.</summary>
         /// <param name="args">The event arguments to pass.</param>
         public void Raise(TEventArgs args)
         {
+            // sort event handlers by priority
+            // (This is done here to avoid repeatedly sorting when handlers are added/removed.)
+            if (this.NeedsSort)
+            {
+                this.NeedsSort = false;
+                this.EventHandlers.Sort();
+            }
+
+            // raise
             if (this.EventHandlers.Count == 0)
                 return;
-
-
             this.PerformanceMonitor.Track(this.EventName, () =>
             {
-                foreach (EventHandler<TEventArgs> handler in this.CachedInvocationList)
+                foreach (ManagedEventHandler<TEventArgs> handler in this.EventHandlers)
                 {
                     try
                     {
-                        this.PerformanceMonitor.Track(this.EventName, this.GetModNameForPerformanceCounters(handler), () => handler.Invoke(null, args));
+                        this.PerformanceMonitor.Track(this.EventName, this.GetModNameForPerformanceCounters(handler), () => handler.Handler.Invoke(null, args));
                     }
                     catch (Exception ex)
                     {
@@ -124,13 +127,13 @@ namespace StardewModdingAPI.Framework.Events
             if (this.EventHandlers.Count == 0)
                 return;
 
-            foreach (EventHandler<TEventArgs> handler in this.CachedInvocationList)
+            foreach (ManagedEventHandler<TEventArgs> handler in this.EventHandlers)
             {
-                if (match(this.GetSourceMod(handler)))
+                if (match(handler.SourceMod))
                 {
                     try
                     {
-                        handler.Invoke(null, args);
+                        handler.Handler.Invoke(null, args);
                     }
                     catch (Exception ex)
                     {
@@ -146,80 +149,21 @@ namespace StardewModdingAPI.Framework.Events
         *********/
         /// <summary>Get the mod name for a given event handler to display in performance monitoring reports.</summary>
         /// <param name="handler">The event handler.</param>
-        private string GetModNameForPerformanceCounters(EventHandler<TEventArgs> handler)
+        private string GetModNameForPerformanceCounters(ManagedEventHandler<TEventArgs> handler)
         {
-            IModMetadata mod = this.GetSourceMod(handler);
-            if (mod == null)
-                return Constants.GamePerformanceCounterName;
+            IModMetadata mod = handler.SourceMod;
 
             return mod.HasManifest()
                 ? mod.Manifest.UniqueID
                 : mod.DisplayName;
         }
 
-        /// <summary>
-        /// Get the event priority of an event handler.
-        /// </summary>
-        /// <param name="handler">The event handler to get the priority of.</param>
-        /// <returns>The event priority of the event handler.</returns>
-        private EventPriority GetPriorityOfHandler(EventHandler<TEventArgs> handler)
-        {
-            CustomAttributeData attr = handler.Method.CustomAttributes.FirstOrDefault(a => a.AttributeType == typeof(EventPriorityAttribute));
-            if (attr == null)
-                return EventPriority.Normal;
-            return (EventPriority) attr.ConstructorArguments[0].Value;
-        }
-
-        /// <summary>
-        /// Sort an invocation list by its priority.
-        /// </summary>
-        /// <param name="invocationList">The invocation list.</param>
-        /// <returns>An array of the event handlers sorted by their priority.</returns>
-        private EventHandler<TEventArgs>[] GetCachedInvocationList(IEnumerable<EventHandler<TEventArgs>> invocationList )
-        {
-            EventHandler<TEventArgs>[] handlers = invocationList?.ToArray() ?? new EventHandler<TEventArgs>[0];
-            return handlers.OrderBy((h1) => this.GetPriorityOfHandler(h1)).ToArray();
-        }
-
-        /// <summary>Track an event handler.</summary>
-        /// <param name="mod">The mod which added the handler.</param>
-        /// <param name="handler">The event handler.</param>
-        /// <param name="invocationList">The updated event invocation list.</param>
-        protected void AddTracking(IModMetadata mod, EventHandler<TEventArgs> handler, IEnumerable<EventHandler<TEventArgs>> invocationList)
-        {
-            this.SourceMods[handler] = mod;
-            this.CachedInvocationList = this.GetCachedInvocationList(invocationList);
-        }
-
-        /// <summary>Remove tracking for an event handler.</summary>
-        /// <param name="handler">The event handler.</param>
-        /// <param name="invocationList">The updated event invocation list.</param>
-        protected void RemoveTracking(EventHandler<TEventArgs> handler, IEnumerable<EventHandler<TEventArgs>> invocationList)
-        {
-            this.CachedInvocationList = this.GetCachedInvocationList(invocationList);
-            if (!this.CachedInvocationList.Contains(handler)) // don't remove if there's still a reference to the removed handler (e.g. it was added twice and removed once)
-                this.SourceMods.Remove(handler);
-        }
-
-        /// <summary>Get the mod which registered the given event handler, if available.</summary>
-        /// <param name="handler">The event handler.</param>
-        protected IModMetadata GetSourceMod(EventHandler<TEventArgs> handler)
-        {
-            return this.SourceMods.TryGetValue(handler, out IModMetadata mod)
-                ? mod
-                : null;
-        }
-
         /// <summary>Log an exception from an event handler.</summary>
         /// <param name="handler">The event handler instance.</param>
         /// <param name="ex">The exception that was raised.</param>
-        protected void LogError(EventHandler<TEventArgs> handler, Exception ex)
+        protected void LogError(ManagedEventHandler<TEventArgs> handler, Exception ex)
         {
-            IModMetadata mod = this.GetSourceMod(handler);
-            if (mod != null)
-                mod.LogAsMod($"This mod failed in the {this.EventName} event. Technical details: \n{ex.GetLogSummary()}", LogLevel.Error);
-            else
-                this.Monitor.Log($"A mod failed in the {this.EventName} event. Technical details: \n{ex.GetLogSummary()}", LogLevel.Error);
+            handler.SourceMod.LogAsMod($"This mod failed in the {this.EventName} event. Technical details: \n{ex.GetLogSummary()}", LogLevel.Error);
         }
     }
 }

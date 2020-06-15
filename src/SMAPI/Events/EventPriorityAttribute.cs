@@ -1,27 +1,24 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StardewModdingAPI.Events
 {
-    /// <summary>
-    /// An attribute for controlling event priority of an event handler.
-    /// </summary>
+    /// <summary>An attribute which specifies the priority for an event handler.</summary>
     [AttributeUsage(AttributeTargets.Method)]
-    public class EventPriorityAttribute : System.Attribute
+    public class EventPriorityAttribute : Attribute
     {
-        /// <summary>
-        /// The priority for the method marked by this attribute.
-        /// </summary>
-        public EventPriority Priority { get; }
+        /*********
+        ** Accessors
+        *********/
+        /// <summary>The event handler priority, relative to other handlers across all mods registered for this event.</summary>
+        internal EventPriority Priority { get; }
 
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        /// <param name="priority">The priority for method marked by this attribute.</param>
-        public EventPriorityAttribute( EventPriority priority )
+
+        /*********
+        ** Public methods
+        *********/
+        /// <summary>Construct an instance.</summary>
+        /// <param name="priority">The event handler priority, relative to other handlers across all mods registered for this event. Higher-priority handlers are notified before lower-priority handlers.</param>
+        public EventPriorityAttribute(EventPriority priority)
         {
             this.Priority = priority;
         }
