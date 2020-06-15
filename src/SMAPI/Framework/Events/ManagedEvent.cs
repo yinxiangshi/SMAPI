@@ -90,8 +90,13 @@ namespace StardewModdingAPI.Framework.Events
 
         /// <summary>Raise the event and notify all handlers.</summary>
         /// <param name="args">The event arguments to pass.</param>
-        public void Raise(TEventArgs args)
+        /// <param name="match">A lambda which returns true if the event should be raised for the given mod.</param>
+        public void Raise(TEventArgs args, Func<IModMetadata, bool> match = null)
         {
+            // skip if no handlers
+            if (this.EventHandlers.Count == 0)
+                return;
+
             // sort event handlers by priority
             // (This is done here to avoid repeatedly sorting when handlers are added/removed.)
             if (this.NeedsSort)
@@ -100,13 +105,14 @@ namespace StardewModdingAPI.Framework.Events
                 this.EventHandlers.Sort();
             }
 
-            // raise
-            if (this.EventHandlers.Count == 0)
-                return;
+            // raise event
             this.PerformanceMonitor.Track(this.EventName, () =>
             {
                 foreach (ManagedEventHandler<TEventArgs> handler in this.EventHandlers)
                 {
+                    if (match != null && !match(handler.SourceMod))
+                        continue;
+
                     try
                     {
                         this.PerformanceMonitor.Track(this.EventName, this.GetModNameForPerformanceCounters(handler), () => handler.Handler.Invoke(null, args));
@@ -117,30 +123,6 @@ namespace StardewModdingAPI.Framework.Events
                     }
                 }
             });
-        }
-
-        /// <summary>Raise the event and notify all handlers.</summary>
-        /// <param name="args">The event arguments to pass.</param>
-        /// <param name="match">A lambda which returns true if the event should be raised for the given mod.</param>
-        public void RaiseForMods(TEventArgs args, Func<IModMetadata, bool> match)
-        {
-            if (this.EventHandlers.Count == 0)
-                return;
-
-            foreach (ManagedEventHandler<TEventArgs> handler in this.EventHandlers)
-            {
-                if (match(handler.SourceMod))
-                {
-                    try
-                    {
-                        handler.Handler.Invoke(null, args);
-                    }
-                    catch (Exception ex)
-                    {
-                        this.LogError(handler, ex);
-                    }
-                }
-            }
         }
 
 
