@@ -994,7 +994,7 @@ namespace StardewModdingAPI.Framework
                 }
                 catch (SAssemblyLoadFailedException ex)
                 {
-                    errorReasonPhrase = $"it DLL couldn't be loaded: {ex.Message}";
+                    errorReasonPhrase = $"its DLL couldn't be loaded: {ex.Message}";
                     return false;
                 }
                 catch (Exception ex)
