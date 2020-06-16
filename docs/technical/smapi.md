@@ -58,6 +58,7 @@ SMAPI uses a small number of conditional compilation constants, which you can se
 flag | purpose
 ---- | -------
 `SMAPI_FOR_WINDOWS` | Whether SMAPI is being compiled on Windows for players on Windows. Set automatically in `crossplatform.targets`.
+`HARMONY_2` | Whether to enable experimental Harmony 2.0 support. Existing Harmony 1._x_ mods will be rewritten automatically for compatibility.
 
 ## For SMAPI developers
 ### Compiling from source
