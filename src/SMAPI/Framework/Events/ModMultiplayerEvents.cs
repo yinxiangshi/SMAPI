@@ -19,7 +19,7 @@ namespace StardewModdingAPI.Framework.Events
         /// <summary>Raised after a peer connection is approved by the game.</summary>
         public event EventHandler<PeerConnectedEventArgs> PeerConnected
         {
-            add => this.EventManager.PeerConnected.Add(value);
+            add => this.EventManager.PeerConnected.Add(value, this.Mod);
             remove => this.EventManager.PeerConnected.Remove(value);
         }
 

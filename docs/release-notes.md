@@ -18,6 +18,7 @@
 
 * For modders:
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
+  * Added [event priorities](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Events#Custom_priority) (thanks to spacechase0!).
   * Added [update subkeys](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Update_checks#Update_subkeys).
   * Added `Multiplayer.PeerConnected` event.
   * Added ability to override update keys from the compatibility list.
@@ -29,6 +30,7 @@
   * Fixed `helper.Reflection` blocking access to game methods/properties that were extended by SMAPI.
   * Fixed asset propagation for Gil's portraits.
   * Fixed `.pdb` files ignored for error stack traces for mods rewritten by SMAPI.
+  * Fixed `ModMessageReceived` event handlers not tracked for performance monitoring.
 
 * For SMAPI developers:
   * Eliminated MongoDB storage in the web services, which complicated the code unnecessarily. The app still uses an abstract interface for storage, so we can wrap a distributed cache in the future if needed.
