@@ -14,23 +14,23 @@ namespace StardewModdingAPI.Framework.Events
         /*********
         ** Fields
         *********/
-        /// <summary>The underlying event handlers.</summary>
-        private readonly List<ManagedEventHandler<TEventArgs>> EventHandlers = new List<ManagedEventHandler<TEventArgs>>();
-
         /// <summary>The mod registry with which to identify mods.</summary>
         protected readonly ModRegistry ModRegistry;
 
         /// <summary>Tracks performance metrics.</summary>
         private readonly PerformanceMonitor PerformanceMonitor;
 
+        /// <summary>The underlying event handlers.</summary>
+        private readonly List<ManagedEventHandler<TEventArgs>> Handlers = new List<ManagedEventHandler<TEventArgs>>();
+
+        /// <summary>A cached snapshot of <see cref="Handlers"/>, or <c>null</c> to rebuild it next raise.</summary>
+        private ManagedEventHandler<TEventArgs>[] CachedHandlers = new ManagedEventHandler<TEventArgs>[0];
+
         /// <summary>The total number of event handlers registered for this events, regardless of whether they're still registered.</summary>
         private int RegistrationIndex;
 
-        /// <summary>Whether any registered event handlers have a custom priority value.</summary>
-        private bool HasCustomPriorities;
-
-        /// <summary>Whether event handlers should be sorted before the next invocation.</summary>
-        private bool NeedsSort;
+        /// <summary>Whether new handlers were added since the last raise.</summary>
+        private bool HasNewHandlers;
 
 
         /*********
@@ -62,7 +62,7 @@ namespace StardewModdingAPI.Framework.Events
         /// <summary>Get whether anything is listening to the event.</summary>
         public bool HasListeners()
         {
-            return this.EventHandlers.Count > 0;
+            return this.Handlers.Count > 0;
         }
 
         /// <summary>Add an event handler.</summary>
@@ -73,19 +73,25 @@ namespace StardewModdingAPI.Framework.Events
             EventPriority priority = handler.Method.GetCustomAttribute<EventPriorityAttribute>()?.Priority ?? EventPriority.Normal;
             var managedHandler = new ManagedEventHandler<TEventArgs>(handler, this.RegistrationIndex++, priority, mod);
 
-            this.EventHandlers.Add(managedHandler);
-            this.HasCustomPriorities = this.HasCustomPriorities || managedHandler.HasCustomPriority();
-
-            if (this.HasCustomPriorities)
-                this.NeedsSort = true;
+            this.Handlers.Add(managedHandler);
+            this.CachedHandlers = null;
+            this.HasNewHandlers = true;
         }
 
         /// <summary>Remove an event handler.</summary>
         /// <param name="handler">The event handler.</param>
         public void Remove(EventHandler<TEventArgs> handler)
         {
-            this.EventHandlers.RemoveAll(p => p.Handler == handler);
-            this.HasCustomPriorities = this.HasCustomPriorities && this.EventHandlers.Any(p => p.HasCustomPriority());
+            // match C# events: if a handler is listed multiple times, remove the last one added
+            for (int i = this.Handlers.Count - 1; i >= 0; i--)
+            {
+                if (this.Handlers[i].Handler != handler)
+                    continue;
+
+                this.Handlers.RemoveAt(i);
+                this.CachedHandlers = null;
+                break;
+            }
         }
 
         /// <summary>Raise the event and notify all handlers.</summary>
@@ -94,21 +100,25 @@ namespace StardewModdingAPI.Framework.Events
         public void Raise(TEventArgs args, Func<IModMetadata, bool> match = null)
         {
             // skip if no handlers
-            if (this.EventHandlers.Count == 0)
+            if (this.Handlers.Count == 0)
                 return;
 
-            // sort event handlers by priority
-            // (This is done here to avoid repeatedly sorting when handlers are added/removed.)
-            if (this.NeedsSort)
+            // update cached data
+            // (This is debounced here to avoid repeatedly sorting when handlers are added/removed,
+            // and keeping a separate cached list allows changes during enumeration.)
+            if (this.CachedHandlers == null)
             {
-                this.NeedsSort = false;
-                this.EventHandlers.Sort();
+                if (this.HasNewHandlers && this.Handlers.Any(p => p.Priority != EventPriority.Normal))
+                    this.Handlers.Sort();
+
+                this.CachedHandlers = this.Handlers.ToArray();
+                this.HasNewHandlers = false;
             }
 
             // raise event
             this.PerformanceMonitor.Track(this.EventName, () =>
             {
-                foreach (ManagedEventHandler<TEventArgs> handler in this.EventHandlers)
+                foreach (ManagedEventHandler<TEventArgs> handler in this.CachedHandlers)
                 {
                     if (match != null && !match(handler.SourceMod))
                         continue;
