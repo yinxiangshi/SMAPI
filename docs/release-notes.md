@@ -22,6 +22,7 @@
   * Added GitHub licenses to mod compatibility list.
   * Improved JSON validator:
     * added SMAPI `i18n` schema;
+    * editing an uploaded file now remembers the selected schema;
     * changed default schema to plain JSON.
   * Updated ModDrop URLs.
   * Internal changes to improve performance and reliability.
