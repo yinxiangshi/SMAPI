@@ -6,6 +6,7 @@ using System.Reflection;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using StardewModdingAPI.Framework.Exceptions;
+using StardewModdingAPI.Framework.ModLoading.Framework;
 using StardewModdingAPI.Metadata;
 using StardewModdingAPI.Toolkit.Framework.ModData;
 using StardewModdingAPI.Toolkit.Utilities;
@@ -49,6 +50,8 @@ namespace StardewModdingAPI.Framework.ModLoading
             this.Monitor = monitor;
             this.ParanoidMode = paranoidMode;
             this.AssemblyMap = this.TrackForDisposal(Constants.GetAssemblyMap(targetPlatform));
+
+            // init resolver
             this.AssemblyDefinitionResolver = this.TrackForDisposal(new AssemblyDefinitionResolver());
             this.AssemblyDefinitionResolver.AddSearchDirectory(Constants.ExecutionPath);
             this.AssemblyDefinitionResolver.AddSearchDirectory(Constants.InternalFilesPath);
@@ -73,9 +76,10 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="mod">The mod for which the assembly is being loaded.</param>
         /// <param name="assemblyPath">The assembly file path.</param>
         /// <param name="assumeCompatible">Assume the mod is compatible, even if incompatible code is detected.</param>
+        /// <param name="rewriteInParallel">Whether to enable experimental parallel rewriting.</param>
         /// <returns>Returns the rewrite metadata for the preprocessed assembly.</returns>
         /// <exception cref="IncompatibleInstructionException">An incompatible CIL instruction was found while rewriting the assembly.</exception>
-        public Assembly Load(IModMetadata mod, string assemblyPath, bool assumeCompatible)
+        public Assembly Load(IModMetadata mod, string assemblyPath, bool assumeCompatible, bool rewriteInParallel)
         {
             // get referenced local assemblies
             AssemblyParseResult[] assemblies;
@@ -105,7 +109,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                     continue;
 
                 // rewrite assembly
-                bool changed = this.RewriteAssembly(mod, assembly.Definition, loggedMessages, logPrefix: "      ");
+                bool changed = this.RewriteAssembly(mod, assembly.Definition, loggedMessages, logPrefix: "      ", rewriteInParallel);
 
                 // detect broken assembly reference
                 foreach (AssemblyNameReference reference in assembly.Definition.MainModule.AssemblyReferences)
@@ -124,13 +128,22 @@ namespace StardewModdingAPI.Framework.ModLoading
                 if (changed)
                 {
                     if (!oneAssembly)
-                        this.Monitor.Log($"      Loading {assembly.File.Name} (rewritten in memory)...", LogLevel.Trace);
-                    using (MemoryStream outStream = new MemoryStream())
+                        this.Monitor.Log($"      Loading {assembly.File.Name} (rewritten)...", LogLevel.Trace);
+
+                    // load PDB file if present
+                    byte[] symbols;
                     {
-                        assembly.Definition.Write(outStream);
-                        byte[] bytes = outStream.ToArray();
-                        lastAssembly = Assembly.Load(bytes);
+                        string symbolsPath = Path.Combine(Path.GetDirectoryName(assemblyPath), Path.GetFileNameWithoutExtension(assemblyPath)) + ".pdb";
+                        symbols = File.Exists(symbolsPath)
+                            ? File.ReadAllBytes(symbolsPath)
+                            : null;
                     }
+
+                    // load assembly
+                    using MemoryStream outStream = new MemoryStream();
+                    assembly.Definition.Write(outStream);
+                    byte[] bytes = outStream.ToArray();
+                    lastAssembly = Assembly.Load(bytes, symbols);
                 }
                 else
                 {
@@ -250,9 +263,10 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="assembly">The assembly to rewrite.</param>
         /// <param name="loggedMessages">The messages that have already been logged for this mod.</param>
         /// <param name="logPrefix">A string to prefix to log messages.</param>
+        /// <param name="rewriteInParallel">Whether to enable experimental parallel rewriting.</param>
         /// <returns>Returns whether the assembly was modified.</returns>
         /// <exception cref="IncompatibleInstructionException">An incompatible CIL instruction was found while rewriting the assembly.</exception>
-        private bool RewriteAssembly(IModMetadata mod, AssemblyDefinition assembly, HashSet<string> loggedMessages, string logPrefix)
+        private bool RewriteAssembly(IModMetadata mod, AssemblyDefinition assembly, HashSet<string> loggedMessages, string logPrefix, bool rewriteInParallel)
         {
             ModuleDefinition module = assembly.MainModule;
             string filename = $"{assembly.Name.Name}.dll";
@@ -282,35 +296,32 @@ namespace StardewModdingAPI.Framework.ModLoading
                     this.ChangeTypeScope(type);
             }
 
-            // find (and optionally rewrite) incompatible instructions
-            bool anyRewritten = false;
-            IInstructionHandler[] handlers = new InstructionMetadata().GetHandlers(this.ParanoidMode).ToArray();
-            foreach (MethodDefinition method in this.GetMethods(module))
-            {
-                // check method definition
-                foreach (IInstructionHandler handler in handlers)
+            // find or rewrite code
+            IInstructionHandler[] handlers = new InstructionMetadata().GetHandlers(this.ParanoidMode, platformChanged).ToArray();
+            RecursiveRewriter rewriter = new RecursiveRewriter(
+                module: module,
+                rewriteType: (type, replaceWith) =>
                 {
-                    InstructionHandleResult result = handler.Handle(module, method, this.AssemblyMap, platformChanged);
-                    this.ProcessInstructionHandleResult(mod, handler, result, loggedMessages, logPrefix, filename);
-                    if (result == InstructionHandleResult.Rewritten)
-                        anyRewritten = true;
-                }
-
-                // check CIL instructions
-                ILProcessor cil = method.Body.GetILProcessor();
-                var instructions = cil.Body.Instructions;
-                // ReSharper disable once ForCanBeConvertedToForeach -- deliberate access by index so each handler sees replacements from previous handlers
-                for (int offset = 0; offset < instructions.Count; offset++)
-                {
+                    bool rewritten = false;
                     foreach (IInstructionHandler handler in handlers)
-                    {
-                        Instruction instruction = instructions[offset];
-                        InstructionHandleResult result = handler.Handle(module, cil, instruction, this.AssemblyMap, platformChanged);
-                        this.ProcessInstructionHandleResult(mod, handler, result, loggedMessages, logPrefix, filename);
-                        if (result == InstructionHandleResult.Rewritten)
-                            anyRewritten = true;
-                    }
+                        rewritten |= handler.Handle(module, type, replaceWith);
+                    return rewritten;
+                },
+                rewriteInstruction: (ref Instruction instruction, ILProcessor cil, Action<Instruction> replaceWith) =>
+                {
+                    bool rewritten = false;
+                    foreach (IInstructionHandler handler in handlers)
+                        rewritten |= handler.Handle(module, cil, instruction, replaceWith);
+                    return rewritten;
                 }
+            );
+            bool anyRewritten = rewriter.RewriteModule(rewriteInParallel);
+
+            // handle rewrite flags
+            foreach (IInstructionHandler handler in handlers)
+            {
+                foreach (var flag in handler.Flags)
+                    this.ProcessInstructionHandleResult(mod, handler, flag, loggedMessages, logPrefix, filename);
             }
 
             return platformChanged || anyRewritten;
@@ -325,49 +336,52 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="filename">The assembly filename for log messages.</param>
         private void ProcessInstructionHandleResult(IModMetadata mod, IInstructionHandler handler, InstructionHandleResult result, HashSet<string> loggedMessages, string logPrefix, string filename)
         {
+            // get message template
+            // ($phrase is replaced with the noun phrase or messages)
+            string template = null;
             switch (result)
             {
                 case InstructionHandleResult.Rewritten:
-                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Rewrote {filename} to fix {handler.NounPhrase}...");
+                    template = $"{logPrefix}Rewrote {filename} to fix $phrase...";
                     break;
 
                 case InstructionHandleResult.NotCompatible:
-                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Broken code in {filename}: {handler.NounPhrase}.");
+                    template = $"{logPrefix}Broken code in {filename}: $phrase.";
                     mod.SetWarning(ModWarning.BrokenCodeLoaded);
                     break;
 
                 case InstructionHandleResult.DetectedGamePatch:
-                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Detected game patcher ({handler.NounPhrase}) in assembly {filename}.");
+                    template = $"{logPrefix}Detected game patcher ($phrase) in assembly {filename}.";
                     mod.SetWarning(ModWarning.PatchesGame);
                     break;
 
                 case InstructionHandleResult.DetectedSaveSerializer:
-                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Detected possible save serializer change ({handler.NounPhrase}) in assembly {filename}.");
+                    template = $"{logPrefix}Detected possible save serializer change ($phrase) in assembly {filename}.";
                     mod.SetWarning(ModWarning.ChangesSaveSerializer);
                     break;
 
                 case InstructionHandleResult.DetectedUnvalidatedUpdateTick:
-                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Detected reference to {handler.NounPhrase} in assembly {filename}.");
+                    template = $"{logPrefix}Detected reference to $phrase in assembly {filename}.";
                     mod.SetWarning(ModWarning.UsesUnvalidatedUpdateTick);
                     break;
 
                 case InstructionHandleResult.DetectedDynamic:
-                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Detected 'dynamic' keyword ({handler.NounPhrase}) in assembly {filename}.");
+                    template = $"{logPrefix}Detected 'dynamic' keyword ($phrase) in assembly {filename}.";
                     mod.SetWarning(ModWarning.UsesDynamic);
                     break;
 
                 case InstructionHandleResult.DetectedConsoleAccess:
-                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Detected direct console access ({handler.NounPhrase}) in assembly {filename}.");
+                    template = $"{logPrefix}Detected direct console access ($phrase) in assembly {filename}.";
                     mod.SetWarning(ModWarning.AccessesConsole);
                     break;
 
                 case InstructionHandleResult.DetectedFilesystemAccess:
-                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Detected filesystem access ({handler.NounPhrase}) in assembly {filename}.");
+                    template = $"{logPrefix}Detected filesystem access ($phrase) in assembly {filename}.";
                     mod.SetWarning(ModWarning.AccessesFilesystem);
                     break;
 
                 case InstructionHandleResult.DetectedShellAccess:
-                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Detected shell or process access ({handler.NounPhrase}) in assembly {filename}.");
+                    template = $"{logPrefix}Detected shell or process access ($phrase) in assembly {filename}.";
                     mod.SetWarning(ModWarning.AccessesShell);
                     break;
 
@@ -377,6 +391,17 @@ namespace StardewModdingAPI.Framework.ModLoading
                 default:
                     throw new NotSupportedException($"Unrecognized instruction handler result '{result}'.");
             }
+            if (template == null)
+                return;
+
+            // format messages
+            if (handler.Phrases.Any())
+            {
+                foreach (string message in handler.Phrases)
+                    this.Monitor.LogOnce(template.Replace("$phrase", message));
+            }
+            else
+                this.Monitor.LogOnce(template.Replace("$phrase", handler.DefaultPhrase ?? handler.GetType().Name));
         }
 
         /// <summary>Get the correct reference to use for compatibility with the current platform.</summary>
@@ -394,19 +419,6 @@ namespace StardewModdingAPI.Framework.ModLoading
             // replace scope
             AssemblyNameReference assemblyRef = this.AssemblyMap.TargetReferences[assembly];
             type.Scope = assemblyRef;
-        }
-
-        /// <summary>Get all methods in a module.</summary>
-        /// <param name="module">The module to search.</param>
-        private IEnumerable<MethodDefinition> GetMethods(ModuleDefinition module)
-        {
-            return (
-                from type in module.GetTypes()
-                where type.HasMethods
-                from method in type.Methods
-                where method.HasBody
-                select method
-            );
         }
     }
 }

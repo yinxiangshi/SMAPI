@@ -1,11 +1,16 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
-using Harmony;
 using StardewModdingAPI.Framework.Patching;
 using StardewValley;
 using StardewValley.Menus;
 using SObject = StardewValley.Object;
+#if HARMONY_2
+using System;
+using HarmonyLib;
+#else
+using System.Reflection;
+using Harmony;
+#endif
 
 namespace StardewModdingAPI.Patches
 {
@@ -27,7 +32,11 @@ namespace StardewModdingAPI.Patches
         *********/
         /// <summary>Apply the Harmony patch.</summary>
         /// <param name="harmony">The Harmony instance.</param>
+#if HARMONY_2
+        public void Apply(Harmony harmony)
+#else
         public void Apply(HarmonyInstance harmony)
+#endif
         {
             // object.getDescription
             harmony.Patch(
@@ -38,7 +47,11 @@ namespace StardewModdingAPI.Patches
             // object.getDisplayName
             harmony.Patch(
                 original: AccessTools.Method(typeof(SObject), "loadDisplayName"),
+#if HARMONY_2
+                finalizer: new HarmonyMethod(this.GetType(), nameof(ObjectErrorPatch.Finalize_Object_loadDisplayName))
+#else
                 prefix: new HarmonyMethod(this.GetType(), nameof(ObjectErrorPatch.Before_Object_loadDisplayName))
+#endif
             );
 
             // IClickableMenu.drawToolTip
@@ -68,6 +81,22 @@ namespace StardewModdingAPI.Patches
             return true;
         }
 
+#if HARMONY_2
+        /// <summary>The method to call after <see cref="StardewValley.Object.loadDisplayName"/>.</summary>
+        /// <param name="__result">The patched method's return value.</param>
+        /// <param name="__exception">The exception thrown by the wrapped method, if any.</param>
+        /// <returns>Returns the exception to throw, if any.</returns>
+        private static Exception Finalize_Object_loadDisplayName(ref string __result, Exception __exception)
+        {
+            if (__exception is KeyNotFoundException)
+            {
+                __result = "???";
+                return null;
+            }
+
+            return __exception;
+        }
+#else
         /// <summary>The method to call instead of <see cref="StardewValley.Object.loadDisplayName"/>.</summary>
         /// <param name="__instance">The instance being patched.</param>
         /// <param name="__result">The patched method's return value.</param>
@@ -98,12 +127,12 @@ namespace StardewModdingAPI.Patches
                 PatchHelper.StopIntercept(key);
             }
         }
+#endif
 
         /// <summary>The method to call instead of <see cref="IClickableMenu.drawToolTip"/>.</summary>
-        /// <param name="__instance">The instance being patched.</param>
         /// <param name="hoveredItem">The item for which to draw a tooltip.</param>
         /// <returns>Returns whether to execute the original method.</returns>
-        private static bool Before_IClickableMenu_DrawTooltip(IClickableMenu __instance, Item hoveredItem)
+        private static bool Before_IClickableMenu_DrawTooltip(Item hoveredItem)
         {
             // invalid edible item cause crash when drawing tooltips
             if (hoveredItem is SObject obj && obj.Edibility != -300 && !Game1.objectInformation.ContainsKey(obj.ParentSheetIndex))

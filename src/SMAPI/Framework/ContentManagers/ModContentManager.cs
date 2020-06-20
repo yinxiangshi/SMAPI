@@ -246,10 +246,11 @@ namespace StardewModdingAPI.Framework.ContentManagers
             texture.GetData(data);
             for (int i = 0; i < data.Length; i++)
             {
-                if (data[i].A == byte.MinValue || data[i].A == byte.MaxValue)
+                var pixel = data[i];
+                if (pixel.A == byte.MinValue || pixel.A == byte.MaxValue)
                     continue; // no need to change fully transparent/opaque pixels
 
-                data[i] = Color.FromNonPremultiplied(data[i].ToVector4());
+                 data[i] = new Color(pixel.R * pixel.A / byte.MaxValue, pixel.G * pixel.A / byte.MaxValue, pixel.B * pixel.A / byte.MaxValue, pixel.A); // slower version: Color.FromNonPremultiplied(data[i].ToVector4())
             }
 
             texture.SetData(data);

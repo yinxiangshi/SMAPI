@@ -20,7 +20,7 @@ namespace StardewModdingAPI
         ** Public
         ****/
         /// <summary>SMAPI's current semantic version.</summary>
-        public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("3.5.0");
+        public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("3.6.0");
 
         /// <summary>The minimum supported version of Stardew Valley.</summary>
         public static ISemanticVersion MinimumGameVersion { get; } = new GameVersion("1.4.1");
@@ -52,6 +52,14 @@ namespace StardewModdingAPI
         /****
         ** Internal
         ****/
+        /// <summary>Whether SMAPI was compiled in debug mode.</summary>
+        internal const bool IsDebugBuild =
+#if DEBUG
+            true;
+#else
+            false;
+#endif
+
         /// <summary>The URL of the SMAPI home page.</summary>
         internal const string HomePageUrl = "https://smapi.io";
 

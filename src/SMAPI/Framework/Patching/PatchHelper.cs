@@ -1,3 +1,4 @@
+#if !HARMONY_2
 using System;
 using System.Collections.Generic;
 
@@ -32,3 +33,4 @@ namespace StardewModdingAPI.Framework.Patching
         }
     }
 }
+#endif
