@@ -9,7 +9,7 @@
 
 ## Upcoming release
 * For players:
-  * Reduced startup time when loading mod DLLs (thanks to ZaneYork!).
+  * Added experimental option to reduce startup time when loading mod DLLs (thanks to ZaneYork!). Enable `RewriteInParallel` in the `smapi-internal/config.json` to try it.
   * Reduced processing time when a mod loads many unpacked images (thanks to Entoarox!).
   * Mod warnings are now listed alphabetically.
   * MacOS files starting with `._` are now ignored and can no longer cause skipped mods.

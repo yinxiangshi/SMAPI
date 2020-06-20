@@ -52,6 +52,14 @@ namespace StardewModdingAPI
         /****
         ** Internal
         ****/
+        /// <summary>Whether SMAPI was compiled in debug mode.</summary>
+        internal const bool IsDebugBuild =
+#if DEBUG
+            true;
+#else
+            false;
+#endif
+
         /// <summary>The URL of the SMAPI home page.</summary>
         internal const string HomePageUrl = "https://smapi.io";
 
