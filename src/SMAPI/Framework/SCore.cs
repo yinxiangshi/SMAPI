@@ -1280,7 +1280,7 @@ namespace StardewModdingAPI.Framework
         /// <summary>Reload translations for all mods.</summary>
         private void ReloadTranslations()
         {
-            this.ReloadTranslations(this.ModRegistry.GetAll(contentPacks: false));
+            this.ReloadTranslations(this.ModRegistry.GetAll());
         }
 
         /// <summary>Reload translations for the given mods.</summary>

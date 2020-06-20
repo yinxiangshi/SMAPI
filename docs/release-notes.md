@@ -17,6 +17,7 @@
   * Mods which use the `[HarmonyPatch(type)]` attribute now work crossplatform. Previously SMAPI couldn't rewrite types in custom attributes for compatibility.
   * Fixed `BadImageFormatException` error detection.
   * Fixed black maps on Android for mods which use `.tmx` files.
+  * Fixed `reload_i18n` command not reloading content pack translations.
 
 * For the web UI:
   * Added GitHub licenses to mod compatibility list.
