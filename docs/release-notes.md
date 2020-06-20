@@ -20,6 +20,7 @@
 
 * For the web UI:
   * Added GitHub licenses to mod compatibility list.
+  * Added SMAPI `i18n` schema to JSON validator.
   * Updated ModDrop URLs.
   * Internal changes to improve performance and reliability.
 

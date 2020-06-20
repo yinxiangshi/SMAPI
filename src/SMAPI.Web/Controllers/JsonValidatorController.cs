@@ -27,7 +27,8 @@ namespace StardewModdingAPI.Web.Controllers
         private readonly IDictionary<string, string> SchemaFormats = new Dictionary<string, string>
         {
             ["none"] = "None",
-            ["manifest"] = "Manifest",
+            ["manifest"] = "SMAPI: manifest",
+            ["i18n"] = "SMAPI: translations (i18n)",
             ["content-patcher"] = "Content Patcher"
         };
 
