@@ -33,7 +33,7 @@ namespace StardewModdingAPI.Web.Controllers
         };
 
         /// <summary>The schema ID to use if none was specified.</summary>
-        private string DefaultSchemaID = "manifest";
+        private string DefaultSchemaID = "none";
 
         /// <summary>A token in an error message which indicates that the child errors should be displayed instead.</summary>
         private readonly string TransparentToken = "$transparent";
