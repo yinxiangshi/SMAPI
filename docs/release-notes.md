@@ -28,6 +28,7 @@
   * Added `Multiplayer.PeerConnected` event.
   * Added `harmony_summary` console command which lists all current Harmony patches, optionally with a search filter.
   * Added ability to override update keys from the compatibility list.
+  * SMAPI now uses [a custom build of Harmony](https://github.com/Pathoschild/Harmony#readme) to provide more useful stack traces in error logs.
   * Harmony mods which use the `[HarmonyPatch(type)]` attribute now work crossplatform. Previously SMAPI couldn't rewrite types in custom attributes for compatibility.
   * Improved mod rewriting for compatibility:
     * Fixed rewriting types in custom attributes.

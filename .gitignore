@@ -30,8 +30,5 @@ _ReSharper*/
 # sensitive files
 appsettings.Development.json
 
-# generated build files
-build/0Harmony.*
-
 # Azure generated files
 src/SMAPI.Web/Properties/PublishProfiles/*.pubxml
