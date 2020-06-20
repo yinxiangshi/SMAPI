@@ -81,8 +81,8 @@ To prepare a crossplatform SMAPI release, you'll need to compile it on two platf
 [crossplatforming info](https://stardewvalleywiki.com/Modding:Modder_Guide/Test_and_Troubleshoot#Testing_on_all_platforms)
 on the wiki for the first-time setup.
 
-1. Update the version number in `.root/build/common.targets` and `Constants::Version`. Make sure
-  you use a [semantic version](https://semver.org). Recommended format:
+1. Update the version numbers in `build/common.targets`, `Constants`, and the `manifest.json` for
+   bundled mods. Make sure you use a [semantic version](https://semver.org). Recommended format:
 
    build type | format                   | example
    :--------- | :----------------------- | :------

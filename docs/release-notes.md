@@ -2,21 +2,23 @@
 
 # Release notes
 <!--
-## Upcoming release + 1
+## Future release
 * For modders:
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
-## Upcoming release
+## 3.6
+Released 20 June 2020 for Stardew Valley 1.4.1 or later.
+
 * For players:
+  * Added crossplatform compatibility for mods which use the `[HarmonyPatch(type)]` attribute.
   * Added experimental option to reduce startup time when loading mod DLLs (thanks to ZaneYork!). Enable `RewriteInParallel` in the `smapi-internal/config.json` to try it.
   * Reduced processing time when a mod loads many unpacked images (thanks to Entoarox!).
-  * Mod warnings are now listed alphabetically.
+  * Mod load warnings are now listed alphabetically.
   * MacOS files starting with `._` are now ignored and can no longer cause skipped mods.
   * Simplified paranoid warning logs and reduced their log level.
-  * Mods which use the `[HarmonyPatch(type)]` attribute now work crossplatform. Previously SMAPI couldn't rewrite types in custom attributes for compatibility.
-  * Fixed `BadImageFormatException` error detection.
   * Fixed black maps on Android for mods which use `.tmx` files.
+  * Fixed `BadImageFormatException` error detection.
   * Fixed `reload_i18n` command not reloading content pack translations.
 
 * For the web UI:
@@ -35,7 +37,7 @@
   * Added `harmony_summary` console command to list or search current Harmony patches.
   * Added `Multiplayer.PeerConnected` event.
   * Added support for overriding update keys from the wiki compatibility list.
-  * Improved mod rewriting for compatibility to support custom attributes and generic types.
+  * Improved mod rewriting for compatibility to support more cases (e.g. custom attributes and generic types).
   * Fixed `helper.Reflection` blocking access to game methods/properties intercepted by SMAPI.
   * Fixed asset propagation for Gil's portraits.
   * Fixed `.pdb` files ignored for error stack traces when mods are rewritten by SMAPI.
@@ -45,6 +47,7 @@
   * Eliminated MongoDB storage in the web services, which complicated the code unnecessarily. The app still uses an abstract interface for storage, so we can wrap a distributed cache in the future if needed.
   * Overhauled update checks to simplify mod site integrations, centralize common logic, and enable upcoming features.
   * Merged the separate legacy redirects app on AWS into the main app on Azure.
+  * Changed SMAPI's Harmony ID from `io.smapi` to `SMAPI` for readability in Harmony summaries.
 
 ## 3.5
 Released 27 April 2020 for Stardew Valley 1.4.1 or later.
