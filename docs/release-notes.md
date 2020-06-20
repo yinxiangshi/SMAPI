@@ -1,10 +1,11 @@
 &larr; [README](README.md)
 
 # Release notes
+<!--
 ## Upcoming release + 1
 * For modders:
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
-  * Added `harmony_summary` console command which lists all current Harmony patches, optionally with a search filter.
+-->
 
 ## Upcoming release
 * For players:
@@ -25,6 +26,7 @@
   * Added [event priorities](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Events#Custom_priority) (thanks to spacechase0!).
   * Added [update subkeys](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Update_checks#Update_subkeys).
   * Added `Multiplayer.PeerConnected` event.
+  * Added `harmony_summary` console command which lists all current Harmony patches, optionally with a search filter.
   * Added ability to override update keys from the compatibility list.
   * Harmony mods which use the `[HarmonyPatch(type)]` attribute now work crossplatform. Previously SMAPI couldn't rewrite types in custom attributes for compatibility.
   * Improved mod rewriting for compatibility:
