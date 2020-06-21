@@ -7,6 +7,9 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
+## Upcoming release
+* Fixed event priority sorting.
+
 ## 3.6
 Released 20 June 2020 for Stardew Valley 1.4.1 or later.
 
