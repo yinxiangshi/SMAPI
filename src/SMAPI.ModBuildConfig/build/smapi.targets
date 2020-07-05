@@ -21,11 +21,11 @@
     <EnableModDeploy Condition="'$(EnableModDeploy)' == ''">true</EnableModDeploy>
     <EnableModZip Condition="'$(EnableModZip)' == ''">true</EnableModZip>
     <EnableHarmony Condition="'$(EnableHarmony)' == ''">false</EnableHarmony>
-    <EnableGameDebugging Condition="$(EnableGameDebugging) == ''">true</EnableGameDebugging>
+    <EnableGameDebugging Condition="'$(EnableGameDebugging)' == ''">true</EnableGameDebugging>
     <CopyModReferencesToBuildOutput Condition="'$(CopyModReferencesToBuildOutput)' == '' OR ('$(CopyModReferencesToBuildOutput)' != 'true' AND '$(CopyModReferencesToBuildOutput)' != 'false')">false</CopyModReferencesToBuildOutput>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(OS)' == 'Windows_NT' AND $(EnableGameDebugging) == 'true'">
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT' AND '$(EnableGameDebugging)' == 'true'">
     <!-- enable game debugging -->
     <StartAction>Program</StartAction>
     <StartProgram>$(GamePath)\StardewModdingAPI.exe</StartProgram>
