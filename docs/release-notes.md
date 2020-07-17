@@ -8,7 +8,13 @@
 -->
 
 ## Upcoming release
-* Fixed launcher's fallback logic on Linux when no compatible terminal was found (thanks to jlaw!).
+* For players:
+  * Fixed launcher's fallback logic on Linux when no compatible terminal was found (thanks to jlaw!).
+
+* For the Console Commands mod:
+  * Fixed error opening menu when some item data is invalid.
+  * Fixed spawned Floor TV not functional as a TV (thanks to Platonymous!).
+  * Fixed incorrect color for sturgeon roe.
 
 ## 3.6.1
 Released 21 June 2020 for Stardew Valley 1.4.1 or later.
