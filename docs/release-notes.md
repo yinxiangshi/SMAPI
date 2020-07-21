@@ -11,6 +11,7 @@
 * For players:
   * SMAPI now ignores more content file types when detecting mods (`.doc`, `.docx`, `.rar`, and `.zip`).
   * Fixed launcher's fallback logic on Linux when no compatible terminal was found (thanks to jlaw!).
+  * Fixed rare crash when a mod adds/removes an event handler from an event handler.
 
 * For the Console Commands mod:
   * Fixed error opening menu when some item data is invalid.
