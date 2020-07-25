@@ -197,8 +197,12 @@ namespace StardewModdingAPI.Framework
         /// <summary>Load content when the game is launched.</summary>
         protected override void LoadContent()
         {
+            // load content
             base.LoadContent();
             Game1.mapDisplayDevice = new SDisplayDevice(Game1.content, this.GraphicsDevice);
+
+            // log GPU info
+            this.Monitor.Log($"Running on GPU: {this.GraphicsDevice?.Adapter?.Description ?? "<unknown>"}");
         }
 
         /// <summary>Initialize just before the game's first update tick.</summary>

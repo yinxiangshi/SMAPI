@@ -10,6 +10,7 @@
 ## Upcoming release
 * For players:
   * SMAPI now ignores more content file types when detecting mods (`.doc`, `.docx`, `.rar`, and `.zip`).
+  * Added trace log for GPU running the game to simplify troubleshooting some issues.
   * Fixed launcher's fallback logic on Linux when no compatible terminal was found (thanks to jlaw!).
   * Fixed rare crash when a mod adds/removes an event handler from an event handler.
 
