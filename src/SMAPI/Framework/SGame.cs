@@ -239,7 +239,7 @@ namespace StardewModdingAPI.Framework
         private void OnModMessageReceived(ModMessageModel message)
         {
             // get mod IDs to notify
-            HashSet<string> modIDs = new HashSet<string>(message.ToModIDs ?? this.ModRegistry.GetAll().Select(p => p.Manifest.UniqueID), StringComparer.InvariantCultureIgnoreCase);
+            HashSet<string> modIDs = new HashSet<string>(message.ToModIDs ?? this.ModRegistry.GetAll().Select(p => p.Manifest.UniqueID), StringComparer.OrdinalIgnoreCase);
             if (message.FromPlayerID == Game1.player?.UniqueMultiplayerID)
                 modIDs.Remove(message.FromModID); // don't send a broadcast back to the sender
 

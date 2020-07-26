@@ -59,7 +59,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         };
 
         /// <summary>The extensions for files which an XNB mod may contain. If a mod doesn't have a <c>manifest.json</c> and contains *only* these file extensions, it should be considered an XNB mod.</summary>
-        private readonly HashSet<string> PotentialXnbModExtensions = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
+        private readonly HashSet<string> PotentialXnbModExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             // XNB files
             ".xgs",

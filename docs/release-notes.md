@@ -13,6 +13,7 @@
   * Added trace log for GPU running the game to simplify troubleshooting some issues.
   * Fixed launcher's fallback logic on Linux when no compatible terminal was found (thanks to jlaw!).
   * Fixed rare crash when a mod adds/removes an event handler from an event handler.
+  * Fixed string sorting/comparison for some special characters.
 
 * For the Console Commands mod:
   * Fixed error opening menu when some item data is invalid.
