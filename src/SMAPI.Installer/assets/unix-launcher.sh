@@ -69,9 +69,10 @@ else
             break;
         fi
     done
-    # Find the true shell behind x-terminal-emulator
+
+    # find the true shell behind x-terminal-emulator
     if [ "$LAUNCHTERM" = "x-terminal-emulator" ]; then
-	export LAUNCHTERM="$(basename "$(readlink -f $(COMMAND x-terminal-emulator))")"
+        export LAUNCHTERM="$(basename "$(readlink -f $(COMMAND x-terminal-emulator))")"
     fi
 
     # run in selected terminal and account for quirks

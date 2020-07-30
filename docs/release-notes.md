@@ -14,6 +14,7 @@
   * Fixed launcher's fallback logic on Linux when no compatible terminal was found (thanks to jlaw!).
   * Fixed rare crash when a mod adds/removes an event handler from an event handler.
   * Fixed string sorting/comparison for some special characters.
+  * Improved compatibility with some Linux terminals (thanks to Spatterjaaay!).
 
 * For the Console Commands mod:
   * Fixed error opening menu when some item data is invalid.
