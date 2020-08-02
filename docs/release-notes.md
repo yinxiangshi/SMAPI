@@ -21,6 +21,9 @@
   * Fixed spawned Floor TV not functional as a TV (thanks to Platonymous!).
   * Fixed incorrect color for sturgeon roe.
 
+* For modders:
+  * Updated internal dependencies.
+
 ## 3.6.1
 Released 21 June 2020 for Stardew Valley 1.4.1 or later.
 
