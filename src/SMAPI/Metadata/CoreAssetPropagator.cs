@@ -84,7 +84,7 @@ namespace StardewModdingAPI.Metadata
             });
 
             // reload assets
-            IDictionary<string, bool> propagated = assets.ToDictionary(p => p.Key, p => false, StringComparer.InvariantCultureIgnoreCase);
+            IDictionary<string, bool> propagated = assets.ToDictionary(p => p.Key, p => false, StringComparer.OrdinalIgnoreCase);
             foreach (var bucket in buckets)
             {
                 switch (bucket.Key)
@@ -779,7 +779,7 @@ namespace StardewModdingAPI.Metadata
         private void ReloadNpcSprites(LocalizedContentManager content, IEnumerable<string> keys, IDictionary<string, bool> propagated)
         {
             // get NPCs
-            HashSet<string> lookup = new HashSet<string>(keys, StringComparer.InvariantCultureIgnoreCase);
+            HashSet<string> lookup = new HashSet<string>(keys, StringComparer.OrdinalIgnoreCase);
             var characters =
                 (
                     from npc in this.GetCharacters()
@@ -806,7 +806,7 @@ namespace StardewModdingAPI.Metadata
         private void ReloadNpcPortraits(LocalizedContentManager content, IEnumerable<string> keys, IDictionary<string, bool> propagated)
         {
             // get NPCs
-            HashSet<string> lookup = new HashSet<string>(keys, StringComparer.InvariantCultureIgnoreCase);
+            HashSet<string> lookup = new HashSet<string>(keys, StringComparer.OrdinalIgnoreCase);
             var characters =
                 (
                     from npc in this.GetCharacters()
@@ -1031,7 +1031,7 @@ namespace StardewModdingAPI.Metadata
             if (string.IsNullOrWhiteSpace(key) || string.IsNullOrWhiteSpace(rawSubstring))
                 return false;
 
-            return key.StartsWith(this.NormalizeAssetNameIgnoringEmpty(rawSubstring), StringComparison.InvariantCultureIgnoreCase);
+            return key.StartsWith(this.NormalizeAssetNameIgnoringEmpty(rawSubstring), StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>Get whether a normalized asset key is in the given folder.</summary>
