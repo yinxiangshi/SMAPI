@@ -11,9 +11,9 @@
             "title": "Format version",
             "description": "The format version. You should always use the latest version to enable the latest features and avoid obsolete behavior.",
             "type": "string",
-            "const": "1.15.0",
+            "const": "1.16.0",
             "@errorMessages": {
-                "const": "Incorrect value '@value'. This should be set to the latest format version, currently '1.15.0'."
+                "const": "Incorrect value '@value'. This should be set to the latest format version, currently '1.16.0'."
             }
         },
         "ConfigSchema": {
@@ -102,7 +102,7 @@
                         "title": "Action",
                         "description": "The kind of change to make.",
                         "type": "string",
-                        "enum": [ "Load", "EditImage", "EditData", "EditMap" ]
+                        "enum": [ "Load", "EditImage", "EditData", "EditMap", "Include" ]
                     },
                     "Target": {
                         "title": "Target asset",
@@ -327,9 +327,16 @@
                             }
                         },
                         "then": {
-                            "required": [ "FromFile" ],
+                            "required": [ "FromFile", "Target" ],
                             "propertyNames": {
-                                "enum": [ "Action", "Target", "LogName", "Enabled", "When", "FromFile" ]
+                                "enum": [
+                                    "Action",
+                                    "Enabled",
+                                    "FromFile",
+                                    "LogName",
+                                    "Target",
+                                    "When"
+                                ]
                             }
                         }
                     },
@@ -340,9 +347,20 @@
                             }
                         },
                         "then": {
-                            "required": [ "FromFile" ],
+                            "required": [ "FromFile", "Target" ],
                             "propertyNames": {
-                                "enum": [ "Action", "Target", "LogName", "Enabled", "When", "FromFile", "FromArea", "ToArea", "PatchMode" ]
+                                "enum": [
+                                    "Action",
+                                    "Enabled",
+                                    "FromFile",
+                                    "LogName",
+                                    "Target",
+                                    "When",
+
+                                    "FromArea",
+                                    "PatchMode",
+                                    "ToArea"
+                                ]
                             }
                         }
                     },
@@ -354,7 +372,18 @@
                         },
                         "then": {
                             "propertyNames": {
-                                "enum": [ "Action", "Target", "LogName", "Enabled", "When", "FromFile", "Fields", "Entries", "MoveEntries" ]
+                                "enum": [
+                                    "Action",
+                                    "Enabled",
+                                    "FromFile",
+                                    "LogName",
+                                    "Target",
+                                    "When",
+
+                                    "Entries",
+                                    "Fields",
+                                    "MoveEntries"
+                                ]
                             }
                         }
                     },
@@ -377,16 +406,42 @@
                                 }
                             },
                             "propertyNames": {
-                                "enum": [ "Action", "Target", "LogName", "Enabled", "When", "FromFile", "FromArea", "ToArea", "MapProperties", "MapTiles" ]
+                                "enum": [
+                                    "Action",
+                                    "Enabled",
+                                    "FromFile",
+                                    "LogName",
+                                    "Target",
+                                    "When",
+
+                                    "FromArea",
+                                    "MapProperties",
+                                    "MapTiles",
+                                    "ToArea"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "Action": { "const": "Include" }
+                            }
+                        },
+                        "then": {
+                            "required": [ "FromFile" ],
+                            "propertyNames": {
+                                "enum": [
+                                    "Action",
+                                    "Enabled",
+                                    "FromFile",
+                                    "LogName",
+                                    "When"
+                                ]
                             }
                         }
                     }
-                ],
-
-                "required": [ "Action", "Target" ],
-                "@errorMessages": {
-                    "allOf": "$transparent"
-                }
+                ]
             }
         },
         "$schema": {
