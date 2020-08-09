@@ -8,6 +8,9 @@
 -->
 
 ## Upcoming release
+* For players:
+  * Fixed rare error when a mod adds/removes event handlers asynchronously.
+
 * For the web UI:
   * Updated the JSON validator/schema for Content Patcher 1.16.
 
@@ -16,7 +19,7 @@ Released 02 August 2020 for Stardew Valley 1.4.1 or later.
 
 * For players:
   * Improved compatibility with some Linux terminals (thanks to jlaw and Spatterjaaay!).
-  * Fixed rare crash when a mod adds/removes an event handler from an event handler.
+  * Fixed rare error when a mod adds/removes an event handler from an event handler.
   * Fixed string sorting/comparison for some special characters.
 
 * For the Console Commands mod:
