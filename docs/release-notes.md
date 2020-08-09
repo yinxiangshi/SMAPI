@@ -11,6 +11,9 @@
 * For players:
   * Fixed rare error when a mod adds/removes event handlers asynchronously.
 
+* For modders:
+  * You can now read/write `SDate` values to JSON (e.g. for `config.json`, network mod messages, etc).
+
 * For the web UI:
   * Updated the JSON validator/schema for Content Patcher 1.16.
 
