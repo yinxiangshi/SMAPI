@@ -337,8 +337,6 @@ namespace StardewModdingAPI.Framework
             // add headers
             if (this.Settings.DeveloperMode)
                 this.Monitor.Log($"You have SMAPI for developers, so the console will be much more verbose. You can disable developer mode by installing the non-developer version of SMAPI, or by editing {Constants.ApiConfigPath}.", LogLevel.Info);
-            if (this.Settings.RewriteInParallel)
-                this.Monitor.Log($"You enabled experimental parallel rewriting. This may result in faster startup times, but intermittent startup errors. You can disable it by reinstalling SMAPI or editing {Constants.ApiConfigPath}.", LogLevel.Info);
             if (!this.Settings.CheckForUpdates)
                 this.Monitor.Log($"You configured SMAPI to not check for updates. Running an old version of SMAPI is not recommended. You can enable update checks by reinstalling SMAPI or editing {Constants.ApiConfigPath}.", LogLevel.Warn);
             if (!this.Monitor.WriteToConsole)
@@ -983,7 +981,7 @@ namespace StardewModdingAPI.Framework
                 Assembly modAssembly;
                 try
                 {
-                    modAssembly = assemblyLoader.Load(mod, assemblyPath, assumeCompatible: mod.DataRecord?.Status == ModStatus.AssumeCompatible, rewriteInParallel: this.Settings.RewriteInParallel);
+                    modAssembly = assemblyLoader.Load(mod, assemblyPath, assumeCompatible: mod.DataRecord?.Status == ModStatus.AssumeCompatible);
                     this.ModRegistry.TrackAssemblies(mod, modAssembly);
                 }
                 catch (IncompatibleInstructionException) // details already in trace logs
