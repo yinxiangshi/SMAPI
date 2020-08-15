@@ -9,8 +9,9 @@
 
 ## Upcoming release
 * For players:
-  * Fixed rare error when a mod adds/removes event handlers asynchronously.
   * Removed the experimental `RewriteInParallel` option added in SMAPI 3.6 (it was already disabled by default). Unfortunately this caused intermittent unpredictable errors when enabled.
+  * Fixed broken URL in update alerts for unofficial versions.
+  * Fixed rare error when a mod adds/removes event handlers asynchronously.
 
 * For modders:
   * You can now read/write `SDate` values to JSON (e.g. for `config.json`, network mod messages, etc).
