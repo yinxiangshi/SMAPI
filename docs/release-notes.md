@@ -10,6 +10,7 @@
 ## Upcoming release
 * For players:
   * Removed the experimental `RewriteInParallel` option added in SMAPI 3.6 (it was already disabled by default). Unfortunately this caused intermittent unpredictable errors when enabled.
+  * Tweaked the rules for showing update alerts (see _for SMAPI developers_ below for details).
   * Fixed broken URL in update alerts for unofficial versions.
   * Fixed rare error when a mod adds/removes event handlers asynchronously.
 
@@ -18,6 +19,9 @@
 
 * For the web UI:
   * Updated the JSON validator/schema for Content Patcher 1.16.
+
+* For SMAPI developers:
+  * The web API now returns an update alert in two new cases: any newer unofficial update (previously only shown if the mod was incompatible), and a newer prerelease version if the installed non-prerelease version is broken (previously only shown if the installed version was prerelease).
 
 ## 3.6.2
 Released 02 August 2020 for Stardew Valley 1.4.1 or later.

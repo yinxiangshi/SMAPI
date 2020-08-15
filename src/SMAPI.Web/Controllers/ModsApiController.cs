@@ -198,9 +198,9 @@ namespace StardewModdingAPI.Web.Controllers
                 List<ModEntryVersionModel> updates = new List<ModEntryVersionModel>();
                 if (this.IsRecommendedUpdate(installedVersion, main?.Version, useBetaChannel: true))
                     updates.Add(main);
-                if (this.IsRecommendedUpdate(installedVersion, optional?.Version, useBetaChannel: installedVersion.IsPrerelease()))
+                if (this.IsRecommendedUpdate(installedVersion, optional?.Version, useBetaChannel: installedVersion.IsPrerelease() || search.IsBroken))
                     updates.Add(optional);
-                if (this.IsRecommendedUpdate(installedVersion, unofficial?.Version, useBetaChannel: search.IsBroken))
+                if (this.IsRecommendedUpdate(installedVersion, unofficial?.Version, useBetaChannel: true))
                     updates.Add(unofficial);
                 if (this.IsRecommendedUpdate(installedVersion, unofficialForBeta?.Version, useBetaChannel: apiVersion.IsPrerelease()))
                     updates.Add(unofficialForBeta);
