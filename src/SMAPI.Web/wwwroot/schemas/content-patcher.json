@@ -11,9 +11,9 @@
             "title": "Format version",
             "description": "The format version. You should always use the latest version to enable the latest features and avoid obsolete behavior.",
             "type": "string",
-            "const": "1.16.0",
+            "const": "1.17.0",
             "@errorMessages": {
-                "const": "Incorrect value '@value'. This should be set to the latest format version, currently '1.16.0'."
+                "const": "Incorrect value '@value'. This should be set to the latest format version, currently '1.17.0'."
             }
         },
         "ConfigSchema": {
@@ -125,20 +125,26 @@
                         "description": "Whether to apply this patch. Default true. This fields supports immutable tokens (e.g. config tokens) if they return true/false.",
                         "anyOf": [
                             {
+                                "type": "boolean"
+                            },
+                            {
                                 "type": "string",
                                 "enum": [ "true", "false" ]
                             },
                             {
                                 "type": "string",
                                 "pattern": "\\{\\{[^{}]+\\}\\}"
-                            },
-                            {
-                                "type": "boolean"
                             }
                         ],
                         "@errorMessages": {
                             "anyOf": "Invalid value; must be true, false, or a single token which evaluates to true or false."
                         }
+                    },
+                    "Update": {
+                        "title": "Update",
+                        "description": "When the patch should update if it changed. The possible values are 'OnDayStart' and 'OnLocationChange' (defaults to OnDayStart).",
+                        "type": "string",
+                        "enum": [ "OnDayStart", "OnLocationChange" ]
                     },
                     "FromFile": {
                         "title": "Source file",

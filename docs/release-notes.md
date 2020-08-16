@@ -18,7 +18,7 @@
   * You can now read/write `SDate` values to JSON (e.g. for `config.json`, network mod messages, etc).
 
 * For the web UI:
-  * Updated the JSON validator/schema for Content Patcher 1.16.
+  * Updated the JSON validator/schema for Content Patcher 1.16 and 1.17.
 
 * For SMAPI developers:
   * The web API now returns an update alert in two new cases: any newer unofficial update (previously only shown if the mod was incompatible), and a newer prerelease version if the installed non-prerelease version is broken (previously only shown if the installed version was prerelease).
