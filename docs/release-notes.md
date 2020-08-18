@@ -11,6 +11,7 @@
 * For players:
   * Removed the experimental `RewriteInParallel` option added in SMAPI 3.6 (it was already disabled by default). Unfortunately this caused intermittent unpredictable errors when enabled.
   * Tweaked the rules for showing update alerts (see _for SMAPI developers_ below for details).
+  * Fixed crossplatform compatibility for mods which use the `[HarmonyPatch(type)]` attribute (thanks to spacechase0!).
   * Fixed broken URL in update alerts for unofficial versions.
   * Fixed rare error when a mod adds/removes event handlers asynchronously.
 
