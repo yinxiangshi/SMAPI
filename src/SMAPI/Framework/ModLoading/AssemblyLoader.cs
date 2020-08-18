@@ -292,6 +292,19 @@ namespace StardewModdingAPI.Framework.ModLoading
                 IEnumerable<TypeReference> typeReferences = module.GetTypeReferences().OrderBy(p => p.FullName);
                 foreach (TypeReference type in typeReferences)
                     this.ChangeTypeScope(type);
+
+                // rewrite types using custom attributes
+                foreach (TypeDefinition type in module.GetTypes())
+                {
+                    foreach (var attr in type.CustomAttributes)
+                    {
+                        foreach (var conField in attr.ConstructorArguments)
+                        {
+                            if (conField.Value is TypeReference typeRef)
+                                this.ChangeTypeScope(typeRef);
+                        }
+                    }
+                }
             }
 
             // find or rewrite code
