@@ -6,18 +6,17 @@ using System.Linq;
 using System.Management;
 #endif
 using System.Runtime.InteropServices;
+using StardewModdingAPI.Toolkit.Utilities;
 
-namespace StardewModdingAPI.Toolkit.Utilities
+namespace StardewModdingAPI.Toolkit.Framework
 {
-    /// <summary>Provides methods for fetching environment information.</summary>
-    public static class EnvironmentUtility
+    /// <summary>Provides low-level methods for fetching environment information.</summary>
+    /// <remarks>This is used by the SMAPI core before the toolkit DLL is available; most code should use <see cref="EnvironmentUtility"/> instead.</remarks>
+    internal static class LowLevelEnvironmentUtility
     {
         /*********
         ** Fields
         *********/
-        /// <summary>The cached platform.</summary>
-        private static Platform? CachedPlatform;
-
         /// <summary>Get the OS name from the system uname command.</summary>
         /// <param name="buffer">The buffer to fill with the resulting string.</param>
         [DllImport("libc")]
@@ -28,16 +27,32 @@ namespace StardewModdingAPI.Toolkit.Utilities
         ** Public methods
         *********/
         /// <summary>Detect the current OS.</summary>
-        public static Platform DetectPlatform()
+        public static string DetectPlatform()
         {
-            return EnvironmentUtility.CachedPlatform ??= EnvironmentUtility.DetectPlatformImpl();
+            switch (Environment.OSVersion.Platform)
+            {
+                case PlatformID.MacOSX:
+                    return nameof(Platform.Mac);
+
+                case PlatformID.Unix when LowLevelEnvironmentUtility.IsRunningAndroid():
+                    return nameof(Platform.Android);
+
+                case PlatformID.Unix when LowLevelEnvironmentUtility.IsRunningMac():
+                    return nameof(Platform.Mac);
+
+                case PlatformID.Unix:
+                    return nameof(Platform.Linux);
+
+                default:
+                    return nameof(Platform.Windows);
+            }
         }
 
 
         /// <summary>Get the human-readable OS name and version.</summary>
         /// <param name="platform">The current platform.</param>
         [SuppressMessage("ReSharper", "EmptyGeneralCatchClause", Justification = "Error suppressed deliberately to fallback to default behaviour.")]
-        public static string GetFriendlyPlatformName(Platform platform)
+        public static string GetFriendlyPlatformName(string platform)
         {
 #if SMAPI_FOR_WINDOWS
             try
@@ -54,11 +69,11 @@ namespace StardewModdingAPI.Toolkit.Utilities
             string name = Environment.OSVersion.ToString();
             switch (platform)
             {
-                case Platform.Android:
+                case nameof(Platform.Android):
                     name = $"Android {name}";
                     break;
 
-                case Platform.Mac:
+                case nameof(Platform.Mac):
                     name = $"MacOS {name}";
                     break;
             }
@@ -67,46 +82,24 @@ namespace StardewModdingAPI.Toolkit.Utilities
 
         /// <summary>Get the name of the Stardew Valley executable.</summary>
         /// <param name="platform">The current platform.</param>
-        public static string GetExecutableName(Platform platform)
+        public static string GetExecutableName(string platform)
         {
-            return platform == Platform.Windows
+            return platform == nameof(Platform.Windows)
                 ? "Stardew Valley.exe"
                 : "StardewValley.exe";
         }
 
         /// <summary>Get whether the platform uses Mono.</summary>
         /// <param name="platform">The current platform.</param>
-        public static bool IsMono(this Platform platform)
+        public static bool IsMono(string platform)
         {
-            return platform == Platform.Linux || platform == Platform.Mac;
+            return platform == nameof(Platform.Linux) || platform == nameof(Platform.Mac);
         }
 
 
         /*********
         ** Private methods
         *********/
-        /// <summary>Detect the current OS.</summary>
-        private static Platform DetectPlatformImpl()
-        {
-            switch (Environment.OSVersion.Platform)
-            {
-                case PlatformID.MacOSX:
-                    return Platform.Mac;
-
-                case PlatformID.Unix when EnvironmentUtility.IsRunningAndroid():
-                    return Platform.Android;
-
-                case PlatformID.Unix when EnvironmentUtility.IsRunningMac():
-                    return Platform.Mac;
-
-                case PlatformID.Unix:
-                    return Platform.Linux;
-
-                default:
-                    return Platform.Windows;
-            }
-        }
-
         /// <summary>Detect whether the code is running on Android.</summary>
         /// <remarks>
         /// This code is derived from https://stackoverflow.com/a/47521647/262123. It detects Android by calling the
@@ -149,7 +142,7 @@ namespace StardewModdingAPI.Toolkit.Utilities
             try
             {
                 buffer = Marshal.AllocHGlobal(8192);
-                if (EnvironmentUtility.uname(buffer) == 0)
+                if (LowLevelEnvironmentUtility.uname(buffer) == 0)
                 {
                     string os = Marshal.PtrToStringAnsi(buffer);
                     return os == "Darwin";

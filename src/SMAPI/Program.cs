@@ -1,13 +1,9 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-#if SMAPI_FOR_WINDOWS
-#endif
 using StardewModdingAPI.Framework;
-using StardewModdingAPI.Toolkit.Utilities;
 
 namespace StardewModdingAPI
 {
@@ -18,9 +14,7 @@ namespace StardewModdingAPI
         ** Fields
         *********/
         /// <summary>The absolute path to search for SMAPI's internal DLLs.</summary>
-        /// <remarks>We can't use <see cref="Constants.ExecutionPath"/> directly, since <see cref="Constants"/> depends on DLLs loaded from this folder.</remarks>
-        [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute", Justification = "The assembly location is never null in this context.")]
-        internal static readonly string DllSearchPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "smapi-internal");
+        internal static readonly string DllSearchPath = EarlyConstants.InternalFilesPath;
 
 
         /*********
@@ -37,10 +31,9 @@ namespace StardewModdingAPI
                 Program.AssertGameVersion();
                 Program.Start(args);
             }
-            catch (BadImageFormatException ex) when (ex.FileName == "StardewValley" || ex.FileName == "Stardew Valley") // NOTE: don't use StardewModdingAPI.Constants here, assembly resolution isn't hooked up at this point
+            catch (BadImageFormatException ex) when (ex.FileName == "StardewValley" || ex.FileName == "Stardew Valley") // don't use EarlyConstants.GameAssemblyName, since we want to check both possible names
             {
-                string executableName = Program.GetExecutableAssemblyName();
-                Console.WriteLine($"SMAPI failed to initialize because your game's {executableName}.exe seems to be invalid.\nThis may be a pirated version which modified the executable in an incompatible way; if so, you can try a different download or buy a legitimate version.\n\nTechnical details:\n{ex}");
+                Console.WriteLine($"SMAPI failed to initialize because your game's {ex.FileName}.exe seems to be invalid.\nThis may be a pirated version which modified the executable in an incompatible way; if so, you can try a different download or buy a legitimate version.\n\nTechnical details:\n{ex}");
             }
             catch (Exception ex)
             {
@@ -76,11 +69,10 @@ namespace StardewModdingAPI
         }
 
         /// <summary>Assert that the game is available.</summary>
-        /// <remarks>This must be checked *before* any references to <see cref="Constants"/>, and this method should not reference <see cref="Constants"/> itself to avoid errors in Mono.</remarks>
+        /// <remarks>This must be checked *before* any references to <see cref="Constants"/>, and this method should not reference <see cref="Constants"/> itself to avoid errors in Mono or when the game isn't present.</remarks>
         private static void AssertGamePresent()
         {
-            string gameAssemblyName = Program.GetExecutableAssemblyName();
-            if (Type.GetType($"StardewValley.Game1, {gameAssemblyName}", throwOnError: false) == null)
+            if (Type.GetType($"StardewValley.Game1, {EarlyConstants.GameAssemblyName}", throwOnError: false) == null)
                 Program.PrintErrorAndExit("Oops! SMAPI can't find the game. Make sure you're running StardewModdingAPI.exe in your game folder. See the readme.txt file for details.");
         }
 
@@ -100,14 +92,6 @@ namespace StardewModdingAPI
             // max version
             else if (Constants.MaximumGameVersion != null && Constants.GameVersion.IsNewerThan(Constants.MaximumGameVersion))
                 Program.PrintErrorAndExit($"Oops! You're running Stardew Valley {Constants.GameVersion}, but this version of SMAPI is only compatible up to Stardew Valley {Constants.MaximumGameVersion}. Please check for a newer version of SMAPI: https://smapi.io.");
-
-        }
-
-        /// <summary>Get the game's executable assembly name.</summary>
-        private static string GetExecutableAssemblyName()
-        {
-            Platform platform = EnvironmentUtility.DetectPlatform();
-            return platform == Platform.Windows ? "Stardew Valley" : "StardewValley";
         }
 
         /// <summary>Initialize SMAPI and launch the game.</summary>
