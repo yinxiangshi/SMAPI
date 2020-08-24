@@ -269,7 +269,6 @@ namespace StardewModdingAPI.Utilities
             this.Year = year;
             this.DayOfWeek = this.GetDayOfWeek(day);
             this.DaysSinceStart = this.GetDaysSinceStart(day, season, year);
-
         }
 
         /// <summary>Get whether a date represents 0 spring Y1, which is the date during the in-game intro.</summary>

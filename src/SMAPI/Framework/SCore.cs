@@ -43,7 +43,7 @@ using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewModdingAPI.Utilities;
 using StardewValley;
-using Object = StardewValley.Object;
+using SObject = StardewValley.Object;
 
 namespace StardewModdingAPI.Framework
 {
@@ -524,6 +524,7 @@ namespace StardewModdingAPI.Framework
                     Game1.currentLoader = null;
                     this.Monitor.Log("Game loader done.");
                 }
+
                 if (SGame.NewDayTask?.Status == TaskStatus.Created)
                 {
                     this.Monitor.Log("New day task synchronizing...");
@@ -605,7 +606,7 @@ namespace StardewModdingAPI.Framework
                                     $"{modGroup.Key.DisplayName} ("
                                     + string.Join(", ", modGroup.GroupBy(p => p.WasAdded).ToDictionary(p => p.Key, p => p.Count()).Select(p => $"{(p.Key ? "added" : "removed")} {p.Value}"))
                                     + ")"
-                            )
+                                )
                         )
                     );
 
@@ -700,6 +701,7 @@ namespace StardewModdingAPI.Framework
                         this.OnLoadStageChanged(LoadStage.CreatedSaveFile);
                         events.SaveCreated.RaiseEmpty();
                     }
+
                     if (this.IsBetweenSaveEvents)
                     {
                         // raise after-save
@@ -731,6 +733,7 @@ namespace StardewModdingAPI.Framework
                         }
                         else
                             context += " Single-player.";
+
                         this.Monitor.Log(context);
 
                         // raise events
@@ -1111,7 +1114,7 @@ namespace StardewModdingAPI.Framework
 
                     // require core fields
                     string[] fields = entry.Value.Split('/');
-                    if (fields.Length < Object.objectInfoDescriptionIndex + 1)
+                    if (fields.Length < SObject.objectInfoDescriptionIndex + 1)
                     {
                         LogIssue(entry.Key, "too few fields for an object");
                         hasObjectIssues = true;
@@ -1119,10 +1122,10 @@ namespace StardewModdingAPI.Framework
                     }
 
                     // check min length for specific types
-                    switch (fields[Object.objectInfoTypeIndex].Split(new[] { ' ' }, 2)[0])
+                    switch (fields[SObject.objectInfoTypeIndex].Split(new[] { ' ' }, 2)[0])
                     {
                         case "Cooking":
-                            if (fields.Length < Object.objectInfoBuffDurationIndex + 1)
+                            if (fields.Length < SObject.objectInfoBuffDurationIndex + 1)
                             {
                                 LogIssue(entry.Key, "too few fields for a cooking item");
                                 hasObjectIssues = true;
@@ -1316,6 +1319,7 @@ namespace StardewModdingAPI.Framework
                     }
                 }
             }
+
             IModMetadata[] loaded = this.ModRegistry.GetAll().ToArray();
             IModMetadata[] loadedContentPacks = loaded.Where(p => p.IsContentPack).ToArray();
             IModMetadata[] loadedMods = loaded.Where(p => !p.IsContentPack).ToArray();

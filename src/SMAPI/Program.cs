@@ -59,6 +59,7 @@ namespace StardewModdingAPI
                     if (name.Name.Equals(AssemblyName.GetAssemblyName(dll.FullName).Name, StringComparison.OrdinalIgnoreCase))
                         return Assembly.LoadFrom(dll.FullName);
                 }
+
                 return null;
             }
             catch (Exception ex)
