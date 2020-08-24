@@ -349,10 +349,10 @@ namespace StardewModdingAPI.Framework
 
             // dispose core components
             this.IsGameRunning = false;
-            this.LogManager?.Dispose();
             this.ContentCore?.Dispose();
             this.CancellationToken?.Dispose();
             this.GameInstance?.Dispose();
+            this.LogManager?.Dispose(); // dispose last to allow for any last-second log messages
 
             // end game (moved from Game1.OnExiting to let us clean up first)
             Process.GetCurrentProcess().Kill();
