@@ -21,8 +21,8 @@ namespace StardewModdingAPI.Framework.Logging
         /// <summary>The log file to which to write messages.</summary>
         private readonly LogFileManager LogFile;
 
-        /// <summary>Manages console output interception.</summary>
-        private readonly ConsoleInterceptionManager InterceptionManager = new ConsoleInterceptionManager();
+        /// <summary>Prefixing a low-level message with this character indicates that the console interceptor should write the string without intercepting it. (The character itself is not written.)</summary>
+        private readonly char IgnoreChar = '\u200B';
 
         /// <summary>Get a named monitor instance.</summary>
         private readonly Func<string, Monitor> GetMonitorImpl;
@@ -86,7 +86,7 @@ namespace StardewModdingAPI.Framework.Logging
         public LogManager(string logPath, ColorSchemeConfig colorConfig, bool writeToConsole, bool isVerbose, bool isDeveloperMode)
         {
             // init construction logic
-            this.GetMonitorImpl = name => new Monitor(name, this.InterceptionManager, this.LogFile, colorConfig, isVerbose)
+            this.GetMonitorImpl = name => new Monitor(name, this.IgnoreChar, this.LogFile, colorConfig, isVerbose)
             {
                 WriteToConsole = writeToConsole,
                 ShowTraceInConsole = isDeveloperMode,
@@ -99,8 +99,10 @@ namespace StardewModdingAPI.Framework.Logging
             this.MonitorForGame = this.GetMonitor("game");
 
             // redirect direct console output
-            if (this.MonitorForGame.WriteToConsole)
-                this.InterceptionManager.OnMessageIntercepted += message => this.HandleConsoleMessage(this.MonitorForGame, message);
+            var output = new InterceptingTextWriter(Console.Out, this.IgnoreChar);
+            if (writeToConsole)
+                output.OnMessageIntercepted += message => this.HandleConsoleMessage(this.MonitorForGame, message);
+            Console.SetOut(output);
         }
 
         /// <summary>Get a monitor instance derived from SMAPI's current settings.</summary>
@@ -167,7 +169,7 @@ namespace StardewModdingAPI.Framework.Logging
         public void PressAnyKeyToExit(bool showMessage)
         {
             if (showMessage)
-                Console.WriteLine("Game has ended. Press any key to exit.");
+                this.Monitor.Log("Game has ended. Press any key to exit.");
             Thread.Sleep(100);
             Console.ReadKey();
             Environment.Exit(0);
@@ -339,7 +341,6 @@ namespace StardewModdingAPI.Framework.Logging
         /// <inheritdoc />
         public void Dispose()
         {
-            this.InterceptionManager.Dispose();
             this.LogFile.Dispose();
         }
 
