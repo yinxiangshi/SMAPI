@@ -31,15 +31,16 @@ namespace StardewModdingAPI.Metadata
             /****
             ** rewrite CIL to fix incompatible code
             ****/
-            // generic rewrites
-            yield return new FieldToPropertyRewriter(this.ValidateReferencesToAssemblies);
-
             // rewrite for crossplatform compatibility
             if (platformChanged)
                 yield return new MethodParentRewriter(typeof(SpriteBatch), typeof(SpriteBatchFacade));
 
             // rewrite for Stardew Valley 1.3
             yield return new StaticFieldToConstantRewriter<int>(typeof(Game1), "tileSize", Game1.tileSize);
+
+            // generic rewrites
+            yield return new FieldToPropertyRewriter(this.ValidateReferencesToAssemblies);
+            yield return new MethodWithMissingOptionalParameterRewriter(this.ValidateReferencesToAssemblies);
 
 #if HARMONY_2
             // rewrite for SMAPI 3.6 (Harmony 1.x => 2.0 update)

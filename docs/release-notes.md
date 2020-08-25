@@ -9,7 +9,7 @@
 
 ## Upcoming release
 * For players:
-  * Added heuristic compatibility rewrites for some common cases. That fixes some mods which previously broke on Android or in newer game versions.
+  * Added heuristic compatibility rewrites, which fix some mods previously incompatible with Android or newer game versions.
   * Tweaked the rules for showing update alerts (see _for SMAPI developers_ below for details).
   * Fixed crossplatform compatibility for mods which use the `[HarmonyPatch(type)]` attribute (thanks to spacechase0!).
   * Fixed broken URL in update alerts for unofficial versions.
@@ -27,7 +27,8 @@
   * The web API now returns an update alert in two new cases: any newer unofficial update (previously only shown if the mod was incompatible), and a newer prerelease version if the installed non-prerelease version is broken (previously only shown if the installed version was prerelease).
   * Internal refactoring to simplify game updates:
     * Reorganised SMAPI core to reduce coupling to `Game1` and make it easier to navigate.
-    * `FieldToPropertyRewriter` now auto-rewrites broken field references into properties if possible, so we no longer need to map fields manually.
+    * Added rewriter for any method broken due to new optional parameters.
+    * Added rewriter for any field which was replaced by a property.
     * `FieldReplaceRewriter` now supports mapping to a different target type.
   * Internal refactoring to simplify future game updates.
 
