@@ -69,7 +69,7 @@ namespace StardewModdingAPI.Framework
 
 
         /*********
-        ** Protected methods
+        ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="monitor">Encapsulates monitoring and logging for SMAPI.</param>
@@ -78,7 +78,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="modHooks">Handles mod hooks provided by the game.</param>
         /// <param name="multiplayer">The core multiplayer logic.</param>
         /// <param name="exitGameImmediately">Immediately exit the game without saving. This should only be invoked when an irrecoverable fatal error happens that risks save corruption or game-breaking bugs.</param>
-        internal SGame(Monitor monitor, Reflector reflection, EventManager eventManager, SModHooks modHooks, SMultiplayer multiplayer, Action<string> exitGameImmediately)
+        public SGame(Monitor monitor, Reflector reflection, EventManager eventManager, SModHooks modHooks, SMultiplayer multiplayer, Action<string> exitGameImmediately)
         {
             // init XNA
             Game1.graphics.GraphicsProfile = GraphicsProfile.HiDef;
@@ -96,6 +96,16 @@ namespace StardewModdingAPI.Framework
             this.ExitGameImmediately = exitGameImmediately;
         }
 
+        /// <summary>Get the observable location list.</summary>
+        public ObservableCollection<GameLocation> GetObservableLocations()
+        {
+            return (ObservableCollection<GameLocation>)Game1.locations;
+        }
+
+
+        /*********
+        ** Protected methods
+        *********/
         /// <summary>Load content when the game is launched.</summary>
         protected override void LoadContent()
         {

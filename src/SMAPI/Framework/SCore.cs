@@ -84,7 +84,7 @@ namespace StardewModdingAPI.Framework
         private readonly CommandManager CommandManager = new CommandManager();
 
         /// <summary>The underlying game instance.</summary>
-        private SGame GameInstance;
+        private SGame Game;
 
         /// <summary>Manages input visible to the game.</summary>
         private SInputState Input => SGame.Input;
@@ -249,7 +249,7 @@ namespace StardewModdingAPI.Framework
                 var multiplayer = new SMultiplayer(this.Monitor, this.EventManager, this.Toolkit.JsonHelper, this.ModRegistry, this.Reflection, this.OnModMessageReceived, this.Settings.LogNetworkTraffic);
                 var modHooks = new SModHooks(this.OnNewDayAfterFade);
                 SGame.CreateContentManagerImpl = this.CreateContentManager; // must be static since the game accesses it before the SGame constructor is called
-                this.GameInstance = new SGame(
+                this.Game = new SGame(
                     monitor: this.Monitor,
                     reflection: this.Reflection,
                     eventManager: this.EventManager,
@@ -259,12 +259,12 @@ namespace StardewModdingAPI.Framework
                 );
 
                 // hook game events
-                this.GameInstance.OnGameContentLoaded += this.OnLoadContent;
-                this.GameInstance.OnGameUpdating += this.OnGameUpdating;
-                this.GameInstance.OnGameExiting += this.OnGameExiting;
+                this.Game.OnGameContentLoaded += this.OnLoadContent;
+                this.Game.OnGameUpdating += this.OnGameUpdating;
+                this.Game.OnGameExiting += this.OnGameExiting;
 
                 this.Translator.SetLocale(this.ContentCore.GetLocale(), this.ContentCore.Language);
-                StardewValley.Program.gamePtr = this.GameInstance;
+                StardewValley.Program.gamePtr = this.Game;
 
                 // apply game patches
                 new GamePatcher(this.Monitor).Apply(
@@ -283,12 +283,12 @@ namespace StardewModdingAPI.Framework
                     if (this.IsGameRunning)
                     {
                         this.LogManager.WriteCrashLog();
-                        this.GameInstance.Exit();
+                        this.Game.Exit();
                     }
                 }).Start();
 
                 // set window titles
-                this.GameInstance.Window.Title = $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion}";
+                this.Game.Window.Title = $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion}";
                 this.LogManager.SetConsoleTitle($"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion}");
             }
             catch (Exception ex)
@@ -303,7 +303,7 @@ namespace StardewModdingAPI.Framework
             this.LogManager.LogSettingsHeader(this.Settings.DeveloperMode, this.Settings.CheckForUpdates);
 
             // set window titles
-            this.GameInstance.Window.Title = $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion}";
+            this.Game.Window.Title = $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion}";
             this.LogManager.SetConsoleTitle($"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion}");
 
             // start game
@@ -312,7 +312,7 @@ namespace StardewModdingAPI.Framework
             {
                 this.IsGameRunning = true;
                 StardewValley.Program.releaseBuild = true; // game's debug logic interferes with SMAPI opening the game window
-                this.GameInstance.Run();
+                this.Game.Run();
             }
             catch (Exception ex)
             {
@@ -351,7 +351,7 @@ namespace StardewModdingAPI.Framework
             this.IsGameRunning = false;
             this.ContentCore?.Dispose();
             this.CancellationToken?.Dispose();
-            this.GameInstance?.Dispose();
+            this.Game?.Dispose();
             this.LogManager?.Dispose(); // dispose last to allow for any last-second log messages
 
             // end game (moved from Game1.OnExiting to let us clean up first)
@@ -409,7 +409,7 @@ namespace StardewModdingAPI.Framework
 
             // update window titles
             int modsLoaded = this.ModRegistry.GetAll().Count();
-            this.GameInstance.Window.Title = $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion} with {modsLoaded} mods";
+            this.Game.Window.Title = $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion} with {modsLoaded} mods";
             this.LogManager.SetConsoleTitle($"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion} with {modsLoaded} mods");
         }
 
@@ -420,7 +420,7 @@ namespace StardewModdingAPI.Framework
             this.Input.TrueUpdate();
 
             // init watchers
-            this.Watchers = new WatcherCore(this.Input);
+            this.Watchers = new WatcherCore(this.Input, this.Game.GetObservableLocations());
 
             // validate XNB integrity
             if (!this.ValidateContentIntegrity())
@@ -477,7 +477,7 @@ namespace StardewModdingAPI.Framework
                 // this too. For example, doing this after mod event suppression would prevent the
                 // user from doing anything on the overnight shipping screen.
                 SInputState inputState = this.Input;
-                if (this.GameInstance.IsActive)
+                if (this.Game.IsActive)
                     inputState.TrueUpdate();
 
                 /*********
@@ -760,7 +760,7 @@ namespace StardewModdingAPI.Framework
                     /*********
                     ** Input events (if window has focus)
                     *********/
-                    if (this.GameInstance.IsActive)
+                    if (this.Game.IsActive)
                     {
                         // raise events
                         bool isChatInput = Game1.IsChatting || (Context.IsMultiplayer && Context.IsWorldReady && Game1.activeClickableMenu == null && Game1.currentMinigame == null && inputState.IsAnyDown(Game1.options.chatButton));
@@ -1071,7 +1071,6 @@ namespace StardewModdingAPI.Framework
         private LocalizedContentManager CreateContentManager(IServiceProvider serviceProvider, string rootDirectory)
         {
             // Game1._temporaryContent initializing from SGame constructor
-            // NOTE: this method is called before the SGame constructor runs. Don't depend on anything being initialized at this point.
             if (this.ContentCore == null)
             {
                 this.ContentCore = new ContentCoordinator(serviceProvider, rootDirectory, Thread.CurrentThread.CurrentUICulture, this.Monitor, this.Reflection, this.Toolkit.JsonHelper, this.InitializeBeforeFirstAssetLoaded);
