@@ -31,6 +31,9 @@ namespace StardewModdingAPI.Metadata
             /****
             ** rewrite CIL to fix incompatible code
             ****/
+            // generic rewrites
+            yield return new FieldToPropertyRewriter(this.ValidateReferencesToAssemblies);
+
             // rewrite for crossplatform compatibility
             if (platformChanged)
                 yield return new MethodParentRewriter(typeof(SpriteBatch), typeof(SpriteBatchFacade));

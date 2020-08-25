@@ -50,7 +50,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
         ** Protected methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="defaultPhrase">A brief noun phrase indicating what the handler matches.</param>
+        /// <param name="defaultPhrase">A brief noun phrase indicating what the handler matches, used if <see cref="Phrases"/> is empty.</param>
         protected BaseInstructionHandler(string defaultPhrase)
         {
             this.DefaultPhrase = defaultPhrase;
