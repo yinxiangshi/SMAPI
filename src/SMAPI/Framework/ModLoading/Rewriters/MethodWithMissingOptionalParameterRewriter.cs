@@ -68,14 +68,28 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             if (method == null)
                 return false;
 
-            // add extra parameters
-            foreach (ParameterDefinition parameter in method.Parameters.Skip(methodRef.Parameters.Count))
+            // get instructions to inject
+            var injectables = method.Parameters.Skip(methodRef.Parameters.Count)
+                .Select(p => new { Parameter = p, LoadValueInstruction = this.GetLoadValueInstruction(p.Constant) })
+                .ToArray();
+            if (injectables.Any(p => p.LoadValueInstruction == null))
+                return false; // SMAPI needs to load the value onto the stack before the method call, but the optional parameter type wasn't recognized
+
+            // inject new parameters
+            foreach (var entry in injectables)
             {
-                methodRef.Parameters.Add(new ParameterDefinition(
+                // load value onto stack
+                cil.InsertBefore(instruction, entry.LoadValueInstruction);
+
+                // add parameter
+                ParameterDefinition parameter = entry.Parameter;
+                var newParameter = new ParameterDefinition(
                     name: parameter.Name,
                     attributes: parameter.Attributes,
                     parameterType: module.ImportReference(parameter.ParameterType)
-                ));
+                );
+                newParameter.Constant = parameter.Constant;
+                methodRef.Parameters.Add(newParameter);
             }
 
             this.Phrases.Add($"{methodRef.DeclaringType.Name}.{methodRef.Name} (added missing optional parameters)");
@@ -108,6 +122,24 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             }
 
             return true;
+        }
+
+        /// <summary>Get the CIL instruction to load a value onto the stack.</summary>
+        /// <param name="rawValue">The constant value to inject.</param>
+        /// <returns>Returns the instruction, or <c>null</c> if the value type isn't supported.</returns>
+        private Instruction GetLoadValueInstruction(object rawValue)
+        {
+            return rawValue switch
+            {
+                null => Instruction.Create(OpCodes.Ldnull),
+                bool value => Instruction.Create(value ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0),
+                int value => Instruction.Create(OpCodes.Ldc_I4, value), // int32
+                long value => Instruction.Create(OpCodes.Ldc_I8, value), // int64
+                float value => Instruction.Create(OpCodes.Ldc_R4, value), // float32
+                double value => Instruction.Create(OpCodes.Ldc_R8, value), // float64
+                string value => Instruction.Create(OpCodes.Ldstr, value),
+                _ => null
+            };
         }
     }
 }
