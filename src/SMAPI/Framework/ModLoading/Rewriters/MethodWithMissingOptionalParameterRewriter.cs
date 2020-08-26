@@ -68,29 +68,17 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             if (method == null)
                 return false;
 
-            // get instructions to inject
-            var injectables = method.Parameters.Skip(methodRef.Parameters.Count)
-                .Select(p => new { Parameter = p, LoadValueInstruction = this.GetLoadValueInstruction(p.Constant) })
+            // get instructions to inject parameter values
+            var loadInstructions = method.Parameters.Skip(methodRef.Parameters.Count)
+                .Select(p => this.GetLoadValueInstruction(p.Constant))
                 .ToArray();
-            if (injectables.Any(p => p.LoadValueInstruction == null))
+            if (loadInstructions.Any(p => p == null))
                 return false; // SMAPI needs to load the value onto the stack before the method call, but the optional parameter type wasn't recognized
 
-            // inject new parameters
-            foreach (var entry in injectables)
-            {
-                // load value onto stack
-                cil.InsertBefore(instruction, entry.LoadValueInstruction);
-
-                // add parameter
-                ParameterDefinition parameter = entry.Parameter;
-                var newParameter = new ParameterDefinition(
-                    name: parameter.Name,
-                    attributes: parameter.Attributes,
-                    parameterType: module.ImportReference(parameter.ParameterType)
-                );
-                newParameter.Constant = parameter.Constant;
-                methodRef.Parameters.Add(newParameter);
-            }
+            // rewrite method reference
+            foreach (Instruction loadInstruction in loadInstructions)
+                cil.InsertBefore(instruction, loadInstruction);
+            instruction.Operand = module.ImportReference(method);
 
             this.Phrases.Add($"{methodRef.DeclaringType.Name}.{methodRef.Name} (added missing optional parameters)");
             return this.MarkRewritten();
