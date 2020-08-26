@@ -257,14 +257,12 @@ namespace StardewModdingAPI.Framework
                     multiplayer: multiplayer,
                     exitGameImmediately: this.ExitGameImmediately
                 );
+                StardewValley.Program.gamePtr = this.Game;
 
                 // hook game events
                 this.Game.OnGameContentLoaded += this.OnLoadContent;
                 this.Game.OnGameUpdating += this.OnGameUpdating;
                 this.Game.OnGameExiting += this.OnGameExiting;
-
-                this.Translator.SetLocale(this.ContentCore.GetLocale(), this.ContentCore.Language);
-                StardewValley.Program.gamePtr = this.Game;
 
                 // apply game patches
                 new GamePatcher(this.Monitor).Apply(
@@ -1074,6 +1072,9 @@ namespace StardewModdingAPI.Framework
             if (this.ContentCore == null)
             {
                 this.ContentCore = new ContentCoordinator(serviceProvider, rootDirectory, Thread.CurrentThread.CurrentUICulture, this.Monitor, this.Reflection, this.Toolkit.JsonHelper, this.InitializeBeforeFirstAssetLoaded);
+                if (this.ContentCore.Language != this.Translator.LocaleEnum)
+                    this.Translator.SetLocale(this.ContentCore.GetLocale(), this.ContentCore.Language);
+
                 this.NextContentManagerIsMain = true;
                 return this.ContentCore.CreateGameContentManager("Game1._temporaryContent");
             }
