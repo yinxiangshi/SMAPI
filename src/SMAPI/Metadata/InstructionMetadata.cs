@@ -35,9 +35,6 @@ namespace StardewModdingAPI.Metadata
             if (platformChanged)
                 yield return new MethodParentRewriter(typeof(SpriteBatch), typeof(SpriteBatchFacade));
 
-            // rewrite for Stardew Valley 1.3
-            yield return new StaticFieldToConstantRewriter<int>(typeof(Game1), "tileSize", Game1.tileSize);
-
             // heuristic rewrites
             yield return new HeuristicFieldRewriter(this.ValidateReferencesToAssemblies);
             yield return new HeuristicMethodRewriter(this.ValidateReferencesToAssemblies);
