@@ -50,7 +50,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         }
 
         /// <inheritdoc />
-        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, Action<Instruction> replaceWith)
+        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction)
         {
             // get field reference
             FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);
