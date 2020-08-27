@@ -15,6 +15,7 @@
   * Fixed broken URL in update alerts for unofficial versions.
   * Fixed rare error when a mod adds/removes event handlers asynchronously.
   * Fixed rare issue where the console showed incorrect colors when mods wrote to it asynchronously.
+  * Fixed SMAPI not always detecting broken field references in mod code.
   * Removed the experimental `RewriteInParallel` option added in SMAPI 3.6 (it was already disabled by default). Unfortunately this caused intermittent and unpredictable errors when enabled.
 
 * For modders:
