@@ -49,8 +49,9 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                 return false;
 
             // rewrite field to property
-            MethodReference propertyRef = module.ImportReference(method);
-            replaceWith(cil.Create(OpCodes.Call, propertyRef));
+            instruction.OpCode = OpCodes.Call;
+            instruction.Operand = module.ImportReference(method);
+
             this.Phrases.Add($"{fieldRef.DeclaringType.Name}.{fieldRef.Name} (field => property)");
             return this.MarkRewritten();
         }

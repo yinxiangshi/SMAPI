@@ -58,8 +58,8 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                 return false;
 
             // replace with new field
-            FieldReference newRef = module.ImportReference(this.ToField);
-            replaceWith(cil.Create(instruction.OpCode, newRef));
+            instruction.Operand = module.ImportReference(this.ToField);
+
             return this.MarkRewritten();
         }
     }
