@@ -142,6 +142,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>Whether the game is creating the save file and SMAPI has already raised <see cref="IGameLoopEvents.SaveCreating"/>.</summary>
         private bool IsBetweenCreateEvents;
 
+        /// <summary>Whether the player just returned to the title screen.</summary>
+        private bool JustReturnedToTitle;
+
         /// <summary>Asset interceptors added or removed since the last tick.</summary>
         private readonly List<AssetInterceptorChange> ReloadAssetInterceptorsQueue = new List<AssetInterceptorChange>();
 
@@ -456,8 +459,16 @@ namespace StardewModdingAPI.Framework
 
             try
             {
+                /*********
+                ** Safe queued work
+                *********/
+                // print warnings/alerts
                 SCore.DeprecationManager.PrintQueued();
                 SCore.PerformanceMonitor.PrintQueuedAlerts();
+
+                // reapply overrides
+                if (this.JustReturnedToTitle && !(Game1.mapDisplayDevice is SDisplayDevice))
+                    Game1.mapDisplayDevice = new SDisplayDevice(Game1.content, Game1.game1.GraphicsDevice);
 
                 /*********
                 ** First-tick initialization
@@ -1039,8 +1050,7 @@ namespace StardewModdingAPI.Framework
         {
             // perform cleanup
             this.Multiplayer.CleanupOnMultiplayerExit();
-            if (!(Game1.mapDisplayDevice is SDisplayDevice))
-                Game1.mapDisplayDevice = new SDisplayDevice(Game1.content, Game1.game1.GraphicsDevice);
+            this.JustReturnedToTitle = true;
         }
 
         /// <summary>Raised before the game exits.</summary>
