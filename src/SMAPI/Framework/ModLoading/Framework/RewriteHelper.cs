@@ -82,7 +82,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
         /// <param name="reference">The type reference.</param>
         public static bool IsSameType(Type type, TypeReference reference)
         {
-            // 
+            //
             // duplicated by IsSameType(TypeReference, TypeReference) below
             //
 
@@ -157,7 +157,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
         /// <param name="reference">The method reference.</param>
         public static bool HasMatchingSignature(MethodBase definition, MethodReference reference)
         {
-            // 
+            //
             // duplicated by HasMatchingSignature(MethodDefinition, MethodReference) below
             //
 
@@ -183,7 +183,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
         /// <param name="reference">The method reference.</param>
         public static bool HasMatchingSignature(MethodDefinition definition, MethodReference reference)
         {
-            // 
+            //
             // duplicated by HasMatchingSignature(MethodBase, MethodReference) above
             //
 
