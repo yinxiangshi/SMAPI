@@ -289,8 +289,10 @@ namespace StardewModdingAPI.Framework
                 }).Start();
 
                 // set window titles
-                this.Game.Window.Title = $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion}";
-                this.LogManager.SetConsoleTitle($"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion}");
+                this.SetWindowTitles(
+                    game: $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion}",
+                    smapi: $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion}"
+                );
             }
             catch (Exception ex)
             {
@@ -304,8 +306,10 @@ namespace StardewModdingAPI.Framework
             this.LogManager.LogSettingsHeader(this.Settings.DeveloperMode, this.Settings.CheckForUpdates);
 
             // set window titles
-            this.Game.Window.Title = $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion}";
-            this.LogManager.SetConsoleTitle($"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion}");
+            this.SetWindowTitles(
+                game: $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion}",
+                smapi: $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion}"
+            );
 
             // start game
             this.Monitor.Log("Starting game...", LogLevel.Debug);
@@ -410,8 +414,10 @@ namespace StardewModdingAPI.Framework
 
             // update window titles
             int modsLoaded = this.ModRegistry.GetAll().Count();
-            this.Game.Window.Title = $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion} with {modsLoaded} mods";
-            this.LogManager.SetConsoleTitle($"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion} with {modsLoaded} mods");
+            this.SetWindowTitles(
+                game: $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion} with {modsLoaded} mods",
+                smapi: $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion} with {modsLoaded} mods"
+            );
         }
 
         /// <summary>Raised after the game finishes initializing.</summary>
@@ -818,11 +824,14 @@ namespace StardewModdingAPI.Framework
                     *********/
                     if (state.ActiveMenu.IsChanged)
                     {
+                        var was = state.ActiveMenu.Old;
+                        var now = state.ActiveMenu.New;
+
                         if (this.Monitor.IsVerbose)
-                            this.Monitor.Log($"Context: menu changed from {state.ActiveMenu.Old?.GetType().FullName ?? "none"} to {state.ActiveMenu.New?.GetType().FullName ?? "none"}.");
+                            this.Monitor.Log($"Context: menu changed from {was?.GetType().FullName ?? "none"} to {now?.GetType().FullName ?? "none"}.");
 
                         // raise menu events
-                        events.MenuChanged.Raise(new MenuChangedEventArgs(state.ActiveMenu.Old, state.ActiveMenu.New));
+                        events.MenuChanged.Raise(new MenuChangedEventArgs(was, now));
                     }
 
                     /*********
@@ -1153,6 +1162,15 @@ namespace StardewModdingAPI.Framework
             }
 
             return !issuesFound;
+        }
+
+        /// <summary>Set the window titles for the game and console windows.</summary>
+        /// <param name="game">The game window text.</param>
+        /// <param name="smapi">The SMAPI window text.</param>
+        private void SetWindowTitles(string game, string smapi)
+        {
+            this.Game.Window.Title = game;
+            this.LogManager.SetConsoleTitle(smapi);
         }
 
         /// <summary>Asynchronously check for a new version of SMAPI and any installed mods, and print alerts to the console if an update is available.</summary>
