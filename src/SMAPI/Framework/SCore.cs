@@ -258,14 +258,13 @@ namespace StardewModdingAPI.Framework
                     eventManager: this.EventManager,
                     modHooks: modHooks,
                     multiplayer: multiplayer,
-                    exitGameImmediately: this.ExitGameImmediately
+                    exitGameImmediately: this.ExitGameImmediately,
+
+                    onGameContentLoaded: this.OnGameContentLoaded,
+                    onGameUpdating: this.OnGameUpdating,
+                    onGameExiting: this.OnGameExiting
                 );
                 StardewValley.Program.gamePtr = this.Game;
-
-                // hook game events
-                this.Game.OnGameContentLoaded += this.OnLoadContent;
-                this.Game.OnGameUpdating += this.OnGameUpdating;
-                this.Game.OnGameExiting += this.OnGameExiting;
 
                 // apply game patches
                 new GamePatcher(this.Monitor).Apply(
@@ -445,7 +444,7 @@ namespace StardewModdingAPI.Framework
         }
 
         /// <summary>Raised after the game finishes loading its initial content.</summary>
-        private void OnLoadContent()
+        private void OnGameContentLoaded()
         {
             // override map display device
             Game1.mapDisplayDevice = new SDisplayDevice(Game1.content, Game1.game1.GraphicsDevice);
