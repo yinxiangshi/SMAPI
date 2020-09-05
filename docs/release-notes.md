@@ -9,8 +9,9 @@
 
 ## Upcoming release
 * For players:
-  * Added heuristic compatibility rewrites. (This fixes some mods previously broken on Android, and improves compatibility with future game updates.)
+  * Added heuristic compatibility rewrites. (This improves mod compatibility with Android and future game updates.)
   * Tweaked the rules for showing update alerts (see _for SMAPI developers_ below for details).
+  * Simplified error shown for duplicate mods.
   * Fixed crossplatform compatibility for mods which use the `[HarmonyPatch(type)]` attribute (thanks to spacechase0!).
   * Fixed map tile rotation broken when you return to the title screen and reload a save.
   * Fixed broken URL in update alerts for unofficial versions.
