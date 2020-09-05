@@ -362,10 +362,14 @@ which can be uploaded to NuGet or referenced directly.
 * Rewrote documentation to make it easier to read.
 
 ### 3.1
+Released 01 February 2020.
+
 * Added support for semantic versioning 2.0.
 * `0Harmony.dll` is now ignored if the mod references Harmony directly (it's bundled with SMAPI).
 
 ### 3.0
+Released 26 November 2019.
+
 * Updated for SMAPI 3.0 and Stardew Valley 1.4.
 * Added automatic support for `assets` folders.
 * Added `$(GameExecutableName)` MSBuild variable.
@@ -379,11 +383,15 @@ which can be uploaded to NuGet or referenced directly.
 * Migrated package icon to NuGet's new format.
 
 ### 2.2
+Released 28 October 2018.
+
 * Added support for SMAPI 2.8+ (still compatible with earlier versions).
 * Added default game paths for 32-bit Windows.
 * Fixed valid manifests marked invalid in some cases.
 
 ### 2.1
+Released 27 July 2018.
+
 * Added support for Stardew Valley 1.3.
 * Added support for non-mod projects.
 * Added C# analyzers to warn about implicit conversions of Netcode fields in Stardew Valley 1.3.
@@ -392,12 +400,18 @@ which can be uploaded to NuGet or referenced directly.
 * Fixed some game paths not detected by NuGet package.
 
 ### 2.0.2
+Released 01 November 2017.
+
 * Fixed compatibility issue on Linux.
 
 ### 2.0.1
+Released 11 October 2017.
+
 * Fixed mod deploy failing to create subfolders if they don't already exist.
 
 ### 2.0
+Released 11 October 2017.
+
 * Added: mods are now copied into the `Mods` folder automatically (configurable).
 * Added: release zips are now created automatically in your build output folder (configurable).
 * Added: mod deploy and release zips now exclude Json.NET automatically, since it's provided by SMAPI.
@@ -407,38 +421,67 @@ which can be uploaded to NuGet or referenced directly.
 * Fixed release zip failing if mod name contains characters that aren't valid in a filename.
 
 ### 1.7.1
+Released 28 July 2017.
+
 * Fixed issue where i18n folders were flattened.
 * The manifest/i18n files in the project now take precedence over those in the build output if both
   are present.
 
 ### 1.7
+Released 28 July 2017.
+
 * Added option to create release zips on build.
 * Added reference to XNA's XACT library for audio-related mods.
 
+### 1.6.2
+Released 10 July 2017.
+
+* Further improved crossplatform game path detection.
+* Removed undocumented `GamePlatform` build property.
+
+### 1.6.1
+Released 09 July 2017.
+
+* Improved crossplatform game path detection.
+
 ### 1.6
+Released 05 June 2017.
+
 * Added support for deploying mod files into `Mods` automatically.
 * Added a build error if a game folder is found, but doesn't contain Stardew Valley or SMAPI.
 
 ### 1.5
+Released 23 January 2017.
+
 * Added support for setting a custom game path globally.
 * Added default GOG path on Mac.
 
 ### 1.4
+Released 11 January 2017.
+
 * Fixed detection of non-default game paths on 32-bit Windows.
 * Removed support for SilVerPLuM (discontinued).
 * Removed support for overriding the target platform (no longer needed since SMAPI crossplatforms
   mods automatically).
 
 ### 1.3
+Released 31 December 2016.
+
 * Added support for non-default game paths on Windows.
 
 ### 1.2
+Released 24 October 2016.
+
 * Exclude game binaries from mod build output.
 
 ### 1.1
+Released 21 October 2016.
+
 * Added support for overriding the target platform.
 
 ### 1.0
+Released 21 October 2016.
+
 * Initial release.
 * Added support for detecting the game path automatically.
 * Added support for injecting XNA/MonoGame references automatically based on the OS.
