@@ -115,8 +115,17 @@ These are the options you can set:
 <td><code>GamePath</code></td>
 <td>
 
-The absolute path to the Stardew Valley folder. This is auto-detected, so you shouldn't need to
-change it in most cases.
+The absolute path to the Stardew Valley folder. This is auto-detected, so you usually shouldn't
+need to change it.
+
+</td>
+</tr>
+<tr>
+<td><code>GameModsPath</code></td>
+<td>
+
+The absolute path to the folder containing the game's installed mods (defaults to
+`$(GamePath)/Mods`), used when deploying the mod files.
 
 </td>
 </tr>
@@ -148,14 +157,6 @@ Whether to add a reference to [Harmony](https://stardewvalleywiki.com/Modding:Mo
 </td>
 </tr>
 <tr>
-<td><code>ModFolderName</code></td>
-<td>
-
-The mod name for its folder under `Mods` and its release zip (defaults to the project name).
-
-</td>
-</tr>
-<tr>
 <td><code>EnableModDeploy</code></td>
 <td>
 
@@ -164,18 +165,26 @@ Whether to copy the mod files into your game's `Mods` folder (default `true`).
 </td>
 </tr>
 <tr>
-<td><code>ModZipPath</code></td>
-<td>
-
-The folder path where the release zip is created (defaults to the project's `bin` folder).
-
-</td>
-</tr>
-<tr>
 <td><code>EnableModZip</code></td>
 <td>
 
 Whether to create a release-ready `.zip` file in the mod project's `bin` folder (default `true`).
+
+</td>
+</tr>
+<tr>
+<td><code>ModFolderName</code></td>
+<td>
+
+The mod name for its folder under `Mods` and its release zip (defaults to the project name).
+
+</td>
+</tr>
+<tr>
+<td><code>ModZipPath</code></td>
+<td>
+
+The folder path where the release zip is created (defaults to the project's `bin` folder).
 
 </td>
 </tr>
@@ -198,6 +207,16 @@ unit test projects, but not needed for mods that'll be run through SMAPI.
 </td>
 </tr>
 <tr>
+<td><code>EnableGameDebugging</code></td>
+<td>
+
+Whether to configure the project so you can launch or debug the game through the _Debug_ menu in
+Visual Studio (default `true`). There's usually no reason to change this, unless it's a unit test
+project.
+
+</td>
+</tr>
+<tr>
 <td><code>IgnoreModFilePatterns</code></td>
 <td>
 
@@ -209,16 +228,6 @@ For example, this excludes all `.txt` and `.pdf` files, as well as the `assets/p
 ```xml
 <IgnoreModFilePatterns>\.txt$, \.pdf$, assets[/\\]paths.png</IgnoreModFilePatterns>
 ```
-
-</td>
-</tr>
-<tr>
-<td><code>EnableGameDebugging</code></td>
-<td>
-
-Whether to configure the project so you can launch or debug the game through the _Debug_ menu in
-Visual Studio (default `true`). There's usually no reason to change this, unless it's a unit test
-project.
 
 </td>
 </tr>
@@ -349,6 +358,7 @@ which can be uploaded to NuGet or referenced directly.
 
 ## Release notes
 ### Upcoming release
+* Added option to change `Mods` folder path.
 * Rewrote documentation to make it easier to read.
 
 ### 3.1
