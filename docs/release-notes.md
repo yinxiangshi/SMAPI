@@ -22,6 +22,7 @@
   * Internal changes to prepare for upcoming game updates.
 
 * For modders:
+  * Added `PathUtilities` to simplify working with file/asset names.
   * You can now read/write `SDate` values to JSON (e.g. for `config.json`, network mod messages, etc).
 
 * For the web UI:
