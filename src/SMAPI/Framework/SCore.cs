@@ -423,7 +423,7 @@ namespace StardewModdingAPI.Framework
         private void OnGameInitialized()
         {
             // set initial state
-            this.Input.TrueUpdate();
+            this.Input.Update();
 
             // init watchers
             this.Watchers = new WatcherCore(this.Input, this.Game.GetObservableLocations());
@@ -492,7 +492,7 @@ namespace StardewModdingAPI.Framework
                 // user from doing anything on the overnight shipping screen.
                 SInputState inputState = this.Input;
                 if (this.Game.IsActive)
-                    inputState.TrueUpdate();
+                    inputState.Update();
 
                 /*********
                 ** Special cases
@@ -795,7 +795,7 @@ namespace StardewModdingAPI.Framework
                             }
 
                             // raise input button events
-                            foreach (var pair in inputState.LastButtonStates)
+                            foreach (var pair in inputState.ButtonStates)
                             {
                                 SButton button = pair.Key;
                                 SButtonState status = pair.Value;
