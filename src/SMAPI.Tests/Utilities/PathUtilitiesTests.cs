@@ -24,6 +24,18 @@ namespace SMAPI.Tests.Utilities
                 NormalizedOnUnix = @"C:/Program Files (x86)/Steam/steamapps/common/Stardew Valley"
             },
 
+            // Windows absolute path (with trailing slash)
+            new SamplePath
+            {
+                OriginalPath = @"C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley\",
+
+                Segments = new[] { "C:", "Program Files (x86)", "Steam", "steamapps", "common", "Stardew Valley" },
+                SegmentsLimit3 = new [] { "C:", "Program Files (x86)", @"Steam\steamapps\common\Stardew Valley\" },
+
+                NormalizedOnWindows = @"C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley\",
+                NormalizedOnUnix = @"C:/Program Files (x86)/Steam/steamapps/common/Stardew Valley/"
+            },
+
             // Windows relative path
             new SamplePath
             {
@@ -68,8 +80,20 @@ namespace SMAPI.Tests.Utilities
                 Segments = new [] { "home", ".steam", "steam", "steamapps", "common", "Stardew Valley" },
                 SegmentsLimit3 = new [] { "home", ".steam", "steam/steamapps/common/Stardew Valley" },
 
-                NormalizedOnWindows = @"home\.steam\steam\steamapps\common\Stardew Valley",
+                NormalizedOnWindows = @"\home\.steam\steam\steamapps\common\Stardew Valley",
                 NormalizedOnUnix = @"/home/.steam/steam/steamapps/common/Stardew Valley"
+            },
+
+            // Linux absolute path (with trailing slash)
+            new SamplePath
+            {
+                OriginalPath = @"/home/.steam/steam/steamapps/common/Stardew Valley/",
+
+                Segments = new [] { "home", ".steam", "steam", "steamapps", "common", "Stardew Valley" },
+                SegmentsLimit3 = new [] { "home", ".steam", "steam/steamapps/common/Stardew Valley/" },
+
+                NormalizedOnWindows = @"\home\.steam\steam\steamapps\common\Stardew Valley\",
+                NormalizedOnUnix = @"/home/.steam/steam/steamapps/common/Stardew Valley/"
             },
 
             // Linux absolute path (with ~)
@@ -199,15 +223,40 @@ namespace SMAPI.Tests.Utilities
             ExpectedResult = @"\\adjacent\unc"
         )]
         [TestCase(
+            @"C:\same\path",
+            @"C:\same\path",
+            ExpectedResult = @"."
+        )]
+        [TestCase(
             @"C:\parent",
             @"C:\PARENT\child",
-            ExpectedResult = @"child" // note: incorrect on Linux and sometimes MacOS, but not worth the complexity of detecting whether the filesystem is case-sensitive for SMAPI's purposes
+            ExpectedResult = @"child"
         )]
 #else
         [TestCase(
             @"~/.steam/steam/steamapps/common/Stardew Valley",
             @"~/.steam/steam/steamapps/common/Stardew Valley/Mods/Automate",
-            ExpectedResult = @"Mods\Automate"
+            ExpectedResult = @"Mods/Automate"
+        )]
+        [TestCase(
+            @"~/.steam/steam/steamapps/common/Stardew Valley/Mods/Automate",
+            @"~/.steam/steam/steamapps/common/Stardew Valley/Content",
+            ExpectedResult = @"../../Content"
+        )]
+        [TestCase(
+            @"~/.steam/steam/steamapps/common/Stardew Valley/Mods/Automate",
+            @"/mnt/another-drive",
+            ExpectedResult = @"/mnt/another-drive"
+        )]
+        [TestCase(
+            @"~/same/path",
+            @"~/same/path",
+            ExpectedResult = @"."
+        )]
+        [TestCase(
+            @"~/parent",
+            @"~/PARENT/child",
+            ExpectedResult = @"child" // note: incorrect on Linux and sometimes MacOS, but not worth the complexity of detecting whether the filesystem is case-sensitive for SMAPI's purposes
         )]
 #endif
         public string GetRelativePath(string sourceDir, string targetPath)

@@ -45,18 +45,10 @@ namespace StardewModdingAPI.Toolkit.Utilities
         [Pure]
         public static string NormalizePathSeparators(string path)
         {
-            string normalized = string.Join(PathUtilities.PreferredPathSeparator, PathUtilities.GetSegments(path));
+            if (string.IsNullOrWhiteSpace(path))
+                return path;
 
-            // keep root
-#if SMAPI_FOR_WINDOWS
-            if (path.StartsWith(PathUtilities.WindowsUncRoot))
-                normalized = PathUtilities.WindowsUncRoot + normalized;
-            else
-#endif
-            if (path.StartsWith(PathUtilities.PreferredPathSeparator) || path.StartsWith(PathUtilities.WindowsUncRoot))
-                normalized = PathUtilities.PreferredPathSeparator + normalized;
-
-            return normalized;
+            return string.Join(PathUtilities.PreferredPathSeparator, path.Split(PathUtilities.PossiblePathSeparators));
         }
 
         /// <summary>Get a directory or file path relative to a given source path. If no relative path is possible (e.g. the paths are on different drives), an absolute path is returned.</summary>
@@ -79,16 +71,18 @@ namespace StardewModdingAPI.Toolkit.Utilities
             // get relative path
             string relative = PathUtilities.NormalizePathSeparators(Uri.UnescapeDataString(from.MakeRelativeUri(to).ToString()));
 
-            // set empty path to './'
+            // normalize
             if (relative == "")
-                relative = "./";
-
-            // fix root
-            if (relative.StartsWith("file:") && !targetPath.Contains("file:"))
+                relative = ".";
+            else
             {
-                relative = relative.Substring("file:".Length);
-                if (targetPath.StartsWith(PathUtilities.WindowsUncRoot) && !relative.StartsWith(PathUtilities.WindowsUncRoot))
-                    relative = PathUtilities.WindowsUncRoot + relative.TrimStart('\\');
+                // trim trailing slash from URL
+                if (relative.EndsWith(PathUtilities.PreferredPathSeparator))
+                    relative = relative.Substring(0, relative.Length - PathUtilities.PreferredPathSeparator.Length);
+
+                // fix root
+                if (relative.StartsWith("file:") && !targetPath.Contains("file:"))
+                    relative = relative.Substring("file:".Length);
             }
 
             return relative;
