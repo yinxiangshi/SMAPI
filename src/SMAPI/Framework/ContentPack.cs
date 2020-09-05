@@ -1,10 +1,7 @@
 using System;
 using System.IO;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Utilities;
-using xTile;
 
 namespace StardewModdingAPI.Framework
 {

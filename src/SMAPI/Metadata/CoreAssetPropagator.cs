@@ -34,9 +34,6 @@ namespace StardewModdingAPI.Metadata
         /// <summary>Simplifies access to private game code.</summary>
         private readonly Reflector Reflection;
 
-        /// <summary>Encapsulates monitoring and logging.</summary>
-        private readonly IMonitor Monitor;
-
         /// <summary>Optimized bucket categories for batch reloading assets.</summary>
         private enum AssetBucket
         {
@@ -57,12 +54,10 @@ namespace StardewModdingAPI.Metadata
         /// <summary>Initialize the core asset data.</summary>
         /// <param name="assertAndNormalizeAssetName">Normalizes an asset key to match the cache key and assert that it's valid.</param>
         /// <param name="reflection">Simplifies access to private code.</param>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        public CoreAssetPropagator(Func<string, string> assertAndNormalizeAssetName, Reflector reflection, IMonitor monitor)
+        public CoreAssetPropagator(Func<string, string> assertAndNormalizeAssetName, Reflector reflection)
         {
             this.AssertAndNormalizeAssetName = assertAndNormalizeAssetName;
             this.Reflection = reflection;
-            this.Monitor = monitor;
         }
 
         /// <summary>Reload one of the game's core assets (if applicable).</summary>

@@ -297,8 +297,6 @@ namespace StardewModdingAPI.Framework
             }
             if (Game1.currentMinigame != null)
             {
-                bool batchEnded = false;
-
                 if (events.Rendering.HasListeners())
                 {
                     Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
@@ -321,12 +319,11 @@ namespace StardewModdingAPI.Framework
                     Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
                     Game1.spriteBatch.Draw(target_screen, Vector2.Zero, target_screen.Bounds, Color.White, 0f, Vector2.Zero, Game1.options.zoomLevel, SpriteEffects.None, 1f);
                     events.Rendered.RaiseEmpty();
-                    batchEnded = true;
                     Game1.spriteBatch.End();
                 }
                 else
                 {
-                    if (!batchEnded && events.Rendered.HasListeners())
+                    if (events.Rendered.HasListeners())
                     {
                         Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
                         events.Rendered.RaiseEmpty();
