@@ -29,13 +29,13 @@ change how these work):
 * **Detect game path:**  
   The package automatically finds your game folder by scanning the default install paths and
   Windows registry. It adds two MSBuild properties for use in your `.csproj` file if needed:
-  $(GamePath)` and `$(GameExecutableName)`.
+  `$(GamePath)` and `$(GameExecutableName)`.
 
 * **Add assembly references:**  
-  The package adds assembly references to SMAPI, Stardew Valley, xTile, and MonoGame (Linux/Mac) or
-  XNA Framework (Windows). It automatically adjusts depending on which OS you're compiling it on.
-  If you use [Harmony](https://github.com/pardeike/Harmony), it can optionally add a reference to
-  that too.
+  The package adds assembly references to SMAPI, Stardew Valley, xTile, and the game framework
+  (MonoGame on Linux/Mac, XNA Framework on Windows). It automatically adjusts depending on which OS
+  you're compiling it on. If you use [Harmony](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Harmony),
+  it can optionally add a reference to that too.
 
 * **Copy files into the `Mods` folder:**  
   The package automatically copies your mod's DLL and PDB files, `manifest.json`, [`i18n`
@@ -46,8 +46,8 @@ change how these work):
 
 * **Create release zip:**  
   The package adds a zip file in your project's `bin` folder when you rebuild the code, in the
-  format recommended for uploading to mod sites like Nexus Mods. This includes the same files and
-  options as the previous feature.
+  format recommended for uploading to mod sites like Nexus Mods. This includes the same files as
+  the previous feature.
 
 * **Launch or debug mod:**  
   On Windows only, the package configures Visual Studio so you can launch the game and attach a
@@ -55,12 +55,11 @@ change how these work):
   breakpoints](https://docs.microsoft.com/en-us/visualstudio/debugger/using-breakpoints?view=vs-2019)
   in your code while the game is running, or [make simple changes to the mod code without needing to
   restart the game](https://docs.microsoft.com/en-us/visualstudio/debugger/edit-and-continue?view=vs-2019).
-
   This is disabled on Linux/Mac due to limitations with the Mono wrapper.
 
 * **Preconfigure common settings:**  
   The package automatically enables `.pdb` files (so error logs show line numbers to simplify
-  debugging), and enables support for the simplified `.csproj` format.
+  debugging), and enables support for the simplified SDK-style `.csproj` format.
 
 * **Add code warnings:**  
   The package runs code analysis on your mod and raises warnings for some common errors or
@@ -115,8 +114,8 @@ These are the options you can set:
 <td><code>GamePath</code></td>
 <td>
 
-The absolute path to the Stardew Valley folder. This is auto-detected, so you usually shouldn't
-need to change it.
+The absolute path to the Stardew Valley folder. This is auto-detected, so you usually don't need to
+change it.
 
 </td>
 </tr>
@@ -133,7 +132,7 @@ The absolute path to the folder containing the game's installed mods (defaults t
 <td><code>GameExecutableName</code></td>
 <td>
 
-The name of the game's executable file (i.e. `StardewValley.exe` on Linux/Mac or
+The filename for the game's executable (i.e. `StardewValley.exe` on Linux/Mac or
 `Stardew Valley.exe` on Windows). This is auto-detected, and you should almost never change this.
 
 </td>
@@ -300,7 +299,7 @@ yourself.
 
 To do that:
 
-1. Get the full path containing the Stardew Valley executable.
+1. Get the full folder path containing the Stardew Valley executable.
 2. See [_configure_](#configure) to add this property:
    ```xml
    <PropertyGroup>
@@ -348,7 +347,7 @@ To prepare a build of the NuGet package:
 1. Install the [NuGet CLI](https://docs.microsoft.com/en-us/nuget/install-nuget-client-tools#nugetexe-cli).
 1. Change the version and release notes in `package.nuspec`.
 2. Rebuild the solution in _Release_ mode.
-3. Open a terminal in the `bin/Pathoschild.Stardew.ModBuildConfig` package and run this command:
+3. Open a terminal in the `bin/Pathoschild.Stardew.ModBuildConfig` folder and run this command:
    ```bash
    nuget.exe pack
    ```
