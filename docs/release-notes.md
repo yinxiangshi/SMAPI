@@ -19,6 +19,7 @@
   * Fixed rare issue where the console showed incorrect colors when mods wrote to it asynchronously.
   * Fixed SMAPI not always detecting broken field references in mod code.
   * Removed the experimental `RewriteInParallel` option added in SMAPI 3.6 (it was already disabled by default). Unfortunately this caused intermittent and unpredictable errors when enabled.
+  * Internal changes to prepare for upcoming game updates.
 
 * For modders:
   * You can now read/write `SDate` values to JSON (e.g. for `config.json`, network mod messages, etc).
