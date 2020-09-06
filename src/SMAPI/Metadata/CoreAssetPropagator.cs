@@ -452,17 +452,7 @@ namespace StardewModdingAPI.Metadata
                     return false;
 
                 case "minigames\\titlebuttons": // TitleMenu
-                    {
-                        if (Game1.activeClickableMenu is TitleMenu titleMenu)
-                        {
-                            Texture2D texture = content.Load<Texture2D>(key);
-                            titleMenu.titleButtonsTexture = texture;
-                            foreach (TemporaryAnimatedSprite bird in titleMenu.birds)
-                                bird.texture = texture;
-                            return true;
-                        }
-                    }
-                    return false;
+                    return this.ReloadTitleButtons(content, key);
 
                 /****
                 ** Content\TileSheets
@@ -569,6 +559,26 @@ namespace StardewModdingAPI.Metadata
         /****
         ** Reload texture methods
         ****/
+        /// <summary>Reload buttons on the title screen.</summary>
+        /// <param name="content">The content manager through which to reload the asset.</param>
+        /// <param name="key">The asset key to reload.</param>
+        /// <returns>Returns whether any textures were reloaded.</returns>
+        private bool ReloadTitleButtons(LocalizedContentManager content, string key)
+        {
+            if (Game1.activeClickableMenu is TitleMenu titleMenu)
+            {
+                Texture2D texture = content.Load<Texture2D>(key);
+
+                titleMenu.titleButtonsTexture = texture;
+                foreach (TemporaryAnimatedSprite bird in titleMenu.birds)
+                    bird.texture = texture;
+
+                return true;
+            }
+
+            return false;
+        }
+
         /// <summary>Reload the sprites for matching pets or horses.</summary>
         /// <typeparam name="TAnimal">The animal type.</typeparam>
         /// <param name="content">The content manager through which to reload the asset.</param>
