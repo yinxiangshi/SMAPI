@@ -24,6 +24,7 @@
 * For modders:
   * Added `PathUtilities` to simplify working with file/asset names.
   * You can now read/write `SDate` values to JSON (e.g. for `config.json`, network mod messages, etc).
+  * Fixed asset propagation not updating title menu buttons immediately on Linux/Mac.
 
 * For the web UI:
   * Updated the JSON validator/schema for Content Patcher 1.16 and 1.17.

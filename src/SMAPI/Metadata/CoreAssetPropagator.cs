@@ -563,6 +563,7 @@ namespace StardewModdingAPI.Metadata
         /// <param name="content">The content manager through which to reload the asset.</param>
         /// <param name="key">The asset key to reload.</param>
         /// <returns>Returns whether any textures were reloaded.</returns>
+        /// <remarks>Derived from the <see cref="TitleMenu"/> constructor and <see cref="TitleMenu.setUpIcons"/>.</remarks>
         private bool ReloadTitleButtons(LocalizedContentManager content, string key)
         {
             if (Game1.activeClickableMenu is TitleMenu titleMenu)
@@ -570,6 +571,11 @@ namespace StardewModdingAPI.Metadata
                 Texture2D texture = content.Load<Texture2D>(key);
 
                 titleMenu.titleButtonsTexture = texture;
+                titleMenu.backButton.texture = texture;
+                titleMenu.aboutButton.texture = texture;
+                titleMenu.languageButton.texture = texture;
+                foreach (ClickableTextureComponent button in titleMenu.buttons)
+                    button.texture = titleMenu.titleButtonsTexture;
                 foreach (TemporaryAnimatedSprite bird in titleMenu.birds)
                     bird.texture = texture;
 
