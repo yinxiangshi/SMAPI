@@ -7,11 +7,13 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
-## Upcoming release
+## 3.7
+Released 07 September 2020 for Stardew Valley 1.4.1 or later.
+
 * For players:
   * Added heuristic compatibility rewrites. (This improves mod compatibility with Android and future game updates.)
   * Tweaked the rules for showing update alerts (see _for SMAPI developers_ below for details).
-  * Simplified error shown for duplicate mods.
+  * Simplified the error shown for duplicate mods.
   * Fixed crossplatform compatibility for mods which use the `[HarmonyPatch(type)]` attribute (thanks to spacechase0!).
   * Fixed map tile rotation broken when you return to the title screen and reload a save.
   * Fixed broken URL in update alerts for unofficial versions.
@@ -31,7 +33,7 @@
 
 * For SMAPI developers:
   * The web API now returns an update alert in two new cases: any newer unofficial update (previously only shown if the mod was incompatible), and a newer prerelease version if the installed non-prerelease version is broken (previously only shown if the installed version was prerelease).
-  * Reorganised SMAPI core to reduce coupling to `Game1`, make it easier to navigate, and simplify future game updates.
+  * Reorganised the SMAPI core to reduce coupling to game types like `Game1`, make it easier to navigate, and simplify future game updates.
   * SMAPI now automatically fixes code broken by these changes in game code, so manual rewriters are no longer needed:
     * reference to a method with new optional parameters;
     * reference to a field replaced by a property;
