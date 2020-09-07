@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using StardewModdingAPI.Framework.ModLoading.Framework;
@@ -29,20 +27,15 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
             this.ValidateReferencesToAssemblies = new HashSet<string>(validateReferencesToAssemblies);
         }
 
-        /// <summary>Rewrite a CIL instruction reference if needed.</summary>
-        /// <param name="module">The assembly module containing the instruction.</param>
-        /// <param name="cil">The CIL processor.</param>
-        /// <param name="instruction">The CIL instruction to handle.</param>
-        /// <param name="replaceWith">Replaces the CIL instruction with a new one.</param>
-        /// <returns>Returns whether the instruction was changed.</returns>
-        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, Action<Instruction> replaceWith)
+        /// <inheritdoc />
+        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction)
         {
             // field reference
             FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);
             if (fieldRef != null && this.ShouldValidate(fieldRef.DeclaringType))
             {
-                FieldDefinition target = fieldRef.DeclaringType.Resolve()?.Fields.FirstOrDefault(p => p.Name == fieldRef.Name);
-                if (target == null)
+                FieldDefinition target = fieldRef.Resolve();
+                if (target == null || target.HasConstant)
                 {
                     this.MarkFlag(InstructionHandleResult.NotCompatible, $"reference to {fieldRef.DeclaringType.FullName}.{fieldRef.Name} (no such field)");
                     return false;
@@ -56,7 +49,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
                 MethodDefinition target = methodRef.Resolve();
                 if (target == null)
                 {
-                    string phrase = null;
+                    string phrase;
                     if (this.IsProperty(methodRef))
                         phrase = $"reference to {methodRef.DeclaringType.FullName}.{methodRef.Name.Substring(4)} (no such property)";
                     else if (methodRef.Name == ".ctor")

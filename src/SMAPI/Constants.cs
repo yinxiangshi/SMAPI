@@ -5,11 +5,42 @@ using System.Reflection;
 using StardewModdingAPI.Enums;
 using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.ModLoading;
+using StardewModdingAPI.Toolkit.Framework;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
 
 namespace StardewModdingAPI
 {
+    /// <summary>Contains constants that are accessed before the game itself has been loaded.</summary>
+    /// <remarks>Most code should use <see cref="Constants"/> instead of this class directly.</remarks>
+    internal static class EarlyConstants
+    {
+        //
+        // Note: this class *must not* depend on any external DLL beyond .NET Framework itself.
+        // That includes the game or SMAPI toolkit, since it's accessed before those are loaded.
+        //
+        // Adding an external dependency may seem to work in some cases, but will prevent SMAPI
+        // from showing a human-readable error if the game isn't available. To test this, just
+        // rename "Stardew Valley.exe" in the game folder; you should see an error like "Oops!
+        // SMAPI can't find the game", not a technical exception.
+        //
+
+        /*********
+        ** Accessors
+        *********/
+        /// <summary>The path to the game folder.</summary>
+        public static string ExecutionPath { get; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+        /// <summary>The absolute path to the folder containing SMAPI's internal files.</summary>
+        public static readonly string InternalFilesPath = Path.Combine(EarlyConstants.ExecutionPath, "smapi-internal");
+
+        /// <summary>The target game platform.</summary>
+        internal static GamePlatform Platform { get; } = (GamePlatform)Enum.Parse(typeof(GamePlatform), LowLevelEnvironmentUtility.DetectPlatform());
+
+        /// <summary>The game's assembly name.</summary>
+        internal static string GameAssemblyName => EarlyConstants.Platform == GamePlatform.Windows ? "Stardew Valley" : "StardewValley";
+    }
+
     /// <summary>Contains SMAPI's constants and assumptions.</summary>
     public static class Constants
     {
@@ -20,19 +51,19 @@ namespace StardewModdingAPI
         ** Public
         ****/
         /// <summary>SMAPI's current semantic version.</summary>
-        public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("3.6.2");
+        public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("3.7.0");
 
         /// <summary>The minimum supported version of Stardew Valley.</summary>
         public static ISemanticVersion MinimumGameVersion { get; } = new GameVersion("1.4.1");
 
         /// <summary>The maximum supported version of Stardew Valley.</summary>
-        public static ISemanticVersion MaximumGameVersion { get; } = null;
+        public static ISemanticVersion MaximumGameVersion { get; } = new GameVersion("1.4.5");
 
         /// <summary>The target game platform.</summary>
-        public static GamePlatform TargetPlatform => (GamePlatform)Constants.Platform;
+        public static GamePlatform TargetPlatform { get; } = EarlyConstants.Platform;
 
         /// <summary>The path to the game folder.</summary>
-        public static string ExecutionPath { get; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        public static string ExecutionPath { get; } = EarlyConstants.ExecutionPath;
 
         /// <summary>The directory path containing Stardew Valley's app data.</summary>
         public static string DataPath { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley");
@@ -67,7 +98,7 @@ namespace StardewModdingAPI
         internal const string GamePerformanceCounterName = "<StardewValley>";
 
         /// <summary>The absolute path to the folder containing SMAPI's internal files.</summary>
-        internal static readonly string InternalFilesPath = Program.DllSearchPath;
+        internal static readonly string InternalFilesPath = EarlyConstants.InternalFilesPath;
 
         /// <summary>The file path for the SMAPI configuration file.</summary>
         internal static string ApiConfigPath => Path.Combine(Constants.InternalFilesPath, "config.json");
@@ -105,11 +136,8 @@ namespace StardewModdingAPI
         /// <summary>The game's current semantic version.</summary>
         internal static ISemanticVersion GameVersion { get; } = new GameVersion(Game1.version);
 
-        /// <summary>The target game platform.</summary>
-        internal static Platform Platform { get; } = EnvironmentUtility.DetectPlatform();
-
-        /// <summary>The game's assembly name.</summary>
-        internal static string GameAssemblyName => Constants.Platform == Platform.Windows ? "Stardew Valley" : "StardewValley";
+        /// <summary>The target game platform as a SMAPI toolkit constant.</summary>
+        internal static Platform Platform { get; } = (Platform)Constants.TargetPlatform;
 
         /// <summary>The language code for non-translated mod assets.</summary>
         internal static LocalizedContentManager.LanguageCode DefaultLanguage { get; } = LocalizedContentManager.LanguageCode.en;

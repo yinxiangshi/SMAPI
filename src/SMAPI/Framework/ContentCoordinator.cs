@@ -9,7 +9,6 @@ using Microsoft.Xna.Framework.Content;
 using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.ContentManagers;
 using StardewModdingAPI.Framework.Reflection;
-using StardewModdingAPI.Framework.StateTracking.Comparers;
 using StardewModdingAPI.Metadata;
 using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Utilities;
@@ -96,7 +95,7 @@ namespace StardewModdingAPI.Framework
             this.ContentManagers.Add(
                 this.MainContentManager = new GameContentManager("Game1.content", serviceProvider, rootDirectory, currentCulture, this, monitor, reflection, this.OnDisposing, onLoadingFirstAsset)
             );
-            this.CoreAssets = new CoreAssetPropagator(this.MainContentManager.AssertAndNormalizeAssetName, reflection, monitor);
+            this.CoreAssets = new CoreAssetPropagator(this.MainContentManager.AssertAndNormalizeAssetName, reflection);
         }
 
         /// <summary>Get a new content manager which handles reading files from the game content folder with support for interception.</summary>
@@ -237,7 +236,7 @@ namespace StardewModdingAPI.Framework
                 {
                     foreach (var entry in contentManager.InvalidateCache(predicate, dispose))
                     {
-                        if (!removedAssets.TryGetValue(entry.Key, out Type type))
+                        if (!removedAssets.ContainsKey(entry.Key))
                             removedAssets[entry.Key] = entry.Value.GetType();
                     }
                 }

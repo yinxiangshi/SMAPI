@@ -32,9 +32,9 @@ namespace StardewModdingAPI.ModBuildConfig
         [Required]
         public string TargetDir { get; set; }
 
-        /// <summary>The folder containing the game files.</summary>
+        /// <summary>The folder containing the game's mod folders.</summary>
         [Required]
-        public string GameDir { get; set; }
+        public string GameModsDir { get; set; }
 
         /// <summary>Whether to enable copying the mod files into the game's Mods folder.</summary>
         [Required]
@@ -69,7 +69,7 @@ namespace StardewModdingAPI.ModBuildConfig
                 // deploy mod files
                 if (this.EnableModDeploy)
                 {
-                    string outputPath = Path.Combine(this.GameDir, "Mods", this.EscapeInvalidFilenameCharacters(this.ModFolderName));
+                    string outputPath = Path.Combine(this.GameModsDir, this.EscapeInvalidFilenameCharacters(this.ModFolderName));
                     this.Log.LogMessage(MessageImportance.High, $"The mod build package is copying the mod files to {outputPath}...");
                     this.CreateModFolder(package.GetFiles(), outputPath);
                 }

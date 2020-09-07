@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
@@ -29,13 +28,8 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
             this.ValidateReferencesToAssemblies = new HashSet<string>(validateReferencesToAssemblies);
         }
 
-        /// <summary>Rewrite a CIL instruction reference if needed.</summary>
-        /// <param name="module">The assembly module containing the instruction.</param>
-        /// <param name="cil">The CIL processor.</param>
-        /// <param name="instruction">The CIL instruction to handle.</param>
-        /// <param name="replaceWith">Replaces the CIL instruction with a new one.</param>
-        /// <returns>Returns whether the instruction was changed.</returns>
-        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, Action<Instruction> replaceWith)
+        /// <inheritdoc />
+        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction)
         {
             // field reference
             FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);

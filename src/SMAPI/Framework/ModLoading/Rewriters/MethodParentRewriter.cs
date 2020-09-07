@@ -40,13 +40,8 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         public MethodParentRewriter(Type fromType, Type toType, string nounPhrase = null)
             : this(fromType.FullName, toType, nounPhrase) { }
 
-        /// <summary>Rewrite a CIL instruction reference if needed.</summary>
-        /// <param name="module">The assembly module containing the instruction.</param>
-        /// <param name="cil">The CIL processor.</param>
-        /// <param name="instruction">The CIL instruction to handle.</param>
-        /// <param name="replaceWith">Replaces the CIL instruction with a new one.</param>
-        /// <returns>Returns whether the instruction was changed.</returns>
-        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, Action<Instruction> replaceWith)
+        /// <inheritdoc />
+        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction)
         {
             // get method ref
             MethodReference methodRef = RewriteHelper.AsMethodReference(instruction);

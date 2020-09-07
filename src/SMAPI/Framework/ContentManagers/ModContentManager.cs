@@ -250,7 +250,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 if (pixel.A == byte.MinValue || pixel.A == byte.MaxValue)
                     continue; // no need to change fully transparent/opaque pixels
 
-                 data[i] = new Color(pixel.R * pixel.A / byte.MaxValue, pixel.G * pixel.A / byte.MaxValue, pixel.B * pixel.A / byte.MaxValue, pixel.A); // slower version: Color.FromNonPremultiplied(data[i].ToVector4())
+                data[i] = new Color(pixel.R * pixel.A / byte.MaxValue, pixel.G * pixel.A / byte.MaxValue, pixel.B * pixel.A / byte.MaxValue, pixel.A); // slower version: Color.FromNonPremultiplied(data[i].ToVector4())
             }
 
             texture.SetData(data);
@@ -275,12 +275,12 @@ namespace StardewModdingAPI.Framework.ContentManagers
         ///  * If the location is indoors or the desert, or the image source contains 'path' or 'object', it's loaded
         ///    as-is relative to the <c>Content</c> folder.
         ///  * Else it's loaded from <c>Content\Maps</c> with a seasonal prefix.
-        /// 
+        ///
         /// That logic doesn't work well in our case, mainly because we have no location metadata at this point.
         /// Instead we use a more heuristic approach: check relative to the map file first, then relative to
         /// <c>Content\Maps</c>, then <c>Content</c>. If the image source filename contains a seasonal prefix, try for a
         /// seasonal variation and then an exact match.
-        /// 
+        ///
         /// While that doesn't exactly match the game logic, it's close enough that it's unlikely to make a difference.
         /// </remarks>
         private void FixCustomTilesheetPaths(Map map, string relativeMapPath)

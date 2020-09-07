@@ -59,8 +59,11 @@
   <ItemGroup>
     <Content Include="SMAPI.config.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="..\SMAPI.Web\wwwroot\SMAPI.metadata.json" Link="SMAPI.metadata.json" CopyToOutputDirectory="PreserveNewest" />
+
     <None Update="i18n\*" CopyToOutputDirectory="PreserveNewest" />
     <None Update="steam_appid.txt" CopyToOutputDirectory="PreserveNewest" />
+
+    <Compile Include="..\SMAPI.Toolkit\Framework\LowLevelEnvironmentUtility.cs" Link="Framework\Utilities\LowLevelEnvironmentUtility.cs" />
   </ItemGroup>
 
   <Import Project="..\SMAPI.Internal\SMAPI.Internal.projitems" Label="Shared" />
