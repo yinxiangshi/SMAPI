@@ -7,6 +7,13 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
+## Upcoming release
+* For players:
+  * Fixed mod recipe changes not always applied in 3.7.
+
+* For modders:
+  * Renamed `PathUtilities.NormalizePathSeparators` to `NormalizePath`, and added normalization for more cases.
+
 ## 3.7.1
 Released 08 September 2020 for Stardew Valley 1.4.1 or later.
 

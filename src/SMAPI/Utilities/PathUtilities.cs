@@ -18,12 +18,12 @@ namespace StardewModdingAPI.Utilities
             return ToolkitPathUtilities.GetSegments(path, limit);
         }
 
-        /// <summary>Normalize path separators in a file path.</summary>
+        /// <summary>Normalize separators in a file path.</summary>
         /// <param name="path">The file path to normalize.</param>
         [Pure]
-        public static string NormalizePathSeparators(string path)
+        public static string NormalizePath(string path)
         {
-            return ToolkitPathUtilities.NormalizePathSeparators(path);
+            return ToolkitPathUtilities.NormalizePath(path);
         }
 
         /// <summary>Get whether a path is relative and doesn't try to climb out of its containing folder (e.g. doesn't contain <c>../</c>).</summary>

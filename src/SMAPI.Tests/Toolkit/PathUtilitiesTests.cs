@@ -47,9 +47,9 @@ namespace SMAPI.Tests.Toolkit
         [TestCase("C:/boop", ExpectedResult = "C:/boop")]
         [TestCase(@"C:\usr\bin//.././boop.exe", ExpectedResult = "C:/usr/bin/.././boop.exe")]
 #endif
-        public string NormalizePathSeparators(string path)
+        public string NormalizePath(string path)
         {
-            return PathUtilities.NormalizePathSeparators(path);
+            return PathUtilities.NormalizePath(path);
         }
 
         [Test(Description = "Assert that GetRelativePath returns the expected values.")]

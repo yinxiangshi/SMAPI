@@ -23,7 +23,7 @@ namespace StardewModdingAPI.Toolkit.Utilities
         public static readonly char[] PossiblePathSeparators = new[] { '/', '\\', Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }.Distinct().ToArray();
 
         /// <summary>The preferred directory separator character in an asset key.</summary>
-        public static readonly string PreferredPathSeparator = Path.DirectorySeparatorChar.ToString();
+        public static readonly char PreferredPathSeparator = Path.DirectorySeparatorChar;
 
 
         /*********
@@ -40,15 +40,37 @@ namespace StardewModdingAPI.Toolkit.Utilities
                 : path.Split(PathUtilities.PossiblePathSeparators, StringSplitOptions.RemoveEmptyEntries);
         }
 
-        /// <summary>Normalize path separators in a file path.</summary>
+        /// <summary>Normalize separators in a file path.</summary>
         /// <param name="path">The file path to normalize.</param>
         [Pure]
-        public static string NormalizePathSeparators(string path)
+        public static string NormalizePath(string path)
         {
-            if (string.IsNullOrWhiteSpace(path))
+            path = path?.Trim();
+            if (string.IsNullOrEmpty(path))
                 return path;
 
-            return string.Join(PathUtilities.PreferredPathSeparator, path.Split(PathUtilities.PossiblePathSeparators));
+            // get basic path format (e.g. /some/asset\\path/ => some\asset\path)
+            string[] segments = PathUtilities.GetSegments(path);
+            string newPath = string.Join(PathUtilities.PreferredPathSeparator.ToString(), segments);
+
+            // keep root prefix
+            bool hasRoot = false;
+            if (path.StartsWith(PathUtilities.WindowsUncRoot))
+            {
+                newPath = PathUtilities.WindowsUncRoot + newPath;
+                hasRoot = true;
+            }
+            else if (PathUtilities.PossiblePathSeparators.Contains(path[0]))
+            {
+                newPath = PathUtilities.PreferredPathSeparator + newPath;
+                hasRoot = true;
+            }
+
+            // keep trailing separator
+            if ((!hasRoot || segments.Any()) && PathUtilities.PossiblePathSeparators.Contains(path[path.Length - 1]))
+                newPath += PathUtilities.PreferredPathSeparator;
+
+            return newPath;
         }
 
         /// <summary>Get a directory or file path relative to a given source path. If no relative path is possible (e.g. the paths are on different drives), an absolute path is returned.</summary>
@@ -69,7 +91,10 @@ namespace StardewModdingAPI.Toolkit.Utilities
                 throw new InvalidOperationException($"Can't get path for '{targetPath}' relative to '{sourceDir}'.");
 
             // get relative path
-            string relative = PathUtilities.NormalizePathSeparators(Uri.UnescapeDataString(from.MakeRelativeUri(to).ToString()));
+            string rawUrl = Uri.UnescapeDataString(from.MakeRelativeUri(to).ToString());
+            if (rawUrl.StartsWith("file://"))
+                rawUrl = PathUtilities.WindowsUncRoot + rawUrl.Substring("file://".Length);
+            string relative = PathUtilities.NormalizePath(rawUrl);
 
             // normalize
             if (relative == "")
@@ -77,8 +102,8 @@ namespace StardewModdingAPI.Toolkit.Utilities
             else
             {
                 // trim trailing slash from URL
-                if (relative.EndsWith(PathUtilities.PreferredPathSeparator))
-                    relative = relative.Substring(0, relative.Length - PathUtilities.PreferredPathSeparator.Length);
+                if (relative.EndsWith(PathUtilities.PreferredPathSeparator.ToString()))
+                    relative = relative.Substring(0, relative.Length - 1);
 
                 // fix root
                 if (relative.StartsWith("file:") && !targetPath.Contains("file:"))

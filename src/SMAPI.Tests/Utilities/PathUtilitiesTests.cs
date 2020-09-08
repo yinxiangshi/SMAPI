@@ -179,10 +179,10 @@ namespace SMAPI.Tests.Utilities
         ****/
         [Test(Description = "Assert that PathUtilities.NormalizePathSeparators normalizes paths correctly.")]
         [TestCaseSource(nameof(PathUtilitiesTests.SamplePaths))]
-        public void NormalizePathSeparators(SamplePath path)
+        public void NormalizePath(SamplePath path)
         {
             // act
-            string normalized = PathUtilities.NormalizePathSeparators(path.OriginalPath);
+            string normalized = PathUtilities.NormalizePath(path.OriginalPath);
 
             // assert
 #if SMAPI_FOR_WINDOWS
@@ -216,11 +216,6 @@ namespace SMAPI.Tests.Utilities
             @"\\parent\unc",
             @"\\parent\unc\path\to\child",
             ExpectedResult = @"path\to\child"
-        )]
-        [TestCase(
-            @"\\parent\unc",
-            @"\\adjacent\unc",
-            ExpectedResult = @"\\adjacent\unc"
         )]
         [TestCase(
             @"C:\same\path",
