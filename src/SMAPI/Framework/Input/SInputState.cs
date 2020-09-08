@@ -29,9 +29,6 @@ namespace StardewModdingAPI.Framework.Input
         /// <summary>Whether there are new overrides in <see cref="CustomPressedKeys"/> or <see cref="CustomReleasedKeys"/> that haven't been applied to the previous state.</summary>
         private bool HasNewOverrides;
 
-        /// <summary>The game tick when the input state was last updated.</summary>
-        private uint? LastUpdateTick;
-
 
         /*********
         ** Accessors
@@ -55,14 +52,13 @@ namespace StardewModdingAPI.Framework.Input
         /*********
         ** Public methods
         *********/
-        /// <summary>Update the current button states for the given tick. This does nothing if the input has already been updated for this tick (e.g. because SMAPI updated it before the game update).</summary>
-        public override void Update()
-        {
-            // skip if already updated
-            if (this.LastUpdateTick == SCore.TicksElapsed)
-                return;
-            this.LastUpdateTick = SCore.TicksElapsed;
+        /// <summary>This method is called by the game, and does nothing since SMAPI will already have updated by that point.</summary>
+        [Obsolete("This method should only be called by the game itself.")]
+        public override void Update() { }
 
+        /// <summary>Update the current button states for the given tick.</summary>
+        public void TrueUpdate()
+        {
             // update base state
             base.Update();
 
