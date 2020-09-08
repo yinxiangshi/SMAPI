@@ -62,7 +62,7 @@ namespace StardewModdingAPI.Framework
         {
             this.AssertRelativePath(path, nameof(this.ReadJsonFile));
 
-            path = Path.Combine(this.DirectoryPath, PathUtilities.NormalizePathSeparators(path));
+            path = Path.Combine(this.DirectoryPath, PathUtilities.NormalizePath(path));
             return this.JsonHelper.ReadJsonFileIfExists(path, out TModel model)
                 ? model
                 : null;
@@ -73,7 +73,7 @@ namespace StardewModdingAPI.Framework
         {
             this.AssertRelativePath(path, nameof(this.WriteJsonFile));
 
-            path = Path.Combine(this.DirectoryPath, PathUtilities.NormalizePathSeparators(path));
+            path = Path.Combine(this.DirectoryPath, PathUtilities.NormalizePath(path));
             this.JsonHelper.WriteJsonFile(path, data);
         }
 
