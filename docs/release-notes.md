@@ -7,6 +7,12 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
+## 3.7.1
+Released 08 September 2020 for Stardew Valley 1.4.1 or later.
+
+* For players:
+  * Fixed input-handling bugs in 3.7.
+
 ## 3.7
 Released 07 September 2020 for Stardew Valley 1.4.1 or later. See [release highlights](https://www.patreon.com/posts/41341767).
 
