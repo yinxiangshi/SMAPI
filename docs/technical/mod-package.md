@@ -356,6 +356,10 @@ That will create a `Pathoschild.Stardew.ModBuildConfig-<version>.nupkg` file in 
 which can be uploaded to NuGet or referenced directly.
 
 ## Release notes
+### Upcoming release
+
+* Added more detailed logging.
+
 ### 3.2
 Released 07 September 2020.
 
