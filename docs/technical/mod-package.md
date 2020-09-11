@@ -359,6 +359,7 @@ which can be uploaded to NuGet or referenced directly.
 ### Upcoming release
 
 * Added more detailed logging.
+* Fixed _path's format is not supported_ error when using default `Mods` path in 3.2.
 
 ### 3.2
 Released 07 September 2020.
