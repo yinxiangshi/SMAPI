@@ -356,7 +356,8 @@ That will create a `Pathoschild.Stardew.ModBuildConfig-<version>.nupkg` file in 
 which can be uploaded to NuGet or referenced directly.
 
 ## Release notes
-### Upcoming release
+### 3.2.1
+Released 11 September 2020.
 
 * Added more detailed logging.
 * Fixed _path's format is not supported_ error when using default `Mods` path in 3.2.

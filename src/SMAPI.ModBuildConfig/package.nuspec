@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>Pathoschild.Stardew.ModBuildConfig</id>
-    <version>3.2.0</version>
+    <version>3.2.1</version>
     <title>Build package for SMAPI mods</title>
     <authors>Pathoschild</authors>
     <owners>Pathoschild</owners>
@@ -14,9 +14,9 @@
     <iconUrl>https://raw.githubusercontent.com/Pathoschild/SMAPI/develop/src/SMAPI.ModBuildConfig/assets/nuget-icon.png</iconUrl>
     <description>Automates the build configuration for crossplatform Stardew Valley SMAPI mods. For SMAPI 3.0 or later.</description>
     <releaseNotes>
-      3.2.0:
-      - Added option to change `Mods` folder path.
-      - Rewrote documentation to make it easier to read.
+      3.2.1:
+      - Added more detailed logging.
+      - Fixed "path's format is not supported" error when using default Mods path in 3.2.
     </releaseNotes>
   </metadata>
   <files>
