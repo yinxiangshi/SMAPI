@@ -8,6 +8,12 @@
 -->
 
 ## Upcoming release
+* For players:
+  * Fixed errors on Linux/Mac due to mods with incorrect filename case.
+
+* For modders:
+  * All content pack file paths accessed through `IContentPack` are now case-insensitive.
+
 * For the web UI:
   * You can now renew the expiry for an uploaded JSON/log file if you need it longer.
 
