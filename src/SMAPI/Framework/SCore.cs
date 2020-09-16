@@ -975,7 +975,7 @@ namespace StardewModdingAPI.Framework
                     }
                     catch (Exception ex)
                     {
-                        this.LogManager.MonitorForGame.Log($"An error occured in the base update loop: {ex.GetLogSummary()}", LogLevel.Error);
+                        this.LogManager.MonitorForGame.Log($"An error occurred in the base update loop: {ex.GetLogSummary()}", LogLevel.Error);
                     }
 
                     events.UnvalidatedUpdateTicked.RaiseEmpty();
@@ -992,7 +992,7 @@ namespace StardewModdingAPI.Framework
             catch (Exception ex)
             {
                 // log error
-                this.Monitor.Log($"An error occured in the overridden update loop: {ex.GetLogSummary()}", LogLevel.Error);
+                this.Monitor.Log($"An error occurred in the overridden update loop: {ex.GetLogSummary()}", LogLevel.Error);
 
                 // exit if irrecoverable
                 if (!this.UpdateCrashTimer.Decrement())
