@@ -10,6 +10,7 @@
 ## Upcoming release
 * For players:
   * Fixed errors on Linux/Mac due to mods with incorrect filename case.
+  * Fixed map rendering crash due to conflict between SMAPI and PyTK.
 
 * For modders:
   * All content pack file paths accessed through `IContentPack` are now case-insensitive.
