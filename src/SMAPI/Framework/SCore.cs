@@ -43,6 +43,7 @@ using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewModdingAPI.Utilities;
 using StardewValley;
+using xTile.Display;
 using SObject = StardewValley.Object;
 
 namespace StardewModdingAPI.Framework
@@ -472,8 +473,13 @@ namespace StardewModdingAPI.Framework
                 SCore.PerformanceMonitor.PrintQueuedAlerts();
 
                 // reapply overrides
-                if (this.JustReturnedToTitle && !(Game1.mapDisplayDevice is SDisplayDevice))
-                    Game1.mapDisplayDevice = new SDisplayDevice(Game1.content, Game1.game1.GraphicsDevice);
+                if (this.JustReturnedToTitle)
+                {
+                    if (!(Game1.mapDisplayDevice is SDisplayDevice))
+                        Game1.mapDisplayDevice = this.GetMapDisplayDevice();
+
+                    this.JustReturnedToTitle = false;
+                }
 
                 /*********
                 ** First-tick initialization
@@ -975,7 +981,7 @@ namespace StardewModdingAPI.Framework
                     }
                     catch (Exception ex)
                     {
-                        this.LogManager.MonitorForGame.Log($"An error occured in the base update loop: {ex.GetLogSummary()}", LogLevel.Error);
+                        this.LogManager.MonitorForGame.Log($"An error occurred in the base update loop: {ex.GetLogSummary()}", LogLevel.Error);
                     }
 
                     events.UnvalidatedUpdateTicked.RaiseEmpty();
@@ -992,7 +998,7 @@ namespace StardewModdingAPI.Framework
             catch (Exception ex)
             {
                 // log error
-                this.Monitor.Log($"An error occured in the overridden update loop: {ex.GetLogSummary()}", LogLevel.Error);
+                this.Monitor.Log($"An error occurred in the overridden update loop: {ex.GetLogSummary()}", LogLevel.Error);
 
                 // exit if irrecoverable
                 if (!this.UpdateCrashTimer.Decrement())
@@ -1736,6 +1742,13 @@ namespace StardewModdingAPI.Framework
             }
 
             return translations;
+        }
+
+        /// <summary>Get the map display device which applies SMAPI features like tile rotation to loaded maps.</summary>
+        /// <remarks>This is separate to let mods like PyTK wrap it with their own functionality.</remarks>
+        private IDisplayDevice GetMapDisplayDevice()
+        {
+            return new SDisplayDevice(Game1.content, Game1.game1.GraphicsDevice);
         }
 
         /// <summary>Get the absolute path to the next available log file.</summary>
