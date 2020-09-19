@@ -8,6 +8,9 @@
 -->
 
 ## Upcoming release
+* For modders:
+  * Fixed asset propagation for `Data\MoviesReactions`.
+
 * For the web UI:
   * Updated the JSON validator/schema for Content Patcher 1.18.
 
