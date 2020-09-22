@@ -8,6 +8,9 @@
 -->
 
 ## Upcoming release
+* For players:
+  * Improved performance of exit handler (thanks to millerscout!).
+
 * For modders:
   * Fixed asset propagation for `Data\MoviesReactions`.
 

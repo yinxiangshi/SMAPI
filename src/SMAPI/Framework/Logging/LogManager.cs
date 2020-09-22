@@ -138,15 +138,15 @@ namespace StardewModdingAPI.Framework.Logging
             Thread inputThread = new Thread(() =>
             {
                 while (true)
-            {
+                {
                     // get input
-                string input = Console.ReadLine();
-                if (string.IsNullOrWhiteSpace(input))
-                    continue;
+                    string input = Console.ReadLine();
+                    if (string.IsNullOrWhiteSpace(input))
+                        continue;
 
-                // handle command
-                this.Monitor.LogUserInput(input);
-                handleInput(input);
+                    // handle command
+                    this.Monitor.LogUserInput(input);
+                    handleInput(input);
                 }
             });
             inputThread.Start();

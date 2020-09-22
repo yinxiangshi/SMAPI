@@ -288,7 +288,6 @@ namespace StardewModdingAPI.Framework
                     }
                 });
 
-
                 // set window titles
                 this.SetWindowTitles(
                     game: $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion}",
