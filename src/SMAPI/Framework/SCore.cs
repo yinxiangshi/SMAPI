@@ -282,7 +282,6 @@ namespace StardewModdingAPI.Framework
                 {
                     if (this.IsGameRunning)
                     {
-                        this.inputThread.Abort();
                         this.LogManager.WriteCrashLog();
                         this.Game.Exit();
                     }
