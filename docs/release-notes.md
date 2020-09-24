@@ -13,6 +13,7 @@
 
 * For modders:
   * Fixed asset propagation for `Data\MoviesReactions`.
+  * Fixed error in the case-insensitive content pack logic when a mod reads a null file path. (It now correctly logs an error in the code that handles the path instead.)
 
 * For the web UI:
   * Updated the JSON validator/schema for Content Patcher 1.18.
