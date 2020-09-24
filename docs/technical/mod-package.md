@@ -349,6 +349,7 @@ when you compile it.
 ## Release notes
 ## Upcoming release
 * Reworked and streamlined how the package is compiled.
+* Added [SMAPI-ModTranslationClassBuilder](https://github.com/Pathoschild/SMAPI-ModTranslationClassBuilder) files to the ignore list.
 
 ### 3.2.1
 Released 11 September 2020.
