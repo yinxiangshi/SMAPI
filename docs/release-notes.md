@@ -17,6 +17,9 @@
 * For the web UI:
   * Updated the JSON validator/schema for Content Patcher 1.18.
 
+* For SMAPI developers:
+  * Reworked how the _mod build config_ package is released, added auto-generated package on build.
+
 ## 3.7.3
 Released 16 September 2020 for Stardew Valley 1.4.1 or later.
 
