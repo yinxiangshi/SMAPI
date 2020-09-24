@@ -347,7 +347,9 @@ The NuGet package is generated automatically in `StardewModdingAPI.ModBuildConfi
 when you compile it.
 
 ## Release notes
-## Upcoming release
+## 3.2.2
+Released 23 September 2020.
+
 * Reworked and streamlined how the package is compiled.
 * Added [SMAPI-ModTranslationClassBuilder](https://github.com/Pathoschild/SMAPI-ModTranslationClassBuilder) files to the ignore list.
 
