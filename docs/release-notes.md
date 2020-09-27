@@ -9,17 +9,18 @@
 
 ## Upcoming release
 * For players:
-  * Improved performance of exit handler (thanks to millerscout!).
+  * Improved performance on some older computers (thanks to millerscout!).
+  * Fixed update alerts for Chucklefish forum mods broken by a recent site change.
 
 * For modders:
   * Fixed asset propagation for `Data\MoviesReactions`.
-  * Fixed error in the case-insensitive content pack logic when a mod reads a null file path. (It now correctly logs an error in the code that handles the path instead.)
+  * Fixed error in content pack path handling when you pass a null path.
 
 * For the web UI:
   * Updated the JSON validator/schema for Content Patcher 1.18.
 
 * For SMAPI developers:
-  * Reworked how the _mod build config_ package is released, added auto-generated package on build.
+  * Simplified preparing a mod build config package release.
 
 ## 3.7.3
 Released 16 September 2020 for Stardew Valley 1.4.1 or later.
