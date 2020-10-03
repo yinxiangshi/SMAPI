@@ -13,7 +13,7 @@
             "type": "string",
             "const": "1.18.0",
             "@errorMessages": {
-                "const": "Incorrect value '@value'. This should be set to the latest format version, currently '1.17.0'."
+                "const": "Incorrect value '@value'. This should be set to the latest format version, currently '1.18.0'."
             }
         },
         "ConfigSchema": {
