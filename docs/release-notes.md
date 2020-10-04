@@ -7,7 +7,9 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
-## Upcoming release
+## 3.7.4
+Released 03 October 2020 for Stardew Valley 1.4.1 or later.
+
 * For players:
   * Improved performance on some older computers (thanks to millerscout!).
   * Fixed update alerts for Chucklefish forum mods broken by a recent site change.
