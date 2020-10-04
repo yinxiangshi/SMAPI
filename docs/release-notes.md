@@ -13,6 +13,7 @@
   * Fixed update alerts for Chucklefish forum mods broken by a recent site change.
 
 * For modders:
+  * Updated dependencies (including Mono.Cecil 0.11.2 → 0.11.3 and Platonymous.TMXTile 1.3.8 → 1.5.6).
   * Fixed asset propagation for `Data\MoviesReactions`.
   * Fixed error in content pack path handling when you pass a null path.
 
