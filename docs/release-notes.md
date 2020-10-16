@@ -7,6 +7,10 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
+## Upcoming release
+* For modders:
+  * Fixed town map asset propagation not reapplying the game's community center, JojaMart, or Pam house changes.
+
 ## 3.7.4
 Released 03 October 2020 for Stardew Valley 1.4.1 or later.
 
