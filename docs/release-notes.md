@@ -7,6 +7,10 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
+## Upcoming release
+* For modders:
+  * Fixed error when heuristically rewriting a property for a type that no longer exists.
+
 ## 3.7.5
 Released 16 October 2020 for Stardew Valley 1.4.1 or later.
 
