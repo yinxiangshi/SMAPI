@@ -11,6 +11,9 @@
 * For modders:
   * Fixed error when heuristically rewriting a property for a type that no longer exists.
 
+* For the Console Commands mod:
+  * `player_add` can now spawn shirts normally only available during character customization.
+
 ## 3.7.5
 Released 16 October 2020 for Stardew Valley 1.4.1 or later.
 
