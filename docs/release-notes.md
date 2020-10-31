@@ -13,6 +13,7 @@
 
 * For the Console Commands mod:
   * `player_add` can now spawn shirts normally only available during character customization.
+  * `player_add` now applies fish pond rules for roe items. (That mainly adds Clam Roe, Sea Urchin Roe, and custom roe from mods.)
 
 ## 3.7.5
 Released 16 October 2020 for Stardew Valley 1.4.1 or later.
