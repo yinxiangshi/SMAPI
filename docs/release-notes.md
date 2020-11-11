@@ -10,6 +10,7 @@
 ## Upcoming release
 * For modders:
   * Fixed error when heuristically rewriting a property for a type that no longer exists.
+  * Fixed rare 'collection was modified' error when using 'harmony summary' console command in rare cases.
 
 * For the Console Commands mod:
   * `player_add` can now spawn shirts normally only available during character customization.
