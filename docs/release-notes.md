@@ -8,9 +8,12 @@
 -->
 
 ## Upcoming release
+* For players:
+  * Fixed error when heuristically rewriting a mod in rare cases (i.e. when it accesses a property for a type that no longer exists).
+  * Fixed rare 'collection was modified' error when using `harmony summary` console command in rare cases.
+
 * For modders:
-  * Fixed error when heuristically rewriting a property for a type that no longer exists.
-  * Fixed rare 'collection was modified' error when using 'harmony summary' console command in rare cases.
+  * Updated TMXTile 1.5.6 → 1.5.7 to fix exported `.tmx` files losing tile index properties.
 
 * For the Console Commands mod:
   * `player_add` can now spawn shirts normally only available during character customization.
