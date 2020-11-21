@@ -7,13 +7,15 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
-## Upcoming release
+## 3.7.6
+Released 21 November 2020 for Stardew Valley 1.4.1 or later.
+
 * For players:
-  * Fixed error when heuristically rewriting a mod in rare cases (i.e. when it accesses a property for a type that no longer exists).
-  * Fixed rare 'collection was modified' error when using `harmony summary` console command in rare cases.
+  * Fixed error when heuristically rewriting an outdated mod in rare cases.
+  * Fixed rare 'collection was modified' error when using `harmony summary` console command.
 
 * For modders:
-  * Updated TMXTile 1.5.6 → 1.5.8 to fix exported `.tmx` files losing tile index properties.
+  * Updated TMXTile to 1.5.8 to fix exported `.tmx` files losing tile index properties.
 
 * For the Console Commands mod:
   * `player_add` can now spawn shirts normally only available during character customization.
