@@ -13,7 +13,7 @@
   * Fixed rare 'collection was modified' error when using `harmony summary` console command in rare cases.
 
 * For modders:
-  * Updated TMXTile 1.5.6 → 1.5.7 to fix exported `.tmx` files losing tile index properties.
+  * Updated TMXTile 1.5.6 → 1.5.8 to fix exported `.tmx` files losing tile index properties.
 
 * For the Console Commands mod:
   * `player_add` can now spawn shirts normally only available during character customization.
