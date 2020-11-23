@@ -7,6 +7,10 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
+## Upcoming release
+* For players:
+  * When the installer is run from within a game folder, it now installs SMAPI to that folder. That simplifies installation if you have multiple copies of the game or it can't otherwise auto-detect the game path.
+
 ## 3.7.6
 Released 21 November 2020 for Stardew Valley 1.4.1 or later.
 

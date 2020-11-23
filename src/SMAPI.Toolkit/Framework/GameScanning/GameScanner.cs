@@ -15,20 +15,33 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
     public class GameScanner
     {
         /*********
+        ** Fields
+        *********/
+        /// <summary>The current OS.</summary>
+        private readonly Platform Platform;
+
+        /// <summary>The name of the Stardew Valley executable.</summary>
+        private readonly string ExecutableName;
+
+
+        /*********
         ** Public methods
         *********/
+        /// <summary>Construct an instance.</summary>
+        public GameScanner()
+        {
+            this.Platform = EnvironmentUtility.DetectPlatform();
+            this.ExecutableName = EnvironmentUtility.GetExecutableName(this.Platform);
+        }
+
         /// <summary>Find all valid Stardew Valley install folders.</summary>
         /// <remarks>This checks default game locations, and on Windows checks the Windows registry for GOG/Steam install data. A folder is considered 'valid' if it contains the Stardew Valley executable for the current OS.</remarks>
         public IEnumerable<DirectoryInfo> Scan()
         {
-            // get OS info
-            Platform platform = EnvironmentUtility.DetectPlatform();
-            string executableFilename = EnvironmentUtility.GetExecutableName(platform);
-
             // get install paths
             IEnumerable<string> paths = this
-                .GetCustomInstallPaths(platform)
-                .Concat(this.GetDefaultInstallPaths(platform))
+                .GetCustomInstallPaths()
+                .Concat(this.GetDefaultInstallPaths())
                 .Select(PathUtilities.NormalizePath)
                 .Distinct(StringComparer.OrdinalIgnoreCase);
 
@@ -36,9 +49,16 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
             foreach (string path in paths)
             {
                 DirectoryInfo folder = new DirectoryInfo(path);
-                if (folder.Exists && folder.EnumerateFiles(executableFilename).Any())
+                if (this.LooksLikeGameFolder(folder))
                     yield return folder;
             }
+        }
+
+        /// <summary>Get whether a folder seems to contain the game.</summary>
+        /// <param name="dir">The folder to check.</param>
+        public bool LooksLikeGameFolder(DirectoryInfo dir)
+        {
+            return dir.Exists && dir.EnumerateFiles(this.ExecutableName).Any();
         }
 
 
@@ -46,11 +66,10 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
         ** Private methods
         *********/
         /// <summary>The default file paths where Stardew Valley can be installed.</summary>
-        /// <param name="platform">The target platform.</param>
-        /// <remarks>Derived from the crossplatform mod config: https://github.com/Pathoschild/Stardew.ModBuildConfig. </remarks>
-        private IEnumerable<string> GetDefaultInstallPaths(Platform platform)
+        /// <remarks>Derived from the <a href="https://github.com/Pathoschild/Stardew.ModBuildConfig">crossplatform mod config</a>.</remarks>
+        private IEnumerable<string> GetDefaultInstallPaths()
         {
-            switch (platform)
+            switch (this.Platform)
             {
                 case Platform.Linux:
                 case Platform.Mac:
@@ -102,16 +121,15 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
                     break;
 
                 default:
-                    throw new InvalidOperationException($"Unknown platform '{platform}'.");
+                    throw new InvalidOperationException($"Unknown platform '{this.Platform}'.");
             }
         }
 
         /// <summary>Get the custom install path from the <c>stardewvalley.targets</c> file in the home directory, if any.</summary>
-        /// <param name="platform">The target platform.</param>
-        private IEnumerable<string> GetCustomInstallPaths(Platform platform)
+        private IEnumerable<string> GetCustomInstallPaths()
         {
             // get home path
-            string homePath = Environment.GetEnvironmentVariable(platform == Platform.Windows ? "USERPROFILE" : "HOME");
+            string homePath = Environment.GetEnvironmentVariable(this.Platform == Platform.Windows ? "USERPROFILE" : "HOME");
             if (string.IsNullOrWhiteSpace(homePath))
                 yield break;
 
