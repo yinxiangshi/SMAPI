@@ -11,9 +11,9 @@
             "title": "Format version",
             "description": "The format version. You should always use the latest version to enable the latest features and avoid obsolete behavior.",
             "type": "string",
-            "const": "1.18.0",
+            "const": "1.19.0",
             "@errorMessages": {
-                "const": "Incorrect value '@value'. This should be set to the latest format version, currently '1.18.0'."
+                "const": "Incorrect value '@value'. This should be set to the latest format version, currently '1.19.0'."
             }
         },
         "ConfigSchema": {
@@ -147,13 +147,16 @@
                     },
                     "Update": {
                         "title": "Update",
-                        "description": "When the patch should update if it changed. The possible values are 'OnDayStart' and 'OnLocationChange' (defaults to OnDayStart).",
+                        "description": "When the patch should update if it changed. The possible values are 'OnDayStart', 'OnLocationChange', or 'OnTimeChange' (defaults to OnDayStart).",
                         "type": "string",
-                        "enum": [ "OnDayStart", "OnLocationChange" ]
+                        "pattern": "^ *((OnDayStart|OnLocationChange|OnTimeChange), *)*(OnDayStart|OnLocationChange|OnTimeChange) *$",
+                        "@errorMessages": {
+                            "pattern": "Invalid value; must be 'OnDayStart', 'OnLocationChange', 'OnTimeChange', or a comma-delimited combination of those values."
+                        }
                     },
                     "FromFile": {
                         "title": "Source file",
-                        "description": "The relative file path in your content pack folder to load instead (like 'assets/dinosaur.png'). This can be a .json (data), .png (image), .tbin or .tmx (map), or .xnb file. This field supports tokens and capitalization doesn't matter.",
+                        "description": "The relative file path in your content pack folder to load instead (like 'assets/dinosaur.png'), or multiple comma-delimited values. This can be a .json (data), .png (image), .tbin or .tmx (map), or .xnb file. This field supports tokens and capitalization doesn't matter.",
                         "type": "string",
                         "allOf": [
                             {
@@ -179,13 +182,6 @@
                         "title": "Destination area",
                         "description": "The part of the target image to replace. Defaults to the FromArea size starting from the top-left corner.",
                         "$ref": "#/definitions/Rectangle"
-                    },
-                    "PatchMode": {
-                        "title": "Patch mode",
-                        "description": "How to apply FromArea to ToArea. Defaults to Replace.",
-                        "type": "string",
-                        "enum": [ "Replace", "Overlay" ],
-                        "default": "Replace"
                     },
                     "Fields": {
                         "title": "Fields",
@@ -359,6 +355,15 @@
                             }
                         },
                         "then": {
+                            "properties": {
+                                "PatchMode": {
+                                    "title": "Patch mode",
+                                    "description": "How to apply FromArea to ToArea. Defaults to Replace.",
+                                    "type": "string",
+                                    "enum": [ "Replace", "Overlay" ],
+                                    "default": "Replace"
+                                }
+                            },
                             "required": [ "FromFile", "Target" ],
                             "propertyNames": {
                                 "enum": [
@@ -417,6 +422,13 @@
                                 },
                                 "ToArea": {
                                     "description": "The part of the target map to replace."
+                                },
+                                "PatchMode": {
+                                    "title": "Patch mode",
+                                    "description": "How to apply FromArea to ToArea. Defaults to ReplaceByLayer.",
+                                    "type": "string",
+                                    "enum": [ "Overlay", "Replace", "ReplaceByLayer" ],
+                                    "default": "ReplaceByLayer"
                                 }
                             },
                             "propertyNames": {
@@ -432,6 +444,7 @@
                                     "FromArea",
                                     "MapProperties",
                                     "MapTiles",
+                                    "PatchMode",
                                     "TextOperations",
                                     "ToArea"
                                 ]
