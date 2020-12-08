@@ -112,10 +112,20 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
             if (manifestFile == null)
             {
                 FileInfo[] files = this.RecursivelyGetRelevantFiles(searchFolder).ToArray();
+
+                // empty folder
                 if (!files.Any())
                     return new ModFolder(root, searchFolder, ModType.Invalid, null, ModParseError.EmptyFolder, "it's an empty folder.");
+
+                // XNB mod
                 if (files.All(this.IsPotentialXnbFile))
                     return new ModFolder(root, searchFolder, ModType.Xnb, null, ModParseError.XnbMod, "it's not a SMAPI mod (see https://smapi.io/xnb for info).");
+
+                // SMAPI installer
+                if (files.Any(p => p.Name == "install on Linux.sh" || p.Name == "install on Mac.command" || p.Name == "install on Windows.bat"))
+                    return new ModFolder(root, searchFolder, ModType.Invalid, null, ModParseError.ManifestMissing, "the SMAPI installer isn't a mod (you can delete this folder after running the installer file).");
+
+                // not a mod?
                 return new ModFolder(root, searchFolder, ModType.Invalid, null, ModParseError.ManifestMissing, "it contains files, but none of them are manifest.json.");
             }
 

@@ -10,6 +10,7 @@
 ## Upcoming release
 * For players:
   * When the installer is run from within a game folder, it now installs SMAPI to that folder. That simplifies installation if you have multiple copies of the game or it can't otherwise auto-detect the game path.
+  * Clarified not-a-mod error when the SMAPI installer is in the `Mods` folder.
 
 ## 3.7.6
 Released 21 November 2020 for Stardew Valley 1.4.1 or later.
