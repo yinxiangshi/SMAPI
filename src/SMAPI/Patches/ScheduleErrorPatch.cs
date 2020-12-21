@@ -51,7 +51,7 @@ namespace StardewModdingAPI.Patches
 #endif
         {
             harmony.Patch(
-                original: AccessTools.Method(typeof(NPC), "parseMasterSchedule"),
+                original: AccessTools.Method(typeof(NPC), nameof(NPC.parseMasterSchedule)),
 #if HARMONY_2
                 finalizer: new HarmonyMethod(this.GetType(), nameof(ScheduleErrorPatch.Finalize_NPC_parseMasterSchedule))
 #else
