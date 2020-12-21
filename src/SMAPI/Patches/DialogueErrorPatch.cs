@@ -135,11 +135,9 @@ namespace StardewModdingAPI.Patches
             IReflectedMethod translateArraysOfStrings = DialogueErrorPatch.Reflection.GetMethod(typeof(Dialogue), "TranslateArraysOfStrings");
             IReflectedMethod parseDialogueString = DialogueErrorPatch.Reflection.GetMethod(__instance, "parseDialogueString");
             IReflectedMethod checkForSpecialDialogueAttributes = DialogueErrorPatch.Reflection.GetMethod(__instance, "checkForSpecialDialogueAttributes");
-            IReflectedField<List<string>> dialogues = DialogueErrorPatch.Reflection.GetField<List<string>>(__instance, "dialogues");
 
             // replicate base constructor
-            if (dialogues.GetValue() == null)
-                dialogues.SetValue(new List<string>());
+            __instance.dialogues ??= new List<string>();
 
             // duplicate code with try..catch
             try

@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Framework.Events;
 using StardewModdingAPI.Framework.Reflection;
 using StardewValley;
+using StardewValley.Menus;
 
 namespace StardewModdingAPI.Framework
 {
@@ -151,6 +153,22 @@ namespace StardewModdingAPI.Framework
             {
                 @lock.ExitWriteLock();
             }
+        }
+
+        /****
+        ** IActiveClickableMenu
+        ****/
+        /// <summary>Get a string representation of the menu chain to the given menu (including the specified menu), in parent to child order.</summary>
+        /// <param name="menu">The menu whose chain to get.</param>
+        public static string GetMenuChainLabel(this IClickableMenu menu)
+        {
+            static IEnumerable<IClickableMenu> GetAncestors(IClickableMenu menu)
+            {
+                for (; menu != null; menu = menu.GetParentMenu())
+                    yield return menu;
+            }
+
+            return string.Join(" > ", GetAncestors(menu).Reverse().Select(p => p.GetType().FullName));
         }
 
         /****

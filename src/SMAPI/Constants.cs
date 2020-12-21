@@ -39,6 +39,9 @@ namespace StardewModdingAPI
 
         /// <summary>The game's assembly name.</summary>
         internal static string GameAssemblyName => EarlyConstants.Platform == GamePlatform.Windows ? "Stardew Valley" : "StardewValley";
+
+        /// <summary>The <see cref="Context.ScreenId"/> value which should appear in the SMAPI log, if any.</summary>
+        internal static int? LogScreenId { get; set; }
     }
 
     /// <summary>Contains SMAPI's constants and assumptions.</summary>
@@ -54,10 +57,10 @@ namespace StardewModdingAPI
         public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("3.7.6");
 
         /// <summary>The minimum supported version of Stardew Valley.</summary>
-        public static ISemanticVersion MinimumGameVersion { get; } = new GameVersion("1.4.1");
+        public static ISemanticVersion MinimumGameVersion { get; } = new GameVersion("1.5.0");
 
         /// <summary>The maximum supported version of Stardew Valley.</summary>
-        public static ISemanticVersion MaximumGameVersion { get; } = new GameVersion("1.4.5");
+        public static ISemanticVersion MaximumGameVersion { get; } = null;
 
         /// <summary>The target game platform.</summary>
         public static GamePlatform TargetPlatform { get; } = EarlyConstants.Platform;
@@ -272,21 +275,13 @@ namespace StardewModdingAPI
                 return null;
 
             // get basic info
-            string playerName;
-            ulong saveID;
-            if (Context.LoadStage == LoadStage.SaveParsed)
-            {
-                playerName = SaveGame.loaded.player.Name;
-                saveID = SaveGame.loaded.uniqueIDForThisGame;
-            }
-            else
-            {
-                playerName = Game1.player.Name;
-                saveID = Game1.uniqueIDForThisGame;
-            }
+            string saveName = Game1.GetSaveGameName(set_value: false);
+            ulong saveID = Context.LoadStage == LoadStage.SaveParsed
+                ? SaveGame.loaded.uniqueIDForThisGame
+                : Game1.uniqueIDForThisGame;
 
             // build folder name
-            return $"{new string(playerName.Where(char.IsLetterOrDigit).ToArray())}_{saveID}";
+            return $"{new string(saveName.Where(char.IsLetterOrDigit).ToArray())}_{saveID}";
         }
 
         /// <summary>Get the path to the current save folder, if any.</summary>
