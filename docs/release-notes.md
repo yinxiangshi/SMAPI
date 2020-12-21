@@ -7,6 +7,24 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
+## 3.8
+Released 21 December 2020 for Stardew Valley 1.5 or later.
+
+* For players:
+  * Updated for Stardew Valley 1.5, including split-screen support.
+  * You can now run the installer from a subfolder of your game folder to auto-detect it. That simplifies installation if you have multiple copies of the game or it can't otherwise auto-detect the game path.
+  * Clarified error when the SMAPI installer is in the `Mods` folder.
+
+* For modders:
+  * Added `PerScreen<T>` utility and new `Context` fields to simplify split-screen support in mods.
+  * Added screen ID to log when playing in split-screen mode.
+
+* For the Console Commands mod:
+  * Added `furniture` option to `world_clear`.
+
+* For the web UI:
+  * Updated the JSON validator/schema for Content Patcher 1.19.
+
 ## 3.7.6
 Released 21 November 2020 for Stardew Valley 1.4.1 or later.
 

@@ -6,6 +6,7 @@ using StardewModdingAPI.Framework.ModLoading.Finders;
 using StardewModdingAPI.Framework.ModLoading.RewriteFacades;
 using StardewModdingAPI.Framework.ModLoading.Rewriters;
 using StardewValley;
+using StardewValley.Locations;
 
 namespace StardewModdingAPI.Metadata
 {
@@ -34,6 +35,11 @@ namespace StardewModdingAPI.Metadata
             // rewrite for crossplatform compatibility
             if (platformChanged)
                 yield return new MethodParentRewriter(typeof(SpriteBatch), typeof(SpriteBatchFacade));
+
+            // rewrite for Stardew Valley 1.5
+            yield return new FieldReplaceRewriter(typeof(DecoratableLocation), "furniture", typeof(GameLocation), nameof(GameLocation.furniture));
+            yield return new FieldReplaceRewriter(typeof(Farm), "resourceClumps", typeof(GameLocation), nameof(GameLocation.resourceClumps));
+            yield return new FieldReplaceRewriter(typeof(MineShaft), "resourceClumps", typeof(GameLocation), nameof(GameLocation.resourceClumps));
 
             // heuristic rewrites
             yield return new HeuristicFieldRewriter(this.ValidateReferencesToAssemblies);

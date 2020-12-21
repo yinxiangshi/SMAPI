@@ -30,6 +30,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>A cache of messages that should only be logged once.</summary>
         private readonly HashSet<string> LogOnceCache = new HashSet<string>();
 
+        /// <summary>Get the screen ID that should be logged to distinguish between players in split-screen mode, if any.</summary>
+        private readonly Func<int?> GetScreenIdForLog;
+
 
         /*********
         ** Accessors
@@ -56,7 +59,8 @@ namespace StardewModdingAPI.Framework
         /// <param name="logFile">The log file to which to write messages.</param>
         /// <param name="colorConfig">The colors to use for text written to the SMAPI console.</param>
         /// <param name="isVerbose">Whether verbose logging is enabled. This enables more detailed diagnostic messages than are normally needed.</param>
-        public Monitor(string source, char ignoreChar, LogFileManager logFile, ColorSchemeConfig colorConfig, bool isVerbose)
+        /// <param name="getScreenIdForLog">Get the screen ID that should be logged to distinguish between players in split-screen mode, if any.</param>
+        public Monitor(string source, char ignoreChar, LogFileManager logFile, ColorSchemeConfig colorConfig, bool isVerbose, Func<int?> getScreenIdForLog)
         {
             // validate
             if (string.IsNullOrWhiteSpace(source))
@@ -68,6 +72,7 @@ namespace StardewModdingAPI.Framework
             this.ConsoleWriter = new ColorfulConsoleWriter(Constants.Platform, colorConfig);
             this.IgnoreChar = ignoreChar;
             this.IsVerbose = isVerbose;
+            this.GetScreenIdForLog = getScreenIdForLog;
         }
 
         /// <inheritdoc />
@@ -143,7 +148,9 @@ namespace StardewModdingAPI.Framework
         private string GenerateMessagePrefix(string source, ConsoleLogLevel level)
         {
             string levelStr = level.ToString().ToUpper().PadRight(Monitor.MaxLevelLength);
-            return $"[{DateTime.Now:HH:mm:ss} {levelStr} {source}]";
+            int? playerIndex = this.GetScreenIdForLog();
+
+            return $"[{DateTime.Now:HH:mm:ss} {levelStr}{(playerIndex != null ? $" screen_{playerIndex}" : "")} {source}]";
         }
     }
 }

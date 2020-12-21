@@ -14,7 +14,7 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
         ** Fields
         *********/
         /// <summary>A regex pattern matching the start of a SMAPI message.</summary>
-        private readonly Regex MessageHeaderPattern = new Regex(@"^\[(?<time>\d\d[:\.]\d\d[:\.]\d\d) (?<level>[a-z]+) +(?<modName>[^\]]+)\] ", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex MessageHeaderPattern = new Regex(@"^\[(?<time>\d\d[:\.]\d\d[:\.]\d\d) (?<level>[a-z]+)(?: +screen_(?<screen>\d+))? +(?<modName>[^\]]+)\] ", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>A regex pattern matching SMAPI's initial platform info message.</summary>
         private readonly Regex InfoLinePattern = new Regex(@"^SMAPI (?<apiVersion>.+) with Stardew Valley (?<gameVersion>.+) on (?<os>.+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -304,9 +304,11 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                         builder.Clear();
                     }
 
+                    var screenGroup = header.Groups["screen"];
                     builder.Start(
                         time: header.Groups["time"].Value,
                         level: Enum.Parse<LogLevel>(header.Groups["level"].Value, ignoreCase: true),
+                        screenId: screenGroup.Success ? int.Parse(screenGroup.Value) : 0, // main player is always screen ID 0
                         mod: header.Groups["modName"].Value,
                         text: line.Substring(header.Length)
                     );

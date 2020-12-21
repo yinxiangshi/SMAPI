@@ -29,8 +29,8 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <summary>Interceptors which edit matching assets after they're loaded.</summary>
         private IList<ModLinked<IAssetEditor>> Editors => this.Coordinator.Editors;
 
-        /// <summary>A lookup which indicates whether the asset is localizable (i.e. the filename contains the locale), if previously loaded.</summary>
-        private readonly IDictionary<string, bool> IsLocalizableLookup;
+        /// <summary>Maps asset names to their localized form, like <c>LooseSprites\Billboard => LooseSprites\Billboard.fr-FR</c> (localized) or <c>Maps\AnimalShop => Maps\AnimalShop</c> (not localized).</summary>
+        private IDictionary<string, string> LocalizedAssetNames => LocalizedContentManager.localizedAssetNames;
 
         /// <summary>Whether the next load is the first for any game content manager.</summary>
         private static bool IsFirstLoad = true;
@@ -55,7 +55,6 @@ namespace StardewModdingAPI.Framework.ContentManagers
         public GameContentManager(string name, IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, Action<BaseContentManager> onDisposing, Action onLoadingFirstAsset)
             : base(name, serviceProvider, rootDirectory, currentCulture, coordinator, monitor, reflection, onDisposing, isNamespaced: false)
         {
-            this.IsLocalizableLookup = reflection.GetField<IDictionary<string, bool>>(this, "_localizedAsset").GetValue();
             this.OnLoadingFirstAsset = onLoadingFirstAsset;
         }
 
@@ -124,7 +123,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
 
             // find assets for which a translatable version was loaded
             HashSet<string> removeAssetNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (string key in this.IsLocalizableLookup.Where(p => p.Value).Select(p => p.Key))
+            foreach (string key in this.LocalizedAssetNames.Where(p => p.Key != p.Value).Select(p => p.Key))
                 removeAssetNames.Add(this.TryParseExplicitLanguageAssetKey(key, out string assetName, out _) ? assetName : key);
 
             // invalidate translatable assets
@@ -154,21 +153,15 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="normalizedAssetName">The normalized asset name.</param>
         protected override bool IsNormalizedKeyLoaded(string normalizedAssetName)
         {
-            // default English
-            if (this.Language == LocalizedContentManager.LanguageCode.en || this.Coordinator.IsManagedAssetKey(normalizedAssetName))
-                return this.Cache.ContainsKey(normalizedAssetName);
+            string cachedKey = null;
+            bool localized =
+                this.Language != LocalizedContentManager.LanguageCode.en
+                && !this.Coordinator.IsManagedAssetKey(normalizedAssetName)
+                && this.LocalizedAssetNames.TryGetValue(normalizedAssetName, out cachedKey);
 
-            // translated
-            string keyWithLocale = $"{normalizedAssetName}.{this.GetLocale(this.GetCurrentLanguage())}";
-            if (this.IsLocalizableLookup.TryGetValue(keyWithLocale, out bool localizable))
-            {
-                return localizable
-                    ? this.Cache.ContainsKey(keyWithLocale)
-                    : this.Cache.ContainsKey(normalizedAssetName);
-            }
-
-            // not loaded yet
-            return false;
+            return localized
+                ? this.Cache.ContainsKey(cachedKey)
+                : this.Cache.ContainsKey(normalizedAssetName);
         }
 
         /// <summary>Add tracking data to an asset and add it to the cache.</summary>
@@ -197,22 +190,16 @@ namespace StardewModdingAPI.Framework.ContentManagers
             //      doesn't change the instance stored in the cache, e.g. using `asset.ReplaceWith`.
             if (useCache)
             {
-                string keyWithLocale = $"{assetName}.{this.GetLocale(language)}";
+                string translatedKey = $"{assetName}.{this.GetLocale(language)}";
                 base.TrackAsset(assetName, value, language, useCache: true);
-                if (this.Cache.ContainsKey(keyWithLocale))
-                    base.TrackAsset(keyWithLocale, value, language, useCache: true);
+                if (this.Cache.ContainsKey(translatedKey))
+                    base.TrackAsset(translatedKey, value, language, useCache: true);
 
                 // track whether the injected asset is translatable for is-loaded lookups
-                if (this.Cache.ContainsKey(keyWithLocale))
-                {
-                    this.IsLocalizableLookup[assetName] = true;
-                    this.IsLocalizableLookup[keyWithLocale] = true;
-                }
+                if (this.Cache.ContainsKey(translatedKey))
+                    this.LocalizedAssetNames[assetName] = translatedKey;
                 else if (this.Cache.ContainsKey(assetName))
-                {
-                    this.IsLocalizableLookup[assetName] = false;
-                    this.IsLocalizableLookup[keyWithLocale] = false;
-                }
+                    this.LocalizedAssetNames[assetName] = assetName;
                 else
                     this.Monitor.Log($"Asset '{assetName}' could not be found in the cache immediately after injection.", LogLevel.Error);
             }
@@ -226,24 +213,23 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <remarks>Derived from <see cref="LocalizedContentManager.Load{T}(string, LocalizedContentManager.LanguageCode)"/>.</remarks>
         private T RawLoad<T>(string assetName, LanguageCode language, bool useCache)
         {
-            // try translated asset
+            // use cached key
+            if (this.LocalizedAssetNames.TryGetValue(assetName, out string cachedKey))
+                return base.RawLoad<T>(cachedKey, useCache);
+
+            // try translated key
             if (language != LocalizedContentManager.LanguageCode.en)
             {
                 string translatedKey = $"{assetName}.{this.GetLocale(language)}";
-                if (!this.IsLocalizableLookup.TryGetValue(translatedKey, out bool isTranslatable) || isTranslatable)
+                try
                 {
-                    try
-                    {
-                        T obj = base.RawLoad<T>(translatedKey, useCache);
-                        this.IsLocalizableLookup[assetName] = true;
-                        this.IsLocalizableLookup[translatedKey] = true;
-                        return obj;
-                    }
-                    catch (ContentLoadException)
-                    {
-                        this.IsLocalizableLookup[assetName] = false;
-                        this.IsLocalizableLookup[translatedKey] = false;
-                    }
+                    T obj = base.RawLoad<T>(translatedKey, useCache);
+                    this.LocalizedAssetNames[assetName] = translatedKey;
+                    return obj;
+                }
+                catch (ContentLoadException)
+                {
+                    this.LocalizedAssetNames[assetName] = assetName;
                 }
             }
 

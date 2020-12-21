@@ -65,13 +65,16 @@ namespace StardewModdingAPI.Framework.Input
             // update SMAPI extended data
             try
             {
-                float zoomMultiplier = (1f / Game1.options.zoomLevel);
+                float scale = Game1.options.uiScale;
 
                 // get real values
                 var controller = new GamePadStateBuilder(base.GetGamePadState());
                 var keyboard = new KeyboardStateBuilder(base.GetKeyboardState());
                 var mouse = new MouseStateBuilder(base.GetMouseState());
-                Vector2 cursorAbsolutePos = new Vector2((mouse.X * zoomMultiplier) + Game1.viewport.X, (mouse.Y * zoomMultiplier) + Game1.viewport.Y);
+                Vector2 cursorAbsolutePos = new Vector2(
+                    x: (mouse.X / scale) + Game1.uiViewport.X,
+                    y: (mouse.Y / scale) + Game1.uiViewport.Y
+                );
                 Vector2? playerTilePos = Context.IsPlayerFree ? Game1.player.getTileLocation() : (Vector2?)null;
                 HashSet<SButton> reallyDown = new HashSet<SButton>(this.GetPressedButtons(keyboard, mouse, controller));
 
@@ -106,7 +109,7 @@ namespace StardewModdingAPI.Framework.Input
                 if (cursorAbsolutePos != this.CursorPositionImpl?.AbsolutePixels || playerTilePos != this.LastPlayerTile)
                 {
                     this.LastPlayerTile = playerTilePos;
-                    this.CursorPositionImpl = this.GetCursorPosition(this.MouseState, cursorAbsolutePos, zoomMultiplier);
+                    this.CursorPositionImpl = this.GetCursorPosition(this.MouseState, cursorAbsolutePos, scale);
                 }
             }
             catch (InvalidOperationException)
@@ -199,11 +202,11 @@ namespace StardewModdingAPI.Framework.Input
         /// <summary>Get the current cursor position.</summary>
         /// <param name="mouseState">The current mouse state.</param>
         /// <param name="absolutePixels">The absolute pixel position relative to the map, adjusted for pixel zoom.</param>
-        /// <param name="zoomMultiplier">The multiplier applied to pixel coordinates to adjust them for pixel zoom.</param>
-        private CursorPosition GetCursorPosition(MouseState mouseState, Vector2 absolutePixels, float zoomMultiplier)
+        /// <param name="scale">The UI scale applied to pixel coordinates.</param>
+        private CursorPosition GetCursorPosition(MouseState mouseState, Vector2 absolutePixels, float scale)
         {
-            Vector2 screenPixels = new Vector2(mouseState.X * zoomMultiplier, mouseState.Y * zoomMultiplier);
-            Vector2 tile = new Vector2((int)((Game1.viewport.X + screenPixels.X) / Game1.tileSize), (int)((Game1.viewport.Y + screenPixels.Y) / Game1.tileSize));
+            Vector2 screenPixels = new Vector2(mouseState.X / scale, mouseState.Y / scale);
+            Vector2 tile = new Vector2((int)((Game1.uiViewport.X + screenPixels.X) / Game1.tileSize), (int)((Game1.uiViewport.Y + screenPixels.Y) / Game1.tileSize));
             Vector2 grabTile = (Game1.mouseCursorTransparency > 0 && Utility.tileWithinRadiusOfPlayer((int)tile.X, (int)tile.Y, 1, Game1.player)) // derived from Game1.pressActionButton
                 ? tile
                 : Game1.player.GetGrabTile();
