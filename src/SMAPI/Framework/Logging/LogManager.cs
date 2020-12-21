@@ -84,10 +84,11 @@ namespace StardewModdingAPI.Framework.Logging
         /// <param name="writeToConsole">Whether to output log messages to the console.</param>
         /// <param name="isVerbose">Whether verbose logging is enabled. This enables more detailed diagnostic messages than are normally needed.</param>
         /// <param name="isDeveloperMode">Whether to enable full console output for developers.</param>
-        public LogManager(string logPath, ColorSchemeConfig colorConfig, bool writeToConsole, bool isVerbose, bool isDeveloperMode)
+        /// <param name="getScreenIdForLog">Get the screen ID that should be logged to distinguish between players in split-screen mode, if any.</param>
+        public LogManager(string logPath, ColorSchemeConfig colorConfig, bool writeToConsole, bool isVerbose, bool isDeveloperMode, Func<int?> getScreenIdForLog)
         {
             // init construction logic
-            this.GetMonitorImpl = name => new Monitor(name, this.IgnoreChar, this.LogFile, colorConfig, isVerbose)
+            this.GetMonitorImpl = name => new Monitor(name, this.IgnoreChar, this.LogFile, colorConfig, isVerbose, getScreenIdForLog)
             {
                 WriteToConsole = writeToConsole,
                 ShowTraceInConsole = isDeveloperMode,

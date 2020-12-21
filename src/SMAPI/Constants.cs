@@ -39,6 +39,9 @@ namespace StardewModdingAPI
 
         /// <summary>The game's assembly name.</summary>
         internal static string GameAssemblyName => EarlyConstants.Platform == GamePlatform.Windows ? "Stardew Valley" : "StardewValley";
+
+        /// <summary>The <see cref="Context.ScreenId"/> value which should appear in the SMAPI log, if any.</summary>
+        internal static int? LogScreenId { get; set; }
     }
 
     /// <summary>Contains SMAPI's constants and assumptions.</summary>

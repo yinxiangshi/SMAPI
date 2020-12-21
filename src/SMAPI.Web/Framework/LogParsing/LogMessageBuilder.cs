@@ -16,6 +16,9 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
         /// <summary>The log level for the next log message.</summary>
         public LogLevel Level { get; set; }
 
+        /// <summary>The screen ID in split-screen mode.</summary>
+        public int ScreenId { get; set; }
+
         /// <summary>The mod name for the next log message.</summary>
         public string Mod { get; set; }
 
@@ -36,10 +39,11 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
         /// <summary>Start accumulating values for a new log message.</summary>
         /// <param name="time">The local time when the log was posted.</param>
         /// <param name="level">The log level.</param>
+        /// <param name="screenId">The screen ID in split-screen mode.</param>
         /// <param name="mod">The mod name.</param>
         /// <param name="text">The initial log text.</param>
         /// <exception cref="InvalidOperationException">A log message is already started; call <see cref="Clear"/> before starting a new message.</exception>
-        public void Start(string time, LogLevel level, string mod, string text)
+        public void Start(string time, LogLevel level, int screenId, string mod, string text)
         {
             if (this.Started)
                 throw new InvalidOperationException("Can't start new message, previous log message isn't done yet.");
@@ -48,6 +52,7 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
 
             this.Time = time;
             this.Level = level;
+            this.ScreenId = screenId;
             this.Mod = mod;
             this.Text.Append(text);
         }
@@ -74,6 +79,7 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
             {
                 Time = this.Time,
                 Level = this.Level,
+                ScreenId = this.ScreenId,
                 Mod = this.Mod,
                 Text = this.Text.ToString()
             };

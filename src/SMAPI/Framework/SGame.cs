@@ -5,9 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.Events;
 using StardewModdingAPI.Framework.Input;
 using StardewModdingAPI.Framework.Reflection;
+using StardewModdingAPI.Framework.StateTracking.Snapshots;
 using StardewModdingAPI.Framework.Utilities;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
@@ -41,30 +43,47 @@ namespace StardewModdingAPI.Framework
         /// <summary>Immediately exit the game without saving. This should only be invoked when an irrecoverable fatal error happens that risks save corruption or game-breaking bugs.</summary>
         private readonly Action<string> ExitGameImmediately;
 
-        /// <summary>Raised after the game finishes loading its initial content.</summary>
-        private readonly Action OnGameContentLoaded;
+        /// <summary>The initial override for <see cref="Input"/>. This value is null after initialization.</summary>
+        private SInputState InitialInput;
 
-        /// <summary>Raised when the game is updating its state (roughly 60 times per second).</summary>
-        private readonly Action<GameTime, Action> OnGameUpdating;
+        /// <summary>The initial override for <see cref="Multiplayer"/>. This value is null after initialization.</summary>
+        private SMultiplayer InitialMultiplayer;
 
-        /// <summary>Raised before the game exits.</summary>
-        private readonly Action OnGameExiting;
+        /// <summary>Raised when the instance is updating its state (roughly 60 times per second).</summary>
+        private readonly Action<SGame, GameTime, Action> OnUpdating;
 
 
         /*********
         ** Accessors
         *********/
         /// <summary>Manages input visible to the game.</summary>
-        public static SInputState Input => (SInputState)Game1.input;
-
-        /// <summary>The game's core multiplayer utility.</summary>
-        public static SMultiplayer Multiplayer => (SMultiplayer)Game1.multiplayer;
+        public SInputState Input => (SInputState)Game1.input;
 
         /// <summary>The game background task which initializes a new day.</summary>
-        public static Task NewDayTask => Game1._newDayTask;
+        public Task NewDayTask => Game1._newDayTask;
+
+        /// <summary>Monitors the entire game state for changes.</summary>
+        public WatcherCore Watchers { get; private set; }
+
+        /// <summary>A snapshot of the current <see cref="Watchers"/> state.</summary>
+        public WatcherSnapshot WatcherSnapshot { get; } = new WatcherSnapshot();
+
+        /// <summary>Whether the current update tick is the first one for this instance.</summary>
+        public bool IsFirstTick = true;
+
+        /// <summary>The number of ticks until SMAPI should notify mods that the game has loaded.</summary>
+        /// <remarks>Skipping a few frames ensures the game finishes initializing the world before mods try to change it.</remarks>
+        public Countdown AfterLoadTimer { get; } = new Countdown(5);
+
+        /// <summary>Whether the game is saving and SMAPI has already raised <see cref="IGameLoopEvents.Saving"/>.</summary>
+        public bool IsBetweenSaveEvents { get; set; }
+
+        /// <summary>Whether the game is creating the save file and SMAPI has already raised <see cref="IGameLoopEvents.SaveCreating"/>.</summary>
+        public bool IsBetweenCreateEvents { get; set; }
 
         /// <summary>Construct a content manager to read game content files.</summary>
         /// <remarks>This must be static because the game accesses it before the <see cref="SGame"/> constructor is called.</remarks>
+        [NonInstancedStatic]
         public static Func<IServiceProvider, string, LocalizedContentManager> CreateContentManagerImpl;
 
 
@@ -72,63 +91,40 @@ namespace StardewModdingAPI.Framework
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
+        /// <param name="playerIndex">The player index.</param>
+        /// <param name="instanceIndex">The instance index.</param>
         /// <param name="monitor">Encapsulates monitoring and logging for SMAPI.</param>
         /// <param name="reflection">Simplifies access to private game code.</param>
         /// <param name="eventManager">Manages SMAPI events for mods.</param>
+        /// <param name="input">Manages the game's input state.</param>
         /// <param name="modHooks">Handles mod hooks provided by the game.</param>
         /// <param name="multiplayer">The core multiplayer logic.</param>
         /// <param name="exitGameImmediately">Immediately exit the game without saving. This should only be invoked when an irrecoverable fatal error happens that risks save corruption or game-breaking bugs.</param>
-        /// <param name="onGameContentLoaded">Raised after the game finishes loading its initial content.</param>
-        /// <param name="onGameUpdating">Raised when the game is updating its state (roughly 60 times per second).</param>
-        /// <param name="onGameExiting">Raised before the game exits.</param>
-        public SGame(Monitor monitor, Reflector reflection, EventManager eventManager, SModHooks modHooks, SMultiplayer multiplayer, Action<string> exitGameImmediately, Action onGameContentLoaded, Action<GameTime, Action> onGameUpdating, Action onGameExiting)
+        /// <param name="onUpdating">Raised when the instance is updating its state (roughly 60 times per second).</param>
+        public SGame(PlayerIndex playerIndex, int instanceIndex, Monitor monitor, Reflector reflection, EventManager eventManager, SInputState input, SModHooks modHooks, SMultiplayer multiplayer, Action<string> exitGameImmediately, Action<SGame, GameTime, Action> onUpdating)
+            : base(playerIndex, instanceIndex)
         {
             // init XNA
             Game1.graphics.GraphicsProfile = GraphicsProfile.HiDef;
 
             // hook into game
-            Game1.input = new SInputState();
-            Game1.multiplayer = multiplayer;
+            Game1.input = this.InitialInput = input;
+            Game1.multiplayer = this.InitialMultiplayer = multiplayer;
             Game1.hooks = modHooks;
-            Game1.locations = new ObservableCollection<GameLocation>();
+            this._locations = new ObservableCollection<GameLocation>();
 
             // init SMAPI
             this.Monitor = monitor;
             this.Events = eventManager;
             this.Reflection = reflection;
             this.ExitGameImmediately = exitGameImmediately;
-            this.OnGameContentLoaded = onGameContentLoaded;
-            this.OnGameUpdating = onGameUpdating;
-            this.OnGameExiting = onGameExiting;
-        }
-
-        /// <summary>Get the observable location list.</summary>
-        public ObservableCollection<GameLocation> GetObservableLocations()
-        {
-            return (ObservableCollection<GameLocation>)Game1.locations;
+            this.OnUpdating = onUpdating;
         }
 
 
         /*********
         ** Protected methods
         *********/
-        /// <summary>Load content when the game is launched.</summary>
-        protected override void LoadContent()
-        {
-            base.LoadContent();
-
-            this.OnGameContentLoaded();
-        }
-
-        /// <summary>Perform cleanup logic when the game exits.</summary>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="args">The event args.</param>
-        /// <remarks>This overrides the logic in <see cref="Game1.exitEvent"/> to let SMAPI clean up before exit.</remarks>
-        protected override void OnExiting(object sender, EventArgs args)
-        {
-            this.OnGameExiting();
-        }
-
         /// <summary>Construct a content manager to read game content files.</summary>
         /// <param name="serviceProvider">The service provider to use to locate services.</param>
         /// <param name="rootDirectory">The root directory to search for content.</param>
@@ -140,11 +136,42 @@ namespace StardewModdingAPI.Framework
             return SGame.CreateContentManagerImpl(serviceProvider, rootDirectory);
         }
 
-        /// <summary>The method called when the game is updating its state (roughly 60 times per second).</summary>
+        /// <summary>Initialize the instance when the game starts.</summary>
+        protected override void Initialize()
+        {
+            base.Initialize();
+
+            // The game resets public static fields after the class is constructed (see
+            // GameRunner.SetInstanceDefaults), so SMAPI needs to re-override them here.
+            Game1.input = this.InitialInput;
+            Game1.multiplayer = this.InitialMultiplayer;
+
+            // The Initial* fields should no longer be used after this point, since mods may
+            // further override them after initialization.
+            this.InitialInput = null;
+            this.InitialMultiplayer = null;
+        }
+
+        /// <summary>The method called when the instance is updating its state (roughly 60 times per second).</summary>
         /// <param name="gameTime">A snapshot of the game timing state.</param>
         protected override void Update(GameTime gameTime)
         {
-            this.OnGameUpdating(gameTime, () => base.Update(gameTime));
+            // set initial state
+            if (this.IsFirstTick)
+            {
+                this.Input.TrueUpdate();
+                this.Watchers = new WatcherCore(this.Input, (ObservableCollection<GameLocation>)this._locations);
+            }
+
+            // update
+            try
+            {
+                this.OnUpdating(this, gameTime, () => base.Update(gameTime));
+            }
+            finally
+            {
+                this.IsFirstTick = false;
+            }
         }
 
         /// <summary>The method called to draw everything to the screen.</summary>
@@ -171,7 +198,7 @@ namespace StardewModdingAPI.Framework
                     return;
                 }
 
-                // recover sprite batch
+                // recover draw state
                 try
                 {
                     if (Game1.spriteBatch.IsOpen(this.Reflection))

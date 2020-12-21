@@ -85,16 +85,13 @@ namespace StardewModdingAPI.Framework
         private readonly CommandManager CommandManager = new CommandManager();
 
         /// <summary>The underlying game instance.</summary>
-        private SGame Game;
-
-        /// <summary>Manages input visible to the game.</summary>
-        private SInputState Input => SGame.Input;
-
-        /// <summary>The game's core multiplayer utility.</summary>
-        private SMultiplayer Multiplayer => SGame.Multiplayer;
+        private SGameRunner Game;
 
         /// <summary>SMAPI's content manager.</summary>
         private ContentCoordinator ContentCore;
+
+        /// <summary>The game's core multiplayer utility for the main player.</summary>
+        private SMultiplayer Multiplayer;
 
         /// <summary>Tracks the installed mods.</summary>
         /// <remarks>This is initialized after the game starts.</remarks>
@@ -103,11 +100,6 @@ namespace StardewModdingAPI.Framework
         /// <summary>Manages SMAPI events for mods.</summary>
         private readonly EventManager EventManager;
 
-        /// <summary>Monitors the entire game state for changes.</summary>
-        private WatcherCore Watchers;
-
-        /// <summary>A snapshot of the current <see cref="Watchers"/> state.</summary>
-        private readonly WatcherSnapshot WatcherSnapshot = new WatcherSnapshot();
 
         /****
         ** State
@@ -127,24 +119,14 @@ namespace StardewModdingAPI.Framework
         /// <summary>Whether post-game-startup initialization has been performed.</summary>
         private bool IsInitialized;
 
+        /// <summary>Whether the player just returned to the title screen.</summary>
+        public bool JustReturnedToTitle { get; set; }
+
         /// <summary>The maximum number of consecutive attempts SMAPI should make to recover from an update error.</summary>
         private readonly Countdown UpdateCrashTimer = new Countdown(60); // 60 ticks = roughly one second
 
-        /// <summary>The number of ticks until SMAPI should notify mods that the game has loaded.</summary>
-        /// <remarks>Skipping a few frames ensures the game finishes initializing the world before mods try to change it.</remarks>
-        private readonly Countdown AfterLoadTimer = new Countdown(5);
-
         /// <summary>Whether custom content was removed from the save data to avoid a crash.</summary>
         private bool IsSaveContentRemoved;
-
-        /// <summary>Whether the game is saving and SMAPI has already raised <see cref="IGameLoopEvents.Saving"/>.</summary>
-        private bool IsBetweenSaveEvents;
-
-        /// <summary>Whether the game is creating the save file and SMAPI has already raised <see cref="IGameLoopEvents.SaveCreating"/>.</summary>
-        private bool IsBetweenCreateEvents;
-
-        /// <summary>Whether the player just returned to the title screen.</summary>
-        private bool JustReturnedToTitle;
 
         /// <summary>Asset interceptors added or removed since the last tick.</summary>
         private readonly List<AssetInterceptorChange> ReloadAssetInterceptorsQueue = new List<AssetInterceptorChange>();
@@ -191,7 +173,7 @@ namespace StardewModdingAPI.Framework
             if (File.Exists(Constants.ApiUserConfigPath))
                 JsonConvert.PopulateObject(File.ReadAllText(Constants.ApiUserConfigPath), this.Settings);
 
-            this.LogManager = new LogManager(logPath: logPath, colorConfig: this.Settings.ConsoleColors, writeToConsole: writeToConsole, isVerbose: this.Settings.VerboseLogging, isDeveloperMode: this.Settings.DeveloperMode);
+            this.LogManager = new LogManager(logPath: logPath, colorConfig: this.Settings.ConsoleColors, writeToConsole: writeToConsole, isVerbose: this.Settings.VerboseLogging, isDeveloperMode: this.Settings.DeveloperMode, getScreenIdForLog: this.GetScreenIdForLog);
 
             SCore.PerformanceMonitor = new PerformanceMonitor(this.Monitor);
             this.EventManager = new EventManager(this.ModRegistry, SCore.PerformanceMonitor);
@@ -250,22 +232,22 @@ namespace StardewModdingAPI.Framework
                 LocalizedContentManager.OnLanguageChange += locale => this.OnLocaleChanged();
 
                 // override game
-                var multiplayer = new SMultiplayer(this.Monitor, this.EventManager, this.Toolkit.JsonHelper, this.ModRegistry, this.Reflection, this.OnModMessageReceived, this.Settings.LogNetworkTraffic);
-                var modHooks = new SModHooks(this.OnNewDayAfterFade);
+                this.Multiplayer = new SMultiplayer(this.Monitor, this.EventManager, this.Toolkit.JsonHelper, this.ModRegistry, this.Reflection, this.OnModMessageReceived, this.Settings.LogNetworkTraffic);
                 SGame.CreateContentManagerImpl = this.CreateContentManager; // must be static since the game accesses it before the SGame constructor is called
-                this.Game = new SGame(
+                this.Game = new SGameRunner(
                     monitor: this.Monitor,
                     reflection: this.Reflection,
                     eventManager: this.EventManager,
-                    modHooks: modHooks,
-                    multiplayer: multiplayer,
+                    modHooks: new SModHooks(this.OnNewDayAfterFade),
+                    multiplayer: this.Multiplayer,
                     exitGameImmediately: this.ExitGameImmediately,
 
                     onGameContentLoaded: this.OnGameContentLoaded,
                     onGameUpdating: this.OnGameUpdating,
+                    onPlayerInstanceUpdating: this.OnPlayerInstanceUpdating,
                     onGameExiting: this.OnGameExiting
                 );
-                StardewValley.Program.gamePtr = this.Game;
+                StardewValley.GameRunner.instance = this.Game;
 
                 // apply game patches
                 new GamePatcher(this.Monitor).Apply(
@@ -422,12 +404,6 @@ namespace StardewModdingAPI.Framework
         /// <summary>Raised after the game finishes initializing.</summary>
         private void OnGameInitialized()
         {
-            // set initial state
-            this.Input.TrueUpdate();
-
-            // init watchers
-            this.Watchers = new WatcherCore(this.Input, this.Game.GetObservableLocations());
-
             // validate XNB integrity
             if (!this.ValidateContentIntegrity())
                 this.Monitor.Log("SMAPI found problems in your game's content files which are likely to cause errors or crashes. Consider uninstalling XNB mods or reinstalling the game.", LogLevel.Error);
@@ -460,8 +436,6 @@ namespace StardewModdingAPI.Framework
         /// <param name="runGameUpdate">Invoke the game's update logic.</param>
         private void OnGameUpdating(GameTime gameTime, Action runGameUpdate)
         {
-            var events = this.EventManager;
-
             try
             {
                 /*********
@@ -470,15 +444,6 @@ namespace StardewModdingAPI.Framework
                 // print warnings/alerts
                 SCore.DeprecationManager.PrintQueued();
                 SCore.PerformanceMonitor.PrintQueuedAlerts();
-
-                // reapply overrides
-                if (this.JustReturnedToTitle)
-                {
-                    if (!(Game1.mapDisplayDevice is SDisplayDevice))
-                        Game1.mapDisplayDevice = this.GetMapDisplayDevice();
-
-                    this.JustReturnedToTitle = false;
-                }
 
                 /*********
                 ** First-tick initialization
@@ -490,114 +455,12 @@ namespace StardewModdingAPI.Framework
                 }
 
                 /*********
-                ** Update input
-                *********/
-                // This should *always* run, even when suppressing mod events, since the game uses
-                // this too. For example, doing this after mod event suppression would prevent the
-                // user from doing anything on the overnight shipping screen.
-                SInputState inputState = this.Input;
-                if (this.Game.IsActive)
-                    inputState.TrueUpdate();
-
-                /*********
                 ** Special cases
                 *********/
                 // Abort if SMAPI is exiting.
                 if (this.CancellationToken.IsCancellationRequested)
                 {
                     this.Monitor.Log("SMAPI shutting down: aborting update.");
-                    return;
-                }
-
-                // Run async tasks synchronously to avoid issues due to mod events triggering
-                // concurrently with game code.
-                bool saveParsed = false;
-                if (Game1.currentLoader != null)
-                {
-                    this.Monitor.Log("Game loader synchronizing...");
-                    while (Game1.currentLoader?.MoveNext() == true)
-                    {
-                        // raise load stage changed
-                        switch (Game1.currentLoader.Current)
-                        {
-                            case 20 when (!saveParsed && SaveGame.loaded != null):
-                                saveParsed = true;
-                                this.OnLoadStageChanged(LoadStage.SaveParsed);
-                                break;
-
-                            case 36:
-                                this.OnLoadStageChanged(LoadStage.SaveLoadedBasicInfo);
-                                break;
-
-                            case 50:
-                                this.OnLoadStageChanged(LoadStage.SaveLoadedLocations);
-                                break;
-
-                            default:
-                                if (Game1.gameMode == Game1.playingGameMode)
-                                    this.OnLoadStageChanged(LoadStage.Preloaded);
-                                break;
-                        }
-                    }
-
-                    Game1.currentLoader = null;
-                    this.Monitor.Log("Game loader done.");
-                }
-
-                if (SGame.NewDayTask?.Status == TaskStatus.Created)
-                {
-                    this.Monitor.Log("New day task synchronizing...");
-                    SGame.NewDayTask.RunSynchronously();
-                    this.Monitor.Log("New day task done.");
-                }
-
-                // While a background task is in progress, the game may make changes to the game
-                // state while mods are running their code. This is risky, because data changes can
-                // conflict (e.g. collection changed during enumeration errors) and data may change
-                // unexpectedly from one mod instruction to the next.
-                //
-                // Therefore we can just run Game1.Update here without raising any SMAPI events. There's
-                // a small chance that the task will finish after we defer but before the game checks,
-                // which means technically events should be raised, but the effects of missing one
-                // update tick are negligible and not worth the complications of bypassing Game1.Update.
-                if (SGame.NewDayTask != null || Game1.gameMode == Game1.loadingMode)
-                {
-                    events.UnvalidatedUpdateTicking.RaiseEmpty();
-                    SCore.TicksElapsed++;
-                    runGameUpdate();
-                    events.UnvalidatedUpdateTicked.RaiseEmpty();
-                    return;
-                }
-
-                // Raise minimal events while saving.
-                // While the game is writing to the save file in the background, mods can unexpectedly
-                // fail since they don't have exclusive access to resources (e.g. collection changed
-                // during enumeration errors). To avoid problems, events are not invoked while a save
-                // is in progress. It's safe to raise SaveEvents.BeforeSave as soon as the menu is
-                // opened (since the save hasn't started yet), but all other events should be suppressed.
-                if (Context.IsSaving)
-                {
-                    // raise before-create
-                    if (!Context.IsWorldReady && !this.IsBetweenCreateEvents)
-                    {
-                        this.IsBetweenCreateEvents = true;
-                        this.Monitor.Log("Context: before save creation.");
-                        events.SaveCreating.RaiseEmpty();
-                    }
-
-                    // raise before-save
-                    if (Context.IsWorldReady && !this.IsBetweenSaveEvents)
-                    {
-                        this.IsBetweenSaveEvents = true;
-                        this.Monitor.Log("Context: before save.");
-                        events.Saving.RaiseEmpty();
-                    }
-
-                    // suppress non-save events
-                    events.UnvalidatedUpdateTicking.RaiseEmpty();
-                    SCore.TicksElapsed++;
-                    runGameUpdate();
-                    events.UnvalidatedUpdateTicked.RaiseEmpty();
                     return;
                 }
 
@@ -671,32 +534,7 @@ namespace StardewModdingAPI.Framework
                 }
 
                 /*********
-                ** Update context
-                *********/
-                bool wasWorldReady = Context.IsWorldReady;
-                if ((Context.IsWorldReady && !Context.IsSaveLoaded) || Game1.exitToTitle)
-                {
-                    Context.IsWorldReady = false;
-                    this.AfterLoadTimer.Reset();
-                }
-                else if (Context.IsSaveLoaded && this.AfterLoadTimer.Current > 0 && Game1.currentLocation != null)
-                {
-                    if (Game1.dayOfMonth != 0) // wait until new-game intro finishes (world not fully initialized yet)
-                        this.AfterLoadTimer.Decrement();
-                    Context.IsWorldReady = this.AfterLoadTimer.Current == 0;
-                }
-
-                /*********
-                ** Update watchers
-                **   (Watchers need to be updated, checked, and reset in one go so we can detect any changes mods make in event handlers.)
-                *********/
-                this.Watchers.Update();
-                this.WatcherSnapshot.Update(this.Watchers);
-                this.Watchers.Reset();
-                WatcherSnapshot state = this.WatcherSnapshot;
-
-                /*********
-                ** Display in-game warnings
+                ** Show in-game warnings (for main player only)
                 *********/
                 // save content removed
                 if (this.IsSaveContentRemoved && Context.IsWorldReady)
@@ -706,25 +544,197 @@ namespace StardewModdingAPI.Framework
                 }
 
                 /*********
+                ** Run game update
+                *********/
+                runGameUpdate();
+
+                /*********
+                ** Reset crash timer
+                *********/
+                this.UpdateCrashTimer.Reset();
+            }
+            catch (Exception ex)
+            {
+                // log error
+                this.Monitor.Log($"An error occured in the overridden update loop: {ex.GetLogSummary()}", LogLevel.Error);
+
+                // exit if irrecoverable
+                if (!this.UpdateCrashTimer.Decrement())
+                    this.ExitGameImmediately("The game crashed when updating, and SMAPI was unable to recover the game.");
+            }
+            finally
+            {
+                SCore.TicksElapsed++;
+            }
+        }
+
+        /// <summary>Raised when the game instance for a local player is updating (once per <see cref="OnGameUpdating"/> per player).</summary>
+        /// <param name="instance">The game instance being updated.</param>
+        /// <param name="gameTime">A snapshot of the game timing state.</param>
+        /// <param name="runUpdate">Invoke the game's update logic.</param>
+        private void OnPlayerInstanceUpdating(SGame instance, GameTime gameTime, Action runUpdate)
+        {
+            var events = this.EventManager;
+
+            try
+            {
+                // reapply overrides
+                if (this.JustReturnedToTitle)
+                {
+                    if (!(Game1.mapDisplayDevice is SDisplayDevice))
+                        Game1.mapDisplayDevice = this.GetMapDisplayDevice();
+
+                    this.JustReturnedToTitle = false;
+                }
+
+                /*********
+                ** Update input
+                *********/
+                // This should *always* run, even when suppressing mod events, since the game uses
+                // this too. For example, doing this after mod event suppression would prevent the
+                // user from doing anything on the overnight shipping screen.
+                SInputState inputState = instance.Input;
+                if (this.Game.IsActive)
+                    inputState.TrueUpdate();
+
+                /*********
+                ** Special cases
+                *********/
+                // Run async tasks synchronously to avoid issues due to mod events triggering
+                // concurrently with game code.
+                bool saveParsed = false;
+                if (Game1.currentLoader != null)
+                {
+                    this.Monitor.Log("Game loader synchronizing...");
+                    while (Game1.currentLoader?.MoveNext() == true)
+                    {
+                        // raise load stage changed
+                        switch (Game1.currentLoader.Current)
+                        {
+                            case 20 when (!saveParsed && SaveGame.loaded != null):
+                                saveParsed = true;
+                                this.OnLoadStageChanged(LoadStage.SaveParsed);
+                                break;
+
+                            case 36:
+                                this.OnLoadStageChanged(LoadStage.SaveLoadedBasicInfo);
+                                break;
+
+                            case 50:
+                                this.OnLoadStageChanged(LoadStage.SaveLoadedLocations);
+                                break;
+
+                            default:
+                                if (Game1.gameMode == Game1.playingGameMode)
+                                    this.OnLoadStageChanged(LoadStage.Preloaded);
+                                break;
+                        }
+                    }
+
+                    Game1.currentLoader = null;
+                    this.Monitor.Log("Game loader done.");
+                }
+
+                if (instance.NewDayTask?.Status == TaskStatus.Created)
+                {
+                    this.Monitor.Log("New day task synchronizing...");
+                    instance.NewDayTask.RunSynchronously();
+                    this.Monitor.Log("New day task done.");
+                }
+
+                // While a background task is in progress, the game may make changes to the game
+                // state while mods are running their code. This is risky, because data changes can
+                // conflict (e.g. collection changed during enumeration errors) and data may change
+                // unexpectedly from one mod instruction to the next.
+                //
+                // Therefore we can just run Game1.Update here without raising any SMAPI events. There's
+                // a small chance that the task will finish after we defer but before the game checks,
+                // which means technically events should be raised, but the effects of missing one
+                // update tick are negligible and not worth the complications of bypassing Game1.Update.
+                if (instance.NewDayTask != null || Game1.gameMode == Game1.loadingMode)
+                {
+                    events.UnvalidatedUpdateTicking.RaiseEmpty();
+                    runUpdate();
+                    events.UnvalidatedUpdateTicked.RaiseEmpty();
+                    return;
+                }
+
+                // Raise minimal events while saving.
+                // While the game is writing to the save file in the background, mods can unexpectedly
+                // fail since they don't have exclusive access to resources (e.g. collection changed
+                // during enumeration errors). To avoid problems, events are not invoked while a save
+                // is in progress. It's safe to raise SaveEvents.BeforeSave as soon as the menu is
+                // opened (since the save hasn't started yet), but all other events should be suppressed.
+                if (Context.IsSaving)
+                {
+                    // raise before-create
+                    if (!Context.IsWorldReady && !instance.IsBetweenCreateEvents)
+                    {
+                        instance.IsBetweenCreateEvents = true;
+                        this.Monitor.Log("Context: before save creation.");
+                        events.SaveCreating.RaiseEmpty();
+                    }
+
+                    // raise before-save
+                    if (Context.IsWorldReady && !instance.IsBetweenSaveEvents)
+                    {
+                        instance.IsBetweenSaveEvents = true;
+                        this.Monitor.Log("Context: before save.");
+                        events.Saving.RaiseEmpty();
+                    }
+
+                    // suppress non-save events
+                    events.UnvalidatedUpdateTicking.RaiseEmpty();
+                    runUpdate();
+                    events.UnvalidatedUpdateTicked.RaiseEmpty();
+                    return;
+                }
+
+                /*********
+                ** Update context
+                *********/
+                bool wasWorldReady = Context.IsWorldReady;
+                if ((Context.IsWorldReady && !Context.IsSaveLoaded) || Game1.exitToTitle)
+                {
+                    Context.IsWorldReady = false;
+                    instance.AfterLoadTimer.Reset();
+                }
+                else if (Context.IsSaveLoaded && instance.AfterLoadTimer.Current > 0 && Game1.currentLocation != null)
+                {
+                    if (Game1.dayOfMonth != 0) // wait until new-game intro finishes (world not fully initialized yet)
+                        instance.AfterLoadTimer.Decrement();
+                    Context.IsWorldReady = instance.AfterLoadTimer.Current == 0;
+                }
+
+                /*********
+                ** Update watchers
+                **   (Watchers need to be updated, checked, and reset in one go so we can detect any changes mods make in event handlers.)
+                *********/
+                instance.Watchers.Update();
+                instance.WatcherSnapshot.Update(instance.Watchers);
+                instance.Watchers.Reset();
+                WatcherSnapshot state = instance.WatcherSnapshot;
+
+                /*********
                 ** Pre-update events
                 *********/
                 {
                     /*********
                     ** Save created/loaded events
                     *********/
-                    if (this.IsBetweenCreateEvents)
+                    if (instance.IsBetweenCreateEvents)
                     {
                         // raise after-create
-                        this.IsBetweenCreateEvents = false;
+                        instance.IsBetweenCreateEvents = false;
                         this.Monitor.Log($"Context: after save creation, starting {Game1.currentSeason} {Game1.dayOfMonth} Y{Game1.year}.");
                         this.OnLoadStageChanged(LoadStage.CreatedSaveFile);
                         events.SaveCreated.RaiseEmpty();
                     }
 
-                    if (this.IsBetweenSaveEvents)
+                    if (instance.IsBetweenSaveEvents)
                     {
                         // raise after-save
-                        this.IsBetweenSaveEvents = false;
+                        instance.IsBetweenSaveEvents = false;
                         this.Monitor.Log($"Context: after save, starting {Game1.currentSeason} {Game1.dayOfMonth} Y{Game1.year}.");
                         events.Saved.RaiseEmpty();
                         events.DayStarted.RaiseEmpty();
@@ -785,7 +795,7 @@ namespace StardewModdingAPI.Framework
                         bool isChatInput = Game1.IsChatting || (Context.IsMultiplayer && Context.IsWorldReady && Game1.activeClickableMenu == null && Game1.currentMinigame == null && inputState.IsAnyDown(Game1.options.chatButton));
                         if (!isChatInput)
                         {
-                            ICursorPosition cursor = this.Input.CursorPosition;
+                            ICursorPosition cursor = instance.Input.CursorPosition;
 
                             // raise cursor moved event
                             if (state.Cursor.IsChanged)
@@ -950,9 +960,8 @@ namespace StardewModdingAPI.Framework
                     /*********
                     ** Game update
                     *********/
-                    // game launched
-                    bool isFirstTick = SCore.TicksElapsed == 0;
-                    if (isFirstTick)
+                    // game launched (not raised for secondary players in split-screen mode)
+                    if (instance.IsFirstTick && !Context.IsGameLaunched)
                     {
                         Context.IsGameLaunched = true;
                         events.GameLaunched.Raise(new GameLaunchedEventArgs());
@@ -974,9 +983,8 @@ namespace StardewModdingAPI.Framework
                         events.OneSecondUpdateTicking.RaiseEmpty();
                     try
                     {
-                        this.Input.ApplyOverrides(); // if mods added any new overrides since the update, process them now
-                        SCore.TicksElapsed++;
-                        runGameUpdate();
+                        instance.Input.ApplyOverrides(); // if mods added any new overrides since the update, process them now
+                        runUpdate();
                     }
                     catch (Exception ex)
                     {
@@ -1111,6 +1119,13 @@ namespace StardewModdingAPI.Framework
 
             // any other content manager
             return this.ContentCore.CreateGameContentManager("(generated)");
+        }
+
+        /// <summary>Get the current game instance. This may not be the main player if playing in split-screen.</summary>
+        private SGame GetCurrentGameInstance()
+        {
+            return Game1.game1 as SGame
+                ?? throw new InvalidOperationException("The current game instance wasn't created by SMAPI.");
         }
 
         /// <summary>Look for common issues with the game's XNB content, and log warnings if anything looks broken or outdated.</summary>
@@ -1601,7 +1616,7 @@ namespace StardewModdingAPI.Framework
                         IModRegistry modRegistryHelper = new ModRegistryHelper(manifest.UniqueID, this.ModRegistry, proxyFactory, monitor);
                         IMultiplayerHelper multiplayerHelper = new MultiplayerHelper(manifest.UniqueID, this.Multiplayer);
 
-                        modHelper = new ModHelper(manifest.UniqueID, mod.DirectoryPath, this.Input, events, contentHelper, contentPackHelper, commandHelper, dataHelper, modRegistryHelper, reflectionHelper, multiplayerHelper, translationHelper);
+                        modHelper = new ModHelper(manifest.UniqueID, mod.DirectoryPath, () => this.GetCurrentGameInstance().Input, events, contentHelper, contentPackHelper, commandHelper, dataHelper, modRegistryHelper, reflectionHelper, multiplayerHelper, translationHelper);
                     }
 
                     // init mod
@@ -1812,6 +1827,15 @@ namespace StardewModdingAPI.Framework
         {
             this.Monitor.LogFatal(message);
             this.CancellationToken.Cancel();
+        }
+
+        /// <summary>Get the screen ID that should be logged to distinguish between players in split-screen mode, if any.</summary>
+        private int? GetScreenIdForLog()
+        {
+            if (Context.ScreenId != 0 || (Context.IsWorldReady && Context.IsSplitScreen))
+                return Context.ScreenId;
+
+            return null;
         }
     }
 }

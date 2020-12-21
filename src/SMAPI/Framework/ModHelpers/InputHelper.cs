@@ -1,3 +1,4 @@
+using System;
 using StardewModdingAPI.Framework.Input;
 
 namespace StardewModdingAPI.Framework.ModHelpers
@@ -8,8 +9,8 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /*********
         ** Accessors
         *********/
-        /// <summary>Manages the game's input state.</summary>
-        private readonly SInputState InputState;
+        /// <summary>Manages the game's input state for the current player instance. That may not be the main player in split-screen mode.</summary>
+        private readonly Func<SInputState> CurrentInputState;
 
 
         /*********
@@ -17,41 +18,41 @@ namespace StardewModdingAPI.Framework.ModHelpers
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="modID">The unique ID of the relevant mod.</param>
-        /// <param name="inputState">Manages the game's input state.</param>
-        public InputHelper(string modID, SInputState inputState)
+        /// <param name="currentInputState">Manages the game's input state for the current player instance. That may not be the main player in split-screen mode.</param>
+        public InputHelper(string modID, Func<SInputState> currentInputState)
             : base(modID)
         {
-            this.InputState = inputState;
+            this.CurrentInputState = currentInputState;
         }
 
         /// <inheritdoc />
         public ICursorPosition GetCursorPosition()
         {
-            return this.InputState.CursorPosition;
+            return this.CurrentInputState().CursorPosition;
         }
 
         /// <inheritdoc />
         public bool IsDown(SButton button)
         {
-            return this.InputState.IsDown(button);
+            return this.CurrentInputState().IsDown(button);
         }
 
         /// <inheritdoc />
         public bool IsSuppressed(SButton button)
         {
-            return this.InputState.IsSuppressed(button);
+            return this.CurrentInputState().IsSuppressed(button);
         }
 
         /// <inheritdoc />
         public void Suppress(SButton button)
         {
-            this.InputState.OverrideButton(button, setDown: false);
+            this.CurrentInputState().OverrideButton(button, setDown: false);
         }
 
         /// <inheritdoc />
         public SButtonState GetState(SButton button)
         {
-            return this.InputState.GetState(button);
+            return this.CurrentInputState().GetState(button);
         }
     }
 }

@@ -9,7 +9,11 @@
 
 ## Upcoming release
 * For players:
-  * Updated for Stardew Valley 1.5.
+  * Updated for Stardew Valley 1.5, including split-screen support.
+
+* For modders:
+  * Added `PerScreen<T>` utility and new `Context` fields to simplify split-screen support in mods.
+  * Added screen ID to log when playing in split-screen mode.
 
 ## 3.7.6
 Released 21 November 2020 for Stardew Valley 1.4.1 or later.
