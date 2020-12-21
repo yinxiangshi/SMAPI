@@ -8,7 +8,7 @@
 -->
 
 ## 3.8
-Released 21 December 2020 for Stardew Valley 1.5 or later.
+Released 21 December 2020 for Stardew Valley 1.5 or later. See [release highlights](https://www.patreon.com/posts/45294737).
 
 * For players:
   * Updated for Stardew Valley 1.5, including split-screen support.
