@@ -42,7 +42,7 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
         private readonly Regex ModUpdateListStartPattern = new Regex(@"^You can update \d+ mods?:$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>A regex pattern matching an entry in SMAPI's mod update list.</summary>
-        private readonly Regex ModUpdateListEntryPattern = new Regex(@"^   (?<name>.+?) (?<version>[^\s]+): (?<link>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex ModUpdateListEntryPattern = new Regex(@"^   (?<name>.+) (?<version>[^\s]+): (?<link>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>A regex pattern matching SMAPI's update line.</summary>
         private readonly Regex SmapiUpdatePattern = new Regex(@"^You can update SMAPI to (?<version>[^\s]+): (?<link>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -109,12 +109,9 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                     if (message.Mod == "SMAPI")
                     {
                         // update flags
-                        if (inModList && !this.ModListEntryPattern.IsMatch(message.Text))
-                            inModList = false;
-                        if (inContentPackList && !this.ContentPackListEntryPattern.IsMatch(message.Text))
-                            inContentPackList = false;
-                        if (inModUpdateList && !this.ModUpdateListEntryPattern.IsMatch(message.Text))
-                            inModUpdateList = false;
+                        inModList = inModList && message.Level == LogLevel.Info && this.ModListEntryPattern.IsMatch(message.Text);
+                        inContentPackList = inContentPackList && message.Level == LogLevel.Info && this.ContentPackListEntryPattern.IsMatch(message.Text);
+                        inModUpdateList = inModUpdateList && message.Level == LogLevel.Alert && this.ModUpdateListEntryPattern.IsMatch(message.Text);
 
                         // mod list
                         if (!inModList && message.Level == LogLevel.Info && this.ModListStartPattern.IsMatch(message.Text))

@@ -11,6 +11,9 @@
 * For modders:
   * Fixed world events not raised for volcano levels.
 
+For the web UI:
+  * Fixed edge cases in SMAPI log parsing.
+
 ## 3.8
 Released 21 December 2020 for Stardew Valley 1.5 or later. See [release highlights](https://www.patreon.com/posts/45294737).
 
