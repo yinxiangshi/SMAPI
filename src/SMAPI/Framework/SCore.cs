@@ -1061,33 +1061,29 @@ namespace StardewModdingAPI.Framework
         private void ApplySaveFixes()
         {
             // get last SMAPI version used with this save
-            const string migrationKey = "Pathoschild.SMAPI/last-version";
-            if (!Game1.CustomData.TryGetValue(migrationKey, out string rawVersion) || !SemanticVersion.TryParse(rawVersion, out ISemanticVersion lastVersionRun))
-                lastVersionRun = new SemanticVersion(3, 8, 0);
+            const string migrationKey = "Pathoschild.SMAPI/api-version";
+            if (!Game1.CustomData.TryGetValue(migrationKey, out string rawVersion) || !SemanticVersion.TryParse(rawVersion, out ISemanticVersion lastVersion))
+                lastVersion = new SemanticVersion(3, 8, 0);
 
             // fix bundle corruption in SMAPI 3.8.0
             // For non-English players who created a new save in SMAPI 3.8.0, bundle data was
             // incorrectly translated which caused the code to crash whenever the game tried to
             // read it.
-            if (lastVersionRun.IsOlderThan(new SemanticVersion(3, 8, 1)))
+            if (lastVersion.IsOlderThan(new SemanticVersion(3, 8, 1)) && Game1.netWorldState?.Value?.BundleData != null)
             {
-                bool? hasInvalidBundleData = Game1.netWorldState?.Value
-                    ?.BundleData
-                    ?.Values
-                    ?.Any(raw => raw != null && raw.Split('/').Length > 5);
+                var oldData = new Dictionary<string, string>(Game1.netWorldState.Value.BundleData);
 
-                if (hasInvalidBundleData == true)
+                try
                 {
-                    try
-                    {
-                        Game1.applySaveFix(SaveGame.SaveFixes.FixBotchedBundleData);
-                        this.Monitor.Log("Found corrupted community center data due to a previous version of SMAPI, and fixed it automatically.", LogLevel.Info);
-                    }
-                    catch (Exception ex)
-                    {
-                        this.Monitor.Log("Found corrupted community center data due to a previous version of SMAPI, but was unable to fix it automatically.", LogLevel.Error);
-                        this.Monitor.Log($"Technical details: {ex}");
-                    }
+                    Game1.applySaveFix(SaveGame.SaveFixes.FixBotchedBundleData);
+                    bool changed = Game1.netWorldState.Value.BundleData.Any(p => oldData.TryGetValue(p.Key, out string oldValue) && oldValue != p.Value);
+                    if (changed)
+                        this.Monitor.Log("Found broken community center bundles and fixed them automatically.", LogLevel.Info);
+                }
+                catch (Exception ex)
+                {
+                    this.Monitor.Log("Failed to verify community center data.", LogLevel.Error); // should never happen
+                    this.Monitor.Log($"Technical details: {ex}");
                 }
             }
 
