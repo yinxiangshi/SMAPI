@@ -278,7 +278,7 @@ namespace StardewModdingAPI.Framework
             return this.ContentManagerLock.InReadLock(() =>
             {
                 List<object> values = new List<object>();
-                foreach (IContentManager content in this.ContentManagers.Where(p => !p.IsNamespaced && p.IsLoaded(assetName)))
+                foreach (IContentManager content in this.ContentManagers.Where(p => !p.IsNamespaced && p.IsLoaded(assetName, p.Language)))
                 {
                     object value = content.Load<object>(assetName, this.Language, useCache: true);
                     values.Add(value);

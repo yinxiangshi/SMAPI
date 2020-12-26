@@ -66,7 +66,7 @@ namespace StardewModdingAPI.Framework
             this.WindowSizeWatcher = WatcherFactory.ForEquatable(() => new Point(Game1.viewport.Width, Game1.viewport.Height));
             this.TimeWatcher = WatcherFactory.ForEquatable(() => Game1.timeOfDay);
             this.ActiveMenuWatcher = WatcherFactory.ForReference(() => Game1.activeClickableMenu);
-            this.LocationsWatcher = new WorldLocationsTracker(gameLocations, MineShaft.activeMines);
+            this.LocationsWatcher = new WorldLocationsTracker(gameLocations, MineShaft.activeMines, VolcanoDungeon.activeLevels);
             this.LocaleWatcher = WatcherFactory.ForGenericEquality(() => LocalizedContentManager.CurrentLanguageCode);
             this.Watchers.AddRange(new IWatcher[]
             {

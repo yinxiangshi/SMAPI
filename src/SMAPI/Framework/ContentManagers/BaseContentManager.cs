@@ -169,10 +169,11 @@ namespace StardewModdingAPI.Framework.ContentManagers
 
         /// <summary>Get whether the content manager has already loaded and cached the given asset.</summary>
         /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
-        public bool IsLoaded(string assetName)
+        /// <param name="language">The language.</param>
+        public bool IsLoaded(string assetName, LanguageCode language)
         {
             assetName = this.Cache.NormalizeKey(assetName);
-            return this.IsNormalizedKeyLoaded(assetName);
+            return this.IsNormalizedKeyLoaded(assetName, language);
         }
 
         /// <summary>Get the cached asset keys.</summary>
@@ -315,7 +316,8 @@ namespace StardewModdingAPI.Framework.ContentManagers
 
         /// <summary>Get whether an asset has already been loaded.</summary>
         /// <param name="normalizedAssetName">The normalized asset name.</param>
-        protected abstract bool IsNormalizedKeyLoaded(string normalizedAssetName);
+        /// <param name="language">The language to check.</param>
+        protected abstract bool IsNormalizedKeyLoaded(string normalizedAssetName, LanguageCode language);
 
         /// <summary>Get the locale codes (like <c>ja-JP</c>) used in asset keys.</summary>
         private IDictionary<LanguageCode, string> GetKeyLocales()

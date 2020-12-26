@@ -765,6 +765,9 @@ namespace StardewModdingAPI.Framework
 
                         this.Monitor.Log(context);
 
+                        // apply save fixes
+                        this.ApplySaveFixes();
+
                         // raise events
                         this.OnLoadStageChanged(LoadStage.Ready);
                         events.SaveLoaded.RaiseEmpty();
@@ -1052,6 +1055,40 @@ namespace StardewModdingAPI.Framework
             this.EventManager.LoadStageChanged.Raise(new LoadStageChangedEventArgs(oldStage, newStage));
             if (newStage == LoadStage.None)
                 this.EventManager.ReturnedToTitle.RaiseEmpty();
+        }
+
+        /// <summary>Apply fixes to the save after it's loaded.</summary>
+        private void ApplySaveFixes()
+        {
+            // get last SMAPI version used with this save
+            const string migrationKey = "Pathoschild.SMAPI/api-version";
+            if (!Game1.CustomData.TryGetValue(migrationKey, out string rawVersion) || !SemanticVersion.TryParse(rawVersion, out ISemanticVersion lastVersion))
+                lastVersion = new SemanticVersion(3, 8, 0);
+
+            // fix bundle corruption in SMAPI 3.8.0
+            // For non-English players who created a new save in SMAPI 3.8.0, bundle data was
+            // incorrectly translated which caused the code to crash whenever the game tried to
+            // read it.
+            if (lastVersion.IsOlderThan(new SemanticVersion(3, 8, 1)) && Game1.netWorldState?.Value?.BundleData != null)
+            {
+                var oldData = new Dictionary<string, string>(Game1.netWorldState.Value.BundleData);
+
+                try
+                {
+                    Game1.applySaveFix(SaveGame.SaveFixes.FixBotchedBundleData);
+                    bool changed = Game1.netWorldState.Value.BundleData.Any(p => oldData.TryGetValue(p.Key, out string oldValue) && oldValue != p.Value);
+                    if (changed)
+                        this.Monitor.Log("Found broken community center bundles and fixed them automatically.", LogLevel.Info);
+                }
+                catch (Exception ex)
+                {
+                    this.Monitor.Log("Failed to verify community center data.", LogLevel.Error); // should never happen
+                    this.Monitor.Log($"Technical details: {ex}");
+                }
+            }
+
+            // update last run
+            Game1.CustomData[migrationKey] = Constants.ApiVersion.ToString();
         }
 
         /// <summary>Raised after custom content is removed from the save data to avoid a crash.</summary>
