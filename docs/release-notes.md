@@ -13,6 +13,7 @@
 
 * For modders:
   * World events are now raised for the volcano levels.
+  * Added `apply_save_fix` command to reapply a save migration in exceptional cases. This should be used with extreme care. Type `help apply_save_fix` for details.
 
 For the web UI:
   * Fixed edge cases in SMAPI log parsing.
