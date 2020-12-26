@@ -7,13 +7,15 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
-## Upcoming release
+## 3.8.1
+Released 26 December 2020 for Stardew Valley 1.5.1 or later.
+
 * For players:
-  * Fixed community center bundles broken for non-English saves created in SMAPI 3.8.0. Affected saves will be fixed automatically next time you load them.
+  * Fixed broken community center bundles for non-English saves created in Stardew Valley 1.5. Affected saves will be fixed automatically on load.
 
 * For modders:
-  * World events are now raised for the volcano levels.
-  * Added `apply_save_fix` command to reapply a save migration in exceptional cases. This should be used with extreme care. Type `help apply_save_fix` for details.
+  * World events are now raised for volcano dungeon levels.
+  * Added `apply_save_fix` command to reapply a save migration in exceptional cases. This should be used very carefully. Type `help apply_save_fix` for details.
   * **Deprecation notice:** the `Helper.ConsoleCommands.Trigger` method is now deprecated and should no longer be used. See [integration APIs](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Integrations) for better mod integration options. It will eventually be removed in SMAPI 4.0.
 
 For the web UI:
