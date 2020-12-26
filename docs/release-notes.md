@@ -9,7 +9,7 @@
 
 ## Upcoming release
 * For players:
-  * Fixed community center bundle corruption for non-English players.
+  * Fixed community center bundles broken for non-English saves created in SMAPI 3.8.0. Affected saves will be fixed automatically next time you load them.
 
 * For modders:
   * World events are now raised for the volcano levels.
