@@ -211,7 +211,8 @@ namespace StardewModdingAPI.Framework.ContentManagers
         *********/
         /// <summary>Get whether an asset has already been loaded.</summary>
         /// <param name="normalizedAssetName">The normalized asset name.</param>
-        protected override bool IsNormalizedKeyLoaded(string normalizedAssetName)
+        /// <param name="language">The language to check.</param>
+        protected override bool IsNormalizedKeyLoaded(string normalizedAssetName, LanguageCode language)
         {
             return this.Cache.ContainsKey(normalizedAssetName);
         }

@@ -8,8 +8,11 @@
 -->
 
 ## Upcoming release
+* For players:
+  * Fixed community center bundle corruption for non-English players.
+
 * For modders:
-  * Fixed world events not raised for volcano levels.
+  * World events are now raised for the volcano levels.
 
 For the web UI:
   * Fixed edge cases in SMAPI log parsing.

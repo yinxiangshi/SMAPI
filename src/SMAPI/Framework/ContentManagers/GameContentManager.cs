@@ -78,7 +78,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 return this.Load<T>(newAssetName, newLanguage, useCache);
 
             // get from cache
-            if (useCache && this.IsLoaded(assetName))
+            if (useCache && this.IsLoaded(assetName, language))
                 return this.RawLoad<T>(assetName, language, useCache: true);
 
             // get managed asset
@@ -151,11 +151,12 @@ namespace StardewModdingAPI.Framework.ContentManagers
         *********/
         /// <summary>Get whether an asset has already been loaded.</summary>
         /// <param name="normalizedAssetName">The normalized asset name.</param>
-        protected override bool IsNormalizedKeyLoaded(string normalizedAssetName)
+        /// <param name="language">The language to check.</param>
+        protected override bool IsNormalizedKeyLoaded(string normalizedAssetName, LanguageCode language)
         {
             string cachedKey = null;
             bool localized =
-                this.Language != LocalizedContentManager.LanguageCode.en
+                language != LocalizedContentManager.LanguageCode.en
                 && !this.Coordinator.IsManagedAssetKey(normalizedAssetName)
                 && this.LocalizedAssetNames.TryGetValue(normalizedAssetName, out cachedKey);
 
@@ -214,7 +215,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         private T RawLoad<T>(string assetName, LanguageCode language, bool useCache)
         {
             // use cached key
-            if (this.LocalizedAssetNames.TryGetValue(assetName, out string cachedKey))
+            if (language == this.Language && this.LocalizedAssetNames.TryGetValue(assetName, out string cachedKey))
                 return base.RawLoad<T>(cachedKey, useCache);
 
             // try translated key
