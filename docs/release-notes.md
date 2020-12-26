@@ -14,6 +14,7 @@
 * For modders:
   * World events are now raised for the volcano levels.
   * Added `apply_save_fix` command to reapply a save migration in exceptional cases. This should be used with extreme care. Type `help apply_save_fix` for details.
+  * **Deprecation notice:** the `Helper.ConsoleCommands.Trigger` method is now deprecated and should no longer be used. See [integration APIs](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Integrations) for better mod integration options. It will eventually be removed in SMAPI 4.0.
 
 For the web UI:
   * Fixed edge cases in SMAPI log parsing.
