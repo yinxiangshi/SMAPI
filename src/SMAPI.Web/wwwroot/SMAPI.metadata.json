@@ -158,7 +158,16 @@
         },
 
         /*********
-        ** Broke in SDV 1.5
+        ** Broke in SDV 1.5 (Content Patcher packs)
+        *********/
+        "mi.Mermaids": {
+            "ID": "mi.Mermaids",
+            "~1.0.0 | Status": "AssumeBroken",
+            "~1.0.0 | StatusReasonDetails": "causes errors due to removed Stardew Valley 1.5 content"
+        },
+
+        /*********
+        ** Broke in SDV 1.5 (SMAPI mods)
         *********/
         "Audio Devices": {
             "ID": "maxvollmer.audiodevices",
