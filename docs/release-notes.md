@@ -8,6 +8,9 @@
 -->
 
 ## Upcoming release
+* For players:
+  * Updated compatibility list.
+
 * For modders:
   * When a mod is blocked by SMAPI's internal compatibility list, the `TRACE` messages while loading it now indicates that and specifies the reason.
 
