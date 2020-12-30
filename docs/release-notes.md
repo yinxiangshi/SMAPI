@@ -7,6 +7,10 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
+## Upcoming release
+* For modders:
+  * When a mod is blocked by SMAPI's internal compatibility list, the `TRACE` messages while loading it now indicates that and specifies the reason.
+
 ## 3.8.1
 Released 26 December 2020 for Stardew Valley 1.5.1 or later.
 

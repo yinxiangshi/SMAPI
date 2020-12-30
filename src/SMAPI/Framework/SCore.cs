@@ -1532,7 +1532,7 @@ namespace StardewModdingAPI.Framework
             // validate status
             if (mod.Status == ModMetadataStatus.Failed)
             {
-                this.Monitor.Log($"      Failed: {mod.Error}");
+                this.Monitor.Log($"      Failed: {mod.ErrorDetails ?? mod.Error}");
                 failReason = mod.FailReason;
                 errorReasonPhrase = mod.Error;
                 return false;

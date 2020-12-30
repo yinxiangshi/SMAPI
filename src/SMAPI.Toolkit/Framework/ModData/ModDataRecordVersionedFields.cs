@@ -24,6 +24,9 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
         /// <summary>A reason phrase for the <see cref="Status"/>, or <c>null</c> to use the default reason.</summary>
         public string StatusReasonPhrase { get; set; }
 
+        /// <summary>Technical details shown in TRACE logs for the <see cref="Status"/>, or <c>null</c> to omit it.</summary>
+        public string StatusReasonDetails { get; set; }
+
         /// <summary>The upper version for which the <see cref="Status"/> applies (if any).</summary>
         public ISemanticVersion StatusUpperVersion { get; set; }
     }

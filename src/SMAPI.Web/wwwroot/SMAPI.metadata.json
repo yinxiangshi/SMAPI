@@ -42,6 +42,9 @@
      *   - StatusReasonPhrase: a message to show to the player explaining why the mod can't be loaded
      *     (if applicable). If blank, will default to a generic not-compatible message.
      *
+     *   - StatusReasonDetails: a technical reason shown in TRACE logs, indicating why the status
+     *     was overridden. If not provided, it defaults to the StatusReasonPhrase or 'no reason given'.
+     *
      *   - AlternativeUrl: a URL where the player can find an unofficial update or alternative if the
      *     mod is no longer compatible.
      */
