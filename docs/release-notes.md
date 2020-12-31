@@ -10,6 +10,7 @@
 ## Upcoming release
 * For players:
   * Updated compatibility list.
+  * Fixed 'skipped mods' section repeating mods in some cases.
 
 * For modders:
   * When a mod is blocked by SMAPI's internal compatibility list, the `TRACE` messages while loading it now indicates that and specifies the reason.
