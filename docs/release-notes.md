@@ -14,6 +14,7 @@
 
 * For modders:
   * When a mod is blocked by SMAPI's internal compatibility list, the `TRACE` messages while loading it now indicates that and specifies the reason.
+  * Message data from the `ModMessageReceived` event now uses the same serializer settings as the rest of SMAPI. This mainly adds support for sending crossplatform `Color`, `Point`, `Vector2`, `Rectangle`, and `SemanticVersion` fields through network messages.
 
 ## 3.8.1
 Released 26 December 2020 for Stardew Valley 1.5.1 or later.
