@@ -10,6 +10,7 @@
 ## Upcoming release
 * For players:
   * Updated compatibility list.
+  * On Linux, the SMAPI installer now auto-detects flatpak Steam paths.
   * Fixed errors when multiple players join in split-screen mode.
   * Fixed 'skipped mods' section repeating mods in some cases.
 
