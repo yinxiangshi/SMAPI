@@ -10,6 +10,7 @@ using StardewModdingAPI.Framework.Events;
 using StardewModdingAPI.Framework.Networking;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Toolkit.Serialization;
+using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Network;
 using StardewValley.SDKs;
@@ -54,15 +55,25 @@ namespace StardewModdingAPI.Framework
         /// <summary>Whether to log network traffic.</summary>
         private readonly bool LogNetworkTraffic;
 
+        /// <summary>The backing field for <see cref="Peers"/>.</summary>
+        private readonly PerScreen<IDictionary<long, MultiplayerPeer>> PeersImpl = new(() => new Dictionary<long, MultiplayerPeer>());
+
+        /// <summary>The backing field for <see cref="HostPeer"/>.</summary>
+        private readonly PerScreen<MultiplayerPeer> HostPeerImpl = new();
+
 
         /*********
         ** Accessors
         *********/
         /// <summary>The metadata for each connected peer.</summary>
-        public IDictionary<long, MultiplayerPeer> Peers { get; } = new Dictionary<long, MultiplayerPeer>();
+        public IDictionary<long, MultiplayerPeer> Peers => this.PeersImpl.Value;
 
         /// <summary>The metadata for the host player, if the current player is a farmhand.</summary>
-        public MultiplayerPeer HostPeer;
+        public MultiplayerPeer HostPeer
+        {
+            get => this.HostPeerImpl.Value;
+            private set => this.HostPeerImpl.Value = value;
+        }
 
 
         /*********

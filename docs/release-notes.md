@@ -10,6 +10,7 @@
 ## Upcoming release
 * For players:
   * Updated compatibility list.
+  * Fixed errors when multiple players join in split-screen mode.
   * Fixed 'skipped mods' section repeating mods in some cases.
 
 * For modders:
