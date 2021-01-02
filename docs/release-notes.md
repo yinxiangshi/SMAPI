@@ -13,6 +13,7 @@
   * On Linux, the SMAPI installer now auto-detects flatpak Steam paths.
   * Fixed errors when multiple players join in split-screen mode.
   * Fixed 'skipped mods' section repeating mods in some cases.
+  * Fixed out-of-date error text.
 
 * For modders:
   * When a mod is blocked by SMAPI's internal compatibility list, the `TRACE` messages while loading it now indicates that and specifies the reason.
