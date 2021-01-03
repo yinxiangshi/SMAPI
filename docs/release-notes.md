@@ -10,6 +10,7 @@
 ## Upcoming release
 * For players:
   * Updated compatibility list.
+  * SMAPI now blocks farm map replacements that would crash the game in Stardew Valley 1.5.
   * On Linux, the SMAPI installer now auto-detects flatpak Steam paths.
   * Fixed errors when multiple players join in split-screen mode.
   * Fixed 'skipped mods' section repeating mods in some cases.
@@ -18,6 +19,7 @@
 * For modders:
   * When a mod is blocked by SMAPI's internal compatibility list, the `TRACE` messages while loading it now indicates that and specifies the reason.
   * Message data from the `ModMessageReceived` event now uses the same serializer settings as the rest of SMAPI. This mainly adds support for sending crossplatform `Color`, `Point`, `Vector2`, `Rectangle`, and `SemanticVersion` fields through network messages.
+  * Added warning when a map replacement changes the tilesheet order/IDs, which may cause crashes.
   * Fixed how the input API handles UI scaling. This mainly affects `ICursorPosition` values returned by the API; see [the wiki docs](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Input#ICursorPosition) for how to account for UI scaling.
 
 ## 3.8.1

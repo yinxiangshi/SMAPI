@@ -54,6 +54,9 @@ namespace StardewModdingAPI.Framework
         /// <remarks>The game may adds content managers in asynchronous threads (e.g. when populating the load screen).</remarks>
         private readonly ReaderWriterLockSlim ContentManagerLock = new ReaderWriterLockSlim();
 
+        /// <summary>An unmodified content manager which doesn't intercept assets, used to compare asset data.</summary>
+        private readonly LocalizedContentManager VanillaContentManager;
+
 
         /*********
         ** Accessors
@@ -95,6 +98,7 @@ namespace StardewModdingAPI.Framework
             this.ContentManagers.Add(
                 this.MainContentManager = new GameContentManager("Game1.content", serviceProvider, rootDirectory, currentCulture, this, monitor, reflection, this.OnDisposing, onLoadingFirstAsset)
             );
+            this.VanillaContentManager = new LocalizedContentManager(serviceProvider, rootDirectory);
             this.CoreAssets = new CoreAssetPropagator(this.MainContentManager.AssertAndNormalizeAssetName, reflection);
         }
 
@@ -150,6 +154,8 @@ namespace StardewModdingAPI.Framework
             {
                 foreach (IContentManager contentManager in this.ContentManagers)
                     contentManager.OnLocaleChanged();
+
+                this.VanillaContentManager.Unload();
             });
         }
 
@@ -285,6 +291,23 @@ namespace StardewModdingAPI.Framework
                 }
                 return values;
             });
+        }
+
+        /// <summary>Get a vanilla asset without interception.</summary>
+        /// <typeparam name="T">The type of asset to load.</typeparam>
+        /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
+        public bool TryLoadVanillaAsset<T>(string assetName, out T asset)
+        {
+            try
+            {
+                asset = this.VanillaContentManager.Load<T>(assetName);
+                return true;
+            }
+            catch
+            {
+                asset = default;
+                return false;
+            }
         }
 
         /// <summary>Dispose held resources.</summary>

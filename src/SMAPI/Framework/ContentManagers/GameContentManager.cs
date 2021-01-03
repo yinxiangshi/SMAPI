@@ -11,6 +11,7 @@ using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Utilities;
 using StardewValley;
 using xTile;
+using xTile.Tiles;
 
 namespace StardewModdingAPI.Framework.ContentManagers
 {
@@ -308,15 +309,10 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 return null;
             }
 
-            // validate asset
-            if (data == null)
-            {
-                mod.LogAsMod($"Mod incorrectly set asset '{info.AssetName}' to a null value; ignoring override.", LogLevel.Error);
-                return null;
-            }
-
             // return matched asset
-            return new AssetDataForObject(info, data, this.AssertAndNormalizeAssetName);
+            return this.TryValidateLoadedAsset(info, data, mod)
+                ? new AssetDataForObject(info, data, this.AssertAndNormalizeAssetName)
+                : null;
         }
 
         /// <summary>Apply any <see cref="Editors"/> to a loaded asset.</summary>
@@ -385,6 +381,78 @@ namespace StardewModdingAPI.Framework.ContentManagers
 
             // return result
             return asset;
+        }
+
+        /// <summary>Validate that an asset loaded by a mod is valid and won't cause issues.</summary>
+        /// <typeparam name="T">The asset type.</typeparam>
+        /// <param name="info">The basic asset metadata.</param>
+        /// <param name="data">The loaded asset data.</param>
+        /// <param name="mod">The mod which loaded the asset.</param>
+        private bool TryValidateLoadedAsset<T>(IAssetInfo info, T data, IModMetadata mod)
+        {
+            // can't load a null asset
+            if (data == null)
+            {
+                mod.LogAsMod($"SMAPI blocked asset replacement for '{info.AssetName}': mod incorrectly set asset to a null value.", LogLevel.Error);
+                return false;
+            }
+
+            // when replacing a map, the vanilla tilesheets must have the same order and IDs
+            if (data is Map loadedMap && this.Coordinator.TryLoadVanillaAsset(info.AssetName, out Map vanillaMap))
+            {
+                for (int i = 0; i < vanillaMap.TileSheets.Count; i++)
+                {
+                    // check for match
+                    TileSheet vanillaSheet = vanillaMap.TileSheets[i];
+                    bool found = this.TryFindTilesheet(loadedMap, vanillaSheet.Id, out int loadedIndex, out TileSheet loadedSheet);
+                    if (found && loadedIndex == i)
+                        continue;
+
+                    // handle mismatch
+                    {
+                        // only show warning if not farm map
+                        // This is temporary: mods shouldn't do this for any vanilla map, but these are the ones we know will crash. Showing a warning for others instead gives modders time to update their mods, while still simplifying troubleshooting.
+                        bool isFarmMap = info.AssetNameEquals("Maps/Farm") || info.AssetNameEquals("Maps/Farm_Combat") || info.AssetNameEquals("Maps/Farm_Fishing") || info.AssetNameEquals("Maps/Farm_Foraging") || info.AssetNameEquals("Maps/Farm_FourCorners") || info.AssetNameEquals("Maps/Farm_Island") || info.AssetNameEquals("Maps/Farm_Mining");
+
+
+                        string reason = found
+                            ? $"mod reordered the original tilesheets, which {(isFarmMap ? "would cause a crash" : "often causes crashes")}.\n\nTechnical details for mod author:\nExpected order [{string.Join(", ", vanillaMap.TileSheets.Select(p => $"'{p.ImageSource}' (id: {p.Id})"))}], but found tilesheet '{vanillaSheet.Id}' at index {loadedIndex} instead of {i}. Make sure custom tilesheet IDs are prefixed with 'z_' to avoid reordering tilesheets."
+                            : $"mod has no tilesheet with ID '{vanillaSheet.Id}'. Map replacements must keep the original tilesheets to avoid errors or crashes.";
+
+                        SCore.DeprecationManager.PlaceholderWarn("3.8.2", DeprecationLevel.PendingRemoval);
+                        if (isFarmMap)
+                        {
+                            mod.LogAsMod($"SMAPI blocked asset replacement for '{info.AssetName}': {reason}", LogLevel.Error);
+                            return false;
+                        }
+                        mod.LogAsMod($"SMAPI detected a potential issue with asset replacement for '{info.AssetName}' map: {reason}", LogLevel.Warn);
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>Find a map tilesheet by ID.</summary>
+        /// <param name="map">The map whose tilesheets to search.</param>
+        /// <param name="id">The tilesheet ID to match.</param>
+        /// <param name="index">The matched tilesheet index, if any.</param>
+        /// <param name="tilesheet">The matched tilesheet, if any.</param>
+        private bool TryFindTilesheet(Map map, string id, out int index, out TileSheet tilesheet)
+        {
+            for (int i = 0; i < map.TileSheets.Count; i++)
+            {
+                if (map.TileSheets[i].Id == id)
+                {
+                    index = i;
+                    tilesheet = map.TileSheets[i];
+                    return true;
+                }
+            }
+
+            index = -1;
+            tilesheet = null;
+            return false;
         }
     }
 }

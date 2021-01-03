@@ -63,6 +63,11 @@ namespace StardewModdingAPI.Framework
             this.QueuedWarnings.Add(new DeprecationWarning(source, nounPhrase, version, severity, Environment.StackTrace));
         }
 
+        /// <summary>A placeholder method used to track deprecated code for which a separate warning will be shown.</summary>
+        /// <param name="version">The SMAPI version which deprecated it.</param>
+        /// <param name="severity">How deprecated the code is.</param>
+        public void PlaceholderWarn(string version, DeprecationLevel severity) { }
+
         /// <summary>Print any queued messages.</summary>
         public void PrintQueued()
         {
