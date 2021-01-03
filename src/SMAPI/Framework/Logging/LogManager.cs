@@ -46,7 +46,7 @@ namespace StardewModdingAPI.Framework.Logging
                 search: new Regex(@"^System\.InvalidOperationException: Steamworks is not initialized\.[\s\S]+$", RegexOptions.Compiled | RegexOptions.CultureInvariant),
                 replacement:
 #if SMAPI_FOR_WINDOWS
-                    "Oops! Steam achievements won't work because Steam isn't loaded. You can launch the game through Steam to fix that (see 'Part 2: Configure Steam' in the install guide for more info: https://smapi.io/install).",
+                    "Oops! Steam achievements won't work because Steam isn't loaded. See 'Launch SMAPI through Steam or GOG Galaxy' in the install guide for more info: https://smapi.io/install.",
 #else
                     "Oops! Steam achievements won't work because Steam isn't loaded. You can launch the game through Steam to fix that.",
 #endif
@@ -425,9 +425,11 @@ namespace StardewModdingAPI.Framework.Logging
                         this.Monitor.Log($"        ({mod.ErrorDetails})");
                 }
 
-                // find skipped dependencies
-                IModMetadata[] skippedDependencies;
+                // group mods
+                List<IModMetadata> skippedDependencies = new List<IModMetadata>();
+                List<IModMetadata> otherSkippedMods = new List<IModMetadata>();
                 {
+                    // track broken dependencies
                     HashSet<string> skippedDependencyIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                     HashSet<string> skippedModIds = new HashSet<string>(from mod in skippedMods where mod.HasID() select mod.Manifest.UniqueID, StringComparer.OrdinalIgnoreCase);
                     foreach (IModMetadata mod in skippedMods)
@@ -435,7 +437,15 @@ namespace StardewModdingAPI.Framework.Logging
                         foreach (string requiredId in skippedModIds.Intersect(mod.GetRequiredModIds()))
                             skippedDependencyIds.Add(requiredId);
                     }
-                    skippedDependencies = skippedMods.Where(p => p.HasID() && skippedDependencyIds.Contains(p.Manifest.UniqueID)).ToArray();
+
+                    // collect mod groups
+                    foreach (IModMetadata mod in skippedMods)
+                    {
+                        if (mod.HasID() && skippedDependencyIds.Contains(mod.Manifest.UniqueID))
+                            skippedDependencies.Add(mod);
+                        else
+                            otherSkippedMods.Add(mod);
+                    }
                 }
 
                 // log skipped mods
@@ -451,7 +461,7 @@ namespace StardewModdingAPI.Framework.Logging
                     this.Monitor.Newline();
                 }
 
-                foreach (IModMetadata mod in skippedMods.OrderBy(p => p.DisplayName))
+                foreach (IModMetadata mod in otherSkippedMods.OrderBy(p => p.DisplayName))
                     LogSkippedMod(mod);
                 this.Monitor.Newline();
             }

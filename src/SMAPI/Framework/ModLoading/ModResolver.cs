@@ -72,7 +72,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 switch (mod.DataRecord?.Status)
                 {
                     case ModStatus.Obsolete:
-                        mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.Obsolete, $"it's obsolete: {mod.DataRecord.StatusReasonPhrase}");
+                        mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.Obsolete, $"it's obsolete: {mod.DataRecord.StatusReasonPhrase}", this.GetTechnicalReasonForStatusOverride(mod));
                         continue;
 
                     case ModStatus.AssumeBroken:
@@ -102,7 +102,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                                 error += $"version newer than {mod.DataRecord.StatusUpperVersion}";
                             error += " at " + string.Join(" or ", updateUrls);
 
-                            mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.Incompatible, error);
+                            mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.Incompatible, error, this.GetTechnicalReasonForStatusOverride(mod));
                         }
                         continue;
                 }
@@ -407,6 +407,38 @@ namespace StardewModdingAPI.Framework.ModLoading
             // yield content pack parent
             if (manifest.ContentPackFor != null)
                 yield return new ModDependency(manifest.ContentPackFor.UniqueID, manifest.ContentPackFor.MinimumVersion, FindMod(manifest.ContentPackFor.UniqueID), isRequired: true);
+        }
+
+        /// <summary>Get a technical message indicating why a mod's compatibility status was overridden, if applicable.</summary>
+        /// <param name="mod">The mod metadata.</param>
+        private string GetTechnicalReasonForStatusOverride(IModMetadata mod)
+        {
+            // get compatibility list record
+            var data = mod.DataRecord;
+            if (data == null)
+                return null;
+
+            // get status label
+            string statusLabel = data.Status switch
+            {
+                ModStatus.AssumeBroken => "'assume broken'",
+                ModStatus.AssumeCompatible => "'assume compatible'",
+                ModStatus.Obsolete => "obsolete",
+                _ => data.Status.ToString()
+            };
+
+            // get reason
+            string[] reasons = new[] { mod.DataRecord.StatusReasonPhrase, mod.DataRecord.StatusReasonDetails }
+                .Where(p => !string.IsNullOrWhiteSpace(p))
+                .ToArray();
+
+            // build message
+            return
+                $"marked {statusLabel} in SMAPI's internal compatibility list for "
+                + (mod.DataRecord.StatusUpperVersion != null ? $"versions up to {mod.DataRecord.StatusUpperVersion}" : "all versions")
+                + ": "
+                + (reasons.Any() ? string.Join(": ", reasons) : "no reason given")
+                + ".";
         }
 
 

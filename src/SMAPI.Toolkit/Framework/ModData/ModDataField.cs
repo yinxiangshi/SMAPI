@@ -71,6 +71,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
                 // non-manifest fields
                 case ModDataFieldKey.AlternativeUrl:
                 case ModDataFieldKey.StatusReasonPhrase:
+                case ModDataFieldKey.StatusReasonDetails:
                 case ModDataFieldKey.Status:
                     return false;
 

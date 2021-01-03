@@ -107,6 +107,11 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
                     case ModDataFieldKey.StatusReasonPhrase:
                         parsed.StatusReasonPhrase = field.Value;
                         break;
+
+                    // status technical reason
+                    case ModDataFieldKey.StatusReasonDetails:
+                        parsed.StatusReasonDetails = field.Value;
+                        break;
                 }
             }
 

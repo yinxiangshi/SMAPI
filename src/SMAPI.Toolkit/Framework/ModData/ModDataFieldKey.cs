@@ -13,6 +13,9 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
         Status,
 
         /// <summary>A reason phrase for the <see cref="Status"/>, or <c>null</c> to use the default reason.</summary>
-        StatusReasonPhrase
+        StatusReasonPhrase,
+
+        /// <summary>Technical details shown in TRACE logs for the <see cref="Status"/>, or <c>null</c> to omit it.</summary>
+        StatusReasonDetails
     }
 }

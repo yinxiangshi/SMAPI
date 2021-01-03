@@ -7,6 +7,23 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
+## 3.8.2
+Released 03 January 2021 for Stardew Valley 1.5.1 or later.
+
+* For players:
+  * SMAPI now blocks farm map replacements that would crash the game in Stardew Valley 1.5.
+  * On Linux, the SMAPI installer now auto-detects Flatpak Steam paths.
+  * Updated compatibility list.
+  * Fixed errors when multiple players join in split-screen mode.
+  * Fixed 'skipped mods' section repeating mods in some cases.
+  * Fixed out-of-date error text.
+
+* For modders:
+  * Added warning when a map replacement changes the order/IDs of the original tilesheets, which may cause errors and crashes. Doing so for a farm map is blocked outright since that causes a consistent crash in Stardew Valley 1.5.
+  * Message data from the `ModMessageReceived` event now uses the same serializer settings as the rest of SMAPI. That mainly adds support for sending crossplatform `Color`, `Point`, `Vector2`, `Rectangle`, and `SemanticVersion` fields through network messages.
+  * When a mod is blocked by SMAPI's compatibility override list, the `TRACE` messages while loading it now say so and indicate why.
+  * Fixed how the input API handles UI scaling. This mainly affects `ICursorPosition` values returned by the API; see [the wiki docs](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Input#ICursorPosition) for how to account for UI scaling.
+
 ## 3.8.1
 Released 26 December 2020 for Stardew Valley 1.5.1 or later.
 
