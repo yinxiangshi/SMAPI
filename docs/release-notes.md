@@ -7,6 +7,10 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
+## Upcoming release
+* For players:
+  * Slightly reduced memory usage.
+
 ## 3.8.2
 Released 03 January 2021 for Stardew Valley 1.5.1 or later.
 

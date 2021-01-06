@@ -54,6 +54,9 @@ namespace StardewModdingAPI.Framework
         /// <remarks>The game may adds content managers in asynchronous threads (e.g. when populating the load screen).</remarks>
         private readonly ReaderWriterLockSlim ContentManagerLock = new ReaderWriterLockSlim();
 
+        /// <summary>A cache of ordered tilesheet IDs used by vanilla maps.</summary>
+        private readonly IDictionary<string, TilesheetReference[]> VanillaTilesheets = new Dictionary<string, TilesheetReference[]>(StringComparer.OrdinalIgnoreCase);
+
         /// <summary>An unmodified content manager which doesn't intercept assets, used to compare asset data.</summary>
         private readonly LocalizedContentManager VanillaContentManager;
 
@@ -293,21 +296,21 @@ namespace StardewModdingAPI.Framework
             });
         }
 
-        /// <summary>Get a vanilla asset without interception.</summary>
-        /// <typeparam name="T">The type of asset to load.</typeparam>
+        /// <summary>Get the tilesheet ID order used by the unmodified version of a map asset.</summary>
         /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
-        public bool TryLoadVanillaAsset<T>(string assetName, out T asset)
+        public TilesheetReference[] GetVanillaTilesheetIds(string assetName)
         {
-            try
+            if (!this.VanillaTilesheets.TryGetValue(assetName, out TilesheetReference[] tilesheets))
             {
-                asset = this.VanillaContentManager.Load<T>(assetName);
-                return true;
+                tilesheets = this.TryLoadVanillaAsset(assetName, out Map map)
+                    ? map.TileSheets.Select((sheet, index) => new TilesheetReference(index, sheet.Id, sheet.ImageSource)).ToArray()
+                    : null;
+
+                this.VanillaTilesheets[assetName] = tilesheets;
+                this.VanillaContentManager.Unload();
             }
-            catch
-            {
-                asset = default;
-                return false;
-            }
+
+            return tilesheets ?? new TilesheetReference[0];
         }
 
         /// <summary>Dispose held resources.</summary>
@@ -340,6 +343,24 @@ namespace StardewModdingAPI.Framework
             this.ContentManagerLock.InWriteLock(() =>
                 this.ContentManagers.Remove(contentManager)
             );
+        }
+
+        /// <summary>Get a vanilla asset without interception.</summary>
+        /// <typeparam name="T">The type of asset to load.</typeparam>
+        /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
+        /// <param name="asset">The loaded asset data.</param>
+        private bool TryLoadVanillaAsset<T>(string assetName, out T asset)
+        {
+            try
+            {
+                asset = this.VanillaContentManager.Load<T>(assetName);
+                return true;
+            }
+            catch
+            {
+                asset = default;
+                return false;
+            }
         }
     }
 }
