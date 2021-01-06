@@ -28,7 +28,6 @@ using StardewModdingAPI.Framework.ModHelpers;
 using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Framework.Networking;
 using StardewModdingAPI.Framework.Patching;
-using StardewModdingAPI.Framework.PerformanceMonitoring;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Rendering;
 using StardewModdingAPI.Framework.Serialization;
@@ -143,10 +142,6 @@ namespace StardewModdingAPI.Framework
         /// <remarks>This is initialized after the game starts. This is accessed directly because it's not part of the normal class model.</remarks>
         internal static DeprecationManager DeprecationManager { get; private set; }
 
-        /// <summary>Manages performance counters.</summary>
-        /// <remarks>This is initialized after the game starts. This is non-private for use by Console Commands.</remarks>
-        internal static PerformanceMonitor PerformanceMonitor { get; private set; }
-
         /// <summary>The number of update ticks which have already executed. This is similar to <see cref="Game1.ticks"/>, but incremented more consistently for every tick.</summary>
         internal static uint TicksElapsed { get; private set; }
 
@@ -175,9 +170,7 @@ namespace StardewModdingAPI.Framework
 
             this.LogManager = new LogManager(logPath: logPath, colorConfig: this.Settings.ConsoleColors, writeToConsole: writeToConsole, isVerbose: this.Settings.VerboseLogging, isDeveloperMode: this.Settings.DeveloperMode, getScreenIdForLog: this.GetScreenIdForLog);
 
-            SCore.PerformanceMonitor = new PerformanceMonitor(this.Monitor);
-            this.EventManager = new EventManager(this.ModRegistry, SCore.PerformanceMonitor);
-            SCore.PerformanceMonitor.InitializePerformanceCounterCollections(this.EventManager);
+            this.EventManager = new EventManager(this.ModRegistry);
 
             SCore.DeprecationManager = new DeprecationManager(this.Monitor, this.ModRegistry);
 
@@ -443,7 +436,6 @@ namespace StardewModdingAPI.Framework
                 *********/
                 // print warnings/alerts
                 SCore.DeprecationManager.PrintQueued();
-                SCore.PerformanceMonitor.PrintQueuedAlerts();
 
                 /*********
                 ** First-tick initialization

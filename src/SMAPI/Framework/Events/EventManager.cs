@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using StardewModdingAPI.Events;
-using StardewModdingAPI.Framework.PerformanceMonitoring;
 
 namespace StardewModdingAPI.Framework.Events
 {
@@ -178,13 +177,12 @@ namespace StardewModdingAPI.Framework.Events
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="modRegistry">The mod registry with which to identify mods.</param>
-        /// <param name="performanceMonitor">Tracks performance metrics.</param>
-        public EventManager(ModRegistry modRegistry, PerformanceMonitor performanceMonitor)
+        public EventManager(ModRegistry modRegistry)
         {
             // create shortcut initializers
             ManagedEvent<TEventArgs> ManageEventOf<TEventArgs>(string typeName, string eventName, bool isPerformanceCritical = false)
             {
-                return new ManagedEvent<TEventArgs>($"{typeName}.{eventName}", modRegistry, performanceMonitor, isPerformanceCritical);
+                return new ManagedEvent<TEventArgs>($"{typeName}.{eventName}", modRegistry, isPerformanceCritical);
             }
 
             // init events (new)

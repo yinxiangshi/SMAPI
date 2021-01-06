@@ -97,9 +97,6 @@ namespace StardewModdingAPI
         /// <summary>The URL of the SMAPI home page.</summary>
         internal const string HomePageUrl = "https://smapi.io";
 
-        /// <summary>The default performance counter name for unknown event handlers.</summary>
-        internal const string GamePerformanceCounterName = "<StardewValley>";
-
         /// <summary>The absolute path to the folder containing SMAPI's internal files.</summary>
         internal static readonly string InternalFilesPath = EarlyConstants.InternalFilesPath;
 

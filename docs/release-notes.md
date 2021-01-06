@@ -9,7 +9,10 @@
 
 ## Upcoming release
 * For players:
-  * Slightly reduced memory usage.
+  * Reduced memory usage.
+
+* For the Console Commands mod:
+  * Removed experimental `performance` command. Unfortunately this impacted SMAPI's memory usage and the data was often misinterpreted. This may be replaced with more automatic performance alerts in a future version.
 
 ## 3.8.2
 Released 03 January 2021 for Stardew Valley 1.5.1 or later.
