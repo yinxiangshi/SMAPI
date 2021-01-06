@@ -414,16 +414,16 @@ namespace StardewModdingAPI.Framework.ContentManagers
 
                         int loadedIndex = this.TryFindTilesheet(loadedMap, vanillaSheet.Id);
                         string reason = loadedIndex != -1
-                            ? $"mod reordered the original tilesheets, which {(isFarmMap ? "would cause a crash" : "often causes crashes")}.\n\nTechnical details for mod author:\nExpected order [{string.Join(", ", vanillaTilesheetRefs.Select(p => $"'{p.ImageSource}' (id: {p.Id})"))}], but found tilesheet '{vanillaSheet.Id}' at index {loadedIndex} instead of {vanillaSheet.Index}. Make sure custom tilesheet IDs are prefixed with 'z_' to avoid reordering tilesheets."
+                            ? $"mod reordered the original tilesheets, which {(isFarmMap ? "would cause a crash" : "often causes crashes")}.\nTechnical details for mod author: Expected order: {string.Join(", ", vanillaTilesheetRefs.Select(p => p.Id))}. See https://stardewcommunitywiki.com/Modding:Maps#Tilesheet_order for help."
                             : $"mod has no tilesheet with ID '{vanillaSheet.Id}'. Map replacements must keep the original tilesheets to avoid errors or crashes.";
 
                         SCore.DeprecationManager.PlaceholderWarn("3.8.2", DeprecationLevel.PendingRemoval);
                         if (isFarmMap)
                         {
-                            mod.LogAsMod($"SMAPI blocked asset replacement for '{info.AssetName}': {reason}", LogLevel.Error);
+                            mod.LogAsMod($"SMAPI blocked '{info.AssetName}' map load: {reason}", LogLevel.Error);
                             return false;
                         }
-                        mod.LogAsMod($"SMAPI detected a potential issue with asset replacement for '{info.AssetName}' map: {reason}", LogLevel.Warn);
+                        mod.LogAsMod($"SMAPI found an issue with '{info.AssetName}' map load: {reason}", LogLevel.Warn);
                     }
                 }
             }
