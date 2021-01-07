@@ -81,7 +81,7 @@ namespace StardewModdingAPI.Framework
         ** Higher-level components
         ****/
         /// <summary>Manages console commands.</summary>
-        private readonly CommandManager CommandManager = new CommandManager();
+        private readonly CommandManager CommandManager;
 
         /// <summary>The underlying game instance.</summary>
         private SGameRunner Game;
@@ -130,9 +130,12 @@ namespace StardewModdingAPI.Framework
         /// <summary>Asset interceptors added or removed since the last tick.</summary>
         private readonly List<AssetInterceptorChange> ReloadAssetInterceptorsQueue = new List<AssetInterceptorChange>();
 
-        /// <summary>A list of queued commands to execute.</summary>
+        /// <summary>A list of queued commands to parse and execute.</summary>
         /// <remarks>This property must be thread-safe, since it's accessed from a separate console input thread.</remarks>
-        public ConcurrentQueue<string> CommandQueue { get; } = new ConcurrentQueue<string>();
+        private readonly ConcurrentQueue<string> RawCommandQueue = new ConcurrentQueue<string>();
+
+        /// <summary>A list of commands to execute on each screen.</summary>
+        private readonly PerScreen<List<Tuple<Command, string, string[]>>> ScreenCommandQueue = new(() => new());
 
 
         /*********
@@ -169,11 +172,9 @@ namespace StardewModdingAPI.Framework
                 JsonConvert.PopulateObject(File.ReadAllText(Constants.ApiUserConfigPath), this.Settings);
 
             this.LogManager = new LogManager(logPath: logPath, colorConfig: this.Settings.ConsoleColors, writeToConsole: writeToConsole, isVerbose: this.Settings.VerboseLogging, isDeveloperMode: this.Settings.DeveloperMode, getScreenIdForLog: this.GetScreenIdForLog);
-
+            this.CommandManager = new CommandManager(this.Monitor);
             this.EventManager = new EventManager(this.ModRegistry);
-
             SCore.DeprecationManager = new DeprecationManager(this.Monitor, this.ModRegistry);
-
             SDate.Translations = this.Translator;
 
             // log SMAPI/OS info
@@ -406,7 +407,7 @@ namespace StardewModdingAPI.Framework
                 () => this.LogManager.RunConsoleInputLoop(
                     commandManager: this.CommandManager,
                     reloadTranslations: this.ReloadTranslations,
-                    handleInput: input => this.CommandQueue.Enqueue(input),
+                    handleInput: input => this.RawCommandQueue.Enqueue(input),
                     continueWhile: () => this.IsGameRunning && !this.CancellationToken.IsCancellationRequested
                 )
             ).Start();
@@ -489,17 +490,18 @@ namespace StardewModdingAPI.Framework
                 }
 
                 /*********
-                ** Execute commands
+                ** Parse commands
                 *********/
-                while (this.CommandQueue.TryDequeue(out string rawInput))
+                while (this.RawCommandQueue.TryDequeue(out string rawInput))
                 {
                     // parse command
                     string name;
                     string[] args;
                     Command command;
+                    int screenId;
                     try
                     {
-                        if (!this.CommandManager.TryParse(rawInput, out name, out args, out command))
+                        if (!this.CommandManager.TryParse(rawInput, out name, out args, out command, out screenId))
                         {
                             this.Monitor.Log("Unknown command; type 'help' for a list of available commands.", LogLevel.Error);
                             continue;
@@ -511,18 +513,8 @@ namespace StardewModdingAPI.Framework
                         continue;
                     }
 
-                    // execute command
-                    try
-                    {
-                        command.Callback.Invoke(name, args);
-                    }
-                    catch (Exception ex)
-                    {
-                        if (command.Mod != null)
-                            command.Mod.LogAsMod($"Mod failed handling that command:\n{ex.GetLogSummary()}", LogLevel.Error);
-                        else
-                            this.Monitor.Log($"Failed handling that command:\n{ex.GetLogSummary()}", LogLevel.Error);
-                    }
+                    // queue command for screen
+                    this.ScreenCommandQueue.GetValueForScreen(screenId).Add(Tuple.Create(command, name, args));
                 }
 
                 /*********
@@ -570,7 +562,9 @@ namespace StardewModdingAPI.Framework
 
             try
             {
-                // reapply overrides
+                /*********
+                ** Reapply overrides
+                *********/
                 if (this.JustReturnedToTitle)
                 {
                     if (!(Game1.mapDisplayDevice is SDisplayDevice))
@@ -578,6 +572,33 @@ namespace StardewModdingAPI.Framework
 
                     this.JustReturnedToTitle = false;
                 }
+
+                /*********
+                ** Execute commands
+                *********/
+                {
+                    var commandQueue = this.ScreenCommandQueue.Value;
+                    foreach (var entry in commandQueue)
+                    {
+                        Command command = entry.Item1;
+                        string name = entry.Item2;
+                        string[] args = entry.Item3;
+
+                        try
+                        {
+                            command.Callback.Invoke(name, args);
+                        }
+                        catch (Exception ex)
+                        {
+                            if (command.Mod != null)
+                                command.Mod.LogAsMod($"Mod failed handling that command:\n{ex.GetLogSummary()}", LogLevel.Error);
+                            else
+                                this.Monitor.Log($"Failed handling that command:\n{ex.GetLogSummary()}", LogLevel.Error);
+                        }
+                    }
+                    commandQueue.Clear();
+                }
+
 
                 /*********
                 ** Update input

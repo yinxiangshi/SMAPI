@@ -28,18 +28,8 @@ namespace StardewModdingAPI.Utilities
         /// <remarks>The value is initialized the first time it's requested for that player, unless it's set manually first.</remarks>
         public T Value
         {
-            get
-            {
-                this.RemoveDeadPlayers();
-                return this.States.TryGetValue(Context.ScreenId, out T state)
-                    ? state
-                    : this.States[Context.ScreenId] = this.CreateNewState();
-            }
-            set
-            {
-                this.RemoveDeadPlayers();
-                this.States[Context.ScreenId] = value;
-            }
+            get => this.GetValueForScreen(Context.ScreenId);
+            set => this.SetValueForScreen(Context.ScreenId, value);
         }
 
 
@@ -55,6 +45,25 @@ namespace StardewModdingAPI.Utilities
         public PerScreen(Func<T> createNewState)
         {
             this.CreateNewState = createNewState ?? (() => default);
+        }
+
+        /// <summary>Get the value for a given screen ID, creating it if needed.</summary>
+        /// <param name="screenId">The screen ID to check.</param>
+        internal T GetValueForScreen(int screenId)
+        {
+            this.RemoveDeadPlayers();
+            return this.States.TryGetValue(screenId, out T state)
+                ? state
+                : this.States[screenId] = this.CreateNewState();
+        }
+
+        /// <summary>Set the value for a given screen ID, creating it if needed.</summary>
+        /// <param name="screenId">The screen ID whose value set.</param>
+        /// <param name="value">The value to set.</param>
+        internal void SetValueForScreen(int screenId, T value)
+        {
+            this.RemoveDeadPlayers();
+            this.States[screenId] = value;
         }
 
 

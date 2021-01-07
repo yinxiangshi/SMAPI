@@ -10,6 +10,7 @@
 ## Upcoming release
 * For players:
   * Reduced memory usage.
+  * You can now enter console commands for a specific screen in split-screen mode by adding `screen=ID` to the command.
 
 * For modders:
   * Simplified tilesheet order warning added in 3.8.2.
