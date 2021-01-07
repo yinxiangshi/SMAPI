@@ -11,6 +11,7 @@
 * For players:
   * Reduced memory usage.
   * You can now enter console commands for a specific screen in split-screen mode by adding `screen=ID` to the command.
+  * Typing `help` in the SMAPI console is now more friendly and helpful.
 
 * For modders:
   * Simplified tilesheet order warning added in 3.8.2.

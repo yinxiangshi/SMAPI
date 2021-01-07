@@ -210,6 +210,7 @@ namespace StardewModdingAPI.Web
                     [@"^/community\.?$"] = "https://stardewvalleywiki.com/Modding:Community",
                     [@"^/compat\.?$"] = "https://smapi.io/mods",
                     [@"^/docs\.?$"] = "https://stardewvalleywiki.com/Modding:Index",
+                    [@"^/help\.?$"] = "https://stardewvalleywiki.com/Modding:Help",
                     [@"^/install\.?$"] = "https://stardewvalleywiki.com/Modding:Player_Guide/Getting_Started#Install_SMAPI",
                     [@"^/troubleshoot(.*)$"] = "https://stardewvalleywiki.com/Modding:Player_Guide/Troubleshooting$1",
                     [@"^/xnb\.?$"] = "https://stardewvalleywiki.com/Modding:Using_XNB_mods"
