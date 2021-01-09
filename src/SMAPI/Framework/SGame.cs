@@ -247,7 +247,7 @@ namespace StardewModdingAPI.Framework
             }
             if (target_screen != null)
             {
-                base.GraphicsDevice.SetRenderTarget(target_screen);
+                Game1.SetRenderTarget(target_screen);
             }
             if (this.IsSaving)
             {
@@ -352,8 +352,7 @@ namespace StardewModdingAPI.Framework
                     events.Rendered.RaiseEmpty();
                     Game1.spriteBatch.End();
                 }
-
-                base.GraphicsDevice.SetRenderTarget(target_screen);
+                Game1.SetRenderTarget(target_screen);
                 return;
             }
             if (Game1.showingEndOfNightStuff)
@@ -426,7 +425,7 @@ namespace StardewModdingAPI.Framework
                 }
                 if (Game1.drawLighting)
                 {
-                    base.GraphicsDevice.SetRenderTarget(Game1.lightmap);
+                    Game1.SetRenderTarget(Game1.lightmap);
                     base.GraphicsDevice.Clear(Microsoft.Xna.Framework.Color.White * 0f);
                     Matrix lighting_matrix = Matrix.Identity;
                     if (this.useUnscaledLighting)
@@ -473,7 +472,7 @@ namespace StardewModdingAPI.Framework
                         }
                     }
                     Game1.spriteBatch.End();
-                    base.GraphicsDevice.SetRenderTarget(target_screen);
+                    Game1.SetRenderTarget(target_screen);
                 }
                 if (Game1.bloomDay && Game1.bloom != null)
                 {

@@ -9,12 +9,13 @@
 
 ## Upcoming release
 * For players:
+  * Updated for Stardew Valley 1.5.2.
   * Reduced memory usage.
   * You can now enter console commands for a specific screen in split-screen mode by adding `screen=ID` to the command.
-  * Typing `help` in the SMAPI console is now more friendly and helpful.
+  * Typing `help` in the SMAPI console is now more helpful.
 
 * For modders:
-  * Simplified tilesheet order warning added in 3.8.2.
+  * Simplified tilesheet order warning added in SMAPI 3.8.2.
 
 * For the Console Commands mod:
   * Removed experimental `performance` command. Unfortunately this impacted SMAPI's memory usage and the data was often misinterpreted. This may be replaced with more automatic performance alerts in a future version.
