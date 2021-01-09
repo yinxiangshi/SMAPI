@@ -7,7 +7,9 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
-## Upcoming release
+## 3.8.3
+Released 08 January 2021 for Stardew Valley 1.5.2 or later.
+
 * For players:
   * Updated for Stardew Valley 1.5.2.
   * Reduced memory usage.
@@ -18,7 +20,7 @@
   * Simplified tilesheet order warning added in SMAPI 3.8.2.
 
 * For the Console Commands mod:
-  * Removed experimental `performance` command. Unfortunately this impacted SMAPI's memory usage and the data was often misinterpreted. This may be replaced with more automatic performance alerts in a future version.
+  * Removed experimental `performance` command. Unfortunately this impacted SMAPI's memory usage and performance, and the data was often misinterpreted. This may be replaced with more automatic performance alerts in a future version.
 
 ## 3.8.2
 Released 03 January 2021 for Stardew Valley 1.5.1 or later.
