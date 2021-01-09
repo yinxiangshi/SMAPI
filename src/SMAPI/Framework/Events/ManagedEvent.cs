@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using StardewModdingAPI.Events;
-using StardewModdingAPI.Framework.PerformanceMonitoring;
 
 namespace StardewModdingAPI.Framework.Events
 {
@@ -16,9 +15,6 @@ namespace StardewModdingAPI.Framework.Events
         *********/
         /// <summary>The mod registry with which to identify mods.</summary>
         protected readonly ModRegistry ModRegistry;
-
-        /// <summary>Tracks performance metrics.</summary>
-        private readonly PerformanceMonitor PerformanceMonitor;
 
         /// <summary>The underlying event handlers.</summary>
         private readonly List<ManagedEventHandler<TEventArgs>> Handlers = new List<ManagedEventHandler<TEventArgs>>();
@@ -49,13 +45,11 @@ namespace StardewModdingAPI.Framework.Events
         /// <summary>Construct an instance.</summary>
         /// <param name="eventName">A human-readable name for the event.</param>
         /// <param name="modRegistry">The mod registry with which to identify mods.</param>
-        /// <param name="performanceMonitor">Tracks performance metrics.</param>
         /// <param name="isPerformanceCritical">Whether the event is typically called at least once per second.</param>
-        public ManagedEvent(string eventName, ModRegistry modRegistry, PerformanceMonitor performanceMonitor, bool isPerformanceCritical = false)
+        public ManagedEvent(string eventName, ModRegistry modRegistry, bool isPerformanceCritical = false)
         {
             this.EventName = eventName;
             this.ModRegistry = modRegistry;
-            this.PerformanceMonitor = performanceMonitor;
             this.IsPerformanceCritical = isPerformanceCritical;
         }
 
@@ -126,40 +120,26 @@ namespace StardewModdingAPI.Framework.Events
             }
 
             // raise event
-            this.PerformanceMonitor.Track(this.EventName, () =>
+            foreach (ManagedEventHandler<TEventArgs> handler in handlers)
             {
-                foreach (ManagedEventHandler<TEventArgs> handler in handlers)
-                {
-                    if (match != null && !match(handler.SourceMod))
-                        continue;
+                if (match != null && !match(handler.SourceMod))
+                    continue;
 
-                    try
-                    {
-                        this.PerformanceMonitor.Track(this.EventName, this.GetModNameForPerformanceCounters(handler), () => handler.Handler.Invoke(null, args));
-                    }
-                    catch (Exception ex)
-                    {
-                        this.LogError(handler, ex);
-                    }
+                try
+                {
+                    handler.Handler.Invoke(null, args);
                 }
-            });
+                catch (Exception ex)
+                {
+                    this.LogError(handler, ex);
+                }
+            }
         }
 
 
         /*********
         ** Private methods
         *********/
-        /// <summary>Get the mod name for a given event handler to display in performance monitoring reports.</summary>
-        /// <param name="handler">The event handler.</param>
-        private string GetModNameForPerformanceCounters(ManagedEventHandler<TEventArgs> handler)
-        {
-            IModMetadata mod = handler.SourceMod;
-
-            return mod.HasManifest()
-                ? mod.Manifest.UniqueID
-                : mod.DisplayName;
-        }
-
         /// <summary>Log an exception from an event handler.</summary>
         /// <param name="handler">The event handler instance.</param>
         /// <param name="ex">The exception that was raised.</param>

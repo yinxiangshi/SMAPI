@@ -11,7 +11,6 @@ using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Utilities;
 using StardewValley;
 using xTile;
-using xTile.Tiles;
 
 namespace StardewModdingAPI.Framework.ContentManagers
 {
@@ -398,14 +397,13 @@ namespace StardewModdingAPI.Framework.ContentManagers
             }
 
             // when replacing a map, the vanilla tilesheets must have the same order and IDs
-            if (data is Map loadedMap && this.Coordinator.TryLoadVanillaAsset(info.AssetName, out Map vanillaMap))
+            if (data is Map loadedMap)
             {
-                for (int i = 0; i < vanillaMap.TileSheets.Count; i++)
+                TilesheetReference[] vanillaTilesheetRefs = this.Coordinator.GetVanillaTilesheetIds(info.AssetName);
+                foreach (TilesheetReference vanillaSheet in vanillaTilesheetRefs)
                 {
-                    // check for match
-                    TileSheet vanillaSheet = vanillaMap.TileSheets[i];
-                    bool found = this.TryFindTilesheet(loadedMap, vanillaSheet.Id, out int loadedIndex, out TileSheet loadedSheet);
-                    if (found && loadedIndex == i)
+                    // skip if match
+                    if (loadedMap.TileSheets.Count > vanillaSheet.Index && loadedMap.TileSheets[vanillaSheet.Index].Id == vanillaSheet.Id)
                         continue;
 
                     // handle mismatch
@@ -414,18 +412,18 @@ namespace StardewModdingAPI.Framework.ContentManagers
                         // This is temporary: mods shouldn't do this for any vanilla map, but these are the ones we know will crash. Showing a warning for others instead gives modders time to update their mods, while still simplifying troubleshooting.
                         bool isFarmMap = info.AssetNameEquals("Maps/Farm") || info.AssetNameEquals("Maps/Farm_Combat") || info.AssetNameEquals("Maps/Farm_Fishing") || info.AssetNameEquals("Maps/Farm_Foraging") || info.AssetNameEquals("Maps/Farm_FourCorners") || info.AssetNameEquals("Maps/Farm_Island") || info.AssetNameEquals("Maps/Farm_Mining");
 
-
-                        string reason = found
-                            ? $"mod reordered the original tilesheets, which {(isFarmMap ? "would cause a crash" : "often causes crashes")}.\n\nTechnical details for mod author:\nExpected order [{string.Join(", ", vanillaMap.TileSheets.Select(p => $"'{p.ImageSource}' (id: {p.Id})"))}], but found tilesheet '{vanillaSheet.Id}' at index {loadedIndex} instead of {i}. Make sure custom tilesheet IDs are prefixed with 'z_' to avoid reordering tilesheets."
+                        int loadedIndex = this.TryFindTilesheet(loadedMap, vanillaSheet.Id);
+                        string reason = loadedIndex != -1
+                            ? $"mod reordered the original tilesheets, which {(isFarmMap ? "would cause a crash" : "often causes crashes")}.\nTechnical details for mod author: Expected order: {string.Join(", ", vanillaTilesheetRefs.Select(p => p.Id))}. See https://stardewcommunitywiki.com/Modding:Maps#Tilesheet_order for help."
                             : $"mod has no tilesheet with ID '{vanillaSheet.Id}'. Map replacements must keep the original tilesheets to avoid errors or crashes.";
 
                         SCore.DeprecationManager.PlaceholderWarn("3.8.2", DeprecationLevel.PendingRemoval);
                         if (isFarmMap)
                         {
-                            mod.LogAsMod($"SMAPI blocked asset replacement for '{info.AssetName}': {reason}", LogLevel.Error);
+                            mod.LogAsMod($"SMAPI blocked '{info.AssetName}' map load: {reason}", LogLevel.Error);
                             return false;
                         }
-                        mod.LogAsMod($"SMAPI detected a potential issue with asset replacement for '{info.AssetName}' map: {reason}", LogLevel.Warn);
+                        mod.LogAsMod($"SMAPI found an issue with '{info.AssetName}' map load: {reason}", LogLevel.Warn);
                     }
                 }
             }
@@ -436,23 +434,15 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <summary>Find a map tilesheet by ID.</summary>
         /// <param name="map">The map whose tilesheets to search.</param>
         /// <param name="id">The tilesheet ID to match.</param>
-        /// <param name="index">The matched tilesheet index, if any.</param>
-        /// <param name="tilesheet">The matched tilesheet, if any.</param>
-        private bool TryFindTilesheet(Map map, string id, out int index, out TileSheet tilesheet)
+        private int TryFindTilesheet(Map map, string id)
         {
             for (int i = 0; i < map.TileSheets.Count; i++)
             {
                 if (map.TileSheets[i].Id == id)
-                {
-                    index = i;
-                    tilesheet = map.TileSheets[i];
-                    return true;
-                }
+                    return i;
             }
 
-            index = -1;
-            tilesheet = null;
-            return false;
+            return -1;
         }
     }
 }
