@@ -230,38 +230,49 @@ namespace StardewModdingAPI.Toolkit
             const int curNewer = 1;
             const int curOlder = -1;
 
-            // compare stable versions
-            if (this.MajorVersion != otherMajor)
-                return this.MajorVersion.CompareTo(otherMajor);
-            if (this.MinorVersion != otherMinor)
-                return this.MinorVersion.CompareTo(otherMinor);
-            if (this.PatchVersion != otherPatch)
-                return this.PatchVersion.CompareTo(otherPatch);
-            if (this.PlatformRelease != otherPlatformRelease)
-                return this.PlatformRelease.CompareTo(otherPlatformRelease);
-            if (this.PrereleaseTag == otherTag)
-                return same;
-
-            // stable supersedes prerelease
-            bool curIsStable = string.IsNullOrWhiteSpace(this.PrereleaseTag);
-            bool otherIsStable = string.IsNullOrWhiteSpace(otherTag);
-            if (curIsStable)
-                return curNewer;
-            if (otherIsStable)
-                return curOlder;
-
-            // compare two prerelease tag values
-            string[] curParts = this.PrereleaseTag.Split('.', '-');
-            string[] otherParts = otherTag.Split('.', '-');
-            for (int i = 0; i < curParts.Length; i++)
+            int CompareToRaw()
             {
-                // longer prerelease tag supersedes if otherwise equal
-                if (otherParts.Length <= i)
-                    return curNewer;
+                // compare stable versions
+                if (this.MajorVersion != otherMajor)
+                    return this.MajorVersion.CompareTo(otherMajor);
+                if (this.MinorVersion != otherMinor)
+                    return this.MinorVersion.CompareTo(otherMinor);
+                if (this.PatchVersion != otherPatch)
+                    return this.PatchVersion.CompareTo(otherPatch);
+                if (this.PlatformRelease != otherPlatformRelease)
+                    return this.PlatformRelease.CompareTo(otherPlatformRelease);
+                if (this.PrereleaseTag == otherTag)
+                    return same;
 
-                // compare if different
-                if (curParts[i] != otherParts[i])
+                // stable supersedes prerelease
+                bool curIsStable = string.IsNullOrWhiteSpace(this.PrereleaseTag);
+                bool otherIsStable = string.IsNullOrWhiteSpace(otherTag);
+                if (curIsStable)
+                    return curNewer;
+                if (otherIsStable)
+                    return curOlder;
+
+                // compare two prerelease tag values
+                string[] curParts = this.PrereleaseTag.Split('.', '-');
+                string[] otherParts = otherTag.Split('.', '-');
+                int length = Math.Max(curParts.Length, otherParts.Length);
+                for (int i = 0; i < length; i++)
                 {
+                    // longer prerelease tag supersedes if otherwise equal
+                    if (curParts.Length <= i)
+                        return curOlder;
+                    if (otherParts.Length <= i)
+                        return curNewer;
+
+                    // skip if same value, unless we've reached the end
+                    if (curParts[i] == otherParts[i])
+                    {
+                        if (i == length - 1)
+                            return same;
+
+                        continue;
+                    }
+
                     // unofficial is always lower-precedence
                     if (otherParts[i].Equals("unofficial", StringComparison.OrdinalIgnoreCase))
                         return curNewer;
@@ -277,10 +288,17 @@ namespace StardewModdingAPI.Toolkit
                     // else compare lexically
                     return string.Compare(curParts[i], otherParts[i], StringComparison.OrdinalIgnoreCase);
                 }
+
+                // fallback (this should never happen)
+                return string.Compare(this.ToString(), new SemanticVersion(otherMajor, otherMinor, otherPatch, otherPlatformRelease, otherTag).ToString(), StringComparison.OrdinalIgnoreCase);
             }
 
-            // fallback (this should never happen)
-            return string.Compare(this.ToString(), new SemanticVersion(otherMajor, otherMinor, otherPatch, otherPlatformRelease, otherTag).ToString(), StringComparison.OrdinalIgnoreCase);
+            return CompareToRaw() switch
+            {
+                (< 0) => curOlder,
+                (> 0) => curNewer,
+                _ => same
+            };
         }
 
         /// <summary>Assert that the current version is valid.</summary>
