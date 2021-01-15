@@ -9,10 +9,12 @@
 
 ## Upcoming release
 * For players:
+  * Updated for Stardew Valley 1.5.3.
   * Fixed issue where title screen music didn't stop after loading a save.
 
 * For modders:
   * Fixed `SemanticVersion` comparisons returning wrong value in rare cases.
+
 ## 3.8.3
 Released 08 January 2021 for Stardew Valley 1.5.2 or later.
 

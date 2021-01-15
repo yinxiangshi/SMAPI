@@ -740,16 +740,20 @@ namespace StardewModdingAPI.Framework
                         Game1.spriteBatch.Draw(Game1.staminaRect, new Microsoft.Xna.Framework.Rectangle(startingX, (int)y, Game1.graphics.GraphicsDevice.Viewport.Width, 1), Microsoft.Xna.Framework.Color.Red * 0.5f);
                     }
                 }
+                if (Game1.ShouldShowOnscreenUsernames() && Game1.currentLocation != null)
+                {
+                    Game1.currentLocation.DrawFarmerUsernames(Game1.spriteBatch);
+                }
                 if (Game1.currentBillboard != 0 && !this.takingMapScreenshot)
                 {
                     this.drawBillboard();
                 }
                 if (!Game1.eventUp && Game1.farmEvent == null && Game1.currentBillboard == 0 && Game1.gameMode == 3 && !this.takingMapScreenshot && Game1.isOutdoorMapSmallerThanViewport())
                 {
-                    Game1.spriteBatch.Draw(Game1.fadeToBlackRect, new Microsoft.Xna.Framework.Rectangle(0, 0, -Math.Min(Game1.viewport.X, 4096), Game1.graphics.GraphicsDevice.Viewport.Height), Microsoft.Xna.Framework.Color.Black);
-                    Game1.spriteBatch.Draw(Game1.fadeToBlackRect, new Microsoft.Xna.Framework.Rectangle(-Game1.viewport.X + Game1.currentLocation.map.Layers[0].LayerWidth * 64, 0, Math.Min(4096, Game1.graphics.GraphicsDevice.Viewport.Width - (-Game1.viewport.X + Game1.currentLocation.map.Layers[0].LayerWidth * 64)), Game1.graphics.GraphicsDevice.Viewport.Height), Microsoft.Xna.Framework.Color.Black);
-                    Game1.spriteBatch.Draw(Game1.fadeToBlackRect, new Microsoft.Xna.Framework.Rectangle(0, 0, Game1.graphics.GraphicsDevice.Viewport.Width, -Math.Min(Game1.viewport.Y, 4096)), Microsoft.Xna.Framework.Color.Black);
-                    Game1.spriteBatch.Draw(Game1.fadeToBlackRect, new Microsoft.Xna.Framework.Rectangle(0, -Game1.viewport.Y + Game1.currentLocation.map.Layers[0].LayerHeight * 64, Game1.graphics.GraphicsDevice.Viewport.Width, Math.Min(4096, Game1.graphics.GraphicsDevice.Viewport.Height - (-Game1.viewport.Y + Game1.currentLocation.map.Layers[0].LayerHeight * 64))), Microsoft.Xna.Framework.Color.Black);
+                    Game1.spriteBatch.Draw(Game1.fadeToBlackRect, new Microsoft.Xna.Framework.Rectangle(0, 0, -Math.Min(Game1.viewport.X, GameRunner.MaxTextureSize), Game1.graphics.GraphicsDevice.Viewport.Height), Microsoft.Xna.Framework.Color.Black);
+                    Game1.spriteBatch.Draw(Game1.fadeToBlackRect, new Microsoft.Xna.Framework.Rectangle(-Game1.viewport.X + Game1.currentLocation.map.Layers[0].LayerWidth * 64, 0, Math.Min(GameRunner.MaxTextureSize, Game1.graphics.GraphicsDevice.Viewport.Width - (-Game1.viewport.X + Game1.currentLocation.map.Layers[0].LayerWidth * 64)), Game1.graphics.GraphicsDevice.Viewport.Height), Microsoft.Xna.Framework.Color.Black);
+                    Game1.spriteBatch.Draw(Game1.fadeToBlackRect, new Microsoft.Xna.Framework.Rectangle(0, 0, Game1.graphics.GraphicsDevice.Viewport.Width, -Math.Min(Game1.viewport.Y, GameRunner.MaxTextureSize)), Microsoft.Xna.Framework.Color.Black);
+                    Game1.spriteBatch.Draw(Game1.fadeToBlackRect, new Microsoft.Xna.Framework.Rectangle(0, -Game1.viewport.Y + Game1.currentLocation.map.Layers[0].LayerHeight * 64, Game1.graphics.GraphicsDevice.Viewport.Width, Math.Min(GameRunner.MaxTextureSize, Game1.graphics.GraphicsDevice.Viewport.Height - (-Game1.viewport.Y + Game1.currentLocation.map.Layers[0].LayerHeight * 64))), Microsoft.Xna.Framework.Color.Black);
                 }
                 Game1.spriteBatch.End();
                 Game1.PushUIMode();
