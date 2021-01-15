@@ -9,7 +9,7 @@
 
 ## Upcoming release
 * For modders:
-  * Expanded `PerScreen<T>` API: you can now get/set the value for any screen.
+  * Expanded `PerScreen<T>` API: you can now get/set the value for any screen, or clear all values.
   * Added an option to disable rewriting mods for compatibility (thanks to Bpendragon!). This may prevent older mods from loading, but bypasses a Visual Studio crash when debugging.
 
 * For the Error Handler mod:

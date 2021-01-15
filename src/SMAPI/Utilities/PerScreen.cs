@@ -11,10 +11,10 @@ namespace StardewModdingAPI.Utilities
         /*********
         ** Fields
         *********/
-        /// <summary>Create the initial value for a player.</summary>
+        /// <summary>Create the initial value for a screen.</summary>
         private readonly Func<T> CreateNewState;
 
-        /// <summary>The tracked values for each player.</summary>
+        /// <summary>The tracked values for each screen.</summary>
         private readonly IDictionary<int, T> States = new Dictionary<int, T>();
 
         /// <summary>The last <see cref="Context.LastRemovedScreenId"/> value for which this instance was updated.</summary>
@@ -24,8 +24,8 @@ namespace StardewModdingAPI.Utilities
         /*********
         ** Accessors
         *********/
-        /// <summary>The value for the current player.</summary>
-        /// <remarks>The value is initialized the first time it's requested for that player, unless it's set manually first.</remarks>
+        /// <summary>The value for the current screen.</summary>
+        /// <remarks>The value is initialized the first time it's requested for that screen, unless it's set manually first.</remarks>
         public T Value
         {
             get => this.GetValueForScreen(Context.ScreenId);
@@ -41,7 +41,7 @@ namespace StardewModdingAPI.Utilities
             : this(null) { }
 
         /// <summary>Construct an instance.</summary>
-        /// <param name="createNewState">Create the initial state for a player screen.</param>
+        /// <param name="createNewState">Create the initial state for a screen.</param>
         public PerScreen(Func<T> createNewState)
         {
             this.CreateNewState = createNewState ?? (() => default);
@@ -66,6 +66,12 @@ namespace StardewModdingAPI.Utilities
             this.States[screenId] = value;
         }
 
+        /// <summary>Remove all active values.</summary>
+        public void ResetAllScreens()
+        {
+            this.RemoveScreens(p => true);
+        }
+
 
         /*********
         ** Private methods
@@ -77,9 +83,16 @@ namespace StardewModdingAPI.Utilities
                 return;
             this.LastRemovedScreenId = Context.LastRemovedScreenId;
 
+            this.RemoveScreens(id => !Context.HasScreenId(id));
+        }
+
+        /// <summary>Remove screens matching a condition.</summary>
+        /// <param name="shouldRemove">Returns whether a screen ID should be removed.</param>
+        private void RemoveScreens(Func<int, bool> shouldRemove)
+        {
             foreach (var pair in this.States.ToArray())
             {
-                if (!Context.HasScreenId(pair.Key))
+                if (shouldRemove(pair.Key))
                     this.States.Remove(pair.Key);
             }
         }
