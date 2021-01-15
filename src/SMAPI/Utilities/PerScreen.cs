@@ -47,6 +47,13 @@ namespace StardewModdingAPI.Utilities
             this.CreateNewState = createNewState ?? (() => default);
         }
 
+        /// <summary>Get all active values by screen ID. This doesn't initialize the value for a screen ID if it's not created yet.</summary>
+        public IEnumerable<KeyValuePair<int, T>> GetActiveValues()
+        {
+            this.RemoveDeadScreens();
+            return this.States.ToArray();
+        }
+
         /// <summary>Get the value for a given screen ID, creating it if needed.</summary>
         /// <param name="screenId">The screen ID to check.</param>
         public T GetValueForScreen(int screenId)
