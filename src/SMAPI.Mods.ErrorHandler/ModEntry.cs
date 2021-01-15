@@ -40,7 +40,8 @@ namespace StardewModdingAPI.Mods.ErrorHandler
                 new DialogueErrorPatch(logManager.MonitorForGame, this.Helper.Reflection),
                 new ObjectErrorPatch(),
                 new LoadErrorPatch(this.Monitor, this.OnSaveContentRemoved),
-                new ScheduleErrorPatch(logManager.MonitorForGame)
+                new ScheduleErrorPatch(logManager.MonitorForGame),
+                new UtilityErrorPatches()
             );
 
             // hook events
