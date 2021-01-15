@@ -138,36 +138,7 @@ namespace StardewModdingAPI.Metadata
                 {
                     if (!string.IsNullOrWhiteSpace(location.mapPath.Value) && this.NormalizeAssetNameIgnoringEmpty(location.mapPath.Value) == key)
                     {
-                        // reset patch caches
-                        switch (location)
-                        {
-                            case Town _:
-                                this.Reflection.GetField<bool>(location, "ccRefurbished").SetValue(false);
-                                this.Reflection.GetField<bool>(location, "isShowingDestroyedJoja").SetValue(false);
-                                this.Reflection.GetField<bool>(location, "isShowingUpgradedPamHouse").SetValue(false);
-                                break;
-
-                            case Beach _:
-                            case BeachNightMarket _:
-                            case Forest _:
-                                this.Reflection.GetField<bool>(location, "hasShownCCUpgrade").SetValue(false);
-                                break;
-                        }
-
-                        // general updates
-                        location.reloadMap();
-                        location.updateSeasonalTileSheets();
-                        location.updateWarps();
-
-                        // update interior doors
-                        location.interiorDoors.Clear();
-                        foreach (var entry in new InteriorDoorDictionary(location))
-                            location.interiorDoors.Add(entry);
-
-                        // update doors
-                        location.doors.Clear();
-                        location.updateDoors();
-
+                        this.ReloadMap(location);
                         anyChanged = true;
                     }
                 }
@@ -801,6 +772,41 @@ namespace StardewModdingAPI.Metadata
             Farmer.hairStyleMetadata.Clear();
 
             return true;
+        }
+
+        /// <summary>Reload the map for a location.</summary>
+        /// <param name="location">The location whose map to reload.</param>
+        private void ReloadMap(GameLocation location)
+        {
+            // reset patch caches
+            switch (location)
+            {
+                case Town _:
+                    this.Reflection.GetField<bool>(location, "ccRefurbished").SetValue(false);
+                    this.Reflection.GetField<bool>(location, "isShowingDestroyedJoja").SetValue(false);
+                    this.Reflection.GetField<bool>(location, "isShowingUpgradedPamHouse").SetValue(false);
+                    break;
+
+                case Beach _:
+                case BeachNightMarket _:
+                case Forest _:
+                    this.Reflection.GetField<bool>(location, "hasShownCCUpgrade").SetValue(false);
+                    break;
+            }
+
+            // general updates
+            location.reloadMap();
+            location.updateSeasonalTileSheets();
+            location.updateWarps();
+
+            // update interior doors
+            location.interiorDoors.Clear();
+            foreach (var entry in new InteriorDoorDictionary(location))
+                location.interiorDoors.Add(entry);
+
+            // update doors
+            location.doors.Clear();
+            location.updateDoors();
         }
 
         /// <summary>Reload the disposition data for matching NPCs.</summary>

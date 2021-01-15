@@ -7,6 +7,16 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
+## 3.8.4
+Released 15 January 2021 for Stardew Valley 1.5.3 or later.
+
+* For players:
+  * Updated for Stardew Valley 1.5.3.
+  * Fixed issue where title screen music didn't stop after loading a save.
+
+* For modders:
+  * Fixed `SemanticVersion` comparisons returning wrong value in rare cases.
+
 ## 3.8.3
 Released 08 January 2021 for Stardew Valley 1.5.2 or later.
 

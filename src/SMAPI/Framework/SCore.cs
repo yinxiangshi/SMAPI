@@ -619,6 +619,7 @@ namespace StardewModdingAPI.Framework
                 if (Game1.currentLoader != null)
                 {
                     this.Monitor.Log("Game loader synchronizing...");
+                    this.Reflection.GetMethod(Game1.game1, "UpdateTitleScreen").Invoke(Game1.currentGameTime); // run game logic to change music on load, etc
                     while (Game1.currentLoader?.MoveNext() == true)
                     {
                         // raise load stage changed
