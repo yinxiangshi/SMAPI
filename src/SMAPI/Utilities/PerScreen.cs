@@ -49,20 +49,20 @@ namespace StardewModdingAPI.Utilities
 
         /// <summary>Get the value for a given screen ID, creating it if needed.</summary>
         /// <param name="screenId">The screen ID to check.</param>
-        internal T GetValueForScreen(int screenId)
+        public T GetValueForScreen(int screenId)
         {
-            this.RemoveDeadPlayers();
+            this.RemoveDeadScreens();
             return this.States.TryGetValue(screenId, out T state)
                 ? state
                 : this.States[screenId] = this.CreateNewState();
         }
 
-        /// <summary>Set the value for a given screen ID, creating it if needed.</summary>
+        /// <summary>Set the value for a given screen ID.</summary>
         /// <param name="screenId">The screen ID whose value set.</param>
         /// <param name="value">The value to set.</param>
-        internal void SetValueForScreen(int screenId, T value)
+        public void SetValueForScreen(int screenId, T value)
         {
-            this.RemoveDeadPlayers();
+            this.RemoveDeadScreens();
             this.States[screenId] = value;
         }
 
@@ -70,18 +70,17 @@ namespace StardewModdingAPI.Utilities
         /*********
         ** Private methods
         *********/
-        /// <summary>Remove players who are no longer have a split-screen index.</summary>
-        /// <returns>Returns whether any players were removed.</returns>
-        private void RemoveDeadPlayers()
+        /// <summary>Remove screens which are no longer active.</summary>
+        private void RemoveDeadScreens()
         {
             if (this.LastRemovedScreenId == Context.LastRemovedScreenId)
                 return;
-
             this.LastRemovedScreenId = Context.LastRemovedScreenId;
-            foreach (int id in this.States.Keys.ToArray())
+
+            foreach (var pair in this.States.ToArray())
             {
-                if (!Context.HasScreenId(id))
-                    this.States.Remove(id);
+                if (!Context.HasScreenId(pair.Key))
+                    this.States.Remove(pair.Key);
             }
         }
     }
