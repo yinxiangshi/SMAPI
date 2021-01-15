@@ -81,6 +81,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>Whether the game is creating the save file and SMAPI has already raised <see cref="IGameLoopEvents.SaveCreating"/>.</summary>
         public bool IsBetweenCreateEvents { get; set; }
 
+        /// <summary>The cached <see cref="Farmer.UniqueMultiplayerID"/> value for this instance's player.</summary>
+        public long? PlayerId { get; private set; }
+
         /// <summary>Construct a content manager to read game content files.</summary>
         /// <remarks>This must be static because the game accesses it before the <see cref="SGame"/> constructor is called.</remarks>
         [NonInstancedStatic]
@@ -167,6 +170,7 @@ namespace StardewModdingAPI.Framework
             try
             {
                 this.OnUpdating(this, gameTime, () => base.Update(gameTime));
+                this.PlayerId = Game1.player?.UniqueMultiplayerID;
             }
             finally
             {

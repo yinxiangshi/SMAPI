@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Framework.Events;
@@ -44,6 +45,13 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Raised before the game exits.</summary>
         private readonly Action OnGameExiting;
+
+
+        /*********
+        ** Public methods
+        *********/
+        /// <summary>The singleton instance.</summary>
+        public static SGameRunner Instance => (SGameRunner)GameRunner.instance;
 
 
         /*********
@@ -99,13 +107,22 @@ namespace StardewModdingAPI.Framework
         }
 
         /// <inheritdoc />
-        public override void RemoveGameInstance(Game1 instance)
+        public override void RemoveGameInstance(Game1 gameInstance)
         {
-            base.RemoveGameInstance(instance);
+            base.RemoveGameInstance(gameInstance);
 
             if (this.gameInstances.Count <= 1)
                 EarlyConstants.LogScreenId = null;
             this.UpdateForSplitScreenChanges();
+        }
+
+        /// <summary>Get the screen ID for a given player ID, if the player is local.</summary>
+        /// <param name="playerId">The player ID to check.</param>
+        public int? GetScreenId(long playerId)
+        {
+            return this.gameInstances
+                .FirstOrDefault(p => ((SGame)p).PlayerId == playerId)
+                ?.instanceId;
         }
 
 
@@ -136,6 +153,7 @@ namespace StardewModdingAPI.Framework
             this.OnGameUpdating(gameTime, () => base.Update(gameTime));
         }
 
+        /// <summary>Update metadata when a split screen is added or removed.</summary>
         private void UpdateForSplitScreenChanges()
         {
             HashSet<int> oldScreenIds = new HashSet<int>(Context.ActiveScreenIds);

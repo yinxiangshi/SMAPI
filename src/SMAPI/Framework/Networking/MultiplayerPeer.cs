@@ -25,7 +25,13 @@ namespace StardewModdingAPI.Framework.Networking
         public bool IsHost { get; }
 
         /// <inheritdoc />
+        public bool IsSplitScreen => this.ScreenID != null;
+
+        /// <inheritdoc />
         public bool HasSmapi => this.ApiVersion != null;
+
+        /// <inheritdoc />
+        public int? ScreenID { get; }
 
         /// <inheritdoc />
         public GamePlatform? Platform { get; }
@@ -45,12 +51,14 @@ namespace StardewModdingAPI.Framework.Networking
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="playerID">The player's unique ID.</param>
+        /// <param name="screenID">The player's screen ID, if applicable.</param>
         /// <param name="model">The metadata to copy.</param>
         /// <param name="sendMessage">A method which sends a message to the peer.</param>
         /// <param name="isHost">Whether this is a connection to the host player.</param>
-        public MultiplayerPeer(long playerID, RemoteContextModel model, Action<OutgoingMessage> sendMessage, bool isHost)
+        public MultiplayerPeer(long playerID, int? screenID, RemoteContextModel model, Action<OutgoingMessage> sendMessage, bool isHost)
         {
             this.PlayerID = playerID;
+            this.ScreenID = screenID;
             this.IsHost = isHost;
             if (model != null)
             {

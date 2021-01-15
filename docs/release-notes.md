@@ -10,6 +10,7 @@
 ## Upcoming release
 * For modders:
   * Expanded `PerScreen<T>` API: you can now get/set the value for any screen, get all active values, or clear all values.
+  * Expanded player info received from multiplayer API/events with new `IsSplitScreen` and `ScreenID` fields.
   * Added an option to disable rewriting mods for compatibility (thanks to Bpendragon!). This may prevent older mods from loading, but bypasses a Visual Studio crash when debugging.
 
 * For the Error Handler mod:
