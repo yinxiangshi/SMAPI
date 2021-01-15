@@ -208,7 +208,7 @@ namespace StardewModdingAPI.Framework.Logging
             // show update alert
             if (File.Exists(Constants.UpdateMarker))
             {
-                string[] rawUpdateFound = File.ReadAllText(Constants.UpdateMarker).Split(new [] { '|' }, 2);
+                string[] rawUpdateFound = File.ReadAllText(Constants.UpdateMarker).Split(new[] { '|' }, 2);
                 if (SemanticVersion.TryParse(rawUpdateFound[0], out ISemanticVersion updateFound))
                 {
                     if (Constants.ApiVersion.IsPrerelease() && updateFound.IsNewerThan(Constants.ApiVersion))
@@ -286,15 +286,15 @@ namespace StardewModdingAPI.Framework.Logging
         /// <summary>Log details for settings that don't match the default.</summary>
         /// <param name="isDeveloperMode">Whether to enable full console output for developers.</param>
         /// <param name="checkForUpdates">Whether to check for newer versions of SMAPI and mods on startup.</param>
-        /// ///<param name="rewriteMods">Whether to rewrite mods, might need to be false to hook up to the Visual Studio Debugger.</param>
+        /// <param name="rewriteMods">Whether to rewrite mods for compatibility.</param>
         public void LogSettingsHeader(bool isDeveloperMode, bool checkForUpdates, bool rewriteMods)
         {
             if (isDeveloperMode)
-                this.Monitor.Log($"You have SMAPI for developers, so the console will be much more verbose. You can disable developer mode by installing the non-developer version of SMAPI, or by editing {Constants.ApiConfigPath}.", LogLevel.Info);
+                this.Monitor.Log("You have SMAPI for developers, so the console will be much more verbose. You can disable developer mode by installing the non-developer version of SMAPI.", LogLevel.Info);
             if (!checkForUpdates)
-                this.Monitor.Log($"You configured SMAPI to not check for updates. Running an old version of SMAPI is not recommended. You can enable update checks by reinstalling SMAPI or editing {Constants.ApiConfigPath}.", LogLevel.Warn);
+                this.Monitor.Log("You configured SMAPI to not check for updates. Running an old version of SMAPI is not recommended. You can enable update checks by reinstalling SMAPI.", LogLevel.Warn);
             if (!rewriteMods)
-                this.Monitor.Log($"You configured SMAPI to not rewrite potentially broken mods. This is not reccomended except in certain circumstances such as attaching to the Visual Studio debugger. You can enable mod rewrites by reinstalling SMAPI or editing {Constants.ApiConfigPath}.", LogLevel.Warn);
+                this.Monitor.Log("You configured SMAPI to not rewrite broken mods. Many older mods may fail to load. You can undo this by reinstalling SMAPI.", LogLevel.Warn);
             if (!this.Monitor.WriteToConsole)
                 this.Monitor.Log("Writing to the terminal is disabled because the --no-terminal argument was received. This usually means launching the terminal failed.", LogLevel.Warn);
             this.Monitor.VerboseLog("Verbose logging enabled.");

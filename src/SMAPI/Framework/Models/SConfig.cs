@@ -28,6 +28,7 @@ namespace StardewModdingAPI.Framework.Models
         private static readonly HashSet<string> DefaultSuppressUpdateChecks = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "SMAPI.ConsoleCommands",
+            "SMAPI.ErrorHandler",
             "SMAPI.SaveBackup"
         };
 
@@ -56,6 +57,9 @@ namespace StardewModdingAPI.Framework.Models
         /// <summary>Whether SMAPI should log more information about the game context.</summary>
         public bool VerboseLogging { get; set; }
 
+        /// <summary>Whether SMAPI should rewrite mods for compatibility.</summary>
+        public bool RewriteMods { get; set; } = (bool)SConfig.DefaultValues[nameof(SConfig.RewriteMods)];
+
         /// <summary>Whether SMAPI should log network traffic. Best combined with <see cref="VerboseLogging"/>, which includes network metadata.</summary>
         public bool LogNetworkTraffic { get; set; }
 
@@ -65,14 +69,11 @@ namespace StardewModdingAPI.Framework.Models
         /// <summary>The mod IDs SMAPI should ignore when performing update checks or validating update keys.</summary>
         public string[] SuppressUpdateChecks { get; set; }
 
-        /// <summary>Whether to rewrite mods for compatibility. Should only be set to false to facilitate joining to the Visual Studio Debugger.</summary>
-        public bool RewriteMods { get; set; } = (bool)SConfig.DefaultValues[nameof(SConfig.RewriteMods)];
-
 
         /********
         ** Public methods
         ********/
-        /// <summary>Get the settings which have been customised by the player.</summary>
+        /// <summary>Get the settings which have been customized by the player.</summary>
         public IDictionary<string, object> GetCustomSettings()
         {
             IDictionary<string, object> custom = new Dictionary<string, object>();

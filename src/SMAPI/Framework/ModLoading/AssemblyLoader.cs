@@ -37,7 +37,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>The objects to dispose as part of this instance.</summary>
         private readonly HashSet<IDisposable> Disposables = new HashSet<IDisposable>();
 
-        /// <summary>Whether mods should be re-writen for compatibility.</summary>
+        /// <summary>Whether to rewrite mods for compatibility.</summary>
         private readonly bool RewriteMods;
 
 
@@ -48,7 +48,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="targetPlatform">The current game platform.</param>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="paranoidMode">Whether to detect paranoid mode issues.</param>
-        /// <param name="rewriteMods">Whether to rewrite potentially broken mods or not.</param>
+        /// <param name="rewriteMods">Whether to rewrite mods for compatibility.</param>
         public AssemblyLoader(Platform targetPlatform, IMonitor monitor, bool paranoidMode, bool rewriteMods)
         {
             this.Monitor = monitor;

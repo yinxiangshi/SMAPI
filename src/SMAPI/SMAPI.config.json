@@ -34,6 +34,12 @@ copy all the settings, or you may cause bugs due to overridden changes in future
     "DeveloperMode": true,
 
     /**
+     * Whether SMAPI should rewrite mods for compatibility. This may prevent older mods from
+     * loading, but bypasses a Visual Studio crash when debugging.
+     */
+    "RewriteMods": true,
+
+    /**
      * Whether to add a section to the 'mod issues' list for mods which directly use potentially
      * sensitive .NET APIs like file or shell access. Note that many mods do this legitimately as
      * part of their normal functionality, so these warnings are meaningless without further
@@ -67,12 +73,6 @@ copy all the settings, or you may cause bugs due to overridden changes in future
      * Whether SMAPI should log network traffic (may be very verbose). Best combined with VerboseLogging, which includes network metadata.
      */
     "LogNetworkTraffic": false,
-
-    /**
-    * Whether SMAPI should rewrite mods for compatibility.
-    * Note: This is best left to true unless you are attempting to hook into the Visual Studio Debugger
-    */
-    "RewriteMods": true,
 
     /**
      * The colors to use for text written to the SMAPI console.

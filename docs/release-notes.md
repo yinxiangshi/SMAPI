@@ -8,6 +8,9 @@
 -->
 
 ## Upcoming release
+* For modders:
+  * Added an option to disable rewriting mods for compatibility (thanks to Bpendragon!). This may prevent older mods from loading, but bypasses a Visual Studio crash when debugging.
+
 * For the Error Handler mod:
   * Added in SMAPI 3.9. This has vanilla error-handling that was previously added by SMAPI directly. That simplifies the core SMAPI logic, and lets players or modders disable it if needed.
 

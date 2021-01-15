@@ -27,7 +27,7 @@ namespace StardewModdingAPI.Metadata
         /// <summary>Get rewriters which detect or fix incompatible CIL instructions in mod assemblies.</summary>
         /// <param name="paranoidMode">Whether to detect paranoid mode issues.</param>
         /// <param name="platformChanged">Whether the assembly was rewritten for crossplatform compatibility.</param>
-        /// <param name="rewriteMods">Whether to return Rewriters</param>
+        /// <param name="rewriteMods">Whether to get handlers which rewrite mods for compatibility.</param>
         public IEnumerable<IInstructionHandler> GetHandlers(bool paranoidMode, bool platformChanged, bool rewriteMods)
         {
             /****
@@ -49,10 +49,11 @@ namespace StardewModdingAPI.Metadata
                 yield return new HeuristicMethodRewriter(this.ValidateReferencesToAssemblies);
 
 #if HARMONY_2
-            // rewrite for SMAPI 3.6 (Harmony 1.x => 2.0 update)
-            yield return new Harmony1AssemblyRewriter();
+                // rewrite for SMAPI 3.x (Harmony 1.x => 2.0 update)
+                yield return new Harmony1AssemblyRewriter();
 #endif
             }
+
             /****
             ** detect mod issues
             ****/
