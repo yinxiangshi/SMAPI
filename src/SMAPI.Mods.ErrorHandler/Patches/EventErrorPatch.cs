@@ -9,7 +9,7 @@ using Harmony;
 using StardewModdingAPI.Framework.Patching;
 using StardewValley;
 
-namespace StardewModdingAPI.Patches
+namespace StardewModdingAPI.Mods.ErrorHandler.Patches
 {
     /// <summary>A Harmony patch for <see cref="GameLocation.checkEventPrecondition"/> which intercepts invalid preconditions and logs an error instead of crashing.</summary>
     /// <remarks>Patch methods must be static for Harmony to work correctly. See the Harmony documentation before renaming patch arguments.</remarks>
@@ -89,7 +89,7 @@ namespace StardewModdingAPI.Patches
         /// <returns>Returns whether to execute the original method.</returns>
         private static bool Before_GameLocation_CheckEventPrecondition(GameLocation __instance, ref int __result, string precondition, MethodInfo __originalMethod)
         {
-            const string key = nameof(Before_GameLocation_CheckEventPrecondition);
+            const string key = nameof(EventErrorPatch.Before_GameLocation_CheckEventPrecondition);
             if (!PatchHelper.StartIntercept(key))
                 return true;
 

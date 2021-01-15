@@ -113,6 +113,7 @@ copy all the settings, or you may cause bugs due to overridden changes in future
      */
     "SuppressUpdateChecks": [
         "SMAPI.ConsoleCommands",
+        "SMAPI.ErrorHandler",
         "SMAPI.SaveBackup"
     ]
 }

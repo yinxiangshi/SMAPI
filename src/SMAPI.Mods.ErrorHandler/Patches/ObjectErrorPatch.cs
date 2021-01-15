@@ -12,7 +12,7 @@ using System.Reflection;
 using Harmony;
 #endif
 
-namespace StardewModdingAPI.Patches
+namespace StardewModdingAPI.Mods.ErrorHandler.Patches
 {
     /// <summary>A Harmony patch for <see cref="SObject.getDescription"/> which intercepts crashes due to the item no longer existing.</summary>
     /// <remarks>Patch methods must be static for Harmony to work correctly. See the Harmony documentation before renaming patch arguments.</remarks>
@@ -103,7 +103,7 @@ namespace StardewModdingAPI.Patches
         /// <returns>Returns whether to execute the original method.</returns>
         private static bool Before_Object_loadDisplayName(SObject __instance, ref string __result, MethodInfo __originalMethod)
         {
-            const string key = nameof(Before_Object_loadDisplayName);
+            const string key = nameof(ObjectErrorPatch.Before_Object_loadDisplayName);
             if (!PatchHelper.StartIntercept(key))
                 return true;
 

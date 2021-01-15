@@ -13,7 +13,7 @@ using StardewValley;
 using StardewValley.Buildings;
 using StardewValley.Locations;
 
-namespace StardewModdingAPI.Patches
+namespace StardewModdingAPI.Mods.ErrorHandler.Patches
 {
     /// <summary>A Harmony patch for <see cref="SaveGame"/> which prevents some errors due to broken save data.</summary>
     /// <remarks>Patch methods must be static for Harmony to work correctly. See the Harmony documentation before renaming patch arguments.</remarks>

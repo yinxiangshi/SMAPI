@@ -7,6 +7,10 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
+## Upcoming release
+* For the Error Handler mod:
+  * Added in SMAPI 3.9. This has vanilla error-handling that was previously added by SMAPI directly. That simplifies the core SMAPI logic, and lets players or modders disable it if needed.
+
 ## 3.8.4
 Released 15 January 2021 for Stardew Valley 1.5.3 or later.
 

@@ -124,9 +124,6 @@ namespace StardewModdingAPI.Framework
         /// <summary>The maximum number of consecutive attempts SMAPI should make to recover from an update error.</summary>
         private readonly Countdown UpdateCrashTimer = new Countdown(60); // 60 ticks = roughly one second
 
-        /// <summary>Whether custom content was removed from the save data to avoid a crash.</summary>
-        private bool IsSaveContentRemoved;
-
         /// <summary>Asset interceptors added or removed since the last tick.</summary>
         private readonly List<AssetInterceptorChange> ReloadAssetInterceptorsQueue = new List<AssetInterceptorChange>();
 
@@ -145,6 +142,10 @@ namespace StardewModdingAPI.Framework
         /// <remarks>This is initialized after the game starts. This is accessed directly because it's not part of the normal class model.</remarks>
         internal static DeprecationManager DeprecationManager { get; private set; }
 
+        /// <summary>The singleton instance.</summary>
+        /// <remarks>This is only intended for use by external code like the Error Handler mod.</remarks>
+        internal static SCore Instance { get; private set; }
+
         /// <summary>The number of update ticks which have already executed. This is similar to <see cref="Game1.ticks"/>, but incremented more consistently for every tick.</summary>
         internal static uint TicksElapsed { get; private set; }
 
@@ -157,6 +158,8 @@ namespace StardewModdingAPI.Framework
         /// <param name="writeToConsole">Whether to output log messages to the console.</param>
         public SCore(string modsPath, bool writeToConsole)
         {
+            SCore.Instance = this;
+
             // init paths
             this.VerifyPath(modsPath);
             this.VerifyPath(Constants.LogDir);
@@ -245,12 +248,7 @@ namespace StardewModdingAPI.Framework
 
                 // apply game patches
                 new GamePatcher(this.Monitor).Apply(
-                    new EventErrorPatch(this.LogManager.MonitorForGame),
-                    new DialogueErrorPatch(this.LogManager.MonitorForGame, this.Reflection),
-                    new ObjectErrorPatch(),
-                    new LoadContextPatch(this.Reflection, this.OnLoadStageChanged),
-                    new LoadErrorPatch(this.Monitor, this.OnSaveContentRemoved),
-                    new ScheduleErrorPatch(this.LogManager.MonitorForGame)
+                    new LoadContextPatch(this.Reflection, this.OnLoadStageChanged)
                 );
 
                 // add exit handler
@@ -517,15 +515,6 @@ namespace StardewModdingAPI.Framework
                     this.ScreenCommandQueue.GetValueForScreen(screenId).Add(Tuple.Create(command, name, args));
                 }
 
-                /*********
-                ** Show in-game warnings (for main player only)
-                *********/
-                // save content removed
-                if (this.IsSaveContentRemoved && Context.IsWorldReady)
-                {
-                    this.IsSaveContentRemoved = false;
-                    Game1.addHUDMessage(new HUDMessage(this.Translator.Get("warn.invalid-content-removed"), HUDMessage.error_type));
-                }
 
                 /*********
                 ** Run game update
@@ -1103,12 +1092,6 @@ namespace StardewModdingAPI.Framework
 
             // update last run
             Game1.CustomData[migrationKey] = Constants.ApiVersion.ToString();
-        }
-
-        /// <summary>Raised after custom content is removed from the save data to avoid a crash.</summary>
-        internal void OnSaveContentRemoved()
-        {
-            this.IsSaveContentRemoved = true;
         }
 
         /// <summary>A callback invoked before <see cref="Game1.newDayAfterFade"/> runs.</summary>

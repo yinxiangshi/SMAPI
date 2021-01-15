@@ -71,6 +71,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMAPI.ModBuildConfig.Analyz
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMAPI.Mods.ConsoleCommands", "SMAPI.Mods.ConsoleCommands\SMAPI.Mods.ConsoleCommands.csproj", "{0634EA4C-3B8F-42DB-AEA6-CA9E4EF6E92F}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMAPI.Mods.ErrorHandler", "SMAPI.Mods.ErrorHandler\SMAPI.Mods.ErrorHandler.csproj", "{491E775B-EAD0-44D4-B6CA-F1FC3E316D33}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMAPI.Mods.SaveBackup", "SMAPI.Mods.SaveBackup\SMAPI.Mods.SaveBackup.csproj", "{CD53AD6F-97F4-4872-A212-50C2A0FD3601}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMAPI.Toolkit", "SMAPI.Toolkit\SMAPI.Toolkit.csproj", "{08184F74-60AD-4EEE-A78C-F4A35ADE6246}"
@@ -83,6 +85,7 @@ Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		SMAPI.Internal\SMAPI.Internal.projitems*{0634ea4c-3b8f-42db-aea6-ca9e4ef6e92f}*SharedItemsImports = 5
 		SMAPI.Internal\SMAPI.Internal.projitems*{0a9bb24f-15ff-4c26-b1a2-81f7ae316518}*SharedItemsImports = 5
+		SMAPI.Internal\SMAPI.Internal.projitems*{491e775b-ead0-44d4-b6ca-f1fc3e316d33}*SharedItemsImports = 5
 		SMAPI.Internal\SMAPI.Internal.projitems*{80efd92f-728f-41e0-8a5b-9f6f49a91899}*SharedItemsImports = 5
 		SMAPI.Internal\SMAPI.Internal.projitems*{85208f8d-6fd1-4531-be05-7142490f59fe}*SharedItemsImports = 13
 		SMAPI.Internal\SMAPI.Internal.projitems*{cd53ad6f-97f4-4872-a212-50c2a0fd3601}*SharedItemsImports = 5
@@ -121,6 +124,10 @@ Global
 		{0634EA4C-3B8F-42DB-AEA6-CA9E4EF6E92F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0634EA4C-3B8F-42DB-AEA6-CA9E4EF6E92F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0634EA4C-3B8F-42DB-AEA6-CA9E4EF6E92F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{491E775B-EAD0-44D4-B6CA-F1FC3E316D33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{491E775B-EAD0-44D4-B6CA-F1FC3E316D33}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{491E775B-EAD0-44D4-B6CA-F1FC3E316D33}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{491E775B-EAD0-44D4-B6CA-F1FC3E316D33}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CD53AD6F-97F4-4872-A212-50C2A0FD3601}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CD53AD6F-97F4-4872-A212-50C2A0FD3601}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CD53AD6F-97F4-4872-A212-50C2A0FD3601}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -151,6 +158,7 @@ Global
 		{680B2641-81EA-467C-86A5-0E81CDC57ED0} = {82D22ED7-A0A7-4D64-8E92-4B6A5E74ED11}
 		{AA95884B-7097-476E-92C8-D0500DE9D6D1} = {82D22ED7-A0A7-4D64-8E92-4B6A5E74ED11}
 		{0634EA4C-3B8F-42DB-AEA6-CA9E4EF6E92F} = {AE9A4D46-E910-4293-8BC4-673F85FFF6A5}
+		{491E775B-EAD0-44D4-B6CA-F1FC3E316D33} = {AE9A4D46-E910-4293-8BC4-673F85FFF6A5}
 		{CD53AD6F-97F4-4872-A212-50C2A0FD3601} = {AE9A4D46-E910-4293-8BC4-673F85FFF6A5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
