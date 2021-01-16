@@ -17,6 +17,9 @@
   * Added in SMAPI 3.9. This has vanilla error-handling that was previously added by SMAPI directly. That simplifies the core SMAPI logic, and lets players or modders disable it if needed.
   * Added a detailed message for the _Input string was not in a correct format_ error when the game fails to parse an item text description.
 
+* For the web UI:
+  * Fixed JSON validator for manifest files marking some update keys as invalid incorrectly.
+
 ## 3.8.4
 Released 15 January 2021 for Stardew Valley 1.5.3 or later.
 
