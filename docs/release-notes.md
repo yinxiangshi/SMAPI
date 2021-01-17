@@ -8,6 +8,9 @@
 -->
 
 ## Upcoming release
+* For players:
+  * Improved game path detection. The installer now prefers the path installed through Steam or GOG Galaxy.
+
 * For modders:
   * Expanded `PerScreen<T>` API: you can now get/set the value for any screen, get all active values, or clear all values.
   * Expanded player info received from multiplayer API/events with new `IsSplitScreen` and `ScreenID` fields.
