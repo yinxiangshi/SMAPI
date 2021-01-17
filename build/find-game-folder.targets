@@ -31,12 +31,13 @@
         <!-- default paths -->
         <GamePath Condition="!Exists('$(GamePath)')">C:\Program Files\GalaxyClient\Games\Stardew Valley</GamePath>
         <GamePath Condition="!Exists('$(GamePath)')">C:\Program Files\GOG Galaxy\Games\Stardew Valley</GamePath>
+        <GamePath Condition="!Exists('$(GamePath)')">C:\Program Files\GOG Games\Stardew Valley</GamePath>
         <GamePath Condition="!Exists('$(GamePath)')">C:\Program Files\Steam\steamapps\common\Stardew Valley</GamePath>
 
         <GamePath Condition="!Exists('$(GamePath)')">C:\Program Files (x86)\GalaxyClient\Games\Stardew Valley</GamePath>
         <GamePath Condition="!Exists('$(GamePath)')">C:\Program Files (x86)\GOG Galaxy\Games\Stardew Valley</GamePath>
+        <GamePath Condition="!Exists('$(GamePath)')">C:\Program Files (x86)\GOG Games\Stardew Valley</GamePath>
         <GamePath Condition="!Exists('$(GamePath)')">C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley</GamePath>
-
       </PropertyGroup>
     </When>
   </Choose>

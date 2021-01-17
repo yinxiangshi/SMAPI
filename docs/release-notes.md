@@ -9,7 +9,7 @@
 
 ## Upcoming release
 * For players:
-  * Improved game path detection. The installer now prefers the path installed through Steam or GOG Galaxy.
+  * Improved game path detection in the installer. The installer now prefers the path registered by Steam or GOG Galaxy, and can also now detect the default install path for manual GOG installs.
 
 * For modders:
   * Expanded `PerScreen<T>` API: you can now get/set the value for any screen, get all active values, or clear all values.

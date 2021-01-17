@@ -110,11 +110,12 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
                             yield return Path.Combine(steamPath.Replace('/', '\\'), @"steamapps\common\Stardew Valley");
 #endif
 
-                        // Windows
+                        // default paths
                         foreach (string programFiles in new[] { @"C:\Program Files", @"C:\Program Files (x86)" })
                         {
                             yield return $@"{programFiles}\GalaxyClient\Games\Stardew Valley";
                             yield return $@"{programFiles}\GOG Galaxy\Games\Stardew Valley";
+                            yield return $@"{programFiles}\GOG Games\Stardew Valley";
                             yield return $@"{programFiles}\Steam\steamapps\common\Stardew Valley";
                         }
                     }
