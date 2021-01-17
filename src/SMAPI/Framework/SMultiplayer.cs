@@ -392,34 +392,24 @@ namespace StardewModdingAPI.Framework
             if (string.IsNullOrWhiteSpace(fromModID))
                 throw new ArgumentNullException(nameof(fromModID));
 
-            // get target players
-            long curPlayerId = Game1.player.UniqueMultiplayerID;
-            bool sendToSelf = false;
-            List<MultiplayerPeer> sendToPeers = new List<MultiplayerPeer>();
-            if (toPlayerIDs == null)
+            // get valid peers
+            var sendToPeers = this.Peers.Values.Where(p => p.HasSmapi).ToList();
+            bool sendToSelf = true;
+
+            // filter by player ID
+            if (toPlayerIDs != null)
             {
-                sendToSelf = true;
-                sendToPeers.AddRange(this.Peers.Values);
-            }
-            else
-            {
-                foreach (long id in toPlayerIDs.Distinct())
-                {
-                    if (id == curPlayerId)
-                        sendToSelf = true;
-                    else if (this.Peers.TryGetValue(id, out MultiplayerPeer peer) && peer.HasSmapi)
-                        sendToPeers.Add(peer);
-                }
+                var ids = new HashSet<long>(toPlayerIDs);
+                sendToPeers.RemoveAll(peer => !ids.Contains(peer.PlayerID));
+                sendToSelf = ids.Contains(Game1.player.UniqueMultiplayerID);
             }
 
             // filter by mod ID
             if (toModIDs != null)
             {
-                HashSet<string> sendToMods = new HashSet<string>(toModIDs, StringComparer.OrdinalIgnoreCase);
-                if (sendToSelf && toModIDs.All(id => this.ModRegistry.Get(id) == null))
-                    sendToSelf = false;
-
-                sendToPeers.RemoveAll(peer => peer.Mods.All(mod => !sendToMods.Contains(mod.ID)));
+                var ids = new HashSet<string>(toModIDs, StringComparer.OrdinalIgnoreCase);
+                sendToPeers.RemoveAll(peer => peer.Mods.All(mod => !ids.Contains(mod.ID)));
+                sendToSelf = sendToSelf && toModIDs.Any(id => this.ModRegistry.Get(id) != null);
             }
 
             // validate recipients

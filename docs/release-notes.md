@@ -13,6 +13,7 @@
   * Expanded player info received from multiplayer API/events with new `IsSplitScreen` and `ScreenID` fields.
   * Game errors shown in the chatbox are now logged.
   * Added an option to disable rewriting mods for compatibility (thanks to Bpendragon!). This may prevent older mods from loading, but bypasses a Visual Studio crash when debugging.
+  * Network messages through the multiplayer API are no longer sent to players who don't have SMAPI installed. This reduces unneeded network traffic (since they can't read it anyway) and avoids an error in some cases.
 
 * For the Error Handler mod:
   * Added in SMAPI 3.9. This has vanilla error-handling that was previously added by SMAPI directly. That simplifies the core SMAPI logic, and lets players or modders disable it if needed.
