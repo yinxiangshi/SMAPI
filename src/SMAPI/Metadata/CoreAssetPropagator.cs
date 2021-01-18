@@ -374,52 +374,6 @@ namespace StardewModdingAPI.Metadata
                     return this.ReloadSuspensionBridges(content, key);
 
                 /****
-                ** Content\TileSheets
-                ****/
-                case "tilesheets\\chairtiles": // Game1.LoadContent
-                    MapSeat.mapChairTexture = content.Load<Texture2D>(key);
-                    return true;
-
-                case "tilesheets\\critters": // Critter constructor
-                    return this.ReloadCritterTextures(content, key) > 0;
-
-                case "tilesheets\\crops": // Game1.LoadContent
-                    Game1.cropSpriteSheet = content.Load<Texture2D>(key);
-                    return true;
-
-                case "tilesheets\\debris": // Game1.LoadContent
-                    Game1.debrisSpriteSheet = content.Load<Texture2D>(key);
-                    return true;
-
-                case "tilesheets\\emotes": // Game1.LoadContent
-                    Game1.emoteSpriteSheet = content.Load<Texture2D>(key);
-                    return true;
-
-                case "tilesheets\\furniture": // Game1.LoadContent
-                    Furniture.furnitureTexture = content.Load<Texture2D>(key);
-                    return true;
-
-                case "tilesheets\\furniturefront": // Game1.LoadContent
-                    Furniture.furnitureFrontTexture = content.Load<Texture2D>(key);
-                    return true;
-
-                case "tilesheets\\projectiles": // Game1.LoadContent
-                    Projectile.projectileSheet = content.Load<Texture2D>(key);
-                    return true;
-
-                case "tilesheets\\rain": // Game1.LoadContent
-                    Game1.rainTexture = content.Load<Texture2D>(key);
-                    return true;
-
-                case "tilesheets\\tools": // Game1.ResetToolSpriteSheet
-                    Game1.ResetToolSpriteSheet();
-                    return true;
-
-                case "tilesheets\\weapons": // Game1.LoadContent
-                    Tool.weaponsTexture = content.Load<Texture2D>(key);
-                    return true;
-
-                /****
                 ** Content\Maps
                 ****/
                 case "maps\\menutiles": // Game1.LoadContent
@@ -469,12 +423,55 @@ namespace StardewModdingAPI.Metadata
                     Bush.texture = new Lazy<Texture2D>(() => content.Load<Texture2D>(key));
                     return true;
 
+                case "tilesheets\\chairtiles": // Game1.LoadContent
+                    MapSeat.mapChairTexture = content.Load<Texture2D>(key);
+                    return true;
+
                 case "tilesheets\\craftables": // Game1.LoadContent
                     Game1.bigCraftableSpriteSheet = content.Load<Texture2D>(key);
                     return true;
 
+                case "tilesheets\\critters": // Critter constructor
+                    return this.ReloadCritterTextures(content, key) > 0;
+
+                case "tilesheets\\crops": // Game1.LoadContent
+                    Game1.cropSpriteSheet = content.Load<Texture2D>(key);
+                    return true;
+
+                case "tilesheets\\debris": // Game1.LoadContent
+                    Game1.debrisSpriteSheet = content.Load<Texture2D>(key);
+                    return true;
+
+                case "tilesheets\\emotes": // Game1.LoadContent
+                    Game1.emoteSpriteSheet = content.Load<Texture2D>(key);
+                    return true;
+
                 case "tilesheets\\fruittrees": // FruitTree
                     FruitTree.texture = content.Load<Texture2D>(key);
+                    return true;
+
+                case "tilesheets\\furniture": // Game1.LoadContent
+                    Furniture.furnitureTexture = content.Load<Texture2D>(key);
+                    return true;
+
+                case "tilesheets\\furniturefront": // Game1.LoadContent
+                    Furniture.furnitureFrontTexture = content.Load<Texture2D>(key);
+                    return true;
+
+                case "tilesheets\\projectiles": // Game1.LoadContent
+                    Projectile.projectileSheet = content.Load<Texture2D>(key);
+                    return true;
+
+                case "tilesheets\\rain": // Game1.LoadContent
+                    Game1.rainTexture = content.Load<Texture2D>(key);
+                    return true;
+
+                case "tilesheets\\tools": // Game1.ResetToolSpriteSheet
+                    Game1.ResetToolSpriteSheet();
+                    return true;
+
+                case "tilesheets\\weapons": // Game1.LoadContent
+                    Tool.weaponsTexture = content.Load<Texture2D>(key);
                     return true;
 
                 /****
@@ -528,6 +525,9 @@ namespace StardewModdingAPI.Metadata
                     return this.ReloadTreeTextures(content, key, Tree.pineTree);
             }
 
+            /****
+            ** Dynamic assets
+            ****/
             // dynamic textures
             if (this.KeyStartsWith(key, "animals\\cat"))
                 return this.ReloadPetOrHorseSprites<Cat>(content, key);
