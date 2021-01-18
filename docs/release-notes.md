@@ -12,11 +12,14 @@
   * Improved game path detection in the installer. The installer now prefers the path registered by Steam or GOG Galaxy, and can also now detect the default install path for manual GOG installs.
 
 * For modders:
-  * Expanded `PerScreen<T>` API: you can now get/set the value for any screen, get all active values, or clear all values.
-  * Expanded player info received from multiplayer API/events with new `IsSplitScreen` and `ScreenID` fields.
+  * Improved multiplayer APIs:
+    * `PerScreen<T>` now lets you get/set the value for any screen, get all active values, or clear all values.
+    * Peer data for the multiplayer API/events now includes `IsSplitScreen` and `ScreenID` fields.
+    * Network messages through the multiplayer API are no longer sent to players who don't have SMAPI installed. This reduces unneeded network traffic (since they can't read it anyway) and avoids an error in some cases.
+  * Improved asset propagation:
+    * Added propagation for some `Strings\StringsFromCSFiles` keys (mainly short day names).
+  * Added an option to disable rewriting mods for compatibility (thanks to Bpendragon!). This prevents older mods from loading but bypasses a Visual Studio debugger crash.
   * Game errors shown in the chatbox are now logged.
-  * Added an option to disable rewriting mods for compatibility (thanks to Bpendragon!). This may prevent older mods from loading, but bypasses a Visual Studio crash when debugging.
-  * Network messages through the multiplayer API are no longer sent to players who don't have SMAPI installed. This reduces unneeded network traffic (since they can't read it anyway) and avoids an error in some cases.
 
 * For the Error Handler mod:
   * Added in SMAPI 3.9. This has vanilla error-handling that was previously added by SMAPI directly. That simplifies the core SMAPI logic, and lets players or modders disable it if needed.

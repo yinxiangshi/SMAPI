@@ -409,6 +409,12 @@ namespace StardewModdingAPI.Metadata
                     return this.ReloadTitleButtons(content, key);
 
                 /****
+                ** Content\Strings
+                ****/
+                case "strings\\stringsfromcsfiles":
+                    return this.ReloadStringsFromCsFiles(content);
+
+                /****
                 ** Content\TileSheets
                 ****/
                 case "tilesheets\\animations": // Game1.LoadContent
@@ -1025,6 +1031,27 @@ namespace StardewModdingAPI.Metadata
                     }
                 }
             }
+            return true;
+        }
+
+        /// <summary>Reload cached translations from the <c>Strings\StringsFromCSFiles</c> asset.</summary>
+        /// <param name="content">The content manager through which to reload the asset.</param>
+        /// <returns>Returns whether any data was reloaded.</returns>
+        /// <remarks>Derived from the <see cref="Game1.TranslateFields"/>.</remarks>
+        private bool ReloadStringsFromCsFiles(LocalizedContentManager content)
+        {
+            Game1.samBandName = content.LoadString("Strings\\StringsFromCSFiles:Game1.cs.2156");
+            Game1.elliottBookName = content.LoadString("Strings\\StringsFromCSFiles:Game1.cs.2157");
+
+            string[] dayNames = this.Reflection.GetField<string[]>(typeof(Game1), "_shortDayDisplayName").GetValue();
+            dayNames[0] = content.LoadString("Strings\\StringsFromCSFiles:Game1.cs.3042");
+            dayNames[1] = content.LoadString("Strings\\StringsFromCSFiles:Game1.cs.3043");
+            dayNames[2] = content.LoadString("Strings\\StringsFromCSFiles:Game1.cs.3044");
+            dayNames[3] = content.LoadString("Strings\\StringsFromCSFiles:Game1.cs.3045");
+            dayNames[4] = content.LoadString("Strings\\StringsFromCSFiles:Game1.cs.3046");
+            dayNames[5] = content.LoadString("Strings\\StringsFromCSFiles:Game1.cs.3047");
+            dayNames[6] = content.LoadString("Strings\\StringsFromCSFiles:Game1.cs.3048");
+
             return true;
         }
 
