@@ -791,6 +791,7 @@ namespace StardewModdingAPI.Metadata
                 case Town _:
                     this.Reflection.GetField<bool>(location, "ccRefurbished").SetValue(false);
                     this.Reflection.GetField<bool>(location, "isShowingDestroyedJoja").SetValue(false);
+                    this.Reflection.GetField<bool>(location, "isShowingSpecialOrdersBoard").SetValue(false);
                     this.Reflection.GetField<bool>(location, "isShowingUpgradedPamHouse").SetValue(false);
                     break;
 
@@ -798,6 +799,10 @@ namespace StardewModdingAPI.Metadata
                 case BeachNightMarket _:
                 case Forest _:
                     this.Reflection.GetField<bool>(location, "hasShownCCUpgrade").SetValue(false);
+                    break;
+
+                case Mountain _:
+                    this.Reflection.GetField<bool>(location, "bridgeRestored").SetValue(false);
                     break;
             }
 
