@@ -18,6 +18,7 @@
     * Network messages through the multiplayer API are no longer sent to players who don't have SMAPI installed. This reduces unneeded network traffic (since they can't read it anyway) and avoids an error in some cases.
   * Improved asset propagation:
     * Added propagation for some `Strings\StringsFromCSFiles` keys (mainly short day names).
+    * Fixed some town patches not reapplied when the map is reloaded in Stardew Valley 1.5.
   * Added an option to disable rewriting mods for compatibility (thanks to Bpendragon!). This prevents older mods from loading but bypasses a Visual Studio debugger crash.
   * Game errors shown in the chatbox are now logged.
 

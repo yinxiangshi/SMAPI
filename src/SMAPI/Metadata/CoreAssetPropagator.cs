@@ -785,6 +785,7 @@ namespace StardewModdingAPI.Metadata
         private void ReloadMap(GameLocation location)
         {
             // reset patch caches
+            this.Reflection.GetField<HashSet<string>>(location, "_appliedMapOverrides").GetValue().Clear();
             switch (location)
             {
                 case Town _:
