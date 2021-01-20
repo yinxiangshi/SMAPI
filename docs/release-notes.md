@@ -12,9 +12,11 @@
   * Improved game path detection in the installer. The installer now prefers the path registered by Steam or GOG Galaxy, and can also now detect the default install path for manual GOG installs.
 
 * For modders:
-  * Added [API for multi-key bindings](https://stardewcommunitywiki.com/Modding:Modder_Guide/APIs/Input#KeybindList).
-  * Added a new [`Input.ButtonsChanged` event](https://stardewcommunitywiki.com/Modding:Modder_Guide/APIs/Events#Input.ButtonsChanged).
-  * Added a `buttonState.IsDown()` extension.
+  * Added new input APIs:
+    * Added [API for multi-key bindings](https://stardewcommunitywiki.com/Modding:Modder_Guide/APIs/Input#KeybindList).
+    * Added a new [`Input.ButtonsChanged` event](https://stardewcommunitywiki.com/Modding:Modder_Guide/APIs/Events#Input.ButtonsChanged).
+    * Added a `buttonState.IsDown()` extension.
+    * Added a `helper.Input.SuppressActiveKeybindings` method which suppresses the active buttons in a keybind list.
   * Improved multiplayer APIs:
     * `PerScreen<T>` now lets you get/set the value for any screen, get all active values, or clear all values.
     * Peer data for the multiplayer API/events now includes `IsSplitScreen` and `ScreenID` fields.
