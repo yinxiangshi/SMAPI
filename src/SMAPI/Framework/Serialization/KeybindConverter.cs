@@ -40,27 +40,34 @@ namespace StardewModdingAPI.Framework.Serialization
         {
             string path = reader.Path;
 
-            // validate JSON type
-            if (reader.TokenType != JsonToken.String)
-                throw new SParseException($"Can't parse {nameof(KeybindList)} from {reader.TokenType} node (path: {reader.Path}).");
-
-            // parse raw value
-            string str = JToken.Load(reader).Value<string>();
-            if (objectType == typeof(Keybind))
+            switch (reader.TokenType)
             {
-                return Keybind.TryParse(str, out Keybind parsed, out string[] errors)
-                    ? parsed
-                    : throw new SParseException($"Can't parse {nameof(Keybind)} from invalid value '{str}' (path: {path}).\n{string.Join("\n", errors)}");
-            }
+                case JsonToken.Null:
+                    return objectType == typeof(Keybind)
+                        ? new Keybind()
+                        : new KeybindList();
 
-            if (objectType == typeof(KeybindList))
-            {
-                return KeybindList.TryParse(str, out KeybindList parsed, out string[] errors)
-                    ? parsed
-                    : throw new SParseException($"Can't parse {nameof(KeybindList)} from invalid value '{str}' (path: {path}).\n{string.Join("\n", errors)}");
-            }
+                case JsonToken.String:
+                    {
+                        string str = JToken.Load(reader).Value<string>();
 
-            throw new SParseException($"Can't parse unexpected type {objectType} from {reader.TokenType} node (path: {reader.Path}).");
+                        if (objectType == typeof(Keybind))
+                        {
+                            return Keybind.TryParse(str, out Keybind parsed, out string[] errors)
+                                ? parsed
+                                : throw new SParseException($"Can't parse {nameof(Keybind)} from invalid value '{str}' (path: {path}).\n{string.Join("\n", errors)}");
+                        }
+                        else
+                        {
+                            return KeybindList.TryParse(str, out KeybindList parsed, out string[] errors)
+                                ? parsed
+                                : throw new SParseException($"Can't parse {nameof(KeybindList)} from invalid value '{str}' (path: {path}).\n{string.Join("\n", errors)}");
+                        }
+                    }
+
+                default:
+                    throw new SParseException($"Can't parse {objectType} from unexpected {reader.TokenType} node (path: {reader.Path}).");
+            }
         }
 
         /// <summary>Writes the JSON representation of the object.</summary>
@@ -70,20 +77,6 @@ namespace StardewModdingAPI.Framework.Serialization
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             writer.WriteValue(value?.ToString());
-        }
-
-
-        /*********
-        ** Private methods
-        *********/
-        /// <summary>Read a JSON string.</summary>
-        /// <param name="str">The JSON string value.</param>
-        /// <param name="path">The path to the current JSON node.</param>
-        protected KeybindList ReadString(string str, string path)
-        {
-            return KeybindList.TryParse(str, out KeybindList parsed, out string[] errors)
-                ? parsed
-                : throw new SParseException($"Can't parse {nameof(KeybindList)} from invalid value '{str}' (path: {path}).\n{string.Join("\n", errors)}");
         }
     }
 }
