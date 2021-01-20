@@ -9,6 +9,13 @@ namespace StardewModdingAPI.Framework.Events
         /*********
         ** Accessors
         *********/
+        /// <summary>Raised after the player presses or releases any buttons on the keyboard, controller, or mouse.</summary>
+        public event EventHandler<ButtonsChangedEventArgs> ButtonsChanged
+        {
+            add => this.EventManager.ButtonsChanged.Add(value, this.Mod);
+            remove => this.EventManager.ButtonsChanged.Remove(value);
+        }
+
         /// <summary>Raised after the player presses a button on the keyboard, controller, or mouse.</summary>
         public event EventHandler<ButtonPressedEventArgs> ButtonPressed
         {

@@ -817,24 +817,29 @@ namespace StardewModdingAPI.Framework
                             }
 
                             // raise input button events
-                            foreach (var pair in inputState.ButtonStates)
+                            if (inputState.ButtonStates.Count > 0)
                             {
-                                SButton button = pair.Key;
-                                SButtonState status = pair.Value;
+                                events.ButtonsChanged.Raise(new ButtonsChangedEventArgs(cursor, inputState));
 
-                                if (status == SButtonState.Pressed)
+                                foreach (var pair in inputState.ButtonStates)
                                 {
-                                    if (this.Monitor.IsVerbose)
-                                        this.Monitor.Log($"Events: button {button} pressed.");
+                                    SButton button = pair.Key;
+                                    SButtonState status = pair.Value;
 
-                                    events.ButtonPressed.Raise(new ButtonPressedEventArgs(button, cursor, inputState));
-                                }
-                                else if (status == SButtonState.Released)
-                                {
-                                    if (this.Monitor.IsVerbose)
-                                        this.Monitor.Log($"Events: button {button} released.");
+                                    if (status == SButtonState.Pressed)
+                                    {
+                                        if (this.Monitor.IsVerbose)
+                                            this.Monitor.Log($"Events: button {button} pressed.");
 
-                                    events.ButtonReleased.Raise(new ButtonReleasedEventArgs(button, cursor, inputState));
+                                        events.ButtonPressed.Raise(new ButtonPressedEventArgs(button, cursor, inputState));
+                                    }
+                                    else if (status == SButtonState.Released)
+                                    {
+                                        if (this.Monitor.IsVerbose)
+                                            this.Monitor.Log($"Events: button {button} released.");
+
+                                        events.ButtonReleased.Raise(new ButtonReleasedEventArgs(button, cursor, inputState));
+                                    }
                                 }
                             }
                         }
