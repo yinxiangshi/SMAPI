@@ -72,7 +72,7 @@ namespace StardewModdingAPI.Utilities
             if (rawErrors.Any())
             {
                 parsed = null;
-                errors = rawErrors.ToArray();
+                errors = rawErrors.Distinct().ToArray();
                 return false;
             }
             else

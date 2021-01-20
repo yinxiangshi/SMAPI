@@ -10,6 +10,14 @@ namespace StardewModdingAPI.Utilities
     public class Keybind
     {
         /*********
+        ** Fields
+        *********/
+        /// <summary>Get the current input state for a button.</summary>
+        [Obsolete("This property should only be used for unit tests.")]
+        internal Func<SButton, SButtonState> GetButtonState { get; set; } = SGame.GetInputState;
+
+
+        /*********
         ** Accessors
         *********/
         /// <summary>The buttons that must be down to activate the keybind.</summary>
@@ -97,7 +105,7 @@ namespace StardewModdingAPI.Utilities
         /// <summary>Get the keybind state relative to the previous tick.</summary>
         public SButtonState GetState()
         {
-            SButtonState[] states = this.Buttons.Select(SGame.GetInputState).Distinct().ToArray();
+            SButtonState[] states = this.Buttons.Select(this.GetButtonState).Distinct().ToArray();
 
             // single state
             if (states.Length == 1)
