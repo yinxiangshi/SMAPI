@@ -17,7 +17,7 @@ namespace StardewModdingAPI
     }
 
     /// <summary>Extension methods for <see cref="SButtonState"/>.</summary>
-    internal static class InputStatusExtensions
+    public static class InputStatusExtensions
     {
         /// <summary>Whether the button was pressed or held.</summary>
         /// <param name="state">The button state.</param>

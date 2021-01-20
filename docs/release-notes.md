@@ -14,6 +14,7 @@
 * For modders:
   * Added [API for multi-key bindings](https://stardewcommunitywiki.com/Modding:Modder_Guide/APIs/Input#KeybindList).
   * Added a new [`Input.ButtonsChanged` event](https://stardewcommunitywiki.com/Modding:Modder_Guide/APIs/Events#Input.ButtonsChanged).
+  * Added a `buttonState.IsDown()` extension.
   * Improved multiplayer APIs:
     * `PerScreen<T>` now lets you get/set the value for any screen, get all active values, or clear all values.
     * Peer data for the multiplayer API/events now includes `IsSplitScreen` and `ScreenID` fields.
