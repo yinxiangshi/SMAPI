@@ -13,8 +13,8 @@
 
 * For modders:
   * Added new input APIs:
-    * Added [API for multi-key bindings](https://stardewcommunitywiki.com/Modding:Modder_Guide/APIs/Input#KeybindList).
-    * Added a new [`Input.ButtonsChanged` event](https://stardewcommunitywiki.com/Modding:Modder_Guide/APIs/Events#Input.ButtonsChanged).
+    * Added [API for multi-key bindings](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Input#KeybindList).
+    * Added a new [`Input.ButtonsChanged` event](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Events#Input.ButtonsChanged).
     * Added a `buttonState.IsDown()` extension.
     * Added a `helper.Input.SuppressActiveKeybindings` method which suppresses the active buttons in a keybind list.
   * Improved multiplayer APIs:
