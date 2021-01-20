@@ -208,6 +208,7 @@ namespace StardewModdingAPI.Framework
             {
                 JsonConverter[] converters = {
                     new ColorConverter(),
+                    new KeybindConverter(),
                     new PointConverter(),
                     new Vector2Converter(),
                     new RectangleConverter()

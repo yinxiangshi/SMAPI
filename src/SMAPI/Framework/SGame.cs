@@ -11,6 +11,7 @@ using StardewModdingAPI.Framework.Input;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.StateTracking.Snapshots;
 using StardewModdingAPI.Framework.Utilities;
+using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
 using StardewValley.Locations;
@@ -122,6 +123,18 @@ namespace StardewModdingAPI.Framework
             this.Reflection = reflection;
             this.ExitGameImmediately = exitGameImmediately;
             this.OnUpdating = onUpdating;
+        }
+
+        /// <summary>Get the current input state for a button.</summary>
+        /// <param name="button">The button to check.</param>
+        /// <remarks>This is intended for use by <see cref="Keybind"/> and shouldn't be used directly in most cases.</remarks>
+        internal static SButtonState GetInputState(SButton button)
+        {
+            SInputState input = Game1.input as SInputState;
+            if (input == null)
+                throw new InvalidOperationException("SMAPI's input state is not in a ready state yet.");
+
+            return input.GetState(button);
         }
 
 

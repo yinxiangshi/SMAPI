@@ -12,6 +12,7 @@
   * Improved game path detection in the installer. The installer now prefers the path registered by Steam or GOG Galaxy, and can also now detect the default install path for manual GOG installs.
 
 * For modders:
+  * Added [API for multi-key bindings](https://stardewcommunitywiki.com/Modding:Modder_Guide/APIs/Input#KeybindList).
   * Improved multiplayer APIs:
     * `PerScreen<T>` now lets you get/set the value for any screen, get all active values, or clear all values.
     * Peer data for the multiplayer API/events now includes `IsSplitScreen` and `ScreenID` fields.
@@ -22,9 +23,9 @@
     * Fixed quarry bridge not fixed if the mountain map was reloaded.
   * Added an option to disable rewriting mods for compatibility (thanks to Bpendragon!). This prevents older mods from loading but bypasses a Visual Studio debugger crash.
   * Game errors shown in the chatbox are now logged.
+  * Moved vanilla error-handling into a new Error Handler mod. This simplifies the core SMAPI logic, and lets users disable it if needed.
 
 * For the Error Handler mod:
-  * Added in SMAPI 3.9. This has vanilla error-handling that was previously added by SMAPI directly. That simplifies the core SMAPI logic, and lets players or modders disable it if needed.
   * Added a detailed message for the _Input string was not in a correct format_ error when the game fails to parse an item text description.
 
 * For the web UI:
