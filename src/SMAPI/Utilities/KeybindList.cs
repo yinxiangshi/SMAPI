@@ -83,6 +83,15 @@ namespace StardewModdingAPI.Utilities
             }
         }
 
+        /// <summary>Get a keybind list for a single keybind.</summary>
+        /// <param name="buttons">The buttons that must be down to activate the keybind.</param>
+        public static KeybindList ForSingle(params SButton[] buttons)
+        {
+            return new KeybindList(
+                new Keybind(buttons)
+            );
+        }
+
         /// <summary>Get the overall keybind list state relative to the previous tick.</summary>
         /// <remarks>States are transitive across keybind. For example, if one keybind is 'released' and another is 'pressed', the state of the keybind list is 'held'.</remarks>
         public SButtonState GetState()
