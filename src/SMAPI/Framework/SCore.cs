@@ -132,7 +132,7 @@ namespace StardewModdingAPI.Framework
         private readonly ConcurrentQueue<string> RawCommandQueue = new ConcurrentQueue<string>();
 
         /// <summary>A list of commands to execute on each screen.</summary>
-        private readonly PerScreen<List<Tuple<Command, string, string[]>>> ScreenCommandQueue = new(() => new());
+        private readonly PerScreen<List<Tuple<Command, string, string[]>>> ScreenCommandQueue = new PerScreen<List<Tuple<Command, string, string[]>>>(() => new List<Tuple<Command, string, string[]>>());
 
 
         /*********

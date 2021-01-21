@@ -56,10 +56,10 @@ namespace StardewModdingAPI.Framework
         private readonly bool LogNetworkTraffic;
 
         /// <summary>The backing field for <see cref="Peers"/>.</summary>
-        private readonly PerScreen<IDictionary<long, MultiplayerPeer>> PeersImpl = new(() => new Dictionary<long, MultiplayerPeer>());
+        private readonly PerScreen<IDictionary<long, MultiplayerPeer>> PeersImpl = new PerScreen<IDictionary<long, MultiplayerPeer>>(() => new Dictionary<long, MultiplayerPeer>());
 
         /// <summary>The backing field for <see cref="HostPeer"/>.</summary>
-        private readonly PerScreen<MultiplayerPeer> HostPeerImpl = new();
+        private readonly PerScreen<MultiplayerPeer> HostPeerImpl = new PerScreen<MultiplayerPeer>();
 
 
         /*********
