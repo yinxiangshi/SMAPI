@@ -127,7 +127,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                             if (asset is Map map)
                             {
                                 map.assetPath = assetName;
-                                this.FixTilesheetPaths(map, relativeMapPath: assetName);
+                                this.FixTilesheetPaths(map, relativeMapPath: assetName, fixEagerPathPrefixes: true);
                             }
                         }
                         break;
@@ -168,7 +168,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                             FormatManager formatManager = FormatManager.Instance;
                             Map map = formatManager.LoadMap(file.FullName);
                             map.assetPath = assetName;
-                            this.FixTilesheetPaths(map, relativeMapPath: assetName);
+                            this.FixTilesheetPaths(map, relativeMapPath: assetName, fixEagerPathPrefixes: false);
                             asset = (T)(object)map;
                         }
                         break;
@@ -260,8 +260,9 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <summary>Fix custom map tilesheet paths so they can be found by the content manager.</summary>
         /// <param name="map">The map whose tilesheets to fix.</param>
         /// <param name="relativeMapPath">The relative map path within the mod folder.</param>
+        /// <param name="fixEagerPathPrefixes">Whether to undo the game's eager tilesheet path prefixing for maps loaded from an <c>.xnb</c> file, which incorrectly prefixes tilesheet paths with the map's local asset key folder.</param>
         /// <exception cref="ContentLoadException">A map tilesheet couldn't be resolved.</exception>
-        private void FixTilesheetPaths(Map map, string relativeMapPath)
+        private void FixTilesheetPaths(Map map, string relativeMapPath, bool fixEagerPathPrefixes)
         {
             // get map info
             relativeMapPath = this.AssertAndNormalizeAssetName(relativeMapPath); // Mono's Path.GetDirectoryName doesn't handle Windows dir separators
@@ -270,12 +271,16 @@ namespace StardewModdingAPI.Framework.ContentManagers
             // fix tilesheets
             foreach (TileSheet tilesheet in map.TileSheets)
             {
+                // get image source
                 tilesheet.ImageSource = this.NormalizePathSeparators(tilesheet.ImageSource);
-
                 string imageSource = tilesheet.ImageSource;
-                string errorPrefix = $"{this.ModName} loaded map '{relativeMapPath}' with invalid tilesheet path '{imageSource}'.";
+
+                // reverse incorrect eager tilesheet path prefixing
+                if (fixEagerPathPrefixes && relativeMapFolder.Length > 0 && imageSource.StartsWith(relativeMapFolder))
+                    imageSource = imageSource.Substring(relativeMapFolder.Length + 1);
 
                 // validate tilesheet path
+                string errorPrefix = $"{this.ModName} loaded map '{relativeMapPath}' with invalid tilesheet path '{imageSource}'.";
                 if (Path.IsPathRooted(imageSource) || PathUtilities.GetSegments(imageSource).Contains(".."))
                     throw new SContentLoadException($"{errorPrefix} Tilesheet paths must be a relative path without directory climbing (../).");
 
