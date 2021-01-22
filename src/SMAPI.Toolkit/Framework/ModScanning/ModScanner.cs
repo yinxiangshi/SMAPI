@@ -58,16 +58,18 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
             ".lnk"
         };
 
-        /// <summary>The extensions for files which an XNB mod may contain. If a mod doesn't have a <c>manifest.json</c> and contains *only* these file extensions, it should be considered an XNB mod.</summary>
-        private readonly HashSet<string> PotentialXnbModExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        /// <summary>The extensions for packed content files.</summary>
+        private readonly HashSet<string> StrictXnbModExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
-            // XNB files
             ".xgs",
             ".xnb",
             ".xsb",
-            ".xwb",
+            ".xwb"
+        };
 
-            // unpacking artifacts
+        /// <summary>The extensions for files which an XNB mod may contain, in addition to <see cref="StrictXnbModExtensions"/>.</summary>
+        private readonly HashSet<string> PotentialXnbModExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
             ".json",
             ".yaml"
         };
@@ -118,7 +120,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
                     return new ModFolder(root, searchFolder, ModType.Invalid, null, ModParseError.EmptyFolder, "it's an empty folder.");
 
                 // XNB mod
-                if (files.All(this.IsPotentialXnbFile))
+                if (this.IsXnbMod(files))
                     return new ModFolder(root, searchFolder, ModType.Xnb, null, ModParseError.XnbMod, "it's not a SMAPI mod (see https://smapi.io/xnb for info).");
 
                 // SMAPI installer
@@ -302,14 +304,25 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
             return !this.IgnoreFilesystemNames.Any(p => p.IsMatch(entry.Name));
         }
 
-        /// <summary>Get whether a file is potentially part of an XNB mod.</summary>
-        /// <param name="entry">The file.</param>
-        private bool IsPotentialXnbFile(FileInfo entry)
+        /// <summary>Get whether a set of files looks like an XNB mod.</summary>
+        /// <param name="files">The files in the mod.</param>
+        private bool IsXnbMod(IEnumerable<FileInfo> files)
         {
-            if (!this.IsRelevant(entry))
-                return true;
+            bool hasXnbFile = false;
 
-            return this.PotentialXnbModExtensions.Contains(entry.Extension); // use EndsWith to handle cases like image..png
+            foreach (FileInfo file in files.Where(this.IsRelevant))
+            {
+                if (this.StrictXnbModExtensions.Contains(file.Extension))
+                {
+                    hasXnbFile = true;
+                    continue;
+                }
+
+                if (!this.PotentialXnbModExtensions.Contains(file.Extension))
+                    return false;
+            }
+
+            return hasXnbFile;
         }
 
         /// <summary>Strip newlines from a string.</summary>

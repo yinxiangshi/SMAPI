@@ -9,8 +9,11 @@
 
 ## Upcoming release
 * For players:
-  * Improved game path detection in the installer. The installer now prefers the path registered by Steam or GOG Galaxy, and can also now detect the default install path for manual GOG installs.
+  * Improved game detection in the installer:
+    * The installer now prefers paths registered by Steam or GOG Galaxy.
+    * The installer now detects default manual GOG installs.
   * Fixed compatibility for very old content packs which still load maps from `.xnb` files. These were broken by map loading changes in Stardew Valley 1.5, but SMAPI now corrects them automatically.
+  * Fixed some broken mods incorrectly listed as XNB mods under 'skipped mods'.
 
 * For modders:
   * Added new input APIs:
