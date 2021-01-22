@@ -74,6 +74,12 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
             ".yaml"
         };
 
+        /// <summary>The name of the marker file added by Vortex to indicate it's managing the folder.</summary>
+        private readonly string VortexMarkerFileName = "__folder_managed_by_vortex";
+
+        /// <summary>The name for a mod's configuration JSON file.</summary>
+        private readonly string ConfigFileName = "config.json";
+
 
         /*********
         ** Public methods
@@ -113,18 +119,24 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
             // set appropriate invalid-mod error
             if (manifestFile == null)
             {
-                FileInfo[] files = this.RecursivelyGetRelevantFiles(searchFolder).ToArray();
+                FileInfo[] files = this.RecursivelyGetFiles(searchFolder).ToArray();
+                FileInfo[] relevantFiles = files.Where(this.IsRelevant).ToArray();
+
+                // empty Vortex folder
+                // (this filters relevant files internally so it can check for the normally-ignored Vortex marker file)
+                if (this.IsEmptyVortexFolder(files))
+                    return new ModFolder(root, searchFolder, ModType.Invalid, null, ModParseError.EmptyVortexFolder, "it's an empty Vortex folder (is the mod disabled in Vortex?).");
 
                 // empty folder
-                if (!files.Any())
+                if (!relevantFiles.Any())
                     return new ModFolder(root, searchFolder, ModType.Invalid, null, ModParseError.EmptyFolder, "it's an empty folder.");
 
                 // XNB mod
-                if (this.IsXnbMod(files))
+                if (this.IsXnbMod(relevantFiles))
                     return new ModFolder(root, searchFolder, ModType.Xnb, null, ModParseError.XnbMod, "it's not a SMAPI mod (see https://smapi.io/xnb for info).");
 
                 // SMAPI installer
-                if (files.Any(p => p.Name == "install on Linux.sh" || p.Name == "install on Mac.command" || p.Name == "install on Windows.bat"))
+                if (relevantFiles.Any(p => p.Name == "install on Linux.sh" || p.Name == "install on Mac.command" || p.Name == "install on Windows.bat"))
                     return new ModFolder(root, searchFolder, ModType.Invalid, null, ModParseError.ManifestMissing, "the SMAPI installer isn't a mod (you can delete this folder after running the installer file).");
 
                 // not a mod?
@@ -272,13 +284,13 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
             return subfolders.Any() && !files.Any();
         }
 
-        /// <summary>Recursively get all relevant files in a folder based on the result of <see cref="IsRelevant"/>.</summary>
+        /// <summary>Recursively get all files in a folder.</summary>
         /// <param name="folder">The root folder to search.</param>
-        private IEnumerable<FileInfo> RecursivelyGetRelevantFiles(DirectoryInfo folder)
+        private IEnumerable<FileInfo> RecursivelyGetFiles(DirectoryInfo folder)
         {
             foreach (FileSystemInfo entry in folder.GetFileSystemInfos())
             {
-                if (!this.IsRelevant(entry))
+                if (entry is DirectoryInfo && !this.IsRelevant(entry))
                     continue;
 
                 if (entry is FileInfo file)
@@ -286,7 +298,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
 
                 if (entry is DirectoryInfo subfolder)
                 {
-                    foreach (FileInfo subfolderFile in this.RecursivelyGetRelevantFiles(subfolder))
+                    foreach (FileInfo subfolderFile in this.RecursivelyGetFiles(subfolder))
                         yield return subfolderFile;
                 }
             }
@@ -323,6 +335,27 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
             }
 
             return hasXnbFile;
+        }
+
+        /// <summary>Get whether a set of files looks like an XNB mod.</summary>
+        /// <param name="files">The files in the mod.</param>
+        private bool IsEmptyVortexFolder(IEnumerable<FileInfo> files)
+        {
+            bool hasVortexMarker = false;
+
+            foreach (FileInfo file in files)
+            {
+                if (file.Name == this.VortexMarkerFileName)
+                {
+                    hasVortexMarker = true;
+                    continue;
+                }
+
+                if (this.IsRelevant(file) && file.Name != this.ConfigFileName)
+                    return false;
+            }
+
+            return hasVortexMarker;
         }
 
         /// <summary>Strip newlines from a string.</summary>

@@ -12,6 +12,7 @@
   * Improved game detection in the installer:
     * The installer now prefers paths registered by Steam or GOG Galaxy.
     * The installer now detects default manual GOG installs.
+  * Added clearer error when Vortex creates an empty mod folder.
   * Fixed compatibility for very old content packs which still load maps from `.xnb` files. These were broken by map loading changes in Stardew Valley 1.5, but SMAPI now corrects them automatically.
   * Fixed some broken mods incorrectly listed as XNB mods under 'skipped mods'.
 
