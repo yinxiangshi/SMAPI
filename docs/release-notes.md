@@ -9,10 +9,12 @@
 
 ## Upcoming release
 * For players:
+  * Updated for Stardew Valley 1.5.4.
   * Improved game detection in the installer:
     * The installer now prefers paths registered by Steam or GOG Galaxy.
     * The installer now detects default manual GOG installs.
   * Added clearer error when Vortex creates an empty mod folder.
+  * Fixed various cases where the game's map changes wouldn't be reapplied correctly after mods changed the map.
   * Fixed compatibility for very old content packs which still load maps from `.xnb` files. These were broken by map loading changes in Stardew Valley 1.5, but SMAPI now corrects them automatically.
   * Fixed some broken mods incorrectly listed as XNB mods under 'skipped mods'.
 
@@ -28,7 +30,7 @@
     * Network messages through the multiplayer API are no longer sent to players who don't have SMAPI installed. This reduces unneeded network traffic (since they can't read it anyway) and avoids an error in some cases.
   * Improved asset propagation:
     * Added propagation for some `Strings\StringsFromCSFiles` keys (mainly short day names).
-    * Fixed some of the game's map changes not reapplied after reloading a map in Stardew Valley 1.5.
+    * Updated map propagation for the changes in Stardew Valley 1.5.4.
     * Fixed quarry bridge not fixed if the mountain map was reloaded.
   * Added an option to disable rewriting mods for compatibility (thanks to Bpendragon!). This prevents older mods from loading but bypasses a Visual Studio debugger crash.
   * Game errors shown in the chatbox are now logged.
