@@ -1,7 +1,7 @@
 namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands
 {
     /// <summary>A console command to register.</summary>
-    internal interface ITrainerCommand
+    internal interface IConsoleCommand
     {
         /*********
         ** Accessors

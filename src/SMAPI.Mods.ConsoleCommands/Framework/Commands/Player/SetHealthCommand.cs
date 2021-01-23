@@ -4,7 +4,7 @@ using StardewValley;
 namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
 {
     /// <summary>A command which edits the player's current health.</summary>
-    internal class SetHealthCommand : TrainerCommand
+    internal class SetHealthCommand : ConsoleCommand
     {
         /*********
         ** Public methods

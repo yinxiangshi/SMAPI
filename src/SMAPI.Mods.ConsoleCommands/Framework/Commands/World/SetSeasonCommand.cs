@@ -5,7 +5,7 @@ using StardewValley;
 namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
 {
     /// <summary>A command which sets the current season.</summary>
-    internal class SetSeasonCommand : TrainerCommand
+    internal class SetSeasonCommand : ConsoleCommand
     {
         /*********
         ** Fields
