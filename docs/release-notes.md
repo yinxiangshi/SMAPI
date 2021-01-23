@@ -36,6 +36,9 @@
   * Game errors shown in the chatbox are now logged.
   * Moved vanilla error-handling into a new Error Handler mod. This simplifies the core SMAPI logic, and lets users disable it if needed.
 
+* For the Console Commands mod:
+  * Removed the `inf` option for `player_sethealth`, `player_setmoney`, and `player_setstamina`. You can use more intuitive mods like [CJB Cheats Menu](https://www.nexusmods.com/stardewvalley/mods/4) if you used those options.
+
 * For the Error Handler mod:
   * Added a detailed message for the _Input string was not in a correct format_ error when the game fails to parse an item text description.
 
