@@ -8,7 +8,7 @@
 -->
 
 ## 3.9
-Released 22 January 2021 for Stardew Valley 1.5.4 or later.
+Released 22 January 2021 for Stardew Valley 1.5.4 or later. See [release highlights](https://www.patreon.com/posts/46553874).
 
 * For players:
   * Updated for Stardew Valley 1.5.4.
