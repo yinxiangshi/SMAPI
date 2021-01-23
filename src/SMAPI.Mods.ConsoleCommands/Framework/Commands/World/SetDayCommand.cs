@@ -5,7 +5,7 @@ using StardewValley;
 namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
 {
     /// <summary>A command which sets the current day.</summary>
-    internal class SetDayCommand : TrainerCommand
+    internal class SetDayCommand : ConsoleCommand
     {
         /*********
         ** Public methods

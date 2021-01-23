@@ -93,6 +93,9 @@ namespace StardewModdingAPI.Framework.Events
         /****
         ** Input
         ****/
+        /// <summary>Raised after the player presses or releases any buttons on the keyboard, controller, or mouse.</summary>
+        public readonly ManagedEvent<ButtonsChangedEventArgs> ButtonsChanged;
+
         /// <summary>Raised after the player presses a button on the keyboard, controller, or mouse.</summary>
         public readonly ManagedEvent<ButtonPressedEventArgs> ButtonPressed;
 
@@ -212,6 +215,7 @@ namespace StardewModdingAPI.Framework.Events
             this.TimeChanged = ManageEventOf<TimeChangedEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.TimeChanged));
             this.ReturnedToTitle = ManageEventOf<ReturnedToTitleEventArgs>(nameof(IModEvents.GameLoop), nameof(IGameLoopEvents.ReturnedToTitle));
 
+            this.ButtonsChanged = ManageEventOf<ButtonsChangedEventArgs>(nameof(IModEvents.Input), nameof(IInputEvents.ButtonsChanged));
             this.ButtonPressed = ManageEventOf<ButtonPressedEventArgs>(nameof(IModEvents.Input), nameof(IInputEvents.ButtonPressed));
             this.ButtonReleased = ManageEventOf<ButtonReleasedEventArgs>(nameof(IModEvents.Input), nameof(IInputEvents.ButtonReleased));
             this.CursorMoved = ManageEventOf<CursorMovedEventArgs>(nameof(IModEvents.Input), nameof(IInputEvents.CursorMoved), isPerformanceCritical: true);

@@ -5,7 +5,7 @@ using StardewValley;
 namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
 {
     /// <summary>A command which sets the current year.</summary>
-    internal class SetYearCommand : TrainerCommand
+    internal class SetYearCommand : ConsoleCommand
     {
         /*********
         ** Public methods

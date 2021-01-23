@@ -10,7 +10,7 @@ using SObject = StardewValley.Object;
 namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
 {
     /// <summary>A command which clears in-game objects.</summary>
-    internal class ClearCommand : TrainerCommand
+    internal class ClearCommand : ConsoleCommand
     {
         /*********
         ** Fields

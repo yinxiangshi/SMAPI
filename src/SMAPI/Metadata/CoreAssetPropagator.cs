@@ -374,52 +374,6 @@ namespace StardewModdingAPI.Metadata
                     return this.ReloadSuspensionBridges(content, key);
 
                 /****
-                ** Content\TileSheets
-                ****/
-                case "tilesheets\\chairtiles": // Game1.LoadContent
-                    MapSeat.mapChairTexture = content.Load<Texture2D>(key);
-                    return true;
-
-                case "tilesheets\\critters": // Critter constructor
-                    return this.ReloadCritterTextures(content, key) > 0;
-
-                case "tilesheets\\crops": // Game1.LoadContent
-                    Game1.cropSpriteSheet = content.Load<Texture2D>(key);
-                    return true;
-
-                case "tilesheets\\debris": // Game1.LoadContent
-                    Game1.debrisSpriteSheet = content.Load<Texture2D>(key);
-                    return true;
-
-                case "tilesheets\\emotes": // Game1.LoadContent
-                    Game1.emoteSpriteSheet = content.Load<Texture2D>(key);
-                    return true;
-
-                case "tilesheets\\furniture": // Game1.LoadContent
-                    Furniture.furnitureTexture = content.Load<Texture2D>(key);
-                    return true;
-
-                case "tilesheets\\furniturefront": // Game1.LoadContent
-                    Furniture.furnitureFrontTexture = content.Load<Texture2D>(key);
-                    return true;
-
-                case "tilesheets\\projectiles": // Game1.LoadContent
-                    Projectile.projectileSheet = content.Load<Texture2D>(key);
-                    return true;
-
-                case "tilesheets\\rain": // Game1.LoadContent
-                    Game1.rainTexture = content.Load<Texture2D>(key);
-                    return true;
-
-                case "tilesheets\\tools": // Game1.ResetToolSpriteSheet
-                    Game1.ResetToolSpriteSheet();
-                    return true;
-
-                case "tilesheets\\weapons": // Game1.LoadContent
-                    Tool.weaponsTexture = content.Load<Texture2D>(key);
-                    return true;
-
-                /****
                 ** Content\Maps
                 ****/
                 case "maps\\menutiles": // Game1.LoadContent
@@ -455,6 +409,12 @@ namespace StardewModdingAPI.Metadata
                     return this.ReloadTitleButtons(content, key);
 
                 /****
+                ** Content\Strings
+                ****/
+                case "strings\\stringsfromcsfiles":
+                    return this.ReloadStringsFromCsFiles(content);
+
+                /****
                 ** Content\TileSheets
                 ****/
                 case "tilesheets\\animations": // Game1.LoadContent
@@ -469,12 +429,55 @@ namespace StardewModdingAPI.Metadata
                     Bush.texture = new Lazy<Texture2D>(() => content.Load<Texture2D>(key));
                     return true;
 
+                case "tilesheets\\chairtiles": // Game1.LoadContent
+                    MapSeat.mapChairTexture = content.Load<Texture2D>(key);
+                    return true;
+
                 case "tilesheets\\craftables": // Game1.LoadContent
                     Game1.bigCraftableSpriteSheet = content.Load<Texture2D>(key);
                     return true;
 
+                case "tilesheets\\critters": // Critter constructor
+                    return this.ReloadCritterTextures(content, key) > 0;
+
+                case "tilesheets\\crops": // Game1.LoadContent
+                    Game1.cropSpriteSheet = content.Load<Texture2D>(key);
+                    return true;
+
+                case "tilesheets\\debris": // Game1.LoadContent
+                    Game1.debrisSpriteSheet = content.Load<Texture2D>(key);
+                    return true;
+
+                case "tilesheets\\emotes": // Game1.LoadContent
+                    Game1.emoteSpriteSheet = content.Load<Texture2D>(key);
+                    return true;
+
                 case "tilesheets\\fruittrees": // FruitTree
                     FruitTree.texture = content.Load<Texture2D>(key);
+                    return true;
+
+                case "tilesheets\\furniture": // Game1.LoadContent
+                    Furniture.furnitureTexture = content.Load<Texture2D>(key);
+                    return true;
+
+                case "tilesheets\\furniturefront": // Game1.LoadContent
+                    Furniture.furnitureFrontTexture = content.Load<Texture2D>(key);
+                    return true;
+
+                case "tilesheets\\projectiles": // Game1.LoadContent
+                    Projectile.projectileSheet = content.Load<Texture2D>(key);
+                    return true;
+
+                case "tilesheets\\rain": // Game1.LoadContent
+                    Game1.rainTexture = content.Load<Texture2D>(key);
+                    return true;
+
+                case "tilesheets\\tools": // Game1.ResetToolSpriteSheet
+                    Game1.ResetToolSpriteSheet();
+                    return true;
+
+                case "tilesheets\\weapons": // Game1.LoadContent
+                    Tool.weaponsTexture = content.Load<Texture2D>(key);
                     return true;
 
                 /****
@@ -528,6 +531,9 @@ namespace StardewModdingAPI.Metadata
                     return this.ReloadTreeTextures(content, key, Tree.pineTree);
             }
 
+            /****
+            ** Dynamic assets
+            ****/
             // dynamic textures
             if (this.KeyStartsWith(key, "animals\\cat"))
                 return this.ReloadPetOrHorseSprites<Cat>(content, key);
@@ -778,26 +784,10 @@ namespace StardewModdingAPI.Metadata
         /// <param name="location">The location whose map to reload.</param>
         private void ReloadMap(GameLocation location)
         {
-            // reset patch caches
-            switch (location)
-            {
-                case Town _:
-                    this.Reflection.GetField<bool>(location, "ccRefurbished").SetValue(false);
-                    this.Reflection.GetField<bool>(location, "isShowingDestroyedJoja").SetValue(false);
-                    this.Reflection.GetField<bool>(location, "isShowingUpgradedPamHouse").SetValue(false);
-                    break;
-
-                case Beach _:
-                case BeachNightMarket _:
-                case Forest _:
-                    this.Reflection.GetField<bool>(location, "hasShownCCUpgrade").SetValue(false);
-                    break;
-            }
-
-            // general updates
+            // reload map
             location.reloadMap();
-            location.updateSeasonalTileSheets();
             location.updateWarps();
+            location.MakeMapModifications(force: true);
 
             // update interior doors
             location.interiorDoors.Clear();
@@ -1025,6 +1015,27 @@ namespace StardewModdingAPI.Metadata
                     }
                 }
             }
+            return true;
+        }
+
+        /// <summary>Reload cached translations from the <c>Strings\StringsFromCSFiles</c> asset.</summary>
+        /// <param name="content">The content manager through which to reload the asset.</param>
+        /// <returns>Returns whether any data was reloaded.</returns>
+        /// <remarks>Derived from the <see cref="Game1.TranslateFields"/>.</remarks>
+        private bool ReloadStringsFromCsFiles(LocalizedContentManager content)
+        {
+            Game1.samBandName = content.LoadString("Strings\\StringsFromCSFiles:Game1.cs.2156");
+            Game1.elliottBookName = content.LoadString("Strings\\StringsFromCSFiles:Game1.cs.2157");
+
+            string[] dayNames = this.Reflection.GetField<string[]>(typeof(Game1), "_shortDayDisplayName").GetValue();
+            dayNames[0] = content.LoadString("Strings\\StringsFromCSFiles:Game1.cs.3042");
+            dayNames[1] = content.LoadString("Strings\\StringsFromCSFiles:Game1.cs.3043");
+            dayNames[2] = content.LoadString("Strings\\StringsFromCSFiles:Game1.cs.3044");
+            dayNames[3] = content.LoadString("Strings\\StringsFromCSFiles:Game1.cs.3045");
+            dayNames[4] = content.LoadString("Strings\\StringsFromCSFiles:Game1.cs.3046");
+            dayNames[5] = content.LoadString("Strings\\StringsFromCSFiles:Game1.cs.3047");
+            dayNames[6] = content.LoadString("Strings\\StringsFromCSFiles:Game1.cs.3048");
+
             return true;
         }
 

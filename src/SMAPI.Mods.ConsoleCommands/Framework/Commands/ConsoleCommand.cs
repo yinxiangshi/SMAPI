@@ -4,8 +4,8 @@ using System.Linq;
 
 namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands
 {
-    /// <summary>The base implementation for a trainer command.</summary>
-    internal abstract class TrainerCommand : ITrainerCommand
+    /// <summary>The base implementation for a console command.</summary>
+    internal abstract class ConsoleCommand : IConsoleCommand
     {
         /*********
         ** Accessors
@@ -50,7 +50,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands
         /// <param name="description">The command description.</param>
         /// <param name="mayNeedInput">Whether the command may need to perform logic when the player presses a button.</param>
         /// <param name="mayNeedUpdate">Whether the command may need to perform logic when the game updates.</param>
-        protected TrainerCommand(string name, string description, bool mayNeedInput = false, bool mayNeedUpdate = false)
+        protected ConsoleCommand(string name, string description, bool mayNeedInput = false, bool mayNeedUpdate = false)
         {
             this.Name = name;
             this.Description = description;

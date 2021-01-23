@@ -18,10 +18,10 @@ namespace StardewModdingAPI.Toolkit.Serialization.Converters
         ** Accessors
         *********/
         /// <summary>Get whether this converter can read JSON.</summary>
-        public override bool CanRead => true;
+        public override bool CanRead { get; } = true;
 
         /// <summary>Get whether this converter can write JSON.</summary>
-        public override bool CanWrite => true;
+        public override bool CanWrite { get; } = true;
 
 
         /*********

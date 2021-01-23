@@ -11,7 +11,7 @@ using System.Reflection;
 using Harmony;
 #endif
 
-namespace StardewModdingAPI.Patches
+namespace StardewModdingAPI.Mods.ErrorHandler.Patches
 {
     /// <summary>A Harmony patch for <see cref="NPC.parseMasterSchedule"/> which intercepts crashes due to invalid schedule data.</summary>
     /// <remarks>Patch methods must be static for Harmony to work correctly. See the Harmony documentation before renaming patch arguments.</remarks>
@@ -90,7 +90,7 @@ namespace StardewModdingAPI.Patches
         /// <returns>Returns whether to execute the original method.</returns>
         private static bool Before_NPC_parseMasterSchedule(string rawData, NPC __instance, ref Dictionary<int, SchedulePathDescription> __result, MethodInfo __originalMethod)
         {
-            const string key = nameof(Before_NPC_parseMasterSchedule);
+            const string key = nameof(ScheduleErrorPatch.Before_NPC_parseMasterSchedule);
             if (!PatchHelper.StartIntercept(key))
                 return true;
 

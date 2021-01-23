@@ -293,12 +293,12 @@ namespace StardewModdingAPI.Toolkit
                 return string.Compare(this.ToString(), new SemanticVersion(otherMajor, otherMinor, otherPatch, otherPlatformRelease, otherTag).ToString(), StringComparison.OrdinalIgnoreCase);
             }
 
-            return CompareToRaw() switch
-            {
-                (< 0) => curOlder,
-                (> 0) => curNewer,
-                _ => same
-            };
+            int result = CompareToRaw();
+            if (result < 0)
+                return curOlder;
+            if (result > 0)
+                return curNewer;
+            return same;
         }
 
         /// <summary>Assert that the current version is valid.</summary>

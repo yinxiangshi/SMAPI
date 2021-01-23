@@ -7,6 +7,46 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
+## 3.9
+Released 22 January 2021 for Stardew Valley 1.5.4 or later.
+
+* For players:
+  * Updated for Stardew Valley 1.5.4.
+  * Improved game detection in the installer:
+    * The installer now prefers paths registered by Steam or GOG Galaxy.
+    * The installer now detects default manual GOG installs.
+  * Added clearer error text for empty mod folders created by Vortex.
+  * Fixed the game's map changes not always reapplied correctly after mods change certain maps, which caused issues like the community center resetting to its non-repaired texture.
+  * Fixed compatibility for very old content packs which still load maps from `.xnb` files. These were broken by map loading changes in Stardew Valley 1.5, but SMAPI now corrects them automatically.
+  * Fixed some broken mods incorrectly listed as XNB mods under 'skipped mods'.
+
+* For modders:
+  * Added new input APIs:
+    * Added an [API for multi-key bindings](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Input#KeybindList).
+    * Added a new [`Input.ButtonsChanged` event](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Events#Input.ButtonsChanged).
+    * Added a `buttonState.IsDown()` extension.
+    * Added a `helper.Input.SuppressActiveKeybinds` method to suppress the active buttons in a keybind list.
+  * Improved multiplayer APIs:
+    * `PerScreen<T>` now lets you get/set the value for any screen, get all active values, or clear all values.
+    * Peer data from the multiplayer API/events now includes `IsSplitScreen` and `ScreenID` fields.
+    * Fixed network messages through the multiplayer API being sent to players who don't have SMAPI installed in some cases.
+  * Improved asset propagation:
+    * Updated map propagation for the changes in Stardew Valley 1.5.4.
+    * Added propagation for some `Strings\StringsFromCSFiles` keys (mainly short day names).
+    * Fixed quarry bridge not fixed if the mountain map was reloaded.
+  * Added an option to disable rewriting mods for compatibility (thanks to Bpendragon!). This prevents older mods from loading, but bypasses a Visual Studio crash when debugging.
+  * Game errors shown in the chatbox are now logged.
+  * Moved vanilla error-handling into a new Error Handler mod. This simplifies the core SMAPI logic, and lets users disable it if needed.
+
+* For the Console Commands mod:
+  * Removed the `inf` option for `player_sethealth`, `player_setmoney`, and `player_setstamina`. You can use mods like [CJB Cheats Menu](https://www.nexusmods.com/stardewvalley/mods/4) instead for that.
+
+* For the Error Handler mod:
+  * Added a detailed message for the _Input string was not in a correct format_ error when the game fails to parse an item text description.
+
+* For the web UI:
+  * Fixed JSON validator incorrectly marking some manifest update keys as invalid.
+
 ## 3.8.4
 Released 15 January 2021 for Stardew Valley 1.5.3 or later.
 

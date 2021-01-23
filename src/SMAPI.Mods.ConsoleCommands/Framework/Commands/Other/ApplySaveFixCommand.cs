@@ -5,7 +5,7 @@ using StardewValley;
 namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
 {
     /// <summary>A command which runs one of the game's save migrations.</summary>
-    internal class ApplySaveFixCommand : TrainerCommand
+    internal class ApplySaveFixCommand : ConsoleCommand
     {
         /*********
         ** Public methods

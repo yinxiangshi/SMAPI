@@ -1,5 +1,6 @@
 using System;
 using StardewModdingAPI.Framework.Input;
+using StardewModdingAPI.Utilities;
 
 namespace StardewModdingAPI.Framework.ModHelpers
 {
@@ -47,6 +48,19 @@ namespace StardewModdingAPI.Framework.ModHelpers
         public void Suppress(SButton button)
         {
             this.CurrentInputState().OverrideButton(button, setDown: false);
+        }
+
+        /// <inheritdoc />
+        public void SuppressActiveKeybinds(KeybindList keybindList)
+        {
+            foreach (Keybind keybind in keybindList.Keybinds)
+            {
+                if (!keybind.GetState().IsDown())
+                    continue;
+
+                foreach (SButton button in keybind.Buttons)
+                    this.Suppress(button);
+            }
         }
 
         /// <inheritdoc />

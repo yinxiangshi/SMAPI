@@ -11,6 +11,7 @@ using StardewModdingAPI.Framework.Input;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.StateTracking.Snapshots;
 using StardewModdingAPI.Framework.Utilities;
+using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
 using StardewValley.Locations;
@@ -81,6 +82,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>Whether the game is creating the save file and SMAPI has already raised <see cref="IGameLoopEvents.SaveCreating"/>.</summary>
         public bool IsBetweenCreateEvents { get; set; }
 
+        /// <summary>The cached <see cref="Farmer.UniqueMultiplayerID"/> value for this instance's player.</summary>
+        public long? PlayerId { get; private set; }
+
         /// <summary>Construct a content manager to read game content files.</summary>
         /// <remarks>This must be static because the game accesses it before the <see cref="SGame"/> constructor is called.</remarks>
         [NonInstancedStatic]
@@ -119,6 +123,18 @@ namespace StardewModdingAPI.Framework
             this.Reflection = reflection;
             this.ExitGameImmediately = exitGameImmediately;
             this.OnUpdating = onUpdating;
+        }
+
+        /// <summary>Get the current input state for a button.</summary>
+        /// <param name="button">The button to check.</param>
+        /// <remarks>This is intended for use by <see cref="Keybind"/> and shouldn't be used directly in most cases.</remarks>
+        internal static SButtonState GetInputState(SButton button)
+        {
+            SInputState input = Game1.input as SInputState;
+            if (input == null)
+                throw new InvalidOperationException("SMAPI's input state is not in a ready state yet.");
+
+            return input.GetState(button);
         }
 
 
@@ -167,6 +183,7 @@ namespace StardewModdingAPI.Framework
             try
             {
                 this.OnUpdating(this, gameTime, () => base.Update(gameTime));
+                this.PlayerId = Game1.player?.UniqueMultiplayerID;
             }
             finally
             {

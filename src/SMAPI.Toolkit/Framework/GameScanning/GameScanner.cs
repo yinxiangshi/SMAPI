@@ -90,14 +90,6 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
 
                 case Platform.Windows:
                     {
-                        // Windows
-                        foreach (string programFiles in new[] { @"C:\Program Files", @"C:\Program Files (x86)" })
-                        {
-                            yield return $@"{programFiles}\GalaxyClient\Games\Stardew Valley";
-                            yield return $@"{programFiles}\GOG Galaxy\Games\Stardew Valley";
-                            yield return $@"{programFiles}\Steam\steamapps\common\Stardew Valley";
-                        }
-
                         // Windows registry
 #if SMAPI_FOR_WINDOWS
                         IDictionary<string, string> registryKeys = new Dictionary<string, string>
@@ -113,10 +105,19 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
                         }
 
                         // via Steam library path
-                        string steampath = this.GetCurrentUserRegistryValue(@"Software\Valve\Steam", "SteamPath");
-                        if (steampath != null)
-                            yield return Path.Combine(steampath.Replace('/', '\\'), @"steamapps\common\Stardew Valley");
+                        string steamPath = this.GetCurrentUserRegistryValue(@"Software\Valve\Steam", "SteamPath");
+                        if (steamPath != null)
+                            yield return Path.Combine(steamPath.Replace('/', '\\'), @"steamapps\common\Stardew Valley");
 #endif
+
+                        // default paths
+                        foreach (string programFiles in new[] { @"C:\Program Files", @"C:\Program Files (x86)" })
+                        {
+                            yield return $@"{programFiles}\GalaxyClient\Games\Stardew Valley";
+                            yield return $@"{programFiles}\GOG Galaxy\Games\Stardew Valley";
+                            yield return $@"{programFiles}\GOG Games\Stardew Valley";
+                            yield return $@"{programFiles}\Steam\steamapps\common\Stardew Valley";
+                        }
                     }
                     break;
 

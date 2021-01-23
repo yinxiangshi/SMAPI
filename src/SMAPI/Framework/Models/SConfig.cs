@@ -20,13 +20,15 @@ namespace StardewModdingAPI.Framework.Models
             [nameof(GitHubProjectName)] = "Pathoschild/SMAPI",
             [nameof(WebApiBaseUrl)] = "https://smapi.io/api/",
             [nameof(VerboseLogging)] = false,
-            [nameof(LogNetworkTraffic)] = false
+            [nameof(LogNetworkTraffic)] = false,
+            [nameof(RewriteMods)] = true
         };
 
         /// <summary>The default values for <see cref="SuppressUpdateChecks"/>, to log changes if different.</summary>
         private static readonly HashSet<string> DefaultSuppressUpdateChecks = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "SMAPI.ConsoleCommands",
+            "SMAPI.ErrorHandler",
             "SMAPI.SaveBackup"
         };
 
@@ -55,6 +57,9 @@ namespace StardewModdingAPI.Framework.Models
         /// <summary>Whether SMAPI should log more information about the game context.</summary>
         public bool VerboseLogging { get; set; }
 
+        /// <summary>Whether SMAPI should rewrite mods for compatibility.</summary>
+        public bool RewriteMods { get; set; } = (bool)SConfig.DefaultValues[nameof(SConfig.RewriteMods)];
+
         /// <summary>Whether SMAPI should log network traffic. Best combined with <see cref="VerboseLogging"/>, which includes network metadata.</summary>
         public bool LogNetworkTraffic { get; set; }
 
@@ -68,7 +73,7 @@ namespace StardewModdingAPI.Framework.Models
         /********
         ** Public methods
         ********/
-        /// <summary>Get the settings which have been customised by the player.</summary>
+        /// <summary>Get the settings which have been customized by the player.</summary>
         public IDictionary<string, object> GetCustomSettings()
         {
             IDictionary<string, object> custom = new Dictionary<string, object>();

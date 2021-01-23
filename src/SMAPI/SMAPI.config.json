@@ -34,6 +34,12 @@ copy all the settings, or you may cause bugs due to overridden changes in future
     "DeveloperMode": true,
 
     /**
+     * Whether SMAPI should rewrite mods for compatibility. This may prevent older mods from
+     * loading, but bypasses a Visual Studio crash when debugging.
+     */
+    "RewriteMods": true,
+
+    /**
      * Whether to add a section to the 'mod issues' list for mods which directly use potentially
      * sensitive .NET APIs like file or shell access. Note that many mods do this legitimately as
      * part of their normal functionality, so these warnings are meaningless without further
@@ -113,6 +119,7 @@ copy all the settings, or you may cause bugs due to overridden changes in future
      */
     "SuppressUpdateChecks": [
         "SMAPI.ConsoleCommands",
+        "SMAPI.ErrorHandler",
         "SMAPI.SaveBackup"
     ]
 }

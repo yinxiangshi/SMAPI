@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using StardewModdingAPI.Framework.Patching;
-using StardewModdingAPI.Framework.Reflection;
 using StardewValley;
 #if HARMONY_2
 using HarmonyLib;
@@ -12,7 +11,7 @@ using System.Reflection;
 using Harmony;
 #endif
 
-namespace StardewModdingAPI.Patches
+namespace StardewModdingAPI.Mods.ErrorHandler.Patches
 {
     /// <summary>A Harmony patch for the <see cref="Dialogue"/> constructor which intercepts invalid dialogue lines and logs an error instead of crashing.</summary>
     /// <remarks>Patch methods must be static for Harmony to work correctly. See the Harmony documentation before renaming patch arguments.</remarks>
@@ -27,7 +26,7 @@ namespace StardewModdingAPI.Patches
         private static IMonitor MonitorForGame;
 
         /// <summary>Simplifies access to private code.</summary>
-        private static Reflector Reflection;
+        private static IReflectionHelper Reflection;
 
 
         /*********
@@ -43,7 +42,7 @@ namespace StardewModdingAPI.Patches
         /// <summary>Construct an instance.</summary>
         /// <param name="monitorForGame">Writes messages to the console and log file on behalf of the game.</param>
         /// <param name="reflector">Simplifies access to private code.</param>
-        public DialogueErrorPatch(IMonitor monitorForGame, Reflector reflector)
+        public DialogueErrorPatch(IMonitor monitorForGame, IReflectionHelper reflector)
         {
             DialogueErrorPatch.MonitorForGame = monitorForGame;
             DialogueErrorPatch.Reflection = reflector;
@@ -167,7 +166,7 @@ namespace StardewModdingAPI.Patches
         /// <returns>Returns whether to execute the original method.</returns>
         private static bool Before_NPC_CurrentDialogue(NPC __instance, ref Stack<Dialogue> __result, MethodInfo __originalMethod)
         {
-            const string key = nameof(Before_NPC_CurrentDialogue);
+            const string key = nameof(DialogueErrorPatch.Before_NPC_CurrentDialogue);
             if (!PatchHelper.StartIntercept(key))
                 return true;
 
