@@ -146,8 +146,7 @@ namespace SMAPI.Tests.Core
             Mock<IModMetadata> mock = this.GetMetadata("Mod A", new string[0], allowStatusChange: true);
             this.SetupMetadataForValidation(mock, new ModDataRecordVersionedFields
             {
-                Status = ModStatus.AssumeBroken,
-                AlternativeUrl = "https://example.org"
+                Status = ModStatus.AssumeBroken
             });
 
             // act

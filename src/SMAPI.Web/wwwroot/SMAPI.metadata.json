@@ -49,9 +49,6 @@
      *
      *   - StatusReasonDetails: a technical reason shown in TRACE logs, indicating why the status
      *     was overridden. If not provided, it defaults to the StatusReasonPhrase or 'no reason given'.
-     *
-     *   - AlternativeUrl: a URL where the player can find an unofficial update or alternative if the
-     *     mod is no longer compatible.
      */
     "ModData": {
         /*********

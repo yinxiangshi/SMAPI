@@ -6,9 +6,6 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
         /// <summary>A manifest update key.</summary>
         UpdateKey,
 
-        /// <summary>An alternative URL the player can check for an updated version.</summary>
-        AlternativeUrl,
-
         /// <summary>The mod's predefined compatibility status.</summary>
         Status,
 
