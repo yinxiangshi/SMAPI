@@ -8,8 +8,9 @@
 -->
 
 ## Upcoming release
-* For the Error Handler mod:
-  * Disabled 'patched game code' warning.
+* For players:
+  * Fixed _tile contains an invalid TileSheet reference_ errors when mods change certain maps.
+  * Fixed _patched game code_ issue shown for the bundled ErrorHandler mod.
 
 ## 3.9
 Released 22 January 2021 for Stardew Valley 1.5.4 or later. See [release highlights](https://www.patreon.com/posts/46553874).

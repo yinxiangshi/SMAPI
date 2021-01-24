@@ -785,6 +785,7 @@ namespace StardewModdingAPI.Metadata
         private void ReloadMap(GameLocation location)
         {
             // reload map
+            location.interiorDoors.Clear(); // prevent errors when doors try to update tiles which no longer exist
             location.reloadMap();
             location.updateWarps();
             location.MakeMapModifications(force: true);
