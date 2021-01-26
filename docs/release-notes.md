@@ -7,10 +7,12 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
-## Upcoming release
+## 3.9.1
+Released 25 January 2021 for Stardew Valley 1.5.4 or later.
+
 * For players:
-  * Fixed _tile contains an invalid TileSheet reference_ errors when mods change certain maps.
-  * Fixed _patched game code_ issue shown for the bundled ErrorHandler mod.
+  * Fixed _tile contains an invalid TileSheet reference_ crash after mods change certain maps.
+  * Fixed _patched game code_ issue shown for the bundled Error Handler mod.
 
 ## 3.9
 Released 22 January 2021 for Stardew Valley 1.5.4 or later. See [release highlights](https://www.patreon.com/posts/46553874).
