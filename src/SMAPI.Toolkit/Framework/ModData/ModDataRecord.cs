@@ -92,11 +92,6 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
                         parsed.UpdateKey = field.Value;
                         break;
 
-                    // alternative URL
-                    case ModDataFieldKey.AlternativeUrl:
-                        parsed.AlternativeUrl = field.Value;
-                        break;
-
                     // status
                     case ModDataFieldKey.Status:
                         parsed.Status = (ModStatus)Enum.Parse(typeof(ModStatus), field.Value, ignoreCase: true);

@@ -99,7 +99,17 @@ namespace StardewModdingAPI.Framework
             this.OnLoadingFirstAsset = onLoadingFirstAsset;
             this.FullRootDirectory = Path.Combine(Constants.ExecutionPath, rootDirectory);
             this.ContentManagers.Add(
-                this.MainContentManager = new GameContentManager("Game1.content", serviceProvider, rootDirectory, currentCulture, this, monitor, reflection, this.OnDisposing, onLoadingFirstAsset)
+                this.MainContentManager = new GameContentManager(
+                    name: "Game1.content",
+                    serviceProvider: serviceProvider,
+                    rootDirectory: rootDirectory,
+                    currentCulture: currentCulture,
+                    coordinator: this,
+                    monitor: monitor,
+                    reflection: reflection,
+                    onDisposing: this.OnDisposing,
+                    onLoadingFirstAsset: onLoadingFirstAsset
+                )
             );
             this.VanillaContentManager = new LocalizedContentManager(serviceProvider, rootDirectory);
             this.CoreAssets = new CoreAssetPropagator(this.MainContentManager.AssertAndNormalizeAssetName, reflection);
@@ -111,7 +121,17 @@ namespace StardewModdingAPI.Framework
         {
             return this.ContentManagerLock.InWriteLock(() =>
             {
-                GameContentManager manager = new GameContentManager(name, this.MainContentManager.ServiceProvider, this.MainContentManager.RootDirectory, this.MainContentManager.CurrentCulture, this, this.Monitor, this.Reflection, this.OnDisposing, this.OnLoadingFirstAsset);
+                GameContentManager manager = new GameContentManager(
+                    name: name,
+                    serviceProvider: this.MainContentManager.ServiceProvider,
+                    rootDirectory: this.MainContentManager.RootDirectory,
+                    currentCulture: this.MainContentManager.CurrentCulture,
+                    coordinator: this,
+                    monitor: this.Monitor,
+                    reflection: this.Reflection,
+                    onDisposing: this.OnDisposing,
+                    onLoadingFirstAsset: this.OnLoadingFirstAsset
+                );
                 this.ContentManagers.Add(manager);
                 return manager;
             });

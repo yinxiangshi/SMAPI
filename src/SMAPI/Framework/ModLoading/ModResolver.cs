@@ -88,8 +88,6 @@ namespace StardewModdingAPI.Framework.ModLoading
                                 if (url != null)
                                     updateUrls.Add(url);
                             }
-                            if (mod.DataRecord.AlternativeUrl != null)
-                                updateUrls.Add(mod.DataRecord.AlternativeUrl);
 
                             // default update URL
                             updateUrls.Add("https://smapi.io/mods");

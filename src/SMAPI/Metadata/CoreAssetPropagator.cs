@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
@@ -79,7 +80,7 @@ namespace StardewModdingAPI.Metadata
             });
 
             // reload assets
-            IDictionary<string, bool> propagated = assets.ToDictionary(p => p.Key, p => false, StringComparer.OrdinalIgnoreCase);
+            IDictionary<string, bool> propagated = assets.ToDictionary(p => p.Key, _ => false, StringComparer.OrdinalIgnoreCase);
             foreach (var bucket in buckets)
             {
                 switch (bucket.Key)
@@ -110,6 +111,7 @@ namespace StardewModdingAPI.Metadata
         /// <param name="key">The asset key to reload.</param>
         /// <param name="type">The asset type to reload.</param>
         /// <returns>Returns whether an asset was loaded. The return value may be true or false, or a non-null value for true.</returns>
+        [SuppressMessage("ReSharper", "StringLiteralTypo", Justification = "These deliberately match the asset names.")]
         private bool PropagateOther(LocalizedContentManager content, string key, Type type)
         {
             key = this.AssertAndNormalizeAssetName(key);
@@ -492,8 +494,7 @@ namespace StardewModdingAPI.Metadata
                     return true;
 
                 case "terrainfeatures\\grass": // from Grass
-                    this.ReloadGrassTextures(content, key);
-                    return true;
+                    return this.ReloadGrassTextures(content, key);
 
                 case "terrainfeatures\\hoedirt": // from HoeDirt
                     HoeDirt.lightTexture = content.Load<Texture2D>(key);
@@ -785,6 +786,7 @@ namespace StardewModdingAPI.Metadata
         private void ReloadMap(GameLocation location)
         {
             // reload map
+            location.interiorDoors.Clear(); // prevent errors when doors try to update tiles which no longer exist
             location.reloadMap();
             location.updateWarps();
             location.MakeMapModifications(force: true);

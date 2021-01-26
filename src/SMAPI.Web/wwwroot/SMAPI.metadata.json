@@ -3,6 +3,7 @@
      * Metadata about some SMAPI mods used in compatibility, update, and dependency checks. This
      * field shouldn't be edited by players in most cases.
      *
+     *
      * Standard fields
      * ===============
      * The predefined fields are documented below (only 'ID' is required). Each entry's key is the
@@ -13,6 +14,10 @@
      *   - FormerIDs: uniquely identifies the mod across multiple versions, and supports matching
      *     other fields if no ID was specified. This doesn't include the latest ID, if any. Multiple
      *     variants can be separated with '|'.
+     *
+     *   - SuppressWarnings: the mod warnings to suppress, even if they'd normally be shown. This
+     *     should match the ModWarning enum.
+     *
      *
      * Versioned metadata
      * ==================
@@ -44,11 +49,16 @@
      *
      *   - StatusReasonDetails: a technical reason shown in TRACE logs, indicating why the status
      *     was overridden. If not provided, it defaults to the StatusReasonPhrase or 'no reason given'.
-     *
-     *   - AlternativeUrl: a URL where the player can find an unofficial update or alternative if the
-     *     mod is no longer compatible.
      */
     "ModData": {
+        /*********
+        ** Mods bundles with SMAPI
+        *********/
+        "Error Handler": {
+            "ID": "SMAPI.ErrorHandler",
+            "SuppressWarnings": "PatchesGame"
+        },
+
         /*********
         ** Common dependencies for friendly errors
         *********/
@@ -186,7 +196,7 @@
             "~0.11.2 | Status": "AssumeBroken",
             "~0.11.2 | StatusReasonDetails": "causes errors and custom furniture no longer work in Stardew Valley 1.5"
         },
-        
+
         "Custom Localization": {
             "ID": "ZaneYork.CustomLocalization",
             "FormerIDs": "SMAPI.CustomLocalization", // changed in 1.0.1
@@ -427,13 +437,13 @@
         "Fishing Adjust": {
             "ID": "shuaiz.FishingAdjustMod",
             "~2.0.1 | Status": "AssumeBroken",
-            "~2.0.1 | StatusReasonDetails":  "fails with 'method not found' error for 'Void Harmony.HarmonyInstance.Patch(System.Reflection.MethodBase, Harmony.HarmonyMethod, Harmony.HarmonyMethod, Harmony.HarmonyMethod)'"
+            "~2.0.1 | StatusReasonDetails": "fails with 'method not found' error for 'Void Harmony.HarmonyInstance.Patch(System.Reflection.MethodBase, Harmony.HarmonyMethod, Harmony.HarmonyMethod, Harmony.HarmonyMethod)'"
         },
 
         "Fishing Automaton": {
             "ID": "Drynwynn.FishingAutomaton",
             "~1.1 | Status": "AssumeBroken",
-            "~1.1 | StatusReasonDetails":  "runtime errors with Harmony 1.2.0.1 in SMAPI 2.8+"
+            "~1.1 | StatusReasonDetails": "runtime errors with Harmony 1.2.0.1 in SMAPI 2.8+"
         },
 
         "More Silo Storage": {
