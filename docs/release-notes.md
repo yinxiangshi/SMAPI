@@ -11,6 +11,9 @@
 * For players:
   * Fixed error running `install on Windows.bat` in very rare cases.
 
+* For modders:
+  * Fixed SMAPI toolkit defaulting the mod type to SMAPI if its `manifest.json` has neither `EntryDll` nor `ContentPackFor`. This only affects external tools, since SMAPI itself validates those fields separately.
+
 ## 3.9.1
 Released 25 January 2021 for Stardew Valley 1.5.4 or later.
 
