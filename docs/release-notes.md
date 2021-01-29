@@ -7,6 +7,10 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
+## Upcoming release
+* For players:
+  * Fixed error running `install on Windows.bat` in very rare cases.
+
 ## 3.9.1
 Released 25 January 2021 for Stardew Valley 1.5.4 or later.
 
