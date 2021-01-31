@@ -9,6 +9,7 @@
 
 ## Upcoming release
 * For players:
+  * Added _aggressive memory optimization_ option. This is experimental and disabled by default; you can enable it in `smapi-internal/config.json` if you experience `OutOfMemoryException` crashes.
   * Fixed error running `install on Windows.bat` in very rare cases.
 
 * For modders:

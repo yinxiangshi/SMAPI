@@ -26,6 +26,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>An asset key prefix for assets from SMAPI mod folders.</summary>
         private readonly string ManagedPrefix = "SMAPI";
 
+        /// <summary>Whether to enable more aggressive memory optimizations.</summary>
+        private readonly bool AggressiveMemoryOptimizations;
+
         /// <summary>Encapsulates monitoring and logging.</summary>
         private readonly IMonitor Monitor;
 
@@ -91,8 +94,10 @@ namespace StardewModdingAPI.Framework
         /// <param name="reflection">Simplifies access to private code.</param>
         /// <param name="jsonHelper">Encapsulates SMAPI's JSON file parsing.</param>
         /// <param name="onLoadingFirstAsset">A callback to invoke the first time *any* game content manager loads an asset.</param>
-        public ContentCoordinator(IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action onLoadingFirstAsset)
+        /// <param name="aggressiveMemoryOptimizations">Whether to enable more aggressive memory optimizations.</param>
+        public ContentCoordinator(IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action onLoadingFirstAsset, bool aggressiveMemoryOptimizations)
         {
+            this.AggressiveMemoryOptimizations = aggressiveMemoryOptimizations;
             this.Monitor = monitor ?? throw new ArgumentNullException(nameof(monitor));
             this.Reflection = reflection;
             this.JsonHelper = jsonHelper;
@@ -108,11 +113,12 @@ namespace StardewModdingAPI.Framework
                     monitor: monitor,
                     reflection: reflection,
                     onDisposing: this.OnDisposing,
-                    onLoadingFirstAsset: onLoadingFirstAsset
+                    onLoadingFirstAsset: onLoadingFirstAsset,
+                    aggressiveMemoryOptimizations: aggressiveMemoryOptimizations
                 )
             );
             this.VanillaContentManager = new LocalizedContentManager(serviceProvider, rootDirectory);
-            this.CoreAssets = new CoreAssetPropagator(this.MainContentManager.AssertAndNormalizeAssetName, reflection);
+            this.CoreAssets = new CoreAssetPropagator(this.MainContentManager.AssertAndNormalizeAssetName, reflection, aggressiveMemoryOptimizations);
         }
 
         /// <summary>Get a new content manager which handles reading files from the game content folder with support for interception.</summary>
@@ -130,7 +136,8 @@ namespace StardewModdingAPI.Framework
                     monitor: this.Monitor,
                     reflection: this.Reflection,
                     onDisposing: this.OnDisposing,
-                    onLoadingFirstAsset: this.OnLoadingFirstAsset
+                    onLoadingFirstAsset: this.OnLoadingFirstAsset,
+                    aggressiveMemoryOptimizations: this.AggressiveMemoryOptimizations
                 );
                 this.ContentManagers.Add(manager);
                 return manager;
@@ -157,7 +164,8 @@ namespace StardewModdingAPI.Framework
                     monitor: this.Monitor,
                     reflection: this.Reflection,
                     jsonHelper: this.JsonHelper,
-                    onDisposing: this.OnDisposing
+                    onDisposing: this.OnDisposing,
+                    aggressiveMemoryOptimizations: this.AggressiveMemoryOptimizations
                 );
                 this.ContentManagers.Add(manager);
                 return manager;

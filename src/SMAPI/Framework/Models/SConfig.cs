@@ -21,7 +21,8 @@ namespace StardewModdingAPI.Framework.Models
             [nameof(WebApiBaseUrl)] = "https://smapi.io/api/",
             [nameof(VerboseLogging)] = false,
             [nameof(LogNetworkTraffic)] = false,
-            [nameof(RewriteMods)] = true
+            [nameof(RewriteMods)] = true,
+            [nameof(AggressiveMemoryOptimizations)] = false
         };
 
         /// <summary>The default values for <see cref="SuppressUpdateChecks"/>, to log changes if different.</summary>
@@ -59,6 +60,9 @@ namespace StardewModdingAPI.Framework.Models
 
         /// <summary>Whether SMAPI should rewrite mods for compatibility.</summary>
         public bool RewriteMods { get; set; } = (bool)SConfig.DefaultValues[nameof(SConfig.RewriteMods)];
+
+        /// <summary>Whether to enable more aggressive memory optimizations.</summary>
+        public bool AggressiveMemoryOptimizations { get; set; } = (bool)SConfig.DefaultValues[nameof(SConfig.AggressiveMemoryOptimizations)];
 
         /// <summary>Whether SMAPI should log network traffic. Best combined with <see cref="VerboseLogging"/>, which includes network metadata.</summary>
         public bool LogNetworkTraffic { get; set; }

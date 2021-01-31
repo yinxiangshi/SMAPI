@@ -29,6 +29,9 @@ namespace StardewModdingAPI.Metadata
         /*********
         ** Fields
         *********/
+        /// <summary>Whether to enable more aggressive memory optimizations.</summary>
+        private readonly bool AggressiveMemoryOptimizations;
+
         /// <summary>Normalizes an asset key to match the cache key and assert that it's valid.</summary>
         private readonly Func<string, string> AssertAndNormalizeAssetName;
 
@@ -55,10 +58,12 @@ namespace StardewModdingAPI.Metadata
         /// <summary>Initialize the core asset data.</summary>
         /// <param name="assertAndNormalizeAssetName">Normalizes an asset key to match the cache key and assert that it's valid.</param>
         /// <param name="reflection">Simplifies access to private code.</param>
-        public CoreAssetPropagator(Func<string, string> assertAndNormalizeAssetName, Reflector reflection)
+        /// <param name="aggressiveMemoryOptimizations">Whether to enable more aggressive memory optimizations.</param>
+        public CoreAssetPropagator(Func<string, string> assertAndNormalizeAssetName, Reflector reflection, bool aggressiveMemoryOptimizations)
         {
             this.AssertAndNormalizeAssetName = assertAndNormalizeAssetName;
             this.Reflection = reflection;
+            this.AggressiveMemoryOptimizations = aggressiveMemoryOptimizations;
         }
 
         /// <summary>Reload one of the game's core assets (if applicable).</summary>
@@ -582,7 +587,7 @@ namespace StardewModdingAPI.Metadata
                 titleMenu.aboutButton.texture = texture;
                 titleMenu.languageButton.texture = texture;
                 foreach (ClickableTextureComponent button in titleMenu.buttons)
-                    button.texture = titleMenu.titleButtonsTexture;
+                    button.texture = texture;
                 foreach (TemporaryAnimatedSprite bird in titleMenu.birds)
                     bird.texture = texture;
 
@@ -785,6 +790,9 @@ namespace StardewModdingAPI.Metadata
         /// <param name="location">The location whose map to reload.</param>
         private void ReloadMap(GameLocation location)
         {
+            if (this.AggressiveMemoryOptimizations)
+                location.map.DisposeTileSheets(Game1.mapDisplayDevice);
+
             // reload map
             location.interiorDoors.Clear(); // prevent errors when doors try to update tiles which no longer exist
             location.reloadMap();
@@ -843,7 +851,7 @@ namespace StardewModdingAPI.Metadata
             // update sprite
             foreach (var target in characters)
             {
-                target.Npc.Sprite.spriteTexture = content.Load<Texture2D>(target.Key);
+                target.Npc.Sprite.spriteTexture = this.DisposeIfNeeded(target.Npc.Sprite.spriteTexture, content.Load<Texture2D>(target.Key));
                 propagated[target.Key] = true;
             }
         }
@@ -881,7 +889,7 @@ namespace StardewModdingAPI.Metadata
             // update portrait
             foreach (var target in characters)
             {
-                target.Npc.Portrait = content.Load<Texture2D>(target.Key);
+                target.Npc.Portrait = this.DisposeIfNeeded(target.Npc.Portrait, content.Load<Texture2D>(target.Key));
                 propagated[target.Key] = true;
             }
         }
@@ -1145,6 +1153,17 @@ namespace StardewModdingAPI.Metadata
         private int CountSegments(string path)
         {
             return this.GetSegments(path).Length;
+        }
+
+        /// <summary>Dispose a texture if <see cref="AggressiveMemoryOptimizations"/> are enabled and it's different from the new instance.</summary>
+        /// <param name="oldTexture">The previous texture to dispose.</param>
+        /// <param name="newTexture">The new texture being loaded.</param>
+        private Texture2D DisposeIfNeeded(Texture2D oldTexture, Texture2D newTexture)
+        {
+            if (this.AggressiveMemoryOptimizations && oldTexture != null && !oldTexture.IsDisposed && !object.ReferenceEquals(oldTexture, newTexture))
+                oldTexture.Dispose();
+
+            return newTexture;
         }
     }
 }

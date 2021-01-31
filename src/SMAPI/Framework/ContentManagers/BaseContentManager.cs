@@ -11,6 +11,7 @@ using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.Reflection;
 using StardewValley;
+using xTile;
 
 namespace StardewModdingAPI.Framework.ContentManagers
 {
@@ -28,6 +29,9 @@ namespace StardewModdingAPI.Framework.ContentManagers
 
         /// <summary>Encapsulates monitoring and logging.</summary>
         protected readonly IMonitor Monitor;
+
+        /// <summary>Whether to enable more aggressive memory optimizations.</summary>
+        protected readonly bool AggressiveMemoryOptimizations;
 
         /// <summary>Whether the content coordinator has been disposed.</summary>
         private bool IsDisposed;
@@ -75,7 +79,8 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="reflection">Simplifies access to private code.</param>
         /// <param name="onDisposing">A callback to invoke when the content manager is being disposed.</param>
         /// <param name="isNamespaced">Whether this content manager handles managed asset keys (e.g. to load assets from a mod folder).</param>
-        protected BaseContentManager(string name, IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, Action<BaseContentManager> onDisposing, bool isNamespaced)
+        /// <param name="aggressiveMemoryOptimizations">Whether to enable more aggressive memory optimizations.</param>
+        protected BaseContentManager(string name, IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, Action<BaseContentManager> onDisposing, bool isNamespaced, bool aggressiveMemoryOptimizations)
             : base(serviceProvider, rootDirectory, currentCulture)
         {
             // init
@@ -85,6 +90,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             this.Monitor = monitor ?? throw new ArgumentNullException(nameof(monitor));
             this.OnDisposing = onDisposing;
             this.IsNamespaced = isNamespaced;
+            this.AggressiveMemoryOptimizations = aggressiveMemoryOptimizations;
 
             // get asset data
             this.LanguageCodes = this.GetKeyLocales().ToDictionary(p => p.Value, p => p.Key, StringComparer.OrdinalIgnoreCase);
@@ -198,14 +204,22 @@ namespace StardewModdingAPI.Framework.ContentManagers
             {
                 this.ParseCacheKey(key, out string assetName, out _);
 
-                if (removeAssets.ContainsKey(assetName))
-                    return true;
-                if (predicate(assetName, asset.GetType()))
+                // check if asset should be removed
+                bool remove = removeAssets.ContainsKey(assetName);
+                if (!remove && predicate(assetName, asset.GetType()))
                 {
                     removeAssets[assetName] = asset;
-                    return true;
+                    remove = true;
                 }
-                return false;
+
+                // dispose if safe
+                if (remove && this.AggressiveMemoryOptimizations)
+                {
+                    if (asset is Map map)
+                        map.DisposeTileSheets(Game1.mapDisplayDevice);
+                }
+
+                return remove;
             }, dispose);
 
             return removeAssets;
