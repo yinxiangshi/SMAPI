@@ -178,14 +178,19 @@ namespace StardewModdingAPI.Metadata
                 ** Buildings
                 ****/
                 case "buildings\\houses": // Farm
-                    reflection.GetField<Texture2D>(typeof(Farm), nameof(Farm.houseTextures)).SetValue(content.Load<Texture2D>(key));
-                    return true;
+                    {
+                        var field = reflection.GetField<Texture2D>(typeof(Farm), nameof(Farm.houseTextures));
+                        field.SetValue(
+                            this.LoadAndDisposeIfNeeded(field.GetValue(), key)
+                        );
+                        return true;
+                    }
 
                 /****
                 ** Content\Characters\Farmer
                 ****/
                 case "characters\\farmer\\accessories": // Game1.LoadContent
-                    FarmerRenderer.accessoriesTexture = content.Load<Texture2D>(key);
+                    FarmerRenderer.accessoriesTexture = this.LoadAndDisposeIfNeeded(FarmerRenderer.accessoriesTexture, key);
                     return true;
 
                 case "characters\\farmer\\farmer_base": // Farmer
@@ -195,19 +200,19 @@ namespace StardewModdingAPI.Metadata
                     return this.ReloadPlayerSprites(key);
 
                 case "characters\\farmer\\hairstyles": // Game1.LoadContent
-                    FarmerRenderer.hairStylesTexture = content.Load<Texture2D>(key);
+                    FarmerRenderer.hairStylesTexture = this.LoadAndDisposeIfNeeded(FarmerRenderer.hairStylesTexture, key);
                     return true;
 
                 case "characters\\farmer\\hats": // Game1.LoadContent
-                    FarmerRenderer.hatsTexture = content.Load<Texture2D>(key);
+                    FarmerRenderer.hatsTexture = this.LoadAndDisposeIfNeeded(FarmerRenderer.hatsTexture, key);
                     return true;
 
                 case "characters\\farmer\\pants": // Game1.LoadContent
-                    FarmerRenderer.pantsTexture = content.Load<Texture2D>(key);
+                    FarmerRenderer.pantsTexture = this.LoadAndDisposeIfNeeded(FarmerRenderer.pantsTexture, key);
                     return true;
 
                 case "characters\\farmer\\shirts": // Game1.LoadContent
-                    FarmerRenderer.shirtsTexture = content.Load<Texture2D>(key);
+                    FarmerRenderer.shirtsTexture = this.LoadAndDisposeIfNeeded(FarmerRenderer.shirtsTexture, key);
                     return true;
 
                 /****
