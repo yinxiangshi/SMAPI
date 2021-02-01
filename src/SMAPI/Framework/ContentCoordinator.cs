@@ -117,8 +117,21 @@ namespace StardewModdingAPI.Framework
                     aggressiveMemoryOptimizations: aggressiveMemoryOptimizations
                 )
             );
+            var contentManagerForAssetPropagation = new GameContentManagerForAssetPropagation(
+                name: nameof(GameContentManagerForAssetPropagation),
+                serviceProvider: serviceProvider,
+                rootDirectory: rootDirectory,
+                currentCulture: currentCulture,
+                coordinator: this,
+                monitor: monitor,
+                reflection: reflection,
+                onDisposing: this.OnDisposing,
+                onLoadingFirstAsset: onLoadingFirstAsset,
+                aggressiveMemoryOptimizations: aggressiveMemoryOptimizations
+            );
+            this.ContentManagers.Add(contentManagerForAssetPropagation);
             this.VanillaContentManager = new LocalizedContentManager(serviceProvider, rootDirectory);
-            this.CoreAssets = new CoreAssetPropagator(this.MainContentManager.AssertAndNormalizeAssetName, reflection, aggressiveMemoryOptimizations);
+            this.CoreAssets = new CoreAssetPropagator(this.MainContentManager, contentManagerForAssetPropagation, reflection, aggressiveMemoryOptimizations);
         }
 
         /// <summary>Get a new content manager which handles reading files from the game content folder with support for interception.</summary>
@@ -298,7 +311,7 @@ namespace StardewModdingAPI.Framework
             // reload core game assets
             if (removedAssets.Any())
             {
-                IDictionary<string, bool> propagated = this.CoreAssets.Propagate(this.MainContentManager, removedAssets.ToDictionary(p => p.Key, p => p.Value)); // use an intercepted content manager
+                IDictionary<string, bool> propagated = this.CoreAssets.Propagate(removedAssets.ToDictionary(p => p.Key, p => p.Value)); // use an intercepted content manager
                 this.Monitor.Log($"Invalidated {removedAssets.Count} asset names ({string.Join(", ", removedAssets.Keys.OrderBy(p => p, StringComparer.OrdinalIgnoreCase))}); propagated {propagated.Count(p => p.Value)} core assets.", LogLevel.Trace);
             }
             else

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
 using Netcode;
+using StardewModdingAPI.Framework.ContentManagers;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
@@ -29,6 +30,12 @@ namespace StardewModdingAPI.Metadata
         /*********
         ** Fields
         *********/
+        /// <summary>The main content manager through which to reload assets.</summary>
+        private readonly LocalizedContentManager MainContentManager;
+
+        /// <summary>An internal content manager used only for asset propagation. See remarks on <see cref="GameContentManagerForAssetPropagation"/>.</summary>
+        private readonly GameContentManagerForAssetPropagation DisposableContentManager;
+
         /// <summary>Whether to enable more aggressive memory optimizations.</summary>
         private readonly bool AggressiveMemoryOptimizations;
 
@@ -56,21 +63,24 @@ namespace StardewModdingAPI.Metadata
         ** Public methods
         *********/
         /// <summary>Initialize the core asset data.</summary>
-        /// <param name="assertAndNormalizeAssetName">Normalizes an asset key to match the cache key and assert that it's valid.</param>
+        /// <param name="mainContent">The main content manager through which to reload assets.</param>
+        /// <param name="disposableContent">An internal content manager used only for asset propagation.</param>
         /// <param name="reflection">Simplifies access to private code.</param>
         /// <param name="aggressiveMemoryOptimizations">Whether to enable more aggressive memory optimizations.</param>
-        public CoreAssetPropagator(Func<string, string> assertAndNormalizeAssetName, Reflector reflection, bool aggressiveMemoryOptimizations)
+        public CoreAssetPropagator(LocalizedContentManager mainContent, GameContentManagerForAssetPropagation disposableContent, Reflector reflection, bool aggressiveMemoryOptimizations)
         {
-            this.AssertAndNormalizeAssetName = assertAndNormalizeAssetName;
+            this.MainContentManager = mainContent;
+            this.DisposableContentManager = disposableContent;
             this.Reflection = reflection;
             this.AggressiveMemoryOptimizations = aggressiveMemoryOptimizations;
+
+            this.AssertAndNormalizeAssetName = disposableContent.AssertAndNormalizeAssetName;
         }
 
         /// <summary>Reload one of the game's core assets (if applicable).</summary>
-        /// <param name="content">The content manager through which to reload the asset.</param>
         /// <param name="assets">The asset keys and types to reload.</param>
         /// <returns>Returns a lookup of asset names to whether they've been propagated.</returns>
-        public IDictionary<string, bool> Propagate(LocalizedContentManager content, IDictionary<string, Type> assets)
+        public IDictionary<string, bool> Propagate(IDictionary<string, Type> assets)
         {
             // group into optimized lists
             var buckets = assets.GroupBy(p =>
@@ -91,16 +101,16 @@ namespace StardewModdingAPI.Metadata
                 switch (bucket.Key)
                 {
                     case AssetBucket.Sprite:
-                        this.ReloadNpcSprites(content, bucket.Select(p => p.Key), propagated);
+                        this.ReloadNpcSprites(bucket.Select(p => p.Key), propagated);
                         break;
 
                     case AssetBucket.Portrait:
-                        this.ReloadNpcPortraits(content, bucket.Select(p => p.Key), propagated);
+                        this.ReloadNpcPortraits(bucket.Select(p => p.Key), propagated);
                         break;
 
                     default:
                         foreach (var entry in bucket)
-                            propagated[entry.Key] = this.PropagateOther(content, entry.Key, entry.Value);
+                            propagated[entry.Key] = this.PropagateOther(entry.Key, entry.Value);
                         break;
                 }
             }
@@ -112,13 +122,13 @@ namespace StardewModdingAPI.Metadata
         ** Private methods
         *********/
         /// <summary>Reload one of the game's core assets (if applicable).</summary>
-        /// <param name="content">The content manager through which to reload the asset.</param>
         /// <param name="key">The asset key to reload.</param>
         /// <param name="type">The asset type to reload.</param>
         /// <returns>Returns whether an asset was loaded. The return value may be true or false, or a non-null value for true.</returns>
         [SuppressMessage("ReSharper", "StringLiteralTypo", Justification = "These deliberately match the asset names.")]
-        private bool PropagateOther(LocalizedContentManager content, string key, Type type)
+        private bool PropagateOther(string key, Type type)
         {
+            var content = this.MainContentManager;
             key = this.AssertAndNormalizeAssetName(key);
 
             /****
@@ -830,10 +840,9 @@ namespace StardewModdingAPI.Metadata
         }
 
         /// <summary>Reload the sprites for matching NPCs.</summary>
-        /// <param name="content">The content manager through which to reload the asset.</param>
         /// <param name="keys">The asset keys to reload.</param>
         /// <param name="propagated">The asset keys which have been propagated.</param>
-        private void ReloadNpcSprites(LocalizedContentManager content, IEnumerable<string> keys, IDictionary<string, bool> propagated)
+        private void ReloadNpcSprites(IEnumerable<string> keys, IDictionary<string, bool> propagated)
         {
             // get NPCs
             HashSet<string> lookup = new HashSet<string>(keys, StringComparer.OrdinalIgnoreCase);
@@ -851,16 +860,15 @@ namespace StardewModdingAPI.Metadata
             // update sprite
             foreach (var target in characters)
             {
-                target.Npc.Sprite.spriteTexture = this.DisposeIfNeeded(target.Npc.Sprite.spriteTexture, content.Load<Texture2D>(target.Key));
+                target.Npc.Sprite.spriteTexture = this.LoadAndDisposeIfNeeded(target.Npc.Sprite.spriteTexture, target.Key);
                 propagated[target.Key] = true;
             }
         }
 
         /// <summary>Reload the portraits for matching NPCs.</summary>
-        /// <param name="content">The content manager through which to reload the asset.</param>
         /// <param name="keys">The asset key to reload.</param>
         /// <param name="propagated">The asset keys which have been propagated.</param>
-        private void ReloadNpcPortraits(LocalizedContentManager content, IEnumerable<string> keys, IDictionary<string, bool> propagated)
+        private void ReloadNpcPortraits(IEnumerable<string> keys, IDictionary<string, bool> propagated)
         {
             // get NPCs
             HashSet<string> lookup = new HashSet<string>(keys, StringComparer.OrdinalIgnoreCase);
@@ -889,7 +897,7 @@ namespace StardewModdingAPI.Metadata
             // update portrait
             foreach (var target in characters)
             {
-                target.Npc.Portrait = this.DisposeIfNeeded(target.Npc.Portrait, content.Load<Texture2D>(target.Key));
+                target.Npc.Portrait = this.LoadAndDisposeIfNeeded(target.Npc.Portrait, target.Key);
                 propagated[target.Key] = true;
             }
         }
@@ -1155,15 +1163,26 @@ namespace StardewModdingAPI.Metadata
             return this.GetSegments(path).Length;
         }
 
-        /// <summary>Dispose a texture if <see cref="AggressiveMemoryOptimizations"/> are enabled and it's different from the new instance.</summary>
+        /// <summary>Load a texture, and dispose the old one if <see cref="AggressiveMemoryOptimizations"/> is enabled and it's different from the new instance.</summary>
         /// <param name="oldTexture">The previous texture to dispose.</param>
-        /// <param name="newTexture">The new texture being loaded.</param>
-        private Texture2D DisposeIfNeeded(Texture2D oldTexture, Texture2D newTexture)
+        /// <param name="key">The asset key to load.</param>
+        private Texture2D LoadAndDisposeIfNeeded(Texture2D oldTexture, string key)
         {
-            if (this.AggressiveMemoryOptimizations && oldTexture != null && !oldTexture.IsDisposed && !object.ReferenceEquals(oldTexture, newTexture))
-                oldTexture.Dispose();
+            // if aggressive memory optimizations are enabled, load the asset from the disposable
+            // content manager and dispose the old instance if needed.
+            if (this.AggressiveMemoryOptimizations)
+            {
+                GameContentManagerForAssetPropagation content = this.DisposableContentManager;
 
-            return newTexture;
+                Texture2D newTexture = content.Load<Texture2D>(key);
+                if (oldTexture?.IsDisposed == false && !object.ReferenceEquals(oldTexture, newTexture) && content.IsReponsibleFor(oldTexture))
+                    oldTexture.Dispose();
+
+                return newTexture;
+            }
+
+            // else just (re)load it from the main content manager
+            return this.MainContentManager.Load<Texture2D>(key);
         }
     }
 }
