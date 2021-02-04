@@ -41,7 +41,7 @@ copy all the settings, or you may cause bugs due to overridden changes in future
 
     /**
      * Whether to enable more aggressive memory optimizations.
-     * THIS IS EXPERIMENTAL AND MAY CAUSE ERRORS OR CRASHES.
+     * You can try disabling this if you get ObjectDisposedException errors.
      */
     "AggressiveMemoryOptimizations": true,
 

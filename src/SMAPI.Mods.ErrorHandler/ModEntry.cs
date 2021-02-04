@@ -30,7 +30,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler
             LogManager logManager = core.GetType().GetField("LogManager", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(core) as LogManager;
             if (logManager == null)
             {
-                this.Monitor.Log($"Can't access SMAPI's internal log manager. Error-handling patches won't be applied.", LogLevel.Error);
+                this.Monitor.Log("Can't access SMAPI's internal log manager. Error-handling patches won't be applied.", LogLevel.Error);
                 return;
             }
 

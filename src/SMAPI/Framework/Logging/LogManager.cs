@@ -295,8 +295,6 @@ namespace StardewModdingAPI.Framework.Logging
             // warnings
             if (!settings.CheckForUpdates)
                 this.Monitor.Log("You disabled update checks, so you won't be notified of new SMAPI or mod updates. Running an old version of SMAPI is not recommended. You can undo this by reinstalling SMAPI.", LogLevel.Warn);
-            if (settings.AggressiveMemoryOptimizations)
-                this.Monitor.Log("You enabled aggressive memory optimizations. This is an experimental option which may cause errors or crashes. You can undo this by reinstalling SMAPI.", LogLevel.Warn);
             if (!settings.RewriteMods)
                 this.Monitor.Log("You disabled rewriting broken mods, so many older mods may fail to load. You can undo this by reinstalling SMAPI.", LogLevel.Info);
             if (!this.Monitor.WriteToConsole)

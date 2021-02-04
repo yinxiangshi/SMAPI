@@ -9,11 +9,11 @@
 
 ## Upcoming release
 * For players:
-  * Added _aggressive memory optimization_ option. This is experimental and disabled by default; you can enable it in `smapi-internal/config.json` if you experience `OutOfMemoryException` crashes.
+  * Added more aggressive memory optimization which should eliminate many cases of `OutOfMemoryException` crashes.
   * Fixed error running `install on Windows.bat` in very rare cases.
 
 * For modders:
-  * Fixed SMAPI toolkit defaulting the mod type to SMAPI if its `manifest.json` has neither `EntryDll` nor `ContentPackFor`. This only affects external tools, since SMAPI itself validates those fields separately.
+  * Fixed SMAPI toolkit defaulting the mod type incorrectly if a mod's `manifest.json` has neither `EntryDll` nor `ContentPackFor`. This only affects external tools, since SMAPI itself validates those fields separately.
 
 ## 3.9.1
 Released 25 January 2021 for Stardew Valley 1.5.4 or later.
