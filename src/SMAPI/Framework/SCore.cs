@@ -1118,6 +1118,7 @@ namespace StardewModdingAPI.Framework
         {
             // perform cleanup
             this.Multiplayer.CleanupOnMultiplayerExit();
+            this.ContentCore.OnReturningToTitleScreen();
             this.JustReturnedToTitle = true;
         }
 
