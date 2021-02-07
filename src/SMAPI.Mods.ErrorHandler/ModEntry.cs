@@ -35,6 +35,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler
                 new ObjectErrorPatch(),
                 new LoadErrorPatch(this.Monitor, this.OnSaveContentRemoved),
                 new ScheduleErrorPatch(monitorForGame),
+                new SpriteBatchValidationPatches(),
                 new UtilityErrorPatches()
             );
 

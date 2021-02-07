@@ -16,6 +16,9 @@
   * Fixed SMAPI toolkit defaulting the mod type incorrectly if a mod's `manifest.json` has neither `EntryDll` nor `ContentPackFor`. This only affects external tools, since SMAPI itself validates those fields separately.
   * Fixed edge case when playing in non-English where translatable assets loaded via `IAssetLoader` would no longer be applied after returning to the title screen unless manually invalidated from the cache.
 
+* For the ErrorHandler mod:
+  * Added early detection of disposed textures so the crash stack trace shows the actual code which used them.
+
 * For the web UI:
   * Updated the JSON validator/schema for Content Patcher 1.20.
 
