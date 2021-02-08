@@ -62,7 +62,7 @@ namespace StardewModdingAPI.Web.Controllers
                 mods: this.Cache
                     .GetWikiMods()
                     .Select(mod => new ModModel(mod.Data))
-                    .OrderBy(p => Regex.Replace(p.Name.ToLower(), "[^a-z0-9]", "")), // ignore case, spaces, and special characters when sorting
+                    .OrderBy(p => Regex.Replace((p.Name ?? "").ToLower(), "[^a-z0-9]", "")), // ignore case, spaces, and special characters when sorting
                 lastUpdated: metadata.LastUpdated,
                 isStale: this.Cache.IsStale(metadata.LastUpdated, this.StaleMinutes)
             );

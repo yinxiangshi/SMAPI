@@ -21,6 +21,7 @@
 
 * For the web UI:
   * Updated the JSON validator/schema for Content Patcher 1.20.
+  * Fixed mod compatibility list error if a mod has no name.
 
 ## 3.9.1
 Released 25 January 2021 for Stardew Valley 1.5.4 or later.
