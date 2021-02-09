@@ -18,6 +18,7 @@
 
 * For the ErrorHandler mod:
   * Added early detection of disposed textures so the crash stack trace shows the actual code which used them.
+  * Added error details when an event command fails.
 
 * For the web UI:
   * Updated the JSON validator/schema for Content Patcher 1.20.
