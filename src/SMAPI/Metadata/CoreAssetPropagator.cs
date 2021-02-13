@@ -452,8 +452,7 @@ namespace StardewModdingAPI.Metadata
                     return true;
 
                 case "tilesheets\\chairtiles": // Game1.LoadContent
-                    MapSeat.mapChairTexture = content.Load<Texture2D>(key);
-                    return true;
+                    return this.ReloadChairTiles(content, key);
 
                 case "tilesheets\\craftables": // Game1.LoadContent
                     Game1.bigCraftableSpriteSheet = content.Load<Texture2D>(key);
@@ -689,6 +688,28 @@ namespace StardewModdingAPI.Metadata
                 return true;
             }
             return false;
+        }
+
+        /// <summary>Reload map seat textures.</summary>
+        /// <param name="content">The content manager through which to reload the asset.</param>
+        /// <param name="key">The asset key to reload.</param>
+        /// <returns>Returns whether any textures were reloaded.</returns>
+        private bool ReloadChairTiles(LocalizedContentManager content, string key)
+        {
+            MapSeat.mapChairTexture = content.Load<Texture2D>(key);
+
+            foreach (var location in this.GetLocations())
+            {
+                foreach (MapSeat seat in location.mapSeats.Where(p => p != null))
+                {
+                    string curKey = this.NormalizeAssetNameIgnoringEmpty(seat._loadedTextureFile);
+
+                    if (curKey == null || key.Equals(curKey, StringComparison.OrdinalIgnoreCase))
+                        seat.overlayTexture = MapSeat.mapChairTexture;
+                }
+            }
+
+            return true;
         }
 
         /// <summary>Reload critter textures.</summary>

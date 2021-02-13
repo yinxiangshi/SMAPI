@@ -13,8 +13,9 @@
   * Fixed error running `install on Windows.bat` in very rare cases.
 
 * For modders:
-  * Fixed SMAPI toolkit defaulting the mod type incorrectly if a mod's `manifest.json` has neither `EntryDll` nor `ContentPackFor`. This only affects external tools, since SMAPI itself validates those fields separately.
+  * Fixed asset propagation for `TileSheets/ChairTiles` not changing existing map seats.
   * Fixed edge case when playing in non-English where translatable assets loaded via `IAssetLoader` would no longer be applied after returning to the title screen unless manually invalidated from the cache.
+  * Fixed SMAPI toolkit defaulting the mod type incorrectly if a mod's `manifest.json` has neither `EntryDll` nor `ContentPackFor`. This only affects external tools, since SMAPI itself validates those fields separately.
 
 * For the ErrorHandler mod:
   * Added early detection of disposed textures so the crash stack trace shows the actual code which used them.
