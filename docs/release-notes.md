@@ -22,6 +22,7 @@
   * Added error details when an event command fails.
 
 * For the web UI:
+  * Updated for the new wiki.
   * Updated the JSON validator/schema for Content Patcher 1.20.
   * Fixed mod compatibility list error if a mod has no name.
 
