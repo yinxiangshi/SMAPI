@@ -37,7 +37,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
 
         /// <summary>Get whether a texture was loaded by this content manager.</summary>
         /// <param name="texture">The texture to check.</param>
-        public bool IsReponsibleFor(Texture2D texture)
+        public bool IsResponsibleFor(Texture2D texture)
         {
             return
                 texture?.Tag is string tag

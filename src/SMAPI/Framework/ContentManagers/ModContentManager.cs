@@ -59,28 +59,19 @@ namespace StardewModdingAPI.Framework.ContentManagers
             this.ModName = modName;
         }
 
-        /// <summary>Load an asset that has been processed by the content pipeline.</summary>
-        /// <typeparam name="T">The type of asset to load.</typeparam>
-        /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
+        /// <inheritdoc />
         public override T Load<T>(string assetName)
         {
             return this.Load<T>(assetName, this.DefaultLanguage, useCache: false);
         }
 
-        /// <summary>Load an asset that has been processed by the content pipeline.</summary>
-        /// <typeparam name="T">The type of asset to load.</typeparam>
-        /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
-        /// <param name="language">The language code for which to load content.</param>
+        /// <inheritdoc />
         public override T Load<T>(string assetName, LanguageCode language)
         {
             return this.Load<T>(assetName, language, useCache: false);
         }
 
-        /// <summary>Load an asset that has been processed by the content pipeline.</summary>
-        /// <typeparam name="T">The type of asset to load.</typeparam>
-        /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
-        /// <param name="language">The language code for which to load content.</param>
-        /// <param name="useCache">Whether to read/write the loaded asset to the asset cache.</param>
+        /// <inheritdoc />
         public override T Load<T>(string assetName, LanguageCode language, bool useCache)
         {
             assetName = this.AssertAndNormalizeAssetName(assetName);
@@ -190,7 +181,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             return asset;
         }
 
-        /// <summary>Create a new content manager for temporary use.</summary>
+        /// <inheritdoc />
         public override LocalizedContentManager CreateTemporary()
         {
             throw new NotSupportedException("Can't create a temporary mod content manager.");
@@ -210,9 +201,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /*********
         ** Private methods
         *********/
-        /// <summary>Get whether an asset has already been loaded.</summary>
-        /// <param name="normalizedAssetName">The normalized asset name.</param>
-        /// <param name="language">The language to check.</param>
+        /// <inheritdoc />
         protected override bool IsNormalizedKeyLoaded(string normalizedAssetName, LanguageCode language)
         {
             return this.Cache.ContainsKey(normalizedAssetName);

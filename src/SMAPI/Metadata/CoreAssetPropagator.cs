@@ -1201,7 +1201,7 @@ namespace StardewModdingAPI.Metadata
                 GameContentManagerForAssetPropagation content = this.DisposableContentManager;
 
                 Texture2D newTexture = content.Load<Texture2D>(key);
-                if (oldTexture?.IsDisposed == false && !object.ReferenceEquals(oldTexture, newTexture) && content.IsReponsibleFor(oldTexture))
+                if (oldTexture?.IsDisposed == false && !object.ReferenceEquals(oldTexture, newTexture) && content.IsResponsibleFor(oldTexture))
                     oldTexture.Dispose();
 
                 return newTexture;

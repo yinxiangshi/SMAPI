@@ -5,7 +5,6 @@ using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.Exceptions;
@@ -53,16 +52,16 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /*********
         ** Accessors
         *********/
-        /// <summary>A name for the mod manager. Not guaranteed to be unique.</summary>
+        /// <inheritdoc />
         public string Name { get; }
 
-        /// <summary>The current language as a constant.</summary>
+        /// <inheritdoc />
         public LanguageCode Language => this.GetCurrentLanguage();
 
-        /// <summary>The absolute path to the <see cref="ContentManager.RootDirectory"/>.</summary>
+        /// <inheritdoc />
         public string FullRootDirectory => Path.Combine(Constants.ExecutionPath, this.RootDirectory);
 
-        /// <summary>Whether this content manager can be targeted by managed asset keys (e.g. to load assets from a mod folder).</summary>
+        /// <inheritdoc />
         public bool IsNamespaced { get; }
 
 
@@ -97,56 +96,42 @@ namespace StardewModdingAPI.Framework.ContentManagers
             this.BaseDisposableReferences = reflection.GetField<List<IDisposable>>(this, "disposableAssets").GetValue();
         }
 
-        /// <summary>Load an asset that has been processed by the content pipeline.</summary>
-        /// <typeparam name="T">The type of asset to load.</typeparam>
-        /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
+        /// <inheritdoc />
         public override T Load<T>(string assetName)
         {
             return this.Load<T>(assetName, this.Language, useCache: true);
         }
 
-        /// <summary>Load an asset that has been processed by the content pipeline.</summary>
-        /// <typeparam name="T">The type of asset to load.</typeparam>
-        /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
-        /// <param name="language">The language code for which to load content.</param>
+        /// <inheritdoc />
         public override T Load<T>(string assetName, LanguageCode language)
         {
             return this.Load<T>(assetName, language, useCache: true);
         }
 
-        /// <summary>Load an asset that has been processed by the content pipeline.</summary>
-        /// <typeparam name="T">The type of asset to load.</typeparam>
-        /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
-        /// <param name="language">The language code for which to load content.</param>
-        /// <param name="useCache">Whether to read/write the loaded asset to the asset cache.</param>
+        /// <inheritdoc />
         public abstract T Load<T>(string assetName, LocalizedContentManager.LanguageCode language, bool useCache);
 
-        /// <summary>Load the base asset without localization.</summary>
-        /// <typeparam name="T">The type of asset to load.</typeparam>
-        /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
+        /// <inheritdoc />
         [Obsolete("This method is implemented for the base game and should not be used directly. To load an asset from the underlying content manager directly, use " + nameof(BaseContentManager.RawLoad) + " instead.")]
         public override T LoadBase<T>(string assetName)
         {
             return this.Load<T>(assetName, LanguageCode.en, useCache: true);
         }
 
-        /// <summary>Perform any cleanup needed when the locale changes.</summary>
+        /// <inheritdoc />
         public virtual void OnLocaleChanged() { }
 
         /// <inheritdoc />
         public virtual void OnReturningToTitleScreen() { }
 
-        /// <summary>Normalize path separators in a file path. For asset keys, see <see cref="AssertAndNormalizeAssetName"/> instead.</summary>
-        /// <param name="path">The file path to normalize.</param>
+        /// <inheritdoc />
         [Pure]
         public string NormalizePathSeparators(string path)
         {
             return this.Cache.NormalizePathSeparators(path);
         }
 
-        /// <summary>Assert that the given key has a valid format and return a normalized form consistent with the underlying cache.</summary>
-        /// <param name="assetName">The asset key to check.</param>
-        /// <exception cref="SContentLoadException">The asset key is empty or contains invalid characters.</exception>
+        /// <inheritdoc />
         [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "Parameter is only used for assertion checks by design.")]
         public string AssertAndNormalizeAssetName(string assetName)
         {
@@ -163,29 +148,26 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /****
         ** Content loading
         ****/
-        /// <summary>Get the current content locale.</summary>
+        /// <inheritdoc />
         public string GetLocale()
         {
             return this.GetLocale(this.GetCurrentLanguage());
         }
 
-        /// <summary>The locale for a language.</summary>
-        /// <param name="language">The language.</param>
+        /// <inheritdoc />
         public string GetLocale(LanguageCode language)
         {
             return this.LanguageCodeString(language);
         }
 
-        /// <summary>Get whether the content manager has already loaded and cached the given asset.</summary>
-        /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
-        /// <param name="language">The language.</param>
+        /// <inheritdoc />
         public bool IsLoaded(string assetName, LanguageCode language)
         {
             assetName = this.Cache.NormalizeKey(assetName);
             return this.IsNormalizedKeyLoaded(assetName, language);
         }
 
-        /// <summary>Get the cached asset keys.</summary>
+        /// <inheritdoc />
         public IEnumerable<string> GetAssetKeys()
         {
             return this.Cache.Keys
@@ -196,10 +178,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /****
         ** Cache invalidation
         ****/
-        /// <summary>Purge matched assets from the cache.</summary>
-        /// <param name="predicate">Matches the asset keys to invalidate.</param>
-        /// <param name="dispose">Whether to dispose invalidated assets. This should only be <c>true</c> when they're being invalidated as part of a dispose, to avoid crashing the game.</param>
-        /// <returns>Returns the invalidated asset names and instances.</returns>
+        /// <inheritdoc />
         public IDictionary<string, object> InvalidateCache(Func<string, Type, bool> predicate, bool dispose = false)
         {
             IDictionary<string, object> removeAssets = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
@@ -228,8 +207,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             return removeAssets;
         }
 
-        /// <summary>Dispose held resources.</summary>
-        /// <param name="isDisposing">Whether the content manager is being disposed (rather than finalized).</param>
+        /// <inheritdoc />
         protected override void Dispose(bool isDisposing)
         {
             // ignore if disposed
