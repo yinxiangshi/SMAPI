@@ -73,8 +73,22 @@ namespace StardewModdingAPI
         /// <remarks>This must be checked *before* any references to <see cref="Constants"/>, and this method should not reference <see cref="Constants"/> itself to avoid errors in Mono or when the game isn't present.</remarks>
         private static void AssertGamePresent()
         {
-            if (Type.GetType($"StardewValley.Game1, {EarlyConstants.GameAssemblyName}", throwOnError: false) == null)
-                Program.PrintErrorAndExit("Oops! SMAPI can't find the game. Make sure you're running StardewModdingAPI.exe in your game folder. See the readme.txt file for details.");
+            try
+            {
+                _ = Type.GetType($"StardewValley.Game1, {EarlyConstants.GameAssemblyName}", throwOnError: true);
+            }
+            catch (Exception ex)
+            {
+                // file doesn't exist
+                if (!File.Exists(Path.Combine(EarlyConstants.ExecutionPath, $"{EarlyConstants.GameAssemblyName}.exe")))
+                    Program.PrintErrorAndExit("Oops! SMAPI can't find the game. Make sure you're running StardewModdingAPI.exe in your game folder.");
+
+                // can't load file
+                Program.PrintErrorAndExit(
+                    message: "Oops! SMAPI couldn't load the game executable. The technical details below may have more info.",
+                    technicalMessage: $"Technical details: {ex}"
+                );
+            }
         }
 
         /// <summary>Assert that the game version is within <see cref="Constants.MinimumGameVersion"/> and <see cref="Constants.MaximumGameVersion"/>.</summary>
@@ -130,11 +144,22 @@ namespace StardewModdingAPI
 
         /// <summary>Write an error directly to the console and exit.</summary>
         /// <param name="message">The error message to display.</param>
-        private static void PrintErrorAndExit(string message)
+        /// <param name="technicalMessage">An additional message to log with technical details.</param>
+        private static void PrintErrorAndExit(string message, string technicalMessage = null)
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(message);
             Console.ResetColor();
+
+            if (technicalMessage != null)
+            {
+                Console.WriteLine();
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.WriteLine(technicalMessage);
+                Console.ResetColor();
+                Console.WriteLine();
+            }
+            
             Program.PressAnyKeyToExit(showMessage: true);
         }
 

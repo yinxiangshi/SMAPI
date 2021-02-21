@@ -9,13 +9,13 @@
 
 ## Upcoming release
 * For players:
-  * Added more aggressive memory optimization which should eliminate many cases of `OutOfMemoryException` crashes.
+  * Added more aggressive memory optimization which should reduce `OutOfMemoryException` errors with some mods.
+  * Added more detailed error when `Stardew Valley.exe` exists but can't be loaded.
   * Fixed error running `install on Windows.bat` in very rare cases.
 
 * For mod authors:
   * Fixed asset propagation for `TileSheets/ChairTiles` not changing existing map seats.
   * Fixed edge case when playing in non-English where translatable assets loaded via `IAssetLoader` would no longer be applied after returning to the title screen unless manually invalidated from the cache.
-  * Fixed SMAPI toolkit defaulting the mod type incorrectly if a mod's `manifest.json` has neither `EntryDll` nor `ContentPackFor`. This only affects external tools, since SMAPI itself validates those fields separately.
 
 * For the ErrorHandler mod:
   * Added early detection of disposed textures so the crash stack trace shows the actual code which used them.
@@ -25,6 +25,9 @@
   * Updated for the new wiki.
   * Updated the JSON validator/schema for Content Patcher 1.20.
   * Fixed mod compatibility list error if a mod has no name.
+
+* For SMAPI developers:
+  * Fixed SMAPI toolkit defaulting the mod type incorrectly if a mod's `manifest.json` has neither `EntryDll` nor `ContentPackFor`. This only affects external tools, since SMAPI itself validates those fields separately.
 
 ## 3.9.1
 Released 25 January 2021 for Stardew Valley 1.5.4 or later.
