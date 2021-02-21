@@ -133,6 +133,9 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <summary>Perform any cleanup needed when the locale changes.</summary>
         public virtual void OnLocaleChanged() { }
 
+        /// <inheritdoc />
+        public virtual void OnReturningToTitleScreen() { }
+
         /// <summary>Normalize path separators in a file path. For asset keys, see <see cref="AssertAndNormalizeAssetName"/> instead.</summary>
         /// <param name="path">The file path to normalize.</param>
         [Pure]
