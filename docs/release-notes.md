@@ -12,14 +12,13 @@
   * Added more aggressive memory optimization which should reduce `OutOfMemoryException` errors with some mods.
   * Added more detailed error when `Stardew Valley.exe` exists but can't be loaded.
   * Fixed error running `install on Windows.bat` in very rare cases.
+  * Fixed outdoor ambient lighting not updated when you reverse time using the `world_settime` command _(in Console Commands)_.
 
 * For mod authors:
+  * Added early detection of disposed textures so the crash stack trace shows the actual code which used them _(in Error Handler)_.
+  * Added error details when an event command fails _(in Error Handler)_.
   * Fixed asset propagation for `TileSheets/ChairTiles` not changing existing map seats.
   * Fixed edge case when playing in non-English where translatable assets loaded via `IAssetLoader` would no longer be applied after returning to the title screen unless manually invalidated from the cache.
-
-* For the ErrorHandler mod:
-  * Added early detection of disposed textures so the crash stack trace shows the actual code which used them.
-  * Added error details when an event command fails.
 
 * For the web UI:
   * Updated for the new wiki.
