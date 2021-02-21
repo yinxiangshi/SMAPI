@@ -3,7 +3,7 @@
 # Release notes
 <!--
 ## Future release
-* For modders:
+* For mod authors:
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
@@ -12,7 +12,7 @@
   * Added more aggressive memory optimization which should eliminate many cases of `OutOfMemoryException` crashes.
   * Fixed error running `install on Windows.bat` in very rare cases.
 
-* For modders:
+* For mod authors:
   * Fixed asset propagation for `TileSheets/ChairTiles` not changing existing map seats.
   * Fixed edge case when playing in non-English where translatable assets loaded via `IAssetLoader` would no longer be applied after returning to the title screen unless manually invalidated from the cache.
   * Fixed SMAPI toolkit defaulting the mod type incorrectly if a mod's `manifest.json` has neither `EntryDll` nor `ContentPackFor`. This only affects external tools, since SMAPI itself validates those fields separately.
@@ -46,7 +46,7 @@ Released 22 January 2021 for Stardew Valley 1.5.4 or later. See [release highlig
   * Fixed compatibility for very old content packs which still load maps from `.xnb` files. These were broken by map loading changes in Stardew Valley 1.5, but SMAPI now corrects them automatically.
   * Fixed some broken mods incorrectly listed as XNB mods under 'skipped mods'.
 
-* For modders:
+* For mod authors:
   * Added new input APIs:
     * Added an [API for multi-key bindings](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Input#KeybindList).
     * Added a new [`Input.ButtonsChanged` event](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Events#Input.ButtonsChanged).
@@ -80,7 +80,7 @@ Released 15 January 2021 for Stardew Valley 1.5.3 or later.
   * Updated for Stardew Valley 1.5.3.
   * Fixed issue where title screen music didn't stop after loading a save.
 
-* For modders:
+* For mod authors:
   * Fixed `SemanticVersion` comparisons returning wrong value in rare cases.
 
 ## 3.8.3
@@ -92,7 +92,7 @@ Released 08 January 2021 for Stardew Valley 1.5.2 or later.
   * You can now enter console commands for a specific screen in split-screen mode by adding `screen=ID` to the command.
   * Typing `help` in the SMAPI console is now more helpful.
 
-* For modders:
+* For mod authors:
   * Simplified tilesheet order warning added in SMAPI 3.8.2.
 
 * For the Console Commands mod:
@@ -109,7 +109,7 @@ Released 03 January 2021 for Stardew Valley 1.5.1 or later.
   * Fixed 'skipped mods' section repeating mods in some cases.
   * Fixed out-of-date error text.
 
-* For modders:
+* For mod authors:
   * Added warning when a map replacement changes the order/IDs of the original tilesheets, which may cause errors and crashes. Doing so for a farm map is blocked outright since that causes a consistent crash in Stardew Valley 1.5.
   * Message data from the `ModMessageReceived` event now uses the same serializer settings as the rest of SMAPI. That mainly adds support for sending crossplatform `Color`, `Point`, `Vector2`, `Rectangle`, and `SemanticVersion` fields through network messages.
   * When a mod is blocked by SMAPI's compatibility override list, the `TRACE` messages while loading it now say so and indicate why.
@@ -121,7 +121,7 @@ Released 26 December 2020 for Stardew Valley 1.5.1 or later.
 * For players:
   * Fixed broken community center bundles for non-English saves created in Stardew Valley 1.5. Affected saves will be fixed automatically on load.
 
-* For modders:
+* For mod authors:
   * World events are now raised for volcano dungeon levels.
   * Added `apply_save_fix` command to reapply a save migration in exceptional cases. This should be used very carefully. Type `help apply_save_fix` for details.
   * **Deprecation notice:** the `Helper.ConsoleCommands.Trigger` method is now deprecated and should no longer be used. See [integration APIs](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Integrations) for better mod integration options. It will eventually be removed in SMAPI 4.0.
@@ -137,7 +137,7 @@ Released 21 December 2020 for Stardew Valley 1.5 or later. See [release highligh
   * You can now run the installer from a subfolder of your game folder to auto-detect it. That simplifies installation if you have multiple copies of the game or it can't otherwise auto-detect the game path.
   * Clarified error when the SMAPI installer is in the `Mods` folder.
 
-* For modders:
+* For mod authors:
   * Added `PerScreen<T>` utility and new `Context` fields to simplify split-screen support in mods.
   * Added screen ID to log when playing in split-screen mode.
 
@@ -154,7 +154,7 @@ Released 21 November 2020 for Stardew Valley 1.4.1 or later.
   * Fixed error when heuristically rewriting an outdated mod in rare cases.
   * Fixed rare 'collection was modified' error when using `harmony summary` console command.
 
-* For modders:
+* For mod authors:
   * Updated TMXTile to 1.5.8 to fix exported `.tmx` files losing tile index properties.
 
 * For the Console Commands mod:
@@ -164,7 +164,7 @@ Released 21 November 2020 for Stardew Valley 1.4.1 or later.
 ## 3.7.5
 Released 16 October 2020 for Stardew Valley 1.4.1 or later.
 
-* For modders:
+* For mod authors:
   * Fixed changes to the town map asset not reapplying the game's community center, JojaMart, and Pam house changes.
 
 ## 3.7.4
@@ -174,7 +174,7 @@ Released 03 October 2020 for Stardew Valley 1.4.1 or later.
   * Improved performance on some older computers (thanks to millerscout!).
   * Fixed update alerts for Chucklefish forum mods broken by a recent site change.
 
-* For modders:
+* For mod authors:
   * Updated dependencies (including Mono.Cecil 0.11.2 → 0.11.3 and Platonymous.TMXTile 1.3.8 → 1.5.6).
   * Fixed asset propagation for `Data\MoviesReactions`.
   * Fixed error in content pack path handling when you pass a null path.
@@ -193,7 +193,7 @@ Released 16 September 2020 for Stardew Valley 1.4.1 or later.
   * Fixed map rendering crash due to conflict between SMAPI and PyTK.
   * Fixed error in heuristically-rewritten mods in rare cases (thanks to collaboration with ZaneYork!).
 
-* For modders:
+* For mod authors:
   * File paths accessed through `IContentPack` are now case-insensitive (even on Linux).
 
 * For the web UI:
@@ -205,7 +205,7 @@ Released 08 September 2020 for Stardew Valley 1.4.1 or later.
 * For players:
   * Fixed mod recipe changes not always applied in 3.7.
 
-* For modders:
+* For mod authors:
   * Renamed `PathUtilities.NormalizePathSeparators` to `NormalizePath`, and added normalization for more cases.
 
 ## 3.7.1
@@ -230,7 +230,7 @@ Released 07 September 2020 for Stardew Valley 1.4.1 or later. See [release highl
   * Removed the experimental `RewriteInParallel` option added in SMAPI 3.6 (it was already disabled by default). Unfortunately this caused intermittent and unpredictable errors when enabled.
   * Internal changes to prepare for upcoming game updates.
 
-* For modders:
+* For mod authors:
   * Added `PathUtilities` to simplify working with file/asset names.
   * You can now read/write `SDate` values to JSON (e.g. for `config.json`, network mod messages, etc).
   * Fixed asset propagation not updating title menu buttons immediately on Linux/Mac.
@@ -260,7 +260,7 @@ Released 02 August 2020 for Stardew Valley 1.4.1 or later.
   * Fixed spawned Floor TV not functional as a TV (thanks to Platonymous!).
   * Fixed spawned sturgeon roe having incorrect color.
 
-* For modders:
+* For mod authors:
   * Updated internal dependencies.
   * SMAPI now ignores more file types when scanning for mod folders (`.doc`, `.docx`, `.rar`, and `.zip`).
   * Added current GPU to trace logs to simplify troubleshooting.
@@ -293,7 +293,7 @@ Released 20 June 2020 for Stardew Valley 1.4.1 or later. See [release highlights
   * Updated ModDrop URLs.
   * Internal changes to improve performance and reliability.
 
-* For modders:
+* For mod authors:
   * Added [event priorities](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Events#Custom_priority) (thanks to spacechase0!).
   * Added [update subkeys](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Update_checks#Update_subkeys).
   * Added [a custom build of Harmony](https://github.com/Pathoschild/Harmony#readme) to provide more useful stack traces in error logs.
@@ -328,7 +328,7 @@ Released 27 April 2020 for Stardew Valley 1.4.1 or later. See [release highlight
   * Updated the JSON validator/schema for Content Patcher 1.13.
   * Fixed rare intermittent "CGI application encountered an error" errors.
 
-* For modders:
+* For mod authors:
   * Added map patching to the content API (via `asset.AsMap()`).
   * Added support for using patch helpers with arbitrary data (via `helper.Content.GetPatchHelper`).
   * Added `SDate` fields/methods: `SeasonIndex`, `FromDaysSinceStart`, `FromWorldDate`, `ToWorldDate`, and `ToLocaleString` (thanks to kdau!).
@@ -342,7 +342,7 @@ Released 27 April 2020 for Stardew Valley 1.4.1 or later. See [release highlight
 ## 3.4.1
 Released 24 March 2020 for Stardew Valley 1.4.1 or later.
 
-* For modders:
+* For mod authors:
   * Asset changes now propagate to NPCs in an event (e.g. wedding sprites).
   * Fixed mouse input suppression not working in SMAPI 3.4.
 
@@ -355,7 +355,7 @@ Released 22 March 2020 for Stardew Valley 1.4.1 or later. See [release highlight
   * Removed invalid-location check now handled by the game.
   * Updated translations. Thanks to Annosz (added Hungarian)!
 
-* For modders:
+* For mod authors:
   * Added support for flipped and rotated map tiles (thanks to collaboration with Platonymous!).
   * Added support for `.tmx` maps using zlib compression (thanks to Platonymous!).
   * Added `this.Monitor.LogOnce` method.
@@ -399,7 +399,7 @@ Released 22 February 2020 for Stardew Valley 1.4.1 or later. See [release highli
   * Updated the JSON validator and Content Patcher schema for `.tmx` support.
   * The mod compatibility page now has a sticky table header.
 
-* For modders:
+* For mod authors:
   * Added support for [message sending](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Integrations#Message_sending) to mods on the current computer (in addition to remote computers).
   * Added `ExtendImage` method to content API when editing files to resize textures.
   * Added `helper.Input.GetState` to get the low-level state of a button.
@@ -434,7 +434,7 @@ Released 01 February 2020 for Stardew Valley 1.4.1 or later. See [release highli
   * Fixed extra files under `Saves` (e.g. manual backups) not being ignored.
   * Fixed Android issue where game files were backed up.
 
-* For modders:
+* For mod authors:
   * Added support for `.tmx` map files. (Thanks to [Platonymous for the underlying library](https://github.com/Platonymous/TMXTile)!)
   * Added special handling for `Vector2` values in `.json` files, so they work consistently crossplatform.
   * Reworked the order that asset editors/loaders are called between multiple mods to support some framework mods like Content Patcher and Json Assets. Note that the order is undefined and should not be depended on.
@@ -483,7 +483,7 @@ Released 05 January 2019 for Stardew Valley 1.4.1 or later. See [release highlig
   * Fixed log parser not correctly handling content packs with no author (thanks to danvolchek!).
   * Fixed main sidebar link pointing to wiki instead of home page.
 
-* For modders:
+* For mod authors:
   * Added `World.ChestInventoryChanged` event (thanks to collaboration with wartech0!).
   * Added asset propagation for...
     * grass textures;
@@ -512,7 +512,7 @@ Released 02 December 2019 for Stardew Valley 1.4 or later.
   * If a log can't be uploaded to Pastebin (e.g. due to rate limits), it's now uploaded to Amazon S3 instead. Logs uploaded to S3 expire after one month.
   * Fixed JSON validator not letting you drag & drop a file.
 
-* For modders:
+* For mod authors:
   * `SemanticVersion` now supports [semver 2.0](https://semver.org/) build metadata.
 
 ## 3.0
@@ -542,7 +542,7 @@ For players:
 
 * **Fixed many bugs and edge cases.**
 
-For modders:
+For mod authors:
 * **New event system.**  
   SMAPI 3.0 removes the deprecated static events in favor of the new `helper.Events` API. The event
   engine is rewritten to make events more efficient, add events that weren't possible before, make
@@ -626,7 +626,7 @@ For modders:
   * Added instructions for Android.
   * The page now detects your OS and preselects the right instructions (thanks to danvolchek!).
 
-### For modders
+### For mod authors
 * Breaking changes:
   * Mods are now loaded much earlier in the game launch. This lets mods intercept any content asset, but the game is not fully initialized when `Entry` is called; use the `GameLaunched` event if you need to run code when the game is initialized.
   * Removed all deprecated APIs.
