@@ -7,21 +7,23 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
-## Upcoming release
+## 3.9.2
+Released 21 February 2021 for Stardew Valley 1.5.4 or later.
+
 * For players:
-  * Added more aggressive memory optimization which should reduce `OutOfMemoryException` errors with some mods.
-  * Added more detailed error when `Stardew Valley.exe` exists but can't be loaded.
+  * Added more aggressive memory optimization to reduce `OutOfMemoryException` errors with some mods.
+  * Improved error when `Stardew Valley.exe` exists but can't be loaded.
   * Fixed error running `install on Windows.bat` in very rare cases.
-  * Fixed outdoor ambient lighting not updated when you reverse time using the `world_settime` command _(in Console Commands)_.
+  * Fixed `world_settime` command not always updating outdoor ambient lighting _(in Console Commands)_.
 
 * For mod authors:
-  * Added early detection of disposed textures so the crash stack trace shows the actual code which used them _(in Error Handler)_.
+  * Added early detection of disposed textures so the error details are more relevant _(in Error Handler)_.
   * Added error details when an event command fails _(in Error Handler)_.
   * Fixed asset propagation for `TileSheets/ChairTiles` not changing existing map seats.
   * Fixed edge case when playing in non-English where translatable assets loaded via `IAssetLoader` would no longer be applied after returning to the title screen unless manually invalidated from the cache.
 
 * For the web UI:
-  * Updated for the new wiki.
+  * Updated compatibility list for the new wiki.
   * Updated the JSON validator/schema for Content Patcher 1.20.
   * Fixed mod compatibility list error if a mod has no name.
 
