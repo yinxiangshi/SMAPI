@@ -36,9 +36,6 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="useCache">Whether to read/write the loaded asset to the asset cache.</param>
         T Load<T>(string assetName, LocalizedContentManager.LanguageCode language, bool useCache);
 
-        /// <summary>Perform any cleanup needed when the locale changes.</summary>
-        void OnLocaleChanged();
-
         /// <summary>Normalize path separators in a file path. For asset keys, see <see cref="AssertAndNormalizeAssetName"/> instead.</summary>
         /// <param name="path">The file path to normalize.</param>
         [Pure]
@@ -69,5 +66,12 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="dispose">Whether to dispose invalidated assets. This should only be <c>true</c> when they're being invalidated as part of a dispose, to avoid crashing the game.</param>
         /// <returns>Returns the invalidated asset names and instances.</returns>
         IDictionary<string, object> InvalidateCache(Func<string, Type, bool> predicate, bool dispose = false);
+
+        /// <summary>Perform any cleanup needed when the locale changes.</summary>
+        void OnLocaleChanged();
+
+        /// <summary>Clean up when the player is returning to the title screen.</summary>
+        /// <remarks>This is called after the player returns to the title screen, but before <see cref="Game1.CleanupReturningToTitle"/> runs.</remarks>
+        void OnReturningToTitleScreen();
     }
 }

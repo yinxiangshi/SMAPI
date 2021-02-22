@@ -15,7 +15,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
     /// <remarks>Patch methods must be static for Harmony to work correctly. See the Harmony documentation before renaming patch arguments.</remarks>
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
     [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
-    internal class EventErrorPatch : IHarmonyPatch
+    internal class GameLocationPatches : IHarmonyPatch
     {
         /*********
         ** Fields
@@ -28,7 +28,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         ** Accessors
         *********/
         /// <inheritdoc />
-        public string Name => nameof(EventErrorPatch);
+        public string Name => nameof(GameLocationPatches);
 
 
         /*********
@@ -36,9 +36,9 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="monitorForGame">Writes messages to the console and log file on behalf of the game.</param>
-        public EventErrorPatch(IMonitor monitorForGame)
+        public GameLocationPatches(IMonitor monitorForGame)
         {
-            EventErrorPatch.MonitorForGame = monitorForGame;
+            GameLocationPatches.MonitorForGame = monitorForGame;
         }
 
         /// <inheritdoc />
@@ -55,7 +55,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         {
             harmony.Patch(
                 original: AccessTools.Method(typeof(GameLocation), "checkEventPrecondition"),
-                prefix: new HarmonyMethod(this.GetType(), nameof(EventErrorPatch.Before_GameLocation_CheckEventPrecondition))
+                prefix: new HarmonyMethod(this.GetType(), nameof(GameLocationPatches.Before_GameLocation_CheckEventPrecondition))
             );
         }
 #endif
@@ -89,7 +89,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         /// <returns>Returns whether to execute the original method.</returns>
         private static bool Before_GameLocation_CheckEventPrecondition(GameLocation __instance, ref int __result, string precondition, MethodInfo __originalMethod)
         {
-            const string key = nameof(EventErrorPatch.Before_GameLocation_CheckEventPrecondition);
+            const string key = nameof(GameLocationPatches.Before_GameLocation_CheckEventPrecondition);
             if (!PatchHelper.StartIntercept(key))
                 return true;
 
@@ -101,7 +101,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
             catch (TargetInvocationException ex)
             {
                 __result = -1;
-                EventErrorPatch.MonitorForGame.Log($"Failed parsing event precondition ({precondition}):\n{ex.InnerException}", LogLevel.Error);
+                GameLocationPatches.MonitorForGame.Log($"Failed parsing event precondition ({precondition}):\n{ex.InnerException}", LogLevel.Error);
                 return false;
             }
             finally

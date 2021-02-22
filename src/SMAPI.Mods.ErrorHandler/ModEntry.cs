@@ -26,21 +26,17 @@ namespace StardewModdingAPI.Mods.ErrorHandler
         public override void Entry(IModHelper helper)
         {
             // get SMAPI core types
-            SCore core = SCore.Instance;
-            LogManager logManager = core.GetType().GetField("LogManager", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(core) as LogManager;
-            if (logManager == null)
-            {
-                this.Monitor.Log($"Can't access SMAPI's internal log manager. Error-handling patches won't be applied.", LogLevel.Error);
-                return;
-            }
+            IMonitor monitorForGame = this.GetMonitorForGame();
 
             // apply patches
             new GamePatcher(this.Monitor).Apply(
-                new EventErrorPatch(logManager.MonitorForGame),
-                new DialogueErrorPatch(logManager.MonitorForGame, this.Helper.Reflection),
+                new DialogueErrorPatch(monitorForGame, this.Helper.Reflection),
+                new EventPatches(monitorForGame),
+                new GameLocationPatches(monitorForGame),
                 new ObjectErrorPatch(),
                 new LoadErrorPatch(this.Monitor, this.OnSaveContentRemoved),
-                new ScheduleErrorPatch(logManager.MonitorForGame),
+                new ScheduleErrorPatch(monitorForGame),
+                new SpriteBatchValidationPatches(),
                 new UtilityErrorPatches()
             );
 
@@ -61,7 +57,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler
         /// <summary>The method invoked when a save is loaded.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        public void OnSaveLoaded(object sender, SaveLoadedEventArgs e)
+        private void OnSaveLoaded(object sender, SaveLoadedEventArgs e)
         {
             // show in-game warning for removed save content
             if (this.IsSaveContentRemoved)
@@ -69,6 +65,17 @@ namespace StardewModdingAPI.Mods.ErrorHandler
                 this.IsSaveContentRemoved = false;
                 Game1.addHUDMessage(new HUDMessage(this.Helper.Translation.Get("warn.invalid-content-removed"), HUDMessage.error_type));
             }
+        }
+
+        /// <summary>Get the monitor with which to log game errors.</summary>
+        private IMonitor GetMonitorForGame()
+        {
+            SCore core = SCore.Instance;
+            LogManager logManager = core.GetType().GetField("LogManager", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(core) as LogManager;
+            if (logManager == null)
+                this.Monitor.Log("Can't access SMAPI's internal log manager. Some game errors may be reported as being from Error Handler.", LogLevel.Error);
+
+            return logManager?.MonitorForGame ?? this.Monitor;
         }
     }
 }

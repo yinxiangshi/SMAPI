@@ -277,7 +277,7 @@ namespace StardewModdingAPI.Framework
 
             // log basic info
             this.LogManager.HandleMarkerFiles();
-            this.LogManager.LogSettingsHeader(this.Settings.DeveloperMode, this.Settings.CheckForUpdates, this.Settings.RewriteMods);
+            this.LogManager.LogSettingsHeader(this.Settings);
 
             // set window titles
             this.SetWindowTitles(
@@ -1118,6 +1118,7 @@ namespace StardewModdingAPI.Framework
         {
             // perform cleanup
             this.Multiplayer.CleanupOnMultiplayerExit();
+            this.ContentCore.OnReturningToTitleScreen();
             this.JustReturnedToTitle = true;
         }
 
@@ -1149,7 +1150,7 @@ namespace StardewModdingAPI.Framework
             // Game1._temporaryContent initializing from SGame constructor
             if (this.ContentCore == null)
             {
-                this.ContentCore = new ContentCoordinator(serviceProvider, rootDirectory, Thread.CurrentThread.CurrentUICulture, this.Monitor, this.Reflection, this.Toolkit.JsonHelper, this.InitializeBeforeFirstAssetLoaded);
+                this.ContentCore = new ContentCoordinator(serviceProvider, rootDirectory, Thread.CurrentThread.CurrentUICulture, this.Monitor, this.Reflection, this.Toolkit.JsonHelper, this.InitializeBeforeFirstAssetLoaded, this.Settings.AggressiveMemoryOptimizations);
                 if (this.ContentCore.Language != this.Translator.LocaleEnum)
                     this.Translator.SetLocale(this.ContentCore.GetLocale(), this.ContentCore.Language);
 

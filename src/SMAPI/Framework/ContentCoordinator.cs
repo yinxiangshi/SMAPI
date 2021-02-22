@@ -26,6 +26,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>An asset key prefix for assets from SMAPI mod folders.</summary>
         private readonly string ManagedPrefix = "SMAPI";
 
+        /// <summary>Whether to enable more aggressive memory optimizations.</summary>
+        private readonly bool AggressiveMemoryOptimizations;
+
         /// <summary>Encapsulates monitoring and logging.</summary>
         private readonly IMonitor Monitor;
 
@@ -51,7 +54,7 @@ namespace StardewModdingAPI.Framework
         private bool IsDisposed;
 
         /// <summary>A lock used to prevent asynchronous changes to the content manager list.</summary>
-        /// <remarks>The game may adds content managers in asynchronous threads (e.g. when populating the load screen).</remarks>
+        /// <remarks>The game may add content managers in asynchronous threads (e.g. when populating the load screen).</remarks>
         private readonly ReaderWriterLockSlim ContentManagerLock = new ReaderWriterLockSlim();
 
         /// <summary>A cache of ordered tilesheet IDs used by vanilla maps.</summary>
@@ -91,8 +94,10 @@ namespace StardewModdingAPI.Framework
         /// <param name="reflection">Simplifies access to private code.</param>
         /// <param name="jsonHelper">Encapsulates SMAPI's JSON file parsing.</param>
         /// <param name="onLoadingFirstAsset">A callback to invoke the first time *any* game content manager loads an asset.</param>
-        public ContentCoordinator(IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action onLoadingFirstAsset)
+        /// <param name="aggressiveMemoryOptimizations">Whether to enable more aggressive memory optimizations.</param>
+        public ContentCoordinator(IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action onLoadingFirstAsset, bool aggressiveMemoryOptimizations)
         {
+            this.AggressiveMemoryOptimizations = aggressiveMemoryOptimizations;
             this.Monitor = monitor ?? throw new ArgumentNullException(nameof(monitor));
             this.Reflection = reflection;
             this.JsonHelper = jsonHelper;
@@ -108,11 +113,25 @@ namespace StardewModdingAPI.Framework
                     monitor: monitor,
                     reflection: reflection,
                     onDisposing: this.OnDisposing,
-                    onLoadingFirstAsset: onLoadingFirstAsset
+                    onLoadingFirstAsset: onLoadingFirstAsset,
+                    aggressiveMemoryOptimizations: aggressiveMemoryOptimizations
                 )
             );
+            var contentManagerForAssetPropagation = new GameContentManagerForAssetPropagation(
+                name: nameof(GameContentManagerForAssetPropagation),
+                serviceProvider: serviceProvider,
+                rootDirectory: rootDirectory,
+                currentCulture: currentCulture,
+                coordinator: this,
+                monitor: monitor,
+                reflection: reflection,
+                onDisposing: this.OnDisposing,
+                onLoadingFirstAsset: onLoadingFirstAsset,
+                aggressiveMemoryOptimizations: aggressiveMemoryOptimizations
+            );
+            this.ContentManagers.Add(contentManagerForAssetPropagation);
             this.VanillaContentManager = new LocalizedContentManager(serviceProvider, rootDirectory);
-            this.CoreAssets = new CoreAssetPropagator(this.MainContentManager.AssertAndNormalizeAssetName, reflection);
+            this.CoreAssets = new CoreAssetPropagator(this.MainContentManager, contentManagerForAssetPropagation, reflection, aggressiveMemoryOptimizations);
         }
 
         /// <summary>Get a new content manager which handles reading files from the game content folder with support for interception.</summary>
@@ -130,7 +149,8 @@ namespace StardewModdingAPI.Framework
                     monitor: this.Monitor,
                     reflection: this.Reflection,
                     onDisposing: this.OnDisposing,
-                    onLoadingFirstAsset: this.OnLoadingFirstAsset
+                    onLoadingFirstAsset: this.OnLoadingFirstAsset,
+                    aggressiveMemoryOptimizations: this.AggressiveMemoryOptimizations
                 );
                 this.ContentManagers.Add(manager);
                 return manager;
@@ -157,7 +177,8 @@ namespace StardewModdingAPI.Framework
                     monitor: this.Monitor,
                     reflection: this.Reflection,
                     jsonHelper: this.JsonHelper,
-                    onDisposing: this.OnDisposing
+                    onDisposing: this.OnDisposing,
+                    aggressiveMemoryOptimizations: this.AggressiveMemoryOptimizations
                 );
                 this.ContentManagers.Add(manager);
                 return manager;
@@ -179,6 +200,17 @@ namespace StardewModdingAPI.Framework
                     contentManager.OnLocaleChanged();
 
                 this.VanillaContentManager.Unload();
+            });
+        }
+
+        /// <summary>Clean up when the player is returning to the title screen.</summary>
+        /// <remarks>This is called after the player returns to the title screen, but before <see cref="Game1.CleanupReturningToTitle"/> runs.</remarks>
+        public void OnReturningToTitleScreen()
+        {
+            this.ContentManagerLock.InReadLock(() =>
+            {
+                foreach (IContentManager contentManager in this.ContentManagers)
+                    contentManager.OnReturningToTitleScreen();
             });
         }
 
@@ -290,7 +322,7 @@ namespace StardewModdingAPI.Framework
             // reload core game assets
             if (removedAssets.Any())
             {
-                IDictionary<string, bool> propagated = this.CoreAssets.Propagate(this.MainContentManager, removedAssets.ToDictionary(p => p.Key, p => p.Value)); // use an intercepted content manager
+                IDictionary<string, bool> propagated = this.CoreAssets.Propagate(removedAssets.ToDictionary(p => p.Key, p => p.Value)); // use an intercepted content manager
                 this.Monitor.Log($"Invalidated {removedAssets.Count} asset names ({string.Join(", ", removedAssets.Keys.OrderBy(p => p, StringComparer.OrdinalIgnoreCase))}); propagated {propagated.Count(p => p.Value)} core assets.", LogLevel.Trace);
             }
             else

@@ -52,17 +52,14 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="reflection">Simplifies access to private code.</param>
         /// <param name="onDisposing">A callback to invoke when the content manager is being disposed.</param>
         /// <param name="onLoadingFirstAsset">A callback to invoke the first time *any* game content manager loads an asset.</param>
-        public GameContentManager(string name, IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, Action<BaseContentManager> onDisposing, Action onLoadingFirstAsset)
-            : base(name, serviceProvider, rootDirectory, currentCulture, coordinator, monitor, reflection, onDisposing, isNamespaced: false)
+        /// <param name="aggressiveMemoryOptimizations">Whether to enable more aggressive memory optimizations.</param>
+        public GameContentManager(string name, IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, Action<BaseContentManager> onDisposing, Action onLoadingFirstAsset, bool aggressiveMemoryOptimizations)
+            : base(name, serviceProvider, rootDirectory, currentCulture, coordinator, monitor, reflection, onDisposing, isNamespaced: false, aggressiveMemoryOptimizations: aggressiveMemoryOptimizations)
         {
             this.OnLoadingFirstAsset = onLoadingFirstAsset;
         }
 
-        /// <summary>Load an asset that has been processed by the content pipeline.</summary>
-        /// <typeparam name="T">The type of asset to load.</typeparam>
-        /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
-        /// <param name="language">The language code for which to load content.</param>
-        /// <param name="useCache">Whether to read/write the loaded asset to the asset cache.</param>
+        /// <inheritdoc />
         public override T Load<T>(string assetName, LocalizedContentManager.LanguageCode language, bool useCache)
         {
             // raise first-load callback
@@ -94,7 +91,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             if (this.AssetsBeingLoaded.Contains(assetName))
             {
                 this.Monitor.Log($"Broke loop while loading asset '{assetName}'.", LogLevel.Warn);
-                this.Monitor.Log($"Bypassing mod loaders for this asset. Stack trace:\n{Environment.StackTrace}", LogLevel.Trace);
+                this.Monitor.Log($"Bypassing mod loaders for this asset. Stack trace:\n{Environment.StackTrace}");
                 data = this.RawLoad<T>(assetName, language, useCache);
             }
             else
@@ -116,7 +113,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             return data;
         }
 
-        /// <summary>Perform any cleanup needed when the locale changes.</summary>
+        /// <inheritdoc />
         public override void OnLocaleChanged()
         {
             base.OnLocaleChanged();
@@ -136,10 +133,35 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 .OrderBy(p => p, StringComparer.OrdinalIgnoreCase)
                 .ToArray();
             if (invalidated.Any())
-                this.Monitor.Log($"Invalidated {invalidated.Length} asset names: {string.Join(", ", invalidated)} for locale change.", LogLevel.Trace);
+                this.Monitor.Log($"Invalidated {invalidated.Length} asset names: {string.Join(", ", invalidated)} for locale change.");
         }
 
-        /// <summary>Create a new content manager for temporary use.</summary>
+        /// <inheritdoc />
+        public override void OnReturningToTitleScreen()
+        {
+            // The game clears LocalizedContentManager.localizedAssetNames after returning to the title screen. That
+            // causes an inconsistency in the SMAPI asset cache, which leads to an edge case where assets already
+            // provided by mods via IAssetLoader when playing in non-English are ignored.
+            //
+            // For example, let's say a mod provides the 'Data\mail' asset through IAssetLoader when playing in
+            // Portuguese. Here's the normal load process after it's loaded:
+            //   1. The game requests Data\mail.
+            //   2. SMAPI sees that it's already cached, and calls LoadRaw to bypass asset interception.
+            //   3. LoadRaw sees that there's a localized key mapping, and gets the mapped key.
+            //   4. In this case "Data\mail" is mapped to "Data\mail" since it was loaded by a mod, so it loads that
+            //      asset.
+            //
+            // When the game clears localizedAssetNames, that process goes wrong in step 4:
+            //  3. LoadRaw sees that there's no localized key mapping *and* the locale is non-English, so it attempts
+            //     to load from the localized key format.
+            //  4. In this case that's 'Data\mail.pt-BR', so it successfully loads that asset.
+            //  5. Since we've bypassed asset interception at this point, it's loaded directly from the base content
+            //     manager without mod changes.
+            if (LocalizedContentManager.CurrentLanguageCode != LocalizedContentManager.LanguageCode.en)
+                this.InvalidateCache((_, _) => true);
+        }
+
+        /// <inheritdoc />
         public override LocalizedContentManager CreateTemporary()
         {
             return this.Coordinator.CreateGameContentManager("(temporary)");
@@ -149,9 +171,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /*********
         ** Private methods
         *********/
-        /// <summary>Get whether an asset has already been loaded.</summary>
-        /// <param name="normalizedAssetName">The normalized asset name.</param>
-        /// <param name="language">The language to check.</param>
+        /// <inheritdoc />
         protected override bool IsNormalizedKeyLoaded(string normalizedAssetName, LanguageCode language)
         {
             string cachedKey = null;
@@ -165,12 +185,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 : this.Cache.ContainsKey(normalizedAssetName);
         }
 
-        /// <summary>Add tracking data to an asset and add it to the cache.</summary>
-        /// <typeparam name="T">The type of asset to inject.</typeparam>
-        /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
-        /// <param name="value">The asset value.</param>
-        /// <param name="language">The language code for which to inject the asset.</param>
-        /// <param name="useCache">Whether to save the asset to the asset cache.</param>
+        /// <inheritdoc />
         protected override void TrackAsset<T>(string assetName, T value, LanguageCode language, bool useCache)
         {
             // handle explicit language in asset name
@@ -358,7 +373,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 try
                 {
                     editor.Edit<T>(asset);
-                    this.Monitor.Log($"{mod.DisplayName} edited {info.AssetName}.", LogLevel.Trace);
+                    this.Monitor.Log($"{mod.DisplayName} edited {info.AssetName}.");
                 }
                 catch (Exception ex)
                 {
