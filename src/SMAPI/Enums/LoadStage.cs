@@ -9,6 +9,9 @@ namespace StardewModdingAPI.Enums
         /// <summary>The game is creating a new save slot, and has initialized the basic save info.</summary>
         CreatedBasicInfo,
 
+        /// <summary>The game is creating a new save slot, and has added the location instances but hasn't fully initialized them yet.</summary>
+        CreatedInitialLocations,
+
         /// <summary>The game is creating a new save slot, and has initialized the in-game locations.</summary>
         CreatedLocations,
 
@@ -20,6 +23,9 @@ namespace StardewModdingAPI.Enums
 
         /// <summary>The game is loading a save slot, and has applied the basic save info (including player data). Not applicable when connecting to a multiplayer host. Note that some basic info (like daily luck) is not initialized at this point. This is equivalent to <see cref="StardewValley.SaveGame.getLoadEnumerator"/> value 36.</summary>
         SaveLoadedBasicInfo,
+
+        /// <summary>The game is loading a save slot and has added the location instances, but hasn't applied the data yet. Not applicable when connecting to a multiplayer host.</summary>
+        SaveAddedLocations,
 
         /// <summary>The game is loading a save slot, and has applied the in-game location data. Not applicable when connecting to a multiplayer host. This is equivalent to <see cref="StardewValley.SaveGame.getLoadEnumerator"/> value 50.</summary>
         SaveLoadedLocations,

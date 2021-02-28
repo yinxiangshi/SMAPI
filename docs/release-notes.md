@@ -7,6 +7,10 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
+## Upcoming release
+* For mod authors:
+  * Added two stages to the `LoadStageChanged` event: `CreatedInitialLocations` and `SaveAddedLocations`, raised immediately after the game adds its vanilla locations but before they're initialized.
+
 ## 3.9.2
 Released 21 February 2021 for Stardew Valley 1.5.4 or later.
 
