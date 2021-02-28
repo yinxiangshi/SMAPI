@@ -37,6 +37,9 @@ namespace StardewModdingAPI.Enums
         Loaded,
 
         /// <summary>The save is fully loaded, the world has been initialized, and <see cref="Context.IsWorldReady"/> is now true.</summary>
-        Ready
+        Ready,
+
+        /// <summary>The game is exiting the loaded save and returning to the title screen. This happens before it returns to title; see <see cref="None"/> after it returns.</summary>
+        ReturningToTitle
     }
 }

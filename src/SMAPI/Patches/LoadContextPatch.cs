@@ -77,6 +77,12 @@ namespace StardewModdingAPI.Patches
                 prefix: new HarmonyMethod(this.GetType(), nameof(LoadContextPatch.Before_Game1_LoadForNewGame)),
                 postfix: new HarmonyMethod(this.GetType(), nameof(LoadContextPatch.After_Game1_LoadForNewGame))
             );
+
+            // detect ReturningToTitle
+            harmony.Patch(
+                original: AccessTools.Method(typeof(Game1), nameof(Game1.CleanupReturningToTitle)),
+                prefix: new HarmonyMethod(this.GetType(), nameof(LoadContextPatch.Before_Game1_CleanupReturningToTitle))
+            );
         }
 
 
@@ -107,6 +113,15 @@ namespace StardewModdingAPI.Patches
                 );
             }
 
+            return true;
+        }
+
+        /// <summary>Called before <see cref="Game1.CleanupReturningToTitle"/>.</summary>
+        /// <returns>Returns whether to execute the original method.</returns>
+        /// <remarks>This method must be static for Harmony to work correctly. See the Harmony documentation before renaming arguments.</remarks>
+        private static bool Before_Game1_CleanupReturningToTitle()
+        {
+            LoadContextPatch.OnStageChanged(LoadStage.ReturningToTitle);
             return true;
         }
 
