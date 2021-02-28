@@ -505,7 +505,7 @@ namespace StardewModdingAPI.Framework.Logging
                 {
                     this.LogModWarningGroup(
                         modsWithWarnings,
-                        match: mod => mod.HasUnsuppressedWarnings(ModWarning.AccessesConsole, ModWarning.AccessesFilesystem, ModWarning.AccessesShell),
+                        match: mod => mod.HasWarnings(ModWarning.AccessesConsole, ModWarning.AccessesFilesystem, ModWarning.AccessesShell),
                         level: LogLevel.Debug,
                         heading: "Direct system access",
                         blurb: new[]
@@ -517,11 +517,11 @@ namespace StardewModdingAPI.Framework.Logging
                         modLabel: mod =>
                         {
                             List<string> labels = new List<string>();
-                            if (mod.HasUnsuppressedWarnings(ModWarning.AccessesConsole))
+                            if (mod.HasWarnings(ModWarning.AccessesConsole))
                                 labels.Add("console");
-                            if (mod.HasUnsuppressedWarnings(ModWarning.AccessesFilesystem))
+                            if (mod.HasWarnings(ModWarning.AccessesFilesystem))
                                 labels.Add("files");
-                            if (mod.HasUnsuppressedWarnings(ModWarning.AccessesShell))
+                            if (mod.HasWarnings(ModWarning.AccessesShell))
                                 labels.Add("shells/processes");
 
                             return $"{mod.DisplayName} ({string.Join(", ", labels)})";
@@ -582,7 +582,7 @@ namespace StardewModdingAPI.Framework.Logging
         /// <param name="blurb">A detailed explanation of the warning, split into lines.</param>
         private void LogModWarningGroup(IModMetadata[] mods, ModWarning warning, LogLevel level, string heading, params string[] blurb)
         {
-            this.LogModWarningGroup(mods, mod => mod.HasUnsuppressedWarnings(warning), level, heading, blurb);
+            this.LogModWarningGroup(mods, mod => mod.HasWarnings(warning), level, heading, blurb);
         }
 
 

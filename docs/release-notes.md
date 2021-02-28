@@ -8,6 +8,9 @@
 -->
 
 ## Upcoming release
+* For players:
+  * Fixed console showing _found 1 mod with warnings_ with no mods listed.
+
 * For mod authors:
   * Added two stages to the `LoadStageChanged` event: `CreatedInitialLocations` and `SaveAddedLocations`, raised immediately after the game adds its vanilla locations but before they're initialized.
 

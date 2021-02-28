@@ -14,6 +14,13 @@ namespace StardewModdingAPI.Framework.ModLoading
     internal class ModMetadata : IModMetadata
     {
         /*********
+        ** Fields
+        *********/
+        /// <summary>The non-error issues with the mod, including warnings suppressed by the data record.</summary>
+        private ModWarning ActualWarnings = ModWarning.None;
+
+
+        /*********
         ** Accessors
         *********/
         /// <inheritdoc />
@@ -41,7 +48,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         public ModFailReason? FailReason { get; private set; }
 
         /// <inheritdoc />
-        public ModWarning Warnings { get; private set; }
+        public ModWarning Warnings => this.ActualWarnings & ~(this.DataRecord?.DataRecord.SuppressWarnings ?? ModWarning.None);
 
         /// <inheritdoc />
         public string Error { get; private set; }
@@ -116,7 +123,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <inheritdoc />
         public IModMetadata SetWarning(ModWarning warning)
         {
-            this.Warnings |= warning;
+            this.ActualWarnings |= warning;
             return this;
         }
 
@@ -218,12 +225,10 @@ namespace StardewModdingAPI.Framework.ModLoading
         }
 
         /// <inheritdoc />
-        public bool HasUnsuppressedWarnings(params ModWarning[] warnings)
+        public bool HasWarnings(params ModWarning[] warnings)
         {
-            return warnings.Any(warning =>
-                this.Warnings.HasFlag(warning)
-                && (this.DataRecord?.DataRecord == null || !this.DataRecord.DataRecord.SuppressWarnings.HasFlag(warning))
-            );
+            ModWarning curWarnings = this.Warnings;
+            return warnings.Any(warning => curWarnings.HasFlag(warning));
         }
 
         /// <inheritdoc />

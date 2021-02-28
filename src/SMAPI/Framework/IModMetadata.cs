@@ -34,7 +34,7 @@ namespace StardewModdingAPI.Framework
         /// <summary>The reason the mod failed to load, if applicable.</summary>
         ModFailReason? FailReason { get; }
 
-        /// <summary>Indicates non-error issues with the mod.</summary>
+        /// <summary>The non-error issues with the mod, ignoring those suppressed via <see cref="DataRecord"/>.</summary>
         ModWarning Warnings { get; }
 
         /// <summary>The reason the metadata is invalid, if any.</summary>
@@ -124,9 +124,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>Whether the mod has at least one valid update key set.</summary>
         bool HasValidUpdateKeys();
 
-        /// <summary>Get whether the mod has any of the given warnings which haven't been suppressed in the <see cref="DataRecord"/>.</summary>
+        /// <summary>Get whether the mod has any of the given warnings, ignoring those suppressed via <see cref="DataRecord"/>.</summary>
         /// <param name="warnings">The warnings to check.</param>
-        bool HasUnsuppressedWarnings(params ModWarning[] warnings);
+        bool HasWarnings(params ModWarning[] warnings);
 
         /// <summary>Get a relative path which includes the root folder name.</summary>
         string GetRelativePathWithRoot();
