@@ -13,6 +13,7 @@
 
 * For mod authors:
   * Added three stages to the `LoadStageChanged` event: `CreatedInitialLocations`/`SaveAddedLocations` (raised immediately after the game adds locations but before they're initialized), and `ReturningToTitle` (raised before exiting to the title screen).
+  * Fixed edge case when playing as a farmhand in non-English where translatable assets loaded via `IAssetLoader` weren't reapplied immediately when the server disconnects.
 
 ## 3.9.2
 Released 21 February 2021 for Stardew Valley 1.5.4 or later.
