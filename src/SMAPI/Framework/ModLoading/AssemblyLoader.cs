@@ -276,37 +276,40 @@ namespace StardewModdingAPI.Framework.ModLoading
 
             // swap assembly references if needed (e.g. XNA => MonoGame)
             bool platformChanged = false;
-            for (int i = 0; i < module.AssemblyReferences.Count; i++)
+            if (this.RewriteMods)
             {
-                // remove old assembly reference
-                if (this.AssemblyMap.RemoveNames.Any(name => module.AssemblyReferences[i].Name == name))
+                for (int i = 0; i < module.AssemblyReferences.Count; i++)
                 {
-                    this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Rewriting {filename} for OS...");
-                    platformChanged = true;
-                    module.AssemblyReferences.RemoveAt(i);
-                    i--;
-                }
-            }
-            if (platformChanged)
-            {
-                // add target assembly references
-                foreach (AssemblyNameReference target in this.AssemblyMap.TargetReferences.Values)
-                    module.AssemblyReferences.Add(target);
-
-                // rewrite type scopes to use target assemblies
-                IEnumerable<TypeReference> typeReferences = module.GetTypeReferences().OrderBy(p => p.FullName);
-                foreach (TypeReference type in typeReferences)
-                    this.ChangeTypeScope(type);
-
-                // rewrite types using custom attributes
-                foreach (TypeDefinition type in module.GetTypes())
-                {
-                    foreach (var attr in type.CustomAttributes)
+                    // remove old assembly reference
+                    if (this.AssemblyMap.RemoveNames.Any(name => module.AssemblyReferences[i].Name == name))
                     {
-                        foreach (var conField in attr.ConstructorArguments)
+                        this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Rewriting {filename} for OS...");
+                        platformChanged = true;
+                        module.AssemblyReferences.RemoveAt(i);
+                        i--;
+                    }
+                }
+                if (platformChanged)
+                {
+                    // add target assembly references
+                    foreach (AssemblyNameReference target in this.AssemblyMap.TargetReferences.Values)
+                        module.AssemblyReferences.Add(target);
+
+                    // rewrite type scopes to use target assemblies
+                    IEnumerable<TypeReference> typeReferences = module.GetTypeReferences().OrderBy(p => p.FullName);
+                    foreach (TypeReference type in typeReferences)
+                        this.ChangeTypeScope(type);
+
+                    // rewrite types using custom attributes
+                    foreach (TypeDefinition type in module.GetTypes())
+                    {
+                        foreach (var attr in type.CustomAttributes)
                         {
-                            if (conField.Value is TypeReference typeRef)
-                                this.ChangeTypeScope(typeRef);
+                            foreach (var conField in attr.ConstructorArguments)
+                            {
+                                if (conField.Value is TypeReference typeRef)
+                                    this.ChangeTypeScope(typeRef);
+                            }
                         }
                     }
                 }
