@@ -252,9 +252,20 @@ namespace StardewModdingAPI.Framework.Logging
                     break;
 
                 // missing content folder exception
-                case FileNotFoundException ex when ex.Message == "Could not find file 'C:\\Program Files (x86)\\Steam\\SteamApps\\common\\Stardew Valley\\Content\\XACT\\FarmerSounds.xgs'.": // path in error is hardcoded regardless of install path
+                case FileNotFoundException ex when ex.Message == "Couldn't find file 'C:\\Program Files (x86)\\Steam\\SteamApps\\common\\Stardew Valley\\Content\\XACT\\FarmerSounds.xgs'.": // path in error is hardcoded regardless of install path
                     this.Monitor.Log("The game can't find its Content\\XACT\\FarmerSounds.xgs file. You can usually fix this by resetting your content files (see https://smapi.io/troubleshoot#reset-content ), or by uninstalling and reinstalling the game.", LogLevel.Error);
                     this.Monitor.Log($"Technical details: {ex.GetLogSummary()}");
+                    break;
+
+                // path too long exception
+                case PathTooLongException:
+                    {
+                        string[] affectedPaths = PathUtilities.GetTooLongPaths(Constants.ModsPath).ToArray();
+                        string message = affectedPaths.Any()
+                            ? $"SMAPI can't launch because some of your mod files exceed the maximum path length on {Constants.Platform}.\nIf you need help fixing this error, see https://smapi.io/help\n\nAffected paths:\n   {string.Join("\n   ", affectedPaths)}"
+                            : $"The game failed to launch: {exception.GetLogSummary()}";
+                        this.MonitorForGame.Log(message, LogLevel.Error);
+                    }
                     break;
 
                 // generic exception

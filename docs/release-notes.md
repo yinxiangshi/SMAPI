@@ -9,8 +9,9 @@
 
 ## Upcoming release
 * For players:
-  * Fixed console showing _found 1 mod with warnings_ with no mods listed.
   * If the installer crashes, the window now stays open if possible so you can read the error and ask for help.
+  * Added descriptive error if possible when a `PathTooLongException` crashes SMAPI or the installer.
+  * Fixed console showing _found 1 mod with warnings_ with no mods listed.
 
 * For mod authors:
   * Added three stages to the `LoadStageChanged` event: `CreatedInitialLocations`/`SaveAddedLocations` (raised immediately after the game adds locations but before they're initialized), and `ReturningToTitle` (raised before exiting to the title screen).

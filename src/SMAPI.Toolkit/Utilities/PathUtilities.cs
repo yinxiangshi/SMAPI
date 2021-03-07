@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
@@ -132,6 +133,30 @@ namespace StardewModdingAPI.Toolkit.Utilities
         public static bool IsSlug(string str)
         {
             return !Regex.IsMatch(str, "[^a-z0-9_.-]", RegexOptions.IgnoreCase);
+        }
+
+        /// <summary>Get the paths which exceed the OS length limit.</summary>
+        /// <param name="rootPath">The root path to search.</param>
+        internal static IEnumerable<string> GetTooLongPaths(string rootPath)
+        {
+            return Directory
+                .EnumerateFileSystemEntries(rootPath, "*.*", SearchOption.AllDirectories)
+                .Where(PathUtilities.IsPathTooLong);
+        }
+
+        /// <summary>Get whether a file or directory path exceeds the OS path length limit.</summary>
+        /// <param name="path">The path to test.</param>
+        internal static bool IsPathTooLong(string path)
+        {
+            try
+            {
+                _ = Path.GetFullPath(path);
+                return false;
+            }
+            catch (PathTooLongException)
+            {
+                return true;
+            }
         }
     }
 }
