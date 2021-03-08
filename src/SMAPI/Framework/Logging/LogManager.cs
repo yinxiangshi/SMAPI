@@ -252,9 +252,20 @@ namespace StardewModdingAPI.Framework.Logging
                     break;
 
                 // missing content folder exception
-                case FileNotFoundException ex when ex.Message == "Could not find file 'C:\\Program Files (x86)\\Steam\\SteamApps\\common\\Stardew Valley\\Content\\XACT\\FarmerSounds.xgs'.": // path in error is hardcoded regardless of install path
+                case FileNotFoundException ex when ex.Message == "Couldn't find file 'C:\\Program Files (x86)\\Steam\\SteamApps\\common\\Stardew Valley\\Content\\XACT\\FarmerSounds.xgs'.": // path in error is hardcoded regardless of install path
                     this.Monitor.Log("The game can't find its Content\\XACT\\FarmerSounds.xgs file. You can usually fix this by resetting your content files (see https://smapi.io/troubleshoot#reset-content ), or by uninstalling and reinstalling the game.", LogLevel.Error);
                     this.Monitor.Log($"Technical details: {ex.GetLogSummary()}");
+                    break;
+
+                // path too long exception
+                case PathTooLongException:
+                    {
+                        string[] affectedPaths = PathUtilities.GetTooLongPaths(Constants.ModsPath).ToArray();
+                        string message = affectedPaths.Any()
+                            ? $"SMAPI can't launch because some of your mod files exceed the maximum path length on {Constants.Platform}.\nIf you need help fixing this error, see https://smapi.io/help\n\nAffected paths:\n   {string.Join("\n   ", affectedPaths)}"
+                            : $"The game failed to launch: {exception.GetLogSummary()}";
+                        this.MonitorForGame.Log(message, LogLevel.Error);
+                    }
                     break;
 
                 // generic exception
@@ -505,7 +516,7 @@ namespace StardewModdingAPI.Framework.Logging
                 {
                     this.LogModWarningGroup(
                         modsWithWarnings,
-                        match: mod => mod.HasUnsuppressedWarnings(ModWarning.AccessesConsole, ModWarning.AccessesFilesystem, ModWarning.AccessesShell),
+                        match: mod => mod.HasWarnings(ModWarning.AccessesConsole, ModWarning.AccessesFilesystem, ModWarning.AccessesShell),
                         level: LogLevel.Debug,
                         heading: "Direct system access",
                         blurb: new[]
@@ -517,11 +528,11 @@ namespace StardewModdingAPI.Framework.Logging
                         modLabel: mod =>
                         {
                             List<string> labels = new List<string>();
-                            if (mod.HasUnsuppressedWarnings(ModWarning.AccessesConsole))
+                            if (mod.HasWarnings(ModWarning.AccessesConsole))
                                 labels.Add("console");
-                            if (mod.HasUnsuppressedWarnings(ModWarning.AccessesFilesystem))
+                            if (mod.HasWarnings(ModWarning.AccessesFilesystem))
                                 labels.Add("files");
-                            if (mod.HasUnsuppressedWarnings(ModWarning.AccessesShell))
+                            if (mod.HasWarnings(ModWarning.AccessesShell))
                                 labels.Add("shells/processes");
 
                             return $"{mod.DisplayName} ({string.Join(", ", labels)})";
@@ -582,7 +593,7 @@ namespace StardewModdingAPI.Framework.Logging
         /// <param name="blurb">A detailed explanation of the warning, split into lines.</param>
         private void LogModWarningGroup(IModMetadata[] mods, ModWarning warning, LogLevel level, string heading, params string[] blurb)
         {
-            this.LogModWarningGroup(mods, mod => mod.HasUnsuppressedWarnings(warning), level, heading, blurb);
+            this.LogModWarningGroup(mods, mod => mod.HasWarnings(warning), level, heading, blurb);
         }
 
 

@@ -19,13 +19,6 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
     internal class UtilityErrorPatches : IHarmonyPatch
     {
         /*********
-        ** Accessors
-        *********/
-        /// <inheritdoc />
-        public string Name => nameof(UtilityErrorPatches);
-
-
-        /*********
         ** Public methods
         *********/
         /// <inheritdoc />

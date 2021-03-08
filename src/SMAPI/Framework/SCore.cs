@@ -1054,17 +1054,24 @@ namespace StardewModdingAPI.Framework
             LoadStage oldStage = Context.LoadStage;
             Context.LoadStage = newStage;
             this.Monitor.VerboseLog($"Context: load stage changed to {newStage}");
-            if (newStage == LoadStage.None)
-            {
-                this.Monitor.Log("Context: returned to title");
-                this.OnReturnedToTitle();
-            }
 
-            // override chatbox
-            if (newStage == LoadStage.Loaded)
+            // handle stages
+            switch (newStage)
             {
-                Game1.onScreenMenus.Remove(Game1.chatBox);
-                Game1.onScreenMenus.Add(Game1.chatBox = new SChatBox(this.LogManager.MonitorForGame));
+                case LoadStage.ReturningToTitle:
+                    this.Monitor.Log("Context: returning to title");
+                    this.OnReturningToTitle();
+                    break;
+
+                case LoadStage.None:
+                    this.JustReturnedToTitle = true;
+                    break;
+
+                case LoadStage.Loaded:
+                    // override chatbox
+                    Game1.onScreenMenus.Remove(Game1.chatBox);
+                    Game1.onScreenMenus.Add(Game1.chatBox = new SChatBox(this.LogManager.MonitorForGame));
+                    break;
             }
 
             // raise events
@@ -1113,13 +1120,12 @@ namespace StardewModdingAPI.Framework
             this.EventManager.DayEnding.RaiseEmpty();
         }
 
-        /// <summary>Raised after the player returns to the title screen.</summary>
-        private void OnReturnedToTitle()
+        /// <summary>Raised immediately before the player returns to the title screen.</summary>
+        private void OnReturningToTitle()
         {
             // perform cleanup
             this.Multiplayer.CleanupOnMultiplayerExit();
             this.ContentCore.OnReturningToTitleScreen();
-            this.JustReturnedToTitle = true;
         }
 
         /// <summary>Raised before the game exits.</summary>

@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Compression;
 using System.Reflection;
+using System.Threading;
 
 namespace StardewModdingApi.Installer
 {
@@ -49,7 +50,15 @@ namespace StardewModdingApi.Installer
 
             // launch installer
             var installer = new InteractiveInstaller(bundleDir.FullName);
-            installer.Run(args);
+
+            try
+            {
+                installer.Run(args);
+            }
+            catch (Exception ex)
+            {
+                Program.PrintErrorAndExit($"The installer failed with an unexpected exception.\nIf you need help fixing this error, see https://smapi.io/help\n\n{ex}");
+            }
         }
 
         /*********
@@ -75,6 +84,20 @@ namespace StardewModdingApi.Installer
                 Console.WriteLine($"Error resolving assembly: {ex}");
                 return null;
             }
+        }
+
+        /// <summary>Write an error directly to the console and exit.</summary>
+        /// <param name="message">The error message to display.</param>
+        private static void PrintErrorAndExit(string message)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(message);
+            Console.ResetColor();
+
+            Console.WriteLine("Game has ended. Press any key to exit.");
+            Thread.Sleep(100);
+            Console.ReadKey();
+            Environment.Exit(0);
         }
     }
 }

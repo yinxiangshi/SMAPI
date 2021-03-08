@@ -17,13 +17,6 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
     internal class SpriteBatchValidationPatches : IHarmonyPatch
     {
         /*********
-        ** Accessors
-        *********/
-        /// <inheritdoc />
-        public string Name => nameof(SpriteBatchValidationPatches);
-
-
-        /*********
         ** Public methods
         *********/
         /// <inheritdoc />
