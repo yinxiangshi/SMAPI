@@ -7,15 +7,17 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
-## Upcoming release
+## 3.9.3
+Released 07 March 2021 for Stardew Valley 1.5.4 or later.
+
 * For players:
-  * If the installer crashes, the window now stays open if possible so you can read the error and ask for help.
   * Added descriptive error if possible when a `PathTooLongException` crashes SMAPI or the installer.
-  * Fixed console showing _found 1 mod with warnings_ with no mods listed.
+  * The installer window now tries to stay open if it crashed, so you can read the error and ask for help.
+  * Fixed console showing _found 1 mod with warnings_ with no mods listed in some cases.
 
 * For mod authors:
-  * Added three stages to the `LoadStageChanged` event: `CreatedInitialLocations`/`SaveAddedLocations` (raised immediately after the game adds locations but before they're initialized), and `ReturningToTitle` (raised before exiting to the title screen).
-  * Fixed `RewriteMods` option in `smapi-internal/config.json` ignored when rewriting mod for OS compatibility.
+  * Added three stages to the specialised [`LoadStageChanged` event](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Events#Specialised): `CreatedInitialLocations`, `SaveAddedLocations`, and `ReturningToTitle`.
+  * Fixed `RewriteMods` option ignored when rewriting for OS compatibility.
   * Fixed edge case when playing as a farmhand in non-English where translatable assets loaded via `IAssetLoader` weren't reapplied immediately when the server disconnects.
 
 ## 3.9.2

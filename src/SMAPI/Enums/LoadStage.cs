@@ -24,10 +24,10 @@ namespace StardewModdingAPI.Enums
         /// <summary>The game is loading a save slot, and has applied the basic save info (including player data). Not applicable when connecting to a multiplayer host. Note that some basic info (like daily luck) is not initialized at this point. This is equivalent to <see cref="StardewValley.SaveGame.getLoadEnumerator"/> value 36.</summary>
         SaveLoadedBasicInfo = 5,
 
-        /// <summary>The game is loading a save slot and has added the location instances, but hasn't applied the data yet. Not applicable when connecting to a multiplayer host.</summary>
+        /// <summary>The game is loading a save slot and has added the location instances, but hasn't restored their save data yet. Not applicable when connecting to a multiplayer host.</summary>
         SaveAddedLocations = 11,
 
-        /// <summary>The game is loading a save slot, and has applied the in-game location data. Not applicable when connecting to a multiplayer host. This is equivalent to <see cref="StardewValley.SaveGame.getLoadEnumerator"/> value 50.</summary>
+        /// <summary>The game is loading a save slot, and has restored the in-game location data. Not applicable when connecting to a multiplayer host. This is equivalent to <see cref="StardewValley.SaveGame.getLoadEnumerator"/> value 50.</summary>
         SaveLoadedLocations = 6,
 
         /// <summary>The final metadata has been loaded from the save file. This happens before the game applies problem fixes, checks for achievements, starts music, etc. Not applicable when connecting to a multiplayer host.</summary>
