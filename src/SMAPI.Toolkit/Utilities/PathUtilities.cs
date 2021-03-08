@@ -139,6 +139,9 @@ namespace StardewModdingAPI.Toolkit.Utilities
         /// <param name="rootPath">The root path to search.</param>
         internal static IEnumerable<string> GetTooLongPaths(string rootPath)
         {
+            if (!Directory.Exists(rootPath))
+                return new string[0];
+
             return Directory
                 .EnumerateFileSystemEntries(rootPath, "*.*", SearchOption.AllDirectories)
                 .Where(PathUtilities.IsPathTooLong);
