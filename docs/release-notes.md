@@ -20,6 +20,9 @@ Released 07 March 2021 for Stardew Valley 1.5.4 or later.
   * Fixed `RewriteMods` option ignored when rewriting for OS compatibility.
   * Fixed edge case when playing as a farmhand in non-English where translatable assets loaded via `IAssetLoader` weren't reapplied immediately when the server disconnects.
 
+* For the web UI:
+  * Updated the JSON validator/schema for Content Patcher 1.21.
+
 ## 3.9.2
 Released 21 February 2021 for Stardew Valley 1.5.4 or later.
 

@@ -11,9 +11,9 @@
             "title": "Format version",
             "description": "The format version. You should always use the latest version to enable the latest features and avoid obsolete behavior.",
             "type": "string",
-            "const": "1.20.0",
+            "const": "1.21.0",
             "@errorMessages": {
-                "const": "Incorrect value '@value'. This should be set to the latest format version, currently '1.20.0'."
+                "const": "Incorrect value '@value'. This should be set to the latest format version, currently '1.21.0'."
             }
         },
         "ConfigSchema": {
@@ -67,6 +67,65 @@
                 "@errorMessages": {
                     "allOf": "If 'AllowBlank' is false, the 'Default' field is required."
                 }
+            }
+        },
+        "CustomLocations": {
+            "title": "Custom locations",
+            "description": "The custom in-game locations to make available.",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "Name": {
+                        "title": "Name",
+                        "description": "The location's unique internal name. This can't contain tokens. The name must begin with 'Custom_' (to avoid conflicting with current or future vanilla locations), can only contain alphanumeric or underscore characters, and must be *globally* unique. Prefixing it with your mod name is strongly recommended.",
+                        "type": "string",
+                        "allOf": [
+                            {
+                                "pattern": "^ *Custom_"
+                            },
+                            {
+                                "pattern": "^ *[a-zA-Z0-9_]+ *$"
+                            },
+                            {
+                                "pattern": "^ *Custom_.+_.+ *$"
+                            }
+                        ],
+                        "@errorMessages": {
+                            "allOf:indexes: 0": "Custom location names must start with the exact text 'Custom_'.",
+                            "allOf:indexes: 1": "Custom location names can only contain alphanumeric or underscore characters.",
+                            "allOf:indexes: 2": "The location name should have three parts separated by underscores: the exact text 'Custom', a short label or acronym for your mod, and a map name (like 'Custom_YourModName_MapName'). Although not strictly required, this is very strongly recommended due to the consequences if two mods accidentally use the same location name."
+                        }
+                    },
+                    "FromMapFile": {
+                        "title": "From map file",
+                        "description": "The relative path to the location's map file in your content pack folder (file can be .tmx, .tbin, or .xnb). This can't contain tokens, but you can make conditional changes using EditMap.",
+                        "type": "string",
+                        "allOf": [
+                            {
+                                "not": {
+                                    "pattern": "\b\\.\\.[/\\]"
+                                }
+                            },
+                            {
+                                "pattern": "\\.(tbin|tmx|xnb) *$"
+                            }
+                        ],
+                        "@errorMessages": {
+                            "allOf:indexes: 0": "Invalid value; must not contain directory climbing (like '../').",
+                            "allOf:indexes: 1": "Invalid value; must be a file path ending with .tbin, .tmx, or .xnb."
+                        }
+                    },
+                    "MigrateLegacyNames": {
+                        "title": "Migrate legacy names",
+                        "description": "An optional list of former location names that may appear in the save file instead of the one given by Name. This can't contain tokens. This is only meant to allow migrating older locations, and shouldn't be used in most cases.",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "additionalProperties": false
             }
         },
         "DynamicTokens": {
@@ -127,7 +186,7 @@
                     },
                     "Enabled": {
                         "title": "Enabled",
-                        "description": "Whether to apply this patch. Default true. This fields supports immutable tokens (e.g. config tokens) if they return true/false.",
+                        "description": "Whether to apply this patch. Default true. This field does not allow tokens.",
                         "anyOf": [
                             {
                                 "type": "boolean"
@@ -135,10 +194,6 @@
                             {
                                 "type": "string",
                                 "enum": [ "true", "false" ]
-                            },
-                            {
-                                "type": "string",
-                                "pattern": "\\{\\{[^{}]+\\}\\}"
                             }
                         ],
                         "@errorMessages": {
@@ -264,6 +319,18 @@
                                 "dependencies:BeforeID": "If 'BeforeID' is specified, only 'ID' and 'BeforeID' fields are valid.",
                                 "dependencies:AfterID": "If 'AfterID' is specified, only 'ID' and 'AfterID' fields are valid.",
                                 "dependencies:ToPosition": "If 'ToPosition' is specified, only 'ID' and 'ToPosition' fields are valid."
+                            }
+                        }
+                    },
+                    "AddWarps": {
+                        "title": "Add warps",
+                        "description": "The warp values to add to the location, in the format recognized by the game's Warp map property.",
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "pattern": " *-?\\d+ -?\\d+ [A-Za-z0-9_]+ -?\\d+ -?\\d+ *$",
+                            "@errorMessages": {
+                                "pattern": "Each warp must match the exact format recognized by the game's Warp map property (i.e. 'fromX fromY targetMap targetX targetY', like '10 10 Town 0 30'."
                             }
                         }
                     },
@@ -441,6 +508,7 @@
                                     "Update",
                                     "When",
 
+                                    "AddWarps",
                                     "FromArea",
                                     "MapProperties",
                                     "MapTiles",
@@ -495,13 +563,13 @@
                     "title": "X position",
                     "description": "The X position, measured in pixels for a texture or tiles for a map. This can contain tokens.",
                     "type": [ "integer", "string" ],
-                    "minimum:": 0
+                    "minimum": 0
                 },
                 "Y": {
                     "title": "Y position",
                     "description": "The Y position, measured in pixels for a texture or tiles for a map. This can contain tokens.",
                     "type": [ "integer", "string" ],
-                    "minimum:": 0
+                    "minimum": 0
                 }
             },
 
@@ -515,25 +583,25 @@
                     "title": "X position",
                     "description": "The X position of the area's top-left corner, measured in pixels for a texture or tiles for a map. This can contain tokens.",
                     "type": [ "integer", "string" ],
-                    "minimum:": 0
+                    "minimum": 0
                 },
                 "Y": {
                     "title": "Y position",
                     "description": "The Y position of the area's top-left corner, measured in pixels for a texture or tiles for a map. This can contain tokens.",
                     "type": [ "integer", "string" ],
-                    "minimum:": 0
+                    "minimum": 0
                 },
                 "Width": {
                     "title": "Width",
                     "description": "The width of the area, measured in pixels for a texture or tiles for a map. This can contain tokens.",
                     "type": [ "integer", "string" ],
-                    "minimum:": 0
+                    "minimum": 0
                 },
                 "Height": {
                     "title": "Height",
                     "description": "The height of the area, measured in pixels for a texture or tiles for a map. This can contain tokens.",
                     "type": [ "integer", "string" ],
-                    "minimum:": 0
+                    "minimum": 0
                 }
             },
 
