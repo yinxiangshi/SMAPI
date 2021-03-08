@@ -34,13 +34,6 @@ namespace StardewModdingAPI.Patches
 
 
         /*********
-        ** Accessors
-        *********/
-        /// <inheritdoc />
-        public string Name => nameof(LoadContextPatch);
-
-
-        /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>

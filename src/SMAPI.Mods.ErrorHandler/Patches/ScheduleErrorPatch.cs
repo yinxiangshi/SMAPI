@@ -27,13 +27,6 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
 
 
         /*********
-        ** Accessors
-        *********/
-        /// <inheritdoc />
-        public string Name => nameof(ScheduleErrorPatch);
-
-
-        /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>

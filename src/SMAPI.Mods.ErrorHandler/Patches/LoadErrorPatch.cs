@@ -32,13 +32,6 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
 
 
         /*********
-        ** Accessors
-        *********/
-        /// <inheritdoc />
-        public string Name => nameof(LoadErrorPatch);
-
-
-        /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
