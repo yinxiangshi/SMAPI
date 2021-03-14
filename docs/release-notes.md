@@ -12,6 +12,7 @@
   * Aggressive memory optimization (added in 3.9.2) is now disabled by default. The option reduces errors for a subset of players who use certain mods, but may cause crashes for farmhands in multiplayer. You can edit `smapi-internal/config.json` to enable it if you experience frequent `OutOfMemoryException` errors.
 
 * For mod authors:
+  * Added asset propagation for interior door sprites.
   * Fixed assets changed by a mod not reapplied if playing in non-English, the changes are only applicable after the save is loaded, the player returns to title and reloads a save, and the game reloads the target asset before the save is loaded.
 
 ## 3.9.4

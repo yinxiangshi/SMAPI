@@ -366,6 +366,8 @@ namespace StardewModdingAPI.Metadata
                         foreach (ClickableTextureComponent button in new[] { menu.questButton, menu.zoomInButton, menu.zoomOutButton })
                             button.texture = Game1.mouseCursors;
                     }
+
+                    this.ReloadDoorSprites(content, key);
                     return true;
 
                 case "loosesprites\\cursors2": // Game1.LoadContent
@@ -737,6 +739,36 @@ namespace StardewModdingAPI.Metadata
                 entry.sprite.spriteTexture = texture;
 
             return critters.Length;
+        }
+
+        /// <summary>Reload the sprites for interior doors.</summary>
+        /// <param name="content">The content manager through which to reload the asset.</param>
+        /// <param name="key">The asset key to reload.</param>
+        /// <returns>Returns whether any doors were affected.</returns>
+        private bool ReloadDoorSprites(LocalizedContentManager content, string key)
+        {
+            Lazy<Texture2D> texture = new Lazy<Texture2D>(() => content.Load<Texture2D>(key));
+
+            foreach (GameLocation location in this.GetLocations())
+            {
+                IEnumerable<InteriorDoor> doors = location.interiorDoors?.Doors;
+                if (doors == null)
+                    continue;
+
+                foreach (InteriorDoor door in doors)
+                {
+                    if (door?.Sprite == null)
+                        continue;
+
+                    string textureName = this.NormalizeAssetNameIgnoringEmpty(this.Reflection.GetField<string>(door.Sprite, "textureName").GetValue());
+                    if (textureName != key)
+                        continue;
+
+                    door.Sprite.texture = texture.Value;
+                }
+            }
+
+            return texture.IsValueCreated;
         }
 
         /// <summary>Reload the data for matching farm animals.</summary>
