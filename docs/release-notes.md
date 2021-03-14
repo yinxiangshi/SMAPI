@@ -7,6 +7,10 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
+## Upcoming release
+* For players:
+  * Aggressive memory optimization (added in 3.9.2) is now disabled by default. The option reduces errors for a subset of players who use certain mods, but may cause crashes for farmhands in multiplayer. You can edit `smapi-internal/config.json` to enable it if you experience frequent `OutOfMemoryException` errors.
+
 ## 3.9.4
 Released 07 March 2021 for Stardew Valley 1.5.4 or later.
 

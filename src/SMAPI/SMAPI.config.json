@@ -41,9 +41,10 @@ copy all the settings, or you may cause bugs due to overridden changes in future
 
     /**
      * Whether to enable more aggressive memory optimizations.
-     * You can try disabling this if you get ObjectDisposedException errors.
+     * If you get frequent 'OutOfMemoryException' errors, you can try enabling this to reduce their
+     * frequency. This may cause crashes for farmhands in multiplayer.
      */
-    "AggressiveMemoryOptimizations": true,
+    "AggressiveMemoryOptimizations": false,
 
     /**
      * Whether to add a section to the 'mod issues' list for mods which directly use potentially
