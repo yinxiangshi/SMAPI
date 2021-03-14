@@ -136,7 +136,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         public bool InvalidateCache<T>()
         {
             this.Monitor.Log($"Requested cache invalidation for all assets of type {typeof(T)}. This is an expensive operation and should be avoided if possible.", LogLevel.Trace);
-            return this.ContentCore.InvalidateCache((key, type) => typeof(T).IsAssignableFrom(type)).Any();
+            return this.ContentCore.InvalidateCache((contentManager, key, type) => typeof(T).IsAssignableFrom(type)).Any();
         }
 
         /// <inheritdoc />
