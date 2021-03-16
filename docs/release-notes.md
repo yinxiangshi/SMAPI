@@ -9,7 +9,8 @@
 
 ## Upcoming release
 * For players:
-  * Aggressive memory optimization (added in 3.9.2) is now disabled by default. The option reduces errors for a subset of players who use certain mods, but may cause crashes for farmhands in multiplayer. You can edit `smapi-internal/config.json` to enable it if you experience frequent `OutOfMemoryException` errors.
+  * Added `regenerate_bundles` console command to reset community center bundles if they're corrupted by a bug _(in Console Commands)_.
+  * Disabled aggressive memory optimization (added in 3.9.2) by default. The option reduces errors for a subset of players who use certain mods, but may cause crashes for farmhands in multiplayer. You can edit `smapi-internal/config.json` to enable it if you experience frequent `OutOfMemoryException` errors.
 
 * For mod authors:
   * Added asset propagation for interior door sprites.
