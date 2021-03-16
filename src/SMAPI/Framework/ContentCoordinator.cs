@@ -341,11 +341,16 @@ namespace StardewModdingAPI.Framework
             // reload core game assets
             if (removedAssets.Any())
             {
-                IDictionary<string, bool> propagated = this.CoreAssets.Propagate(removedAssets.ToDictionary(p => p.Key, p => p.Value)); // use an intercepted content manager
-                this.Monitor.Log($"Invalidated {removedAssets.Count} asset names ({string.Join(", ", removedAssets.Keys.OrderBy(p => p, StringComparer.OrdinalIgnoreCase))}); propagated {propagated.Count(p => p.Value)} core assets.", LogLevel.Trace);
+                IDictionary<string, bool> propagated = this.CoreAssets.Propagate(removedAssets.ToDictionary(p => p.Key, p => p.Value), ignoreWorld: Context.IsWorldFullyUnloaded);
+
+                string[] invalidatedKeys = removedAssets.Keys.ToArray();
+                string[] propagatedKeys = propagated.Where(p => p.Value).Select(p => p.Key).ToArray();
+
+                string FormatKeyList(IEnumerable<string> keys) => string.Join(", ", keys.OrderBy(p => p, StringComparer.OrdinalIgnoreCase));
+                this.Monitor.Log($"Invalidated {invalidatedKeys.Length} asset names ({FormatKeyList(invalidatedKeys)}); propagated {propagatedKeys.Length} core assets ({FormatKeyList(propagatedKeys)}).");
             }
             else
-                this.Monitor.Log("Invalidated 0 cache entries.", LogLevel.Trace);
+                this.Monitor.Log("Invalidated 0 cache entries.");
 
             return removedAssets.Keys;
         }
@@ -391,7 +396,7 @@ namespace StardewModdingAPI.Framework
                 return;
             this.IsDisposed = true;
 
-            this.Monitor.Log("Disposing the content coordinator. Content managers will no longer be usable after this point.", LogLevel.Trace);
+            this.Monitor.Log("Disposing the content coordinator. Content managers will no longer be usable after this point.");
             foreach (IContentManager contentManager in this.ContentManagers)
                 contentManager.Dispose();
             this.ContentManagers.Clear();

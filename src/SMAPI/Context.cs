@@ -38,6 +38,9 @@ namespace StardewModdingAPI
             set => Context.LoadStageForScreen.Value = value;
         }
 
+        /// <summary>Whether the in-game world is completely unloaded and not in the process of being loaded. The world may still exist in memory at this point, but should be ignored.</summary>
+        internal static bool IsWorldFullyUnloaded => Context.LoadStage == LoadStage.ReturningToTitle || Context.LoadStage == LoadStage.None;
+
 
         /*********
         ** Accessors

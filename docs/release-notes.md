@@ -13,6 +13,7 @@
 
 * For mod authors:
   * Added asset propagation for interior door sprites.
+  * Reduced performance impact of invalidating cached assets before a save is loaded.
   * Fixed assets changed by a mod not reapplied if playing in non-English, the changes are only applicable after the save is loaded, the player returns to title and reloads a save, and the game reloads the target asset before the save is loaded.
 
 ## 3.9.4
