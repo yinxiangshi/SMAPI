@@ -46,12 +46,5 @@ namespace StardewModdingAPI.Toolkit.Utilities
         {
             return LowLevelEnvironmentUtility.GetExecutableName(platform.ToString());
         }
-
-        /// <summary>Get whether the platform uses Mono.</summary>
-        /// <param name="platform">The current platform.</param>
-        public static bool IsMono(this Platform platform)
-        {
-            return LowLevelEnvironmentUtility.IsMono(platform.ToString());
-        }
     }
 }

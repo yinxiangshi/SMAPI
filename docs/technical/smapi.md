@@ -50,7 +50,6 @@ environment variable | purpose
 `SMAPI_NO_TERMINAL` | Equivalent to `--no-terminal` above.
 `SMAPI_MODS_PATH` | Equivalent to `--mods-path` above.
 
-
 ### Compile flags
 SMAPI uses a small number of conditional compilation constants, which you can set by editing the
 `<DefineConstants>` element in `SMAPI.csproj`. Supported constants:
