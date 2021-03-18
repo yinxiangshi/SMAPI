@@ -283,8 +283,13 @@ namespace StardewModdingAPI.Framework.Logging
         /// <param name="customSettings">The custom SMAPI settings.</param>
         public void LogIntro(string modsPath, IDictionary<string, object> customSettings)
         {
+            // get platform label
+            string platformLabel = EnvironmentUtility.GetFriendlyPlatformName(Constants.Platform);
+            if ((Constants.GameFramework == GameFramework.Xna) != (Constants.Platform == Platform.Windows))
+                platformLabel += $" with {Constants.GameFramework}";
+
             // init logging
-            this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GameVersion} on {EnvironmentUtility.GetFriendlyPlatformName(Constants.Platform)}", LogLevel.Info);
+            this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GameVersion} on {platformLabel}", LogLevel.Info);
             this.Monitor.Log($"Mods go here: {modsPath}", LogLevel.Info);
             if (modsPath != Constants.DefaultModsPath)
                 this.Monitor.Log("(Using custom --mods-path argument.)");

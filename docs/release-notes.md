@@ -19,6 +19,8 @@
     * Reduced performance impact of invalidating cached assets before a save is loaded.
     * Fixed asset changes not reapplied in the edge case where you're playing in non-English, and the changes are only applied after the save is loaded, and the player returns to title and reloads a save, and the game reloads the target asset before the save is loaded.
   * Added a second `KeybindList` constructor to simplify single-key default bindings.
+  * Added a `Constants.GameFramework` field which indicates whether the game is using XNA Framework or MonoGame.  
+    _Note: mods don't need to handle the difference in most cases, but some players may use MonoGame on Windows in upcoming versions. Mods which use the `Constants.TargetPlatform` should review usages to determine whether they're actually checking the platform or the game framework._
 
 ## 3.9.4
 Released 07 March 2021 for Stardew Valley 1.5.4 or later.

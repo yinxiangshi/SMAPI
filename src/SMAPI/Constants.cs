@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -37,6 +38,14 @@ namespace StardewModdingAPI
         /// <summary>The target game platform.</summary>
         internal static GamePlatform Platform { get; } = (GamePlatform)Enum.Parse(typeof(GamePlatform), LowLevelEnvironmentUtility.DetectPlatform());
 
+        /// <summary>The game framework running the game.</summary>
+        internal static GameFramework GameFramework { get; } =
+#if SMAPI_FOR_XNA
+            GameFramework.Xna;
+#else
+            GameFramework.MonoGame;
+#endif
+
         /// <summary>The game's assembly name.</summary>
         internal static string GameAssemblyName => EarlyConstants.Platform == GamePlatform.Windows ? "Stardew Valley" : "StardewValley";
 
@@ -64,6 +73,9 @@ namespace StardewModdingAPI
 
         /// <summary>The target game platform.</summary>
         public static GamePlatform TargetPlatform { get; } = EarlyConstants.Platform;
+
+        /// <summary>The game framework running the game.</summary>
+        public static GameFramework GameFramework { get; } = EarlyConstants.GameFramework;
 
         /// <summary>The path to the game folder.</summary>
         public static string ExecutionPath { get; } = EarlyConstants.ExecutionPath;
@@ -208,56 +220,79 @@ namespace StardewModdingAPI
 
         /// <summary>Get metadata for mapping assemblies to the current platform.</summary>
         /// <param name="targetPlatform">The target game platform.</param>
-        internal static PlatformAssemblyMap GetAssemblyMap(Platform targetPlatform)
+        /// <param name="framework">The game framework running the game.</param>
+        internal static PlatformAssemblyMap GetAssemblyMap(Platform targetPlatform, GameFramework framework)
         {
-            // get assembly changes needed for platform
-            string[] removeAssemblyReferences;
-            Assembly[] targetAssemblies;
+            var removeAssemblyReferences = new List<string>();
+            var targetAssemblies = new List<Assembly>();
+
+            // get assembly renamed in SMAPI 3.0
+            removeAssemblyReferences.Add("StardewModdingAPI.Toolkit.CoreInterfaces");
+            targetAssemblies.Add(typeof(StardewModdingAPI.IManifest).Assembly);
+
+            // get changes for platform
             switch (targetPlatform)
             {
                 case Platform.Linux:
                 case Platform.Mac:
-                    removeAssemblyReferences = new[]
+                    removeAssemblyReferences.AddRange(new[]
                     {
                         "Netcode",
-                        "Stardew Valley",
-                        "Microsoft.Xna.Framework",
-                        "Microsoft.Xna.Framework.Game",
-                        "Microsoft.Xna.Framework.Graphics",
-                        "Microsoft.Xna.Framework.Xact",
-                        "StardewModdingAPI.Toolkit.CoreInterfaces" // renamed in SMAPI 3.0
-                    };
-                    targetAssemblies = new[]
-                    {
-                        typeof(StardewValley.Game1).Assembly, // note: includes Netcode types on Linux/Mac
-                        typeof(Microsoft.Xna.Framework.Vector2).Assembly,
-                        typeof(StardewModdingAPI.IManifest).Assembly
-                    };
+                        "Stardew Valley"
+                    });
+                    targetAssemblies.Add(
+                        typeof(StardewValley.Game1).Assembly // note: includes Netcode types on Linux/Mac
+                    );
                     break;
 
                 case Platform.Windows:
-                    removeAssemblyReferences = new[]
-                    {
-                        "StardewValley",
-                        "MonoGame.Framework",
-                        "StardewModdingAPI.Toolkit.CoreInterfaces" // renamed in SMAPI 3.0
-                    };
-                    targetAssemblies = new[]
+                    removeAssemblyReferences.Add(
+                        "StardewValley"
+                    );
+                    targetAssemblies.AddRange(new[]
                     {
                         typeof(Netcode.NetBool).Assembly,
-                        typeof(StardewValley.Game1).Assembly,
-                        typeof(Microsoft.Xna.Framework.Vector2).Assembly,
-                        typeof(Microsoft.Xna.Framework.Game).Assembly,
-                        typeof(Microsoft.Xna.Framework.Graphics.SpriteBatch).Assembly,
-                        typeof(StardewModdingAPI.IManifest).Assembly
-                    };
+                        typeof(StardewValley.Game1).Assembly
+                    });
                     break;
 
                 default:
                     throw new InvalidOperationException($"Unknown target platform '{targetPlatform}'.");
             }
 
-            return new PlatformAssemblyMap(targetPlatform, removeAssemblyReferences, targetAssemblies);
+            // get changes for game framework
+            switch (framework)
+            {
+                case GameFramework.MonoGame:
+                    removeAssemblyReferences.AddRange(new[]
+                    {
+                        "Microsoft.Xna.Framework",
+                        "Microsoft.Xna.Framework.Game",
+                        "Microsoft.Xna.Framework.Graphics",
+                        "Microsoft.Xna.Framework.Xact"
+                    });
+                    targetAssemblies.Add(
+                        typeof(Microsoft.Xna.Framework.Vector2).Assembly
+                    );
+                    break;
+
+                case GameFramework.Xna:
+                    removeAssemblyReferences.Add(
+                        "MonoGame.Framework"
+                    );
+                    targetAssemblies.AddRange(new[]
+                    {
+                        typeof(Microsoft.Xna.Framework.Vector2).Assembly,
+                        typeof(Microsoft.Xna.Framework.Game).Assembly,
+                        typeof(Microsoft.Xna.Framework.Graphics.SpriteBatch).Assembly
+                    });
+                    break;
+
+                default:
+                    throw new InvalidOperationException($"Unknown game framework '{framework}'.");
+            }
+
+            return new PlatformAssemblyMap(targetPlatform, removeAssemblyReferences.ToArray(), targetAssemblies.ToArray());
         }
 
 
