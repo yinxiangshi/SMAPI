@@ -8,6 +8,8 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
 
+  <Import Project="..\..\build\common.targets" />
+
   <ItemGroup>
     <ProjectReference Include="..\SMAPI.Toolkit.CoreInterfaces\SMAPI.Toolkit.CoreInterfaces.csproj" />
     <ProjectReference Include="..\SMAPI.Toolkit\SMAPI.Toolkit.csproj" />
@@ -30,6 +32,4 @@
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
-
-  <Import Project="..\..\build\common.targets" />
 </Project>

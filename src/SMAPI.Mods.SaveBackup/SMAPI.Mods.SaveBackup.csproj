@@ -7,6 +7,8 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
 
+  <Import Project="..\..\build\common.targets" />
+
   <ItemGroup>
     <ProjectReference Include="..\SMAPI\SMAPI.csproj" Private="False" />
   </ItemGroup>
@@ -20,5 +22,4 @@
   </ItemGroup>
 
   <Import Project="..\SMAPI.Internal\SMAPI.Internal.projitems" Label="Shared" />
-  <Import Project="..\..\build\common.targets" />
 </Project>

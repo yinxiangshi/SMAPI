@@ -6,6 +6,8 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
+  <Import Project="..\..\build\common.targets" />
+
   <ItemGroup>
     <Content Remove="aws-beanstalk-tools-defaults.json" />
   </ItemGroup>
@@ -44,6 +46,4 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-
-  <Import Project="..\..\build\common.targets" />
 </Project>
