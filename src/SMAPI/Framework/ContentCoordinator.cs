@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using Microsoft.Xna.Framework.Content;
 using StardewModdingAPI.Framework.Content;
@@ -341,13 +342,31 @@ namespace StardewModdingAPI.Framework
             // reload core game assets
             if (removedAssets.Any())
             {
-                IDictionary<string, bool> propagated = this.CoreAssets.Propagate(removedAssets.ToDictionary(p => p.Key, p => p.Value), ignoreWorld: Context.IsWorldFullyUnloaded);
+                // propagate changes to the game
+                this.CoreAssets.Propagate(
+                    assets: removedAssets.ToDictionary(p => p.Key, p => p.Value),
+                    ignoreWorld: Context.IsWorldFullyUnloaded,
+                    out IDictionary<string, bool> propagated,
+                    out bool updatedNpcWarps
+                );
 
-                string[] invalidatedKeys = removedAssets.Keys.ToArray();
-                string[] propagatedKeys = propagated.Where(p => p.Value).Select(p => p.Key).ToArray();
+                // log summary
+                StringBuilder report = new StringBuilder();
+                {
+                    string[] invalidatedKeys = removedAssets.Keys.ToArray();
+                    string[] propagatedKeys = propagated.Where(p => p.Value).Select(p => p.Key).ToArray();
 
-                string FormatKeyList(IEnumerable<string> keys) => string.Join(", ", keys.OrderBy(p => p, StringComparer.OrdinalIgnoreCase));
-                this.Monitor.Log($"Invalidated {invalidatedKeys.Length} asset names ({FormatKeyList(invalidatedKeys)}); propagated {propagatedKeys.Length} core assets ({FormatKeyList(propagatedKeys)}).");
+                    string FormatKeyList(IEnumerable<string> keys) => string.Join(", ", keys.OrderBy(p => p, StringComparer.OrdinalIgnoreCase));
+
+                    report.AppendLine($"Invalidated {invalidatedKeys.Length} asset names ({FormatKeyList(invalidatedKeys)}).");
+                    report.AppendLine(propagated.Count > 0
+                        ? $"Propagated {propagatedKeys.Length} core assets ({FormatKeyList(propagatedKeys)})."
+                        : "Propagated 0 core assets."
+                    );
+                    if (updatedNpcWarps)
+                        report.AppendLine("Updated NPC pathfinding cache.");
+                }
+                this.Monitor.Log(report.ToString().TrimEnd());
             }
             else
                 this.Monitor.Log("Invalidated 0 cache entries.");

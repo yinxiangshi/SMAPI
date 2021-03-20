@@ -482,6 +482,7 @@ namespace StardewModdingAPI.Framework
                                     + ")"
                                 )
                         )
+                        + "."
                     );
 
                     // reload affected assets

@@ -80,8 +80,9 @@ namespace StardewModdingAPI.Metadata
         /// <summary>Reload one of the game's core assets (if applicable).</summary>
         /// <param name="assets">The asset keys and types to reload.</param>
         /// <param name="ignoreWorld">Whether the in-game world is fully unloaded (e.g. on the title screen), so there's no need to propagate changes into the world.</param>
-        /// <returns>Returns a lookup of asset names to whether they've been propagated.</returns>
-        public IDictionary<string, bool> Propagate(IDictionary<string, Type> assets, bool ignoreWorld)
+        /// <param name="propagatedAssets">A lookup of asset names to whether they've been propagated.</param>
+        /// <param name="updatedNpcWarps">Whether the NPC pathfinding cache was reloaded.</param>
+        public void Propagate(IDictionary<string, Type> assets, bool ignoreWorld, out IDictionary<string, bool> propagatedAssets, out bool updatedNpcWarps)
         {
             // group into optimized lists
             var buckets = assets.GroupBy(p =>
@@ -96,28 +97,36 @@ namespace StardewModdingAPI.Metadata
             });
 
             // reload assets
-            IDictionary<string, bool> propagated = assets.ToDictionary(p => p.Key, _ => false, StringComparer.OrdinalIgnoreCase);
+            propagatedAssets = assets.ToDictionary(p => p.Key, _ => false, StringComparer.OrdinalIgnoreCase);
+            updatedNpcWarps = false;
             foreach (var bucket in buckets)
             {
                 switch (bucket.Key)
                 {
                     case AssetBucket.Sprite:
                         if (!ignoreWorld)
-                            this.ReloadNpcSprites(bucket.Select(p => p.Key), propagated);
+                            this.ReloadNpcSprites(bucket.Select(p => p.Key), propagatedAssets);
                         break;
 
                     case AssetBucket.Portrait:
                         if (!ignoreWorld)
-                            this.ReloadNpcPortraits(bucket.Select(p => p.Key), propagated);
+                            this.ReloadNpcPortraits(bucket.Select(p => p.Key), propagatedAssets);
                         break;
 
                     default:
                         foreach (var entry in bucket)
-                            propagated[entry.Key] = this.PropagateOther(entry.Key, entry.Value, ignoreWorld);
+                        {
+                            bool changed = this.PropagateOther(entry.Key, entry.Value, ignoreWorld, out bool curChangedMapWarps);
+                            propagatedAssets[entry.Key] = changed;
+                            updatedNpcWarps = updatedNpcWarps || curChangedMapWarps;
+                        }
                         break;
                 }
             }
-            return propagated;
+
+            // reload NPC pathfinding cache if any map changed
+            if (updatedNpcWarps)
+                NPC.populateRoutesFromLocationToLocationList();
         }
 
 
@@ -128,12 +137,14 @@ namespace StardewModdingAPI.Metadata
         /// <param name="key">The asset key to reload.</param>
         /// <param name="type">The asset type to reload.</param>
         /// <param name="ignoreWorld">Whether the in-game world is fully unloaded (e.g. on the title screen), so there's no need to propagate changes into the world.</param>
+        /// <param name="changedWarps">Whether any map warps were changed as part of this propagation.</param>
         /// <returns>Returns whether an asset was loaded. The return value may be true or false, or a non-null value for true.</returns>
         [SuppressMessage("ReSharper", "StringLiteralTypo", Justification = "These deliberately match the asset names.")]
-        private bool PropagateOther(string key, Type type, bool ignoreWorld)
+        private bool PropagateOther(string key, Type type, bool ignoreWorld, out bool changedWarps)
         {
             var content = this.MainContentManager;
             key = this.AssertAndNormalizeAssetName(key);
+            changedWarps = false;
 
             /****
             ** Special case: current map tilesheet
@@ -162,7 +173,18 @@ namespace StardewModdingAPI.Metadata
                     {
                         if (!string.IsNullOrWhiteSpace(location.mapPath.Value) && this.NormalizeAssetNameIgnoringEmpty(location.mapPath.Value) == key)
                         {
+                            static ISet<string> GetWarpSet(GameLocation location)
+                            {
+                                return new HashSet<string>(
+                                    location.warps.Select(p => $"{p.X} {p.Y} {p.TargetName} {p.TargetX} {p.TargetY}")
+                                );
+                            }
+
+                            var oldWarps = GetWarpSet(location);
                             this.ReloadMap(location);
+                            var newWarps = GetWarpSet(location);
+
+                            changedWarps = changedWarps || oldWarps.Count != newWarps.Count || oldWarps.Any(p => !newWarps.Contains(p));
                             anyChanged = true;
                         }
                     }

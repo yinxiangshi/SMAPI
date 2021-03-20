@@ -13,9 +13,11 @@
   * Disabled aggressive memory optimization (added in 3.9.2) by default. The option reduces errors for a subset of players who use certain mods, but may cause crashes for farmhands in multiplayer. You can edit `smapi-internal/config.json` to enable it if you experience frequent `OutOfMemoryException` errors.
 
 * For mod authors:
-  * Added asset propagation for interior door sprites.
-  * Reduced performance impact of invalidating cached assets before a save is loaded.
-  * Fixed assets changed by a mod not reapplied if playing in non-English, the changes are only applicable after the save is loaded, the player returns to title and reloads a save, and the game reloads the target asset before the save is loaded.
+  * Improved asset propagation:
+    * Added for interior door sprites.
+    * SMAPI now updates the NPC pathfinding cache when map warps are changed through the content API.
+    * Reduced performance impact of invalidating cached assets before a save is loaded.
+    * Fixed asset changes not reapplied in the edge case where you're playing in non-English, and the changes are only applied after the save is loaded, and the player returns to title and reloads a save, and the game reloads the target asset before the save is loaded.
 
 ## 3.9.4
 Released 07 March 2021 for Stardew Valley 1.5.4 or later.
