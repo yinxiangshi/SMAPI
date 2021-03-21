@@ -30,6 +30,11 @@ namespace StardewModdingAPI.Utilities
             this.IsBound = this.Keybinds.Any();
         }
 
+        /// <summary>Construct an instance.</summary>
+        /// <param name="singleKey">A single-key binding.</param>
+        public KeybindList(SButton singleKey)
+            : this(new Keybind(singleKey)) { }
+
         /// <summary>Parse a keybind list from a string, and throw an exception if it's not valid.</summary>
         /// <param name="input">The keybind string. See remarks on <see cref="ToString"/> for format details.</param>
         /// <exception cref="FormatException">The <paramref name="input"/> format is invalid.</exception>

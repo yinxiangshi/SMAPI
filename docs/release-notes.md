@@ -18,6 +18,7 @@
     * SMAPI now updates the NPC pathfinding cache when map warps are changed through the content API.
     * Reduced performance impact of invalidating cached assets before a save is loaded.
     * Fixed asset changes not reapplied in the edge case where you're playing in non-English, and the changes are only applied after the save is loaded, and the player returns to title and reloads a save, and the game reloads the target asset before the save is loaded.
+  * Added a second `KeybindList` constructor to simplify single-key default bindings.
 
 ## 3.9.4
 Released 07 March 2021 for Stardew Valley 1.5.4 or later.
