@@ -3,7 +3,6 @@
     <!--build-->
     <RootNamespace>StardewModdingAPI.ModBuildConfig</RootNamespace>
     <TargetFramework>net45</TargetFramework>
-    <PlatformTarget>x86</PlatformTarget>
     <LangVersion>latest</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 

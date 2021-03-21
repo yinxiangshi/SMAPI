@@ -4,12 +4,12 @@
 
   <!--set properties -->
   <PropertyGroup>
-    <Version>3.9.4</Version>
+    <Version>3.9.5</Version>
     <Product>SMAPI</Product>
 
     <LangVersion>latest</LangVersion>
     <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>
-    <DefineConstants Condition="$(OS) == 'Windows_NT'">$(DefineConstants);SMAPI_FOR_WINDOWS</DefineConstants>
+    <DefineConstants Condition="$(OS) == 'Windows_NT'">$(DefineConstants);SMAPI_FOR_WINDOWS;SMAPI_FOR_XNA</DefineConstants>
   </PropertyGroup>
 
   <!-- if game path is invalid, show one user-friendly error instead of a slew of reference errors -->

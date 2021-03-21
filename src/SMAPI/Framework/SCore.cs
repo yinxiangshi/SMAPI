@@ -12,7 +12,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
-#if SMAPI_FOR_WINDOWS
+#if SMAPI_FOR_XNA
 using System.Windows.Forms;
 #endif
 using Newtonsoft.Json;
@@ -217,7 +217,7 @@ namespace StardewModdingAPI.Framework
                     this.Toolkit.JsonHelper.JsonSettings.Converters.Add(converter);
 
                 // add error handlers
-#if SMAPI_FOR_WINDOWS
+#if SMAPI_FOR_XNA
                 Application.ThreadException += (sender, e) => this.Monitor.Log($"Critical thread exception: {e.Exception.GetLogSummary()}", LogLevel.Error);
                 Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
 #endif
@@ -482,6 +482,7 @@ namespace StardewModdingAPI.Framework
                                     + ")"
                                 )
                         )
+                        + "."
                     );
 
                     // reload affected assets
@@ -1409,7 +1410,7 @@ namespace StardewModdingAPI.Framework
 
             // load mods
             IList<IModMetadata> skippedMods = new List<IModMetadata>();
-            using (AssemblyLoader modAssemblyLoader = new AssemblyLoader(Constants.Platform, this.Monitor, this.Settings.ParanoidWarnings, this.Settings.RewriteMods))
+            using (AssemblyLoader modAssemblyLoader = new AssemblyLoader(Constants.Platform, Constants.GameFramework, this.Monitor, this.Settings.ParanoidWarnings, this.Settings.RewriteMods))
             {
                 // init
                 HashSet<string> suppressUpdateChecks = new HashSet<string>(this.Settings.SuppressUpdateChecks, StringComparer.OrdinalIgnoreCase);

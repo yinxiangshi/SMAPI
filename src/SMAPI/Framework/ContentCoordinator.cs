@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using Microsoft.Xna.Framework.Content;
 using StardewModdingAPI.Framework.Content;
@@ -207,11 +208,30 @@ namespace StardewModdingAPI.Framework
         /// <remarks>This is called after the player returns to the title screen, but before <see cref="Game1.CleanupReturningToTitle"/> runs.</remarks>
         public void OnReturningToTitleScreen()
         {
-            this.ContentManagerLock.InReadLock(() =>
-            {
-                foreach (IContentManager contentManager in this.ContentManagers)
-                    contentManager.OnReturningToTitleScreen();
-            });
+            // The game clears LocalizedContentManager.localizedAssetNames after returning to the title screen. That
+            // causes an inconsistency in the SMAPI asset cache, which leads to an edge case where assets already
+            // provided by mods via IAssetLoader when playing in non-English are ignored.
+            //
+            // For example, let's say a mod provides the 'Data\mail' asset through IAssetLoader when playing in
+            // Portuguese. Here's the normal load process after it's loaded:
+            //   1. The game requests Data\mail.
+            //   2. SMAPI sees that it's already cached, and calls LoadRaw to bypass asset interception.
+            //   3. LoadRaw sees that there's a localized key mapping, and gets the mapped key.
+            //   4. In this case "Data\mail" is mapped to "Data\mail" since it was loaded by a mod, so it loads that
+            //      asset.
+            //
+            // When the game clears localizedAssetNames, that process goes wrong in step 4:
+            //  3. LoadRaw sees that there's no localized key mapping *and* the locale is non-English, so it attempts
+            //     to load from the localized key format.
+            //  4. In this case that's 'Data\mail.pt-BR', so it successfully loads that asset.
+            //  5. Since we've bypassed asset interception at this point, it's loaded directly from the base content
+            //     manager without mod changes.
+            //
+            // To avoid issues, we just remove affected assets from the cache here so they'll be reloaded normally.
+            // Note that we *must* propagate changes here, otherwise when mods invalidate the cache later to reapply
+            // their changes, the assets won't be found in the cache so no changes will be propagated.
+            if (LocalizedContentManager.CurrentLanguageCode != LocalizedContentManager.LanguageCode.en)
+                this.InvalidateCache((contentManager, key, type) => contentManager is GameContentManager);
         }
 
         /// <summary>Get whether this asset is mapped to a mod folder.</summary>
@@ -275,7 +295,7 @@ namespace StardewModdingAPI.Framework
         public IEnumerable<string> InvalidateCache(Func<IAssetInfo, bool> predicate, bool dispose = false)
         {
             string locale = this.GetLocale();
-            return this.InvalidateCache((assetName, type) =>
+            return this.InvalidateCache((contentManager, assetName, type) =>
             {
                 IAssetInfo info = new AssetInfo(locale, assetName, type, this.MainContentManager.AssertAndNormalizeAssetName);
                 return predicate(info);
@@ -286,7 +306,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="predicate">Matches the asset keys to invalidate.</param>
         /// <param name="dispose">Whether to dispose invalidated assets. This should only be <c>true</c> when they're being invalidated as part of a dispose, to avoid crashing the game.</param>
         /// <returns>Returns the invalidated asset names.</returns>
-        public IEnumerable<string> InvalidateCache(Func<string, Type, bool> predicate, bool dispose = false)
+        public IEnumerable<string> InvalidateCache(Func<IContentManager, string, Type, bool> predicate, bool dispose = false)
         {
             // invalidate cache & track removed assets
             IDictionary<string, Type> removedAssets = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
@@ -295,7 +315,7 @@ namespace StardewModdingAPI.Framework
                 // cached assets
                 foreach (IContentManager contentManager in this.ContentManagers)
                 {
-                    foreach (var entry in contentManager.InvalidateCache(predicate, dispose))
+                    foreach (var entry in contentManager.InvalidateCache((key, type) => predicate(contentManager, key, type), dispose))
                     {
                         if (!removedAssets.ContainsKey(entry.Key))
                             removedAssets[entry.Key] = entry.Value.GetType();
@@ -313,7 +333,7 @@ namespace StardewModdingAPI.Framework
 
                         // get map path
                         string mapPath = this.MainContentManager.AssertAndNormalizeAssetName(location.mapPath.Value);
-                        if (!removedAssets.ContainsKey(mapPath) && predicate(mapPath, typeof(Map)))
+                        if (!removedAssets.ContainsKey(mapPath) && predicate(this.MainContentManager, mapPath, typeof(Map)))
                             removedAssets[mapPath] = typeof(Map);
                     }
                 }
@@ -322,11 +342,34 @@ namespace StardewModdingAPI.Framework
             // reload core game assets
             if (removedAssets.Any())
             {
-                IDictionary<string, bool> propagated = this.CoreAssets.Propagate(removedAssets.ToDictionary(p => p.Key, p => p.Value)); // use an intercepted content manager
-                this.Monitor.Log($"Invalidated {removedAssets.Count} asset names ({string.Join(", ", removedAssets.Keys.OrderBy(p => p, StringComparer.OrdinalIgnoreCase))}); propagated {propagated.Count(p => p.Value)} core assets.", LogLevel.Trace);
+                // propagate changes to the game
+                this.CoreAssets.Propagate(
+                    assets: removedAssets.ToDictionary(p => p.Key, p => p.Value),
+                    ignoreWorld: Context.IsWorldFullyUnloaded,
+                    out IDictionary<string, bool> propagated,
+                    out bool updatedNpcWarps
+                );
+
+                // log summary
+                StringBuilder report = new StringBuilder();
+                {
+                    string[] invalidatedKeys = removedAssets.Keys.ToArray();
+                    string[] propagatedKeys = propagated.Where(p => p.Value).Select(p => p.Key).ToArray();
+
+                    string FormatKeyList(IEnumerable<string> keys) => string.Join(", ", keys.OrderBy(p => p, StringComparer.OrdinalIgnoreCase));
+
+                    report.AppendLine($"Invalidated {invalidatedKeys.Length} asset names ({FormatKeyList(invalidatedKeys)}).");
+                    report.AppendLine(propagated.Count > 0
+                        ? $"Propagated {propagatedKeys.Length} core assets ({FormatKeyList(propagatedKeys)})."
+                        : "Propagated 0 core assets."
+                    );
+                    if (updatedNpcWarps)
+                        report.AppendLine("Updated NPC pathfinding cache.");
+                }
+                this.Monitor.Log(report.ToString().TrimEnd());
             }
             else
-                this.Monitor.Log("Invalidated 0 cache entries.", LogLevel.Trace);
+                this.Monitor.Log("Invalidated 0 cache entries.");
 
             return removedAssets.Keys;
         }
@@ -372,7 +415,7 @@ namespace StardewModdingAPI.Framework
                 return;
             this.IsDisposed = true;
 
-            this.Monitor.Log("Disposing the content coordinator. Content managers will no longer be usable after this point.", LogLevel.Trace);
+            this.Monitor.Log("Disposing the content coordinator. Content managers will no longer be usable after this point.");
             foreach (IContentManager contentManager in this.ContentManagers)
                 contentManager.Dispose();
             this.ContentManagers.Clear();

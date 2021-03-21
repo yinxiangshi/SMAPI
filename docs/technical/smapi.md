@@ -50,14 +50,14 @@ environment variable | purpose
 `SMAPI_NO_TERMINAL` | Equivalent to `--no-terminal` above.
 `SMAPI_MODS_PATH` | Equivalent to `--mods-path` above.
 
-
 ### Compile flags
 SMAPI uses a small number of conditional compilation constants, which you can set by editing the
 `<DefineConstants>` element in `SMAPI.csproj`. Supported constants:
 
 flag | purpose
 ---- | -------
-`SMAPI_FOR_WINDOWS` | Whether SMAPI is being compiled on Windows for players on Windows. Set automatically in `crossplatform.targets`.
+`SMAPI_FOR_WINDOWS` | Whether SMAPI is being compiled for Windows; if not set, the code assumes Linux/MacOS. Set automatically in `common.targets`.
+`SMAPI_FOR_XNA` | Whether SMAPI is being compiled for XNA Framework; if not set, the code assumes MonoGame. Set automatically in `common.targets` with the same value as `SMAPI_FOR_WINDOWS`.
 `HARMONY_2` | Whether to enable experimental Harmony 2.0 support and rewrite existing Harmony 1._x_ mods for compatibility. Note that you need to replace `build/0Harmony.dll` with a Harmony 2.0 build (or switch to a package reference) to use this flag.
 
 ## For SMAPI developers

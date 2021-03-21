@@ -79,8 +79,10 @@ namespace StardewModdingAPI.Metadata
 
         /// <summary>Reload one of the game's core assets (if applicable).</summary>
         /// <param name="assets">The asset keys and types to reload.</param>
-        /// <returns>Returns a lookup of asset names to whether they've been propagated.</returns>
-        public IDictionary<string, bool> Propagate(IDictionary<string, Type> assets)
+        /// <param name="ignoreWorld">Whether the in-game world is fully unloaded (e.g. on the title screen), so there's no need to propagate changes into the world.</param>
+        /// <param name="propagatedAssets">A lookup of asset names to whether they've been propagated.</param>
+        /// <param name="updatedNpcWarps">Whether the NPC pathfinding cache was reloaded.</param>
+        public void Propagate(IDictionary<string, Type> assets, bool ignoreWorld, out IDictionary<string, bool> propagatedAssets, out bool updatedNpcWarps)
         {
             // group into optimized lists
             var buckets = assets.GroupBy(p =>
@@ -95,26 +97,36 @@ namespace StardewModdingAPI.Metadata
             });
 
             // reload assets
-            IDictionary<string, bool> propagated = assets.ToDictionary(p => p.Key, _ => false, StringComparer.OrdinalIgnoreCase);
+            propagatedAssets = assets.ToDictionary(p => p.Key, _ => false, StringComparer.OrdinalIgnoreCase);
+            updatedNpcWarps = false;
             foreach (var bucket in buckets)
             {
                 switch (bucket.Key)
                 {
                     case AssetBucket.Sprite:
-                        this.ReloadNpcSprites(bucket.Select(p => p.Key), propagated);
+                        if (!ignoreWorld)
+                            this.ReloadNpcSprites(bucket.Select(p => p.Key), propagatedAssets);
                         break;
 
                     case AssetBucket.Portrait:
-                        this.ReloadNpcPortraits(bucket.Select(p => p.Key), propagated);
+                        if (!ignoreWorld)
+                            this.ReloadNpcPortraits(bucket.Select(p => p.Key), propagatedAssets);
                         break;
 
                     default:
                         foreach (var entry in bucket)
-                            propagated[entry.Key] = this.PropagateOther(entry.Key, entry.Value);
+                        {
+                            bool changed = this.PropagateOther(entry.Key, entry.Value, ignoreWorld, out bool curChangedMapWarps);
+                            propagatedAssets[entry.Key] = changed;
+                            updatedNpcWarps = updatedNpcWarps || curChangedMapWarps;
+                        }
                         break;
                 }
             }
-            return propagated;
+
+            // reload NPC pathfinding cache if any map changed
+            if (updatedNpcWarps)
+                NPC.populateRoutesFromLocationToLocationList();
         }
 
 
@@ -124,19 +136,22 @@ namespace StardewModdingAPI.Metadata
         /// <summary>Reload one of the game's core assets (if applicable).</summary>
         /// <param name="key">The asset key to reload.</param>
         /// <param name="type">The asset type to reload.</param>
+        /// <param name="ignoreWorld">Whether the in-game world is fully unloaded (e.g. on the title screen), so there's no need to propagate changes into the world.</param>
+        /// <param name="changedWarps">Whether any map warps were changed as part of this propagation.</param>
         /// <returns>Returns whether an asset was loaded. The return value may be true or false, or a non-null value for true.</returns>
         [SuppressMessage("ReSharper", "StringLiteralTypo", Justification = "These deliberately match the asset names.")]
-        private bool PropagateOther(string key, Type type)
+        private bool PropagateOther(string key, Type type, bool ignoreWorld, out bool changedWarps)
         {
             var content = this.MainContentManager;
             key = this.AssertAndNormalizeAssetName(key);
+            changedWarps = false;
 
             /****
             ** Special case: current map tilesheet
             ** We only need to do this for the current location, since tilesheets are reloaded when you enter a location.
             ** Just in case, we should still propagate by key even if a tilesheet is matched.
             ****/
-            if (Game1.currentLocation?.map?.TileSheets != null)
+            if (!ignoreWorld && Game1.currentLocation?.map?.TileSheets != null)
             {
                 foreach (TileSheet tilesheet in Game1.currentLocation.map.TileSheets)
                 {
@@ -151,14 +166,30 @@ namespace StardewModdingAPI.Metadata
             if (type == typeof(Map))
             {
                 bool anyChanged = false;
-                foreach (GameLocation location in this.GetLocations())
+
+                if (!ignoreWorld)
                 {
-                    if (!string.IsNullOrWhiteSpace(location.mapPath.Value) && this.NormalizeAssetNameIgnoringEmpty(location.mapPath.Value) == key)
+                    foreach (GameLocation location in this.GetLocations())
                     {
-                        this.ReloadMap(location);
-                        anyChanged = true;
+                        if (!string.IsNullOrWhiteSpace(location.mapPath.Value) && this.NormalizeAssetNameIgnoringEmpty(location.mapPath.Value) == key)
+                        {
+                            static ISet<string> GetWarpSet(GameLocation location)
+                            {
+                                return new HashSet<string>(
+                                    location.warps.Select(p => $"{p.X} {p.Y} {p.TargetName} {p.TargetX} {p.TargetY}")
+                                );
+                            }
+
+                            var oldWarps = GetWarpSet(location);
+                            this.ReloadMap(location);
+                            var newWarps = GetWarpSet(location);
+
+                            changedWarps = changedWarps || oldWarps.Count != newWarps.Count || oldWarps.Any(p => !newWarps.Contains(p));
+                            anyChanged = true;
+                        }
                     }
                 }
+
                 return anyChanged;
             }
 
@@ -172,7 +203,7 @@ namespace StardewModdingAPI.Metadata
                 ** Animals
                 ****/
                 case "animals\\horse":
-                    return this.ReloadPetOrHorseSprites<Horse>(content, key);
+                    return !ignoreWorld && this.ReloadPetOrHorseSprites<Horse>(content, key);
 
                 /****
                 ** Buildings
@@ -197,7 +228,7 @@ namespace StardewModdingAPI.Metadata
                 case "characters\\farmer\\farmer_base_bald":
                 case "characters\\farmer\\farmer_girl_base":
                 case "characters\\farmer\\farmer_girl_base_bald":
-                    return this.ReloadPlayerSprites(key);
+                    return !ignoreWorld && this.ReloadPlayerSprites(key);
 
                 case "characters\\farmer\\hairstyles": // Game1.LoadContent
                     FarmerRenderer.hairStylesTexture = this.LoadAndDisposeIfNeeded(FarmerRenderer.hairStylesTexture, key);
@@ -270,7 +301,7 @@ namespace StardewModdingAPI.Metadata
                     return true;
 
                 case "data\\farmanimals": // FarmAnimal constructor
-                    return this.ReloadFarmAnimalData();
+                    return !ignoreWorld && this.ReloadFarmAnimalData();
 
                 case "data\\hairdata": // Farmer.GetHairStyleMetadataFile
                     return this.ReloadHairData();
@@ -288,7 +319,7 @@ namespace StardewModdingAPI.Metadata
                     return true;
 
                 case "data\\npcdispositions": // NPC constructor
-                    return this.ReloadNpcDispositions(content, key);
+                    return !ignoreWorld && this.ReloadNpcDispositions(content, key);
 
                 case "data\\npcgifttastes": // Game1.LoadContent
                     Game1.NPCGiftTastes = content.Load<Dictionary<string, string>>(key);
@@ -366,6 +397,9 @@ namespace StardewModdingAPI.Metadata
                         foreach (ClickableTextureComponent button in new[] { menu.questButton, menu.zoomInButton, menu.zoomOutButton })
                             button.texture = Game1.mouseCursors;
                     }
+
+                    if (!ignoreWorld)
+                        this.ReloadDoorSprites(content, key);
                     return true;
 
                 case "loosesprites\\cursors2": // Game1.LoadContent
@@ -393,7 +427,7 @@ namespace StardewModdingAPI.Metadata
                     return true;
 
                 case "loosesprites\\suspensionbridge": // SuspensionBridge constructor
-                    return this.ReloadSuspensionBridges(content, key);
+                    return !ignoreWorld && this.ReloadSuspensionBridges(content, key);
 
                 /****
                 ** Content\Maps
@@ -452,14 +486,14 @@ namespace StardewModdingAPI.Metadata
                     return true;
 
                 case "tilesheets\\chairtiles": // Game1.LoadContent
-                    return this.ReloadChairTiles(content, key);
+                    return this.ReloadChairTiles(content, key, ignoreWorld);
 
                 case "tilesheets\\craftables": // Game1.LoadContent
                     Game1.bigCraftableSpriteSheet = content.Load<Texture2D>(key);
                     return true;
 
                 case "tilesheets\\critters": // Critter constructor
-                    return this.ReloadCritterTextures(content, key) > 0;
+                    return !ignoreWorld && this.ReloadCritterTextures(content, key) > 0;
 
                 case "tilesheets\\crops": // Game1.LoadContent
                     Game1.cropSpriteSheet = content.Load<Texture2D>(key);
@@ -513,7 +547,7 @@ namespace StardewModdingAPI.Metadata
                     return true;
 
                 case "terrainfeatures\\grass": // from Grass
-                    return this.ReloadGrassTextures(content, key);
+                    return !ignoreWorld && this.ReloadGrassTextures(content, key);
 
                 case "terrainfeatures\\hoedirt": // from HoeDirt
                     HoeDirt.lightTexture = content.Load<Texture2D>(key);
@@ -528,52 +562,55 @@ namespace StardewModdingAPI.Metadata
                     return true;
 
                 case "terrainfeatures\\mushroom_tree": // from Tree
-                    return this.ReloadTreeTextures(content, key, Tree.mushroomTree);
+                    return !ignoreWorld && this.ReloadTreeTextures(content, key, Tree.mushroomTree);
 
                 case "terrainfeatures\\tree_palm": // from Tree
-                    return this.ReloadTreeTextures(content, key, Tree.palmTree);
+                    return !ignoreWorld && this.ReloadTreeTextures(content, key, Tree.palmTree);
 
                 case "terrainfeatures\\tree1_fall": // from Tree
                 case "terrainfeatures\\tree1_spring": // from Tree
                 case "terrainfeatures\\tree1_summer": // from Tree
                 case "terrainfeatures\\tree1_winter": // from Tree
-                    return this.ReloadTreeTextures(content, key, Tree.bushyTree);
+                    return !ignoreWorld && this.ReloadTreeTextures(content, key, Tree.bushyTree);
 
                 case "terrainfeatures\\tree2_fall": // from Tree
                 case "terrainfeatures\\tree2_spring": // from Tree
                 case "terrainfeatures\\tree2_summer": // from Tree
                 case "terrainfeatures\\tree2_winter": // from Tree
-                    return this.ReloadTreeTextures(content, key, Tree.leafyTree);
+                    return !ignoreWorld && this.ReloadTreeTextures(content, key, Tree.leafyTree);
 
                 case "terrainfeatures\\tree3_fall": // from Tree
                 case "terrainfeatures\\tree3_spring": // from Tree
                 case "terrainfeatures\\tree3_winter": // from Tree
-                    return this.ReloadTreeTextures(content, key, Tree.pineTree);
+                    return !ignoreWorld && this.ReloadTreeTextures(content, key, Tree.pineTree);
             }
 
             /****
             ** Dynamic assets
             ****/
-            // dynamic textures
-            if (this.KeyStartsWith(key, "animals\\cat"))
-                return this.ReloadPetOrHorseSprites<Cat>(content, key);
-            if (this.KeyStartsWith(key, "animals\\dog"))
-                return this.ReloadPetOrHorseSprites<Dog>(content, key);
-            if (this.IsInFolder(key, "Animals"))
-                return this.ReloadFarmAnimalSprites(content, key);
+            if (!ignoreWorld)
+            {
+                // dynamic textures
+                if (this.KeyStartsWith(key, "animals\\cat"))
+                    return this.ReloadPetOrHorseSprites<Cat>(content, key);
+                if (this.KeyStartsWith(key, "animals\\dog"))
+                    return this.ReloadPetOrHorseSprites<Dog>(content, key);
+                if (this.IsInFolder(key, "Animals"))
+                    return this.ReloadFarmAnimalSprites(content, key);
 
-            if (this.IsInFolder(key, "Buildings"))
-                return this.ReloadBuildings(content, key);
+                if (this.IsInFolder(key, "Buildings"))
+                    return this.ReloadBuildings(content, key);
 
-            if (this.KeyStartsWith(key, "LooseSprites\\Fence"))
-                return this.ReloadFenceTextures(key);
+                if (this.KeyStartsWith(key, "LooseSprites\\Fence"))
+                    return this.ReloadFenceTextures(key);
 
-            // dynamic data
-            if (this.IsInFolder(key, "Characters\\Dialogue"))
-                return this.ReloadNpcDialogue(key);
+                // dynamic data
+                if (this.IsInFolder(key, "Characters\\Dialogue"))
+                    return this.ReloadNpcDialogue(key);
 
-            if (this.IsInFolder(key, "Characters\\schedules"))
-                return this.ReloadNpcSchedules(key);
+                if (this.IsInFolder(key, "Characters\\schedules"))
+                    return this.ReloadNpcSchedules(key);
+            }
 
             return false;
         }
@@ -693,19 +730,23 @@ namespace StardewModdingAPI.Metadata
         /// <summary>Reload map seat textures.</summary>
         /// <param name="content">The content manager through which to reload the asset.</param>
         /// <param name="key">The asset key to reload.</param>
+        /// <param name="ignoreWorld">Whether the in-game world is fully unloaded (e.g. on the title screen), so there's no need to propagate changes into the world.</param>
         /// <returns>Returns whether any textures were reloaded.</returns>
-        private bool ReloadChairTiles(LocalizedContentManager content, string key)
+        private bool ReloadChairTiles(LocalizedContentManager content, string key, bool ignoreWorld)
         {
             MapSeat.mapChairTexture = content.Load<Texture2D>(key);
 
-            foreach (var location in this.GetLocations())
+            if (!ignoreWorld)
             {
-                foreach (MapSeat seat in location.mapSeats.Where(p => p != null))
+                foreach (var location in this.GetLocations())
                 {
-                    string curKey = this.NormalizeAssetNameIgnoringEmpty(seat._loadedTextureFile);
+                    foreach (MapSeat seat in location.mapSeats.Where(p => p != null))
+                    {
+                        string curKey = this.NormalizeAssetNameIgnoringEmpty(seat._loadedTextureFile);
 
-                    if (curKey == null || key.Equals(curKey, StringComparison.OrdinalIgnoreCase))
-                        seat.overlayTexture = MapSeat.mapChairTexture;
+                        if (curKey == null || key.Equals(curKey, StringComparison.OrdinalIgnoreCase))
+                            seat.overlayTexture = MapSeat.mapChairTexture;
+                    }
                 }
             }
 
@@ -737,6 +778,36 @@ namespace StardewModdingAPI.Metadata
                 entry.sprite.spriteTexture = texture;
 
             return critters.Length;
+        }
+
+        /// <summary>Reload the sprites for interior doors.</summary>
+        /// <param name="content">The content manager through which to reload the asset.</param>
+        /// <param name="key">The asset key to reload.</param>
+        /// <returns>Returns whether any doors were affected.</returns>
+        private bool ReloadDoorSprites(LocalizedContentManager content, string key)
+        {
+            Lazy<Texture2D> texture = new Lazy<Texture2D>(() => content.Load<Texture2D>(key));
+
+            foreach (GameLocation location in this.GetLocations())
+            {
+                IEnumerable<InteriorDoor> doors = location.interiorDoors?.Doors;
+                if (doors == null)
+                    continue;
+
+                foreach (InteriorDoor door in doors)
+                {
+                    if (door?.Sprite == null)
+                        continue;
+
+                    string textureName = this.NormalizeAssetNameIgnoringEmpty(this.Reflection.GetField<string>(door.Sprite, "textureName").GetValue());
+                    if (textureName != key)
+                        continue;
+
+                    door.Sprite.texture = texture.Value;
+                }
+            }
+
+            return texture.IsValueCreated;
         }
 
         /// <summary>Reload the data for matching farm animals.</summary>

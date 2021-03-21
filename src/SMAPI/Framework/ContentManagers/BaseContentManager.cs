@@ -122,9 +122,6 @@ namespace StardewModdingAPI.Framework.ContentManagers
         public virtual void OnLocaleChanged() { }
 
         /// <inheritdoc />
-        public virtual void OnReturningToTitleScreen() { }
-
-        /// <inheritdoc />
         [Pure]
         public string NormalizePathSeparators(string path)
         {

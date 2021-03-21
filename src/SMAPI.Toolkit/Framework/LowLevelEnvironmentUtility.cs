@@ -89,13 +89,6 @@ namespace StardewModdingAPI.Toolkit.Framework
                 : "StardewValley.exe";
         }
 
-        /// <summary>Get whether the platform uses Mono.</summary>
-        /// <param name="platform">The current platform.</param>
-        public static bool IsMono(string platform)
-        {
-            return platform == nameof(Platform.Linux) || platform == nameof(Platform.Mac);
-        }
-
 
         /*********
         ** Private methods

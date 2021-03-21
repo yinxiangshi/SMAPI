@@ -69,9 +69,5 @@ namespace StardewModdingAPI.Framework.ContentManagers
 
         /// <summary>Perform any cleanup needed when the locale changes.</summary>
         void OnLocaleChanged();
-
-        /// <summary>Clean up when the player is returning to the title screen.</summary>
-        /// <remarks>This is called after the player returns to the title screen, but before <see cref="Game1.CleanupReturningToTitle"/> runs.</remarks>
-        void OnReturningToTitleScreen();
     }
 }

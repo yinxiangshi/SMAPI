@@ -27,11 +27,9 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
 #endif
         {
             harmony.Patch(
-#if SMAPI_FOR_WINDOWS
-                original: AccessTools.Method(typeof(SpriteBatch), "InternalDraw"),
-#else
-                original: AccessTools.Method(typeof(SpriteBatch), "CheckValid", new[] { typeof(Texture2D) }),
-#endif
+                original: Constants.GameFramework == GameFramework.Xna
+                    ? AccessTools.Method(typeof(SpriteBatch), "InternalDraw")
+                    : AccessTools.Method(typeof(SpriteBatch), "CheckValid", new[] { typeof(Texture2D) }),
                 postfix: new HarmonyMethod(this.GetType(), nameof(SpriteBatchValidationPatches.After_SpriteBatch_CheckValid))
             );
         }
@@ -40,7 +38,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         /*********
         ** Private methods
         *********/
-#if SMAPI_FOR_WINDOWS
+#if SMAPI_FOR_XNA
         /// <summary>The method to call instead of <see cref="SpriteBatch.InternalDraw"/>.</summary>
         /// <param name="texture">The texture to validate.</param>
 #else

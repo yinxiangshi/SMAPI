@@ -4,7 +4,6 @@
     <Description>The SMAPI installer for players.</Description>
     <TargetFramework>net45</TargetFramework>
     <OutputType>Exe</OutputType>
-    <PlatformTarget>x86</PlatformTarget>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 

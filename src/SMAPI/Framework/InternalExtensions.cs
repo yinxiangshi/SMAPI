@@ -179,15 +179,10 @@ namespace StardewModdingAPI.Framework
         /// <param name="reflection">The reflection helper with which to access private fields.</param>
         public static bool IsOpen(this SpriteBatch spriteBatch, Reflector reflection)
         {
-            // get field name
-            const string fieldName =
-#if SMAPI_FOR_WINDOWS
-                "inBeginEndPair";
-#else
-                "_beginCalled";
-#endif
+            string fieldName = Constants.GameFramework == GameFramework.Xna
+                ? "inBeginEndPair"
+                : "_beginCalled";
 
-            // get result
             return reflection.GetField<bool>(Game1.spriteBatch, fieldName).GetValue();
         }
     }

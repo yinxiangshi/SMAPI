@@ -137,31 +137,6 @@ namespace StardewModdingAPI.Framework.ContentManagers
         }
 
         /// <inheritdoc />
-        public override void OnReturningToTitleScreen()
-        {
-            // The game clears LocalizedContentManager.localizedAssetNames after returning to the title screen. That
-            // causes an inconsistency in the SMAPI asset cache, which leads to an edge case where assets already
-            // provided by mods via IAssetLoader when playing in non-English are ignored.
-            //
-            // For example, let's say a mod provides the 'Data\mail' asset through IAssetLoader when playing in
-            // Portuguese. Here's the normal load process after it's loaded:
-            //   1. The game requests Data\mail.
-            //   2. SMAPI sees that it's already cached, and calls LoadRaw to bypass asset interception.
-            //   3. LoadRaw sees that there's a localized key mapping, and gets the mapped key.
-            //   4. In this case "Data\mail" is mapped to "Data\mail" since it was loaded by a mod, so it loads that
-            //      asset.
-            //
-            // When the game clears localizedAssetNames, that process goes wrong in step 4:
-            //  3. LoadRaw sees that there's no localized key mapping *and* the locale is non-English, so it attempts
-            //     to load from the localized key format.
-            //  4. In this case that's 'Data\mail.pt-BR', so it successfully loads that asset.
-            //  5. Since we've bypassed asset interception at this point, it's loaded directly from the base content
-            //     manager without mod changes.
-            if (LocalizedContentManager.CurrentLanguageCode != LocalizedContentManager.LanguageCode.en)
-                this.InvalidateCache((_, _) => true);
-        }
-
-        /// <inheritdoc />
         public override LocalizedContentManager CreateTemporary()
         {
             return this.Coordinator.CreateGameContentManager("(temporary)");
