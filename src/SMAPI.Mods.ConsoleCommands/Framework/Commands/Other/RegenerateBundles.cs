@@ -1,6 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using Netcode;
 using StardewValley;
+using StardewValley.Network;
 
 namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
 {
@@ -56,9 +60,34 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
                 return;
             }
 
+            // get private fields
+            IWorldState state = Game1.netWorldState.Value;
+            var bundleData = state.GetType().GetField("_bundleData", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)?.GetValue(state) as IDictionary<string, string>
+                ?? throw new InvalidOperationException("Can't access '_bundleData' field on world state.");
+            var netBundleData = state.GetType().GetField("netBundleData", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)?.GetValue(state) as NetStringDictionary<string, NetString>
+                ?? throw new InvalidOperationException("Can't access 'netBundleData' field on world state.");
+
+            // clear bundle data
+            state.BundleData.Clear();
+            state.Bundles.Clear();
+            state.BundleRewards.Clear();
+            bundleData.Clear();
+            netBundleData.Clear();
+
             // regenerate bundles
-            Game1.bundleType = bundleType;
-            Game1.GenerateBundles(bundleType, use_seed: useSeed);
+            var locale = LocalizedContentManager.CurrentLanguageCode;
+            try
+            {
+                LocalizedContentManager.CurrentLanguageCode = LocalizedContentManager.LanguageCode.en; // the base bundle data needs to be unlocalized (the game will add localized names later)
+
+                Game1.bundleType = bundleType;
+                Game1.GenerateBundles(bundleType, use_seed: useSeed);
+            }
+            finally
+            {
+                LocalizedContentManager.CurrentLanguageCode = locale;
+            }
+
             monitor.Log("Regenerated bundles and reset bundle progress.", LogLevel.Info);
             monitor.Log("This may have unintended effects if you've already completed any bundles. If you're not sure, exit your game without saving to cancel.", LogLevel.Warn);
         }
