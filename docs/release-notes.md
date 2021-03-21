@@ -7,10 +7,16 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
-## Upcoming release
+## 3.9.5
+Released 21 March 2021 for Stardew Valley 1.5.4 or later.
+
 * For players:
-  * Added `regenerate_bundles` console command to reset community center bundles if they're corrupted by a bug _(in Console Commands)_.
-  * Disabled aggressive memory optimization (added in 3.9.2) by default. The option reduces errors for a subset of players who use certain mods, but may cause crashes for farmhands in multiplayer. You can edit `smapi-internal/config.json` to enable it if you experience frequent `OutOfMemoryException` errors.
+  * Added console command to reset community center bundles _(in Console Commands)_.
+  * Disabled aggressive memory optimization by default.  
+    _The option was added in SMAPI 3.9.2 to reduce errors for some players, but it can cause multiplayer crashes with some mods. If you often see `OutOfMemoryException` errors, you can edit `smapi-internal/config.json` to re-enable it. We're experimenting with making Stardew Valley 64-bit to address memory issues more systematically._
+  * Fixed bundles corrupted in non-English saves created after SMAPI 3.9.2.  
+    _If you have an affected save, you can load your save and then enter the `regenerate_bundles confirm` command in the SMAPI console to fix it._
+  * Internal changes to prepare for unofficial 64-bit.
 
 * For mod authors:
   * Improved asset propagation:
@@ -20,7 +26,7 @@
     * Fixed asset changes not reapplied in the edge case where you're playing in non-English, and the changes are only applied after the save is loaded, and the player returns to title and reloads a save, and the game reloads the target asset before the save is loaded.
   * Added a second `KeybindList` constructor to simplify single-key default bindings.
   * Added a `Constants.GameFramework` field which indicates whether the game is using XNA Framework or MonoGame.  
-    _Note: mods don't need to handle the difference in most cases, but some players may use MonoGame on Windows in upcoming versions. Mods which use the `Constants.TargetPlatform` should review usages to determine whether they're actually checking the platform or the game framework._
+    _Note: mods don't need to handle the difference in most cases, but some players may use MonoGame on Windows in upcoming versions. Mods which check `Constants.TargetPlatform` should review usages as needed._
 
 ## 3.9.4
 Released 07 March 2021 for Stardew Valley 1.5.4 or later.
