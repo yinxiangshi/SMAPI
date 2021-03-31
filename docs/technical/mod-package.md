@@ -365,7 +365,9 @@ The NuGet package is generated automatically in `StardewModdingAPI.ModBuildConfi
 when you compile it.
 
 ## Release notes
-## Upcoming release
+## 3.3
+Released 30 March 2021.
+
 * Added a build warning when the mod isn't compiled for `Any CPU`.
 * Added a `GameFramework` build property set to `MonoGame` or `Xna` based on the platform. This can be overridden to change which framework it references.
 * Added support for building mods against the 64-bit Linux version of the game on Windows.
