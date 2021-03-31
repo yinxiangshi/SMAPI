@@ -137,6 +137,15 @@ The filename for the game's executable (i.e. `StardewValley.exe` on Linux/Mac or
 
 </td>
 </tr>
+<tr>
+<td><code>GameFramework</code></td>
+<td>
+
+The game framework for which the mod is being compiled (one of `Xna` or `MonoGame`). This is
+auto-detected based on the platform, and you should almost never change this.
+
+</td>
+</tr>
 </table>
 </li>
 
@@ -291,6 +300,15 @@ Warning text:
 
 Your code accesses a field which is obsolete or no longer works. Use the suggested field instead.
 
+### Wrong processor architecture
+Warning text:
+> The target platform should be set to 'Any CPU' for compatibility with both 32-bit and 64-bit
+> versions of Stardew Valley (currently set to '{{current platform}}').
+
+Mods can be used in either 32-bit or 64-bit mode. Your project's target platform isn't set to the
+default 'Any CPU', so it won't work in both. You can fix it by [setting the target platform to
+'Any CPU'](https://docs.microsoft.com/en-ca/visualstudio/ide/how-to-configure-projects-to-target-platforms).
+
 ## FAQs
 ### How do I set the game path?<span id="custom-game-path"></span>
 The package detects where your game is installed automatically, so you usually don't need to set it
@@ -347,6 +365,14 @@ The NuGet package is generated automatically in `StardewModdingAPI.ModBuildConfi
 when you compile it.
 
 ## Release notes
+## 3.3
+Released 30 March 2021.
+
+* Added a build warning when the mod isn't compiled for `Any CPU`.
+* Added a `GameFramework` build property set to `MonoGame` or `Xna` based on the platform. This can be overridden to change which framework it references.
+* Added support for building mods against the 64-bit Linux version of the game on Windows.
+* The package now suppresses the misleading 'processor architecture mismatch' warnings.
+
 ## 3.2.2
 Released 23 September 2020.
 

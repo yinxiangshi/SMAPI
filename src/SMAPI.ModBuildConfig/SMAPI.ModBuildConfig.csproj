@@ -9,16 +9,12 @@
     <!--NuGet package-->
     <PackageId>Pathoschild.Stardew.ModBuildConfig</PackageId>
     <Title>Build package for SMAPI mods</Title>
-    <Version>3.2.2</Version>
+    <Version>3.3.0</Version>
     <Authors>Pathoschild</Authors>
     <Description>Automates the build configuration for crossplatform Stardew Valley SMAPI mods. For SMAPI 3.0 or later.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>images/icon.png</PackageIcon>
     <PackageProjectUrl>https://smapi.io/package/readme</PackageProjectUrl>
-    <PackageReleaseNotes>
-      - Reworked and streamlined how the package is compiled.
-      - Added SMAPI-ModTranslationClassBuilder files to the ignore list.
-    </PackageReleaseNotes>
     <IncludeBuildOutput>false</IncludeBuildOutput>
   </PropertyGroup>
 
@@ -48,5 +44,4 @@
     <None PackagePath="build/Pathoschild.Stardew.ModBuildConfig.targets" Include="build\smapi.targets" Pack="true" />
     <None PackagePath="images/icon.png" Include="assets\nuget-icon.png" Pack="true" />
   </ItemGroup>
-
 </Project>
