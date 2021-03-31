@@ -15,10 +15,6 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>images/icon.png</PackageIcon>
     <PackageProjectUrl>https://smapi.io/package/readme</PackageProjectUrl>
-    <PackageReleaseNotes>
-      - Reworked and streamlined how the package is compiled.
-      - Added SMAPI-ModTranslationClassBuilder files to the ignore list.
-    </PackageReleaseNotes>
     <IncludeBuildOutput>false</IncludeBuildOutput>
   </PropertyGroup>
 
@@ -48,5 +44,4 @@
     <None PackagePath="build/Pathoschild.Stardew.ModBuildConfig.targets" Include="build\smapi.targets" Pack="true" />
     <None PackagePath="images/icon.png" Include="assets\nuget-icon.png" Pack="true" />
   </ItemGroup>
-
 </Project>
