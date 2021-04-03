@@ -287,6 +287,9 @@ namespace StardewModdingAPI.Framework.Logging
             string platformLabel = EnvironmentUtility.GetFriendlyPlatformName(Constants.Platform);
             if ((Constants.GameFramework == GameFramework.Xna) != (Constants.Platform == Platform.Windows))
                 platformLabel += $" with {Constants.GameFramework}";
+#if SMAPI_FOR_WINDOWS_64BIT_HACK
+            platformLabel += " 64-bit hack";
+#endif
 
             // init logging
             this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GameVersion} on {platformLabel}", LogLevel.Info);

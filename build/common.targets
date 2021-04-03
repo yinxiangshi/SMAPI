@@ -1,7 +1,4 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-
-  <Import Project="find-game-folder.targets" />
-
   <!--set properties -->
   <PropertyGroup>
     <Version>3.9.5</Version>
@@ -9,8 +6,14 @@
 
     <LangVersion>latest</LangVersion>
     <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>
-    <DefineConstants Condition="$(OS) == 'Windows_NT'">$(DefineConstants);SMAPI_FOR_WINDOWS;SMAPI_FOR_XNA</DefineConstants>
+
+    <!--<DefineConstants>$(DefineConstants);SMAPI_FOR_WINDOWS_64BIT_HACK</DefineConstants>-->
+    <DefineConstants Condition="$(OS) == 'Windows_NT'">$(DefineConstants);SMAPI_FOR_WINDOWS</DefineConstants>
+    <DefineConstants Condition="$(OS) == 'Windows_NT' AND !$(DefineConstants.Contains(SMAPI_FOR_WINDOWS_64BIT_HACK))">$(DefineConstants);SMAPI_FOR_XNA</DefineConstants>
   </PropertyGroup>
+
+  <!--find game folder-->
+  <Import Project="find-game-folder.targets" />
 
   <!-- if game path is invalid, show one user-friendly error instead of a slew of reference errors -->
   <Target Name="ValidateInstallPath" AfterTargets="BeforeBuild">
@@ -76,5 +79,4 @@
 
   <!-- Somehow this makes Visual Studio for Mac recognise the previous section. Nobody knows why. -->
   <PropertyGroup Condition="'$(RunConfiguration)' == 'Default'" />
-
 </Project>

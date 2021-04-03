@@ -38,6 +38,14 @@ namespace StardewModdingAPI
         /// <summary>The target game platform.</summary>
         internal static GamePlatform Platform { get; } = (GamePlatform)Enum.Parse(typeof(GamePlatform), LowLevelEnvironmentUtility.DetectPlatform());
 
+        /// <summary>Whether SMAPI is being compiled for Windows with a 64-bit Linux version of the game. This is highly specialized and shouldn't be used in most cases.</summary>
+        internal static bool IsWindows64BitHack { get; } =
+#if SMAPI_FOR_WINDOWS_64BIT_HACK
+            true;
+#else
+            false;
+#endif
+
         /// <summary>The game framework running the game.</summary>
         internal static GameFramework GameFramework { get; } =
 #if SMAPI_FOR_XNA
@@ -47,7 +55,7 @@ namespace StardewModdingAPI
 #endif
 
         /// <summary>The game's assembly name.</summary>
-        internal static string GameAssemblyName => EarlyConstants.Platform == GamePlatform.Windows ? "Stardew Valley" : "StardewValley";
+        internal static string GameAssemblyName => EarlyConstants.Platform == GamePlatform.Windows && !EarlyConstants.IsWindows64BitHack ? "Stardew Valley" : "StardewValley";
 
         /// <summary>The <see cref="Context.ScreenId"/> value which should appear in the SMAPI log, if any.</summary>
         internal static int? LogScreenId { get; set; }
@@ -231,33 +239,27 @@ namespace StardewModdingAPI
             targetAssemblies.Add(typeof(StardewModdingAPI.IManifest).Assembly);
 
             // get changes for platform
-            switch (targetPlatform)
+            if (Constants.Platform != Platform.Windows || EarlyConstants.IsWindows64BitHack)
             {
-                case Platform.Linux:
-                case Platform.Mac:
-                    removeAssemblyReferences.AddRange(new[]
-                    {
-                        "Netcode",
-                        "Stardew Valley"
-                    });
-                    targetAssemblies.Add(
-                        typeof(StardewValley.Game1).Assembly // note: includes Netcode types on Linux/Mac
-                    );
-                    break;
-
-                case Platform.Windows:
-                    removeAssemblyReferences.Add(
-                        "StardewValley"
-                    );
-                    targetAssemblies.AddRange(new[]
-                    {
-                        typeof(Netcode.NetBool).Assembly,
-                        typeof(StardewValley.Game1).Assembly
-                    });
-                    break;
-
-                default:
-                    throw new InvalidOperationException($"Unknown target platform '{targetPlatform}'.");
+                removeAssemblyReferences.AddRange(new[]
+                {
+                    "Netcode",
+                    "Stardew Valley"
+                });
+                targetAssemblies.Add(
+                    typeof(StardewValley.Game1).Assembly // note: includes Netcode types on Linux/Mac
+                );
+            }
+            else
+            {
+                removeAssemblyReferences.Add(
+                    "StardewValley"
+                );
+                targetAssemblies.AddRange(new[]
+                {
+                    typeof(Netcode.NetBool).Assembly,
+                    typeof(StardewValley.Game1).Assembly
+                });
             }
 
             // get changes for game framework

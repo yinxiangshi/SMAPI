@@ -419,7 +419,7 @@ namespace StardewModdingAPI.Framework
             Game1.mapDisplayDevice = new SDisplayDevice(Game1.content, Game1.game1.GraphicsDevice);
 
             // log GPU info
-#if SMAPI_FOR_WINDOWS
+#if SMAPI_FOR_WINDOWS && !SMAPI_FOR_WINDOWS_64BIT_HACK
             this.Monitor.Log($"Running on GPU: {Game1.game1.GraphicsDevice?.Adapter?.Description ?? "<unknown>"}");
 #endif
         }

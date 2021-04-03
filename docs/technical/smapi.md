@@ -57,7 +57,8 @@ SMAPI uses a small number of conditional compilation constants, which you can se
 flag | purpose
 ---- | -------
 `SMAPI_FOR_WINDOWS` | Whether SMAPI is being compiled for Windows; if not set, the code assumes Linux/MacOS. Set automatically in `common.targets`.
-`SMAPI_FOR_XNA` | Whether SMAPI is being compiled for XNA Framework; if not set, the code assumes MonoGame. Set automatically in `common.targets` with the same value as `SMAPI_FOR_WINDOWS`.
+`SMAPI_FOR_WINDOWS_64BIT_HACK` | Whether SMAPI is being [compiled for Windows with a 64-bit Linux version of the game](https://github.com/Pathoschild/SMAPI/issues/767). This is highly specialized and shouldn't be used in most cases. False by default.
+`SMAPI_FOR_XNA` | Whether SMAPI is being compiled for XNA Framework; if not set, the code assumes MonoGame. Set automatically in `common.targets` with the same value as `SMAPI_FOR_WINDOWS` (unless `SMAPI_FOR_WINDOWS_64BIT_HACK` is set).
 `HARMONY_2` | Whether to enable experimental Harmony 2.0 support and rewrite existing Harmony 1._x_ mods for compatibility. Note that you need to replace `build/0Harmony.dll` with a Harmony 2.0 build (or switch to a package reference) to use this flag.
 
 ## For SMAPI developers
