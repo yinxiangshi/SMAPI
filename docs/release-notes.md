@@ -10,7 +10,11 @@
 ## Upcoming release
 * For players:
   * On macOS, the `StardewModdingAPI.bin.osx` file is no longer overwritten if it's identical to avoid resetting file permissions (thanks to 007wayne!).
+  * Fixed error for non-English players after returning to title, reloading, and entering town with a completed movie theater.
   * Fixed `world_clear` console command not removing resource clumps outside the farm and secret woods.
+
+* For modders:
+  * Added asset propagation for `Data\Concessions`.
 
 ## 3.9.5
 Released 21 March 2021 for Stardew Valley 1.5.4 or later.

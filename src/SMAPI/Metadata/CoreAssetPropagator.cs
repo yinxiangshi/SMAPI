@@ -286,6 +286,10 @@ namespace StardewModdingAPI.Metadata
                     Game1.clothingInformation = content.Load<Dictionary<int, string>>(key);
                     return true;
 
+                case "data\\concessions": // MovieTheater.GetConcessions
+                    MovieTheater.ClearCachedLocalizedData();
+                    return true;
+
                 case "data\\concessiontastes": // MovieTheater.GetConcessionTasteForCharacter
                     this.Reflection
                         .GetField<List<ConcessionTaste>>(typeof(MovieTheater), "_concessionTastes")
@@ -306,16 +310,9 @@ namespace StardewModdingAPI.Metadata
                 case "data\\hairdata": // Farmer.GetHairStyleMetadataFile
                     return this.ReloadHairData();
 
-                case "data\\moviesreactions": // MovieTheater.GetMovieReactions
-                    this.Reflection
-                        .GetField<List<MovieCharacterReaction>>(typeof(MovieTheater), "_genericReactions")
-                        .SetValue(content.Load<List<MovieCharacterReaction>>(key));
-                    return true;
-
                 case "data\\movies": // MovieTheater.GetMovieData
-                    this.Reflection
-                        .GetField<Dictionary<string, MovieData>>(typeof(MovieTheater), "_movieData")
-                        .SetValue(content.Load<Dictionary<string, MovieData>>(key));
+                case "data\\moviesreactions": // MovieTheater.GetMovieReactions
+                    MovieTheater.ClearCachedLocalizedData();
                     return true;
 
                 case "data\\npcdispositions": // NPC constructor
