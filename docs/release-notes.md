@@ -7,6 +7,10 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
+## Upcoming release
+* For players:
+  * Fixed `world_clear` console command not removing resource clumps outside the farm and secret woods.
+
 ## 3.9.5
 Released 21 March 2021 for Stardew Valley 1.5.4 or later.
 

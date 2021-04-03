@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using StardewValley;
 using StardewValley.Locations;
@@ -224,18 +223,17 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
         {
             int removed = 0;
 
-            // get resource clumps
-            IList<ResourceClump> resourceClumps =
-                (location as Farm)?.resourceClumps
-                ?? (IList<ResourceClump>)(location as Woods)?.stumps
-                ?? new List<ResourceClump>();
-
-            // remove matching clumps
-            foreach (var clump in resourceClumps.ToArray())
+            foreach (var clump in location.resourceClumps.Where(shouldRemove).ToArray())
             {
-                if (shouldRemove(clump))
+                location.resourceClumps.Remove(clump);
+                removed++;
+            }
+
+            if (location is Woods woods)
+            {
+                foreach (ResourceClump clump in woods.stumps.Where(shouldRemove).ToArray())
                 {
-                    resourceClumps.Remove(clump);
+                    woods.stumps.Remove(clump);
                     removed++;
                 }
             }
