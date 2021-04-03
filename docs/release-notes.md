@@ -9,6 +9,7 @@
 
 ## Upcoming release
 * For players:
+  * On macOS, the `StardewModdingAPI.bin.osx` file is no longer overwritten if it's identical to avoid resetting file permissions (thanks to 007wayne!).
   * Fixed `world_clear` console command not removing resource clumps outside the farm and secret woods.
 
 ## 3.9.5

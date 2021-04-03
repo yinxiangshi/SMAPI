@@ -37,8 +37,13 @@ if [ "$UNAME" == "Darwin" ]; then
         ln -s /Library/Frameworks/Mono.framework/Versions/Current/lib/libgdiplus.dylib libgdiplus.dylib
     fi
 
+    # create bin file
+    # Note: don't overwrite if it's identical, to avoid resetting permission flags
+    if [ ! -x StardewModdingAPI.bin.osx ] || ! cmp StardewValley.bin.osx StardewModdingAPI.bin.osx >/dev/null 2>&1; then
+        cp -p StardewValley.bin.osx StardewModdingAPI.bin.osx
+    fi
+
     # launch SMAPI
-    cp StardewValley.bin.osx StardewModdingAPI.bin.osx
     open -a Terminal ./StardewModdingAPI.bin.osx "$@"
 else
     # choose launcher
