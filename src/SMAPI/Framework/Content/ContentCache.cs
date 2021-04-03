@@ -57,6 +57,8 @@ namespace StardewModdingAPI.Framework.Content
                 IReflectedMethod method = reflection.GetMethod(typeof(TitleContainer), "GetCleanPath");
                 this.NormalizeAssetNameForPlatform = path => method.Invoke<string>(path);
             }
+            else if (EarlyConstants.IsWindows64BitHack)
+                this.NormalizeAssetNameForPlatform = PathUtilities.NormalizePath;
             else
                 this.NormalizeAssetNameForPlatform = key => key.Replace('\\', '/'); // based on MonoGame's ContentManager.Load<T> logic
         }
