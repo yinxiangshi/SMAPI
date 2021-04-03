@@ -9,6 +9,7 @@
 
 ## Upcoming release
 * For players:
+  * When many mods fail to load, root dependencies are now listed in their own group so it's easier to see which ones you should try updating first.
   * On macOS, the `StardewModdingAPI.bin.osx` file is no longer overwritten if it's identical to avoid resetting file permissions (thanks to 007wayne!).
   * Fixed error for non-English players after returning to title, reloading, and entering town with a completed movie theater.
   * Fixed `world_clear` console command not removing resource clumps outside the farm and secret woods.
