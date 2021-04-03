@@ -10,9 +10,7 @@ using StardewModdingAPI.Internal.ConsoleWriting;
 using StardewModdingAPI.Toolkit;
 using StardewModdingAPI.Toolkit.Framework.ModScanning;
 using StardewModdingAPI.Toolkit.Utilities;
-#if !SMAPI_FOR_WINDOWS
 using System.Diagnostics;
-#endif
 
 namespace StardewModdingApi.Installer
 {
@@ -433,8 +431,6 @@ namespace StardewModdingApi.Installer
 
                         // mark file executable
                         // (MSBuild doesn't keep permission flags for files zipped in a build task.)
-                        // (Note: exclude from Windows build because antivirus apps can flag the process start code as suspicious.)
-#if !SMAPI_FOR_WINDOWS
                         new Process
                         {
                             StartInfo = new ProcessStartInfo
@@ -444,7 +440,6 @@ namespace StardewModdingApi.Installer
                                 CreateNoWindow = true
                             }
                         }.Start();
-#endif
                     }
 
                     // create mods directory (if needed)

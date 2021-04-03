@@ -12,6 +12,7 @@
   * On macOS, the `StardewModdingAPI.bin.osx` file is no longer overwritten if it's identical to avoid resetting file permissions (thanks to 007wayne!).
   * Fixed error for non-English players after returning to title, reloading, and entering town with a completed movie theater.
   * Fixed `world_clear` console command not removing resource clumps outside the farm and secret woods.
+  * Internal changes to prepare for unofficial 64-bit.
 
 * For modders:
   * Added asset propagation for `Data\Concessions`.
