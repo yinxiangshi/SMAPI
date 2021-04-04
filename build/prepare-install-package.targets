@@ -33,7 +33,7 @@
 
     <!-- copy installer files -->
     <Copy SourceFiles="$(TargetDir)\assets\unix-install.sh" DestinationFiles="$(PackagePath)\install on Linux.sh" />
-    <Copy SourceFiles="$(TargetDir)\assets\unix-install.sh" DestinationFiles="$(PackagePath)\install on Mac.command" />
+    <Copy SourceFiles="$(TargetDir)\assets\unix-install.sh" DestinationFiles="$(PackagePath)\install on macOS.command" />
     <Copy SourceFiles="$(TargetDir)\assets\windows-install.bat" DestinationFiles="$(PackagePath)\install on Windows.bat" />
     <Copy SourceFiles="$(TargetDir)\assets\README.txt" DestinationFiles="$(PackagePath)\README.txt" />
     <Copy SourceFiles="$(TargetDir)\$(TargetName).exe" DestinationFiles="$(PackagePath)\internal\$(PlatformName)-install.exe" />
@@ -74,13 +74,13 @@
     <Copy SourceFiles="$(SaveBackupBin)\SaveBackup.pdb" DestinationFolder="$(PackagePath)\bundle\Mods\SaveBackup" />
     <Copy SourceFiles="$(SaveBackupBin)\manifest.json" DestinationFolder="$(PackagePath)\bundle\Mods\SaveBackup" />
 
-    <!-- fix errors on Linux/Mac (sample: https://smapi.io/log/mMdFUpgB) -->
+    <!-- fix errors on Linux/macOS (sample: https://smapi.io/log/mMdFUpgB) -->
     <Copy Condition="$(PlatformName) == 'unix'" SourceFiles="$(TargetDir)\assets\System.Numerics.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
     <Copy Condition="$(PlatformName) == 'unix'" SourceFiles="$(TargetDir)\assets\System.Runtime.Caching.dll" DestinationFolder="$(PackagePath)\bundle\smapi-internal" />
 
-    <!-- fix Linux/Mac permissions -->
+    <!-- fix Linux/macOS permissions -->
     <Exec Condition="$(PlatformName) == 'unix'" Command="chmod 755 &quot;$(PackagePath)\install on Linux.sh&quot;" />
-    <Exec Condition="$(PlatformName) == 'unix'" Command="chmod 755 &quot;$(PackagePath)\install on Mac.command&quot;" />
+    <Exec Condition="$(PlatformName) == 'unix'" Command="chmod 755 &quot;$(PackagePath)\install on macOS.command&quot;" />
 
     <!-- finalise 'for developers' installer -->
     <ItemGroup>

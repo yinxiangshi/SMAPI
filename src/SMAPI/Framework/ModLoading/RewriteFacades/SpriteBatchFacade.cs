@@ -4,10 +4,10 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
 {
-    /// <summary>Provides <see cref="SpriteBatch"/> method signatures that can be injected into mod code for compatibility between Linux/Mac or Windows.</summary>
+    /// <summary>Provides <see cref="SpriteBatch"/> method signatures that can be injected into mod code for compatibility between Linux/macOS or Windows.</summary>
     /// <remarks>This is public to support SMAPI rewriting and should not be referenced directly by mods.</remarks>
     [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Used via assembly rewriting")]
-    [SuppressMessage("ReSharper", "CS0109", Justification = "The 'new' modifier applies when compiled on Linux/Mac.")]
+    [SuppressMessage("ReSharper", "CS0109", Justification = "The 'new' modifier applies when compiled on Linux/macOS.")]
     [SuppressMessage("ReSharper", "CS1591", Justification = "Documentation not needed for facade classes.")]
     public class SpriteBatchFacade : SpriteBatch
     {

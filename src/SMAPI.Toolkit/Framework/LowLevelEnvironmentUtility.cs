@@ -74,7 +74,7 @@ namespace StardewModdingAPI.Toolkit.Framework
                     break;
 
                 case nameof(Platform.Mac):
-                    name = $"MacOS {name}";
+                    name = $"macOS {name}";
                     break;
             }
             return name;
@@ -124,10 +124,10 @@ namespace StardewModdingAPI.Toolkit.Framework
             }
         }
 
-        /// <summary>Detect whether the code is running on Mac.</summary>
+        /// <summary>Detect whether the code is running on macOS.</summary>
         /// <remarks>
-        /// This code is derived from the Mono project (see System.Windows.Forms/System.Windows.Forms/XplatUI.cs). It detects Mac by calling the
-        /// <c>uname</c> system command and checking the response, which is always 'Darwin' for MacOS.
+        /// This code is derived from the Mono project (see System.Windows.Forms/System.Windows.Forms/XplatUI.cs). It detects macOS by calling the
+        /// <c>uname</c> system command and checking the response, which is always 'Darwin' for macOS.
         /// </remarks>
         private static bool IsRunningMac()
         {

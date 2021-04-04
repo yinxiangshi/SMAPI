@@ -527,7 +527,7 @@ namespace StardewModdingAPI.Framework.Logging
 
                 // not crossplatform
                 this.LogModWarningGroup(modsWithWarnings, ModWarning.UsesDynamic, LogLevel.Debug, "Not crossplatform",
-                    "These mods use the 'dynamic' keyword, and won't work on Linux/Mac."
+                    "These mods use the 'dynamic' keyword, and won't work on Linux/macOS."
                 );
             }
         }

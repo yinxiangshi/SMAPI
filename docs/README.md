@@ -11,9 +11,9 @@ doesn't change any of your game files. It serves seven main purposes:
    couldn't._
 
 3. **Rewrite mods for compatibility.**  
-   _SMAPI rewrites mods' compiled code before loading them so they work on Linux/Mac/Windows
-   without the mods needing to handle differences between the Linux/Mac and Windows versions of the
-   game. In some cases it also rewrites code broken by a game update so the mod doesn't break._
+   _SMAPI rewrites mods' compiled code before loading them so they work on Linux/macOS/Windows
+   without the mods needing to handle differences between the Linux/macOS and Windows versions of
+   the game. In some cases it also rewrites code broken by a game update so the mod doesn't break._
 
 5. **Intercept errors and automatically fix saves.**  
    _SMAPI intercepts errors, shows the error info in the SMAPI console, and in most cases

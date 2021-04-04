@@ -38,11 +38,11 @@ namespace StardewModdingApi.Installer
             string GetInstallPath(string path) => Path.Combine(installDir.FullName, path);
 
             // current files
-            yield return GetInstallPath("libgdiplus.dylib");           // Linux/Mac only
-            yield return GetInstallPath("StardewModdingAPI");          // Linux/Mac only
+            yield return GetInstallPath("libgdiplus.dylib");           // Linux/macOS only
+            yield return GetInstallPath("StardewModdingAPI");          // Linux/macOS only
             yield return GetInstallPath("StardewModdingAPI.exe");
             yield return GetInstallPath("StardewModdingAPI.exe.config");
-            yield return GetInstallPath("StardewModdingAPI.exe.mdb");  // Linux/Mac only
+            yield return GetInstallPath("StardewModdingAPI.exe.mdb");  // Linux/macOS only
             yield return GetInstallPath("StardewModdingAPI.pdb");      // Windows only
             yield return GetInstallPath("StardewModdingAPI.xml");
             yield return GetInstallPath("smapi-internal");
@@ -104,13 +104,13 @@ namespace StardewModdingApi.Installer
         ///     2. Ask the user whether to install or uninstall.
         ///
         /// Uninstall logic:
-        ///     1. On Linux/Mac: if a backup of the launcher exists, delete the launcher and restore the backup.
+        ///     1. On Linux/macOS: if a backup of the launcher exists, delete the launcher and restore the backup.
         ///     2. Delete all files and folders in the game directory matching one of the values returned by <see cref="GetUninstallPaths"/>.
         ///
         /// Install flow:
         ///     1. Run the uninstall flow.
         ///     2. Copy the SMAPI files from package/Windows or package/Mono into the game directory.
-        ///     3. On Linux/Mac: back up the game launcher and replace it with the SMAPI launcher. (This isn't possible on Windows, so the user needs to configure it manually.)
+        ///     3. On Linux/macOS: back up the game launcher and replace it with the SMAPI launcher. (This isn't possible on Windows, so the user needs to configure it manually.)
         ///     4. Create the 'Mods' directory.
         ///     5. Copy the bundled mods into the 'Mods' directory (deleting any existing versions).
         ///     6. Move any mods from app data into game's mods directory.
@@ -141,7 +141,7 @@ namespace StardewModdingApi.Installer
 #else
             if (context.IsWindows)
             {
-                this.PrintError($"This is the installer for Linux/Mac. Run the 'install on Windows.exe' file instead.");
+                this.PrintError($"This is the installer for Linux/macOS. Run the 'install on Windows.exe' file instead.");
                 Console.ReadLine();
                 return;
             }
@@ -194,7 +194,7 @@ namespace StardewModdingApi.Installer
 
 
             /*********
-            ** Step 2: choose a theme (can't auto-detect on Linux/Mac)
+            ** Step 2: choose a theme (can't auto-detect on Linux/macOS)
             *********/
             MonitorColorScheme scheme = MonitorColorScheme.AutoDetect;
             if (context.IsUnix)
@@ -720,7 +720,7 @@ namespace StardewModdingApi.Installer
                 // normalize path
                 path = context.IsWindows
                     ? path.Replace("\"", "") // in Windows, quotes are used to escape spaces and aren't part of the file path
-                    : path.Replace("\\ ", " "); // in Linux/Mac, spaces in paths may be escaped if copied from the command line
+                    : path.Replace("\\ ", " "); // in Linux/macOS, spaces in paths may be escaped if copied from the command line
                 if (path.StartsWith("~/"))
                 {
                     string home = Environment.GetEnvironmentVariable("HOME") ?? Environment.GetEnvironmentVariable("USERPROFILE");
@@ -840,7 +840,7 @@ namespace StardewModdingApi.Installer
             switch (entry.Name)
             {
                 case "mcs":
-                    return false; // ignore Mac symlink
+                    return false; // ignore macOS symlink
                 case "Mods":
                     return false; // Mods folder handled separately
                 default:

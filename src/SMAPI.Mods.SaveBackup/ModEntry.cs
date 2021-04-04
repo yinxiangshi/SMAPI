@@ -145,7 +145,7 @@ namespace StardewModdingAPI.Mods.SaveBackup
             try
             {
                 if (Constants.TargetPlatform == GamePlatform.Mac)
-                    this.CompressUsingMacProcess(sourcePath, destination); // due to limitations with the bundled Mono on Mac, we can't reference System.IO.Compression
+                    this.CompressUsingMacProcess(sourcePath, destination); // due to limitations with the bundled Mono on macOS, we can't reference System.IO.Compression
                 else
                     this.CompressUsingNetFramework(sourcePath, destination);
 
@@ -185,7 +185,7 @@ namespace StardewModdingAPI.Mods.SaveBackup
             createFromDirectory.Invoke(null, new object[] { sourcePath, destination.FullName, CompressionLevel.Fastest, false });
         }
 
-        /// <summary>Create a zip using a process command on MacOS.</summary>
+        /// <summary>Create a zip using a process command on macOS.</summary>
         /// <param name="sourcePath">The file or directory path to zip.</param>
         /// <param name="destination">The destination file to create.</param>
         private void CompressUsingMacProcess(string sourcePath, FileInfo destination)

@@ -247,7 +247,7 @@ namespace StardewModdingAPI
                     "Stardew Valley"
                 });
                 targetAssemblies.Add(
-                    typeof(StardewValley.Game1).Assembly // note: includes Netcode types on Linux/Mac
+                    typeof(StardewValley.Game1).Assembly // note: includes Netcode types on Linux/macOS
                 );
             }
             else

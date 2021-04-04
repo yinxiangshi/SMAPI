@@ -187,7 +187,7 @@ namespace StardewModdingAPI.Framework
 #if SMAPI_FOR_WINDOWS
             if (Constants.Platform != Platform.Windows)
             {
-                this.Monitor.Log("Oops! You're running Windows, but this version of SMAPI is for Linux or Mac. Please reinstall SMAPI to fix this.", LogLevel.Error);
+                this.Monitor.Log("Oops! You're running Windows, but this version of SMAPI is for Linux or macOS. Please reinstall SMAPI to fix this.", LogLevel.Error);
                 this.LogManager.PressAnyKeyToExit();
             }
 #else
@@ -1259,7 +1259,7 @@ namespace StardewModdingAPI.Framework
                 // create client
                 string url = this.Settings.WebApiBaseUrl;
 #if !SMAPI_FOR_WINDOWS
-                url = url.Replace("https://", "http://"); // workaround for OpenSSL issues with the game's bundled Mono on Linux/Mac
+                url = url.Replace("https://", "http://"); // workaround for OpenSSL issues with the game's bundled Mono on Linux/macOS
 #endif
                 WebApiClient client = new WebApiClient(url, Constants.ApiVersion);
                 this.Monitor.Log("Checking for updates...");

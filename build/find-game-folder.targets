@@ -13,7 +13,7 @@
         <GamePath Condition="!Exists('$(GamePath)')">$(HOME)/.local/share/Steam/steamapps/common/Stardew Valley</GamePath>
         <GamePath Condition="!Exists('$(GamePath)')">$(HOME)/.var/app/com.valvesoftware.Steam/data/Steam/steamapps/common/Stardew Valley</GamePath>
 
-        <!-- Mac (may be 'Unix' or 'OSX') -->
+        <!-- macOS (may be 'Unix' or 'OSX') -->
         <GamePath Condition="!Exists('$(GamePath)')">/Applications/Stardew Valley.app/Contents/MacOS</GamePath>
         <GamePath Condition="!Exists('$(GamePath)')">$(HOME)/Library/Application Support/Steam/steamapps/common/Stardew Valley/Contents/MacOS</GamePath>
       </PropertyGroup>

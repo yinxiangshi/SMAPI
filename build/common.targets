@@ -77,6 +77,6 @@
     <StartWorkingDirectory>$(GamePath)</StartWorkingDirectory>
   </PropertyGroup>
 
-  <!-- Somehow this makes Visual Studio for Mac recognise the previous section. Nobody knows why. -->
+  <!-- Somehow this makes Visual Studio for macOS recognise the previous section. Nobody knows why. -->
   <PropertyGroup Condition="'$(RunConfiguration)' == 'Default'" />
 </Project>

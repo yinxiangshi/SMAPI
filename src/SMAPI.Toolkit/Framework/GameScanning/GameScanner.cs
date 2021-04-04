@@ -82,7 +82,7 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
                             ? $"{home}/.steam/steam/steamapps/common/Stardew Valley"
                             : $"{home}/.local/share/Steam/steamapps/common/Stardew Valley";
 
-                        // Mac
+                        // macOS
                         yield return "/Applications/Stardew Valley.app/Contents/MacOS";
                         yield return $"{home}/Library/Application Support/Steam/steamapps/common/Stardew Valley/Contents/MacOS";
                     }

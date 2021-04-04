@@ -47,13 +47,13 @@ namespace StardewModdingAPI.Installer.Framework
         /// <summary>The full path to the installed SMAPI executable file.</summary>
         public string ExecutablePath { get; }
 
-        /// <summary>The full path to the vanilla game launcher on Linux/Mac.</summary>
+        /// <summary>The full path to the vanilla game launcher on Linux/macOS.</summary>
         public string UnixLauncherPath { get; }
 
-        /// <summary>The full path to the installed SMAPI launcher on Linux/Mac before it's renamed.</summary>
+        /// <summary>The full path to the installed SMAPI launcher on Linux/macOS before it's renamed.</summary>
         public string UnixSmapiLauncherPath { get; }
 
-        /// <summary>The full path to the vanilla game launcher on Linux/Mac after SMAPI is installed.</summary>
+        /// <summary>The full path to the vanilla game launcher on Linux/macOS after SMAPI is installed.</summary>
         public string UnixBackupLauncherPath { get; }
 
 

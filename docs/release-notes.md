@@ -13,6 +13,7 @@
   * On macOS, the `StardewModdingAPI.bin.osx` file is no longer overwritten if it's identical to avoid resetting file permissions (thanks to 007wayne!).
   * Fixed error for non-English players after returning to title, reloading, and entering town with a completed movie theater.
   * Fixed `world_clear` console command not removing resource clumps outside the farm and secret woods.
+  * Fixed inconsistent spelling/style for 'macOS'.
   * Internal changes to prepare for unofficial 64-bit.
 
 * For modders:
@@ -247,7 +248,7 @@ Released 03 October 2020 for Stardew Valley 1.4.1 or later.
 Released 16 September 2020 for Stardew Valley 1.4.1 or later.
 
 * For players:
-  * Fixed errors on Linux/Mac due to content packs with incorrect filename case.
+  * Fixed errors on Linux/macOS due to content packs with incorrect filename case.
   * Fixed map rendering crash due to conflict between SMAPI and PyTK.
   * Fixed error in heuristically-rewritten mods in rare cases (thanks to collaboration with ZaneYork!).
 
@@ -291,7 +292,7 @@ Released 07 September 2020 for Stardew Valley 1.4.1 or later. See [release highl
 * For mod authors:
   * Added `PathUtilities` to simplify working with file/asset names.
   * You can now read/write `SDate` values to JSON (e.g. for `config.json`, network mod messages, etc).
-  * Fixed asset propagation not updating title menu buttons immediately on Linux/Mac.
+  * Fixed asset propagation not updating title menu buttons immediately on Linux/macOS.
 
 * For the web UI:
   * Updated the JSON validator/schema for Content Patcher 1.16 and 1.17.
@@ -336,7 +337,7 @@ Released 20 June 2020 for Stardew Valley 1.4.1 or later. See [release highlights
   * Added experimental option to reduce startup time when loading mod DLLs (thanks to ZaneYork!). Enable `RewriteInParallel` in the `smapi-internal/config.json` to try it.
   * Reduced processing time when a mod loads many unpacked images (thanks to Entoarox!).
   * Mod load warnings are now listed alphabetically.
-  * MacOS files starting with `._` are now ignored and can no longer cause skipped mods.
+  * macOS files starting with `._` are now ignored and can no longer cause skipped mods.
   * Simplified paranoid warning logs and reduced their log level.
   * Fixed black maps on Android for mods which use `.tmx` files.
   * Fixed `BadImageFormatException` error detection.
@@ -392,7 +393,7 @@ Released 27 April 2020 for Stardew Valley 1.4.1 or later. See [release highlight
   * Added `SDate` fields/methods: `SeasonIndex`, `FromDaysSinceStart`, `FromWorldDate`, `ToWorldDate`, and `ToLocaleString` (thanks to kdau!).
   * Added `SDate` translations taken from the Lookup Anything mod.¹
   * Fixed asset propagation for certain maps loaded through temporary content managers. This notably fixes unreliable patches to the farmhouse and town maps.
-  * Fixed asset propagation on Linux/Mac for monster sprites, NPC dialogue, and NPC schedules.
+  * Fixed asset propagation on Linux/macOS for monster sprites, NPC dialogue, and NPC schedules.
   * Fixed asset propagation for NPC dialogue sometimes causing a spouse to skip marriage dialogue or not allow kisses.
 
 ¹ Date format translations were taken from the Lookup Anything mod; thanks to translators FixThisPlz (improved Russian), LeecanIt (added Italian), pomepome (added Japanese), S2SKY (added Korean), Sasara (added German), SteaNN (added Russian), ThomasGabrielDelavault (added Spanish), VincentRoth (added French), Yllelder (improved Spanish), and yuwenlan (added Chinese). Some translations for Korean, Hungarian, and Turkish were derived from the game translations.
@@ -408,7 +409,7 @@ Released 24 March 2020 for Stardew Valley 1.4.1 or later.
 Released 22 March 2020 for Stardew Valley 1.4.1 or later. See [release highlights](https://www.patreon.com/posts/35161371).
 
 * For players:
-  * Fixed semi-transparency issues on Linux/Mac in recent versions of Mono (e.g. pink shadows).
+  * Fixed semi-transparency issues on Linux/macOS in recent versions of Mono (e.g. pink shadows).
   * Fixed `player_add` command error if you have broken XNB mods.
   * Removed invalid-location check now handled by the game.
   * Updated translations. Thanks to Annosz (added Hungarian)!
@@ -450,7 +451,7 @@ Released 22 February 2020 for Stardew Valley 1.4.1 or later. See [release highli
   * Updated translations. Thanks to xCarloC (added Italian)!
 
 * For the Save Backup mod:
-  * Fixed warning on MacOS when you have no saves yet.
+  * Fixed warning on macOS when you have no saves yet.
   * Reduced log messages.
 
 * For the web UI:
