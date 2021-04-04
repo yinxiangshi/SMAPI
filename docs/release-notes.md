@@ -19,6 +19,7 @@
 * For modders:
   * Added asset propagation for `Data\Concessions`.
   * Improved error-handling during asset propagation.
+  * Fixed `Context.IsMainPlayer` returning true for a farmhand in split-screen mode before the screen is initialized.
 
 ## 3.9.5
 Released 21 March 2021 for Stardew Valley 1.5.4 or later.
