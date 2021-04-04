@@ -274,6 +274,7 @@ namespace StardewModdingAPI.Metadata
                     return true;
 
                 case "data\\bundles": // NetWorldState constructor
+                    if (Context.IsMainPlayer && Game1.netWorldState != null)
                     {
                         var bundles = this.Reflection.GetField<NetBundles>(Game1.netWorldState.Value, "bundles").GetValue();
                         var rewards = this.Reflection.GetField<NetIntDictionary<bool, NetBool>>(Game1.netWorldState.Value, "bundleRewards").GetValue();
