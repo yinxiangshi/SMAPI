@@ -132,7 +132,7 @@ namespace StardewModdingAPI.Framework
             );
             this.ContentManagers.Add(contentManagerForAssetPropagation);
             this.VanillaContentManager = new LocalizedContentManager(serviceProvider, rootDirectory);
-            this.CoreAssets = new CoreAssetPropagator(this.MainContentManager, contentManagerForAssetPropagation, reflection, aggressiveMemoryOptimizations);
+            this.CoreAssets = new CoreAssetPropagator(this.MainContentManager, contentManagerForAssetPropagation, this.Monitor, reflection, aggressiveMemoryOptimizations);
         }
 
         /// <summary>Get a new content manager which handles reading files from the game content folder with support for interception.</summary>
