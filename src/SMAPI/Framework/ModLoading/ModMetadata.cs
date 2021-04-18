@@ -20,7 +20,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         private ModWarning ActualWarnings = ModWarning.None;
 
         /// <summary>The mod IDs which are listed as a requirement by this mod. The value for each pair indicates whether the dependency is required (i.e. not an optional dependency).</summary>
-        private Lazy<IDictionary<string, bool>> Dependencies;
+        private readonly Lazy<IDictionary<string, bool>> Dependencies;
 
 
         /*********
