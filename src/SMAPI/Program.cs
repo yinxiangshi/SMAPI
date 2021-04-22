@@ -24,6 +24,8 @@ namespace StardewModdingAPI
         /// <param name="args">The command-line arguments.</param>
         public static void Main(string[] args)
         {
+            Console.Title = $"SMAPI {EarlyConstants.RawApiVersion}{(EarlyConstants.IsWindows64BitHack ? " 64-bit" : "")} - {Console.Title}";
+
             try
             {
                 AppDomain.CurrentDomain.AssemblyResolve += Program.CurrentDomain_AssemblyResolve;
@@ -159,7 +161,7 @@ namespace StardewModdingAPI
                 Console.ResetColor();
                 Console.WriteLine();
             }
-            
+
             Program.PressAnyKeyToExit(showMessage: true);
         }
 

@@ -59,6 +59,9 @@ namespace StardewModdingAPI
 
         /// <summary>The <see cref="Context.ScreenId"/> value which should appear in the SMAPI log, if any.</summary>
         internal static int? LogScreenId { get; set; }
+
+        /// <summary>SMAPI's current raw semantic version.</summary>
+        internal static string RawApiVersion = "3.9.5";
     }
 
     /// <summary>Contains SMAPI's constants and assumptions.</summary>
@@ -71,7 +74,7 @@ namespace StardewModdingAPI
         ** Public
         ****/
         /// <summary>SMAPI's current semantic version.</summary>
-        public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("3.9.5");
+        public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion(EarlyConstants.RawApiVersion);
 
         /// <summary>The minimum supported version of Stardew Valley.</summary>
         public static ISemanticVersion MinimumGameVersion { get; } = new GameVersion("1.5.4");
