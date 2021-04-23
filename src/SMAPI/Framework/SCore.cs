@@ -1302,6 +1302,41 @@ namespace StardewModdingAPI.Framework
                         this.LogManager.WriteUpdateMarker(updateFound.ToString(), updateUrl);
                 }
 
+                // check Stardew64Installer version
+                if (Constants.IsPatchedByStardew64Installer(out ISemanticVersion patchedByVersion))
+                {
+                    ISemanticVersion updateFound = null;
+                    string updateUrl = null;
+                    try
+                    {
+                        // fetch update check
+                        ModEntryModel response = client.GetModInfo(new[] { new ModSearchEntryModel("Steviegt6.Stardew64Installer", patchedByVersion, new[] { $"GitHub:{this.Settings.Stardew64InstallerGitHubProjectName}" }) }, apiVersion: Constants.ApiVersion, gameVersion: Constants.GameVersion, platform: Constants.Platform).Single().Value;
+                        updateFound = response.SuggestedUpdate?.Version;
+                        updateUrl = response.SuggestedUpdate?.Url ?? Constants.HomePageUrl;
+
+                        // log message
+                        if (updateFound != null)
+                            this.Monitor.Log($"You can update Stardew64Installer to {updateFound}: {updateUrl}", LogLevel.Alert);
+                        else
+                            this.Monitor.Log("   Stardew64Installer okay.");
+
+                        // show errors
+                        if (response.Errors.Any())
+                        {
+                            this.Monitor.Log("Couldn't check for a new version of Stardew64Installer. This won't affect your game, but you may not be notified of new versions if this keeps happening.", LogLevel.Warn);
+                            this.Monitor.Log($"Error: {string.Join("\n", response.Errors)}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        this.Monitor.Log("Couldn't check for a new version of Stardew64Installer. This won't affect your game, but you won't be notified of new versions if this keeps happening.", LogLevel.Warn);
+                        this.Monitor.Log(ex is WebException && ex.InnerException == null
+                            ? $"Error: {ex.Message}"
+                            : $"Error: {ex.GetLogSummary()}"
+                        );
+                    }
+                }
+
                 // check mod versions
                 if (mods.Any())
                 {

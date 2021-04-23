@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
 using StardewModdingAPI.Framework.Commands;
@@ -12,7 +11,6 @@ using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Internal.ConsoleWriting;
 using StardewModdingAPI.Toolkit.Framework.ModData;
 using StardewModdingAPI.Toolkit.Utilities;
-using StardewValley;
 
 namespace StardewModdingAPI.Framework.Logging
 {
@@ -421,11 +419,8 @@ namespace StardewModdingAPI.Framework.Logging
                 yield return $"running {Constants.GameFramework}";
 
             // patched by Stardew64Installer
-            {
-                PropertyInfo patcherProperty = typeof(Game1).GetProperty("Stardew64InstallerVersion");
-                if (patcherProperty != null)
-                    yield return $"patched by Stardew64Installer {patcherProperty.GetValue(null)}";
-            }
+            if (Constants.IsPatchedByStardew64Installer(out ISemanticVersion patchedByVersion))
+                yield return $"patched by Stardew64Installer {patchedByVersion}";
         }
 
         /// <summary>Write a summary of mod warnings to the console and log.</summary>
