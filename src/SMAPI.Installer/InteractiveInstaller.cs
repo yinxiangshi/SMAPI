@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -10,7 +11,6 @@ using StardewModdingAPI.Internal.ConsoleWriting;
 using StardewModdingAPI.Toolkit;
 using StardewModdingAPI.Toolkit.Framework.ModScanning;
 using StardewModdingAPI.Toolkit.Utilities;
-using System.Diagnostics;
 
 namespace StardewModdingApi.Installer
 {
@@ -275,7 +275,20 @@ namespace StardewModdingApi.Installer
 
 
             /*********
-            ** Step 4: validate assumptions
+            ** Step 4: detect 64-bit Stardew Valley
+            *********/
+            // detect 64-bit mode
+            bool isWindows64Bit = false;
+            if (context.Platform == Platform.Windows)
+            {
+                FileInfo linuxExecutable = new FileInfo(Path.Combine(paths.GamePath, "StardewValley.exe"));
+                isWindows64Bit = linuxExecutable.Exists && this.Is64Bit(linuxExecutable.FullName);
+                if (isWindows64Bit)
+                    paths.SetExecutableFileName(linuxExecutable.Name);
+            }
+
+            /*********
+            ** Step 5: validate assumptions
             *********/
             // executable exists
             if (!File.Exists(paths.ExecutablePath))
@@ -298,7 +311,7 @@ namespace StardewModdingApi.Installer
 
 
             /*********
-            ** Step 5: ask what to do
+            ** Step 6: ask what to do
             *********/
             ScriptAction action;
             {
@@ -306,7 +319,7 @@ namespace StardewModdingApi.Installer
                 ** print header
                 ****/
                 this.PrintInfo("Hi there! I'll help you install or remove SMAPI. Just one question first.");
-                this.PrintDebug($"Game path: {paths.GamePath}");
+                this.PrintDebug($"Game path: {paths.GamePath}{(context.IsWindows ? $" [{(isWindows64Bit ? "64-bit" : "32-bit")}]" : "")}");
                 this.PrintDebug($"Color scheme: {this.GetDisplayText(scheme)}");
                 this.PrintDebug("----------------------------------------------------------------------------");
                 Console.WriteLine();
@@ -344,14 +357,14 @@ namespace StardewModdingApi.Installer
 
 
             /*********
-            ** Step 6: apply
+            ** Step 7: apply
             *********/
             {
                 /****
                 ** print header
                 ****/
                 this.PrintInfo($"That's all I need! I'll {action.ToString().ToLower()} SMAPI now.");
-                this.PrintDebug($"Game path: {paths.GamePath}");
+                this.PrintDebug($"Game path: {paths.GamePath}{(context.IsWindows ? $" [{(isWindows64Bit ? "64-bit" : "32-bit")}]" : "")}");
                 this.PrintDebug($"Color scheme: {this.GetDisplayText(scheme)}");
                 this.PrintDebug("----------------------------------------------------------------------------");
                 Console.WriteLine();
@@ -410,6 +423,27 @@ namespace StardewModdingApi.Installer
                     {
                         this.InteractivelyDelete(Path.Combine(paths.GameDir.FullName, sourceEntry.Name));
                         this.RecursiveCopy(sourceEntry, paths.GameDir);
+                    }
+
+                    if (isWindows64Bit)
+                    {
+                        this.PrintDebug("Making SMAPI 64-bit...");
+                        FileInfo x64Executable = new FileInfo(Path.Combine(paths.BundleDir.FullName, "StardewModdingAPI-x64.exe"));
+                        if (x64Executable.Exists)
+                        {
+                            string targetName = "StardewModdingAPI.exe";
+                            this.InteractivelyDelete(Path.Combine(paths.GameDir.FullName, targetName));
+                            this.InteractivelyDelete(Path.Combine(paths.GameDir.FullName, x64Executable.Name));
+
+                            this.RecursiveCopy(x64Executable, paths.GameDir);
+                            File.Move(Path.Combine(paths.GamePath, x64Executable.Name), Path.Combine(paths.GamePath, targetName));
+                        }
+                        else
+                        {
+                            this.PrintError($"Oops! Could not find the required '{x64Executable.Name}' installer file. SMAPI was unable to install correctly.");
+                            Console.ReadLine();
+                            return;
+                        }
                     }
 
                     // replace mod launcher (if possible)
@@ -535,6 +569,13 @@ namespace StardewModdingApi.Installer
         /*********
         ** Private methods
         *********/
+        /// <summary>Get whether an executable is 64-bit.</summary>
+        /// <param name="executablePath">The absolute path to the executable file.</param>
+        private bool Is64Bit(string executablePath)
+        {
+            return AssemblyName.GetAssemblyName(executablePath).ProcessorArchitecture != ProcessorArchitecture.X86;
+        }
+
         /// <summary>Get the display text for a color scheme.</summary>
         /// <param name="scheme">The color scheme.</param>
         private string GetDisplayText(MonitorColorScheme scheme)

@@ -1,13 +1,16 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <!--set properties -->
   <PropertyGroup>
+    <!--set general build properties -->
     <Version>3.9.5</Version>
     <Product>SMAPI</Product>
-
     <LangVersion>latest</LangVersion>
     <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>
 
-    <!--<DefineConstants>$(DefineConstants);SMAPI_FOR_WINDOWS_64BIT_HACK</DefineConstants>-->
+    <!--uncomment for 64-bit Stardew Valley on Windows-->
+    <!--<GamePath>D:\dev\SDV 64-bit\6125897</GamePath>
+    <DefineConstants>$(DefineConstants);SMAPI_FOR_WINDOWS_64BIT_HACK</DefineConstants>-->
+
+    <!--set platform-->
     <DefineConstants Condition="$(OS) == 'Windows_NT'">$(DefineConstants);SMAPI_FOR_WINDOWS</DefineConstants>
     <DefineConstants Condition="$(OS) == 'Windows_NT' AND !$(DefineConstants.Contains(SMAPI_FOR_WINDOWS_64BIT_HACK))">$(DefineConstants);SMAPI_FOR_XNA</DefineConstants>
   </PropertyGroup>
@@ -53,9 +56,9 @@
   </Target>
 
   <Target Name="CopyToolkit" Condition="'$(MSBuildProjectName)' == 'SMAPI.Toolkit' AND $(TargetFramework) == 'net4.5'" AfterTargets="PostBuildEvent">
-      <Copy SourceFiles="$(TargetDir)\$(TargetName).dll" DestinationFolder="$(GamePath)\smapi-internal" />
-      <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)\smapi-internal" />
-      <Copy SourceFiles="$(TargetDir)\$(TargetName).xml" DestinationFolder="$(GamePath)\smapi-internal" />
+    <Copy SourceFiles="$(TargetDir)\$(TargetName).dll" DestinationFolder="$(GamePath)\smapi-internal" />
+    <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)\smapi-internal" />
+    <Copy SourceFiles="$(TargetDir)\$(TargetName).xml" DestinationFolder="$(GamePath)\smapi-internal" />
   </Target>
 
   <Target Name="CopyToolkitCoreInterfaces" Condition="'$(MSBuildProjectName)' == 'SMAPI.Toolkit.CoreInterfaces' AND $(TargetFramework) == 'net4.5'" AfterTargets="PostBuildEvent">
