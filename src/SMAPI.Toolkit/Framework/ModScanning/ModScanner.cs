@@ -38,6 +38,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
             // images
             ".bmp",
             ".gif",
+            ".ico",
             ".jpeg",
             ".jpg",
             ".png",
