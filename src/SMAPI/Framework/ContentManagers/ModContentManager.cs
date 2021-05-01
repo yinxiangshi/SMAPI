@@ -34,6 +34,9 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <summary>The language code for language-agnostic mod assets.</summary>
         private readonly LanguageCode DefaultLanguage = Constants.DefaultLanguage;
 
+        /// <summary>If a map tilesheet's image source has no file extensions, the file extensions to check for in the local mod folder.</summary>
+        private readonly string[] LocalTilesheetExtensions = { ".png", ".xnb" };
+
 
         /*********
         ** Public methods
@@ -215,11 +218,17 @@ namespace StardewModdingAPI.Framework.ContentManagers
             FileInfo file = new FileInfo(Path.Combine(this.FullRootDirectory, path));
 
             // try with default extension
-            if (!file.Exists && file.Extension.ToLower() != ".xnb")
+            if (!file.Exists && file.Extension == string.Empty)
             {
-                FileInfo result = new FileInfo(file.FullName + ".xnb");
-                if (result.Exists)
-                    file = result;
+                foreach (string extension in this.LocalTilesheetExtensions)
+                {
+                    FileInfo result = new FileInfo(file.FullName + extension);
+                    if (result.Exists)
+                    {
+                        file = result;
+                        break;
+                    }
+                }
             }
 
             return file;
