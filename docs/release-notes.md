@@ -11,7 +11,8 @@
 * For players:
   * Added support for unofficial 64-bit Stardew Valley, including automatic support in the SMAPI installer.
   * Added update checks for Stardew64Installer if it patched the game.
-  * When many mods fail to load, root dependencies are now listed in their own group so it's easier to see which ones you should try updating first.
+  * Added smarter grouping for skipped mods, so it's easier to see root dependencies to update first.
+  * Added error-handling to prevent a crash when the game can't update a map's seasonal tilesheets _(in Error Handler)_.
   * On macOS, the `StardewModdingAPI.bin.osx` file is no longer overwritten if it's identical to avoid resetting file permissions (thanks to 007wayne!).
   * `*.ico` files are now ignored when scanning for mods.
   * Fixed error for non-English players after returning to title, reloading, and entering town with a completed movie theater.
