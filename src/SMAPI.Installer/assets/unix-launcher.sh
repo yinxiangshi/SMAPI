@@ -80,8 +80,14 @@ else
         export LAUNCHTERM="$(basename "$(readlink -f $(COMMAND x-terminal-emulator))")"
     fi
 
-    # run in selected terminal and account for quirks
-    case $LAUNCHTERM in
+
+    if [ ! -x $LAUNCHTERM ]; then
+        echo "looks like found no terminal available for launch. maybe in sandbox or misconfigured system? fallbacking to execution without terminal"
+        export TERM="xterm"
+        exec $LAUNCHER $@
+    else
+        # run in selected terminal and account for quirks
+        case $LAUNCHTERM in
         terminal|termite)
             # LAUNCHTERM consumes only one argument after -e
             # options containing space characters are unsupported
@@ -110,5 +116,6 @@ else
             if [ $? -eq 127 ]; then
                 exec $LAUNCHER --no-terminal "$@"
             fi
-    esac
+        esac
+    fi
 fi
