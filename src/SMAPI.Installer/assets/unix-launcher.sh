@@ -72,42 +72,51 @@ else
         export TERMINAL_NAME="$(basename "$(readlink -f $(command -v x-terminal-emulator))")"
     fi
 
-
-    if [ ! -x $TERMINAL_NAME ]; then
-        echo "looks like found no terminal available for launch. maybe in sandbox or misconfigured system? fallbacking to execution without terminal"
-        export TERM="xterm"
-        exec $LAUNCH_FILE $@
-    else
-        # run in selected terminal and account for quirks
+    # run in selected terminal and account for quirks
+    export TERMINAL_PATH="$(command -v $TERMINAL_NAME)"
+    if [ -x $TERMINAL_PATH ]; then
         case $TERMINAL_NAME in
             terminal|termite)
                 # consumes only one argument after -e
                 # options containing space characters are unsupported
                 exec $TERMINAL_NAME -e "env TERM=xterm $LAUNCH_FILE $@"
                 ;;
+
             xterm|konsole|alacritty)
                 # consumes all arguments after -e
                 exec $TERMINAL_NAME -e env TERM=xterm $LAUNCH_FILE "$@"
                 ;;
+
             terminator|xfce4-terminal|mate-terminal)
                 # consumes all arguments after -x
                 exec $TERMINAL_NAME -x env TERM=xterm $LAUNCH_FILE "$@"
                 ;;
+
             gnome-terminal)
                 # consumes all arguments after --
                 exec $TERMINAL_NAME -- env TERM=xterm $LAUNCH_FILE "$@"
                 ;;
+
             kitty)
                 # consumes all trailing arguments
                 exec $TERMINAL_NAME env TERM=xterm $LAUNCH_FILE "$@"
                 ;;
+
             *)
                 # If we don't know the terminal, just try to run it in the current shell.
+                # If THAT fails, launch with no output.
                 env TERM=xterm $LAUNCH_FILE "$@"
-                # if THAT fails, launch with no output
                 if [ $? -eq 127 ]; then
                     exec $LAUNCH_FILE --no-terminal "$@"
                 fi
         esac
+
+    ## terminal isn't executable; fallback to current shell or no terminal
+    else
+        echo "The '$TERMINAL_NAME' terminal isn't executable. SMAPI might be running in a sandbox or the system might be misconfigured? Falling back to current shell."
+        env TERM=xterm $LAUNCH_FILE "$@"
+        if [ $? -eq 127 ]; then
+            exec $LAUNCH_FILE --no-terminal "$@"
+        fi
     fi
 fi

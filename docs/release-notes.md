@@ -18,6 +18,7 @@
   * Fixed `StardewModdingAPI.bin.osx` on macOS overwritten with an identical file on launch, which resets file permissions (thanks to 007wayne!).
   * Fixed error for non-English players after returning to title, reloading, and entering town with a completed movie theater.
   * Fixed `world_clear` console command not removing resource clumps outside the farm and secret woods.
+  * Fixed error running SMAPI in a strict sandbox on Linux (thanks to kuesji!).
   * Fixed inconsistent spelling/style for 'macOS'.
 
 * For modders:
