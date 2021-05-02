@@ -59,17 +59,9 @@ else
     fi
     export LAUNCHER
 
-    # get cross-distro version of POSIX command
-    COMMAND=""
-    if command -v command 2>/dev/null; then
-        COMMAND="command -v"
-    elif type type 2>/dev/null; then
-        COMMAND="type -p"
-    fi
-
     # select terminal (prefer xterm for best compatibility, then known supported terminals)
     for terminal in xterm gnome-terminal kitty terminator xfce4-terminal konsole terminal termite alacritty mate-terminal x-terminal-emulator; do
-        if $COMMAND "$terminal" 2>/dev/null; then
+        if command -v "$terminal" 2>/dev/null; then
             export LAUNCHTERM=$terminal
             break;
         fi
@@ -77,7 +69,7 @@ else
 
     # find the true shell behind x-terminal-emulator
     if [ "$LAUNCHTERM" = "x-terminal-emulator" ]; then
-        export LAUNCHTERM="$(basename "$(readlink -f $(COMMAND x-terminal-emulator))")"
+        export LAUNCHTERM="$(basename "$(readlink -f $(command -v x-terminal-emulator))")"
     fi
 
 
