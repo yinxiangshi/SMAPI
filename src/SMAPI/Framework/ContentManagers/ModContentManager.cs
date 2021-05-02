@@ -317,6 +317,15 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 return true;
             }
 
+            // special case: local filenames starting with a dot should be ignored
+            // For example, this lets mod authors have a '.spring_town.png' file in their map folder so it can be
+            // opened in Tiled, while still mapping it to the vanilla 'Maps/spring_town' asset at runtime.
+            {
+                string filename = Path.GetFileName(relativePath);
+                if (filename.StartsWith("."))
+                    relativePath = Path.Combine(Path.GetDirectoryName(relativePath) ?? "", filename.TrimStart('.'));
+            }
+
             // get relative to map file
             {
                 string localKey = Path.Combine(modRelativeMapFolder, relativePath);

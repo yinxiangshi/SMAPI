@@ -24,6 +24,7 @@
 * For modders:
   * Added asset propagation for `Data\Concessions`.
   * Added SMAPI version and bitness to the console title before startup to simplify troubleshooting.
+  * Added support for [ignoring local map tilesheet files when loading a map](https://stardewvalleywiki.com/Modding:Maps#Local_copy_of_a_vanilla_tilesheet).
   * If a map loads a tilesheet path with no file extension, SMAPI now automatically links it to a `.png` version in the map folder if possible.
   * Improved error-handling during asset propagation.
   * Fixed `Context.IsMainPlayer` returning true for a farmhand in split-screen mode before the screen is initialized.
