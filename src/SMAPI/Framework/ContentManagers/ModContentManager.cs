@@ -268,6 +268,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             string relativeMapFolder = Path.GetDirectoryName(relativeMapPath) ?? ""; // folder path containing the map, relative to the mod folder
 
             // fix tilesheets
+            this.Monitor.VerboseLog($"Fixing tilesheet paths for map '{relativeMapPath}' from mod '{this.ModName}'...");
             foreach (TileSheet tilesheet in map.TileSheets)
             {
                 // get image source
@@ -288,6 +289,9 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 {
                     if (!this.TryGetTilesheetAssetName(relativeMapFolder, imageSource, out string assetName, out string error))
                         throw new SContentLoadException($"{errorPrefix} {error}");
+
+                    if (assetName != tilesheet.ImageSource)
+                        this.Monitor.VerboseLog($"   Mapped tilesheet '{tilesheet.ImageSource}' to '{assetName}'.");
 
                     tilesheet.ImageSource = assetName;
                 }
