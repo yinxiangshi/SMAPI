@@ -13,8 +13,9 @@
   * Added update checks for Stardew64Installer if it patched the game.
   * Added smarter grouping for skipped mods, so it's easier to see root dependencies to update first.
   * Added error-handling to prevent a crash when the game can't update a map's seasonal tilesheets _(in Error Handler)_.
-  * On macOS, the `StardewModdingAPI.bin.osx` file is no longer overwritten if it's identical to avoid resetting file permissions (thanks to 007wayne!).
+  * Added installer option to enter a custom game path even if it detected a game folder.
   * `*.ico` files are now ignored when scanning for mods.
+  * Fixed `StardewModdingAPI.bin.osx` on macOS overwritten with an identical file on launch, which resets file permissions (thanks to 007wayne!).
   * Fixed error for non-English players after returning to title, reloading, and entering town with a completed movie theater.
   * Fixed `world_clear` console command not removing resource clumps outside the farm and secret woods.
   * Fixed inconsistent spelling/style for 'macOS'.

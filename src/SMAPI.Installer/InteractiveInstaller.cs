@@ -258,7 +258,6 @@ namespace StardewModdingApi.Installer
                 ** collect details
                 ****/
                 // get game path
-                this.PrintInfo("Where is your game folder?");
                 DirectoryInfo installDir = this.InteractivelyGetInstallPath(toolkit, context, gamePathArg);
                 if (installDir == null)
                 {
@@ -712,49 +711,37 @@ namespace StardewModdingApi.Installer
                 return dir;
             }
 
-            // use game folder which contains the installer, if any
-            {
-                DirectoryInfo curPath = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory;
-                while (curPath?.Parent != null) // must be in a folder (not at the root)
-                {
-                    if (context.LooksLikeGameFolder(curPath))
-                        return curPath;
-
-                    curPath = curPath.Parent;
-                }
-            }
-
-            // use an installed path
-            DirectoryInfo[] defaultPaths = toolkit.GetGameFolders().ToArray();
+            // let user choose detected path
+            DirectoryInfo[] defaultPaths = this.DetectGameFolders(toolkit, context).ToArray();
             if (defaultPaths.Any())
             {
-                // only one path
-                if (defaultPaths.Length == 1)
-                    return defaultPaths.First();
-
-                // let user choose path
+                this.PrintInfo("Where do you want to add or remove SMAPI?");
                 Console.WriteLine();
-                this.PrintInfo("Found multiple copies of the game:");
                 for (int i = 0; i < defaultPaths.Length; i++)
                     this.PrintInfo($"[{i + 1}] {defaultPaths[i].FullName}");
+                this.PrintInfo($"[{defaultPaths.Length + 1}] Enter a custom game path.");
                 Console.WriteLine();
 
-                string[] validOptions = Enumerable.Range(1, defaultPaths.Length).Select(p => p.ToString(CultureInfo.InvariantCulture)).ToArray();
-                string choice = this.InteractivelyChoose("Where do you want to add/remove SMAPI? Type the number next to your choice, then press enter.", validOptions);
+                string[] validOptions = Enumerable.Range(1, defaultPaths.Length + 1).Select(p => p.ToString(CultureInfo.InvariantCulture)).ToArray();
+                string choice = this.InteractivelyChoose("Type the number next to your choice, then press enter.", validOptions);
                 int index = int.Parse(choice, CultureInfo.InvariantCulture) - 1;
-                return defaultPaths[index];
-            }
 
-            // ask user
-            this.PrintInfo("Oops, couldn't find the game automatically.");
+                if (index < defaultPaths.Length)
+                    return defaultPaths[index];
+            }
+            else
+                this.PrintInfo("Oops, couldn't find the game automatically.");
+
+            // let user enter manual path
             while (true)
             {
                 // get path from user
+                Console.WriteLine();
                 this.PrintInfo($"Type the file path to the game directory (the one containing '{context.ExecutableName}'), then press enter.");
                 string path = Console.ReadLine()?.Trim();
                 if (string.IsNullOrWhiteSpace(path))
                 {
-                    this.PrintInfo("   You must specify a directory path to continue.");
+                    this.PrintWarning("You must specify a directory path to continue.");
                     continue;
                 }
 
@@ -776,18 +763,49 @@ namespace StardewModdingApi.Installer
                 // validate path
                 if (!directory.Exists)
                 {
-                    this.PrintInfo("   That directory doesn't seem to exist.");
+                    this.PrintWarning("That directory doesn't seem to exist.");
                     continue;
                 }
                 if (!context.LooksLikeGameFolder(directory))
                 {
-                    this.PrintInfo("   That directory doesn't contain a Stardew Valley executable.");
+                    this.PrintWarning("That directory doesn't contain a Stardew Valley executable.");
                     continue;
                 }
 
                 // looks OK
                 this.PrintInfo("   OK!");
                 return directory;
+            }
+        }
+
+        /// <summary>Get the possible game paths to update.</summary>
+        /// <param name="toolkit">The mod toolkit.</param>
+        /// <param name="context">The installer context.</param>
+        private IEnumerable<DirectoryInfo> DetectGameFolders(ModToolkit toolkit, InstallerContext context)
+        {
+            HashSet<string> foundPaths = new HashSet<string>();
+
+            // game folder which contains the installer, if any
+            {
+                DirectoryInfo curPath = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory;
+                while (curPath?.Parent != null) // must be in a folder (not at the root)
+                {
+                    if (context.LooksLikeGameFolder(curPath))
+                    {
+                        foundPaths.Add(curPath.FullName);
+                        yield return curPath;
+                        break;
+                    }
+
+                    curPath = curPath.Parent;
+                }
+            }
+
+            // game paths detected by toolkit
+            foreach (DirectoryInfo dir in toolkit.GetGameFolders())
+            {
+                if (foundPaths.Add(dir.FullName))
+                    yield return dir;
             }
         }
 
