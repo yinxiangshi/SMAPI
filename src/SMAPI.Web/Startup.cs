@@ -231,7 +231,7 @@ namespace StardewModdingAPI.Web
                         : null
                 }))
 
-                // redirect to HTTPS (except API for Linux/Mac Mono compatibility)
+                // redirect to HTTPS (except API for Linux/macOS Mono compatibility)
                 .Add(
                     new RedirectToHttpsRule(except: req => req.Host.Host == "localhost" || req.Path.StartsWithSegments("/api"))
                 );

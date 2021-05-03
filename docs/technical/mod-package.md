@@ -1,7 +1,7 @@
 &larr; [SMAPI](../README.md)
 
 The **mod build package** is an open-source NuGet package which automates the MSBuild configuration
-for SMAPI mods and related tools. The package is fully compatible with Linux, Mac, and Windows.
+for SMAPI mods and related tools. The package is fully compatible with Linux, macOS, and Windows.
 
 ## Contents
 * [Use](#use)
@@ -33,7 +33,7 @@ change how these work):
 
 * **Add assembly references:**  
   The package adds assembly references to SMAPI, Stardew Valley, xTile, and the game framework
-  (MonoGame on Linux/Mac, XNA Framework on Windows). It automatically adjusts depending on which OS
+  (MonoGame on Linux/macOS, XNA Framework on Windows). It automatically adjusts depending on which OS
   you're compiling it on. If you use [Harmony](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Harmony),
   it can optionally add a reference to that too.
 
@@ -55,7 +55,7 @@ change how these work):
   breakpoints](https://docs.microsoft.com/en-us/visualstudio/debugger/using-breakpoints?view=vs-2019)
   in your code while the game is running, or [make simple changes to the mod code without needing to
   restart the game](https://docs.microsoft.com/en-us/visualstudio/debugger/edit-and-continue?view=vs-2019).
-  This is disabled on Linux/Mac due to limitations with the Mono wrapper.
+  This is disabled on Linux/macOS due to limitations with the Mono wrapper.
 
 * **Preconfigure common settings:**  
   The package automatically enables `.pdb` files (so error logs show line numbers to simplify
@@ -82,7 +82,7 @@ There are two places you can put them:
 
   1. Open the home folder on your computer (see instructions for
      [Linux](https://superuser.com/questions/409218/where-is-my-users-home-folder-in-ubuntu),
-     [MacOS](https://www.cnet.com/how-to/how-to-find-your-macs-home-folder-and-add-it-to-finder/),
+     [macOS](https://www.cnet.com/how-to/how-to-find-your-macs-home-folder-and-add-it-to-finder/),
      or [Windows](https://www.computerhope.com/issues/ch000109.htm)).
   2. Create a `stardewvalley.targets` file with this content:
      ```xml
@@ -132,7 +132,7 @@ The absolute path to the folder containing the game's installed mods (defaults t
 <td><code>GameExecutableName</code></td>
 <td>
 
-The filename for the game's executable (i.e. `StardewValley.exe` on Linux/Mac or
+The filename for the game's executable (i.e. `StardewValley.exe` on Linux/macOS or
 `Stardew Valley.exe` on Windows). This is auto-detected, and you should almost never change this.
 
 </td>
@@ -484,7 +484,7 @@ Released 05 June 2017.
 Released 23 January 2017.
 
 * Added support for setting a custom game path globally.
-* Added default GOG path on Mac.
+* Added default GOG path on macOS.
 
 ### 1.4
 Released 11 January 2017.

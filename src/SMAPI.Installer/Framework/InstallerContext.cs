@@ -35,7 +35,7 @@ namespace StardewModdingAPI.Installer.Framework
         /// <summary>Whether the installer is running on Windows.</summary>
         public bool IsWindows => this.Platform == Platform.Windows;
 
-        /// <summary>Whether the installer is running on a Unix OS (including Linux or MacOS).</summary>
+        /// <summary>Whether the installer is running on a Unix OS (including Linux or macOS).</summary>
         public bool IsUnix => !this.IsWindows;
 
 

@@ -283,13 +283,16 @@ namespace StardewModdingAPI.Framework.Logging
         /// <param name="customSettings">The custom SMAPI settings.</param>
         public void LogIntro(string modsPath, IDictionary<string, object> customSettings)
         {
-            // get platform label
-            string platformLabel = EnvironmentUtility.GetFriendlyPlatformName(Constants.Platform);
-            if ((Constants.GameFramework == GameFramework.Xna) != (Constants.Platform == Platform.Windows))
-                platformLabel += $" with {Constants.GameFramework}";
+            // log platform & patches
+            {
+                this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GameVersion} on {EnvironmentUtility.GetFriendlyPlatformName(Constants.Platform)}", LogLevel.Info);
 
-            // init logging
-            this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GameVersion} on {platformLabel}", LogLevel.Info);
+                string[] patchLabels = this.GetPatchLabels().ToArray();
+                if (patchLabels.Any())
+                    this.Monitor.Log($"Detected custom version: {string.Join(", ", patchLabels)}", LogLevel.Info);
+            }
+
+            // log basic info
             this.Monitor.Log($"Mods go here: {modsPath}", LogLevel.Info);
             if (modsPath != Constants.DefaultModsPath)
                 this.Monitor.Log("(Using custom --mods-path argument.)");
@@ -406,6 +409,20 @@ namespace StardewModdingAPI.Framework.Logging
             gameMonitor.Log(message, level);
         }
 
+        /// <summary>Get human-readable labels to log for detected SMAPI and Stardew Valley customizations.</summary>
+        private IEnumerable<string> GetPatchLabels()
+        {
+            // custom game framework
+            if (EarlyConstants.IsWindows64BitHack)
+                yield return $"running 64-bit SMAPI with {Constants.GameFramework}";
+            else if ((Constants.GameFramework == GameFramework.Xna) != (Constants.Platform == Platform.Windows))
+                yield return $"running {Constants.GameFramework}";
+
+            // patched by Stardew64Installer
+            if (Constants.IsPatchedByStardew64Installer(out ISemanticVersion patchedByVersion))
+                yield return $"patched by Stardew64Installer {patchedByVersion}";
+        }
+
         /// <summary>Write a summary of mod warnings to the console and log.</summary>
         /// <param name="mods">The loaded mods.</param>
         /// <param name="skippedMods">The mods which could not be loaded.</param>
@@ -426,67 +443,38 @@ namespace StardewModdingAPI.Framework.Logging
             // log skipped mods
             if (skippedMods.Any())
             {
-                // get logging logic
-                HashSet<string> loggedDuplicateIds = new HashSet<string>();
-                void LogSkippedMod(IModMetadata mod)
-                {
-                    string message = $"      - {mod.DisplayName}{(mod.Manifest?.Version != null ? " " + mod.Manifest.Version.ToString() : "")} because {mod.Error}";
+                var loggedDuplicateIds = new HashSet<string>();
 
-                    // handle duplicate mods
-                    // (log first duplicate only, don't show redundant version)
-                    if (mod.FailReason == ModFailReason.Duplicate && mod.HasManifest())
-                    {
-                        if (!loggedDuplicateIds.Add(mod.Manifest.UniqueID))
-                            return; // already logged
-
-                        message = $"      - {mod.DisplayName} because {mod.Error}";
-                    }
-
-                    // log message
-                    this.Monitor.Log(message, LogLevel.Error);
-                    if (mod.ErrorDetails != null)
-                        this.Monitor.Log($"        ({mod.ErrorDetails})");
-                }
-
-                // group mods
-                List<IModMetadata> skippedDependencies = new List<IModMetadata>();
-                List<IModMetadata> otherSkippedMods = new List<IModMetadata>();
-                {
-                    // track broken dependencies
-                    HashSet<string> skippedDependencyIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                    HashSet<string> skippedModIds = new HashSet<string>(from mod in skippedMods where mod.HasID() select mod.Manifest.UniqueID, StringComparer.OrdinalIgnoreCase);
-                    foreach (IModMetadata mod in skippedMods)
-                    {
-                        foreach (string requiredId in skippedModIds.Intersect(mod.GetRequiredModIds()))
-                            skippedDependencyIds.Add(requiredId);
-                    }
-
-                    // collect mod groups
-                    foreach (IModMetadata mod in skippedMods)
-                    {
-                        if (mod.HasID() && skippedDependencyIds.Contains(mod.Manifest.UniqueID))
-                            skippedDependencies.Add(mod);
-                        else
-                            otherSkippedMods.Add(mod);
-                    }
-                }
-
-                // log skipped mods
                 this.Monitor.Log("   Skipped mods", LogLevel.Error);
                 this.Monitor.Log("   " + "".PadRight(50, '-'), LogLevel.Error);
                 this.Monitor.Log("      These mods could not be added to your game.", LogLevel.Error);
                 this.Monitor.Newline();
-
-                if (skippedDependencies.Any())
+                foreach (var list in this.GroupFailedModsByPriority(skippedMods))
                 {
-                    foreach (IModMetadata mod in skippedDependencies.OrderBy(p => p.DisplayName))
-                        LogSkippedMod(mod);
-                    this.Monitor.Newline();
-                }
+                    if (list.Any())
+                    {
+                        foreach (IModMetadata mod in list.OrderBy(p => p.DisplayName))
+                        {
+                            string message = $"      - {mod.DisplayName}{(" " + mod.Manifest?.Version?.ToString()).TrimEnd()} because {mod.Error}";
 
-                foreach (IModMetadata mod in otherSkippedMods.OrderBy(p => p.DisplayName))
-                    LogSkippedMod(mod);
-                this.Monitor.Newline();
+                            // duplicate mod: log first one only, don't show redundant version
+                            if (mod.FailReason == ModFailReason.Duplicate && mod.HasManifest())
+                            {
+                                if (loggedDuplicateIds.Add(mod.Manifest.UniqueID))
+                                    continue; // already logged
+
+                                message = $"      - {mod.DisplayName} because {mod.Error}";
+                            }
+
+                            // log message
+                            this.Monitor.Log(message, LogLevel.Error);
+                            if (mod.ErrorDetails != null)
+                                this.Monitor.Log($"        ({mod.ErrorDetails})");
+                        }
+
+                        this.Monitor.Newline();
+                    }
+                }
             }
 
             // log warnings
@@ -553,8 +541,94 @@ namespace StardewModdingAPI.Framework.Logging
 
                 // not crossplatform
                 this.LogModWarningGroup(modsWithWarnings, ModWarning.UsesDynamic, LogLevel.Debug, "Not crossplatform",
-                    "These mods use the 'dynamic' keyword, and won't work on Linux/Mac."
+                    "These mods use the 'dynamic' keyword, and won't work on Linux/macOS."
                 );
+            }
+        }
+
+        /// <summary>Group failed mods by the priority players should update them, where mods in earlier groups are more likely to fix multiple mods.</summary>
+        /// <param name="failedMods">The failed mods to group.</param>
+        private IEnumerable<IList<IModMetadata>> GroupFailedModsByPriority(IList<IModMetadata> failedMods)
+        {
+            var failedOthers = failedMods.ToList();
+            var skippedModIds = new HashSet<string>(from mod in failedMods where mod.HasID() select mod.Manifest.UniqueID, StringComparer.OrdinalIgnoreCase);
+
+            // group B: dependencies which failed
+            var failedOtherDependencies = new List<IModMetadata>();
+            {
+                // get failed dependency IDs
+                var skippedDependencyIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                foreach (IModMetadata mod in failedMods)
+                {
+                    foreach (string requiredId in skippedModIds.Intersect(mod.GetRequiredModIds()))
+                        skippedDependencyIds.Add(requiredId);
+                }
+
+                // group matching mods
+                this.FilterThrough(
+                    fromList: failedOthers,
+                    toList: failedOtherDependencies,
+                    match: mod => mod.HasID() && skippedDependencyIds.Contains(mod.Manifest.UniqueID)
+                );
+            }
+
+            // group A: failed root dependencies which other dependencies need
+            var failedRootDependencies = new List<IModMetadata>();
+            {
+                var skippedDependencyIds = new HashSet<string>(failedOtherDependencies.Select(p => p.Manifest.UniqueID));
+                this.FilterThrough(
+                    fromList: failedOtherDependencies,
+                    toList: failedRootDependencies,
+                    match: mod =>
+                    {
+                        // has no failed dependency
+                        foreach (string requiredId in mod.GetRequiredModIds())
+                        {
+                            if (skippedDependencyIds.Contains(requiredId))
+                                return false;
+                        }
+
+                        // another dependency depends on this mod
+                        bool isDependedOn = false;
+                        foreach (IModMetadata other in failedOtherDependencies)
+                        {
+                            if (other.HasRequiredModId(mod.Manifest.UniqueID, includeOptional: false))
+                            {
+                                isDependedOn = true;
+                                break;
+                            }
+                        }
+
+                        return isDependedOn;
+                    }
+                );
+            }
+
+            // return groups
+            return new[]
+            {
+                failedRootDependencies,
+                failedOtherDependencies,
+                failedOthers
+            };
+        }
+
+        /// <summary>Filter matching items from one list and add them to the other.</summary>
+        /// <typeparam name="TItem">The list item type.</typeparam>
+        /// <param name="fromList">The list to filter.</param>
+        /// <param name="toList">The list to which to add filtered items.</param>
+        /// <param name="match">Matches items to filter through.</param>
+        private void FilterThrough<TItem>(IList<TItem> fromList, IList<TItem> toList, Func<TItem, bool> match)
+        {
+            for (int i = 0; i < fromList.Count; i++)
+            {
+                TItem item = fromList[i];
+                if (match(item))
+                {
+                    toList.Add(item);
+                    fromList.RemoveAt(i);
+                    i--;
+                }
             }
         }
 

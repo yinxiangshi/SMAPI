@@ -21,7 +21,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         private readonly HashSet<Regex> IgnoreFilesystemNames = new HashSet<Regex>
         {
             new Regex(@"^__folder_managed_by_vortex$", RegexOptions.Compiled | RegexOptions.IgnoreCase), // Vortex mod manager
-            new Regex(@"(?:^\._|^\.DS_Store$|^__MACOSX$|^mcs$)", RegexOptions.Compiled | RegexOptions.IgnoreCase), // MacOS
+            new Regex(@"(?:^\._|^\.DS_Store$|^__MACOSX$|^mcs$)", RegexOptions.Compiled | RegexOptions.IgnoreCase), // macOS
             new Regex(@"^(?:desktop\.ini|Thumbs\.db)$", RegexOptions.Compiled | RegexOptions.IgnoreCase) // Windows
         };
 
@@ -38,6 +38,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
             // images
             ".bmp",
             ".gif",
+            ".ico",
             ".jpeg",
             ".jpg",
             ".png",
@@ -136,7 +137,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
                     return new ModFolder(root, searchFolder, ModType.Xnb, null, ModParseError.XnbMod, "it's not a SMAPI mod (see https://smapi.io/xnb for info).");
 
                 // SMAPI installer
-                if (relevantFiles.Any(p => p.Name == "install on Linux.sh" || p.Name == "install on Mac.command" || p.Name == "install on Windows.bat"))
+                if (relevantFiles.Any(p => p.Name == "install on Linux.sh" || p.Name == "install on macOS.command" || p.Name == "install on Windows.bat"))
                     return new ModFolder(root, searchFolder, ModType.Invalid, null, ModParseError.ManifestMissing, "the SMAPI installer isn't a mod (you can delete this folder after running the installer file).");
 
                 // not a mod?

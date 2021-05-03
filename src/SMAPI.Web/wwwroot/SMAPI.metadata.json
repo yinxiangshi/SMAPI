@@ -109,7 +109,7 @@
 
         "Rubydew": {
             "ID": "bwdy.rubydew",
-            "SuppressWarnings": "UsesDynamic", // mod explicitly loads DLLs for Linux/Mac compatibility
+            "SuppressWarnings": "UsesDynamic", // mod explicitly loads DLLs for Linux/macOS compatibility
             "Default | UpdateKey": "Nexus:3656"
         },
 

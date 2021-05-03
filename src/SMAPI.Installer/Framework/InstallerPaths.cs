@@ -44,16 +44,16 @@ namespace StardewModdingAPI.Installer.Framework
         /// <summary>The full path to the user's config overrides file.</summary>
         public string ApiUserConfigPath { get; }
 
-        /// <summary>The full path to the installed SMAPI executable file.</summary>
-        public string ExecutablePath { get; }
+        /// <summary>The full path to the installed game executable file.</summary>
+        public string ExecutablePath { get; private set; }
 
-        /// <summary>The full path to the vanilla game launcher on Linux/Mac.</summary>
+        /// <summary>The full path to the vanilla game launcher on Linux/macOS.</summary>
         public string UnixLauncherPath { get; }
 
-        /// <summary>The full path to the installed SMAPI launcher on Linux/Mac before it's renamed.</summary>
+        /// <summary>The full path to the installed SMAPI launcher on Linux/macOS before it's renamed.</summary>
         public string UnixSmapiLauncherPath { get; }
 
-        /// <summary>The full path to the vanilla game launcher on Linux/Mac after SMAPI is installed.</summary>
+        /// <summary>The full path to the vanilla game launcher on Linux/macOS after SMAPI is installed.</summary>
         public string UnixBackupLauncherPath { get; }
 
 
@@ -78,6 +78,13 @@ namespace StardewModdingAPI.Installer.Framework
             this.UnixBackupLauncherPath = Path.Combine(gameDir.FullName, "StardewValley-original");
             this.ApiConfigPath = Path.Combine(gameDir.FullName, "smapi-internal", "config.json");
             this.ApiUserConfigPath = Path.Combine(gameDir.FullName, "smapi-internal", "config.user.json");
+        }
+
+        /// <summary>Override the filename for the <see cref="ExecutablePath"/>.</summary>
+        /// <param name="filename">the file name.</param>
+        public void SetExecutableFileName(string filename)
+        {
+            this.ExecutablePath = Path.Combine(this.GamePath, filename);
         }
     }
 }

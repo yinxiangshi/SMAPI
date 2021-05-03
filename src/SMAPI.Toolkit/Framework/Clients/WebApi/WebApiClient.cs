@@ -61,7 +61,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
         /// <param name="content">The body content to post.</param>
         private TResult Post<TBody, TResult>(string url, TBody content)
         {
-            // note: avoid HttpClient for Mac compatibility
+            // note: avoid HttpClient for macOS compatibility
             using WebClient client = new WebClient();
 
             Uri fullUrl = new Uri(this.BaseUrl, url);

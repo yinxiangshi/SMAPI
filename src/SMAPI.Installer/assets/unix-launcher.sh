@@ -37,73 +37,86 @@ if [ "$UNAME" == "Darwin" ]; then
         ln -s /Library/Frameworks/Mono.framework/Versions/Current/lib/libgdiplus.dylib libgdiplus.dylib
     fi
 
+    # create bin file
+    # Note: don't overwrite if it's identical, to avoid resetting permission flags
+    if [ ! -x StardewModdingAPI.bin.osx ] || ! cmp StardewValley.bin.osx StardewModdingAPI.bin.osx >/dev/null 2>&1; then
+        cp -p StardewValley.bin.osx StardewModdingAPI.bin.osx
+    fi
+
     # launch SMAPI
-    cp StardewValley.bin.osx StardewModdingAPI.bin.osx
     open -a Terminal ./StardewModdingAPI.bin.osx "$@"
 else
-    # choose launcher
-    LAUNCHER=""
+    # choose binary file to launch
+    LAUNCH_FILE=""
     if [ "$ARCH" == "x86_64" ]; then
         ln -sf mcs.bin.x86_64 mcs
         cp StardewValley.bin.x86_64 StardewModdingAPI.bin.x86_64
-        LAUNCHER="./StardewModdingAPI.bin.x86_64"
+        LAUNCH_FILE="./StardewModdingAPI.bin.x86_64"
     else
         ln -sf mcs.bin.x86 mcs
         cp StardewValley.bin.x86 StardewModdingAPI.bin.x86
-        LAUNCHER="./StardewModdingAPI.bin.x86"
+        LAUNCH_FILE="./StardewModdingAPI.bin.x86"
     fi
-    export LAUNCHER
-
-    # get cross-distro version of POSIX command
-    COMMAND=""
-    if command -v command 2>/dev/null; then
-        COMMAND="command -v"
-    elif type type 2>/dev/null; then
-        COMMAND="type -p"
-    fi
+    export LAUNCH_FILE
 
     # select terminal (prefer xterm for best compatibility, then known supported terminals)
     for terminal in xterm gnome-terminal kitty terminator xfce4-terminal konsole terminal termite alacritty mate-terminal x-terminal-emulator; do
-        if $COMMAND "$terminal" 2>/dev/null; then
-            export LAUNCHTERM=$terminal
+        if command -v "$terminal" 2>/dev/null; then
+            export TERMINAL_NAME=$terminal
             break;
         fi
     done
 
     # find the true shell behind x-terminal-emulator
-    if [ "$LAUNCHTERM" = "x-terminal-emulator" ]; then
-        export LAUNCHTERM="$(basename "$(readlink -f $(COMMAND x-terminal-emulator))")"
+    if [ "$TERMINAL_NAME" = "x-terminal-emulator" ]; then
+        export TERMINAL_NAME="$(basename "$(readlink -f $(command -v x-terminal-emulator))")"
     fi
 
     # run in selected terminal and account for quirks
-    case $LAUNCHTERM in
-        terminal|termite)
-            # LAUNCHTERM consumes only one argument after -e
-            # options containing space characters are unsupported
-            exec $LAUNCHTERM -e "env TERM=xterm $LAUNCHER $@"
-            ;;
-        xterm|konsole|alacritty)
-            # LAUNCHTERM consumes all arguments after -e
-            exec $LAUNCHTERM -e env TERM=xterm $LAUNCHER "$@"
-            ;;
-        terminator|xfce4-terminal|mate-terminal)
-            # LAUNCHTERM consumes all arguments after -x
-            exec $LAUNCHTERM -x env TERM=xterm $LAUNCHER "$@"
-            ;;
-        gnome-terminal)
-            # LAUNCHTERM consumes all arguments after --
-            exec $LAUNCHTERM -- env TERM=xterm $LAUNCHER "$@"
-            ;;
-        kitty)
-            # LAUNCHTERM consumes all trailing arguments
-            exec $LAUNCHTERM env TERM=xterm $LAUNCHER "$@"
-            ;;
-        *)
-            # If we don't know the terminal, just try to run it in the current shell.
-            env TERM=xterm $LAUNCHER "$@"
-            # if THAT fails, launch with no output
-            if [ $? -eq 127 ]; then
-                exec $LAUNCHER --no-terminal "$@"
-            fi
-    esac
+    export TERMINAL_PATH="$(command -v $TERMINAL_NAME)"
+    if [ -x $TERMINAL_PATH ]; then
+        case $TERMINAL_NAME in
+            terminal|termite)
+                # consumes only one argument after -e
+                # options containing space characters are unsupported
+                exec $TERMINAL_NAME -e "env TERM=xterm $LAUNCH_FILE $@"
+                ;;
+
+            xterm|konsole|alacritty)
+                # consumes all arguments after -e
+                exec $TERMINAL_NAME -e env TERM=xterm $LAUNCH_FILE "$@"
+                ;;
+
+            terminator|xfce4-terminal|mate-terminal)
+                # consumes all arguments after -x
+                exec $TERMINAL_NAME -x env TERM=xterm $LAUNCH_FILE "$@"
+                ;;
+
+            gnome-terminal)
+                # consumes all arguments after --
+                exec $TERMINAL_NAME -- env TERM=xterm $LAUNCH_FILE "$@"
+                ;;
+
+            kitty)
+                # consumes all trailing arguments
+                exec $TERMINAL_NAME env TERM=xterm $LAUNCH_FILE "$@"
+                ;;
+
+            *)
+                # If we don't know the terminal, just try to run it in the current shell.
+                # If THAT fails, launch with no output.
+                env TERM=xterm $LAUNCH_FILE "$@"
+                if [ $? -eq 127 ]; then
+                    exec $LAUNCH_FILE --no-terminal "$@"
+                fi
+        esac
+
+    ## terminal isn't executable; fallback to current shell or no terminal
+    else
+        echo "The '$TERMINAL_NAME' terminal isn't executable. SMAPI might be running in a sandbox or the system might be misconfigured? Falling back to current shell."
+        env TERM=xterm $LAUNCH_FILE "$@"
+        if [ $? -eq 127 ]; then
+            exec $LAUNCH_FILE --no-terminal "$@"
+        fi
+    fi
 fi

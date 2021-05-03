@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
 using Netcode;
+using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.ContentManagers;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Toolkit.Utilities;
@@ -36,14 +37,17 @@ namespace StardewModdingAPI.Metadata
         /// <summary>An internal content manager used only for asset propagation. See remarks on <see cref="GameContentManagerForAssetPropagation"/>.</summary>
         private readonly GameContentManagerForAssetPropagation DisposableContentManager;
 
+        /// <summary>Writes messages to the console.</summary>
+        private readonly IMonitor Monitor;
+
+        /// <summary>Simplifies access to private game code.</summary>
+        private readonly Reflector Reflection;
+
         /// <summary>Whether to enable more aggressive memory optimizations.</summary>
         private readonly bool AggressiveMemoryOptimizations;
 
         /// <summary>Normalizes an asset key to match the cache key and assert that it's valid.</summary>
         private readonly Func<string, string> AssertAndNormalizeAssetName;
-
-        /// <summary>Simplifies access to private game code.</summary>
-        private readonly Reflector Reflection;
 
         /// <summary>Optimized bucket categories for batch reloading assets.</summary>
         private enum AssetBucket
@@ -65,12 +69,14 @@ namespace StardewModdingAPI.Metadata
         /// <summary>Initialize the core asset data.</summary>
         /// <param name="mainContent">The main content manager through which to reload assets.</param>
         /// <param name="disposableContent">An internal content manager used only for asset propagation.</param>
+        /// <param name="monitor">Writes messages to the console.</param>
         /// <param name="reflection">Simplifies access to private code.</param>
         /// <param name="aggressiveMemoryOptimizations">Whether to enable more aggressive memory optimizations.</param>
-        public CoreAssetPropagator(LocalizedContentManager mainContent, GameContentManagerForAssetPropagation disposableContent, Reflector reflection, bool aggressiveMemoryOptimizations)
+        public CoreAssetPropagator(LocalizedContentManager mainContent, GameContentManagerForAssetPropagation disposableContent, IMonitor monitor, Reflector reflection, bool aggressiveMemoryOptimizations)
         {
             this.MainContentManager = mainContent;
             this.DisposableContentManager = disposableContent;
+            this.Monitor = monitor;
             this.Reflection = reflection;
             this.AggressiveMemoryOptimizations = aggressiveMemoryOptimizations;
 
@@ -116,7 +122,17 @@ namespace StardewModdingAPI.Metadata
                     default:
                         foreach (var entry in bucket)
                         {
-                            bool changed = this.PropagateOther(entry.Key, entry.Value, ignoreWorld, out bool curChangedMapWarps);
+                            bool changed = false;
+                            bool curChangedMapWarps = false;
+                            try
+                            {
+                                changed = this.PropagateOther(entry.Key, entry.Value, ignoreWorld, out curChangedMapWarps);
+                            }
+                            catch (Exception ex)
+                            {
+                                this.Monitor.Log($"An error occurred while propagating asset changes. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
+                            }
+
                             propagatedAssets[entry.Key] = changed;
                             updatedNpcWarps = updatedNpcWarps || curChangedMapWarps;
                         }
@@ -258,6 +274,7 @@ namespace StardewModdingAPI.Metadata
                     return true;
 
                 case "data\\bundles": // NetWorldState constructor
+                    if (Context.IsMainPlayer && Game1.netWorldState != null)
                     {
                         var bundles = this.Reflection.GetField<NetBundles>(Game1.netWorldState.Value, "bundles").GetValue();
                         var rewards = this.Reflection.GetField<NetIntDictionary<bool, NetBool>>(Game1.netWorldState.Value, "bundleRewards").GetValue();
@@ -286,6 +303,10 @@ namespace StardewModdingAPI.Metadata
                     Game1.clothingInformation = content.Load<Dictionary<int, string>>(key);
                     return true;
 
+                case "data\\concessions": // MovieTheater.GetConcessions
+                    MovieTheater.ClearCachedLocalizedData();
+                    return true;
+
                 case "data\\concessiontastes": // MovieTheater.GetConcessionTasteForCharacter
                     this.Reflection
                         .GetField<List<ConcessionTaste>>(typeof(MovieTheater), "_concessionTastes")
@@ -306,16 +327,9 @@ namespace StardewModdingAPI.Metadata
                 case "data\\hairdata": // Farmer.GetHairStyleMetadataFile
                     return this.ReloadHairData();
 
-                case "data\\moviesreactions": // MovieTheater.GetMovieReactions
-                    this.Reflection
-                        .GetField<List<MovieCharacterReaction>>(typeof(MovieTheater), "_genericReactions")
-                        .SetValue(content.Load<List<MovieCharacterReaction>>(key));
-                    return true;
-
                 case "data\\movies": // MovieTheater.GetMovieData
-                    this.Reflection
-                        .GetField<Dictionary<string, MovieData>>(typeof(MovieTheater), "_movieData")
-                        .SetValue(content.Load<Dictionary<string, MovieData>>(key));
+                case "data\\moviesreactions": // MovieTheater.GetMovieReactions
+                    MovieTheater.ClearCachedLocalizedData();
                     return true;
 
                 case "data\\npcdispositions": // NPC constructor

@@ -251,7 +251,7 @@ namespace SMAPI.Tests.Utilities
         [TestCase(
             @"~/parent",
             @"~/PARENT/child",
-            ExpectedResult = @"child" // note: incorrect on Linux and sometimes MacOS, but not worth the complexity of detecting whether the filesystem is case-sensitive for SMAPI's purposes
+            ExpectedResult = @"child" // note: incorrect on Linux and sometimes macOS, but not worth the complexity of detecting whether the filesystem is case-sensitive for SMAPI's purposes
         )]
 #endif
         public string GetRelativePath(string sourceDir, string targetPath)

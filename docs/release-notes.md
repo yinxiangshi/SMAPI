@@ -7,6 +7,31 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
+## 3.10
+Released 03 May 2021 for Stardew Valley 1.5.4 or later. See [release highlights](https://www.patreon.com/posts/50764911).
+
+* For players:
+  * Added full support for the [unofficial 64-bit Stardew Valley patch](https://stardewvalleywiki.com/Modding:Migrate_to_64-bit_on_Windows), which removes memory limits. The installer detects which version of SMAPI you need, and SMAPI shows update alerts for Stardew64Installer if applicable.
+  * Added smarter grouping for skipped mods, so it's easier to see root dependencies to update first.
+  * Added crash recovery when the game can't update a map's seasonal tilesheets _(in Error Handler)_. SMAPI will log an error and keep the previous tilesheets in that case.
+  * Added installer option to enter a custom game path even if it detected a game folder.
+  * `*.ico` files are now ignored when scanning for mods.
+  * Fixed error for non-English players after returning to title, reloading, and entering town with a completed movie theater.
+  * Fixed `world_clear` console command not removing resource clumps outside the farm and secret woods.
+  * Fixed error running SMAPI in a strict sandbox on Linux (thanks to kuesji!).
+  * Fixed `StardewModdingAPI.bin.osx` on macOS overwritten with an identical file on launch which would reset file permissions (thanks to 007wayne!).
+  * Fixed inconsistent spelling/style for 'macOS'.
+
+* For modders:
+  * Added support for [ignoring local map tilesheet files when loading a map](https://stardewvalleywiki.com/Modding:Maps#Local_copy_of_a_vanilla_tilesheet).
+  * Added asset propagation for `Data\Concessions`.
+  * Added SMAPI version and bitness to the console title before startup to simplify troubleshooting.
+  * If a map loads a tilesheet path with no file extension, SMAPI now automatically links it to a `.png` version in the map folder if possible.
+  * Improved error-handling during asset propagation.
+  * Fixed `Context.IsMainPlayer` returning true for a farmhand in split-screen mode before the screen is initialized.
+  * Fixed error when editing bundle data while a split-screen player is joining.
+  * Fixed update subkeys not working in file descriptions for Nexus mods marked as adult content.
+
 ## 3.9.5
 Released 21 March 2021 for Stardew Valley 1.5.4 or later.
 
@@ -236,7 +261,7 @@ Released 03 October 2020 for Stardew Valley 1.4.1 or later.
 Released 16 September 2020 for Stardew Valley 1.4.1 or later.
 
 * For players:
-  * Fixed errors on Linux/Mac due to content packs with incorrect filename case.
+  * Fixed errors on Linux/macOS due to content packs with incorrect filename case.
   * Fixed map rendering crash due to conflict between SMAPI and PyTK.
   * Fixed error in heuristically-rewritten mods in rare cases (thanks to collaboration with ZaneYork!).
 
@@ -280,7 +305,7 @@ Released 07 September 2020 for Stardew Valley 1.4.1 or later. See [release highl
 * For mod authors:
   * Added `PathUtilities` to simplify working with file/asset names.
   * You can now read/write `SDate` values to JSON (e.g. for `config.json`, network mod messages, etc).
-  * Fixed asset propagation not updating title menu buttons immediately on Linux/Mac.
+  * Fixed asset propagation not updating title menu buttons immediately on Linux/macOS.
 
 * For the web UI:
   * Updated the JSON validator/schema for Content Patcher 1.16 and 1.17.
@@ -325,7 +350,7 @@ Released 20 June 2020 for Stardew Valley 1.4.1 or later. See [release highlights
   * Added experimental option to reduce startup time when loading mod DLLs (thanks to ZaneYork!). Enable `RewriteInParallel` in the `smapi-internal/config.json` to try it.
   * Reduced processing time when a mod loads many unpacked images (thanks to Entoarox!).
   * Mod load warnings are now listed alphabetically.
-  * MacOS files starting with `._` are now ignored and can no longer cause skipped mods.
+  * macOS files starting with `._` are now ignored and can no longer cause skipped mods.
   * Simplified paranoid warning logs and reduced their log level.
   * Fixed black maps on Android for mods which use `.tmx` files.
   * Fixed `BadImageFormatException` error detection.
@@ -381,7 +406,7 @@ Released 27 April 2020 for Stardew Valley 1.4.1 or later. See [release highlight
   * Added `SDate` fields/methods: `SeasonIndex`, `FromDaysSinceStart`, `FromWorldDate`, `ToWorldDate`, and `ToLocaleString` (thanks to kdau!).
   * Added `SDate` translations taken from the Lookup Anything mod.¹
   * Fixed asset propagation for certain maps loaded through temporary content managers. This notably fixes unreliable patches to the farmhouse and town maps.
-  * Fixed asset propagation on Linux/Mac for monster sprites, NPC dialogue, and NPC schedules.
+  * Fixed asset propagation on Linux/macOS for monster sprites, NPC dialogue, and NPC schedules.
   * Fixed asset propagation for NPC dialogue sometimes causing a spouse to skip marriage dialogue or not allow kisses.
 
 ¹ Date format translations were taken from the Lookup Anything mod; thanks to translators FixThisPlz (improved Russian), LeecanIt (added Italian), pomepome (added Japanese), S2SKY (added Korean), Sasara (added German), SteaNN (added Russian), ThomasGabrielDelavault (added Spanish), VincentRoth (added French), Yllelder (improved Spanish), and yuwenlan (added Chinese). Some translations for Korean, Hungarian, and Turkish were derived from the game translations.
@@ -397,7 +422,7 @@ Released 24 March 2020 for Stardew Valley 1.4.1 or later.
 Released 22 March 2020 for Stardew Valley 1.4.1 or later. See [release highlights](https://www.patreon.com/posts/35161371).
 
 * For players:
-  * Fixed semi-transparency issues on Linux/Mac in recent versions of Mono (e.g. pink shadows).
+  * Fixed semi-transparency issues on Linux/macOS in recent versions of Mono (e.g. pink shadows).
   * Fixed `player_add` command error if you have broken XNB mods.
   * Removed invalid-location check now handled by the game.
   * Updated translations. Thanks to Annosz (added Hungarian)!
@@ -439,7 +464,7 @@ Released 22 February 2020 for Stardew Valley 1.4.1 or later. See [release highli
   * Updated translations. Thanks to xCarloC (added Italian)!
 
 * For the Save Backup mod:
-  * Fixed warning on MacOS when you have no saves yet.
+  * Fixed warning on macOS when you have no saves yet.
   * Reduced log messages.
 
 * For the web UI:

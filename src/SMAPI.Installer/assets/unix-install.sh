@@ -1,5 +1,5 @@
 #!/bin/bash
-# Run the SMAPI installer through Mono on Linux or Mac.
+# Run the SMAPI installer through Mono on Linux or macOS.
 
 # Move to script's directory
 cd "`dirname "$0"`"

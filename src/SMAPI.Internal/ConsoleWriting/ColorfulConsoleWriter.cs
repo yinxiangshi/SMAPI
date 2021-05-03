@@ -129,7 +129,7 @@ namespace StardewModdingAPI.Internal.ConsoleWriting
             if (schemeID == MonitorColorScheme.AutoDetect)
             {
                 schemeID = platform == Platform.Mac
-                    ? MonitorColorScheme.LightBackground // MacOS doesn't provide console background color info, but it's usually white.
+                    ? MonitorColorScheme.LightBackground // macOS doesn't provide console background color info, but it's usually white.
                     : ColorfulConsoleWriter.IsDark(Console.BackgroundColor) ? MonitorColorScheme.DarkBackground : MonitorColorScheme.LightBackground;
             }
 

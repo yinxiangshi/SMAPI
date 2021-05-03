@@ -12,7 +12,7 @@ namespace StardewModdingAPI.Framework.Content
         ** Fields
         *********/
         /// <summary>The minimum value to consider non-transparent.</summary>
-        /// <remarks>On Linux/Mac, fully transparent pixels may have an alpha up to 4 for some reason.</remarks>
+        /// <remarks>On Linux/macOS, fully transparent pixels may have an alpha up to 4 for some reason.</remarks>
         private const byte MinOpacity = 5;
 
 
@@ -82,7 +82,7 @@ namespace StardewModdingAPI.Framework.Content
                     // premultiplied by the content pipeline. The formula is derived from
                     // https://blogs.msdn.microsoft.com/shawnhar/2009/11/06/premultiplied-alpha/.
                     // Note: don't use named arguments here since they're different between
-                    // Linux/Mac and Windows.
+                    // Linux/macOS and Windows.
                     float alphaBelow = 1 - (above.A / 255f);
                     newData[i] = new Color(
                         (int)(above.R + (below.R * alphaBelow)), // r

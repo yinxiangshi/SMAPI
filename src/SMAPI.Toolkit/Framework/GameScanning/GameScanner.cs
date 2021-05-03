@@ -20,9 +20,6 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
         /// <summary>The current OS.</summary>
         private readonly Platform Platform;
 
-        /// <summary>The name of the Stardew Valley executable.</summary>
-        private readonly string ExecutableName;
-
 
         /*********
         ** Public methods
@@ -31,7 +28,6 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
         public GameScanner()
         {
             this.Platform = EnvironmentUtility.DetectPlatform();
-            this.ExecutableName = EnvironmentUtility.GetExecutableName(this.Platform);
         }
 
         /// <summary>Find all valid Stardew Valley install folders.</summary>
@@ -58,7 +54,12 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
         /// <param name="dir">The folder to check.</param>
         public bool LooksLikeGameFolder(DirectoryInfo dir)
         {
-            return dir.Exists && dir.EnumerateFiles(this.ExecutableName).Any();
+            return
+                dir.Exists
+                && (
+                    dir.EnumerateFiles("StardewValley.exe").Any()
+                    || dir.EnumerateFiles("Stardew Valley.exe").Any()
+                );
         }
 
 
@@ -82,7 +83,7 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
                             ? $"{home}/.steam/steam/steamapps/common/Stardew Valley"
                             : $"{home}/.local/share/Steam/steamapps/common/Stardew Valley";
 
-                        // Mac
+                        // macOS
                         yield return "/Applications/Stardew Valley.app/Contents/MacOS";
                         yield return $"{home}/Library/Application Support/Steam/steamapps/common/Stardew Valley/Contents/MacOS";
                     }

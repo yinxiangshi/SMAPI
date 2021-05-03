@@ -33,7 +33,7 @@ argument | purpose
 `--game-path "path"` | Specifies the full path to the folder containing the Stardew Valley executable, skipping automatic detection and any prompt to choose a path. If the path is not valid, the installer displays an error.
 
 SMAPI itself recognises two arguments **on Windows only**, but these are intended for internal use
-or testing and may change without warning. On Linux/Mac, see _environment variables_ below.
+or testing and may change without warning. On Linux/macOS, see _environment variables_ below.
 
 argument | purpose
 -------- | -------
@@ -41,7 +41,7 @@ argument | purpose
 `--mods-path` | The path to search for mods, if not the standard `Mods` folder. This can be a path relative to the game folder (like `--mods-path "Mods (test)"`) or an absolute path.
 
 ### Environment variables
-The above SMAPI arguments don't work on Linux/Mac due to the way the game launcher works. You can
+The above SMAPI arguments don't work on Linux/macOS due to the way the game launcher works. You can
 set temporary environment variables instead. For example:
 > SMAPI_MODS_PATH="Mods (multiplayer)" /path/to/StardewValley
 
@@ -56,8 +56,9 @@ SMAPI uses a small number of conditional compilation constants, which you can se
 
 flag | purpose
 ---- | -------
-`SMAPI_FOR_WINDOWS` | Whether SMAPI is being compiled for Windows; if not set, the code assumes Linux/MacOS. Set automatically in `common.targets`.
-`SMAPI_FOR_XNA` | Whether SMAPI is being compiled for XNA Framework; if not set, the code assumes MonoGame. Set automatically in `common.targets` with the same value as `SMAPI_FOR_WINDOWS`.
+`SMAPI_FOR_WINDOWS` | Whether SMAPI is being compiled for Windows; if not set, the code assumes Linux/macOS. Set automatically in `common.targets`.
+`SMAPI_FOR_WINDOWS_64BIT_HACK` | Whether SMAPI is being [compiled for Windows with a 64-bit Linux version of the game](https://github.com/Pathoschild/SMAPI/issues/767). This is highly specialized and shouldn't be used in most cases. False by default.
+`SMAPI_FOR_XNA` | Whether SMAPI is being compiled for XNA Framework; if not set, the code assumes MonoGame. Set automatically in `common.targets` with the same value as `SMAPI_FOR_WINDOWS` (unless `SMAPI_FOR_WINDOWS_64BIT_HACK` is set).
 `HARMONY_2` | Whether to enable experimental Harmony 2.0 support and rewrite existing Harmony 1._x_ mods for compatibility. Note that you need to replace `build/0Harmony.dll` with a Harmony 2.0 build (or switch to a package reference) to use this flag.
 
 ## For SMAPI developers
@@ -72,7 +73,7 @@ placed in a `bin` folder at the root of the Git repository.
 
 ### Debugging a local build
 Rebuilding the solution in debug mode will copy the SMAPI files into your game folder. Starting
-the `SMAPI` project with debugging from Visual Studio (on Mac or Windows) will launch SMAPI with
+the `SMAPI` project with debugging from Visual Studio (on macOS or Windows) will launch SMAPI with
 the debugger attached, so you can intercept errors and step through the code being executed. That
 doesn't work in MonoDevelop on Linux, unfortunately.
 
@@ -81,7 +82,9 @@ To prepare a crossplatform SMAPI release, you'll need to compile it on two platf
 [crossplatforming info](https://stardewvalleywiki.com/Modding:Modder_Guide/Test_and_Troubleshoot#Testing_on_all_platforms)
 on the wiki for the first-time setup.
 
-1. Update the version numbers in `build/common.targets`, `Constants`, and the `manifest.json` for
+1. [Install a separate 64-bit version of Stardew Valley](https://github.com/Steviegt6/Stardew64Installer#readme)
+   on Windows.
+2. Update the version numbers in `build/common.targets`, `Constants`, and the `manifest.json` for
    bundled mods. Make sure you use a [semantic version](https://semver.org). Recommended format:
 
    build type | format                   | example
@@ -89,12 +92,15 @@ on the wiki for the first-time setup.
    dev build  | `<version>-alpha.<date>` | `3.0.0-alpha.20171230`
    prerelease | `<version>-beta.<date>`  | `3.0.0-beta.20171230`
    release    | `<version>`              | `3.0.0`
-
-2. In Windows:
+3. In Windows:
    1. Rebuild the solution with the _release_ solution configuration.
-   2. Copy `bin/SMAPI installer` and `bin/SMAPI installer for developers` to Linux/Mac.
-
-3. In Linux/Mac:
+   2. Back up the `bin/SMAPI installer` and `bin/SMAPI installer for developers` folders.
+   3. Edit `common.targets` and uncomment the Stardew Valley 64-bit section at the top.
+   4. Rebuild the solution again.
+   5. Rename the compiled `StardewModdingAPI.exe` file to `StardewModdingAPI-x64.exe`, and copy it
+      into the `windows-install.dat` files from step ii.
+   6. Copy the folders from step ii to Linux/MacOS.
+4. In Linux/macOS:
    1. Rebuild the solution with the _release_ solution configuration.
    2. Add the `windows-install.*` files from Windows to the `bin/SMAPI installer` and
       `bin/SMAPI installer for developers` folders compiled on Linux.

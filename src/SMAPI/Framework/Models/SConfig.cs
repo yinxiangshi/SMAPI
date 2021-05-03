@@ -52,6 +52,9 @@ namespace StardewModdingAPI.Framework.Models
         /// <summary>SMAPI's GitHub project name, used to perform update checks.</summary>
         public string GitHubProjectName { get; set; }
 
+        /// <summary>Stardew64Installer's GitHub project name, used to perform update checks.</summary>
+        public string Stardew64InstallerGitHubProjectName { get; set; }
+
         /// <summary>The base URL for SMAPI's web API, used to perform update checks.</summary>
         public string WebApiBaseUrl { get; set; }
 

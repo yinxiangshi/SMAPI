@@ -186,7 +186,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.Nexus
                 Version = SemanticVersion.TryParse(mod.Version, out ISemanticVersion version) ? version?.ToString() : mod.Version,
                 Url = this.GetModUrl(id),
                 Downloads = files.Files
-                    .Select(file => (IModDownload)new GenericModDownload(file.Name, null, file.FileVersion))
+                    .Select(file => (IModDownload)new GenericModDownload(file.Name, file.Description, file.FileVersion))
                     .ToArray()
             };
         }

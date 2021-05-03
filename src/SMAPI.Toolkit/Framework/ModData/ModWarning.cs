@@ -18,7 +18,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
         /// <summary>The mod patches the game in a way that may impact stability.</summary>
         PatchesGame = 4,
 
-        /// <summary>The mod uses the <c>dynamic</c> keyword which won't work on Linux/Mac.</summary>
+        /// <summary>The mod uses the <c>dynamic</c> keyword which won't work on Linux/macOS.</summary>
         UsesDynamic = 8,
 
         /// <summary>The mod references specialized 'unvalidated update tick' events which may impact stability.</summary>

@@ -18,7 +18,7 @@ namespace StardewModdingAPI.Framework
         /// <summary>Encapsulates SMAPI's JSON file parsing.</summary>
         private readonly JsonHelper JsonHelper;
 
-        /// <summary>A cache of case-insensitive => exact relative paths within the content pack, for case-insensitive file lookups on Linux/Mac.</summary>
+        /// <summary>A cache of case-insensitive => exact relative paths within the content pack, for case-insensitive file lookups on Linux/macOS.</summary>
         private readonly IDictionary<string, string> RelativePaths = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
 

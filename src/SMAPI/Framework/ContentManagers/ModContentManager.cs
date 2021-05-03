@@ -34,6 +34,9 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <summary>The language code for language-agnostic mod assets.</summary>
         private readonly LanguageCode DefaultLanguage = Constants.DefaultLanguage;
 
+        /// <summary>If a map tilesheet's image source has no file extensions, the file extensions to check for in the local mod folder.</summary>
+        private readonly string[] LocalTilesheetExtensions = { ".png", ".xnb" };
+
 
         /*********
         ** Public methods
@@ -215,11 +218,17 @@ namespace StardewModdingAPI.Framework.ContentManagers
             FileInfo file = new FileInfo(Path.Combine(this.FullRootDirectory, path));
 
             // try with default extension
-            if (!file.Exists && file.Extension.ToLower() != ".xnb")
+            if (!file.Exists && file.Extension == string.Empty)
             {
-                FileInfo result = new FileInfo(file.FullName + ".xnb");
-                if (result.Exists)
-                    file = result;
+                foreach (string extension in this.LocalTilesheetExtensions)
+                {
+                    FileInfo result = new FileInfo(file.FullName + extension);
+                    if (result.Exists)
+                    {
+                        file = result;
+                        break;
+                    }
+                }
             }
 
             return file;
@@ -259,6 +268,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             string relativeMapFolder = Path.GetDirectoryName(relativeMapPath) ?? ""; // folder path containing the map, relative to the mod folder
 
             // fix tilesheets
+            this.Monitor.VerboseLog($"Fixing tilesheet paths for map '{relativeMapPath}' from mod '{this.ModName}'...");
             foreach (TileSheet tilesheet in map.TileSheets)
             {
                 // get image source
@@ -279,6 +289,9 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 {
                     if (!this.TryGetTilesheetAssetName(relativeMapFolder, imageSource, out string assetName, out string error))
                         throw new SContentLoadException($"{errorPrefix} {error}");
+
+                    if (assetName != tilesheet.ImageSource)
+                        this.Monitor.VerboseLog($"   Mapped tilesheet '{tilesheet.ImageSource}' to '{assetName}'.");
 
                     tilesheet.ImageSource = assetName;
                 }
@@ -306,6 +319,15 @@ namespace StardewModdingAPI.Framework.ContentManagers
             {
                 assetName = relativePath;
                 return true;
+            }
+
+            // special case: local filenames starting with a dot should be ignored
+            // For example, this lets mod authors have a '.spring_town.png' file in their map folder so it can be
+            // opened in Tiled, while still mapping it to the vanilla 'Maps/spring_town' asset at runtime.
+            {
+                string filename = Path.GetFileName(relativePath);
+                if (filename.StartsWith("."))
+                    relativePath = Path.Combine(Path.GetDirectoryName(relativePath) ?? "", filename.TrimStart('.'));
             }
 
             // get relative to map file

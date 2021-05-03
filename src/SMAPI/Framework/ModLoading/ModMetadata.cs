@@ -19,6 +19,9 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>The non-error issues with the mod, including warnings suppressed by the data record.</summary>
         private ModWarning ActualWarnings = ModWarning.None;
 
+        /// <summary>The mod IDs which are listed as a requirement by this mod. The value for each pair indicates whether the dependency is required (i.e. not an optional dependency).</summary>
+        private readonly Lazy<IDictionary<string, bool>> Dependencies;
+
 
         /*********
         ** Accessors
@@ -100,6 +103,8 @@ namespace StardewModdingAPI.Framework.ModLoading
             this.Manifest = manifest;
             this.DataRecord = dataRecord;
             this.IsIgnored = isIgnored;
+
+            this.Dependencies = new Lazy<IDictionary<string, bool>>(this.ExtractDependencies);
         }
 
         /// <inheritdoc />
@@ -199,23 +204,21 @@ namespace StardewModdingAPI.Framework.ModLoading
         }
 
         /// <inheritdoc />
+        public bool HasRequiredModId(string modId, bool includeOptional)
+        {
+            return
+                this.Dependencies.Value.TryGetValue(modId, out bool isRequired)
+                && (includeOptional || isRequired);
+        }
+
+        /// <inheritdoc />
         public IEnumerable<string> GetRequiredModIds(bool includeOptional = false)
         {
-            HashSet<string> required = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-            // yield dependencies
-            if (this.Manifest?.Dependencies != null)
+            foreach (var pair in this.Dependencies.Value)
             {
-                foreach (var entry in this.Manifest?.Dependencies)
-                {
-                    if ((entry.IsRequired || includeOptional) && required.Add(entry.UniqueID))
-                        yield return entry.UniqueID;
-                }
+                if (includeOptional || pair.Value)
+                    yield return pair.Key;
             }
-
-            // yield content pack parent
-            if (this.Manifest?.ContentPackFor?.UniqueID != null && required.Add(this.Manifest.ContentPackFor.UniqueID))
-                yield return this.Manifest.ContentPackFor.UniqueID;
         }
 
         /// <inheritdoc />
@@ -236,6 +239,30 @@ namespace StardewModdingAPI.Framework.ModLoading
         {
             string rootFolderName = Path.GetFileName(this.RootPath) ?? "";
             return Path.Combine(rootFolderName, this.RelativeDirectoryPath);
+        }
+
+
+        /*********
+        ** Private methods
+        *********/
+        /// <summary>Extract mod IDs from the manifest that must be installed to load this mod.</summary>
+        /// <returns>Returns a dictionary of mod ID => is required (i.e. not an optional dependency).</returns>
+        public IDictionary<string, bool> ExtractDependencies()
+        {
+            var ids = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+
+            // yield dependencies
+            if (this.Manifest?.Dependencies != null)
+            {
+                foreach (var entry in this.Manifest?.Dependencies)
+                    ids[entry.UniqueID] = entry.IsRequired;
+            }
+
+            // yield content pack parent
+            if (this.Manifest?.ContentPackFor?.UniqueID != null)
+                ids[this.Manifest.ContentPackFor.UniqueID] = true;
+
+            return ids;
         }
     }
 }

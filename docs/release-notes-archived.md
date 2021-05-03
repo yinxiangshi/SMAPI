@@ -30,7 +30,7 @@ Released 13 September 2019 for Stardew Valley 1.3.36.
 Released 23 April 2019 for Stardew Valley 1.3.36.
 
 * For players:
-  * Fixed error when a custom map references certain vanilla tilesheets on Linux/Mac.
+  * Fixed error when a custom map references certain vanilla tilesheets on Linux/macOS.
   * Fixed compatibility with some Linux distros.
 
 ## 2.11.1
@@ -68,7 +68,7 @@ Released 09 January 2019 for Stardew Valley 1.3.32–33.
 
 * For players:
   * SMAPI now keeps the first save backup created for the day, instead of the last one.
-  * Fixed save backup for some Linux/Mac players. (When compression isn't available, SMAPI will now create uncompressed backups instead.)
+  * Fixed save backup for some Linux/macOS players. (When compression isn't available, SMAPI will now create uncompressed backups instead.)
   * Fixed some common dependencies not linking to the mod page in 'missing mod' errors.
   * Fixed 'unknown mod' deprecation warnings showing a stack trace when developers mode not enabled.
   * Fixed 'unknown mod' deprecation warnings when they occur in the Mod constructor.
@@ -90,7 +90,7 @@ Released 09 January 2019 for Stardew Valley 1.3.32–33.
   * Fixed 'unknown mod' deprecation warnings showing the wrong stack trace.
   * Fixed `e.Cursor` in input events showing wrong grab tile when player using a controller moves without moving the viewpoint.
   * Fixed incorrect 'bypassed safety checks' warning for mods using the new `Specialized.LoadStageChanged` event in 2.10.
-  * Deprecated `EntryDll` values whose capitalization don't match the actual file. (This works on Windows, but causes errors for Linux/Mac players.)
+  * Deprecated `EntryDll` values whose capitalization don't match the actual file. (This works on Windows, but causes errors for Linux/macOS players.)
 
 ## 2.10.1
 Released 30 December 2018 for Stardew Valley 1.3.32–33.
@@ -183,7 +183,7 @@ Released 07 December 2018 for Stardew Valley 1.3.32.
 ## 2.8.2
 Released 19 November 2018 for Stardew Valley 1.3.32.
 
-* Fixed game crash in MacOS with SMAPI 2.8.
+* Fixed game crash in macOS with SMAPI 2.8.
 
 ## 2.8.1
 Released 19 November 2018 for Stardew Valley 1.3.32.
@@ -205,7 +205,7 @@ Released 19 November 2018 for Stardew Valley 1.3.32.
   * SMAPI now recommends a compatible SMAPI version if you have an older game version.
   * Improved various error messages to be more clear and intuitive.
   * Improved compatibility with various Linux shells (thanks to lqdev!), and prefer xterm when available.
-  * Fixed transparency issues on Linux/Mac for some mod images.
+  * Fixed transparency issues on Linux/macOS for some mod images.
   * Fixed error when a mod manifest is corrupted.
   * Fixed error when a mod adds an unnamed location.
   * Fixed friendly error no longer shown when SMAPI isn't run from the game folder.
@@ -223,7 +223,7 @@ Released 19 November 2018 for Stardew Valley 1.3.32.
   * The log parser now has a separate filter for game messages.
   * The log parser now shows content pack authors (thanks to danvolchek!).
   * Tweaked log parser UI (thanks to danvolchek!).
-  * Fixed log parser instructions for Mac.
+  * Fixed log parser instructions for macOS.
 
 * For mod authors:
   * Added [data API](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Data) to store mod data in the save file or app data.
@@ -267,7 +267,7 @@ Released 14 August 2018 for Stardew Valley 1.3.28.
   * Improved how mod issues are listed in the console and log.
   * Revamped installer. It now...
     * uses a new format that should be more intuitive;
-    * lets players on Linux/Mac choose the console color scheme (SMAPI will auto-detect it on Windows);
+    * lets players on Linux/macOS choose the console color scheme (SMAPI will auto-detect it on Windows);
     * and validates requirements earlier.
   * Fixed custom festival maps always using spring tilesheets.
   * Fixed `player_add` command not recognising return scepter.
@@ -314,8 +314,8 @@ Released 01 August 2018 for Stardew Valley 1.3.27.
     * Removed the `player_setlevel` and `player_setspeed` commands, which weren't implemented in a useful way. Use a mod like CJB Cheats Menu if you need those.
   * Fixed `SEHException` errors for some players.
   * Fixed performance issues for some players.
-  * Fixed default color scheme on Mac or in PowerShell (configurable via `StardewModdingAPI.config.json`).
-  * Fixed installer error on Linux/Mac in some cases.
+  * Fixed default color scheme on macOS or in PowerShell (configurable via `StardewModdingAPI.config.json`).
+  * Fixed installer error on Linux/macOS in some cases.
   * Fixed installer not finding some game paths or showing duplicate paths.
   * Fixed installer not removing some SMAPI files.
   * Fixed launch issue for Linux players with some terminals. (Thanks to HanFox and kurumushi!)
@@ -345,7 +345,7 @@ Released 01 August 2018 for Stardew Valley 1.3.27.
     * each event now provides a list of added/removed values;
     * added buildings-changed event.
   * Added `Context.IsMultiplayer` and `Context.IsMainPlayer` flags.
-  * Added `Constants.TargetPlatform` which says whether the game is running on Linux, Mac, or Windows.
+  * Added `Constants.TargetPlatform` which says whether the game is running on Linux, macOS, or Windows.
   * Added `semanticVersion.IsPrerelease()` method.
   * Added support for launching multiple instances transparently. This removes the former `--log-path` command-line argument.
   * Added support for custom seasonal tilesheets when loading an unpacked `.tbin` map.
@@ -376,7 +376,7 @@ Released 01 August 2018 for Stardew Valley 1.3.27.
      * Mod IDs should only contain letters, numbers, hyphens, dots, and underscores. That allows their use in many contexts like URLs. This restriction is now enforced. (In regex form: `^[a-zA-Z0-9_.-]+$`.)
 
 * For SMAPI developers:
-  * Added more consistent crossplatform handling, including MacOS detection.
+  * Added more consistent crossplatform handling, including macOS detection.
   * Added beta update channel.
   * Added optional mod metadata to the web API (including Nexus info, wiki metadata, etc).
   * Added early prototype of SMAPI 3.0 events via `helper.Events`.
@@ -411,7 +411,7 @@ Released 26 March 2018 for Stardew Valley 1.2.30–1.2.33.
 
 * For players:
   * Fixed some textures not updated when a mod changes them.
-  * Fixed visual bug on Linux/Mac when mods overlay textures.
+  * Fixed visual bug on Linux/macOS when mods overlay textures.
   * Fixed error when mods remove an asset editor/loader.
   * Fixed minimum game version incorrectly increased in SMAPI 2.5.3.
 
@@ -467,9 +467,9 @@ Released 24 February 2018 for Stardew Valley 1.2.30–1.2.33.
   * **Added support for [content packs](https://stardewvalleywiki.com/Modding:Content_packs)**.  
     <small>_Content packs are collections of files for a SMAPI mod to load. These can be installed directly under `Mods` like a normal SMAPI mod, get automatic update and compatibility checks, and provide convenient APIs to the mods that read them._</small>
   * Added mod detection for unhandled errors (so most errors now mention which mod caused them).
-  * Added install scripts for Linux/Mac (no more manual terminal commands!).
+  * Added install scripts for Linux/macOS (no more manual terminal commands!).
   * Added the missing mod's name and URL to dependency errors.
-  * Fixed uninstall script not reporting when done on Linux/Mac.
+  * Fixed uninstall script not reporting when done on Linux/macOS.
   * Updated compatibility list and enabled update checks for more mods.
 
 * For mod authors:
@@ -524,7 +524,7 @@ Released 26 December 2017 for Stardew Valley 1.2.30–1.2.33.
 
 * For players:
   * Added a user-friendly [download page](https://smapi.io).
-  * Improved cryptic libgdiplus errors on Mac when Mono isn't installed.
+  * Improved cryptic libgdiplus errors on macOS when Mono isn't installed.
   * Fixed mod UIs hidden when menu backgrounds are enabled.
 
 * For mod authors:
@@ -545,9 +545,9 @@ Released 26 December 2017 for Stardew Valley 1.2.30–1.2.33.
 Released 02 December 2017 for Stardew Valley 1.2.30–1.2.33.
 
 * For players:
-  * Fixed error when a mod loads custom assets on Linux/Mac.
-  * Fixed error when checking for updates on Linux/Mac due to API HTTPS redirect.
-  * Fixed error when Mac adds an `mcs` symlink to the installer package.
+  * Fixed error when a mod loads custom assets on Linux/macOS.
+  * Fixed error when checking for updates on Linux/macOS due to API HTTPS redirect.
+  * Fixed error when macOS adds an `mcs` symlink to the installer package.
   * Fixed `player_add` command not handling tool upgrade levels.
   * Improved error when a mod has an invalid `EntryDLL` filename format.
   * Updated compatibility list.
@@ -651,7 +651,7 @@ For players:
 * The console is now simpler and easier to read, and adjusts its colors to fit your terminal background color.
 * Renamed installer folder to avoid confusion.
 * Updated compatibility list.
-* Fixed update check errors on Linux/Mac.
+* Fixed update check errors on Linux/macOS.
 * Fixed collection-changed errors during startup for some players.
 
 For mod developers:
@@ -685,7 +685,7 @@ For SMAPI developers:
 Released 09 September 2017 for Stardew Valley 1.2.30–1.2.33.
 
 For players:
-* Fixed errors when loading some custom maps on Linux/Mac or using XNB Loader.
+* Fixed errors when loading some custom maps on Linux/macOS or using XNB Loader.
 * Fixed errors in rare cases when a mod calculates an in-game date.
 
 For mod authors:
@@ -772,7 +772,7 @@ For players:
   * you have Stardew Valley 1.11 or earlier (which aren't compatible);
   * you run `install.exe` from within the downloaded zip file.
 * Fixed "unknown mod" deprecation warnings by improving how SMAPI detects the mod using the event.
-* Fixed `libgdiplus.dylib` errors for some players on Mac.
+* Fixed `libgdiplus.dylib` errors for some players on macOS.
 * Fixed rare crash when window loses focus for a few players.
 * Bumped minimum game version to 1.2.30.
 * Updated mod compatibility list.
@@ -805,8 +805,8 @@ For players:
 * SMAPI now recovers automatically from errors in the game loop when possible.
 * SMAPI now remembers if your game crashed and offers help next time you launch it.
 * Fixed installer sometimes finding redundant game paths.
-* Fixed save events not being raised after the first day on Linux/Mac.
-* Fixed error on Linux/Mac when a mod loads a PNG immediately after the save is loaded.
+* Fixed save events not being raised after the first day on Linux/macOS.
+* Fixed error on Linux/macOS when a mod loads a PNG immediately after the save is loaded.
 * Updated mod compatibility list for Stardew Valley 1.2.
 
 For mod developers:
@@ -826,15 +826,15 @@ Released 03 May 2017 for Stardew Valley 1.2.26–1.2.29.
 For players:
 * The installer now lets you choose the install path if you have multiple copies of the game, instead of using the first path found.
 * Fixed mod draw errors breaking the game.
-* Fixed mods on Linux/Mac no longer working after the game saves.
-* Fixed `libgdiplus.dylib` errors on Mac when mods read PNG files.
+* Fixed mods on Linux/macOS no longer working after the game saves.
+* Fixed `libgdiplus.dylib` errors on macOS when mods read PNG files.
 * Adopted pufferchick.
 
 For mod developers:
 * Unknown mod manifest fields are now stored in `IManifest::ExtraFields`.
 * The content API now defaults to `ContentSource.ModFolder`.
 * Fixed content API error when loading a PNG during early game init (e.g. in mod's `Entry`).
-* Fixed content API error when loading an XNB from the mod folder on Mac.
+* Fixed content API error when loading an XNB from the mod folder on macOS.
 
 ## 1.11
 Released 30 April 2017 for Stardew Valley 1.2.26.
@@ -888,7 +888,7 @@ For players:
 * Fixed the game-needs-an-update error not pausing before exit.
 * Fixed installer errors for some players when deleting files.
 * Fixed installer not ignoring potential game folders that don't contain a Stardew Valley exe.
-* Fixed installer not recognising Linux/Mac paths starting with `~/` or containing an escaped space.
+* Fixed installer not recognising Linux/macOS paths starting with `~/` or containing an escaped space.
 * Fixed TrainerMod letting you add invalid items which may crash the game.
 * Fixed TrainerMod's `world_downminelevel` command not working.
 * Fixed rare issue where mod dependencies would override SMAPI dependencies and cause unpredictable bugs.
@@ -912,7 +912,7 @@ For mod developers:
 * Removed the experimental `IConfigFile`.
 
 For SMAPI developers:
-* Added support for debugging SMAPI on Linux/Mac if supported by the editor.
+* Added support for debugging SMAPI on Linux/macOS if supported by the editor.
 
 ## 1.8
 Released 04 February 2017 for Stardew Valley 1.1–1.11.
@@ -1004,7 +1004,7 @@ For players:
   * Improved installer wording to reduce confusion.
   * Fixed the installer not removing TrainerMod from appdata if it's already in the game mods directory.
   * Fixed the installer not moving mods out of appdata if the game isn't installed on the same Windows partition.
-  * Fixed the SMAPI console not being shown on Linux and Mac.
+  * Fixed the SMAPI console not being shown on Linux and macOS.
 
 For developers:
   * Added a reflection API (via `helper.Reflection`) that simplifies robust access to the game's private fields and methods.
@@ -1016,7 +1016,7 @@ For developers:
 Released 04 December 2016 for Stardew Valley 1.1–1.11.
 
 For players:
-  * You can now run most mods on any platform (e.g. run Windows mods on Linux/Mac).
+  * You can now run most mods on any platform (e.g. run Windows mods on Linux/macOS).
   * Fixed the normal uninstaller not removing files added by the 'SMAPI for developers' installer.
 
 ## 1.2
@@ -1063,7 +1063,7 @@ For developers:
 Released 11 November 2016 for Stardew Valley 1.1–1.11.
 
 For players:
-  * Added support for Linux and Mac.
+  * Added support for Linux and macOS.
   * Added installer to automate adding & removing SMAPI.
   * Added background update check on launch.
   * Fixed missing `steam_appid.txt` file.
