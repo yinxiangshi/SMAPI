@@ -7,30 +7,29 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
-## Upcoming release
+## 3.10
+Released 03 May 2021 for Stardew Valley 1.5.4 or later. See [release highlights](https://www.patreon.com/posts/50764911).
+
 * For players:
-  * Added support for unofficial 64-bit Stardew Valley, including automatic support in the SMAPI installer.
-  * Added update checks for Stardew64Installer if it patched the game.
+  * Added full support for the [unofficial 64-bit Stardew Valley patch](https://stardewvalleywiki.com/Modding:Migrate_to_64-bit_on_Windows), which removes memory limits. The installer detects which version of SMAPI you need, and SMAPI shows update alerts for Stardew64Installer if applicable.
   * Added smarter grouping for skipped mods, so it's easier to see root dependencies to update first.
-  * Added error-handling to prevent a crash when the game can't update a map's seasonal tilesheets _(in Error Handler)_.
+  * Added crash recovery when the game can't update a map's seasonal tilesheets _(in Error Handler)_. SMAPI will log an error and keep the previous tilesheets in that case.
   * Added installer option to enter a custom game path even if it detected a game folder.
   * `*.ico` files are now ignored when scanning for mods.
-  * Fixed `StardewModdingAPI.bin.osx` on macOS overwritten with an identical file on launch, which resets file permissions (thanks to 007wayne!).
   * Fixed error for non-English players after returning to title, reloading, and entering town with a completed movie theater.
   * Fixed `world_clear` console command not removing resource clumps outside the farm and secret woods.
   * Fixed error running SMAPI in a strict sandbox on Linux (thanks to kuesji!).
+  * Fixed `StardewModdingAPI.bin.osx` on macOS overwritten with an identical file on launch which would reset file permissions (thanks to 007wayne!).
   * Fixed inconsistent spelling/style for 'macOS'.
 
 * For modders:
+  * Added support for [ignoring local map tilesheet files when loading a map](https://stardewvalleywiki.com/Modding:Maps#Local_copy_of_a_vanilla_tilesheet).
   * Added asset propagation for `Data\Concessions`.
   * Added SMAPI version and bitness to the console title before startup to simplify troubleshooting.
-  * Added support for [ignoring local map tilesheet files when loading a map](https://stardewvalleywiki.com/Modding:Maps#Local_copy_of_a_vanilla_tilesheet).
   * If a map loads a tilesheet path with no file extension, SMAPI now automatically links it to a `.png` version in the map folder if possible.
   * Improved error-handling during asset propagation.
   * Fixed `Context.IsMainPlayer` returning true for a farmhand in split-screen mode before the screen is initialized.
   * Fixed error when editing bundle data while a split-screen player is joining.
-
-* For the web API:
   * Fixed update subkeys not working in file descriptions for Nexus mods marked as adult content.
 
 ## 3.9.5
