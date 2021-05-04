@@ -7,6 +7,12 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
+## 3.10.1
+Released 03 May 2021 for Stardew Valley 1.5.4 or later.
+
+* For players:
+  * Fixed installer leaving an unneeded `StardewModdingAPI-x64.exe` file in 32-bit game folders.
+
 ## 3.10
 Released 03 May 2021 for Stardew Valley 1.5.4 or later. See [release highlights](https://www.patreon.com/posts/50764911).
 
