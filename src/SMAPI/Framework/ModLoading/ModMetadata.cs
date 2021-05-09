@@ -195,7 +195,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <inheritdoc />
         public IEnumerable<UpdateKey> GetUpdateKeys(bool validOnly = false)
         {
-            if (this.Manifest == null)
+            if (!this.HasManifest())
                 yield break;
 
             foreach (string rawKey in this.Manifest.UpdateKeys)
@@ -254,14 +254,17 @@ namespace StardewModdingAPI.Framework.ModLoading
         {
             var ids = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
 
-            if (this.Manifest != null)
+            if (this.HasManifest())
             {
                 // yield dependencies
                 foreach (IManifestDependency entry in this.Manifest.Dependencies)
-                    ids[entry.UniqueID] = entry.IsRequired;
+                {
+                    if (!string.IsNullOrWhiteSpace(entry.UniqueID))
+                        ids[entry.UniqueID] = entry.IsRequired;
+                }
 
                 // yield content pack parent
-                if (this.Manifest.ContentPackFor?.UniqueID != null)
+                if (!string.IsNullOrWhiteSpace(this.Manifest.ContentPackFor?.UniqueID))
                     ids[this.Manifest.ContentPackFor.UniqueID] = true;
             }
 
