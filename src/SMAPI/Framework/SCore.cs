@@ -1593,19 +1593,16 @@ namespace StardewModdingAPI.Framework
 
             // validate dependencies
             // Although dependencies are validated before mods are loaded, a dependency may have failed to load.
-            if (mod.Manifest.Dependencies?.Any() == true)
+            foreach (IManifestDependency dependency in mod.Manifest.Dependencies.Where(p => p.IsRequired))
             {
-                foreach (IManifestDependency dependency in mod.Manifest.Dependencies.Where(p => p.IsRequired))
+                if (this.ModRegistry.Get(dependency.UniqueID) == null)
                 {
-                    if (this.ModRegistry.Get(dependency.UniqueID) == null)
-                    {
-                        string dependencyName = mods
-                            .FirstOrDefault(otherMod => otherMod.HasID(dependency.UniqueID))
-                            ?.DisplayName ?? dependency.UniqueID;
-                        errorReasonPhrase = $"it needs the '{dependencyName}' mod, which couldn't be loaded.";
-                        failReason = ModFailReason.MissingDependencies;
-                        return false;
-                    }
+                    string dependencyName = mods
+                        .FirstOrDefault(otherMod => otherMod.HasID(dependency.UniqueID))
+                        ?.DisplayName ?? dependency.UniqueID;
+                    errorReasonPhrase = $"it needs the '{dependencyName}' mod, which couldn't be loaded.";
+                    failReason = ModFailReason.MissingDependencies;
+                    return false;
                 }
             }
 

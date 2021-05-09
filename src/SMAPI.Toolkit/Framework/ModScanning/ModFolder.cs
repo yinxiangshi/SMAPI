@@ -69,7 +69,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         public IEnumerable<string> GetUpdateKeys(Manifest manifest)
         {
             return
-                (manifest.UpdateKeys ?? new string[0])
+                manifest.UpdateKeys
                 .Where(p => !string.IsNullOrWhiteSpace(p))
                 .ToArray();
         }

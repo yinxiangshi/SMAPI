@@ -82,7 +82,7 @@ namespace StardewModdingAPI.Framework.ModLoading
 
                             // get update URLs
                             List<string> updateUrls = new List<string>();
-                            foreach (string key in mod.Manifest.UpdateKeys ?? new string[0])
+                            foreach (string key in mod.Manifest.UpdateKeys)
                             {
                                 string url = getUpdateUrl(key);
                                 if (url != null)
