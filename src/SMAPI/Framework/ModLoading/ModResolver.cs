@@ -188,6 +188,28 @@ namespace StardewModdingAPI.Framework.ModLoading
                 // validate ID format
                 if (!PathUtilities.IsSlug(mod.Manifest.UniqueID))
                     mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.InvalidManifest, "its manifest specifies an invalid ID (IDs must only contain letters, numbers, underscores, periods, or hyphens).");
+
+                // validate dependencies
+                foreach (var dependency in mod.Manifest.Dependencies)
+                {
+                    // null dependency
+                    if (dependency == null)
+                    {
+                        mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.InvalidManifest, $"its manifest has a null entry under {nameof(IManifest.Dependencies)}.");
+                        continue;
+                    }
+
+                    // missing ID
+                    if (string.IsNullOrWhiteSpace(dependency.UniqueID))
+                    {
+                        mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.InvalidManifest, $"its manifest has a {nameof(IManifest.Dependencies)} entry with no {nameof(IManifestDependency.UniqueID)} field.");
+                        continue;
+                    }
+
+                    // invalid ID
+                    if (!PathUtilities.IsSlug(dependency.UniqueID))
+                        mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.InvalidManifest, $"its manifest has a {nameof(IManifest.Dependencies)} entry with an invalid {nameof(IManifestDependency.UniqueID)} field (IDs must only contain letters, numbers, underscores, periods, or hyphens).");
+                }
             }
 
             // validate IDs are unique
