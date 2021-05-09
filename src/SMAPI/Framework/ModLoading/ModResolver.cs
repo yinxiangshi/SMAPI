@@ -173,7 +173,7 @@ namespace StardewModdingAPI.Framework.ModLoading
 
                     if (string.IsNullOrWhiteSpace(mod.Manifest.Name))
                         missingFields.Add(nameof(IManifest.Name));
-                    if (mod.Manifest.Version == null || mod.Manifest.Version.ToString() == "0.0")
+                    if (mod.Manifest.Version == null || mod.Manifest.Version.ToString() == "0.0.0")
                         missingFields.Add(nameof(IManifest.Version));
                     if (string.IsNullOrWhiteSpace(mod.Manifest.UniqueID))
                         missingFields.Add(nameof(IManifest.UniqueID));
