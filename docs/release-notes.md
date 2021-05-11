@@ -8,6 +8,9 @@
 -->
 
 ## Upcoming release
+* For players:
+  * Fixed error when running the Windows installer as administrator (thanks to LostLogic!).
+
 * For mod authors:
   * Added validation for the manifest `Dependencies` field.
   * Fixed validation for mods with version `0.0.0`.
