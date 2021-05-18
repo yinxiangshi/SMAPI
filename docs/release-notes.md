@@ -10,6 +10,7 @@
 ## Upcoming release
 * For players:
   * Fixed error when running the Windows installer as administrator (thanks to LostLogic!).
+  * Fixed `player_add` and `list_items` console commands not including some shirts _(in Console Commands)_.
 
 * For mod authors:
   * Added validation for the manifest `Dependencies` field.
