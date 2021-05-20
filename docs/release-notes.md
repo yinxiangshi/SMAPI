@@ -15,6 +15,7 @@
 * For mod authors:
   * Added validation for the manifest `Dependencies` field.
   * Fixed validation for mods with version `0.0.0`.
+  * Fixed _loaded with custom settings_ trace log when using default settings.
 
 ## 3.10.1
 Released 03 May 2021 for Stardew Valley 1.5.4 or later.
