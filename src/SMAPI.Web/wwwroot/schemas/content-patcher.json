@@ -4,8 +4,11 @@
     "title": "Content Patcher content pack",
     "description": "Content Patcher content file for mods",
     "@documentationUrl": "https://github.com/Pathoschild/StardewMods/tree/develop/ContentPatcher#readme",
-    "type": "object",
 
+    "allowComments": true,
+    "allowTrailingCommas": true,
+
+    "type": "object",
     "properties": {
         "Format": {
             "title": "Format version",

@@ -4,8 +4,11 @@
     "title": "SMAPI i18n file",
     "description": "A translation file for a SMAPI mod or content pack.",
     "@documentationUrl": "https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Translation",
-    "type": "object",
 
+    "allowComments": true,
+    "allowTrailingCommas": true,
+
+    "type": "object",
     "properties": {
         "$schema": {
             "title": "Schema",
