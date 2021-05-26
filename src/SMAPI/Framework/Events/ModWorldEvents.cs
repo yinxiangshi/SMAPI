@@ -65,6 +65,13 @@ namespace StardewModdingAPI.Framework.Events
             remove => this.EventManager.TerrainFeatureListChanged.Remove(value);
         }
 
+        /// <summary>Raised after furniture are added or removed in a location.</summary>
+        public event EventHandler<FurnitureListChangedEventArgs> FurnitureListChanged
+        {
+            add => this.EventManager.FurnitureListChanged.Add(value, this.Mod);
+            remove => this.EventManager.FurnitureListChanged.Remove(value);
+        }
+
 
         /*********
         ** Public methods

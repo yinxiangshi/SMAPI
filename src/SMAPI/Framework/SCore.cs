@@ -914,6 +914,10 @@ namespace StardewModdingAPI.Framework
                                 // terrain features changed
                                 if (locState.TerrainFeatures.IsChanged)
                                     events.TerrainFeatureListChanged.Raise(new TerrainFeatureListChangedEventArgs(location, locState.TerrainFeatures.Added, locState.TerrainFeatures.Removed));
+
+                                // furniture changed
+                                if (locState.Furniture.IsChanged)
+                                    events.FurnitureListChanged.Raise(new FurnitureListChangedEventArgs(location, locState.Furniture.Added, locState.Furniture.Removed));
                             }
                         }
 

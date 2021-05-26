@@ -48,6 +48,9 @@ namespace StardewModdingAPI.Framework.StateTracking
         /// <summary>Tracks added or removed terrain features.</summary>
         public IDictionaryWatcher<Vector2, TerrainFeature> TerrainFeaturesWatcher { get; }
 
+        /// <summary>Tracks added or removed furniture.</summary>
+        public ICollectionWatcher<Furniture> FurnitureWatcher { get; }
+
         /// <summary>Tracks items added or removed to chests.</summary>
         public IDictionary<Vector2, ChestTracker> ChestWatchers { get; } = new Dictionary<Vector2, ChestTracker>();
 
@@ -68,6 +71,7 @@ namespace StardewModdingAPI.Framework.StateTracking
             this.NpcsWatcher = WatcherFactory.ForNetCollection(location.characters);
             this.ObjectsWatcher = WatcherFactory.ForNetDictionary(location.netObjects);
             this.TerrainFeaturesWatcher = WatcherFactory.ForNetDictionary(location.terrainFeatures);
+            this.FurnitureWatcher = WatcherFactory.ForNetCollection(location.furniture);
 
             this.Watchers.AddRange(new IWatcher[]
             {
@@ -76,7 +80,8 @@ namespace StardewModdingAPI.Framework.StateTracking
                 this.LargeTerrainFeaturesWatcher,
                 this.NpcsWatcher,
                 this.ObjectsWatcher,
-                this.TerrainFeaturesWatcher
+                this.TerrainFeaturesWatcher,
+                this.FurnitureWatcher
             });
 
             this.UpdateChestWatcherList(added: location.Objects.Pairs, removed: new KeyValuePair<Vector2, SObject>[0]);
