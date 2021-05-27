@@ -13,6 +13,7 @@
   * Fixed `player_add` and `list_items` console commands not including some shirts _(in Console Commands)_.
 
 * For mod authors:
+  * Added `World.FurnitureListChanged` event (thanks to DiscipleOfEris!).
   * Added validation for the manifest `Dependencies` field.
   * When using Visual Studio Code to edit JSON files [with a SMAPI JSON schema](technical/web.md#using-a-schema-file-directly), it will no longer warn about comments or trailing commas.
   * Fixed validation for mods with version `0.0.0`.
