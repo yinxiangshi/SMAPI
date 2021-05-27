@@ -34,6 +34,9 @@ namespace StardewModdingAPI.Framework.StateTracking.Snapshots
         /// <summary>Tracks added or removed terrain features.</summary>
         public SnapshotListDiff<KeyValuePair<Vector2, TerrainFeature>> TerrainFeatures { get; } = new SnapshotListDiff<KeyValuePair<Vector2, TerrainFeature>>();
 
+        /// <summary>Tracks added or removed furniture.</summary>
+        public SnapshotListDiff<Furniture> Furniture { get; } = new SnapshotListDiff<Furniture>();
+
         /// <summary>Tracks changed chest inventories.</summary>
         public IDictionary<Chest, SnapshotItemListDiff> ChestItems { get; } = new Dictionary<Chest, SnapshotItemListDiff>();
 
@@ -59,6 +62,7 @@ namespace StardewModdingAPI.Framework.StateTracking.Snapshots
             this.Npcs.Update(watcher.NpcsWatcher);
             this.Objects.Update(watcher.ObjectsWatcher);
             this.TerrainFeatures.Update(watcher.TerrainFeaturesWatcher);
+            this.Furniture.Update(watcher.FurnitureWatcher);
 
             // chest inventories
             this.ChestItems.Clear();
