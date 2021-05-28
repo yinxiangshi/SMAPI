@@ -233,6 +233,16 @@ namespace StardewModdingAPI.Metadata
                         return true;
                     }
 
+                case "buildings\\houses_paintmask": // Farm
+                    {
+                        bool removedFromCache = this.RemoveFromPaintMaskCache(key);
+
+                        Farm farm = Game1.getFarm();
+                        farm?.ApplyHousePaint();
+
+                        return removedFromCache || farm != null;
+                    }
+
                 /****
                 ** Content\Characters\Farmer
                 ****/
@@ -613,7 +623,7 @@ namespace StardewModdingAPI.Metadata
                     return this.ReloadFarmAnimalSprites(content, key);
 
                 if (this.IsInFolder(key, "Buildings"))
-                    return this.ReloadBuildings(content, key);
+                    return this.ReloadBuildings(key);
 
                 if (this.KeyStartsWith(key, "LooseSprites\\Fence"))
                     return this.ReloadFenceTextures(key);
@@ -717,28 +727,39 @@ namespace StardewModdingAPI.Metadata
         }
 
         /// <summary>Reload building textures.</summary>
-        /// <param name="content">The content manager through which to reload the asset.</param>
         /// <param name="key">The asset key to reload.</param>
         /// <returns>Returns whether any textures were reloaded.</returns>
-        private bool ReloadBuildings(LocalizedContentManager content, string key)
+        private bool ReloadBuildings(string key)
         {
-            // get buildings
+            // get paint mask info
+            const string paintMaskSuffix = "_PaintMask";
+            bool isPaintMask = key.EndsWith(paintMaskSuffix, StringComparison.OrdinalIgnoreCase);
+
+            // get building type
             string type = Path.GetFileName(key);
+            if (isPaintMask)
+                type = type.Substring(0, type.Length - paintMaskSuffix.Length);
+
+            // get buildings
             Building[] buildings = this.GetLocations(buildingInteriors: false)
                 .OfType<BuildableGameLocation>()
                 .SelectMany(p => p.buildings)
                 .Where(p => p.buildingType.Value == type)
                 .ToArray();
 
-            // reload buildings
+            // remove from paint mask cache
+            bool removedFromCache = this.RemoveFromPaintMaskCache(key);
+
+            // reload textures
             if (buildings.Any())
             {
-                Lazy<Texture2D> texture = new Lazy<Texture2D>(() => content.Load<Texture2D>(key));
                 foreach (Building building in buildings)
-                    building.texture = texture;
+                    building.resetTexture();
+
                 return true;
             }
-            return false;
+
+            return removedFromCache;
         }
 
         /// <summary>Reload map seat textures.</summary>
@@ -1294,6 +1315,19 @@ namespace StardewModdingAPI.Metadata
 
             // else just (re)load it from the main content manager
             return this.MainContentManager.Load<Texture2D>(key);
+        }
+
+        /// <summary>Remove a case-insensitive key from the paint mask cache.</summary>
+        /// <param name="key">The paint mask asset key.</param>
+        private bool RemoveFromPaintMaskCache(string key)
+        {
+            // make cache case-insensitive
+            // This is needed for cache invalidation since mods may specify keys with a different capitalization
+            if (!object.ReferenceEquals(BuildingPainter.paintMaskLookup.Comparer, StringComparer.OrdinalIgnoreCase))
+                BuildingPainter.paintMaskLookup = new Dictionary<string, List<List<int>>>(BuildingPainter.paintMaskLookup, StringComparer.OrdinalIgnoreCase);
+
+            // remove key from cache
+            return BuildingPainter.paintMaskLookup.Remove(key);
         }
     }
 }
