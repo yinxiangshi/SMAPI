@@ -16,7 +16,8 @@
   * Added `World.FurnitureListChanged` event (thanks to DiscipleOfEris!).
   * Added asset propagation for building/house paint masks.
   * Added validation for the manifest `Dependencies` field.
-  * When using Visual Studio Code to edit JSON files [with a SMAPI JSON schema](technical/web.md#using-a-schema-file-directly), it will no longer warn about comments or trailing commas.
+  * Fixed [JSON schema](technical/web.md#using-a-schema-file-directly) in Visual Studio Code warning about comments or trailing commas.
+  * Fixed JSON schema for `i18n` files requiring the wrong value for the `$schema` field.
   * Fixed validation for mods with version `0.0.0`.
   * Fixed _loaded with custom settings_ trace log when using default settings.
 
