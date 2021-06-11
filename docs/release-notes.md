@@ -20,6 +20,7 @@
   * Fixed JSON schema for `i18n` files requiring the wrong value for the `$schema` field.
   * Fixed validation for mods with version `0.0.0`.
   * Fixed _loaded with custom settings_ trace log when using default settings.
+  * Fixed installer error on some older Windows systems (thanks to eddyballs!).
 
 * For the web UI:
   * Updated the JSON validator/schema for Content Patcher 1.23.
