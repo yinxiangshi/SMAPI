@@ -11,6 +11,7 @@
 * For players:
   * Fixed error when running the Windows installer as administrator (thanks to LostLogic!).
   * Fixed `player_add` and `list_items` console commands not including some shirts _(in Console Commands)_.
+  * Fixed installer error on some older Windows systems (thanks to eddyballs!).
 
 * For mod authors:
   * Added `World.FurnitureListChanged` event (thanks to DiscipleOfEris!).
@@ -20,7 +21,7 @@
   * Fixed JSON schema for `i18n` files requiring the wrong value for the `$schema` field.
   * Fixed validation for mods with version `0.0.0`.
   * Fixed _loaded with custom settings_ trace log when using default settings.
-  * Fixed installer error on some older Windows systems (thanks to eddyballs!).
+  * Fixed `Constants.SaveFolderName` and `Constants.CurrentSavePath` not set correctly in rare cases.
 
 * For the web UI:
   * Updated the JSON validator/schema for Content Patcher 1.23.

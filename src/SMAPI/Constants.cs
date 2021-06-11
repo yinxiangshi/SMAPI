@@ -322,31 +322,42 @@ namespace StardewModdingAPI
         /// <summary>Get the name of the save folder, if any.</summary>
         private static string GetSaveFolderName()
         {
-            // save not available
-            if (Context.LoadStage == LoadStage.None)
-                return null;
-
-            // get basic info
-            string saveName = Game1.GetSaveGameName(set_value: false);
-            ulong saveID = Context.LoadStage == LoadStage.SaveParsed
-                ? SaveGame.loaded.uniqueIDForThisGame
-                : Game1.uniqueIDForThisGame;
-
-            // build folder name
-            return $"{new string(saveName.Where(char.IsLetterOrDigit).ToArray())}_{saveID}";
+            return Constants.GetSaveFolder()?.Name;
         }
 
         /// <summary>Get the path to the current save folder, if any.</summary>
         private static string GetSaveFolderPathIfExists()
         {
-            string folderName = Constants.GetSaveFolderName();
-            if (folderName == null)
+            DirectoryInfo saveFolder = Constants.GetSaveFolder();
+            return saveFolder?.Exists == true
+                ? saveFolder.FullName
+                : null;
+        }
+
+        /// <summary>Get the current save folder, if any.</summary>
+        private static DirectoryInfo GetSaveFolder()
+        {
+            // save not available
+            if (Context.LoadStage == LoadStage.None)
                 return null;
 
-            string path = Path.Combine(Constants.SavesPath, folderName);
-            return Directory.Exists(path)
-                ? path
-                : null;
+            // get basic info
+            string rawSaveName = Game1.GetSaveGameName(set_value: false);
+            ulong saveID = Context.LoadStage == LoadStage.SaveParsed
+                ? SaveGame.loaded.uniqueIDForThisGame
+                : Game1.uniqueIDForThisGame;
+
+            // get best match (accounting for rare case where folder name isn't sanitized)
+            DirectoryInfo folder = null;
+            foreach (string saveName in new[] { rawSaveName, new string(rawSaveName.Where(char.IsLetterOrDigit).ToArray()) })
+            {
+                folder = new DirectoryInfo(Path.Combine(Constants.SavesPath, $"{saveName}_{saveID}"));
+                if (folder.Exists)
+                    return folder;
+            }
+
+            // if save doesn't exist yet, return the default one we expect to be created
+            return folder;
         }
     }
 }
