@@ -11,6 +11,9 @@ using System.Security;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+#if SMAPI_FOR_WINDOWS
+using Microsoft.Win32;
+#endif
 using Microsoft.Xna.Framework;
 #if SMAPI_FOR_XNA
 using System.Windows.Forms;
@@ -375,6 +378,9 @@ namespace StardewModdingAPI.Framework
                 resolver.ValidateManifests(mods, Constants.ApiVersion, toolkit.GetUpdateUrl);
                 mods = resolver.ProcessDependencies(mods, modDatabase).ToArray();
                 this.LoadMods(mods, this.Toolkit.JsonHelper, this.ContentCore, modDatabase);
+
+                // check for software likely to cause issues
+                this.CheckForSoftwareConflicts();
 
                 // check for updates
                 this.CheckForUpdatesAsync(mods);
@@ -1249,6 +1255,55 @@ namespace StardewModdingAPI.Framework
 
             this.Game.Window.Title = gameTitle;
             this.LogManager.SetConsoleTitle(consoleTitle);
+        }
+
+        /// <summary>Log a warning if software known to cause issues is installed.</summary>
+        private void CheckForSoftwareConflicts()
+        {
+#if SMAPI_FOR_WINDOWS
+            this.Monitor.Log("Checking for known software conflicts...");
+
+            try
+            {
+                string[] registryKeys = { @"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall", @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" };
+
+                string[] installedNames = registryKeys
+                    .SelectMany(registryKey =>
+                    {
+                        using RegistryKey key = Registry.LocalMachine.OpenSubKey(registryKey);
+                        if (key == null)
+                            return new string[0];
+
+                        return key
+                            .GetSubKeyNames()
+                            .Select(subkeyName =>
+                            {
+                                using RegistryKey subkey = key.OpenSubKey(subkeyName);
+                                string displayName = (string)subkey?.GetValue("DisplayName");
+                                string displayVersion = (string)subkey?.GetValue("DisplayVersion");
+
+                                if (displayName != null && displayVersion != null && displayName.EndsWith($" {displayVersion}"))
+                                    displayName = displayName.Substring(0, displayName.Length - displayVersion.Length - 1);
+
+                                return displayName;
+                            })
+                            .ToArray();
+                    })
+                    .Where(name => name != null && (name.Contains("MSI Afterburner") || name.Contains("RivaTuner")))
+                    .Distinct()
+                    .OrderBy(name => name)
+                    .ToArray();
+
+                if (installedNames.Any())
+                    this.Monitor.Log($"   Found {string.Join(" and ", installedNames)} installed, which can conflict with SMAPI. If you experience errors or crashes, try disabling that software or adding an exception for SMAPI / Stardew Valley.");
+                else
+                    this.Monitor.Log("   None found!");
+            }
+            catch (Exception ex)
+            {
+                this.Monitor.Log($"Failed when checking for conflicting software. Technical details:\n{ex}");
+            }
+#endif
         }
 
         /// <summary>Asynchronously check for a new version of SMAPI and any installed mods, and print alerts to the console if an update is available.</summary>

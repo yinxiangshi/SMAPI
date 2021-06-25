@@ -17,6 +17,7 @@
   * Added `World.FurnitureListChanged` event (thanks to DiscipleOfEris!).
   * Added asset propagation for building/house paint masks.
   * Added validation for the manifest `Dependencies` field.
+  * Added `TRACE` message if software known to cause issues is installed (currently MSI Afterburner and RivaTuner), to simplify troubleshooting.
   * Fixed [JSON schema](technical/web.md#using-a-schema-file-directly) in Visual Studio Code warning about comments or trailing commas.
   * Fixed JSON schema for `i18n` files requiring the wrong value for the `$schema` field.
   * Fixed validation for mods with version `0.0.0`.
