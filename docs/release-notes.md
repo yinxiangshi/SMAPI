@@ -9,6 +9,7 @@
 
 ## Upcoming release
 * For players:
+  * Improved error if SMAPI fails to dispose on game exit.
   * Fixed error when running the Windows installer as administrator (thanks to LostLogic!).
   * Fixed `player_add` and `list_items` console commands not including some shirts _(in Console Commands)_.
   * Fixed installer error on some older Windows systems (thanks to eddyballs!).
@@ -18,14 +19,14 @@
   * Added asset propagation for building/house paint masks.
   * Added validation for the manifest `Dependencies` field.
   * Added `TRACE` message if software known to cause issues is installed (currently MSI Afterburner and RivaTuner), to simplify troubleshooting.
-  * Fixed [JSON schema](technical/web.md#using-a-schema-file-directly) in Visual Studio Code warning about comments or trailing commas.
-  * Fixed JSON schema for `i18n` files requiring the wrong value for the `$schema` field.
   * Fixed validation for mods with version `0.0.0`.
   * Fixed _loaded with custom settings_ trace log when using default settings.
   * Fixed `Constants.SaveFolderName` and `Constants.CurrentSavePath` not set correctly in rare cases.
 
-* For the web UI:
+* For the web UI and JSON validator:
   * Updated the JSON validator/schema for Content Patcher 1.23.
+  * Fixed [JSON schema](technical/web.md#using-a-schema-file-directly) in Visual Studio Code warning about comments or trailing commas.
+  * Fixed JSON schema for `i18n` files requiring the wrong value for the `$schema` field.
 
 ## 3.10.1
 Released 03 May 2021 for Stardew Valley 1.5.4 or later.

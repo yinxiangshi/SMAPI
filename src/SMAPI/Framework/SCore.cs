@@ -297,7 +297,14 @@ namespace StardewModdingAPI.Framework
             }
             finally
             {
-                this.Dispose();
+                try
+                {
+                    this.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    this.Monitor.Log($"The game ended, but SMAPI wasn't able to dispose correctly. Technical details: {ex}", LogLevel.Error);
+                }
             }
         }
 
