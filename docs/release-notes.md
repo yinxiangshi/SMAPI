@@ -10,6 +10,7 @@
 ## Upcoming release
 * For players:
   * Improved error if SMAPI fails to dispose on game exit.
+  * Updated Linux launch script for Stardew Valley 1.4.5 multiplayer hotfix.
   * Fixed error when running the Windows installer as administrator (thanks to LostLogic!).
   * Fixed `player_add` and `list_items` console commands not including some shirts _(in Console Commands)_.
   * Fixed installer error on some older Windows systems (thanks to eddyballs!).

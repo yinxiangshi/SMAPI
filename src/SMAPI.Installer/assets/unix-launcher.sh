@@ -79,44 +79,44 @@ else
             terminal|termite)
                 # consumes only one argument after -e
                 # options containing space characters are unsupported
-                exec $TERMINAL_NAME -e "env TERM=xterm $LAUNCH_FILE $@"
+                exec $TERMINAL_NAME -e "env TERM=xterm LC_ALL=\"C\" $LAUNCH_FILE $@"
                 ;;
 
             xterm|konsole|alacritty)
                 # consumes all arguments after -e
-                exec $TERMINAL_NAME -e env TERM=xterm $LAUNCH_FILE "$@"
+                exec $TERMINAL_NAME -e env TERM=xterm LC_ALL="C" $LAUNCH_FILE "$@"
                 ;;
 
             terminator|xfce4-terminal|mate-terminal)
                 # consumes all arguments after -x
-                exec $TERMINAL_NAME -x env TERM=xterm $LAUNCH_FILE "$@"
+                exec $TERMINAL_NAME -x env TERM=xterm LC_ALL="C" $LAUNCH_FILE "$@"
                 ;;
 
             gnome-terminal)
                 # consumes all arguments after --
-                exec $TERMINAL_NAME -- env TERM=xterm $LAUNCH_FILE "$@"
+                exec $TERMINAL_NAME -- env TERM=xterm LC_ALL="C" $LAUNCH_FILE "$@"
                 ;;
 
             kitty)
                 # consumes all trailing arguments
-                exec $TERMINAL_NAME env TERM=xterm $LAUNCH_FILE "$@"
+                exec $TERMINAL_NAME env TERM=xterm LC_ALL="C" $LAUNCH_FILE "$@"
                 ;;
 
             *)
                 # If we don't know the terminal, just try to run it in the current shell.
                 # If THAT fails, launch with no output.
-                env TERM=xterm $LAUNCH_FILE "$@"
+                env TERM=xterm LC_ALL="C" $LAUNCH_FILE "$@"
                 if [ $? -eq 127 ]; then
-                    exec $LAUNCH_FILE --no-terminal "$@"
+                    exec LC_ALL="C" $LAUNCH_FILE --no-terminal "$@"
                 fi
         esac
 
     ## terminal isn't executable; fallback to current shell or no terminal
     else
         echo "The '$TERMINAL_NAME' terminal isn't executable. SMAPI might be running in a sandbox or the system might be misconfigured? Falling back to current shell."
-        env TERM=xterm $LAUNCH_FILE "$@"
+        env TERM=xterm LC_ALL="C" $LAUNCH_FILE "$@"
         if [ $? -eq 127 ]; then
-            exec $LAUNCH_FILE --no-terminal "$@"
+            exec LC_ALL="C" $LAUNCH_FILE --no-terminal "$@"
         fi
     fi
 fi
