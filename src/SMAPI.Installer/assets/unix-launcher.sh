@@ -43,8 +43,34 @@ if [ "$UNAME" == "Darwin" ]; then
         cp -p StardewValley.bin.osx StardewModdingAPI.bin.osx
     fi
 
+    # Make sure we're running in Terminal (so the user can see errors/warnings/update alerts).
+    # Previously we would just use `open -a Terminal` to launch the .bin.osx file, but that
+    # doesn't let us set environment variables.
+    if [ ! -t 1 ]; then # https://stackoverflow.com/q/911168/262123
+        # sanity check to make sure we don't have an infinite loop of opening windows
+        SKIP_TERMINAL=false
+        for argument in "$@"; do
+            if [ "$argument" == "--no-reopen-terminal" ]; then
+                SKIP_TERMINAL=true
+                break
+            fi
+        done
+
+        # reopen in Terminal if needed
+        # https://stackoverflow.com/a/29511052/262123
+        if [ "$SKIP_TERMINAL" == "false" ]; then
+            echo "Reopening in the Terminal app..."
+            echo "\"$0\" $@ --no-reopen-terminal" > /tmp/open-smapi-terminal.sh
+            chmod +x /tmp/open-smapi-terminal.sh
+            cat /tmp/open-smapi-terminal.sh
+            open -W -a Terminal /tmp/open-smapi-terminal.sh
+            rm /tmp/open-smapi-terminal.sh
+            exit 0
+        fi
+    fi
+
     # launch SMAPI
-    open -a Terminal ./StardewModdingAPI.bin.osx "$@"
+    LC_ALL="C" ./StardewModdingAPI.bin.osx "$@"
 else
     # choose binary file to launch
     LAUNCH_FILE=""
