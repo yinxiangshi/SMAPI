@@ -22,7 +22,7 @@ namespace StardewModdingAPI.Framework.Models
             [nameof(VerboseLogging)] = false,
             [nameof(LogNetworkTraffic)] = false,
             [nameof(RewriteMods)] = true,
-            [nameof(AggressiveMemoryOptimizations)] = true
+            [nameof(AggressiveMemoryOptimizations)] = false
         };
 
         /// <summary>The default values for <see cref="SuppressUpdateChecks"/>, to log changes if different.</summary>

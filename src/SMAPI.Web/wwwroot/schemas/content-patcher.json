@@ -4,16 +4,19 @@
     "title": "Content Patcher content pack",
     "description": "Content Patcher content file for mods",
     "@documentationUrl": "https://github.com/Pathoschild/StardewMods/tree/develop/ContentPatcher#readme",
-    "type": "object",
 
+    "allowComments": true,
+    "allowTrailingCommas": true,
+
+    "type": "object",
     "properties": {
         "Format": {
             "title": "Format version",
             "description": "The format version. You should always use the latest version to enable the latest features and avoid obsolete behavior.",
             "type": "string",
-            "const": "1.22.0",
+            "const": "1.23.0",
             "@errorMessages": {
-                "const": "Incorrect value '@value'. This should be set to the latest format version, currently '1.22.0'."
+                "const": "Incorrect value '@value'. This should be set to the latest format version, currently '1.23.0'."
             }
         },
         "ConfigSchema": {

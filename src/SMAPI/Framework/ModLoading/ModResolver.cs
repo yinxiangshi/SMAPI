@@ -82,7 +82,7 @@ namespace StardewModdingAPI.Framework.ModLoading
 
                             // get update URLs
                             List<string> updateUrls = new List<string>();
-                            foreach (string key in mod.Manifest.UpdateKeys ?? new string[0])
+                            foreach (string key in mod.Manifest.UpdateKeys)
                             {
                                 string url = getUpdateUrl(key);
                                 if (url != null)
@@ -173,7 +173,7 @@ namespace StardewModdingAPI.Framework.ModLoading
 
                     if (string.IsNullOrWhiteSpace(mod.Manifest.Name))
                         missingFields.Add(nameof(IManifest.Name));
-                    if (mod.Manifest.Version == null || mod.Manifest.Version.ToString() == "0.0")
+                    if (mod.Manifest.Version == null || mod.Manifest.Version.ToString() == "0.0.0")
                         missingFields.Add(nameof(IManifest.Version));
                     if (string.IsNullOrWhiteSpace(mod.Manifest.UniqueID))
                         missingFields.Add(nameof(IManifest.UniqueID));
@@ -188,6 +188,28 @@ namespace StardewModdingAPI.Framework.ModLoading
                 // validate ID format
                 if (!PathUtilities.IsSlug(mod.Manifest.UniqueID))
                     mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.InvalidManifest, "its manifest specifies an invalid ID (IDs must only contain letters, numbers, underscores, periods, or hyphens).");
+
+                // validate dependencies
+                foreach (var dependency in mod.Manifest.Dependencies)
+                {
+                    // null dependency
+                    if (dependency == null)
+                    {
+                        mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.InvalidManifest, $"its manifest has a null entry under {nameof(IManifest.Dependencies)}.");
+                        continue;
+                    }
+
+                    // missing ID
+                    if (string.IsNullOrWhiteSpace(dependency.UniqueID))
+                    {
+                        mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.InvalidManifest, $"its manifest has a {nameof(IManifest.Dependencies)} entry with no {nameof(IManifestDependency.UniqueID)} field.");
+                        continue;
+                    }
+
+                    // invalid ID
+                    if (!PathUtilities.IsSlug(dependency.UniqueID))
+                        mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.InvalidManifest, $"its manifest has a {nameof(IManifest.Dependencies)} entry with an invalid {nameof(IManifestDependency.UniqueID)} field (IDs must only contain letters, numbers, underscores, periods, or hyphens).");
+                }
             }
 
             // validate IDs are unique

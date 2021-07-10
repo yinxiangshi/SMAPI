@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using StardewModdingAPI.Toolkit.Serialization.Converters;
 
@@ -69,6 +70,15 @@ namespace StardewModdingAPI.Toolkit.Serialization.Models
             this.UniqueID = uniqueID;
             this.UpdateKeys = new string[0];
             this.ContentPackFor = new ManifestContentPackFor { UniqueID = contentPackFor };
+        }
+
+        /// <summary>Normalize the model after it's deserialized.</summary>
+        /// <param name="context">The deserialization context.</param>
+        [OnDeserialized]
+        public void OnDeserialized(StreamingContext context)
+        {
+            this.Dependencies ??= new IManifestDependency[0];
+            this.UpdateKeys ??= new string[0];
         }
     }
 }

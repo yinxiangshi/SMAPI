@@ -7,6 +7,30 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
+## 3.11.0
+Released 09 July 2021 for Stardew Valley 1.5.4 or later. See [release highlights](https://www.patreon.com/posts/53514295).
+
+* For players:
+  * Updated for Stardew Valley 1.4.5 multiplayer hotfix on Linux/macOS.
+  * Fixed installer error on Windows when running as administrator (thanks to LostLogic!).
+  * Fixed installer error on some Windows systems (thanks to eddyballs!).
+  * Fixed error if SMAPI fails to dispose on game exit.
+  * Fixed `player_add` and `list_items` console commands not including some shirts _(in Console Commands)_.
+
+* For mod authors:
+  * Added `World.FurnitureListChanged` event (thanks to DiscipleOfEris!).
+  * Added asset propagation for building/house paint masks.
+  * Added log message for troubleshooting if Windows software which often causes issues is installed (currently MSI Afterburner and RivaTuner).
+  * Improved validation for the manifest `Dependencies` field.
+  * Fixed validation for mods with invalid version `0.0.0`.
+  * Fixed _loaded with custom settings_ trace log added when using default settings.
+  * Fixed `Constants.SaveFolderName` and `Constants.CurrentSavePath` not set correctly in rare cases.
+
+* For the web UI and JSON validator:
+  * Updated the JSON validator/schema for Content Patcher 1.23.0.
+  * Fixed [JSON schema](technical/web.md#using-a-schema-file-directly) in Visual Studio Code warning about comments and trailing commas.
+  * Fixed JSON schema for `i18n` files requiring the wrong value for the `$schema` field.
+
 ## 3.10.1
 Released 03 May 2021 for Stardew Valley 1.5.4 or later.
 

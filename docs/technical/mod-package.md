@@ -324,7 +324,7 @@ To do that:
        <GamePath>PATH_HERE</GamePath>
    </PropertyGroup>
    ```
-3. Replace `PATH_HERE` with your game's folder path.
+3. Replace `PATH_HERE` with your game's folder path (don't add quotes).
 
 The configuration will check your custom path first, then fall back to the default paths (so it'll
 still compile on a different computer).

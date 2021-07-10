@@ -4,6 +4,10 @@
     "title": "SMAPI manifest",
     "description": "Manifest file for a SMAPI mod or content pack",
     "@documentationUrl": "https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Manifest",
+
+    "allowComments": true,
+    "allowTrailingCommas": true,
+
     "type": "object",
     "properties": {
         "Name": {

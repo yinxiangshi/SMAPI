@@ -162,6 +162,9 @@ namespace StardewModdingAPI.Framework.Events
         /// <summary>Raised after terrain features (like floors and trees) are added or removed in a location.</summary>
         public readonly ManagedEvent<TerrainFeatureListChangedEventArgs> TerrainFeatureListChanged;
 
+        /// <summary>Raised after furniture are added or removed in a location.</summary>
+        public readonly ManagedEvent<FurnitureListChangedEventArgs> FurnitureListChanged;
+
         /****
         ** Specialized
         ****/
@@ -238,6 +241,7 @@ namespace StardewModdingAPI.Framework.Events
             this.ObjectListChanged = ManageEventOf<ObjectListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.ObjectListChanged));
             this.ChestInventoryChanged = ManageEventOf<ChestInventoryChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.ChestInventoryChanged));
             this.TerrainFeatureListChanged = ManageEventOf<TerrainFeatureListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.TerrainFeatureListChanged));
+            this.FurnitureListChanged = ManageEventOf<FurnitureListChangedEventArgs>(nameof(IModEvents.World), nameof(IWorldEvents.FurnitureListChanged));
 
             this.LoadStageChanged = ManageEventOf<LoadStageChangedEventArgs>(nameof(IModEvents.Specialized), nameof(ISpecializedEvents.LoadStageChanged));
             this.UnvalidatedUpdateTicking = ManageEventOf<UnvalidatedUpdateTickingEventArgs>(nameof(IModEvents.Specialized), nameof(ISpecializedEvents.UnvalidatedUpdateTicking), isPerformanceCritical: true);

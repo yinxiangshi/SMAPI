@@ -43,8 +43,34 @@ if [ "$UNAME" == "Darwin" ]; then
         cp -p StardewValley.bin.osx StardewModdingAPI.bin.osx
     fi
 
+    # Make sure we're running in Terminal (so the user can see errors/warnings/update alerts).
+    # Previously we would just use `open -a Terminal` to launch the .bin.osx file, but that
+    # doesn't let us set environment variables.
+    if [ ! -t 1 ]; then # https://stackoverflow.com/q/911168/262123
+        # sanity check to make sure we don't have an infinite loop of opening windows
+        SKIP_TERMINAL=false
+        for argument in "$@"; do
+            if [ "$argument" == "--no-reopen-terminal" ]; then
+                SKIP_TERMINAL=true
+                break
+            fi
+        done
+
+        # reopen in Terminal if needed
+        # https://stackoverflow.com/a/29511052/262123
+        if [ "$SKIP_TERMINAL" == "false" ]; then
+            echo "Reopening in the Terminal app..."
+            echo "\"$0\" $@ --no-reopen-terminal" > /tmp/open-smapi-terminal.sh
+            chmod +x /tmp/open-smapi-terminal.sh
+            cat /tmp/open-smapi-terminal.sh
+            open -W -a Terminal /tmp/open-smapi-terminal.sh
+            rm /tmp/open-smapi-terminal.sh
+            exit 0
+        fi
+    fi
+
     # launch SMAPI
-    open -a Terminal ./StardewModdingAPI.bin.osx "$@"
+    LC_ALL="C" ./StardewModdingAPI.bin.osx "$@"
 else
     # choose binary file to launch
     LAUNCH_FILE=""
@@ -79,44 +105,44 @@ else
             terminal|termite)
                 # consumes only one argument after -e
                 # options containing space characters are unsupported
-                exec $TERMINAL_NAME -e "env TERM=xterm $LAUNCH_FILE $@"
+                exec $TERMINAL_NAME -e "env TERM=xterm LC_ALL=\"C\" $LAUNCH_FILE $@"
                 ;;
 
             xterm|konsole|alacritty)
                 # consumes all arguments after -e
-                exec $TERMINAL_NAME -e env TERM=xterm $LAUNCH_FILE "$@"
+                exec $TERMINAL_NAME -e env TERM=xterm LC_ALL="C" $LAUNCH_FILE "$@"
                 ;;
 
             terminator|xfce4-terminal|mate-terminal)
                 # consumes all arguments after -x
-                exec $TERMINAL_NAME -x env TERM=xterm $LAUNCH_FILE "$@"
+                exec $TERMINAL_NAME -x env TERM=xterm LC_ALL="C" $LAUNCH_FILE "$@"
                 ;;
 
             gnome-terminal)
                 # consumes all arguments after --
-                exec $TERMINAL_NAME -- env TERM=xterm $LAUNCH_FILE "$@"
+                exec $TERMINAL_NAME -- env TERM=xterm LC_ALL="C" $LAUNCH_FILE "$@"
                 ;;
 
             kitty)
                 # consumes all trailing arguments
-                exec $TERMINAL_NAME env TERM=xterm $LAUNCH_FILE "$@"
+                exec $TERMINAL_NAME env TERM=xterm LC_ALL="C" $LAUNCH_FILE "$@"
                 ;;
 
             *)
                 # If we don't know the terminal, just try to run it in the current shell.
                 # If THAT fails, launch with no output.
-                env TERM=xterm $LAUNCH_FILE "$@"
+                env TERM=xterm LC_ALL="C" $LAUNCH_FILE "$@"
                 if [ $? -eq 127 ]; then
-                    exec $LAUNCH_FILE --no-terminal "$@"
+                    exec LC_ALL="C" $LAUNCH_FILE --no-terminal "$@"
                 fi
         esac
 
     ## terminal isn't executable; fallback to current shell or no terminal
     else
         echo "The '$TERMINAL_NAME' terminal isn't executable. SMAPI might be running in a sandbox or the system might be misconfigured? Falling back to current shell."
-        env TERM=xterm $LAUNCH_FILE "$@"
+        env TERM=xterm LC_ALL="C" $LAUNCH_FILE "$@"
         if [ $? -eq 127 ]; then
-            exec $LAUNCH_FILE --no-terminal "$@"
+            exec LC_ALL="C" $LAUNCH_FILE --no-terminal "$@"
         fi
     fi
 fi
