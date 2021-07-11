@@ -1,8 +1,10 @@
 #if HARMONY_2
+extern alias MonoCecilPackage;
+
 using System;
 using HarmonyLib;
-using Mono.Cecil;
-using Mono.Cecil.Cil;
+using MonoCecilPackage.Mono.Cecil;
+using MonoCecilPackage.Mono.Cecil.Cil;
 using StardewModdingAPI.Framework.ModLoading.Framework;
 using StardewModdingAPI.Framework.ModLoading.RewriteFacades;
 

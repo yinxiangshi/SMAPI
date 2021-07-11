@@ -1,5 +1,7 @@
+extern alias MonoCecilPackage;
+
 using System;
-using Mono.Cecil;
+using MonoCecilPackage.Mono.Cecil;
 using StardewModdingAPI.Framework.ModLoading.Framework;
 
 namespace StardewModdingAPI.Framework.ModLoading.Rewriters

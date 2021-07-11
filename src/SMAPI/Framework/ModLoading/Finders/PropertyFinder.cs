@@ -1,5 +1,7 @@
-using Mono.Cecil;
-using Mono.Cecil.Cil;
+extern alias MonoCecilPackage;
+
+using MonoCecilPackage.Mono.Cecil;
+using MonoCecilPackage.Mono.Cecil.Cil;
 using StardewModdingAPI.Framework.ModLoading.Framework;
 
 namespace StardewModdingAPI.Framework.ModLoading.Finders

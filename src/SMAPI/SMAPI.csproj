@@ -20,7 +20,9 @@
 
   <ItemGroup>
     <PackageReference Include="LargeAddressAware" Version="1.0.5" />
-    <PackageReference Include="Mono.Cecil" Version="0.11.3" />
+    <PackageReference Include="Mono.Cecil" Version="0.11.3">
+      <Aliases>MonoCecilPackage</Aliases>
+    </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="Platonymous.TMXTile" Version="1.5.8" />
   </ItemGroup>
