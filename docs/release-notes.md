@@ -1,11 +1,9 @@
 ← [README](README.md)
 
 # Release notes
-<!--
-## Future release
+## Upcoming release
 * For mod authors:
-  * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
--->
+  * Updated Harmony 1.2.0.1 to 2.1.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 
 ## 3.11.0
 Released 09 July 2021 for Stardew Valley 1.5.4 or later. See [release highlights](https://www.patreon.com/posts/53514295).

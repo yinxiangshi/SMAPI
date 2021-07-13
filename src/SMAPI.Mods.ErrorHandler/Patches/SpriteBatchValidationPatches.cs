@@ -1,10 +1,6 @@
-#if HARMONY_2
-using HarmonyLib;
-#else
-using Harmony;
-#endif
 using System;
 using System.Diagnostics.CodeAnalysis;
+using HarmonyLib;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Framework.Patching;
 
@@ -20,11 +16,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         ** Public methods
         *********/
         /// <inheritdoc />
-#if HARMONY_2
         public void Apply(Harmony harmony)
-#else
-        public void Apply(HarmonyInstance harmony)
-#endif
         {
             harmony.Patch(
                 original: Constants.GameFramework == GameFramework.Xna

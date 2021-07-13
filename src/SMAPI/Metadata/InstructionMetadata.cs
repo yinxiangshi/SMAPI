@@ -48,10 +48,8 @@ namespace StardewModdingAPI.Metadata
                 yield return new HeuristicFieldRewriter(this.ValidateReferencesToAssemblies);
                 yield return new HeuristicMethodRewriter(this.ValidateReferencesToAssemblies);
 
-#if HARMONY_2
-                // rewrite for SMAPI 3.x (Harmony 1.x => 2.0 update)
+                // rewrite for SMAPI 3.12 (Harmony 1.x => 2.0 update)
                 yield return new Harmony1AssemblyRewriter();
-#endif
             }
 
             /****
@@ -64,11 +62,7 @@ namespace StardewModdingAPI.Metadata
             /****
             ** detect code which may impact game stability
             ****/
-#if HARMONY_2
             yield return new TypeFinder(typeof(HarmonyLib.Harmony).FullName, InstructionHandleResult.DetectedGamePatch);
-#else
-            yield return new TypeFinder(typeof(Harmony.HarmonyInstance).FullName, InstructionHandleResult.DetectedGamePatch);
-#endif
             yield return new TypeFinder("System.Runtime.CompilerServices.CallSite", InstructionHandleResult.DetectedDynamic);
             yield return new FieldFinder(typeof(SaveGame).FullName, nameof(SaveGame.serializer), InstructionHandleResult.DetectedSaveSerializer);
             yield return new FieldFinder(typeof(SaveGame).FullName, nameof(SaveGame.farmerSerializer), InstructionHandleResult.DetectedSaveSerializer);

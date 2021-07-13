@@ -1,11 +1,6 @@
-using System.Diagnostics.CodeAnalysis;
-#if HARMONY_2
 using System;
+using System.Diagnostics.CodeAnalysis;
 using HarmonyLib;
-#else
-using System.Reflection;
-using Harmony;
-#endif
 using StardewModdingAPI.Framework.Patching;
 using StardewValley;
 using xTile;
@@ -36,37 +31,22 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         }
 
         /// <inheritdoc />
-#if HARMONY_2
         public void Apply(Harmony harmony)
         {
             harmony.Patch(
                 original: AccessTools.Method(typeof(GameLocation), nameof(GameLocation.checkEventPrecondition)),
-                finalizer: new HarmonyMethod(this.GetType(), nameof(EventErrorPatch.Finalize_GameLocation_CheckEventPrecondition))
-            );
-harmony.Patch(
-                original: AccessTools.Method(typeof(GameLocation), nameof(GameLocation.updateSeasonalTileSheets)),
-                finalizer: new HarmonyMethod(this.GetType(), nameof(EventErrorPatch.Before_GameLocation_UpdateSeasonalTileSheets))
-            );
-        }
-#else
-        public void Apply(HarmonyInstance harmony)
-        {
-            harmony.Patch(
-                original: AccessTools.Method(typeof(GameLocation), nameof(GameLocation.checkEventPrecondition)),
-                prefix: new HarmonyMethod(this.GetType(), nameof(GameLocationPatches.Before_GameLocation_CheckEventPrecondition))
+                finalizer: new HarmonyMethod(this.GetType(), nameof(GameLocationPatches.Finalize_GameLocation_CheckEventPrecondition))
             );
             harmony.Patch(
                 original: AccessTools.Method(typeof(GameLocation), nameof(GameLocation.updateSeasonalTileSheets)),
-                prefix: new HarmonyMethod(this.GetType(), nameof(GameLocationPatches.Before_GameLocation_UpdateSeasonalTileSheets))
+                finalizer: new HarmonyMethod(this.GetType(), nameof(GameLocationPatches.Before_GameLocation_UpdateSeasonalTileSheets))
             );
         }
-#endif
 
 
         /*********
         ** Private methods
         *********/
-#if HARMONY_2
         /// <summary>The method to call instead of GameLocation.checkEventPrecondition.</summary>
         /// <param name="__result">The return value of the original method.</param>
         /// <param name="precondition">The precondition to be parsed.</param>
@@ -77,43 +57,12 @@ harmony.Patch(
             if (__exception != null)
             {
                 __result = -1;
-                EventErrorPatch.MonitorForGame.Log($"Failed parsing event precondition ({precondition}):\n{__exception.InnerException}", LogLevel.Error);
+                GameLocationPatches.MonitorForGame.Log($"Failed parsing event precondition ({precondition}):\n{__exception.InnerException}", LogLevel.Error);
             }
 
             return null;
         }
-#else
-        /// <summary>The method to call instead of <see cref="GameLocation.checkEventPrecondition"/>.</summary>
-        /// <param name="__instance">The instance being patched.</param>
-        /// <param name="__result">The return value of the original method.</param>
-        /// <param name="precondition">The precondition to be parsed.</param>
-        /// <param name="__originalMethod">The method being wrapped.</param>
-        /// <returns>Returns whether to execute the original method.</returns>
-        private static bool Before_GameLocation_CheckEventPrecondition(GameLocation __instance, ref int __result, string precondition, MethodInfo __originalMethod)
-        {
-            const string key = nameof(GameLocationPatches.Before_GameLocation_CheckEventPrecondition);
-            if (!PatchHelper.StartIntercept(key))
-                return true;
 
-            try
-            {
-                __result = (int)__originalMethod.Invoke(__instance, new object[] { precondition });
-                return false;
-            }
-            catch (TargetInvocationException ex)
-            {
-                __result = -1;
-                GameLocationPatches.MonitorForGame.Log($"Failed parsing event precondition ({precondition}):\n{ex.InnerException}", LogLevel.Error);
-                return false;
-            }
-            finally
-            {
-                PatchHelper.StopIntercept(key);
-            }
-        }
-#endif
-
-#if HARMONY_2
         /// <summary>The method to call instead of <see cref="GameLocation.updateSeasonalTileSheets"/>.</summary>
         /// <param name="__instance">The instance being patched.</param>
         /// <param name="map">The map whose tilesheets to update.</param>
@@ -126,33 +75,5 @@ harmony.Patch(
 
             return null;
         }
-#else
-        /// <summary>The method to call instead of <see cref="GameLocation.updateSeasonalTileSheets"/>.</summary>
-        /// <param name="__instance">The instance being patched.</param>
-        /// <param name="map">The map whose tilesheets to update.</param>
-        /// <param name="__originalMethod">The method being wrapped.</param>
-        /// <returns>Returns whether to execute the original method.</returns>
-        private static bool Before_GameLocation_UpdateSeasonalTileSheets(GameLocation __instance, Map map, MethodInfo __originalMethod)
-        {
-            const string key = nameof(GameLocationPatches.Before_GameLocation_UpdateSeasonalTileSheets);
-            if (!PatchHelper.StartIntercept(key))
-                return true;
-
-            try
-            {
-                __originalMethod.Invoke(__instance, new object[] { map });
-                return false;
-            }
-            catch (TargetInvocationException ex)
-            {
-                GameLocationPatches.MonitorForGame.Log($"Failed updating seasonal tilesheets for location '{__instance.NameOrUniqueName}'. Technical details:\n{ex.InnerException}", LogLevel.Error);
-                return false;
-            }
-            finally
-            {
-                PatchHelper.StopIntercept(key);
-            }
-        }
-#endif
     }
 }

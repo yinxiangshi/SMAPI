@@ -1,10 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-#if HARMONY_2
 using HarmonyLib;
-#else
-using Harmony;
-#endif
 using StardewModdingAPI.Framework.Patching;
 using StardewValley;
 
@@ -34,11 +30,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         }
 
         /// <inheritdoc />
-#if HARMONY_2
         public void Apply(Harmony harmony)
-#else
-        public void Apply(HarmonyInstance harmony)
-#endif
         {
             harmony.Patch(
                 original: AccessTools.Method(typeof(Event), nameof(Event.LogErrorAndHalt)),
