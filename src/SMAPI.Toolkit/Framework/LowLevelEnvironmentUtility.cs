@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reflection;
 #if SMAPI_FOR_WINDOWS
 using System.Management;
 #endif
@@ -48,7 +49,6 @@ namespace StardewModdingAPI.Toolkit.Framework
             }
         }
 
-
         /// <summary>Get the human-readable OS name and version.</summary>
         /// <param name="platform">The current platform.</param>
         [SuppressMessage("ReSharper", "EmptyGeneralCatchClause", Justification = "Error suppressed deliberately to fallback to default behaviour.")]
@@ -87,6 +87,13 @@ namespace StardewModdingAPI.Toolkit.Framework
             return platform == nameof(Platform.Windows)
                 ? "Stardew Valley.exe"
                 : "StardewValley.exe";
+        }
+
+        /// <summary>Get whether an executable is 64-bit.</summary>
+        /// <param name="executablePath">The absolute path to the executable file.</param>
+        public static bool Is64BitAssembly(string executablePath)
+        {
+            return AssemblyName.GetAssemblyName(executablePath).ProcessorArchitecture != ProcessorArchitecture.X86;
         }
 
 
