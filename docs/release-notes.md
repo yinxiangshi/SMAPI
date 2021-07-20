@@ -10,6 +10,7 @@
 ## Upcoming release
 * For players:
   * Added error message if you manually install the wrong SMAPI bitness (e.g. 32-bit SMAPI with 64-bit game).
+  * Fixed intermittent error if a mod fetches mod-provided APIs asynchronously.
 
 ## 3.11.0
 Released 09 July 2021 for Stardew Valley 1.5.4 or later. See [release highlights](https://www.patreon.com/posts/53514295).
