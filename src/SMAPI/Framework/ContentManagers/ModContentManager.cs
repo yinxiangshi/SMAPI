@@ -77,6 +77,8 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <inheritdoc />
         public override T Load<T>(string assetName, LanguageCode language, bool useCache)
         {
+            // normalize key
+            bool isXnbFile = Path.GetExtension(assetName).ToLower() == ".xnb";
             assetName = this.AssertAndNormalizeAssetName(assetName);
 
             // disable caching
@@ -108,7 +110,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             try
             {
                 // get file
-                FileInfo file = this.GetModFile(assetName);
+                FileInfo file = this.GetModFile(isXnbFile ? $"{assetName}.xnb" : assetName); // .xnb extension is stripped from asset names passed to the content manager
                 if (!file.Exists)
                     throw GetContentError("the specified path doesn't exist.");
 
