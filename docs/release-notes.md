@@ -9,7 +9,8 @@
 
 ## Upcoming release
 * For players:
-  * Added error message if you manually install the wrong SMAPI bitness (e.g. 32-bit SMAPI with 64-bit game).
+  * Added error if the wrong SMAPI bitness is installed (e.g. 32-bit SMAPI with 64-bit game).
+  * Added error if some SMAPI files aren't updated correctly.
   * Fixed intermittent error if a mod fetches mod-provided APIs asynchronously.
 
 * For mod authors:

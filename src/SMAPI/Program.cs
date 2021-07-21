@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading;
 using StardewModdingAPI.Framework;
 using StardewModdingAPI.Toolkit.Framework;
+using StardewModdingAPI.Toolkit.Serialization.Models;
 
 namespace StardewModdingAPI
 {
@@ -32,6 +33,7 @@ namespace StardewModdingAPI
                 AppDomain.CurrentDomain.AssemblyResolve += Program.CurrentDomain_AssemblyResolve;
                 Program.AssertGamePresent();
                 Program.AssertGameVersion();
+                Program.AssertSmapiVersions();
                 Program.Start(args);
             }
             catch (BadImageFormatException ex) when (ex.FileName == "StardewValley" || ex.FileName == "Stardew Valley") // don't use EarlyConstants.GameAssemblyName, since we want to check both possible names
@@ -120,6 +122,20 @@ namespace StardewModdingAPI
             if (is64BitGame)
                 Program.PrintErrorAndExit("Oops! This is the 32-bit version of SMAPI, but you have the 64-bit version of Stardew Valley. You can reinstall SMAPI using its installer to automatically install the correct version of SMAPI.");
 #endif
+        }
+
+        /// <summary>Assert that the versions of all SMAPI components are correct.</summary>
+        /// <remarks>Players sometimes have mismatched versions (particularly when installed through Vortex), which can cause some very confusing bugs without this check.</remarks>
+        private static void AssertSmapiVersions()
+        {
+            // SMAPI toolkit
+            foreach (var type in new[] { typeof(IManifest), typeof(Manifest) })
+            {
+                Assembly assembly = type.Assembly;
+                var assemblyVersion = new SemanticVersion(assembly.GetName().Version);
+                if (!assemblyVersion.Equals(Constants.ApiVersion))
+                    Program.PrintErrorAndExit($"Oops! The 'smapi-internal/{assembly.GetName().Name}.dll' file is version {assemblyVersion} instead of the required {Constants.ApiVersion}. SMAPI doesn't seem to be installed correctly.");
+            }
         }
 
         /// <summary>Initialize SMAPI and launch the game.</summary>
