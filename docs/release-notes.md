@@ -2,16 +2,13 @@
 
 # Release notes
 ## Upcoming release
-* For mod authors:
-  * Updated Harmony 1.2.0.1 to 2.1.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
-
-## Upcoming release
 * For players:
   * Added error if the wrong SMAPI bitness is installed (e.g. 32-bit SMAPI with 64-bit game).
   * Added error if some SMAPI files aren't updated correctly.
   * Fixed intermittent error if a mod fetches mod-provided APIs asynchronously.
 
 * For mod authors:
+  * Updated Harmony 1.2.0.1 to 2.1.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
   * Fixed error loading `.xnb` files from the local mod folder since SMAPI 3.0.
 
 ## 3.11.0
