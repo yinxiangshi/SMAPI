@@ -46,6 +46,7 @@ using StardewModdingAPI.Toolkit.Utilities;
 using StardewModdingAPI.Utilities;
 using StardewValley;
 using xTile.Display;
+using MiniMonoModHotfix = MonoMod.Utils.MiniMonoModHotfix;
 using SObject = StardewValley.Object;
 
 namespace StardewModdingAPI.Framework
@@ -251,6 +252,7 @@ namespace StardewModdingAPI.Framework
                 StardewValley.GameRunner.instance = this.Game;
 
                 // apply game patches
+                MiniMonoModHotfix.Apply();
                 new GamePatcher(this.Monitor).Apply(
                     new LoadContextPatch(this.Reflection, this.OnLoadStageChanged)
                 );

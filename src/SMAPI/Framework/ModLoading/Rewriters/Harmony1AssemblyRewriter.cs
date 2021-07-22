@@ -1,4 +1,3 @@
-#if HARMONY_2
 extern alias MonoCecilPackage;
 
 using System;
@@ -44,7 +43,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         }
 
         /// <inheritdoc />
-        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, Action<Instruction> replaceWith)
+        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction)
         {
             // rewrite Harmony 1.x methods to Harmony 2.0
             MethodReference methodRef = RewriteHelper.AsMethodReference(instruction);
@@ -119,4 +118,3 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         }
     }
 }
-#endif
