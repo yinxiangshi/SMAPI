@@ -116,7 +116,7 @@ namespace StardewModdingAPI
             // bitness
             bool is64BitGame = LowLevelEnvironmentUtility.Is64BitAssembly(Path.Combine(EarlyConstants.ExecutionPath, $"{EarlyConstants.GameAssemblyName}.exe"));
 #if SMAPI_FOR_WINDOWS_64BIT_HACK
-            if (!is64bit)
+            if (!is64BitGame)
                 Program.PrintErrorAndExit("Oops! This is the 64-bit version of SMAPI, but you have the 32-bit version of Stardew Valley. You can reinstall SMAPI using its installer to automatically install the correct version of SMAPI.");
 #elif SMAPI_FOR_WINDOWS
             if (is64BitGame)
@@ -128,13 +128,16 @@ namespace StardewModdingAPI
         /// <remarks>Players sometimes have mismatched versions (particularly when installed through Vortex), which can cause some very confusing bugs without this check.</remarks>
         private static void AssertSmapiVersions()
         {
-            // SMAPI toolkit
+            // get SMAPI version without prerelease suffix (since we can't get that from the assembly versions)
+            ISemanticVersion smapiVersion = new SemanticVersion(Constants.ApiVersion.MajorVersion, Constants.ApiVersion.MinorVersion, Constants.ApiVersion.PatchVersion);
+
+            // compare with assembly versions
             foreach (var type in new[] { typeof(IManifest), typeof(Manifest) })
             {
-                Assembly assembly = type.Assembly;
-                var assemblyVersion = new SemanticVersion(assembly.GetName().Version);
-                if (!assemblyVersion.Equals(Constants.ApiVersion))
-                    Program.PrintErrorAndExit($"Oops! The 'smapi-internal/{assembly.GetName().Name}.dll' file is version {assemblyVersion} instead of the required {Constants.ApiVersion}. SMAPI doesn't seem to be installed correctly.");
+                AssemblyName assemblyName = type.Assembly.GetName();
+                ISemanticVersion assemblyVersion = new SemanticVersion(assemblyName.Version);
+                if (!assemblyVersion.Equals(smapiVersion))
+                    Program.PrintErrorAndExit($"Oops! The 'smapi-internal/{assemblyName.Name}.dll' file is version {assemblyVersion} instead of the required {Constants.ApiVersion}. SMAPI doesn't seem to be installed correctly.");
             }
         }
 
