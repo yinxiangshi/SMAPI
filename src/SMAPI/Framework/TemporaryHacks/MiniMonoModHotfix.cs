@@ -69,7 +69,7 @@ namespace MonoMod.Utils
             );
 
             harmony.Patch(
-                original: typeof(Harmony).Assembly
+                original: typeof(MonoMod.Utils.ReflectionHelper).Assembly
                     .GetType("MonoMod.Utils.DynamicMethodDefinition+<>c__DisplayClass3_0")
                     .GetMethod("<_CopyMethodToDefinition>g__ResolveTokenAs|1", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance),
                 transpiler: new HarmonyMethod(typeof(MiniMonoModHotfix), nameof(ResolveTokenFix))
