@@ -28,7 +28,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         public override bool Handle(ModuleDefinition module, TypeReference type, Action<TypeReference> replaceWith)
         {
             // rewrite Harmony 1.x type to Harmony 2.0 type
-            if (type.Scope is AssemblyNameReference scope && scope.Name == "0Harmony" && scope.Version.Major == 1)
+            if (type.Scope is AssemblyNameReference { Name: "0Harmony" } scope && scope.Version.Major == 1)
             {
                 Type targetType = this.GetMappedType(type);
                 replaceWith(module.ImportReference(targetType));
@@ -72,24 +72,15 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                 return false; // not Harmony (or already using Harmony 2.0)
 
             // get facade type
-            Type toType;
-            switch (methodRef?.DeclaringType.FullName)
+            Type toType = methodRef?.DeclaringType.FullName switch
             {
-                case "HarmonyLib.Harmony":
-                    toType = typeof(HarmonyInstanceFacade);
-                    break;
-
-                case "HarmonyLib.AccessTools":
-                    toType = typeof(AccessToolsFacade);
-                    break;
-
-                case "HarmonyLib.HarmonyMethod":
-                    toType = typeof(HarmonyMethodFacade);
-                    break;
-
-                default:
-                    return false;
-            }
+                "HarmonyLib.Harmony" => typeof(HarmonyInstanceFacade),
+                "HarmonyLib.AccessTools" => typeof(AccessToolsFacade),
+                "HarmonyLib.HarmonyMethod" => typeof(HarmonyMethodFacade),
+                _ => null
+            };
+            if (toType == null)
+                return false;
 
             // map if there's a matching method
             if (RewriteHelper.HasMatchingSignature(toType, methodRef))
@@ -102,16 +93,23 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         }
 
         /// <summary>Get an equivalent Harmony 2.x type.</summary>
-        /// <param name="type">The Harmony 1.x method.</param>
+        /// <param name="type">The Harmony 1.x type.</param>
         private Type GetMappedType(TypeReference type)
         {
-            // main Harmony object
-            if (type.FullName == "Harmony.HarmonyInstance")
-                return typeof(Harmony);
+            return type.FullName switch
+            {
+                "Harmony.HarmonyInstance" => typeof(Harmony),
+                "Harmony.ILCopying.ExceptionBlock" => typeof(ExceptionBlock),
+                _ => this.GetMappedTypeByConvention(type)
+            };
+        }
 
-            // other objects
+        /// <summary>Get an equivalent Harmony 2.x type using the convention expected for most types.</summary>
+        /// <param name="type">The Harmony 1.x type.</param>
+        private Type GetMappedTypeByConvention(TypeReference type)
+        {
             string fullName = type.FullName.Replace("Harmony.", "HarmonyLib.");
-            string targetName = typeof(Harmony).AssemblyQualifiedName.Replace(typeof(Harmony).FullName, fullName);
+            string targetName = typeof(Harmony).AssemblyQualifiedName!.Replace(typeof(Harmony).FullName!, fullName);
             return Type.GetType(targetName, throwOnError: true);
         }
     }
