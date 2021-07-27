@@ -258,7 +258,7 @@ namespace StardewModdingAPI.Framework.Logging
                     break;
 
                 // path too long exception
-                case PathTooLongException:
+                case PathTooLongException _:
                     {
                         string[] affectedPaths = PathUtilities.GetTooLongPaths(Constants.ModsPath).ToArray();
                         string message = affectedPaths.Any()
