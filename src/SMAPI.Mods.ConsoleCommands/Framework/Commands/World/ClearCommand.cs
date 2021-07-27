@@ -30,8 +30,8 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
                 name: "world_clear",
                 description: "Clears in-game entities in a given location.\n\n"
                     + "Usage: world_clear <location> <object type>\n"
-                    + "- location: the location name for which to clear objects (like Farm), or 'current' for the current location.\n"
                     + " - object type: the type of object clear. You can specify 'crops', 'debris' (stones/twigs/weeds and dead crops), 'furniture', 'grass', and 'trees' / 'fruit-trees'. You can also specify 'everything', which includes things not removed by the other types (like resource clumps)."
+                    + " - location: the location name for which to clear objects (like Farm), or 'current' for the current location.\n"
             )
         { }
 
