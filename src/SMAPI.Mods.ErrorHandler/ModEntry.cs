@@ -31,6 +31,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler
             // apply patches
             new GamePatcher(this.Monitor).Apply(
                 new DialogueErrorPatch(monitorForGame, this.Helper.Reflection),
+                new DictionaryPatches(this.Helper.Reflection),
                 new EventPatches(monitorForGame),
                 new GameLocationPatches(monitorForGame),
                 new ObjectErrorPatch(),

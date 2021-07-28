@@ -10,6 +10,7 @@
 
 * For mod authors:
   * Updated Harmony 1.2.0.1 to 2.1.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
+  * SMAPI now intercepts `KeyNotFoundException` dictionary errors and adds the key to the error message to simplify troubleshooting. (Due to Harmony limitations, this only works for the dictionary types used by the game.)
   * Fixed error loading `.xnb` files from the local mod folder since SMAPI 3.0.
 
 ## 3.11.0
