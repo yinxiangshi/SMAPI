@@ -32,7 +32,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             {
                 Type targetType = this.GetMappedType(type);
                 replaceWith(module.ImportReference(targetType));
-                this.MarkRewritten();
+                this.OnChanged();
                 this.ReplacedTypes = true;
                 return true;
             }
@@ -46,14 +46,20 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             // rewrite Harmony 1.x methods to Harmony 2.0
             MethodReference methodRef = RewriteHelper.AsMethodReference(instruction);
             if (this.TryRewriteMethodsToFacade(module, methodRef))
+            {
+                this.OnChanged();
                 return true;
+            }
 
             // rewrite renamed fields
             FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);
             if (fieldRef != null)
             {
                 if (fieldRef.DeclaringType.FullName == "HarmonyLib.HarmonyMethod" && fieldRef.Name == "prioritiy")
+                {
                     fieldRef.Name = nameof(HarmonyMethod.priority);
+                    this.OnChanged();
+                }
             }
 
             return false;
@@ -63,6 +69,13 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /*********
         ** Private methods
         *********/
+        /// <summary>Update the mod metadata when any Harmony 1.x code is migrated.</summary>
+        private void OnChanged()
+        {
+            this.MarkRewritten();
+            this.MarkFlag(InstructionHandleResult.DetectedGamePatch);
+        }
+
         /// <summary>Rewrite methods to use Harmony facades if needed.</summary>
         /// <param name="module">The assembly module containing the method reference.</param>
         /// <param name="methodRef">The method reference to map.</param>
