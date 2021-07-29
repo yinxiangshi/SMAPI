@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using StardewModdingAPI.Framework.Commands;
@@ -106,6 +107,10 @@ namespace StardewModdingAPI.Framework.Logging
             if (writeToConsole)
                 output.OnMessageIntercepted += message => this.HandleConsoleMessage(this.MonitorForGame, message);
             Console.SetOut(output);
+
+            // enable Unicode handling
+            Console.InputEncoding = Encoding.Unicode;
+            Console.OutputEncoding = Encoding.Unicode;
         }
 
         /// <summary>Get a monitor instance derived from SMAPI's current settings.</summary>

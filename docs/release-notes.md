@@ -6,6 +6,7 @@
   * Added error if the wrong SMAPI bitness is installed (e.g. 32-bit SMAPI with 64-bit game).
   * Added error if some SMAPI files aren't updated correctly.
   * Added `removable` option to the `world_clear` console command (thanks to bladeoflight16!).
+  * Fixed handling of Unicode characters in console commands.
   * Fixed intermittent error if a mod fetches mod-provided APIs asynchronously.
 
 * For mod authors:
