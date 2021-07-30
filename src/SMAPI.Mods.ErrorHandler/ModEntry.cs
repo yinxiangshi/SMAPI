@@ -1,8 +1,6 @@
 using System;
 using System.Reflection;
 using StardewModdingAPI.Events;
-using StardewModdingAPI.Framework;
-using StardewModdingAPI.Framework.Logging;
 using StardewModdingAPI.Framework.Patching;
 using StardewModdingAPI.Mods.ErrorHandler.Patches;
 using StardewValley;
@@ -35,6 +33,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler
                 new DictionaryPatches(this.Helper.Reflection),
                 new EventPatches(monitorForGame),
                 new GameLocationPatches(monitorForGame),
+                new IClickablePatcher(),
                 new ObjectErrorPatch(),
                 new LoadErrorPatch(this.Monitor, this.OnSaveContentRemoved),
                 new ScheduleErrorPatch(monitorForGame),

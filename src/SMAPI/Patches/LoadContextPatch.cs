@@ -44,12 +44,6 @@ namespace StardewModdingAPI.Patches
         /// <inheritdoc />
         public void Apply(Harmony harmony)
         {
-            // detect CreatedBasicInfo
-            harmony.Patch(
-                original: AccessTools.Method(typeof(TitleMenu), nameof(TitleMenu.createdNewCharacter)),
-                prefix: new HarmonyMethod(this.GetType(), nameof(LoadContextPatch.Before_TitleMenu_CreatedNewCharacter))
-            );
-
             // detect CreatedInitialLocations and SaveAddedLocations
             harmony.Patch(
                 original: AccessTools.Method(typeof(Game1), nameof(Game1.AddModNPCs)),
@@ -74,15 +68,6 @@ namespace StardewModdingAPI.Patches
         /*********
         ** Private methods
         *********/
-        /// <summary>Called before <see cref="TitleMenu.createdNewCharacter"/>.</summary>
-        /// <returns>Returns whether to execute the original method.</returns>
-        /// <remarks>This method must be static for Harmony to work correctly. See the Harmony documentation before renaming arguments.</remarks>
-        private static bool Before_TitleMenu_CreatedNewCharacter()
-        {
-            LoadContextPatch.OnStageChanged(LoadStage.CreatedBasicInfo);
-            return true;
-        }
-
         /// <summary>Called before <see cref="Game1.AddModNPCs"/>.</summary>
         /// <returns>Returns whether to execute the original method.</returns>
         /// <remarks>This method must be static for Harmony to work correctly. See the Harmony documentation before renaming arguments.</remarks>

@@ -4,7 +4,6 @@ using System.Diagnostics.CodeAnalysis;
 using HarmonyLib;
 using StardewModdingAPI.Framework.Patching;
 using StardewValley;
-using StardewValley.Menus;
 using SObject = StardewValley.Object;
 
 namespace StardewModdingAPI.Mods.ErrorHandler.Patches
@@ -31,12 +30,6 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
             harmony.Patch(
                 original: AccessTools.Method(typeof(SObject), "loadDisplayName"),
                 finalizer: new HarmonyMethod(this.GetType(), nameof(ObjectErrorPatch.Finalize_Object_loadDisplayName))
-            );
-
-            // IClickableMenu.drawToolTip
-            harmony.Patch(
-                original: AccessTools.Method(typeof(IClickableMenu), nameof(IClickableMenu.drawToolTip)),
-                prefix: new HarmonyMethod(this.GetType(), nameof(ObjectErrorPatch.Before_IClickableMenu_DrawTooltip))
             );
         }
 
@@ -73,18 +66,6 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
             }
 
             return __exception;
-        }
-
-        /// <summary>The method to call instead of <see cref="IClickableMenu.drawToolTip"/>.</summary>
-        /// <param name="hoveredItem">The item for which to draw a tooltip.</param>
-        /// <returns>Returns whether to execute the original method.</returns>
-        private static bool Before_IClickableMenu_DrawTooltip(Item hoveredItem)
-        {
-            // invalid edible item cause crash when drawing tooltips
-            if (hoveredItem is SObject obj && obj.Edibility != -300 && !Game1.objectInformation.ContainsKey(obj.ParentSheetIndex))
-                return false;
-
-            return true;
         }
     }
 }

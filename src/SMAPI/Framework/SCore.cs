@@ -255,7 +255,8 @@ namespace StardewModdingAPI.Framework
                 // apply game patches
                 MiniMonoModHotfix.Apply();
                 new GamePatcher(this.Monitor).Apply(
-                    new LoadContextPatch(this.Reflection, this.OnLoadStageChanged)
+                    new LoadContextPatch(this.Reflection, this.OnLoadStageChanged),
+                    new TitleMenuPatcher(this.OnLoadStageChanged)
                 );
 
                 // add exit handler

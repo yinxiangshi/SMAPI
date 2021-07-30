@@ -35,6 +35,11 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         public void Apply(Harmony harmony)
         {
             harmony.Patch(
+                original: AccessTools.Property(typeof(NPC), nameof(NPC.CurrentDialogue)).GetMethod,
+                finalizer: new HarmonyMethod(this.GetType(), nameof(ScheduleErrorPatch.Finalize_NPC_CurrentDialogue))
+            );
+
+            harmony.Patch(
                 original: AccessTools.Method(typeof(NPC), nameof(NPC.parseMasterSchedule)),
                 finalizer: new HarmonyMethod(this.GetType(), nameof(ScheduleErrorPatch.Finalize_NPC_parseMasterSchedule))
             );
@@ -44,6 +49,22 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         /*********
         ** Private methods
         *********/
+        /// <summary>The method to call after <see cref="NPC.CurrentDialogue"/>.</summary>
+        /// <param name="__instance">The instance being patched.</param>
+        /// <param name="__result">The return value of the original method.</param>
+        /// <param name="__exception">The exception thrown by the wrapped method, if any.</param>
+        /// <returns>Returns the exception to throw, if any.</returns>
+        private static Exception Finalize_NPC_CurrentDialogue(NPC __instance, ref Stack<Dialogue> __result, Exception __exception)
+        {
+            if (__exception == null)
+                return null;
+
+            ScheduleErrorPatch.MonitorForGame.Log($"Failed loading current dialogue for NPC {__instance.Name}:\n{__exception.GetLogSummary()}", LogLevel.Error);
+            __result = new Stack<Dialogue>();
+
+            return null;
+        }
+
         /// <summary>The method to call instead of <see cref="NPC.parseMasterSchedule"/>.</summary>
         /// <param name="rawData">The raw schedule data to parse.</param>
         /// <param name="__instance">The instance being patched.</param>
