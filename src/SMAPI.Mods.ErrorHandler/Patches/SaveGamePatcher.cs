@@ -8,6 +8,7 @@ using StardewModdingAPI.Internal.Patching;
 using StardewValley;
 using StardewValley.Buildings;
 using StardewValley.Locations;
+using SObject = StardewValley.Object;
 
 namespace StardewModdingAPI.Mods.ErrorHandler.Patches
 {
@@ -123,6 +124,18 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
                         location.characters.Remove(npc);
                         removedAny = true;
                     }
+                }
+            }
+
+            // check objects
+            foreach (var pair in location.objects.Pairs.ToArray())
+            {
+                // SpaceCore can leave null values when removing its custom content
+                if (pair.Value == null)
+                {
+                    location.Objects.Remove(pair.Key);
+                    SaveGamePatcher.Monitor.Log($"Removed invalid null object in {location.Name} ({pair.Key}) to avoid a crash when loading save '{Constants.SaveFolderName}'. (Did you remove a custom item mod?)", LogLevel.Warn);
+                    removedAny = true;
                 }
             }
 

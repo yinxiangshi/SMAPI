@@ -3,6 +3,7 @@
 # Release notes
 ## Upcoming release
 * For players:
+  * Added automatic save recovery when custom content mods leave null objects in the save.
   * Added error if the wrong SMAPI bitness is installed (e.g. 32-bit SMAPI with 64-bit game).
   * Added error if some SMAPI files aren't updated correctly.
   * Added `removable` option to the `world_clear` console command (thanks to bladeoflight16!).
